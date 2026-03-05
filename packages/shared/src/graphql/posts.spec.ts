@@ -2,6 +2,7 @@ import type { Post } from './posts';
 import {
   BAN_POST_MUTATION,
   DELETE_POST_MUTATION,
+  POST_BY_ID_STATIC_FIELDS_QUERY,
   banPost,
   deletePost,
   getSocialTwitterPostType,
@@ -96,6 +97,15 @@ it('should return latest changelog post', async () => {
 
   expect(queryCalled).toBeTruthy();
   expect(result.id).toBe('test1');
+});
+
+it('should include brief SSR fields in static post query', () => {
+  const query = POST_BY_ID_STATIC_FIELDS_QUERY;
+
+  expect(query).toContain('...SharedPostInfo');
+  expect(query).toContain('contentHtml');
+  expect(query).toContain('collectionSources');
+  expect(query).toContain('flags');
 });
 
 describe('function isVideoPost', () => {

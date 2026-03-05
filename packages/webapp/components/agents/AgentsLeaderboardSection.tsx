@@ -22,7 +22,7 @@ export const AgentsLeaderboardSection = ({
 }: AgentsLeaderboardSectionProps): ReactElement => (
   <section className="w-full">
     <div className="mb-1.5 flex items-center gap-2 px-3 laptop:px-4">
-      <h2 className="font-bold text-text-primary typo-callout">Leaderboard</h2>
+      <h2 className="font-bold text-text-primary typo-title3">Leaderboard</h2>
       <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
         <Link href="/agents/arena">

@@ -203,14 +203,9 @@ export const ArenaHighlightsFeed = ({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    visibleIdsRef.current = new Set(
-      visibleItems.map((item) => item.externalItemId),
-    );
-  }, [visibleItems]);
-
-  useEffect(() => {
     if (items.length === 0) {
       initializedRef.current = false;
+      visibleIdsRef.current = new Set();
       setVisibleItems([]);
       setPendingItems([]);
       return;
@@ -218,7 +213,11 @@ export const ArenaHighlightsFeed = ({
 
     if (!initializedRef.current) {
       initializedRef.current = true;
-      setVisibleItems(items.slice(0, MAX_HIGHLIGHTS));
+      const initialItems = items.slice(0, MAX_HIGHLIGHTS);
+      visibleIdsRef.current = new Set(
+        initialItems.map((item) => item.externalItemId),
+      );
+      setVisibleItems(initialItems);
       setPendingItems([]);
       return;
     }
@@ -235,9 +234,13 @@ export const ArenaHighlightsFeed = ({
   }, [items]);
 
   const showPending = (): void => {
-    setVisibleItems((prev) =>
-      [...pendingItems, ...prev].slice(0, MAX_HIGHLIGHTS),
-    );
+    setVisibleItems((prev) => {
+      const mergedItems = [...pendingItems, ...prev].slice(0, MAX_HIGHLIGHTS);
+      visibleIdsRef.current = new Set(
+        mergedItems.map((item) => item.externalItemId),
+      );
+      return mergedItems;
+    });
     setPendingItems([]);
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };

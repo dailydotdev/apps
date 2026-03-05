@@ -2,9 +2,12 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common';
-import { useFeedPreviewMode, useTruncatedSummary } from '../../../../hooks';
+import { useFeedPreviewMode } from '../../../../hooks';
 import { publishTimeRelativeShort } from '../../../../lib/dateFormat';
 import { isVideoPost, PostType } from '../../../../graphql/posts';
+import { stripHtmlTags } from '../../../../lib/strings';
+import { UNKNOWN_SOURCE_ID } from '../../../../lib/utils';
+import { isPlaceholderImage } from '../../../../lib/image';
 import FeedItemContainer from './FeedItemContainer';
 import { useSmartTitle } from '../../../../hooks/post/useSmartTitle';
 import {
@@ -14,6 +17,14 @@ import {
   UpvoteIcon,
 } from '../../../icons';
 import { IconSize } from '../../../Icon';
+import { Image } from '../../../image/Image';
+
+const resolveBySource = <T,>(
+  sourceId: string | undefined,
+  sourceValue: T | undefined,
+  creatorValue: T | undefined,
+): T | undefined =>
+  sourceId === UNKNOWN_SOURCE_ID ? creatorValue : sourceValue || creatorValue;
 
 export const SignalList = forwardRef(function SignalList(
   {
@@ -31,10 +42,59 @@ export const SignalList = forwardRef(function SignalList(
   const isFeedPreview = useFeedPreviewMode();
   const onPostCardClick = () => onPostClick?.(post);
   const { title } = useSmartTitle(post);
-  const { title: truncatedTitle } = useTruncatedSummary(title);
-  const summary = useMemo(() => {
+  const resolvedTitle = title?.trim() || post.title?.trim() || '';
+  const isTweetPost =
+    post.type === PostType.SocialTwitter ||
+    post.sharedPost?.type === PostType.SocialTwitter;
+  const shouldUseSharedPostContent =
+    post.subType === 'repost' && !post.contentHtml?.trim();
+  const description = useMemo(() => {
+    if (isTweetPost) {
+      const primaryTweetContent =
+        stripHtmlTags(post.contentHtml ?? '').trim() ||
+        post.title?.trim() ||
+        '';
+      const sharedTweetContent =
+        stripHtmlTags(post.sharedPost?.contentHtml ?? '').trim() ||
+        post.sharedPost?.title?.trim() ||
+        '';
+      return shouldUseSharedPostContent
+        ? sharedTweetContent || primaryTweetContent || ''
+        : primaryTweetContent || sharedTweetContent || '';
+    }
+
     return post.summary?.trim() || post.sharedPost?.summary?.trim() || '';
-  }, [post.sharedPost?.summary, post.summary]);
+  }, [
+    isTweetPost,
+    shouldUseSharedPostContent,
+    post.contentHtml,
+    post.title,
+    post.sharedPost?.title,
+    post.sharedPost?.contentHtml,
+    post.sharedPost?.summary,
+    post.summary,
+  ]);
+  const tweetMedia = useMemo(() => {
+    if (!isTweetPost) {
+      return '';
+    }
+
+    const primaryTweetMedia = post.image || '';
+    const sharedTweetMedia = post.sharedPost?.image || '';
+    const mediaSrc = shouldUseSharedPostContent
+      ? sharedTweetMedia || primaryTweetMedia
+      : primaryTweetMedia || sharedTweetMedia;
+    if (!mediaSrc || isPlaceholderImage(mediaSrc)) {
+      return '';
+    }
+
+    return mediaSrc;
+  }, [
+    isTweetPost,
+    shouldUseSharedPostContent,
+    post.image,
+    post.sharedPost?.image,
+  ]);
   const typeLabel = useMemo(() => {
     if (isVideoPost(post)) {
       return 'Video';
@@ -50,6 +110,16 @@ export const SignalList = forwardRef(function SignalList(
     return 'Article';
   }, [post]);
   const sourceName = post.source?.name?.trim();
+  const sharedPostHandle = resolveBySource(
+    post.sharedPost?.source?.id,
+    post.sharedPost?.source?.handle,
+    post.sharedPost?.creatorTwitter || post.creatorTwitter,
+  );
+  const retweetedHandle =
+    isTweetPost && post.subType === 'repost'
+      ? sharedPostHandle?.trim() || ''
+      : '';
+  const repostLabel = retweetedHandle ? `RT @${retweetedHandle}` : '';
   const relativeTimeLabel = post.createdAt
     ? publishTimeRelativeShort(post.createdAt)
     : null;
@@ -71,7 +141,7 @@ export const SignalList = forwardRef(function SignalList(
       }}
       linkProps={
         !isFeedPreview && {
-          title: truncatedTitle || post.title,
+          title: resolvedTitle || post.title,
           href: post.commentsPermalink,
           onClick: onPostCardClick,
         }
@@ -79,20 +149,41 @@ export const SignalList = forwardRef(function SignalList(
       bookmarked={post.bookmarked}
     >
       <div className="flex flex-col gap-1 px-4 py-3 text-left">
-        {(sourceName || relativeTimeLabel) && (
+        {(sourceName || repostLabel || relativeTimeLabel) && (
           <div className="flex items-center gap-1 text-[15px] text-text-quaternary">
             {sourceName && <span>{sourceName}</span>}
-            {sourceName && relativeTimeLabel && <span>&middot;</span>}
+            {sourceName && repostLabel && <span>&middot;</span>}
+            {repostLabel && <span>{repostLabel}</span>}
+            {(sourceName || repostLabel) && relativeTimeLabel && (
+              <span>&middot;</span>
+            )}
             {relativeTimeLabel && <span>{relativeTimeLabel}</span>}
           </div>
         )}
-        <p className="line-clamp-2 text-[15px] font-bold leading-snug text-text-primary">
-          {truncatedTitle}
-        </p>
-        {!!summary && (
-          <p className="line-clamp-3 text-[15px] leading-[20px] text-text-secondary">
-            {summary}
+        {!isTweetPost && (
+          <p className="text-[15px] font-bold leading-snug text-text-primary">
+            {resolvedTitle}
           </p>
+        )}
+        {!!description && (
+          <p
+            className={classNames(
+              'text-[15px] leading-[20px] text-text-secondary',
+              isTweetPost && 'whitespace-pre-line',
+            )}
+          >
+            {description}
+          </p>
+        )}
+        {!!tweetMedia && (
+          <div className="mt-2 overflow-hidden rounded-12">
+            <Image
+              src={tweetMedia}
+              alt="Tweet media"
+              className="block h-auto w-full max-w-96"
+              loading="lazy"
+            />
+          </div>
         )}
         <div className="relative z-1 mt-2 flex items-center justify-between text-text-quaternary">
           <button

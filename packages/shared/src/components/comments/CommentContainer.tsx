@@ -136,10 +136,8 @@ export default function CommentContainer({
                 </TruncateText>
               </ProfileLink>
             </div>
-            <div>
-              <Separator className="!mx-0.5" />
-              <CommentPublishDate comment={comment} />
-            </div>
+            <Separator className="!mx-0" />
+            <CommentPublishDate comment={comment} />
           </FlexRow>
           <FlexRow className="gap-1">
             <ReputationUserBadge user={comment.author} />
