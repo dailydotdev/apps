@@ -73,6 +73,14 @@ const prepareBookmarkPostLogOptions = ({
   };
 };
 
+const getOptimisticBookmarkCount = (
+  currentBookmarks: number | null | undefined,
+  isCurrentlyBookmarked: boolean | null | undefined,
+): number => {
+  const delta = isCurrentlyBookmarked ? -1 : 1;
+  return Math.max(0, (currentBookmarks ?? 0) + delta);
+};
+
 export type UseBookmarkPost = {
   toggleBookmark: (props: ToggleBookmarkProps) => Promise<void>;
 };
@@ -92,10 +100,32 @@ const useBookmarkPost = ({
   const { logOpts } = useActiveFeedContext();
 
   const defaultOnMutate = ({ id }) => {
-    updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
+    updatePostCache(client, id, (post) => ({
+      bookmarked: !post.bookmarked,
+      analytics: post.analytics
+        ? {
+            ...post.analytics,
+            bookmarks: getOptimisticBookmarkCount(
+              post.analytics.bookmarks,
+              post.bookmarked,
+            ),
+          }
+        : post.analytics,
+    }));
 
     return () => {
-      updatePostCache(client, id, (post) => ({ bookmarked: !post.bookmarked }));
+      updatePostCache(client, id, (post) => ({
+        bookmarked: !post.bookmarked,
+        analytics: post.analytics
+          ? {
+              ...post.analytics,
+              bookmarks: getOptimisticBookmarkCount(
+                post.analytics.bookmarks,
+                post.bookmarked,
+              ),
+            }
+          : post.analytics,
+      }));
     };
   };
 
@@ -255,22 +285,31 @@ export const mutateBookmarkFeedPost = ({
 
   const mutationHandler = (post: Post) => {
     const isBookmarked = !post?.bookmarked;
+    const nextBookmarks = getOptimisticBookmarkCount(
+      post?.analytics?.bookmarks,
+      post?.bookmarked,
+    );
 
     return {
       bookmarked: isBookmarked,
       bookmark: !isBookmarked ? undefined : post?.bookmark,
+      analytics: post?.analytics
+        ? {
+            ...post.analytics,
+            bookmarks: nextBookmarks,
+          }
+        : post?.analytics,
     };
   };
 
-  let previousBookmark: Bookmark;
-  let previousState: boolean | undefined;
   const rollbackFunctions: (() => void)[] = [];
 
   // Handle regular post update
   if (postIndexToUpdate !== -1) {
     const postItem = (items[postIndexToUpdate] as PostItem)?.post;
-    previousBookmark = postItem?.bookmark;
-    previousState = postItem?.bookmarked;
+    const previousBookmark = postItem?.bookmark;
+    const previousState = postItem?.bookmarked;
+    const previousAnalytics = postItem?.analytics;
 
     optimisticPostUpdateInFeed(
       items,
@@ -290,6 +329,7 @@ export const mutateBookmarkFeedPost = ({
       const rollbackMutationHandler = () => ({
         bookmarked: previousState,
         bookmark: previousBookmark,
+        analytics: previousAnalytics,
       });
 
       optimisticPostUpdateInFeed(
@@ -306,8 +346,9 @@ export const mutateBookmarkFeedPost = ({
     const adPost = adItem.ad.data?.post;
 
     if (adPost) {
-      previousBookmark = adPost.bookmark;
-      previousState = adPost.bookmarked;
+      const previousBookmark = adPost.bookmark;
+      const previousState = adPost.bookmarked;
+      const previousAnalytics = adPost.analytics;
 
       // Update the ad's post in the ads cache
       const adsQueryKey = [RequestKey.Ads, ...feedQueryKey];
@@ -333,6 +374,7 @@ export const mutateBookmarkFeedPost = ({
           createAdPostRollbackHandler(id, {
             bookmarked: previousState,
             bookmark: previousBookmark,
+            analytics: previousAnalytics,
           }),
         );
       });
