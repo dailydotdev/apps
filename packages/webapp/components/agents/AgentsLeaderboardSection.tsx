@@ -32,7 +32,7 @@ export const AgentsLeaderboardSection = ({
     </header>
     <ArenaRankings
       tools={tools}
-      tab="coding-agents"
+      tab="llms"
       origin="hub"
       loading={loading}
       compact

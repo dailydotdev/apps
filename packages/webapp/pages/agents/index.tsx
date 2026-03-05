@@ -67,7 +67,7 @@ const AgentsHomePage = (): ReactElement => {
   const { copyLink } = useSharePost(Origin.Feed);
 
   const { data: arenaData, isFetching: isFetchingArena } = useQuery(
-    arenaOptions({ groupId: 'coding-agents' }),
+    arenaOptions({ groupId: 'llms' }),
   );
 
   const rankings = useMemo(
@@ -204,7 +204,7 @@ export async function getServerSideProps({
   const queryClient = new QueryClient();
 
   await Promise.all([
-    queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'llms' })),
     queryClient.prefetchQuery({
       queryKey: AGENTS_DIGEST_QUERY_KEY,
       queryFn: () =>
