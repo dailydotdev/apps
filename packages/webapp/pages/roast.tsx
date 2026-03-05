@@ -22,7 +22,7 @@ import { useMutation } from '@tanstack/react-query';
 import { downloadUrl } from '@dailydotdev/shared/src/lib/blob';
 import { getLayout as getMainLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
 type RoastParams = {
   theme?: string;
@@ -174,7 +174,7 @@ const Loading = (): ReactElement => {
 };
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Get Roasted'),
+  ...getPageSeoTitles('Get Roasted'),
   description:
     'Experience the most brutally honest developer roast of your life. Perfect for those who love a good ego check mixed with tech wisdom. Warning: Not for the faint of heart or the easily offended.',
   openGraph: {

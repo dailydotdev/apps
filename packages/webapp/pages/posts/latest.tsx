@@ -7,11 +7,12 @@ import {
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Latest developer posts across all topics');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Latest developer posts across all topics'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Explore the latest posts from developers worldwide. Stay current with fresh content on coding, dev tools, tech trends, and more on daily.dev.',
 };

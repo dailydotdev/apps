@@ -17,7 +17,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 
 const PlusMobile = dynamic(() =>
@@ -38,9 +38,12 @@ const PlusIOS = dynamic(() =>
   ).then((mod) => mod.PlusIOS),
 );
 
+const seoTitles = getPageSeoTitles(
+  'Unlock Premium Developer Features with Plus',
+);
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Unlock Premium Developer Features with Plus'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };

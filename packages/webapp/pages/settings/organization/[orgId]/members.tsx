@@ -66,7 +66,7 @@ import {
 import type { MenuItemProps } from '@dailydotdev/shared/src/components/dropdown/common';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
 const OrganizationOptionsMenu = ({
@@ -473,7 +473,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Organization members'),
+  ...getPageSeoTitles('Organization members'),
 };
 
 Page.getLayout = getOrganizationLayout;

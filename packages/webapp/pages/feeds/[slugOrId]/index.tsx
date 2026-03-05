@@ -10,7 +10,7 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../../components/layouts/MainFeedPage';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const FeedPage = (): ReactElement => {
   const router = useRouter();
@@ -27,11 +27,15 @@ const FeedPage = (): ReactElement => {
     }
   }, [router, feed]);
 
+  const seoTitles = getPageSeoTitles(
+    feed?.flags?.name ? `${feed?.flags?.name} feed` : 'Custom feed',
+  );
   const seo: NextSeoProps = {
-    title: getTemplatedTitle(
-      feed?.flags?.name ? `${feed?.flags?.name} feed` : 'Custom feed',
-    ),
-    openGraph: { ...defaultOpenGraph },
+    ...seoTitles,
+    openGraph: {
+      ...seoTitles.openGraph,
+      ...defaultOpenGraph,
+    },
     ...defaultSeo,
   };
 

@@ -55,7 +55,7 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
 import ProtectedPage from '../../../components/ProtectedPage';
 import { getSquadOpenGraph } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin } from '../../../lib/seo';
 
@@ -372,12 +372,20 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
+    const squadSeoTitles = getPageSeoTitles(`${squad.name} Squad`);
+    const referralTitle = referringUser
+      ? `${referringUser.name} invited you to ${squad.name}`
+      : null;
+
     const seo: NextSeoProps = {
-      title: referringUser
-        ? `${referringUser.name} invited you to ${squad.name}`
-        : getTemplatedTitle(`${squad.name} Squad`),
+      title: referralTitle ?? squadSeoTitles.title,
       description: squad.description,
-      openGraph: getSquadOpenGraph({ squad }),
+      openGraph: {
+        ...(referralTitle
+          ? { title: referralTitle }
+          : squadSeoTitles.openGraph),
+        ...getSquadOpenGraph({ squad }),
+      },
       nofollow: !squad.public,
       noindex: !squad.public,
     };

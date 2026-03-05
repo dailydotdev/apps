@@ -25,7 +25,7 @@ import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
-import { getTemplatedTitle } from '../utils';
+import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
@@ -67,13 +67,17 @@ export const getProfileSeoDefaults = (
   seoOverrides: NextSeoProps,
   noindex: boolean,
 ): NextSeoProps => {
+  const profileSeoTitles = getPageSeoTitles(`${user.name} (@${user.username})`);
+  const openGraphImages = [{ url: getOGImageUrl(user.id) }];
+
   return {
-    title: getTemplatedTitle(`${user.name} (@${user.username})`),
+    title: profileSeoTitles.title,
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
     // Intentionally canonicalize profile surfaces to the main username URL.
     canonical: `${appOrigin}/${user.username}`,
     openGraph: {
-      images: [{ url: getOGImageUrl(user.id) }],
+      ...profileSeoTitles.openGraph,
+      images: openGraphImages,
     },
     twitter: {
       handle: getTwitterHandle(user),
@@ -81,6 +85,11 @@ export const getProfileSeoDefaults = (
     noindex,
     nofollow: noindex,
     ...seoOverrides,
+    openGraph: {
+      ...profileSeoTitles.openGraph,
+      images: openGraphImages,
+      ...seoOverrides.openGraph,
+    },
   };
 };
 
