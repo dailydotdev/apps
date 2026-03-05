@@ -7,14 +7,20 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { BriefPlusUpgradeCTA } from './BriefPlusUpgradeCTA';
+import { usePlusPositioning } from '../../../hooks/usePlusPositioning';
 
 export const BriefUpgradeAlert = ({
   className,
-  text = 'Skip the feed and get a personalized briefing instead. Upgrade to Plus for unlimited presidential briefings.',
+  text,
   ...attrs
 }: ComponentProps<'div'> & {
   text?: string;
 }) => {
+  const { isAgentPositioning } = usePlusPositioning();
+  const defaultText = isAgentPositioning
+    ? 'Skip the feed and get a personalized briefing instead. Upgrade to Plus for unlimited presidential briefings.'
+    : 'Get unlimited access to every past and future presidential briefing with daily.dev Plus.';
+
   return (
     <div
       style={{
@@ -30,7 +36,7 @@ export const BriefUpgradeAlert = ({
         type={TypographyType.Callout}
         className="w-full flex-1 tablet:w-auto"
       >
-        {text}
+        {text || defaultText}
       </Typography>
       <BriefPlusUpgradeCTA />
     </div>

@@ -63,7 +63,7 @@ export const labels = {
       editPlusSubscribe: {
         title: 'Upgrade to make changes',
         description:
-          'You are currently on the free version of daily.dev. Upgrade to Plus to edit feed settings and unlock API access for your agents.',
+          'You are currently on the free version of daily.dev. You need to upgrade to Plus to change the feed settings.',
         okButton: 'Upgrade to Plus',
         cancelButton: 'Delete feed',
       },

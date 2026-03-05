@@ -14,6 +14,7 @@ import { briefUIFeature } from '../../lib/featureManagement';
 import { PlusUser } from '../PlusUser';
 import {
   SendType,
+  usePlusPositioning,
   usePersonalizedDigest,
   usePlusSubscription,
 } from '../../hooks';
@@ -44,6 +45,7 @@ const PersonalizedDigest = () => {
   } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { isPushSupported } = usePushNotificationContext();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -263,10 +265,24 @@ const PersonalizedDigest = () => {
                       color={TypographyColor.Tertiary}
                       className="text-wrap font-normal"
                     >
-                      Scans hundreds of posts, releases, and discussions daily
-                      and gives you a personalized briefing of what actually
-                      matters. Upgrade for unlimited briefings and full control
-                      of when and where they're delivered.
+                      {isAgentPositioning ? (
+                        <>
+                          Scans hundreds of posts, releases, and discussions
+                          daily and gives you a personalized briefing of what
+                          actually matters. Upgrade for unlimited briefings and
+                          full control of when and where they&apos;re delivered.
+                        </>
+                      ) : (
+                        <>
+                          Your AI agent scans the entire dev landscape (posts,
+                          releases, discussions) and compiles a personalized
+                          briefing of what actually matters. Each briefing is
+                          custom-built for you based on whats trending, whats
+                          shifting, and what aligns with your interests. Upgrade
+                          to get unlimited access and control when and how often
+                          you get them.
+                        </>
+                      )}
                     </Typography>
                     {!isPlus && (
                       <UpgradeToPlus

@@ -10,13 +10,14 @@ import {
 } from '../typography/Typography';
 import {
   PlusList,
-  plusFeatureList,
+  plusFeatureListTreatment,
   plusOrganizationFeatureList,
 } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
+import { usePlusPositioning } from '../../hooks/usePlusPositioning';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -85,7 +86,7 @@ const plusFeaturePillars = [
 
 const getPlusFeaturesByIds = (featureIds: string[]) => {
   const featureMap = new Map(
-    plusFeatureList.map((feature) => [feature.id, feature]),
+    plusFeatureListTreatment.map((feature) => [feature.id, feature]),
   );
 
   return featureIds.map((featureId) => {
@@ -98,7 +99,28 @@ const getPlusFeaturesByIds = (featureIds: string[]) => {
   });
 };
 
-export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
+export const defaultPlusInfoCopyControl: Record<PlusType, PageCopy> = {
+  [PlusType.Self]: {
+    title: 'Fast-track your growth',
+    description:
+      'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+    subtitle: 'Billing cycle',
+  },
+  [PlusType.Organization]: {
+    title: 'Give your engineering team an unfair advantage',
+    description:
+      'Equip your engineers with AI tools, personalized content, and distraction-free experience so they can move faster and build better. All the benefits of daily.dev Plus, now built for teams.',
+    subtitle: 'Billing cycle',
+  },
+  [PlusType.Gift]: {
+    title: 'Gift daily.dev Plus 🎁',
+    description:
+      'Gifting daily.dev Plus to a friend is the ultimate way to say, ‘I’ve got your back.’ It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.',
+    subtitle: "Who's it for?",
+  },
+};
+
+export const defaultPlusInfoCopyTreatment: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Keep your agents up to date',
     description:
@@ -154,8 +176,12 @@ const getPlusType = ({
   return PlusType.Self;
 };
 
-const getCopy = (plusType: PlusType, { title, description, subtitle }) => {
-  const fallback = defaultPlusInfoCopy[plusType];
+const getCopy = (
+  plusType: PlusType,
+  copy: Record<PlusType, PageCopy>,
+  { title, description, subtitle },
+) => {
+  const fallback = copy[plusType];
 
   return {
     titleCopy: title || fallback.title,
@@ -185,6 +211,7 @@ export const PlusInfo = ({
     usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { giftToUser } = useGiftUserContext();
 
   const [itemQuantity, setItemQuantity] = useState<number>(1);
@@ -194,7 +221,10 @@ export const PlusInfo = ({
     isOrganization,
   });
 
-  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy(plusType, {
+  const copy = isAgentPositioning
+    ? defaultPlusInfoCopyTreatment
+    : defaultPlusInfoCopyControl;
+  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy(plusType, copy, {
     title,
     description,
     subtitle,
@@ -203,6 +233,33 @@ export const PlusInfo = ({
   const isOnboarding = router.pathname.startsWith('/onboarding');
   const showBuyAsAGiftButton =
     !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
+  let plusListContent = <PlusList />;
+
+  if (isOrganization) {
+    plusListContent = <PlusList items={plusOrganizationFeatureList} />;
+  } else if (isAgentPositioning) {
+    plusListContent = (
+      <div className="flex flex-col gap-4 py-6">
+        {plusFeaturePillars.map((pillar) => (
+          <section key={pillar.title}>
+            <Typography
+              tag={TypographyTag.H3}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="mb-1 uppercase"
+              bold
+            >
+              {pillar.title}
+            </Typography>
+            <PlusList
+              className="!py-0"
+              items={getPlusFeaturesByIds([...pillar.featureIds])}
+            />
+          </section>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -346,33 +403,8 @@ export const PlusInfo = ({
           </Button>
         </div>
       ) : undefined}
-      {showPlusList &&
-        (isOrganization ? (
-          <PlusList items={plusOrganizationFeatureList} />
-        ) : (
-          <div className="flex flex-col gap-4 py-6">
-            {plusFeaturePillars.map((pillar) => (
-              <section key={pillar.title}>
-                <Typography
-                  tag={TypographyTag.H3}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="mb-1 uppercase"
-                  bold
-                >
-                  {pillar.title}
-                </Typography>
-                <PlusList
-                  className="!py-0"
-                  items={getPlusFeaturesByIds([...pillar.featureIds])}
-                />
-              </section>
-            ))}
-          </div>
-        ))}
-      {showTrustReviews && (
-        <PlusTrustReviews />
-      )}
+      {showPlusList && plusListContent}
+      {showTrustReviews && <PlusTrustReviews />}
     </>
   );
 };

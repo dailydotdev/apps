@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { useViewSize, ViewSize } from '../../../hooks';
+import { usePlusPositioning, useViewSize, ViewSize } from '../../../hooks';
 import {
   Typography,
   TypographyColor,
@@ -55,6 +55,7 @@ export const OnboardingPlusControl = ({
   onComplete,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isAgentPositioning } = usePlusPositioning();
   const { item } = useFunnelAnnualPricing();
 
   return (
@@ -66,7 +67,10 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          {headline || 'Keep your agents up to date'}
+          {headline ||
+            (isAgentPositioning
+              ? 'Keep your agents up to date'
+              : 'Fast-track your growth')}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -75,9 +79,13 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           {explainer ||
-            `Free keeps you up to date. Plus helps your agents and LLMs stay
+            (isAgentPositioning
+              ? `Free keeps you up to date. Plus helps your agents and LLMs stay
           current too with public API access, daily.dev skills, and AI tools
-          built for high-signal developer workflows.`}
+          built for high-signal developer workflows.`
+              : `Work smarter, learn faster, and stay ahead with AI tools, custom
+          feeds, and pro features. Because copy-pasting code isn't a
+          long-term strategy.`)}
         </Typography>
       </header>
       {item ? (

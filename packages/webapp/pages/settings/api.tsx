@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
+  usePlusPositioning,
   usePlusSubscription,
   useViewSize,
   ViewSize,
@@ -392,6 +393,7 @@ const CopyableCodeBlock = ({
 
 const ApiAccessPage = (): ReactElement => {
   const { isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
@@ -402,6 +404,13 @@ const ApiAccessPage = (): ReactElement => {
   const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>(
     {},
   );
+  let tokenEmptyStateText = 'No tokens yet. Create one to get started.';
+
+  if (!isPlus) {
+    tokenEmptyStateText = isAgentPositioning
+      ? 'Upgrade to Plus to create API tokens and connect your agents to the daily.dev API.'
+      : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.';
+  }
 
   const handleCopy = async (value: string, successMessage = 'Copied') => {
     try {
@@ -453,9 +462,18 @@ const ApiAccessPage = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Use tokens to authenticate with the daily.dev API. Tokens provide
-            read-only access to your personalized feed and posts for your tools,
-            automations, and AI agents.
+            {isAgentPositioning ? (
+              <>
+                Use tokens to authenticate with the daily.dev API. Tokens
+                provide read-only access to your personalized feed and posts for
+                your tools, automations, and AI agents.
+              </>
+            ) : (
+              <>
+                Use tokens to authenticate with the daily.dev API. Tokens
+                provide read-only access to your personalized feed and posts.
+              </>
+            )}
           </Typography>
         </div>
 
@@ -492,9 +510,7 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              {isPlus
-                ? 'No tokens yet. Create one to get started.'
-                : 'Upgrade to Plus to create API tokens and connect your agents to the daily.dev API.'}
+              {tokenEmptyStateText}
             </Typography>
             {isPlus ? (
               <Button

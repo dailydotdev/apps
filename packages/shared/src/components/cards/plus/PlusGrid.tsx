@@ -9,12 +9,35 @@ import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import type { MarketingCta } from '../../marketingCta/common';
 import CloseButton from '../../CloseButton';
-import { useBoot } from '../../../hooks';
+import { useBoot, usePlusPositioning } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
 
-const bulletPoints = [
+const bulletPointsControl = [
+  {
+    label: 'Advanced custom feeds',
+    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Ad-free experience',
+    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Run prompts on any post',
+    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Bookmark folders',
+    tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
+    status: PlusItemStatus.Ready,
+  },
+];
+
+const bulletPointsTreatment = [
   {
     label: 'Agent skills for daily.dev',
     tooltip: `Real-time dev context and continuous self-improvement for your agents.`,
@@ -40,6 +63,7 @@ const bulletPoints = [
 const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
+  const { isAgentPositioning } = usePlusPositioning();
 
   if (!flags) {
     return null;
@@ -63,6 +87,10 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
     });
     clearMarketingCta(campaignId);
   };
+
+  const bulletPoints = isAgentPositioning
+    ? bulletPointsTreatment
+    : bulletPointsControl;
 
   return (
     <div className="plus-entry-gradient relative overflow-hidden rounded-b-16 p-4 pb-6">

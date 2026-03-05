@@ -42,8 +42,13 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content');
 
+export const plusAgentsPositioningFeature = new Feature(
+  'plus_agents_positioning',
+  false,
+);
+
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
-  full: 'Power Your Agents',
+  full: 'Level Up with Plus',
   short: 'Upgrade',
 });
 
