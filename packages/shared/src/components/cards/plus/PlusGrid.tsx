@@ -26,8 +26,8 @@ const bulletPoints = [
     status: PlusItemStatus.Ready,
   },
   {
-    label: 'Run prompts on any post',
-    tooltip: `Turn any post into an interactive workflow. Ask AI to simplify concepts, challenge ideas, and compare alternatives.`,
+    label: 'Chat with any post using AI',
+    tooltip: `Get summaries, challenge arguments, compare alternatives, extract action items, or ask follow-up questions.`,
     status: PlusItemStatus.Ready,
   },
   {

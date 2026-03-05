@@ -74,17 +74,8 @@ const plusFeaturePillars = [
     ],
   },
   {
-    title: 'For your feed',
-    featureIds: [
-      'custom feeds',
-      'clean titles',
-      'keyword filter',
-      'auto-translate',
-    ],
-  },
-  {
-    title: 'For your experience',
-    featureIds: ['ad-free', 'bookmark folders', 'member squad', 'support team'],
+    title: 'For you',
+    featureIds: ['custom feeds', 'clean titles', 'keyword filter', 'ad-free'],
   },
 ] as const;
 
