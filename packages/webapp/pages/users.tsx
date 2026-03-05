@@ -3,6 +3,7 @@ import React from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { ClientError } from 'graphql-request';
 import {
   LEADERBOARD_QUERY,
   LeaderboardType,
@@ -42,6 +43,30 @@ interface PageProps {
   mostVerifiedUsers: CompanyLeaderboard[];
   popularHotTakes: PopularHotTakes[];
 }
+
+const getEmptyPageProps = (): PageProps => ({
+  highestReputation: [],
+  longestStreak: [],
+  highestPostViews: [],
+  mostUpvoted: [],
+  mostReferrals: [],
+  mostReadingDays: [],
+  mostAchievementPoints: [],
+  mostVerifiedUsers: [],
+  popularHotTakes: [],
+});
+
+const isRecoverableLeaderboardError = (error: unknown): boolean => {
+  const clientError = error as ClientError;
+  if (clientError?.response?.status >= 500) {
+    return true;
+  }
+
+  const graphQLError = error as GraphQLError;
+  return [ApiError.NotFound, ApiError.Forbidden].includes(
+    graphQLError?.response?.errors?.[0]?.extensions?.code,
+  );
+};
 
 const LeaderboardPage = ({
   highestReputation,
@@ -176,28 +201,13 @@ export async function getStaticProps(): Promise<
       revalidate: 3600,
     };
   } catch (err: unknown) {
-    const error = err as GraphQLError;
-
-    if (
-      [ApiError.NotFound, ApiError.Forbidden].includes(
-        error?.response?.errors?.[0]?.extensions?.code,
-      )
-    ) {
-      return {
-        props: {
-          highestReputation: [],
-          longestStreak: [],
-          highestPostViews: [],
-          mostUpvoted: [],
-          mostReferrals: [],
-          mostReadingDays: [],
-          mostAchievementPoints: [],
-          mostVerifiedUsers: [],
-          popularHotTakes: [],
-        },
-        revalidate: 60,
-      };
+    if (!isRecoverableLeaderboardError(err)) {
+      throw err;
     }
-    throw err;
+
+    return {
+      props: getEmptyPageProps(),
+      revalidate: 60,
+    };
   }
 }
