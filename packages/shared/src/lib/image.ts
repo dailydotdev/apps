@@ -276,7 +276,8 @@ export const cloudinaryGiftedPlusModalImage = `https://media.daily.dev/image/upl
 // Plus supported-agent logos (swap these paths with the final uploaded assets).
 const plusSupportedAgentLogosBaseUrl =
   'https://media.daily.dev/image/upload/f_auto/v1/public/plus/agents';
-export const plusSupportedAgentOpenClawLogo = `${plusSupportedAgentLogosBaseUrl}/openclaw`;
+export const plusSupportedAgentOpenClawLogo =
+  'https://media.daily.dev/image/upload/s--W1MqVzk3--/f_auto,q_auto/v1772714635/public/openclaw';
 export const plusSupportedAgentClaudeCodeLogo = `${plusSupportedAgentLogosBaseUrl}/claude-code`;
 export const plusSupportedAgentCodexLogo = `${plusSupportedAgentLogosBaseUrl}/codex`;
 export const plusSupportedAgentCursorLogo = `${plusSupportedAgentLogosBaseUrl}/cursor`;
