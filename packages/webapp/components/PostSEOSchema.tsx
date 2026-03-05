@@ -110,7 +110,7 @@ const getPersonSchema = (author: {
   ...(author.reputation && {
     interactionStatistic: {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/EndorseAction',
+      interactionType: { '@type': 'EndorseAction' },
       userInteractionCount: author.reputation,
     },
   }),
@@ -153,7 +153,7 @@ const commentToSchema = (
   ...(comment.numUpvotes > 0 && {
     interactionStatistic: {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: comment.numUpvotes,
     },
   }),
@@ -190,12 +190,12 @@ export const getDiscussionForumPostingSchema = (
   interactionStatistic: [
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: post.numUpvotes || 0,
     },
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/CommentAction',
+      interactionType: { '@type': 'CommentAction' },
       userInteractionCount: post.numComments || 0,
     },
   ],
@@ -261,12 +261,12 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
   interactionStatistic: [
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: post.numUpvotes,
     },
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/CommentAction',
+      interactionType: { '@type': 'CommentAction' },
       userInteractionCount: post.numComments,
     },
   ],

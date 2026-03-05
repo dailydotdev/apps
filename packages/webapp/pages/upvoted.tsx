@@ -6,11 +6,12 @@ import {
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Most upvoted posts for developers');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Most upvoted posts for developers'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Find the most upvoted developer posts on daily.dev. Explore top-rated content in coding, tutorials, and tech news from the largest developer network in the world.',
 };

@@ -16,7 +16,7 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -32,12 +32,12 @@ const ProfileAchievementsPage = ({
     ...getProfileSeoDefaults(
       user,
       {
-        title: getTemplatedTitle(
-          `Achievements by ${user.name} (@${user.username})`,
-        ),
+        ...getPageSeoTitles(`Achievements by ${user.name} (@${user.username})`),
         description: `View ${
           isSameUser ? 'your' : `${user.name}'s`
         } achievements on daily.dev`,
+        noindex: true,
+        nofollow: true,
       },
       noindex,
     ),

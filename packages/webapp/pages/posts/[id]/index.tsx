@@ -46,7 +46,7 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
 import {
@@ -298,12 +298,14 @@ export async function getStaticProps({
 
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
+    const pageSeoTitles = getPageSeoTitles(seoTitle(post));
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-      title: getTemplatedTitle(seoTitle(post)),
+      title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex: post?.author ? post.author.reputation <= 10 : false,
       openGraph: {
+        ...pageSeoTitles.openGraph,
         images: [
           {
             url: `https://og.daily.dev/api/posts/${post?.id}`,
@@ -342,10 +344,11 @@ export async function getStaticProps({
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
-      // Return proper 404 for not found posts (better for SEO/crawl budget)
-      if (errorCode === ApiError.NotFound) {
+      // Return proper 404 for missing and forbidden posts (better for SEO/crawl budget)
+      if (errorCode === ApiError.NotFound || errorCode === ApiError.Forbidden) {
         return {
           notFound: true,
+          revalidate: 60,
         };
       }
 

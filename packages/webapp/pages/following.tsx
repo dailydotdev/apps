@@ -7,11 +7,12 @@ import {
 } from '../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../next-seo';
 import ProtectedPage from '../components/ProtectedPage';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Discover posts based on your following');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Discover posts based on your following'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Explore a personalized feed featuring posts from the sources, Squads, and users you follow. Stay updated with content that matches your interests on daily.dev.',
 };

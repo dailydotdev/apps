@@ -746,7 +746,7 @@ describe('Feed logged in', () => {
       );
       expect(data).toBeTruthy();
     });
-    const contextBtn = await screen.findByText('Not interested in #javascript');
+    const contextBtn = await screen.findByText('Block #javascript');
     fireEvent.click(contextBtn);
 
     await waitForNock();

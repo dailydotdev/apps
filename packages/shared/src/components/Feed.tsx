@@ -92,6 +92,8 @@ export interface FeedProps<T>
   pageSize?: number;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
+  disableListFrame?: boolean;
+  disableListWidthConstraint?: boolean;
 }
 
 interface RankVariables {
@@ -186,6 +188,8 @@ export default function Feed<T>({
   pageSize,
   isHorizontal = false,
   feedContainerRef,
+  disableListFrame = false,
+  disableListWidthConstraint = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -224,9 +228,13 @@ export default function Feed<T>({
     isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
 
+  const hasDismissedBriefCard =
+    isActionsFetched && checkHasCompleted(ActionType.DismissBriefCard);
+
   const shouldEvaluateBriefCard =
     isMyFeed &&
     hasNoBriefAction &&
+    !hasDismissedBriefCard &&
     !showProfileCompletionCard &&
     !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({
@@ -554,6 +562,8 @@ export default function Feed<T>({
         isHorizontal,
         feedContainerRef,
         showBriefCard,
+        disableListFrame,
+        disableListWidthConstraint,
       };
 
   const currentPageSize = pageSize ?? currentSettings.pageSize;
