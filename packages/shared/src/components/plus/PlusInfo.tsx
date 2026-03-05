@@ -75,7 +75,12 @@ const plusFeaturePillars = [
   },
   {
     title: 'For you',
-    featureIds: ['presidential-briefing', 'smart prompts', 'clean titles', 'ad-free'],
+    featureIds: [
+      'presidential-briefing',
+      'smart prompts',
+      'clean titles',
+      'ad-free',
+    ],
   },
 ] as const;
 

@@ -93,7 +93,7 @@ export const plusFeatureList: Array<PlusItem> = [
     modalProps: {
       title: 'Unlimited presidential briefings',
       description:
-        'Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what\'s worth a look, and what\'s hype.',
+        "Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what's worth a look, and what's hype.",
       imageUrl: plusShowcasePresidentialBriefImage,
       mediaType: 'image',
     },
