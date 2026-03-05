@@ -43,7 +43,7 @@ export const AgentsDoomScrollingSection = ({
 }: AgentsDoomScrollingSectionProps): ReactElement => (
   <section className="w-full">
     <div className="mb-4 px-3 pb-0 laptop:px-4">
-      <h2 className="font-bold text-text-primary typo-callout">
+      <h2 className="font-bold text-text-primary typo-title3">
         Doom scrolling
       </h2>
     </div>

@@ -176,7 +176,7 @@ export const AgentsDigestCard = ({
     <section className="w-full">
       <div className="mb-2 flex items-start gap-2">
         <div className="flex flex-col">
-          <h2 className="font-bold text-text-primary typo-callout">
+          <h2 className="font-bold text-text-primary typo-title3">
             Today&apos;s Digest
           </h2>
           {digestUpdatedLabel && (
