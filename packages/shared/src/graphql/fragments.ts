@@ -229,7 +229,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numComments
     numAwards
     analytics {
-      impressions
       bookmarks
     }
     summary

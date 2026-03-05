@@ -6,7 +6,7 @@ import type {
   QueryKey,
 } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
+import type { Ad, Post, PostData, ReadHistoryPost } from '../graphql/posts';
 import {
   ADD_BOOKMARKS_MUTATION,
   REMOVE_BOOKMARK_MUTATION,
@@ -17,6 +17,7 @@ import { useRequestProtocol } from './useRequestProtocol';
 import AuthContext from '../contexts/AuthContext';
 import {
   updatePostCache,
+  getPostByIdKey,
   RequestKey,
   updateAdPostInCache,
   createAdPostRollbackHandler,
@@ -98,7 +99,15 @@ const useBookmarkPost = ({
   const postLogEvent = usePostLogEvent();
   const { logOpts } = useActiveFeedContext();
 
-  const defaultOnMutate = ({ id }) => {
+  const defaultOnMutate: NonNullable<UseBookmarkPostProps['onMutate']> = ({
+    id,
+  }) => {
+    if (!id) {
+      return undefined;
+    }
+
+    const previousPost = client.getQueryData<PostData>(getPostByIdKey(id))?.post;
+
     updatePostCache(client, id, (post) => ({
       bookmarked: !post.bookmarked,
       analytics: post.analytics
@@ -113,17 +122,14 @@ const useBookmarkPost = ({
     }));
 
     return () => {
-      updatePostCache(client, id, (post) => ({
-        bookmarked: !post.bookmarked,
-        analytics: post.analytics
-          ? {
-              ...post.analytics,
-              bookmarks: getOptimisticBookmarkCount(
-                post.analytics.bookmarks,
-                post.bookmarked,
-              ),
-            }
-          : post.analytics,
+      if (!previousPost) {
+        return;
+      }
+
+      updatePostCache(client, id, () => ({
+        bookmarked: previousPost.bookmarked,
+        bookmark: previousPost.bookmark,
+        analytics: previousPost.analytics,
       }));
     };
   };
