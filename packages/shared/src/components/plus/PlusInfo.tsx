@@ -24,6 +24,7 @@ import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
+import { PlusSupportedAgents } from './PlusSupportedAgents';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
@@ -60,21 +61,21 @@ interface PageCopy {
 
 export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
-    title: 'Fast-track your growth',
+    title: 'Keep your agents up to date',
     description:
-      'Work smarter, learn faster, and stay ahead with AI tools, custom feeds, and pro features. Because copy-pasting code isn’t a long-term strategy.',
+      'Free keeps you up to date. Plus helps your agents and LLMs stay current too with public API access, daily.dev skills, and AI tools built for high-signal developer workflows.',
     subtitle: 'Billing cycle',
   },
   [PlusType.Organization]: {
-    title: 'Give your engineering team an unfair advantage',
+    title: 'Give your team and their agents an unfair advantage',
     description:
-      'Equip your engineers with AI tools, personalized content, and distraction-free experience so they can move faster and build better. All the benefits of daily.dev Plus, now built for teams.',
+      'Equip every engineer with agent-ready dev intelligence, API access, and AI workflows that scale across your organization. All the benefits of daily.dev Plus, now built for teams.',
     subtitle: 'Billing cycle',
   },
   [PlusType.Gift]: {
-    title: 'Gift daily.dev Plus 🎁',
+    title: 'Gift daily.dev Plus',
     description:
-      'Gifting daily.dev Plus to a friend is the ultimate way to say, ‘I’ve got your back.’ It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.',
+      'Give someone the edge: API access for agents and LLMs, plus AI-powered tools and premium features to help them stay sharper every day.',
     subtitle: "Who's it for?",
   },
 };
@@ -311,7 +312,12 @@ export const PlusInfo = ({
           items={isOrganization ? plusOrganizationFeatureList : undefined}
         />
       )}
-      {showTrustReviews && <PlusTrustReviews />}
+      {showTrustReviews && (
+        <div className="flex flex-col gap-4">
+          <PlusTrustReviews />
+          <PlusSupportedAgents />
+        </div>
+      )}
     </>
   );
 };

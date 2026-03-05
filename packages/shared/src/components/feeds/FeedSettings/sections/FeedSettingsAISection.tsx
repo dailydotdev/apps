@@ -58,7 +58,7 @@ export const FeedSettingsAISection = (): ReactElement => {
         <>
           <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
             <Typography type={TypographyType.Callout}>
-              Upgrade and use daily.dev&apos;s AI Superpowers!
+              Upgrade to unlock AI tools and agent-ready workflows.
             </Typography>
             <Link href={plusUrl} passHref>
               <Button
@@ -154,7 +154,7 @@ export const FeedSettingsAISection = (): ReactElement => {
             return (
               <Tooltip
                 className="max-w-70 text-center !typo-subhead"
-                content="Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically."
+                  content="Upgrade to Plus to unlock Clickbait Shield and agent-powered title cleanup."
               >
                 <div className="w-fit">{child as ReactElement}</div>
               </Tooltip>

@@ -66,7 +66,7 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          {headline || 'Fast-track your growth'}
+          {headline || 'Keep your agents up to date'}
         </Typography>
         <Typography
           className="mx-auto text-balance tablet:w-2/3"
@@ -75,9 +75,9 @@ export const OnboardingPlusControl = ({
           type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
         >
           {explainer ||
-            `Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn't a
-          long-term strategy.`}
+            `Free keeps you up to date. Plus helps your agents and LLMs stay
+          current too with public API access, daily.dev skills, and AI tools
+          built for high-signal developer workflows.`}
         </Typography>
       </header>
       {item ? (

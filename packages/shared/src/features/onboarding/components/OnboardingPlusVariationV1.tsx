@@ -82,7 +82,7 @@ export const OnboardingPlusVariationV1 = ({
   onSkip,
   onComplete,
   parameters: {
-    headline = 'Suffer less. Debugging bad decisions is harder.',
+    headline = 'Your agents are only as good as their context.',
     free,
     plus,
   },
@@ -188,7 +188,7 @@ export const OnboardingPlusVariationV1 = ({
                 title={plus?.title || 'Plus'}
                 description={
                   plus?.description ||
-                  'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.'
+                  'For developers using AI agents. Get API access, daily.dev skills, and real-time developer intelligence across your toolchain.'
                 }
                 price={item?.price.monthly?.formatted ?? '0'}
               />
@@ -210,7 +210,7 @@ export const OnboardingPlusVariationV1 = ({
               title={free?.title || 'Free'}
               description={
                 free?.description ||
-                'For casual browsing. Get the basics and stay updated with the essentials.'
+                'For developers who want to stay current. Get a personalized feed, search, squads, and essentials for free.'
               }
               price={`${item?.currency?.symbol ?? '$'}0`}
             />

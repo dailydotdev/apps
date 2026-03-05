@@ -76,16 +76,15 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                 color={TypographyColor.Primary}
                 bold
               >
-                Custom feeds got a massive upgrade!
+                Build feeds for both you and your agents
               </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                Custom Feeds is now more powerful than ever before, with
-                advanced filters, extensive customization options, and complete
-                feed control. Upgrade to Plus to unlock this ultimate tool for
-                tailoring your content.
+                Create laser-focused feeds with advanced filters and full
+                control, then use them in your own workflow or through the
+                daily.dev API. Upgrade to Plus to unlock the full setup.
               </Typography>
               <Link href={plusUrl} passHref>
                 <Button

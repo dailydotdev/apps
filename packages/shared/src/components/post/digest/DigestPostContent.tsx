@@ -235,7 +235,7 @@ const DigestPostContentRaw = ({
             {isLoggedIn && !isPlus && isFeedLoaded && (
               <BriefUpgradeAlert
                 className="!mb-0 mt-4"
-                text="Want deeper insights? Upgrade to Plus for AI-powered briefings that go beyond the headlines."
+                text="Want deeper insights? Upgrade to Plus for agent-powered briefings that go beyond the headlines."
               />
             )}
           </div>

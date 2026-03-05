@@ -404,12 +404,12 @@ const BriefPostContentRaw = ({
                     src="/robot-loving.json"
                   />
                   <Typography type={TypographyType.Title2} bold>
-                    You just got a taste of what daily.dev Plus can do
+                    You just got a taste of agent-powered Plus
                   </Typography>
                   <Typography type={TypographyType.Callout}>
-                    Fast, high-signal briefings delivered straight to you by
-                    your personal AI agent. Want unlimited access? Let&apos;s
-                    make it official.
+                    Fast, high-signal briefings delivered by your personal AI
+                    agent. Want unlimited access and full delivery controls?
+                    Let&apos;s make it official.
                   </Typography>
                   <PlusList
                     className="!p-0"

@@ -43,7 +43,7 @@ export const plusTakeoverContent = new Feature<{
 }>('plus_takeover_content');
 
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
-  full: 'Level Up with Plus',
+  full: 'Power Your Agents',
   short: 'Upgrade',
 });
 

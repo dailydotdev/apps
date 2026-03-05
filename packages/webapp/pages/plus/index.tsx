@@ -39,13 +39,13 @@ const PlusIOS = dynamic(() =>
 );
 
 const seoTitles = getPageSeoTitles(
-  'Unlock Premium Developer Features with Plus',
+  'Power Your Agents with daily.dev Plus',
 );
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
-    'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
+    'Upgrade to daily.dev Plus for public API access, agent-ready developer intelligence, and AI tools that keep your workflows up to date.',
 };
 
 export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> &

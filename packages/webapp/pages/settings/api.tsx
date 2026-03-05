@@ -454,7 +454,8 @@ const ApiAccessPage = (): ReactElement => {
             color={TypographyColor.Tertiary}
           >
             Use tokens to authenticate with the daily.dev API. Tokens provide
-            read-only access to your personalized feed and posts.
+            read-only access to your personalized feed and posts for your tools,
+            automations, and AI agents.
           </Typography>
         </div>
 
@@ -493,7 +494,7 @@ const ApiAccessPage = (): ReactElement => {
             >
               {isPlus
                 ? 'No tokens yet. Create one to get started.'
-                : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.'}
+                : 'Upgrade to Plus to create API tokens and connect your agents to the daily.dev API.'}
             </Typography>
             {isPlus ? (
               <Button
