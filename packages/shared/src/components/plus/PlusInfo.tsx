@@ -67,15 +67,15 @@ const plusFeaturePillars = [
   {
     title: 'For your agents',
     featureIds: [
-      'ai-agent-integration',
+      'daily-dev-skill',
+      'daily-dev-agentic-skill',
       'public-api',
-      'presidential-briefing',
-      'smart prompts',
+      'custom feeds',
     ],
   },
   {
     title: 'For you',
-    featureIds: ['custom feeds', 'clean titles', 'keyword filter', 'ad-free'],
+    featureIds: ['presidential-briefing', 'smart prompts', 'clean titles', 'ad-free'],
   },
 ] as const;
 

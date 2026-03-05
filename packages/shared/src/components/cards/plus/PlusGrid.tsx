@@ -16,23 +16,23 @@ import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
 
 const bulletPoints = [
   {
-    label: 'Power your AI agents',
-    tooltip: `Connect daily.dev to tools like OpenClaw, Claude Code, Codex, Cursor, and more.`,
+    label: 'Agent skills for daily.dev',
+    tooltip: `Real-time dev context and continuous self-improvement for your agents.`,
     status: PlusItemStatus.Ready,
   },
   {
     label: 'Public API access',
-    tooltip: `Access your personalized feed programmatically and build your own integrations.`,
+    tooltip: `Pull your feeds, bookmarks, and search results programmatically.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Presidential briefings',
+    tooltip: `A 5-minute briefing with what matters, what's worth a look, and what's hype.`,
     status: PlusItemStatus.Ready,
   },
   {
     label: 'Chat with any post using AI',
-    tooltip: `Get summaries, challenge arguments, compare alternatives, extract action items, or ask follow-up questions.`,
-    status: PlusItemStatus.Ready,
-  },
-  {
-    label: 'Advanced custom feeds',
-    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about.`,
+    tooltip: `Ask questions, challenge arguments, get summaries, or pull out action items.`,
     status: PlusItemStatus.Ready,
   },
 ];

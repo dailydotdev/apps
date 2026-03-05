@@ -66,28 +66,34 @@ export const defaultFeatureList: Array<PlusItem> = [
 
 export const plusFeatureList: Array<PlusItem> = [
   {
-    id: 'ai-agent-integration',
-    label: 'Power your AI agents',
+    id: 'daily-dev-skill',
+    label: 'Real-time dev context for LLMs',
     status: PlusItemStatus.Ready,
-    tooltip: `Connect daily.dev to OpenClaw, Claude Code, Codex, Cursor, and more. Give your agents real-time developer context they can use in every workflow.`,
+    tooltip: `Overcome LLM knowledge cutoffs with real-time developer content.`,
+  },
+  {
+    id: 'daily-dev-agentic-skill',
+    label: 'Continuous agent self-improvement',
+    status: PlusItemStatus.Ready,
+    tooltip: `Continuous self-improvement for agents through daily.dev feeds.`,
   },
   {
     id: 'public-api',
     label: 'Public API access',
     status: PlusItemStatus.Ready,
-    tooltip: `Build custom integrations and let your tools pull your personalized feed programmatically. Full API access to feeds, bookmarks, search, and more.`,
+    tooltip: `Pull your feeds, bookmarks, and search results programmatically. Build your own integrations.`,
   },
   {
     id: 'presidential-briefing',
     label: 'Unlimited presidential briefings',
     status: PlusItemStatus.Ready,
-    tooltip: `An AI agent reads hundreds of posts, threads, and changelogs daily and delivers a personalized briefing in under 5 minutes — with must-know highlights, horizon-expanding insights, and built-in hype detection.`,
+    tooltip: `Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what's worth a look, and what's hype.`,
     icon: <BriefIcon secondary />,
     iconClasses: 'bg-overlay-float-mustard text-accent-mustard-default',
     modalProps: {
       title: 'Unlimited presidential briefings',
       description:
-        'An AI agent reads hundreds of posts, threads, and changelogs daily and delivers a personalized briefing in under 5 minutes — with must-know highlights, horizon-expanding insights, and built-in hype detection.',
+        'Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what\'s worth a look, and what\'s hype.',
       imageUrl: plusShowcasePresidentialBriefImage,
       mediaType: 'image',
     },
@@ -96,13 +102,13 @@ export const plusFeatureList: Array<PlusItem> = [
     id: 'smart prompts',
     label: 'Chat with any post using AI',
     status: PlusItemStatus.Ready,
-    tooltip: `Get summaries, challenge arguments, compare alternatives, extract action items, or ask your own follow-up questions — all saved across sessions.`,
+    tooltip: `Ask questions, challenge arguments, get summaries, or pull out action items from any post. Conversations are saved.`,
     icon: <CustomPromptIcon secondary />,
     iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
     modalProps: {
       title: 'Chat with any post using AI',
       description:
-        'Get summaries, challenge arguments, compare alternatives, extract action items, or ask your own follow-up questions — all saved across sessions.',
+        'Ask questions, challenge arguments, get summaries, or pull out action items from any post. Conversations are saved.',
       videoUrl: plusShowcaseSmartPrompsVideo,
       imageUrl: plusShowcaseSmartPrompsImage,
       mediaType: 'video',
@@ -112,13 +118,13 @@ export const plusFeatureList: Array<PlusItem> = [
     id: 'custom feeds',
     label: 'Advanced custom feeds',
     status: PlusItemStatus.Ready,
-    tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about, then use them across your own workflows and agents.`,
+    tooltip: `Build feeds by tool, language, or topic. Use them yourself or pipe them to agents via the API.`,
     icon: <HashtagIcon secondary />,
     iconClasses: 'bg-overlay-float-water text-accent-water-default',
     modalProps: {
       title: 'Advanced custom feeds',
       description:
-        'Build laser-focused feeds for the tools, languages, and topics you care about, then use them across your own workflows and agents.',
+        'Build feeds by tool, language, or topic. Use them yourself or pipe them to agents via the API.',
       videoUrl: plusShowcaseCustomFeedsVideo,
       imageUrl: plusShowcaseCustomFeedsImage,
       mediaType: 'video',
@@ -128,13 +134,13 @@ export const plusFeatureList: Array<PlusItem> = [
     id: 'clean titles',
     label: 'AI-powered clean titles',
     status: PlusItemStatus.Ready,
-    tooltip: `No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.`,
+    tooltip: `Rewrites clickbait so you see what a post is actually about before clicking.`,
     icon: <ShieldPlusIcon secondary />,
     iconClasses: 'bg-overlay-float-avocado text-accent-avocado-default',
     modalProps: {
       title: 'AI-powered clean titles',
       description:
-        'No more misinformation. AI rewrites titles so you see the real story at a glance and dive in only when relevant.',
+        'Rewrites clickbait so you see what a post is actually about before clicking.',
       videoUrl: plusShowcaseShieldVideo,
       imageUrl: plusShowcaseShieldImage,
       mediaType: 'video',
@@ -160,13 +166,12 @@ export const plusFeatureList: Array<PlusItem> = [
     id: 'ad-free',
     label: 'Ad-free experience',
     status: PlusItemStatus.Ready,
-    tooltip: `No ads. No clutter. Just pure content. Your feed, distraction-free.`,
+    tooltip: `No ads, no clutter. Just your feed.`,
     icon: <BlockIcon secondary />,
     iconClasses: 'bg-overlay-float-ketchup text-accent-ketchup-default',
     modalProps: {
       title: 'Ad-free experience',
-      description:
-        'No ads. No clutter. Just pure content. Your feed, distraction-free.',
+      description: 'No ads, no clutter. Just your feed.',
       imageUrl: plusShowcaseAdFreeImage,
       mediaType: 'image',
     },
