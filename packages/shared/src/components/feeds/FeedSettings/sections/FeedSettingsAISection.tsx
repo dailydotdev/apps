@@ -154,7 +154,7 @@ export const FeedSettingsAISection = (): ReactElement => {
             return (
               <Tooltip
                 className="max-w-70 text-center !typo-subhead"
-                  content="Upgrade to Plus to unlock Clickbait Shield and agent-powered title cleanup."
+                content="Upgrade to Plus to unlock Clickbait Shield and agent-powered title cleanup."
               >
                 <div className="w-fit">{child as ReactElement}</div>
               </Tooltip>

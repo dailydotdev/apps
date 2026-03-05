@@ -38,9 +38,7 @@ const PlusIOS = dynamic(() =>
   ).then((mod) => mod.PlusIOS),
 );
 
-const seoTitles = getPageSeoTitles(
-  'Power Your Agents with daily.dev Plus',
-);
+const seoTitles = getPageSeoTitles('Power Your Agents with daily.dev Plus');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },

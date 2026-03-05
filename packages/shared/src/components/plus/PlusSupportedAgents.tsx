@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Typography, TypographyColor, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import {
   plusSupportedAgentClaudeCodeLogo,
   plusSupportedAgentCodexLogo,
@@ -87,7 +91,9 @@ export const PlusSupportedAgents = ({
   center,
 }: PlusSupportedAgentsProps): ReactElement => {
   return (
-    <div className={classNames('flex flex-col gap-2', center && 'items-center')}>
+    <div
+      className={classNames('flex flex-col gap-2', center && 'items-center')}
+    >
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}
