@@ -1,15 +1,27 @@
 import type { ArenaTab } from './types';
 
+export type AgentEntityOrigin = 'hub';
+
 export const getAgentEntityPath = (
   entityId: string,
   tab?: ArenaTab,
+  origin?: AgentEntityOrigin,
 ): string => {
   const hasTabContext = !!tab;
   const encodedEntityId = encodeURIComponent(entityId);
+  const path = `/agents/${encodedEntityId}`;
 
   if (hasTabContext) {
-    return `/agents/${encodedEntityId}`;
+    if (origin) {
+      return `${path}?origin=${origin}`;
+    }
+
+    return path;
   }
 
-  return `/agents/${encodedEntityId}`;
+  if (origin) {
+    return `${path}?origin=${origin}`;
+  }
+
+  return path;
 };

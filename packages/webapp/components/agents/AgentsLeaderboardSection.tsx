@@ -33,6 +33,7 @@ export const AgentsLeaderboardSection = ({
     <ArenaRankings
       tools={tools}
       tab="coding-agents"
+      origin="hub"
       loading={loading}
       compact
     />

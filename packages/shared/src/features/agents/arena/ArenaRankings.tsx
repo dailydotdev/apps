@@ -12,10 +12,12 @@ import { InfoIcon } from '../../../components/icons/Info';
 import { IconSize } from '../../../components/Icon';
 import { RankBadge } from '../../../components/cards/Leaderboard/RankBadge';
 import { getAgentEntityPath } from './links';
+import type { AgentEntityOrigin } from './links';
 
 interface ArenaRankingsProps {
   tools: RankedTool[];
   tab: 'coding-agents' | 'llms';
+  origin?: AgentEntityOrigin;
   loading?: boolean;
   compact?: boolean;
 }
@@ -78,6 +80,7 @@ const RankingRow = ({
   tool,
   rank,
   tab,
+  origin,
   loading,
   expanded,
   onToggle,
@@ -86,6 +89,7 @@ const RankingRow = ({
   tool: RankedTool;
   rank: number;
   tab: 'coding-agents' | 'llms';
+  origin?: AgentEntityOrigin;
   loading?: boolean;
   expanded: boolean;
   onToggle: () => void;
@@ -136,7 +140,7 @@ const RankingRow = ({
               <Placeholder className="h-4 w-20" />
             </>
           ) : (
-            <Link href={getAgentEntityPath(tool.entity.entity, tab)}>
+            <Link href={getAgentEntityPath(tool.entity.entity, tab, origin)}>
               <a className="flex min-w-0 items-center gap-2.5">
                 <img
                   src={tool.entity.logo}
@@ -304,11 +308,13 @@ const RankingRow = ({
 const EmergingRow = ({
   tool,
   tab,
+  origin,
   loading,
   compact,
 }: {
   tool: RankedTool;
   tab: 'coding-agents' | 'llms';
+  origin?: AgentEntityOrigin;
   loading?: boolean;
   compact: boolean;
 }): ReactElement => (
@@ -324,7 +330,7 @@ const EmergingRow = ({
         <Placeholder className="h-4 w-20" />
       </>
     ) : (
-      <Link href={getAgentEntityPath(tool.entity.entity, tab)}>
+      <Link href={getAgentEntityPath(tool.entity.entity, tab, origin)}>
         <a className="flex min-w-0 items-center gap-2.5">
           <img
             src={tool.entity.logo}
@@ -449,6 +455,7 @@ const PlaceholderRow = ({
 export const ArenaRankings = ({
   tools,
   tab,
+  origin,
   loading,
   compact = false,
 }: ArenaRankingsProps): ReactElement => {
@@ -567,6 +574,7 @@ export const ArenaRankings = ({
                 tool={tool}
                 rank={idx + 1}
                 tab={tab}
+                origin={origin}
                 loading={loading}
                 expanded={expandedEntity === tool.entity.entity}
                 compact={compact}
@@ -592,6 +600,7 @@ export const ArenaRankings = ({
               key={tool.entity.entity}
               tool={tool}
               tab={tab}
+              origin={origin}
               loading={loading}
               compact={compact}
             />
