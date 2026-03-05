@@ -6,6 +6,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
+import { onboardingV2Path } from '@dailydotdev/shared/src/lib/constants';
 import { blurClasses } from './common';
 
 const NewComment = dynamic(() =>
@@ -42,6 +43,7 @@ export default function FooterWrapper({
   post,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
+  const isOnboardingV2 = router?.pathname === onboardingV2Path;
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
@@ -55,9 +57,11 @@ export default function FooterWrapper({
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
     >
-      <div className="hidden tablet:block">
-        <ScrollToTopButton />
-      </div>
+      {!isOnboardingV2 && (
+        <div className="hidden tablet:block">
+          <ScrollToTopButton />
+        </div>
+      )}
       {post && post.type !== PostType.Brief && (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment

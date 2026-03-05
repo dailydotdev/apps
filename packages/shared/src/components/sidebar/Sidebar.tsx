@@ -21,6 +21,7 @@ interface SidebarProps {
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  disabled?: boolean;
 }
 
 export const Sidebar = ({
@@ -28,6 +29,7 @@ export const Sidebar = ({
   onNavTabClick,
   onLogoClick,
   activePage,
+  disabled,
 }: SidebarProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -39,6 +41,7 @@ export const Sidebar = ({
         activePage={activePage}
         onLogoClick={onLogoClick}
         featureTheme={featureTheme}
+        disabled={disabled}
       />
     );
   }
@@ -52,6 +55,7 @@ export const Sidebar = ({
         featureTheme={featureTheme}
         isNavButtons={isNavButtons}
         onNavTabClick={onNavTabClick}
+        disabled={disabled}
       />
     );
   }

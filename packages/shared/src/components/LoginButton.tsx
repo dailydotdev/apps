@@ -15,6 +15,7 @@ interface ClassName {
 
 interface LoginButtonProps {
   className?: ClassName;
+  onSignupClick?: () => boolean | void;
 }
 
 enum ButtonCopy {
@@ -32,11 +33,17 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 
 export default function LoginButton({
   className = {},
+  onSignupClick,
 }: LoginButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
   const onClick = (copy: ButtonCopy) => {
     logEvent(getLogEvent(copy));
+
+    if (copy === ButtonCopy.Signup && onSignupClick?.()) {
+      return;
+    }
+
     showLogin({
       trigger: AuthTriggers.MainButton,
       options: {

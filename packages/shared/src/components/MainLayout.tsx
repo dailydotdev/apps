@@ -19,7 +19,7 @@ import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
-import { isTesting, onboardingUrl } from '../lib/constants';
+import { isTesting, onboardingUrl, onboardingV2Path } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -58,6 +58,7 @@ export interface MainLayoutProps
   screenCentered?: boolean;
   customBanner?: ReactNode;
   showSidebar?: boolean;
+  sidebarDisabled?: boolean;
   onNavTabClick?: (tab: string) => void;
   canGoBack?: string;
   hideBackButton?: boolean;
@@ -71,8 +72,10 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
+  hideSearchField,
   screenCentered = true,
   showSidebar = true,
+  sidebarDisabled = true,
   className,
   onLogoClick,
   onNavTabClick,
@@ -96,6 +99,26 @@ function MainLayoutComponent({
   useAuthErrors();
   useAuthVerificationRecovery();
   useNotificationParams();
+
+  const onSignupClick = (): boolean => {
+    if (router.pathname !== onboardingV2Path) {
+      return false;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: {
+          ...router.query,
+          onbSignup: '1',
+        },
+      },
+      undefined,
+      { shallow: true },
+    );
+
+    return true;
+  };
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -192,7 +215,9 @@ function MainLayoutComponent({
         hasBanner={isBannerAvailable}
         sidebarRendered={sidebarRendered}
         additionalButtons={additionalButtons}
+        hideSearchField={hideSearchField}
         onLogoClick={onLogoClick}
+        onSignupClick={onSignupClick}
       />
       <main
         className={classNames(
@@ -202,6 +227,7 @@ function MainLayoutComponent({
           isAuthReady &&
             !isScreenCentered &&
             sidebarExpanded &&
+            !sidebarDisabled &&
             'laptop:!pl-60',
           isBannerAvailable && 'laptop:pt-24',
         )}
@@ -212,6 +238,7 @@ function MainLayoutComponent({
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage}
+            disabled={sidebarDisabled}
           />
         )}
         {children}

@@ -33,6 +33,7 @@ export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const mobileAppUrl = 'https://app.daily.dev';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =
@@ -54,6 +55,7 @@ export const isChrome = (): boolean =>
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
 export const onboardingUrl = `${webappUrl}onboarding`;
+export const onboardingV2Path = '/onboarding-v2';
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';
