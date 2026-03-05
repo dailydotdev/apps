@@ -146,6 +146,25 @@
   .screenshot-slot.clickable-screen {
     cursor: pointer;
   }
+  .screen-dl-btn {
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(193,201,214,0.22);
+    background: rgba(18, 23, 31, 0.78);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  }
+  .screen-dl-btn:hover {
+    border-color: rgba(193,201,214,0.45);
+    background: rgba(26, 32, 42, 0.9);
+    transform: translateY(-1px);
+  }
   .screenshot-slot.clickable-screen .ss-canvas {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -1201,20 +1220,208 @@ function ensureSectionRendered(cppId) {
   if (!row) return;
   row.innerHTML = topic.screens.map((screen, index) => mkScreen(topic, screen, index)).join('');
   optimizeImages(row);
+  attachPerScreenDownloadButtons(section, cppId);
   section.dataset.rendered = 'true';
   renderedSectionIds.add(cppId);
+}
+
+const TRANSPARENT_PIXEL_DATA_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+
+function formatExportError(error) {
+  if (!error) return 'Unknown error';
+  if (typeof error === 'string') return error;
+  if (error instanceof Error && error.message) {
+    if (error.message.includes('[object Event]')) {
+      const eventDetails = formatExportError(error.cause);
+      return `Asset load event failed during export. ${eventDetails !== 'Unknown error' ? eventDetails : 'Check image URL/CORS and reload.'}`;
+    }
+    return error.message;
+  }
+  if (typeof Event !== 'undefined' && error instanceof Event) {
+    const source = error.target?.src || error.currentTarget?.src;
+    if (source) return `${error.type || 'error'} while loading asset: ${source}`;
+    return `Asset event: ${error.type || 'error'}`;
+  }
+  if (error?.type && error?.target?.src) {
+    return `${error.type} while loading asset: ${error.target.src}`;
+  }
+  if (error?.type) return `Asset event: ${error.type}`;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
 }
 
 async function renderCanvasToPreset(canvas, preset) {
   const isTablet = canvas.classList.contains('ss-canvas-tablet');
   const domWidth = isTablet ? TABLET_CANVAS_WIDTH : PREVIEW_CANVAS_WIDTH;
-  return htmlToImage.toPng(canvas, {
-    pixelRatio: preset.width / domWidth,
+  const pixelRatio = preset.width / domWidth;
+  const captureOptions = {
+    cacheBust: true,
+    imagePlaceholder: TRANSPARENT_PIXEL_DATA_URL,
+    pixelRatio,
     style: {
       transform: 'none',
       margin: '0',
     },
+  };
+
+  try {
+    const blob = await htmlToImage.toBlob(canvas, captureOptions);
+    if (blob) return blob;
+  } catch (err) {
+    console.warn('toBlob export failed, falling back to PNG data URL', err);
+  }
+
+  const dataUrl = await htmlToImage.toPng(canvas, captureOptions);
+  const response = await fetch(dataUrl);
+  return response.blob();
+}
+
+function sanitizeFilenamePart(input, fallback = 'screen') {
+  const cleaned = String(input || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return cleaned || fallback;
+}
+
+function waitForImageAsset(img) {
+  if (!img) return Promise.resolve();
+  if (img.loading === 'lazy') img.loading = 'eager';
+  const decodePromise = typeof img.decode === 'function' ? img.decode().catch(() => undefined) : Promise.resolve();
+  if (img.complete && img.naturalWidth > 0) {
+    return decodePromise;
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = async () => {
+      if (settled) return;
+      settled = true;
+      try {
+        await decodePromise;
+      } catch {
+        // no-op
+      }
+      resolve();
+    };
+
+    const timeout = window.setTimeout(finish, 3500);
+    img.addEventListener('load', () => {
+      window.clearTimeout(timeout);
+      finish();
+    }, { once: true });
+    img.addEventListener('error', () => {
+      window.clearTimeout(timeout);
+      finish();
+    }, { once: true });
   });
+}
+
+async function waitForRenderableAssets(root) {
+  if (!root) return;
+  if (document.fonts?.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {
+      // no-op
+    }
+  }
+  const images = Array.from(root.querySelectorAll('img'));
+  await Promise.all(images.map((img) => waitForImageAsset(img)));
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+async function captureCanvasBlob(canvas, preset) {
+  if (!canvas) {
+    throw new Error('Capture target is missing');
+  }
+
+  let lastError = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await waitForRenderableAssets(canvas);
+      return await renderCanvasToPreset(canvas, preset);
+    } catch (err) {
+      lastError = err;
+      await new Promise((resolve) => setTimeout(resolve, 120 * (attempt + 1)));
+    }
+  }
+
+  throw lastError || new Error('Failed to capture canvas');
+}
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function getSectionCanvasByScreenIndex(section, screenIndex) {
+  const slot = section?.querySelector(`.screenshot-slot[data-screen-idx="${screenIndex}"]`);
+  if (!slot) return null;
+  const preferredSelector = selectedExportMode === 'tablet' ? '.ss-canvas-tablet' : '.ss-canvas';
+  return slot.querySelector(preferredSelector) || slot.querySelector('.ss-canvas, .ss-canvas-tablet');
+}
+
+function attachPerScreenDownloadButtons(section, cppId) {
+  if (!section || !cppId) return;
+  const slots = section.querySelectorAll('.screenshot-slot[data-screen-idx]');
+  slots.forEach((slot) => {
+    if (slot.querySelector('.screen-dl-btn')) return;
+    const screenIdx = Number(slot.dataset.screenIdx);
+    if (Number.isNaN(screenIdx)) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'screen-dl-btn';
+    btn.textContent = 'Download PNG';
+    btn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await downloadSingleScreen(cppId, screenIdx, { triggerButton: btn });
+    });
+    slot.appendChild(btn);
+  });
+}
+
+async function downloadSingleScreen(cppId, screenIdx, options = {}) {
+  const section = document.getElementById(`cpp-${cppId}`);
+  if (!section) return;
+  const screen = getScreen(cppId, screenIdx);
+  if (!screen) return;
+  const btn = options.triggerButton || null;
+  const originalText = btn?.textContent;
+  if (btn) {
+    btn.textContent = 'Rendering...';
+    btn.disabled = true;
+  }
+
+  try {
+    await ensureExportLibsLoaded();
+    ensureSectionRendered(cppId);
+    const preset = getExportPreset();
+    const canvas = getSectionCanvasByScreenIndex(section, screenIdx);
+    if (!canvas) {
+      throw new Error('Screen canvas not found');
+    }
+    const blob = await captureCanvasBlob(canvas, preset);
+    const labelPart = sanitizeFilenamePart(screen.label, `screen-${screenIdx + 1}`);
+    triggerBlobDownload(blob, `cpp-${sanitizeFilenamePart(cppId)}-${labelPart}-${preset.id}-${screenIdx + 1}.png`);
+  } catch (err) {
+    console.error('Error exporting single screen:', err);
+    alert('Failed to download image: ' + formatExportError(err));
+  } finally {
+    if (btn) {
+      btn.textContent = originalText || 'Download PNG';
+      btn.disabled = false;
+    }
+  }
 }
 
 function getPackFilename(cppId, screenIndex, preset) {
@@ -1561,7 +1768,10 @@ function mkHeroScreen(cpp, scr, idx) {
   
   const accent = cpp.accent || '#CE3DF3';
   const glow = cpp.id !== 'master' ? `<div style="position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); width:200%; height:100%; background:radial-gradient(ellipse at center, ${accent}40 0%, transparent 60%); z-index:0; mix-blend-mode:screen; pointer-events:none;"></div>` : '';
-  const floats = (scr.heroFloats || []).map(f => `<div style="position:absolute; top:${f.top}; left:${f.left||'auto'}; right:${f.right||'auto'}; font-size:${Math.round((f.size||80)*S)}px; transform:rotate(${f.rot||'0deg'}); z-index:2; filter:drop-shadow(0 ${Math.round(20*S)}px ${Math.round(20*S)}px rgba(0,0,0,0.5));">${f.icon}</div>`).join('');
+  const floats = (scr.heroFloats || [])
+    .filter((f) => typeof f.icon === 'string' && f.icon.trim().startsWith('<'))
+    .map(f => `<div style="position:absolute; top:${f.top}; left:${f.left||'auto'}; right:${f.right||'auto'}; font-size:${Math.round((f.size||80)*S)}px; transform:rotate(${f.rot||'0deg'}); z-index:2; filter:drop-shadow(0 ${Math.round(20*S)}px ${Math.round(20*S)}px rgba(0,0,0,0.5));">${f.icon}</div>`)
+    .join('');
 
   const defaultB1Icon = `<img src="${ghLogoSvg}" style="width:${Math.round(55*S)}px; height:${Math.round(60*S)}px;" alt="" />`;
   const customHeroImageUrl = assets.heroBadge1Icon || scr.heroImageUrl || '';
@@ -1570,17 +1780,17 @@ function mkHeroScreen(cpp, scr, idx) {
     : null;
   const b1 = {
     iconHtml: defaultB1Icon,
-    val: assets.heroBadge1Value || '19K+',
-    label: assets.heroBadge1Label || 'GitHub Stars',
-    sub: assets.heroBadge1Sub || 'dailydotdev/daily',
+    val: '19K+',
+    label: 'GitHub Stars',
+    sub: 'dailydotdev/daily',
   };
   const b1IconHtml = customHeroImage || b1.iconHtml || defaultB1Icon;
   const b2 = {
     iconHtml: `<img src="${phIconSvg}" style="width:100%; height:100%;" alt="" />`,
-    val: assets.heroBadge2Value || 'Product of<br>the Year',
-    sub: assets.heroBadge2Sub || 'Community & Social',
+    val: 'Product of<br>the Year',
+    sub: 'Community & Social',
   };
-  const reviewsText = assets.heroReviewsText || '2,500+ Reviews';
+  const reviewsText = '2,500+ Reviews';
 
   return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
@@ -1802,8 +2012,8 @@ function mkMasterDiscussScreen(cpp, scr, idx) {
   const chatImg = assets.discussChat || '../assets/tab3/3d-chat.png';
   const upvoteImg = assets.discussUpvote || '../assets/tab3/3d-upvote.png';
   const girlImg = assets.discussShare || '../assets/tab3/3d-share.png';
-  const avatarFrame1 = assets.discussAvatarTop || '../assets/tab3/avatar-frame-1.png';
-  const avatarFrame3 = assets.discussAvatarBottom || '../assets/tab3/avatar-frame-3.png';
+  const avatarFrame1 = (assets.discussAvatarTop || '../assets/tab3/avatar-frame-1.png') + '?v=3';
+  const avatarFrame3 = (assets.discussAvatarBottom || '../assets/tab3/avatar-frame-3.png') + '?v=3';
 
   return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
@@ -1815,27 +2025,27 @@ function mkMasterDiscussScreen(cpp, scr, idx) {
           <div style="font-family:'Poppins',sans-serif; font-weight:700; font-size:18px; color:rgba(255,255,255,0.64); margin-top:6px; width:148px; line-height:1.15;">${subtitleHtml}</div>
         </div>
 
-        <!-- Top-right: girl avatar -->
-        <div style="position:absolute; right:22px; top:20px; width:55px; height:55px; z-index:5; display:flex; align-items:center; justify-content:center;">
-          <img src="${avatarFrame1}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; transform:rotate(-8.9deg);" alt="" />
+        <!-- Top-right: avatar (behind chat icon) -->
+        <div style="position:absolute; right:24px; top:22px; width:44px; height:44px; z-index:5; display:flex; align-items:center; justify-content:center;">
+          <img src="${avatarFrame1}" style="width:40px; height:40px; border-radius:12px; object-fit:cover; transform:rotate(-8.9deg);" alt="" />
         </div>
-        <!-- Top-right: chat bubble above avatar -->
+        <!-- Top-right: chat bubble (in front of avatar) -->
         <div style="position:absolute; right:14px; top:0; width:38px; height:38px; z-index:6; display:flex; align-items:center; justify-content:center;">
           <img src="${chatImg}" style="width:30px; height:30px; transform:rotate(-16.2deg);" alt="" />
         </div>
 
-        <!-- Left floating: upvote arrow -->
+        <!-- Left floating: avatar (behind icons) -->
+        <div style="position:absolute; left:14px; top:478px; width:42px; height:46px; background:#8f3776; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
+        <img class="figma-3d-icon" src="${avatarFrame3}" style="left:-8px; top:484px; width:36px; height:36px; z-index:2; border-radius:10px; object-fit:cover;" alt="" />
+        <!-- Left floating: share icon (in front of avatar) -->
+        <img class="figma-3d-icon" src="${girlImg}" style="left:-4px; top:445px; width:62px; height:62px; z-index:3;" alt="" />
+        <!-- Left floating: upvote arrow (in front) -->
         <img class="figma-3d-icon" src="${upvoteImg}" style="left:-14px; top:370px; width:62px; height:62px; z-index:6; transform:rotate(7.8deg);" alt="" />
 
-        <!-- Left floating: girl with share arrow -->
-        <div style="position:absolute; left:14px; top:478px; width:42px; height:46px; background:#8f3776; opacity:0.5; filter:blur(8px); border-radius:10px; z-index:1;"></div>
-        <img class="figma-3d-icon" src="${girlImg}" style="left:-4px; top:445px; width:62px; height:62px; z-index:2;" alt="" />
-        <img class="figma-3d-icon" src="${avatarFrame3}" style="left:-12px; top:480px; width:42px; height:42px; z-index:3; border-radius:14px; object-fit:cover;" alt="" />
-
         <!-- Phone offset to right, extending beyond bottom -->
-        <div style="position:absolute; right:2px; top:170px; width:205px; bottom:-20px; z-index:4;">
-          <div style="width:100%; height:100%; border:5px solid black; border-radius:24px 24px 0 0; border-bottom:none; box-shadow:0px -0.5px 0px 7px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4); overflow:hidden; position:relative;">
-            <div style="position:absolute; top:-28px; left:0; right:0; bottom:0;">
+        <div style="position:absolute; right:8px; top:176px; width:198px; bottom:12px; z-index:4;">
+          <div style="width:100%; height:100%; border:5px solid black; border-radius:26px; box-shadow:0px -0.5px 0px 7px rgba(255,255,255,0.64), 0 8px 32px rgba(0,0,0,0.4); overflow:hidden; position:relative;">
+            <div style="position:absolute; top:0; left:0; right:0; bottom:0;">
               <img src="${phoneImg}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;" alt="" />
             </div>
           </div>
@@ -1880,9 +2090,9 @@ function mkMasterSearchScreen(cpp, scr, idx) {
         <img class="figma-3d-icon" src="${rightImg}" style="left:${Math.round(561*S)}px; top:${Math.round(309*S)}px; width:${Math.round(261*S)}px; height:${Math.round(261*S)}px; z-index:2; transform:rotate(18.85deg);" alt="" />
 
         <!-- Search bar (pill-shaped, dark bg, light border) -->
-        <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(500*S)}px; height:${Math.round(110*S)}px; background:#0e1217; border:${Math.round(10*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(55*S)}px; display:flex; align-items:center; padding:0 ${Math.round(28*S)}px; gap:${Math.round(8*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
-          <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(46*S)}px; height:${Math.round(46*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
-          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(34*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1; flex:1; min-width:0;">${queryText}</span>
+        <div style="position:absolute; left:50%; transform:translate(-50%,-50%); top:${Math.round(509*S)}px; width:${Math.round(560*S)}px; height:${Math.round(118*S)}px; background:#0e1217; border:${Math.round(8*S)}px solid rgba(255,255,255,0.64); border-radius:${Math.round(28*S)}px; display:flex; align-items:center; padding:0 ${Math.round(24*S)}px; gap:${Math.round(10*S)}px; z-index:6; backdrop-filter:blur(${Math.round(47*S)}px);">
+          <svg viewBox="0 0 35 35" fill="white" style="width:${Math.round(42*S)}px; height:${Math.round(42*S)}px; flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.44 0.666C15.625 0.666 17.688 1.178 19.512 2.085C19.024 2.972 18.093 3.552 17.049 3.596L15.381 3.665C14.752 3.551 14.103 3.491 13.44 3.491C7.608 3.491 2.88 8.127 2.88 13.847C2.88 19.427 7.38 23.977 13.015 24.195L13.44 24.204L13.865 24.195C19.5 23.977 24 19.427 24 13.847L23.994 13.597L24.152 13.184C24.535 12.179 25.45 11.47 26.52 11.328L26.633 11.318C26.795 12.137 26.88 12.982 26.88 13.847C26.88 16.242 26.229 18.488 25.09 20.423C26.497 20.306 27.941 20.727 29.077 21.685L29.379 21.96L32.972 25.484C35.089 27.56 35.089 30.927 32.972 33.003C30.943 34.993 27.707 35.076 25.577 33.252L25.306 33.003L21.712 29.479C20.538 28.327 20.015 26.777 20.144 25.272C18.172 26.389 15.882 27.028 13.44 27.028C6.017 27.028 0 21.127 0 13.847C0 6.567 6.017 0.666 13.44 0.666ZM23.749 23.957C22.823 24.866 22.761 26.301 23.564 27.279L23.749 27.481L27.342 31.006C27.805 31.46 28.403 31.702 29.009 31.732H29.269L29.528 31.706C30.043 31.629 30.539 31.395 30.936 31.006C31.862 30.097 31.924 28.662 31.121 27.684L30.936 27.481L27.342 23.957C26.35 22.984 24.741 22.984 23.749 23.957ZM23.846 0.808L23.932 2.754C24.016 4.672 25.262 6.354 27.096 7.025L28.957 7.706C29.835 8.028 29.63 9.3 28.693 9.339L26.708 9.423C26.512 9.431 26.317 9.451 26.126 9.482L26.029 9.499C25.876 9.526 25.725 9.561 25.576 9.603L25.294 9.691L24.948 9.826L24.625 9.981L24.409 10.101L24.138 10.273L23.823 10.506L23.762 10.557C23.141 11.074 22.65 11.746 22.353 12.526L21.659 14.351C21.528 14.696 21.242 14.87 20.943 14.897L20.793 14.898L20.645 14.875C20.305 14.794 20.013 14.521 19.994 14.093L19.908 12.146C19.824 10.229 18.578 8.546 16.744 7.875L14.883 7.194C14.005 6.873 14.21 5.601 15.147 5.561L17.132 5.478C17.707 5.453 18.261 5.33 18.775 5.123L18.983 5.03C19.319 4.878 19.635 4.688 19.926 4.465L20.208 4.232L20.437 4.013L20.7 3.721L20.786 3.614L20.935 3.414L21.042 3.255L20.983 3.344C21.185 3.045 21.355 2.72 21.487 2.374L22.181 0.549C22.509 -0.312 23.806 -0.111 23.846 0.808Z"/></svg>
+          <span style="font-family:'Roboto',sans-serif; font-size:${Math.round(30*S)}px; color:white; white-space:nowrap; overflow:hidden; text-overflow:clip; line-height:1; flex:1; min-width:0;">${queryText}</span>
         </div>
 
         <!-- Phone (rounded top only, extends to bottom) -->
@@ -1967,10 +2177,10 @@ function mkHeroTablet(cpp, scr, idx) {
   const assets = getScreenEditorValues(scr);
   const titleTop = stripBr(assets.heroTitleTop || scr.hl || '');
   const titleBold = stripBr(assets.heroTitleBold || scr.sub || '');
-  const reviewsText = assets.heroReviewsText || '2,000+ Reviews';
+  const reviewsText = '2,500+ Reviews';
   const accent = cpp.accent || '#CE3DF3';
-  const b1 = { val: assets.heroBadge1Value || '15K+', label: assets.heroBadge1Label || 'GitHub Stars', sub: assets.heroBadge1Sub || 'dailydotdev/daily' };
-  const b2 = { val: stripBr(assets.heroBadge2Value || 'Product of the Year'), sub: assets.heroBadge2Sub || 'Community & Social' };
+  const b1 = { val: '19K+', label: 'GitHub Stars', sub: 'dailydotdev/daily' };
+  const b2 = { val: 'Product of the Year', sub: 'Community & Social' };
   const glow = `<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:100%;background:radial-gradient(ellipse at center,${accent}30 0%,transparent 60%);z-index:0;mix-blend-mode:screen;pointer-events:none;"></div>`;
   return `<div class="screenshot-slot clickable-screen" data-cpp-id="${cpp.id}" data-screen-idx="${idx}" onclick="openScreenEditor('${cpp.id}', ${idx})">
     <div class="screenshot-label">${idx+1}. ${scr.label}</div>
@@ -2044,7 +2254,7 @@ function mkFeedTablet(cpp, scr, idx) {
         <img src="../assets/tablet/feed-rss-3d.png" style="position:absolute;left:${t(-5)}px;top:${t(720)}px;width:${t(242)}px;height:${t(242)}px;z-index:6;" alt="" />
         <img src="../assets/tablet/feed-hashtag-3d.png" style="position:absolute;left:${t(936)}px;top:${t(78)}px;width:${t(320)}px;height:${t(320)}px;z-index:6;" alt="" />
         <!-- Desktop app screenshot -->
-        <div style="position:absolute;left:${t(162)}px;top:${t(360)}px;width:${t(983)}px;height:${t(489)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:${t(162)}px;top:${t(360)}px;width:${t(983)}px;height:${t(489)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:2;">
           <img src="../assets/tablet/feed-desktop.png" style="width:100%;height:100%;object-fit:cover;display:block;" alt="" />
         </div>
       </div>
@@ -2071,7 +2281,7 @@ function mkPersonalizedTablet(cpp, scr, idx) {
       ${glow}
       <div style="position:absolute;inset:0;z-index:2;overflow:hidden;">
         <!-- Tag picker screenshot -->
-        <div style="position:absolute;left:${t(176)}px;top:${t(77)}px;width:${t(944)}px;height:${t(567)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:${t(176)}px;top:${t(77)}px;width:${t(944)}px;height:${t(567)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:2;">
           <img src="../assets/tablet/personalized-tags.png" style="width:125%;height:130%;object-fit:cover;object-position:center top;display:block;margin-left:-12.5%;" alt="" />
         </div>
         <!-- Floating logos -->
@@ -2125,20 +2335,23 @@ function mkDiscussTablet(cpp, scr, idx) {
           <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;">${titleHtml}</div>
           <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-top:${t(10)}px;width:${t(477)}px;">${subtitleHtml}</div>
         </div>
-        <div style="position:absolute;left:${t(757)}px;top:${t(98)}px;width:${t(672)}px;height:${t(719)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:${t(757)}px;top:${t(98)}px;width:${t(672)}px;height:${t(719)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:2;">
           <img src="../assets/tablet/discuss-post.png" style="width:100%;height:107%;object-fit:cover;object-position:top;display:block;" alt="" />
         </div>
+        <!-- Avatar images (behind 3D icons) -->
+        <div style="position:absolute;left:${t(367)}px;top:${t(479)}px;width:${t(170)}px;height:${t(170)}px;z-index:1;transform:rotate(-8.9deg);border-radius:${t(36)}px;overflow:hidden;">
+          <img src="../assets/tablet/discuss-avatar1.png?v=3" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+        <div style="position:absolute;left:${t(103)}px;top:${t(605)}px;width:${t(170)}px;height:${t(170)}px;z-index:1;transform:rotate(7.8deg);border-radius:${t(36)}px;overflow:hidden;">
+          <img src="../assets/tablet/discuss-avatar2.png?v=3" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+        <div style="position:absolute;left:${t(397)}px;top:${t(810)}px;width:${t(110)}px;height:${t(110)}px;z-index:1;border-radius:${t(28)}px;overflow:hidden;">
+          <img src="../assets/tablet/discuss-avatar3.png?v=3" style="width:100%;height:100%;object-fit:cover;" alt="" />
+        </div>
+        <!-- 3D icons (in front of avatars) -->
         <img src="../assets/tablet/discuss-share-3d.png" style="position:absolute;left:${t(36)}px;top:${t(515)}px;width:${t(154)}px;height:${t(154)}px;z-index:3;" alt="" />
         <img src="../assets/tablet/discuss-chat-3d.png" style="position:absolute;left:${t(457)}px;top:${t(375)}px;width:${t(134)}px;height:${t(134)}px;z-index:3;transform:rotate(-16.2deg);" alt="" />
-        <div style="position:absolute;left:${t(347)}px;top:${t(459)}px;width:${t(213)}px;height:${t(213)}px;z-index:3;transform:rotate(-8.9deg);">
-          <img src="../assets/tablet/discuss-avatar1.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
-        </div>
-        <div style="position:absolute;left:${t(83)}px;top:${t(585)}px;width:${t(214)}px;height:${t(214)}px;z-index:3;transform:rotate(7.8deg);">
-          <img src="../assets/tablet/discuss-upvote.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
-        </div>
         <img src="../assets/tablet/discuss-girl2.png" style="position:absolute;left:${t(457)}px;top:${t(734)}px;width:${t(132)}px;height:${t(132)}px;z-index:3;" alt="" />
-        <div style="position:absolute;left:${t(382)}px;top:${t(800)}px;width:${t(132)}px;height:${t(132)}px;z-index:3;border-radius:${t(40)}px;overflow:hidden;">
-          <img src="../assets/tablet/discuss-avatar3.png" style="width:100%;height:100%;object-fit:cover;" alt="" />
         </div>
       </div>
       <div class="dd-wm">${SVG_LOGO} daily.dev</div>
@@ -2164,14 +2377,14 @@ function mkSearchTablet(cpp, scr, idx) {
           <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;">${topLineHtml}</div>
           <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:${t(88)}px;color:white;line-height:1.05;margin-top:${t(6)}px;">${mainTitleHtml}</div>
         </div>
-        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(380)}px;width:${t(670)}px;height:${t(90)}px;background:#1b1f26;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(27)}px;display:flex;align-items:center;padding:0 ${t(24)}px;gap:${t(8)}px;z-index:6;">
-          <img src="../assets/tablet/search-icon.png" style="width:${t(50)}px;height:${t(50)}px;" alt="" />
-          <span style="font-family:'Poppins',sans-serif;font-weight:500;font-size:${t(40)}px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${queryText}</span>
+        <div style="position:absolute;left:50%;transform:translateX(-50%);top:${t(380)}px;width:${t(860)}px;height:${t(100)}px;background:#1b1f26;border:${t(6)}px solid rgba(255,255,255,0.64);border-radius:${t(16)}px;display:flex;align-items:center;padding:0 ${t(28)}px;gap:${t(12)}px;z-index:6;">
+          <img src="../assets/tablet/search-icon.png" style="width:${t(44)}px;height:${t(44)}px;" alt="" />
+          <span style="font-family:'Poppins',sans-serif;font-weight:500;font-size:${t(34)}px;color:white;white-space:nowrap;overflow:hidden;text-overflow:clip;">${queryText}</span>
         </div>
-        <div style="position:absolute;left:${t(103)}px;top:${t(531)}px;width:${t(669)}px;height:${t(400)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:${t(103)}px;top:${t(531)}px;width:${t(669)}px;height:${t(400)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:2;">
           <img src="../assets/tablet/search-results.png" style="width:100%;height:100%;object-fit:cover;object-position:top left;display:block;" alt="" />
         </div>
-        <div style="position:absolute;left:${t(798)}px;top:${t(534)}px;width:${t(319)}px;height:${t(391)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:${t(798)}px;top:${t(534)}px;width:${t(319)}px;height:${t(391)}px;border:${t(16)}px solid rgba(255,255,255,0.64);border-radius:${t(24)}px;overflow:hidden;z-index:2;">
           <img src="../assets/tablet/search-podcast.png" style="width:110%;height:110%;object-fit:cover;object-position:center;display:block;margin:-5%;" alt="" />
         </div>
         <img src="../assets/tablet/search-star-3d.png" style="position:absolute;left:${t(6)}px;top:${t(428)}px;width:${t(163)}px;height:${t(163)}px;z-index:3;transform:rotate(161deg) scaleY(-1);" alt="" />
@@ -2214,7 +2427,7 @@ function mkFeaturesTablet(cpp, scr, idx) {
           </div>
           <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:${t(56)}px;color:rgba(255,255,255,0.64);line-height:1.15;margin-left:${t(84)}px;">and much more.</div>
         </div>
-        <div style="position:absolute;left:50%;transform:translateX(${t(78)}px);top:${t(412)}px;width:${t(524)}px;height:${t(540)}px;border:${t(16)}px solid black;border-radius:${t(24)}px;box-shadow:0px ${t(-1)}px 0px ${t(19)}px rgba(255,255,255,0.64);overflow:hidden;z-index:4;">
+        <div style="position:absolute;left:50%;transform:translateX(${t(78)}px);top:${t(412)}px;width:${t(524)}px;height:${t(540)}px;border:${t(16)}px solid black;border-radius:${t(24)}px;box-shadow:0px ${t(-1)}px 0px ${t(19)}px rgba(255,255,255,0.64);overflow:hidden;z-index:2;">
           <img src="../assets/tablet/squads-page.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block;opacity:0.88;" alt="" />
         </div>
         <img src="../assets/tablet/bookmark-3d.png" style="position:absolute;left:50%;transform:translateX(-${t(63)}px);top:${t(577)}px;width:${t(208)}px;height:${t(208)}px;z-index:5;" alt="" />
@@ -2318,11 +2531,8 @@ async function downloadPack(cppId, options = {}) {
 
       btn.innerHTML = `Rendering ${i + 1}/${exportCanvases.length}...`;
 
-      const dataUrl = await renderCanvasToPreset(canvas, preset);
-
-      // Extract the base64 part of the data URL
-      const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-      zip.file(getPackFilename(cppId, i, preset), base64Data, {base64: true});
+      const blob = await captureCanvasBlob(canvas, preset);
+      zip.file(getPackFilename(cppId, i, preset), blob);
 
       // Add a small delay between renders to allow UI to update
       await new Promise(r => setTimeout(r, 100));
@@ -2330,20 +2540,11 @@ async function downloadPack(cppId, options = {}) {
     
     btn.innerHTML = 'Saving Zip...';
     
-    // Generate zip file and trigger download
     const content = await zip.generateAsync({type: "blob"});
-    const url = URL.createObjectURL(content);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `cpp-${cppId}-${preset.id}-screenshots.zip`;
-    link.click();
-    
-    // Cleanup
-    URL.revokeObjectURL(url);
+    triggerBlobDownload(content, `cpp-${cppId}-${preset.id}-screenshots.zip`);
   } catch (err) {
     console.error('Error exporting images:', err);
-    alert('Failed to download images: ' + (err.message || err) + '\n\nTry running via a local web server (e.g. `npx serve` or `python3 -m http.server`) if you are using file:// protocol.');
+    alert('Failed to download images: ' + formatExportError(err) + '\n\nTry running via a local web server (e.g. `npx serve` or `python3 -m http.server`) if you are using file:// protocol.');
   } finally {
     btn.innerHTML = originalText;
     btn.style.pointerEvents = 'auto';
@@ -2374,24 +2575,18 @@ async function downloadAllPacks() {
 
       for (let screenIndex = 0; screenIndex < canvases.length; screenIndex++) {
         btn.textContent = `Rendering ${topicIndex + 1}/${CPP.length} · ${screenIndex + 1}/${canvases.length}`;
-        const dataUrl = await renderCanvasToPreset(canvases[screenIndex], preset);
-        const base64Data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, '');
-        zip.file(getPackFilename(topic.id, screenIndex, preset), base64Data, { base64: true });
+        const blob = await captureCanvasBlob(canvases[screenIndex], preset);
+        zip.file(getPackFilename(topic.id, screenIndex, preset), blob);
         await new Promise((resolve) => setTimeout(resolve, 80));
       }
     }
 
     btn.textContent = 'Saving...';
     const content = await zip.generateAsync({ type: 'blob' });
-    const url = URL.createObjectURL(content);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `cpp-all-topics-${preset.id}-screenshots.zip`;
-    link.click();
-    URL.revokeObjectURL(url);
+    triggerBlobDownload(content, `cpp-all-topics-${preset.id}-screenshots.zip`);
   } catch (err) {
     console.error('Error exporting all packs:', err);
-    alert('Failed to download all images: ' + (err.message || err));
+    alert('Failed to download all images: ' + formatExportError(err));
   } finally {
     btn.innerHTML = originalHTML;
     btn.disabled = false;
@@ -2942,7 +3137,7 @@ function resetCurrentEditorFields() {
 async function downloadCurrentEditorImage() {
   const screen = getScreen(editorState.cppId, editorState.screenIdx);
   if (!screen) return;
-  const previewCanvas = document.querySelector('#editor-preview .ss-canvas');
+  const previewCanvas = document.querySelector('#editor-preview .ss-canvas, #editor-preview .ss-canvas-tablet');
   if (!previewCanvas) return;
 
   const btn = document.getElementById('editor-download-btn');
@@ -2954,16 +3149,13 @@ async function downloadCurrentEditorImage() {
   try {
     await ensureExportLibsLoaded();
     const preset = getExportPreset();
-    const dataUrl = await renderCanvasToPreset(previewCanvas, preset);
-
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = `cpp-${editorState.cppId}-${screen.label.toLowerCase().replace(/\s+/g, '-')}-${preset.id}-${editorState.screenIdx + 1}.png`;
-    link.click();
+    const blob = await captureCanvasBlob(previewCanvas, preset);
+    const labelPart = sanitizeFilenamePart(screen.label, `screen-${editorState.screenIdx + 1}`);
+    triggerBlobDownload(blob, `cpp-${sanitizeFilenamePart(editorState.cppId)}-${labelPart}-${preset.id}-${editorState.screenIdx + 1}.png`);
     setEditorStatus('Downloaded', 'saved');
   } catch (err) {
     console.error('Error downloading image:', err);
-    alert('Failed to download image: ' + (err.message || err));
+    alert('Failed to download image: ' + formatExportError(err));
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;
