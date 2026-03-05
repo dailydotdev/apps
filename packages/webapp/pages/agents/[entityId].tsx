@@ -6,6 +6,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { ArenaEntityPage } from '@dailydotdev/shared/src/features/agents/arena/ArenaEntityPage';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
+import type { AgentEntityOrigin } from '@dailydotdev/shared/src/features/agents/arena/links';
 import type {
   ArenaQueryResponse,
   ArenaTab,
@@ -17,6 +18,7 @@ interface AgentEntityPageProps {
   entityId: string;
   entityName: string;
   tab: ArenaTab;
+  origin?: AgentEntityOrigin;
   seo: ReturnType<typeof getEntitySeo>;
   dehydratedState: DehydratedState;
 }
@@ -42,12 +44,14 @@ const getEntitySeo = ({
 const AgentEntityRoute = ({
   entityId,
   tab,
+  origin,
 }: AgentEntityPageProps): ReactElement => {
-  return <ArenaEntityPage entityId={entityId} tab={tab} />;
+  return <ArenaEntityPage entityId={entityId} tab={tab} origin={origin} />;
 };
 
 export async function getServerSideProps({
   params,
+  query,
   res,
 }: GetServerSidePropsContext): Promise<
   GetServerSidePropsResult<AgentEntityPageProps>
@@ -112,12 +116,18 @@ export async function getServerSideProps({
 
   const entityName =
     codingEntity?.entity.name ?? llmEntity?.entity.name ?? entityId;
+  const originQueryValue = Array.isArray(query.origin)
+    ? query.origin[0]
+    : query.origin;
+  const origin: AgentEntityOrigin | undefined =
+    originQueryValue === 'hub' ? 'hub' : undefined;
 
   return {
     props: {
       entityId,
       entityName,
       tab,
+      origin,
       seo: getEntitySeo({ entityId, entityName }),
       dehydratedState: dehydrate(queryClient),
     },
