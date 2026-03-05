@@ -173,16 +173,19 @@ export const AgentsDigestCard = ({
   }
 
   return (
-    <section className="w-full">
-      <div className="mb-2 flex items-start gap-2">
+    <section className="w-full px-3 py-4 laptop:px-4">
+      <header className="mb-3.5 flex items-start gap-2">
         <div className="flex flex-col">
           <h2 className="font-bold text-text-primary typo-title3">
             Today&apos;s Digest
           </h2>
           {digestUpdatedLabel && (
-            <span className="text-text-tertiary typo-caption1">
+            <time
+              dateTime={post.createdAt}
+              className="text-text-tertiary typo-caption1"
+            >
               Last updated {digestUpdatedLabel}
-            </span>
+            </time>
           )}
         </div>
         <div className="ml-auto flex items-center gap-1.5">
@@ -201,7 +204,7 @@ export const AgentsDigestCard = ({
             <a className="text-text-link typo-caption1">Read more</a>
           </Link>
         </div>
-      </div>
+      </header>
       {!!digestTldr && (
         <div className="text-text-secondary typo-markdown">{digestTldr}</div>
       )}

@@ -21,18 +21,20 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 
-export type ActionButtonsVariant = 'grid' | 'list';
+export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
 export interface ActionButtonsProps {
   post: Post;
-  onUpvoteClick: (post: Post) => unknown;
-  onCommentClick: (post: Post) => unknown;
-  onBookmarkClick: (post: Post) => unknown;
-  onCopyLinkClick: (event: React.MouseEvent, post: Post) => unknown;
+  onUpvoteClick?: (post: Post) => unknown;
+  onCommentClick?: (post: Post) => unknown;
+  onBookmarkClick?: (post: Post) => unknown;
+  onCopyLinkClick?: (event: React.MouseEvent, post: Post) => unknown;
   className?: string;
   onDownvoteClick?: (post: Post) => unknown;
   /** Controls sizing and behavior. Grid = smaller icons, List = larger icons with link navigation */
   variant?: ActionButtonsVariant;
+  showDownvoteAction?: boolean;
+  showAwardAction?: boolean;
 }
 
 const variantConfig = {
@@ -50,6 +52,13 @@ const variantConfig = {
     showTagsPanel: true,
     useCommentLink: true,
   },
+  signal: {
+    buttonSize: ButtonSize.Small,
+    iconSize: IconSize.XSmall,
+    containerClassName: '',
+    showTagsPanel: false,
+    useCommentLink: false,
+  },
 } as const;
 
 const ActionButtons = ({
@@ -61,6 +70,8 @@ const ActionButtons = ({
   className,
   onDownvoteClick,
   variant = 'grid',
+  showDownvoteAction = true,
+  showAwardAction = true,
 }: ActionButtonsProps): ReactElement => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
@@ -180,28 +191,32 @@ const ActionButtons = ({
             )}
           </QuaternaryButton>
         </Tooltip>
-        <Tooltip
-          content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-          side={variant === 'grid' ? 'bottom' : undefined}
-        >
-          <QuaternaryButton
-            className="pointer-events-auto"
-            id={`post-${post.id}-downvote-btn`}
-            color={ButtonColor.Ketchup}
-            icon={
-              <DownvoteIcon
-                secondary={isDownvoteActive}
-                size={config.iconSize}
-              />
-            }
-            pressed={isDownvoteActive}
-            onClick={onToggleDownvote}
-            variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
-          />
-        </Tooltip>
+        {showDownvoteAction && (
+          <Tooltip
+            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+            side={variant === 'grid' ? 'bottom' : undefined}
+          >
+            <QuaternaryButton
+              className="pointer-events-auto"
+              id={`post-${post.id}-downvote-btn`}
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon
+                  secondary={isDownvoteActive}
+                  size={config.iconSize}
+                />
+              }
+              pressed={isDownvoteActive}
+              onClick={onToggleDownvote}
+              variant={ButtonVariant.Tertiary}
+              size={config.buttonSize}
+            />
+          </Tooltip>
+        )}
         {commentButton}
-        <PostAwardAction post={post} iconSize={config.iconSize} />
+        {showAwardAction && (
+          <PostAwardAction post={post} iconSize={config.iconSize} />
+        )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}
           post={post}
