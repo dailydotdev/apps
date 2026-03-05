@@ -75,14 +75,16 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
+const noop = (): void => undefined;
+const asyncNoop = async (): Promise<void> => undefined;
+
 const AUTH_CONTEXT_DEFAULTS: AuthContextData = {
-  user: undefined,
   isLoggedIn: false,
   shouldShowLogin: false,
-  showLogin: () => undefined,
-  closeLogin: () => undefined,
-  logout: async () => undefined,
-  updateUser: async () => undefined,
+  showLogin: noop,
+  closeLogin: noop,
+  logout: asyncNoop,
+  updateUser: asyncNoop,
   loadingUser: true,
   isFetched: false,
   tokenRefreshed: false,

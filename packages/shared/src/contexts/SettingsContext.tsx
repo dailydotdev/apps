@@ -140,30 +140,34 @@ const defaultSettings: RemoteSettings = {
   },
 };
 
+const asyncNoop = async (): Promise<void> => undefined;
+const asyncUnknownNoop = async (): Promise<unknown> => undefined;
+const noop = (): void => undefined;
+
 const SETTINGS_CONTEXT_DEFAULTS: SettingsContextData = {
   ...defaultSettings,
   themeMode: ThemeMode.Dark,
-  setTheme: async () => undefined,
-  toggleOpenNewTab: async () => undefined,
-  setSpaciness: async () => undefined,
-  toggleInsaneMode: async () => undefined,
-  toggleShowTopSites: async () => undefined,
-  toggleSidebarExpanded: async () => undefined,
-  toggleSortingEnabled: async () => undefined,
-  toggleOptOutReadingStreak: async () => undefined,
-  toggleOptOutCompanion: async () => undefined,
-  toggleAutoDismissNotifications: async () => undefined,
-  toggleShowFeedbackButton: async () => undefined,
+  setTheme: asyncNoop,
+  toggleOpenNewTab: asyncNoop,
+  setSpaciness: asyncNoop,
+  toggleInsaneMode: asyncNoop,
+  toggleShowTopSites: asyncNoop,
+  toggleSidebarExpanded: asyncNoop,
+  toggleSortingEnabled: asyncNoop,
+  toggleOptOutReadingStreak: asyncNoop,
+  toggleOptOutCompanion: asyncNoop,
+  toggleAutoDismissNotifications: asyncNoop,
+  toggleShowFeedbackButton: asyncNoop,
   loadedSettings: false,
-  updateCustomLinks: async () => undefined,
-  updateSortCommentsBy: async () => undefined,
-  updateFlag: async () => undefined,
-  updateFlagRemote: async () => undefined,
-  updatePromptFlag: async () => undefined,
-  syncSettings: async () => undefined,
-  onToggleHeaderPlacement: async () => undefined,
-  setSettings: async () => undefined,
-  applyThemeMode: () => undefined,
+  updateCustomLinks: asyncUnknownNoop,
+  updateSortCommentsBy: asyncUnknownNoop,
+  updateFlag: asyncUnknownNoop,
+  updateFlagRemote: asyncUnknownNoop,
+  updatePromptFlag: asyncUnknownNoop,
+  syncSettings: asyncUnknownNoop,
+  onToggleHeaderPlacement: asyncUnknownNoop,
+  setSettings: asyncNoop,
+  applyThemeMode: noop,
 };
 
 const SettingsContext = React.createContext<SettingsContextData>(
