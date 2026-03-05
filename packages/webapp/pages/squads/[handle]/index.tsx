@@ -372,18 +372,16 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
-    const squadSeoTitles = getPageSeoTitles(`${squad.name} Squad`);
-    const referralTitle = referringUser
+    const seoTitleSource = referringUser
       ? `${referringUser.name} invited you to ${squad.name}`
-      : null;
+      : `${squad.name} Squad`;
+    const squadSeoTitles = getPageSeoTitles(seoTitleSource);
 
     const seo: NextSeoProps = {
-      title: referralTitle ?? squadSeoTitles.title,
+      title: squadSeoTitles.title,
       description: squad.description,
       openGraph: {
-        ...(referralTitle
-          ? { title: referralTitle }
-          : squadSeoTitles.openGraph),
+        ...squadSeoTitles.openGraph,
         ...getSquadOpenGraph({ squad }),
       },
       nofollow: !squad.public,

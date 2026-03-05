@@ -75,10 +75,6 @@ export const getProfileSeoDefaults = (
     description: user.bio ? user.bio : `Check out ${user.name}'s profile`,
     // Intentionally canonicalize profile surfaces to the main username URL.
     canonical: `${appOrigin}/${user.username}`,
-    openGraph: {
-      ...profileSeoTitles.openGraph,
-      images: openGraphImages,
-    },
     twitter: {
       handle: getTwitterHandle(user),
     },

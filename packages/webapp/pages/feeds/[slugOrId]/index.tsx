@@ -31,7 +31,7 @@ const FeedPage = (): ReactElement => {
     feed?.flags?.name ? `${feed?.flags?.name} feed` : 'Custom feed',
   );
   const seo: NextSeoProps = {
-    ...seoTitles,
+    title: seoTitles.title,
     openGraph: {
       ...seoTitles.openGraph,
       ...defaultOpenGraph,
