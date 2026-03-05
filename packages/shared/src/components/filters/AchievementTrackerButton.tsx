@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
@@ -23,15 +24,19 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 function AchievementIcon({
   imgSrc,
   imgAlt,
+  hasLabel,
 }: {
   imgSrc: string;
   imgAlt: string;
+  hasLabel: boolean;
 }): ReactElement {
   return (
     <LazyImage
       imgSrc={imgSrc}
       imgAlt={imgAlt}
-      className="size-5 rounded-6 object-cover"
+      className={classNames('size-5 rounded-6 object-cover', {
+        'mr-2': hasLabel,
+      })}
     />
   );
 }
@@ -100,6 +105,7 @@ export function AchievementTrackerButton(): ReactElement | null {
       ? `${progressValue} of ${targetCount} ${unit}`
       : `${progressValue} of ${targetCount}`;
   })();
+  const hasButtonLabel = !!buttonLabel;
 
   const handleTrack = async (achievementId: string) => {
     await trackAchievement(achievementId);
@@ -163,6 +169,7 @@ export function AchievementTrackerButton(): ReactElement | null {
             <AchievementIcon
               imgSrc={trackedAchievement.achievement.image}
               imgAlt={trackedAchievement.achievement.name}
+              hasLabel={hasButtonLabel}
             />
           ) : (
             <MedalBadgeIcon />
