@@ -8,11 +8,17 @@ it('should request plain content for feed posts', () => {
 });
 
 it('should keep feed post fragment lean', () => {
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('views');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('numAwards');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('featuredAward');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('updatedAt');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('digestPostIds');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('callToAction');
-  expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain('private');
+  const removedFeedFields = [
+    'views',
+    'numAwards',
+    'featuredAward',
+    'updatedAt',
+    'digestPostIds',
+    'callToAction',
+    'private',
+  ];
+
+  removedFeedFields.forEach((field) => {
+    expect(FEED_POST_CONNECTION_FRAGMENT).not.toContain(field);
+  });
 });
