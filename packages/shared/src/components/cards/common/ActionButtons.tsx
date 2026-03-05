@@ -230,9 +230,12 @@ const ActionButtons = ({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             size: config.buttonSize,
+            className: classNames(
+              'btn-tertiary-bun',
+              variant === 'list' && 'pointer-events-auto',
+            ),
             ...(variant === 'list' && {
               variant: ButtonVariant.Tertiary,
-              className: 'pointer-events-auto',
             }),
           }}
           iconSize={config.iconSize}
