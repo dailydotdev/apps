@@ -35,7 +35,7 @@ function AchievementIcon({
       imgSrc={imgSrc}
       imgAlt={imgAlt}
       className={classNames('size-5 rounded-6 object-cover', {
-        'ml-2 mr-1': hasLabel,
+        'mr-2': hasLabel,
       })}
     />
   );

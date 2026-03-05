@@ -235,7 +235,7 @@ it('adds spacing classes to achievement image when label is shown', () => {
     trackedAchievement: mockTrackedAchievement,
   });
   renderComponent();
-  expect(screen.getByAltText('First Steps')).toHaveClass('ml-2', 'mr-1');
+  expect(screen.getByAltText('First Steps')).toHaveClass('mr-2');
 });
 
 it('does not add spacing classes to achievement image when no label is shown', () => {
@@ -251,5 +251,5 @@ it('does not add spacing classes to achievement image when no label is shown', (
     },
   });
   renderComponent();
-  expect(screen.getByAltText('First Steps')).not.toHaveClass('ml-2', 'mr-1');
+  expect(screen.getByAltText('First Steps')).not.toHaveClass('mr-2');
 });
