@@ -161,3 +161,5 @@ beforeEach(() => {
 - Treat feed payload content format (`content` vs `contentHtml`) as a product/API contract decision, not a generic optimization.
 - Before changing feed content fields, confirm current consumer requirements and expected rendering path.
 - If requirements are unclear, keep existing feed behavior and add/update a focused query-shape test in `feed.spec.ts`.
+- Current contract for feed queries in this repo: request `contentHtml` and do not request plain `content`.
+- When updating feed fragments/queries, assert both conditions in `feed.spec.ts` (`contentHtml` present, `content` absent).
