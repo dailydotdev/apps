@@ -179,6 +179,7 @@ export interface Post {
   numComments?: number;
   numAwards?: number;
   numReposts?: number;
+  numBookmarks?: number;
   author?: Author;
   scout?: Scout;
   read?: boolean;
