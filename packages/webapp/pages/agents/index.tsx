@@ -182,7 +182,7 @@ AgentsHomePage.layoutProps = {
       type: 'website',
       images: [
         {
-          url: 'https://og.daily.dev/api/arena?tab=coding-agents&hideLink=1',
+          url: 'https://og.daily.dev/api/arena?tab=llms&hideLink=1',
         },
       ],
     },
