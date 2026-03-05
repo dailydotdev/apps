@@ -116,7 +116,8 @@ export const FunnelStepper = ({
       initialStepId,
       onNavigation: trackOnNavigate,
     });
-  const { transition: sendTransition } = useStepTransition(session.id);
+  const { transition: sendTransition, isPending: isTransitioning } =
+    useStepTransition(session.id);
   const isCookieBannerActive = !!funnel?.parameters?.cookieConsent?.show;
   const { showBanner, ...cookieConsentProps } = useFunnelCookies({
     defaultOpen: showCookieBanner,
@@ -125,9 +126,18 @@ export const FunnelStepper = ({
   useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const positionRef = useRef(position);
+  positionRef.current = position;
+
   const onTransition: FunnelStepTransitionCallback = useCallback(
     ({ type, details }) => {
-      const transition = step.transitions.find((item) => item.on === type);
+      const currentStep = stepRef.current;
+      const currentPosition = positionRef.current;
+      const transition = currentStep.transitions.find(
+        (item) => item.on === type,
+      );
       const destination = transition?.destination;
 
       if (!destination) {
@@ -139,7 +149,7 @@ export const FunnelStepper = ({
         steps,
         shouldSkipMap: shouldSkipRef.current,
         chapters,
-        position,
+        position: currentPosition,
         funnelChapters: funnel.chapters,
         stepMap,
       });
@@ -147,7 +157,7 @@ export const FunnelStepper = ({
       const isLastStep = targetStepId === COMPLETED_STEP_ID;
 
       sendTransition({
-        fromStep: step.id,
+        fromStep: currentStep.id,
         toStep: isLastStep ? null : targetStepId,
         transitionEvent: type,
         inputs: details,
@@ -165,11 +175,8 @@ export const FunnelStepper = ({
       }
     },
     [
-      step.transitions,
-      step.id,
       steps,
       chapters,
-      position,
       funnel.chapters,
       stepMap,
       sendTransition,
@@ -261,6 +268,7 @@ export const FunnelStepper = ({
             onSkip={() => {
               onTransition({ type: FunnelStepTransitionType.Skip });
             }}
+            isSkipDisabled={isTransitioning}
             showBackButton={back.hasTarget && !hasOnlySkipButton}
             showSkipButton={shouldShowHeaderSkip}
             showProgressBar={!hasOnlySkipButton}
