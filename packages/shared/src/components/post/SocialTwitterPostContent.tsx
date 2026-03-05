@@ -25,6 +25,7 @@ import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
   getSocialTwitterMetadata,
+  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
@@ -108,6 +109,7 @@ function SocialTwitterPostContentRaw({
     repostedByName,
     metadataHandles,
   });
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
   return (
     <PostContentContainer
@@ -175,12 +177,14 @@ function SocialTwitterPostContentRaw({
             <div className="mb-6 mt-0">
               {post.titleHtml ? (
                 <h1
+                  {...socialTextDirectionProps}
                   className="whitespace-pre-line break-words text-text-primary typo-markdown"
                   data-testid="post-modal-title"
                   dangerouslySetInnerHTML={{ __html: post.titleHtml }}
                 />
               ) : (
                 <h1
+                  {...socialTextDirectionProps}
                   className="whitespace-pre-line break-words text-text-primary typo-markdown"
                   data-testid="post-modal-title"
                 >

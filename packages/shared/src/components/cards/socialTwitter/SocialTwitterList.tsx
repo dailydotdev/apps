@@ -9,24 +9,25 @@ import {
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import { usePostImage } from '../../../hooks/post/usePostImage';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { CardContainer, CardContent, CardTitle } from '../common/list/ListCard';
 import { PostCardHeader } from '../common/list/PostCardHeader';
-import { CardCoverList } from '../common/list/CardCover';
 import ActionButtons from '../common/ActionButtons';
-import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { isSocialTwitterShareLike, PostType } from '../../../graphql/posts';
+import { isXShareLikePost } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
-import { getSocialTwitterMetadata } from './socialTwitterHelpers';
+import {
+  getSocialTwitterMetadata,
+  getSocialTextDirectionProps,
+  getSocialTwitterMetadataLabel,
+} from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 export const SocialTwitterList = forwardRef(function SocialTwitterList(
@@ -38,11 +39,9 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     onCommentClick,
     onCopyLinkClick,
     onBookmarkClick,
-    onShare,
     children,
     enableSourceHeader = false,
     domProps = {},
-    eagerLoadImage = false,
   }: PostCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -51,7 +50,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const onPostCardClick = () => onPostClick(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
-  const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const content = useMemo(
     () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
@@ -59,19 +57,30 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   );
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
-  const isQuoteLike = isSocialTwitterShareLike(post);
+  const isRepostLike = isXShareLikePost(post);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
-  const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
-  const showMediaCover = !!image && !showReferenceTweet;
-  const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
-  const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
+  const repostPrefixPattern = /^.*?reposted on x\.\s*/i;
+  const titleWithoutRepostPrefix =
+    post.title?.replace(repostPrefixPattern, '').trim() ?? '';
+  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
+  const hasTitleCommentary =
+    post.subType !== 'repost' &&
+    !!titleWithoutRepostPrefix &&
+    !!sharedTitle &&
+    !sharedTitle.startsWith(titleWithoutRepostPrefix);
+  const normalizedContent = (post.content || content).trim();
+  const hasDailyDevMarkdown = !!normalizedContent || hasTitleCommentary;
+  const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
-    : 'line-clamp-4';
-  const { repostedByName, embeddedTweetIdentity, embeddedTweetAvatarUser } =
-    getSocialTwitterMetadata(post);
+    : 'line-clamp-10';
+  const {
+    repostedByName,
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+  } = getSocialTwitterMetadata(post);
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardLinkTitle =
-    isQuoteLike && repostedByName
+    isRepostLike && repostedByName
       ? `${repostedByName} reposted on X. ${
           truncatedTitle || post.title || ''
         }`.trim()
@@ -91,16 +100,34 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       />
     </Container>
   );
-  const authorName = post?.author?.name;
-  const sourceName = post?.source?.name;
-  const metadata = isUserSource
-    ? {
+  const metadata = useMemo(() => {
+    const authorName = post?.author?.name;
+    const sourceName = post?.source?.name;
+
+    if (isUserSource) {
+      return {
         topLabel: authorName || sourceName,
-      }
-    : {
-        topLabel: sourceName || authorName,
-        ...(enableSourceHeader ? { bottomLabel: authorName } : {}),
       };
+    }
+
+    if (enableSourceHeader) {
+      return {
+        topLabel: sourceName || authorName,
+        bottomLabel: authorName,
+      };
+    }
+
+    return {
+      topLabel: sourceName || authorName,
+    };
+  }, [
+    enableSourceHeader,
+    isUserSource,
+    post?.author?.name,
+    post?.source?.name,
+  ]);
+  const metadataBottomLabel = getSocialTwitterMetadataLabel();
+
   return (
     <FeedItemContainer
       domProps={{
@@ -124,6 +151,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           metadata={{
             ...metadata,
             dateFirst: true,
+            bottomLabel: metadataBottomLabel,
           }}
           postLink={post.permalink}
           openNewTab
@@ -140,52 +168,40 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
         </PostCardHeader>
 
         <CardContent>
-          <div
-            className={classNames(
-              'flex flex-1 flex-col',
-              showReferenceTweet ? 'mr-0' : 'mr-4',
-            )}
-          >
-            {!shouldHideRepostHeadlineAndTags && (
-              <CardTitle className={!!post.read && 'text-text-tertiary'}>
+          <div className="mr-0 flex flex-1 flex-col">
+            {hasDailyDevMarkdown && (
+              <CardTitle
+                {...socialTextDirectionProps}
+                className={!!post.read && 'text-text-tertiary'}
+              >
                 {truncatedTitle}
               </CardTitle>
             )}
+            {hasDailyDevMarkdown && !!normalizedContent && (
+              <p
+                {...socialTextDirectionProps}
+                className="mt-1 line-clamp-4 whitespace-pre-line break-words text-text-primary typo-callout"
+              >
+                {normalizedContent}
+              </p>
+            )}
             <div className="flex flex-1 tablet:hidden" />
-            {!shouldHideRepostHeadlineAndTags && (
+            {hasDailyDevMarkdown && (
               <div className="flex items-center">
                 {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
                 <PostTags post={postForTags} />
               </div>
             )}
-            {showReferenceTweet && (
-              <EmbeddedTweetPreview
-                post={post}
-                embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-                embeddedTweetIdentity={embeddedTweetIdentity}
-                className="mt-4 w-full"
-                textClampClass={quoteDetailsTextClampClass}
-                showXLogo={false}
-              />
-            )}
-            <div className="hidden flex-1 tablet:flex" />
+            <EmbeddedTweetPreview
+              post={post}
+              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+              embeddedTweetIdentity={embeddedTweetIdentity}
+              className="mt-4 w-full"
+              textClampClass={quoteDetailsTextClampClass}
+              showXLogo
+            />
             {!isMobile && actionButtons}
           </div>
-
-          {showMediaCover && (
-            <CardCoverList
-              onShare={onShare}
-              post={post}
-              imageProps={{
-                alt: 'Post cover image',
-                className: 'mobileXXL:self-start mt-4',
-                ...(eagerLoadImage
-                  ? HIGH_PRIORITY_IMAGE_PROPS
-                  : { loading: 'lazy' }),
-                src: image,
-              }}
-            />
-          )}
         </CardContent>
       </CardContainer>
       {isMobile && actionButtons}

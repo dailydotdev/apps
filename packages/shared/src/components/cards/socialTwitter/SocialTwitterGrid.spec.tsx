@@ -81,10 +81,10 @@ it('should render top action link using post comments permalink', async () => {
   expect(link).toHaveAttribute('href', basePost.permalink);
 });
 
-it('should render source name next to metadata date for regular tweets', async () => {
+it('should render "Posted on X" next to metadata date for regular tweets', async () => {
   renderComponent();
 
-  expect(await screen.findByText(/Avengers/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
   expect(screen.queryByText(/Avengers reposted/i)).not.toBeInTheDocument();
 });
 
@@ -127,7 +127,7 @@ it('should render quote/repost detail from shared post', async () => {
     },
   });
 
-  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
   expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
     0,
   );
@@ -173,7 +173,7 @@ it('should use creatorTwitter when shared source is unknown', async () => {
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
-it('should prefer source name when source id is unknown', async () => {
+it('should use creator identity when source id is unknown', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -186,10 +186,7 @@ it('should prefer source name when source id is unknown', async () => {
     },
   });
 
-  expect(
-    await screen.findByText('Lee Hansel Solevilla Jr'),
-  ).toBeInTheDocument();
-  expect(screen.queryByText('@root_creator')).not.toBeInTheDocument();
+  expect(await screen.findByText('root_creator')).toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
@@ -221,7 +218,7 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();

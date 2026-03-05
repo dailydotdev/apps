@@ -7,6 +7,7 @@ import type { Post, SharedPost } from '../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
 import SettingsContext, {
@@ -31,6 +32,8 @@ import {
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
+import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
+import { getSocialTwitterMetadata } from '../cards/socialTwitter/socialTwitterHelpers';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -128,6 +131,14 @@ export function CommonSharePostContent({
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
   const { type } = sharedPostSource;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
+  const xTitleMatch = sharedPost.title?.match(/^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s);
+  const hasXDomain = [
+    sharedPost.permalink,
+    sharedPost.commentsPermalink,
+    sharedPost.domain,
+  ].some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
+  const shouldRenderTweetPreview =
+    isSocialTwitterPost(sharedPost) || hasXDomain || !!xTitleMatch;
 
   if (isDeleted) {
     return <DeletedPost isCompactSpacing={isCompactSpacing} />;
@@ -139,6 +150,35 @@ export function CommonSharePostContent({
         post={sharedPost}
         openArticle={openArticle}
         isCompactSpacing={isCompactSpacing}
+      />
+    );
+  }
+
+  if (shouldRenderTweetPreview) {
+    const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
+    const socialTwitterPostPreview: Post = {
+      ...sharedPost,
+      sharedPost: {
+        ...sharedPost,
+        title: tweetBody,
+      },
+    };
+    const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+      getSocialTwitterMetadata(socialTwitterPostPreview);
+    const parsedIdentity = xTitleMatch
+      ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
+      : undefined;
+
+    return (
+      <EmbeddedTweetPreview
+        post={socialTwitterPostPreview}
+        embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+        embeddedTweetIdentity={parsedIdentity || embeddedTweetIdentity}
+        className={classNames(sharedContainerClassName, 'w-full')}
+        textClampClass=""
+        bodyClassName="typo-markdown"
+        showXLogo
+        showMedia
       />
     );
   }

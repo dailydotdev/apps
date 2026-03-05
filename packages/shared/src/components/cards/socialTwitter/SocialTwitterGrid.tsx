@@ -9,7 +9,6 @@ import {
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardHeader,
-  CardImage,
   CardTextContainer,
   CardTitle,
   getPostClassNames,
@@ -27,11 +26,11 @@ import { ButtonVariant } from '../../buttons/Button';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
 import { useFeedPreviewMode } from '../../../hooks';
-import { isSocialTwitterShareLike } from '../../../graphql/posts';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import {
   getSocialTwitterMetadata,
+  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
@@ -91,45 +90,39 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const isUserSource = isSourceUserSource(post.source);
-  const isQuoteLike = isSocialTwitterShareLike(post);
-  const shouldHideMedia = post.subType === 'thread';
-  const showQuoteDetail = isQuoteLike;
-  const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
-  const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
-  const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
-    ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1'
-    : 'mx-1 mb-1 mt-2 h-40';
-  const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
-    ? 'line-clamp-[10]'
-    : 'line-clamp-5';
   const rawTitle = post.title || post.sharedPost?.title;
+  const normalizedContent = (
+    post.content || (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
+  ).trim();
+  const repostPrefixPattern = /^.*?reposted on x\.\s*/i;
+  const titleWithoutRepostPrefix =
+    rawTitle?.replace(repostPrefixPattern, '').trim() ?? '';
+  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
+  const hasTitleCommentary =
+    post.subType !== 'repost' &&
+    !!titleWithoutRepostPrefix &&
+    !!sharedTitle &&
+    !sharedTitle.startsWith(titleWithoutRepostPrefix);
+  const hasDailyDevMarkdown = !!normalizedContent || hasTitleCommentary;
+  const quoteDetailsContainerClass = 'mx-1 mb-1 mt-2';
+  const quoteDetailsTextClampClass = hasDailyDevMarkdown
+    ? 'line-clamp-6'
+    : 'line-clamp-8';
   const cardTags = post.tags?.length ? post.tags : post.sharedPost?.tags;
-  const threadBody =
-    post.subType === 'thread'
+  const commentaryBody = hasDailyDevMarkdown
+    ? post.subType === 'thread'
       ? normalizeThreadBody({
           title: rawTitle,
           content: post.content,
           contentHtml: post.contentHtml,
         })
-      : undefined;
-  const {
-    repostedByName,
-    metadataHandles,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
-  const cardOverlayLabel =
-    isQuoteLike && repostedByName
-      ? `${repostedByName} reposted on X. ${
-          rawTitle || post.title || ''
-        }`.trim()
-      : rawTitle;
-  const metadataLabel = getSocialTwitterMetadataLabel({
-    isRepostLike: isQuoteLike,
-    repostedByName,
-    metadataHandles,
-  });
+      : normalizedContent || undefined
+    : undefined;
+  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+    getSocialTwitterMetadata(post);
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+  const cardOverlayLabel = rawTitle;
+  const metadataLabel = getSocialTwitterMetadataLabel();
   const metadataContent = (
     <>
       {!!post.createdAt && <Separator />}
@@ -147,7 +140,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-card max-h-card',
+          'min-h-card max-h-card overflow-hidden',
         ),
       }}
       ref={ref}
@@ -187,14 +180,17 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             </HeaderActions>
           </div>
         </CardHeader>
-        {!shouldHideRepostHeadlineAndTags && (
-          <CardTitle className="min-h-[4.5rem]" lineClamp="line-clamp-3">
+        {hasDailyDevMarkdown && (
+          <CardTitle
+            {...socialTextDirectionProps}
+            className="min-h-[4.5rem]"
+            lineClamp="line-clamp-3"
+          >
             {rawTitle}
           </CardTitle>
         )}
       </CardTextContainer>
-      {!shouldHideRepostHeadlineAndTags && <div className="flex flex-1" />}
-      {!shouldHideRepostHeadlineAndTags && !!cardTags?.length && (
+      {hasDailyDevMarkdown && !!cardTags?.length && (
         <PostTags className="mx-4 mt-0" post={{ tags: cardTags }} />
       )}
       <PostMetadata
@@ -205,30 +201,22 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         {metadataContent}
       </PostMetadata>
       <Container>
-        {threadBody && (
-          <p className="mx-4 mt-1 line-clamp-6 whitespace-pre-line break-words text-text-primary typo-callout">
-            {threadBody}
+        {commentaryBody && (
+          <p
+            {...socialTextDirectionProps}
+            className="mx-4 mt-1 line-clamp-6 whitespace-pre-line break-words text-text-primary typo-callout"
+          >
+            {commentaryBody}
           </p>
         )}
-        {showQuoteDetail ? (
-          <EmbeddedTweetPreview
-            post={post}
-            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-            embeddedTweetIdentity={embeddedTweetIdentity}
-            className={`${quoteDetailsContainerClass} flex flex-col`}
-            textClampClass={quoteDetailsTextClampClass}
-            showXLogo={false}
-          />
-        ) : null}
-        {showMediaDetail && (
-          <div className="mx-1 mb-1 mt-2 h-40 overflow-hidden rounded-12 border border-border-subtlest-tertiary">
-            <CardImage
-              alt="Tweet media"
-              className="size-full object-cover"
-              src={post.image}
-            />
-          </div>
-        )}
+        <EmbeddedTweetPreview
+          post={post}
+          embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+          embeddedTweetIdentity={embeddedTweetIdentity}
+          className={quoteDetailsContainerClass}
+          textClampClass={quoteDetailsTextClampClass}
+          showXLogo
+        />
         <ActionButtons
           className="mt-auto"
           onBookmarkClick={onBookmarkClick}
