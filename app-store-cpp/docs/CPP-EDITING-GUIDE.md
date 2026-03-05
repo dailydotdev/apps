@@ -4,24 +4,30 @@
 
 ## Quick Start
 
-1. All content lives in **`cpp-data.js`** — this is the ONLY file you need to edit for content changes
-2. The rendering engine is in **`app-store-cpp-preview.html`** — do NOT edit this unless asked to change visual layout
-3. Image assets are in **`cpp-assets/`** and **`cpp-tablet-assets/`**
-4. To preview, open `app-store-cpp-preview.html` in a browser (via a local server)
+1. All content lives in **`app-store-cpp/preview/cpp-data.js`** — this is the ONLY file you need to edit for content changes
+2. The rendering engine is in **`app-store-cpp/preview/app-store-cpp-preview.html`** — do NOT edit this unless asked to change visual layout
+3. Image assets are in **`app-store-cpp/assets/`** and **`app-store-cpp/exports/tablet/`**
+4. To preview, open `app-store-cpp/preview/app-store-cpp-preview.html` in a browser (via a local server)
 
 ## File Structure
 
 ```
 /apps/
-├── cpp-data.js                    ← EDIT THIS — all topic/screen content
-├── app-store-cpp-preview.html     ← rendering engine (don't edit for content)
-├── CPP-EDITING-GUIDE.md           ← this file
-├── app-store-cpp-guide.md         ← design spec / creative brief
-├── cpp-assets/                    ← shared image assets
-│   ├── hero/                      ← hero screen assets (logos, laurel, stars)
-│   ├── tab1/ through tab5/        ← phone-specific screen assets
-│   └── tablet/                    ← tablet-specific screen assets
-└── cpp-tablet-assets/             ← pre-rendered tablet screenshots (per topic)
+└── app-store-cpp/
+    ├── preview/
+    │   ├── app-store-cpp-preview.html     ← rendering engine
+    │   ├── app-store-screenshots.html     ← static layout reference
+    │   └── cpp-data.js                    ← EDIT THIS — all topic/screen content
+    ├── docs/
+    │   ├── CPP-EDITING-GUIDE.md           ← this file
+    │   └── app-store-cpp-guide.md         ← design spec / creative brief
+    ├── assets/                            ← shared image assets
+    │   ├── hero/                          ← hero screen assets (logos, laurel, stars)
+    │   ├── tab1/ through tab5/            ← phone-specific screen assets
+    │   └── tablet/                        ← tablet-specific screen assets
+    └── exports/
+        ├── iphone/                        ← pre-rendered iPhone screenshots
+        └── tablet/                        ← pre-rendered tablet screenshots
 ```
 
 ## Data Structure Overview
@@ -400,7 +406,7 @@ Delete the entire topic object (from `{` to `},`) from the array. Make sure the 
 
 ## Downloading Assets
 
-After editing content, the user opens `app-store-cpp-preview.html` in a browser and:
+After editing content, open `app-store-cpp/preview/app-store-cpp-preview.html` in a browser and:
 1. Clicks each topic tab to preview
 2. Uses the "Download" button per topic or "Download All .zip" for everything
 3. Switches between "iPhone 1320×2868" and "Tablet 2752×2064" export modes
@@ -408,12 +414,12 @@ After editing content, the user opens `app-store-cpp-preview.html` in a browser 
 
 ## Asset Directories
 
-- `cpp-assets/hero/` — Logo SVGs, laurel wreath, star images
-- `cpp-assets/tab1/` through `tab5/` — Phone screen images per screen type
-- `cpp-assets/tablet/` — Tablet-specific images
-- `cpp-tablet-assets/` — Pre-exported tablet screenshots (6 per topic)
+- `app-store-cpp/assets/hero/` — Logo SVGs, laurel wreath, star images
+- `app-store-cpp/assets/tab1/` through `tab5/` — Phone screen images per screen type
+- `app-store-cpp/assets/tablet/` — Tablet-specific images
+- `app-store-cpp/exports/tablet/` — Pre-exported tablet screenshots (6 per topic)
 
-Image URLs in the data file are relative paths (e.g., `'cpp-assets/hero/laurel.png'`). Some screens reference Figma API URLs for their assets.
+Image URLs in the preview HTML are relative paths from `app-store-cpp/preview/` (e.g., `'../assets/hero/laurel.png'`). Some screens reference Figma API URLs for their assets.
 
 ## Editor
 

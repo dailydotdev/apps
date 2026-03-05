@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>daily.dev — App Store Screenshots</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0E1217;
+    color: white;
+    font-family: 'Poppins', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #F8A0FF, #CE3DF3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 40px;
+  }
+
+  .screenshots-row {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    padding: 16px 0 40px;
+    max-width: 100%;
+    scroll-snap-type: x mandatory;
+  }
+
+  .screenshot-slot {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    text-align: center;
+  }
+
+  .screenshot-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 12px;
+  }
+
+  /*
+   * All Figma screens are 720×1564. We render at 0.5× → 360×782.
+   * Every px value below = Figma-px × 0.5
+   */
+  .ss {
+    width: 360px;
+    height: 782px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  /* ===== GRADIENT BACKGROUNDS ===== */
+  .ss-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .ss-bg-magenta {
+    background:
+      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
+      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      #BF29F0;
+  }
+  .ss-bg-tab1 {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(28,31,38,1) 0%, rgba(93,72,143,0.5) 35%, rgba(157,112,248,0) 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
+      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      #BF29F0;
+  }
+  .ss-bg-tab4 {
+    background:
+      radial-gradient(ellipse at 0% 100%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(157,112,248,1) 0%, rgba(157,112,248,0) 55%),
+      radial-gradient(ellipse at 50% 0%, rgba(254,122,182,1) 0%, rgba(254,122,182,0) 55%),
+      #BF29F0;
+  }
+
+  .ss-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ===== PHONE MOCKUP (shared) ===== */
+  .phone {
+    position: absolute;
+    z-index: 3;
+    border: 7.2px solid black;
+    box-shadow: 0px -0.6px 0px 9.6px rgba(255,255,255,0.64);
+    overflow: hidden;
+    background: #0E1217;
+  }
+  .phone img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ===== 3D FLOAT (shared) ===== */
+  .f {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+  }
+  .f img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ===== HEADLINE (shared) ===== */
+  .hl { position: absolute; z-index: 5; }
+  .hl h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: white;
+    line-height: 1.12;
+  }
+  .hl .sub {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: white;
+    opacity: 0.64;
+    line-height: 1.12;
+  }
+
+  /* =========================================================
+   * TAB 1 — "Learn new things / anywhere"
+   * Figma: headline centered, phone centered, 3D left+right
+   * ========================================================= */
+  .t1 .hl {
+    top: 52px; left: 0; right: 0; text-align: center;
+  }
+  .t1 .hl h2 { font-size: 44px; line-height: 1.0; }
+  .t1 .hl .sub { font-size: 28px; margin-top: 14px; line-height: 1.0; }
+
+  .t1 .phone {
+    width: 301px; height: 646px;
+    top: 240px;
+    left: 50%; transform: translateX(-50%);
+    border-radius: 38px;
+  }
+  .t1 .phone img { object-fit: contain; }
+
+  .t1 .f-rss {
+    width: 140px; height: 140px;
+    left: -46px; top: 138px;
+  }
+  .t1 .f-hash {
+    width: 160px; height: 160px;
+    right: -54px; top: 128px;
+  }
+
+  /* =========================================================
+   * TAB 2 — "Personalized / for you"
+   * Figma: headline centered, stars+quote, smaller phone, floating avatars
+   * ========================================================= */
+  .t2 .hl {
+    top: 52px; left: 0; right: 0; text-align: center;
+  }
+  .t2 .hl h2 { font-size: 44px; }
+  .t2 .hl .sub { font-size: 28px; }
+
+  .t2 .stars {
+    position: absolute; z-index: 5;
+    top: 150px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: flex-start; gap: 0;
+  }
+  .t2 .stars img.star-row { height: 50px; width: auto; }
+  .t2 .stars img.star-half-icon {
+    height: 24px; width: 24px; margin-left: -8px; margin-top: -4px;
+  }
+
+  .t2 .quote {
+    position: absolute; z-index: 5;
+    top: 218px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+  }
+  .t2 .quote .q {
+    font-size: 16px; font-weight: 500; color: white;
+  }
+  .t2 .quote .author {
+    font-size: 12px; color: rgba(255,255,255,0.64);
+  }
+
+  .t2 .phone {
+    width: 218px; height: 468px;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -36%);
+    border-width: 5.2px;
+    border-radius: 35px;
+    box-shadow: 0px -0.43px 0px 6.93px rgba(255,255,255,0.64);
+  }
+  .t2 .phone img { object-fit: contain; }
+
+  /* Floating avatars (approximate 0.5× Figma positions) */
+  .t2 .av { position: absolute; z-index: 4; pointer-events: none; overflow: hidden; }
+  .t2 .av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .t2 .av-js {
+    width: 90px; height: 90px; border-radius: 50%;
+    left: -45px; top: 235px; transform: rotate(10deg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .t2 .av-gopher {
+    width: 64px; height: 64px; border-radius: 81px;
+    left: 2px; top: 373px; transform: rotate(-9.6deg);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+  }
+  .t2 .av-face {
+    width: 72px; height: 72px; border-radius: 50%;
+    left: 5px; top: 460px; transform: rotate(-22deg);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .t2 .av-yandex {
+    width: 87px; height: 87px; border-radius: 81px;
+    left: 21px; top: 576px;
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+  }
+  .t2 .av-red {
+    width: 66px; height: 66px; border-radius: 50%;
+    left: 8px; top: 693px; transform: rotate(-22deg);
+  }
+  .t2 .av-dev {
+    width: 77px; height: 77px; border-radius: 50%;
+    right: -20px; top: 306px;
+  }
+  .t2 .av-sm {
+    width: 45px; height: 45px; border-radius: 81px;
+    right: -7px; top: 417px; transform: rotate(10.9deg);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+  }
+  .t2 .av-go {
+    width: 64px; height: 64px; border-radius: 81px;
+    right: -20px; top: 548px; transform: rotate(-15deg);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+  }
+  .t2 .av-mega {
+    width: 77px; height: 77px; border-radius: 50%;
+    right: -14px; top: 662px; transform: rotate(-165deg) scaleY(-1);
+  }
+
+  .t2 .shadow {
+    position: absolute; z-index: 2;
+    border-radius: 52px;
+    background: rgba(0,0,0,0.2);
+    filter: blur(14px);
+  }
+  .t2 .sh-1 { width: 72px; height: 67px; left: 199px; top: 422px; }
+  .t2 .sh-2 { width: 111px; height: 104px; left: 173px; top: 466px; }
+  .t2 .sh-3 { width: 69px; height: 64px; left: 81px; top: 458px; }
+
+  /* =========================================================
+   * TAB 3 — "Discuss / with a global dev community"
+   * Figma: headline left-aligned, phone offset right
+   * ========================================================= */
+  .t3 .hl {
+    top: 56px; left: 36px; width: 312px;
+  }
+  .t3 .hl h2 { font-size: 44px; line-height: 1.12; }
+  .t3 .hl .sub { font-size: 28px; margin-top: 10px; width: 230px; line-height: 1.12; }
+
+  .t3 .phone {
+    width: 301px; height: 642px;
+    left: calc(50% + 63px);
+    transform: translateX(-50%);
+    top: 224px;
+    border-radius: 32px;
+  }
+
+  .t3 .f-chat {
+    width: 49px; height: 49px;
+    right: 7px; top: 9px;
+    transform: rotate(-16.2deg);
+  }
+  .t3 .f-avatar-top {
+    width: 88px; height: 88px;
+    right: 17px; top: 34px;
+    transform: rotate(-8.9deg);
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 3;
+  }
+  .t3 .f-upvote {
+    width: 70px; height: 70px;
+    left: 39px; top: 640px;
+  }
+  .t3 .f-shadow-girl {
+    position: absolute; z-index: 2;
+    width: 56px; height: 65px;
+    left: 33px; top: 545px;
+    background: #8f3776; opacity: 0.5;
+    filter: blur(11px); border-radius: 10px;
+  }
+  .t3 .phone img {
+    width: 100%;
+    height: 107%;
+    object-fit: cover;
+    object-position: center bottom;
+  }
+  .t3 .f-girl {
+    width: 88px; height: 88px;
+    left: 10px; top: 526px;
+  }
+  .t3 .f-frame-bottom {
+    width: 60px; height: 60px;
+    left: -20px; top: 570px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* =========================================================
+   * TAB 4 — "Explore a world of / developer resources"
+   * Figma: subtitle ABOVE headline, search bar, phone bottom-anchored
+   * ========================================================= */
+  .t4 .hl {
+    top: 52px; left: 0; right: 0; text-align: center;
+  }
+  .t4 .hl .sub {
+    font-size: 28px; margin-bottom: 4px;
+  }
+  .t4 .hl h2 { font-size: 44px; line-height: 1.12; }
+
+  .t4 .search-bar {
+    position: absolute; z-index: 6;
+    left: 50%; transform: translateX(-50%);
+    top: 255px;
+    width: 230px; height: 40px;
+    background: rgba(14,18,23,0.9);
+    border: 4.8px solid rgba(255,255,255,0.64);
+    border-radius: 12px;
+    display: flex; align-items: center;
+    padding: 0 12px; gap: 3px;
+    backdrop-filter: blur(24px);
+  }
+  .t4 .search-bar img { width: 23px; height: 23px; flex-shrink: 0; }
+  .t4 .search-bar span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 17px; font-weight: 400; color: white;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .t4 .phone {
+    width: 301px; height: 509px;
+    left: 50%; transform: translateX(-50%);
+    top: 272px;
+    border-radius: 32px 32px 0 0;
+    border-bottom: none;
+  }
+
+  .t4 .f-shadow-l {
+    position: absolute; z-index: 2;
+    width: 69px; height: 62px;
+    left: -4px; top: 216px;
+    background: #852476; opacity: 0.6;
+    filter: blur(11px); border-radius: 15px;
+  }
+  .t4 .f-3d-l {
+    width: 128px; height: 128px;
+    left: -38px; top: 160px;
+    transform: rotate(-11.25deg);
+  }
+  .t4 .f-shadow-r {
+    position: absolute; z-index: 2;
+    width: 69px; height: 63px;
+    right: -4px; top: 222px;
+    background: #852476; opacity: 0.6;
+    filter: blur(11px); border-radius: 10px;
+  }
+  .t4 .f-3d-r {
+    width: 128px; height: 128px;
+    right: -38px; top: 160px;
+    transform: rotate(18.85deg);
+  }
+
+  /* =========================================================
+   * TAB 5 — "+ Bookmarks / + Squads / + DevCards / and much more."
+   * Figma: feature list with plus icons, phone below
+   * ========================================================= */
+  .t5 .hl {
+    top: 52px; left: 52px; width: 280px;
+  }
+  .t5 .feat {
+    display: flex; flex-direction: column;
+    gap: 6px; margin-bottom: 12px;
+  }
+  .t5 .feat-row {
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .t5 .feat-icon {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.24);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .t5 .feat-icon img { width: 19px; height: 19px; }
+  .t5 .feat-row h2 { font-size: 32px; font-weight: 800; line-height: 1.0; }
+  .t5 .hl .sub { font-size: 20px; line-height: 1.0; }
+
+  .t5 .phone {
+    width: 301px; height: 385px;
+    left: 50%; transform: translateX(-50%);
+    top: 281px;
+    border-radius: 32px;
+  }
+  .t5 .phone img { object-fit: contain; }
+
+  .t5 .f-atom {
+    width: 133px; height: 133px;
+    left: -45px; top: 193px;
+    transform: rotate(-173deg) scaleY(-1);
+  }
+  .t5 .f-bm {
+    width: 129px; height: 129px;
+    right: -46px; top: 591px;
+  }
+</style>
+</head>
+<body>
+
+<h1>daily.dev App Store Screenshots</h1>
+<p class="page-sub">1320 &times; 2868 px &mdash; iPhone 15 Pro Max (16:9)</p>
+
+<div class="screenshots-row">
+
+  <!-- ========== TAB 1 ========== -->
+  <div class="screenshot-slot">
+    <div class="screenshot-label">Screenshot 1</div>
+    <div class="ss t1">
+      <div class="ss-bg ss-bg-tab1"></div>
+      <div class="ss-content">
+        <div class="hl">
+          <h2>Learn new<br>things</h2>
+          <p class="sub">anywhere</p>
+        </div>
+        <div class="phone">
+          <img src="../assets/tab1/phone.png" alt="daily.dev feed">
+        </div>
+        <div class="f f-rss"><img src="../assets/tab1/3d-rss.png" alt=""></div>
+        <div class="f f-hash"><img src="../assets/tab1/3d-hashtag.png" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 2 ========== -->
+  <div class="screenshot-slot">
+    <div class="screenshot-label">Screenshot 2</div>
+    <div class="ss t2">
+      <div class="ss-bg ss-bg-magenta"></div>
+      <div class="ss-content">
+        <div class="hl">
+          <h2>Personalized</h2>
+          <p class="sub">for you</p>
+        </div>
+        <div class="stars">
+          <img class="star-row" src="../assets/tab2/stars.svg" alt="5 stars">
+          <img class="star-half-icon" src="../assets/tab2/star-half.svg" alt="">
+        </div>
+        <div class="quote">
+          <span class="q">&ldquo;Must have app for devs&rdquo; </span>
+          <span class="author">James Barish</span>
+        </div>
+        <div class="phone">
+          <img src="../assets/tab2/phone.png" alt="Tag selection">
+        </div>
+        <!-- Avatars left -->
+        <div class="av av-js"><img src="../assets/tab2/avatar-js.png" alt=""></div>
+        <div class="av av-gopher"><img src="../assets/tab2/avatar-1.png" alt=""></div>
+        <div class="av av-face"><img src="../assets/tab2/avatar-2.png" alt=""></div>
+        <div class="av av-yandex"><img src="../assets/tab2/avatar-yandex.png" alt=""></div>
+        <div class="av av-red"><img src="../assets/tab2/avatar-red.png" alt=""></div>
+        <!-- Avatars right -->
+        <div class="av av-dev"><img src="../assets/tab2/avatar-dev.png" alt=""></div>
+        <div class="av av-sm"><img src="../assets/tab2/avatar-small.png" alt=""></div>
+        <div class="av av-go"><img src="../assets/tab2/avatar-go.png" alt=""></div>
+        <div class="av av-mega"><img src="../assets/tab2/avatar-mega.png" alt=""></div>
+        <!-- Shadows -->
+        <div class="shadow sh-1"></div>
+        <div class="shadow sh-2"></div>
+        <div class="shadow sh-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 3 ========== -->
+  <div class="screenshot-slot">
+    <div class="screenshot-label">Screenshot 3</div>
+    <div class="ss t3">
+      <div class="ss-bg ss-bg-magenta"></div>
+      <div class="ss-content">
+        <div class="hl">
+          <h2>Discuss</h2>
+          <p class="sub">with a global dev community</p>
+        </div>
+        <div class="phone">
+          <img src="../assets/tab3/phone.png" alt="Discussion view">
+        </div>
+        <div class="f f-avatar-top"><img src="../assets/tab3/avatar-frame-1.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+        <div class="f f-chat"><img src="../assets/tab3/3d-chat.png" alt=""></div>
+        <div class="f f-upvote"><img src="../assets/tab3/3d-upvote.png" alt=""></div>
+        <div class="f-shadow-girl"></div>
+        <div class="f f-girl"><img src="../assets/tab3/3d-share.png" alt=""></div>
+        <div class="f f-frame-bottom"><img src="../assets/tab3/avatar-frame-3.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:18px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 4 ========== -->
+  <div class="screenshot-slot">
+    <div class="screenshot-label">Screenshot 4</div>
+    <div class="ss t4">
+      <div class="ss-bg ss-bg-tab4"></div>
+      <div class="ss-content">
+        <div class="hl">
+          <p class="sub">Explore a world of</p>
+          <h2>developer<br>resources</h2>
+        </div>
+        <div class="search-bar">
+          <img src="../assets/tab4/search-icon.svg" alt="">
+          <span>How to be a great developer?</span>
+        </div>
+        <div class="phone">
+          <img src="../assets/tab4/phone.png" alt="AI search results">
+        </div>
+        <div class="f-shadow-l"></div>
+        <div class="f f-3d-l"><img src="../assets/tab4/3d-search-left.png" alt=""></div>
+        <div class="f-shadow-r"></div>
+        <div class="f f-3d-r"><img src="../assets/tab4/3d-search-right.png" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 5 ========== -->
+  <div class="screenshot-slot">
+    <div class="screenshot-label">Screenshot 5</div>
+    <div class="ss t5">
+      <div class="ss-bg ss-bg-magenta"></div>
+      <div class="ss-content">
+        <div class="hl">
+          <div class="feat">
+            <div class="feat-row">
+              <div class="feat-icon">
+                <img src="../assets/tab5/plus-icon.svg" alt="+">
+              </div>
+              <h2>Bookmarks</h2>
+            </div>
+            <div class="feat-row">
+              <div class="feat-icon">
+                <img src="../assets/tab5/plus-icon.svg" alt="+">
+              </div>
+              <h2>Squads</h2>
+            </div>
+            <div class="feat-row">
+              <div class="feat-icon">
+                <img src="../assets/tab5/plus-icon.svg" alt="+">
+              </div>
+              <h2>DevCards</h2>
+            </div>
+          </div>
+          <p class="sub">and much more.</p>
+        </div>
+        <div class="phone">
+          <img src="../assets/tab5/phone.png" alt="Squads view">
+        </div>
+        <div class="f f-atom"><img src="../assets/tab5/3d-atom.png" alt=""></div>
+        <div class="f f-bm"><img src="../assets/tab5/3d-bookmark.png" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
