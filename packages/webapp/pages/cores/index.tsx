@@ -37,11 +37,12 @@ import { useBuyCoresContext } from '@dailydotdev/shared/src/contexts/BuyCoresCon
 import { iOSSupportsCoresPurchase } from '@dailydotdev/shared/src/lib/ios';
 import { getCoresLayout } from '../../components/layouts/CoresLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Buy Cores');
 export const seo: NextSeoProps = {
-  title: getTemplatedTitle('Buy Cores'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Purchase Cores to recognize valuable contributions, support creators, and fuel the developer community on daily.dev. Fast, secure, and flexible credit bundles.',
 };

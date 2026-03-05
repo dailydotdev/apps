@@ -49,7 +49,7 @@ import {
 } from '../../lib/func';
 import {
   agentsLeaderboardEntrypointFeature,
-  installExtensionFeedMenuFeature,
+  installExtensionPromptFeature,
 } from '../../lib/featureManagement';
 import type { AgentsLeaderboardEntrypointFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
@@ -103,8 +103,8 @@ export const SearchControlHeader = ({
   const isEdge = browserName === BrowserName.Edge;
   const shouldEvaluateInstallExtensionExperiment =
     !checkIsExtension() && user?.flags?.lastExtensionUse === null;
-  const { value: isInstallExtensionFeedMenuEnabled } = useConditionalFeature({
-    feature: installExtensionFeedMenuFeature,
+  const { value: isInstallExtensionPrompt } = useConditionalFeature({
+    feature: installExtensionPromptFeature,
     shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
   });
   const feedsWithActions = [
@@ -140,7 +140,7 @@ export const SearchControlHeader = ({
     ActionType.DismissInstallExtension,
   );
   const installExtensionButton = hasFeedActions &&
-    isInstallExtensionFeedMenuEnabled &&
+    isInstallExtensionPrompt &&
     !hasDismissedInstallExtension && (
       <>
         <div className="flex flex-1" />

@@ -15,7 +15,7 @@ import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUse
 import { USER_SHORT_BY_ID } from '@dailydotdev/shared/src/graphql/users';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { PostPage, seoTitle } from '../index';
@@ -78,11 +78,13 @@ export const getServerSideProps: GetServerSideProps<
     }
 
     const post = initialData.post as Post;
+    const pageSeoTitles = getPageSeoTitles(seoTitle(post));
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-      title: getTemplatedTitle(seoTitle(post)),
+      title: pageSeoTitles.title,
       description: getSeoDescription(post),
       openGraph: {
+        ...pageSeoTitles.openGraph,
         images: [
           {
             url: `https://og.daily.dev/api/posts/${post?.id}?userid=${shareUser.id}`,

@@ -18,7 +18,7 @@ import { SquadList } from '@dailydotdev/shared/src/components/cards/squad/SquadL
 import { PlaceholderSquadGridList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from '@dailydotdev/shared/src/components/cards/squad/PlaceholderSquadList';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { defaultOpenGraph } from '../../../next-seo';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
@@ -27,9 +27,10 @@ export type Props = {
   initialData?: InfiniteData<SourcesQueryData<Squad>>;
 };
 
+const seoTitles = getPageSeoTitles('Explore the featured Squads');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Explore the featured Squads'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description: `Explore daily.dev’s featured Squads, handpicked by our editors. Join the best developer communities and engage in top discussions today.`,
 };
 

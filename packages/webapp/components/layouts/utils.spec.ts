@@ -1,4 +1,4 @@
-import { getTemplatedTitle } from './utils';
+import { getPageSeoTitles, getTemplatedTitle } from './utils';
 
 describe('getTemplatedTitle', () => {
   it('keeps suffix at the 48-char boundary', () => {
@@ -38,8 +38,36 @@ describe('getTemplatedTitle', () => {
   });
 
   it('truncates and appends ellipsis when base title exceeds limit', () => {
-    const title = 'b'.repeat(70);
+    const title =
+      'How to implement authentication and authorization in modern systems with confidence';
 
-    expect(getTemplatedTitle(title)).toBe(`${'b'.repeat(57)}...`);
+    expect(getTemplatedTitle(title)).toBe(
+      'How to implement authentication and authorization in...',
+    );
+  });
+});
+
+describe('getPageSeoTitles', () => {
+  it('keeps SEO title truncated while og title remains full', () => {
+    const title =
+      'How to implement authentication and authorization in modern systems with confidence';
+
+    expect(getPageSeoTitles(title)).toEqual({
+      title: 'How to implement authentication and authorization in...',
+      openGraph: {
+        title: `${title} | daily.dev`,
+      },
+    });
+  });
+
+  it('returns matching SEO and og titles when title is short', () => {
+    const title = 'Build with confidence';
+
+    expect(getPageSeoTitles(title)).toEqual({
+      title: `${title} | daily.dev`,
+      openGraph: {
+        title: `${title} | daily.dev`,
+      },
+    });
   });
 });

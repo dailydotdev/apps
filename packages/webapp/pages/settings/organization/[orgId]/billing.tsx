@@ -28,7 +28,7 @@ import { useOrganizationSubscription } from '@dailydotdev/shared/src/features/or
 import { PlusPriceType } from '@dailydotdev/shared/src/lib/featureValues';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultSeo } from '../../../../next-seo';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
 const Page = (): ReactElement => {
@@ -200,7 +200,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Organization'),
+  ...getPageSeoTitles('Organization'),
 };
 
 Page.getLayout = getOrganizationLayout;

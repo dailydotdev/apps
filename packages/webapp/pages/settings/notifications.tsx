@@ -11,12 +11,12 @@ import EmailNotificationsTab from '@dailydotdev/shared/src/components/notificati
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { AccountPageContent } from '../../components/layouts/SettingsLayout/common';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Manage account notifications'),
+  ...getPageSeoTitles('Manage account notifications'),
 };
 
 const AccountNotificationsPage = (): ReactElement => {
