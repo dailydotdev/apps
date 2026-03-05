@@ -180,6 +180,11 @@ AgentsHomePage.layoutProps = {
       description: AGENTS_DESCRIPTION,
       url: 'https://app.daily.dev/agents',
       type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=llms&hideLink=1',
+        },
+      ],
     },
   },
 };
