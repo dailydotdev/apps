@@ -103,7 +103,7 @@ export const SearchControlHeader = ({
   const isEdge = browserName === BrowserName.Edge;
   const shouldEvaluateInstallExtensionExperiment =
     !checkIsExtension() && user?.flags?.lastExtensionUse === null;
-  const { value: isInstallExtensionPromptEnabled } = useConditionalFeature({
+  const { value: isInstallExtensionPrompt } = useConditionalFeature({
     feature: installExtensionPromptFeature,
     shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
   });
@@ -140,7 +140,7 @@ export const SearchControlHeader = ({
     ActionType.DismissInstallExtension,
   );
   const installExtensionButton = hasFeedActions &&
-    isInstallExtensionPromptEnabled &&
+    isInstallExtensionPrompt &&
     !hasDismissedInstallExtension && (
       <>
         <div className="flex flex-1" />
