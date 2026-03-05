@@ -8,7 +8,11 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { PlusList, plusOrganizationFeatureList } from './PlusList';
+import {
+  PlusList,
+  plusFeatureList,
+  plusOrganizationFeatureList,
+} from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -58,6 +62,46 @@ interface PageCopy {
   description: string;
   subtitle: string;
 }
+
+const plusFeaturePillars = [
+  {
+    title: 'For your agents',
+    featureIds: [
+      'ai-agent-integration',
+      'public-api',
+      'presidential-briefing',
+      'smart prompts',
+    ],
+  },
+  {
+    title: 'For your feed',
+    featureIds: [
+      'custom feeds',
+      'clean titles',
+      'keyword filter',
+      'auto-translate',
+    ],
+  },
+  {
+    title: 'For your experience',
+    featureIds: ['ad-free', 'bookmark folders', 'member squad', 'support team'],
+  },
+] as const;
+
+const getPlusFeaturesByIds = (featureIds: string[]) => {
+  const featureMap = new Map(
+    plusFeatureList.map((feature) => [feature.id, feature]),
+  );
+
+  return featureIds.map((featureId) => {
+    const feature = featureMap.get(featureId);
+    if (!feature) {
+      throw new Error(`Missing Plus feature for id "${featureId}"`);
+    }
+
+    return feature;
+  });
+};
 
 export const defaultPlusInfoCopy: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
@@ -307,11 +351,30 @@ export const PlusInfo = ({
           </Button>
         </div>
       ) : undefined}
-      {showPlusList && (
-        <PlusList
-          items={isOrganization ? plusOrganizationFeatureList : undefined}
-        />
-      )}
+      {showPlusList &&
+        (isOrganization ? (
+          <PlusList items={plusOrganizationFeatureList} />
+        ) : (
+          <div className="flex flex-col gap-4 py-6">
+            {plusFeaturePillars.map((pillar) => (
+              <section key={pillar.title}>
+                <Typography
+                  tag={TypographyTag.H3}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="mb-1 uppercase"
+                  bold
+                >
+                  {pillar.title}
+                </Typography>
+                <PlusList
+                  className="!py-0"
+                  items={getPlusFeaturesByIds([...pillar.featureIds])}
+                />
+              </section>
+            ))}
+          </div>
+        ))}
       {showTrustReviews && (
         <div className="flex flex-col gap-4">
           <PlusTrustReviews />
