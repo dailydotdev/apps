@@ -22,7 +22,7 @@ import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { StaleTime } from '@dailydotdev/shared/src/lib/query';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 
 interface SquadCategoryPageProps extends DynamicSeoProps {
@@ -113,8 +113,10 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
+    const seoTitles = getPageSeoTitles(`Explore ${category?.title} Squads`);
     const seo = {
-      title: getTemplatedTitle(`Explore ${category?.title} Squads`),
+      title: seoTitles.title,
+      openGraph: { ...seoTitles.openGraph },
       description: `Find the best Squads in the ${category?.title} category on daily.dev. Connect with like-minded developers and collaborate on the latest technologies.`,
     };
 

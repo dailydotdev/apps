@@ -35,7 +35,7 @@ import { SubscriptionStatus } from '@dailydotdev/shared/src/lib/plus';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
-import { getTemplatedTitle } from '../../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo } from '../../../../next-seo';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 
@@ -220,7 +220,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Organization'),
+  ...getPageSeoTitles('Organization'),
 };
 
 Page.getLayout = getOrganizationLayout;
