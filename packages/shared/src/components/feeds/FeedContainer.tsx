@@ -168,7 +168,6 @@ export const FeedContainer = ({
   const { spaciness, loadedSettings } = useContext(SettingsContext);
   const { value: isFeedLayoutV2 } = useConditionalFeature({
     feature: featureFeedLayoutV2,
-    shouldEvaluate: true,
   });
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);

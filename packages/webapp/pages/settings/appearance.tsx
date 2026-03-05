@@ -71,7 +71,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
   const { value: isFeedLayoutV2 } = useConditionalFeature({
     feature: featureFeedLayoutV2,
-    shouldEvaluate: true,
   });
 
   const onLayoutToggle = useCallback(

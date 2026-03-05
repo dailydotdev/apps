@@ -201,7 +201,6 @@ export default function Feed<T>({
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { value: isFeedLayoutV2 } = useConditionalFeature({
     feature: featureFeedLayoutV2,
-    shouldEvaluate: true,
   });
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
   const effectiveSpaciness: Spaciness = isFeedLayoutV2

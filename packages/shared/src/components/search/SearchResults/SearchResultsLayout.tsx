@@ -31,7 +31,6 @@ export const SearchResultsLayout = (
   const { spaciness } = useContext(SettingsContext);
   const { value: isFeedLayoutV2 } = useConditionalFeature({
     feature: featureFeedLayoutV2,
-    shouldEvaluate: true,
   });
   const effectiveSpaciness: Spaciness = isFeedLayoutV2 ? 'eco' : spaciness;
   const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
