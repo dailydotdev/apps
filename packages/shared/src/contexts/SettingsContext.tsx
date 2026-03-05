@@ -143,6 +143,39 @@ const defaultSettings: RemoteSettings = {
 const asyncNoop = async (): Promise<void> => undefined;
 const asyncUnknownNoop = async (): Promise<unknown> => undefined;
 const noop = (): void => undefined;
+let hasReportedMissingSettingsContext = false;
+
+const reportMissingSettingsContext = (): void => {
+  if (hasReportedMissingSettingsContext) {
+    return;
+  }
+
+  hasReportedMissingSettingsContext = true;
+  const error = new Error(
+    'SettingsContext is being consumed outside SettingsContextProvider; using fallback settings defaults.',
+  );
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const { reportError } = window as Window & {
+    reportError?: (err: Error) => void;
+  };
+
+  if (typeof reportError === 'function') {
+    reportError(error);
+
+    return;
+  }
+
+  window.dispatchEvent(
+    new ErrorEvent('error', {
+      error,
+      message: error.message,
+    }),
+  );
+};
 
 const SETTINGS_CONTEXT_DEFAULTS: SettingsContextData = {
   ...defaultSettings,
@@ -355,5 +388,12 @@ export const SettingsContextProvider = ({
   );
 };
 
-export const useSettingsContext = (): SettingsContextData =>
-  useContext(SettingsContext);
+export const useSettingsContext = (): SettingsContextData => {
+  const context = useContext(SettingsContext);
+
+  if (context === SETTINGS_CONTEXT_DEFAULTS) {
+    reportMissingSettingsContext();
+  }
+
+  return context;
+};

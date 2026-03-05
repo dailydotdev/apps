@@ -77,6 +77,39 @@ export interface AuthContextData {
 const isExtension = checkIsExtension();
 const noop = (): void => undefined;
 const asyncNoop = async (): Promise<void> => undefined;
+let hasReportedMissingAuthContext = false;
+
+const reportMissingAuthContext = (): void => {
+  if (hasReportedMissingAuthContext) {
+    return;
+  }
+
+  hasReportedMissingAuthContext = true;
+  const error = new Error(
+    'AuthContext is being consumed outside AuthContextProvider; using fallback auth defaults.',
+  );
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const { reportError } = window as Window & {
+    reportError?: (err: Error) => void;
+  };
+
+  if (typeof reportError === 'function') {
+    reportError(error);
+
+    return;
+  }
+
+  window.dispatchEvent(
+    new ErrorEvent('error', {
+      error,
+      message: error.message,
+    }),
+  );
+};
 
 const AUTH_CONTEXT_DEFAULTS: AuthContextData = {
   isLoggedIn: false,
@@ -94,7 +127,15 @@ const AUTH_CONTEXT_DEFAULTS: AuthContextData = {
 };
 
 const AuthContext = React.createContext<AuthContextData>(AUTH_CONTEXT_DEFAULTS);
-export const useAuthContext = (): AuthContextData => useContext(AuthContext);
+export const useAuthContext = (): AuthContextData => {
+  const context = useContext(AuthContext);
+
+  if (context === AUTH_CONTEXT_DEFAULTS) {
+    reportMissingAuthContext();
+  }
+
+  return context;
+};
 export default AuthContext;
 
 export const getQueryParams = (): Record<string, string> => {

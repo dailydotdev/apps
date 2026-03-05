@@ -175,6 +175,10 @@ Don't create a context when:
 
 ## Context Patterns
 
+### Fallback Defaults Must Report
+
+If a context uses safe fallback defaults (instead of `null`/`undefined`), the hook must **explicitly report** fallback usage (for example via `window.reportError`/`console.error`) at least once. Do not silently no-op missing-provider states.
+
 ### Preferred: `createContextProvider` (less boilerplate)
 
 ```typescript
