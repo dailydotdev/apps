@@ -73,9 +73,6 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   applyThemeMode: (mode?: ThemeMode) => void;
 }
 
-const SettingsContext = React.createContext<SettingsContextData>(null);
-export default SettingsContext;
-
 const deprecatedLightModeStorageKey = 'showmethelight';
 
 export const themeModes: Record<RemoteTheme, ThemeMode> = {
@@ -142,6 +139,37 @@ const defaultSettings: RemoteSettings = {
     defaultWriteTab: WriteFormTab.NewPost,
   },
 };
+
+const SETTINGS_CONTEXT_DEFAULTS: SettingsContextData = {
+  ...defaultSettings,
+  themeMode: ThemeMode.Dark,
+  setTheme: async () => undefined,
+  toggleOpenNewTab: async () => undefined,
+  setSpaciness: async () => undefined,
+  toggleInsaneMode: async () => undefined,
+  toggleShowTopSites: async () => undefined,
+  toggleSidebarExpanded: async () => undefined,
+  toggleSortingEnabled: async () => undefined,
+  toggleOptOutReadingStreak: async () => undefined,
+  toggleOptOutCompanion: async () => undefined,
+  toggleAutoDismissNotifications: async () => undefined,
+  toggleShowFeedbackButton: async () => undefined,
+  loadedSettings: false,
+  updateCustomLinks: async () => undefined,
+  updateSortCommentsBy: async () => undefined,
+  updateFlag: async () => undefined,
+  updateFlagRemote: async () => undefined,
+  updatePromptFlag: async () => undefined,
+  syncSettings: async () => undefined,
+  onToggleHeaderPlacement: async () => undefined,
+  setSettings: async () => undefined,
+  applyThemeMode: () => undefined,
+};
+
+const SettingsContext = React.createContext<SettingsContextData>(
+  SETTINGS_CONTEXT_DEFAULTS,
+);
+export default SettingsContext;
 
 export const SettingsContextProvider = ({
   children,

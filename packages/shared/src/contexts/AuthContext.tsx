@@ -75,7 +75,23 @@ export interface AuthContextData {
 }
 
 const isExtension = checkIsExtension();
-const AuthContext = React.createContext<AuthContextData>(null);
+const AUTH_CONTEXT_DEFAULTS: AuthContextData = {
+  user: undefined,
+  isLoggedIn: false,
+  shouldShowLogin: false,
+  showLogin: () => undefined,
+  closeLogin: () => undefined,
+  logout: async () => undefined,
+  updateUser: async () => undefined,
+  loadingUser: true,
+  isFetched: false,
+  tokenRefreshed: false,
+  getRedirectUri: () => '',
+  isAuthReady: false,
+  squads: [],
+};
+
+const AuthContext = React.createContext<AuthContextData>(AUTH_CONTEXT_DEFAULTS);
 export const useAuthContext = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;
 
