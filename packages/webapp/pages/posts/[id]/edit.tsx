@@ -9,10 +9,10 @@ import {
 import type { EditPostProps } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import {
-  usePostById,
   useActions,
   usePostToSquad,
 } from '@dailydotdev/shared/src/hooks';
+import { useEditPostById } from '@dailydotdev/shared/src/hooks/usePostById';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
@@ -47,9 +47,9 @@ function EditPost(): ReactElement {
   const { query, isReady, push } = useRouter();
   const idQuery = query.id as string;
   const isModeration = query.moderation === 'true';
-  const { post, isLoading } = usePostById({
+  const { post, isLoading } = useEditPostById({
     id: idQuery,
-    options: { enabled: !isModeration },
+    enabled: !isModeration,
   });
   const isUserSource = isSourceUserSource(post?.source);
   const { moderated, isLoading: isModerationLoading } =

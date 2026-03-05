@@ -439,7 +439,7 @@ const BriefPostContentRaw = ({
                 </div>
               </div>
             )}
-            {post?.content && isPlus && (
+            {post?.contentHtml && isPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
                   style={{
