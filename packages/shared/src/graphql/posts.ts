@@ -179,7 +179,6 @@ export interface Post {
   numComments?: number;
   numAwards?: number;
   numReposts?: number;
-  numBookmarks?: number;
   author?: Author;
   scout?: Scout;
   read?: boolean;
@@ -218,7 +217,7 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
 }
 
 export type RelatedPost = Pick<

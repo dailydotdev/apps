@@ -80,6 +80,7 @@ const ActionButtons = ({
     feature: featureShowBookmarkCount,
     shouldEvaluate: true,
   });
+  const bookmarkCount = post?.analytics?.bookmarks ?? 0;
 
   const {
     isUpvoteActive,
@@ -236,13 +237,13 @@ const ActionButtons = ({
           }}
           iconSize={config.iconSize}
         >
-          {showBookmarkCount && post?.numBookmarks > 0 && (
+          {showBookmarkCount && bookmarkCount > 0 && (
             <InteractionCounter
               className={classNames(
                 'tabular-nums',
                 variant === 'grid' && 'typo-footnote',
               )}
-              value={post.numBookmarks}
+              value={bookmarkCount}
             />
           )}
         </BookmarkButton>

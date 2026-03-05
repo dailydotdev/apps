@@ -228,7 +228,10 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numUpvotes
     numComments
     numAwards
-    numBookmarks
+    analytics {
+      impressions
+      bookmarks
+    }
     summary
     yggdrasilId
     creatorTwitter
@@ -329,12 +332,12 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     bookmarked
     analytics {
       impressions
+      bookmarks
     }
     numUpvotes
     numComments
     numAwards
     numReposts
-    numBookmarks
     videoId
     yggdrasilId
     creatorTwitter

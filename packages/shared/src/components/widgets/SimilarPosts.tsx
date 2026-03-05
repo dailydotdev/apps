@@ -88,7 +88,7 @@ const DefaultListItem = ({
         <PostEngagementCounts
           upvotes={post.numUpvotes}
           comments={post.numComments}
-          bookmarks={showBookmarkCount ? post.numBookmarks : undefined}
+          bookmarks={showBookmarkCount ? post.analytics?.bookmarks : undefined}
           className="text-text-tertiary"
         />
       )}
