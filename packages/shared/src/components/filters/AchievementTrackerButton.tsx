@@ -23,15 +23,17 @@ import { ElementPlaceholder } from '../ElementPlaceholder';
 function AchievementIcon({
   imgSrc,
   imgAlt,
+  hasLabel,
 }: {
   imgSrc: string;
   imgAlt: string;
+  hasLabel: boolean;
 }): ReactElement {
   return (
     <LazyImage
       imgSrc={imgSrc}
       imgAlt={imgAlt}
-      className="size-5 rounded-6 object-cover"
+      className={`size-5 rounded-6 object-cover${hasLabel ? ' ml-2 mr-1' : ''}`}
     />
   );
 }
@@ -163,6 +165,7 @@ export function AchievementTrackerButton(): ReactElement | null {
             <AchievementIcon
               imgSrc={trackedAchievement.achievement.image}
               imgAlt={trackedAchievement.achievement.name}
+              hasLabel={!!buttonLabel}
             />
           ) : (
             <MedalBadgeIcon />

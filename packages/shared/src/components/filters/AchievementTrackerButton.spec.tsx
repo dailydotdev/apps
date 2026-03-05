@@ -47,6 +47,18 @@ jest.mock('../AlertDot', () => ({
   AlertColor: { Bun: 'bg-accent-bun-default' },
 }));
 
+jest.mock('../LazyImage', () => ({
+  LazyImage: ({
+    imgAlt,
+    imgSrc,
+    className,
+  }: {
+    imgAlt: string;
+    imgSrc: string;
+    className?: string;
+  }) => <img alt={imgAlt} src={imgSrc} className={className} />,
+}));
+
 jest.mock('../cards/common/HoverCard', () => ({
   __esModule: true,
   default: ({
@@ -215,4 +227,29 @@ it('renders achievement image in the button when tracking', () => {
   });
   renderComponent();
   expect(screen.getByAltText('First Steps')).toBeInTheDocument();
+});
+
+it('adds spacing classes to achievement image when label is shown', () => {
+  mockUseTrackedAchievement.mockReturnValue({
+    ...defaultTrackedAchievementHook,
+    trackedAchievement: mockTrackedAchievement,
+  });
+  renderComponent();
+  expect(screen.getByAltText('First Steps')).toHaveClass('ml-2', 'mr-1');
+});
+
+it('does not add spacing classes to achievement image when no label is shown', () => {
+  mockUseTrackedAchievement.mockReturnValue({
+    ...defaultTrackedAchievementHook,
+    trackedAchievement: {
+      ...mockTrackedAchievement,
+      achievement: {
+        ...mockTrackedAchievement.achievement,
+        unit: undefined,
+        criteria: { targetCount: 1 },
+      },
+    },
+  });
+  renderComponent();
+  expect(screen.getByAltText('First Steps')).not.toHaveClass('ml-2', 'mr-1');
 });
