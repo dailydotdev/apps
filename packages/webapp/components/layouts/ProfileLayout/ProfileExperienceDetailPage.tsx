@@ -17,7 +17,7 @@ import { UserExperienceList } from '@dailydotdev/shared/src/features/profile/com
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
 import type { ProfileLayoutProps } from './index';
 import { getProfileSeoDefaults } from './index';
-import { getTemplatedTitle } from '../utils';
+import { getPageSeoTitles } from '../utils';
 
 interface ProfileExperienceDetailPageProps extends ProfileLayoutProps {
   experiences: UserExperience[] | undefined;
@@ -36,7 +36,7 @@ export function ProfileExperienceDetailPage({
     ...getProfileSeoDefaults(
       user,
       {
-        title: getTemplatedTitle(seoTitle),
+        ...getPageSeoTitles(seoTitle),
         noindex: true,
         nofollow: true,
       },

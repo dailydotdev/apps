@@ -24,7 +24,7 @@ import {
   getStaticPaths as getProfileStaticPaths,
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
@@ -66,9 +66,7 @@ const ProfilePostsPage = ({
     ...getProfileSeoDefaults(
       user,
       {
-        title: getTemplatedTitle(
-          `Recent posts by ${user.name} (@${user.username})`,
-        ),
+        ...getPageSeoTitles(`Recent posts by ${user.name} (@${user.username})`),
         noindex: true,
         nofollow: true,
       },

@@ -25,11 +25,12 @@ import { useSlackConnectSourceMutation } from '@dailydotdev/shared/src/hooks/int
 import { SourceMemberRole } from '@dailydotdev/shared/src/graphql/sources';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Create your Squad');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Create your Squad'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   nofollow: true,
   noindex: true,
   ...defaultSeo,

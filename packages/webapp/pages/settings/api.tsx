@@ -45,11 +45,11 @@ import {
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('API Access'),
+  ...getPageSeoTitles('API Access'),
 };
 
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';

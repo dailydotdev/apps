@@ -19,11 +19,12 @@ import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Explore trending tags for developers');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Explore trending tags for developers'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Discover trending, popular, and new tags on daily.dev. Browse topics that matter to developers and find relevant content quickly.',
 };
