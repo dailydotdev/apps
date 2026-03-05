@@ -25,8 +25,12 @@ export function PostEngagementCounts({
       {upvotes ? `${largeNumberFormat(upvotes)} Upvotes` : ''}
       {upvotes && comments ? <> {separatorCharacter} </> : ''}
       {comments ? `${largeNumberFormat(comments)} Comments` : ''}
-      {bookmarks && (upvotes || comments) ? <> {separatorCharacter} </> : ''}
-      {bookmarks ? `${largeNumberFormat(bookmarks)} Bookmarks` : ''}
+      {bookmarks ? (
+        <>
+          {upvotes || comments ? <> {separatorCharacter} </> : null}
+          {largeNumberFormat(bookmarks)} Bookmarks
+        </>
+      ) : null}
     </p>
   );
 }

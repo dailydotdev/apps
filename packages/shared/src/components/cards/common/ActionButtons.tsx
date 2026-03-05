@@ -241,7 +241,6 @@ const ActionButtons = ({
               className={classNames(
                 'tabular-nums',
                 variant === 'grid' && 'typo-footnote',
-                !post.numBookmarks && 'invisible',
               )}
               value={post.numBookmarks}
             />
