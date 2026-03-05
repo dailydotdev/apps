@@ -224,8 +224,10 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     createdAt
     commented
     bookmarked
+    views
     numUpvotes
     numComments
+    numAwards
     summary
     yggdrasilId
     creatorTwitter
@@ -290,6 +292,12 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     language
     translation {
       ...PostTranslateableFields
+    }
+    numAwards
+    featuredAward {
+      award {
+        image
+      }
     }
     numPollVotes
     pollOptions {
@@ -571,6 +579,8 @@ export const FEED_POST_FRAGMENT = gql`
       type
       subType
       tags
+      private
+      yggdrasilId
       source {
         id
         handle
@@ -597,10 +607,30 @@ export const FEED_POST_FRAGMENT = gql`
       image
     }
     numCollectionSources
+    updatedAt
+    slug
     flags {
       posts
       sources
       savedTime
+      digestPostIds
+      ad {
+        type
+        index
+        title
+        link
+        image
+        companyName
+        companyLogo
+        callToAction
+      }
+    }
+    featuredAward {
+      award {
+        image
+        value
+        name
+      }
     }
   }
   ${FEED_POST_INFO_FRAGMENT}
