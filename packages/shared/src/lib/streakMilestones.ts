@@ -62,7 +62,7 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     day: 7,
     tier: StreakTier.Flame,
     label: 'Flame',
-    rewards: [{ type: RewardType.Cosmetic, description: 'Premium flair' }],
+    rewards: [{ type: RewardType.Cores, description: '25 Cores' }],
   },
   {
     day: 14,
