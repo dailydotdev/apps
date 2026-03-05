@@ -10,13 +10,7 @@ import { UNKNOWN_SOURCE_ID } from '../../../../lib/utils';
 import { isPlaceholderImage } from '../../../../lib/image';
 import FeedItemContainer from './FeedItemContainer';
 import { useSmartTitle } from '../../../../hooks/post/useSmartTitle';
-import {
-  BookmarkIcon,
-  DiscussIcon,
-  ShareIcon,
-  UpvoteIcon,
-} from '../../../icons';
-import { IconSize } from '../../../Icon';
+import ActionButtons from '../ActionButtons';
 import { Image } from '../../../image/Image';
 
 const resolveBySource = <T,>(
@@ -150,7 +144,7 @@ export const SignalList = forwardRef(function SignalList(
     >
       <div className="flex flex-col gap-1 px-4 py-3 text-left">
         {(sourceName || repostLabel || relativeTimeLabel) && (
-          <div className="flex items-center gap-1 text-[15px] text-text-quaternary">
+          <div className="flex items-center gap-1 text-text-quaternary typo-callout">
             {sourceName && <span>{sourceName}</span>}
             {sourceName && repostLabel && <span>&middot;</span>}
             {repostLabel && <span>{repostLabel}</span>}
@@ -161,14 +155,14 @@ export const SignalList = forwardRef(function SignalList(
           </div>
         )}
         {!isTweetPost && (
-          <p className="text-[15px] font-bold leading-snug text-text-primary">
+          <p className="font-bold text-text-primary typo-callout">
             {resolvedTitle}
           </p>
         )}
         {!!description && (
           <p
             className={classNames(
-              'text-[15px] leading-[20px] text-text-secondary',
+              '!leading-normal text-text-secondary typo-callout',
               isTweetPost && 'whitespace-pre-line',
             )}
           >
@@ -185,58 +179,17 @@ export const SignalList = forwardRef(function SignalList(
             />
           </div>
         )}
-        <div className="relative z-1 mt-2 flex items-center justify-between text-text-quaternary">
-          <button
-            type="button"
-            className="flex items-center gap-1 transition-colors hover:text-text-secondary"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onUpvoteClick?.(post);
-            }}
-          >
-            <UpvoteIcon size={IconSize.XSmall} />
-            {post.numUpvotes > 0 && (
-              <span className="text-xs">{post.numUpvotes}</span>
-            )}
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 transition-colors hover:text-text-secondary"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onCommentClick?.(post);
-            }}
-          >
-            <DiscussIcon size={IconSize.XSmall} />
-            {post.numComments > 0 && (
-              <span className="text-xs">{post.numComments}</span>
-            )}
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 transition-colors hover:text-text-secondary"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onBookmarkClick?.(post);
-            }}
-          >
-            <BookmarkIcon size={IconSize.XSmall} />
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1 transition-colors hover:text-text-secondary"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onCopyLinkClick?.(event, post);
-            }}
-          >
-            <ShareIcon size={IconSize.XSmall} />
-          </button>
-        </div>
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onBookmarkClick={onBookmarkClick}
+          onCopyLinkClick={onCopyLinkClick}
+          variant="signal"
+          showDownvoteAction={false}
+          showAwardAction={false}
+          className="relative z-1 mt-2 text-text-quaternary"
+        />
       </div>
       {children}
     </FeedItemContainer>

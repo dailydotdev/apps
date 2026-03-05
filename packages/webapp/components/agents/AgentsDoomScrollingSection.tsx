@@ -41,12 +41,12 @@ export const AgentsDoomScrollingSection = ({
   userId,
   tokenRefreshed,
 }: AgentsDoomScrollingSectionProps): ReactElement => (
-  <section className="w-full">
-    <div className="mb-4 px-3 pb-0 laptop:px-4">
+  <section className="w-full border-t border-border-subtlest-tertiary py-3">
+    <header className="mb-6 px-3 pb-0 laptop:px-4">
       <h2 className="font-bold text-text-primary typo-title3">
         Doom scrolling
       </h2>
-    </div>
+    </header>
     <ActiveFeedNameContext.Provider
       value={{ feedName: OtherFeedPage.AgentsVibes }}
     >
