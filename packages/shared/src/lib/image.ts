@@ -273,15 +273,6 @@ export const clickbaitShieldModalImage =
 
 export const cloudinaryGiftedPlusModalImage = `https://media.daily.dev/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
 
-// Plus supported-agent logos (swap these paths with the final uploaded assets).
-const plusSupportedAgentLogosBaseUrl =
-  'https://media.daily.dev/image/upload/f_auto/v1/public/plus/agents';
-export const plusSupportedAgentOpenClawLogo =
-  'https://media.daily.dev/image/upload/s--W1MqVzk3--/f_auto,q_auto/v1772714635/public/openclaw';
-export const plusSupportedAgentClaudeCodeLogo = `${plusSupportedAgentLogosBaseUrl}/claude-code`;
-export const plusSupportedAgentCodexLogo = `${plusSupportedAgentLogosBaseUrl}/codex`;
-export const plusSupportedAgentCursorLogo = `${plusSupportedAgentLogosBaseUrl}/cursor`;
-export const plusSupportedAgentGithubCopilotLogo = `${plusSupportedAgentLogosBaseUrl}/github-copilot`;
 
 export const smartPromptModalImage =
   'https://media.daily.dev/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';

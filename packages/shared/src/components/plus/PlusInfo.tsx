@@ -28,7 +28,6 @@ import type { CommonPlusPageProps } from './common';
 import Logo from '../Logo';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { PlusTrustReviews } from './PlusTrustReviews';
-import { PlusSupportedAgents } from './PlusSupportedAgents';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 import { PlusPlanType } from '../../graphql/paddle';
 import { isIOSNative } from '../../lib/func';
@@ -372,10 +371,7 @@ export const PlusInfo = ({
           </div>
         ))}
       {showTrustReviews && (
-        <div className="flex flex-col gap-4">
-          <PlusTrustReviews />
-          <PlusSupportedAgents />
-        </div>
+        <PlusTrustReviews />
       )}
     </>
   );
