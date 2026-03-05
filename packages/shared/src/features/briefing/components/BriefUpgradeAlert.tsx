@@ -10,7 +10,7 @@ import { BriefPlusUpgradeCTA } from './BriefPlusUpgradeCTA';
 
 export const BriefUpgradeAlert = ({
   className,
-  text = 'Let your AI agent do the reading for you. Upgrade to Plus for unlimited presidential briefings.',
+  text = 'Skip the feed and get a personalized briefing instead. Upgrade to Plus for unlimited presidential briefings.',
   ...attrs
 }: ComponentProps<'div'> & {
   text?: string;

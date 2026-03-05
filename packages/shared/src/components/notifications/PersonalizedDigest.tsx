@@ -263,13 +263,10 @@ const PersonalizedDigest = () => {
                       color={TypographyColor.Tertiary}
                       className="text-wrap font-normal"
                     >
-                      Your AI agent scans the entire dev landscape (posts,
-                      releases, discussions) and compiles a personalized
-                      briefing of what actually matters. Each briefing is
-                      custom-built based on what is trending, what is shifting,
-                      and what aligns with your interests. Upgrade to get
-                      unlimited access and full control of when and where your
-                      briefings are delivered.
+                      Scans hundreds of posts, releases, and discussions daily
+                      and gives you a personalized briefing of what actually
+                      matters. Upgrade for unlimited briefings and full control
+                      of when and where they're delivered.
                     </Typography>
                     {!isPlus && (
                       <UpgradeToPlus
