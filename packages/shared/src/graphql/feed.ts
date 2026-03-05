@@ -94,7 +94,7 @@ const getFeedPostFragment = (fields = '') => gql`
   ${USER_POST_FRAGMENT}
 `;
 
-export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment('contentHtml');
+export const FEED_POST_CONNECTION_FRAGMENT = getFeedPostFragment('content');
 
 export const ANONYMOUS_FEED_QUERY = gql`
   query AnonymousFeed(
@@ -223,7 +223,7 @@ export const SOURCE_FEED_QUERY = gql`
       ...FeedPostConnection
     }
   }
-  ${getFeedPostFragment('pinnedAt contentHtml')}
+  ${getFeedPostFragment('pinnedAt content')}
 `;
 
 export const CHANNEL_FEED_QUERY = gql`
