@@ -16,11 +16,7 @@ import { Drawer, DrawerPosition } from '../drawers';
 import { MilestoneShareActions } from './MilestoneShareActions';
 import CloseButton from '../CloseButton';
 
-type CelebrationPhase =
-  | 'enter'
-  | 'showcase'
-  | 'shrink'
-  | 'popover';
+type CelebrationPhase = 'enter' | 'showcase' | 'shrink' | 'popover';
 
 interface StreakMilestoneCelebrationProps {
   milestone: StreakMilestone;
@@ -92,7 +88,10 @@ const getCelebrationLayout = (): CelebrationLayout => {
     POPOVER_MAX_WIDTH,
     Math.max(viewportWidth - VIEWPORT_PADDING * 2, 280),
   );
-  const popoverLeft = Math.max((viewportWidth - popoverWidth) / 2, VIEWPORT_PADDING);
+  const popoverLeft = Math.max(
+    (viewportWidth - popoverWidth) / 2,
+    VIEWPORT_PADDING,
+  );
   const popoverTop = Math.max((viewportHeight - 560) / 2, VIEWPORT_PADDING);
   const panelWidth = isMobile ? viewportWidth : popoverWidth;
   const panelLeft = isMobile ? 0 : popoverLeft;
@@ -161,14 +160,13 @@ export function StreakMilestoneCelebration({
         wrapper: `${MILESTONE_DRAWER_CLASS} !h-auto !max-h-[calc(100%-5rem)] !overflow-hidden`,
       }
     : {
-        wrapper:
-          `${MILESTONE_DRAWER_CLASS} h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0`,
+        wrapper: `${MILESTONE_DRAWER_CLASS} h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0`,
       };
 
   return (
     <>
       <RootPortal>
-        <div className="fixed inset-0 z-max pointer-events-none">
+        <div className="pointer-events-none fixed inset-0 z-max">
           <div
             className="absolute inset-0 backdrop-blur-sm"
             style={{
@@ -232,7 +230,7 @@ export function StreakMilestoneCelebration({
 
           {showPopover && layout && !isMobile && (
             <div
-              className="absolute z-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2 pointer-events-auto"
+              className="pointer-events-auto absolute z-1 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 shadow-2"
               style={{
                 left: layout.popoverLeft,
                 top: layout.popoverTop,
@@ -274,9 +272,7 @@ export function StreakMilestoneCelebration({
                 </div>
 
                 {showRewards && milestone.rewards.length > 0 && (
-                  <div
-                    className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
-                  >
+                  <div className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3">
                     <Typography
                       bold
                       type={TypographyType.Footnote}
@@ -329,76 +325,74 @@ export function StreakMilestoneCelebration({
           instantOpen
         >
           <div className="relative z-1 flex flex-col items-center gap-4 overflow-y-auto pb-2">
-              <div
-                className="flex items-center justify-center"
-                style={{
-                  width: 120,
-                  height: 120,
-                }}
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: 120,
+                height: 120,
+              }}
+            >
+              <img
+                src={MILESTONE_ICON_URLS[milestone.tier]}
+                alt={milestone.label}
+                className="size-full object-contain"
+              />
+            </div>
+
+            <div className="flex flex-col items-center gap-1">
+              <Typography
+                bold
+                type={TypographyType.LargeTitle}
+                className="text-accent-bacon-default"
               >
-                <img
-                  src={MILESTONE_ICON_URLS[milestone.tier]}
-                  alt={milestone.label}
-                  className="size-full object-contain"
+                {milestone.label}
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Primary}
+                bold
+              >
+                Day {streakDay} Milestone!
+              </Typography>
+            </div>
+
+            {showRewards && milestone.rewards.length > 0 && (
+              <div className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3">
+                <Typography
+                  bold
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="uppercase tracking-wider"
+                >
+                  Rewards Unlocked
+                </Typography>
+                {milestone.rewards.map((reward) => (
+                  <div
+                    key={reward.description}
+                    className="flex items-center gap-2"
+                  >
+                    {reward.type === RewardType.Cores ? (
+                      <CoreIcon size={IconSize.XSmall} />
+                    ) : (
+                      <span>{rewardIcon[reward.type]}</span>
+                    )}
+                    <Typography
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                    >
+                      {reward.description}
+                    </Typography>
+                  </div>
+                ))}
+              </div>
+            )}
+            {showRewards && (
+              <div className="mt-3 flex w-full flex-col items-center">
+                <MilestoneShareActions
+                  message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
                 />
               </div>
-
-              <div className="flex flex-col items-center gap-1">
-                <Typography
-                  bold
-                  type={TypographyType.LargeTitle}
-                  className="text-accent-bacon-default"
-                >
-                  {milestone.label}
-                </Typography>
-                <Typography
-                  type={TypographyType.Body}
-                  color={TypographyColor.Primary}
-                  bold
-                >
-                  Day {streakDay} Milestone!
-                </Typography>
-              </div>
-
-              {showRewards && milestone.rewards.length > 0 && (
-                <div
-                  className="bg-background-default/80 flex flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary px-6 py-3"
-                >
-                  <Typography
-                    bold
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                    className="uppercase tracking-wider"
-                  >
-                    Rewards Unlocked
-                  </Typography>
-                  {milestone.rewards.map((reward) => (
-                    <div
-                      key={reward.description}
-                      className="flex items-center gap-2"
-                    >
-                      {reward.type === RewardType.Cores ? (
-                        <CoreIcon size={IconSize.XSmall} />
-                      ) : (
-                        <span>{rewardIcon[reward.type]}</span>
-                      )}
-                      <Typography
-                        type={TypographyType.Callout}
-                        color={TypographyColor.Primary}
-                      >
-                        {reward.description}
-                      </Typography>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {showRewards && (
-                <div className="mt-3 flex w-full flex-col items-center">
-                  <MilestoneShareActions
-                    message={`I just reached ${milestone.label} (${streakDay} day streak) on daily.dev`}
-                  />
-                </div>
-              )}
+            )}
           </div>
         </Drawer>
       )}

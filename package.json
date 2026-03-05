@@ -7,10 +7,14 @@
   "scripts": {
     "prepare": "corepack enable || true",
     "pnpm-version": "pnpm -v",
+    "lint": "pnpm --filter @dailydotdev/shared lint && pnpm --filter webapp lint && pnpm --filter extension lint",
     "typecheck": "pnpm --filter @dailydotdev/shared typecheck && pnpm --filter webapp typecheck && pnpm --filter extension typecheck",
     "typecheck:strict": "pnpm --filter @dailydotdev/shared typecheck:strict && pnpm --filter webapp typecheck:strict && pnpm --filter extension typecheck:strict",
     "typecheck:strict:report": "pnpm --filter @dailydotdev/shared typecheck:strict || true; pnpm --filter webapp typecheck:strict || true; pnpm --filter extension typecheck:strict || true",
+    "test": "pnpm --filter @dailydotdev/shared test && pnpm --filter webapp test && pnpm --filter extension test",
+    "verify:ci": "pnpm lint && pnpm typecheck && pnpm test",
     "test:e2e": "pnpm --filter playwright test",
+    "test:e2e:smoke": "pnpm --filter playwright test:smoke",
     "test:e2e:headed": "pnpm --filter playwright test:headed",
     "test:e2e:ui": "pnpm --filter playwright test:ui"
   },

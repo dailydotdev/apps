@@ -30,7 +30,9 @@ export function StreakIncrementToastMessage({
       <div
         className={classNames(
           'relative flex size-7 items-center justify-center rounded-full transition-colors duration-500',
-          iconPhase === 'filled' ? 'bg-accent-bacon-default/10' : 'bg-transparent',
+          iconPhase === 'filled'
+            ? 'bg-accent-bacon-default/10'
+            : 'bg-transparent',
         )}
       >
         {iconPhase === 'filled' && (
@@ -40,14 +42,18 @@ export function StreakIncrementToastMessage({
         <div
           className={classNames(
             'absolute size-4 rounded-full border-[1.5px] border-border-subtlest-tertiary transition-all duration-300',
-            iconPhase === 'circle' ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+            iconPhase === 'circle'
+              ? 'scale-100 opacity-100'
+              : 'scale-50 opacity-0',
           )}
         />
 
         <ReadingStreakIcon
           className={classNames(
             'absolute size-4 text-accent-bacon-default transition-all duration-300',
-            iconPhase === 'outline' ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+            iconPhase === 'outline'
+              ? 'scale-100 opacity-100'
+              : 'scale-50 opacity-0',
           )}
         />
 
@@ -55,7 +61,9 @@ export function StreakIncrementToastMessage({
           secondary
           className={classNames(
             'absolute size-4 text-accent-bacon-default transition-opacity duration-300',
-            iconPhase === 'filled' ? 'animate-streak-bounce opacity-100' : 'opacity-0',
+            iconPhase === 'filled'
+              ? 'animate-streak-bounce opacity-100'
+              : 'opacity-0',
           )}
         />
       </div>

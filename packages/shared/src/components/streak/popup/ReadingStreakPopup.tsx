@@ -126,7 +126,7 @@ export function ReadingStreakPopup({
     <div
       className={`flex max-h-[640px] flex-col ${
         fullWidth
-          ? 'h-full min-h-0 max-h-none w-full max-w-none tablet:max-w-none'
+          ? 'h-full max-h-none min-h-0 w-full max-w-none tablet:max-w-none'
           : 'w-full max-w-[320px]'
       }`}
     >
@@ -268,11 +268,7 @@ export function ReadingStreakPopup({
         <div className="sticky -bottom-3 z-2 bg-background-default pb-3 pt-2">
           <div className="flex w-full flex-col gap-2">
             <Link href={`${webappUrl}account/customization/streaks`} passHref>
-              <Button
-                tag="a"
-                variant={ButtonVariant.Float}
-                className="w-full"
-              >
+              <Button tag="a" variant={ButtonVariant.Float} className="w-full">
                 Settings
               </Button>
             </Link>

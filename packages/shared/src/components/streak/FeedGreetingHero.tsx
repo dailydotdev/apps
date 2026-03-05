@@ -171,7 +171,8 @@ export function FeedGreetingHero(): ReactElement | null {
   const isEvening = greetingMoment === 'evening';
   const isMorning = greetingMoment === 'morning';
   const isLightModeTheme =
-    themeMode === ThemeMode.Light || (themeMode === ThemeMode.Auto && !isSystemDark);
+    themeMode === ThemeMode.Light ||
+    (themeMode === ThemeMode.Auto && !isSystemDark);
   const hasNightBackground = isEvening && !isLightModeTheme;
 
   const hasReadToday =
@@ -247,8 +248,7 @@ export function FeedGreetingHero(): ReactElement | null {
     const variance = 0.18;
     const minOpacity = Math.max(0.08, base * (1 - variance));
     const maxOpacity = Math.min(1, base * (1 + variance));
-    const opacity =
-      minOpacity + (maxOpacity - minOpacity) * smoothedRandom;
+    const opacity = minOpacity + (maxOpacity - minOpacity) * smoothedRandom;
     return Number(opacity.toFixed(2));
   };
 
@@ -261,6 +261,17 @@ export function FeedGreetingHero(): ReactElement | null {
     (!isDebugMode || isFeedHeroVisible) &&
     !shouldHideForCompletedStreak &&
     !shouldHideForEveningTheme;
+  const themeOverlayClass = (() => {
+    if (hasNightBackground) {
+      return 'bg-background-default';
+    }
+
+    if (isLightModeTheme) {
+      return 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent';
+    }
+
+    return 'bg-transparent';
+  })();
 
   useEffect(() => {
     if (!canRenderHero || isDebugMode) {
@@ -285,21 +296,17 @@ export function FeedGreetingHero(): ReactElement | null {
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
         )}
       >
-      {(
-        <>
-          <div className="from-accent-bacon-default/15 to-accent-onion-default/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
-          <div
-            className={classNames(
-              'pointer-events-none absolute inset-0 z-0',
-              hasNightBackground
-                ? 'bg-background-default'
-                : isLightModeTheme
-                  ? 'from-[#1b2134]/35 via-[#1b2134]/15 bg-gradient-to-b to-transparent'
-                  : 'bg-transparent',
-            )}
-          />
+        {
+          <>
+            <div className="from-accent-bacon-default/15 to-accent-onion-default/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent" />
+            <div
+              className={classNames(
+                'pointer-events-none absolute inset-0 z-0',
+                themeOverlayClass,
+              )}
+            />
 
-      <style>{`
+            <style>{`
         @keyframes lumina-source-breath {
           0%, 100% { opacity: 0.58; transform: scale(1); }
           50% { opacity: 0.8; transform: scale(1.05); }
@@ -339,198 +346,269 @@ export function FeedGreetingHero(): ReactElement | null {
         .animate-butterfly-wing { animation: butterfly-flutter 0.15s ease-in-out infinite; }
       `}</style>
 
-          {!isEvening && (
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-          {/* Rays only: inherit primary background from section */}
-          <div
-            className="pointer-events-none absolute z-[2] overflow-hidden"
-            style={{
-              filter: 'blur(14px)',
-              opacity: 1,
-              width: '100%',
-              height: '179vh',
-              top: '-50%',
-              left: 0,
-              mixBlendMode: 'screen',
-              mask: 'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
-              WebkitMask: 'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
-            }}
-          >
-            {/* Ray 1: w=40px, opacity=0.27, no rotation */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(0, 0.27), width: '2.5rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.25rem)',
-                transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 2: w=35px, opacity=0.28, rotate(25deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(1, 0.28), width: '2.2rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.1rem)',
-                transform: 'rotate(25deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 3: w=35px, opacity=0.57, rotate(11deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(2, 0.57), width: '2.2rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.1rem)',
-                transform: 'rotate(11deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 4: w=35px, opacity=0.42, rotate(-12deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(3, 0.42), width: '2.2rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.1rem)',
-                transform: 'rotate(-12deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 5: w=35px, opacity=0.32, rotate(-24deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(4, 0.32), width: '2.2rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.1rem)',
-                transform: 'rotate(-24deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 6: w=50px, opacity=0.3, rotate(-18deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(5, 0.3), width: '3.125rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 1.56rem)',
-                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 7: w=50px, opacity=0.3, rotate(-18deg), offset right */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(6, 0.3), width: '3.125rem', height: '169rem',
-                top: '-21.4rem', right: '38%',
-                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 8: w=50px, opacity=0.3, rotate(-18deg), offset at 69% */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(7, 0.3), width: '3.125rem', height: '130rem',
-                top: '-22.6rem', left: 'calc(69.26% - 1.56rem)',
-                transform: 'rotate(-18deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 9: w=20px, opacity=0.3, rotate(-5deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(8, 0.3), width: '1.25rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 0.625rem)',
-                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 10: w=20px, opacity=0.3, rotate(-5deg), offset at 69% */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(9, 0.3), width: '1.25rem', height: '130rem',
-                top: '-22.6rem', left: 'calc(69.26% - 0.625rem)',
-                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 11: wider, opacity=1, rotate(-5deg), bright center ray */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(10, 1), width: '1.25rem', height: '169rem',
-                top: '-22rem', left: '76%', right: '20%',
-                transform: 'rotate(-5deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 12: w=15px, opacity=0.5, rotate(-3deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(11, 0.5), width: '0.94rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 0.47rem)',
-                transform: 'rotate(-3deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 13: w=20px, opacity=0.6, rotate(18deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(12, 0.6), width: '1.25rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 0.625rem)',
-                transform: 'rotate(18deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Ray 14: w=20px, opacity=0.18, rotate(6deg) */}
-            <div
-              className="absolute"
-              style={{
-                background: 'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
-                opacity: getRayOpacity(13, 0.18), width: '1.25rem', height: '130rem',
-                top: '-22rem', left: 'calc(50% - 0.625rem)',
-                transform: 'rotate(6deg)', transformOrigin: '100% 0% 0',
-              }}
-            />
-            {/* Focus glints to make center rays more distinguishable */}
-            <div
-              className="absolute"
-              style={{
-                background:
-                  'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.12) 58%, transparent 100%)',
-                opacity: getRayOpacity(14, 0.72),
-                width: '0.75rem',
-                height: '120rem',
-                top: '-20rem',
-                left: 'calc(50% - 0.375rem)',
-                transform: 'rotate(2deg)',
-                transformOrigin: '100% 0% 0',
-              }}
-            />
-            <div
-              className="absolute"
-              style={{
-                background:
-                  'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.1) 52%, transparent 100%)',
-                opacity: getRayOpacity(15, 0.66),
-                width: '0.625rem',
-                height: '118rem',
-                top: '-19rem',
-                left: 'calc(50% - 0.3125rem)',
-                transform: 'rotate(-4deg)',
-                transformOrigin: '100% 0% 0',
-              }}
-            />
-          </div>
-        </div>
-      )}
-          {hasNightBackground && (
-        <div className="opacity-100">
-          <style>{`
+            {!isEvening && (
+              <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+                {/* Rays only: inherit primary background from section */}
+                <div
+                  className="pointer-events-none absolute z-[2] overflow-hidden"
+                  style={{
+                    filter: 'blur(14px)',
+                    opacity: 1,
+                    width: '100%',
+                    height: '179vh',
+                    top: '-50%',
+                    left: 0,
+                    mixBlendMode: 'screen',
+                    mask: 'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
+                    WebkitMask:
+                      'radial-gradient(50% 109%, #000 0%, #000000f6 0%, transparent 96%)',
+                  }}
+                >
+                  {/* Ray 1: w=40px, opacity=0.27, no rotation */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(0, 0.27),
+                      width: '2.5rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.25rem)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 2: w=35px, opacity=0.28, rotate(25deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(1, 0.28),
+                      width: '2.2rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.1rem)',
+                      transform: 'rotate(25deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 3: w=35px, opacity=0.57, rotate(11deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(2, 0.57),
+                      width: '2.2rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.1rem)',
+                      transform: 'rotate(11deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 4: w=35px, opacity=0.42, rotate(-12deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(3, 0.42),
+                      width: '2.2rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.1rem)',
+                      transform: 'rotate(-12deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 5: w=35px, opacity=0.32, rotate(-24deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(4, 0.32),
+                      width: '2.2rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.1rem)',
+                      transform: 'rotate(-24deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 6: w=50px, opacity=0.3, rotate(-18deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(5, 0.3),
+                      width: '3.125rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 1.56rem)',
+                      transform: 'rotate(-18deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 7: w=50px, opacity=0.3, rotate(-18deg), offset right */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(6, 0.3),
+                      width: '3.125rem',
+                      height: '169rem',
+                      top: '-21.4rem',
+                      right: '38%',
+                      transform: 'rotate(-18deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 8: w=50px, opacity=0.3, rotate(-18deg), offset at 69% */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(7, 0.3),
+                      width: '3.125rem',
+                      height: '130rem',
+                      top: '-22.6rem',
+                      left: 'calc(69.26% - 1.56rem)',
+                      transform: 'rotate(-18deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 9: w=20px, opacity=0.3, rotate(-5deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(8, 0.3),
+                      width: '1.25rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 0.625rem)',
+                      transform: 'rotate(-5deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 10: w=20px, opacity=0.3, rotate(-5deg), offset at 69% */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(9, 0.3),
+                      width: '1.25rem',
+                      height: '130rem',
+                      top: '-22.6rem',
+                      left: 'calc(69.26% - 0.625rem)',
+                      transform: 'rotate(-5deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 11: wider, opacity=1, rotate(-5deg), bright center ray */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(10, 1),
+                      width: '1.25rem',
+                      height: '169rem',
+                      top: '-22rem',
+                      left: '76%',
+                      right: '20%',
+                      transform: 'rotate(-5deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 12: w=15px, opacity=0.5, rotate(-3deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(11, 0.5),
+                      width: '0.94rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 0.47rem)',
+                      transform: 'rotate(-3deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 13: w=20px, opacity=0.6, rotate(18deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(12, 0.6),
+                      width: '1.25rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 0.625rem)',
+                      transform: 'rotate(18deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Ray 14: w=20px, opacity=0.18, rotate(6deg) */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, #ffffff 0%, transparent 100%)',
+                      opacity: getRayOpacity(13, 0.18),
+                      width: '1.25rem',
+                      height: '130rem',
+                      top: '-22rem',
+                      left: 'calc(50% - 0.625rem)',
+                      transform: 'rotate(6deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  {/* Focus glints to make center rays more distinguishable */}
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.12) 58%, transparent 100%)',
+                      opacity: getRayOpacity(14, 0.72),
+                      width: '0.75rem',
+                      height: '120rem',
+                      top: '-20rem',
+                      left: 'calc(50% - 0.375rem)',
+                      transform: 'rotate(2deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                  <div
+                    className="absolute"
+                    style={{
+                      background:
+                        'radial-gradient(50% 50% at 50% 50%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.1) 52%, transparent 100%)',
+                      opacity: getRayOpacity(15, 0.66),
+                      width: '0.625rem',
+                      height: '118rem',
+                      top: '-19rem',
+                      left: 'calc(50% - 0.3125rem)',
+                      transform: 'rotate(-4deg)',
+                      transformOrigin: '100% 0% 0',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {hasNightBackground && (
+              <div className="opacity-100">
+                <style>{`
             @keyframes shooting-star {
               0% {
                 transform: translate3d(0, 0, 0) rotate(-45deg);
@@ -579,465 +657,469 @@ export function FeedGreetingHero(): ReactElement | null {
               animation: starlink-train 80s linear 20s infinite;
             }
           `}</style>
-          {/* Keep night visuals close to app's main dark background */}
-          <div className="pointer-events-none absolute inset-0 z-0 bg-background-default" />
-          <div className="bg-accent-onion-default/8 pointer-events-none absolute -right-16 top-0 z-0 h-72 w-[24rem] rounded-full blur-[5rem]" />
-          <div className="bg-accent-bacon-default/7 pointer-events-none absolute -left-12 bottom-0 z-0 h-64 w-[22rem] rounded-full blur-[4.5rem]" />
-          <div className="bg-surface-float/35 pointer-events-none absolute inset-0 z-0" />
+                {/* Keep night visuals close to app's main dark background */}
+                <div className="pointer-events-none absolute inset-0 z-0 bg-background-default" />
+                <div className="bg-accent-onion-default/8 pointer-events-none absolute -right-16 top-0 z-0 h-72 w-[24rem] rounded-full blur-[5rem]" />
+                <div className="bg-accent-bacon-default/7 pointer-events-none absolute -left-12 bottom-0 z-0 h-64 w-[22rem] rounded-full blur-[4.5rem]" />
+                <div className="bg-surface-float/35 pointer-events-none absolute inset-0 z-0" />
 
-          {/* Nebula dust clouds */}
-          <div className="bg-accent-onion-default/15 pointer-events-none absolute -left-10 top-10 z-0 h-64 w-96 rounded-full blur-[64px]" />
-          <div className="bg-accent-bacon-default/10 pointer-events-none absolute -right-20 top-0 z-0 h-80 w-[30rem] rounded-full blur-[80px]" />
-          <div className="bg-accent-onion-default/10 pointer-events-none absolute bottom-0 left-1/3 z-0 h-40 w-64 rounded-full blur-[50px]" />
+                {/* Nebula dust clouds */}
+                <div className="bg-accent-onion-default/15 pointer-events-none absolute -left-10 top-10 z-0 h-64 w-96 rounded-full blur-[64px]" />
+                <div className="bg-accent-bacon-default/10 pointer-events-none absolute -right-20 top-0 z-0 h-80 w-[30rem] rounded-full blur-[80px]" />
+                <div className="bg-accent-onion-default/10 pointer-events-none absolute bottom-0 left-1/3 z-0 h-40 w-64 rounded-full blur-[50px]" />
 
-          {/* Falling stars */}
-          <div className="animate-shooting-star absolute right-[20%] top-0 z-0 h-[1px] w-32 bg-gradient-to-r from-white to-transparent opacity-0">
-            <div className="absolute left-0 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]" />
-          </div>
-          <div className="animate-shooting-star-green absolute -top-10 right-[40%] z-0 h-[1.5px] w-48 bg-gradient-to-r from-[#4ade80] to-transparent opacity-0">
-            <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#4ade80] shadow-[0_0_12px_4px_rgba(74,222,128,0.8)]" />
-          </div>
-        </div>
-      )}
-          <div className="pointer-events-none absolute inset-0 z-0">
-        {hasNightBackground && (
-          <div className="absolute left-[10%] top-[15%] hidden h-40 w-40 rotate-[18deg] opacity-60 laptop:block">
-            <svg
-              viewBox="0 0 370 216"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-full w-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                {/* Falling stars */}
+                <div className="animate-shooting-star absolute right-[20%] top-0 z-0 h-[1px] w-32 bg-gradient-to-r from-white to-transparent opacity-0">
+                  <div className="absolute left-0 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]" />
+                </div>
+                <div className="animate-shooting-star-green absolute -top-10 right-[40%] z-0 h-[1.5px] w-48 bg-gradient-to-r from-[#4ade80] to-transparent opacity-0">
+                  <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#4ade80] shadow-[0_0_12px_4px_rgba(74,222,128,0.8)]" />
+                </div>
+              </div>
+            )}
+            <div className="pointer-events-none absolute inset-0 z-0">
+              {hasNightBackground && (
+                <div className="opacity-60 absolute left-[10%] top-[15%] hidden h-40 w-40 rotate-[18deg] laptop:block">
+                  <svg
+                    viewBox="0 0 370 216"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-full w-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+                  >
+                    <g opacity="0.04">
+                      <path
+                        d="M316.542 104.054L276.986 64.4152L296.753 24.79L361.024 89.1956C369.213 97.4018 369.213 110.707 361.024 118.913L281.919 198.184C273.73 206.39 260.453 206.39 252.264 198.184C244.075 189.978 244.075 176.673 252.264 168.467L316.542 104.054Z"
+                        fill="#A8B3CF"
+                        fillOpacity="0.64"
+                      />
+                      <path
+                        d="M252.278 10.9093C260.467 2.70308 273.747 2.70652 281.936 10.9127L296.767 25.7747L123.736 199.169C115.547 207.375 102.266 207.371 94.0773 199.165L79.2463 184.303L252.278 10.9093ZM178.12 65.4068L148.458 95.1309L108.901 55.4919L59.4579 105.039L99.0141 144.678L79.2463 184.303L14.9753 119.898C6.78624 111.691 6.78624 98.3865 14.9753 90.1804L94.0773 10.9127C102.266 2.70652 115.547 2.70308 123.736 10.9093L178.12 65.4068Z"
+                        fill="white"
+                      />
+                    </g>
+                    <path
+                      d="M155.5 76.5L109.5 27.5L29.5 104L109.5 184.5L263.5 27.5L345.5 104L264.5 185"
+                      stroke="white"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="109.5"
+                      cy="29.5"
+                      r="4.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="30.5"
+                      cy="104.5"
+                      r="7.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_8px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="109.5"
+                      cy="183.5"
+                      r="4.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="263.5"
+                      cy="29.5"
+                      r="6.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_8px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="343.5"
+                      cy="104.5"
+                      r="3.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_4px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="264.5"
+                      cy="184.5"
+                      r="8.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_10px_rgba(255,255,255,1)]"
+                    />
+                    <circle
+                      cx="154.5"
+                      cy="76.5"
+                      r="4.5"
+                      fill="white"
+                      className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
+                    />
+                  </svg>
+                </div>
+              )}
+              {(!isEvening || hasNightBackground) &&
+                [
+                  // Dense Milky Way band stars
+                  {
+                    left: '15%',
+                    top: '65%',
+                    size: 1,
+                    delay: '0ms',
+                    opacity: 'opacity-80',
+                  },
+                  {
+                    left: '22%',
+                    top: '55%',
+                    size: 1.5,
+                    delay: '400ms',
+                    opacity: 'opacity-90',
+                  },
+                  {
+                    left: '28%',
+                    top: '45%',
+                    size: 2,
+                    delay: '800ms',
+                    opacity: 'opacity-100',
+                  },
+                  {
+                    left: '35%',
+                    top: '35%',
+                    size: 1,
+                    delay: '200ms',
+                    opacity: 'opacity-70',
+                  },
+                  {
+                    left: '42%',
+                    top: '25%',
+                    size: 1.5,
+                    delay: '600ms',
+                    opacity: 'opacity-90',
+                  },
+                  {
+                    left: '48%',
+                    top: '15%',
+                    size: 2.5,
+                    delay: '100ms',
+                    opacity: 'opacity-100',
+                  },
+                  {
+                    left: '55%',
+                    top: '22%',
+                    size: 1,
+                    delay: '900ms',
+                    opacity: 'opacity-60',
+                  },
+                  {
+                    left: '62%',
+                    top: '32%',
+                    size: 2,
+                    delay: '300ms',
+                    opacity: 'opacity-95',
+                  },
+                  {
+                    left: '68%',
+                    top: '42%',
+                    size: 1.5,
+                    delay: '700ms',
+                    opacity: 'opacity-85',
+                  },
+                  {
+                    left: '75%',
+                    top: '52%',
+                    size: 1,
+                    delay: '500ms',
+                    opacity: 'opacity-75',
+                  },
+
+                  // Scattered background stars
+                  {
+                    left: '5%',
+                    top: '15%',
+                    size: 1.5,
+                    delay: '150ms',
+                    opacity: 'opacity-60',
+                  },
+                  {
+                    left: '12%',
+                    top: '8%',
+                    size: 2,
+                    delay: '850ms',
+                    opacity: 'opacity-80',
+                  },
+                  {
+                    left: '8%',
+                    top: '85%',
+                    size: 1,
+                    delay: '450ms',
+                    opacity: 'opacity-50',
+                  },
+                  {
+                    left: '18%',
+                    top: '90%',
+                    size: 2.5,
+                    delay: '50ms',
+                    opacity: 'opacity-90',
+                  },
+                  {
+                    left: '30%',
+                    top: '10%',
+                    size: 1,
+                    delay: '750ms',
+                    opacity: 'opacity-40',
+                  },
+                  {
+                    left: '45%',
+                    top: '80%',
+                    size: 2,
+                    delay: '250ms',
+                    opacity: 'opacity-85',
+                  },
+                  {
+                    left: '58%',
+                    top: '85%',
+                    size: 1.5,
+                    delay: '950ms',
+                    opacity: 'opacity-70',
+                  },
+                  {
+                    left: '70%',
+                    top: '12%',
+                    size: 2.5,
+                    delay: '350ms',
+                    opacity: 'opacity-95',
+                  },
+                  {
+                    left: '82%',
+                    top: '20%',
+                    size: 1,
+                    delay: '650ms',
+                    opacity: 'opacity-55',
+                  },
+                  {
+                    left: '88%',
+                    top: '75%',
+                    size: 2,
+                    delay: '100ms',
+                    opacity: 'opacity-80',
+                  },
+                  {
+                    left: '95%',
+                    top: '40%',
+                    size: 1.5,
+                    delay: '550ms',
+                    opacity: 'opacity-65',
+                  },
+                  {
+                    left: '92%',
+                    top: '85%',
+                    size: 1,
+                    delay: '850ms',
+                    opacity: 'opacity-45',
+                  },
+
+                  // Tiny dust stars
+                  {
+                    left: '25%',
+                    top: '50%',
+                    size: 0.5,
+                    delay: '100ms',
+                    opacity: 'opacity-40',
+                  },
+                  {
+                    left: '32%',
+                    top: '40%',
+                    size: 0.5,
+                    delay: '300ms',
+                    opacity: 'opacity-50',
+                  },
+                  {
+                    left: '45%',
+                    top: '30%',
+                    size: 0.5,
+                    delay: '500ms',
+                    opacity: 'opacity-45',
+                  },
+                  {
+                    left: '52%',
+                    top: '20%',
+                    size: 0.5,
+                    delay: '700ms',
+                    opacity: 'opacity-55',
+                  },
+                  {
+                    left: '65%',
+                    top: '35%',
+                    size: 0.5,
+                    delay: '900ms',
+                    opacity: 'opacity-40',
+                  },
+                ].map((star) => (
+                  <span
+                    key={`${star.left}-${star.top}`}
+                    className={classNames(
+                      'absolute rounded-full',
+                      hasNightBackground
+                        ? `bg-white ${star.opacity} animate-streak-star-twinkle`
+                        : 'bg-white/65 drop-shadow-[0_0_4px_rgba(255,255,255,0.45)]',
+                    )}
+                    style={{
+                      left: star.left,
+                      top: star.top,
+                      width: `${star.size.toString()}px`,
+                      height: `${star.size.toString()}px`,
+                      animationDelay: star.delay,
+                      animationDuration: `${(3 + Math.random() * 4).toFixed(
+                        1,
+                      )}s`,
+                      boxShadow:
+                        hasNightBackground && star.size > 1.5
+                          ? '0 0 8px 1px rgba(255,255,255,0.8)'
+                          : 'none',
+                    }}
+                  />
+                ))}
+            </div>
+            {hasNightBackground && (
+              <div className="pointer-events-none absolute inset-0 z-2 overflow-hidden">
+                <div
+                  className="animate-starlink absolute flex items-center gap-1 opacity-0"
+                  style={{ transform: 'rotate(-20deg)' }}
+                >
+                  {Array.from({ length: 15 }).map((_, index) => {
+                    const opacity = Math.max(0.1, 1 - Math.abs(index - 7) / 7);
+                    return (
+                      <span
+                        key={`starlink-${index.toString()}`}
+                        className="h-[1.5px] w-[1.5px] rounded-full bg-white"
+                        style={{
+                          opacity,
+                          boxShadow: `0 0 ${
+                            opacity * 4
+                          }px rgba(255,255,255,${opacity})`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Ground fog / atmosphere */}
+            <div className="via-background-default/80 pointer-events-none absolute -bottom-12 left-0 right-0 z-0 h-48 bg-gradient-to-t from-background-default to-transparent blur-xl" />
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-24 bg-gradient-to-t from-background-default to-transparent" />
+          </>
+        }
+
+        <div className="z-20 relative flex min-h-[12rem] flex-col items-center justify-center text-center">
+          <div className="flex flex-col items-center">
+            <p
+              className={classNames(
+                'relative inline-block font-bold text-text-primary typo-mega2 [font-family:Pacifico,cursive] tablet:typo-mega2',
+                'transition-opacity duration-[2000ms] ease-in-out',
+                isVisible ? 'opacity-100' : 'opacity-0',
+              )}
             >
-              <g opacity="0.04">
-                <path
-                  d="M316.542 104.054L276.986 64.4152L296.753 24.79L361.024 89.1956C369.213 97.4018 369.213 110.707 361.024 118.913L281.919 198.184C273.73 206.39 260.453 206.39 252.264 198.184C244.075 189.978 244.075 176.673 252.264 168.467L316.542 104.054Z"
-                  fill="#A8B3CF"
-                  fillOpacity="0.64"
-                />
-                <path
-                  d="M252.278 10.9093C260.467 2.70308 273.747 2.70652 281.936 10.9127L296.767 25.7747L123.736 199.169C115.547 207.375 102.266 207.371 94.0773 199.165L79.2463 184.303L252.278 10.9093ZM178.12 65.4068L148.458 95.1309L108.901 55.4919L59.4579 105.039L99.0141 144.678L79.2463 184.303L14.9753 119.898C6.78624 111.691 6.78624 98.3865 14.9753 90.1804L94.0773 10.9127C102.266 2.70652 115.547 2.70308 123.736 10.9093L178.12 65.4068Z"
-                  fill="white"
-                />
-              </g>
-              <path
-                d="M155.5 76.5L109.5 27.5L29.5 104L109.5 184.5L263.5 27.5L345.5 104L264.5 185"
-                stroke="white"
-                strokeWidth="1.5"
-              />
-              <circle
-                cx="109.5"
-                cy="29.5"
-                r="4.5"
-                fill="white"
-                className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="30.5"
-                cy="104.5"
-                r="7.5"
-                fill="white"
-                className="drop-shadow-[0_0_8px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="109.5"
-                cy="183.5"
-                r="4.5"
-                fill="white"
-                className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="263.5"
-                cy="29.5"
-                r="6.5"
-                fill="white"
-                className="drop-shadow-[0_0_8px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="343.5"
-                cy="104.5"
-                r="3.5"
-                fill="white"
-                className="drop-shadow-[0_0_4px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="264.5"
-                cy="184.5"
-                r="8.5"
-                fill="white"
-                className="drop-shadow-[0_0_10px_rgba(255,255,255,1)]"
-              />
-              <circle
-                cx="154.5"
-                cy="76.5"
-                r="4.5"
-                fill="white"
-                className="drop-shadow-[0_0_6px_rgba(255,255,255,1)]"
-              />
-            </svg>
+              {isMorning && (
+                <>
+                  {/* Butterfly 1 (Top Right) */}
+                  <span className="z-10 animate-butterfly-1 absolute -right-12 -top-6 h-6 w-6 text-[#c084fc] opacity-0 blur-[0.5px] drop-shadow-[0_0_12px_rgba(192,132,252,0.9)]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="animate-butterfly-wing h-full w-full origin-center"
+                    >
+                      <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                    </svg>
+                  </span>
+                  {/* Butterfly 2 (Bottom Left) */}
+                  <span className="z-10 animate-butterfly-2 absolute -bottom-4 -left-10 h-5 w-5 text-[#a855f7] opacity-0 blur-[0.5px] drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="animate-butterfly-wing h-full w-full origin-center"
+                      style={{ animationDelay: '0.05s' }}
+                    >
+                      <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                    </svg>
+                  </span>
+                  {/* Butterfly 3 (Top Left) */}
+                  <span className="z-10 animate-butterfly-3 absolute -left-4 -top-8 h-4 w-4 text-[#d8b4fe] opacity-0 blur-[0.5px] drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="animate-butterfly-wing h-full w-full origin-center"
+                      style={{ animationDelay: '0.1s' }}
+                    >
+                      <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
+                    </svg>
+                  </span>
+                </>
+              )}
+              {greeting}
+              {greetingName ? `, ${greetingName}` : ''}
+            </p>
+            <p
+              className={classNames(
+                'mt-4 max-w-[36rem] text-text-tertiary typo-callout',
+                'transition-opacity delay-500 duration-[2000ms] ease-in-out',
+                isVisible ? 'opacity-100' : 'opacity-0',
+              )}
+            >
+              {effectiveStreak}-{dayLabel} streak. {motivationText}
+            </p>
           </div>
-        )}
-        {(!isEvening || hasNightBackground) && [
-          // Dense Milky Way band stars
-          {
-            left: '15%',
-            top: '65%',
-            size: 1,
-            delay: '0ms',
-            opacity: 'opacity-80',
-          },
-          {
-            left: '22%',
-            top: '55%',
-            size: 1.5,
-            delay: '400ms',
-            opacity: 'opacity-90',
-          },
-          {
-            left: '28%',
-            top: '45%',
-            size: 2,
-            delay: '800ms',
-            opacity: 'opacity-100',
-          },
-          {
-            left: '35%',
-            top: '35%',
-            size: 1,
-            delay: '200ms',
-            opacity: 'opacity-70',
-          },
-          {
-            left: '42%',
-            top: '25%',
-            size: 1.5,
-            delay: '600ms',
-            opacity: 'opacity-90',
-          },
-          {
-            left: '48%',
-            top: '15%',
-            size: 2.5,
-            delay: '100ms',
-            opacity: 'opacity-100',
-          },
-          {
-            left: '55%',
-            top: '22%',
-            size: 1,
-            delay: '900ms',
-            opacity: 'opacity-60',
-          },
-          {
-            left: '62%',
-            top: '32%',
-            size: 2,
-            delay: '300ms',
-            opacity: 'opacity-95',
-          },
-          {
-            left: '68%',
-            top: '42%',
-            size: 1.5,
-            delay: '700ms',
-            opacity: 'opacity-85',
-          },
-          {
-            left: '75%',
-            top: '52%',
-            size: 1,
-            delay: '500ms',
-            opacity: 'opacity-75',
-          },
 
-          // Scattered background stars
-          {
-            left: '5%',
-            top: '15%',
-            size: 1.5,
-            delay: '150ms',
-            opacity: 'opacity-60',
-          },
-          {
-            left: '12%',
-            top: '8%',
-            size: 2,
-            delay: '850ms',
-            opacity: 'opacity-80',
-          },
-          {
-            left: '8%',
-            top: '85%',
-            size: 1,
-            delay: '450ms',
-            opacity: 'opacity-50',
-          },
-          {
-            left: '18%',
-            top: '90%',
-            size: 2.5,
-            delay: '50ms',
-            opacity: 'opacity-90',
-          },
-          {
-            left: '30%',
-            top: '10%',
-            size: 1,
-            delay: '750ms',
-            opacity: 'opacity-40',
-          },
-          {
-            left: '45%',
-            top: '80%',
-            size: 2,
-            delay: '250ms',
-            opacity: 'opacity-85',
-          },
-          {
-            left: '58%',
-            top: '85%',
-            size: 1.5,
-            delay: '950ms',
-            opacity: 'opacity-70',
-          },
-          {
-            left: '70%',
-            top: '12%',
-            size: 2.5,
-            delay: '350ms',
-            opacity: 'opacity-95',
-          },
-          {
-            left: '82%',
-            top: '20%',
-            size: 1,
-            delay: '650ms',
-            opacity: 'opacity-55',
-          },
-          {
-            left: '88%',
-            top: '75%',
-            size: 2,
-            delay: '100ms',
-            opacity: 'opacity-80',
-          },
-          {
-            left: '95%',
-            top: '40%',
-            size: 1.5,
-            delay: '550ms',
-            opacity: 'opacity-65',
-          },
-          {
-            left: '92%',
-            top: '85%',
-            size: 1,
-            delay: '850ms',
-            opacity: 'opacity-45',
-          },
+          <div className="mt-4">
+            <div className="flex items-end justify-center gap-2">
+              {Array.from({ length: previewDays }).map((_, index) => {
+                const day = previewDaysDates[index];
+                const isToday = index === Math.floor(previewDays / 2);
+                const isWeekend = isWeekendDay(
+                  day,
+                  streak.weekStart,
+                  user.timezone,
+                );
+                const hasDebugOverride = !!debugReadDaysSet;
+                const historyHasData = readDaysSet.size > 0;
 
-          // Tiny dust stars
-          {
-            left: '25%',
-            top: '50%',
-            size: 0.5,
-            delay: '100ms',
-            opacity: 'opacity-40',
-          },
-          {
-            left: '32%',
-            top: '40%',
-            size: 0.5,
-            delay: '300ms',
-            opacity: 'opacity-50',
-          },
-          {
-            left: '45%',
-            top: '30%',
-            size: 0.5,
-            delay: '500ms',
-            opacity: 'opacity-45',
-          },
-          {
-            left: '52%',
-            top: '20%',
-            size: 0.5,
-            delay: '700ms',
-            opacity: 'opacity-55',
-          },
-          {
-            left: '65%',
-            top: '35%',
-            size: 0.5,
-            delay: '900ms',
-            opacity: 'opacity-40',
-          },
-        ].map((star) => (
-          <span
-            key={`${star.left}-${star.top}`}
-            className={classNames(
-              'absolute rounded-full',
-              hasNightBackground
-                ? `bg-white ${star.opacity} animate-streak-star-twinkle`
-                : 'bg-white/65 drop-shadow-[0_0_4px_rgba(255,255,255,0.45)]',
-            )}
-            style={{
-              left: star.left,
-              top: star.top,
-              width: `${star.size.toString()}px`,
-              height: `${star.size.toString()}px`,
-              animationDelay: star.delay,
-              animationDuration: `${(3 + Math.random() * 4).toFixed(1)}s`,
-              boxShadow:
-                hasNightBackground && star.size > 1.5
-                  ? '0 0 8px 1px rgba(255,255,255,0.8)'
-                  : 'none',
-            }}
-          />
-        ))}
-      </div>
-          {hasNightBackground && (
-        <div className="pointer-events-none absolute inset-0 z-2 overflow-hidden">
-          <div
-            className="animate-starlink absolute flex items-center gap-1 opacity-0"
-            style={{ transform: 'rotate(-20deg)' }}
-          >
-            {Array.from({ length: 15 }).map((_, index) => {
-              const opacity = Math.max(0.1, 1 - Math.abs(index - 7) / 7);
-              return (
-                <span
-                  key={`starlink-${index.toString()}`}
-                  className="h-[1.5px] w-[1.5px] rounded-full bg-white"
-                  style={{
-                    opacity,
-                    boxShadow: `0 0 ${
-                      opacity * 4
-                    }px rgba(255,255,255,${opacity})`,
-                  }}
-                />
-              );
-            })}
+                let isCompleted = false;
+                if (isToday) {
+                  isCompleted = false; // Hero is meant to prompt reading today, so today is always shown as incomplete
+                } else if (index < Math.floor(previewDays / 2)) {
+                  // Past days
+                  if (hasDebugOverride) {
+                    isCompleted =
+                      !isWeekend && debugReadDaysSet.has(day.toDateString());
+                  } else if (historyHasData) {
+                    isCompleted =
+                      !isWeekend && readDaysSet.has(day.toDateString());
+                  } else {
+                    isCompleted =
+                      Math.floor(previewDays / 2) - index <=
+                      completedBeforeToday;
+                  }
+                } else {
+                  // Future days
+                  isCompleted = false;
+                }
+
+                return (
+                  <span
+                    key={`streak-preview-${index.toString()}`}
+                    className={classNames(
+                      'bg-surface-subtle relative flex h-5 w-5 items-center justify-center rounded-full border border-border-subtlest-tertiary',
+                      isWeekend &&
+                        'bg-surface-float bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)] text-border-subtlest-tertiary',
+                      isToday &&
+                        'ring-accent-onion-default/60 border-white ring-2',
+                    )}
+                  >
+                    {isCompleted && !isWeekend && (
+                      <span className="h-[42%] w-[42%] rounded-full bg-accent-bacon-default" />
+                    )}
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </div>
-      )}
-
-          {/* Ground fog / atmosphere */}
-          <div className="via-background-default/80 pointer-events-none absolute -bottom-12 left-0 right-0 z-0 h-48 bg-gradient-to-t from-background-default to-transparent blur-xl" />
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-0 h-24 bg-gradient-to-t from-background-default to-transparent" />
-        </>
-      )}
-
-      <div className="relative z-20 flex min-h-[12rem] flex-col items-center justify-center text-center">
-        <div className="flex flex-col items-center">
-          <p
-            className={classNames(
-              'relative inline-block font-bold text-text-primary typo-mega2 [font-family:Pacifico,cursive] tablet:typo-mega2',
-              'transition-opacity duration-[2000ms] ease-in-out',
-              isVisible ? 'opacity-100' : 'opacity-0',
-            )}
-          >
-            {isMorning && (
-              <>
-                {/* Butterfly 1 (Top Right) */}
-                <span className="z-10 animate-butterfly-1 absolute -right-12 -top-6 h-6 w-6 text-[#c084fc] opacity-0 blur-[0.5px] drop-shadow-[0_0_12px_rgba(192,132,252,0.9)]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="animate-butterfly-wing h-full w-full origin-center"
-                  >
-                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                  </svg>
-                </span>
-                {/* Butterfly 2 (Bottom Left) */}
-                <span className="z-10 animate-butterfly-2 absolute -bottom-4 -left-10 h-5 w-5 text-[#a855f7] opacity-0 blur-[0.5px] drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="animate-butterfly-wing h-full w-full origin-center"
-                    style={{ animationDelay: '0.05s' }}
-                  >
-                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                  </svg>
-                </span>
-                {/* Butterfly 3 (Top Left) */}
-                <span className="z-10 animate-butterfly-3 absolute -left-4 -top-8 h-4 w-4 text-[#d8b4fe] opacity-0 blur-[0.5px] drop-shadow-[0_0_8px_rgba(216,180,254,0.9)]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="animate-butterfly-wing h-full w-full origin-center"
-                    style={{ animationDelay: '0.1s' }}
-                  >
-                    <path d="M19.78,3.2C19.34,3.23 18.57,3.61 17.65,4.35C15.65,5.95 13.91,8.39 12,11.5C10.09,8.39 8.35,5.95 6.35,4.35C5.43,3.61 4.66,3.23 4.22,3.2C3.16,3.15 2.19,3.94 2.05,5C1.86,6.46 2.82,8.44 4.54,10.66C5.9,12.43 7.82,14 10.35,15.11C9.69,15.82 8.79,16.59 7.64,17.38C6.06,18.47 4.5,19.32 4.14,19.53C3.96,19.64 3.86,19.83 3.86,20.03C3.86,20.46 4.31,20.74 4.69,20.55C4.78,20.5 6.42,19.57 8.16,18.39C9.79,17.29 11.23,16 12,15C12.77,16 14.21,17.29 15.84,18.39C17.58,19.57 19.22,20.5 19.31,20.55C19.69,20.74 20.14,20.46 20.14,20.03C20.14,19.83 20.04,19.64 19.86,19.53C19.5,19.32 17.94,18.47 16.36,17.38C15.21,16.59 14.31,15.82 13.65,15.11C16.18,14 18.1,12.43 19.46,10.66C21.18,8.44 22.14,6.46 21.95,5C21.81,3.94 20.84,3.15 19.78,3.2Z" />
-                  </svg>
-                </span>
-              </>
-            )}
-            {greeting}
-            {greetingName ? `, ${greetingName}` : ''}
-          </p>
-          <p
-            className={classNames(
-              'mt-4 max-w-[36rem] text-text-tertiary typo-callout',
-              'transition-opacity delay-500 duration-[2000ms] ease-in-out',
-              isVisible ? 'opacity-100' : 'opacity-0',
-            )}
-          >
-            {effectiveStreak}-{dayLabel} streak. {motivationText}
-          </p>
-
-        </div>
-
-        <div className="mt-4">
-          <div className="flex items-end justify-center gap-2">
-          {Array.from({ length: previewDays }).map((_, index) => {
-            const day = previewDaysDates[index];
-            const isToday = index === Math.floor(previewDays / 2);
-            const isWeekend = isWeekendDay(
-              day,
-              streak.weekStart,
-              user.timezone,
-            );
-            const hasDebugOverride = !!debugReadDaysSet;
-            const historyHasData = readDaysSet.size > 0;
-
-            let isCompleted = false;
-            if (isToday) {
-              isCompleted = false; // Hero is meant to prompt reading today, so today is always shown as incomplete
-            } else if (index < Math.floor(previewDays / 2)) {
-              // Past days
-              if (hasDebugOverride) {
-                isCompleted =
-                  !isWeekend && debugReadDaysSet.has(day.toDateString());
-              } else if (historyHasData) {
-                isCompleted = !isWeekend && readDaysSet.has(day.toDateString());
-              } else {
-                isCompleted =
-                  Math.floor(previewDays / 2) - index <= completedBeforeToday;
-              }
-            } else {
-              // Future days
-              isCompleted = false;
-            }
-
-            return (
-              <span
-                key={`streak-preview-${index.toString()}`}
-                className={classNames(
-                  'bg-surface-subtle relative flex h-5 w-5 items-center justify-center rounded-full border border-border-subtlest-tertiary',
-                  isWeekend &&
-                    'bg-surface-float bg-[repeating-linear-gradient(135deg,currentColor_0_2px,transparent_2px_5px)] text-border-subtlest-tertiary',
-                  isToday && 'ring-accent-onion-default/60 border-white ring-2',
-                )}
-              >
-                {isCompleted && !isWeekend && (
-                  <span className="h-[42%] w-[42%] rounded-full bg-accent-bacon-default" />
-                )}
-              </span>
-            );
-          })}
-          </div>
-        </div>
-
-      </div>
       </section>
     </>
   );

@@ -26,6 +26,12 @@ import { UserPersonalizedDigestType } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
 import { SortCommentsBy } from '../graphql/comments';
 
+const UNAUTHENTICATED_ERROR_CODE = 'UNAUTHENTICATED';
+
+const getGraphqlErrorCode = (error: unknown): string | undefined =>
+  (error as { response?: { errors?: { extensions?: { code?: string } }[] } })
+    ?.response?.errors?.[0]?.extensions?.code;
+
 export enum ThemeMode {
   Dark = 'dark',
   Light = 'light',
@@ -172,7 +178,11 @@ export const SettingsContextProvider = ({
         data: params,
       }),
 
-    onError: (_, params) => {
+    onError: (error, params) => {
+      if (getGraphqlErrorCode(error) === UNAUTHENTICATED_ERROR_CODE) {
+        return;
+      }
+
       const rollback = Object.keys(params).reduce(
         (values, key) => ({ ...values, [key]: settings[key] }),
         {},
@@ -207,9 +217,17 @@ export const SettingsContextProvider = ({
     bootUserId?: string,
   ): Promise<void> => {
     if (userId || bootUserId) {
-      await updateRemoteSettings({
-        ...newSettings,
-      });
+      try {
+        await updateRemoteSettings({
+          ...newSettings,
+        });
+      } catch (error) {
+        if (getGraphqlErrorCode(error) === UNAUTHENTICATED_ERROR_CODE) {
+          return;
+        }
+
+        throw error;
+      }
     }
   };
 

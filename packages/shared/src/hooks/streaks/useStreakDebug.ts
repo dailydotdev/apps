@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, useSyncExternalStore } from 'react';
 import { UrgencyLevel } from './useStreakUrgency';
 import type { StreakAnimationState } from './useStreakIncrement';
+import { isProductionAPI } from '../../lib/constants';
 
 export interface StreakFeatureToggles {
   animatedCounter: boolean;
@@ -63,6 +64,30 @@ const subscribeFeedHeroVariant = (listener: () => void): (() => void) => {
 const getFeedHeroVariantSnapshot = (): FeedHeroVariantOverride =>
   globalFeedHeroVariantOverride;
 const getFeedHeroVariantServerSnapshot = (): FeedHeroVariantOverride => 'auto';
+const streakDebugStorageKey = 'dd-streak-debug';
+
+const isStreakDebugEnabled = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const hasDebugQuery = new URLSearchParams(window.location.search).has(
+    'debugStreak',
+  );
+  if (!hasDebugQuery) {
+    return false;
+  }
+
+  if (!isProductionAPI) {
+    return true;
+  }
+
+  try {
+    return window.localStorage.getItem(streakDebugStorageKey) === 'enabled';
+  } catch {
+    return false;
+  }
+};
 
 const setGlobalDebugStreak = (value: number | null): void => {
   globalDebugStreak = value;
@@ -81,11 +106,7 @@ const setGlobalFeedHeroVariantOverride = (
 
 export const useStreakDebug = (): UseStreakDebugReturn => {
   const [isDebugMode] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-
-    return new URLSearchParams(window.location.search).has('debugStreak');
+    return isStreakDebugEnabled();
   });
 
   const [features, setFeatures] = useState<StreakFeatureToggles>({

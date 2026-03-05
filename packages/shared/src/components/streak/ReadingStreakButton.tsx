@@ -120,7 +120,6 @@ export function ReadingStreakButton({
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isTablet = useViewSize(ViewSize.Tablet);
   const debug = useStreakDebug();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const [debugPos, setDebugPos] = useState({ x: 16, y: 16 });
@@ -250,7 +249,12 @@ export function ReadingStreakButton({
     displayToast(<StreakIncrementToastMessage currentStreak={day} />, {
       timer: 5000,
     });
-  }, [displayToast, effectiveStreak, isDebugIncrement, shouldShowIncrementToast]);
+  }, [
+    displayToast,
+    effectiveStreak,
+    isDebugIncrement,
+    shouldShowIncrementToast,
+  ]);
 
   if (isLoading) {
     return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
