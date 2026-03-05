@@ -39,15 +39,12 @@ import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 const HeaderActions = getGroupedHoverContainer('span');
 const normalizeThreadBody = ({
   title,
-  content,
   contentHtml,
 }: {
   title?: string;
-  content?: string;
   contentHtml?: string;
 }): string | undefined => {
-  const rawBody =
-    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
+  const rawBody = contentHtml ? sanitizeMessage(contentHtml, []) : null;
   if (!rawBody) {
     return undefined;
   }
@@ -96,7 +93,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const showQuoteDetail = isQuoteLike;
   const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
+    post.subType === 'repost' && !post.contentHtml?.trim();
   const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
     ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1'
     : 'mx-1 mb-1 mt-2 h-40';
@@ -109,7 +106,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     post.subType === 'thread'
       ? normalizeThreadBody({
           title: rawTitle,
-          content: post.content,
           contentHtml: post.contentHtml,
         })
       : undefined;

@@ -94,9 +94,7 @@ function SocialTwitterPostContentRaw({
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' &&
-    !post.contentHtml?.trim() &&
-    !post.content?.trim();
+    post.subType === 'repost' && !post.contentHtml?.trim();
   const {
     repostedByName,
     metadataHandles,
