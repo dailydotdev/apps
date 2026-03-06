@@ -24,8 +24,22 @@ const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
 const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
 
-const getTabUrl = (tab: ArenaTab): string => {
-  return `https://app.daily.dev/agents/arena?tab=${tab}`;
+const getTabUrl = (tab: ArenaTab): string =>
+  `https://app.daily.dev/agents/arena?tab=${tab}`;
+
+const resolveArenaTab = (
+  tab: string | string[] | undefined,
+  fallback: ArenaTab,
+): ArenaTab => {
+  const tabValue = Array.isArray(tab) ? tab[0] : tab;
+  if (tabValue === 'llms') {
+    return 'llms';
+  }
+  if (tabValue === 'coding-agents') {
+    return 'coding-agents';
+  }
+
+  return fallback;
 };
 
 const getArenaJsonLd = ({
@@ -105,14 +119,7 @@ const getArenaBreadcrumbJsonLd = (): string =>
 const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
 
-  const queryTab = router.query.tab;
-  let activeTab: ArenaTab = initialTab;
-  if (queryTab === 'llms') {
-    activeTab = 'llms';
-  }
-  if (queryTab === 'coding-agents') {
-    activeTab = 'coding-agents';
-  }
+  const activeTab = resolveArenaTab(router.query.tab, initialTab);
 
   const { data } = useQuery(arenaOptions({ groupId: activeTab }));
   const rankings =
@@ -160,7 +167,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext): Promise<
   GetServerSidePropsResult<ArenaPageRouteProps>
 > {
-  const initialTab: ArenaTab = query.tab === 'llms' ? 'llms' : 'coding-agents';
+  const initialTab = resolveArenaTab(query.tab, 'coding-agents');
 
   res.setHeader(
     'Cache-Control',
