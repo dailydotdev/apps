@@ -7,6 +7,7 @@ import React, { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SuccessfulRegistrationData } from '@dailydotdev/shared/src/lib/kratos';
 import {
+  AuthEvent,
   AuthFlow,
   ContinueWithAction,
   getKratosProviders,
@@ -22,6 +23,8 @@ import type {
 } from '@dailydotdev/shared/src/lib/auth';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useEventListener } from '@dailydotdev/shared/src/hooks/useEventListener';
+import { broadcastChannel } from '@dailydotdev/shared/src/lib/constants';
 import type { SignBackProvider } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
@@ -29,6 +32,15 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useIsBetterAuth } from '@dailydotdev/shared/src/hooks/useIsBetterAuth';
+import {
+  getBetterAuthProviders,
+  getBetterAuthLinkSocialUrl,
+  unlinkBetterAuthAccount,
+  betterAuthSetPassword,
+  betterAuthChangeEmail,
+  betterAuthVerifyChangeEmail,
+} from '@dailydotdev/shared/src/lib/betterAuth';
 import type { NextSeoProps } from 'next-seo';
 import { AccountSecurityDisplay as Display } from '../../components/layouts/SettingsLayout/common';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -48,22 +60,24 @@ const seo: NextSeoProps = {
 
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
-  const { user } = useAuthContext();
+  const { user, refetchBoot } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [verificationId, setVerificationId] = useState<string>();
   const [hint, setHint] = useState<string>();
   const { onUpdateSignBack, signBack, provider } = useSignBack();
+  const isBetterAuth = useIsBetterAuth();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
+  const client = useQueryClient();
   const { data: userProviders } = useQuery({
     queryKey: providersKey,
-
-    queryFn: () => getKratosProviders(),
+    queryFn: () =>
+      isBetterAuth ? getBetterAuthProviders() : getKratosProviders(),
   });
   const { data: settings } = useQuery({
     queryKey: ['settings'],
-
     queryFn: () => initializeKratosFlow(AuthFlow.Settings),
+    enabled: !isBetterAuth,
   });
 
   const onSetPassword = () => {
@@ -91,7 +105,32 @@ const AccountSecurityPage = (): ReactElement => {
     },
   });
 
-  const onUpdatePassword = ({ password }: ChangePasswordParams) => {
+  const hasPassword = userProviders?.result?.includes('password');
+
+  const onUpdatePasswordBetterAuth = async ({
+    password,
+  }: ChangePasswordParams) => {
+    if (hasPassword) {
+      displayToast('Use forgot password to update your existing password');
+      return;
+    }
+    const result = await betterAuthSetPassword(password);
+    if (result.status) {
+      onSetPassword();
+      await client.invalidateQueries({ queryKey: providersKey });
+    } else if (result.error) {
+      displayToast(result.error);
+    }
+  };
+
+  const onUpdatePassword = async ({ password }: ChangePasswordParams) => {
+    if (isBetterAuth) {
+      await onUpdatePasswordBetterAuth({ password });
+      return;
+    }
+    if (!settings?.ui) {
+      return;
+    }
     const { action, nodes } = settings.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     resetPassword({
@@ -99,8 +138,6 @@ const AccountSecurityPage = (): ReactElement => {
       params: { csrf_token: csrfToken, method: 'password', password },
     });
   };
-
-  const client = useQueryClient();
   const sessionKey = generateQueryKey(RequestKey.CurrentSession, user);
   const { mutateAsync: changeEmail } = useMutation({
     mutationFn: (params: ValidateChangeEmail) => {
@@ -138,10 +175,34 @@ const AccountSecurityPage = (): ReactElement => {
   const { data: kratos } = useQuery({
     queryKey: sessionKey,
     queryFn: getKratosSession,
+    enabled: !isBetterAuth,
   });
   const { session } = kratos ?? {};
+  const onVerifyCodeBetterAuth = async (code: string) => {
+    const result = await betterAuthVerifyChangeEmail(code);
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    displayToast('Your email address has been updated.');
+    setActiveDisplay(Display.Default);
+    await refetchBoot?.();
+  };
+
   const onChangeEmail = async (email: string) => {
     if (!email) {
+      return;
+    }
+
+    if (isBetterAuth) {
+      setHint(undefined);
+      const result = await betterAuthChangeEmail(email);
+      if (result.error) {
+        setHint(result.error);
+      }
+      return;
+    }
+
+    if (!settings?.ui) {
       return;
     }
 
@@ -202,18 +263,64 @@ const AccountSecurityPage = (): ReactElement => {
     },
   });
 
-  const updateSocialProviders = (postData: UpdateProvidersParams) => {
+  const updateSocialProvidersBetterAuth = async (
+    postData: UpdateProvidersParams,
+  ) => {
+    if ('link' in postData && postData.link) {
+      const callbackURL = `${window.location.origin}/callback?login=true`;
+      const url = getBetterAuthLinkSocialUrl(postData.link, callbackURL);
+      const popup = window.open();
+      if (popup) {
+        popup.location.href = url;
+      }
+    } else if ('unlink' in postData && postData.unlink) {
+      const result = await unlinkBetterAuthAccount(postData.unlink);
+      if (result.status) {
+        await client.invalidateQueries({ queryKey: providersKey });
+        if (postData.unlink === provider) {
+          const validProvider = userProviders?.result?.find(
+            (userProvider) => userProvider !== postData.unlink,
+          );
+          onUpdateSignBack(signBack, validProvider as SignBackProvider);
+        }
+      } else {
+        displayToast('You must have at least one provider');
+      }
+    }
+  };
+
+  const updateSocialProviders = async (postData: UpdateProvidersParams) => {
+    if (isBetterAuth) {
+      await updateSocialProvidersBetterAuth(postData);
+      return;
+    }
+    if (!settings?.ui) {
+      return;
+    }
     const { action, nodes } = settings.ui;
     const csrfToken = getNodeValue('csrf_token', nodes);
     const params = { ...postData, csrf_token: csrfToken };
     updateSettings({ action, params });
   };
 
+  const onLinkProviderMessage = async (e: MessageEvent) => {
+    if (!isBetterAuth) {
+      return;
+    }
+    if (e.data?.eventKey !== AuthEvent.Login) {
+      return;
+    }
+    await client.invalidateQueries({ queryKey: providersKey });
+  };
+
+  useEventListener(globalThis, 'message', onLinkProviderMessage);
+  useEventListener(broadcastChannel, 'message', onLinkProviderMessage);
+
   return (
     <TabContainer showHeader={false} controlledActive={activeDisplay}>
       <Tab label={Display.Default}>
         <AccountSecurityDefault
-          email={session?.identity?.traits?.email}
+          email={isBetterAuth ? user?.email : session?.identity?.traits?.email}
           session={session}
           userProviders={userProviders}
           updatePasswordRef={updatePasswordRef}
@@ -231,6 +338,7 @@ const AccountSecurityPage = (): ReactElement => {
           setHint={setHint}
           verificationId={verificationId}
           onVerifySuccess={onVerifySuccess}
+          onVerifyCode={isBetterAuth ? onVerifyCodeBetterAuth : undefined}
         />
       </Tab>
     </TabContainer>
