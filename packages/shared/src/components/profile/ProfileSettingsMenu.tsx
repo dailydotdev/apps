@@ -156,6 +156,11 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: BellIcon,
               href: `${settingsUrl}/notifications`,
             },
+            feedback: {
+              title: 'Your Feedback',
+              icon: FeedbackIcon,
+              href: `${settingsUrl}/feedback`,
+            },
             invite: {
               title: 'Invite Friends',
               icon: InviteIcon,
