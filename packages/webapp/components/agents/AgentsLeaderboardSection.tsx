@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ArenaRankings } from '@dailydotdev/shared/src/features/agents/arena/ArenaRankings';
-import type { RankedTool } from '@dailydotdev/shared/src/features/agents/arena/types';
+import type {
+  ArenaTab,
+  RankedTool,
+} from '@dailydotdev/shared/src/features/agents/arena/types';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 
 const LiveIndicator = (): ReactElement => (
@@ -14,25 +17,31 @@ const LiveIndicator = (): ReactElement => (
 interface AgentsLeaderboardSectionProps {
   tools: RankedTool[];
   loading: boolean;
+  tab: ArenaTab;
 }
 
 export const AgentsLeaderboardSection = ({
   tools,
   loading,
+  tab,
 }: AgentsLeaderboardSectionProps): ReactElement => (
   <section className="w-full pt-4">
     <header className="mb-1.5 flex items-center gap-2 px-3 laptop:px-4">
-      <h2 className="font-bold text-text-primary typo-title3">Leaderboard</h2>
+      <h2 className="font-bold text-text-primary typo-title3">Arena</h2>
       <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
-        <Link href="/agents/arena">
+        <Link
+          href={
+            tab === 'coding-agents' ? '/agents/arena' : '/agents/arena?tab=llms'
+          }
+        >
           <a className="text-text-link typo-caption1">View all</a>
         </Link>
       </div>
     </header>
     <ArenaRankings
       tools={tools}
-      tab="coding-agents"
+      tab={tab}
       origin="hub"
       loading={loading}
       compact

@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
+import type { ArenaTab } from '@dailydotdev/shared/src/features/agents/arena/types';
 import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
 import {
   baseFeedSupportedTypes,
@@ -42,6 +43,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 const AGENTS_TITLE = 'Agentic Hub | daily.dev';
 const AGENTS_DESCRIPTION =
   'Stay on top of AI coding with live rankings, momentum shifts, developer sentiment, and the latest news and content to make smarter tool decisions.';
+const HUB_ARENA_TAB: ArenaTab = 'llms';
 const AGENTS_DIGEST_QUERY_KEY = generateQueryKey(
   RequestKey.SourceFeed,
   undefined,
@@ -67,7 +69,7 @@ const AgentsHomePage = (): ReactElement => {
   const { copyLink } = useSharePost(Origin.Feed);
 
   const { data: arenaData, isFetching: isFetchingArena } = useQuery(
-    arenaOptions({ groupId: 'coding-agents' }),
+    arenaOptions({ groupId: HUB_ARENA_TAB }),
   );
 
   const rankings = useMemo(
@@ -145,6 +147,7 @@ const AgentsHomePage = (): ReactElement => {
       <AgentsLeaderboardSection
         tools={topFiveRankings}
         loading={isArenaLoading}
+        tab={HUB_ARENA_TAB}
       />
       <AgentsDigestCard
         post={digestPost}
@@ -180,6 +183,11 @@ AgentsHomePage.layoutProps = {
       description: AGENTS_DESCRIPTION,
       url: 'https://app.daily.dev/agents',
       type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=llms&hideLink=1',
+        },
+      ],
     },
   },
 };
@@ -199,7 +207,7 @@ export async function getServerSideProps({
   const queryClient = new QueryClient();
 
   await Promise.all([
-    queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
+    queryClient.prefetchQuery(arenaOptions({ groupId: HUB_ARENA_TAB })),
     queryClient.prefetchQuery({
       queryKey: AGENTS_DIGEST_QUERY_KEY,
       queryFn: () =>

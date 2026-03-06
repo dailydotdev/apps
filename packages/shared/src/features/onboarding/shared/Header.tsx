@@ -17,6 +17,7 @@ export interface HeaderProps extends ProgressBarProps {
   showBackButton?: boolean;
   showSkipButton?: boolean;
   showProgressBar?: boolean;
+  isSkipDisabled?: boolean;
   onBack?: () => void;
   onSkip?: () => void;
   className?: string;
@@ -29,6 +30,7 @@ export function Header({
   showBackButton,
   showSkipButton,
   showProgressBar,
+  isSkipDisabled,
   onBack,
   onSkip,
   className,
@@ -59,6 +61,7 @@ export function Header({
           <Button
             className="ml-auto font-normal"
             data-funnel-track={FunnelTargetId.StepSkip}
+            disabled={isSkipDisabled}
             onClick={onSkip}
             size={ButtonSize.Large}
             variant={ButtonVariant.Tertiary}
