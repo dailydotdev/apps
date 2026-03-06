@@ -101,7 +101,7 @@ export function EmbeddedTweetPreview({
         {post.sharedPost?.title || post.title}
       </p>
       {shouldShowMedia && !!mediaSrc && (
-        <div className="mt-2 overflow-hidden rounded-12 border border-border-subtlest-tertiary">
+        <div className="mt-2 overflow-hidden rounded-12">
           <Image
             src={mediaSrc}
             alt="Tweet media"

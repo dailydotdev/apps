@@ -69,7 +69,9 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     !!sharedTitle &&
     !sharedTitle.startsWith(titleWithoutRepostPrefix);
   const normalizedContent = (post.content || content).trim();
-  const hasDailyDevMarkdown = !!normalizedContent || hasTitleCommentary;
+  const isStandaloneTweet = post.subType === 'tweet' && !post.sharedPost;
+  const hasDailyDevMarkdown =
+    !isStandaloneTweet && (!!normalizedContent || hasTitleCommentary);
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
     : 'line-clamp-10';

@@ -103,7 +103,9 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     !!titleWithoutRepostPrefix &&
     !!sharedTitle &&
     !sharedTitle.startsWith(titleWithoutRepostPrefix);
-  const hasDailyDevMarkdown = !!normalizedContent || hasTitleCommentary;
+  const isStandaloneTweet = post.subType === 'tweet' && !post.sharedPost;
+  const hasDailyDevMarkdown =
+    !isStandaloneTweet && (!!normalizedContent || hasTitleCommentary);
   const quoteDetailsContainerClass = 'mx-1 mb-1 mt-2';
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-6'

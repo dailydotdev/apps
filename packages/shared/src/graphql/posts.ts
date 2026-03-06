@@ -103,7 +103,9 @@ export const isXShareLikePost = (
     post.sharedPost?.domain,
   ];
 
-  return candidates.some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
+  return candidates.some((value) =>
+    /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''),
+  );
 };
 
 export const getSocialTwitterPostType = (

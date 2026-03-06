@@ -122,6 +122,6 @@ export const getSocialTwitterMetadata = (post: Post) => {
 
 export const getSocialTwitterMetadataLabel = (): ReactElement => (
   <span className="inline-flex h-4 items-center align-middle leading-4">
-    Posted on x.com
+    From x.com
   </span>
 );

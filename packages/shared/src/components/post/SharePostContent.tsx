@@ -131,7 +131,9 @@ export function CommonSharePostContent({
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
   const { type } = sharedPostSource;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
-  const xTitleMatch = sharedPost.title?.match(/^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s);
+  const xTitleMatch = sharedPost.title?.match(
+    /^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s,
+  );
   const hasXDomain = [
     sharedPost.permalink,
     sharedPost.commentsPermalink,

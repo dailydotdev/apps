@@ -81,10 +81,10 @@ it('should render top action link using post comments permalink', async () => {
   expect(link).toHaveAttribute('href', basePost.permalink);
 });
 
-it('should render "Posted on X" next to metadata date for regular tweets', async () => {
+it('should render "From x.com" next to metadata date for regular tweets', async () => {
   renderComponent();
 
-  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(screen.queryByText(/Avengers reposted/i)).not.toBeInTheDocument();
 });
 
@@ -127,7 +127,7 @@ it('should render quote/repost detail from shared post', async () => {
     },
   });
 
-  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
     0,
   );
@@ -218,7 +218,7 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();

@@ -127,7 +127,7 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText(/Posted on/i)).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();
