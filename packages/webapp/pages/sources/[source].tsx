@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
+  baseFeedSupportedTypes,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SOURCE_FEED_QUERY,
@@ -152,12 +153,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     () => ({
       source: source?.id,
       ranking: 'TIME',
-      supportedTypes: [
-        PostType.Article,
-        PostType.SocialTwitter,
-        PostType.VideoYouTube,
-        PostType.Collection,
-      ],
+      supportedTypes: baseFeedSupportedTypes,
     }),
     [source?.id],
   );

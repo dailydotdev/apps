@@ -70,6 +70,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
+  OtherFeedPage.AgentsVibes,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -77,7 +78,10 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
-export const PostFeedPages = new Set([OtherFeedPage.Post]);
+export const PostFeedPages = new Set([
+  OtherFeedPage.Post,
+  OtherFeedPage.AgentsVibes,
+]);
 
 interface GetFeedPageLayoutComponentProps
   extends Pick<

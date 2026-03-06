@@ -6,9 +6,23 @@
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
+.containerV2 {
+  max-width: 100%;
+
+  @screen desktopL {
+    max-width: calc(21.25rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
+  }
+}
 .cards {
   @screen mobileL {
     max-width: calc(20rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
+  }
+}
+.cardsV2 {
+  max-width: 100%;
+
+  @screen desktopL {
+    max-width: calc(21.25rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
 
@@ -16,7 +30,8 @@
   padding-bottom: var(--feed-gap);
 }
 
-.cards .feedRow {
+.cards .feedRow,
+.cardsV2 .feedRow {
   grid-template-columns: repeat(var(--num-cards), 1fr);
   grid-gap: var(--feed-gap);
 

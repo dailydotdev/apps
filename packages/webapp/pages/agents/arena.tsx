@@ -80,6 +80,32 @@ const getArenaJsonLd = ({
     },
   });
 
+const getArenaBreadcrumbJsonLd = (): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://app.daily.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Agentic Hub',
+        item: 'https://app.daily.dev/agents',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'The Arena',
+        item: 'https://app.daily.dev/agents/arena',
+      },
+    ],
+  });
+
 const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
 
@@ -119,6 +145,13 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: getArenaJsonLd({ activeTab, rankings, dateModified }),
+        }}
+      />
+      <script
+        key="arena-breadcrumbs"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getArenaBreadcrumbJsonLd(),
         }}
       />
       <ArenaPage activeTab={activeTab} onTabChange={handleTabChange} />
@@ -165,6 +198,11 @@ ArenaPageRoute.layoutProps = {
       description: ARENA_DESCRIPTION,
       url: 'https://app.daily.dev/agents/arena',
       type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=coding-agents&hideLink=1',
+        },
+      ],
     },
   },
 };

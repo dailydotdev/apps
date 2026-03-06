@@ -8,6 +8,7 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
+  useConditionalFeature,
   useFeedLayout,
   ToastSubject,
   useToastNotification,
@@ -16,6 +17,7 @@ import {
   useFeeds,
   useBoot,
 } from '../../hooks';
+import { featureFeedLayoutV2 } from '../../lib/featureManagement';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
@@ -44,6 +46,8 @@ export interface FeedContainerProps {
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   showBriefCard?: boolean;
+  disableListFrame?: boolean;
+  disableListWidthConstraint?: boolean;
 }
 
 const listGaps = {
@@ -69,23 +73,33 @@ const cardListClass = {
 export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
+  'gap-4': 16,
   'gap-5': 20,
   'gap-8': 32,
   'gap-12': 48,
   'gap-14': 56,
 };
 
+/**
+ * Returns the appropriate gap class based on layout mode and spaciness.
+ * @param defaultGridGap - Optional override for grid gap (used by feature flags like feed_layout_v2)
+ */
 export const gapClass = ({
   isList,
   isFeedLayoutList,
   space,
+  defaultGridGap,
 }: {
   isList: boolean;
   isFeedLayoutList: boolean;
   space: Spaciness;
+  defaultGridGap?: string;
 }): string => {
   if (isFeedLayoutList) {
     return '';
+  }
+  if (defaultGridGap) {
+    return defaultGridGap;
   }
   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
 };
@@ -146,10 +160,15 @@ export const FeedContainer = ({
   isHorizontal,
   feedContainerRef,
   showBriefCard,
+  disableListFrame = false,
+  disableListWidthConstraint = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+  });
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -157,24 +176,31 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2
+    ? 'eco'
+    : spaciness ?? 'eco';
+  const numCards = currentSettings.numCards[effectiveSpaciness];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
+  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
         isList,
         isFeedLayoutList: shouldUseListFeedLayout,
-        space: spaciness,
+        space: effectiveSpaciness,
+        defaultGridGap: v2GridGap,
       })
     ];
   const style = {
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
     '--feed-gap': `${feedGapPx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = { ...getStyle(isList, spaciness) };
+  const cardContainerStyle = disableListWidthConstraint
+    ? {}
+    : { ...getStyle(isList, effectiveSpaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -222,7 +248,7 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
-        styles.container,
+        isFeedLayoutV2 ? styles.containerV2 : styles.container,
         className,
       )}
     >
@@ -264,7 +290,7 @@ export const FeedContainer = ({
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
-            !isList && styles.cards,
+            !isList && (isFeedLayoutV2 ? styles.cardsV2 : styles.cards),
           )}
           style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
@@ -291,9 +317,11 @@ export const FeedContainer = ({
             wrapper={(child) => (
               <div
                 className={classNames(
-                  'flex flex-col rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
-                  isSearch && 'mt-6',
-                  !isLaptop && '!mt-2 border-0',
+                  'flex flex-col',
+                  !disableListFrame &&
+                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                  !disableListFrame && isSearch && 'mt-6',
+                  !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
                 <ConditionalWrapper
@@ -322,7 +350,8 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: spaciness,
+                  space: effectiveSpaciness,
+                  defaultGridGap: v2GridGap,
                 }),
                 cardClass({
                   isList,

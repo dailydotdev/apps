@@ -24,14 +24,15 @@ import { GearCategoryNudge } from '@dailydotdev/shared/src/components/gear/GearC
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seoDescription =
   'Discover the most popular developer gear ranked by category. See what keyboards, monitors, mice, and other workspace gear top developers use.';
 
+const seoTitles = getPageSeoTitles('Popular developer gear & workspace setups');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Popular developer gear & workspace setups'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description: seoDescription,
 };
 

@@ -1,6 +1,9 @@
 import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
-import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { SOURCE_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+
+import {
+  baseFeedSupportedTypes,
+  SOURCE_FEED_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -71,12 +74,7 @@ const createFeedMock = (
     loggedIn: true,
     source: 'react',
     ranking: 'TIME',
-    supportedTypes: [
-      PostType.Article,
-      PostType.SocialTwitter,
-      PostType.VideoYouTube,
-      PostType.Collection,
-    ],
+    supportedTypes: baseFeedSupportedTypes,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -233,12 +231,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
         loggedIn: false,
         source: 'react',
         ranking: 'TIME',
-        supportedTypes: [
-          PostType.Article,
-          PostType.SocialTwitter,
-          PostType.VideoYouTube,
-          PostType.Collection,
-        ],
+        supportedTypes: baseFeedSupportedTypes,
       }),
     ],
     null,
