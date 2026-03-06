@@ -1,24 +1,22 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
-import { addDays, subDays } from 'date-fns';
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
+
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
-import { DayStreak, Streak } from './DayStreak';
+import { MilestoneTimeline } from './MilestoneTimeline';
+import { StreakMonthCalendar } from './StreakMonthCalendar';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import type { ReadingDay, UserStreak } from '../../../graphql/users';
 import { getReadingStreak30Days } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useActions, useViewSize, ViewSize } from '../../../hooks';
+import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
-import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
   DEFAULT_TIMEZONE,
   getTimezoneOffsetLabel,
-  isSameDayInTimezone,
 } from '../../../lib/timezones';
 import { timezoneSettingsUrl, webappUrl } from '../../../lib/constants';
 import { useStreakTimezoneOk } from '../../../hooks/streaks/useStreakTimezoneOk';
@@ -43,77 +41,36 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { cloudinaryNotificationsBrowser } from '../../../lib/image';
+import CloseButton from '../../CloseButton';
+import { NotificationSvg } from '../../../svg/NotificationSvg';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 
-const getStreak = ({
-  value,
-  today,
-  history,
-  startOfWeek = DayOfWeek.Monday,
-  timezone,
-}: {
-  value: Date;
-  today: Date;
-  history?: ReadingDay[];
-  startOfWeek?: number;
-  timezone?: string;
-}): Streak => {
-  const isFreezeDay = isWeekend(value, startOfWeek, timezone);
-  const isToday = isSameDayInTimezone(value, today, timezone);
-  const isFuture = value > today;
-  const isCompleted =
-    !isFuture &&
-    history?.some(({ date: historyDate, reads }) => {
-      const dateToCompare = new Date(historyDate);
-      const sameDate = isSameDayInTimezone(dateToCompare, value, timezone);
-
-      return sameDate && reads > 0;
-    });
-
-  if (isCompleted) {
-    return Streak.Completed;
-  }
-
-  if (isFreezeDay) {
-    return Streak.Freeze;
-  }
-
-  if (isToday) {
-    return Streak.Pending;
-  }
-
-  return Streak.Upcoming;
-};
-
-const getStreakDays = (today: Date) => {
-  return [
-    subDays(today, 4),
-    subDays(today, 3),
-    subDays(today, 2),
-    subDays(today, 1),
-    today,
-    addDays(today, 1),
-    addDays(today, 2),
-    addDays(today, 3),
-    addDays(today, 4),
-  ]; // these dates will then be compared to the user's post views
-};
-
 interface ReadingStreakPopupProps {
   streak: UserStreak;
   fullWidth?: boolean;
+  showMilestoneTimeline?: boolean;
+  streakOverride?: number;
+  isVisible?: boolean;
+  milestoneClaimResetNonce?: number;
+  showMobileDrawerActions?: boolean;
+  onClose?: () => void;
 }
 
 export function ReadingStreakPopup({
   streak,
   fullWidth,
+  showMilestoneTimeline = true,
+  streakOverride,
+  isVisible = true,
+  milestoneClaimResetNonce,
+  showMobileDrawerActions = false,
+  onClose,
 }: ReadingStreakPopupProps): ReactElement {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
-  const isMobile = useViewSize(ViewSize.MobileL);
+
   const { user } = useAuthContext();
   const { completeAction } = useActions();
   const { data: history } = useQuery<ReadingDay[]>({
@@ -140,32 +97,6 @@ export function ReadingStreakPopup({
     isInitialized &&
     (!isSubscribed || acceptedJustNow);
 
-  const streaks = useMemo(() => {
-    const today = new Date();
-    const streakDays = getStreakDays(today);
-
-    return streakDays.map((value) => {
-      const isToday = isSameDayInTimezone(value, today, user?.timezone);
-
-      const streakDef = getStreak({
-        value,
-        today,
-        history,
-        startOfWeek: streak.weekStart,
-        timezone: user?.timezone,
-      });
-
-      return (
-        <DayStreak
-          key={value.getTime()}
-          streak={streakDef}
-          date={value}
-          shouldShowArrow={isToday}
-        />
-      );
-    });
-  }, [history, streak.weekStart, user?.timezone]);
-
   const onTogglePush = async () => {
     logEvent({
       event_name: LogEvent.DisableNotification,
@@ -188,133 +119,170 @@ export function ReadingStreakPopup({
     return null;
   }
 
+  const displayStreak = streakOverride ?? streak.current;
+  const shouldShowTopActions = !showMobileDrawerActions;
+
   return (
-    <div className="flex flex-col tablet:max-w-[21.75rem]">
-      <div className="flex flex-col p-0 tablet:p-4">
-        <div className="flex flex-row">
-          <StreakSection streak={streak.current} label="Current streak" />
-          <StreakSection streak={streak.max} label="Longest streak 🏆" />
-        </div>
-        <div
-          className={classNames(
-            'mt-6 flex flex-row gap-2',
-            fullWidth && 'justify-between',
-          )}
-        >
-          {streaks}
-        </div>
-        <div className="mt-4 flex flex-col items-center tablet:flex-row">
-          <div
-            className={classNames(
-              'flex w-full flex-row flex-wrap justify-center gap-2 font-bold text-text-tertiary tablet:w-auto tablet:flex-col tablet:items-start tablet:gap-1',
-              isMobile && 'my-4 flex-1 text-center',
-            )}
-          >
-            <div className="m-auto tablet:m-0">
-              Total reading days: {streak.total}
+    <div
+      className={`flex max-h-[640px] flex-col ${
+        fullWidth
+          ? 'h-full max-h-none min-h-0 w-full max-w-none tablet:max-w-none'
+          : 'w-full max-w-[320px]'
+      }`}
+    >
+      <div className="flex flex-col p-0 pb-4 tablet:px-4 tablet:pt-4">
+        {/* Tier progress removed — milestones timeline is the primary progression UI */}
+
+        <div className="flex items-start gap-2">
+          <StreakSection
+            streak={displayStreak}
+            label={`${streak.max} Longest · ${streak.total} Total`}
+            isPrimary
+          />
+          {shouldShowTopActions && (
+            <div className="flex flex-col items-center gap-1">
+              {onClose && (
+                <CloseButton size={ButtonSize.Small} onClick={onClose} />
+              )}
+              <Link href={`${webappUrl}account/customization/streaks`} passHref>
+                <Button
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<SettingsIcon />}
+                />
+              </Link>
             </div>
-            <Tooltip
-              side="bottom"
-              content={
-                <div className="flex text-center">
-                  {isTimezoneOk ? (
-                    <>
-                      We are showing your reading streak in your selected
-                      timezone.
-                      <br />
-                      Click to adjust your timezone if needed or traveling.
-                    </>
-                  ) : (
-                    <>Click for more info</>
+          )}
+        </div>
+        <div className="mt-2">
+          <StreakMonthCalendar
+            history={history}
+            weekStart={streak.weekStart}
+            timezone={user?.timezone}
+            currentStreak={displayStreak}
+            streakOverride={streakOverride}
+            trailing={
+              <Tooltip
+                side="bottom"
+                content={
+                  <div className="flex text-center">
+                    {isTimezoneOk ? (
+                      <>
+                        We are showing your reading streak in your selected
+                        timezone.
+                        <br />
+                        Click to adjust your timezone if needed or traveling.
+                      </>
+                    ) : (
+                      <>Click for more info</>
+                    )}
+                  </div>
+                }
+              >
+                <div className="flex items-center">
+                  {!isTimezoneOk && (
+                    <WarningIcon className="text-raw-cheese-40" secondary />
                   )}
+                  <div className="font-normal !text-text-quaternary typo-subhead">
+                    <Link
+                      onClick={async (event) => {
+                        const deviceTimezone =
+                          Intl.DateTimeFormat().resolvedOptions().timeZone;
+                        const eventExtra = {
+                          device_timezone: deviceTimezone,
+                          user_timezone: user?.timezone,
+                          timezone_ok: isTimezoneOk,
+                          timezone_ignore: flags?.timezoneMismatchIgnore,
+                        };
+
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneLabel,
+                          extra: JSON.stringify(eventExtra),
+                        });
+
+                        if (isTimezoneOk) {
+                          return;
+                        }
+
+                        event.preventDefault();
+
+                        const promptResult = await showPrompt({
+                          title: 'Streak timezone mismatch',
+                          description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
+                            user?.timezone,
+                          )} does not match your current device timezone ${getTimezoneOffsetLabel(
+                            deviceTimezone,
+                          )}. You can update your timezone in settings.`,
+                          okButton: {
+                            title: 'Go to settings',
+                          },
+                          cancelButton: {
+                            title: 'Ignore',
+                          },
+                          shouldCloseOnOverlayClick: false,
+                        });
+
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetId.StreakTimezoneMismatchPrompt,
+                          extra: JSON.stringify({
+                            ...eventExtra,
+                            action: promptResult
+                              ? StreakTimezonePromptAction.Settings
+                              : StreakTimezonePromptAction.Ignore,
+                          }),
+                        });
+
+                        if (!promptResult) {
+                          updateFlag('timezoneMismatchIgnore', deviceTimezone);
+
+                          return;
+                        }
+
+                        router.push(timezoneSettingsUrl);
+                      }}
+                      href={timezoneSettingsUrl}
+                    >
+                      {isTimezoneOk
+                        ? user?.timezone || DEFAULT_TIMEZONE
+                        : 'Timezone mismatch'}
+                    </Link>
+                  </div>
                 </div>
-              }
-            >
-              <div className="m-auto flex items-center tablet:m-0">
-                {!isTimezoneOk && (
-                  <WarningIcon className="text-raw-cheese-40" secondary />
-                )}
-                <div className="flex justify-center font-normal !text-text-quaternary underline decoration-raw-pepper-10 tablet:m-0 tablet:justify-start">
-                  <Link
-                    onClick={async (event) => {
-                      const deviceTimezone =
-                        Intl.DateTimeFormat().resolvedOptions().timeZone;
-                      const eventExtra = {
-                        device_timezone: deviceTimezone,
-                        user_timezone: user?.timezone,
-                        timezone_ok: isTimezoneOk,
-                        timezone_ignore: flags?.timezoneMismatchIgnore,
-                      };
-
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneLabel,
-                        extra: JSON.stringify(eventExtra),
-                      });
-
-                      if (isTimezoneOk) {
-                        return;
-                      }
-
-                      event.preventDefault();
-
-                      const promptResult = await showPrompt({
-                        title: 'Streak timezone mismatch',
-                        description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                          user?.timezone,
-                        )} does not match your current device timezone ${getTimezoneOffsetLabel(
-                          deviceTimezone,
-                        )}. You can update your timezone in settings.`,
-                        okButton: {
-                          title: 'Go to settings',
-                        },
-                        cancelButton: {
-                          title: 'Ignore',
-                        },
-                        shouldCloseOnOverlayClick: false,
-                      });
-
-                      logEvent({
-                        event_name: LogEvent.Click,
-                        target_type: TargetId.StreakTimezoneMismatchPrompt,
-                        extra: JSON.stringify({
-                          ...eventExtra,
-                          action: promptResult
-                            ? StreakTimezonePromptAction.Settings
-                            : StreakTimezonePromptAction.Ignore,
-                        }),
-                      });
-
-                      if (!promptResult) {
-                        updateFlag('timezoneMismatchIgnore', deviceTimezone);
-
-                        return;
-                      }
-
-                      router.push(timezoneSettingsUrl);
-                    }}
-                    href={timezoneSettingsUrl}
-                  >
-                    {isTimezoneOk
-                      ? user?.timezone || DEFAULT_TIMEZONE
-                      : 'Timezone mismatch'}
-                  </Link>
-                </div>
-              </div>
-            </Tooltip>
-          </div>
-          <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Float}
-              icon={<SettingsIcon />}
-              className={isMobile ? 'w-full' : 'ml-auto'}
-            >
-              {isMobile ? 'Settings' : null}
-            </Button>
-          </Link>
+              </Tooltip>
+            }
+          />
         </div>
       </div>
+      {showMilestoneTimeline && (
+        <MilestoneTimeline
+          currentStreak={displayStreak}
+          isVisible={isVisible}
+          claimResetNonce={milestoneClaimResetNonce}
+        />
+      )}
+
+      {showMobileDrawerActions && onClose && (
+        <div className="sticky -bottom-3 z-2 bg-background-default pb-3 pt-2">
+          <div className="flex w-full flex-col gap-2">
+            <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Button tag="a" variant={ButtonVariant.Float} className="w-full">
+                Settings
+              </Button>
+            </Link>
+            <Button
+              variant={ButtonVariant.Float}
+              className="w-full"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      )}
+
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
           {!isSubscribed && (
@@ -325,14 +293,11 @@ export function ReadingStreakPopup({
                   type={TypographyType.Callout}
                   className="flex-1"
                 >
-                  Get notified to keep your streak
+                  Don&apos;t lose your progress! Get notified
                 </Typography>
 
                 <div className="h-12 w-22 overflow-hidden">
-                  <img
-                    src={cloudinaryNotificationsBrowser}
-                    alt="A sample browser notification"
-                  />
+                  <NotificationSvg />
                 </div>
               </div>
 

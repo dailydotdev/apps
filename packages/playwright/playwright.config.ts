@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
+const isLocalBaseUrl = /https:\/\/localhost(?::\d+)?/i.test(
+  process.env.BASE_URL ?? '',
+);
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -23,6 +26,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.BASE_URL || 'https://app.daily.dev',
+    ignoreHTTPSErrors: isLocalBaseUrl,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

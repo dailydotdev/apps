@@ -209,6 +209,12 @@
     );
 }
 
+/* Keep Next.js portal root from being pinned at viewport origin. */
+nextjs-portal {
+  left: auto !important;
+  top: auto !important;
+}
+
 @keyframes crown-icon-bloom-pulse {
   0%,
   60%,

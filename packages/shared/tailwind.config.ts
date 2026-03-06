@@ -252,12 +252,117 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'streak-bounce': {
+          '0%': { transform: 'scale(1)' },
+          '25%': { transform: 'scale(1.18)' },
+          '50%': { transform: 'scale(1.08)' },
+          '75%': { transform: 'scale(1.12)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'streak-expand': {
+          '0%': { transform: 'scale(1)', boxShadow: 'none' },
+          '20%': {
+            transform: 'scale(1.25)',
+            boxShadow:
+              '0 0 20px 4px color-mix(in srgb, currentColor, transparent 60%)',
+          },
+          '60%': {
+            transform: 'scale(1.25)',
+            boxShadow:
+              '0 0 20px 4px color-mix(in srgb, currentColor, transparent 60%)',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            boxShadow:
+              '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
+          },
+        },
+        'streak-shine': {
+          '0%': { left: '-100%' },
+          '50%': { left: '100%' },
+          '100%': { left: '100%' },
+        },
+        'streak-plus-one': {
+          '0%': { opacity: '0', transform: 'translateY(0) scale(0.5)' },
+          '20%': { opacity: '1', transform: 'translateY(-8px) scale(1)' },
+          '70%': { opacity: '1', transform: 'translateY(-12px) scale(1)' },
+          '100%': { opacity: '0', transform: 'translateY(-24px) scale(0.8)' },
+        },
+        'streak-shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'streak-digit-in': {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'streak-pulse': {
+          '0%, 100%': {
+            boxShadow:
+              '0 0 0 0 color-mix(in srgb, currentColor, transparent 100%)',
+          },
+          '50%': {
+            boxShadow:
+              '0 0 8px 2px color-mix(in srgb, currentColor, transparent 65%)',
+          },
+        },
+        'milestone-glow': {
+          '0%, 100%': {
+            filter:
+              'drop-shadow(0 0 0px color-mix(in srgb, currentColor, transparent 100%))',
+          },
+          '50%': {
+            filter:
+              'drop-shadow(0 0 6px color-mix(in srgb, currentColor, transparent 50%))',
+          },
+        },
+        'streak-shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-2px)' },
+          '40%': { transform: 'translateX(2px)' },
+          '60%': { transform: 'translateX(-1px)' },
+          '80%': { transform: 'translateX(1px)' },
+        },
+        'streak-day-pop': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.35)', opacity: '0.7' },
+        },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'sponsored-gradient-slide': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '100%': { backgroundPosition: '200% 50%' },
+        },
+        'sponsored-lines-slide': {
+          '0%': { backgroundPosition: '0% 0%' },
+          '100%': { backgroundPosition: '220% 0%' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'streak-bounce':
+          'streak-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'streak-expand':
+          'streak-expand 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'streak-shine': 'streak-shine 1.6s ease-in-out forwards',
+        'streak-plus-one':
+          'streak-plus-one 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        'streak-shimmer': 'streak-shimmer 0.8s ease-in-out forwards',
+        'streak-digit-in':
+          'streak-digit-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        'streak-pulse': 'streak-pulse 3s ease-in-out infinite',
+        'milestone-glow': 'milestone-glow 3s ease-in-out infinite',
+        'streak-shake': 'streak-shake 0.5s ease-in-out',
+        'streak-day-pop': 'streak-day-pop 2s ease-in-out infinite',
+        'fade-in-up': 'fade-in-up 0.3s ease-out',
+        'sponsored-gradient-slide':
+          'sponsored-gradient-slide 6s linear infinite',
+        'sponsored-lines-slide': 'sponsored-lines-slide 5s linear infinite',
       },
     },
     lineClamp: {

@@ -5,6 +5,11 @@ import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../../components/buttons/Button';
+import {
   Typography,
   TypographyColor,
   TypographyTag,
@@ -16,6 +21,13 @@ import { ActivityContainer } from '../../../../components/profile/ActivitySectio
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 import { migrateUserToStreaks } from '../../../../lib/constants';
+import { STREAK_MILESTONES } from '../../../../lib/streakMilestones';
+import { MILESTONE_ICON_URLS } from '../../../../components/streak/popup/icons/milestoneIcons';
+import { useStreakDebug } from '../../../../hooks/streaks/useStreakDebug';
+import { useIsLightTheme } from '../../../../hooks/utils';
+import { ShareIcon } from '../../../../components/icons';
+import CursorAiIconDark from '../../../../components/streak/popup/icons/cursor-ai-dark.svg';
+import CursorAiIconLight from '../../../../components/streak/popup/icons/cursor-ai-light.svg';
 
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
@@ -66,18 +78,137 @@ interface ReadingStreaksSectionProps {
 
 export const ReadingStreaksSection = ({
   streak,
-}: ReadingStreaksSectionProps): ReactElement => (
-  <div className="my-3 flex gap-2">
-    <SummaryCard
-      count={largeNumberFormat(streak?.max)}
-      label="Longest streak 🏆"
-    />
-    <SummaryCard
-      count={largeNumberFormat(streak?.total)}
-      label="Total reading days"
-    />
-  </div>
-);
+}: ReadingStreaksSectionProps): ReactElement => {
+  return (
+    <div className="my-3 flex gap-2">
+      <SummaryCard
+        count={largeNumberFormat(streak?.max)}
+        label="Longest streak 🏆"
+      />
+      <SummaryCard
+        count={largeNumberFormat(streak?.total)}
+        label="Total reading days"
+      />
+    </div>
+  );
+};
+
+interface ReadingMilestonesSectionProps {
+  streak: UserStreak;
+}
+
+export const ReadingMilestonesSection = ({
+  streak,
+}: ReadingMilestonesSectionProps): ReactElement => {
+  const { debugStreakOverride } = useStreakDebug();
+  const isLightTheme = useIsLightTheme();
+  const effectiveStreak = debugStreakOverride ?? streak?.current ?? 0;
+  const CursorAiIcon = isLightTheme ? CursorAiIconLight : CursorAiIconDark;
+  const achievedMilestones = STREAK_MILESTONES.filter(
+    (milestone) => effectiveStreak >= milestone.day,
+  );
+
+  return (
+    <>
+      {achievedMilestones.length > 0 && (
+        <Typography
+          tag={TypographyTag.H3}
+          type={TypographyType.Subhead}
+          color={TypographyColor.Tertiary}
+          className="my-1"
+        >
+          Reading milestones
+        </Typography>
+      )}
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {achievedMilestones.map((milestone) => {
+          const isUnlocked = effectiveStreak >= milestone.day;
+          const isCursorMilestone = milestone.day === 4;
+          return (
+            <Tooltip
+              key={milestone.day}
+              className="!bg-accent-pepper-subtlest !text-text-primary [&_.TooltipArrow]:!fill-accent-pepper-subtlest"
+              content={
+                <div className="flex items-center gap-2.5 p-1">
+                  {isCursorMilestone ? (
+                    <CursorAiIcon
+                      aria-label={milestone.label}
+                      className="size-12 object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={MILESTONE_ICON_URLS[milestone.tier]}
+                      alt={milestone.label}
+                      className="size-12 object-contain"
+                    />
+                  )}
+                  <div className="flex flex-col gap-0.5">
+                    <Typography
+                      bold
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                    >
+                      {milestone.label}
+                    </Typography>
+                    <Typography
+                      type={TypographyType.Footnote}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {milestone.day}-day streak
+                    </Typography>
+                    {isUnlocked ? (
+                      <div className="inline-flex items-center gap-1">
+                        <Typography
+                          type={TypographyType.Caption1}
+                          color={TypographyColor.StatusSuccess}
+                          bold
+                        >
+                          Achieved
+                        </Typography>
+                        <Button
+                          aria-label={`Share ${milestone.label} milestone`}
+                          icon={<ShareIcon className="size-3.5" />}
+                          size={ButtonSize.XSmall}
+                          variant={ButtonVariant.Float}
+                          onClick={(event) => {
+                            event.preventDefault();
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Quaternary}
+                        bold
+                      >
+                        {`${milestone.day - effectiveStreak} days away`}
+                      </Typography>
+                    )}
+                  </div>
+                </div>
+              }
+            >
+              {isCursorMilestone ? (
+                <span className="inline-flex size-7 items-center justify-center">
+                  <CursorAiIcon
+                    aria-label={milestone.label}
+                    className="size-7 object-contain"
+                  />
+                </span>
+              ) : (
+                <img
+                  src={MILESTONE_ICON_URLS[milestone.tier]}
+                  alt={milestone.label}
+                  className="size-7 object-contain"
+                />
+              )}
+            </Tooltip>
+          );
+        })}
+      </div>
+    </>
+  );
+};
 
 // ReadingTagsSection component
 interface ReadingTagsSectionProps {
