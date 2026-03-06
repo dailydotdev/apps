@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
@@ -20,12 +20,17 @@ export const StreakMilestonePopup = (): ReactElement => {
   const { checkHasCompleted, isActionsFetched } = useActions();
   const { alerts, loadedAlerts, updateAlerts } = useContext(AlertContext);
   const { streak, isStreaksEnabled } = useReadingStreak();
+  const hasOpened = useRef(false);
 
   const isDisabledMilestone = checkHasCompleted(
     ActionType.DisableReadingStreakMilestone,
   );
 
   useEffect(() => {
+    if (hasOpened.current) {
+      return;
+    }
+
     const shouldHide = [
       !loadedAlerts,
       !isStreaksEnabled,
@@ -40,6 +45,8 @@ export const StreakMilestonePopup = (): ReactElement => {
     if (shouldHide) {
       return;
     }
+
+    hasOpened.current = true;
 
     openModal({
       type: LazyModal.NewStreak,
