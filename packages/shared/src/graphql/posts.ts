@@ -293,6 +293,55 @@ export const POST_BY_ID_QUERY = gql`
     post(id: $id) {
       ...SharedPostInfo
       trending
+      contentHtml
+      pinnedAt
+      bookmarkList {
+        id
+      }
+      sharedPost {
+        ...SharedPostInfo
+      }
+      source {
+        ...SourceBaseInfo
+      }
+      description
+      summary
+      toc {
+        text
+        id
+      }
+      updatedAt
+      numCollectionSources
+      collectionSources {
+        handle
+        image
+      }
+    }
+    relatedCollectionPosts: relatedPosts(
+      id: $id
+      relationType: COLLECTION
+      first: ${RELATED_POSTS_PER_PAGE_DEFAULT}
+    ) {
+      edges {
+        node {
+          ...RelatedPost
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+  ${SHARED_POST_INFO_FRAGMENT}
+  ${RELATED_POST_FRAGMENT}
+`;
+
+export const EDIT_POST_BY_ID_QUERY = gql`
+  query EditPost($id: ID!) {
+    post(id: $id) {
+      ...SharedPostInfo
+      trending
       content
       contentHtml
       pinnedAt

@@ -64,7 +64,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const showReferenceTweet = post.sharedPost?.type === PostType.SocialTwitter;
   const showMediaCover = !!image && !showReferenceTweet;
   const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
+    post.subType === 'repost' && !post.contentHtml?.trim();
   const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
     ? 'line-clamp-8'
     : 'line-clamp-4';

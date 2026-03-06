@@ -7,12 +7,12 @@ import type {
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../contexts/AuthContext';
 import type { Post, PostData, RelatedPost } from '../graphql/posts';
-import { POST_BY_ID_QUERY } from '../graphql/posts';
+import { EDIT_POST_BY_ID_QUERY, POST_BY_ID_QUERY } from '../graphql/posts';
 import type { PostCommentsData } from '../graphql/comments';
-import type { RequestKey } from '../lib/query';
 import {
   getAllCommentsQuery,
   getPostByIdKey,
+  RequestKey,
   StaleTime,
   updatePostCache,
   updatePostContentPreference,
@@ -162,5 +162,33 @@ export const usePostById = ({
       isLoading: !post?.post && isPending,
     }),
     [post?.post, post?.relatedCollectionPosts, isError, isPending],
+  );
+};
+
+interface UseEditPostByIdProps {
+  id: string;
+  enabled?: boolean;
+}
+
+export const useEditPostById = ({
+  id,
+  enabled = true,
+}: UseEditPostByIdProps): Pick<UsePostById, 'post' | 'isLoading'> => {
+  const { tokenRefreshed } = useAuthContext();
+  const key = [RequestKey.Post, id, 'edit'];
+  const { data, isPending } = useQuery<PostData>({
+    queryKey: key,
+    queryFn: () =>
+      gqlClient.request<PostData>(EDIT_POST_BY_ID_QUERY, { id }),
+    staleTime: StaleTime.Default,
+    enabled: !!id && tokenRefreshed && enabled,
+  });
+
+  return useMemo(
+    () => ({
+      post: data?.post,
+      isLoading: !data?.post && isPending,
+    }),
+    [data?.post, isPending],
   );
 };
