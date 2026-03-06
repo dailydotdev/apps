@@ -46,6 +46,7 @@ import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isNullOrUndefined,
 } from '../../lib/func';
 import {
   agentsLeaderboardEntrypointFeature,
@@ -102,7 +103,7 @@ export const SearchControlHeader = ({
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
   const shouldEvaluateInstallExtensionExperiment =
-    !checkIsExtension() && user?.flags?.lastExtensionUse === null;
+    !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
   const { value: isInstallExtensionPrompt } = useConditionalFeature({
     feature: installExtensionPromptFeature,
     shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
