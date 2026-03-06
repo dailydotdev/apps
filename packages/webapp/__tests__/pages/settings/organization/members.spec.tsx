@@ -9,6 +9,14 @@ import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import MembersPage from '../../../../pages/settings/organization/[orgId]/members';
 
+jest.mock('@dailydotdev/shared/src/components/UserBadge', () => () => null);
+jest.mock('@dailydotdev/shared/src/components/dropdown/DropdownMenu', () => ({
+  DropdownMenu: ({ children }) => children,
+  DropdownMenuTrigger: ({ children }) => children,
+  DropdownMenuContent: ({ children }) => children,
+  DropdownMenuOptions: () => null,
+}));
+
 jest.mock(
   '@dailydotdev/shared/src/features/organizations/hooks/useOrganization',
   () => ({
