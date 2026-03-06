@@ -159,3 +159,5 @@ export const agentsLeaderboardEntrypointFeature =
   new Feature<AgentsLeaderboardEntrypointFeature>(
     'agents_leaderboard_entrypoint',
   );
+
+export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);

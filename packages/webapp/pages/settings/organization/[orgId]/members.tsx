@@ -346,14 +346,14 @@ const Page = (): ReactElement => {
 
   const isRegularMember = !isPrivilegedOrganizationRole(role);
 
-  const members = [
-    { role, user, seatType, lastActive: new Date() },
-    ...organization.members,
-  ];
-
-  if (isFetching) {
+  if (isFetching || !organization) {
     return null;
   }
+
+  const members = [
+    { role, user, seatType, lastActive: new Date() },
+    ...(organization.members ?? []),
+  ];
 
   return (
     <AccountPageContainer
