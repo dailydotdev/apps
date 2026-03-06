@@ -21,8 +21,10 @@ jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
 }));
 
 jest.mock('@dailydotdev/shared/src/hooks', () => ({
-  ...jest.requireActual('@dailydotdev/shared/src/hooks'),
   useViewSize: jest.fn(),
+  ViewSize: {
+    MobileL: 'MobileL',
+  },
 }));
 
 jest.mock('@dailydotdev/shared/src/hooks/usePrompt', () => ({
