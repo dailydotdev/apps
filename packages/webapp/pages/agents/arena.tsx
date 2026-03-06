@@ -25,11 +25,7 @@ const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
 
 const getTabUrl = (tab: ArenaTab): string => {
-  if (tab === 'coding-agents') {
-    return 'https://app.daily.dev/agents/arena';
-  }
-
-  return 'https://app.daily.dev/agents/arena?tab=llms';
+  return `https://app.daily.dev/agents/arena?tab=${tab}`;
 };
 
 const getArenaJsonLd = ({
@@ -132,8 +128,7 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
     : undefined;
 
   const handleTabChange = (tab: ArenaTab): void => {
-    const query = tab === 'coding-agents' ? {} : { tab };
-    router.replace({ pathname: router.pathname, query }, undefined, {
+    router.replace({ pathname: router.pathname, query: { tab } }, undefined, {
       shallow: true,
     });
   };
