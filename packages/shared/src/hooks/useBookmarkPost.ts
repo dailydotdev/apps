@@ -106,7 +106,9 @@ const useBookmarkPost = ({
       return undefined;
     }
 
-    const previousPost = client.getQueryData<PostData>(getPostByIdKey(id))?.post;
+    const previousPost = client.getQueryData<PostData>(
+      getPostByIdKey(id),
+    )?.post;
 
     updatePostCache(client, id, (post) => ({
       bookmarked: !post.bookmarked,
