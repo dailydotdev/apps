@@ -45,15 +45,16 @@ const FeedbackCard = ({
   const description = isExpanded
     ? item.description
     : item.description.slice(0, 260);
+  const badgeClassName = 'rounded-14 bg-surface-hover px-2 py-1 text-xs';
 
   return (
     <article className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-14 bg-surface-hover px-2 py-1 text-xs text-text-secondary">
+        <span className={`${badgeClassName} text-text-secondary`}>
           {getFeedbackCategoryLabel(item.category)}
         </span>
         <span
-          className={`rounded-14 bg-surface-hover px-2 py-1 text-xs ${getFeedbackStatusClassName(
+          className={`${badgeClassName} ${getFeedbackStatusClassName(
             item.status,
           )}`}
         >
