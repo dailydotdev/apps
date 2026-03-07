@@ -12,6 +12,8 @@ import FeedItemContainer from './FeedItemContainer';
 import { useSmartTitle } from '../../../../hooks/post/useSmartTitle';
 import ActionButtons from '../ActionButtons';
 import { Image } from '../../../image/Image';
+import { SourceAvatar } from '../../../profile/source/SourceAvatar';
+import { ProfileImageSize } from '../../../ProfilePicture';
 
 const resolveBySource = <T,>(
   sourceId: string | undefined,
@@ -104,6 +106,8 @@ export const SignalList = forwardRef(function SignalList(
     return 'Article';
   }, [post]);
   const sourceName = post.source?.name?.trim();
+  const sourceHandle = post.source?.handle?.trim();
+  const sourceImage = post.source?.image;
   const sharedPostHandle = resolveBySource(
     post.sharedPost?.source?.id,
     post.sharedPost?.source?.handle,
@@ -144,8 +148,19 @@ export const SignalList = forwardRef(function SignalList(
     >
       <div className="flex flex-col gap-1 px-4 py-3 text-left">
         {(sourceName || repostLabel || relativeTimeLabel) && (
-          <div className="flex items-center gap-1 text-text-quaternary typo-callout">
-            {sourceName && <span>{sourceName}</span>}
+          <div className="my-1.5 flex items-center gap-1 text-text-quaternary typo-callout">
+            {sourceName && (
+              <span className="flex items-center gap-1">
+                {sourceImage && sourceHandle && (
+                  <SourceAvatar
+                    source={{ image: sourceImage, handle: sourceHandle }}
+                    size={ProfileImageSize.XSmall}
+                    className="!mr-1 shrink-0"
+                  />
+                )}
+                <span className="font-bold">{sourceName}</span>
+              </span>
+            )}
             {sourceName && repostLabel && <span>&middot;</span>}
             {repostLabel && <span>{repostLabel}</span>}
             {(sourceName || repostLabel) && relativeTimeLabel && (
