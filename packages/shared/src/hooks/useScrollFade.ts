@@ -5,7 +5,7 @@ const TOP_FADE_VARIABLE = '--scroll-fade-top';
 const BOTTOM_FADE_VARIABLE = '--scroll-fade-bottom';
 const TOP_FADE_OPACITY_VARIABLE = '--scroll-fade-top-opacity';
 const BOTTOM_FADE_OPACITY_VARIABLE = '--scroll-fade-bottom-opacity';
-const EDGE_VISIBLE_OPACITY = '0.56';
+const EDGE_VISIBLE_OPACITY = '0.24';
 const FULLY_VISIBLE_OPACITY = '1';
 
 const updateScrollFade = (element: HTMLElement): void => {

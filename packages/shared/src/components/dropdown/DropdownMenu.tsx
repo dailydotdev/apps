@@ -132,7 +132,7 @@ export const DropdownMenuContent = React.forwardRef<
           )}
           align={align}
           sideOffset={sideOffset ?? (variant === 'action' ? 6 : undefined)}
-          collisionPadding={collisionPadding ?? 8}
+          collisionPadding={collisionPadding ?? 24}
         >
           <div
             ref={scrollFadeRef}
