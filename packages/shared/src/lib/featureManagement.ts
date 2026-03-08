@@ -42,6 +42,11 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content');
 
+export const plusAgentsPositioningFeature = new Feature(
+  'plus_agents_positioning',
+  false,
+);
+
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
   short: 'Upgrade',
@@ -159,3 +164,5 @@ export const agentsLeaderboardEntrypointFeature =
   new Feature<AgentsLeaderboardEntrypointFeature>(
     'agents_leaderboard_entrypoint',
   );
+
+export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);

@@ -19,6 +19,7 @@ import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
+import { SignalAdList } from './cards/ad/SignalAdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
@@ -157,12 +158,13 @@ const getTags = ({
   const listPlaceholderTag = isSignalFeed
     ? SignalPlaceholderList
     : PlaceholderList;
+  const listAdTag = isSignalFeed ? SignalAdList : AdList;
 
   return {
     PostTag: useListCards
       ? listPostTag ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? AdList : AdGrid,
+    AdTag: useListCards ? listAdTag : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,

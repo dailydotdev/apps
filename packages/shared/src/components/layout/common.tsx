@@ -46,6 +46,7 @@ import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isNullOrUndefined,
 } from '../../lib/func';
 import {
   agentsLeaderboardEntrypointFeature,
@@ -101,11 +102,10 @@ export const SearchControlHeader = ({
   const { checkHasCompleted, completeAction } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
-  const shouldEvaluateInstallExtensionExperiment =
-    !checkIsExtension() && user?.flags?.lastExtensionUse === null;
   const { value: isInstallExtensionPrompt } = useConditionalFeature({
     feature: installExtensionPromptFeature,
-    shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
+    shouldEvaluate:
+      !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse),
   });
   const feedsWithActions = [
     SharedFeedPage.MyFeed,

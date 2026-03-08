@@ -572,6 +572,7 @@ export const FEED_POST_FRAGMENT = gql`
       id
       title
       titleHtml
+      summary
       image
       creatorTwitter
       creatorTwitterName

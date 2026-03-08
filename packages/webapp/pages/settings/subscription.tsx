@@ -1,6 +1,9 @@
 import React from 'react';
 import type { ReactElement } from 'react';
-import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import {
+  usePlusPositioning,
+  usePlusSubscription,
+} from '@dailydotdev/shared/src/hooks';
 import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 
@@ -27,7 +30,8 @@ import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import {
-  defaultPlusInfoCopy,
+  defaultPlusInfoCopyControl,
+  defaultPlusInfoCopyTreatment,
   PlusType,
 } from '@dailydotdev/shared/src/components/plus/PlusInfo';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -54,6 +58,7 @@ const seo: NextSeoProps = {
 
 const PlusInfo = (): ReactElement => {
   const { openModal } = useLazyModal();
+  const { isAgentPositioning } = usePlusPositioning();
   const { isPlus, plusProvider, logSubscriptionEvent, plusHref } =
     usePlusSubscription();
 
@@ -67,10 +72,14 @@ const PlusInfo = (): ReactElement => {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Thank you for supporting daily.dev and unlocking the best experience
+          {isAgentPositioning
+            ? `Thanks for supporting daily.dev and unlocking agent-ready API access,
+          AI workflows, and the full Plus experience. Manage your subscription
+          anytime, or gift Plus to a friend who is building with agents too.`
+            : `Thank you for supporting daily.dev and unlocking the best experience
           we offer. Manage your subscription to update your plan, payment
           details, or preferences anytime. Know a friend or colleague who might
-          love daily.dev? Gift them daily.dev Plus!
+          love daily.dev? Gift them daily.dev Plus!`}
         </Typography>
 
         {!isIOSNative() &&
@@ -140,27 +149,34 @@ const PlusInfo = (): ReactElement => {
   );
 };
 
-const UpgradeToPlusInfo = (): ReactElement => (
-  <>
-    <div className="flex flex-col gap-1">
-      <Typography bold type={TypographyType.Body}>
-        {defaultPlusInfoCopy[PlusType.Self].title}
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        {defaultPlusInfoCopy[PlusType.Self].description}
-      </Typography>
-    </div>
-    <UpgradeToPlus
-      target={TargetId.Account}
-      size={ButtonSize.Large}
-      className="flex-initial self-start"
-    />
-    <PlusList className="!py-0" />
-  </>
-);
+const UpgradeToPlusInfo = (): ReactElement => {
+  const { isAgentPositioning } = usePlusPositioning();
+  const plusCopy = isAgentPositioning
+    ? defaultPlusInfoCopyTreatment
+    : defaultPlusInfoCopyControl;
+
+  return (
+    <>
+      <div className="flex flex-col gap-1">
+        <Typography bold type={TypographyType.Body}>
+          {plusCopy[PlusType.Self].title}
+        </Typography>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          {plusCopy[PlusType.Self].description}
+        </Typography>
+      </div>
+      <UpgradeToPlus
+        target={TargetId.Account}
+        size={ButtonSize.Large}
+        className="flex-initial self-start"
+      />
+      <PlusList className="!py-0" />
+    </>
+  );
+};
 
 const AccountManageSubscriptionPage = (): ReactElement => {
   const { isPlus } = usePlusSubscription();
