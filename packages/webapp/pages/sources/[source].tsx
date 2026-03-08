@@ -307,9 +307,7 @@ export async function getStaticProps({
       )
     ) {
       return {
-        props: {
-          source: null,
-        },
+        notFound: true,
         revalidate: 60,
       };
     }
