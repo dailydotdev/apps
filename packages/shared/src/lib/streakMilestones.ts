@@ -33,7 +33,12 @@ export interface StreakMilestone {
   rewards: StreakReward[];
 }
 
-export const STREAK_MILESTONES: StreakMilestone[] = [
+// Flip this back to `true` when the sponsored streak reward should return.
+export const SHOW_SPONSORED_STREAK_MILESTONE = false;
+export const SPONSORED_STREAK_MILESTONE_DAY = 4;
+export const SPONSORED_STREAK_COUPON_CODE = 'CURSOR-4D-STREAK';
+
+const PRE_SPONSORED_STREAK_MILESTONES: StreakMilestone[] = [
   {
     day: 1,
     tier: StreakTier.Ember,
@@ -46,12 +51,16 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
     label: 'Spark',
     rewards: [{ type: RewardType.Cores, description: '10 Cores' }],
   },
-  {
-    day: 4,
-    tier: StreakTier.Spark,
-    label: 'Cursor AI',
-    rewards: [{ type: RewardType.Perk, description: '20% discount coupon' }],
-  },
+];
+
+const SPONSORED_STREAK_MILESTONE: StreakMilestone = {
+  day: SPONSORED_STREAK_MILESTONE_DAY,
+  tier: StreakTier.Spark,
+  label: 'Cursor AI',
+  rewards: [{ type: RewardType.Perk, description: '20% discount coupon' }],
+};
+
+const POST_SPONSORED_STREAK_MILESTONES: StreakMilestone[] = [
   {
     day: 5,
     tier: StreakTier.Kindle,
@@ -134,6 +143,12 @@ export const STREAK_MILESTONES: StreakMilestone[] = [
       { type: RewardType.Cosmetic, description: 'Goldflame crown badge' },
     ],
   },
+];
+
+export const STREAK_MILESTONES: StreakMilestone[] = [
+  ...PRE_SPONSORED_STREAK_MILESTONES,
+  ...(SHOW_SPONSORED_STREAK_MILESTONE ? [SPONSORED_STREAK_MILESTONE] : []),
+  ...POST_SPONSORED_STREAK_MILESTONES,
 ];
 
 export const getCurrentTier = (currentStreak: number): StreakMilestone => {

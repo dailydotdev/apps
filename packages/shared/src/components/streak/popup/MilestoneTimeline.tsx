@@ -3,6 +3,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { StreakMilestone } from '../../../lib/streakMilestones';
 import {
+  SHOW_SPONSORED_STREAK_MILESTONE,
+  SPONSORED_STREAK_COUPON_CODE,
+  SPONSORED_STREAK_MILESTONE_DAY,
   STREAK_MILESTONES,
   getNextMilestone,
   RewardType,
@@ -61,8 +64,6 @@ const getMilestoneSparkles = (
     delayMs: seededRandom(milestoneDay * 19 + index * 9 + 4) * 900,
   }));
 
-const SPONSORED_MILESTONE_DAY = 4;
-const SPONSORED_COUPON_CODE = 'CURSOR-4D-STREAK';
 const sponsoredGiftSrc =
   typeof SponsoredGiftImage === 'string'
     ? SponsoredGiftImage
@@ -165,7 +166,9 @@ function MilestoneItem({
   const helperText =
     milestone.rewards.length === 0 ? getMilestoneHelperText(milestone) : null;
   const sparklePositions = getMilestoneSparkles(milestone.day);
-  const isSponsoredMilestone = milestone.day === SPONSORED_MILESTONE_DAY;
+  const isSponsoredMilestone =
+    SHOW_SPONSORED_STREAK_MILESTONE &&
+    milestone.day === SPONSORED_STREAK_MILESTONE_DAY;
   const isLightTheme = useIsLightTheme();
   const hasActiveLineStyle = isNext || isSponsoredMilestone;
   const showClaimButton = milestone.rewards.length > 0 && isUnlocked;
@@ -382,10 +385,13 @@ export function MilestoneTimeline({
   );
 
   const handleClaim = useCallback((milestone: StreakMilestone) => {
-    if (milestone.day === SPONSORED_MILESTONE_DAY) {
+    if (
+      SHOW_SPONSORED_STREAK_MILESTONE &&
+      milestone.day === SPONSORED_STREAK_MILESTONE_DAY
+    ) {
       setClaimAnimation({
         type: 'coupon',
-        code: SPONSORED_COUPON_CODE,
+        code: SPONSORED_STREAK_COUPON_CODE,
         title: 'Cursor AI discount coupon',
         milestoneDay: milestone.day,
         milestoneLabel: milestone.label,
@@ -474,7 +480,8 @@ export function MilestoneTimeline({
               ref={shouldScrollToMilestone ? activeMilestoneRef : undefined}
               className={classNames(
                 'relative z-0',
-                milestone.day === SPONSORED_MILESTONE_DAY &&
+                SHOW_SPONSORED_STREAK_MILESTONE &&
+                  milestone.day === SPONSORED_STREAK_MILESTONE_DAY &&
                   "z-10 before:pointer-events-none before:absolute before:inset-y-0 before:left-7 before:w-px before:bg-background-default before:content-['']",
               )}
             >
