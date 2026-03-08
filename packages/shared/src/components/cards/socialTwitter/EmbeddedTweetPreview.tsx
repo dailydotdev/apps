@@ -7,6 +7,7 @@ import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
 import { Image } from '../../image/Image';
+import { isPlaceholderImage } from '../../../lib/image';
 import { getSocialTextDirectionProps } from './socialTwitterHelpers';
 
 interface EmbeddedTweetPreviewProps {
@@ -18,6 +19,8 @@ interface EmbeddedTweetPreviewProps {
   bodyClassName?: string;
   showXLogo?: boolean;
   showMedia?: boolean;
+  mediaContainerClassName?: string;
+  mediaClassName?: string;
 }
 
 const isLikelyTweetMediaUrl = (url?: string): boolean => {
@@ -28,7 +31,8 @@ const isLikelyTweetMediaUrl = (url?: string): boolean => {
   const normalized = url.toLowerCase();
   if (
     normalized.includes('/profile_images/') ||
-    normalized.includes('/profile_banners/')
+    normalized.includes('/profile_banners/') ||
+    isPlaceholderImage(url)
   ) {
     return false;
   }
@@ -45,6 +49,8 @@ export function EmbeddedTweetPreview({
   bodyClassName,
   showXLogo = false,
   showMedia = false,
+  mediaContainerClassName,
+  mediaClassName,
 }: EmbeddedTweetPreviewProps): ReactElement {
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
   const mediaSrc = post.sharedPost?.image || post.image;
@@ -71,7 +77,8 @@ export function EmbeddedTweetPreview({
           <div className="min-w-0 flex-1">
             {!!embeddedTweetIdentity && (
               <p
-                {...tweetTextDirectionProps}
+                dir="ltr"
+                suppressHydrationWarning
                 className={classNames(
                   'w-full truncate font-bold typo-caption1',
                   post.read ? 'text-text-tertiary' : 'text-text-primary',
@@ -91,6 +98,7 @@ export function EmbeddedTweetPreview({
       </div>
       <p
         {...tweetTextDirectionProps}
+        suppressHydrationWarning
         className={classNames(
           'mt-1 whitespace-pre-line break-words',
           resolvedBodyClassName,
@@ -101,11 +109,16 @@ export function EmbeddedTweetPreview({
         {post.sharedPost?.title || post.title}
       </p>
       {shouldShowMedia && !!mediaSrc && (
-        <div className="mt-2 overflow-hidden rounded-12">
+        <div
+          className={classNames(
+            'mt-2 overflow-hidden rounded-12',
+            mediaContainerClassName,
+          )}
+        >
           <Image
             src={mediaSrc}
             alt="Tweet media"
-            className="h-auto w-full object-cover"
+            className={classNames('h-auto w-full object-cover', mediaClassName)}
           />
         </div>
       )}

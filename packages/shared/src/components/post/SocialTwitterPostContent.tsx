@@ -5,7 +5,10 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import type { Post } from '../../graphql/posts';
-import { isSocialTwitterShareLike, isXShareLikePost } from '../../graphql/posts';
+import {
+  isSocialTwitterPost,
+  isSocialTwitterShareLike,
+} from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
@@ -97,7 +100,7 @@ function SocialTwitterPostContentRaw({
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
   const shouldRenderPrimaryTweetPreview =
-    isXShareLikePost(post) && !isQuoteLike && !isThread;
+    isSocialTwitterPost(post) && !isQuoteLike && !isThread;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
@@ -250,6 +253,8 @@ function SocialTwitterPostContentRaw({
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
+              mediaContainerClassName="max-w-[25.625rem]"
+              mediaClassName="aspect-[100/49] h-full"
               showXLogo
               showMedia
             />
@@ -262,6 +267,8 @@ function SocialTwitterPostContentRaw({
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
+              mediaContainerClassName="max-w-[25.625rem]"
+              mediaClassName="aspect-[100/49] h-full"
               showXLogo
             />
           )}
