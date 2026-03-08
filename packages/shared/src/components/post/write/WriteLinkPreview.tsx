@@ -26,7 +26,10 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { DateFormat } from '../../utilities';
 import { Separator } from '../../cards/common/common';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
-import { getSocialTwitterMetadata } from '../../cards/socialTwitter/socialTwitterHelpers';
+import {
+  getSocialTwitterMetadata,
+  parseSocialTwitterTitle,
+} from '../../cards/socialTwitter/socialTwitterHelpers';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -72,7 +75,7 @@ export function WriteLinkPreview({
     );
   }
 
-  const xTitleMatch = preview.title?.match(/^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s);
+  const xTitleMatch = parseSocialTwitterTitle(preview.title);
   const isXPreview = [
     preview.finalUrl,
     preview.url,
@@ -104,7 +107,8 @@ export function WriteLinkPreview({
     ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
     : undefined;
   const shouldRenderWritePreviewContainer =
-    showPreviewLink || (!!preview.title && (!xPreviewPost || !embeddedTweetAvatarUser));
+    showPreviewLink ||
+    (!!preview.title && (!xPreviewPost || !embeddedTweetAvatarUser));
 
   return (
     <>
@@ -134,50 +138,49 @@ export function WriteLinkPreview({
               onInput={onLinkChange}
             />
           )}
-          {preview.title &&
-            (!xPreviewPost || !embeddedTweetAvatarUser) && (
-              <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
-                <div className="flex flex-1 flex-col typo-footnote">
-                  <span className="line-clamp-2 font-bold">{preview.title}</span>
-                  {preview.source?.id !== 'unknown' &&
-                    (isMinimized ? (
+          {preview.title && (!xPreviewPost || !embeddedTweetAvatarUser) && (
+            <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
+              <div className="flex flex-1 flex-col typo-footnote">
+                <span className="line-clamp-2 font-bold">{preview.title}</span>
+                {preview.source?.id !== 'unknown' &&
+                  (isMinimized ? (
+                    <SourceAvatar
+                      size={ProfileImageSize.Small}
+                      source={preview.source}
+                      className="absolute right-24 mr-4 mt-1"
+                    />
+                  ) : (
+                    <span className="mt-1 flex flex-row items-center">
                       <SourceAvatar
                         size={ProfileImageSize.Small}
                         source={preview.source}
-                        className="absolute right-24 mr-4 mt-1"
                       />
-                    ) : (
-                      <span className="mt-1 flex flex-row items-center">
-                        <SourceAvatar
-                          size={ProfileImageSize.Small}
-                          source={preview.source}
-                        />
-                        <span className="text-text-tertiary">
-                          {preview.source?.name}
-                        </span>
+                      <span className="text-text-tertiary">
+                        {preview.source?.name}
                       </span>
-                    ))}
-                </div>
-                {preview.image && (
-                  <Image
-                    className={previewImageClass}
-                    src={preview.image}
-                    alt={`${preview.title}`}
-                  />
-                )}
-                {!isMinimized && (
-                  <Button
-                    icon={<OpenLinkIcon />}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    tag="a"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={link}
-                  />
-                )}
-              </WritePreviewContent>
-            )}
+                    </span>
+                  ))}
+              </div>
+              {preview.image && (
+                <Image
+                  className={previewImageClass}
+                  src={preview.image}
+                  alt={`${preview.title}`}
+                />
+              )}
+              {!isMinimized && (
+                <Button
+                  icon={<OpenLinkIcon />}
+                  variant={ButtonVariant.Tertiary}
+                  type="button"
+                  tag="a"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={link}
+                />
+              )}
+            </WritePreviewContent>
+          )}
         </WritePreviewContainer>
       )}
 

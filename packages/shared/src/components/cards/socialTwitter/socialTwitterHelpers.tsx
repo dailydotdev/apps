@@ -17,15 +17,20 @@ const rtlLanguageCodes = new Set([
   'yi',
 ]);
 
-const getLanguagePrimarySubtag = (language?: string): string | undefined =>
-  language
-    ?.toLowerCase()
-    .split(/[-_]/)[0]
-    .trim();
+export const socialTwitterTitlePattern = /^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s;
+export const repostedOnXPrefixPattern = /^.*?reposted on x\.\s*/i;
 
-export const getSocialTextDirection = (
-  language?: string,
-): 'rtl' | 'auto' => {
+const getLanguagePrimarySubtag = (language?: string): string | undefined =>
+  language?.toLowerCase().split(/[-_]/)[0].trim();
+
+export const parseSocialTwitterTitle = (
+  title?: string,
+): RegExpMatchArray | null => title?.match(socialTwitterTitlePattern) ?? null;
+
+export const stripRepostedOnXPrefix = (title?: string): string =>
+  title?.replace(repostedOnXPrefixPattern, '').trim() ?? '';
+
+export const getSocialTextDirection = (language?: string): 'rtl' | 'auto' => {
   const primarySubtag = getLanguagePrimarySubtag(language);
   if (!primarySubtag) {
     return 'auto';
@@ -56,6 +61,24 @@ const resolveBySource = <T,>(
 ): T | undefined =>
   sourceId === UNKNOWN_SOURCE_ID ? creatorValue : sourceValue || creatorValue;
 
+const getUniqueHandles = (handles: Array<string | undefined>): string[] => {
+  const seenHandles = new Set<string>();
+
+  return handles.filter((handle): handle is string => {
+    if (!handle) {
+      return false;
+    }
+
+    const normalizedHandle = handle.toLowerCase();
+    if (seenHandles.has(normalizedHandle)) {
+      return false;
+    }
+
+    seenHandles.add(normalizedHandle);
+    return true;
+  });
+};
+
 export const getSocialTwitterMetadata = (post: Post) => {
   const sourceHandle = resolveBySource(
     post.source?.id,
@@ -78,7 +101,7 @@ export const getSocialTwitterMetadata = (post: Post) => {
   const metadataHandles =
     post.subType === 'repost'
       ? [sourceHandle].filter(Boolean)
-      : [...new Set([sourceHandle, sharedPostHandle].filter(Boolean))];
+      : getUniqueHandles([sourceHandle, sharedPostHandle]);
 
   const embeddedTweetDisplayName = resolveBySource(
     post.sharedPost?.source?.id,

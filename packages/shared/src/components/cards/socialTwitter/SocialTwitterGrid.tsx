@@ -32,6 +32,7 @@ import {
   getSocialTwitterMetadata,
   getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
+  stripRepostedOnXPrefix,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
@@ -92,11 +93,10 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const isUserSource = isSourceUserSource(post.source);
   const rawTitle = post.title || post.sharedPost?.title;
   const normalizedContent = (
-    post.content || (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
+    post.content ||
+    (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
   ).trim();
-  const repostPrefixPattern = /^.*?reposted on x\.\s*/i;
-  const titleWithoutRepostPrefix =
-    rawTitle?.replace(repostPrefixPattern, '').trim() ?? '';
+  const titleWithoutRepostPrefix = stripRepostedOnXPrefix(rawTitle);
   const sharedTitle = post.sharedPost?.title?.trim() ?? '';
   const hasTitleCommentary =
     post.subType !== 'repost' &&
@@ -111,15 +111,18 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     ? 'line-clamp-6'
     : 'line-clamp-8';
   const cardTags = post.tags?.length ? post.tags : post.sharedPost?.tags;
-  const commentaryBody = hasDailyDevMarkdown
-    ? post.subType === 'thread'
-      ? normalizeThreadBody({
-          title: rawTitle,
-          content: post.content,
-          contentHtml: post.contentHtml,
-        })
-      : normalizedContent || undefined
-    : undefined;
+  let commentaryBody: string | undefined;
+  if (hasDailyDevMarkdown) {
+    if (post.subType === 'thread') {
+      commentaryBody = normalizeThreadBody({
+        title: rawTitle,
+        content: post.content,
+        contentHtml: post.contentHtml,
+      });
+    } else {
+      commentaryBody = normalizedContent || undefined;
+    }
+  }
   const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
     getSocialTwitterMetadata(post);
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
@@ -218,6 +221,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           className={quoteDetailsContainerClass}
           textClampClass={quoteDetailsTextClampClass}
           showXLogo
+          showMedia={isStandaloneTweet}
         />
         <ActionButtons
           className="mt-auto"

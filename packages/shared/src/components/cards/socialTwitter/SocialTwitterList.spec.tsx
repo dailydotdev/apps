@@ -94,7 +94,9 @@ it('should render embedded tweet preview for non-shared social tweets', async ()
   expect(
     await screen.findByRole('link', { name: 'Read on' }),
   ).toBeInTheDocument();
-  expect(await screen.findByText('@dailydotdev: Root tweet')).toBeInTheDocument();
+  expect(
+    await screen.findByText('@dailydotdev: Root tweet'),
+  ).toBeInTheDocument();
   expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
 

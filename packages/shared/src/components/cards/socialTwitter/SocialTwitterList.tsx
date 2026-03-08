@@ -27,6 +27,7 @@ import {
   getSocialTwitterMetadata,
   getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
+  stripRepostedOnXPrefix,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
@@ -59,9 +60,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const isUserSource = isSourceUserSource(post.source);
   const isRepostLike = isXShareLikePost(post);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
-  const repostPrefixPattern = /^.*?reposted on x\.\s*/i;
-  const titleWithoutRepostPrefix =
-    post.title?.replace(repostPrefixPattern, '').trim() ?? '';
+  const titleWithoutRepostPrefix = stripRepostedOnXPrefix(post.title);
   const sharedTitle = post.sharedPost?.title?.trim() ?? '';
   const hasTitleCommentary =
     post.subType !== 'repost' &&
@@ -75,11 +74,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
     : 'line-clamp-10';
-  const {
-    repostedByName,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
+  const { repostedByName, embeddedTweetIdentity, embeddedTweetAvatarUser } =
+    getSocialTwitterMetadata(post);
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardLinkTitle =
     isRepostLike && repostedByName
@@ -113,10 +109,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     }
 
     if (enableSourceHeader) {
-      return {
-        topLabel: sourceName || authorName,
-        bottomLabel: authorName,
-      };
+      return { topLabel: sourceName || authorName };
     }
 
     return {
@@ -201,6 +194,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
               className="mt-4 w-full"
               textClampClass={quoteDetailsTextClampClass}
               showXLogo
+              showMedia={isStandaloneTweet}
             />
             {!isMobile && actionButtons}
           </div>

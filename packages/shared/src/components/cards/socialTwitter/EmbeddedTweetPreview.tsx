@@ -57,6 +57,8 @@ export function EmbeddedTweetPreview({
   const shouldShowMedia = showMedia && isLikelyTweetMediaUrl(mediaSrc);
   const tweetLanguage = post.sharedPost?.language || post.language;
   const tweetTextDirectionProps = getSocialTextDirectionProps(tweetLanguage);
+  const tweetBody = post.sharedPost?.title || post.title;
+  const tweetBodyHtml = post.sharedPost?.titleHtml || post.titleHtml;
 
   return (
     <div
@@ -96,18 +98,32 @@ export function EmbeddedTweetPreview({
           />
         )}
       </div>
-      <p
-        {...tweetTextDirectionProps}
-        suppressHydrationWarning
-        className={classNames(
-          'mt-1 whitespace-pre-line break-words',
-          resolvedBodyClassName,
-          post.read ? 'text-text-tertiary' : 'text-text-primary',
-          textClampClass,
-        )}
-      >
-        {post.sharedPost?.title || post.title}
-      </p>
+      {tweetBodyHtml ? (
+        <p
+          {...tweetTextDirectionProps}
+          suppressHydrationWarning
+          className={classNames(
+            'mt-1 whitespace-pre-line break-words',
+            resolvedBodyClassName,
+            post.read ? 'text-text-tertiary' : 'text-text-primary',
+            textClampClass,
+          )}
+          dangerouslySetInnerHTML={{ __html: tweetBodyHtml }}
+        />
+      ) : (
+        <p
+          {...tweetTextDirectionProps}
+          suppressHydrationWarning
+          className={classNames(
+            'mt-1 whitespace-pre-line break-words',
+            resolvedBodyClassName,
+            post.read ? 'text-text-tertiary' : 'text-text-primary',
+            textClampClass,
+          )}
+        >
+          {tweetBody}
+        </p>
+      )}
       {shouldShowMedia && !!mediaSrc && (
         <div
           className={classNames(

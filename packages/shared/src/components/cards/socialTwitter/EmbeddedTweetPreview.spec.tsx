@@ -35,9 +35,10 @@ describe('EmbeddedTweetPreview', () => {
       </TestBootProvider>,
     );
 
-    expect(
-      screen.getByText('Noojaan Farahmand @noojaanf'),
-    ).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByText('Noojaan Farahmand @noojaanf')).toHaveAttribute(
+      'dir',
+      'ltr',
+    );
   });
 
   it('does not render placeholder image as tweet media', () => {

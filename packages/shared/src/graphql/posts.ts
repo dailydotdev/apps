@@ -131,10 +131,6 @@ export const getReadPostButtonText = (post: Post): string => {
     return 'View on X';
   }
 
-  if (isSocialTwitterPost(post)) {
-    return 'View on X';
-  }
-
   return 'Read post';
 };
 

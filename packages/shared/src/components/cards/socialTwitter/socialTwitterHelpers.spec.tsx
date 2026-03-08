@@ -19,7 +19,7 @@ const basePost: Post = {
 };
 
 describe('getSocialTwitterMetadata', () => {
-  it('keeps handles with different casing as distinct values', () => {
+  it('deduplicates handles case-insensitively', () => {
     const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,
       source: {
@@ -35,7 +35,7 @@ describe('getSocialTwitterMetadata', () => {
       },
     });
 
-    expect(metadataHandles).toEqual(['anthropicai', 'AnthropicAI']);
+    expect(metadataHandles).toEqual(['anthropicai']);
   });
 
   it('keeps different handles', () => {

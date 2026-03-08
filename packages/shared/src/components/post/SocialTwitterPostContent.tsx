@@ -22,13 +22,16 @@ import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import PostMetadata from '../cards/common/PostMetadata';
 import { LazyImage } from '../LazyImage';
-import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
-import { isPlaceholderImage } from '../../lib/image';
+import {
+  cloudinaryPostImageCoverPlaceholder,
+  isPlaceholderImage,
+} from '../../lib/image';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
   getSocialTwitterMetadata,
+  parseSocialTwitterTitle,
   getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
@@ -105,18 +108,10 @@ function SocialTwitterPostContentRaw({
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
     !post.content?.trim();
-  const {
-    repostedByName,
-    metadataHandles,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
-  const metadataLabel = getSocialTwitterMetadataLabel({
-    isRepostLike: isQuoteLike,
-    repostedByName,
-    metadataHandles,
-  });
-  const xTitleMatch = post.title?.match(/^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s);
+  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+    getSocialTwitterMetadata(post);
+  const metadataLabel = getSocialTwitterMetadataLabel();
+  const xTitleMatch = parseSocialTwitterTitle(post.title);
   const primaryTweetBody = xTitleMatch?.[3]?.trim() || post.title;
   const primaryTweetPost = shouldRenderPrimaryTweetPreview
     ? ({
@@ -197,29 +192,30 @@ function SocialTwitterPostContentRaw({
             {!!post.createdAt && <Separator className="mx-0" />}
             {metadataLabel}
           </PostMetadata>
-          {!shouldHideRepostHeadlineAndTags && !shouldRenderPrimaryTweetPreview && (
-            <div className="mb-6 mt-0">
-              {post.titleHtml ? (
-                <h1
-                  {...socialTextDirectionProps}
-                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                  data-testid="post-modal-title"
-                  dangerouslySetInnerHTML={{ __html: post.titleHtml }}
-                />
-              ) : (
-                <h1
-                  {...socialTextDirectionProps}
-                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                  data-testid="post-modal-title"
-                >
-                  {title}
-                </h1>
-              )}
-              {post.clickbaitTitleDetected && (
-                <PostClickbaitShield post={post} />
-              )}
-            </div>
-          )}
+          {!shouldHideRepostHeadlineAndTags &&
+            !shouldRenderPrimaryTweetPreview && (
+              <div className="mb-6 mt-0">
+                {post.titleHtml ? (
+                  <h1
+                    {...socialTextDirectionProps}
+                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                    data-testid="post-modal-title"
+                    dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                  />
+                ) : (
+                  <h1
+                    {...socialTextDirectionProps}
+                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                    data-testid="post-modal-title"
+                  >
+                    {title}
+                  </h1>
+                )}
+                {post.clickbaitTitleDetected && (
+                  <PostClickbaitShield post={post} />
+                )}
+              </div>
+            )}
           {!shouldHideRepostHeadlineAndTags &&
             !shouldRenderPrimaryTweetPreview &&
             !!post.image &&
