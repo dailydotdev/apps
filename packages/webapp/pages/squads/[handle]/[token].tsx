@@ -93,7 +93,6 @@ const SquadReferral = ({
   initialData,
 }: SquadReferralProps): ReactElement => {
   const router = useRouter();
-  const { isFallback } = router;
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { showLogin, user: loggedUser } = useAuthContext();
@@ -223,7 +222,7 @@ const SquadReferral = ({
     source.membersCount,
   );
 
-  if (!initialData && (isFallback || !isFetched)) {
+  if (!initialData && !isFetched) {
     return <></>;
   }
 
@@ -293,7 +292,7 @@ SquadReferral.layoutProps = { showSidebar: false };
 export default SquadReferral;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({
