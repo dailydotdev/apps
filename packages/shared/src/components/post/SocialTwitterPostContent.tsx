@@ -5,7 +5,10 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import type { Post } from '../../graphql/posts';
-import { isSocialTwitterShareLike } from '../../graphql/posts';
+import {
+  isSocialTwitterPost,
+  isSocialTwitterShareLike,
+} from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
@@ -20,11 +23,13 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import PostMetadata from '../cards/common/PostMetadata';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import { isPlaceholderImage } from '../../lib/image';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
   getSocialTwitterMetadata,
+  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
@@ -74,6 +79,7 @@ function SocialTwitterPostContentRaw({
     postPosition,
     onClose,
     inlineActions,
+    readButtonText: 'Read on X',
   };
   let sourceInfoClassName = 'mb-6';
   if (shouldShowBanner && isLaptop) {
@@ -93,6 +99,8 @@ function SocialTwitterPostContentRaw({
   const { title } = useSmartTitle(post);
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
+  const shouldRenderPrimaryTweetPreview =
+    isSocialTwitterPost(post) && !isQuoteLike && !isThread;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
@@ -108,6 +116,23 @@ function SocialTwitterPostContentRaw({
     repostedByName,
     metadataHandles,
   });
+  const xTitleMatch = post.title?.match(/^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s);
+  const primaryTweetBody = xTitleMatch?.[3]?.trim() || post.title;
+  const primaryTweetPost = shouldRenderPrimaryTweetPreview
+    ? ({
+        ...post,
+        sharedPost: {
+          ...post,
+          title: primaryTweetBody,
+          image: post.image,
+          source: post.source,
+        },
+      } as Post)
+    : post;
+  const primaryTweetIdentity = xTitleMatch
+    ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
+    : embeddedTweetIdentity;
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
   return (
     <PostContentContainer
@@ -160,6 +185,7 @@ function SocialTwitterPostContentRaw({
             post={post}
             onClose={onClose}
             onReadArticle={onReadArticle}
+            readButtonText="Read on X"
             className={sourceInfoClassName}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
@@ -171,16 +197,18 @@ function SocialTwitterPostContentRaw({
             {!!post.createdAt && <Separator className="mx-0" />}
             {metadataLabel}
           </PostMetadata>
-          {!shouldHideRepostHeadlineAndTags && (
+          {!shouldHideRepostHeadlineAndTags && !shouldRenderPrimaryTweetPreview && (
             <div className="mb-6 mt-0">
               {post.titleHtml ? (
                 <h1
+                  {...socialTextDirectionProps}
                   className="whitespace-pre-line break-words text-text-primary typo-markdown"
                   data-testid="post-modal-title"
                   dangerouslySetInnerHTML={{ __html: post.titleHtml }}
                 />
               ) : (
                 <h1
+                  {...socialTextDirectionProps}
                   className="whitespace-pre-line break-words text-text-primary typo-markdown"
                   data-testid="post-modal-title"
                 >
@@ -193,7 +221,9 @@ function SocialTwitterPostContentRaw({
             </div>
           )}
           {!shouldHideRepostHeadlineAndTags &&
+            !shouldRenderPrimaryTweetPreview &&
             !!post.image &&
+            !isPlaceholderImage(post.image) &&
             !!post.permalink && (
               <a
                 href={post.permalink}
@@ -215,6 +245,20 @@ function SocialTwitterPostContentRaw({
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
+          {shouldRenderPrimaryTweetPreview && (
+            <EmbeddedTweetPreview
+              post={primaryTweetPost}
+              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+              embeddedTweetIdentity={primaryTweetIdentity}
+              className="mb-5 w-full"
+              textClampClass=""
+              bodyClassName="typo-markdown"
+              mediaContainerClassName="max-w-[25.625rem]"
+              mediaClassName="aspect-[100/49] h-full"
+              showXLogo
+              showMedia
+            />
+          )}
           {isQuoteLike && !!post.sharedPost && (
             <EmbeddedTweetPreview
               post={post}
@@ -223,6 +267,8 @@ function SocialTwitterPostContentRaw({
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
+              mediaContainerClassName="max-w-[25.625rem]"
+              mediaClassName="aspect-[100/49] h-full"
               showXLogo
             />
           )}

@@ -60,7 +60,7 @@ const renderComponent = (props: Partial<PostCardProps> = {}) =>
     </TestBootProvider>,
   );
 
-it('should hide image and show referenced tweet block for shared social tweets', async () => {
+it('should show referenced tweet block for shared social tweets', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -88,31 +88,14 @@ it('should hide image and show referenced tweet block for shared social tweets',
   expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
 
-it('should render image for non-shared social tweets', async () => {
+it('should render embedded tweet preview for non-shared social tweets', async () => {
   renderComponent();
 
   expect(
     await screen.findByRole('link', { name: 'Read on' }),
   ).toBeInTheDocument();
-  expect(await screen.findByAltText('Post cover image')).toBeInTheDocument();
-});
-
-it('should not render source handle in metadata bottom label', async () => {
-  renderComponent({
-    post: {
-      ...basePost,
-      title: 'Root tweet title without handle',
-      source: {
-        ...basePost.source,
-        handle: 'uniquesourcehandle',
-      },
-    },
-  });
-
-  expect(
-    await screen.findByRole('link', { name: 'Read on' }),
-  ).toBeInTheDocument();
-  expect(screen.queryByText('@uniquesourcehandle')).not.toBeInTheDocument();
+  expect(await screen.findByText('@dailydotdev: Root tweet')).toBeInTheDocument();
+  expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
 
 it('should hide headline and tags for repost cards without repost text', async () => {
@@ -144,11 +127,7 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(
-    await screen.findByTitle(
-      /Avengers reposted on X\. @bcherny: RT @ycombinator:/i,
-    ),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();

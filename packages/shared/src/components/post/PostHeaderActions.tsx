@@ -24,6 +24,7 @@ const Container = classed('div', 'flex flex-row items-center');
 export function PostHeaderActions({
   onReadArticle,
   post,
+  readButtonText: readButtonTextOverride,
   onClose,
   inlineActions,
   className,
@@ -34,7 +35,7 @@ export function PostHeaderActions({
 }: PostHeaderActionsProps): ReactElement {
   const { openNewTab } = useContext(SettingsContext);
   const isMobile = useViewSizeClient(ViewSize.MobileXL);
-  const readButtonText = getReadPostButtonText(post);
+  const readButtonText = readButtonTextOverride || getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
