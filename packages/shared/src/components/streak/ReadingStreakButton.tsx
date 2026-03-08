@@ -5,7 +5,6 @@ import { ReadingStreakPopup } from './popup/ReadingStreakPopup';
 import type { ButtonIconPosition } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ReadingStreakIcon, WarningIcon } from '../icons';
-import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
 import { useViewSize, ViewSize } from '../../hooks';
 import { isTesting } from '../../lib/constants';
@@ -13,8 +12,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { Drawer, DrawerPosition } from '../drawers';
-import ConditionalWrapper from '../ConditionalWrapper';
-import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
 import { IconWrapper } from '../Icon';
@@ -47,65 +44,6 @@ interface ReadingStreakButtonProps {
   iconPosition?: ButtonIconPosition;
   className?: string;
 }
-
-interface CustomStreaksTooltipProps {
-  streak: UserStreak;
-  children?: ReactElement;
-  shouldShowStreaks?: boolean;
-  setShouldShowStreaks?: (value: boolean) => void;
-  placement: TooltipPosition;
-  showMilestoneTimeline?: boolean;
-  streakOverride?: number;
-  isDebugMode?: boolean;
-  milestoneClaimResetNonce?: number;
-}
-
-function CustomStreaksTooltip({
-  streak,
-  children,
-  shouldShowStreaks,
-  setShouldShowStreaks,
-  placement,
-  showMilestoneTimeline,
-  streakOverride,
-  isDebugMode,
-  milestoneClaimResetNonce,
-}: CustomStreaksTooltipProps): ReactElement {
-  return (
-    <SimpleTooltip
-      interactive
-      showArrow={false}
-      placement={placement}
-      visible={shouldShowStreaks}
-      forceLoad={!isTesting}
-      container={{
-        paddingClassName: 'p-0',
-        bgClassName: 'bg-accent-pepper-subtlest',
-        textClassName: 'text-text-primary typo-callout',
-        className: 'border border-border-subtlest-tertiary rounded-16',
-      }}
-      content={
-        <ReadingStreakPopup
-          streak={streak}
-          showMilestoneTimeline={showMilestoneTimeline}
-          streakOverride={streakOverride}
-          isVisible={shouldShowStreaks}
-          milestoneClaimResetNonce={milestoneClaimResetNonce}
-        />
-      }
-      onClickOutside={
-        isDebugMode ? undefined : () => setShouldShowStreaks(false)
-      }
-    >
-      {children}
-    </SimpleTooltip>
-  );
-}
-
-const urgencyTooltipMessages: Partial<Record<UrgencyLevel, string>> = {
-  [UrgencyLevel.Medium]: '1 post to keep your streak alive',
-  [UrgencyLevel.High]: 'Less than 1 hour left!',
-};
 
 export function ReadingStreakButton({
   streak,
@@ -156,7 +94,6 @@ export function ReadingStreakButton({
 
   const effectiveUrgency = debug.debugUrgency ?? urgency;
   const effectiveAnimation = debug.debugAnimationOverride ?? animationState;
-  const currentTier = getCurrentTier(effectiveStreak ?? 0);
   const hitMilestone = getMilestoneAtDay(effectiveStreak ?? 0);
   const decrementDebugStreak = useCallback(() => {
     debug.setDebugStreak(Math.max((effectiveStreak ?? 0) - 1, 0));
@@ -181,8 +118,6 @@ export function ReadingStreakButton({
   const handleCloseDrawer = useCallback(() => {
     setShouldShowStreaks(false);
   }, []);
-
-  const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
 
   useEffect(() => {
     if (
@@ -264,12 +199,8 @@ export function ReadingStreakButton({
     return null;
   }
 
-  const urgencyMessage = debug.features.urgencyNudges
-    ? urgencyTooltipMessages[effectiveUrgency]
-    : undefined;
   const showStreakBroken = showBrokenPopover || effectiveAnimation === 'broken';
   const showUrgencyAnimation = debug.features.urgencyNudges;
-  const shouldOpenInDrawer = true;
   const debugActionButtonClassName =
     'inline-flex items-center justify-center gap-2 rounded-8 bg-surface-float px-3 py-1 typo-footnote hover:bg-surface-hover';
   const debugIconClassName =
@@ -277,118 +208,95 @@ export function ReadingStreakButton({
 
   return (
     <>
-      <ConditionalWrapper
-        condition={!shouldOpenInDrawer}
-        wrapper={(children: ReactElement) => (
-          <Tooltip
-            content={urgencyMessage || `Current streak · ${currentTier.label}`}
+      <div className="relative">
+        <Button
+          id="reading-streak-header-button"
+          type="button"
+          iconPosition={iconPosition}
+          icon={
+            <IconWrapper wrapperClassName="relative flex items-center gap-2">
+              <ReadingStreakIcon secondary={hasReadToday} />
+              {!isTimezoneOk && (
+                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+              )}
+            </IconWrapper>
+          }
+          variant={
+            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+          }
+          onClick={handleToggle}
+          className={classnames(
+            'gap-1 overflow-hidden border-solid',
+            compact && 'text-accent-bacon-default',
+            showIncrementAnimation && 'animate-streak-expand',
+            !showIncrementAnimation &&
+              showUrgencyAnimation &&
+              effectiveUrgency === UrgencyLevel.Low &&
+              'animate-streak-pulse',
+            !showIncrementAnimation &&
+              showUrgencyAnimation &&
+              effectiveUrgency === UrgencyLevel.Medium &&
+              'animate-streak-pulse',
+            !showIncrementAnimation &&
+              showUrgencyAnimation &&
+              effectiveUrgency === UrgencyLevel.High &&
+              'animate-streak-shake',
+            className,
+          )}
+          size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
+        >
+          {showIncrementAnimation && (
+            <span className="via-white/30 pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent to-transparent" />
+          )}
+          {debug.features.animatedCounter ? (
+            <AnimatedNumber value={effectiveStreak ?? 0} />
+          ) : (
+            effectiveStreak
+          )}
+          {!compact && ' reading days'}
+        </Button>
+        {showStreakBroken && (
+          <StreakBrokenPopover
+            previousStreak={previousStreak ?? effectiveStreak ?? 0}
+          />
+        )}
+        {reminderPopoverNonce > 0 && (
+          <StreakReminderPopover
+            key={`streak-reminder-${reminderPopoverNonce.toString()}`}
+            currentStreak={effectiveStreak ?? 0}
+          />
+        )}
+      </div>
+
+      <RootPortal>
+        <Drawer
+          isOpen={shouldShowStreaks}
+          onClose={handleToggle}
+          position={isMobile ? DrawerPosition.Bottom : DrawerPosition.Right}
+          className={
+            isMobile
+              ? {
+                  wrapper:
+                    'h-[calc(100%-5rem)] !max-h-[calc(100%-5rem)] !overflow-hidden',
+                }
+              : {
+                  wrapper:
+                    'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0',
+                }
+          }
+        >
+          <ReadingStreakPopup
             streak={streak}
-            shouldShowStreaks={shouldShowStreaks}
-            setShouldShowStreaks={setShouldShowStreaks}
-            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
+            fullWidth
             showMilestoneTimeline={debug.features.milestoneTimeline}
             streakOverride={debug.debugStreakOverride ?? undefined}
-            isDebugMode={debug.isDebugMode}
+            isVisible={shouldShowStreaks}
             milestoneClaimResetNonce={milestoneClaimResetNonce}
-          >
-            {children}
-          </Tooltip>
-        )}
-      >
-        <div className="relative">
-          <Button
-            id="reading-streak-header-button"
-            type="button"
-            iconPosition={iconPosition}
-            icon={
-              <IconWrapper wrapperClassName="relative flex items-center gap-2">
-                <ReadingStreakIcon secondary={hasReadToday} />
-                {!isTimezoneOk && (
-                  <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
-                )}
-              </IconWrapper>
-            }
-            variant={
-              isLaptop || isMobile
-                ? ButtonVariant.Tertiary
-                : ButtonVariant.Float
-            }
-            onClick={handleToggle}
-            className={classnames(
-              'gap-1 overflow-hidden border-solid',
-              compact && 'text-accent-bacon-default',
-              showIncrementAnimation && 'animate-streak-expand',
-              !showIncrementAnimation &&
-                showUrgencyAnimation &&
-                effectiveUrgency === UrgencyLevel.Low &&
-                'animate-streak-pulse',
-              !showIncrementAnimation &&
-                showUrgencyAnimation &&
-                effectiveUrgency === UrgencyLevel.Medium &&
-                'animate-streak-pulse',
-              !showIncrementAnimation &&
-                showUrgencyAnimation &&
-                effectiveUrgency === UrgencyLevel.High &&
-                'animate-streak-shake',
-              className,
-            )}
-            size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
-          >
-            {showIncrementAnimation && (
-              <span className="via-white/30 pointer-events-none absolute inset-0 z-1 animate-streak-shine bg-gradient-to-r from-transparent to-transparent" />
-            )}
-            {debug.features.animatedCounter ? (
-              <AnimatedNumber value={effectiveStreak ?? 0} />
-            ) : (
-              effectiveStreak
-            )}
-            {!compact && ' reading days'}
-          </Button>
-          {showStreakBroken && (
-            <StreakBrokenPopover
-              previousStreak={previousStreak ?? effectiveStreak ?? 0}
-            />
-          )}
-          {reminderPopoverNonce > 0 && (
-            <StreakReminderPopover
-              key={`streak-reminder-${reminderPopoverNonce.toString()}`}
-              currentStreak={effectiveStreak ?? 0}
-            />
-          )}
-        </div>
-      </ConditionalWrapper>
-
-      {shouldOpenInDrawer && (
-        <RootPortal>
-          <Drawer
-            isOpen={shouldShowStreaks}
-            onClose={handleToggle}
-            position={isMobile ? DrawerPosition.Bottom : DrawerPosition.Right}
-            className={
-              isMobile
-                ? {
-                    wrapper:
-                      'h-[calc(100%-5rem)] !max-h-[calc(100%-5rem)] !overflow-hidden',
-                  }
-                : {
-                    wrapper:
-                      'h-full !max-h-full !w-[320px] max-w-[calc(100vw-2rem)] border-l border-border-subtlest-tertiary !px-0',
-                  }
-            }
-          >
-            <ReadingStreakPopup
-              streak={streak}
-              fullWidth
-              showMilestoneTimeline={debug.features.milestoneTimeline}
-              streakOverride={debug.debugStreakOverride ?? undefined}
-              isVisible={shouldShowStreaks}
-              milestoneClaimResetNonce={milestoneClaimResetNonce}
-              showMobileDrawerActions={isMobile}
-              onClose={handleCloseDrawer}
-            />
-          </Drawer>
-        </RootPortal>
-      )}
+            showMobileDrawerActions={isMobile}
+            onClose={handleCloseDrawer}
+          />
+        </Drawer>
+      </RootPortal>
 
       {((showIncrementAnimation && hitMilestone && !isDebugIncrement) ||
         showMilestoneCelebration) && (

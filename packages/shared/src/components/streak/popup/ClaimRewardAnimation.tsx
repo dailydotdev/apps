@@ -205,7 +205,7 @@ export function ClaimRewardAnimation({
                 color={TypographyColor.Primary}
                 className="mt-1"
               >
-                Day 4 Milestone!
+                {`Day ${reward.milestoneDay} Milestone!`}
               </Typography>
               <div className="mt-4 flex w-full items-center justify-center gap-2 rounded-12 bg-surface-float px-3 py-2">
                 <Typography type={TypographyType.Callout}>
