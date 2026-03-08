@@ -15,6 +15,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
+    '\\.(png|jpe?g|gif|webp|avif)$': '<rootDir>/__mocks__/fileMock.ts',
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',
   },

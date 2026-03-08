@@ -1,13 +1,22 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { FeaturesReadyContext } from './GrowthBookProvider';
+import {
+  FeaturesReadyContext,
+  type FeaturesReadyContextValue,
+} from './GrowthBookProvider';
 import { withFeaturesBoundary } from './withFeaturesBoundary';
 
 const renderComponent = (Component: React.ElementType, ready = true) => {
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <FeaturesReadyContext.Provider value={{ ready }}>
+      <FeaturesReadyContext.Provider
+        value={{
+          ready,
+          getFeatureValue: ((feature) =>
+            feature.defaultValue) as FeaturesReadyContextValue['getFeatureValue'],
+        }}
+      >
         <Component />
       </FeaturesReadyContext.Provider>
       ,

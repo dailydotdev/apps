@@ -57,7 +57,9 @@ describe('useDirtyForm', () => {
     mockOpenModal = jest.fn();
     mocked(useLazyModal).mockReturnValue({
       openModal: mockOpenModal,
-    } as ReturnType<typeof useLazyModal>);
+      closeModal: jest.fn(),
+      modal: null,
+    } as unknown as ReturnType<typeof useLazyModal>);
 
     mockFormMethods = {
       formState: {
@@ -144,7 +146,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),

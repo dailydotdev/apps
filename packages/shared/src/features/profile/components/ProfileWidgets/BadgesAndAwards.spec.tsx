@@ -35,20 +35,7 @@ const defaultUser: PublicProfile = {
   image: 'https://daily.dev/test.png',
   bio: 'Test bio',
   createdAt: '2020-01-01T00:00:00.000Z',
-  twitter: 'testuser',
-  github: 'testuser',
-  hashnode: 'testuser',
-  portfolio: 'https://test.com',
   permalink: 'https://daily.dev/testuser',
-  roadmap: 'testuser',
-  threads: 'testuser',
-  codepen: 'testuser',
-  reddit: 'testuser',
-  stackoverflow: '123456/testuser',
-  youtube: 'testuser',
-  linkedin: 'testuser',
-  mastodon: 'https://mastodon.social/@testuser',
-  bluesky: 'testuser.bsky.social',
 };
 
 const mockTopReaders = [

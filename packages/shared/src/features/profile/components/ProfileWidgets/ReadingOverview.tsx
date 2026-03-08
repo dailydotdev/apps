@@ -16,6 +16,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import {
+  ReadingMilestonesSection,
   ReadingStreaksSection,
   ReadingTagsSection,
   HeatmapLegend,
@@ -123,6 +124,7 @@ export function ReadingOverview({
         />
       )}
       <HeatmapLegend />
+      {!!streak && <ReadingMilestonesSection streak={streak} />}
     </ActivityContainer>
   );
 }

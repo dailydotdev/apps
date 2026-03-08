@@ -257,8 +257,9 @@ it('Should have no cost for first time recovery', async () => {
   expect(popupHeader).toBeInTheDocument();
 
   // expect cost to be 0
-  const cost = screen.getByText('Restore my streakFree');
-  expect(cost).toBeInTheDocument();
+  const button = screen.getByTestId('streak-recover-button');
+  expect(button).toHaveTextContent(/Restore my streak/i);
+  expect(button).toHaveTextContent(/Free/i);
 });
 
 it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
@@ -285,8 +286,9 @@ it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   expect(popupHeader).toBeInTheDocument();
 
   // expect cost to be 100
-  const cost = screen.getByText('Restore my streak100');
-  expect(cost).toBeInTheDocument();
+  const button = screen.getByTestId('streak-recover-button');
+  expect(button).toHaveTextContent(/Restore my streak/i);
+  expect(button).toHaveTextContent(/100/i);
 });
 
 it('Should show buy Cores message if user does not have enough Cores', async () => {

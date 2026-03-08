@@ -37,7 +37,7 @@ const squads = [generateTestSquad()];
 const renderComponent = (
   loggedIn = true,
   hasSquads = true,
-  comment?: string,
+  comment?: typeof defaultComment,
 ): RenderResult => {
   return render(
     <TestBootProvider

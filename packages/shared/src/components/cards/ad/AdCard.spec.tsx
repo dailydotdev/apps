@@ -13,6 +13,8 @@ import { ActiveFeedContext } from '../../../contexts';
 const defaultProps: AdCardProps = {
   ad,
   onLinkClick: jest.fn(),
+  index: 0,
+  feedIndex: 0,
 };
 
 beforeEach(() => {
@@ -23,7 +25,7 @@ const renderComponent = (props: Partial<AdCardProps> = {}): RenderResult => {
   const client = new QueryClient();
   return render(
     <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+      <ActiveFeedContext.Provider value={{ queryKey: ['test'], items: [] }}>
         <AdGrid {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
     </TestBootProvider>,
@@ -36,7 +38,7 @@ const renderListComponent = (
   const client = new QueryClient();
   return render(
     <TestBootProvider client={client}>
-      <ActiveFeedContext.Provider value={{ queryKey: 'test' }}>
+      <ActiveFeedContext.Provider value={{ queryKey: ['test'], items: [] }}>
         <AdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
     </TestBootProvider>,

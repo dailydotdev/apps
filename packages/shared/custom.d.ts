@@ -7,6 +7,11 @@ declare module '*.svg' {
   export default value;
 }
 
+declare module '*.png' {
+  const value: string;
+  export default value;
+}
+
 interface Window {
   Intercom?: (command: string, ...args: unknown[]) => void;
   reactModalInit?: boolean;

@@ -23,7 +23,7 @@ describe('ensureTrailingParagraphForImage', () => {
       },
       view: { dispatch },
       commands: { focus },
-    } as Parameters<typeof ensureTrailingParagraphForImage>[0]);
+    } as unknown as Parameters<typeof ensureTrailingParagraphForImage>[0]);
 
     expect(createParagraph).toHaveBeenCalledTimes(1);
     expect(insert).toHaveBeenCalledWith(7, paragraphNode);
@@ -43,7 +43,7 @@ describe('ensureTrailingParagraphForImage', () => {
       },
       view: { dispatch },
       commands: { focus },
-    } as Parameters<typeof ensureTrailingParagraphForImage>[0]);
+    } as unknown as Parameters<typeof ensureTrailingParagraphForImage>[0]);
 
     expect(dispatch).not.toHaveBeenCalled();
     expect(focus).toHaveBeenCalledWith('end');

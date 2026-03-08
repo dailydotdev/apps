@@ -17,12 +17,16 @@ jest.mock('../../../hooks/vote/useVoteHotTake', () => ({
 }));
 
 jest.mock('../../../contexts/LogContext', () => ({
-  ...jest.requireActual('../../../contexts/LogContext'),
+  ...jest.requireActual<typeof import('../../../contexts/LogContext')>(
+    '../../../contexts/LogContext',
+  ),
   useLogContext: jest.fn(),
 }));
 
 jest.mock('../../../contexts/AuthContext', () => ({
-  ...jest.requireActual('../../../contexts/AuthContext'),
+  ...jest.requireActual<typeof import('../../../contexts/AuthContext')>(
+    '../../../contexts/AuthContext',
+  ),
   useAuthContext: jest.fn(),
 }));
 

@@ -3,6 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import useUserExperienceForm from './useUserExperienceForm';
+import type { UserExperience } from '../graphql/user/profile';
 import { UserExperienceType } from '../graphql/user/profile';
 
 // Mock dependencies
@@ -24,7 +25,9 @@ jest.mock('./useDirtyForm', () => ({
 
 // Mock the GraphQL mutations
 jest.mock('../graphql/user/profile', () => ({
-  ...jest.requireActual('../graphql/user/profile'),
+  ...jest.requireActual<typeof import('../graphql/user/profile')>(
+    '../graphql/user/profile',
+  ),
   upsertUserWorkExperience: jest.fn(),
   upsertUserGeneralExperience: jest.fn(),
 }));
@@ -63,27 +66,23 @@ const createWrapper = () => {
   );
 };
 
-// BaseUserExperience type used by the hook
-type BaseUserExperience = {
-  type: UserExperienceType;
-  title: string;
-  description?: string | null;
-  startedAt?: Date | null;
-  endedAt?: Date | null;
-  subtitle?: string | null;
+type TestUserExperience = Omit<
+  Parameters<typeof useUserExperienceForm>[0]['defaultValues'],
+  never
+> & {
   current?: boolean;
-  companyId?: string | null;
-  customCompanyName?: string | null;
-  url?: string | null;
 };
 
+const asFormDate = (value: string): UserExperience['startedAt'] =>
+  new Date(value) as unknown as UserExperience['startedAt'];
+
 describe('useUserExperienceForm', () => {
-  const baseWorkExperience: BaseUserExperience = {
+  const baseWorkExperience: TestUserExperience = {
     type: UserExperienceType.Work,
     title: 'Software Engineer',
     description: 'Description',
-    startedAt: new Date('2020-01-01'),
-    endedAt: new Date('2022-12-31'),
+    startedAt: asFormDate('2020-01-01'),
+    endedAt: asFormDate('2022-12-31'),
     current: false,
   };
 
@@ -101,12 +100,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should initialize form with default values', () => {
-    const mockExperience: BaseUserExperience = {
+    const mockExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Building awesome things',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -123,12 +122,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate required title field', async () => {
-    const validExperience: BaseUserExperience = {
+    const validExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -153,12 +152,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate end date is required when not current', async () => {
-    const validExperience: BaseUserExperience = {
+    const validExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -170,7 +169,7 @@ describe('useUserExperienceForm', () => {
     // Set endedAt to undefined while current is false
     act(() => {
       result.current.methods.setValue('endedAt', undefined);
-      result.current.methods.setValue('current', false);
+      result.current.methods.setValue('current' as never, false as never);
     });
 
     // Trigger validation
@@ -187,8 +186,8 @@ describe('useUserExperienceForm', () => {
     const { result } = setupWorkExperienceForm();
 
     act(() => {
-      result.current.methods.setValue('startedAt', new Date('2023-06-01'));
-      result.current.methods.setValue('endedAt', new Date('2022-01-01'));
+      result.current.methods.setValue('startedAt', asFormDate('2023-06-01'));
+      result.current.methods.setValue('endedAt', asFormDate('2022-01-01'));
     });
 
     let isValid = false;
@@ -209,8 +208,8 @@ describe('useUserExperienceForm', () => {
     const { result } = setupWorkExperienceForm();
 
     act(() => {
-      result.current.methods.setValue('startedAt', new Date('2020-01-01'));
-      result.current.methods.setValue('endedAt', new Date('2022-12-31'));
+      result.current.methods.setValue('startedAt', asFormDate('2020-01-01'));
+      result.current.methods.setValue('endedAt', asFormDate('2022-12-31'));
     });
 
     let isValid = false;
@@ -225,11 +224,11 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should not require end date when current is true', async () => {
-    const validExperience: BaseUserExperience = {
+    const validExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Description',
-      startedAt: new Date('2020-01-01'),
+      startedAt: asFormDate('2020-01-01'),
       endedAt: undefined, // This is OK when current is true
       current: true,
     };
@@ -249,12 +248,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should have isPending false initially', () => {
-    const mockExperience: BaseUserExperience = {
+    const mockExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Building awesome things',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -267,12 +266,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should handle current position toggle correctly', async () => {
-    const mockExperience: BaseUserExperience = {
+    const mockExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Building awesome things',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -283,7 +282,7 @@ describe('useUserExperienceForm', () => {
 
     // Set current to true
     act(() => {
-      result.current.methods.setValue('current', true);
+      result.current.methods.setValue('current' as never, true as never);
     });
 
     // End date should not be required when current is true
@@ -300,7 +299,7 @@ describe('useUserExperienceForm', () => {
 
     // Set current back to false
     act(() => {
-      result.current.methods.setValue('current', false);
+      result.current.methods.setValue('current' as never, false as never);
     });
 
     await act(async () => {
@@ -315,12 +314,12 @@ describe('useUserExperienceForm', () => {
     const longTitle = 'a'.repeat(1001); // Exceeds max length of 1000
     const longDescription = 'a'.repeat(5001); // Exceeds max length of 5000
 
-    const validExperience: BaseUserExperience = {
+    const validExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -346,12 +345,12 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate start date is required', async () => {
-    const validExperience: BaseUserExperience = {
+    const validExperience: TestUserExperience = {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Description',
-      startedAt: new Date('2020-01-01'),
-      endedAt: new Date('2022-12-31'),
+      startedAt: asFormDate('2020-01-01'),
+      endedAt: asFormDate('2022-12-31'),
       current: false,
     };
 
@@ -376,7 +375,7 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate repository with nullable id for custom repositories', async () => {
-    const openSourceExperience: BaseUserExperience & {
+    const openSourceExperience: TestUserExperience & {
       repository?: {
         id: string | null;
         owner: string | null;
@@ -388,7 +387,7 @@ describe('useUserExperienceForm', () => {
       type: UserExperienceType.OpenSource,
       title: 'Open Source Contributor',
       description: 'Contributing to projects',
-      startedAt: new Date('2023-01-01'),
+      startedAt: asFormDate('2023-01-01'),
       current: true,
       repository: {
         id: null, // Custom repository has null id
@@ -412,7 +411,7 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate custom repository with inferred GitHub URL', async () => {
-    const openSourceExperience: BaseUserExperience & {
+    const openSourceExperience: TestUserExperience & {
       repository?: {
         id: string | null;
         owner: string | null;
@@ -424,7 +423,7 @@ describe('useUserExperienceForm', () => {
       type: UserExperienceType.OpenSource,
       title: 'Open Source Contributor',
       description: 'Contributing to projects',
-      startedAt: new Date('2023-01-01'),
+      startedAt: asFormDate('2023-01-01'),
       current: true,
       repository: {
         id: null,
@@ -447,7 +446,7 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should validate repository with GitHub id', async () => {
-    const openSourceExperience: BaseUserExperience & {
+    const openSourceExperience: TestUserExperience & {
       repository?: {
         id: string | null;
         owner: string | null;
@@ -459,7 +458,7 @@ describe('useUserExperienceForm', () => {
       type: UserExperienceType.OpenSource,
       title: 'React Contributor',
       description: 'Contributing to React',
-      startedAt: new Date('2023-01-01'),
+      startedAt: asFormDate('2023-01-01'),
       current: true,
       repository: {
         id: '10270250', // GitHub repository has string id
@@ -482,7 +481,7 @@ describe('useUserExperienceForm', () => {
   });
 
   it('should require repository URL even for custom repositories', async () => {
-    const openSourceExperience: BaseUserExperience & {
+    const openSourceExperience: TestUserExperience & {
       repository?: {
         id: string | null;
         owner: string | null;
@@ -493,7 +492,7 @@ describe('useUserExperienceForm', () => {
     } = {
       type: UserExperienceType.OpenSource,
       title: 'Open Source Contributor',
-      startedAt: new Date('2023-01-01'),
+      startedAt: asFormDate('2023-01-01'),
       current: true,
       repository: {
         id: null,

@@ -208,7 +208,7 @@ const renderComponent = (
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
-  };
+  } as unknown as SettingsContextData;
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
@@ -818,7 +818,7 @@ describe('Feed logged in', () => {
             permalink: 's',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
-          },
+          } as never,
           upvoted: false,
           commented: false,
           bookmarked: false,
@@ -1009,20 +1009,26 @@ describe('Feed logged in', () => {
     beforeEach(() => {
       /* eslint-disable @typescript-eslint/no-var-requires,global-require */
       mockedQuery[acquisitionKey] = 'true';
-      mocked(useRouter).mockImplementation(() => ({
-        route: '/',
-        pathname: '',
-        query: mockedQuery,
-        asPath: '',
-        push: jest.fn(),
-        events: {
-          on: jest.fn(),
-          off: jest.fn(),
-        },
-        replace: replaceRouter,
-        beforePopState: jest.fn(() => null),
-        prefetch: jest.fn(() => null),
-      }));
+      mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            route: '/',
+            pathname: '',
+            query: mockedQuery,
+            asPath: '',
+            basePath: '',
+            isLocaleDomain: false,
+            push: jest.fn(),
+            events: {
+              on: jest.fn(),
+              off: jest.fn(),
+              emit: jest.fn(),
+            },
+            replace: replaceRouter,
+            beforePopState: jest.fn(() => null),
+            prefetch: jest.fn(() => null),
+          }) as never,
+      );
 
       Object.defineProperty(window, 'location', {
         value: url,

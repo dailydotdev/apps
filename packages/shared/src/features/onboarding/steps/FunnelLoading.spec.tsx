@@ -20,6 +20,7 @@ describe('FunnelLoading', () => {
       explainer: 'Test loading description',
     },
     id: 'loading-step',
+    transitions: [],
     type: FunnelStepType.Loading,
     onTransition: jest.fn(),
   };
@@ -40,7 +41,12 @@ describe('FunnelLoading', () => {
   });
 
   it('should use default headline and description when not provided', () => {
-    render(<FunnelLoading {...defaultProps} parameters={{}} />);
+    render(
+      <FunnelLoading
+        {...defaultProps}
+        parameters={{} as FunnelStepLoading['parameters']}
+      />,
+    );
 
     expect(screen.getByText('Lining up your next move...')).toBeInTheDocument();
     expect(

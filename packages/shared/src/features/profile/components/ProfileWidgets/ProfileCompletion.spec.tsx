@@ -39,15 +39,13 @@ const renderWithAuth = (user: LoggedUser | null) => {
     <QueryClientProvider client={queryClient}>
       <AuthContextProvider
         user={user}
-        updateUser={jest.fn()}
+        updateUser={jest.fn(async () => undefined)}
         tokenRefreshed
-        getRedirectUri={jest.fn()}
-        closeLogin={jest.fn()}
+        getRedirectUri={() => '/'}
         loadingUser={false}
         loadedUserFromCache
         refetchBoot={jest.fn()}
         firstLoad={false}
-        isValidSession
       >
         <ProfileCompletion />
       </AuthContextProvider>

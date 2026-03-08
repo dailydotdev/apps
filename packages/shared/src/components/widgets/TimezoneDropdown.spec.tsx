@@ -24,10 +24,6 @@ beforeEach(() => {
 
 const defaultLoggedUser: LoggedUser = {
   ...loggedUser,
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
   acceptedMarketing: true,
 };
 

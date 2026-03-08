@@ -67,6 +67,7 @@ import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
+import { FeedGreetingHero } from './streak/FeedGreetingHero';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -521,6 +522,8 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  const shouldShowFeedGreetingHero =
+    feedName === SharedFeedPage.MyFeed && !isSearchOn;
   const shouldShowReadingReminderOnHomepage =
     router.pathname === webappUrl && shouldShowReadingReminder;
 
@@ -568,7 +571,8 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
-      {shouldShowReadingReminderOnHomepage && (
+      {shouldShowFeedGreetingHero && <FeedGreetingHero />}
+      {shouldShowReadingReminderOnHomepage && !shouldShowFeedGreetingHero && (
         <ReadingReminderHero className="px-4 pb-2" onEnable={onEnable} />
       )}
       {shouldUseCommentFeedLayout ? (

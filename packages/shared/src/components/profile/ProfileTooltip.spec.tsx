@@ -10,7 +10,9 @@ const mockLogEvent = jest.fn();
 const mockSimpleTooltipSpy = jest.fn();
 
 jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
+  ...jest.requireActual<typeof import('@tanstack/react-query')>(
+    '@tanstack/react-query',
+  ),
   useQueryClient: () => ({ setQueryData: mockSetQueryData }),
   useQuery: () => ({ data: null, isLoading: false }),
 }));

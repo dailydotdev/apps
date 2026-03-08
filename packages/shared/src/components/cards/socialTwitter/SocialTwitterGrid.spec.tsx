@@ -159,7 +159,12 @@ it('should use creatorTwitter when shared source is unknown', async () => {
           handle: 'unknown',
         },
         author: {
-          ...(sharePost.sharedPost.author || { id: 'author-id' }),
+          ...(sharePost.sharedPost.author || {
+            id: 'author-id',
+            name: 'Author',
+            image: 'https://daily.dev/author.png',
+            permalink: '/author',
+          }),
           username: 'creator_twitter',
         },
       },
