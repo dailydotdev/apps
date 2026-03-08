@@ -10,7 +10,8 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useConditionalFeature } from '../../../hooks';
+import { featureShowBookmarkCount } from '../../../lib/featureManagement';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -75,6 +76,11 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const { value: showBookmarkCount } = useConditionalFeature({
+    feature: featureShowBookmarkCount,
+    shouldEvaluate: true,
+  });
+  const bookmarkCount = post?.analytics?.bookmarks ?? 0;
 
   const {
     isUpvoteActive,
@@ -224,13 +230,26 @@ const ActionButtons = ({
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
             size: config.buttonSize,
+            className: classNames(
+              'btn-tertiary-bun',
+              variant === 'list' && 'pointer-events-auto',
+            ),
             ...(variant === 'list' && {
               variant: ButtonVariant.Tertiary,
-              className: 'pointer-events-auto',
             }),
           }}
           iconSize={config.iconSize}
-        />
+        >
+          {showBookmarkCount && bookmarkCount > 0 && (
+            <InteractionCounter
+              className={classNames(
+                'tabular-nums',
+                variant === 'grid' && 'typo-footnote',
+              )}
+              value={bookmarkCount}
+            />
+          )}
+        </BookmarkButton>
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}

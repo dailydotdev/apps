@@ -217,7 +217,7 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
 }
 
 export type RelatedPost = Pick<
