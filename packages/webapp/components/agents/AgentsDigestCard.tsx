@@ -200,13 +200,15 @@ export const AgentsDigestCard = ({
               onClick={onCopyLink}
             />
           </Tooltip>
-          <Link href={post.commentsPermalink}>
-            <a className="text-text-link typo-caption1">Read more</a>
-          </Link>
         </div>
       </header>
       {!!digestTldr && (
-        <div className="text-text-secondary typo-markdown">{digestTldr}</div>
+        <p className="!leading-normal text-text-secondary typo-callout">
+          {digestTldr}{' '}
+          <Link href={post.commentsPermalink}>
+            <a className="text-text-link">Read more</a>
+          </Link>
+        </p>
       )}
     </section>
   );

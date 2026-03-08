@@ -1,6 +1,11 @@
-import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type {
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+  GetStaticPropsResult,
+} from 'next';
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { ArenaEntityPage } from '@dailydotdev/shared/src/features/agents/arena/ArenaEntityPage';
@@ -18,7 +23,6 @@ interface AgentEntityPageProps {
   entityId: string;
   entityName: string;
   tab: ArenaTab;
-  origin?: AgentEntityOrigin;
   seo: ReturnType<typeof getEntitySeo>;
   dehydratedState: DehydratedState;
 }
@@ -44,27 +48,28 @@ const getEntitySeo = ({
 const AgentEntityRoute = ({
   entityId,
   tab,
-  origin,
 }: AgentEntityPageProps): ReactElement => {
+  const router = useRouter();
+  const originQueryValue = Array.isArray(router.query.origin)
+    ? router.query.origin[0]
+    : router.query.origin;
+  const origin: AgentEntityOrigin | undefined =
+    originQueryValue === 'hub' ? 'hub' : undefined;
+
   return <ArenaEntityPage entityId={entityId} tab={tab} origin={origin} />;
 };
 
-export async function getServerSideProps({
+export async function getStaticProps({
   params,
-  query,
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<AgentEntityPageProps>
-> {
-  const entityId = String(params?.entityId ?? '').trim();
-  if (!entityId) {
-    return { notFound: true };
-  }
+}: GetStaticPropsContext): Promise<GetStaticPropsResult<AgentEntityPageProps>> {
+  const rawEntityId = params?.entityId;
+  const entityId = Array.isArray(rawEntityId)
+    ? rawEntityId[0]?.trim() ?? ''
+    : String(rawEntityId ?? '').trim();
 
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=60, stale-while-revalidate=120',
-  );
+  if (!entityId) {
+    return { notFound: true, revalidate: 600 };
+  }
 
   const queryClient = new QueryClient();
   await Promise.all([
@@ -96,41 +101,39 @@ export async function getServerSideProps({
         )
       : [];
 
-  const entityExists =
-    codingAgentsRankings.some((item) => item.entity.entity === entityId) ||
-    llmsRankings.some((item) => item.entity.entity === entityId);
-  if (!entityExists) {
-    return { notFound: true };
-  }
-
-  let tab: ArenaTab = 'coding-agents';
   const codingEntity = codingAgentsRankings.find(
     (item) => item.entity.entity === entityId,
   );
   const llmEntity = llmsRankings.find(
     (item) => item.entity.entity === entityId,
   );
-  if (!codingEntity && llmEntity) {
-    tab = 'llms';
+
+  if (!codingEntity && !llmEntity) {
+    return { notFound: true, revalidate: 600 };
   }
 
+  const tab: ArenaTab = !codingEntity && llmEntity ? 'llms' : 'coding-agents';
   const entityName =
     codingEntity?.entity.name ?? llmEntity?.entity.name ?? entityId;
-  const originQueryValue = Array.isArray(query.origin)
-    ? query.origin[0]
-    : query.origin;
-  const origin: AgentEntityOrigin | undefined =
-    originQueryValue === 'hub' ? 'hub' : undefined;
 
   return {
     props: {
       entityId,
       entityName,
       tab,
-      origin,
       seo: getEntitySeo({ entityId, entityName }),
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 600,
+  };
+}
+
+export async function getStaticPaths(): Promise<
+  GetStaticPathsResult<{ entityId: string }>
+> {
+  return {
+    paths: [],
+    fallback: 'blocking',
   };
 }
 

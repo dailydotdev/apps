@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { GetStaticPropsResult } from 'next';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
@@ -161,27 +161,22 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   );
 };
 
-export async function getServerSideProps({
-  query,
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<ArenaPageRouteProps>
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<ArenaPageRouteProps>
 > {
-  const initialTab = resolveArenaTab(query.tab, 'coding-agents');
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=60, stale-while-revalidate=120',
-  );
-
+  const initialTab: ArenaTab = 'coding-agents';
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery(arenaOptions({ groupId: initialTab }));
+  await Promise.all([
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'llms' })),
+  ]);
 
   return {
     props: {
       initialTab,
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 600,
   };
 }
 

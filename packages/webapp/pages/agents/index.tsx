@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { GetStaticPropsResult } from 'next';
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import type { DehydratedState } from '@tanstack/react-query';
@@ -194,16 +194,9 @@ AgentsHomePage.layoutProps = {
 
 export default AgentsHomePage;
 
-export async function getServerSideProps({
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<AgentsHomePageProps>
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<AgentsHomePageProps>
 > {
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=60, stale-while-revalidate=120',
-  );
-
   const queryClient = new QueryClient();
 
   await Promise.all([
@@ -222,5 +215,6 @@ export async function getServerSideProps({
     props: {
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 600,
   };
 }
