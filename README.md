@@ -1,14 +1,12 @@
-<div align="center">
-  <h1>daily.dev App Suite</h1>
-  <strong>Everything you see on daily.dev 👀</strong>
-</div>
-<br>
+# daily.dev App Suite
+
+The web app and browser extension for [daily.dev](https://app.daily.dev). Both live in one pnpm monorepo so they share components and stay in sync.
 
 <p align="center">
   <a href="https://circleci.com/gh/dailydotdev/apps">
-    <img src="https://img.shields.io/circleci/build/github/dailydotdev/apps/**master**.svg" alt="Build Status">
+    <img src="https://img.shields.io/circleci/build/github/dailydotdev/apps/main.svg" alt="Build Status">
   </a>
-  <a href="https://github.com/dailydotdev/apps/blob/master/LICENSE">
+  <a href="https://github.com/dailydotdev/apps/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/dailydotdev/apps.svg" alt="License">
   </a>
   <a href="https://stackshare.io/daily/daily">
@@ -19,86 +17,64 @@
   </a>
 </p>
 
-This monorepo contains daily.dev's application suite. The repo includes the web app and the extension, along with shared components for the two.
-By using a monorepo approach, we can easily share code and maintain consistency across the different parts of the application suite.
-The decision was made to allow faster iterations and to keep features parity in both platforms.
+## Tech stack
 
-## Technologies
+TypeScript, React 18, Next.js 15 (Pages Router), Tailwind CSS, TanStack Query v5, GraphQL with graphql-request, Jest.
 
-- Node v22.11 (a `.nvmrc` is presented for [nvm](https://github.com/nvm-sh/nvm) users).
-- [pnpm](https://pnpm.io/workspaces) for managing the monorepo and dependencies.
+## Packages
 
-## Projects
+| Package | What it does |
+|---------|-------------|
+| [webapp](packages/webapp) | Next.js web application -- the main daily.dev site |
+| [extension](packages/extension) | Browser extension (Chrome, Opera) built with Webpack |
+| [shared](packages/shared) | Shared React components, hooks, design system, and utilities |
+| [storybook](packages/storybook) | Component development and documentation |
+| [eslint-config](packages/eslint-config) | Shared ESLint configuration |
+| [eslint-rules](packages/eslint-rules) | Custom ESLint rules (e.g. color consistency) |
+| [prettier-config](packages/prettier-config) | Shared Prettier configuration |
 
-### [packages](https://github.com/dailydotdev/apps/tree/main/packages)
+## Getting started
 
-contains a collection of smaller projects or libraries that are used across the daily.dev application suite. Here's a brief overview of each package mentioned:
-
-- ### [eslint-config](https://github.com/dailydotdev/apps/tree/main/packages/eslint-config)
-
-  Shared ESLint settings for maintaining consistent code quality across the project.
-
-- ### [eslint-rules](https://github.com/dailydotdev/apps/tree/main/packages/eslint-rules)
-
-  A custom ESLint plugin that defines a set of rules for the project, including a rule to enforce consistent color usage.
-
-- ### [extension](https://github.com/dailydotdev/apps/tree/main/packages/extension)
-
-  The browser extension project. Includes webpack configuration for browser extensions and the dedicated components just for the extension.
-
-- ### [prettier-config](https://github.com/dailydotdev/apps/tree/main/packages/prettier-config)
-
-  Shared Prettier settings for all the projects in this repo.
-
-- ### [shared](https://github.com/dailydotdev/apps/tree/main/packages/shared)
-
-  The main project contains most of the components used in the applications. Every component that needs to be used on both platforms should be placed in this project. This includes the design system components, custom hooks, and many more.
-
-- ### [storybook](https://github.com/dailydotdev/apps/tree/main/packages/storybook)
-
-  The Storybook configuration for the project, used to develop and showcase UI components in isolation.
-
-- ### [webapp](https://github.com/dailydotdev/apps/tree/master/packages/webapp)
-
-  The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
-
-## Local Environment
-
-To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
-
-- Fork this repo
-- Pull it locally
-- Run `docker compose up`
-- Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
-- Then lastly, run npm run dev:oss
-- The app should run at `http://localhost:5002/`
-
-## Want to Help?
-
-So you want to contribute to daily.dev app suite and make an impact, we are glad to hear it. :heart_eyes:
-
-Before you proceed we have a few guidelines for contribution that will make everything much easier.
-
-We would appreciate if you dedicate the time and read them carefully:
-[CONTRIBUTING.md](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md)
-
-## Bootstrap Project
-
-After cloning the project, please make sure to run the following commands to bootstrap the project:
+Prerequisites: Node 22.22 ([nvm](https://github.com/nvm-sh/nvm) users can run `nvm use`) and pnpm 9.14.4.
 
 ```bash
 npm i -g pnpm@9.14.4
+git clone https://github.com/dailydotdev/apps.git
+cd apps
 pnpm install
 ```
 
-### Run Extension Locally
+### Full local environment (Docker)
 
-Example for Chrome:
+If you want a working API and database behind the frontend:
 
-- Run `pnpm --filter extension dev` in the root directory
-- Open Chrome and go to `chrome://extensions/`
-- Enable `Developer mode` in the top right corner
-- Click on `Load unpacked` and select the `packages/extension/dist/chrome` folder
-- The extension should be loaded and you should be able to see it in the extensions list
-- Enable the extension, don't forget to disable it when you are done
-- Disable the production extension if you have it installed as it might cause conflicts
+```bash
+docker compose up
+docker compose exec daily-api node ./bin/import   # seed sample data
+```
+
+### Development commands
+
+```bash
+pnpm --filter webapp dev          # web app with HTTPS
+pnpm --filter webapp dev:notls    # web app without HTTPS (http://localhost:5002)
+pnpm --filter extension dev       # Chrome extension
+pnpm --filter storybook dev       # Storybook
+```
+
+## Running the extension locally
+
+Chrome example:
+
+1. Run `pnpm --filter extension dev` from the repo root.
+2. Go to `chrome://extensions/` and turn on **Developer mode**.
+3. Click **Load unpacked** and pick `packages/extension/dist/chrome`.
+4. The extension appears in your toolbar. Disable the production extension if you have it installed -- they can conflict.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](https://github.com/dailydotdev/.github/blob/master/CONTRIBUTING.md) before opening a PR.
+
+## License
+
+AGPL-3.0. See [LICENSE](LICENSE).
