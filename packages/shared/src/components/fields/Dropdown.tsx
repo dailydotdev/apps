@@ -231,6 +231,7 @@ export function Dropdown({
           <DropdownMenuTrigger asChild>{renderButton()}</DropdownMenuTrigger>
           <DropdownMenuContent
             id={`${id}-content`}
+            variant="field"
             className={classNames(
               'overflow-hidden',
               className.menu || 'menu-primary',
