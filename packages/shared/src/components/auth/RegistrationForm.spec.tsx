@@ -11,7 +11,7 @@ import {
 } from '../../../__tests__/fixture/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import AuthOptions from './AuthOptions';
-import SettingsContext from '../../contexts/SettingsContext';
+import { SettingsContextProvider } from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { AuthTriggers } from '../../lib/auth';
@@ -43,16 +43,19 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContextProvider
         user={user}
-        updateUser={jest.fn()}
+        updateUser={jest.fn(async () => undefined)}
         tokenRefreshed
-        getRedirectUri={jest.fn()}
+        getRedirectUri={() => '/'}
         loadingUser={false}
         loadedUserFromCache
-        refetchBoot={onSuccessfulLogin}
+        refetchBoot={async () => {
+          onSuccessfulLogin();
+          return { data: {} } as never;
+        }}
       >
-        <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
+        <SettingsContextProvider loadedSettings updateSettings={jest.fn()}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
-        </SettingsContext.Provider>
+        </SettingsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );

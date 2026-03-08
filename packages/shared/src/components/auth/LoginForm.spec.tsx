@@ -16,9 +16,9 @@ import type { LoginPasswordParameters } from '../../lib/auth';
 import { AuthTriggers, getNodeByKey } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
-import type { AuthOptionsProps } from './AuthOptions';
+import type { AuthOptionsProps } from './common';
 import AuthOptions from './AuthOptions';
-import SettingsContext from '../../contexts/SettingsContext';
+import { SettingsContextProvider } from '../../contexts/SettingsContext';
 
 let user = null;
 
@@ -71,19 +71,19 @@ const renderComponent = (
     <QueryClientProvider client={client}>
       <AuthContextProvider
         user={user}
-        updateUser={jest.fn()}
+        updateUser={jest.fn(async () => undefined)}
         tokenRefreshed
-        getRedirectUri={jest.fn()}
+        getRedirectUri={() => '/'}
         loadingUser={false}
         loadedUserFromCache
-        refetchBoot={() => {
+        refetchBoot={async () => {
           onSuccessfulLogin();
-          return { data: {} };
+          return { data: {} } as never;
         }}
       >
-        <SettingsContext.Provider value={{ syncSettings: jest.fn() }}>
+        <SettingsContextProvider loadedSettings updateSettings={jest.fn()}>
           <AuthOptions {...props} onSuccessfulLogin={onSuccessfulLogin} />
-        </SettingsContext.Provider>
+        </SettingsContextProvider>
       </AuthContextProvider>
     </QueryClientProvider>,
   );

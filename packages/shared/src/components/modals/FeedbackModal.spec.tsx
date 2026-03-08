@@ -7,7 +7,9 @@ const mockDisplayToast = jest.fn();
 const mockSubmitFeedback = jest.fn();
 
 jest.mock('../../graphql/feedback', () => ({
-  ...jest.requireActual('../../graphql/feedback'),
+  ...jest.requireActual<typeof import('../../graphql/feedback')>(
+    '../../graphql/feedback',
+  ),
   submitFeedback: (...args: unknown[]) => mockSubmitFeedback(...args),
 }));
 

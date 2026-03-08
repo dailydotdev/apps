@@ -40,7 +40,7 @@ const settings: SettingsContextData = {
   toggleOpenNewTab: jest.fn(),
   toggleShowTopSites: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
-};
+} as unknown as SettingsContextData;
 
 const LogContextTester = ({
   callback,
@@ -160,6 +160,9 @@ it('should add relevant properties when user is signed-in', async () => {
           email: 'u@a.com',
           image: 'https://image.com',
           name: 'U',
+          permalink: '/u',
+          username: 'u',
+          balance: { amount: 0 },
           providers: ['github'],
         },
         tokenRefreshed: true,

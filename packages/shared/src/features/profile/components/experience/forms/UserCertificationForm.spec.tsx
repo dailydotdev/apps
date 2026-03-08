@@ -335,10 +335,7 @@ describe('UserCertificationForm', () => {
       </FormWrapper>,
     );
 
-    const descriptionTextarea = getFieldByName(
-      container,
-      'description',
-    ) as HTMLTextAreaElement;
+    const descriptionTextarea = getFieldByName(container, 'description');
 
     // Textarea has a 5000 character limit
     const description =

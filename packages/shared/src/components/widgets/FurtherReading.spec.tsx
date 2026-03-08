@@ -79,16 +79,18 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          getRedirectUri: jest.fn(),
-          isAuthReady: true,
-        }}
+        value={
+          {
+            user,
+            shouldShowLogin: false,
+            showLogin,
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            isAuthReady: true,
+          } as never
+        }
       >
         <FurtherReading currentPost={{ ...post, ...postUpdate }} />
       </AuthContext.Provider>

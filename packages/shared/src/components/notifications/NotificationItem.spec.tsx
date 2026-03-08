@@ -34,6 +34,7 @@ const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
   'The notification system notifies you of important events such as replies, mentions, updates etc.';
 const sampleNotification: NotificationItemProps = {
+  referenceId: 'notification-1',
   isUnread: true,
   icon: NotificationIconType.Comment,
   title: `<p>${sampleNotificationTitle}</p>`,
@@ -179,6 +180,7 @@ describe('notification click if onClick prop is NOT provided', () => {
 
 describe('ExperienceCompanyEnriched notification', () => {
   const experienceCompanyEnrichedNotification: NotificationItemProps = {
+    referenceId: 'notification-2',
     isUnread: true,
     icon: NotificationIconType.Bell,
     title: 'Your work experience has been linked to Acme Corp',

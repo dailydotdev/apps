@@ -54,9 +54,8 @@ const fetchUpvotesMock = ({
         edges: [
           {
             node: {
-              createdAt: new Date(),
-              user,
-            },
+              user: user as never,
+            } as never,
           },
         ],
       },
@@ -76,17 +75,19 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
-        value={{
-          user,
-          shouldShowLogin: false,
-          showLogin: jest.fn(),
-          logout: jest.fn(),
-          updateUser: jest.fn(),
-          tokenRefreshed: true,
-          closeLogin: jest.fn(),
-          getRedirectUri: jest.fn(),
-          isAuthReady: true,
-        }}
+        value={
+          {
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            closeLogin: jest.fn(),
+            getRedirectUri: jest.fn(),
+            isAuthReady: true,
+          } as never
+        }
       >
         <UpvotedPopupModal {...upvotedPostQueryAsDefault} {...props} />
       </AuthContext.Provider>

@@ -7,6 +7,7 @@ import loggedUser from '../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../contexts/AuthContext';
 import {
   FeaturesReadyContext,
+  type FeaturesReadyContextValue,
   GrowthBookProvider,
 } from '../components/GrowthBookProvider';
 import { BootApp } from '../lib/boot';
@@ -17,19 +18,31 @@ const testFeature: Feature<string> = new Feature<string>(
   'default_value',
 );
 
-const createWrapper = ({ value = testFeature.defaultValue }) => {
-  const Wrapper = ({ children }) => (
+const createWrapper = ({
+  value = testFeature.defaultValue,
+}: {
+  value?: string;
+}) => {
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={client}>
       <AuthContextProvider
         user={loggedUser}
-        updateUser={jest.fn()}
+        updateUser={jest.fn(async () => undefined)}
         tokenRefreshed
-        getRedirectUri={jest.fn()}
+        getRedirectUri={() => '/'}
         loadingUser={false}
         loadedUserFromCache
         squads={[]}
       >
-        <FeaturesReadyContext.Provider value={{ ready: !!value }}>
+        <FeaturesReadyContext.Provider
+          value={{
+            ready: !!value,
+            getFeatureValue: ((feature) =>
+              (feature.id === testFeature.id
+                ? value
+                : feature.defaultValue) as string) as FeaturesReadyContextValue['getFeatureValue'],
+          }}
+        >
           <GrowthBookProvider
             app={BootApp.Test}
             user={loggedUser}

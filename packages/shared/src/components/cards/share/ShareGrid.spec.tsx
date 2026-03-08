@@ -67,7 +67,7 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={new QueryClient()}
-      gb={getGrowthBook(isSharedPostPreviewEnabled)}
+      gb={getGrowthBook(isSharedPostPreviewEnabled) as never}
     >
       <ShareGrid {...defaultProps} {...props} />
     </TestBootProvider>,

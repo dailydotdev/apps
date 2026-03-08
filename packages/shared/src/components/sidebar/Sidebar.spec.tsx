@@ -52,7 +52,7 @@ const renderComponent = (
     toggleShowTopSites: jest.fn(),
     sidebarExpanded,
     toggleSidebarExpanded,
-  };
+  } as unknown as SettingsContextData;
   client = new QueryClient();
   mocks.forEach(mockGraphQL);
 
@@ -64,19 +64,21 @@ const renderComponent = (
         loadedAlerts
       >
         <AuthContext.Provider
-          value={{
-            user,
-            isAuthReady: true,
-            isFetched: true,
-            isLoggedIn: !!user?.id,
-            shouldShowLogin: false,
-            showLogin: jest.fn(),
-            logout: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            getRedirectUri: jest.fn(),
-            closeLogin: jest.fn(),
-          }}
+          value={
+            {
+              user,
+              isAuthReady: true,
+              isFetched: true,
+              isLoggedIn: !!user?.id,
+              shouldShowLogin: false,
+              showLogin: jest.fn(),
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+              closeLogin: jest.fn(),
+            } as never
+          }
         >
           <ProgressiveEnhancementContext.Provider
             value={{
@@ -87,9 +89,7 @@ const renderComponent = (
           >
             <SettingsContext.Provider value={settingsContext}>
               <SidebarDesktop
-                sidebarRendered
                 activePage="my-feed"
-                onLogoClick={jest.fn()}
                 onNavTabClick={jest.fn()}
                 isNavButtons={false}
               />

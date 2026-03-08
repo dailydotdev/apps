@@ -59,14 +59,16 @@ describe('ReadingHistoryList component', () => {
     return render(
       <QueryClientProvider client={client}>
         <AuthContext.Provider
-          value={{
-            user,
-            shouldShowLogin: false,
-            showLogin: jest.fn(),
-            updateUser: jest.fn(),
-            tokenRefreshed: true,
-            isAuthReady: true,
-          }}
+          value={
+            {
+              user,
+              shouldShowLogin: false,
+              showLogin: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              isAuthReady: true,
+            } as never
+          }
         >
           <ReadHistoryList {...props} />
         </AuthContext.Provider>
