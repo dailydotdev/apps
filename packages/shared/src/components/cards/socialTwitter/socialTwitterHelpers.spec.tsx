@@ -1,5 +1,3 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { sharePost } from '../../../../__tests__/fixture/post';
@@ -9,10 +7,6 @@ import {
   getSocialTextDirection,
   getSocialTwitterMetadataLabel,
 } from './socialTwitterHelpers';
-
-jest.mock('../../icons', () => ({
-  TwitterIcon: () => <span data-testid="twitter-icon" />,
-}));
 
 const basePost: Post = {
   ...sharePost,
@@ -25,7 +19,7 @@ const basePost: Post = {
 };
 
 describe('getSocialTwitterMetadata', () => {
-  it('deduplicates handles case-insensitively', () => {
+  it('keeps handles with different casing as distinct values', () => {
     const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,
       source: {
@@ -41,7 +35,7 @@ describe('getSocialTwitterMetadata', () => {
       },
     });
 
-    expect(metadataHandles).toEqual(['anthropicai']);
+    expect(metadataHandles).toEqual(['anthropicai', 'AnthropicAI']);
   });
 
   it('keeps different handles', () => {
@@ -63,14 +57,8 @@ describe('getSocialTwitterMetadata', () => {
     expect(metadataHandles).toEqual(['anthropicai', 'claudeai']);
   });
 
-  it('shows X icon for multi-handle metadata labels', () => {
-    render(
-      getSocialTwitterMetadataLabel({
-        metadataHandles: ['anthropicai', 'claudeai'],
-      }),
-    );
-
-    expect(screen.getByTestId('twitter-icon')).toBeInTheDocument();
+  it('returns the fixed x.com metadata label', () => {
+    expect(getSocialTwitterMetadataLabel().props.children).toBe('From x.com');
   });
 });
 
