@@ -167,7 +167,7 @@ const TagPage = ({
   topPosts,
   recommendedTags,
 }: TagPageProps): ReactElement => {
-  const { push, query } = useRouter();
+  const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
