@@ -6,7 +6,6 @@ import type {
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
@@ -124,7 +123,6 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
 };
 
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
-  const { isFallback } = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
@@ -159,12 +157,8 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   );
   const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
 
-  if (!isFallback && !source) {
+  if (!source) {
     return <Custom404 />;
-  }
-
-  if (isFallback || !source) {
-    return <></>;
   }
 
   return (

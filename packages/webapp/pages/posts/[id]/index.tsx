@@ -164,7 +164,7 @@ export const PostPage = ({
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const { isFallback } = router;
+  const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
@@ -213,7 +213,7 @@ export const PostPage = ({
 
   usePostReferrer({ post });
 
-  if (isLoading || isFallback || privateSourceJoin.isActive) {
+  if (isLoading || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
