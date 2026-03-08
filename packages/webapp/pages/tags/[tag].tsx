@@ -167,7 +167,7 @@ const TagPage = ({
   topPosts,
   recommendedTags,
 }: TagPageProps): ReactElement => {
-  const { isFallback, push, query } = useRouter();
+  const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -230,20 +230,6 @@ const TagPage = ({
     }
     return 'unfollowed';
   }, [feedSettings, tag]);
-
-  if (isFallback) {
-    const fallbackTag = typeof query.tag === 'string' ? query.tag : tag;
-    return (
-      <FeedPageLayoutComponent>
-        <PageInfoHeader className="mx-4 !w-auto">
-          <div className="flex items-center font-bold">
-            <HashtagIcon size={IconSize.XXLarge} />
-            <h1 className="ml-2 w-fit typo-title2">{fallbackTag}</h1>
-          </div>
-        </PageInfoHeader>
-      </FeedPageLayoutComponent>
-    );
-  }
 
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
@@ -475,7 +461,7 @@ TagPage.layoutProps = mainFeedLayoutProps;
 export default TagPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface TagPageParams extends ParsedUrlQuery {
