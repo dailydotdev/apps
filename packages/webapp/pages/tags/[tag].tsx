@@ -69,6 +69,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
@@ -554,12 +555,19 @@ interface TagPageParams extends ParsedUrlQuery {
 const getSeoData = (
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
-): NextSeoProps => ({
-  title: `${title} posts on daily.dev`,
-  openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
-  description,
-});
+): NextSeoProps => {
+  const seoTitles = getPageSeoTitles(`${title} posts`);
+
+  return {
+    ...defaultSeo,
+    ...seoTitles,
+    openGraph: {
+      ...defaultOpenGraph,
+      ...seoTitles.openGraph,
+    },
+    description,
+  };
+};
 
 export async function getStaticProps({
   params,
