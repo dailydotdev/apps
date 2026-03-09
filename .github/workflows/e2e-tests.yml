@@ -52,6 +52,7 @@ jobs:
 
     - name: Validate base URL
       if: github.event_name == 'workflow_dispatch'
+      shell: bash
       run: |
         URL="${{ inputs.base_url }}"
         if [[ ! "$URL" =~ ^https://([a-zA-Z0-9-]+\.)*app\.daily\.dev(/.*)?$ ]]; then
