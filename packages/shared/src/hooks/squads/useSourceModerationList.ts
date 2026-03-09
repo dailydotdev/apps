@@ -74,12 +74,8 @@ export interface UseSourceModerationList {
 }
 
 const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
-  return data.reduce<Post[]>((acc, item) => {
-    if (!item.type || !item.image) {
-      return acc;
-    }
-
-    acc.push({
+  return data.map<Post>((item) => {
+    return {
       id: item.id,
       source: item.source,
       type: item.type,
@@ -87,10 +83,8 @@ const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
       commentsPermalink: '',
       author: item.createdBy,
       createdAt: item.createdAt,
-    });
-
-    return acc;
-  }, []);
+    } as Post;
+  });
 };
 
 export const useSourceModerationList = (): UseSourceModerationList => {

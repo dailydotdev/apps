@@ -86,7 +86,7 @@ describe('useSourceModerationList', () => {
     } as ReturnType<typeof useAuthContext>);
   });
 
-  it('resolves approve flow and logs only valid posts', async () => {
+  it('resolves approve flow and logs all posts including partial data', async () => {
     mocked(squadApproveMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Approved,
@@ -109,16 +109,22 @@ describe('useSourceModerationList', () => {
 
     expect(displayToast).toHaveBeenCalledWith('Post(s) approved successfully');
     expect(invalidateQueriesSpy).toHaveBeenCalledTimes(1);
-    expect(logEvent).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledTimes(2);
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.ApprovePost,
         target_id: 'valid-post',
       }),
     );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.ApprovePost,
+        target_id: 'missing-image',
+      }),
+    );
   });
 
-  it('resolves reject flow, closes modal, and logs only valid posts', async () => {
+  it('resolves reject flow, closes modal, and logs all posts including partial data', async () => {
     mocked(squadRejectMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Rejected,
@@ -150,11 +156,17 @@ describe('useSourceModerationList', () => {
 
     expect(displayToast).toHaveBeenCalledWith('Post(s) declined successfully');
     expect(closeModal).toHaveBeenCalledTimes(1);
-    expect(logEvent).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledTimes(2);
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.RejectPost,
         target_id: 'valid-post',
+      }),
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.RejectPost,
+        target_id: 'missing-type',
       }),
     );
   });
