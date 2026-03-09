@@ -49,6 +49,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
@@ -65,10 +66,30 @@ import type { DynamicSeoProps } from '../../components/common';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
+  relatedTags?: TagsData['tags'];
+  topPosts?: SourceTopPost[];
 }
 type SourceIdProps = { sourceId?: string };
+type SourceTopPost = {
+  id: string;
+  title?: string;
+  slug?: string;
+};
 
-const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
+type SourceTopPostsData = {
+  page?: {
+    edges?: {
+      node: SourceTopPost;
+    }[];
+  };
+};
+
+const SourceRelatedTags = ({
+  sourceId,
+  initialTags = [],
+}: SourceIdProps & {
+  initialTags?: TagsData['tags'];
+}): ReactElement => {
   const { data: relatedTags, isPending } = useQuery({
     queryKey: [RequestKey.SourceRelatedTags, null, sourceId],
 
@@ -84,8 +105,8 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
   return (
     <RecommendedTags
-      isLoading={isPending}
-      tags={relatedTags?.relatedTags?.tags ?? []}
+      isLoading={isPending && initialTags.length === 0}
+      tags={relatedTags?.relatedTags?.tags ?? initialTags}
     />
   );
 };
@@ -122,7 +143,11 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
   );
 };
 
-const SourcePage = ({ source }: SourcePageProps): ReactElement => {
+const SourcePage = ({
+  source,
+  relatedTags = [],
+  topPosts = [],
+}: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
@@ -180,7 +205,32 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
         )}
-        <SourceRelatedTags sourceId={source.id} />
+        {relatedTags.length > 0 && (
+          <div className="sr-only">
+            {relatedTags
+              .map((tag) => tag.name)
+              .filter((tag): tag is string => !!tag)
+              .map((tag) => (
+                <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
+                  <a>Posts about {tag}</a>
+                </Link>
+              ))}
+          </div>
+        )}
+        {topPosts.length > 0 && (
+          <div className="sr-only">
+            {topPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.slug || post.id}`}
+                prefetch={false}
+              >
+                <a>{post.title}</a>
+              </Link>
+            ))}
+          </div>
+        )}
+        <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
       </PageInfoHeader>
       <SimilarSources sourceId={source.id} />
       <ActiveFeedNameContext.Provider
@@ -285,6 +335,27 @@ export async function getStaticProps({
     }
 
     const { source } = res;
+    const [relatedTagsResult, sourceTopPostsResult] = await Promise.all([
+      gqlClient
+        .request<{ relatedTags: TagsData }>(SOURCE_RELATED_TAGS_QUERY, {
+          sourceId: source.id,
+        })
+        .catch(() => null),
+      gqlClient
+        .request<SourceTopPostsData>(SOURCE_FEED_QUERY, {
+          source: source.id,
+          first: 10,
+          ranking: 'TIME',
+          supportedTypes: baseFeedSupportedTypes,
+        })
+        .catch(() => null),
+    ]);
+    const relatedTags = relatedTagsResult?.relatedTags?.tags ?? [];
+    const topPosts =
+      sourceTopPostsResult?.page?.edges
+        ?.map((edge) => edge.node)
+        .filter((post) => !!post.title) ?? [];
+
     const seo: NextSeoProps = {
       title: `${source.name} posts on daily.dev`,
       openGraph: { ...defaultOpenGraph },
@@ -295,6 +366,8 @@ export async function getStaticProps({
     return {
       props: {
         source: res.source,
+        relatedTags,
+        topPosts,
         seo,
       },
       revalidate: 60,

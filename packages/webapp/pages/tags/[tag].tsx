@@ -338,6 +338,22 @@ const TagPage = ({
             ))}
           </div>
         )}
+        {recommendedTags.length > 0 && (
+          <div className="sr-only">
+            {recommendedTags
+              .map((relatedTag) => relatedTag.name)
+              .filter((relatedTag): relatedTag is string => !!relatedTag)
+              .map((relatedTag) => (
+                <Link
+                  key={relatedTag}
+                  href={`/tags/${relatedTag}`}
+                  prefetch={false}
+                >
+                  <a>Posts about {relatedTag}</a>
+                </Link>
+              ))}
+          </div>
+        )}
         {tag && (
           <TagRecommendedTags
             tag={tag}
