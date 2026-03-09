@@ -49,13 +49,14 @@ import {
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
+const seoTitles = getPageSeoTitles('Create post');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Create post'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   nofollow: true,
   noindex: true,
   ...defaultSeo,

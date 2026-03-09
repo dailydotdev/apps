@@ -26,7 +26,7 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../components/common';
 
 interface PageProps extends DynamicSeoProps {
@@ -116,13 +116,17 @@ export async function getStaticProps({
   const title = leaderboardTypeToTitle[leaderboardType];
   const isCompany = isCompanyLeaderboard(leaderboardType);
 
-  const getSeoProps = () => ({
-    title: getTemplatedTitle(`${title} - Developer leaderboard`),
-    openGraph: { ...defaultOpenGraph },
-    description: `Check out the top 100 ${
-      isCompany ? 'companies' : 'developers'
-    } for ${title.toLowerCase()} on daily.dev.`,
-  });
+  const getSeoProps = () => {
+    const seoTitles = getPageSeoTitles(`${title} - Developer leaderboard`);
+
+    return {
+      title: seoTitles.title,
+      openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+      description: `Check out the top 100 ${
+        isCompany ? 'companies' : 'developers'
+      } for ${title.toLowerCase()} on daily.dev.`,
+    };
+  };
 
   try {
     const query = leaderboardQueries[leaderboardType];

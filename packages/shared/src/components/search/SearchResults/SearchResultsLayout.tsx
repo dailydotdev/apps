@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import type { SearchSuggestion } from '../../../graphql/search';
 import { SearchProviderEnum } from '../../../graphql/search';
+import type { Spaciness } from '../../../graphql/settings';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -14,10 +15,11 @@ import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
-import { useFeedLayout } from '../../../hooks';
+import { useConditionalFeature, useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
+import { featureFeedLayoutV2 } from '../../../lib/featureManagement';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -27,6 +29,11 @@ export const SearchResultsLayout = (
   const { children } = props;
   const { isListMode } = useFeedLayout();
   const { spaciness } = useContext(SettingsContext);
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+  });
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2 ? 'eco' : spaciness;
+  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -103,7 +110,8 @@ export const SearchResultsLayout = (
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
-                space: spaciness,
+                space: effectiveSpaciness,
+                defaultGridGap: v2GridGap,
               }),
               isListMode
                 ? `flex flex-col`

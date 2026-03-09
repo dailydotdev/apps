@@ -72,10 +72,10 @@ export const AdList = forwardRef(function AdCard(
           <CardTitle className="!mt-0 typo-title3">
             <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
             {ad.description}
-            {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-              <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
-            ) : null}
           </CardTitle>
+          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
+            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+          ) : null}
           <AdAttribution
             ad={ad}
             className={{ main: 'mt-2 block font-normal' }}

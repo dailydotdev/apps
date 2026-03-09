@@ -9,11 +9,12 @@ import {
   mainFeedLayoutProps,
 } from '../../components/layouts/MainFeedPage';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Create feed');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Create feed'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
 };
 

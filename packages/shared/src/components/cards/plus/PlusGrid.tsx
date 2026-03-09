@@ -9,12 +9,12 @@ import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import type { MarketingCta } from '../../marketingCta/common';
 import CloseButton from '../../CloseButton';
-import { useBoot } from '../../../hooks';
+import { useBoot, usePlusPositioning } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
 
-const bulletPoints = [
+const bulletPointsControl = [
   {
     label: 'Advanced custom feeds',
     tooltip: `Build laser-focused feeds for the tools, languages, and topics you care about. Search less, learn more.`,
@@ -37,9 +37,33 @@ const bulletPoints = [
   },
 ];
 
+const bulletPointsTreatment = [
+  {
+    label: 'Agent skills for daily.dev',
+    tooltip: `Real-time dev context and continuous self-improvement for your agents.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Public API access',
+    tooltip: `Pull your feeds, bookmarks, and search results programmatically.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Presidential briefings',
+    tooltip: `A 5-minute briefing with what matters, what's worth a look, and what's hype.`,
+    status: PlusItemStatus.Ready,
+  },
+  {
+    label: 'Chat with any post using AI',
+    tooltip: `Ask questions, challenge arguments, get summaries, or pull out action items.`,
+    status: PlusItemStatus.Ready,
+  },
+];
+
 const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
+  const { isAgentPositioning } = usePlusPositioning();
 
   if (!flags) {
     return null;
@@ -63,6 +87,10 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
     });
     clearMarketingCta(campaignId);
   };
+
+  const bulletPoints = isAgentPositioning
+    ? bulletPointsTreatment
+    : bulletPointsControl;
 
   return (
     <div className="plus-entry-gradient relative overflow-hidden rounded-b-16 p-4 pb-6">

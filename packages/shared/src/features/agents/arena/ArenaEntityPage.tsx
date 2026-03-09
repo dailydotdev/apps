@@ -14,6 +14,7 @@ import { ArenaHighlightsFeed } from './ArenaHighlightsFeed';
 import { ArenaComparisonChart } from './ArenaComparisonChart';
 import { arenaOptions } from './queries';
 import type { ArenaComparisonMetric, ArenaTab } from './types';
+import type { AgentEntityOrigin } from './links';
 import {
   COMPARISON_METRIC_OPTIONS,
   computeComparisonSeries,
@@ -26,6 +27,7 @@ import {
 interface ArenaEntityPageProps {
   entityId: string;
   tab: ArenaTab;
+  origin?: AgentEntityOrigin;
 }
 
 const MetricLabel = ({
@@ -71,6 +73,7 @@ const MetricWidget = ({
 export const ArenaEntityPage = ({
   entityId,
   tab,
+  origin,
 }: ArenaEntityPageProps): ReactElement => {
   const [comparisonMetric, setComparisonMetric] =
     useState<ArenaComparisonMetric>('d-index');
@@ -126,6 +129,8 @@ export const ArenaEntityPage = ({
   const momentumText = selectedEntity
     ? `${selectedEntity.momentum > 0 ? '+' : ''}${selectedEntity.momentum}%`
     : '0%';
+  const backHref = origin === 'hub' ? '/agents' : '/agents/arena';
+  const backLabel = origin === 'hub' ? 'Back to Hub' : 'Back to Arena';
 
   if (!selectedEntity) {
     return (
@@ -147,9 +152,9 @@ export const ArenaEntityPage = ({
               </div>
             </div>
             <div className="laptop:ml-auto">
-              <Link href="/agents/arena">
+              <Link href={backHref}>
                 <a className="text-text-link typo-callout">
-                  &larr; Back to Arena
+                  &larr; {backLabel}
                 </a>
               </Link>
             </div>
@@ -176,9 +181,9 @@ export const ArenaEntityPage = ({
       </div>
 
       <nav className="sticky top-0 z-3 mt-4 flex items-center gap-2 border-b border-border-subtlest-tertiary bg-background-default px-4 py-2.5 laptop:px-6 laptopL:px-0">
-        <Link href="/agents/arena">
+        <Link href={backHref}>
           <a className="mr-1 whitespace-nowrap text-text-link typo-callout">
-            &larr; Back
+            &larr; {backLabel}
           </a>
         </Link>
         <img

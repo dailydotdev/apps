@@ -9,6 +9,7 @@ import { FilterIcon } from '../icons';
 import {
   useConditionalFeature,
   useFeeds,
+  usePlusPositioning,
   usePlusSubscription,
 } from '../../hooks';
 import type { PromptOptions } from '../../hooks/usePrompt';
@@ -37,6 +38,7 @@ export function FeedSettingsButton({
 }: ButtonProps<'button'>): ReactElement {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();
@@ -60,6 +62,9 @@ export function FeedSettingsButton({
     if (!isPlus && feed?.node.type === FeedType.Custom) {
       const subscribeToPlus = await showPrompt({
         ...editPlusSubscribePrompt,
+        description: isAgentPositioning
+          ? 'You are currently on the free version of daily.dev. Upgrade to Plus to edit feed settings and unlock API access for your agents.'
+          : editPlusSubscribePrompt.description,
         okButton: {
           ...editPlusSubscribePrompt.okButton,
           title: plusCta,

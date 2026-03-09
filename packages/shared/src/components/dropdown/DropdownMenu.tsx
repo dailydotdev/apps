@@ -23,6 +23,7 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from './common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
+import { useScrollFade } from '../../hooks/useScrollFade';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -34,6 +35,7 @@ interface DropdownMenuContentProps
   children: ReactNode;
   className?: string;
   align?: 'start' | 'center' | 'end';
+  variant?: 'action' | 'field';
 }
 
 export const DropdownMenuTrigger = React.forwardRef<
@@ -100,24 +102,49 @@ DropdownMenu.displayName = 'DropdownMenu';
 export const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
   DropdownMenuContentProps
->(({ children, className, align = 'end', ...props }, forwardedRef) => {
-  const { isCompanion } = useRequestProtocol();
-  const container = isCompanion ? getCompanionWrapper() : undefined;
-  return (
-    <DropdownMenuPortal container={container}>
-      <DropdownMenuContentRoot
-        {...props}
-        ref={forwardedRef}
-        className={classNames('DropdownMenuContent overflow-hidden', className)}
-        align={align}
-      >
-        <div className="DropdownMenuScrollable max-h-72 overflow-y-auto bg-inherit">
-          {children}
-        </div>
-      </DropdownMenuContentRoot>
-    </DropdownMenuPortal>
-  );
-});
+>(
+  (
+    {
+      children,
+      className,
+      align = 'end',
+      collisionPadding,
+      sideOffset,
+      variant = 'action',
+      ...props
+    },
+    forwardedRef,
+  ) => {
+    const { isCompanion } = useRequestProtocol();
+    const container = isCompanion ? getCompanionWrapper() : undefined;
+    const scrollFadeRef = useScrollFade<HTMLDivElement>();
+    return (
+      <DropdownMenuPortal container={container}>
+        <DropdownMenuContentRoot
+          {...props}
+          ref={forwardedRef}
+          className={classNames(
+            'DropdownMenuContent overflow-hidden',
+            variant === 'field'
+              ? 'DropdownMenuContentField'
+              : 'DropdownMenuContentAction',
+            className,
+          )}
+          align={align}
+          sideOffset={sideOffset ?? (variant === 'action' ? 6 : undefined)}
+          collisionPadding={collisionPadding ?? 24}
+        >
+          <div
+            ref={scrollFadeRef}
+            className="DropdownMenuScrollable max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto bg-inherit"
+          >
+            {children}
+          </div>
+        </DropdownMenuContentRoot>
+      </DropdownMenuPortal>
+    );
+  },
+);
 
 DropdownMenuContent.displayName = 'DropdownMenuContent';
 

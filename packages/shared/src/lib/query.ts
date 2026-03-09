@@ -54,6 +54,7 @@ export enum OtherFeedPage {
   SourcePage = 'sources[source]',
   SourceMostUpvoted = 'sources[source]/most-upvoted',
   SourceBestDiscussed = 'sources[source]/best-discussed',
+  TagsTopPosts = 'tags[tag]/top-posts',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
   Explore = 'posts',
@@ -65,6 +66,7 @@ export enum OtherFeedPage {
   Discussed = 'discussed',
   Following = 'following',
   Post = 'posts[id]',
+  AgentsVibes = 'agents-vibes',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -211,6 +213,7 @@ export enum RequestKey {
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
   NotificationSettings = 'notification_settings',
+  UserFeedback = 'user_feedback',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
@@ -250,6 +253,7 @@ export enum RequestKey {
   GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
+  UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   Arena = 'arena',
