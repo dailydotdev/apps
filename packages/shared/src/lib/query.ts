@@ -253,6 +253,7 @@ export enum RequestKey {
   GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
+  UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   Arena = 'arena',
