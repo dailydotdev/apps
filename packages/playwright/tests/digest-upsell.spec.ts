@@ -34,8 +34,7 @@ test.describe('Digest Upsell Banners', () => {
   }) => {
     await page.goto('/notifications');
 
-    // The banner should be visible if the user is non-Plus and has no digest
-    const banner = page.getByText('Get your personalized digest');
+    const banner = page.getByText('Get the must-read posts delivered daily');
     const enableButton = page.getByRole('button', { name: 'Enable digest' });
 
     // If the banner is visible, verify its structure
@@ -54,8 +53,9 @@ test.describe('Digest Upsell Banners', () => {
   }) => {
     await page.goto('/bookmarks');
 
-    // The banner should be visible if the user is non-Plus and has no digest
-    const banner = page.getByText('Never miss the best posts');
+    const banner = page.getByText(
+      'Not sure what to read? Let us pick for you',
+    );
     const enableButton = page.getByRole('button', { name: 'Enable digest' });
 
     // If the banner is visible, verify its structure
@@ -74,7 +74,7 @@ test.describe('Digest Upsell Banners', () => {
   }) => {
     await page.goto('/notifications');
 
-    const banner = page.getByText('Get your personalized digest');
+    const banner = page.getByText('Get the must-read posts delivered daily');
 
     // Only test dismiss if banner is visible (user is eligible)
     if (await banner.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -90,7 +90,9 @@ test.describe('Digest Upsell Banners', () => {
   }) => {
     await page.goto('/bookmarks');
 
-    const banner = page.getByText('Never miss the best posts');
+    const banner = page.getByText(
+      'Not sure what to read? Let us pick for you',
+    );
 
     // Only test dismiss if banner is visible (user is eligible)
     if (await banner.isVisible({ timeout: 5000 }).catch(() => false)) {

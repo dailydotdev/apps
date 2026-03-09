@@ -164,7 +164,7 @@ describe('DigestUpsellBanner', () => {
     });
   });
 
-  it('should log dismiss and complete action on dismiss', () => {
+  it('should log dismiss and complete action on dismiss', async () => {
     renderComponent();
 
     const closeButton = screen.getByRole('button', { name: 'Close' });
@@ -175,6 +175,25 @@ describe('DigestUpsellBanner', () => {
       target_id: TargetId.DigestUpsell,
       extra: JSON.stringify({ action: 'dismiss' }),
     });
-    expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
+    await waitFor(() => {
+      expect(mockCompleteAction).toHaveBeenCalledWith(ActionType.DigestUpsell);
+    });
+  });
+
+  it('should show error toast when subscribe fails', async () => {
+    mockSubscribePersonalizedDigest.mockRejectedValueOnce(
+      new Error('API error'),
+    );
+
+    renderComponent();
+
+    fireEvent.click(screen.getByText('Enable digest'));
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Failed to enable digest. Please try again in settings.',
+      );
+    });
+    expect(mockCompleteAction).not.toHaveBeenCalled();
   });
 });

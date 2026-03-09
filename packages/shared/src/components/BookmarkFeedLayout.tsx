@@ -254,6 +254,7 @@ export default function BookmarkFeedLayout({
           />
         )}
       </div>
+      {/* Digest upsell only shown when bookmarks are empty to engage new/inactive users */}
       {!plusEntryBookmark && isEmptyFeed && <DigestBookmarkBanner />}
       {tokenRefreshed && (isSearchResults || loadedSort) && (
         <Feed {...feedProps} onEmptyFeed={onEmptyFeed} />

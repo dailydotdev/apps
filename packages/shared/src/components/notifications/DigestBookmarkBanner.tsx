@@ -60,37 +60,41 @@ export function DigestBookmarkBanner(): ReactElement | null {
       target_id: TargetId.DigestUpsellBookmarks,
     });
 
-    await subscribePersonalizedDigest({
-      hour: 9,
-      sendType: SendType.Workdays,
-      type: UserPersonalizedDigestType.Digest,
-    });
+    try {
+      await subscribePersonalizedDigest({
+        hour: 9,
+        sendType: SendType.Workdays,
+        type: UserPersonalizedDigestType.Digest,
+      });
 
-    setNotificationStatusBulk([
-      {
-        type: NotificationType.BriefingReady,
-        channel: 'email',
-        status: NotificationPreferenceStatus.Subscribed,
-      },
-      {
-        type: NotificationType.DigestReady,
-        channel: 'inApp',
-        status: NotificationPreferenceStatus.Subscribed,
-      },
-    ]);
+      setNotificationStatusBulk([
+        {
+          type: NotificationType.BriefingReady,
+          channel: 'email',
+          status: NotificationPreferenceStatus.Subscribed,
+        },
+        {
+          type: NotificationType.DigestReady,
+          channel: 'inApp',
+          status: NotificationPreferenceStatus.Subscribed,
+        },
+      ]);
 
-    await completeAction(ActionType.DigestUpsell);
+      await completeAction(ActionType.DigestUpsell);
 
-    displayToast('Digest enabled! Check your inbox tomorrow.');
+      displayToast('Digest enabled! Check your inbox tomorrow.');
+    } catch {
+      displayToast('Failed to enable digest. Please try again in settings.');
+    }
   };
 
-  const onDismiss = () => {
+  const onDismiss = async () => {
     logEvent({
       event_name: LogEvent.Click,
       target_id: TargetId.DigestUpsellBookmarks,
       extra: JSON.stringify({ action: 'dismiss' }),
     });
-    completeAction(ActionType.DigestUpsell);
+    await completeAction(ActionType.DigestUpsell);
   };
 
   return (
