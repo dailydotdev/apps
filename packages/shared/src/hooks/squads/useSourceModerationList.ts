@@ -74,24 +74,22 @@ export interface UseSourceModerationList {
 }
 
 const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
-  return data.map<Post>((item) => {
-    if (!item.type) {
-      throw new Error('Source post moderation type is required');
+  return data.flatMap<Post>((item) => {
+    if (!item.type || !item.image) {
+      return [];
     }
 
-    if (!item.image) {
-      throw new Error('Source post moderation image is required');
-    }
-
-    return {
-      id: item.id,
-      source: item.source,
-      type: item.type,
-      image: item.image,
-      commentsPermalink: '',
-      author: item.createdBy,
-      createdAt: item.createdAt,
-    };
+    return [
+      {
+        id: item.id,
+        source: item.source,
+        type: item.type,
+        image: item.image,
+        commentsPermalink: '',
+        author: item.createdBy,
+        createdAt: item.createdAt,
+      },
+    ];
   });
 };
 
