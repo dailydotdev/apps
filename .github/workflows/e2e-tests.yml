@@ -52,6 +52,7 @@ jobs:
 
     - name: Validate base URL
       if: github.event_name == 'workflow_dispatch'
+      shell: bash
       run: |
         URL="${{ inputs.base_url }}"
         if [[ ! "$URL" =~ ^https://([a-zA-Z0-9-]+\.)*app\.daily\.dev(/.*)?$ ]]; then
@@ -75,7 +76,7 @@ jobs:
         retention-days: 30
 
     - name: Report Status
-      if: always() && github.run_attempt == 1
+      if: always() && github.run_attempt == 1 && github.event_name != 'workflow_dispatch'
       uses: ravsamhq/notify-slack-action@v1
       with:
         status: ${{ job.status }}
