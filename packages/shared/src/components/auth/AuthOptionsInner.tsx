@@ -124,6 +124,7 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  showExperienceLevelOnEmailSignup = false,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -554,6 +555,7 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            showExperienceLevelOnEmailSignup={showExperienceLevelOnEmailSignup}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration

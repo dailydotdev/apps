@@ -130,4 +130,5 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
+  showExperienceLevelOnEmailSignup?: boolean;
 }

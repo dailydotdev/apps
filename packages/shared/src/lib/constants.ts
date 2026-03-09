@@ -55,7 +55,7 @@ export const isChrome = (): boolean =>
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
 export const onboardingUrl = `${webappUrl}onboarding`;
-export const onboardingV2Path = '/onboarding-v2';
+export const onboardingV2Path = '/onboarding';
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';
 export const plusDetailsUrl = 'https://r.daily.dev/plus-onboarding';

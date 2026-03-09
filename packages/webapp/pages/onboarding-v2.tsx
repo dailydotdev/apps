@@ -23,6 +23,7 @@ import {
   downloadBrowserExtension,
   mobileAppUrl,
 } from '@dailydotdev/shared/src/lib/constants';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import {
@@ -41,14 +42,18 @@ import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AuthDisplay,
+  SocialProvider,
+} from '@dailydotdev/shared/src/components/auth/common';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getTemplatedTitle } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Onboarding V2'),
+  title: getTemplatedTitle('Get started'),
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
   noindex: true,
@@ -157,13 +162,23 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
+type AuthSignupSource = 'default' | 'ai';
+type AiAuthMethod = 'unknown' | 'email' | 'social';
+type AiPromptSyncPhase = 'idle' | 'pending' | 'complete';
 type GithubImportBodyPhase = 'checklist' | 'seniority' | 'default';
+type AuthSuccessContext = { provider?: string | null; accessToken?: string };
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
   { label: 'Matching interests', threshold: 30 },
   { label: 'Mapping your stack', threshold: 46 },
   { label: 'Inferring seniority', threshold: 68 },
+  { label: 'Building your feed', threshold: 95 },
+];
+const AI_IMPORT_STEPS_WITHOUT_SENIORITY = [
+  { label: 'Analyzing your profile', threshold: 12 },
+  { label: 'Matching interests', threshold: 30 },
+  { label: 'Mapping your stack', threshold: 46 },
   { label: 'Building your feed', threshold: 95 },
 ];
 
@@ -241,6 +256,7 @@ const OnboardingV2Page = (): ReactElement => {
   const router = useRouter();
   const { showLogin } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
+  const { displayToast } = useToastNotification();
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tagsReady, setTagsReady] = useState(false);
@@ -252,9 +268,15 @@ const OnboardingV2Page = (): ReactElement => {
   const [feedReadyState, setFeedReadyState] = useState(false);
   const [showExtensionPromo, setShowExtensionPromo] = useState(false);
   const [showAuthSignup, setShowAuthSignup] = useState(false);
+  const [authSignupSource, setAuthSignupSource] =
+    useState<AuthSignupSource>('default');
+  const [aiAuthMethod, setAiAuthMethod] = useState<AiAuthMethod>('unknown');
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [showSignupChooser, setShowSignupChooser] = useState(false);
   const [showGithubImportFlow, setShowGithubImportFlow] = useState(false);
+  const [aiPromptSyncPhase, setAiPromptSyncPhase] =
+    useState<AiPromptSyncPhase>('idle');
+  const [skipAiSeniorityStep, setSkipAiSeniorityStep] = useState(false);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
   const [githubImportPhase, setGithubImportPhase] =
@@ -267,6 +289,8 @@ const OnboardingV2Page = (): ReactElement => {
     number | null
   >(null);
   const [githubImportExiting, setGithubImportExiting] = useState(false);
+  const [isGithubTagImportLoading, setIsGithubTagImportLoading] =
+    useState(false);
   const [signupContext, setSignupContext] = useState<
     'topics' | 'github' | 'ai' | 'manual' | null
   >(null);
@@ -282,6 +306,7 @@ const OnboardingV2Page = (): ReactElement => {
   const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
   const authFormRef = useRef<HTMLFormElement>(null);
   const importFlowSourceRef = useRef<ImportFlowSource>('github');
+  const githubTagImportAbortRef = useRef<AbortController | null>(null);
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -324,6 +349,14 @@ const OnboardingV2Page = (): ReactElement => {
     githubResumeTimeoutRef.current = null;
   }, []);
 
+  const cancelGithubTagImportRequest = useCallback(() => {
+    if (!githubTagImportAbortRef.current) {
+      return;
+    }
+    githubTagImportAbortRef.current.abort();
+    githubTagImportAbortRef.current = null;
+  }, []);
+
   const startImportFlow = useCallback(
     (source: ImportFlowSource) => {
       clearGithubImportTimer();
@@ -338,24 +371,68 @@ const OnboardingV2Page = (): ReactElement => {
     [clearGithubImportTimer, clearGithubResumeTimeout, setImportFlowSource],
   );
 
-  const startGithubImportFlow = useCallback(() => {
-    startImportFlow('github');
-  }, [startImportFlow]);
-
   const closeGithubImportFlow = useCallback(() => {
+    cancelGithubTagImportRequest();
     clearGithubImportTimer();
     clearGithubResumeTimeout();
+    setIsGithubTagImportLoading(false);
     setShowGithubImportFlow(false);
     setGithubImportExiting(false);
     setSelectedExperienceLevel(null);
     setGithubImportProgress(0);
     setGithubImportPhase('idle');
+    setSkipAiSeniorityStep(false);
+    setAiPromptSyncPhase('idle');
     setImportFlowSource('github');
-  }, [clearGithubImportTimer, clearGithubResumeTimeout]);
+  }, [
+    cancelGithubTagImportRequest,
+    clearGithubImportTimer,
+    clearGithubResumeTimeout,
+  ]);
 
   const startAiProcessing = useCallback(() => {
     startImportFlow('ai');
   }, [startImportFlow]);
+
+  const syncAiOnboardingPrompt = useCallback(async () => {
+    const onboardingPrompt =
+      aiPrompt.trim() || Array.from(selectedTopics).join(', ');
+
+    if (!onboardingPrompt) {
+      setAiPromptSyncPhase('complete');
+      return;
+    }
+
+    setAiPromptSyncPhase('pending');
+    try {
+      const response = await fetch(
+        `${apiUrl}/integrations/onboarding/profile-tags`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            onboardingPrompt,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to sync onboarding profile tags');
+      }
+    } catch {
+      // Continue onboarding even if profile-tag extraction fails.
+    } finally {
+      setAiPromptSyncPhase('complete');
+    }
+  }, [aiPrompt, selectedTopics]);
+
+  const startAiProcessingAfterAuth = useCallback(() => {
+    startAiProcessing();
+    syncAiOnboardingPrompt();
+  }, [startAiProcessing, syncAiOnboardingPrompt]);
 
   const handleExperienceLevelSelect = useCallback(
     (level: keyof typeof UserExperienceLevel) => {
@@ -548,10 +625,15 @@ const OnboardingV2Page = (): ReactElement => {
 
   useEffect(() => {
     return () => {
+      cancelGithubTagImportRequest();
       clearGithubImportTimer();
       clearGithubResumeTimeout();
     };
-  }, [clearGithubImportTimer, clearGithubResumeTimeout]);
+  }, [
+    cancelGithubTagImportRequest,
+    clearGithubImportTimer,
+    clearGithubResumeTimeout,
+  ]);
 
   useEffect(() => {
     if (!feedReadyState) {
@@ -580,15 +662,31 @@ const OnboardingV2Page = (): ReactElement => {
 
     githubImportTimerRef.current = window.setInterval(() => {
       setGithubImportProgress((prev) => {
-        const increment = githubImportPhase === 'running' ? 2 : 3;
-        const next = Math.min(100, prev + increment);
+        if (githubImportPhase === 'running') {
+          if (importFlowSourceRef.current === 'ai') {
+            const next = Math.min(94, prev + 2);
+            if (next >= 94) {
+              clearGithubImportTimer();
+              return 94;
+            }
+            return next;
+          }
 
-        if (githubImportPhase === 'running' && next >= 68) {
-          clearGithubImportTimer();
-          setGithubImportPhase('awaitingSeniority');
-          return 68;
+          const next = Math.min(100, prev + 2);
+          if (isGithubTagImportLoading) {
+            return Math.min(next, 94);
+          }
+
+          if (next >= 68) {
+            clearGithubImportTimer();
+            setGithubImportPhase('awaitingSeniority');
+            return 68;
+          }
+
+          return next;
         }
 
+        const next = Math.min(100, prev + 3);
         if (githubImportPhase === 'finishing' && next >= 100) {
           clearGithubImportTimer();
           setGithubImportPhase('complete');
@@ -597,12 +695,7 @@ const OnboardingV2Page = (): ReactElement => {
             setTimeout(() => {
               setShowGithubImportFlow(false);
               setGithubImportExiting(false);
-              if (importFlowSourceRef.current === 'ai') {
-                setAuthDisplay(AuthDisplay.OnboardingSignup);
-                setShowAuthSignup(true);
-              } else {
-                setShowExtensionPromo(true);
-              }
+              setShowExtensionPromo(true);
             }, 350);
           }, 600);
           return 100;
@@ -615,7 +708,33 @@ const OnboardingV2Page = (): ReactElement => {
     return () => {
       clearGithubImportTimer();
     };
-  }, [clearGithubImportTimer, githubImportPhase, showGithubImportFlow]);
+  }, [
+    clearGithubImportTimer,
+    githubImportPhase,
+    importFlowSource,
+    isGithubTagImportLoading,
+    showGithubImportFlow,
+  ]);
+
+  useEffect(() => {
+    if (!showGithubImportFlow || importFlowSource !== 'ai') {
+      return;
+    }
+    if (githubImportPhase !== 'running') {
+      return;
+    }
+    if (githubImportProgress < 94 || aiPromptSyncPhase !== 'complete') {
+      return;
+    }
+
+    setGithubImportPhase('finishing');
+  }, [
+    aiPromptSyncPhase,
+    githubImportPhase,
+    githubImportProgress,
+    importFlowSource,
+    showGithubImportFlow,
+  ]);
 
   useEffect(() => {
     if (!feedVisible) {
@@ -911,7 +1030,9 @@ const OnboardingV2Page = (): ReactElement => {
           });
 
           const currentVal = parseCount(counter.textContent || '') || 0;
-          counter.textContent = formatCount(currentVal + inc);
+          const nextVal = currentVal + inc;
+          const nextLabel = formatCount(nextVal);
+          counter.textContent = nextLabel;
 
           const laneShift = idx * 1.2;
 
@@ -920,7 +1041,7 @@ const OnboardingV2Page = (): ReactElement => {
           floater.style.color = color;
           floater.style.left = '0';
           floater.style.bottom = `calc(100% + ${laneShift}rem)`;
-          floater.textContent = `+${inc}`;
+          floater.textContent = nextLabel;
           floaterAnchor.appendChild(floater);
           activeFloaters.add(floater);
 
@@ -1036,8 +1157,77 @@ const OnboardingV2Page = (): ReactElement => {
   }, []);
   const closeAuthSignup = useCallback(() => {
     setShowAuthSignup(false);
+    setAuthSignupSource('default');
+    setAiAuthMethod('unknown');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, []);
+  const finishGithubImportFlow = useCallback(() => {
+    setGithubImportProgress((prev) => Math.max(prev, 95));
+    setGithubImportPhase('finishing');
+  }, []);
+  const importGithubTagsAndSubscribe = useCallback(
+    async (context?: AuthSuccessContext) => {
+      closeAuthSignup();
+      startImportFlow('github');
+
+      const githubPersonalToken = context?.accessToken;
+      if (!githubPersonalToken) {
+        displayToast(
+          'We could not import your GitHub tags right now. Your feed is still ready.',
+        );
+        finishGithubImportFlow();
+        return;
+      }
+
+      cancelGithubTagImportRequest();
+      const abortController = new AbortController();
+      githubTagImportAbortRef.current = abortController;
+      setIsGithubTagImportLoading(true);
+
+      let shouldFinishFlow = true;
+      try {
+        const response = await fetch(
+          `${apiUrl}/integrations/github/profile-tags`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ githubPersonalToken }),
+            signal: abortController.signal,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to import GitHub tags: ${response.status} ${response.statusText}`,
+          );
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          shouldFinishFlow = false;
+        } else {
+          displayToast(
+            'We could not import your GitHub tags right now. Your feed is still ready.',
+          );
+        }
+      } finally {
+        if (githubTagImportAbortRef.current === abortController) {
+          githubTagImportAbortRef.current = null;
+        }
+        setIsGithubTagImportLoading(false);
+        if (shouldFinishFlow) {
+          finishGithubImportFlow();
+        }
+      }
+    },
+    [
+      cancelGithubTagImportRequest,
+      closeAuthSignup,
+      displayToast,
+      finishGithubImportFlow,
+      startImportFlow,
+    ],
+  );
   const openLogin = useCallback(() => {
     showLogin({
       trigger: AuthTriggers.MainButton,
@@ -1047,38 +1237,73 @@ const OnboardingV2Page = (): ReactElement => {
   const openSignupAuth = useCallback(() => {
     setShowSignupPrompt(false);
     setShowSignupChooser(false);
+    setAuthSignupSource('default');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setShowAuthSignup(true);
   }, []);
+  const openGithubSignupAuth = useCallback(() => {
+    openSignupAuth();
+  }, [openSignupAuth]);
   const isAiSetupContext = signupContext === 'ai' || signupContext === 'manual';
   const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
-  const startGithubFlowFromChooser = useCallback(() => {
-    setShowSignupChooser(false);
-    startGithubImportFlow();
-  }, [startGithubImportFlow]);
-  const startAiFlowFromChooser = useCallback(() => {
-    if (!canStartAiFlow) {
-      return;
-    }
-    setShowSignupChooser(false);
-    startAiProcessing();
-  }, [canStartAiFlow, startAiProcessing]);
-  const startAiFlowFromSignup = useCallback(() => {
+  const openAiSignupAuth = useCallback(() => {
     if (!canStartAiFlow) {
       return;
     }
     setShowSignupPrompt(false);
-    startAiProcessing();
-  }, [canStartAiFlow, startAiProcessing]);
+    setShowSignupChooser(false);
+    setAuthSignupSource('ai');
+    setAiAuthMethod('unknown');
+    setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setShowAuthSignup(true);
+  }, [canStartAiFlow]);
+  const startAiFlowFromChooser = useCallback(() => {
+    openAiSignupAuth();
+  }, [openAiSignupAuth]);
+  const startAiFlowFromSignup = useCallback(() => {
+    openAiSignupAuth();
+  }, [openAiSignupAuth]);
+  const handleAuthSuccess = useCallback(
+    (context?: AuthSuccessContext) => {
+      const shouldRunAiFlow = authSignupSource === 'ai';
+      const usedEmailSignup = shouldRunAiFlow && aiAuthMethod === 'email';
+
+      if (shouldRunAiFlow) {
+        closeAuthSignup();
+        setSkipAiSeniorityStep(usedEmailSignup);
+        startAiProcessingAfterAuth();
+        return;
+      }
+
+      setSkipAiSeniorityStep(false);
+      if (context?.provider === SocialProvider.GitHub) {
+        importGithubTagsAndSubscribe(context).catch(() => null);
+        return;
+      }
+
+      closeAuthSignup();
+      setShowExtensionPromo(true);
+    },
+    [
+      aiAuthMethod,
+      authSignupSource,
+      closeAuthSignup,
+      importGithubTagsAndSubscribe,
+      startAiProcessingAfterAuth,
+    ],
+  );
 
   const panelLift = Math.round(panelStageProgress * 60);
   const panelRevealOffset = panelVisible ? 40 : 120;
   const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
-  const importSteps = useMemo(
-    () =>
-      importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS,
-    [importFlowSource],
-  );
+  const importSteps = useMemo(() => {
+    if (importFlowSource === 'github') {
+      return GITHUB_IMPORT_STEPS;
+    }
+    return skipAiSeniorityStep
+      ? AI_IMPORT_STEPS_WITHOUT_SENIORITY
+      : AI_IMPORT_STEPS;
+  }, [importFlowSource, skipAiSeniorityStep]);
   const currentImportStep = useMemo(() => {
     if (githubImportPhase === 'awaitingSeniority') {
       return 'Waiting for your seniority level';
@@ -1290,7 +1515,7 @@ const OnboardingV2Page = (): ReactElement => {
               <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
               <button
                 type="button"
-                onClick={startGithubImportFlow}
+                onClick={openGithubSignupAuth}
                 className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <svg
@@ -1909,7 +2134,7 @@ const OnboardingV2Page = (): ReactElement => {
                             <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                             <button
                               type="button"
-                              onClick={startGithubImportFlow}
+                              onClick={openGithubSignupAuth}
                               className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
                             >
                               <svg
@@ -1985,9 +2210,7 @@ const OnboardingV2Page = (): ReactElement => {
                                   return;
                                 }
                                 e.preventDefault();
-                                if (aiPrompt.trim()) {
-                                  startAiProcessing();
-                                }
+                                openAiSignupAuth();
                               }}
                               rows={4}
                               placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
@@ -2048,7 +2271,7 @@ const OnboardingV2Page = (): ReactElement => {
                               disabled={
                                 !aiPrompt.trim() && selectedTopics.size === 0
                               }
-                              onClick={() => startAiProcessing()}
+                              onClick={openAiSignupAuth}
                               className={classNames(
                                 'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
                                 aiPrompt.trim() || selectedTopics.size > 0
@@ -3451,7 +3674,7 @@ const OnboardingV2Page = (): ReactElement => {
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
-                      onClick={startGithubFlowFromChooser}
+                      onClick={openGithubSignupAuth}
                       className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
                     >
                       <svg
@@ -3654,10 +3877,14 @@ const OnboardingV2Page = (): ReactElement => {
               {authDisplay === AuthDisplay.OnboardingSignup && (
                 <>
                   <h2 className="mb-2 text-center font-bold text-text-primary typo-title2">
-                    Create your account
+                    {authSignupSource === 'ai'
+                      ? 'Choose a login method'
+                      : 'Create your account'}
                   </h2>
                   <p className="mb-6 text-center text-text-tertiary typo-callout">
-                    Sign up to save your personalized feed.
+                    {authSignupSource === 'ai'
+                      ? 'Continue with GitHub, Google, or email/password.'
+                      : 'Sign up to save your personalized feed.'}
                   </p>
                 </>
               )}
@@ -3667,19 +3894,30 @@ const OnboardingV2Page = (): ReactElement => {
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                showExperienceLevelOnEmailSignup={authSignupSource === 'ai'}
                 className={{ container: '!min-h-0' }}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
+                    if (authSignupSource === 'ai') {
+                      if (
+                        props.defaultDisplay === AuthDisplay.Registration ||
+                        props.defaultDisplay === AuthDisplay.EmailVerification
+                      ) {
+                        setAiAuthMethod('email');
+                      } else if (
+                        props.defaultDisplay === AuthDisplay.SocialRegistration
+                      ) {
+                        setAiAuthMethod('social');
+                      }
+                    }
                   }
                 }}
                 onSuccessfulRegistration={() => {
-                  closeAuthSignup();
-                  setShowExtensionPromo(true);
+                  handleAuthSuccess();
                 }}
                 onSuccessfulLogin={() => {
-                  closeAuthSignup();
-                  setShowExtensionPromo(true);
+                  handleAuthSuccess();
                 }}
               />
             </div>
@@ -4500,9 +4738,7 @@ const OnboardingV2Page = (): ReactElement => {
                           return;
                         }
                         e.preventDefault();
-                        if (aiPrompt.trim()) {
-                          startAiFlowFromSignup();
-                        }
+                        startAiFlowFromSignup();
                       }}
                       rows={4}
                       placeholder="I'm a frontend engineer using React and TypeScript. Interested in system design, performance, and AI tooling..."
@@ -4558,7 +4794,7 @@ const OnboardingV2Page = (): ReactElement => {
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
-                    onClick={openSignupAuth}
+                    onClick={openGithubSignupAuth}
                   >
                     <svg
                       width="20"

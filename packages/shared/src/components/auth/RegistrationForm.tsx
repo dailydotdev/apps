@@ -51,6 +51,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   onExistingEmailLoginClick?: () => void;
   onBackToIntro?: () => void;
   targetId?: string;
+  showExperienceLevelOnEmailSignup?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -71,6 +72,7 @@ const RegistrationForm = ({
   onUpdateHints,
   simplified,
   targetId,
+  showExperienceLevelOnEmailSignup = false,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -82,7 +84,8 @@ const RegistrationForm = ({
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
   const hideExperienceLevel =
-    isRecruiterOnboarding || trigger === AuthTriggers.Onboarding;
+    isRecruiterOnboarding ||
+    (trigger === AuthTriggers.Onboarding && !showExperienceLevelOnEmailSignup);
   const {
     username,
     setUsername,
