@@ -60,6 +60,7 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
 
@@ -285,10 +286,14 @@ export async function getStaticProps({
     }
 
     const { source } = res;
+    const seoTitles = getPageSeoTitles(`${source.name} posts`);
     const seo: NextSeoProps = {
-      title: `${source.name} posts on daily.dev`,
-      openGraph: { ...defaultOpenGraph },
       ...defaultSeo,
+      ...seoTitles,
+      openGraph: {
+        ...defaultOpenGraph,
+        ...seoTitles.openGraph,
+      },
       description: source?.description || defaultSeo.description,
     };
 
