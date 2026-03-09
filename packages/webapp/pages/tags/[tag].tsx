@@ -26,6 +26,10 @@ import {
   TAG_FEED_QUERY,
   TAG_TOP_POSTS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
+} from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
@@ -81,22 +85,8 @@ const appOrigin = getAppOrigin();
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
   initialData: Keyword | null;
-  topPosts: TagTopPost[];
+  topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
-}
-
-interface TagTopPost {
-  id: string;
-  title?: string;
-  slug?: string;
-}
-
-interface TagTopPostsData {
-  page?: {
-    edges?: {
-      node: TagTopPost;
-    }[];
-  };
 }
 
 interface TagRecommendedTagsProps {
@@ -173,7 +163,7 @@ const getTagPageJsonLd = ({
 }: {
   tag: string;
   initialData: Keyword;
-  topPosts: TagTopPost[];
+  topPosts: TopPost[];
 }): string => {
   const encodedTag = encodeURIComponent(tag);
   const tagTitle = initialData.flags?.title || tag;
@@ -422,6 +412,22 @@ const TagPage = ({
             ))}
           </div>
         )}
+        {recommendedTags.length > 0 && (
+          <div className="sr-only">
+            {recommendedTags
+              .map((relatedTag) => relatedTag.name)
+              .filter((relatedTag): relatedTag is string => !!relatedTag)
+              .map((relatedTag) => (
+                <Link
+                  key={relatedTag}
+                  href={`/tags/${relatedTag}`}
+                  prefetch={false}
+                >
+                  <a>Posts about {relatedTag}</a>
+                </Link>
+              ))}
+          </div>
+        )}
         {tag && (
           <TagRecommendedTags
             tag={tag}
@@ -597,7 +603,7 @@ export async function getStaticProps({
           value: tag,
         }),
         gqlClient
-          .request<TagTopPostsData>(TAG_TOP_POSTS_QUERY, {
+          .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
             tag,
             first: 10,
           })
