@@ -4,10 +4,18 @@ on:
   repository_dispatch:
     types:
       - 'vercel.deployment.success'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Target URL (e.g. https://xyz.preview.app.daily.dev)'
+        required: true
+        type: string
 
 jobs:
   e2e-tests:
-    if: github.event_name == 'repository_dispatch' && github.event.client_payload.git.ref == 'main'
+    if: >-
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.git.ref == 'main') ||
+      github.event_name == 'workflow_dispatch'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     container:
@@ -42,10 +50,20 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Validate base URL
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        URL="${{ inputs.base_url }}"
+        if [[ ! "$URL" =~ ^https://([a-zA-Z0-9-]+\.)*app\.daily\.dev(/.*)?$ ]]; then
+          echo "::error::Invalid URL. Must be an app.daily.dev URL (e.g. https://app.daily.dev or https://xyz.preview.app.daily.dev)"
+          exit 1
+        fi
+
     - name: Run Playwright tests
       env:
         USER_NAME: ${{ secrets.USER_NAME }}
         PASSWORD: ${{ secrets.PASSWORD }}
+        BASE_URL: ${{ inputs.base_url || 'https://app.daily.dev' }}
       run: pnpm test:e2e
 
     - name: Upload Playwright Report
