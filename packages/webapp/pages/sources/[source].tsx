@@ -141,7 +141,9 @@ const getSourcePageJsonLd = (source: Source): string => {
         '@id': `${sourcePageUrl}#organization`,
         name: source.name,
         url: sourceUrl,
-        ...(source.image && { logo: source.image }),
+        ...(source.image && {
+          logo: { '@type': 'ImageObject', url: source.image },
+        }),
         ...(source.description && { description: source.description }),
       },
       {
@@ -149,6 +151,7 @@ const getSourcePageJsonLd = (source: Source): string => {
         '@id': `${sourcePageUrl}#page`,
         url: sourcePageUrl,
         name: `${source.name} posts on daily.dev`,
+        ...(source.description && { description: source.description }),
         about: { '@id': `${sourcePageUrl}#organization` },
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },

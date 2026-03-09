@@ -192,17 +192,21 @@ const getTagPageJsonLd = ({
         description: tagDescription,
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
-      {
-        '@type': 'ItemList',
-        '@id': `${tagUrl}#items`,
-        numberOfItems: topPosts.length,
-        itemListElement: topPosts.map((post, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          url: `${appOrigin}/posts/${post.slug || post.id}`,
-          name: post.title || '',
-        })),
-      },
+      ...(topPosts.length
+        ? [
+            {
+              '@type': 'ItemList',
+              '@id': `${tagUrl}#items`,
+              numberOfItems: topPosts.length,
+              itemListElement: topPosts.map((post, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                url: `${appOrigin}/posts/${post.slug || post.id}`,
+                name: post.title || '',
+              })),
+            },
+          ]
+        : []),
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
