@@ -19,11 +19,12 @@ const betterAuthPost = async <T = Record<string, unknown>>(
   path: string,
   body?: Record<string, unknown>,
   fallbackError = 'Request failed',
+  headers?: Record<string, string>,
 ): Promise<BetterAuthResult<T>> => {
   const res = await fetch(`${apiUrl}/a/auth/${path}`, {
     method: 'POST',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
     ...(body && { body: JSON.stringify(body) }),
   });
 
@@ -56,15 +57,18 @@ export const betterAuthSignUp = async ({
   name,
   email,
   password,
+  turnstileToken,
 }: {
   name: string;
   email: string;
   password: string;
+  turnstileToken?: string;
 }): Promise<BetterAuthResponse> => {
   return betterAuthPost(
     'sign-up/email',
     { name, email, password },
     'Sign up failed',
+    turnstileToken ? { 'x-turnstile-token': turnstileToken } : undefined,
   );
 };
 

@@ -255,6 +255,7 @@ const useRegistration = ({
       name: string;
       email: string;
       password: string;
+      turnstileToken?: string;
     }) => {
       logEvent({
         event_name: 'click',
@@ -302,12 +303,18 @@ const useRegistration = ({
     },
   });
 
-  const onValidateRegistration = async (values: RegistrationParameters) => {
+  const onValidateRegistration = async (
+    values: RegistrationParameters & {
+      headers?: Record<string, string>;
+    },
+  ) => {
     if (isBetterAuth) {
+      const turnstileToken = values.headers?.['True-Client-Ip'];
       await betterAuthRegister({
         name: values['traits.name'] as string,
         email: values['traits.email'] as string,
         password: values.password as string,
+        turnstileToken,
       });
       return;
     }
