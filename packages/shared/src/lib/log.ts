@@ -508,6 +508,8 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   Navigation = 'navigation',
+  DigestUpsell = 'digest upsell',
+  DigestUpsellBookmarks = 'digest upsell bookmarks',
 }
 
 export enum NotificationChannel {
