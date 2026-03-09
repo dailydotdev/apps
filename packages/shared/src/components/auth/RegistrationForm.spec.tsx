@@ -15,6 +15,7 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { AuthTriggers } from '../../lib/auth';
+import * as betterAuthHook from '../../hooks/useIsBetterAuth';
 import type { AuthOptionsProps } from './common';
 
 const user = null;
@@ -24,6 +25,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   jest.clearAllMocks();
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(false);
 });
 
 const onSuccessfulLogin = jest.fn();
@@ -129,6 +131,55 @@ const renderLogin = async (email: string) => {
   });
 };
 
+const renderBetterAuthRegistration = async (
+  email = 'sshanzel@yahoo.com',
+  name = 'Lee Solevilla',
+  username = 'leesolevilla',
+) => {
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(true);
+  renderComponent();
+  await waitForNock();
+
+  nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .get('/a/auth/check-email')
+    .query({ email })
+    .reply(200, { result: false });
+
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+  fireEvent.click(await screen.findByTestId('email_signup_submit'));
+  await waitForNock();
+
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: GET_USERNAME_SUGGESTION,
+      variables: { name },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { generateUniqueUsername: username } };
+    },
+  });
+
+  await screen.findByTestId('registration_form');
+  const nameInput = screen.getByPlaceholderText('Name');
+  fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
+    target: { value: username },
+  });
+  fireEvent.input(screen.getByPlaceholderText('Name'), {
+    target: { value: name },
+  });
+  simulateTextboxInput(nameInput as HTMLTextAreaElement, name);
+  fireEvent.input(screen.getByPlaceholderText('Create a password'), {
+    target: { value: '#123xAbc' },
+  });
+
+  await waitForNock();
+  await waitFor(() => expect(queryCalled).toBeTruthy());
+};
+
 // NOTE: Chris turned this off needs a good re-look at
 // it('should post registration', async () => {
 //   const email = 'sshanzel@yahoo.com';
@@ -169,6 +220,39 @@ it('should show login if email exists', async () => {
 
   const text = screen.queryByText('Facebook');
   expect(text).toBeInTheDocument();
+});
+
+it('should show a generic sign up error when Better Auth sign up is privacy-protected', async () => {
+  const email = 'sshanzel@yahoo.com';
+  await renderBetterAuthRegistration(email);
+
+  nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .post('/a/auth/sign-up/email', {
+      name: 'Lee Solevilla',
+      email,
+      password: '#123xAbc',
+    })
+    .reply(200, { status: true });
+  nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .post('/a/auth/sign-in/email', {
+      email,
+      password: '#123xAbc',
+    })
+    .reply(401, {
+      code: 'INVALID_CREDENTIALS',
+      message: 'Invalid credentials',
+    });
+
+  fireEvent.submit(await screen.findByTestId('registration_form'));
+  await waitForNock();
+
+  await waitFor(() => {
+    expect(
+      screen.getByText(
+        "We couldn't complete sign up. If you already have an account, try signing in instead.",
+      ),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('testing username auto generation', () => {
