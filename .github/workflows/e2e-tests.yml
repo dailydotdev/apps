@@ -75,7 +75,7 @@ jobs:
         retention-days: 30
 
     - name: Report Status
-      if: always() && github.run_attempt == 1
+      if: always() && github.run_attempt == 1 && github.event_name != 'workflow_dispatch'
       uses: ravsamhq/notify-slack-action@v1
       with:
         status: ${{ job.status }}
