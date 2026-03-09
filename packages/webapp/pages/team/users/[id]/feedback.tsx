@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -26,11 +26,16 @@ const TeamUserFeedbackPage = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const userIdParam = router.query.id;
   const userId = typeof userIdParam === 'string' ? userIdParam : '';
+  const isTeamMember = !!user?.isTeamMember;
+  const canFetchFeedback = isAuthReady && isTeamMember && !!userId;
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
 
-  const query = useUserFeedbackByUserId({ userId });
+  const query = useUserFeedbackByUserId({
+    userId,
+    enabled: canFetchFeedback,
+  });
   const feedbackItems = useMemo(
     () =>
       query.data?.pages.flatMap((page) =>
@@ -39,7 +44,13 @@ const TeamUserFeedbackPage = (): ReactElement | null => {
     [query.data],
   );
 
-  if (!isAuthReady) {
+  useEffect(() => {
+    if (isAuthReady && !isTeamMember) {
+      router.replace('/');
+    }
+  }, [isAuthReady, isTeamMember, router]);
+
+  if (!isAuthReady || !router.isReady) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />
@@ -47,8 +58,7 @@ const TeamUserFeedbackPage = (): ReactElement | null => {
     );
   }
 
-  if (!user?.isTeamMember) {
-    router.replace('/');
+  if (!isTeamMember) {
     return null;
   }
 

@@ -155,9 +155,11 @@ export const useUserFeedback = (first = 20) => {
 export const useUserFeedbackByUserId = ({
   userId,
   first = 20,
+  enabled = true,
 }: {
   userId: string;
   first?: number;
+  enabled?: boolean;
 }) => {
   return useInfiniteQuery({
     queryKey: generateQueryKey(
@@ -177,6 +179,6 @@ export const useUserFeedbackByUserId = ({
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>
       getNextPageParam(lastPage?.userFeedbackByUserId?.pageInfo),
-    enabled: !!userId,
+    enabled: enabled && !!userId,
   });
 };
