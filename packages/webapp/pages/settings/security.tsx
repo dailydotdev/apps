@@ -58,6 +58,9 @@ const seo: NextSeoProps = {
   title: getTemplatedTitle('Manage account security'),
 };
 
+const BETTER_AUTH_CHANGE_EMAIL_MESSAGE =
+  'If that email is available, we sent a verification code.';
+
 const AccountSecurityPage = (): ReactElement => {
   const updatePasswordRef = useRef<HTMLFormElement>();
   const { user, refetchBoot } = useAuthContext();
@@ -198,6 +201,10 @@ const AccountSecurityPage = (): ReactElement => {
       const result = await betterAuthChangeEmail(email);
       if (result.error) {
         setHint(result.error);
+        return;
+      }
+      if (result.status) {
+        displayToast(BETTER_AUTH_CHANGE_EMAIL_MESSAGE);
       }
       return;
     }

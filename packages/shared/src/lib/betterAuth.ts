@@ -4,6 +4,7 @@ export type BetterAuthResponse = {
   error?: string;
   code?: string;
   message?: string;
+  status?: boolean;
   user?: {
     id: string;
     name: string;
@@ -11,7 +12,8 @@ export type BetterAuthResponse = {
   };
 };
 
-type BetterAuthResult<T = Record<string, unknown>> = T & { error?: string };
+type BetterAuthResult<T = Record<string, unknown>> = T &
+  Pick<BetterAuthResponse, 'error' | 'code' | 'message' | 'status'>;
 
 const betterAuthPost = async <T = Record<string, unknown>>(
   path: string,
@@ -27,8 +29,9 @@ const betterAuthPost = async <T = Record<string, unknown>>(
 
   if (!res.ok) {
     try {
-      const data = await res.json();
+      const data = (await res.json()) as BetterAuthResult<T>;
       return {
+        ...data,
         error: data?.message || data?.error || data?.code || fallbackError,
       } as BetterAuthResult<T>;
     } catch {
