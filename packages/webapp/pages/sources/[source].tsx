@@ -13,6 +13,11 @@ import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SOURCE_FEED_QUERY,
+  SOURCE_TOP_POSTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import type {
   Source,
@@ -67,22 +72,9 @@ import type { DynamicSeoProps } from '../../components/common';
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
   relatedTags?: TagsData['tags'];
-  topPosts?: SourceTopPost[];
+  topPosts?: TopPost[];
 }
 type SourceIdProps = { sourceId?: string };
-type SourceTopPost = {
-  id: string;
-  title?: string;
-  slug?: string;
-};
-
-type SourceTopPostsData = {
-  page?: {
-    edges?: {
-      node: SourceTopPost;
-    }[];
-  };
-};
 
 const SourceRelatedTags = ({
   sourceId,
@@ -205,34 +197,34 @@ const SourcePage = ({
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
         )}
-        {relatedTags.length > 0 && (
-          <div className="sr-only">
-            {relatedTags
-              .map((tag) => tag.name)
-              .filter((tag): tag is string => !!tag)
-              .map((tag) => (
-                <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
-                  <a>Posts about {tag}</a>
-                </Link>
-              ))}
-          </div>
-        )}
-        {topPosts.length > 0 && (
-          <div className="sr-only">
-            {topPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/posts/${post.slug || post.id}`}
-                prefetch={false}
-              >
-                <a>{post.title}</a>
-              </Link>
-            ))}
-          </div>
-        )}
         <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
       </PageInfoHeader>
       <SimilarSources sourceId={source.id} />
+      {relatedTags.length > 0 && (
+        <div className="sr-only">
+          {relatedTags
+            .map((tag) => tag.name)
+            .filter((tag): tag is string => !!tag)
+            .map((tag) => (
+              <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
+                <a>Posts about {tag}</a>
+              </Link>
+            ))}
+        </div>
+      )}
+      {topPosts.length > 0 && (
+        <div className="sr-only">
+          {topPosts.map((post) => (
+            <Link
+              key={post.id}
+              href={`/posts/${post.slug || post.id}`}
+              prefetch={false}
+            >
+              <a>{post.title}</a>
+            </Link>
+          ))}
+        </div>
+      )}
       <ActiveFeedNameContext.Provider
         value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
       >
@@ -342,11 +334,9 @@ export async function getStaticProps({
         })
         .catch(() => null),
       gqlClient
-        .request<SourceTopPostsData>(SOURCE_FEED_QUERY, {
+        .request<TopPostsData>(SOURCE_TOP_POSTS_QUERY, {
           source: source.id,
           first: 10,
-          ranking: 'TIME',
-          supportedTypes: baseFeedSupportedTypes,
         })
         .catch(() => null),
     ]);
@@ -370,7 +360,7 @@ export async function getStaticProps({
         topPosts,
         seo,
       },
-      revalidate: 60,
+      revalidate: 3600,
     };
   } catch (err) {
     const error = err as GraphQLError;
@@ -381,7 +371,7 @@ export async function getStaticProps({
     ) {
       return {
         notFound: true,
-        revalidate: 60,
+        revalidate: 3600,
       };
     }
     throw err;

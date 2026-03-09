@@ -25,6 +25,10 @@ import {
   TAG_FEED_QUERY,
   TAG_TOP_POSTS_QUERY,
 } from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
+} from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
@@ -76,22 +80,8 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
   initialData: Keyword | null;
-  topPosts: TagTopPost[];
+  topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
-}
-
-interface TagTopPost {
-  id: string;
-  title?: string;
-  slug?: string;
-}
-
-interface TagTopPostsData {
-  page?: {
-    edges?: {
-      node: TagTopPost;
-    }[];
-  };
 }
 
 interface TagRecommendedTagsProps {
@@ -522,7 +512,7 @@ export async function getStaticProps({
           value: tag,
         }),
         gqlClient
-          .request<TagTopPostsData>(TAG_TOP_POSTS_QUERY, {
+          .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
             tag,
             first: 10,
           })
