@@ -74,23 +74,23 @@ export interface UseSourceModerationList {
 }
 
 const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
-  return data.flatMap<Post>((item) => {
+  return data.reduce<Post[]>((acc, item) => {
     if (!item.type || !item.image) {
-      return [];
+      return acc;
     }
 
-    return [
-      {
-        id: item.id,
-        source: item.source,
-        type: item.type,
-        image: item.image,
-        commentsPermalink: '',
-        author: item.createdBy,
-        createdAt: item.createdAt,
-      },
-    ];
-  });
+    acc.push({
+      id: item.id,
+      source: item.source,
+      type: item.type,
+      image: item.image,
+      commentsPermalink: '',
+      author: item.createdBy,
+      createdAt: item.createdAt,
+    });
+
+    return acc;
+  }, []);
 };
 
 export const useSourceModerationList = (): UseSourceModerationList => {

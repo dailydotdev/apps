@@ -8,6 +8,7 @@ import {
   squadApproveMutation,
   squadRejectMutation,
 } from '../../graphql/squads';
+import type { SourcePostModeration } from '../../graphql/squads';
 import { useSourceModerationList } from './useSourceModerationList';
 import { useLazyModal } from '../useLazyModal';
 import { usePrompt } from '../usePrompt';
@@ -55,6 +56,13 @@ describe('useSourceModerationList', () => {
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
+  const createModerationItem = (
+    overrides: Partial<SourcePostModeration>,
+  ): SourcePostModeration => ({
+    id: 'valid-post',
+    status: SourcePostModerationStatus.Pending,
+    ...overrides,
+  });
 
   beforeEach(() => {
     client = new QueryClient();
@@ -80,17 +88,16 @@ describe('useSourceModerationList', () => {
 
   it('resolves approve flow and logs only valid posts', async () => {
     mocked(squadApproveMutation).mockResolvedValue([
-      {
-        id: 'valid-post',
+      createModerationItem({
         status: SourcePostModerationStatus.Approved,
         type: 'article',
         image: 'https://daily.dev/post.jpg',
-      },
-      {
+      }),
+      createModerationItem({
         id: 'missing-image',
         status: SourcePostModerationStatus.Approved,
         type: 'article',
-      },
+      }),
     ]);
 
     const invalidateQueriesSpy = jest.spyOn(client, 'invalidateQueries');
@@ -113,17 +120,16 @@ describe('useSourceModerationList', () => {
 
   it('resolves reject flow, closes modal, and logs only valid posts', async () => {
     mocked(squadRejectMutation).mockResolvedValue([
-      {
-        id: 'valid-post',
+      createModerationItem({
         status: SourcePostModerationStatus.Rejected,
         type: 'article',
         image: 'https://daily.dev/post.jpg',
-      },
-      {
+      }),
+      createModerationItem({
         id: 'missing-type',
         status: SourcePostModerationStatus.Rejected,
         image: 'https://daily.dev/post-2.jpg',
-      },
+      }),
     ]);
 
     const { result } = renderHook(() => useSourceModerationList(), { wrapper });
