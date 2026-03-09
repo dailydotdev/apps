@@ -163,7 +163,7 @@ const getTagPageJsonLd = ({
 }: {
   tag: string;
   initialData: Keyword;
-  topPosts: TagTopPost[];
+  topPosts: TopPost[];
 }): string => {
   const encodedTag = encodeURIComponent(tag);
   const tagTitle = initialData.flags?.title || tag;
