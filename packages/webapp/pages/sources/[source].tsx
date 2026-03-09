@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
@@ -62,6 +63,9 @@ import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
+import { getAppOrigin } from '../../lib/seo';
+
+const appOrigin = getAppOrigin();
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
@@ -122,6 +126,58 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
   );
 };
 
+const getSourcePageJsonLd = (source: Source): string => {
+  const sourceHandle = source.handle || source.id;
+  const sourcePageUrl = `${appOrigin}/sources/${encodeURIComponent(
+    sourceHandle,
+  )}`;
+  const sourceUrl = source.permalink || sourcePageUrl;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${sourcePageUrl}#organization`,
+        name: source.name,
+        url: sourceUrl,
+        ...(source.image && { logo: source.image }),
+        ...(source.description && { description: source.description }),
+      },
+      {
+        '@type': 'CollectionPage',
+        '@id': `${sourcePageUrl}#page`,
+        url: sourcePageUrl,
+        name: `${source.name} posts on daily.dev`,
+        about: { '@id': `${sourcePageUrl}#organization` },
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Sources',
+            item: `${appOrigin}/sources`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: source.name,
+          },
+        ],
+      },
+    ],
+  });
+};
+
 const SourcePage = ({ source }: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboardingActions();
@@ -161,8 +217,16 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     return <Custom404 />;
   }
 
+  const jsonLd = getSourcePageJsonLd(source);
+
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd }}
+        />
+      </Head>
       <PageInfoHeader
         className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
       >

@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
@@ -72,6 +73,9 @@ import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getAppOrigin } from '../../lib/seo';
+
+const appOrigin = getAppOrigin();
 
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
@@ -161,6 +165,70 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   );
 };
 
+const getTagPageJsonLd = ({
+  tag,
+  initialData,
+  topPosts,
+}: {
+  tag: string;
+  initialData: Keyword;
+  topPosts: TagTopPost[];
+}): string => {
+  const encodedTag = encodeURIComponent(tag);
+  const tagTitle = initialData.flags?.title || tag;
+  const tagDescription =
+    initialData.flags?.description ||
+    `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
+  const tagUrl = `${appOrigin}/tags/${encodedTag}`;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${tagUrl}#page`,
+        url: tagUrl,
+        name: `${tagTitle} posts on daily.dev`,
+        description: tagDescription,
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${tagUrl}#items`,
+        numberOfItems: topPosts.length,
+        itemListElement: topPosts.map((post, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          url: `${appOrigin}/posts/${post.slug || post.id}`,
+          name: post.title || '',
+        })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Tags',
+            item: `${appOrigin}/tags`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: tagTitle,
+          },
+        ],
+      },
+    ],
+  });
+};
+
 const TagPage = ({
   tag,
   initialData,
@@ -207,6 +275,9 @@ const TagPage = ({
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const jsonLd = initialData
+    ? getTagPageJsonLd({ tag, initialData, topPosts })
+    : null;
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
@@ -265,6 +336,14 @@ const TagPage = ({
 
   return (
     <FeedPageLayoutComponent>
+      {jsonLd && (
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+      )}
       <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
