@@ -63,10 +63,7 @@ const ExperienceLevelDropdown = ({
               '!shadow-[inset_0.125rem_0_0_var(--status-error)]',
             selectedIndex > -1 && '!text-text-primary',
           ),
-          menu: classNames(
-            menuClassName,
-            'menu-primary max-h-[15.375rem] overflow-y-auto p-1',
-          ), // fit 6 items
+          menu: classNames(menuClassName, 'menu-primary p-1'),
           item: classNames(itemClassName, '*:min-h-10 *:!typo-callout'),
           container: dropdownClassName,
         }}

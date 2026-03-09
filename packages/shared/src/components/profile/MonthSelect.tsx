@@ -62,9 +62,10 @@ const MonthSelect = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
+        variant="field"
         align="start"
         sideOffset={10}
-        className="flex w-[var(--radix-popper-anchor-width)] flex-col gap-1 !p-0"
+        className="flex flex-col gap-1 !p-0"
       >
         <DropdownMenuOptions options={menuItems} />
       </DropdownMenuContent>
