@@ -314,6 +314,7 @@ logEvent({
 - If backend types mark fields as optional, still emit the event with available fields
 - Do not drop a whole item just because optional fields are missing
 - Analytics/logging helpers must never throw inside mutation `onSuccess` paths
+- Prefer explicit fallback defaults over broad type assertions (e.g. `as Post`)
 
 ### useLogEventOnce - One-Time Event Logging
 

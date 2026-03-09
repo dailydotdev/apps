@@ -9,6 +9,7 @@ import {
   squadRejectMutation,
 } from '../../graphql/squads';
 import type { SourcePostModeration } from '../../graphql/squads';
+import { PostType } from '../../graphql/posts';
 import { useSourceModerationList } from './useSourceModerationList';
 import { useLazyModal } from '../useLazyModal';
 import { usePrompt } from '../usePrompt';
@@ -120,6 +121,8 @@ describe('useSourceModerationList', () => {
       expect.objectContaining({
         event_name: LogEvent.ApprovePost,
         target_id: 'missing-image',
+        feed_item_image: '',
+        post_type: PostType.Article,
       }),
     );
   });
@@ -167,6 +170,7 @@ describe('useSourceModerationList', () => {
       expect.objectContaining({
         event_name: LogEvent.RejectPost,
         target_id: 'missing-type',
+        post_type: PostType.Article,
       }),
     );
   });

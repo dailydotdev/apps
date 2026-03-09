@@ -20,6 +20,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
+import { PostType } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -78,12 +79,12 @@ const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
     return {
       id: item.id,
       source: item.source,
-      type: item.type,
-      image: item.image,
+      type: item.type ?? PostType.Article,
+      image: item.image ?? '',
       commentsPermalink: '',
       author: item.createdBy,
       createdAt: item.createdAt,
-    } as Post;
+    };
   });
 };
 
