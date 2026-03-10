@@ -28,12 +28,16 @@ import { AskInstall } from '@dailydotdev/shared/src/features/ask/components/AskI
 import { AskFAQ } from '@dailydotdev/shared/src/features/ask/components/AskFAQ';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('daily-dev-ask | WebSearch for developers');
 const seo: NextSeoProps = {
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
-  ...getPageSeoTitles('Ask — WebSearch for developers'),
+  description:
+    'Ask any development question and get real answers backed by trusted developer content. daily-dev-ask searches articles from the daily.dev community so you get answers you can trust.',
 };
 
 type AskPath = 'learn' | 'dev' | null;
