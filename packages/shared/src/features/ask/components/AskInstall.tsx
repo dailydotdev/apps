@@ -16,7 +16,9 @@ import Link from '../../../components/utilities/Link';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { AuthTriggers } from '../../../lib/auth';
 import { plusUrl, webappUrl } from '../../../lib/constants';
 
 const REPO_URL = 'https://github.com/dailydotdev/daily.git';
@@ -79,6 +81,7 @@ const methods: InstallMethod[] = [
 export const AskInstall = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { isPlus } = usePlusSubscription();
+  const { isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
 
@@ -125,7 +128,23 @@ export const AskInstall = (): ReactElement => {
           <>
             Requires a{' '}
             <Link href={plusUrl} passHref>
-              <a className="font-bold text-text-primary underline">
+              <a
+                className="font-bold text-text-primary underline"
+                role="link"
+                tabIndex={0}
+                onClick={(e) => {
+                  if (!isLoggedIn) {
+                    e.preventDefault();
+                    showLogin({ trigger: AuthTriggers.Plus });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isLoggedIn) {
+                    e.preventDefault();
+                    showLogin({ trigger: AuthTriggers.Plus });
+                  }
+                }}
+              >
                 Plus subscription
               </a>
             </Link>{' '}

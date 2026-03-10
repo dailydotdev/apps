@@ -18,6 +18,8 @@ import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { AskHero } from '@dailydotdev/shared/src/features/ask/components/AskHero';
 import { AskProblem } from '@dailydotdev/shared/src/features/ask/components/AskProblem';
 import { AskHowItWorks } from '@dailydotdev/shared/src/features/ask/components/AskHowItWorks';
@@ -39,6 +41,7 @@ type AskPath = 'learn' | 'dev' | null;
 const AskPage = (): ReactElement => {
   const [selectedPath, setSelectedPath] = useState<AskPath>(null);
   const { isPlus } = usePlusSubscription();
+  const { isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
 
   const showLearnSections = selectedPath === 'learn';
@@ -100,12 +103,17 @@ const AskPage = (): ReactElement => {
                 color={ButtonColor.Avocado}
                 size={ButtonSize.Large}
                 icon={<DevPlusIcon />}
-                onClick={() =>
+                onClick={(e) => {
+                  if (!isLoggedIn) {
+                    e.preventDefault();
+                    showLogin({ trigger: AuthTriggers.Plus });
+                    return;
+                  }
                   logEvent({
                     event_name: LogEvent.UpgradeSubscription,
                     target_id: TargetId.AskPage,
-                  })
-                }
+                  });
+                }}
               >
                 Upgrade to Plus
               </Button>
