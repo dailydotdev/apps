@@ -73,6 +73,10 @@ import type { DynamicSeoProps } from '../../components/common';
 import { getAppOrigin } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
+const pageSectionClassName = 'mx-4';
+const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
+const pageFeedClassName = `!${pageSectionClassName} !w-auto`;
+const horizontalFeedClassName = 'laptop:!mx-4';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
@@ -134,7 +138,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
       isLoading={isPending}
       sources={sources}
       title="Similar sources"
-      className="mx-4"
+      className={pageSectionClassName}
     />
   );
 };
@@ -247,7 +251,7 @@ const SourcePage = ({
           dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
       </Head>
-      <PageInfoHeader className="mx-4 !w-auto">
+      <PageInfoHeader className={pageSectionAutoWidthClassName}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}
@@ -306,7 +310,7 @@ const SourcePage = ({
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
-          className="laptop:!mx-4"
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -326,11 +330,11 @@ const SourcePage = ({
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
-          className="laptop:!mx-4"
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center">
+      <div className={`${pageSectionClassName} mb-5 flex w-auto items-center`}>
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}
         </p>
@@ -344,7 +348,7 @@ const SourcePage = ({
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
-        className="!mx-4 !w-auto"
+        className={pageFeedClassName}
       />
       {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
     </FeedPageLayoutComponent>
