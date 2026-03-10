@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useViewSize, ViewSize } from './useViewSize';
+import { useMedia } from './useMedia';
 import { useActiveFeedNameContext } from '../contexts/ActiveFeedNameContext';
 import {
   CommentFeedPage,
@@ -13,6 +13,7 @@ import { OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';
+import { laptop } from '../styles/media';
 
 interface UseFeedLayoutReturn {
   shouldUseListFeedLayout: boolean;
@@ -116,7 +117,12 @@ const getFeedPageLayoutComponent = ({
 export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
-  const isLaptopSize = useViewSize(ViewSize.Laptop);
+  const isLaptopSize = useMedia(
+    [laptop.replace('@media ', '')],
+    [true],
+    false,
+    undefined,
+  );
   const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
