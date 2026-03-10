@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import type { ReactElement } from 'react';
 import type { FunnelStepUploadCv } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -8,6 +8,8 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
+import { useActions } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
 
 function FunnelUploadCvComponent({
   parameters,
@@ -48,6 +50,22 @@ function FunnelUploadCvComponent({
 export const FunnelUploadCv = withShouldSkipStepGuard(
   withIsActiveGuard(FunnelUploadCvComponent),
   () => {
-    return { shouldSkip: false };
+    const { checkHasCompleted, isActionsFetched } = useActions();
+    const hasUploadedCv = checkHasCompleted(ActionType.UploadedCV);
+    const initializedRef = useRef(false);
+    const [shouldSkip, setShouldSkip] = useState(false);
+
+    // since withShouldSkipStepGuard returns null when uploading cv and setting action
+    // funnel component would show null instead of in success state due to action being set
+    // so we evaluate skip only first time actions are fetched
+    useEffect(() => {
+      if (isActionsFetched && !initializedRef.current) {
+        initializedRef.current = true;
+
+        setShouldSkip(hasUploadedCv);
+      }
+    }, [isActionsFetched, hasUploadedCv]);
+
+    return { shouldSkip };
   },
 );
