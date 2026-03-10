@@ -455,6 +455,7 @@ export enum TargetType {
   OpportunityInterestButton = 'opportunity interest button',
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
+  BriefCard = 'brief card',
 }
 
 export enum TargetId {
@@ -507,6 +508,8 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   Navigation = 'navigation',
+  DigestUpsell = 'digest upsell',
+  DigestUpsellBookmarks = 'digest upsell bookmarks',
 }
 
 export enum NotificationChannel {

@@ -3,16 +3,22 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
+  baseFeedSupportedTypes,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SOURCE_FEED_QUERY,
+  SOURCE_TOP_POSTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import type {
   Source,
@@ -49,6 +55,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
 import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
@@ -60,15 +67,30 @@ import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SourceActions } from '../../../shared/src/components/sources/SourceActions';
 import type { DynamicSeoProps } from '../../components/common';
+import { getAppOrigin } from '../../lib/seo';
+
+const appOrigin = getAppOrigin();
+const pageSectionClassName = 'mx-4';
+const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
+const pageFeedClassName = '!mx-4 !w-auto';
+const horizontalFeedClassName = 'laptop:!mx-4';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
+  relatedTags?: TagsData['tags'];
+  topPosts?: TopPost[];
 }
 type SourceIdProps = { sourceId?: string };
 
-const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
+const SourceRelatedTags = ({
+  sourceId,
+  initialTags = [],
+}: SourceIdProps & {
+  initialTags?: TagsData['tags'];
+}): ReactElement => {
   const { data: relatedTags, isPending } = useQuery({
     queryKey: [RequestKey.SourceRelatedTags, null, sourceId],
 
@@ -84,14 +106,13 @@ const SourceRelatedTags = ({ sourceId }: SourceIdProps): ReactElement => {
 
   return (
     <RecommendedTags
-      isLoading={isPending}
-      tags={relatedTags?.relatedTags?.tags ?? []}
+      isLoading={isPending && initialTags.length === 0}
+      tags={relatedTags?.relatedTags?.tags ?? initialTags}
     />
   );
 };
 
 const SimilarSources = ({ sourceId }: SourceIdProps) => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: similarSources, isPending } = useQuery({
     queryKey: [RequestKey.SimilarSources, null, sourceId],
 
@@ -117,13 +138,71 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
       isLoading={isPending}
       sources={sources}
       title="Similar sources"
-      className={shouldUseListFeedLayout ? 'mx-4' : undefined}
+      className={pageSectionClassName}
     />
   );
 };
 
-const SourcePage = ({ source }: SourcePageProps): ReactElement => {
-  const { isFallback } = useRouter();
+const getSourcePageJsonLd = (source: Source): string => {
+  const sourceHandle = source.handle || source.id;
+  const sourcePageUrl = `${appOrigin}/sources/${encodeURIComponent(
+    sourceHandle,
+  )}`;
+  const sourceUrl = source.permalink || sourcePageUrl;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${sourcePageUrl}#organization`,
+        name: source.name,
+        url: sourceUrl,
+        ...(source.image && {
+          logo: { '@type': 'ImageObject', url: source.image },
+        }),
+        ...(source.description && { description: source.description }),
+      },
+      {
+        '@type': 'CollectionPage',
+        '@id': `${sourcePageUrl}#page`,
+        url: sourcePageUrl,
+        name: `${source.name} posts on daily.dev`,
+        ...(source.description && { description: source.description }),
+        about: { '@id': `${sourcePageUrl}#organization` },
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Sources',
+            item: `${appOrigin}/sources`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: source.name,
+          },
+        ],
+      },
+    ],
+  });
+};
+
+const SourcePage = ({
+  source,
+  relatedTags = [],
+  topPosts = [],
+}: SourcePageProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { shouldShowAuthBanner } = useOnboardingActions();
   const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
@@ -152,30 +231,27 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
     () => ({
       source: source?.id,
       ranking: 'TIME',
-      supportedTypes: [
-        PostType.Article,
-        PostType.SocialTwitter,
-        PostType.VideoYouTube,
-        PostType.Collection,
-      ],
+      supportedTypes: baseFeedSupportedTypes,
     }),
     [source?.id],
   );
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
 
-  if (!isFallback && !source) {
+  if (!source) {
     return <Custom404 />;
   }
 
-  if (isFallback || !source) {
-    return <></>;
-  }
+  const jsonLd = getSourcePageJsonLd(source);
 
   return (
     <FeedPageLayoutComponent className="overflow-x-hidden">
-      <PageInfoHeader
-        className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
-      >
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd }}
+        />
+      </Head>
+      <PageInfoHeader className={pageSectionAutoWidthClassName}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}
@@ -190,9 +266,34 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         {source?.description && (
           <p className="typo-body">{source?.description}</p>
         )}
-        <SourceRelatedTags sourceId={source.id} />
+        <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
       </PageInfoHeader>
       <SimilarSources sourceId={source.id} />
+      {relatedTags.length > 0 && (
+        <div className="sr-only">
+          {relatedTags
+            .map((tag) => tag.name)
+            .filter((tag): tag is string => !!tag)
+            .map((tag) => (
+              <Link key={tag} href={`/tags/${tag}`} prefetch={false}>
+                <a>Posts about {tag}</a>
+              </Link>
+            ))}
+        </div>
+      )}
+      {topPosts.length > 0 && (
+        <div className="sr-only">
+          {topPosts.map((post) => (
+            <Link
+              key={post.id}
+              href={`/posts/${post.slug || post.id}`}
+              prefetch={false}
+            >
+              <a>{post.title}</a>
+            </Link>
+          ))}
+        </div>
+      )}
       <ActiveFeedNameContext.Provider
         value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
       >
@@ -209,6 +310,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -228,10 +330,11 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className={`${pageSectionClassName} mb-5 flex w-auto items-center`}>
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}
         </p>
@@ -245,6 +348,7 @@ const SourcePage = ({ source }: SourcePageProps): ReactElement => {
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
+        className={pageFeedClassName}
       />
       {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
     </FeedPageLayoutComponent>
@@ -259,7 +363,7 @@ SourcePage.layoutProps = {
 export default SourcePage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface SourcePageParams extends ParsedUrlQuery {
@@ -295,19 +399,43 @@ export async function getStaticProps({
     }
 
     const { source } = res;
+    const [relatedTagsResult, sourceTopPostsResult] = await Promise.all([
+      gqlClient
+        .request<{ relatedTags: TagsData }>(SOURCE_RELATED_TAGS_QUERY, {
+          sourceId: source.id,
+        })
+        .catch(() => null),
+      gqlClient
+        .request<TopPostsData>(SOURCE_TOP_POSTS_QUERY, {
+          source: source.id,
+          first: 10,
+        })
+        .catch(() => null),
+    ]);
+    const relatedTags = relatedTagsResult?.relatedTags?.tags ?? [];
+    const topPosts =
+      sourceTopPostsResult?.page?.edges
+        ?.map((edge) => edge.node)
+        .filter((post) => !!post.title) ?? [];
+    const seoTitles = getPageSeoTitles(`${source.name} posts`);
     const seo: NextSeoProps = {
-      title: `${source.name} posts on daily.dev`,
-      openGraph: { ...defaultOpenGraph },
       ...defaultSeo,
+      ...seoTitles,
+      openGraph: {
+        ...defaultOpenGraph,
+        ...seoTitles.openGraph,
+      },
       description: source?.description || defaultSeo.description,
     };
 
     return {
       props: {
         source: res.source,
+        relatedTags,
+        topPosts,
         seo,
       },
-      revalidate: 60,
+      revalidate: 3600,
     };
   } catch (err) {
     const error = err as GraphQLError;
@@ -317,10 +445,8 @@ export async function getStaticProps({
       )
     ) {
       return {
-        props: {
-          source: null,
-        },
-        revalidate: 60,
+        notFound: true,
+        revalidate: 3600,
       };
     }
     throw err;

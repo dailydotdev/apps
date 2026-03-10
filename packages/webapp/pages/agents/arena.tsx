@@ -1,4 +1,4 @@
-import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import type { GetStaticPropsResult } from 'next';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
@@ -24,12 +24,22 @@ const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
 const ARENA_DESCRIPTION =
   "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
 
-const getTabUrl = (tab: ArenaTab): string => {
-  if (tab === 'coding-agents') {
-    return 'https://app.daily.dev/agents/arena';
+const getTabUrl = (tab: ArenaTab): string =>
+  `https://app.daily.dev/agents/arena?tab=${tab}`;
+
+const resolveArenaTab = (
+  tab: string | string[] | undefined,
+  fallback: ArenaTab,
+): ArenaTab => {
+  const tabValue = Array.isArray(tab) ? tab[0] : tab;
+  if (tabValue === 'llms') {
+    return 'llms';
+  }
+  if (tabValue === 'coding-agents') {
+    return 'coding-agents';
   }
 
-  return 'https://app.daily.dev/agents/arena?tab=llms';
+  return fallback;
 };
 
 const getArenaJsonLd = ({
@@ -80,17 +90,36 @@ const getArenaJsonLd = ({
     },
   });
 
+const getArenaBreadcrumbJsonLd = (): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://app.daily.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Agentic Hub',
+        item: 'https://app.daily.dev/agents',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'The Arena',
+        item: 'https://app.daily.dev/agents/arena',
+      },
+    ],
+  });
+
 const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
 
-  const queryTab = router.query.tab;
-  let activeTab: ArenaTab = initialTab;
-  if (queryTab === 'llms') {
-    activeTab = 'llms';
-  }
-  if (queryTab === 'coding-agents') {
-    activeTab = 'coding-agents';
-  }
+  const activeTab = resolveArenaTab(router.query.tab, initialTab);
 
   const { data } = useQuery(arenaOptions({ groupId: activeTab }));
   const rankings =
@@ -106,8 +135,7 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
     : undefined;
 
   const handleTabChange = (tab: ArenaTab): void => {
-    const query = tab === 'coding-agents' ? {} : { tab };
-    router.replace({ pathname: router.pathname, query }, undefined, {
+    router.replace({ pathname: router.pathname, query: { tab } }, undefined, {
       shallow: true,
     });
   };
@@ -121,32 +149,34 @@ const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
           __html: getArenaJsonLd({ activeTab, rankings, dateModified }),
         }}
       />
+      <script
+        key="arena-breadcrumbs"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getArenaBreadcrumbJsonLd(),
+        }}
+      />
       <ArenaPage activeTab={activeTab} onTabChange={handleTabChange} />
     </>
   );
 };
 
-export async function getServerSideProps({
-  query,
-  res,
-}: GetServerSidePropsContext): Promise<
-  GetServerSidePropsResult<ArenaPageRouteProps>
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<ArenaPageRouteProps>
 > {
-  const initialTab: ArenaTab = query.tab === 'llms' ? 'llms' : 'coding-agents';
-
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=60, stale-while-revalidate=120',
-  );
-
+  const initialTab: ArenaTab = 'coding-agents';
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery(arenaOptions({ groupId: initialTab }));
+  await Promise.all([
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'llms' })),
+  ]);
 
   return {
     props: {
       initialTab,
       dehydratedState: dehydrate(queryClient),
     },
+    revalidate: 600,
   };
 }
 
@@ -165,6 +195,11 @@ ArenaPageRoute.layoutProps = {
       description: ARENA_DESCRIPTION,
       url: 'https://app.daily.dev/agents/arena',
       type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=coding-agents&hideLink=1',
+        },
+      ],
     },
   },
 };

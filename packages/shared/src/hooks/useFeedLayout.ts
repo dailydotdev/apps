@@ -11,7 +11,6 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
-import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
@@ -70,6 +69,7 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
+  OtherFeedPage.AgentsVibes,
 ]);
 
 export const UserProfileFeedPages = new Set([
@@ -77,7 +77,10 @@ export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserPosts,
 ]);
 
-export const PostFeedPages = new Set([OtherFeedPage.Post]);
+export const PostFeedPages = new Set([
+  OtherFeedPage.Post,
+  OtherFeedPage.AgentsVibes,
+]);
 
 interface GetFeedPageLayoutComponentProps
   extends Pick<
@@ -113,7 +116,7 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
+  const isLaptop = typeof window === 'undefined' || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();

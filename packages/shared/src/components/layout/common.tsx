@@ -46,10 +46,11 @@ import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isNullOrUndefined,
 } from '../../lib/func';
 import {
   agentsLeaderboardEntrypointFeature,
-  installExtensionFeedMenuFeature,
+  installExtensionPromptFeature,
 } from '../../lib/featureManagement';
 import type { AgentsLeaderboardEntrypointFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
@@ -98,14 +99,13 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { checkHasCompleted, completeAction } = useActions();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
-  const shouldEvaluateInstallExtensionExperiment =
-    !checkIsExtension() && user?.flags?.lastExtensionUse === null;
-  const { value: isInstallExtensionFeedMenuEnabled } = useConditionalFeature({
-    feature: installExtensionFeedMenuFeature,
-    shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
+  const { value: isInstallExtensionPrompt } = useConditionalFeature({
+    feature: installExtensionPromptFeature,
+    shouldEvaluate:
+      !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse),
   });
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
@@ -139,38 +139,41 @@ export const SearchControlHeader = ({
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
-  const installExtensionButton = hasFeedActions &&
-    isInstallExtensionFeedMenuEnabled &&
-    !hasDismissedInstallExtension && (
-      <>
-        <div className="flex flex-1" />
-        <Button
-          key="install-extension"
-          tag="a"
-          href={downloadBrowserExtension}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          size={ButtonSize.Medium}
-          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
-          rel={anchorDefaultRel}
-          target="_blank"
-          className="ml-auto"
-          onClick={() =>
-            logEvent({
-              event_name: LogEvent.DownloadExtension,
-              origin: Origin.Feed,
-            })
-          }
-        >
-          Get it for {isEdge ? 'Edge' : 'Chrome'}
-        </Button>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<ClearIcon secondary />}
-          onClick={() => completeAction(ActionType.DismissInstallExtension)}
-        />
-      </>
-    );
+  const shouldShowInstallExtensionButton =
+    hasFeedActions &&
+    isActionsFetched &&
+    isInstallExtensionPrompt &&
+    !hasDismissedInstallExtension;
+  const installExtensionButton = shouldShowInstallExtensionButton && (
+    <React.Fragment key="install-extension">
+      <div className="flex flex-1" />
+      <Button
+        key="install-extension"
+        tag="a"
+        href={downloadBrowserExtension}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        size={ButtonSize.Medium}
+        icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
+        rel={anchorDefaultRel}
+        target="_blank"
+        className="ml-auto"
+        onClick={() =>
+          logEvent({
+            event_name: LogEvent.DownloadExtension,
+            origin: Origin.Feed,
+          })
+        }
+      >
+        Get it for {isEdge ? 'Edge' : 'Chrome'}
+      </Button>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<ClearIcon secondary />}
+        onClick={() => completeAction(ActionType.DismissInstallExtension)}
+      />
+    </React.Fragment>
+  );
 
   const actionButtons = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,

@@ -31,13 +31,46 @@
   animation-name: slideRightAndFade;
 }
 
+.DropdownMenuContentAction {
+  @apply min-w-64 max-w-[--radix-dropdown-menu-content-available-width];
+}
+
+.DropdownMenuContentField {
+  @apply min-w-40 w-[--radix-dropdown-menu-trigger-width] max-w-[--radix-dropdown-menu-content-available-width];
+}
+
+.DropdownMenuContentField .DropdownMenuScrollable {
+  max-height: min(var(--radix-dropdown-menu-content-available-height), 20rem);
+}
+
+.DropdownMenuScrollable {
+  --scroll-fade-top: 0px;
+  --scroll-fade-bottom: 0px;
+  --scroll-fade-top-opacity: 1;
+  --scroll-fade-bottom-opacity: 1;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / var(--scroll-fade-top-opacity)) 0,
+    black var(--scroll-fade-top),
+    black calc(100% - var(--scroll-fade-bottom)),
+    rgb(0 0 0 / var(--scroll-fade-bottom-opacity)) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / var(--scroll-fade-top-opacity)) 0,
+    black var(--scroll-fade-top),
+    black calc(100% - var(--scroll-fade-bottom)),
+    rgb(0 0 0 / var(--scroll-fade-bottom-opacity)) 100%
+  );
+}
+
 .DropdownMenuItem,
 .DropdownMenuCheckboxItem,
 .DropdownMenuRadioItem,
 .DropdownMenuSubTrigger {
   border-radius: 0.625rem;
   @apply text-text-tertiary;
-  @apply flex items-center typo-footnote h-8 px-3 py-0 truncate;
+  @apply flex items-center typo-footnote h-7 px-2 py-0 truncate;
 }
 .DropdownMenuItem[data-disabled],
 .DropdownMenuCheckboxItem[data-disabled],

@@ -14,11 +14,11 @@ export const useConditionalFeature = <T extends JSONValue>({
   shouldEvaluate,
 }: {
   feature: Feature<T>;
-  shouldEvaluate: boolean;
+  shouldEvaluate?: boolean;
 }): UseConditionalFeature<T> => {
   const { growthbook } = useGrowthBookContext();
   const { ready } = useFeaturesReadyContext();
-  const isPending = !(shouldEvaluate && ready);
+  const isPending = !(shouldEvaluate !== false && ready);
   let value: WidenPrimitives<T> = feature.defaultValue as WidenPrimitives<T>;
 
   if (!isPending) {

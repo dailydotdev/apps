@@ -24,11 +24,12 @@ import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderbo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Top sources for developer content');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Top sources for developer content'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Explore the top sources for developer content on daily.dev. Find trending blogs, publications, YouTube channels and more from our trusted developer network.',
 };

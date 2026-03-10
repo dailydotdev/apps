@@ -22,11 +22,12 @@ import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Le
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('The official developer leaderboard');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('The official developer leaderboard'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Check out the top developer leaderboards on daily.dev. See the best performers, longest streaks, top referrers, and community leaders.',
 };
