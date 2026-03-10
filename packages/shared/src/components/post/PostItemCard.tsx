@@ -136,6 +136,7 @@ export default function PostItemCard({
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Up}
                     onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
                       e.preventDefault();
                       toggleUpvote({ payload: post, origin: logOrigin });
                     }}
@@ -152,6 +153,7 @@ export default function PostItemCard({
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Down}
                     onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
                       e.preventDefault();
                       toggleDownvote({
                         payload: post,

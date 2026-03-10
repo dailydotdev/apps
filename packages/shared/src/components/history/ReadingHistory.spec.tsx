@@ -14,6 +14,17 @@ import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
 import post from '../../../__tests__/fixture/post';
 
+const mockToggleUpvote = jest.fn();
+const mockToggleDownvote = jest.fn();
+
+jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks'),
+  useReadHistoryVotePost: () => ({
+    toggleUpvote: mockToggleUpvote,
+    toggleDownvote: mockToggleDownvote,
+  }),
+}));
+
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
@@ -174,5 +185,43 @@ describe('PostItemCard component', () => {
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
     });
+  });
+
+  it('should not bubble vote clicks to parent handlers', async () => {
+    const onClick = jest.fn();
+    const onKeyDown = jest.fn();
+
+    render(
+      <div role="button" tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>
+        <AuthContext.Provider
+          value={{
+            user,
+            shouldShowLogin: false,
+            showLogin: jest.fn(),
+            logout: jest.fn(),
+            updateUser: jest.fn(),
+            tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
+            isLoggedIn: true,
+            closeLogin: jest.fn(),
+            isAuthReady: true,
+          }}
+        >
+          <QueryClientProvider client={new QueryClient()}>
+            <PostItemCard postItem={defaultHistory} showVoteActions />
+          </QueryClientProvider>
+        </AuthContext.Provider>
+      </div>,
+    );
+
+    const [upvoteButton] = screen.getAllByRole('button', { pressed: false });
+    fireEvent.click(upvoteButton);
+
+    expect(mockToggleUpvote).toHaveBeenCalledWith({
+      payload: defaultHistory.post,
+      origin: 'feed',
+    });
+    expect(onClick).not.toHaveBeenCalled();
+    expect(onKeyDown).not.toHaveBeenCalled();
   });
 });
