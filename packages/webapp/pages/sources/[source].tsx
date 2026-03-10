@@ -75,7 +75,7 @@ import { getAppOrigin } from '../../lib/seo';
 const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
 const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
-const pageFeedClassName = `!${pageSectionClassName} !w-auto`;
+const pageFeedClassName = '!mx-4 !w-auto';
 const horizontalFeedClassName = 'laptop:!mx-4';
 
 interface SourcePageProps extends DynamicSeoProps {
