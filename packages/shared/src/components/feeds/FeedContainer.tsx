@@ -8,7 +8,6 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
-  useConditionalFeature,
   useFeedLayout,
   ToastSubject,
   useToastNotification,
@@ -17,7 +16,6 @@ import {
   useFeeds,
   useBoot,
 } from '../../hooks';
-import { featureFeedLayoutV2 } from '../../lib/featureManagement';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
@@ -166,9 +164,6 @@ export const FeedContainer = ({
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
   const { spaciness, loadedSettings } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -176,15 +171,13 @@ export const FeedContainer = ({
     feedName,
   });
   const router = useRouter();
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2
-    ? 'eco'
-    : spaciness ?? 'eco';
+  const effectiveSpaciness: Spaciness = spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
-  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
+  const v2GridGap = undefined;
   const feedGapPx =
     getFeedGapPx[
       gapClass({
@@ -248,7 +241,7 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
-        isFeedLayoutV2 ? styles.containerV2 : styles.container,
+        styles.container,
         className,
       )}
     >
@@ -290,7 +283,7 @@ export const FeedContainer = ({
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
-            !isList && (isFeedLayoutV2 ? styles.cardsV2 : styles.cards),
+            !isList && styles.cards,
           )}
           style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}

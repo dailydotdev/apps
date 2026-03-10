@@ -60,7 +60,6 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
-  featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -199,13 +198,8 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2
-    ? 'eco'
-    : spaciness ?? 'eco';
+  const effectiveSpaciness: Spaciness = spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);

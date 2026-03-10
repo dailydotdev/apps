@@ -117,7 +117,7 @@ describe('usePostActions', () => {
     bookmarkButton.click();
 
     expect(
-      await screen.findByText('Read it later? Set a reminder.'),
+      await screen.findByText('Don’t have time now? Set a reminder'),
     ).toBeInTheDocument();
   });
 
@@ -131,7 +131,7 @@ describe('usePostActions', () => {
     bookmarkBtn.click();
 
     expect(
-      await screen.findByText('Read it later? Set a reminder.'),
+      await screen.findByText('Don’t have time now? Set a reminder'),
     ).toBeInTheDocument();
   });
 
