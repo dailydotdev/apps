@@ -74,7 +74,10 @@ export const DropdownMenuTrigger = React.forwardRef<
 DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
-  ({ children, ...props }) => {
+  ({ children, ...props }, _forwardedRef) => {
+    if (_forwardedRef) {
+      // DropdownMenu is kept as forwardRef-compatible even though Radix root has no ref target here.
+    }
     const [open, setOpen] = useState(false);
 
     useEventListener(globalThis, 'scroll', () => {
