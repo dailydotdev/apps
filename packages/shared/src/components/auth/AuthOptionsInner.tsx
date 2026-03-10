@@ -366,14 +366,16 @@ function AuthOptionsInner({
       const callbackURL = login
         ? `${webappUrl}callback?login=true`
         : `${webappUrl}callback`;
-      if (!isNativeAuthSupported(provider)) {
-        windowPopup.current = window.open();
-      }
-      await setChosenProvider(provider);
-      windowPopup.current.location.href = getBetterAuthSocialUrl(
+      const socialUrl = getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
       );
+      if (!isNativeAuthSupported(provider)) {
+        windowPopup.current = window.open(socialUrl);
+      } else {
+        windowPopup.current.location.href = socialUrl;
+      }
+      await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;
     }
