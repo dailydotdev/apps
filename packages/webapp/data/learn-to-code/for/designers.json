@@ -1,0 +1,132 @@
+{
+  "slug": "for/designers",
+  "title": "Coding for Designers",
+  "description": "You already think in layout, color, and interaction — coding just gives you the tools to build what you design. With AI writing the syntax for you, the gap between a Figma mockup and a live website has never been smaller.",
+  "dimension": "audience",
+  "tags": ["css", "html", "webdev", "design"],
+  "outcomes": [
+    "Translate Figma mockups into working HTML and CSS without relying on a developer",
+    "Build a reusable component library with consistent design tokens you control",
+    "Create polished micro-interactions and animations that match your design intent",
+    "Ship a live portfolio site and React component library you can show in interviews"
+  ],
+  "aiTips": [
+    "Share your Figma specs or screenshots directly — AI understands design language like spacing, type scale, and color values",
+    "Describe interactions the way you'd write a design note: 'button scales to 1.05 on hover with a 150ms ease-out transition'",
+    "Ask the AI to use CSS custom properties for all colors so you can swap themes without hunting through the code",
+    "When the output doesn't match your vision, annotate a screenshot and describe exactly what looks off rather than re-explaining from scratch"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "html-css",
+      "title": "Learn HTML & CSS",
+      "reason": "You already think in layout and color — HTML and CSS are the code equivalent of your design tools. See your designs come alive in the browser."
+    },
+    {
+      "slug": "build/personal-website",
+      "title": "Build a Personal Website",
+      "reason": "Turn your portfolio into a real website. Build it yourself, deploy it, and show it off with a custom domain."
+    },
+    {
+      "slug": "javascript",
+      "title": "Learn JavaScript",
+      "reason": "Add interactivity to your designs — hover animations, scroll effects, dynamic content. JavaScript makes static pages feel alive."
+    },
+    {
+      "slug": "vibe-coding",
+      "title": "Try Vibe Coding",
+      "reason": "Describe your Figma mockup in words and watch AI write the code. The fastest way to prototype in code instead of static screens."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "CSS Custom Properties (Design Tokens)",
+      "explanation": "Design tokens in code. Define your colors, spacing, and typography as CSS variables once, then reference them everywhere. Change the primary color in one line and the entire site updates — just like Figma styles."
+    },
+    {
+      "name": "CSS Transforms and Transitions",
+      "explanation": "Transforms move, rotate, and scale elements. Transitions animate between states smoothly. Together they create the micro-interactions that make interfaces feel polished — hover effects, button animations, loading states."
+    },
+    {
+      "name": "Component-Based Architecture",
+      "explanation": "Just like Figma components with variants, code components are reusable pieces with configurable properties. Build a Button component once, use it everywhere with different styles. Changes propagate automatically."
+    },
+    {
+      "name": "Responsive Units",
+      "explanation": "rem, em, vw, vh, and % let your designs adapt to any screen size. Combined with media queries, you can create layouts that flow naturally from phone to desktop — no fixed pixel values needed."
+    }
+  ],
+  "resources": [
+    {
+      "title": "CSS-Tricks — A Complete Guide to CSS Grid",
+      "url": "https://css-tricks.com/snippets/css/complete-guide-grid/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Refactoring UI",
+      "url": "https://www.refactoringui.com/",
+      "type": "article",
+      "free": false
+    },
+    {
+      "title": "Kevin Powell — CSS for Designers",
+      "url": "https://www.youtube.com/@KevinPowell",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "Tailwind CSS Documentation",
+      "url": "https://tailwindcss.com/docs",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Storybook — UI Component Workshop",
+      "url": "https://storybook.js.org/docs",
+      "type": "docs",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "Describe your design in words and AI writes the HTML and CSS"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Convert design specs into working code from your terminal"
+    },
+    {
+      "name": "CodePen",
+      "url": "https://codepen.io",
+      "description": "Live playground to experiment with CSS animations and layouts"
+    },
+    {
+      "name": "Tailwind CSS",
+      "url": "https://tailwindcss.com",
+      "description": "Utility-first CSS framework — design directly in your HTML with readable classes"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/web_design",
+      "url": "https://reddit.com/r/web_design",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/Frontend",
+      "url": "https://reddit.com/r/Frontend",
+      "platform": "reddit"
+    },
+    {
+      "name": "Designership Slack",
+      "url": "https://designership.com/",
+      "platform": "other"
+    }
+  ],
+  "relatedSlugs": ["html-css", "build/personal-website", "javascript"],
+  "lastUpdated": "2026-03-10"
+}

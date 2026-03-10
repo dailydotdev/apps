@@ -1,0 +1,168 @@
+{
+  "slug": "python",
+  "title": "Learn Python",
+  "description": "Python is the most beginner-friendly programming language and the #1 choice for data science, automation, and AI. With AI coding assistants, you can start building real Python projects in minutes — not months.",
+  "dimension": "language",
+  "tags": ["python", "python3", "programming"],
+  "projectDescription": "You'll start by writing simple scripts that do real things — a number guessing game, a file organizer, a CLI tool. By the end, you'll have built a working API with a database. Each step builds on the last, and AI handles the syntax so you can focus on learning how programs think.",
+  "outcomes": [
+    "Write Python scripts that accept user input, do calculations, and produce useful output",
+    "Read and write files and JSON data so your programs remember things between runs",
+    "Build a real CLI tool with subcommands, just like git or npm",
+    "Deploy a working web app that anyone can access from a browser"
+  ],
+  "aiTips": [
+    "Paste error messages directly into the chat — AI is exceptionally good at explaining what went wrong and why",
+    "Ask the AI to explain each code block it generates before moving on; understanding beats copy-pasting",
+    "When you're stuck, describe what you *want* to happen in plain English rather than asking how to fix specific code",
+    "Use AI to generate a second, simpler version of any concept you don't understand — ask it to 'explain this like I've never coded before'"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Your first Python script",
+      "body": "Create a Python script that asks for my name and age, then tells me what year I was born and how many days I've been alive. Make it friendly and conversational.",
+      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~20 min",
+      "stuckTip": "If the math feels confusing, ask the AI to break the calculation into smaller steps and explain each one."
+    },
+    {
+      "step": 2,
+      "title": "Add file handling",
+      "body": "Modify the script to save each person's info to a JSON file called 'people.json'. If the file already exists, add to it instead of overwriting. Show me how to read back all the entries.",
+      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "If you get a file-not-found or JSON decode error, paste the exact error into the AI chat and ask what's causing it."
+    },
+    {
+      "step": 3,
+      "title": "Build a CLI tool",
+      "body": "Turn this into a proper command-line tool using argparse with three commands: 'add' to add a person, 'list' to show all people, and 'stats' to show the average age and oldest/youngest person.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~45 min",
+      "stuckTip": "Run `python tool.py --help` to see how argparse is wiring up your commands, and ask the AI to explain any flag that looks wrong."
+    },
+    {
+      "step": 4,
+      "title": "Add a web interface",
+      "body": "Create a simple Flask web app that does the same thing but in a browser. It should have a form to add people and a page that shows the list. Use a SQLite database instead of JSON.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If the app won't start, check that Flask is installed (`pip install flask`) and ask the AI to walk through the startup error line by line."
+    },
+    {
+      "step": 5,
+      "title": "Deploy it",
+      "body": "Help me deploy this Flask app to Railway or Render for free. Walk me through the steps and create the necessary configuration files (requirements.txt, Procfile, etc).",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "stretch",
+      "timeEstimate": "~45 min",
+      "stuckTip": "Deployment errors are almost always environment or config issues — paste the deploy log into the AI and ask it to pinpoint the first failure."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Variables and Types",
+      "explanation": "When you stored someone's name and age, Python created variables — named containers that hold data. Python figures out the type (text vs number) automatically, unlike many other languages."
+    },
+    {
+      "name": "File I/O and JSON",
+      "explanation": "Reading and writing files is how programs persist data between runs. JSON is a universal format for structured data — almost every API and config file uses it."
+    },
+    {
+      "name": "Command-line Arguments",
+      "explanation": "argparse turns your script into a real tool with subcommands and flags. This is how most developer tools work under the hood — git, npm, and pip all work this way."
+    },
+    {
+      "name": "Web Frameworks and HTTP",
+      "explanation": "Flask handles the HTTP request/response cycle — when someone visits a URL, Flask routes it to your Python function and sends back HTML. This is the foundation of every web application."
+    },
+    {
+      "name": "Databases and SQL",
+      "explanation": "SQLite gives you a real database in a single file. SQL is the language for querying data — SELECT, INSERT, UPDATE. Every web app uses a database, and the concepts transfer to PostgreSQL, MySQL, and others."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Python for Everybody (Dr. Chuck)",
+      "url": "https://www.py4e.com/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "Automate the Boring Stuff with Python",
+      "url": "https://automatetheboringstuff.com/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Official Python Tutorial",
+      "url": "https://docs.python.org/3/tutorial/",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Corey Schafer's Python Tutorials",
+      "url": "https://www.youtube.com/user/schaaborern",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "Real Python",
+      "url": "https://realpython.com/",
+      "type": "article",
+      "free": false
+    },
+    {
+      "title": "Exercism Python Track",
+      "url": "https://exercism.org/tracks/python",
+      "type": "course",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI-first code editor — the fastest way to write Python with AI assistance built in"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Terminal-based AI coding — great for Python scripts and CLI tools"
+    },
+    {
+      "name": "Replit",
+      "url": "https://replit.com",
+      "description": "Code in your browser with zero setup — perfect for beginners who don't want to install anything"
+    },
+    {
+      "name": "VS Code + Python Extension",
+      "url": "https://code.visualstudio.com/docs/python/python-tutorial",
+      "description": "The standard free editor with excellent Python support"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnpython",
+      "url": "https://reddit.com/r/learnpython",
+      "platform": "reddit"
+    },
+    {
+      "name": "Python Discord",
+      "url": "https://discord.gg/python",
+      "platform": "discord"
+    },
+    {
+      "name": "r/Python",
+      "url": "https://reddit.com/r/Python",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["build/todo-app", "vibe-coding", "javascript"],
+  "lastUpdated": "2026-03-08"
+}

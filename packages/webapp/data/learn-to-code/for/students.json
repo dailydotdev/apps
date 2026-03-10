@@ -1,0 +1,132 @@
+{
+  "slug": "for/students",
+  "title": "Coding for Students",
+  "description": "Whether you're studying CS or something completely different, coding is the most useful skill you can learn in school. It's not just for tech jobs — it helps you analyze data, automate homework, build side projects, and stand out in any career.",
+  "dimension": "audience",
+  "tags": ["python", "programming", "beginners", "career"],
+  "outcomes": [
+    "Automate repetitive study tasks like summarizing notes and generating flashcards",
+    "Build web apps with real data persistence that you can add to your portfolio",
+    "Analyze and visualize datasets for class assignments using Python and pandas",
+    "Deploy a full-stack project to the web using modern tools like React, Firebase, and Vercel"
+  ],
+  "aiTips": [
+    "Use AI as a study partner — ask it to explain why the code works, not just to write it for you",
+    "When debugging, describe what you expected vs what actually happened — that context helps AI find the real issue faster",
+    "Ask the AI to suggest what to learn next after each project so you build skills in the right order",
+    "If you're short on time before a deadline, tell the AI your constraints upfront so it scopes the solution appropriately"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "python",
+      "title": "Learn Python",
+      "reason": "The most beginner-friendly language — great for automating study tasks, analyzing data for class projects, and building scripts that save you hours."
+    },
+    {
+      "slug": "build/todo-app",
+      "title": "Build a Todo App",
+      "reason": "Your first real project that teaches web development fundamentals. Simple enough to finish in an afternoon, impressive enough to show friends."
+    },
+    {
+      "slug": "build/discord-bot",
+      "title": "Build a Discord Bot",
+      "reason": "Build something your friend group will actually use. Learn APIs, event handling, and deployment while making your server more fun."
+    },
+    {
+      "slug": "get-a-dev-job",
+      "title": "Get Your First Dev Job",
+      "reason": "Turn your coding skills into a career. Build a portfolio, nail interviews, and land your first developer role after graduation."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Text Processing",
+      "explanation": "Splitting text into chunks, finding patterns, and generating structured output from unstructured input. This is how chatbots, search engines, and autocomplete work under the hood."
+    },
+    {
+      "name": "State Management",
+      "explanation": "Keeping track of data that changes over time — your GPA as you add courses, your timer as it counts down. Understanding state is the key to building any interactive application."
+    },
+    {
+      "name": "Data Visualization",
+      "explanation": "Charts and graphs turn raw numbers into insights you can actually see. Libraries like matplotlib (Python) and Chart.js (JavaScript) make it easy to create professional visualizations from any dataset."
+    },
+    {
+      "name": "Full-Stack Development",
+      "explanation": "Frontend (what users see) + Backend (data storage, authentication) = a full-stack app. Firebase handles the backend so you can focus on the user experience without managing servers."
+    }
+  ],
+  "resources": [
+    {
+      "title": "CS50 — Harvard's Intro to Computer Science",
+      "url": "https://cs50.harvard.edu/x/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "The Odin Project",
+      "url": "https://www.theodinproject.com/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "freeCodeCamp",
+      "url": "https://www.freecodecamp.org/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "GitHub Student Developer Pack",
+      "url": "https://education.github.com/pack",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Codecademy",
+      "url": "https://www.codecademy.com/",
+      "type": "course",
+      "free": false
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor — build projects for class or side projects faster"
+    },
+    {
+      "name": "Replit",
+      "url": "https://replit.com",
+      "description": "Code from any computer — no installation needed, works on school laptops"
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com",
+      "description": "Store your code, collaborate on group projects, and build your portfolio"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Get AI help while learning — explain code, debug errors, build features"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/csMajors",
+      "url": "https://reddit.com/r/csMajors",
+      "platform": "reddit"
+    },
+    {
+      "name": "CS50 Discord",
+      "url": "https://discord.gg/cs50",
+      "platform": "discord"
+    }
+  ],
+  "relatedSlugs": ["python", "javascript", "get-a-dev-job"],
+  "lastUpdated": "2026-03-10"
+}

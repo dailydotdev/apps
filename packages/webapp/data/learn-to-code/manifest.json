@@ -1,0 +1,94 @@
+{
+  "pages": [
+    {
+      "slug": "python",
+      "title": "Learn Python",
+      "dimension": "language",
+      "lastUpdated": "2026-03-08"
+    },
+    {
+      "slug": "javascript",
+      "title": "Learn JavaScript",
+      "dimension": "language",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "html-css",
+      "title": "Learn HTML & CSS",
+      "dimension": "language",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "build/todo-app",
+      "title": "Build a Todo App",
+      "dimension": "usecase",
+      "lastUpdated": "2026-03-07"
+    },
+    {
+      "slug": "build/personal-website",
+      "title": "Build a Personal Website",
+      "dimension": "usecase",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "build/chrome-extension",
+      "title": "Build a Chrome Extension",
+      "dimension": "usecase",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "build/discord-bot",
+      "title": "Build a Discord Bot",
+      "dimension": "usecase",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "vibe-coding",
+      "title": "Vibe Coding",
+      "dimension": "technique",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "debugging",
+      "title": "Debugging with AI",
+      "dimension": "technique",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "for/marketers",
+      "title": "Coding for Marketers",
+      "dimension": "audience",
+      "lastUpdated": "2026-03-06"
+    },
+    {
+      "slug": "for/designers",
+      "title": "Coding for Designers",
+      "dimension": "audience",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "for/students",
+      "title": "Coding for Students",
+      "dimension": "audience",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "for/data-analysts",
+      "title": "Coding for Data Analysts",
+      "dimension": "audience",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "get-a-dev-job",
+      "title": "Get Your First Dev Job",
+      "dimension": "goal",
+      "lastUpdated": "2026-03-10"
+    },
+    {
+      "slug": "automate-your-workflow",
+      "title": "Automate Your Workflow",
+      "dimension": "goal",
+      "lastUpdated": "2026-03-10"
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "slug": "debugging",
+  "title": "Debugging with AI",
+  "description": "Bugs are inevitable — even AI-generated code has them. The good news is that AI is also incredible at finding and fixing bugs. Learning to debug effectively is the difference between giving up in frustration and actually shipping your project.",
+  "dimension": "technique",
+  "tags": ["debugging", "programming", "beginners"],
+  "projectDescription": "You'll work through increasingly tricky bugs — from simple typos to logic errors to mysterious crashes. Each prompt gives you a broken piece of code and guides you through fixing it with AI. By the end, you'll have a repeatable system for solving any bug.",
+  "outcomes": [
+    "Decode any error message and trace it back to the root cause",
+    "Use browser DevTools and VS Code debugger to step through code",
+    "Apply a systematic reproduce-isolate-fix workflow to any bug",
+    "Add TypeScript, validation, and tests to prevent bugs proactively"
+  ],
+  "aiTips": [
+    "Always paste the full error message and stack trace — the AI needs the exact text, not a paraphrase",
+    "If the AI's fix introduces a new bug, describe both the original error and the new one together",
+    "Ask the AI to explain why a bug happened, not just how to fix it — the explanation is the real learning",
+    "Use AI as a rubber duck: describe what your code should do line by line and it will often spot the issue before you finish"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Learn to read error messages",
+      "body": "I'm going to paste error messages I encounter while coding. For each one, explain: what the error means in plain English, what likely caused it, and how to fix it. Start with these common ones: TypeError, ReferenceError, SyntaxError, and ModuleNotFoundError. Give me a real code example for each that triggers the error.",
+      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~20 min",
+      "stuckTip": "If an error type is confusing, ask the AI to show you three different real-world examples of what triggers it."
+    },
+    {
+      "step": 2,
+      "title": "Debug a broken app",
+      "body": "Create a simple todo app in JavaScript that has 5 intentional bugs: a logic error, an off-by-one error, a missing null check, a scope issue, and a race condition. Show me the buggy code first. Then walk me through finding each bug using console.log, the browser debugger, and logical reasoning.",
+      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~40 min",
+      "stuckTip": "If you can't find a bug after 10 minutes, ask the AI to give you a single hint about which line range to look at — not the answer."
+    },
+    {
+      "step": 3,
+      "title": "Set up proper debugging tools",
+      "body": "Show me how to set up debugging for a Node.js project in VS Code: breakpoints, watch variables, step through code, and the debug console. Then do the same for a React app in Chrome DevTools: component inspector, network tab, and console filtering. Create a sample project to practice with.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~45 min",
+      "stuckTip": "If the VS Code debugger won't attach, ask the AI to walk you through the launch.json configuration for your specific project type."
+    },
+    {
+      "step": 4,
+      "title": "Debug someone else's code",
+      "body": "Generate a 100-line Python script that processes a CSV file but has 3 subtle bugs that only appear with certain data. Give me the script without telling me what the bugs are. Guide me through a systematic debugging approach: reproduce, isolate, identify, fix, verify.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "Create a minimal test CSV with only a few rows that triggers the bug — smaller inputs make issues much easier to isolate."
+    },
+    {
+      "step": 5,
+      "title": "Prevent bugs before they happen",
+      "body": "Take the todo app from step 2 and add: TypeScript for type safety, input validation for all user inputs, error boundaries for the React components, and 5 unit tests for the most critical functions. Explain how each prevention measure would have caught the original bugs.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If TypeScript migration feels overwhelming, ask the AI to convert one file at a time and explain each type annotation it adds."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Error Messages Are Your Friend",
+      "explanation": "Error messages tell you exactly what went wrong and where. The stack trace shows the chain of function calls that led to the error. Learning to read them is the single biggest debugging skill you can develop."
+    },
+    {
+      "name": "Reproduce, Isolate, Fix",
+      "explanation": "The debugging process: first make the bug happen reliably, then narrow down where it occurs (binary search by commenting out code), then fix it and verify the fix didn't break anything else."
+    },
+    {
+      "name": "Rubber Duck Debugging",
+      "explanation": "Explaining your code line by line — to an AI, a colleague, or even a rubber duck — often reveals the bug. The act of verbalizing your assumptions forces you to check each one. AI assistants are the ultimate rubber duck."
+    },
+    {
+      "name": "Defensive Programming",
+      "explanation": "Check for problems before they crash your app. Validate inputs, handle null values, add type checks. It's easier to prevent bugs than to find them after they happen."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Chrome DevTools Debugging Guide",
+      "url": "https://developer.chrome.com/docs/devtools/javascript/",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "VS Code Debugging Documentation",
+      "url": "https://code.visualstudio.com/docs/editor/debugging",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Fireship — Debugging Tips",
+      "url": "https://www.youtube.com/@Fireship",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "Python Debugging with pdb",
+      "url": "https://docs.python.org/3/library/pdb.html",
+      "type": "docs",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Chrome DevTools",
+      "url": "https://developer.chrome.com/docs/devtools/",
+      "description": "Built-in browser debugger — breakpoints, network inspector, console, and more"
+    },
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "Paste your error into the AI chat and get an explanation and fix instantly"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Describe your bug in plain English and let AI find and fix it in your codebase"
+    },
+    {
+      "name": "VS Code Debugger",
+      "url": "https://code.visualstudio.com/docs/editor/debugging",
+      "description": "Step through code line by line, inspect variables, and set breakpoints"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "Stack Overflow",
+      "url": "https://stackoverflow.com/",
+      "platform": "other"
+    },
+    {
+      "name": "r/webdev",
+      "url": "https://reddit.com/r/webdev",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["vibe-coding", "python", "javascript"],
+  "lastUpdated": "2026-03-10"
+}

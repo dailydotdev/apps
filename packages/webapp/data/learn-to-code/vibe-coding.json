@@ -1,0 +1,158 @@
+{
+  "slug": "vibe-coding",
+  "title": "Vibe Coding",
+  "description": "Vibe coding is building software by describing what you want in plain English and letting AI write the code. It's the fastest way to go from idea to working app — no syntax memorization required. The key skill isn't writing code, it's knowing what to ask for.",
+  "dimension": "technique",
+  "tags": ["ai", "ai-tools", "cursor", "programming"],
+  "projectDescription": "You'll go from describing an idea in plain English to deploying a working web app — no coding experience needed. You'll learn how to talk to AI effectively, iterate on what it builds, and ship a real project you can share with a link.",
+  "outcomes": [
+    "Build and deploy a working web app using only natural language prompts",
+    "Iterate on AI-generated code to add features and fix edge cases",
+    "Review and understand code you didn't write yourself",
+    "Ship a mobile-friendly PWA to a real URL"
+  ],
+  "aiTips": [
+    "Be specific about your tech stack upfront — 'React, TypeScript, Tailwind, localStorage' beats 'make a web app'",
+    "When output isn't right, tell the AI what's wrong rather than re-prompting from scratch",
+    "Use AI to explain generated code line by line so you understand what you own",
+    "Ask AI to review its own output for bugs before you run it — it often catches obvious issues"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Your first vibe-coded app",
+      "body": "Build me a personal bookmark manager. I want to paste a URL, and it should automatically fetch the page title, save it with tags I can add, and let me search through my saved bookmarks. Use React, TypeScript, and Tailwind. Store everything in localStorage.",
+      "tools": ["cursor", "claude-code", "replit"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "If the app won't run, paste the exact error message into the AI chat and ask it to explain and fix it."
+    },
+    {
+      "step": 2,
+      "title": "Make it smarter",
+      "body": "When I save a bookmark, auto-suggest 3 tags based on the URL and title. Group bookmarks by tag in the sidebar. Add a 'read later' queue that shows bookmarks I haven't opened yet.",
+      "tools": ["cursor", "claude-code", "replit"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "If the tag suggestions feel off, ask the AI to explain the logic it used and suggest a better approach."
+    },
+    {
+      "step": 3,
+      "title": "Add a feature you didn't plan",
+      "body": "Add a daily digest view that shows me 3 random unread bookmarks each morning. Also add import/export so I can backup my bookmarks as a JSON file and restore them on another device.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~45 min",
+      "stuckTip": "Break the feature into two separate prompts — daily digest first, then import/export — if the combined prompt produces messy results."
+    },
+    {
+      "step": 4,
+      "title": "Fix what broke",
+      "body": "Review the entire codebase and identify any bugs, performance issues, or edge cases I should fix. Then fix them. Explain each issue you found and why it matters.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "Ask the AI to focus on one category at a time (bugs, then performance, then edge cases) if the full review is overwhelming."
+    },
+    {
+      "step": 5,
+      "title": "Ship it",
+      "body": "Set up this project for deployment to Vercel. Add a nice README, proper meta tags for social sharing, and make sure it works well on mobile. Add a PWA manifest so I can install it as an app on my phone.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If Vercel deployment fails, share the build error with the AI and ask it to fix the configuration — most issues are environment or build settings."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Prompt Engineering for Code",
+      "explanation": "The quality of AI-generated code depends entirely on how you describe what you want. Being specific about tech stack, behavior, and edge cases produces dramatically better results than vague requests."
+    },
+    {
+      "name": "Iterative Development",
+      "explanation": "Vibe coding works best in layers — get the core working first, then add features one at a time. Each prompt builds on the last. Trying to describe everything at once usually produces worse results."
+    },
+    {
+      "name": "Code Review as a Skill",
+      "explanation": "When AI writes your code, your job shifts to reviewing it. Can you spot a bug? Does the approach make sense? Understanding code you didn't write is arguably more important than writing it yourself."
+    },
+    {
+      "name": "The 80/20 of Vibe Coding",
+      "explanation": "AI gets you to 80% fast. The last 20% — edge cases, polish, performance — is where you'll learn the most. This is where you start understanding what the code actually does."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Andrej Karpathy on Vibe Coding",
+      "url": "https://x.com/karpathy/status/1886192184808149383",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Cursor Documentation",
+      "url": "https://docs.cursor.com",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Claude Code Getting Started",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/overview",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "The Uncomfortable Truth About Vibe Coding",
+      "url": "https://developers.redhat.com/articles/2026/02/17/uncomfortable-truth-about-vibe-coding",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Fireship - Vibe Coding Explained",
+      "url": "https://www.youtube.com/fireship",
+      "type": "video",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "The most popular AI code editor — built specifically for vibe coding workflows"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Agentic coding in your terminal — great for building full projects from a description"
+    },
+    {
+      "name": "Replit Agent",
+      "url": "https://replit.com",
+      "description": "Describe your app, Replit builds and deploys it — the most beginner-friendly option"
+    },
+    {
+      "name": "Lovable",
+      "url": "https://lovable.dev",
+      "description": "AI full-stack engineer — generates complete apps from a single prompt"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/vibecoding",
+      "url": "https://reddit.com/r/vibecoding",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/ChatGPTCoding",
+      "url": "https://reddit.com/r/ChatGPTCoding",
+      "platform": "reddit"
+    },
+    {
+      "name": "Cursor Community Discord",
+      "url": "https://discord.gg/cursor",
+      "platform": "discord"
+    }
+  ],
+  "relatedSlugs": ["python", "build/todo-app", "for/marketers"],
+  "lastUpdated": "2026-03-10"
+}
