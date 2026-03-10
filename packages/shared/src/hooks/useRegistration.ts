@@ -28,8 +28,8 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
+import type { BetterAuthResponse } from '../lib/betterAuth';
 import {
-  type BetterAuthResponse,
   betterAuthSignIn,
   betterAuthSignUp,
   betterAuthSendSignupVerification,
@@ -74,15 +74,20 @@ const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
   "We couldn't complete sign up. If you already have an account, try signing in instead.";
 
+const VERIFICATION_ERROR_CODES = new Set([
+  '403',
+  'EMAIL_NOT_VERIFIED',
+  'VERIFICATION_REQUIRED',
+]);
+
 const isBetterAuthVerificationRequired = (
   response: BetterAuthResponse,
 ): boolean => {
-  if (response.code === '403') {
+  if (response.code && VERIFICATION_ERROR_CODES.has(response.code)) {
     return true;
   }
 
   const error = response.error?.toLowerCase();
-
   if (!error) {
     return false;
   }
@@ -309,7 +314,7 @@ const useRegistration = ({
     },
   ) => {
     if (isBetterAuth) {
-      const turnstileToken = values.headers?.['True-Client-Ip'];
+      const turnstileToken = values.headers?.['x-turnstile-token'];
       await betterAuthRegister({
         name: values['traits.name'] as string,
         email: values['traits.email'] as string,
