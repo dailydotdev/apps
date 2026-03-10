@@ -3,15 +3,16 @@ import { render, screen } from '@testing-library/react';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import {
-  useActions,
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useActions } from '../../hooks/useActions';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
+import {
+  agentsLeaderboardEntrypointFeature,
+  installExtensionPromptFeature,
+} from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -23,13 +24,19 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
 }));
 
-jest.mock('../../hooks', () => ({
+jest.mock('../../hooks/useActions', () => ({
+  useActions: jest.fn(),
+}));
+
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
+}));
+
+jest.mock('../../hooks/useViewSize', () => ({
   ViewSize: {
     Laptop: 'laptop',
     MobileL: 'mobile',
   },
-  useActions: jest.fn(),
-  useConditionalFeature: jest.fn(),
   useViewSize: jest.fn(),
 }));
 
@@ -51,28 +58,19 @@ jest.mock('../../hooks/utils/useQueryState', () => ({
 jest.mock('../filters/MyFeedHeading', () => ({
   __esModule: true,
   default: function MockMyFeedHeading() {
-    return <div>My Feed</div>;
+    return null;
   },
 }));
+
 jest.mock('../buttons/ToggleClickbaitShield', () => ({
   ToggleClickbaitShield: function MockToggleClickbaitShield() {
-    return <div>Toggle Clickbait Shield</div>;
+    return null;
   },
 }));
+
 jest.mock('../filters/AchievementTrackerButton', () => ({
   AchievementTrackerButton: function MockAchievementTrackerButton() {
-    return <div>Achievement Tracker</div>;
-  },
-}));
-jest.mock('../filters/AgentsLeaderboardEntrypointButton', () => ({
-  AgentsLeaderboardEntrypointButton:
-    function MockAgentsLeaderboardEntrypointButton() {
-      return <div>Agents Leaderboard</div>;
-    },
-}));
-jest.mock('../streak/ReadingStreakButton', () => ({
-  ReadingStreakButton: function MockReadingStreakButton() {
-    return <div>Reading Streak</div>;
+    return null;
   },
 }));
 
@@ -84,6 +82,8 @@ const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
+
+let isInstallExtensionPromptEnabled = true;
 
 const renderComponent = () =>
   render(
@@ -97,6 +97,8 @@ const renderComponent = () =>
 
 describe('SearchControlHeader', () => {
   beforeEach(() => {
+    isInstallExtensionPromptEnabled = true;
+
     mockUseAuthContext.mockReturnValue({ user: { flags: {} } });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
@@ -110,9 +112,17 @@ describe('SearchControlHeader', () => {
       isSortableFeed: false,
     });
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
-    mockUseConditionalFeature
-      .mockReturnValueOnce({ value: true })
-      .mockReturnValueOnce({ value: null });
+    mockUseConditionalFeature.mockImplementation(({ feature }) => {
+      if (feature === installExtensionPromptFeature) {
+        return { value: isInstallExtensionPromptEnabled };
+      }
+
+      if (feature === agentsLeaderboardEntrypointFeature) {
+        return { value: null };
+      }
+
+      return { value: null };
+    });
   });
 
   afterEach(() => {
