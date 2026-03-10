@@ -99,7 +99,7 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { checkHasCompleted, completeAction } = useActions();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
   const { value: isInstallExtensionPrompt } = useConditionalFeature({
@@ -140,6 +140,7 @@ export const SearchControlHeader = ({
     ActionType.DismissInstallExtension,
   );
   const installExtensionButton = hasFeedActions &&
+    isActionsFetched &&
     isInstallExtensionPrompt &&
     !hasDismissedInstallExtension && (
       <>
