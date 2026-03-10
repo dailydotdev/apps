@@ -22,7 +22,7 @@
       "step": 1,
       "title": "Automate file organization",
       "body": "Write a Python script that watches my Downloads folder and automatically organizes files into subfolders by type: Images (jpg, png, gif, svg), Documents (pdf, docx, xlsx), Videos (mp4, mov), Code (py, js, html, css), and Archives (zip, tar, gz). Move each file to the right folder as soon as it appears.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~30 min",
       "stuckTip": "If the file watcher doesn't trigger, ask the AI to show you how to test the script manually first by passing a folder path as a command-line argument."
@@ -31,7 +31,7 @@
       "step": 2,
       "title": "Batch rename files",
       "body": "Create a Python script that batch renames files in a folder. It should support: adding a prefix or suffix, replacing text in filenames, converting to lowercase, adding sequential numbers, and inserting the date. Show a preview of changes before applying them. Add an undo feature that can reverse the last rename operation.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~30 min",
       "stuckTip": "If the undo feature is confusing to implement, ask the AI to save a rename log as a JSON file that can be replayed in reverse."
@@ -123,11 +123,6 @@
       "name": "Zapier",
       "url": "https://zapier.com",
       "description": "No-code automation for connecting apps — good starting point before Python"
-    },
-    {
-      "name": "Replit",
-      "url": "https://replit.com",
-      "description": "Run Python scripts in the browser and schedule them to run automatically"
     }
   ],
   "communities": [

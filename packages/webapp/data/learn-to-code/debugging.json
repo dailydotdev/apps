@@ -22,7 +22,7 @@
       "step": 1,
       "title": "Learn to read error messages",
       "body": "I'm going to paste error messages I encounter while coding. For each one, explain: what the error means in plain English, what likely caused it, and how to fix it. Start with these common ones: TypeError, ReferenceError, SyntaxError, and ModuleNotFoundError. Give me a real code example for each that triggers the error.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~20 min",
       "stuckTip": "If an error type is confusing, ask the AI to show you three different real-world examples of what triggers it."
@@ -31,7 +31,7 @@
       "step": 2,
       "title": "Debug a broken app",
       "body": "Create a simple todo app in JavaScript that has 5 intentional bugs: a logic error, an off-by-one error, a missing null check, a scope issue, and a race condition. Show me the buggy code first. Then walk me through finding each bug using console.log, the browser debugger, and logical reasoning.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~40 min",
       "stuckTip": "If you can't find a bug after 10 minutes, ask the AI to give you a single hint about which line range to look at — not the answer."

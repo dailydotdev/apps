@@ -40,7 +40,7 @@
       "step": 3,
       "title": "Practice coding challenges",
       "body": "Give me 5 coding challenges that commonly appear in junior developer interviews. For each one: state the problem clearly, let me attempt it, then show the optimal solution with a step-by-step explanation. Cover: array manipulation, string processing, basic algorithms, object transformation, and async/promises.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "intermediate",
       "timeEstimate": "~90 min",
       "stuckTip": "If you're completely blocked on a challenge, ask the AI for just the algorithm approach (not the code) so you can implement it yourself."

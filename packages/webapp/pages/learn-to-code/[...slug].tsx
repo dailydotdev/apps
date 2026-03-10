@@ -37,6 +37,8 @@ import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons';
+import { AlertIcon } from '@dailydotdev/shared/src/components/icons/Alert';
+import { ShareIcon } from '@dailydotdev/shared/src/components/icons/Share';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -44,10 +46,12 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import type {
+  HowItWorksStep,
   LeafPageData,
   Manifest,
   Prompt,
   RecommendedPath,
+  TroubleshootingItem,
 } from '../../data/learn-to-code/types';
 import type { DynamicSeoProps } from '../../components/common';
 import manifest from '../../data/learn-to-code/manifest.json';
@@ -65,7 +69,6 @@ function ForceListMode({ children }: { children: ReactNode }): ReactElement {
 const TOOL_LABELS: Record<string, string> = {
   cursor: 'Cursor',
   'claude-code': 'Claude Code',
-  replit: 'Replit',
   generic: 'Any AI Tool',
 };
 
@@ -73,6 +76,12 @@ const DIFFICULTY_LABELS: Record<string, string> = {
   beginner: 'Beginner',
   intermediate: 'Intermediate',
   stretch: 'Stretch',
+};
+
+const DIFFICULTY_COLORS: Record<string, string> = {
+  beginner: 'bg-accent-avocado-default',
+  intermediate: 'bg-accent-cheese-default',
+  stretch: 'bg-accent-onion-default',
 };
 
 const RESOURCE_TYPE_ICONS: Record<string, ReactElement> = {
@@ -105,6 +114,61 @@ const PLATFORM_LABELS: Record<string, string> = {
   reddit: 'Reddit',
   discord: 'Discord',
   other: 'Web',
+};
+
+const DEFAULT_HOW_IT_WORKS: HowItWorksStep[] = [
+  {
+    title: 'Pick a free AI tool',
+    subtitle: 'Cursor, Claude Code, or any tool you like — all work great',
+  },
+  {
+    title: 'Copy a prompt below',
+    subtitle:
+      "Each prompt tells the AI exactly what to build — you don't need to know the syntax",
+  },
+  {
+    title: 'Paste and watch it build',
+    subtitle:
+      'The AI writes the code, you see real results — then learn what it did and why',
+  },
+];
+
+const DEFAULT_PREREQUISITES: string[] = [
+  'A laptop or desktop computer',
+  'About 30 minutes of free time',
+  'One free AI tool (see recommendations below)',
+  'Zero coding experience required',
+];
+
+const DEFAULT_TROUBLESHOOTING: TroubleshootingItem[] = [
+  {
+    problem: "It broke and I don't know why",
+    fix: 'Paste the full error into AI chat. Copy the exact error text, not a paraphrase. AI is exceptionally good at explaining what went wrong.',
+  },
+  {
+    problem: "The code doesn't do what I expected",
+    fix: 'Describe what you want vs what happened. Be specific: "I expected X but got Y" gets better results than "it\'s wrong."',
+  },
+  {
+    problem: "I feel like I'm not actually learning",
+    fix: "That's normal. Modify one thing in the AI-generated code yourself. Then another. Understanding comes from changing code, not just reading it.",
+  },
+  {
+    problem: 'The AI keeps going in circles',
+    fix: "Start fresh. Delete the broken code and re-prompt from scratch with a clearer description. Don't try to fix bad code forever.",
+  },
+  {
+    problem: "I can't deploy it",
+    fix: 'This is the hardest step for everyone. Follow the deployment prompt step by step and paste every error into AI chat.',
+  },
+];
+
+const DEFAULT_LEARNING_RULE =
+  'AI gets you to code faster. But understanding what it built is what makes you a developer. After each prompt, ask: "Explain this code to me line by line." That single habit is the difference between vibe coding and actually learning.';
+
+const DEFAULT_SHIP_CTA = {
+  title: 'You built it — now ship it',
+  body: 'Deploy your project and share the link. Post what you built on daily.dev and tag it #LearnToCode — other beginners seeing "someone like me built this" is the most powerful motivation there is.',
 };
 
 interface LeafPageParams extends ParsedUrlQuery {
@@ -175,12 +239,48 @@ function PromptCard({ prompt }: { prompt: Prompt }): ReactElement {
           </Button>
         </div>
 
-        {/* The prompt text — styled like a friendly message, not a code block */}
+        {/* The prompt text */}
         <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5">
           <p className="whitespace-pre-wrap text-text-secondary typo-body">
             {prompt.body}
           </p>
         </div>
+
+        {/* Expected output */}
+        {prompt.expectedOutput && (
+          <div className="border-l-2 border-accent-avocado-default pl-4">
+            <p className="text-text-tertiary typo-footnote">
+              <span className="font-bold text-text-secondary">
+                What you should see:
+              </span>{' '}
+              {prompt.expectedOutput}
+            </p>
+          </div>
+        )}
+
+        {/* Comprehension prompt */}
+        {prompt.comprehensionPrompt && (
+          <div className="border-l-2 border-accent-water-default pl-4">
+            <p className="text-text-tertiary typo-footnote">
+              <span className="font-bold text-text-secondary">
+                Now understand it:
+              </span>{' '}
+              {prompt.comprehensionPrompt}
+            </p>
+          </div>
+        )}
+
+        {/* Challenge */}
+        {prompt.challenge && (
+          <div className="border-l-2 border-accent-onion-default pl-4">
+            <p className="text-text-tertiary typo-footnote">
+              <span className="font-bold text-text-secondary">
+                Try it yourself:
+              </span>{' '}
+              {prompt.challenge}
+            </p>
+          </div>
+        )}
 
         {/* Stuck tip */}
         {prompt.stuckTip && (
@@ -262,7 +362,38 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
     .map((slug) => pages.find((p) => p.slug === slug))
     .filter(Boolean);
 
-  const jsonLd = isSubHub
+  const howItWorks = pageData.howItWorks ?? DEFAULT_HOW_IT_WORKS;
+  const prerequisites = pageData.prerequisites ?? DEFAULT_PREREQUISITES;
+  const troubleshooting = pageData.troubleshooting ?? DEFAULT_TROUBLESHOOTING;
+  const learningRule = pageData.learningRule ?? DEFAULT_LEARNING_RULE;
+  const shipCta = pageData.shipCta ?? DEFAULT_SHIP_CTA;
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://app.daily.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Learn to Code',
+        item: 'https://app.daily.dev/learn-to-code',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: pageData.title,
+        item: `https://app.daily.dev/learn-to-code/${pageData.slug}`,
+      },
+    ],
+  };
+
+  const pageLd = isSubHub
     ? {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
@@ -293,6 +424,8 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
         })),
       };
 
+  const jsonLd = [pageLd, breadcrumbLd];
+
   return (
     <div className="relative mx-auto flex w-full max-w-[69.25rem] flex-col">
       <Head>
@@ -311,7 +444,7 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
           </Link>
         </BreadCrumbs>
 
-        {/* Hero — full width above the two columns */}
+        {/* Hero */}
         <header className="mb-8 mt-8 flex flex-col gap-4 laptop:mt-10">
           <h1 className="font-bold text-text-primary typo-title1 laptop:typo-mega2">
             {pageData.title}
@@ -349,49 +482,21 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
                 How this works
               </h2>
               <div className="grid grid-cols-1 gap-4 tablet:grid-cols-3">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtlest font-bold text-accent-cabbage-default typo-callout">
-                    1
-                  </span>
-                  <div className="flex flex-1 flex-col gap-1">
-                    <span className="font-bold text-text-primary typo-callout">
-                      Pick a free AI tool
+                {howItWorks.map((step, index) => (
+                  <div key={step.title} className="flex items-start gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtlest font-bold text-accent-cabbage-default typo-callout">
+                      {index + 1}
                     </span>
-                    <span className="text-text-quaternary typo-footnote">
-                      {pageData.tools[0]?.name || 'Cursor'},{' '}
-                      {pageData.tools[1]?.name || 'Replit'}, or any tool you
-                      like — all work great
-                    </span>
+                    <div className="flex flex-1 flex-col gap-1">
+                      <span className="font-bold text-text-primary typo-callout">
+                        {step.title}
+                      </span>
+                      <span className="text-text-quaternary typo-footnote">
+                        {step.subtitle}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtlest font-bold text-accent-cabbage-default typo-callout">
-                    2
-                  </span>
-                  <div className="flex flex-1 flex-col gap-1">
-                    <span className="font-bold text-text-primary typo-callout">
-                      Copy a prompt below
-                    </span>
-                    <span className="text-text-quaternary typo-footnote">
-                      Each prompt tells the AI exactly what to build — you
-                      don&apos;t need to know the syntax
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-cabbage-subtlest font-bold text-accent-cabbage-default typo-callout">
-                    3
-                  </span>
-                  <div className="flex flex-1 flex-col gap-1">
-                    <span className="font-bold text-text-primary typo-callout">
-                      Paste and watch it build
-                    </span>
-                    <span className="text-text-quaternary typo-footnote">
-                      The AI writes the code, you see real results — then learn
-                      what it did and why
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </section>
 
@@ -401,30 +506,17 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
                   What you need to start
                 </h3>
                 <ul className="flex flex-col gap-3">
-                  <li className="flex items-center gap-3 text-text-secondary typo-body">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-subtlest text-accent-avocado-default typo-caption2">
-                      ✓
-                    </span>
-                    A laptop or desktop computer
-                  </li>
-                  <li className="flex items-center gap-3 text-text-secondary typo-body">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-subtlest text-accent-avocado-default typo-caption2">
-                      ✓
-                    </span>
-                    About 30 minutes of free time
-                  </li>
-                  <li className="flex items-center gap-3 text-text-secondary typo-body">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-subtlest text-accent-avocado-default typo-caption2">
-                      ✓
-                    </span>
-                    One free AI tool (see recommendations below)
-                  </li>
-                  <li className="flex items-center gap-3 text-text-secondary typo-body">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-subtlest text-accent-avocado-default typo-caption2">
-                      ✓
-                    </span>
-                    Zero coding experience required
-                  </li>
+                  {prerequisites.map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-center gap-3 text-text-secondary typo-body"
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-subtlest text-accent-avocado-default typo-caption2">
+                        ✓
+                      </span>
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
@@ -472,6 +564,18 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
               </section>
             )}
 
+            {/* AI Learning Rule */}
+            {!isSubHub && pageData.prompts && pageData.prompts.length > 0 && (
+              <div className="mb-8 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-6">
+                <p className="text-text-secondary typo-callout">
+                  <span className="font-bold text-text-primary">
+                    The #1 rule for learning with AI:
+                  </span>{' '}
+                  {learningRule}
+                </p>
+              </div>
+            )}
+
             {/* Leaf page: Start Building — prompts */}
             {!isSubHub && pageData.prompts && pageData.prompts.length > 0 && (
               <section>
@@ -492,9 +596,91 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
                     </p>
                   </div>
                 </div>
+
+                {/* Difficulty progression bar */}
+                <div
+                  className="mb-6 flex items-center gap-1"
+                  role="list"
+                  aria-label="Step difficulty progression"
+                >
+                  {(pageData.prompts || []).map((prompt) => {
+                    const difficulty = prompt.difficulty || 'beginner';
+
+                    return (
+                      <div
+                        key={prompt.step}
+                        role="listitem"
+                        className="flex flex-1 flex-col items-center gap-1.5"
+                        aria-label={`Step ${prompt.step}: ${DIFFICULTY_LABELS[difficulty]}`}
+                      >
+                        <div
+                          className={`h-1 w-full rounded-full ${DIFFICULTY_COLORS[difficulty]}`}
+                        />
+                        <span className="text-text-quaternary typo-caption2">
+                          {prompt.step}. {DIFFICULTY_LABELS[difficulty]}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <div className="flex flex-col gap-5">
                   {pageData.prompts.map((prompt) => (
                     <PromptCard key={prompt.step} prompt={prompt} />
+                  ))}
+                </div>
+
+                {/* Ship & Share CTA */}
+                <div className="mt-8 rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
+                  <div className="flex items-start gap-3">
+                    <ShareIcon
+                      size={IconSize.Medium}
+                      className="shrink-0 text-text-tertiary"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <span className="font-bold text-text-primary typo-callout">
+                        {shipCta.title}
+                      </span>
+                      <p className="text-text-tertiary typo-footnote">
+                        {shipCta.body}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* When things go wrong */}
+            {!isSubHub && (
+              <section className="mt-14">
+                <div className="mb-6 flex items-start gap-3">
+                  <AlertIcon
+                    size={IconSize.Medium}
+                    className="shrink-0 text-text-tertiary"
+                  />
+                  <div className="flex-1">
+                    <h2 className="font-bold text-text-primary typo-title2">
+                      When things go wrong
+                    </h2>
+                    <p className="text-text-tertiary typo-footnote">
+                      Getting stuck is normal — every developer does.
+                      Here&apos;s how to get unstuck fast.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4">
+                  {troubleshooting.map((item) => (
+                    <div
+                      key={item.problem}
+                      className="rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-5 transition-all duration-200 hover:border-border-subtlest-secondary"
+                    >
+                      <h3 className="font-bold text-text-primary typo-callout">
+                        &ldquo;{item.problem}&rdquo;
+                      </h3>
+                      <p className="mt-2 text-text-secondary typo-body">
+                        {item.fix}
+                      </p>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -607,7 +793,7 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
             )}
           </div>
 
-          {/* Sidebar — sticky widgets */}
+          {/* Sidebar */}
           <aside className="flex w-full flex-col gap-6 px-0 pt-8 laptop:w-[21.25rem] laptop:max-w-[21.25rem] laptop:px-4 laptop:pt-0">
             {/* Tools widget */}
             <div className="flex flex-col gap-3">
@@ -772,7 +958,7 @@ export async function getStaticProps({
     const pageData = dataModule.default as LeafPageData;
 
     const seoTitles = getPageSeoTitles(
-      `Learn ${pageData.title} — Prompts, Resources & Community`,
+      `Learn ${pageData.title} with AI — Copy-Paste Prompts, Build Real Projects`,
     );
 
     return {

@@ -84,11 +84,6 @@
   ],
   "tools": [
     {
-      "name": "Replit",
-      "url": "https://replit.com",
-      "description": "Write and run code in your browser — no setup, no terminal, just start"
-    },
-    {
       "name": "Claude Code",
       "url": "https://docs.anthropic.com/en/docs/claude-code",
       "description": "Describe what you want automated in plain English and it builds it"

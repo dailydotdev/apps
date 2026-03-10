@@ -22,7 +22,7 @@
       "step": 1,
       "title": "Your first web page",
       "body": "Create a personal homepage about me. Include a heading with my name, a short bio paragraph, a profile photo placeholder, and a list of 3 hobbies. Use semantic HTML (header, main, section, footer). Add basic CSS to center everything and use a nice font.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~30 min",
       "stuckTip": "Open the page in Chrome, right-click any element, and choose 'Inspect' to see exactly what styles are being applied and why."
@@ -31,7 +31,7 @@
       "step": 2,
       "title": "Make it responsive",
       "body": "Update the homepage to look great on both phones and desktops. Add a navigation bar that collapses into a hamburger menu on mobile. Use CSS Grid for the layout and Flexbox for the nav. Add a dark color scheme with good contrast.",
-      "tools": ["cursor", "claude-code", "replit", "generic"],
+      "tools": ["cursor", "claude-code", "generic"],
       "difficulty": "beginner",
       "timeEstimate": "~45 min",
       "stuckTip": "Toggle Chrome DevTools into mobile view (Ctrl+Shift+M) and shrink the viewport width slowly to pinpoint exactly where the layout breaks."
@@ -40,7 +40,7 @@
       "step": 3,
       "title": "Add a project showcase",
       "body": "Add a 'Projects' section with 4 cards in a responsive grid. Each card should have an image, title, description, and a 'View project' link. Cards should have a subtle shadow and a hover effect that lifts them up slightly.",
-      "tools": ["cursor", "claude-code", "replit"],
+      "tools": ["cursor", "claude-code"],
       "difficulty": "intermediate",
       "timeEstimate": "~1 hr",
       "stuckTip": "If the grid isn't behaving, paste your CSS into the AI and ask it to explain what each grid property does — understanding grid-template-columns will unblock most issues."
@@ -49,7 +49,7 @@
       "step": 4,
       "title": "Build a contact form",
       "body": "Add a contact section with a form that has name, email, and message fields. Style the inputs to match the page design. Add CSS-only validation styles — green border for valid fields, red for invalid. The submit button should have a gradient background.",
-      "tools": ["cursor", "claude-code", "replit"],
+      "tools": ["cursor", "claude-code"],
       "difficulty": "stretch",
       "timeEstimate": "~1 hr",
       "stuckTip": "CSS validation styles rely on :valid and :invalid pseudo-classes — ask the AI to explain how browsers decide when an input is valid, and make sure your inputs have the correct type attribute."
@@ -124,11 +124,6 @@
       "name": "CodePen",
       "url": "https://codepen.io",
       "description": "Live HTML/CSS playground — see your changes instantly in the browser"
-    },
-    {
-      "name": "Replit",
-      "url": "https://replit.com",
-      "description": "Full web development environment in your browser, no setup needed"
     },
     {
       "name": "Chrome DevTools",

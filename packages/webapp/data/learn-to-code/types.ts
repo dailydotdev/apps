@@ -5,13 +5,25 @@ export type LeafPageDimension =
   | 'technique'
   | 'goal';
 
-export type PromptTool = 'cursor' | 'claude-code' | 'replit' | 'generic';
+export type PromptTool = 'cursor' | 'claude-code' | 'generic';
 
 export type ResourceType = 'video' | 'article' | 'course' | 'docs';
 
 export type CommunityPlatform = 'dailydev' | 'reddit' | 'discord' | 'other';
 
 export type PromptDifficulty = 'beginner' | 'intermediate' | 'stretch';
+
+export type IconKey =
+  | 'sparkle'
+  | 'magic'
+  | 'graduation'
+  | 'hammer'
+  | 'star'
+  | 'trending'
+  | 'terminal'
+  | 'alert'
+  | 'share'
+  | 'upvote';
 
 export interface Prompt {
   step: number;
@@ -21,6 +33,9 @@ export interface Prompt {
   difficulty?: PromptDifficulty;
   timeEstimate?: string;
   stuckTip?: string;
+  expectedOutput?: string;
+  comprehensionPrompt?: string;
+  challenge?: string;
 }
 
 export interface Concept {
@@ -53,6 +68,16 @@ export interface RecommendedPath {
   reason: string;
 }
 
+export interface HowItWorksStep {
+  title: string;
+  subtitle: string;
+}
+
+export interface TroubleshootingItem {
+  problem: string;
+  fix: string;
+}
+
 export interface LeafPageData {
   slug: string;
   title: string;
@@ -70,6 +95,14 @@ export interface LeafPageData {
   communities: Community[];
   relatedSlugs: string[];
   lastUpdated: string;
+  howItWorks?: HowItWorksStep[];
+  prerequisites?: string[];
+  troubleshooting?: TroubleshootingItem[];
+  learningRule?: string;
+  shipCta?: {
+    title: string;
+    body: string;
+  };
 }
 
 export interface ManifestEntry {
@@ -81,4 +114,36 @@ export interface ManifestEntry {
 
 export interface Manifest {
   pages: ManifestEntry[];
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface PopularPath {
+  title: string;
+  slug: string;
+  subtitle: string;
+  gradient: string;
+  accentColor: string;
+  iconKey: IconKey;
+}
+
+export interface HubData {
+  seo: {
+    title: string;
+    description: string;
+  };
+  hero: {
+    heading: string;
+    subtitle: string;
+  };
+  popularPaths: PopularPath[];
+  dimensions: {
+    order: LeafPageDimension[];
+    titles: Record<string, string>;
+    icons: Record<string, IconKey>;
+  };
+  faq: FaqItem[];
 }

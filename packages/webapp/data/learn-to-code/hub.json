@@ -1,0 +1,83 @@
+{
+  "seo": {
+    "title": "Learn to Code with AI — Free Prompts, Build Real Projects in 30 Min",
+    "description": "Copy a prompt into Cursor or Claude Code, watch AI build your first project, then learn what it did. No experience needed. Start building in minutes — free prompts, real projects, zero setup."
+  },
+  "hero": {
+    "heading": "Build anything you can describe",
+    "subtitle": "Copy a prompt into your AI coding tool, watch it build your project, then learn what it did and why. No experience needed — start building in minutes."
+  },
+  "popularPaths": [
+    {
+      "title": "I have an app idea",
+      "slug": "vibe-coding",
+      "subtitle": "Describe what you want, AI builds it. Go from idea to deployed app in an afternoon.",
+      "gradient": "from-accent-onion-default/20 to-accent-bacon-default/10",
+      "accentColor": "accent-onion-default",
+      "iconKey": "sparkle"
+    },
+    {
+      "title": "I want to automate boring work",
+      "slug": "automate-your-workflow",
+      "subtitle": "Annoyed by repetitive tasks? Build scripts that handle the boring parts for you.",
+      "gradient": "from-accent-water-default/20 to-accent-blueCheese-default/10",
+      "accentColor": "accent-water-default",
+      "iconKey": "magic"
+    },
+    {
+      "title": "I want to understand what AI writes",
+      "slug": "python",
+      "subtitle": "Learn the fundamentals so you can read, modify, and debug AI-generated code.",
+      "gradient": "from-accent-cheese-default/20 to-accent-avocado-default/10",
+      "accentColor": "accent-cheese-default",
+      "iconKey": "graduation"
+    },
+    {
+      "title": "I want to build something fun",
+      "slug": "build/discord-bot",
+      "subtitle": "Build a Discord bot, a web game, or a personal tool this weekend — no experience needed.",
+      "gradient": "from-accent-cabbage-default/20 to-accent-onion-default/10",
+      "accentColor": "accent-cabbage-default",
+      "iconKey": "hammer"
+    }
+  ],
+  "dimensions": {
+    "order": ["language", "usecase", "audience", "technique", "goal"],
+    "titles": {
+      "language": "By language",
+      "usecase": "By project",
+      "audience": "By audience",
+      "technique": "By technique",
+      "goal": "By goal"
+    },
+    "icons": {
+      "language": "graduation",
+      "usecase": "hammer",
+      "audience": "magic",
+      "technique": "sparkle",
+      "goal": "star"
+    }
+  },
+  "faq": [
+    {
+      "question": "Is it too late to learn to code in 2026?",
+      "answer": "No — it's actually the best time. AI coding tools have dramatically lowered the barrier to entry. You can build real applications by describing what you want in plain English, and learn the underlying concepts as you go."
+    },
+    {
+      "question": "Should I learn to code or just use AI?",
+      "answer": "Both. Use AI to build things fast, then learn the concepts behind what it built. Understanding code gives you a lasting edge — you can debug problems, make better architectural decisions, and push AI tools further."
+    },
+    {
+      "question": "What programming language should I learn first?",
+      "answer": "Python if you want to automate tasks and work with data. JavaScript if you want to build websites and web apps. Both are beginner-friendly and have massive communities. Don't overthink it — the concepts transfer between languages."
+    },
+    {
+      "question": "Can I learn to code for free?",
+      "answer": "Yes. freeCodeCamp, The Odin Project, Python.org, and JavaScript.info are all free and excellent. Pair them with an AI coding tool like Cursor or Claude Code and you have everything you need."
+    },
+    {
+      "question": "What is vibe coding?",
+      "answer": "Vibe coding means building software by describing what you want in natural language and letting AI write the code. Coined by Andrej Karpathy, it's become a popular way for beginners and non-developers to build real applications."
+    }
+  ]
+}
