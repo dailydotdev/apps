@@ -26,10 +26,10 @@ import { AskHowItWorks } from '@dailydotdev/shared/src/features/ask/components/A
 import { AskComparison } from '@dailydotdev/shared/src/features/ask/components/AskComparison';
 import { AskInstall } from '@dailydotdev/shared/src/features/ask/components/AskInstall';
 import { AskFAQ } from '@dailydotdev/shared/src/features/ask/components/AskFAQ';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { getLayout } from '../../components/layouts/MainLayout';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
-import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../../components/layouts/MainLayout';
+import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles('daily-dev-ask | WebSearch for developers');
 const seo: NextSeoProps = {
