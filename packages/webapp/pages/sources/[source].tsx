@@ -73,6 +73,10 @@ import type { DynamicSeoProps } from '../../components/common';
 import { getAppOrigin } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
+const pageSectionClassName = 'mx-4';
+const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
+const pageFeedClassName = '!mx-4 !w-auto';
+const horizontalFeedClassName = 'laptop:!mx-4';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
@@ -109,7 +113,6 @@ const SourceRelatedTags = ({
 };
 
 const SimilarSources = ({ sourceId }: SourceIdProps) => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: similarSources, isPending } = useQuery({
     queryKey: [RequestKey.SimilarSources, null, sourceId],
 
@@ -135,7 +138,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
       isLoading={isPending}
       sources={sources}
       title="Similar sources"
-      className={shouldUseListFeedLayout ? 'mx-4' : undefined}
+      className={pageSectionClassName}
     />
   );
 };
@@ -232,7 +235,7 @@ const SourcePage = ({
     }),
     [source?.id],
   );
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
 
   if (!source) {
     return <Custom404 />;
@@ -248,9 +251,7 @@ const SourcePage = ({
           dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
       </Head>
-      <PageInfoHeader
-        className={shouldUseListFeedLayout ? 'mx-4 !w-auto' : undefined}
-      >
+      <PageInfoHeader className={pageSectionAutoWidthClassName}>
         <div className="flex items-center font-bold">
           <img
             src={source.image}
@@ -309,6 +310,7 @@ const SourcePage = ({
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -328,10 +330,11 @@ const SourcePage = ({
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className={horizontalFeedClassName}
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className={`${pageSectionClassName} mb-5 flex w-auto items-center`}>
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}
         </p>
@@ -345,6 +348,7 @@ const SourcePage = ({
         ]}
         query={SOURCE_FEED_QUERY}
         variables={queryVariables}
+        className={pageFeedClassName}
       />
       {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
     </FeedPageLayoutComponent>
