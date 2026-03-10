@@ -5,6 +5,7 @@ import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
+import { isDevelopment } from '../../lib/constants';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
@@ -33,7 +34,12 @@ export const useEnableNotification = ({
     DISMISS_PERMISSION_BANNER,
     false,
   );
+  const effectiveIsDismissed = isDevelopment ? false : isDismissed;
   const onDismiss = useCallback(() => {
+    if (isDevelopment) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
@@ -59,7 +65,7 @@ export const useEnableNotification = ({
   const shouldShowCta =
     (conditions.every(Boolean) ||
       (enabledJustNow && source !== NotificationPromptSource.SquadPostModal)) &&
-    !isDismissed;
+    !effectiveIsDismissed;
 
   useEffect(() => {
     if (!shouldShowCta || hasLoggedImpression.current) {

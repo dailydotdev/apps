@@ -34,11 +34,11 @@ export const NotifContainer = classed(
 );
 export const NotifContent = classed(
   'div',
-  'relative flex flex-row items-center ml-2',
+  'relative ml-2 flex flex-row items-center gap-2',
 );
 export const NotifMessage = classed(
   'div',
-  'flex-1 mr-2 typo-subhead text-surface-invert',
+  'flex-1 typo-subhead text-surface-invert',
 );
 export const NotifProgress = classed(
   'span',

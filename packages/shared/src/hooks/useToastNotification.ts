@@ -21,6 +21,8 @@ export interface ToastNotification {
   message: ReactNode;
   timer: number;
   subject?: ToastSubject;
+  persistent?: boolean;
+  onClose?: AnyFunction;
   action?: {
     onClick: AnyFunction;
     buttonProps?: ButtonProps<'button'>;
@@ -31,7 +33,7 @@ export interface ToastNotification {
 export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
-  Pick<ToastNotification, 'timer' | 'subject' | 'action'>
+  Pick<ToastNotification, 'timer' | 'subject' | 'persistent' | 'onClose' | 'action'>
 >;
 
 export const useToastNotification = (): UseToastNotification => {

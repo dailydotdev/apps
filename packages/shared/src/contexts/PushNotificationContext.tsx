@@ -19,7 +19,7 @@ import {
 } from '../lib/func';
 import { useAuthContext } from './AuthContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
-import { isTesting } from '../lib/constants';
+import { isDevelopment, isTesting } from '../lib/constants';
 import { useLogContext } from './LogContext';
 import type { SubscriptionCallback } from '../components/notifications/utils';
 import { postWebKitMessage, WebKitMessageHandlers } from '../lib/ios';
@@ -63,6 +63,7 @@ function OneSignalSubProvider({
   const subscriptionCallbackRef = useRef<SubscriptionCallback>();
 
   const isEnabled = !!user && !isTesting;
+  const forceNotificationsDisabled = isDevelopment;
 
   const key = generateQueryKey(RequestKey.OneSignal, user);
   const client = useQueryClient();
@@ -173,13 +174,17 @@ function OneSignalSubProvider({
       value={{
         isInitialized: !isEnabled || isFetched || !isSuccess,
         isLoading,
-        isSubscribed,
+        isSubscribed: forceNotificationsDisabled ? false : isSubscribed,
         isPushSupported: !!(isPushSupported && isSuccess && isEnabled),
         shouldOpenPopup: () => {
+          if (forceNotificationsDisabled) {
+            return false;
+          }
+
           const { permission } = globalThis.Notification ?? {};
           return permission === 'denied';
         },
-        subscribe,
+        subscribe: forceNotificationsDisabled ? async () => false : subscribe,
         unsubscribe,
       }}
     >

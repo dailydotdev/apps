@@ -5,11 +5,9 @@ import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import EnableNotification from '../notifications/EnableNotification';
 import { FlexCentered, FlexCol } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
-import { NotificationPromptSource } from '../../lib/log';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -182,11 +180,6 @@ export function SquadPageHeader({
       <div className={classNames('w-full', MAX_WIDTH)}>
         <SquadStack squad={squad} />
       </div>
-      <EnableNotification
-        contentName={squad.name}
-        source={NotificationPromptSource.SquadPage}
-        className={classNames('w-full', MAX_WIDTH)}
-      />
       <div
         className={classNames(
           'relative bottom-0 flex w-full flex-col bg-background-default pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptopL:px-0',

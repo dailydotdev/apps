@@ -30,7 +30,7 @@ const Toast = ({
 }: ToastProps): ReactElement => {
   const router = useRouter();
   const client = useQueryClient();
-  const toastRef = useRef(null);
+  const toastRef = useRef<ToastNotification | null>(null);
   const { timer, isAnimating, endAnimation, startAnimation } =
     useTimedAnimation({
       autoEndAnimation: autoDismissNotifications,
@@ -41,18 +41,45 @@ const Toast = ({
     queryFn: () => client.getQueryData(TOAST_NOTIF_KEY),
     enabled: false,
   });
+  const isPersistentToast = !!toast?.persistent;
 
-  if (!toastRef.current && toast?.message) {
-    toastRef.current = toast;
-    startAnimation(toast.timer);
-  } else if (toastRef.current && toastRef.current !== toast && toast?.message) {
+  useEffect(() => {
+    if (!toast?.message) {
+      toastRef.current = null;
+      return;
+    }
+
+    if (!toastRef.current) {
+      toastRef.current = toast;
+      if (!toast.persistent) {
+        startAnimation(toast.timer);
+      }
+      return;
+    }
+
+    if (toastRef.current === toast) {
+      return;
+    }
+
     endAnimation();
     toastRef.current = toast;
-    startAnimation(toast.timer);
-  }
+    if (!toast.persistent) {
+      startAnimation(toast.timer);
+    }
+  }, [endAnimation, startAnimation, toast]);
 
-  const dismissToast = () => {
+  const dismissToast = async () => {
     if (!toast) {
+      return;
+    }
+
+    if (toast.onClose) {
+      await toast.onClose();
+    }
+
+    if (toast.persistent) {
+      toastRef.current = null;
+      client.setQueryData(TOAST_NOTIF_KEY, null);
       return;
     }
 
@@ -65,6 +92,12 @@ const Toast = ({
     }
 
     await toast.action.onClick();
+    if (toast.persistent) {
+      toastRef.current = null;
+      client.setQueryData(TOAST_NOTIF_KEY, null);
+      return;
+    }
+
     endAnimation();
   };
 
@@ -93,7 +126,7 @@ const Toast = ({
   const progress = (timer / toast.timer) * 100;
 
   return (
-    <Container className={isAnimating && 'slide-in'} role="alert">
+    <Container className={(isAnimating || isPersistentToast) && 'slide-in'} role="alert">
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
         {toast.action && (
@@ -102,21 +135,21 @@ const Toast = ({
             size={ButtonSize.XSmall}
             aria-label={toast.action.copy}
             {...(toast.action.buttonProps ?? {})}
-            className={classNames('ml-2', toast.action.buttonProps?.className)}
+            className={classNames('shrink-0', toast.action.buttonProps?.className)}
             onClick={onAction}
           >
             {toast.action.copy}
           </Button>
         )}
         <Button
-          className="ml-2"
+          className="shrink-0"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           icon={<XIcon />}
           onClick={dismissToast}
           aria-label="Dismiss toast notification"
         />
-        {autoDismissNotifications && (
+        {autoDismissNotifications && !isPersistentToast && (
           <Progress style={{ width: `${progress}%` }} />
         )}
       </NotifContent>
