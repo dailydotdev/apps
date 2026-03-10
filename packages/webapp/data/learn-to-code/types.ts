@@ -5,11 +5,7 @@ export type LeafPageDimension =
   | 'technique'
   | 'goal';
 
-export type PromptTool =
-  | 'cursor'
-  | 'claude-code'
-  | 'replit'
-  | 'generic';
+export type PromptTool = 'cursor' | 'claude-code' | 'replit' | 'generic';
 
 export type ResourceType = 'video' | 'article' | 'course' | 'docs';
 
