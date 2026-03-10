@@ -215,7 +215,7 @@ const useBookmarkPost = ({
       if (disableToast) {
         return;
       }
-      displayToast(`Bookmarked! Saved to ${list?.name ?? 'Quick saves'}`, {
+      displayToast(`Bookmarked to ${list?.name ?? 'Quick saves'}`, {
         action: {
           copy: 'Change folder',
           onClick: () => {

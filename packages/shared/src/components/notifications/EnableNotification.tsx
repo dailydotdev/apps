@@ -168,7 +168,8 @@ function EnableNotification({
           className={classNames(
             'w-full text-text-tertiary tablet:w-3/5',
             source === NotificationPromptSource.SourceSubscribe && 'flex-1',
-            source === NotificationPromptSource.NewComment && 'tablet:w-full',
+            source === NotificationPromptSource.NewComment &&
+              'tablet:w-full typo-markdown break-words text-primary',
             shouldInlineActionWithMessage && 'flex-1',
           )}
         >

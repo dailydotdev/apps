@@ -13,7 +13,6 @@ import type { NotificationPromptSource } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { useEventListener } from '../useEventListener';
-import { isDevelopment } from '../../lib/constants';
 
 export const PERMISSION_NOTIFICATION_KEY = 'permission:notification';
 
@@ -39,7 +38,6 @@ export const usePushNotificationMutation = ({
   onPopupGranted,
 }: UsePushNotificationMutationProps = {}): UsePushNotificationMutation => {
   const isExtension = checkIsExtension();
-  const forceNotificationsDisabled = isDevelopment;
   const { isSubscribed, shouldOpenPopup, subscribe, unsubscribe } =
     usePushNotificationContext();
   const { user } = useAuthContext();
@@ -79,10 +77,6 @@ export const usePushNotificationMutation = ({
 
   const onEnablePush = useCallback(
     async (source: NotificationPromptSource): Promise<boolean> => {
-      if (forceNotificationsDisabled) {
-        return false;
-      }
-
       if (!user) {
         return false;
       }
@@ -101,7 +95,6 @@ export const usePushNotificationMutation = ({
     },
     [
       user,
-      forceNotificationsDisabled,
       shouldOpenPopup,
       subscribe,
       onOpenPopup,
@@ -140,11 +133,9 @@ export const usePushNotificationMutation = ({
   });
 
   return {
-    hasPermissionCache: forceNotificationsDisabled
-      ? false
-      : permissionCache === 'granted',
+    hasPermissionCache: permissionCache === 'granted',
     onTogglePermission,
-    acceptedJustNow: forceNotificationsDisabled ? false : acceptedJustNow,
+    acceptedJustNow,
     onEnablePush,
   };
 };

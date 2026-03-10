@@ -5,6 +5,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserStreak } from '../../graphql/users';
 import { isSameDayInTimezone } from '../../lib/timezones';
+import type { ApiErrorResult } from '../../graphql/common';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -37,5 +38,20 @@ export const useViewPost = (): UseMutateAsyncFunction<
     },
   });
 
-  return onSendViewPost;
+  return async (id: string) => {
+    try {
+      return await onSendViewPost(id);
+    } catch (err) {
+      const error = err as ApiErrorResult & {
+        response?: { errors?: Array<{ extensions?: { code?: string } }> };
+      };
+      const errorCode = error?.response?.errors?.[0]?.extensions?.code;
+
+      if (errorCode === 'UNAUTHENTICATED') {
+        return null;
+      }
+
+      throw err;
+    }
+  };
 };

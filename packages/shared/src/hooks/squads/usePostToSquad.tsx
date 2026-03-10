@@ -26,6 +26,8 @@ import {
   gqlClient,
 } from '../../graphql/common';
 import { useToastNotification } from '../useToastNotification';
+import type { NotifyOptionalProps } from '../useToastNotification';
+import { ToastSubject } from '../useToastNotification';
 import type { SourcePostModeration } from '../../graphql/squads';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
@@ -38,6 +40,15 @@ import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
+import {
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '../../components/buttons/Button';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '../notifications/usePushNotificationMutation';
+import { NotificationPromptSource } from '../../lib/log';
+import { isDevelopment } from '../../lib/constants';
 
 const PROFILE_COMPLETION_POST_GATE_MESSAGE =
   'Complete your profile to create posts';
@@ -79,6 +90,9 @@ interface UsePostToSquadProps {
   onPostSuccess?: (post: Post, url: string) => void;
   onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
   onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
+  getSharedPostSuccessToast?: (params: {
+    isUpdate: boolean;
+  }) => { message: string; options?: NotifyOptionalProps } | undefined;
   initialPreview?: ExternalLinkPreview;
   onMutate?: (data: unknown) => void;
   onError?: (error: ApiErrorResult) => void;
@@ -98,11 +112,14 @@ export const usePostToSquad = ({
   onError,
   onExternalLinkSuccess,
   onSourcePostModerationSuccess,
+  getSharedPostSuccessToast,
   initialPreview,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
+  const { isSubscribed, shouldOpenPopup } = usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
   const client = useQueryClient();
   const { completeAction } = useActions();
   const [preview, setPreview] = useState<ExternalLinkPreview>(
@@ -110,6 +127,9 @@ export const usePostToSquad = ({
   );
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
+  const forceNotificationQaFlow = isDevelopment;
+  const shouldShowEnableNotificationToast =
+    !shouldOpenPopup() && (forceNotificationQaFlow || !isSubscribed);
 
   const callOnError = useCallback(
     (err: unknown): void => {
@@ -270,11 +290,32 @@ export const usePostToSquad = ({
   );
 
   const onSharedPostSuccessfully = async (update = false) => {
-    displayToast(
-      update
-        ? 'The post has been updated'
-        : 'This post has been shared to your squad',
-    );
+    const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
+    if (customToast) {
+      displayToast(customToast.message, customToast.options);
+    } else if (!update && shouldShowEnableNotificationToast) {
+      displayToast('Post shared. Don’t miss the replies.', {
+        subject: ToastSubject.Feed,
+        action: {
+          copy: 'Turn on',
+          onClick: async () =>
+            onEnablePush(NotificationPromptSource.SquadPostCommentary),
+          buttonProps: {
+            size: ButtonSize.Small,
+            variant: ButtonVariant.Primary,
+            color: ButtonColor.Cabbage,
+            icon: <BellIcon />,
+            iconPosition: ButtonIconPosition.Left,
+          },
+        },
+      });
+    } else {
+      displayToast(
+        update
+          ? 'The post has been updated'
+          : 'This post has been shared to your squad',
+      );
+    }
     await client.invalidateQueries({
       queryKey: ['sourceFeed', user?.id],
     });

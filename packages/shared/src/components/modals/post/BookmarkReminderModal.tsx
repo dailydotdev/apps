@@ -32,28 +32,28 @@ interface BookmarkReminderModalOptionProps {
   };
 }
 
+const MODAL_OPTION_ORDER: ReminderPreference[] = [
+  ReminderPreference.OneHour,
+  ReminderPreference.Tomorrow,
+  ReminderPreference.TwoDays,
+  ReminderPreference.NextWeek,
+];
+
 const MODAL_OPTIONS: Array<BookmarkReminderModalOptionProps['option']> =
-  Object.entries(ReminderPreference)
-    .filter(([, option]) => {
-      const now = new Date();
-      const isPastLaterToday = now.getHours() >= 19;
-      const isInvalidLaterToday =
-        ReminderPreference.LaterToday === option && isPastLaterToday;
-      return !isInvalidLaterToday;
-    })
-    .map(
-      ([key, value]: [
-        keyof typeof ReminderPreference,
-        ReminderPreference,
-      ]) => ({
-        key,
-        value,
-      }),
-    );
+  MODAL_OPTION_ORDER.filter((option) => {
+    const now = new Date();
+    const isPastLaterToday = now.getHours() >= 19;
+    const isInvalidLaterToday =
+      ReminderPreference.LaterToday === option && isPastLaterToday;
+    return !isInvalidLaterToday;
+  }).map((value) => ({
+    key: value,
+    value,
+  }));
 
 const TIME_FOR_OPTION_FORMAT_MAP = {
-  [ReminderPreference.OneHour]: null,
-  [ReminderPreference.LaterToday]: 'h:mm a',
+  [ReminderPreference.OneHour]: 'eee, h:mm a',
+  [ReminderPreference.LaterToday]: null,
   [ReminderPreference.Tomorrow]: 'eee, h:mm a',
   [ReminderPreference.TwoDays]: 'eee, h:mm a',
   [ReminderPreference.NextWeek]: 'eee, MMM d, h:mm a',
@@ -97,7 +97,7 @@ export const BookmarkReminderModal = (
 ): ReactElement => {
   const { post, onReminderSet, isOpen, onRequestClose } = props;
   const [selectedOption, setSelectedOption] = useState<ReminderPreference>(
-    ReminderPreference.OneHour,
+    ReminderPreference.NextWeek,
   );
   const { onBookmarkReminder } = useBookmarkReminder({ post });
 
@@ -116,7 +116,7 @@ export const BookmarkReminderModal = (
   return (
     <Modal
       drawerProps={{
-        title: 'Set reminder',
+        title: 'Set a reminder',
         className: {
           title: '!block text-center border-transparent !typo-title2 pb-2',
         },
@@ -126,7 +126,7 @@ export const BookmarkReminderModal = (
       onRequestClose={onRequestClose}
       size={ModalSize.Small}
     >
-      <ModalHeader title="Set reminder" />
+      <ModalHeader title="Set a reminder" />
       <ModalBody>
         <form onSubmit={handleSubmit}>
           <div

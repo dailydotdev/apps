@@ -44,7 +44,12 @@ export function CreateSharedPostModal({
     useProfileCompletionPostGate();
   const richTextRef = useRef<RichTextInputRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
-  const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
+  const {
+    shouldShowCta,
+    isEnabled,
+    onToggle,
+    onSubmitted,
+  } =
     useNotificationToggle();
   const onSuccess = () => {
     onSharedSuccessfully?.();

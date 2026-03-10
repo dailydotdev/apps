@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
 import { NotificationPromptSource } from '../../lib/log';
 import { useEnableNotification } from './useEnableNotification';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 
 interface UseNotificationToggle {
   shouldShowCta: boolean;
   isEnabled: boolean;
+  isBrowserPermissionBlocked: boolean;
   onToggle: () => void;
+  onEnableNotification: () => Promise<boolean>;
   onSubmitted: () => Promise<void>;
 }
 
@@ -20,6 +23,8 @@ export const useNotificationToggle = ({
   const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
     source,
   });
+  const { shouldOpenPopup } = usePushNotificationContext();
+  const isBrowserPermissionBlocked = shouldOpenPopup();
 
   const onSubmitted = async () => {
     if (!shouldShowCta) {
@@ -36,6 +41,8 @@ export const useNotificationToggle = ({
     isEnabled,
     onToggle,
     shouldShowCta,
+    isBrowserPermissionBlocked,
+    onEnableNotification: onEnable,
     onSubmitted,
   };
 };
