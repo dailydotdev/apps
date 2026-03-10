@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -15,8 +15,8 @@ import {
 } from '../../lib/auth';
 import {
   getBetterAuthSocialUrl,
-  betterAuthVerifySignupEmail,
-  betterAuthSendSignupVerification,
+  betterAuthSendVerificationOTP,
+  betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
@@ -151,7 +151,7 @@ function AuthOptionsInner({
       : defaultDisplay,
   );
 
-  const { setEmail } = useAuthData();
+  const { email, setEmail } = useAuthData();
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
@@ -507,7 +507,9 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    await onProfileSuccess({ setSignBack: false });
+    if (!isBetterAuth) {
+      await onProfileSuccess({ setSignBack: false });
+    }
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -704,7 +706,7 @@ function AuthOptionsInner({
             onVerifyCode={
               isBetterAuth
                 ? async (code) => {
-                    const res = await betterAuthVerifySignupEmail(code);
+                    const res = await betterAuthVerifyEmailOTP(email, code);
                     if (res.error) {
                       throw new Error(res.error);
                     }
@@ -714,7 +716,7 @@ function AuthOptionsInner({
             onResendCode={
               isBetterAuth
                 ? async () => {
-                    await betterAuthSendSignupVerification();
+                    await betterAuthSendVerificationOTP(email);
                   }
                 : undefined
             }

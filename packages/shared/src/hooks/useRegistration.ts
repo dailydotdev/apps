@@ -28,11 +28,8 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
-import type { BetterAuthResponse } from '../lib/betterAuth';
 import {
-  betterAuthSignIn,
   betterAuthSignUp,
-  betterAuthSendSignupVerification,
   getBetterAuthSocialUrl,
 } from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
@@ -74,30 +71,6 @@ const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
   "We couldn't complete sign up. If you already have an account, try signing in instead.";
 
-const VERIFICATION_ERROR_CODES = new Set([
-  '403',
-  'EMAIL_NOT_VERIFIED',
-  'VERIFICATION_REQUIRED',
-]);
-
-const isBetterAuthVerificationRequired = (
-  response: BetterAuthResponse,
-): boolean => {
-  if (response.code && VERIFICATION_ERROR_CODES.has(response.code)) {
-    return true;
-  }
-
-  const error = response.error?.toLowerCase();
-  if (!error) {
-    return false;
-  }
-
-  return (
-    error.includes('verify') ||
-    error.includes('verification') ||
-    error.includes('unverified')
-  );
-};
 
 const useRegistration = ({
   key,
@@ -268,9 +241,11 @@ const useRegistration = ({
         target_id: 'email',
         extra: JSON.stringify({ trigger: 'registration' }),
       });
-      return betterAuthSignUp(params);
+      return betterAuthSignUp({
+        ...params,
+      });
     },
-    onSuccess: async (res, params) => {
+    onSuccess: async (res) => {
       if (res.error) {
         onInvalidRegistration?.({
           'traits.email': res.error,
@@ -278,33 +253,7 @@ const useRegistration = ({
         return;
       }
 
-      const signInRes = await betterAuthSignIn({
-        email: params.email,
-        password: params.password,
-      });
-
-      if (!signInRes.error) {
-        await refetchBoot();
-        return;
-      }
-
-      if (isBetterAuthVerificationRequired(signInRes)) {
-        await betterAuthSendSignupVerification();
-        onInitializeVerification?.();
-        return;
-      }
-
-      const normalizedSignInError = signInRes.error.toLowerCase();
-      const signupError =
-        normalizedSignInError.includes('invalid') ||
-        normalizedSignInError.includes('credentials') ||
-        normalizedSignInError.includes('password')
-          ? BETTER_AUTH_SIGNUP_FALLBACK_ERROR
-          : signInRes.error;
-
-      onInvalidRegistration?.({
-        'traits.email': signupError,
-      });
+      onInitializeVerification?.();
     },
   });
 
@@ -320,6 +269,8 @@ const useRegistration = ({
         email: values['traits.email'] as string,
         password: values.password as string,
         turnstileToken,
+        username: values['traits.username'] as string,
+        experienceLevel: values.experienceLevel as string,
       });
       return;
     }

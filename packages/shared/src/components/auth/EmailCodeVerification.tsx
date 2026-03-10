@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import type { AuthFormProps } from './common';
@@ -75,7 +75,12 @@ function EmailCodeVerification({
     }
   }, [autoResend, alert, onVerifyCode]);
 
+  const verifyingRef = useRef(false);
   const handleCustomVerify = async (verifyCodeValue: string) => {
+    if (verifyingRef.current) {
+      return;
+    }
+    verifyingRef.current = true;
     setIsVerifyingCustom(true);
     try {
       await onVerifyCode(verifyCodeValue);
@@ -84,6 +89,7 @@ function EmailCodeVerification({
       });
       onSubmit();
     } catch (err) {
+      verifyingRef.current = false;
       setHint(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setIsVerifyingCustom(false);

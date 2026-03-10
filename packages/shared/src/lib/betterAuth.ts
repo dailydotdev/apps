@@ -58,17 +58,31 @@ export const betterAuthSignUp = async ({
   email,
   password,
   turnstileToken,
+  username,
+  experienceLevel,
 }: {
   name: string;
   email: string;
   password: string;
   turnstileToken?: string;
+  username?: string;
+  experienceLevel?: string;
 }): Promise<BetterAuthResponse> => {
+  const headers: Record<string, string> = {};
+  if (turnstileToken) {
+    headers['x-turnstile-token'] = turnstileToken;
+  }
+  if (username) {
+    headers['x-profile-username'] = username;
+  }
+  if (experienceLevel) {
+    headers['x-profile-experience-level'] = experienceLevel;
+  }
   return betterAuthPost(
     'sign-up/email',
     { name, email, password },
     'Sign up failed',
-    turnstileToken ? { 'x-turnstile-token': turnstileToken } : undefined,
+    Object.keys(headers).length > 0 ? headers : undefined,
   );
 };
 
@@ -184,6 +198,27 @@ export const betterAuthVerifySignupEmail = async (
   return betterAuthPost(
     'verify-signup-email',
     { code },
+    'Failed to verify email',
+  );
+};
+
+export const betterAuthSendVerificationOTP = async (
+  email: string,
+): Promise<{ success?: boolean; error?: string }> => {
+  return betterAuthPost(
+    'email-otp/send-verification-otp',
+    { email, type: 'email-verification' },
+    'Failed to send verification code',
+  );
+};
+
+export const betterAuthVerifyEmailOTP = async (
+  email: string,
+  otp: string,
+): Promise<{ status?: boolean; error?: string }> => {
+  return betterAuthPost(
+    'email-otp/verify-email',
+    { email, otp },
     'Failed to verify email',
   );
 };

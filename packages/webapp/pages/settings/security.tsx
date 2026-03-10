@@ -276,10 +276,7 @@ const AccountSecurityPage = (): ReactElement => {
     if ('link' in postData && postData.link) {
       const callbackURL = `${window.location.origin}/callback?login=true`;
       const url = getBetterAuthLinkSocialUrl(postData.link, callbackURL);
-      const popup = window.open();
-      if (popup) {
-        popup.location.href = url;
-      }
+      window.open(url);
     } else if ('unlink' in postData && postData.unlink) {
       const result = await unlinkBetterAuthAccount(postData.unlink);
       if (result.status) {
