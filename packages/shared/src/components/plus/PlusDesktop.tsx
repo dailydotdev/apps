@@ -21,7 +21,6 @@ export const PlusDesktop = ({
 }: CommonPlusPageProps): ReactElement => {
   const {
     openCheckout,
-    closeCheckout,
     isPaddleReady,
     productOptions,
     giftOneYear,
@@ -80,13 +79,6 @@ export const PlusDesktop = ({
     selectedOption,
     isOrganization,
   ]);
-
-  useEffect(
-    () => () => {
-      closeCheckout?.();
-    },
-    [closeCheckout],
-  );
 
   return (
     <>

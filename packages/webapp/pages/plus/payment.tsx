@@ -26,7 +26,7 @@ const PlusProductList = dynamic(
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isPaddleReady, openCheckout, closeCheckout } = usePaymentContext();
+  const { isPaddleReady, openCheckout } = usePaymentContext();
   const router = useRouter();
   const { pid, gift } = router.query;
   const checkoutRef = useRef();
@@ -56,13 +56,6 @@ const PlusPaymentPage = (): ReactElement => {
       router.replace(plusUrl);
     }
   }, [pid, router]);
-
-  useEffect(
-    () => () => {
-      closeCheckout?.();
-    },
-    [closeCheckout],
-  );
 
   const selectedProduct = productPricing?.find(
     ({ priceId }) => priceId === pid,

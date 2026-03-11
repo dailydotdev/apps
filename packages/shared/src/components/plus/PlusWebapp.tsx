@@ -12,8 +12,7 @@ const PlusWebapp = (): ReactElement => {
   const { getMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.Plus);
   const { flags } = marketingCta || {};
-  const { openCheckout, closeCheckout, productOptions, isPricesPending } =
-    usePaymentContext();
+  const { openCheckout, productOptions, isPricesPending } = usePaymentContext();
   const [selectedOption, setSelectedOption] = useState<string | null>();
   const checkoutRef = useRef();
   const [showCheckout, setShowCheckout] = useState(false);
@@ -23,13 +22,6 @@ const PlusWebapp = (): ReactElement => {
       setSelectedOption(productOptions?.[0]?.priceId);
     }
   }, [isPricesPending, productOptions, selectedOption]);
-
-  useEffect(
-    () => () => {
-      closeCheckout?.();
-    },
-    [closeCheckout],
-  );
 
   return (
     <div className="flex flex-1 items-start justify-center gap-0">
