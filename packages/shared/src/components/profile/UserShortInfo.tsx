@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize } from '../ProfilePicture';
+import { ProfilePictureWithDecoration } from './ProfilePictureWithDecoration';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { getRoleName, TruncateText } from '../utilities';
 import { ProfileTooltip } from './ProfileTooltip';
@@ -111,7 +112,12 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
         tooltip={tooltipProps}
         scrollingContainer={scrollingContainer}
       >
-        <ProfilePicture user={user} size={imageSize} nativeLazyLoading />
+        <ProfilePictureWithDecoration
+          user={user}
+          size={imageSize}
+          decoration={user.activeDecoration}
+          nativeLazyLoading
+        />
       </ProfileTooltip>
       <ProfileTooltip
         userId={user?.id}

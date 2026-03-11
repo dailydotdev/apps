@@ -2,14 +2,18 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import type { ProfileLinkProps } from './ProfileLink';
 import { ProfileLink } from './ProfileLink';
-import type { ProfilePictureProps } from '../ProfilePicture';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfileImageSize } from '../ProfilePicture';
 import type { Author } from '../../graphql/comments';
+import type { ProfilePictureWithDecorationProps } from './ProfilePictureWithDecoration';
+import { ProfilePictureWithDecoration } from './ProfilePictureWithDecoration';
+import type { Decoration } from '../../graphql/decorations';
 
 interface ProfileImageLinkProps extends ProfileLinkProps {
-  picture?: Omit<ProfilePictureProps, 'user'>;
+  picture?: Omit<ProfilePictureWithDecorationProps, 'user' | 'decoration'>;
   ref?: Ref<HTMLAnchorElement>;
-  user: Pick<Author, 'id' | 'username' | 'permalink' | 'image'>;
+  user: Pick<Author, 'id' | 'username' | 'permalink' | 'image'> & {
+    activeDecoration?: Pick<Decoration, 'id' | 'media'> | null;
+  };
 }
 
 function ProfileImageLinkComponent(
@@ -22,7 +26,13 @@ function ProfileImageLinkComponent(
 ): ReactElement {
   return (
     <ProfileLink {...props} href={user.permalink} ref={ref}>
-      <ProfilePicture {...picture} ref={null} user={user} nativeLazyLoading />
+      <ProfilePictureWithDecoration
+        {...picture}
+        ref={null}
+        user={user}
+        decoration={user.activeDecoration}
+        nativeLazyLoading
+      />
     </ProfileLink>
   );
 }
