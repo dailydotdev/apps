@@ -63,6 +63,10 @@ type UserFeedbackByUserIdData = {
   userFeedbackByUserId: Connection<FeedbackItem>;
 };
 
+type FeedbackListData = {
+  feedbackList: Connection<FeedbackItem>;
+};
+
 export const SUBMIT_FEEDBACK_MUTATION = gql`
   mutation SubmitFeedback($input: FeedbackInput!) {
     submitFeedback(input: $input) {
@@ -103,6 +107,53 @@ export const USER_FEEDBACK_QUERY = gql`
 export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
   query UserFeedbackByUserId($userId: ID!, $after: String, $first: Int) {
     userFeedbackByUserId(userId: $userId, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          category
+          description
+          status
+          screenshotUrl
+          createdAt
+          updatedAt
+          user {
+            id
+            name
+            username
+            image
+          }
+          replies {
+            id
+            body
+            authorName
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const FEEDBACK_LIST_QUERY = gql`
+  query FeedbackList(
+    $after: String
+    $first: Int
+    $status: Int
+    $statuses: [Int!]
+    $category: ProtoEnumValue
+  ) {
+    feedbackList(
+      after: $after
+      first: $first
+      status: $status
+      statuses: $statuses
+      category: $category
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -180,5 +231,41 @@ export const useUserFeedbackByUserId = ({
     getNextPageParam: (lastPage) =>
       getNextPageParam(lastPage?.userFeedbackByUserId?.pageInfo),
     enabled: enabled && !!userId,
+  });
+};
+
+export const useFeedbackList = ({
+  first = 20,
+  status,
+  statuses,
+  category,
+  enabled = true,
+}: {
+  first?: number;
+  status?: FeedbackStatus;
+  statuses?: FeedbackStatus[];
+  category?: FeedbackCategory;
+  enabled?: boolean;
+}) => {
+  return useInfiniteQuery({
+    queryKey: generateQueryKey(
+      RequestKey.FeedbackList,
+      undefined,
+      status ?? null,
+      statuses?.join(',') ?? null,
+      category ?? null,
+    ),
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<FeedbackListData>(FEEDBACK_LIST_QUERY, {
+        first,
+        after: pageParam,
+        status,
+        statuses,
+        category,
+      }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) =>
+      getNextPageParam(lastPage?.feedbackList?.pageInfo),
+    enabled,
   });
 };
