@@ -13,6 +13,7 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import NotificationSwitch from './NotificationSwitch';
 import { isNullOrUndefined } from '../../lib/func';
 import { Radio } from '../fields/Radio';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const digestCopy = `Our recommendation system scans everything on daily.dev and
                     sends you a tailored digest with just the must-read posts.
@@ -154,7 +155,7 @@ const DigestNotification = () => {
       />
       {!!digest && isChecked && (
         <>
-          <h3 className="font-bold typo-callout">When to send</h3>
+          <NotificationSectionHeading>When to send</NotificationSectionHeading>
           <HourDropdown
             className={{
               container: 'w-40',
