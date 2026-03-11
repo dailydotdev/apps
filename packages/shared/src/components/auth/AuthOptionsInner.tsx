@@ -262,12 +262,13 @@ function AuthOptionsInner({
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const autoCompleteProfileForRecruiter = async (
-    email: string,
+    recruiterEmail: string,
     name?: string,
   ) => {
     try {
       // Generate name from email if not provided by OAuth
-      const displayName = name || generateNameFromEmail(email, 'Recruiter');
+      const displayName =
+        name || generateNameFromEmail(recruiterEmail, 'Recruiter');
 
       // Generate username from the display name
       const username = await generateUsername(displayName);

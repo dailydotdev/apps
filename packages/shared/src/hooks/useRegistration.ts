@@ -28,10 +28,7 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
-import {
-  betterAuthSignUp,
-  getBetterAuthSocialUrl,
-} from '../lib/betterAuth';
+import { betterAuthSignUp, getBetterAuthSocialUrl } from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
@@ -68,9 +65,6 @@ interface UseRegistration {
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
 const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
-const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
-  "We couldn't complete sign up. If you already have an account, try signing in instead.";
-
 
 const useRegistration = ({
   key,
@@ -86,7 +80,7 @@ const useRegistration = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo, refetchBoot } =
+  const { trackingId, referral, referralOrigin, logout, geo } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -234,6 +228,8 @@ const useRegistration = ({
       email: string;
       password: string;
       turnstileToken?: string;
+      username?: string;
+      experienceLevel?: string;
     }) => {
       logEvent({
         event_name: 'click',
@@ -270,7 +266,7 @@ const useRegistration = ({
         password: values.password as string,
         turnstileToken,
         username: values['traits.username'] as string,
-        experienceLevel: values.experienceLevel as string,
+        experienceLevel: values['traits.experienceLevel'] as string,
       });
       return;
     }
