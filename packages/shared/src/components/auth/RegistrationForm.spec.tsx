@@ -18,6 +18,22 @@ import { AuthTriggers } from '../../lib/auth';
 import * as betterAuthHook from '../../hooks/useIsBetterAuth';
 import type { AuthOptionsProps } from './common';
 
+jest.mock('@marsidev/react-turnstile', () => ({
+  Turnstile: React.forwardRef(function MockTurnstile(
+    props: { onWidgetLoad?: () => void },
+    ref: React.Ref<{ getResponse: () => string }>,
+  ) {
+    React.useImperativeHandle(ref, () => ({
+      getResponse: () => 'mock-turnstile-token',
+      reset: () => undefined,
+    }));
+    React.useEffect(() => {
+      props.onWidgetLoad?.();
+    }, [props]);
+    return <div data-testid="turnstile" />;
+  }),
+}));
+
 const user = null;
 
 beforeEach(() => {
@@ -175,6 +191,14 @@ const renderBetterAuthRegistration = async (
   fireEvent.input(screen.getByPlaceholderText('Create a password'), {
     target: { value: '#123xAbc' },
   });
+
+  // Select experience level
+  const expDropdown = screen.getByRole('button', {
+    name: /experience level/i,
+  });
+  fireEvent.click(expDropdown);
+  const expOption = await screen.findByText('Entry-level (1 year)');
+  fireEvent.click(expOption);
 
   await waitForNock();
   await waitFor(() => expect(queryCalled).toBeTruthy());

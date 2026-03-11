@@ -17,7 +17,6 @@ import {
 } from '../typography/Typography';
 import { CodeField } from '../fields/CodeField';
 import { useAuthData } from '../../contexts/AuthDataContext';
-import useTimer from '../../hooks/useTimer';
 
 interface EmailCodeVerificationProps extends AuthFormProps {
   code?: string;
@@ -41,28 +40,30 @@ function EmailCodeVerification({
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
-  const [isVerifyingCustom, setIsVerifyingCustom] = useState(false);
-  const {
-    timer: customResendTimer,
-    setTimer: setCustomResendTimer,
-    runTimer: runCustomTimer,
-  } = useTimer(() => {}, 60);
-  const { sendEmail, verifyCode, resendTimer, autoResend, isVerifyingCode } =
-    useAccountEmailFlow({
-      flow: AuthFlow.Verification,
-      flowId: onVerifyCode ? 'skip' : flowId,
-      timerOnLoad: 60,
-      onError: setHint,
-      onVerifyCodeSuccess: () => {
-        logEvent({
-          event_name: AuthEventNames.VerifiedSuccessfully,
-        });
-        onSubmit();
-      },
-    });
+  const [isCustomVerifying, setIsCustomVerifying] = useState(false);
+  const verifyingRef = useRef(false);
 
-  const activeResendTimer = onVerifyCode ? customResendTimer : resendTimer;
-  const activeIsVerifying = onVerifyCode ? isVerifyingCustom : isVerifyingCode;
+  const {
+    sendEmail,
+    verifyCode,
+    resendTimer,
+    resetResendTimer,
+    autoResend,
+    isVerifyingCode,
+  } = useAccountEmailFlow({
+    flow: AuthFlow.Verification,
+    flowId: onVerifyCode ? 'skip' : flowId,
+    timerOnLoad: 60,
+    onError: setHint,
+    onVerifyCodeSuccess: () => {
+      logEvent({
+        event_name: AuthEventNames.VerifiedSuccessfully,
+      });
+      onSubmit();
+    },
+  });
+
+  const isVerifying = onVerifyCode ? isCustomVerifying : isVerifyingCode;
 
   useEffect(() => {
     if (
@@ -75,24 +76,27 @@ function EmailCodeVerification({
     }
   }, [autoResend, alert, onVerifyCode]);
 
-  const verifyingRef = useRef(false);
-  const handleCustomVerify = async (verifyCodeValue: string) => {
-    if (verifyingRef.current) {
-      return;
-    }
-    verifyingRef.current = true;
-    setIsVerifyingCustom(true);
-    try {
-      await onVerifyCode(verifyCodeValue);
-      logEvent({
-        event_name: AuthEventNames.VerifiedSuccessfully,
-      });
-      onSubmit();
-    } catch (err) {
-      verifyingRef.current = false;
-      setHint(err instanceof Error ? err.message : 'Verification failed');
-    } finally {
-      setIsVerifyingCustom(false);
+  const handleVerify = async (verifyCodeValue: string) => {
+    if (onVerifyCode) {
+      if (verifyingRef.current) {
+        return;
+      }
+      verifyingRef.current = true;
+      setIsCustomVerifying(true);
+      try {
+        await onVerifyCode(verifyCodeValue);
+        logEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
+        onSubmit();
+      } catch (err) {
+        verifyingRef.current = false;
+        setHint(err instanceof Error ? err.message : 'Verification failed');
+      } finally {
+        setIsCustomVerifying(false);
+      }
+    } else {
+      await verifyCode({ code: verifyCodeValue });
     }
   };
 
@@ -104,11 +108,7 @@ function EmailCodeVerification({
     });
     setHint('');
     setAlert({ firstAlert: false, alert: false });
-    if (onVerifyCode) {
-      await handleCustomVerify(code);
-    } else {
-      await verifyCode({ code });
-    }
+    await handleVerify(code);
   };
 
   const onSendCode = async () => {
@@ -119,8 +119,7 @@ function EmailCodeVerification({
     setAlert({ firstAlert: false, alert: false });
     if (onResendCode) {
       await onResendCode();
-      setCustomResendTimer(60);
-      runCustomTimer();
+      resetResendTimer();
     } else {
       sendEmail(email);
     }
@@ -129,11 +128,7 @@ function EmailCodeVerification({
   const onCodeSubmit = async (newCode: string) => {
     if (newCode.length === 6) {
       setCode(newCode);
-      if (onVerifyCode) {
-        await handleCustomVerify(newCode);
-      } else {
-        await verifyCode({ code: newCode });
-      }
+      await handleVerify(newCode);
     }
   };
 
@@ -174,7 +169,7 @@ function EmailCodeVerification({
         <CodeField
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
-          disabled={activeIsVerifying}
+          disabled={isVerifying}
         />
         {hint && (
           <Typography
@@ -189,14 +184,14 @@ function EmailCodeVerification({
           Didn&#39;t get a verification code?{' '}
           <button
             type="button"
-            disabled={activeResendTimer > 0}
+            disabled={resendTimer > 0}
             onClick={onSendCode}
             className={
-              activeResendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
+              resendTimer === 0 ? 'text-text-link' : 'text-text-disabled'
             }
           >
             Resend code
-            {activeResendTimer > 0 && ` ${activeResendTimer}s`}
+            {resendTimer > 0 && ` ${resendTimer}s`}
           </button>
         </span>
       </div>
@@ -204,7 +199,7 @@ function EmailCodeVerification({
         className="w-full"
         type="submit"
         variant={ButtonVariant.Primary}
-        loading={activeIsVerifying}
+        loading={isVerifying}
         disabled={onVerifyCode ? false : autoResend}
       >
         Verify

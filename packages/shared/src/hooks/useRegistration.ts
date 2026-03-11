@@ -65,6 +65,8 @@ interface UseRegistration {
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
 const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
+const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
+  "We couldn't complete sign up. If you already have an account, try signing in instead.";
 
 const useRegistration = ({
   key,
@@ -245,6 +247,13 @@ const useRegistration = ({
       if (res.error) {
         onInvalidRegistration?.({
           'traits.email': res.error,
+        });
+        return;
+      }
+
+      if (res.status && !res.user) {
+        onInvalidRegistration?.({
+          'traits.email': BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
         });
         return;
       }
