@@ -235,6 +235,7 @@ We write tests to validate functionality, not to achieve coverage metrics:
 - Mock API responses with `nock`
 - Test files live next to source: `Component.spec.tsx`
 - Run tests: `pnpm --filter <package> test`
+- For hover/tooltip changes on navigation, verify the real hover target is instrumented, not just an inner icon wrapper. Prefer a native `title` fallback on the interactive element when the UX depends on desktop hover in collapsed navigation.
 
 ## Feature Flags & Experiments
 
