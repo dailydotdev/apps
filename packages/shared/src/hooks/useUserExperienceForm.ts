@@ -125,7 +125,7 @@ const useUserExperienceForm = ({
     reValidateMode: 'onSubmit',
     resolver: zodResolver(userExperienceInputBaseSchema),
   });
-  const { id, type } = methods.getValues();
+  const { id, type } = defaultValues;
   const isNewExperience = !id;
 
   useLogEventOnce(
@@ -137,10 +137,13 @@ const useUserExperienceForm = ({
   );
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: UserExperience | UserExperienceWork) =>
-      type === UserExperienceType.Work
-        ? upsertUserWorkExperience(data as UserExperienceWork, id)
-        : upsertUserGeneralExperience(data, id),
+    mutationFn: (data: UserExperience | UserExperienceWork) => {
+      const input = { ...data, type } as UserExperience | UserExperienceWork;
+
+      return type === UserExperienceType.Work
+        ? upsertUserWorkExperience(input as UserExperienceWork, id)
+        : upsertUserGeneralExperience(input, id);
+    },
     onSuccess: (result, vars) => {
       if (isNewExperience) {
         logEvent({

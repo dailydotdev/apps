@@ -1,9 +1,30 @@
 import React from 'react';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import useUserExperienceForm from './useUserExperienceForm';
-import { UserExperienceType } from '../graphql/user/profile';
+import {
+  upsertUserGeneralExperience,
+  upsertUserWorkExperience,
+  UserExperienceType,
+} from '../graphql/user/profile';
+
+jest.mock('@tanstack/react-query', () => ({
+  ...jest.requireActual('@tanstack/react-query'),
+  useMutation: jest.fn(({ mutationFn, onSuccess, onError }) => ({
+    mutate: async (variables) => {
+      try {
+        const result = await mutationFn(variables);
+        onSuccess?.(result, variables);
+        return result;
+      } catch (error) {
+        onError?.(error);
+        throw error;
+      }
+    },
+    isPending: false,
+  })),
+}));
 
 // Mock dependencies
 jest.mock('next/router', () => ({
@@ -12,14 +33,6 @@ jest.mock('next/router', () => ({
 
 jest.mock('./useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: jest.fn() }),
-}));
-
-jest.mock('./useDirtyForm', () => ({
-  __esModule: true,
-  useDirtyForm: jest.fn(() => ({
-    save: jest.fn(),
-    allowNavigation: jest.fn(),
-  })),
 }));
 
 // Mock the GraphQL mutations
@@ -36,6 +49,14 @@ jest.mock('../contexts/AuthContext', () => ({
   })),
 }));
 
+jest.mock('../contexts/LogContext', () => ({
+  useLogContext: jest.fn(() => ({
+    logEvent: jest.fn(),
+  })),
+}));
+
+jest.mock('./log/useLogEventOnce', () => jest.fn());
+
 // Mock useUserExperiencesByType hook
 jest.mock('../features/profile/hooks/useUserExperiencesByType', () => ({
   useUserExperiencesByType: jest.fn(() => ({
@@ -48,6 +69,19 @@ const mockRouter = {
   pathname: '/profile/experience',
   push: jest.fn(),
 };
+let latestOnSave: (() => void) | undefined;
+
+jest.mock('./useDirtyForm', () => ({
+  __esModule: true,
+  useDirtyForm: jest.fn((_, { onSave }) => {
+    latestOnSave = onSave;
+
+    return {
+      save: jest.fn(() => onSave()),
+      allowNavigation: jest.fn(),
+    };
+  }),
+}));
 
 const createWrapper = () => {
   const client = new QueryClient({
@@ -97,6 +131,7 @@ describe('useUserExperienceForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    latestOnSave = undefined;
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
@@ -119,6 +154,47 @@ describe('useUserExperienceForm', () => {
       type: UserExperienceType.Work,
       title: 'Software Engineer',
       description: 'Building awesome things',
+    });
+  });
+
+  it('should include type in the mutation payload when editing', async () => {
+    (upsertUserWorkExperience as jest.Mock).mockResolvedValue({ id: 'exp-1' });
+
+    const existingExperience: BaseUserExperience & { id: string } = {
+      ...baseWorkExperience,
+      id: 'exp-1',
+    };
+
+    const { result } = renderHook(
+      () => useUserExperienceForm({ defaultValues: existingExperience }),
+      { wrapper: createWrapper() },
+    );
+
+    act(() => {
+      result.current.methods.reset({
+        ...existingExperience,
+        type: undefined as never,
+      });
+    });
+
+    expect(result.current.methods.getValues().type).toBeUndefined();
+    expect(latestOnSave).toBeDefined();
+
+    await act(async () => {
+      latestOnSave?.();
+    });
+
+    expect(upsertUserGeneralExperience).not.toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(upsertUserWorkExperience).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'exp-1',
+          type: UserExperienceType.Work,
+          title: 'Software Engineer',
+        }),
+        'exp-1',
+      );
     });
   });
 
