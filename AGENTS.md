@@ -16,6 +16,10 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Use early returns instead of if-else blocks for cleaner, flatter code
 - Handle the errors or checks first and return early then proceed with happy path at the end of code block
 
+**Method binding:**
+- Do not extract object methods like `router.push`/`router.replace` into standalone variables unless they are explicitly bound first.
+- For APIs that may depend on `this`, call the method directly on the object or use `.call`/`.bind`.
+
 **Invariant handling:**
 - Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
 - Fail fast with a clear thrown error message when an internal invariant is violated

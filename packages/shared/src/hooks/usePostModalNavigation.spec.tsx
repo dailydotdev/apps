@@ -65,6 +65,60 @@ describe('usePostModalNavigation', () => {
     jest.clearAllMocks();
   });
 
+  it('calls router.push with the router instance bound on initial open', async () => {
+    const push = jest.fn(function pushMethod() {
+      expect(this).toBe(mockRouter);
+      return Promise.resolve(true);
+    });
+    mockRouter.push = push;
+
+    const { result } = renderHook(() =>
+      usePostModalNavigation({
+        items,
+        fetchPage: jest.fn(),
+        updatePost,
+        canFetchMore: true,
+        feedName: 'main',
+      }),
+    );
+
+    act(() => {
+      result.current.onOpenModal(0);
+    });
+
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
+  });
+
+  it('calls router.replace with the router instance bound for next post navigation', async () => {
+    const replace = jest.fn(function replaceMethod() {
+      expect(this).toBe(mockRouter);
+      return Promise.resolve(true);
+    });
+    mockRouter.query = {
+      pmid: 'post-1',
+      pmp: '/feed',
+      pmap: '/feed?sort=top',
+      pmcid: 'main',
+    };
+    mockRouter.replace = replace;
+
+    const { result } = renderHook(() =>
+      usePostModalNavigation({
+        items,
+        fetchPage: jest.fn(),
+        updatePost,
+        canFetchMore: true,
+        feedName: 'main',
+      }),
+    );
+
+    await act(async () => {
+      await result.current.onNext();
+    });
+
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
+
   it('uses push for the initial modal open', async () => {
     const { result } = renderHook(() =>
       usePostModalNavigation({
