@@ -103,7 +103,9 @@ export const userExperienceInputBaseSchema = z
 type BaseUserExperience = Omit<
   UserExperience,
   'id' | 'createdAt' | 'company' | 'customCompanyName'
->;
+> & {
+  id?: string;
+};
 
 const useUserExperienceForm = ({
   defaultValues,
@@ -178,10 +180,7 @@ const useUserExperienceForm = ({
     },
   });
   const dirtyForm = useDirtyForm(methods.formState.isDirty, {
-    onSave: () => {
-      const formData = methods.getValues();
-      mutate(formData);
-    },
+    onSave: () => mutate({ ...methods.getValues(), type }),
     onDiscard: () => {
       methods.reset();
     },

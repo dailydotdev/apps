@@ -9,23 +9,6 @@ import {
   UserExperienceType,
 } from '../graphql/user/profile';
 
-jest.mock('@tanstack/react-query', () => ({
-  ...jest.requireActual('@tanstack/react-query'),
-  useMutation: jest.fn(({ mutationFn, onSuccess, onError }) => ({
-    mutate: async (variables) => {
-      try {
-        const result = await mutationFn(variables);
-        onSuccess?.(result, variables);
-        return result;
-      } catch (error) {
-        onError?.(error);
-        throw error;
-      }
-    },
-    isPending: false,
-  })),
-}));
-
 // Mock dependencies
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -69,18 +52,13 @@ const mockRouter = {
   pathname: '/profile/experience',
   push: jest.fn(),
 };
-let latestOnSave: (() => void) | undefined;
 
 jest.mock('./useDirtyForm', () => ({
   __esModule: true,
-  useDirtyForm: jest.fn((_, { onSave }) => {
-    latestOnSave = onSave;
-
-    return {
-      save: jest.fn(() => onSave()),
-      allowNavigation: jest.fn(),
-    };
-  }),
+  useDirtyForm: jest.fn((_, { onSave }) => ({
+    save: onSave,
+    allowNavigation: jest.fn(),
+  })),
 }));
 
 const createWrapper = () => {
@@ -131,7 +109,6 @@ describe('useUserExperienceForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    latestOnSave = undefined;
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
 
@@ -177,16 +154,12 @@ describe('useUserExperienceForm', () => {
       });
     });
 
-    expect(result.current.methods.getValues().type).toBeUndefined();
-    expect(latestOnSave).toBeDefined();
-
     await act(async () => {
-      latestOnSave?.();
+      result.current.save?.();
     });
 
-    expect(upsertUserGeneralExperience).not.toHaveBeenCalled();
-
     await waitFor(() => {
+      expect(upsertUserGeneralExperience).not.toHaveBeenCalled();
       expect(upsertUserWorkExperience).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'exp-1',
