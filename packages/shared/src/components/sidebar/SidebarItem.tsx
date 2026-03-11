@@ -23,14 +23,11 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
-
-  const isActive = (activeItem: SidebarMenuItem) => {
-    return activeItem.active || activeItem.path === activePage;
-  };
+  const isActive = item.active || item.path === activePage;
 
   const navItem = (
     <NavItem
-      active={isActive(item)}
+      active={isActive}
       ref={item.navItemRef}
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
@@ -52,7 +49,7 @@ export const SidebarItem = ({
         <ItemInner
           item={item}
           shouldShowLabel={shouldShowLabel}
-          active={isActive(item)}
+          active={isActive}
         />
       </ClickableNavItem>
     </NavItem>
