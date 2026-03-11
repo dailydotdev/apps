@@ -103,6 +103,14 @@ function NotificationItemAvatar({
     );
   }
 
+  if (type === NotificationAvatarType.HotTake) {
+    return (
+      <span className="flex size-8 items-center justify-center rounded-8 bg-surface-float text-xl">
+        🔥
+      </span>
+    );
+  }
+
   return null;
 }
 

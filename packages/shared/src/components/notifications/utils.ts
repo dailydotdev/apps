@@ -18,6 +18,7 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
+  HotIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -94,6 +95,7 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
+  HotTakeUpvoteMilestone = 'hot_take_upvote_milestone',
 }
 
 export enum NotificationIconType {
@@ -114,6 +116,7 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
+  HotTake = 'HotTake',
 }
 
 export const notificationIcon: Record<
@@ -137,6 +140,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
+  [NotificationIconType.HotTake]: HotIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -162,6 +166,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
+  [NotificationIconType.HotTake]: 'text-accent-bun-default',
 };
 
 export const notificationIconStyle: Record<
@@ -185,6 +190,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
+  [NotificationIconType.HotTake]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -396,6 +402,11 @@ export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.CommentUpvoteMilestone,
     label: 'Upvotes on your comment',
+    group: false,
+  },
+  {
+    id: NotificationType.HotTakeUpvoteMilestone,
+    label: 'Upvotes on your hot takes',
     group: false,
   },
   {
