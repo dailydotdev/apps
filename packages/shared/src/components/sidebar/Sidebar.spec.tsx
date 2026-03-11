@@ -15,6 +15,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import type { Alerts } from '../../graphql/alerts';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SidebarDesktop } from './SidebarDesktop';
 
 let client: QueryClient;
@@ -54,6 +55,7 @@ const renderComponent = (
     toggleSidebarExpanded,
   };
   client = new QueryClient();
+  client.setQueryData(TOAST_NOTIF_KEY, null);
   mocks.forEach(mockGraphQL);
 
   return render(

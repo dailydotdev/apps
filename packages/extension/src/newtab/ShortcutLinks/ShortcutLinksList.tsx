@@ -46,9 +46,7 @@ interface ShortcutLinksListProps {
   onOptionsOpen: () => void;
   shortcutLinks: string[];
   shouldUseListFeedLayout: boolean;
-  showTopSites: boolean;
   toggleShowTopSites: () => void;
-  hasCheckedPermission?: boolean;
   onReorder?: (links: string[]) => void;
   isManual?: boolean;
 }
@@ -110,7 +108,12 @@ export function ShortcutLinksList({
       {hasShortcuts && (
         <>
           {shortcutLinks.map((url) => (
-            <ShortcutLinksItem key={url} url={url} onLinkClick={onLinkClick} />
+            <ShortcutLinksItem
+              key={url}
+              url={url}
+              onLinkClick={onLinkClick}
+              isDraggable={Boolean(isManual && onReorder)}
+            />
           ))}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
