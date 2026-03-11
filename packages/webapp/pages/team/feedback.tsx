@@ -11,16 +11,22 @@ import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/Feedba
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   FeedbackCategory,
   FeedbackStatus,
   useFeedbackList,
 } from '@dailydotdev/shared/src/graphql/feedback';
+import type { FeedbackItem } from '@dailydotdev/shared/src/graphql/feedback';
 import {
   getFeedbackCategoryLabel,
   getFeedbackStatusLabel,
@@ -54,15 +60,6 @@ const statusOptions = [
     label: getFeedbackStatusLabel(FeedbackStatus.Accepted),
     value: 'accepted' as const,
   },
-  {
-    label: getFeedbackStatusLabel(FeedbackStatus.Completed),
-    value: 'completed' as const,
-  },
-  {
-    label: getFeedbackStatusLabel(FeedbackStatus.Cancelled),
-    value: 'cancelled' as const,
-  },
-  { label: 'All statuses', value: 'all' as const },
 ];
 
 const categoryOptions = [
@@ -105,16 +102,43 @@ const getStatusFilter = (
       return { status: FeedbackStatus.Processing };
     case 'accepted':
       return { status: FeedbackStatus.Accepted };
-    case 'completed':
-      return { status: FeedbackStatus.Completed };
-    case 'cancelled':
-      return { status: FeedbackStatus.Cancelled };
-    case 'all':
-      return {};
     case 'open':
     default:
       return { statuses: OPEN_FEEDBACK_STATUSES };
   }
+};
+
+const TeamFeedbackUser = ({
+  item,
+}: {
+  item: Pick<FeedbackItem, 'user'>;
+}): ReactElement | null => {
+  if (!item.user) {
+    return null;
+  }
+
+  return (
+    <Link href={`/team/users/${item.user.id}/feedback`}>
+      <a className="mb-3 flex items-center gap-3 rounded-12 px-1 transition-colors hover:bg-surface-hover">
+        <ProfilePicture
+          user={{ ...item.user, image: item.user.image ?? '' }}
+          size={ProfileImageSize.Small}
+        />
+        <div className="flex min-w-0 flex-col">
+          <Typography type={TypographyType.Callout} bold className="truncate">
+            {item.user.name || item.user.username || item.user.id}
+          </Typography>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="truncate"
+          >
+            {item.user.username ? `@${item.user.username}` : item.user.id}
+          </Typography>
+        </div>
+      </a>
+    </Link>
+  );
 };
 
 const TeamFeedbackPage = (): ReactElement | null => {
@@ -190,17 +214,19 @@ const TeamFeedbackPage = (): ReactElement | null => {
         }
       >
         {feedbackItems.map((item) => (
-          <FeedbackCard
-            key={item.id}
-            item={item}
-            isExpanded={!!expandedItems[item.id]}
-            onToggleExpand={() =>
-              setExpandedItems((prev) => ({
-                ...prev,
-                [item.id]: !prev[item.id],
-              }))
-            }
-          />
+          <div key={item.id}>
+            <TeamFeedbackUser item={item} />
+            <FeedbackCard
+              item={item}
+              isExpanded={!!expandedItems[item.id]}
+              onToggleExpand={() =>
+                setExpandedItems((prev) => ({
+                  ...prev,
+                  [item.id]: !prev[item.id],
+                }))
+              }
+            />
+          </div>
         ))}
       </InfiniteScrolling>
     );
