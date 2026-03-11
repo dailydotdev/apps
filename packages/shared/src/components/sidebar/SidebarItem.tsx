@@ -7,6 +7,7 @@ import type { SidebarMenuItem } from './common';
 import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
+import { SimpleTooltip } from '../tooltips';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -22,14 +23,11 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
+  const isActive = item.active || item.path === activePage;
 
-  const isActive = (activeItem: SidebarMenuItem) => {
-    return activeItem.active || activeItem.path === activePage;
-  };
-
-  return (
+  const navItem = (
     <NavItem
-      active={isActive(item)}
+      active={isActive}
       ref={item.navItemRef}
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
@@ -51,9 +49,19 @@ export const SidebarItem = ({
         <ItemInner
           item={item}
           shouldShowLabel={shouldShowLabel}
-          active={isActive(item)}
+          active={isActive}
         />
       </ClickableNavItem>
     </NavItem>
+  );
+
+  if (shouldShowLabel) {
+    return navItem;
+  }
+
+  return (
+    <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
+      {navItem}
+    </SimpleTooltip>
   );
 };

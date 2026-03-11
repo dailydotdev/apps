@@ -7,7 +7,6 @@ import type {
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarMenuItem {
@@ -79,6 +78,17 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
 type ItemInnerIconProps = Pick<SidebarMenuItem, 'alert' | 'icon' | 'active'> & {
   iconClassName?: string;
 };
+const renderItemIcon = (
+  icon: SidebarMenuItem['icon'],
+  active?: boolean,
+): ReactNode => {
+  if (typeof icon === 'string') {
+    return <span className="inline-block w-5 text-center">{icon}</span>;
+  }
+
+  return icon instanceof Function ? icon(active ?? false) : icon;
+};
+
 const ItemInnerIcon = ({
   alert,
   icon,
@@ -88,52 +98,19 @@ const ItemInnerIcon = ({
   return (
     <span className={iconClassName}>
       {alert}
-      {icon instanceof Function ? icon(active ?? false) : icon}
+      {renderItemIcon(icon, active)}
     </span>
   );
 };
-
-const ItemInnerIconTooltip = ({
-  alert,
-  icon,
-  title,
-  tooltip = {},
-  active,
-}: SidebarMenuItem) => (
-  <SimpleTooltip {...tooltip} content={title} placement="right">
-    <span
-      className={classNames(
-        'relative flex h-9 w-9 items-center justify-center',
-        tooltip.visible !== undefined && 'pointer-events-none',
-      )}
-    >
-      {alert}
-      {icon instanceof Function ? icon(active ?? false) : icon}
-    </span>
-  </SimpleTooltip>
-);
-
-const isFontIcon = (icon: SidebarMenuItem['icon']): icon is string =>
-  typeof icon === 'string';
 
 export const ItemInner = ({
   item,
   shouldShowLabel,
   active,
 }: ItemInnerProps): ReactElement => {
-  const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
-
   return (
     <>
-      {isFontIcon(item.icon) ? (
-        <ItemInnerIcon
-          icon={
-            <span className="inline-block w-5 text-center">{item.icon}</span>
-          }
-        />
-      ) : (
-        <Icon {...item} active={active} />
-      )}
+      <ItemInnerIcon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
