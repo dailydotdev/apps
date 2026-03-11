@@ -122,18 +122,15 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
+  const icon = isFontIcon(item.icon) ? (
+    <span className="inline-block w-5 text-center">{item.icon}</span>
+  ) : (
+    item.icon
+  );
 
   return (
     <>
-      {isFontIcon(item.icon) ? (
-        <ItemInnerIcon
-          icon={
-            <span className="inline-block w-5 text-center">{item.icon}</span>
-          }
-        />
-      ) : (
-        <Icon {...item} active={active} />
-      )}
+      <Icon {...item} active={active} icon={icon} />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
