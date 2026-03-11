@@ -2,12 +2,14 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
 import type { FeedbackItem } from '../../graphql/feedback';
+import Link from '../utilities/Link';
 import {
   getFeedbackCategoryLabel,
   getFeedbackStatusClassName,
@@ -33,6 +35,33 @@ export const FeedbackCard = ({
 
   return (
     <article className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+      {item.user && (
+        <Link href={`/team/users/${item.user.id}/feedback`}>
+          <a className="mb-4 flex items-center gap-3 rounded-12 transition-colors hover:bg-surface-hover">
+            <ProfilePicture
+              user={{ ...item.user, image: item.user.image ?? '' }}
+              size={ProfileImageSize.Small}
+            />
+            <div className="flex min-w-0 flex-col">
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                className="truncate"
+              >
+                {item.user.name || item.user.username || item.user.id}
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="truncate"
+              >
+                {item.user.username ? `@${item.user.username}` : item.user.id}
+              </Typography>
+            </div>
+          </a>
+        </Link>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <span className={`${badgeClassName} text-text-secondary`}>
           {getFeedbackCategoryLabel(item.category)}
