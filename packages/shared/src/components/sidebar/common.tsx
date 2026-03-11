@@ -79,6 +79,17 @@ export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
 type ItemInnerIconProps = Pick<SidebarMenuItem, 'alert' | 'icon' | 'active'> & {
   iconClassName?: string;
 };
+const renderItemIcon = (
+  icon: SidebarMenuItem['icon'],
+  active?: boolean,
+): ReactNode => {
+  if (typeof icon === 'string') {
+    return <span className="inline-block w-5 text-center">{icon}</span>;
+  }
+
+  return icon instanceof Function ? icon(active ?? false) : icon;
+};
+
 const ItemInnerIcon = ({
   alert,
   icon,
@@ -88,33 +99,26 @@ const ItemInnerIcon = ({
   return (
     <span className={iconClassName}>
       {alert}
-      {icon instanceof Function ? icon(active ?? false) : icon}
+      {renderItemIcon(icon, active)}
     </span>
   );
 };
 
 const ItemInnerIconTooltip = ({
-  alert,
-  icon,
   title,
   tooltip = {},
-  active,
+  ...props
 }: SidebarMenuItem) => (
   <SimpleTooltip {...tooltip} content={title} placement="right">
-    <span
-      className={classNames(
+    <ItemInnerIcon
+      {...props}
+      iconClassName={classNames(
         'relative flex h-9 w-9 items-center justify-center',
         tooltip.visible !== undefined && 'pointer-events-none',
       )}
-    >
-      {alert}
-      {icon instanceof Function ? icon(active ?? false) : icon}
-    </span>
+    />
   </SimpleTooltip>
 );
-
-const isFontIcon = (icon: SidebarMenuItem['icon']): icon is string =>
-  typeof icon === 'string';
 
 export const ItemInner = ({
   item,
@@ -122,15 +126,10 @@ export const ItemInner = ({
   active,
 }: ItemInnerProps): ReactElement => {
   const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
-  const icon = isFontIcon(item.icon) ? (
-    <span className="inline-block w-5 text-center">{item.icon}</span>
-  ) : (
-    item.icon
-  );
 
   return (
     <>
-      <Icon {...item} active={active} icon={icon} />
+      <Icon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
