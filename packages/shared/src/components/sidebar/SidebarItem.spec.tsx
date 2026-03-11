@@ -47,9 +47,10 @@ describe('SidebarItem', () => {
   it('should wrap collapsed items with a tooltip on the clickable item', () => {
     renderComponent(false);
 
-    expect(
-      screen.getByRole('link', { name: /Custom feed/ }),
-    ).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /Custom feed/ });
+
+    expect(link).toBeInTheDocument();
+    expect(link).not.toHaveAttribute('title');
     expect(mockSimpleTooltipSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         content: 'Custom feed',
