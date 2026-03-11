@@ -7,6 +7,7 @@ import type { SidebarMenuItem } from './common';
 import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
+import { SimpleTooltip } from '../tooltips';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -27,7 +28,7 @@ export const SidebarItem = ({
     return activeItem.active || activeItem.path === activePage;
   };
 
-  return (
+  const navItem = (
     <NavItem
       active={isActive(item)}
       ref={item.navItemRef}
@@ -41,6 +42,7 @@ export const SidebarItem = ({
     >
       <ClickableNavItem
         item={item}
+        title={!shouldShowLabel ? item.title : undefined}
         showLogin={
           item.requiresLogin && !user
             ? () => showLogin({ trigger: item.title as AuthTriggersType })
@@ -55,5 +57,15 @@ export const SidebarItem = ({
         />
       </ClickableNavItem>
     </NavItem>
+  );
+
+  if (shouldShowLabel) {
+    return navItem;
+  }
+
+  return (
+    <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
+      {navItem}
+    </SimpleTooltip>
   );
 };
