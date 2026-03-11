@@ -1,5 +1,5 @@
 import type { useRouter } from 'next/router';
-import { useReducer } from 'react';
+import { useState } from 'react';
 
 export type UseRouterMemory = Pick<
   ReturnType<typeof useRouter>,
@@ -19,20 +19,6 @@ export type UseRouterMemory = Pick<
 
 type RouterMemoryState = Omit<UseRouterMemory, 'push' | 'replace'>;
 
-const routerMemoryReducer = (
-  state: RouterMemoryState,
-  action: {
-    type: 'push' | 'replace';
-    payload: RouterMemoryState;
-  },
-): RouterMemoryState => {
-  if (action.type === 'push' || action.type === 'replace') {
-    return action.payload;
-  }
-
-  return state;
-};
-
 const createRouterInitialState = (): RouterMemoryState => {
   return {
     query: {},
@@ -41,29 +27,26 @@ const createRouterInitialState = (): RouterMemoryState => {
   };
 };
 
+const getRouterState = (url: string, as?: string): RouterMemoryState => {
+  // in memory router only supports url and as as strings, so we can convert
+  // them to URL objects for internal handling, this is compatible with next/router
+  const urlObject = new URL(url, 'http://localhost');
+  const asObject = as ? new URL(as, 'http://localhost') : urlObject;
+
+  return {
+    query: Object.fromEntries(urlObject.searchParams.entries()),
+    pathname: urlObject.pathname,
+    asPath: `${asObject.pathname}${
+      asObject.search ? `?${asObject.search}` : ''
+    }`,
+  };
+};
+
 export const useRouterMemory = (): UseRouterMemory => {
-  const [state, dispatch] = useReducer(
-    routerMemoryReducer,
-    undefined,
-    createRouterInitialState,
-  );
+  const [state, setState] = useState(createRouterInitialState);
 
   const navigate = async (url: string, as?: string): Promise<boolean> => {
-    // in memory router only supports url and as as strings, so we can convert
-    // them to URL objects for internal handling, this is compatible with next/router
-    const urlObject = new URL(url, 'http://localhost');
-    const asObject = as ? new URL(as, 'http://localhost') : urlObject;
-
-    dispatch({
-      type: 'push',
-      payload: {
-        query: Object.fromEntries(urlObject.searchParams.entries()),
-        pathname: urlObject.pathname,
-        asPath: `${asObject.pathname}${
-          asObject.search ? `?${asObject.search}` : ''
-        }`,
-      },
-    });
+    setState(getRouterState(url, as));
 
     return true;
   };

@@ -151,6 +151,7 @@ export const usePostModalNavigation = ({
 
       if (post) {
         const postId = post.slug || post.id;
+        const navigate = router[method];
 
         const newPathname = getPathnameWithQuery(
           basePathname,
@@ -163,15 +164,9 @@ export const usePostModalNavigation = ({
           }),
         );
 
-        if (method === 'push') {
-          await router.push(newPathname, `${webappUrl}posts/${postId}`, {
-            scroll: false,
-          });
-        } else {
-          await router.replace(newPathname, `${webappUrl}posts/${postId}`, {
-            scroll: false,
-          });
-        }
+        await navigate(newPathname, `${webappUrl}posts/${postId}`, {
+          scroll: false,
+        });
       }
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
