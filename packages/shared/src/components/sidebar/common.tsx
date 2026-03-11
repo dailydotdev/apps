@@ -7,7 +7,6 @@ import type {
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import classed from '../../lib/classed';
-import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import type { TooltipProps } from '../tooltips/BaseTooltip';
 
 export interface SidebarMenuItem {
@@ -104,32 +103,14 @@ const ItemInnerIcon = ({
   );
 };
 
-const ItemInnerIconTooltip = ({
-  title,
-  tooltip = {},
-  ...props
-}: SidebarMenuItem) => (
-  <SimpleTooltip {...tooltip} content={title} placement="right">
-    <ItemInnerIcon
-      {...props}
-      iconClassName={classNames(
-        'relative flex h-9 w-9 items-center justify-center',
-        tooltip.visible !== undefined && 'pointer-events-none',
-      )}
-    />
-  </SimpleTooltip>
-);
-
 export const ItemInner = ({
   item,
   shouldShowLabel,
   active,
 }: ItemInnerProps): ReactElement => {
-  const Icon = shouldShowLabel ? ItemInnerIcon : ItemInnerIconTooltip;
-
   return (
     <>
-      <Icon {...item} active={active} />
+      <ItemInnerIcon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
