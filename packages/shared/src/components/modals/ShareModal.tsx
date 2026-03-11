@@ -63,7 +63,7 @@ export default function ShareModal({
     const { scrollTop } = currentTarget;
 
     if (scrollTop === 0) {
-      onRequestClose(e);
+      onRequestClose(e.event as React.MouseEvent);
     }
   };
 
