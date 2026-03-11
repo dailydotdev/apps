@@ -99,6 +99,11 @@ type DOMEvent<
   M extends GetDOMEventMaps<T>,
 > = MapEventMapsToEvent<M, K>[number];
 
+const isRefObject = <T>(
+  value: RefObject<T> | T | null | undefined,
+): value is RefObject<T> =>
+  typeof value === 'object' && value !== null && 'current' in value;
+
 const useEventListener = <
   T extends EventTarget,
   K extends MapEventMapsToKeys<M>[number] & string,
@@ -145,8 +150,7 @@ const useEventListener = <
     const eventListener: EventListener = (event) => {
       handlerRef.current(event as DOMEvent<T, K, M>);
     };
-    const targetElement =
-      target && 'current' in target ? target.current : target;
+    const targetElement = isRefObject(target) ? target.current : target;
 
     if (targetElement && eventType && eventListener) {
       targetElement.addEventListener(eventType, eventListener, eventOptions);
