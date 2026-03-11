@@ -1,7 +1,6 @@
 import {
   formatCompletionDescription,
   getCompletionItems,
-  getIncompleteCompletionItems,
 } from './profileCompletion';
 import type { ProfileCompletion } from './user';
 
@@ -29,7 +28,9 @@ describe('profileCompletion', () => {
 
   it('should return only incomplete completion items', () => {
     expect(
-      getIncompleteCompletionItems(profileCompletion).map((item) => item.label),
+      getCompletionItems(profileCompletion)
+        .filter((item) => !item.completed)
+        .map((item) => item.label),
     ).toEqual(['Profile image', 'Headline', 'Work experience']);
   });
 
@@ -48,7 +49,7 @@ describe('profileCompletion', () => {
   it('should format a multi-item incomplete description', () => {
     expect(
       formatCompletionDescription(
-        getIncompleteCompletionItems(profileCompletion),
+        getCompletionItems(profileCompletion).filter((item) => !item.completed),
       ),
     ).toBe('Add Profile image, Headline and Work experience.');
   });

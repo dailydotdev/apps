@@ -13,7 +13,7 @@ import { settingsUrl } from '../../../lib/constants';
 import type { ProfileCompletion } from '../../../lib/user';
 import {
   formatCompletionDescription,
-  getIncompleteCompletionItems,
+  getCompletionItems,
 } from '../../../lib/profileCompletion';
 import {
   profileCompletionButtonBg,
@@ -44,7 +44,7 @@ export function ProfileCompletionPostGate({
   const normalizedRequired = Math.max(0, Math.min(100, requiredPercentage));
   const completionGap = Math.max(0, normalizedRequired - normalizedCurrent);
   const incompleteItems = profileCompletion
-    ? getIncompleteCompletionItems(profileCompletion)
+    ? getCompletionItems(profileCompletion).filter((item) => !item.completed)
     : [];
   const missingItemsDescription =
     incompleteItems.length > 0

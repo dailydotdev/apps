@@ -39,12 +39,6 @@ export const getCompletionItems = (
   ];
 };
 
-export const getIncompleteCompletionItems = (
-  completion: ProfileCompletion,
-): CompletionItem[] => {
-  return getCompletionItems(completion).filter((item) => !item.completed);
-};
-
 export const formatCompletionDescription = (
   incompleteItems: CompletionItem[],
 ): string => {
