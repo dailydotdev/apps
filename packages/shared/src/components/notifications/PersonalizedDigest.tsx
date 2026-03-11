@@ -364,7 +364,9 @@ const PersonalizedDigest = () => {
       </>
       {!!selectedDigest && isChecked && (
         <>
-          <h3 className="font-bold typo-callout">When to send</h3>
+          <Typography type={TypographyType.Callout} bold>
+            When to send
+          </Typography>
           <HourDropdown
             className={{
               container: 'w-40',
