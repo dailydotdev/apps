@@ -263,7 +263,7 @@ const useRegistration = ({
     },
   ) => {
     if (isBetterAuth) {
-      const turnstileToken = values.headers?.['x-turnstile-token'];
+      const turnstileToken = values.headers?.['True-Client-Ip'];
       await betterAuthRegister({
         name: values['traits.name'] as string,
         email: values['traits.email'] as string,

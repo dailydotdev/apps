@@ -224,7 +224,7 @@ const RegistrationForm = ({
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
       headers: {
-        'x-turnstile-token':
+        'True-Client-Ip':
           isDevelopment && !isProductionAPI
             ? undefined
             : turnstileRef?.current?.getResponse(),
