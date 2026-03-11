@@ -63,6 +63,7 @@ export const useSquadActions = ({
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
   const membersQueryKey = generateQueryKey(
     RequestKey.SquadMembers,
     undefined,
@@ -80,7 +81,11 @@ export const useSquadActions = ({
   });
   const { mutateAsync: onDemoteSelf } = useMutation({
     mutationFn: demoteSelfSquadMember,
-    onSuccess: () => client.invalidateQueries({ queryKey: membersQueryKey }),
+    onSuccess: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: membersQueryKey }),
+        client.invalidateQueries({ queryKey: squadQueryKey }),
+      ]),
   });
 
   const { mutateAsync: collapseSquadPinnedPosts } = useMutation({
