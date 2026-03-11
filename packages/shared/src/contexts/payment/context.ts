@@ -14,8 +14,11 @@ export type OpenCheckoutFn<TCustomData = Record<string, unknown>> = (
   props: OpenCheckoutProps<TCustomData>,
 ) => void;
 
+export type CloseCheckoutFn = () => void;
+
 export interface PaymentContextData {
   openCheckout?: OpenCheckoutFn;
+  closeCheckout?: CloseCheckoutFn;
   productOptions?: ProductPricingPreview[];
   isPlusAvailable: boolean;
   giftOneYear?: ProductPricingPreview;

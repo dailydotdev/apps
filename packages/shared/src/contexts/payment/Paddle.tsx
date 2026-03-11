@@ -19,7 +19,7 @@ export const PaddleSubProvider = ({
 }: PaddleSubProviderProps): ReactElement => {
   const [priceType, setPriceType] = useState(initialPriceType);
 
-  const { openCheckout, isPaddleReady, checkoutItemsLoading } =
+  const { openCheckout, closeCheckout, isPaddleReady, checkoutItemsLoading } =
     usePaddlePayment({
       successCallback,
       disabledEvents,
@@ -29,6 +29,7 @@ export const PaddleSubProvider = ({
   return (
     <BasePaymentProvider
       openCheckout={openCheckout}
+      closeCheckout={closeCheckout}
       isPaddleReady={isPaddleReady}
       checkoutItemsLoading={checkoutItemsLoading}
       priceType={priceType}

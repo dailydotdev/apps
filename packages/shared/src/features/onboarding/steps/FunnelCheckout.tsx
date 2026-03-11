@@ -13,7 +13,7 @@ export const FunnelCheckout = ({
   isActive,
 }: FunnelStepCheckout): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
-  const { openCheckout, isPaddleReady } = usePaymentContext();
+  const { openCheckout, closeCheckout, isPaddleReady } = usePaymentContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const priceId = useAtomValue(selectedPlanAtom);
   const applyDiscount = useAtomValue(applyDiscountAtom);
@@ -34,6 +34,16 @@ export const FunnelCheckout = ({
   }, [isActive, logSubscriptionEvent]);
 
   useEffect(() => {
+    if (isActive) {
+      return undefined;
+    }
+
+    closeCheckout?.();
+
+    return undefined;
+  }, [closeCheckout, isActive]);
+
+  useEffect(() => {
     if (!shouldUpdate) {
       return;
     }
@@ -45,6 +55,13 @@ export const FunnelCheckout = ({
       discountId: applyDiscount ? discountCode : undefined,
     });
   }, [discountCode, applyDiscount, shouldUpdate, priceId, openCheckout]);
+
+  useEffect(
+    () => () => {
+      closeCheckout?.();
+    },
+    [closeCheckout],
+  );
 
   return <div className="checkout-container" />;
 };

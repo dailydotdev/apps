@@ -209,6 +209,25 @@ export const usePaddlePayment = ({
     });
   }, [router, disabledEvents, targetType, isOrganization, isPlusPlan]);
 
+  const closeCheckout = useCallback(() => {
+    if (!isCheckoutOpenRef.current) {
+      return;
+    }
+
+    isCheckoutOpenRef.current = false;
+    paddle?.Checkout.close();
+  }, [paddle]);
+
+  useEffect(() => {
+    router.events.on('routeChangeStart', closeCheckout);
+
+    return () => {
+      router.events.off('routeChangeStart', closeCheckout);
+    };
+  }, [closeCheckout, router.events]);
+
+  useEffect(() => closeCheckout, [closeCheckout]);
+
   const openCheckout = useCallback(
     <TCustomData>({
       priceId,
@@ -271,6 +290,7 @@ export const usePaddlePayment = ({
   return {
     paddle,
     openCheckout,
+    closeCheckout,
     isPaddleReady: !!paddle,
     checkoutItemsLoading,
     appliedDiscountId,

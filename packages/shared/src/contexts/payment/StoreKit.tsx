@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { ReactElement } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type {
@@ -59,16 +59,18 @@ export const StoreKitSubProvider = ({
     products,
     successCallback,
   });
+  const closeCheckout = useCallback(() => {}, []);
 
   const contextData = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
+      closeCheckout,
       productOptions: products,
       isPlusAvailable: isPlusAvailable ?? false,
       giftOneYear: undefined,
       isPricesPending: false,
     }),
-    [isPlusAvailable, openCheckout, products],
+    [closeCheckout, isPlusAvailable, openCheckout, products],
   );
 
   return (

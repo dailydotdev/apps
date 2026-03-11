@@ -28,10 +28,12 @@ export const ChromeExtensionProvider = ({
     const url = new URL(`${webappUrl}plus/payment?${params.toString()}`);
     router.push(url.toString());
   };
+  const closeCheckout = () => {};
 
   return (
     <BasePaymentProvider
       openCheckout={openCheckout}
+      closeCheckout={closeCheckout}
       priceType={PurchaseType.Plus}
     >
       {children}

@@ -14,6 +14,7 @@ import { useAuthContext } from '../AuthContext';
 
 interface BasePaymentProviderProps {
   openCheckout: (props: OpenCheckoutProps) => void;
+  closeCheckout: () => void;
   isPaddleReady?: boolean;
   checkoutItemsLoading?: boolean;
   priceType: PurchaseType;
@@ -23,6 +24,7 @@ interface BasePaymentProviderProps {
 export const BasePaymentProvider = ({
   children,
   openCheckout,
+  closeCheckout,
   isPaddleReady,
   checkoutItemsLoading,
   priceType,
@@ -49,6 +51,7 @@ export const BasePaymentProvider = ({
   const value = useMemo<PaymentContextData>(
     () => ({
       openCheckout,
+      closeCheckout,
       productOptions:
         data?.filter(({ priceId }) => priceId !== giftOneYear?.priceId) ?? [],
       isPlusAvailable: isPlusAvailable ?? false,
@@ -62,6 +65,7 @@ export const BasePaymentProvider = ({
     }),
     [
       openCheckout,
+      closeCheckout,
       data,
       giftOneYear,
       isPlusAvailable,
