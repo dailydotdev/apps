@@ -10,6 +10,11 @@ import {
 } from '../../typography/Typography';
 import Link from '../../utilities/Link';
 import { settingsUrl } from '../../../lib/constants';
+import type { ProfileCompletion } from '../../../lib/user';
+import {
+  formatCompletionDescription,
+  getIncompleteCompletionItems,
+} from '../../../lib/profileCompletion';
 import {
   profileCompletionButtonBg,
   profileCompletionCardBg,
@@ -21,6 +26,7 @@ interface ProfileCompletionPostGateProps {
   currentPercentage?: number;
   requiredPercentage?: number;
   description: string;
+  profileCompletion?: ProfileCompletion;
   compact?: boolean;
   buttonSize?: ButtonSize;
 }
@@ -30,14 +36,22 @@ export function ProfileCompletionPostGate({
   currentPercentage = 0,
   requiredPercentage = 0,
   description,
+  profileCompletion,
   compact = false,
   buttonSize = ButtonSize.Medium,
 }: ProfileCompletionPostGateProps): ReactElement {
   const normalizedCurrent = Math.max(0, Math.min(100, currentPercentage));
   const normalizedRequired = Math.max(0, Math.min(100, requiredPercentage));
   const completionGap = Math.max(0, normalizedRequired - normalizedCurrent);
+  const incompleteItems = profileCompletion
+    ? getIncompleteCompletionItems(profileCompletion)
+    : [];
+  const missingItemsDescription =
+    incompleteItems.length > 0
+      ? formatCompletionDescription(incompleteItems)
+      : null;
   const requirementMessage =
-    normalizedRequired > 0
+    !missingItemsDescription && normalizedRequired > 0
       ? `You are ${completionGap}% away from the ${normalizedRequired}% requirement.`
       : null;
 
@@ -77,6 +91,14 @@ export function ProfileCompletionPostGate({
           </Typography>
         </div>
       </div>
+      {missingItemsDescription && (
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          {missingItemsDescription}
+        </Typography>
+      )}
       {requirementMessage && (
         <Typography
           type={TypographyType.Footnote}

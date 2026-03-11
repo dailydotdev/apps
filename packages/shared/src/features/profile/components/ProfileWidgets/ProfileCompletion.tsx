@@ -9,69 +9,19 @@ import {
 } from '../../../../components/typography/Typography';
 import { InfoIcon, MoveToIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
-import type { ProfileCompletion as ProfileCompletionData } from '../../../../lib/user';
 import Link from '../../../../components/utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';
-import { webappUrl } from '../../../../lib/constants';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import CloseButton from '../../../../components/CloseButton';
 import { ButtonSize } from '../../../../components/buttons/Button';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
-
-type CompletionItem = {
-  label: string;
-  completed: boolean;
-  redirectPath: string;
-};
+import {
+  formatCompletionDescription,
+  getCompletionItems,
+} from '../../../../lib/profileCompletion';
 
 type ProfileCompletionProps = {
   className?: string;
-};
-
-const getCompletionItems = (
-  completion: ProfileCompletionData,
-): CompletionItem[] => {
-  return [
-    {
-      label: 'Profile image',
-      completed: completion.hasProfileImage,
-      redirectPath: `${webappUrl}settings/profile`,
-    },
-    {
-      label: 'Headline',
-      completed: completion.hasHeadline,
-      redirectPath: `${webappUrl}settings/profile?field=bio`,
-    },
-    {
-      label: 'Experience level',
-      completed: completion.hasExperienceLevel,
-      redirectPath: `${webappUrl}settings/profile?field=experienceLevel`,
-    },
-    {
-      label: 'Work experience',
-      completed: completion.hasWork,
-      redirectPath: `${webappUrl}settings/profile/experience/work`,
-    },
-    {
-      label: 'Education',
-      completed: completion.hasEducation,
-      redirectPath: `${webappUrl}settings/profile/experience/education`,
-    },
-  ];
-};
-
-const formatDescription = (incompleteItems: CompletionItem[]): string => {
-  if (incompleteItems.length === 0) {
-    return 'Profile completed!';
-  }
-
-  const labels = incompleteItems.map((item) => item.label);
-  const formattedList =
-    labels.length === 1
-      ? labels[0]
-      : `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
-
-  return `Add ${formattedList}.`;
 };
 
 export const ProfileCompletion = ({
@@ -92,7 +42,7 @@ export const ProfileCompletion = ({
   );
 
   const description = useMemo(
-    () => formatDescription(incompleteItems),
+    () => formatCompletionDescription(incompleteItems),
     [incompleteItems],
   );
 

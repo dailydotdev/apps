@@ -15,7 +15,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import type { ProfileCompletion } from '../../lib/user';
-import { webappUrl } from '../../lib/constants';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
   profileCompletionCardBorder,
@@ -23,11 +22,9 @@ import {
   profileCompletionButtonBg,
 } from '../../styles/custom';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
+import { getCompletionItems } from '../../lib/profileCompletion';
 
-type CompletionItem = {
-  label: string;
-  completed: boolean;
-  redirectPath: string;
+type CompletionCardItem = ReturnType<typeof getCompletionItems>[number] & {
   cta: string;
   benefit: string;
 };
@@ -39,51 +36,44 @@ type ProfileCompletionCardProps = {
   }>;
 };
 
-const getCompletionItems = (
+const completionItemMetadata: Record<
+  ReturnType<typeof getCompletionItems>[number]['label'],
+  Pick<CompletionCardItem, 'cta' | 'benefit'>
+> = {
+  'Profile image': {
+    cta: 'Add profile image',
+    benefit:
+      'Stand out in comments and discussions. Profiles with photos get more engagement.',
+  },
+  Headline: {
+    cta: 'Write your headline',
+    benefit:
+      'Tell the community who you are. A good headline helps others connect with you.',
+  },
+  'Experience level': {
+    cta: 'Set experience level',
+    benefit:
+      'Get personalized content recommendations based on where you are in your career.',
+  },
+  'Work experience': {
+    cta: 'Add work experience',
+    benefit:
+      'Showcase your background and unlock opportunities from companies looking for talent like you.',
+  },
+  Education: {
+    cta: 'Add education',
+    benefit:
+      'Complete your story. Education helps others understand your journey.',
+  },
+};
+
+const getCompletionCardItems = (
   completion: ProfileCompletion,
-): CompletionItem[] => {
-  return [
-    {
-      label: 'Profile image',
-      completed: completion.hasProfileImage,
-      redirectPath: `${webappUrl}settings/profile`,
-      cta: 'Add profile image',
-      benefit:
-        'Stand out in comments and discussions. Profiles with photos get more engagement.',
-    },
-    {
-      label: 'Headline',
-      completed: completion.hasHeadline,
-      redirectPath: `${webappUrl}settings/profile?field=bio`,
-      cta: 'Write your headline',
-      benefit:
-        'Tell the community who you are. A good headline helps others connect with you.',
-    },
-    {
-      label: 'Experience level',
-      completed: completion.hasExperienceLevel,
-      redirectPath: `${webappUrl}settings/profile?field=experienceLevel`,
-      cta: 'Set experience level',
-      benefit:
-        'Get personalized content recommendations based on where you are in your career.',
-    },
-    {
-      label: 'Work experience',
-      completed: completion.hasWork,
-      redirectPath: `${webappUrl}settings/profile/experience/work`,
-      cta: 'Add work experience',
-      benefit:
-        'Showcase your background and unlock opportunities from companies looking for talent like you.',
-    },
-    {
-      label: 'Education',
-      completed: completion.hasEducation,
-      redirectPath: `${webappUrl}settings/profile/experience/education`,
-      cta: 'Add education',
-      benefit:
-        'Complete your story. Education helps others understand your journey.',
-    },
-  ];
+): CompletionCardItem[] => {
+  return getCompletionItems(completion).map((item) => ({
+    ...item,
+    ...completionItemMetadata[item.label],
+  }));
 };
 
 export const ProfileCompletionCard = ({
@@ -99,7 +89,7 @@ export const ProfileCompletionCard = ({
     useProfileCompletionIndicator();
 
   const items = useMemo(
-    () => (profileCompletion ? getCompletionItems(profileCompletion) : []),
+    () => (profileCompletion ? getCompletionCardItems(profileCompletion) : []),
     [profileCompletion],
   );
 

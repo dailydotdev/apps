@@ -274,6 +274,7 @@ function CreatePost(): ReactElement {
           currentPercentage={user?.profileCompletion?.percentage}
           requiredPercentage={requiredPercentage}
           description="Add your profile details to keep post creation available."
+          profileCompletion={user?.profileCompletion}
           buttonSize={ButtonSize.Medium}
         />
       </WritePageContainer>
