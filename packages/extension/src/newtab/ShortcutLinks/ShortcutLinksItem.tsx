@@ -49,9 +49,11 @@ export function ShortcutItemPlaceholder({
 export function ShortcutLinksItem({
   url,
   onLinkClick,
+  isDraggable = false,
 }: {
   url: string;
   onLinkClick: () => void;
+  isDraggable?: boolean;
 }): ReactElement {
   const cleanUrl = url.replace(/http(s)?(:)?(\/\/)?|(\/\/)?(www\.)?/g, '');
 
@@ -62,7 +64,7 @@ export function ShortcutLinksItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: url });
+  } = useSortable({ id: url, disabled: !isDraggable });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -79,11 +81,12 @@ export function ShortcutLinksItem({
       rel="noopener noreferrer"
       {...combinedClicks(onLinkClick)}
       className={classNames(
-        'group relative mr-4 flex cursor-grab flex-col items-center active:cursor-grabbing',
+        'mr-4 flex flex-col items-center',
+        isDraggable && 'cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-50',
       )}
     >
-      <div className="relative mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
+      <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
         <img
           src={`${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`}
           alt={url}
