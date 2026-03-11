@@ -41,6 +41,8 @@ export type UsePostModalNavigationProps = {
   feedName: string;
 };
 
+type NavigationMethod = 'push' | 'replace';
+
 // for extension we use in memory router
 const useRouter: () => UsePostModalRouter = isExtension
   ? useRouterMemory
@@ -144,7 +146,7 @@ export const usePostModalNavigation = ({
   );
 
   const onChangeSelected = useCallback(
-    async (index: number) => {
+    async (index: number, method: NavigationMethod = 'replace') => {
       const post = getPost(index);
 
       if (post) {
@@ -161,9 +163,15 @@ export const usePostModalNavigation = ({
           }),
         );
 
-        await router.push(newPathname, `${webappUrl}posts/${postId}`, {
-          scroll: false,
-        });
+        if (method === 'push') {
+          await router.push(newPathname, `${webappUrl}posts/${postId}`, {
+            scroll: false,
+          });
+        } else {
+          await router.replace(newPathname, `${webappUrl}posts/${postId}`, {
+            scroll: false,
+          });
+        }
       }
       if (post?.type === PostType.Share) {
         const item = getPostItem(index);
@@ -186,7 +194,7 @@ export const usePostModalNavigation = ({
       scrollPositionOnFeed.current = window.scrollY;
     }
 
-    onChangeSelected(index);
+    onChangeSelected(index, !pmid ? 'push' : 'replace');
   };
 
   const getPostPosition = () => {
@@ -245,7 +253,7 @@ export const usePostModalNavigation = ({
       const baseUrl = new URL(baseAsPath, window.location.origin);
       const searchParams = new URLSearchParams(baseUrl.search);
 
-      await router.push(
+      await router.replace(
         getPathnameWithQuery(basePathname, searchParams),
         baseAsPath,
         {
