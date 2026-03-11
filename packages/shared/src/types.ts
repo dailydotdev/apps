@@ -31,10 +31,15 @@ export enum PostType {
   Brief = 'brief',
   Poll = 'poll',
   SocialTwitter = 'social:twitter',
+  Digest = 'digest',
 }
 
 export const briefSourcesLimit = 6;
 
 export const BRIEFING_SOURCE = 'briefing';
 
-export type ErrorBoundaryFeature = 'recruiter-self-serve';
+export type ErrorBoundaryFeature =
+  | 'recruiter-self-serve'
+  | 'extension-feed'
+  | 'onboarding'
+  | '404-page';

@@ -14,9 +14,9 @@ export const MenuIcon = ({
 }: MenuIconProps): ReactElement => {
   return (
     <Icon
-      size={IconSize.Small}
+      size={IconSize.XSmall}
       secondary={secondary}
-      className={classNames('mr-2 text-2xl', className)}
+      className={classNames('text-xl', className)}
     />
   );
 };

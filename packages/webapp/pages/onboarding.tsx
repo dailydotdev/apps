@@ -23,6 +23,7 @@ import {
   FooterLinks,
   withFeaturesBoundary,
 } from '@dailydotdev/shared/src/components';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import type {
@@ -61,12 +62,13 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
+const seoTitles = getPageSeoTitles('Get started');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Get started'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
 };
 
@@ -359,7 +361,9 @@ function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
   return (
     <JotaiProvider>
-      <Onboarding {...props} />
+      <ErrorBoundary feature="onboarding">
+        <Onboarding {...props} />
+      </ErrorBoundary>
       <Toast autoDismissNotifications={autoDismissNotifications} />
     </JotaiProvider>
   );

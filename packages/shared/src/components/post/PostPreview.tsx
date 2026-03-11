@@ -57,6 +57,7 @@ function PostPreview({
       ) : (
         <Image
           src={image}
+          alt={title || ''}
           className={classNames('object-cover', imageClassName)}
           loading="lazy"
           fallbackSrc={cloudinaryPostImageCoverPlaceholder}

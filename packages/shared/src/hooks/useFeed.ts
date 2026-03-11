@@ -101,6 +101,7 @@ type UseFeedSettingParams = {
   marketingCta?: MarketingCta;
   plusEntry?: MarketingCta;
   feedName?: string;
+  staticAd?: { ad: Ad; index: number };
 };
 
 export interface UseFeedOptionalParams<T> {
@@ -316,8 +317,14 @@ export default function useFeed<T>(
     const plusEntryAsFirstCard = settings?.plusEntry?.flags?.asFirstCard;
 
     if (feedQuery.data) {
+      const seenPostIds = new Set<string>();
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }, index) => {
+        page.edges.forEach(({ node }, index: number) => {
+          if (seenPostIds.has(node.id)) {
+            return;
+          }
+          seenPostIds.add(node.id);
+
           const adIndex = acc.length;
           const adItem = getAd({ index: adIndex });
 
@@ -327,7 +334,8 @@ export default function useFeed<T>(
 
             // Skip ad slot if marketing CTA is shown as first card
             const shouldSkipAdForMarketingCta = withFirstIndex(
-              marketingCtaAsFirstCard || plusEntryAsFirstCard,
+              (marketingCtaAsFirstCard ?? false) ||
+                (plusEntryAsFirstCard ?? false),
             );
 
             if (shouldSkipAdForMarketingCta) {
@@ -342,7 +350,7 @@ export default function useFeed<T>(
                 type: FeedItemType.MarketingCta,
                 marketingCta: settings.marketingCta,
               });
-            } else if (withFirstIndex(settings.showAcquisitionForm)) {
+            } else if (withFirstIndex(settings.showAcquisitionForm ?? false)) {
               acc.push({ type: FeedItemType.UserAcquisition });
             } else {
               acc.push(adItem);
@@ -383,6 +391,18 @@ export default function useFeed<T>(
         }),
       );
     }
+
+    if (settings?.staticAd && feedQuery.data && newItems.length > 0) {
+      const insertAt = Math.min(settings.staticAd.index, newItems.length);
+      newItems.splice(insertAt, 0, {
+        type: FeedItemType.Ad,
+        ad: settings.staticAd.ad,
+        index: 0,
+        updatedAt: Date.now(),
+        dataUpdatedAt: Date.now(),
+      } as AdItem);
+    }
+
     return newItems;
   }, [
     feedQuery.data,
@@ -393,6 +413,7 @@ export default function useFeed<T>(
     placeholdersPerPage,
     getAd,
     settings.plusEntry,
+    settings.staticAd,
   ]);
 
   const updatePost = updateCachedPagePost(feedQueryKey, queryClient);

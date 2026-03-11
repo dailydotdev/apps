@@ -42,6 +42,11 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content');
 
+export const plusAgentsPositioningFeature = new Feature(
+  'plus_agents_positioning',
+  false,
+);
+
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
   short: 'Upgrade',
@@ -69,6 +74,10 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
+export const featureReadingReminderMobile = new Feature(
+  'reading_reminder_mobile',
+  false,
+);
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
@@ -114,6 +123,11 @@ export const boostSettingsFeature = new Feature('boost_settings', {
 
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
 
+export const featureShowBookmarkCount = new Feature(
+  'show_bookmark_count',
+  false,
+);
+
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
@@ -136,7 +150,19 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const installExtensionFeedMenuFeature = new Feature(
-  'install_extension_feed_menu',
+export const installExtensionPromptFeature = new Feature(
+  'install_extension_prompt',
   false,
 );
+
+export type AgentsLeaderboardEntrypointFeature = {
+  groupId: string;
+  showLabel?: boolean;
+};
+
+export const agentsLeaderboardEntrypointFeature =
+  new Feature<AgentsLeaderboardEntrypointFeature>(
+    'agents_leaderboard_entrypoint',
+  );
+
+export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);

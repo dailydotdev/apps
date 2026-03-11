@@ -52,7 +52,8 @@ export default function ShareModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSwipedDown = (e) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSwipedDown = (e: any) => {
     const { scrollTop } = e.event.currentTarget;
 
     if (scrollTop === 0) {

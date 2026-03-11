@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -21,10 +21,14 @@ import {
   getGenerateBriefingMutationOptions,
 } from '../../../../graphql/posts';
 import { useBriefContext } from '../BriefContext';
-import { useToastNotification } from '../../../../hooks';
+import { useActions, useToastNotification } from '../../../../hooks';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import type { ApiError, ApiErrorResult } from '../../../../graphql/common';
+import CloseButton from '../../../CloseButton';
+import { ActionType } from '../../../../graphql/actions';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../../lib/log';
 
 export type BriefCardDefaultProps = BriefCardProps;
 
@@ -40,6 +44,17 @@ export const BriefCardDefault = ({
 }: BriefCardDefaultProps): ReactElement => {
   const briefContext = useBriefContext();
   const { displayToast } = useToastNotification();
+  const { completeAction } = useActions();
+  const { logEvent } = useLogContext();
+
+  const handleDismiss = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.BriefCard,
+      target_id: 'dismiss',
+    });
+    completeAction(ActionType.DismissBriefCard);
+  }, [logEvent, completeAction]);
 
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -85,11 +100,16 @@ export const BriefCardDefault = ({
     <div
       style={rootStyle}
       className={classNames(
-        'flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
+        'relative flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
         'backdrop-blur-3xl',
         className?.card,
       )}
     >
+      <CloseButton
+        className="absolute right-2 top-2"
+        size={ButtonSize.XSmall}
+        onClick={handleDismiss}
+      />
       <BriefGradientIcon secondary size={IconSize.Size48} />
       <Typography
         type={TypographyType.Title2}

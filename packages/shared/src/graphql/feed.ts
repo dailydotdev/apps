@@ -190,6 +190,48 @@ export const TAG_FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const TAG_TOP_POSTS_QUERY = gql`
+  query TagTopPosts($tag: String!, $first: Int) {
+    page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {
+      edges {
+        node {
+          id
+          title
+          slug
+        }
+      }
+    }
+  }
+`;
+
+export type TopPost = {
+  id: string;
+  title?: string;
+  slug?: string;
+};
+
+export type TopPostsData = {
+  page?: {
+    edges?: {
+      node: TopPost;
+    }[];
+  };
+};
+
+export const SOURCE_TOP_POSTS_QUERY = gql`
+  query SourceTopPosts($source: ID!, $first: Int) {
+    page: sourceFeed(source: $source, first: $first, ranking: POPULARITY) {
+      edges {
+        node {
+          id
+          title
+          slug
+        }
+      }
+    }
+  }
+`;
+
 export const SOURCE_FEED_QUERY = gql`
   query SourceFeed(
     $source: ID!
@@ -210,6 +252,28 @@ export const SOURCE_FEED_QUERY = gql`
     }
   }
   ${getFeedPostFragment('pinnedAt contentHtml')}
+`;
+
+export const CHANNEL_FEED_QUERY = gql`
+  query ChannelFeed(
+    $channel: String!
+    $contentCuration: [String!]
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $supportedTypes: [String!]
+  ) {
+    page: channelFeed(
+      channel: $channel
+      contentCuration: $contentCuration
+      first: $first
+      after: $after
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
 export const BOOKMARKS_FEED_QUERY = gql`

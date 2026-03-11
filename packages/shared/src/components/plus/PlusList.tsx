@@ -64,7 +64,7 @@ export const defaultFeatureList: Array<PlusItem> = [
   },
 ];
 
-export const plusFeatureList: Array<PlusItem> = [
+export const plusFeatureListControl: Array<PlusItem> = [
   {
     id: 'ai-agent-integration',
     label: 'Power your AI agents',
@@ -233,6 +233,183 @@ export const plusFeatureList: Array<PlusItem> = [
     },
   },
 ];
+
+export const plusFeatureListTreatment: Array<PlusItem> = [
+  {
+    id: 'daily-dev-skill',
+    label: 'Real-time dev context for LLMs',
+    status: PlusItemStatus.Ready,
+    tooltip: `Overcome LLM knowledge cutoffs with real-time developer content.`,
+  },
+  {
+    id: 'daily-dev-agentic-skill',
+    label: 'Continuous agent self-improvement',
+    status: PlusItemStatus.Ready,
+    tooltip: `Continuous self-improvement for agents through daily.dev feeds.`,
+  },
+  {
+    id: 'public-api',
+    label: 'Public API access',
+    status: PlusItemStatus.Ready,
+    tooltip: `Pull your feeds, bookmarks, and search results programmatically. Build your own integrations.`,
+  },
+  {
+    id: 'presidential-briefing',
+    label: 'Unlimited presidential briefings',
+    status: PlusItemStatus.Ready,
+    tooltip: `Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what's worth a look, and what's hype.`,
+    icon: <BriefIcon secondary />,
+    iconClasses: 'bg-overlay-float-mustard text-accent-mustard-default',
+    modalProps: {
+      title: 'Unlimited presidential briefings',
+      description:
+        "Scans hundreds of posts and threads daily. You get a 5-minute briefing with what matters, what's worth a look, and what's hype.",
+      imageUrl: plusShowcasePresidentialBriefImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'smart prompts',
+    label: 'Chat with any post using AI',
+    status: PlusItemStatus.Ready,
+    tooltip: `Ask questions, challenge arguments, get summaries, or pull out action items from any post. Conversations are saved.`,
+    icon: <CustomPromptIcon secondary />,
+    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
+    modalProps: {
+      title: 'Chat with any post using AI',
+      description:
+        'Ask questions, challenge arguments, get summaries, or pull out action items from any post. Conversations are saved.',
+      videoUrl: plusShowcaseSmartPrompsVideo,
+      imageUrl: plusShowcaseSmartPrompsImage,
+      mediaType: 'video',
+    },
+  },
+  {
+    id: 'custom feeds',
+    label: 'Advanced custom feeds',
+    status: PlusItemStatus.Ready,
+    tooltip: `Build feeds by tool, language, or topic. Use them yourself or pipe them to agents via the API.`,
+    icon: <HashtagIcon secondary />,
+    iconClasses: 'bg-overlay-float-water text-accent-water-default',
+    modalProps: {
+      title: 'Advanced custom feeds',
+      description:
+        'Build feeds by tool, language, or topic. Use them yourself or pipe them to agents via the API.',
+      videoUrl: plusShowcaseCustomFeedsVideo,
+      imageUrl: plusShowcaseCustomFeedsImage,
+      mediaType: 'video',
+    },
+  },
+  {
+    id: 'clean titles',
+    label: 'AI-powered clean titles',
+    status: PlusItemStatus.Ready,
+    tooltip: `Rewrites clickbait so you see what a post is actually about before clicking.`,
+    icon: <ShieldPlusIcon secondary />,
+    iconClasses: 'bg-overlay-float-avocado text-accent-avocado-default',
+    modalProps: {
+      title: 'AI-powered clean titles',
+      description:
+        'Rewrites clickbait so you see what a post is actually about before clicking.',
+      videoUrl: plusShowcaseShieldVideo,
+      imageUrl: plusShowcaseShieldImage,
+      mediaType: 'video',
+    },
+  },
+  {
+    id: 'bookmark folders',
+    label: 'Bookmark folders',
+    status: PlusItemStatus.Ready,
+    tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
+    icon: <FolderIcon secondary />,
+    iconClasses: 'bg-overlay-float-bun text-accent-bun-default',
+    modalProps: {
+      title: 'Bookmark folders',
+      description:
+        'Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.',
+      videoUrl: plusShowcaseBookmarkVideo,
+      imageUrl: plusShowcaseBookmarkImage,
+      mediaType: 'video',
+    },
+  },
+  {
+    id: 'ad-free',
+    label: 'Ad-free experience',
+    status: PlusItemStatus.Ready,
+    tooltip: `No ads, no clutter. Just your feed.`,
+    icon: <BlockIcon secondary />,
+    iconClasses: 'bg-overlay-float-ketchup text-accent-ketchup-default',
+    modalProps: {
+      title: 'Ad-free experience',
+      description: 'No ads, no clutter. Just your feed.',
+      imageUrl: plusShowcaseAdFreeImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'auto-translate',
+    label: 'Auto-translate your feed',
+    status: PlusItemStatus.Ready,
+    tooltip: `Translate post titles and summaries into your language so both you and your workflows can process insights faster.`,
+    icon: <LanguageIcon secondary />,
+    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
+    modalProps: {
+      title: 'Auto-translate your feed',
+      description:
+        'Make your feed more accessible with automatically translated post titles in your preferred language.',
+      imageUrl: plusShowcaseTranslateImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'keyword filter',
+    label: 'Keyword filters',
+    status: PlusItemStatus.Ready,
+    tooltip: `Mute the buzzwords you're sick of hearing. More signal, less noise.`,
+    icon: <LabelIcon secondary />,
+    iconClasses: 'bg-overlay-float-cheese text-accent-cheese-default',
+    modalProps: {
+      title: 'Keyword filters',
+      description:
+        'Mute the buzzwords you’re sick of hearing. More signal, less noise.',
+      imageUrl: plusShowcaseKeywordImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'member squad',
+    label: 'Members-only Squad',
+    status: PlusItemStatus.Ready,
+    tooltip: `Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.`,
+    icon: <SourceIcon secondary />,
+    iconClasses: 'bg-overlay-float-cabbage text-accent-cabbage-default',
+    modalProps: {
+      title: 'Members-only Squad',
+      description:
+        'Join an exclusive community space to connect with other Plus members, share feedback, and get priority support.',
+      imageUrl: plusShowcaseSquadImage,
+      mediaType: 'image',
+    },
+  },
+  {
+    id: 'support team',
+    label: 'Support the team and make us smile',
+    status: PlusItemStatus.Ready,
+    tooltip: `By subscribing to Plus, you help us ship faster and build more tools for developers, agents, and AI-native workflows.`,
+    icon: <UserShareIcon secondary />,
+    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
+    modalProps: {
+      title: 'Support the team and make us smile',
+      description:
+        'By subscribing to Plus, you help us ship faster and build more tools for developers, agents, and AI-native workflows.',
+      videoUrl: plusShowcaseTeamVideo,
+      imageUrl: plusShowcaseTeamImage,
+      mediaType: 'video',
+    },
+  },
+];
+
+export const plusFeatureList = plusFeatureListControl;
 
 export const plusOrganizationFeatureList: Array<PlusItem> = [
   {

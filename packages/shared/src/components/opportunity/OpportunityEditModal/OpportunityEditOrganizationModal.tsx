@@ -13,6 +13,7 @@ import {
   updateRecruiterOrganizationMutationOptions,
 } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { applyZodErrorsToForm } from '../../../lib/form';
@@ -136,7 +137,8 @@ export const OpportunityEditOrganizationModal = ({
         payload: data as z.infer<typeof recruiterOrganizationEditSchema>,
         organizationImage: imageFile || undefined,
       });
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -151,7 +153,7 @@ export const OpportunityEditOrganizationModal = ({
         );
       }
 
-      throw originalError;
+      throw err;
     }
   });
 

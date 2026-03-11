@@ -39,11 +39,11 @@ import type {
 import AccountSecurityDefault from '../../components/layouts/SettingsLayout/Security';
 import EmailFormPage from '../../components/layouts/SettingsLayout/Security/EmailFormPage';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Manage account security'),
+  ...getPageSeoTitles('Manage account security'),
 };
 
 const AccountSecurityPage = (): ReactElement => {

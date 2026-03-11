@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
@@ -23,6 +24,11 @@ import {
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   TAG_FEED_QUERY,
+  TAG_TOP_POSTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -67,17 +73,33 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getAppOrigin } from '../../lib/seo';
+
+const appOrigin = getAppOrigin();
 
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
-  initialData: Keyword;
+  initialData: Keyword | null;
+  topPosts: TopPost[];
+  recommendedTags: TagsData['tags'];
 }
 
-const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
+interface TagRecommendedTagsProps {
+  tag: string;
+  blockedTags?: string[];
+  initialTags?: TagsData['tags'];
+}
+
+const TagRecommendedTags = ({
+  tag,
+  blockedTags,
+  initialTags = [],
+}: TagRecommendedTagsProps): ReactElement => {
   const { data: recommendedTags, isPending } = useQuery({
     queryKey: [RequestKey.RecommendedTags, null, tag],
 
@@ -92,16 +114,17 @@ const TagRecommendedTags = ({ tag, blockedTags }): ReactElement => {
     staleTime: StaleTime.OneHour,
   });
 
+  const tags = recommendedTags?.recommendedTags?.tags ?? initialTags;
+
   return (
     <RecommendedTags
-      isLoading={isPending}
-      tags={recommendedTags?.recommendedTags?.tags}
+      isLoading={isPending && initialTags.length === 0}
+      tags={tags}
     />
   );
 };
 
 const TagTopSources = ({ tag }: { tag: string }) => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
 
@@ -128,13 +151,86 @@ const TagTopSources = ({ tag }: { tag: string }) => {
       isLoading={isPending}
       sources={sources}
       title="🔔 Top sources covering it"
-      className={shouldUseListFeedLayout && 'mx-4'}
+      className="mx-4"
     />
   );
 };
 
-const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
-  const { isFallback, push } = useRouter();
+const getTagPageJsonLd = ({
+  tag,
+  initialData,
+  topPosts,
+}: {
+  tag: string;
+  initialData: Keyword;
+  topPosts: TopPost[];
+}): string => {
+  const encodedTag = encodeURIComponent(tag);
+  const tagTitle = initialData.flags?.title || tag;
+  const tagDescription =
+    initialData.flags?.description ||
+    `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
+  const tagUrl = `${appOrigin}/tags/${encodedTag}`;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${tagUrl}#page`,
+        url: tagUrl,
+        name: `${tagTitle} posts on daily.dev`,
+        description: tagDescription,
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      ...(topPosts.length
+        ? [
+            {
+              '@type': 'ItemList',
+              '@id': `${tagUrl}#items`,
+              numberOfItems: topPosts.length,
+              itemListElement: topPosts.map((post, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                url: `${appOrigin}/posts/${post.slug || post.id}`,
+                name: post.title || '',
+              })),
+            },
+          ]
+        : []),
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Tags',
+            item: `${appOrigin}/tags`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: tagTitle,
+          },
+        ],
+      },
+    ],
+  });
+};
+
+const TagPage = ({
+  tag,
+  initialData,
+  topPosts,
+  recommendedTags,
+}: TagPageProps): ReactElement => {
+  const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -149,6 +245,18 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     }),
     [tag],
   );
+  const topPostsQueryVariables = useMemo(
+    () => ({
+      tag,
+      ranking: 'POPULARITY',
+      supportedTypes: [
+        PostType.Article,
+        PostType.VideoYouTube,
+        PostType.Collection,
+      ],
+    }),
+    [tag],
+  );
   const bestDiscussedQueryVariables = useMemo(
     () => ({
       tag,
@@ -158,10 +266,13 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
-  const { shouldUseListFeedLayout, FeedPageLayoutComponent } = useFeedLayout();
+  const { FeedPageLayoutComponent } = useFeedLayout();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const jsonLd = initialData
+    ? getTagPageJsonLd({ tag, initialData, topPosts })
+    : null;
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
@@ -185,10 +296,6 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
     }
     return 'unfollowed';
   }, [feedSettings, tag]);
-
-  if (isFallback) {
-    return <></>;
-  }
 
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
@@ -224,7 +331,15 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
 
   return (
     <FeedPageLayoutComponent>
-      <PageInfoHeader className={shouldUseListFeedLayout && 'mx-4 !w-auto'}>
+      {jsonLd && (
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+      )}
+      <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
@@ -284,10 +399,40 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         {initialData?.flags?.description && (
           <p className="typo-body">{initialData?.flags?.description}</p>
         )}
+        {topPosts.length > 0 && (
+          <div className="sr-only">
+            {topPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/posts/${post.slug || post.id}`}
+                prefetch={false}
+              >
+                <a>{post.title}</a>
+              </Link>
+            ))}
+          </div>
+        )}
+        {recommendedTags.length > 0 && (
+          <div className="sr-only">
+            {recommendedTags
+              .map((relatedTag) => relatedTag.name)
+              .filter((relatedTag): relatedTag is string => !!relatedTag)
+              .map((relatedTag) => (
+                <Link
+                  key={relatedTag}
+                  href={`/tags/${relatedTag}`}
+                  prefetch={false}
+                >
+                  <a>Posts about {relatedTag}</a>
+                </Link>
+              ))}
+          </div>
+        )}
         {tag && (
           <TagRecommendedTags
             tag={tag}
             blockedTags={feedSettings?.blockedTags}
+            initialTags={recommendedTags}
           />
         )}
         {showRoadmap && initialData?.flags?.roadmap && (
@@ -321,6 +466,26 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
       </PageInfoHeader>
       <TagTopSources tag={tag} />
       <ActiveFeedNameContext.Provider
+        value={{ feedName: OtherFeedPage.TagsTopPosts }}
+      >
+        <HorizontalFeed
+          feedName={OtherFeedPage.TagsTopPosts}
+          feedQueryKey={[
+            'tagsTopPosts',
+            user?.id ?? 'anonymous',
+            Object.values(topPostsQueryVariables),
+          ]}
+          query={TAG_FEED_QUERY}
+          variables={topPostsQueryVariables}
+          title={{
+            copy: 'Top posts',
+            icon: <HashtagIcon size={IconSize.Medium} className="mr-1.5" />,
+          }}
+          className="laptop:!mx-4"
+          emptyScreen={<></>}
+        />
+      </ActiveFeedNameContext.Provider>
+      <ActiveFeedNameContext.Provider
         value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
       >
         <HorizontalFeed
@@ -336,6 +501,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             copy: 'Most upvoted posts',
             icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
@@ -355,10 +521,11 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
             copy: 'Best discussed posts',
             icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
           }}
+          className="laptop:!mx-4"
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
-      <div className="mx-4 mb-5 flex w-auto items-center laptop:mx-0 laptop:w-full">
+      <div className="mx-4 mb-5 flex w-auto items-center">
         <p className="flex items-center font-bold typo-body">
           All posts about {tag}
         </p>
@@ -372,6 +539,7 @@ const TagPage = ({ tag, initialData }: TagPageProps): ReactElement => {
         ]}
         query={TAG_FEED_QUERY}
         variables={queryVariables}
+        className="!mx-4 !w-auto"
       />
     </FeedPageLayoutComponent>
   );
@@ -383,7 +551,7 @@ TagPage.layoutProps = mainFeedLayoutProps;
 export default TagPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface TagPageParams extends ParsedUrlQuery {
@@ -393,40 +561,73 @@ interface TagPageParams extends ParsedUrlQuery {
 const getSeoData = (
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
-): NextSeoProps => ({
-  title: `${title} posts on daily.dev`,
-  openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
-  description,
-});
+): NextSeoProps => {
+  const seoTitles = getPageSeoTitles(`${title} posts`);
+
+  return {
+    ...defaultSeo,
+    ...seoTitles,
+    openGraph: {
+      ...defaultOpenGraph,
+      ...seoTitles.openGraph,
+    },
+    description,
+  };
+};
 
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<TagPageParams>): Promise<
   GetStaticPropsResult<TagPageProps>
 > {
+  const tag = params?.tag;
+  if (!tag) {
+    return { notFound: true, revalidate: 3600 };
+  }
+
   const notFoundResponse = {
     revalidate: 3600,
     props: {
-      tag: params.tag,
+      tag,
       initialData: null,
-      seo: getSeoData(params.tag),
+      topPosts: [],
+      recommendedTags: [],
+      seo: getSeoData(tag),
     },
   };
 
   try {
-    const result = await gqlClient.request<{ keyword: Keyword }>(
-      KEYWORD_QUERY,
-      { value: params.tag },
-    );
+    const [keywordResult, topPostsResult, recommendedTagsResult] =
+      await Promise.all([
+        gqlClient.request<{ keyword: Keyword }>(KEYWORD_QUERY, {
+          value: tag,
+        }),
+        gqlClient
+          .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
+            tag,
+            first: 10,
+          })
+          .catch(() => null),
+        gqlClient
+          .request<{ recommendedTags: TagsData }>(GET_RECOMMENDED_TAGS_QUERY, {
+            tags: [tag],
+            excludedTags: [],
+          })
+          .catch(() => null),
+      ]);
 
-    if (!result?.keyword) {
+    if (!keywordResult?.keyword) {
       return notFoundResponse;
     }
 
-    const initialData = result.keyword;
+    const initialData = keywordResult.keyword;
+    const topPosts =
+      topPostsResult?.page?.edges
+        ?.map((edge) => edge.node)
+        .filter((post) => !!post.title) ?? [];
+    const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
     const seo = getSeoData(
-      initialData.flags?.title || params.tag,
+      initialData.flags?.title || tag,
       initialData.flags?.description,
     );
 
@@ -434,12 +635,14 @@ export async function getStaticProps({
       props: {
         seo,
         initialData,
-        tag: params.tag,
+        tag,
+        topPosts,
+        recommendedTags,
       },
       revalidate: 3600,
     };
   } catch (error) {
-    // keyword not found, ignoring for now
+    // Return fallback props for any request failure in getStaticProps.
     return notFoundResponse;
   }
 }

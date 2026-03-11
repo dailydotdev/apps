@@ -104,8 +104,8 @@ export function SquadPageHeader({
           </div>
           <div className="mt-4 flex flex-col items-start gap-2 tablet:flex-row tablet:items-center">
             <SquadPrivacyState
-              isPublic={squad?.public}
-              isFeatured={squad?.flags?.featured}
+              isPublic={squad?.public ?? false}
+              isFeatured={squad?.flags?.featured ?? false}
             />
             <ConditionalWrapper
               condition={isMobile}

@@ -46,6 +46,11 @@ export const AchievementTrackingWidget = ({
     closeModal();
   };
 
+  const handleUntrack = async () => {
+    await untrackAchievement();
+    closeModal();
+  };
+
   const openPicker = () => {
     logEvent({
       event_name: LogEvent.OpenAchievementPickerModal,
@@ -57,6 +62,7 @@ export const AchievementTrackingWidget = ({
         achievements: achievements ?? [],
         trackedAchievementId: trackedAchievement?.achievement.id,
         onTrack: handleTrack,
+        onUntrack: handleUntrack,
       },
     });
   };

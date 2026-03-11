@@ -866,9 +866,6 @@ describe('downvote flow', () => {
 
   it('should display the option to never see the selection again if close panel', async () => {
     await prepareDownvote();
-    const close = await screen.findByTitle('Close');
-    fireEvent.click(close);
-    await screen.findAllByText('No topics were blocked');
     let mutationCalled = false;
     mockGraphQL({
       request: {
@@ -880,7 +877,13 @@ describe('downvote flow', () => {
         return { data: { _: true } };
       },
     });
-    const dontAskAgain = await screen.findByLabelText("Don't ask again");
+    const close = await screen.findByTitle('Close');
+    fireEvent.click(close);
+    await screen.findAllByText('No topics were blocked');
+    const dontAskAgainItems = await screen.findAllByLabelText(
+      "Don't ask again",
+    );
+    const dontAskAgain = dontAskAgainItems[dontAskAgainItems.length - 1];
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
@@ -905,7 +908,7 @@ describe('downvote flow', () => {
     fireEvent.click(block);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
     await screen.findByText('1 topic was blocked');
-    let undoMutationCalled = true;
+    let undoMutationCalled = false;
     mockGraphQL({
       request: {
         query: REMOVE_FILTERS_FROM_FEED_MUTATION,

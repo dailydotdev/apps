@@ -52,3 +52,6 @@ figma-images/
 # Build cache
 *.tsbuildinfo
 node-compile-cache/
+
+# Plan files
+plans/*.md

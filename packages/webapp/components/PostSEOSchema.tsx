@@ -3,7 +3,11 @@ import React from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
-import { stripHtmlTags } from '@dailydotdev/shared/src/lib/strings';
+import {
+  stripHtmlTags,
+  truncateAtWordBoundary,
+} from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 
 // User-generated post types that should use DiscussionForumPosting schema
 const USER_GENERATED_POST_TYPES: PostType[] = [
@@ -12,6 +16,9 @@ const USER_GENERATED_POST_TYPES: PostType[] = [
   PostType.Welcome,
   PostType.Poll,
 ];
+const SEO_DESCRIPTION_MAX_LENGTH = 160;
+const appOrigin = getAppOrigin();
+const siteOrigin = getSiteOrigin();
 
 /**
  * Check if a post is user-generated content (Squad posts)
@@ -22,24 +29,33 @@ export const isUserGeneratedPost = (post: Post | null | undefined): boolean =>
 
 export const getSeoDescription = (post: Post): string => {
   if (post?.summary) {
-    return post?.summary;
+    return truncateAtWordBoundary(post.summary, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
   if (post?.sharedPost?.summary) {
-    return post.sharedPost.summary;
+    return truncateAtWordBoundary(
+      post.sharedPost.summary,
+      SEO_DESCRIPTION_MAX_LENGTH,
+    );
   }
 
   if (post?.description) {
-    return post?.description;
+    return truncateAtWordBoundary(post.description, SEO_DESCRIPTION_MAX_LENGTH);
   }
 
   const postTitle = post?.title || post?.sharedPost?.title;
 
   if (postTitle) {
-    return `Discussion about "${postTitle}" on daily.dev - join the developer community`;
+    return truncateAtWordBoundary(
+      `Discussion about "${postTitle}" on daily.dev - join the developer community`,
+      SEO_DESCRIPTION_MAX_LENGTH,
+    );
   }
 
-  return `Join the discussion on daily.dev - the developer community`;
+  return truncateAtWordBoundary(
+    'Join the discussion on daily.dev - the developer community',
+    SEO_DESCRIPTION_MAX_LENGTH,
+  );
 };
 
 /**
@@ -94,7 +110,7 @@ const getPersonSchema = (author: {
   ...(author.reputation && {
     interactionStatistic: {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/EndorseAction',
+      interactionType: { '@type': 'EndorseAction' },
       userInteractionCount: author.reputation,
     },
   }),
@@ -112,7 +128,7 @@ const getAuthorSchema = (post: Post): Record<string, unknown> => {
     '@type': 'Organization',
     name: post.source?.name || 'daily.dev',
     logo: post.source?.image,
-    url: post.source?.permalink || 'https://daily.dev',
+    url: post.source?.permalink || siteOrigin,
   };
 };
 
@@ -137,7 +153,7 @@ const commentToSchema = (
   ...(comment.numUpvotes > 0 && {
     interactionStatistic: {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: comment.numUpvotes,
     },
   }),
@@ -174,12 +190,12 @@ export const getDiscussionForumPostingSchema = (
   interactionStatistic: [
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: post.numUpvotes || 0,
     },
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/CommentAction',
+      interactionType: { '@type': 'CommentAction' },
       userInteractionCount: post.numComments || 0,
     },
   ],
@@ -218,10 +234,9 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
     '@id': post.commentsPermalink,
   },
   datePublished: post.createdAt,
-  dateModified: post.updatedAt,
+  ...(post.updatedAt && { dateModified: post.updatedAt }),
   description: getSeoDescription(post),
-  image: post.image,
-  thumbnailUrl: post.image,
+  ...(post.image && { image: post.image, thumbnailUrl: post.image }),
   // Google News properties
   isAccessibleForFree: true,
   articleSection: post.source?.name || post.tags?.[0],
@@ -230,10 +245,10 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
   publisher: {
     '@type': 'Organization',
     name: 'daily.dev',
-    url: 'https://daily.dev',
+    url: siteOrigin,
     logo: {
       '@type': 'ImageObject',
-      url: 'https://daily.dev/apple-touch-icon.png',
+      url: `${siteOrigin}/apple-touch-icon.png`,
       width: 180,
       height: 180,
     },
@@ -246,17 +261,17 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
   interactionStatistic: [
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/LikeAction',
+      interactionType: { '@type': 'LikeAction' },
       userInteractionCount: post.numUpvotes,
     },
     {
       '@type': 'InteractionCounter',
-      interactionType: 'https://schema.org/CommentAction',
+      interactionType: { '@type': 'CommentAction' },
       userInteractionCount: post.numComments,
     },
   ],
   keywords: post.tags?.join(','),
-  timeRequired: `PT${post.readTime}M`,
+  ...(post.readTime && { timeRequired: `PT${post.readTime}M` }),
   // Video schema for YouTube posts
   ...(post.type === PostType.VideoYouTube &&
     post.videoId && {
@@ -266,7 +281,7 @@ export const getTechArticleSchema = (post: Post): Record<string, unknown> => ({
         description: getSeoDescription(post),
         thumbnailUrl: post.image,
         uploadDate: post.createdAt,
-        duration: `PT${post.readTime}M`,
+        ...(post.readTime && { duration: `PT${post.readTime}M` }),
         url: post.permalink,
         embedUrl: `https://www.youtube.com/embed/${post.videoId}`,
       },
@@ -295,13 +310,13 @@ export const getBreadcrumbJsonLd = (post: Post): string => {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://app.daily.dev',
+        item: appOrigin,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: post.source?.name || 'Posts',
-        item: post.source?.permalink || 'https://app.daily.dev',
+        item: post.source?.permalink || appOrigin,
       },
       {
         '@type': 'ListItem',

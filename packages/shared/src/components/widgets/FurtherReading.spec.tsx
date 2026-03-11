@@ -87,6 +87,7 @@ const renderComponent = (
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <FurtherReading currentPost={{ ...post, ...postUpdate }} />

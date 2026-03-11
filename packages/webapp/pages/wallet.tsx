@@ -67,7 +67,7 @@ import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import ProtectedPage from '../components/ProtectedPage';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
 type BalanceBlockProps = {
   Icon: ReactElement;
@@ -370,7 +370,7 @@ const getWalletLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Core Wallet'),
+  ...getPageSeoTitles('Core Wallet'),
   description:
     'Manage your Core Wallet on daily.dev. Check your balance, track activity, and buy Cores to support developers and power the community.',
   nofollow: true,

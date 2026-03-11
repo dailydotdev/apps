@@ -41,6 +41,7 @@ const createUserAchievement = ({
     type: AchievementType.Instant,
     points,
     rarity,
+    unit: null,
   },
   progress: 1,
   unlockedAt,

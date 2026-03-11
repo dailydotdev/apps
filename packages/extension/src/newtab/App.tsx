@@ -33,6 +33,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
@@ -50,6 +51,20 @@ Modal.setAppElement('#__next');
 Modal.defaultStyles = {};
 
 const getRedirectUri = () => browser.runtime.getURL('index.html');
+
+const feedErrorFallback: ReactElement = (
+  <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 px-6 text-center">
+    <h1 className="typo-title2">Something went wrong</h1>
+    <p className="text-text-tertiary">Please reload this page to continue.</p>
+    <button
+      type="button"
+      className="btn-primary px-5 py-2"
+      onClick={() => window.location.reload()}
+    >
+      Reload
+    </button>
+  </div>
+);
 
 function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
@@ -109,9 +124,11 @@ function InternalApp(): ReactElement {
   }
 
   return (
-    <DndContextProvider>
-      <MainFeedPage onPageChanged={onPageChanged} />
-    </DndContextProvider>
+    <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
+      <DndContextProvider>
+        <MainFeedPage onPageChanged={onPageChanged} />
+      </DndContextProvider>
+    </ErrorBoundary>
   );
 }
 

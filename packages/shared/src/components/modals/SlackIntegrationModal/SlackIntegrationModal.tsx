@@ -62,6 +62,9 @@ const SlackIntegrationModal = ({
     onWorkspaceChange,
     onChannelChange,
     hasIntegrations,
+    fetchNextChannelPage,
+    hasNextChannelPage,
+    isFetchingNextChannelPage,
   } = useSlackIntegrationModal({ source, redirectPath });
 
   const isStartTracked = useRef(false);
@@ -222,12 +225,24 @@ const SlackIntegrationModal = ({
                 buttonSize={ButtonSize.Medium}
                 iconOnly={false}
                 selectedIndex={selectedChannelIndex}
-                renderItem={(_, index) => (
-                  <span className="typo-callout">{`#${channels[index].name}`}</span>
+                renderItem={(_, index) => {
+                  const channel = channels[index];
+                  const label = channel.name.startsWith('Channel ')
+                    ? channel.name
+                    : `#${channel.name}`;
+
+                  return <span className="typo-callout">{label}</span>;
+                }}
+                options={channels?.map((item) =>
+                  item.name.startsWith('Channel ')
+                    ? item.name
+                    : `#${item.name}`,
                 )}
-                options={channels?.map((item) => `#${item.name}`)}
                 onChange={onChannelChange}
                 scrollable
+                fetchNextPage={fetchNextChannelPage}
+                canFetchMore={hasNextChannelPage}
+                isFetchingNextPage={isFetchingNextChannelPage}
               />
             )}
           </div>
@@ -245,7 +260,7 @@ const SlackIntegrationModal = ({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
-            onClick={async (event) => {
+            onClick={async (event: React.MouseEvent) => {
               await onSave();
 
               props.onRequestClose?.(event);
@@ -258,7 +273,7 @@ const SlackIntegrationModal = ({
             type="button"
             variant={isMobile ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
-            onClick={async (event) => {
+            onClick={async (event: React.MouseEvent) => {
               await removeSourceIntegration({
                 integrationId: selectedIntegration.id,
                 sourceId: source.id,

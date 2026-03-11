@@ -6,11 +6,14 @@ import {
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
 import { defaultOpenGraph } from '../next-seo';
-import { getTemplatedTitle } from '../components/layouts/utils';
+import { getPageSeoTitles } from '../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles(
+  'Real-time discussions in the developer community',
+);
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Real-time discussions in the developer community'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Stay on top of real-time developer discussions on daily.dev. Join conversations happening now and engage with the most active community members.',
 };

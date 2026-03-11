@@ -4,6 +4,7 @@ import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
+import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
@@ -18,6 +19,7 @@ import { MarketingCtaList } from './marketingCta/MarketingCtaList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
+import { SignalAdList } from './cards/ad/SignalAdList';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
@@ -47,6 +49,9 @@ import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
 import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
+import { SignalList } from './cards/common/list/SignalList';
+import { OtherFeedPage } from '../lib/query';
+import { isSourceSquadOrMachine } from '../graphql/sources';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -83,6 +88,7 @@ export type FeedItemComponentProps = {
     isAd?: boolean,
   ) => unknown;
   virtualizedNumCards: number;
+  disableAdRefresh?: boolean;
 } & Pick<UseVotePost, 'toggleUpvote' | 'toggleDownvote'> &
   Pick<UseBookmarkPost, 'toggleBookmark'>;
 
@@ -108,6 +114,7 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollGrid,
   [PostType.SocialTwitter]: SocialTwitterGrid,
+  [PostType.Digest]: ArticleGrid,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,6 +128,7 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
   [PostType.Brief]: BriefCard,
   [PostType.Poll]: PollList,
   [PostType.SocialTwitter]: SocialTwitterList,
+  [PostType.Digest]: ArticleList,
 };
 
 const getPostTypeForCard = (post?: Post): PostType => {
@@ -135,21 +143,30 @@ type GetTagsProps = {
   isListFeedLayout: boolean;
   shouldUseListMode: boolean;
   postType: PostType;
+  feedName: string;
 };
 
 const getTags = ({
   isListFeedLayout,
   shouldUseListMode,
   postType,
+  feedName,
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
+  const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
+  const listPostTag = isSignalFeed ? SignalList : PostTypeToTagList[postType];
+  const listPlaceholderTag = isSignalFeed
+    ? SignalPlaceholderList
+    : PlaceholderList;
+  const listAdTag = isSignalFeed ? SignalAdList : AdList;
+
   return {
     PostTag: useListCards
-      ? PostTypeToTagList[postType] ?? ArticleList
+      ? listPostTag ?? ArticleList
       : PostTypeToTagCard[postType] ?? ArticleGrid,
-    AdTag: useListCards ? AdList : AdGrid,
+    AdTag: useListCards ? listAdTag : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
-    PlaceholderTag: useListCards ? PlaceholderList : PlaceholderGrid,
+    PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
     MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
     PlusGridTag: PlusGrid,
     AcquisitionFormTag: useListCards
@@ -234,6 +251,7 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
+  disableAdRefresh,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const inViewRef = useLogImpression(
@@ -262,6 +280,7 @@ function FeedItemComponent({
     postType: getPostTypeForCard(
       isBoostedPostAd(item) ? item.ad.data?.post : (item as PostItem).post,
     ),
+    feedName,
   });
 
   const onAdAction = (action: AdActions, ad: Ad) => {
@@ -304,7 +323,7 @@ function FeedItemComponent({
       <ActivePostContextProvider post={itemPost}>
         <PostTag
           enableSourceHeader={
-            feedName !== 'squad' && itemPost.source?.type === 'squad'
+            feedName !== 'squad' && isSourceSquadOrMachine(itemPost.source)
           }
           ref={inViewRef}
           post={{ ...itemPost }}
@@ -379,7 +398,11 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={(ad: Ad) => onAdAction(AdActions.Refresh, ad)}
+          onRefresh={
+            disableAdRefresh
+              ? undefined
+              : (ad: Ad) => onAdAction(AdActions.Refresh, ad)
+          }
         />
       );
     case FeedItemType.UserAcquisition:

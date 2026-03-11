@@ -56,12 +56,12 @@ import { UploadEmploymentAgreementButton } from '@dailydotdev/shared/src/feature
 import { ClearEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearEmploymentAgreementButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Manage job preferences'),
+  ...getPageSeoTitles('Manage job preferences'),
 };
 
 const options = [
@@ -95,7 +95,7 @@ const JobPreferencesPage = (): ReactElement => {
       completeAction(ActionType.UserCandidatePreferencesSaved);
       logEvent({
         event_name: LogEvent.SelectCandidateAvailability,
-        target_id: preferences?.status,
+        target_id: preferences?.status?.toString(),
       });
     }),
     onError: () => {

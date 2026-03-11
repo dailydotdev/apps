@@ -9,7 +9,6 @@ import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
@@ -111,6 +110,17 @@ export type PostTranslation = {
   [key in TranslateablePostField]?: boolean;
 };
 
+export type DigestPostAd = {
+  type: 'dynamic_ad';
+  index: number;
+  title: string;
+  link: string;
+  image: string;
+  companyName: string;
+  companyLogo: string;
+  callToAction: string;
+};
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
@@ -125,6 +135,8 @@ type PostFlags = {
   sources?: number;
   savedTime?: number;
   generatedAt?: Date;
+  digestPostIds?: string[];
+  ad?: DigestPostAd | null;
 };
 
 export enum UserVote {
@@ -205,7 +217,7 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
 }
 
 export type RelatedPost = Pick<
@@ -233,6 +245,8 @@ export interface Ad {
   generationId?: string;
   matchingTags?: string[];
   adDomain?: string;
+  companyLogo?: string;
+  callToAction?: string;
 }
 
 export type ReadHistoryPost = Pick<
@@ -376,56 +390,24 @@ export const POST_REPOSTS_BY_ID_QUERY = gql`
 export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      createdAt
-      readTime
-      tags
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
-      numAwards
-      numReposts
-      source {
-        ...SourceShortInfo
-      }
+      ...SharedPostInfo
+      contentHtml
       description
-      summary
       toc {
         text
         id
       }
-      type
       updatedAt
       numCollectionSources
-      slug
-      domain
-      author {
-        ...UserAuthor
+      collectionSources {
+        handle
+        image
       }
       sharedPost {
         ...SharedPostInfo
       }
-      clickbaitTitleDetected
-      featuredAward {
-        award {
-          ...FeaturedAwardFragment
-        }
-      }
-      numPollVotes
-      pollOptions {
-        id
-        text
-        order
-        numVotes
-      }
-      endsAt
     }
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
