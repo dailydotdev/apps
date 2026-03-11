@@ -13,7 +13,7 @@ import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import NotificationSwitch from './NotificationSwitch';
 import { isNullOrUndefined } from '../../lib/func';
 import { Radio } from '../fields/Radio';
-import { Typography, TypographyType } from '../typography/Typography';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const digestCopy = `Our recommendation system scans everything on daily.dev and
                     sends you a tailored digest with just the must-read posts.
@@ -155,9 +155,7 @@ const DigestNotification = () => {
       />
       {!!digest && isChecked && (
         <>
-          <Typography type={TypographyType.Callout} bold>
-            When to send
-          </Typography>
+          <NotificationSectionHeading>When to send</NotificationSectionHeading>
           <HourDropdown
             className={{
               container: 'w-40',

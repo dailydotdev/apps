@@ -25,7 +25,7 @@ import { OpenLinkIcon } from '../icons';
 import NotificationSwitch from './NotificationSwitch';
 import { isNullOrUndefined } from '../../lib/func';
 import { Radio } from '../fields/Radio';
-import { Typography, TypographyType } from '../typography/Typography';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const briefingCopy = `Your AI agent scans the entire dev landscape (posts,
                     releases, discussions) and compiles a personalized briefing
@@ -177,9 +177,7 @@ const PresidentialBriefingNotification = () => {
       />
       {!!briefDigest && isChecked && (
         <>
-          <Typography type={TypographyType.Callout} bold>
-            When to send
-          </Typography>
+          <NotificationSectionHeading>When to send</NotificationSectionHeading>
           <HourDropdown
             className={{
               container: 'w-40',

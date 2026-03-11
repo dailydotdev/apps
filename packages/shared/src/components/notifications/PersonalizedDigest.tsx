@@ -36,6 +36,7 @@ import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
 import { isNullOrUndefined } from '../../lib/func';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const PersonalizedDigest = () => {
   const {
@@ -364,9 +365,7 @@ const PersonalizedDigest = () => {
       </>
       {!!selectedDigest && isChecked && (
         <>
-          <Typography type={TypographyType.Callout} bold>
-            When to send
-          </Typography>
+          <NotificationSectionHeading>When to send</NotificationSectionHeading>
           <HourDropdown
             className={{
               container: 'w-40',
