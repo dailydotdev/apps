@@ -125,6 +125,7 @@ it('should show the sidebar as closed if user has this set', async () => {
 
   const section = await screen.findByText('Discover');
   expect(section).toHaveClass('opacity-0');
+  expect(screen.getAllByTitle('Explore')[0]).toHaveAttribute('href', '/posts');
 });
 
 it('should show the For You items if the user has filters', async () => {

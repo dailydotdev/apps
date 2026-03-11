@@ -41,6 +41,7 @@ export const SidebarItem = ({
     >
       <ClickableNavItem
         item={item}
+        title={!shouldShowLabel ? item.title : undefined}
         showLogin={
           item.requiresLogin && !user
             ? () => showLogin({ trigger: item.title as AuthTriggersType })
