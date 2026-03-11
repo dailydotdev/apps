@@ -39,16 +39,19 @@ const RadixAccordionHeader = ({ children }: { children: ReactNode }) => {
 type RadixAccordionProps = {
   items: { title: string; description: string | ReactNode }[];
   className?: string;
+  onValueChange?: (value: string) => void;
 };
 export const RadixAccordion = ({
   items,
   className = 'bg-surface-float',
+  onValueChange,
 }: RadixAccordionProps) => {
   return (
     <AccordionRoot
       className={classNames('AccordionRoot', className)}
       type="single"
       collapsible
+      onValueChange={onValueChange}
     >
       {items?.map((item) => (
         <AccordionItem
