@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
@@ -31,14 +32,63 @@ import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
-const seoTitles = getPageSeoTitles('daily-dev-ask | WebSearch for developers');
+const ASK_URL = 'https://app.daily.dev/agents/ask';
+const ASK_TITLE = 'daily-dev-ask | WebSearch for developers';
+const ASK_DESCRIPTION =
+  'Ask any development question and get real answers backed by trusted developer content. daily-dev-ask searches articles from the daily.dev community so you get answers you can trust.';
+
+const seoTitles = getPageSeoTitles(ASK_TITLE);
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
-  description:
-    'Ask any development question and get real answers backed by trusted developer content. daily-dev-ask searches articles from the daily.dev community so you get answers you can trust.',
+  description: ASK_DESCRIPTION,
 };
+
+const getAskJsonLd = (): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'daily-dev-ask — WebSearch for developers',
+    description: ASK_DESCRIPTION,
+    url: ASK_URL,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'daily.dev',
+      url: 'https://app.daily.dev',
+    },
+    about: [
+      { '@type': 'Thing', name: 'WebSearch for developers' },
+      { '@type': 'Thing', name: 'AI-powered developer search' },
+      { '@type': 'Thing', name: 'Software development' },
+    ],
+  });
+
+const getAskBreadcrumbJsonLd = (): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://app.daily.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Agentic Hub',
+        item: 'https://app.daily.dev/agents',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'daily-dev-ask',
+        item: ASK_URL,
+      },
+    ],
+  });
 
 type AskPath = 'learn' | 'dev' | null;
 
@@ -62,6 +112,18 @@ const AskPage = (): ReactElement => {
 
   return (
     <div className="mx-auto w-full border-border-subtlest-tertiary laptop:max-w-[48rem] laptop:border-x">
+      <Head>
+        <script
+          key="agents-ask-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: getAskJsonLd() }}
+        />
+        <script
+          key="agents-ask-breadcrumbs"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: getAskBreadcrumbJsonLd() }}
+        />
+      </Head>
       <FlexCol className="mx-auto min-h-[calc(100vh-3.5rem)] max-w-xl items-center justify-center gap-10 px-4 py-10 laptop:max-w-4xl">
         <AskHero
           onLearnClick={() => handlePathSelect('learn')}
