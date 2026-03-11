@@ -117,7 +117,8 @@ export const ItemInner = ({
           shouldShowLabel ? 'opacity-100' : 'w-0 opacity-0',
           item.titleClassName,
         )}
-        title={item.title}
+        title={shouldShowLabel ? item.title : undefined}
+        aria-hidden={!shouldShowLabel}
       >
         {item.title}
       </span>
