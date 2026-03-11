@@ -9,6 +9,7 @@ import PostItemCard from '../post/PostItemCard';
 import type { ReadHistoryListProps } from './ReadingHistoryList';
 import ReadHistoryList from './ReadingHistoryList';
 import type { ReadHistoryInfiniteData } from '../../hooks/useInfiniteReadingHistory';
+import * as voteHooks from '../../hooks/vote/useVotePost';
 import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
@@ -174,5 +175,57 @@ describe('PostItemCard component', () => {
       postId: defaultHistory.post.id,
       timestamp: defaultHistory.timestamp,
     });
+  });
+
+  it('should not bubble vote clicks to parent handlers', async () => {
+    const onClick = jest.fn();
+    const onKeyDown = jest.fn();
+    const toggleUpvote = jest.fn().mockResolvedValue(undefined);
+    const useVotePostSpy = jest
+      .spyOn(voteHooks, 'useVotePost')
+      .mockImplementation(() => ({
+        upvotePost: jest.fn().mockResolvedValue(undefined),
+        downvotePost: jest.fn().mockResolvedValue(undefined),
+        cancelPostVote: jest.fn().mockResolvedValue(undefined),
+        toggleUpvote,
+        toggleDownvote: jest.fn().mockResolvedValue(undefined),
+      }));
+
+    try {
+      render(
+        <div role="button" tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}>
+          <AuthContext.Provider
+            value={{
+              user,
+              shouldShowLogin: false,
+              showLogin: jest.fn(),
+              logout: jest.fn(),
+              updateUser: jest.fn(),
+              tokenRefreshed: true,
+              getRedirectUri: jest.fn(),
+              isLoggedIn: true,
+              closeLogin: jest.fn(),
+              isAuthReady: true,
+            }}
+          >
+            <QueryClientProvider client={new QueryClient()}>
+              <PostItemCard postItem={defaultHistory} showVoteActions />
+            </QueryClientProvider>
+          </AuthContext.Provider>
+        </div>,
+      );
+
+      const [upvoteButton] = screen.getAllByRole('button', { pressed: false });
+      fireEvent.click(upvoteButton);
+
+      expect(toggleUpvote).toHaveBeenCalledWith({
+        payload: defaultHistory.post,
+        origin: 'feed',
+      });
+      expect(onClick).not.toHaveBeenCalled();
+      expect(onKeyDown).not.toHaveBeenCalled();
+    } finally {
+      useVotePostSpy.mockRestore();
+    }
   });
 });
