@@ -93,8 +93,11 @@ export interface MessageEventData {
   eventKey?: string;
 }
 
-type DOMEvent<T, K extends string, M extends GetDOMEventMaps<T>> =
-  MapEventMapsToEvent<M, K>[number];
+type DOMEvent<
+  T,
+  K extends string,
+  M extends GetDOMEventMaps<T>,
+> = MapEventMapsToEvent<M, K>[number];
 
 const useEventListener = <
   T extends EventTarget,
@@ -112,9 +115,11 @@ const useEventListener = <
   const { once, passive, signal }: AddEventListenerOptions =
     typeof options === 'object' ? options : {};
 
+  const booleanOptions = typeof options === 'boolean' ? options : undefined;
+
   const eventOptions = useMemo<TUseEventListenerOptions>(() => {
-    if (typeof options === 'boolean') {
-      return options;
+    if (booleanOptions !== undefined) {
+      return booleanOptions;
     }
 
     const computedOptions: AddEventListenerOptions = {};
@@ -131,14 +136,17 @@ const useEventListener = <
       computedOptions.signal = signal;
     }
 
-    return Object.keys(computedOptions).length > 0 ? computedOptions : undefined;
-  }, [once, options, passive, signal]);
+    return Object.keys(computedOptions).length > 0
+      ? computedOptions
+      : undefined;
+  }, [booleanOptions, once, passive, signal]);
 
   useEffect(() => {
     const eventListener: EventListener = (event) => {
       handlerRef.current(event as DOMEvent<T, K, M>);
     };
-    const targetElement = target && 'current' in target ? target.current : target;
+    const targetElement =
+      target && 'current' in target ? target.current : target;
 
     if (targetElement && eventType && eventListener) {
       targetElement.addEventListener(eventType, eventListener, eventOptions);
