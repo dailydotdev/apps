@@ -108,16 +108,19 @@ export const ItemInner = ({
   shouldShowLabel,
   active,
 }: ItemInnerProps): ReactElement => {
+  const isLabelHidden = !shouldShowLabel;
+
   return (
     <>
       <ItemInnerIcon {...item} active={active} />
       <span
         className={classNames(
           'flex-1 overflow-hidden truncate whitespace-nowrap text-left transition-[opacity,width] duration-300',
-          shouldShowLabel ? 'opacity-100' : 'w-0 opacity-0',
+          isLabelHidden ? 'w-0 opacity-0' : 'opacity-100',
           item.titleClassName,
         )}
-        title={item.title}
+        title={shouldShowLabel ? item.title : undefined}
+        aria-hidden={isLabelHidden}
       >
         {item.title}
       </span>

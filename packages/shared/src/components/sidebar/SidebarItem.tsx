@@ -24,6 +24,7 @@ export const SidebarItem = ({
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
   const isActive = item.active || item.path === activePage;
+  const isCollapsed = !shouldShowLabel;
 
   const navItem = (
     <NavItem
@@ -34,11 +35,12 @@ export const SidebarItem = ({
       className={classNames(
         'mx-1 rounded-10',
         item.itemClassName,
-        !shouldShowLabel && 'justify-center',
+        isCollapsed && 'justify-center',
       )}
     >
       <ClickableNavItem
         item={item}
+        aria-label={isCollapsed ? item.title : undefined}
         showLogin={
           item.requiresLogin && !user
             ? () => showLogin({ trigger: item.title as AuthTriggersType })
@@ -55,13 +57,13 @@ export const SidebarItem = ({
     </NavItem>
   );
 
-  if (shouldShowLabel) {
-    return navItem;
+  if (isCollapsed) {
+    return (
+      <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
+        {navItem}
+      </SimpleTooltip>
+    );
   }
 
-  return (
-    <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
-      {navItem}
-    </SimpleTooltip>
-  );
+  return navItem;
 };
