@@ -7,57 +7,58 @@
     "heading": "Build anything you can describe",
     "subtitle": "Copy a prompt into your AI coding tool, watch it build your project, then learn what it did and why. No experience needed — start building in minutes."
   },
-  "popularPaths": [
+  "categories": [
     {
-      "title": "I have an app idea",
-      "slug": "vibe-coding",
-      "subtitle": "Describe what you want, AI builds it. Go from idea to deployed app in an afternoon.",
-      "gradient": "from-accent-onion-default/20 to-accent-bacon-default/10",
-      "accentColor": "accent-onion-default",
-      "iconKey": "sparkle"
+      "title": "Build something",
+      "slug": "build",
+      "subtitle": "Pick a project, paste a prompt, and watch AI build it. Todo apps, websites, bots — no experience needed.",
+      "gradient": "from-accent-cabbage-default/20 to-accent-onion-default/10",
+      "accentColor": "accent-cabbage-default",
+      "iconKey": "hammer"
     },
     {
-      "title": "I want to automate boring work",
-      "slug": "automate-your-workflow",
-      "subtitle": "Annoyed by repetitive tasks? Build scripts that handle the boring parts for you.",
+      "title": "Automate your life",
+      "slug": "automate",
+      "subtitle": "Stop doing boring tasks manually. Build scripts that organize files, send reports, and run on autopilot.",
       "gradient": "from-accent-water-default/20 to-accent-blueCheese-default/10",
       "accentColor": "accent-water-default",
       "iconKey": "magic"
     },
     {
-      "title": "I want to understand what AI writes",
-      "slug": "python",
-      "subtitle": "Learn the fundamentals so you can read, modify, and debug AI-generated code.",
+      "title": "Learn a language",
+      "slug": "languages",
+      "subtitle": "Pick a language, learn the fundamentals, and understand what AI is actually writing for you.",
       "gradient": "from-accent-cheese-default/20 to-accent-avocado-default/10",
       "accentColor": "accent-cheese-default",
       "iconKey": "graduation"
     },
     {
-      "title": "I want to build something fun",
-      "slug": "build/discord-bot",
-      "subtitle": "Build a Discord bot, a web game, or a personal tool this weekend — no experience needed.",
-      "gradient": "from-accent-cabbage-default/20 to-accent-onion-default/10",
-      "accentColor": "accent-cabbage-default",
-      "iconKey": "hammer"
+      "title": "Acquire new skills",
+      "slug": "skills",
+      "subtitle": "Level up with vibe coding, debugging techniques, and career skills that make you stand out.",
+      "gradient": "from-accent-onion-default/20 to-accent-bacon-default/10",
+      "accentColor": "accent-onion-default",
+      "iconKey": "sparkle"
     }
   ],
-  "dimensions": {
-    "order": ["language", "usecase", "audience", "technique", "goal"],
-    "titles": {
-      "language": "By language",
-      "usecase": "By project",
-      "audience": "By audience",
-      "technique": "By technique",
-      "goal": "By goal"
+  "audiencePaths": [
+    {
+      "slug": "for/marketers",
+      "title": "Marketers"
     },
-    "icons": {
-      "language": "graduation",
-      "usecase": "hammer",
-      "audience": "magic",
-      "technique": "sparkle",
-      "goal": "star"
+    {
+      "slug": "for/designers",
+      "title": "Designers"
+    },
+    {
+      "slug": "for/students",
+      "title": "Students"
+    },
+    {
+      "slug": "for/data-analysts",
+      "title": "Data Analysts"
     }
-  },
+  ],
   "faq": [
     {
       "question": "Is it too late to learn to code in 2026?",

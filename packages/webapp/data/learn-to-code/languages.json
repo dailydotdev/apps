@@ -1,0 +1,100 @@
+{
+  "slug": "languages",
+  "title": "Learn a Language",
+  "description": "AI writes code for you — but understanding what it wrote is what makes you dangerous. Pick a language, learn the fundamentals, and go from copying prompts to actually knowing what's happening.",
+  "dimension": "category",
+  "tags": ["programming", "beginners", "python", "javascript"],
+  "outcomes": [
+    "Read and understand code that AI generates for you",
+    "Modify AI-generated code confidently — add features, fix bugs, change behavior",
+    "Write simple programs from scratch when AI isn't available",
+    "Know which language to pick for different types of projects"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "python",
+      "title": "Learn Python",
+      "reason": "The most beginner-friendly language. Perfect for automation, data work, and AI. If you're not sure where to start, start here."
+    },
+    {
+      "slug": "javascript",
+      "title": "Learn JavaScript",
+      "reason": "The language of the web. If you want to build websites, web apps, or anything that runs in a browser, this is your language."
+    },
+    {
+      "slug": "html-css",
+      "title": "Learn HTML & CSS",
+      "reason": "Not programming languages, but the foundation of every website. Learn these first if you want to build anything visual on the web."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Variables and Types",
+      "explanation": "Variables are named containers that hold data — a number, some text, a list. Types tell the language what kind of data it is, which determines what you can do with it."
+    },
+    {
+      "name": "Functions",
+      "explanation": "Functions are reusable blocks of code. Instead of writing the same logic over and over, you write it once as a function and call it whenever you need it."
+    },
+    {
+      "name": "Control Flow",
+      "explanation": "If/else statements and loops let your code make decisions and repeat actions. This is how programs handle different situations — 'if the user is logged in, show the dashboard; otherwise, show the login page.'"
+    }
+  ],
+  "resources": [
+    {
+      "title": "freeCodeCamp",
+      "url": "https://www.freecodecamp.org/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "The Odin Project",
+      "url": "https://www.theodinproject.com/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "Exercism",
+      "url": "https://exercism.org/",
+      "type": "course",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI-first code editor — learn by building with AI assistance"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Terminal-based AI coding — great for learning how programs work"
+    },
+    {
+      "name": "VS Code",
+      "url": "https://code.visualstudio.com/",
+      "description": "The standard free code editor — works with every language"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnpython",
+      "url": "https://reddit.com/r/learnpython",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnjavascript",
+      "url": "https://reddit.com/r/learnjavascript",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["build", "vibe-coding", "skills"],
+  "lastUpdated": "2026-03-11"
+}

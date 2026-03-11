@@ -3,7 +3,8 @@ export type LeafPageDimension =
   | 'usecase'
   | 'audience'
   | 'technique'
-  | 'goal';
+  | 'goal'
+  | 'category';
 
 export type PromptTool = 'cursor' | 'claude-code' | 'generic';
 
@@ -130,6 +131,11 @@ export interface PopularPath {
   iconKey: IconKey;
 }
 
+export interface AudiencePath {
+  slug: string;
+  title: string;
+}
+
 export interface HubData {
   seo: {
     title: string;
@@ -139,11 +145,7 @@ export interface HubData {
     heading: string;
     subtitle: string;
   };
-  popularPaths: PopularPath[];
-  dimensions: {
-    order: LeafPageDimension[];
-    titles: Record<string, string>;
-    icons: Record<string, IconKey>;
-  };
+  categories: PopularPath[];
+  audiencePaths: AudiencePath[];
   faq: FaqItem[];
 }

@@ -1,6 +1,30 @@
 {
   "pages": [
     {
+      "slug": "build",
+      "title": "Build Something",
+      "dimension": "category",
+      "lastUpdated": "2026-03-11"
+    },
+    {
+      "slug": "automate",
+      "title": "Automate Your Life",
+      "dimension": "category",
+      "lastUpdated": "2026-03-11"
+    },
+    {
+      "slug": "languages",
+      "title": "Learn a Language",
+      "dimension": "category",
+      "lastUpdated": "2026-03-11"
+    },
+    {
+      "slug": "skills",
+      "title": "Acquire New Skills",
+      "dimension": "category",
+      "lastUpdated": "2026-03-11"
+    },
+    {
       "slug": "python",
       "title": "Learn Python",
       "dimension": "language",

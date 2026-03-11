@@ -182,13 +182,13 @@ const LearnToCodeHub = ({ pages }: LearnToCodeHubProps): ReactElement => {
           </p>
         </header>
 
-        {/* Popular paths */}
+        {/* Categories */}
         <section>
           <h2 className="mb-6 font-bold text-text-primary typo-title2">
-            Popular paths
+            What do you want to do?
           </h2>
           <div className="grid grid-cols-1 gap-5 tablet:grid-cols-2">
-            {hub.popularPaths.map((item) => (
+            {hub.categories.map((item) => (
               <Link key={item.slug} href={`/learn-to-code/${item.slug}`}>
                 <a className="group relative flex flex-col gap-3 overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-border-subtlest-secondary hover:shadow-2">
                   <div
@@ -221,44 +221,34 @@ const LearnToCodeHub = ({ pages }: LearnToCodeHubProps): ReactElement => {
           </div>
         </section>
 
-        {/* All paths grouped by dimension */}
-        {hub.dimensions.order.map((dimension) => {
-          const dimensionPages = pages.filter((p) => p.dimension === dimension);
-          if (dimensionPages.length === 0) {
-            return null;
-          }
-
-          const iconKey = hub.dimensions.icons[dimension];
-
-          return (
-            <section key={dimension} className="mt-14">
-              <div className="mb-4 flex items-center gap-2">
-                {iconKey &&
-                  ICON_MAP[iconKey]?.(IconSize.Small, 'text-text-tertiary')}
-                <h2 className="font-bold text-text-primary typo-title2">
-                  {hub.dimensions.titles[dimension]}
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-4 laptopXL:grid-cols-3">
-                {dimensionPages.map((page) => (
-                  <Link key={page.slug} href={`/learn-to-code/${page.slug}`}>
-                    <a className="group flex items-center gap-3 border-b border-border-subtlest-tertiary p-4 transition-colors hover:bg-surface-hover tablet:rounded-12 tablet:border tablet:bg-surface-float">
-                      <div className="flex flex-1 flex-col">
-                        <span className="font-bold text-text-primary typo-callout group-hover:text-text-link">
-                          {page.title}
-                        </span>
-                      </div>
-                      <ArrowIcon
-                        size={IconSize.XSmall}
-                        className="rotate-90 text-text-quaternary transition-colors group-hover:text-text-link"
-                      />
-                    </a>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+        {/* For your role */}
+        {hub.audiencePaths.length > 0 && (
+          <section className="mt-14">
+            <div className="mb-4 flex items-center gap-2">
+              {ICON_MAP.magic(IconSize.Small, 'text-text-tertiary')}
+              <h2 className="font-bold text-text-primary typo-title2">
+                Coding for your role
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-4 laptopXL:grid-cols-4">
+              {hub.audiencePaths.map((item) => (
+                <Link key={item.slug} href={`/learn-to-code/${item.slug}`}>
+                  <a className="group flex items-center gap-3 border-b border-border-subtlest-tertiary p-4 transition-colors hover:bg-surface-hover tablet:rounded-12 tablet:border tablet:bg-surface-float">
+                    <div className="flex flex-1 flex-col">
+                      <span className="font-bold text-text-primary typo-callout group-hover:text-text-link">
+                        {item.title}
+                      </span>
+                    </div>
+                    <ArrowIcon
+                      size={IconSize.XSmall}
+                      className="rotate-90 text-text-quaternary transition-colors group-hover:text-text-link"
+                    />
+                  </a>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Trending on daily.dev */}
         <section className="mt-14">

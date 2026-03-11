@@ -337,8 +337,7 @@ const LearnToCodeLeaf = ({ pageData }: LearnToCodeLeafProps): ReactElement => {
   const { user } = useContext(AuthContext);
 
   const feedTag = pageData?.tags?.[0];
-  const isSubHub =
-    pageData?.dimension === 'audience' && !!pageData?.recommendedPaths?.length;
+  const isSubHub = !!pageData?.recommendedPaths?.length;
 
   const feedVariables = useMemo(
     () => ({
