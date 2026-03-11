@@ -74,6 +74,7 @@ export function SquadMemberModal({
     members,
     membersQueryResult: queryResult,
     onUnblock,
+    onDemoteSelf,
     onUpdateRole,
     membersQueryKey,
   } = useSquadActions({
@@ -133,6 +134,7 @@ export function SquadMemberModal({
         hasPermission && {
           afterContent: (user, index) => (
             <SquadMemberItemOptionsButton
+              onDemoteSelf={onDemoteSelf}
               onUpdateRole={onUpdateRole}
               squad={squad}
               key={`squad_option_${user.id}`}

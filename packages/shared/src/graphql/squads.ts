@@ -83,6 +83,14 @@ export const LEAVE_SQUAD_MUTATION = gql`
   }
 `;
 
+export const DEMOTE_SELF_MUTATION = gql`
+  mutation DemoteSelf($sourceId: ID!) {
+    demoteSelf(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const DELETE_SQUAD_MUTATION = gql`
   mutation DeleteSquad($sourceId: ID!) {
     deleteSource(sourceId: $sourceId) {
@@ -459,6 +467,13 @@ export const unblockSquadMember = (
 
 export const leaveSquad = (sourceId: string): Promise<void> =>
   gqlClient.request(LEAVE_SQUAD_MUTATION, {
+    sourceId,
+  });
+
+export const demoteSelfSquadMember = (
+  sourceId: string,
+): Promise<EmptyResponse> =>
+  gqlClient.request(DEMOTE_SELF_MUTATION, {
     sourceId,
   });
 

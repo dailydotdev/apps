@@ -11,6 +11,7 @@ import {
 import type { SquadEdgesData } from '../../graphql/squads';
 import {
   collapsePinnedPosts,
+  demoteSelfSquadMember,
   expandPinnedPosts,
   SQUAD_MEMBERS_QUERY,
   unblockSquadMember,
@@ -34,6 +35,7 @@ import { gqlClient } from '../../graphql/common';
 export interface UseSquadActions {
   onUnblock?: typeof unblockSquadMember;
   onUpdateRole?: typeof updateSquadMemberRole;
+  onDemoteSelf?: typeof demoteSelfSquadMember;
   collapseSquadPinnedPosts?: typeof collapsePinnedPosts;
   expandSquadPinnedPosts?: typeof expandPinnedPosts;
   membersQueryResult?: UseInfiniteQueryResult<InfiniteData<SquadEdgesData>>;
@@ -61,6 +63,7 @@ export const useSquadActions = ({
   const { queryKey: feedQueryKey } = useContext(ActiveFeedContext);
   const { user } = useAuthContext();
   const client = useQueryClient();
+  const squadQueryKey = generateQueryKey(RequestKey.Squad, user, squad?.handle);
   const membersQueryKey = generateQueryKey(
     RequestKey.SquadMembers,
     undefined,
@@ -75,6 +78,14 @@ export const useSquadActions = ({
   const { mutateAsync: onUnblock } = useMutation({
     mutationFn: unblockSquadMember,
     onSuccess: () => client.invalidateQueries({ queryKey: membersQueryKey }),
+  });
+  const { mutateAsync: onDemoteSelf } = useMutation({
+    mutationFn: demoteSelfSquadMember,
+    onSuccess: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: membersQueryKey }),
+        client.invalidateQueries({ queryKey: squadQueryKey }),
+      ]),
   });
 
   const { mutateAsync: collapseSquadPinnedPosts } = useMutation({
@@ -119,6 +130,7 @@ export const useSquadActions = ({
     () => ({
       onUnblock,
       onUpdateRole,
+      onDemoteSelf,
       collapseSquadPinnedPosts,
       expandSquadPinnedPosts,
       membersQueryResult,
@@ -131,6 +143,7 @@ export const useSquadActions = ({
     [
       onUnblock,
       onUpdateRole,
+      onDemoteSelf,
       collapseSquadPinnedPosts,
       expandSquadPinnedPosts,
       membersQueryResult,

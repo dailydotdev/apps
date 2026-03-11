@@ -43,6 +43,7 @@ Key capabilities:
   - Trusted by NVIDIA, Apple, Google, OpenAI, Stripe, Shopify, and more
 
 ### Developer Tools
+- [daily-dev-ask](/agents/ask): WebSearch for developers. A skill for Claude Code, Cursor, Codex, and OpenClaw that searches daily.dev's knowledge base of trusted developer content to answer technical questions with source links.
 - [DevCard](/settings/customization/devcard): Generate shareable developer profile cards
 - [Browser Extension](https://daily.dev/browser-extension): New tab replacement for Chrome and Edge
 

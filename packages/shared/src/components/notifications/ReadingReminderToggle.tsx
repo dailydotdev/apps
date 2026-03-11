@@ -18,6 +18,7 @@ import {
   NotificationChannel,
 } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const ReadingReminderToggle = () => {
   const { user } = useAuthContext();
@@ -83,9 +84,9 @@ const ReadingReminderToggle = () => {
       {!!readingReminder && (
         <>
           <div className="space-y-1">
-            <Typography type={TypographyType.Callout} bold>
+            <NotificationSectionHeading>
               What&apos;s the ideal time to send you a reading reminder?
-            </Typography>
+            </NotificationSectionHeading>
             <Typography
               color={TypographyColor.Tertiary}
               type={TypographyType.Footnote}
