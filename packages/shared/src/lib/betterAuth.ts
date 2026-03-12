@@ -39,7 +39,7 @@ const betterAuthPost = async <T = Record<string, unknown>>(
   fallbackError = 'Request failed',
   headers?: Record<string, string>,
 ): Promise<BetterAuthResult<T>> => {
-  const res = await fetch(`${apiUrl}/a/auth/${path}`, {
+  const res = await fetch(`${apiUrl}/auth/${path}`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...headers },
@@ -141,7 +141,7 @@ export const getBetterAuthProviders = async (): Promise<{
   ok: boolean;
   result: string[];
 }> => {
-  const res = await fetch(`${apiUrl}/a/auth/list-accounts`, {
+  const res = await fetch(`${apiUrl}/auth/list-accounts`, {
     credentials: 'include',
     headers: { Accept: 'application/json' },
   });
@@ -158,7 +158,7 @@ export const getBetterAuthProviders = async (): Promise<{
 export const unlinkBetterAuthAccount = async (
   providerId: string,
 ): Promise<{ status: boolean }> => {
-  const res = await fetch(`${apiUrl}/a/auth/unlink-account`, {
+  const res = await fetch(`${apiUrl}/auth/unlink-account`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },

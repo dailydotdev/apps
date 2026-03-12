@@ -251,7 +251,7 @@ it('should show a generic sign up error when Better Auth sign up is privacy-prot
   await renderBetterAuthRegistration(email);
 
   nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .post('/a/auth/sign-up/email', {
+    .post('/auth/sign-up/email', {
       name: 'Lee Solevilla',
       email,
       password: '#123xAbc',

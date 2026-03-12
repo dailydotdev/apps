@@ -245,10 +245,10 @@ it('should show generic change email confirmation for Better Auth', async () => 
   jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(true);
   const email = 'sample@email.com';
   nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .get('/a/auth/list-accounts')
+    .get('/auth/list-accounts')
     .reply(200, [{ providerId: 'credential' }]);
   const changeEmailScope = nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .post('/a/auth/email-otp/request-email-change', { newEmail: email })
+    .post('/auth/email-otp/request-email-change', { newEmail: email })
     .reply(200, { success: true });
 
   renderComponent();
