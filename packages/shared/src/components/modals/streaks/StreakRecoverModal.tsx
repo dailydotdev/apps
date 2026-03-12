@@ -25,6 +25,8 @@ import type { UserStreakRecoverData } from '../../../graphql/users';
 import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { NotificationPromptSource } from '../../../lib/log';
+import EnableNotification from '../../notifications/EnableNotification';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -158,6 +160,13 @@ export const StreakRecoverOptout = ({
   </div>
 );
 
+const StreakRecoverNotificationReminder = () => (
+  <EnableNotification
+    source={NotificationPromptSource.SourceSubscribe}
+    contentName="your followed sources"
+  />
+);
+
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement => {
@@ -170,6 +179,46 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
+  // TODO(debug): force-open for preview — remove before merging
+  const mockRecover: UserStreakRecoverData = {
+    canRecover: true,
+    cost: 0,
+    oldStreakLength: 14,
+    regularCost: 100,
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      isDrawerOnMobile={isOpen}
+      onRequestClose={onRequestClose}
+      size={ModalSize.XSmall}
+    >
+      <ModalClose
+        aria-label="Close streak recover popup"
+        onClick={onRequestClose}
+        title="Close streak recover popup"
+      />
+      <ModalBody className="!p-4">
+        <div className="flex flex-col gap-4">
+          <StreakRecoverCover />
+          <StreakRecoverHeading days={mockRecover.oldStreakLength} />
+          <StreakRecoveryCopy recover={mockRecover} />
+          <StreakRecoverButton
+            onClick={onRequestClose}
+            recover={mockRecover}
+          />
+          <StreakRecoverOptout
+            id={id}
+            hideForever={{ isChecked: false, toggle: () => {} }}
+          />
+        </div>
+        <StreakRecoverNotificationReminder />
+      </ModalBody>
+    </Modal>
+  );
+
+  /* Original guarded version — restore when done previewing:
   if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
     return null;
   }
@@ -198,9 +247,11 @@ export const StreakRecoverModal = (
           />
           <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
+        <StreakRecoverNotificationReminder />
       </ModalBody>
     </Modal>
   );
+  */
 };
 
 export default StreakRecoverModal;
