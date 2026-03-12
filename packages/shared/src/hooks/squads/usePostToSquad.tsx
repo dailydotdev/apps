@@ -189,7 +189,7 @@ export const usePostToSquad = ({
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        callOnError(err);
+        handleMutationError(err);
       },
     });
 
