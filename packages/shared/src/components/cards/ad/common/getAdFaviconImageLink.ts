@@ -8,6 +8,8 @@ interface GetAdFaviconImageLinkParams {
   size?: number;
 }
 
+const minimumFaviconSize = 96;
+
 export const getAdFaviconImageLink = ({
   ad,
   adImprovementsV3,
@@ -22,7 +24,7 @@ export const getAdFaviconImageLink = ({
   }
 
   const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
-  const iconSize = Math.round(size * pixelRatio);
+  const iconSize = Math.max(Math.round(size * pixelRatio), minimumFaviconSize);
 
   return `${apiUrl}/icon?url=${encodeURIComponent(
     ad.adDomain,
