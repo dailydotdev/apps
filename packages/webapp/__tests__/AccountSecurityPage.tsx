@@ -48,6 +48,8 @@ const matchMedia = (value: string) => {
   });
 };
 
+const displayToast = jest.fn();
+
 beforeEach(() => {
   jest.resetAllMocks();
   jest.restoreAllMocks();
@@ -71,7 +73,6 @@ const defaultLoggedUser: LoggedUser = {
 
 const updateUser = jest.fn();
 const refetchBoot = jest.fn();
-const displayToast = jest.fn();
 
 const waitAllRenderMocks = async () => {
   await waitForNock();
@@ -268,12 +269,12 @@ it('should show generic change email confirmation for Better Auth', async () => 
 
   await act(() => sendCodeButton.dispatchEvent(submitEvent));
 
-  await waitFor(() => expect(changeEmailScope.isDone()).toBeTruthy());
   await waitFor(() =>
     expect(displayToast).toHaveBeenCalledWith(
       'If that email is available, we sent a verification code.',
     ),
   );
+  expect(changeEmailScope.isDone()).toBeTruthy();
 });
 
 it('should allow setting new password', async () => {
