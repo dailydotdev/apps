@@ -164,7 +164,7 @@ export const PostPage = ({
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const { isFallback } = router;
+  const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
@@ -213,7 +213,7 @@ export const PostPage = ({
 
   usePostReferrer({ post });
 
-  if (isLoading || isFallback || privateSourceJoin.isActive) {
+  if (isLoading || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
@@ -280,7 +280,7 @@ PostPage.layoutProps = {
 export default PostPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({
@@ -344,11 +344,10 @@ export async function getStaticProps({
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
-      // Return proper 404 for missing and forbidden posts (better for SEO/crawl budget)
-      if (errorCode === ApiError.NotFound || errorCode === ApiError.Forbidden) {
+      // Return proper 404 for not found posts (better for SEO/crawl budget)
+      if (errorCode === ApiError.NotFound) {
         return {
           notFound: true,
-          revalidate: 60,
         };
       }
 

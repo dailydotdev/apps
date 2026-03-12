@@ -64,8 +64,17 @@ const CLAUDE_INSTALL_COMMAND = [
   `claude "/daily.dev setup"`,
 ];
 
+const DAILY_DEV_ASK_OPENCLAW_INSTRUCTION =
+  'Install daily-dev-ask from clawhub and ask about my topic';
+const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
+  `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
+  `claude plugin install daily.dev@daily.dev`,
+  `claude "/daily-dev-ask your question here"`,
+];
+
 const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
 const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
+const CODEX_ASK_INSTALL_COMMAND = `$skill-installer install the daily-dev-ask skill from ${CURSOR_REPO_URL}`;
 
 interface SkillInstallMethod {
   tool: 'OpenClaw' | 'Claude Code' | 'Codex' | 'Cursor';
@@ -129,6 +138,53 @@ const SKILLS: SkillDefinition[] = [
         copyValue: CURSOR_REPO_URL,
         copySuccessMessage: 'URL copied to clipboard',
         note: 'Use /daily.dev in Agent chat to interact with your feed.',
+      },
+    ],
+  },
+  {
+    id: 'daily-dev-ask',
+    name: 'daily-dev-ask',
+    description:
+      "Your agent's WebSearch for development — like a senior dev's reading list. Search community-vetted articles ranked by upvotes, grounded in real sources.",
+    methods: [
+      {
+        tool: 'OpenClaw',
+        description: 'Copy this instruction to your agent to get started:',
+        code: DAILY_DEV_ASK_OPENCLAW_INSTRUCTION,
+        copyValue: DAILY_DEV_ASK_OPENCLAW_INSTRUCTION,
+        copySuccessMessage: 'Instruction copied to clipboard',
+      },
+      {
+        tool: 'Claude Code',
+        description:
+          'Add daily.dev to Claude Code as a plugin, then use /daily-dev-ask:',
+        code: DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND.join('\n'),
+        multilineCode: true,
+        copyValue: DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND.join(' && '),
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'After setup, use /daily-dev-ask to search and answer questions from daily.dev articles.',
+      },
+      {
+        tool: 'Codex',
+        description:
+          'Install the daily-dev-ask skill in Codex with this command:',
+        code: CODEX_ASK_INSTALL_COMMAND,
+        copyValue: CODEX_ASK_INSTALL_COMMAND,
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'Restart Codex after installation, then use $daily-dev-ask.',
+      },
+      {
+        tool: 'Cursor',
+        description: 'Add daily.dev as a remote skill in Cursor:',
+        steps: [
+          'Open Cursor Settings -> Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on Windows/Linux)',
+          'Click "Add Rule" -> "Remote Rule (Github)"',
+          'Enter the repository URL below',
+        ],
+        code: CURSOR_REPO_URL,
+        copyValue: CURSOR_REPO_URL,
+        copySuccessMessage: 'URL copied to clipboard',
+        note: 'Use /daily-dev-ask in Agent chat to search and answer questions.',
       },
     ],
   },

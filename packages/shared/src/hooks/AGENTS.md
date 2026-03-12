@@ -310,6 +310,12 @@ logEvent({
 - Data that isn't the primary subject of the event
 - Always JSON.stringify objects in extra
 
+**For optional API fields in analytics payloads:**
+- If backend types mark fields as optional, still emit the event with available fields
+- Do not drop a whole item just because optional fields are missing
+- Analytics/logging helpers must never throw inside mutation `onSuccess` paths
+- Prefer explicit fallback defaults over broad type assertions (e.g. `as Post`)
+
 ### useLogEventOnce - One-Time Event Logging
 
 Use `useLogEventOnce` for logging events that should fire exactly once (e.g., impressions, form open tracking). This hook follows React best practices by using refs to track logged state, avoiding `eslint-disable` comments for empty dependency arrays.

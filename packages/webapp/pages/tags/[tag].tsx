@@ -3,6 +3,7 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
@@ -24,6 +25,10 @@ import {
   MOST_UPVOTED_FEED_QUERY,
   TAG_FEED_QUERY,
   TAG_TOP_POSTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/feed';
+import type {
+  TopPost,
+  TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -68,30 +73,20 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { getAppOrigin } from '../../lib/seo';
+
+const appOrigin = getAppOrigin();
 
 interface TagPageProps extends DynamicSeoProps {
   tag: string;
   initialData: Keyword | null;
-  topPosts: TagTopPost[];
+  topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
-}
-
-interface TagTopPost {
-  id: string;
-  title?: string;
-  slug?: string;
-}
-
-interface TagTopPostsData {
-  page?: {
-    edges?: {
-      node: TagTopPost;
-    }[];
-  };
 }
 
 interface TagRecommendedTagsProps {
@@ -161,13 +156,81 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   );
 };
 
+const getTagPageJsonLd = ({
+  tag,
+  initialData,
+  topPosts,
+}: {
+  tag: string;
+  initialData: Keyword;
+  topPosts: TopPost[];
+}): string => {
+  const encodedTag = encodeURIComponent(tag);
+  const tagTitle = initialData.flags?.title || tag;
+  const tagDescription =
+    initialData.flags?.description ||
+    `Find all the recent posts, videos, updates and discussions about ${tagTitle}`;
+  const tagUrl = `${appOrigin}/tags/${encodedTag}`;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${tagUrl}#page`,
+        url: tagUrl,
+        name: `${tagTitle} posts on daily.dev`,
+        description: tagDescription,
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      ...(topPosts.length
+        ? [
+            {
+              '@type': 'ItemList',
+              '@id': `${tagUrl}#items`,
+              numberOfItems: topPosts.length,
+              itemListElement: topPosts.map((post, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                url: `${appOrigin}/posts/${post.slug || post.id}`,
+                name: post.title || '',
+              })),
+            },
+          ]
+        : []),
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Tags',
+            item: `${appOrigin}/tags`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: tagTitle,
+          },
+        ],
+      },
+    ],
+  });
+};
+
 const TagPage = ({
   tag,
   initialData,
   topPosts,
   recommendedTags,
 }: TagPageProps): ReactElement => {
-  const { isFallback, push, query } = useRouter();
+  const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
@@ -207,6 +270,9 @@ const TagPage = ({
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const title = initialData?.flags?.title || tag;
+  const jsonLd = initialData
+    ? getTagPageJsonLd({ tag, initialData, topPosts })
+    : null;
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
@@ -230,20 +296,6 @@ const TagPage = ({
     }
     return 'unfollowed';
   }, [feedSettings, tag]);
-
-  if (isFallback) {
-    const fallbackTag = typeof query.tag === 'string' ? query.tag : tag;
-    return (
-      <FeedPageLayoutComponent>
-        <PageInfoHeader className="mx-4 !w-auto">
-          <div className="flex items-center font-bold">
-            <HashtagIcon size={IconSize.XXLarge} />
-            <h1 className="ml-2 w-fit typo-title2">{fallbackTag}</h1>
-          </div>
-        </PageInfoHeader>
-      </FeedPageLayoutComponent>
-    );
-  }
 
   const followButtonProps: ButtonProps<'button'> = {
     size: ButtonSize.Small,
@@ -279,6 +331,14 @@ const TagPage = ({
 
   return (
     <FeedPageLayoutComponent>
+      {jsonLd && (
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+      )}
       <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
@@ -350,6 +410,22 @@ const TagPage = ({
                 <a>{post.title}</a>
               </Link>
             ))}
+          </div>
+        )}
+        {recommendedTags.length > 0 && (
+          <div className="sr-only">
+            {recommendedTags
+              .map((relatedTag) => relatedTag.name)
+              .filter((relatedTag): relatedTag is string => !!relatedTag)
+              .map((relatedTag) => (
+                <Link
+                  key={relatedTag}
+                  href={`/tags/${relatedTag}`}
+                  prefetch={false}
+                >
+                  <a>Posts about {relatedTag}</a>
+                </Link>
+              ))}
           </div>
         )}
         {tag && (
@@ -475,7 +551,7 @@ TagPage.layoutProps = mainFeedLayoutProps;
 export default TagPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface TagPageParams extends ParsedUrlQuery {
@@ -485,12 +561,19 @@ interface TagPageParams extends ParsedUrlQuery {
 const getSeoData = (
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
-): NextSeoProps => ({
-  title: `${title} posts on daily.dev`,
-  openGraph: { ...defaultOpenGraph },
-  ...defaultSeo,
-  description,
-});
+): NextSeoProps => {
+  const seoTitles = getPageSeoTitles(`${title} posts`);
+
+  return {
+    ...defaultSeo,
+    ...seoTitles,
+    openGraph: {
+      ...defaultOpenGraph,
+      ...seoTitles.openGraph,
+    },
+    description,
+  };
+};
 
 export async function getStaticProps({
   params,
@@ -520,7 +603,7 @@ export async function getStaticProps({
           value: tag,
         }),
         gqlClient
-          .request<TagTopPostsData>(TAG_TOP_POSTS_QUERY, {
+          .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
             tag,
             first: 10,
           })

@@ -38,6 +38,12 @@ export interface FeedbackItem {
   createdAt: string;
   updatedAt: string;
   replies: FeedbackReply[];
+  user?: {
+    id: string;
+    name?: string | null;
+    username?: string | null;
+    image?: string | null;
+  } | null;
 }
 
 export interface FeedbackInput {
@@ -51,6 +57,14 @@ export interface FeedbackInput {
 
 type UserFeedbackData = {
   userFeedback: Connection<FeedbackItem>;
+};
+
+type UserFeedbackByUserIdData = {
+  userFeedbackByUserId: Connection<FeedbackItem>;
+};
+
+type FeedbackListData = {
+  feedbackList: Connection<FeedbackItem>;
 };
 
 export const SUBMIT_FEEDBACK_MUTATION = gql`
@@ -90,6 +104,88 @@ export const USER_FEEDBACK_QUERY = gql`
   }
 `;
 
+export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
+  query UserFeedbackByUserId($userId: ID!, $after: String, $first: Int) {
+    userFeedbackByUserId(userId: $userId, after: $after, first: $first) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          category
+          description
+          status
+          screenshotUrl
+          createdAt
+          updatedAt
+          user {
+            id
+            name
+            username
+            image
+          }
+          replies {
+            id
+            body
+            authorName
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const FEEDBACK_LIST_QUERY = gql`
+  query FeedbackList(
+    $after: String
+    $first: Int
+    $status: Int
+    $statuses: [Int!]
+    $category: ProtoEnumValue
+  ) {
+    feedbackList(
+      after: $after
+      first: $first
+      status: $status
+      statuses: $statuses
+      category: $category
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          category
+          description
+          status
+          screenshotUrl
+          createdAt
+          updatedAt
+          user {
+            id
+            name
+            username
+            image
+          }
+          replies {
+            id
+            body
+            authorName
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const submitFeedback = (input: FeedbackInput): Promise<EmptyResponse> =>
   gqlClient.request(SUBMIT_FEEDBACK_MUTATION, { input });
 
@@ -104,5 +200,72 @@ export const useUserFeedback = (first = 20) => {
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) =>
       getNextPageParam(lastPage?.userFeedback?.pageInfo),
+  });
+};
+
+export const useUserFeedbackByUserId = ({
+  userId,
+  first = 20,
+  enabled = true,
+}: {
+  userId: string;
+  first?: number;
+  enabled?: boolean;
+}) => {
+  return useInfiniteQuery({
+    queryKey: generateQueryKey(
+      RequestKey.UserFeedbackByUserId,
+      undefined,
+      userId,
+    ),
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<UserFeedbackByUserIdData>(
+        USER_FEEDBACK_BY_USER_ID_QUERY,
+        {
+          userId,
+          first,
+          after: pageParam,
+        },
+      ),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) =>
+      getNextPageParam(lastPage?.userFeedbackByUserId?.pageInfo),
+    enabled: enabled && !!userId,
+  });
+};
+
+export const useFeedbackList = ({
+  first = 20,
+  status,
+  statuses,
+  category,
+  enabled = true,
+}: {
+  first?: number;
+  status?: FeedbackStatus;
+  statuses?: FeedbackStatus[];
+  category?: FeedbackCategory;
+  enabled?: boolean;
+}) => {
+  return useInfiniteQuery({
+    queryKey: generateQueryKey(
+      RequestKey.FeedbackList,
+      undefined,
+      status ?? null,
+      statuses?.join(',') ?? null,
+      category ?? null,
+    ),
+    queryFn: ({ pageParam }) =>
+      gqlClient.request<FeedbackListData>(FEEDBACK_LIST_QUERY, {
+        first,
+        after: pageParam,
+        status,
+        statuses,
+        category,
+      }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) =>
+      getNextPageParam(lastPage?.feedbackList?.pageInfo),
+    enabled,
   });
 };

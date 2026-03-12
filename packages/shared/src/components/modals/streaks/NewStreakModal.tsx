@@ -52,7 +52,7 @@ export default function NewStreakModal({
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.StreaksMilestone,
-      target_id: currentStreak,
+      target_id: currentStreak?.toString(),
     });
 
     loggedImpression.current = true;

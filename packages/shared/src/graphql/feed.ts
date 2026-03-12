@@ -204,6 +204,34 @@ export const TAG_TOP_POSTS_QUERY = gql`
   }
 `;
 
+export type TopPost = {
+  id: string;
+  title?: string;
+  slug?: string;
+};
+
+export type TopPostsData = {
+  page?: {
+    edges?: {
+      node: TopPost;
+    }[];
+  };
+};
+
+export const SOURCE_TOP_POSTS_QUERY = gql`
+  query SourceTopPosts($source: ID!, $first: Int) {
+    page: sourceFeed(source: $source, first: $first, ranking: POPULARITY) {
+      edges {
+        node {
+          id
+          title
+          slug
+        }
+      }
+    }
+  }
+`;
+
 export const SOURCE_FEED_QUERY = gql`
   query SourceFeed(
     $source: ID!

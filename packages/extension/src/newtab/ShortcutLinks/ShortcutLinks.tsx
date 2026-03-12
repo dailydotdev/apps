@@ -113,9 +113,7 @@ export default function ShortcutLinks({
               onOptionsOpen,
               shortcutLinks,
               shouldUseListFeedLayout,
-              showTopSites,
               toggleShowTopSites,
-              hasCheckedPermission,
               onReorder,
               isManual,
             }}

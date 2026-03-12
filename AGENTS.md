@@ -227,6 +227,7 @@ Is it used by both webapp AND extension?
 - **Typography**: Use `typo-*` classes (typo-title1, typo-body, typo-callout)
 - **Responsive**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
 - **ESLint enforces** `no-custom-color` rule - use design system tokens
+- For dismissible banners/cards, default to the shared `CloseButton` icon pattern used elsewhere; do not introduce a separate full-width `Dismiss` button unless the request explicitly calls for text dismiss UI.
 
 ## Testing Approach
 
@@ -235,6 +236,7 @@ We write tests to validate functionality, not to achieve coverage metrics:
 - Mock API responses with `nock`
 - Test files live next to source: `Component.spec.tsx`
 - Run tests: `pnpm --filter <package> test`
+- For hover/tooltip changes on navigation, verify the real interactive hover target is wrapped by the tooltip component. Do not treat a native `title` fallback as a substitute for the requested tooltip behavior unless the user explicitly asks for that fallback.
 
 ## Feature Flags & Experiments
 

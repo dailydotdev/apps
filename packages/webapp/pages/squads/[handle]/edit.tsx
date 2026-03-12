@@ -115,7 +115,7 @@ EditSquad.getLayout = getMainLayout;
 EditSquad.layoutProps = { seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface SquadPageParams extends ParsedUrlQuery {
