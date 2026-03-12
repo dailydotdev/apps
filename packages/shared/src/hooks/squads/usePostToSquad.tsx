@@ -108,11 +108,13 @@ export const usePostToSquad = ({
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
 
-  const callOnError = useCallback(
+  const handleMutationError = useCallback(
     (err: unknown): void => {
-      if (isApiErrorResult(err)) {
-        onError?.(err);
+      if (!isApiErrorResult(err)) {
+        return;
       }
+
+      onError?.(err);
     },
     [onError],
   );
@@ -135,7 +137,7 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPost,
     onMutate,
-    onError: callOnError,
+    onError: handleMutationError,
     onSuccess: handlePostSuccess,
   });
   const {
@@ -146,7 +148,7 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: handlePostSuccess,
-    onError: callOnError,
+    onError: handleMutationError,
   });
 
   const {
@@ -172,7 +174,7 @@ export const usePostToSquad = ({
       }
       handlePostSuccess(data);
     },
-    onError: callOnError,
+    onError: handleMutationError,
   });
 
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
@@ -255,7 +257,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully();
       handlePostSuccess(data);
     },
-    onError: callOnError,
+    onError: handleMutationError,
   });
 
   const {
@@ -268,7 +270,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully(true);
       handlePostSuccess(data);
     },
-    onError: callOnError,
+    onError: handleMutationError,
   });
 
   const {
@@ -289,7 +291,7 @@ export const usePostToSquad = ({
       const rateLimited = getApiError(err, ApiError.RateLimited);
       const message = rateLimited?.message ?? DEFAULT_ERROR;
       displayToast(message);
-      callOnError(err);
+      handleMutationError(err);
     },
   });
 
