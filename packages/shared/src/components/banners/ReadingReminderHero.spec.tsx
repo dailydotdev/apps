@@ -46,7 +46,7 @@ describe('ReadingReminderHero', () => {
 
     expect(onEnable).toHaveBeenCalledTimes(1);
     expect(
-      screen.queryByRole('button', { name: 'Dismiss' }),
+      screen.queryByRole('button', { name: 'Close' }),
     ).not.toBeInTheDocument();
   });
 
@@ -63,7 +63,7 @@ describe('ReadingReminderHero', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
     expect(screen.getByText('Reminder title')).toBeInTheDocument();
     expect(screen.getByText('Reminder subtitle')).toBeInTheDocument();

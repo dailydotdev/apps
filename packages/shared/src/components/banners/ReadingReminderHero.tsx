@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import {
   Typography,
   TypographyColor,
@@ -34,10 +35,16 @@ const ReadingReminderHero = ({
 
   return (
     <div className={classNames('flex w-full', className)}>
-      <div className="flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
+      <div className="relative flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
+        {shouldShowDismiss && (
+          <CloseButton
+            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+            onClick={onDismiss}
+          />
+        )}
         <Typography type={TypographyType.Title3}>{title}</Typography>
         <Typography
-          className="mt-1"
+          className="mt-1 pr-8 laptop:pr-0"
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
@@ -52,17 +59,6 @@ const ReadingReminderHero = ({
             Enable reminder
           </Button>
         </div>
-        {shouldShowDismiss && (
-          <div className="mt-2">
-            <Button
-              className="w-full"
-              variant={ButtonVariant.Tertiary}
-              onClick={onDismiss}
-            >
-              Dismiss
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
