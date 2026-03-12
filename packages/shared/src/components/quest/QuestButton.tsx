@@ -17,13 +17,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { CoreIcon, LockIcon, ReputationIcon } from '../icons';
-import type {
-  QuestBucket,
-  QuestLevel,
-  QuestReward,
-  UserQuest,
-} from '../../graphql/quests';
+import { CoreIcon, LockIcon, ReputationIcon, TourIcon } from '../icons';
+import type { QuestLevel, QuestReward, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -32,6 +27,7 @@ import {
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -214,6 +210,14 @@ const getRewardLabel = (reward: QuestReward): string => {
   }
 };
 
+const getVisibleRewards = (
+  rewards: QuestReward[],
+  showLevelSystem: boolean,
+): QuestReward[] =>
+  rewards.filter(
+    (reward) => showLevelSystem || reward.type !== QuestRewardType.Xp,
+  );
+
 const QuestRewardChip = ({
   reward,
   rewardRef,
@@ -235,6 +239,7 @@ const QuestRewardChip = ({
 const QuestItem = ({
   quest,
   onClaim,
+  showLevelSystem,
   isClaiming,
   isClaimAnimating,
   showClaimedStamp,
@@ -245,6 +250,7 @@ const QuestItem = ({
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
+  showLevelSystem: boolean;
   isClaiming: boolean;
   isClaimAnimating: boolean;
   showClaimedStamp: boolean;
@@ -263,6 +269,7 @@ const QuestItem = ({
     quest.locked || isClaiming || isClaimAnimating || isClaimed;
   const canClaim =
     quest.claimable && !!quest.userQuestId && !isClaimAnimating && !isClaimed;
+  const visibleRewards = getVisibleRewards(quest.rewards, showLevelSystem);
 
   return (
     <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
@@ -303,21 +310,23 @@ const QuestItem = ({
           }}
         />
 
-        <div className="flex flex-wrap gap-1">
-          {quest.rewards.map((reward, index) => {
-            const rewardKey = `${reward.type}-${index.toString()}`;
+        {visibleRewards.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {visibleRewards.map((reward, index) => {
+              const rewardKey = `${reward.type}-${index.toString()}`;
 
-            return (
-              <QuestRewardChip
-                key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
-                reward={reward}
-                rewardRef={(element) => {
-                  rewardRefs.current[rewardKey] = element;
-                }}
-              />
-            );
-          })}
-        </div>
+              return (
+                <QuestRewardChip
+                  key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
+                  reward={reward}
+                  rewardRef={(element) => {
+                    rewardRefs.current[rewardKey] = element;
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
 
         {canClaim && (
           <Button
@@ -331,7 +340,7 @@ const QuestItem = ({
                 return;
               }
 
-              const rewardSources = quest.rewards.flatMap((reward, index) => {
+              const rewardSources = visibleRewards.flatMap((reward, index) => {
                 const rewardKey = `${reward.type}-${index.toString()}`;
                 const rewardElement = rewardRefs.current[rewardKey];
 
@@ -429,32 +438,32 @@ const QuestItem = ({
 
 const QuestSection = ({
   title,
-  bucket,
+  quests,
   onClaim,
+  showLevelSystem,
   claimingQuestId,
   animatingClaimRotationId,
   claimedStampRotationIds,
+  emptyLabel = 'No active quests yet.',
 }: {
   title: string;
-  bucket: QuestBucket;
+  quests: UserQuest[];
   onClaim: (
     userQuestId: string,
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
+  showLevelSystem: boolean;
   claimingQuestId?: string;
   animatingClaimRotationId?: string;
   claimedStampRotationIds: Set<string>;
+  emptyLabel?: string;
 }): ReactElement => {
-  const hasQuests = bucket.regular.length > 0 || bucket.plus.length > 0;
-
-  if (!hasQuests) {
+  if (!quests.length) {
     return (
       <section className="flex flex-col gap-2">
         <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
-        <p className="text-text-tertiary typo-caption1">
-          No active quests yet.
-        </p>
+        <p className="text-text-tertiary typo-caption1">{emptyLabel}</p>
       </section>
     );
   }
@@ -463,39 +472,17 @@ const QuestSection = ({
     <section className="flex flex-col gap-2">
       <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
 
-      {bucket.regular.map((quest) => (
+      {quests.map((quest) => (
         <QuestItem
           key={quest.rotationId}
           quest={quest}
           onClaim={onClaim}
+          showLevelSystem={showLevelSystem}
           isClaiming={claimingQuestId === quest.userQuestId}
           isClaimAnimating={animatingClaimRotationId === quest.rotationId}
           showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
         />
       ))}
-
-      {bucket.plus.length > 0 && (
-        <>
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <p className="text-action-plus-default typo-caption1">Plus quest</p>
-            <UpgradeToPlus
-              target={TargetId.Popover}
-              size={ButtonSize.Small}
-              className="!flex-none"
-            />
-          </div>
-          {bucket.plus.map((quest) => (
-            <QuestItem
-              key={quest.rotationId}
-              quest={quest}
-              onClaim={onClaim}
-              isClaiming={claimingQuestId === quest.userQuestId}
-              isClaimAnimating={animatingClaimRotationId === quest.rotationId}
-              showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
-            />
-          ))}
-        </>
-      )}
     </section>
   );
 };
@@ -785,6 +772,7 @@ const QuestLevelFireworkLayer = ({
 };
 
 export const QuestButton = (): ReactElement => {
+  const { optOutLevelSystem } = useSettingsContext();
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { data, isPending, isError } = useQuestDashboard();
@@ -815,6 +803,7 @@ export const QuestButton = (): ReactElement => {
 
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
+  const showLevelSystem = !optOutLevelSystem;
   const claimableCount = useMemo(() => {
     if (!data) {
       return 0;
@@ -1159,47 +1148,57 @@ export const QuestButton = (): ReactElement => {
           <Button
             variant={ButtonVariant.Float}
             className="relative !size-10 !rounded-full !p-0"
-            aria-label={`Quests, level ${renderedLevel}, ${Math.round(
-              renderedLevelProgress,
-            )}% progress`}
+            aria-label={
+              showLevelSystem
+                ? `Quests, level ${renderedLevel}, ${Math.round(
+                    renderedLevelProgress,
+                  )}% progress`
+                : 'Quests'
+            }
           >
-            <span className="relative inline-flex size-10 items-center justify-center">
-              <svg
-                width={QUEST_LEVEL_PROGRESS_SIZE}
-                height={QUEST_LEVEL_PROGRESS_SIZE}
-                viewBox={`0 0 ${QUEST_LEVEL_PROGRESS_SIZE} ${QUEST_LEVEL_PROGRESS_SIZE}`}
-                fill="none"
-                className="-rotate-90"
-                aria-hidden
-              >
-                <circle
-                  cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                  cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                  r={QUEST_LEVEL_PROGRESS_RADIUS}
-                  strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
-                  className="stroke-border-subtlest-tertiary"
-                />
-                <circle
-                  cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                  cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                  r={QUEST_LEVEL_PROGRESS_RADIUS}
-                  strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
-                  strokeLinecap="round"
-                  strokeDasharray={QUEST_LEVEL_PROGRESS_CIRCUMFERENCE}
-                  strokeDashoffset={
-                    QUEST_LEVEL_PROGRESS_CIRCUMFERENCE *
-                    (1 - renderedLevelProgress / 100)
-                  }
-                  className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-                />
-              </svg>
-              <span
-                data-reward-target={QuestRewardType.Xp}
-                className="absolute font-bold text-text-primary typo-caption1"
-              >
-                {renderedLevel}
+            {showLevelSystem ? (
+              <span className="relative inline-flex size-10 items-center justify-center">
+                <svg
+                  width={QUEST_LEVEL_PROGRESS_SIZE}
+                  height={QUEST_LEVEL_PROGRESS_SIZE}
+                  viewBox={`0 0 ${QUEST_LEVEL_PROGRESS_SIZE} ${QUEST_LEVEL_PROGRESS_SIZE}`}
+                  fill="none"
+                  className="-rotate-90"
+                  aria-hidden
+                >
+                  <circle
+                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
+                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
+                    r={QUEST_LEVEL_PROGRESS_RADIUS}
+                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
+                    className="stroke-border-subtlest-tertiary"
+                  />
+                  <circle
+                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
+                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
+                    r={QUEST_LEVEL_PROGRESS_RADIUS}
+                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
+                    strokeLinecap="round"
+                    strokeDasharray={QUEST_LEVEL_PROGRESS_CIRCUMFERENCE}
+                    strokeDashoffset={
+                      QUEST_LEVEL_PROGRESS_CIRCUMFERENCE *
+                      (1 - renderedLevelProgress / 100)
+                    }
+                    className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                  />
+                </svg>
+                <span
+                  data-reward-target={QuestRewardType.Xp}
+                  className="absolute font-bold text-text-primary typo-caption1"
+                >
+                  {renderedLevel}
+                </span>
               </span>
-            </span>
+            ) : (
+              <span className="inline-flex size-10 items-center justify-center">
+                <TourIcon size={IconSize.Large} />
+              </span>
+            )}
             {claimableCount > 0 && (
               <Bubble className="-right-1.5 -top-1.5 px-1">
                 {claimableCount}
@@ -1215,15 +1214,17 @@ export const QuestButton = (): ReactElement => {
           <div className="flex flex-col">
             <header className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-3">
               <p className="font-bold text-text-primary typo-callout">Quests</p>
-              <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
-                <span>Level {renderedLevel}</span>
-                {data?.level && (
-                  <span>
-                    {data.level.xpInLevel}/
-                    {data.level.xpInLevel + data.level.xpToNextLevel} XP
-                  </span>
-                )}
-              </div>
+              {showLevelSystem && (
+                <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
+                  <span>Level {renderedLevel}</span>
+                  {data?.level && (
+                    <span>
+                      {data.level.xpInLevel}/
+                      {data.level.xpInLevel + data.level.xpToNextLevel} XP
+                    </span>
+                  )}
+                </div>
+              )}
             </header>
 
             <div className="flex flex-col gap-4 p-3">
@@ -1242,8 +1243,9 @@ export const QuestButton = (): ReactElement => {
               {!isPending && data && (
                 <>
                   <QuestSection
-                    title="Daily quests"
-                    bucket={data.daily}
+                    title="Daily"
+                    quests={data.daily.regular}
+                    showLevelSystem={showLevelSystem}
                     claimingQuestId={claimingQuestId}
                     animatingClaimRotationId={
                       animatingClaimRotationId ?? undefined
@@ -1252,8 +1254,9 @@ export const QuestButton = (): ReactElement => {
                     onClaim={handleClaim}
                   />
                   <QuestSection
-                    title="Weekly quests"
-                    bucket={data.weekly}
+                    title="Weekly"
+                    quests={data.weekly.regular}
+                    showLevelSystem={showLevelSystem}
                     claimingQuestId={claimingQuestId}
                     animatingClaimRotationId={
                       animatingClaimRotationId ?? undefined
@@ -1261,6 +1264,45 @@ export const QuestButton = (): ReactElement => {
                     claimedStampRotationIds={claimedStampRotationIdSet}
                     onClaim={handleClaim}
                   />
+                  {(data.daily.plus.length > 0 ||
+                    data.weekly.plus.length > 0) && (
+                    <section className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-action-plus-default typo-caption1">
+                          Plus quests
+                        </p>
+                        <UpgradeToPlus
+                          target={TargetId.Popover}
+                          size={ButtonSize.Small}
+                          className="!flex-none"
+                        />
+                      </div>
+                      <QuestSection
+                        title="Daily"
+                        quests={data.daily.plus}
+                        showLevelSystem={showLevelSystem}
+                        claimingQuestId={claimingQuestId}
+                        animatingClaimRotationId={
+                          animatingClaimRotationId ?? undefined
+                        }
+                        claimedStampRotationIds={claimedStampRotationIdSet}
+                        onClaim={handleClaim}
+                        emptyLabel="No active plus quests yet."
+                      />
+                      <QuestSection
+                        title="Weekly"
+                        quests={data.weekly.plus}
+                        showLevelSystem={showLevelSystem}
+                        claimingQuestId={claimingQuestId}
+                        animatingClaimRotationId={
+                          animatingClaimRotationId ?? undefined
+                        }
+                        claimedStampRotationIds={claimedStampRotationIdSet}
+                        onClaim={handleClaim}
+                        emptyLabel="No active plus quests yet."
+                      />
+                    </section>
+                  )}
                 </>
               )}
             </div>

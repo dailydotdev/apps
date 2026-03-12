@@ -65,6 +65,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   autoDismissNotifications: true,
   optOutCompanion: false,
   sortCommentsBy: SortCommentsBy.NewestFirst,
@@ -148,6 +150,10 @@ const SettingsMock = ({
     sortingEnabled,
     optOutReadingStreak,
     toggleOptOutReadingStreak,
+    optOutLevelSystem,
+    toggleOptOutLevelSystem,
+    optOutQuestSystem,
+    toggleOptOutQuestSystem,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
@@ -174,6 +180,20 @@ const SettingsMock = ({
         data-test-value={optOutReadingStreak}
       >
         Show Weekly Goal widget
+      </button>
+      <button
+        onClick={toggleOptOutLevelSystem}
+        type="button"
+        data-test-value={optOutLevelSystem}
+      >
+        Show Level System
+      </button>
+      <button
+        onClick={toggleOptOutQuestSystem}
+        type="button"
+        data-test-value={optOutQuestSystem}
+      >
+        Show Quest System
       </button>
       <button
         onClick={() => setSpaciness(toSpaciness)}

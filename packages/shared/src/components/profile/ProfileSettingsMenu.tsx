@@ -32,6 +32,7 @@ import {
   TerminalIcon,
   TourIcon,
   FeatherIcon,
+  GiftIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -250,6 +251,11 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               title: 'Streaks',
               icon: HotIcon,
               href: `${settingsUrl}/customization/streaks`,
+            },
+            gamification: {
+              title: 'Gamification',
+              icon: GiftIcon,
+              href: `${settingsUrl}/customization/gamification`,
             },
             devcard: {
               title: 'DevCard',

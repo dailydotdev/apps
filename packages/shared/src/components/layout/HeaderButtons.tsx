@@ -19,7 +19,7 @@ export function HeaderButtons({
   additionalButtons,
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { loadedSettings } = useSettingsContext();
+  const { loadedSettings, optOutQuestSystem } = useSettingsContext();
 
   if (!isAuthReady || !loadedSettings) {
     return <Container />;
@@ -41,7 +41,7 @@ export function HeaderButtons({
   return (
     <Container>
       <OpportunityEntryButton />
-      <QuestButton />
+      {!optOutQuestSystem && <QuestButton />}
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />

@@ -52,6 +52,8 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
+  toggleOptOutLevelSystem: () => Promise<void>;
+  toggleOptOutQuestSystem: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
@@ -126,6 +128,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: false,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   optOutCompanion: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.OldestFirst,
@@ -253,6 +257,16 @@ export const SettingsContextProvider = ({
           optOutReadingStreak: !settings.optOutReadingStreak,
         });
       },
+      toggleOptOutLevelSystem: () =>
+        setSettings({
+          ...settings,
+          optOutLevelSystem: !settings.optOutLevelSystem,
+        }),
+      toggleOptOutQuestSystem: () =>
+        setSettings({
+          ...settings,
+          optOutQuestSystem: !settings.optOutQuestSystem,
+        }),
       toggleOptOutCompanion: () =>
         setSettings({
           ...settings,
