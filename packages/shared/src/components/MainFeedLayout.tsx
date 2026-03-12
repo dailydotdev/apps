@@ -13,6 +13,8 @@ import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
 import ReadingReminderCatLaptop from './banners/ReadingReminderCatLaptop';
+import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { MiniCloseIcon } from './icons';
 import { Modal } from './modals/common/Modal';
 import { ModalSize } from './modals/common/types';
 import AuthContext from '../contexts/AuthContext';
@@ -192,6 +194,8 @@ const feedWithDateRange = [
   ExploreTabs.MostUpvoted,
   ExploreTabs.BestDiscussions,
 ];
+
+type DesktopReadingReminderStyle = 'boxed' | 'floating';
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
@@ -529,6 +533,18 @@ export default function MainFeedLayout({
     shouldShowReadingReminder && isMobile;
   const shouldShowReadingReminderOnDesktop =
     shouldShowReadingReminder && !isMobile;
+  const desktopReadingReminderStyle: DesktopReadingReminderStyle = 'floating';
+  const isFloatingDesktopReadingReminder =
+    desktopReadingReminderStyle === 'floating';
+  const desktopReadingReminderModalClassName = isFloatingDesktopReadingReminder
+    ? 'tablet:!w-[26.25rem] !w-auto !h-auto !border-0 !bg-transparent !shadow-none tablet:!rounded-none tablet:!bg-transparent'
+    : undefined;
+  const desktopReadingReminderOverlayClassName = isFloatingDesktopReadingReminder
+    ? 'bg-overlay-dark-dark3 backdrop-blur-sm'
+    : undefined;
+  const desktopReadingReminderBodyClassName = isFloatingDesktopReadingReminder
+    ? 'p-4 tablet:!px-0 tablet:!py-0'
+    : 'p-4';
   const [isReadingReminderModalOpen, setIsReadingReminderModalOpen] =
     useState(false);
 
@@ -596,15 +612,34 @@ export default function MainFeedLayout({
       {shouldShowReadingReminderOnDesktop && isReadingReminderModalOpen && (
         <Modal
           size={ModalSize.Small}
+          className={desktopReadingReminderModalClassName}
+          overlayClassName={desktopReadingReminderOverlayClassName}
           onRequestClose={() => setIsReadingReminderModalOpen(false)}
           shouldCloseOnOverlayClick
         >
-          <Modal.Body className="p-4">
-            <ReadingReminderCatLaptop />
+          <Modal.Body className={desktopReadingReminderBodyClassName}>
+            <div className="relative">
+              {isFloatingDesktopReadingReminder && (
+                <Button
+                  className="absolute right-0 top-0 z-1"
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  icon={<MiniCloseIcon />}
+                  aria-label="Close reading reminder"
+                  onClick={() => setIsReadingReminderModalOpen(false)}
+                />
+              )}
+              <ReadingReminderCatLaptop />
+            </div>
             <ReadingReminderHero
               className="text-center"
               onEnable={onEnableDesktopReminder}
-              onClose={() => setIsReadingReminderModalOpen(false)}
+              onClose={
+                isFloatingDesktopReadingReminder
+                  ? undefined
+                  : () => setIsReadingReminderModalOpen(false)
+              }
             />
           </Modal.Body>
         </Modal>
