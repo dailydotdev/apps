@@ -537,6 +537,8 @@ export enum NotificationPromptSource {
   BookmarkReminder = 'bookmark reminder',
   NotificationsPage = 'notifications page',
   NewComment = 'new comment',
+  CommentUpvote = 'comment upvote',
+  PostTagFollow = 'post tag follow',
   NewSourceModal = 'new source modal',
   SquadPage = 'squad page',
   NotificationItem = 'notification item',

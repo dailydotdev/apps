@@ -12,7 +12,12 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/Button';
 import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
@@ -26,7 +31,8 @@ import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { NotificationPromptSource } from '../../../lib/log';
-import EnableNotification from '../../notifications/EnableNotification';
+import { useEnableNotification } from '../../../hooks/notifications';
+import { BellIcon } from '../../icons';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -133,14 +139,17 @@ const StreakRecoverButton = ({
 export const StreakRecoverOptout = ({
   hideForever,
   id,
+  className,
 }: {
   id: string;
+  className?: string;
 } & Pick<UseStreakRecoverReturn, 'hideForever'>): ReactElement => (
-  <div className="flex flex-row items-center justify-center">
+  <div className={className ?? 'flex flex-row items-center justify-center'}>
     <Checkbox
       aria-labelledby={`showAgain-label-${id}`}
       checked={hideForever.isChecked}
-      className="!pr-0"
+      className="!w-5 !p-0 !pr-0"
+      checkmarkClassName="mr-2 h-4 w-4 rounded-4"
       data-testid="streak-recover-optout"
       id={`showAgain-${id}`}
       name="showAgain"
@@ -148,24 +157,61 @@ export const StreakRecoverOptout = ({
     />
     <Typography
       aria-label="Never show 'reading streak recover' popup again"
-      className="cursor-pointer py-2.5"
+      className="cursor-pointer py-0"
       htmlFor={`showAgain-${id}`}
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
     >
-      Never show this again
+      Hide this
     </Typography>
   </div>
 );
 
-const StreakRecoverNotificationReminder = () => (
-  <EnableNotification
-    source={NotificationPromptSource.SourceSubscribe}
-    contentName="your followed sources"
-  />
-);
+const StreakRecoverNotificationReminder = () => {
+  const { shouldShowCta, onEnable } = useEnableNotification({
+    source: NotificationPromptSource.SourceSubscribe,
+  });
+
+  if (!shouldShowCta) {
+    return null;
+  }
+
+  return (
+    <div className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-3 pb-2 pt-3">
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="flex-1"
+      >
+        Never lose your streak again.
+      </Typography>
+      <Button
+        size={ButtonSize.Small}
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Bacon}
+        icon={
+          <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+        }
+        onClick={onEnable}
+      >
+        Enable
+      </Button>
+      <style>
+        {`
+          @keyframes enable-notification-bell-ring {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-16deg); }
+            40% { transform: rotate(14deg); }
+            60% { transform: rotate(-10deg); }
+            80% { transform: rotate(8deg); }
+          }
+        `}
+      </style>
+    </div>
+  );
+};
 
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
@@ -200,17 +246,18 @@ export const StreakRecoverModal = (
         title="Close streak recover popup"
       />
       <ModalBody className="!p-4">
-        <div className="flex flex-col gap-4">
+        <StreakRecoverOptout
+          id={id}
+          className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
+          hideForever={{ isChecked: false, toggle: () => {} }}
+        />
+        <div className="flex flex-col gap-4 pt-8">
           <StreakRecoverCover />
           <StreakRecoverHeading days={mockRecover.oldStreakLength} />
           <StreakRecoveryCopy recover={mockRecover} />
           <StreakRecoverButton
             onClick={onRequestClose}
             recover={mockRecover}
-          />
-          <StreakRecoverOptout
-            id={id}
-            hideForever={{ isChecked: false, toggle: () => {} }}
           />
         </div>
         <StreakRecoverNotificationReminder />
@@ -236,7 +283,12 @@ export const StreakRecoverModal = (
         title="Close streak recover popup"
       />
       <ModalBody className="!p-4">
-        <div className="flex flex-col gap-4">
+        <StreakRecoverOptout
+          id={id}
+          className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
+          hideForever={hideForever}
+        />
+        <div className="flex flex-col gap-4 pt-8">
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
           <StreakRecoveryCopy recover={recover} />
@@ -245,7 +297,6 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
-          <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
         <StreakRecoverNotificationReminder />
       </ModalBody>

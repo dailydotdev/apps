@@ -41,6 +41,17 @@ export type UsePostModalNavigationProps = {
   feedName: string;
 };
 
+const normalizePostIdentifier = (value?: string | null): string | undefined => {
+  if (!value || value === 'null' || value === 'undefined') {
+    return undefined;
+  }
+
+  return value;
+};
+
+const getPostIdentifier = (post: Post): string | undefined =>
+  normalizePostIdentifier(post.slug) ?? normalizePostIdentifier(post.id);
+
 // for extension we use in memory router
 const useRouter: () => UsePostModalRouter = isExtension
   ? useRouterMemory
@@ -83,10 +94,14 @@ export const usePostModalNavigation = ({
 
     const foundIndex = items.findIndex((item) => {
       if (item.type === 'post') {
-        return item.post.slug === pmid || item.post.id === pmid;
+        const postIdentifier = getPostIdentifier(item.post);
+
+        return postIdentifier === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        const postIdentifier = getPostIdentifier(item.ad.data.post);
+
+        return postIdentifier === pmid || item.ad.data.post.id === pmid;
       }
 
       return false;
@@ -148,7 +163,10 @@ export const usePostModalNavigation = ({
       const post = getPost(index);
 
       if (post) {
-        const postId = post.slug || post.id;
+        const postId = getPostIdentifier(post);
+        if (!postId) {
+          return;
+        }
 
         const newPathname = getPathnameWithQuery(
           basePathname,
@@ -221,10 +239,14 @@ export const usePostModalNavigation = ({
 
     const indexFromQuery = items.findIndex((item) => {
       if (item.type === 'post') {
-        return item.post.slug === pmid || item.post.id === pmid;
+        const postIdentifier = getPostIdentifier(item.post);
+
+        return postIdentifier === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
+        const postIdentifier = getPostIdentifier(item.ad.data.post);
+
+        return postIdentifier === pmid || item.ad.data.post.id === pmid;
       }
 
       return false;

@@ -8,6 +8,11 @@ import { checkIsExtension } from '../../lib/func';
 import { isDevelopment } from '../../lib/constants';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
+export const FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY =
+  'force_upvote_notification_cta';
+
+const isTruthySessionFlag = (value: string | null): boolean =>
+  value === '1' || value === 'true' || value === 'yes';
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
@@ -23,6 +28,7 @@ interface UseEnableNotification {
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
 }: UseEnableNotificationProps): UseEnableNotification => {
+  const isCommentUpvoteSource = source === NotificationPromptSource.CommentUpvote;
   const isExtension = checkIsExtension();
   const { logEvent } = useLogContext();
   const hasLoggedImpression = useRef(false);
@@ -30,11 +36,31 @@ export const useEnableNotification = ({
     usePushNotificationContext();
   const { hasPermissionCache, acceptedJustNow, onEnablePush } =
     usePushNotificationMutation();
+  const forceUpvoteNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceUpvoteNotificationCta=1') ??
+    false;
+  const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
+    globalThis?.sessionStorage?.getItem(
+      FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
+    ) ?? null,
+  );
+  const shouldForceUpvoteNotificationCtaForSession =
+    source === NotificationPromptSource.CommentUpvote &&
+    (forceUpvoteNotificationCtaFromSession || forceUpvoteNotificationCtaFromUrl);
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
   );
-  const effectiveIsDismissed = isDevelopment ? false : isDismissed;
+  const shouldIgnoreDismissStateForSource =
+    source === NotificationPromptSource.PostTagFollow ||
+    source === NotificationPromptSource.NewComment ||
+    source === NotificationPromptSource.CommentUpvote;
+  const effectiveIsDismissed =
+    isDevelopment ||
+    shouldIgnoreDismissStateForSource ||
+    shouldForceUpvoteNotificationCtaForSession
+      ? false
+      : isDismissed;
   const onDismiss = useCallback(() => {
     if (isDevelopment) {
       return;
@@ -52,20 +78,35 @@ export const useEnableNotification = ({
     [source, onEnablePush],
   );
 
-  const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
+  const shouldForceCtaInDevelopment =
+    isDevelopment &&
+    (source === NotificationPromptSource.NotificationsPage ||
+      source === NotificationPromptSource.SquadPage ||
+      source === NotificationPromptSource.SourceSubscribe);
+  const subscribed = shouldForceCtaInDevelopment
+    ? false
+    : isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
+  const shouldRequireNotSubscribed =
+    source !== NotificationPromptSource.PostTagFollow &&
+    source !== NotificationPromptSource.NewComment &&
+    !shouldForceUpvoteNotificationCtaForSession;
 
   const conditions = [
     isLoaded,
-    !subscribed,
+    shouldRequireNotSubscribed ? !subscribed : true,
     isInitialized,
     isPushSupported || isExtension,
   ];
 
-  const shouldShowCta =
-    (conditions.every(Boolean) ||
-      (enabledJustNow && source !== NotificationPromptSource.SquadPostModal)) &&
-    !effectiveIsDismissed;
+  const shouldShowCta = shouldForceCtaInDevelopment
+    ? true
+    : isCommentUpvoteSource
+      ? !effectiveIsDismissed
+      : (conditions.every(Boolean) ||
+          (enabledJustNow &&
+            source !== NotificationPromptSource.SquadPostModal)) &&
+        !effectiveIsDismissed;
 
   useEffect(() => {
     if (!shouldShowCta || hasLoggedImpression.current) {

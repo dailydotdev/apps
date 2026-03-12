@@ -14,6 +14,7 @@ import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentM
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
 import type { Squad } from '../../graphql/sources';
+import { SourceType } from '../../graphql/sources';
 import type { Comment } from '../../graphql/comments';
 import { DiscussIcon, ThreadIcon } from '../icons';
 import usePersistentContext from '../../hooks/usePersistentContext';
@@ -21,6 +22,8 @@ import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { useNotificationPreference } from '../../hooks/notifications';
+import { NotificationType } from '../notifications/utils';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -38,6 +41,7 @@ export interface MainCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
+  upvoteNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   className?: ClassName;
   lazy?: boolean;
@@ -59,6 +63,7 @@ export default function MainComment({
   appendTooltipTo,
   permissionNotificationCommentId,
   joinNotificationCommentId,
+  upvoteNotificationCommentId,
   onCommented,
   lazy = false,
   logImpression,
@@ -72,6 +77,8 @@ export default function MainComment({
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
+  const showUpvoteNotificationPermissionBanner =
+    upvoteNotificationCommentId === comment.id;
 
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
@@ -84,6 +91,22 @@ export default function MainComment({
     ) &&
     !props.post.source?.currentMember &&
     !isJoinSquadBannerDismissed;
+  const replyNotificationType =
+    props.post.source?.type === SourceType.Squad
+      ? NotificationType.SquadReply
+      : NotificationType.CommentReply;
+  const { subscribeNotification } = useNotificationPreference({ params: [] });
+
+  const onEnableUpvoteNotification = async () => {
+    if (!upvoteNotificationCommentId) {
+      return;
+    }
+
+    await subscribeNotification({
+      type: replyNotificationType,
+      referenceId: upvoteNotificationCommentId,
+    });
+  };
 
   const {
     commentId,
@@ -102,6 +125,10 @@ export default function MainComment({
 
   const [areRepliesExpanded, setAreRepliesExpanded] = useState(true);
   const showThreadRepliesToggle = isModalThread && replyCount > 0;
+  const showUpvoteCtaInReplyFlow =
+    showUpvoteNotificationPermissionBanner && isModalThread && replyCount > 0;
+  const shouldRenderStandaloneUpvoteCta =
+    showUpvoteNotificationPermissionBanner && !showUpvoteCtaInReplyFlow;
 
   const onClick = () => {
     if (!logClick && !props.linkToComment) {
@@ -218,6 +245,45 @@ export default function MainComment({
           />
         </div>
       )}
+      {showJoinSquadBanner && (
+        <SquadCommentJoinBanner
+          className={!comment.children?.edges?.length && 'mt-3'}
+          squad={props.post?.source as Squad}
+          logOrigin={props.origin}
+          post={props.post}
+        />
+      )}
+      {shouldRenderStandaloneUpvoteCta && (
+        <EnableNotification
+          className={!comment.children?.edges?.length && 'mt-3'}
+          source={NotificationPromptSource.CommentUpvote}
+          contentName={
+            user?.id !== comment?.author.id ? comment?.author?.name : undefined
+          }
+          onEnableAction={onEnableUpvoteNotification}
+        />
+      )}
+      {!showJoinSquadBanner && showNotificationPermissionBanner && (
+        <EnableNotification
+          className={!comment.children?.edges?.length && 'mt-3'}
+          source={NotificationPromptSource.NewComment}
+          contentName={
+            user?.id !== comment?.author.id ? comment?.author?.name : undefined
+          }
+        />
+      )}
+      {showUpvoteCtaInReplyFlow && (
+        <div className="relative mb-1">
+          <div className="pointer-events-none absolute -bottom-4 -top-4 left-5 w-px bg-accent-pepper-subtle" />
+          <EnableNotification
+            source={NotificationPromptSource.CommentUpvote}
+            contentName={
+              user?.id !== comment?.author.id ? comment?.author?.name : undefined
+            }
+            onEnableAction={onEnableUpvoteNotification}
+          />
+        </div>
+      )}
       {inView && replyCount > 0 && !areRepliesExpanded && (
         <CollapsedRepliesPreview
           replies={comment.children.edges}
@@ -250,33 +316,17 @@ export default function MainComment({
               key={node.id}
               comment={node}
               parentComment={comment}
+              upvoteNotificationCommentId={upvoteNotificationCommentId}
               appendTooltipTo={appendTooltipTo}
               className={className?.commentBox}
               onCommented={onCommented}
               isModalThread={isModalThread}
-              isFirst={index === 0}
+              isFirst={index === 0 && !(showUpvoteCtaInReplyFlow && areRepliesExpanded)}
               isLast={index === comment.children.edges.length - 1}
               extendTopConnector={isModalThread && commentId === comment.id}
             />
           ))}
         </div>
-      )}
-      {showJoinSquadBanner && (
-        <SquadCommentJoinBanner
-          className={!comment.children?.edges?.length && 'mt-3'}
-          squad={props.post?.source as Squad}
-          logOrigin={props.origin}
-          post={props.post}
-        />
-      )}
-      {!showJoinSquadBanner && showNotificationPermissionBanner && (
-        <EnableNotification
-          className={!comment.children?.edges?.length && 'mt-3'}
-          source={NotificationPromptSource.NewComment}
-          contentName={
-            user?.id !== comment?.author.id ? comment?.author?.name : undefined
-          }
-        />
       )}
     </section>
   );

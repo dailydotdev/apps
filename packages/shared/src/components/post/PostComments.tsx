@@ -38,9 +38,11 @@ interface PostCommentsProps {
   isComposerOpen?: boolean;
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
+  upvoteNotificationCommentId?: string;
   modalParentSelector?: () => HTMLElement;
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
+  onCommentUpvoted?: (comment: Comment) => void;
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
 }
@@ -52,9 +54,11 @@ export function PostComments({
   isComposerOpen = false,
   onShare,
   onClickUpvote,
+  onCommentUpvoted,
   modalParentSelector,
   permissionNotificationCommentId,
   joinNotificationCommentId,
+  upvoteNotificationCommentId,
   className = {},
   onCommented,
 }: PostCommentsProps): ReactElement {
@@ -138,7 +142,9 @@ export function PostComments({
           appendTooltipTo={modalParentSelector ?? (() => container?.current)}
           permissionNotificationCommentId={permissionNotificationCommentId}
           joinNotificationCommentId={joinNotificationCommentId}
+          upvoteNotificationCommentId={upvoteNotificationCommentId}
           onCommented={onCommented}
+          onUpvote={onCommentUpvoted}
           lazy={!commentHash && index >= lazyCommentThreshold}
         />
       ))}

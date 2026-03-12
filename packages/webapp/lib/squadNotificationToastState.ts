@@ -1,3 +1,5 @@
+import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
+
 interface SquadNotificationToastState {
   date: string;
   shownSquadIds: string[];
@@ -87,6 +89,10 @@ export const createSquadNotificationToastStateStore = (
 
   return {
     registerToastView: ({ squadId, isSquadMember }) => {
+      if (isDevelopment) {
+        return true;
+      }
+
       const state = readState(storageKey);
       const isFreshJoinEvent =
         isSquadMember && !state.joinedMemberSquadIds.includes(squadId);
@@ -115,6 +121,10 @@ export const createSquadNotificationToastStateStore = (
       return true;
     },
     dismissUntilTomorrow: ({ squadId }) => {
+      if (isDevelopment) {
+        return;
+      }
+
       const state = readState(storageKey);
 
       if (!state.shownSquadIds.includes(squadId)) {

@@ -66,6 +66,7 @@ export interface CommentActionProps {
   onDelete: (comment: Comment, parentId: string | null) => void;
   onEdit: (comment: Comment, parentComment?: Comment) => void;
   onShowUpvotes: (commentId: string, upvotes: number) => void;
+  onUpvote?: (comment: Comment) => void;
 }
 
 export interface Props extends CommentActionProps {
@@ -90,6 +91,7 @@ export default function CommentActionButtons({
   onDelete,
   onEdit,
   onShowUpvotes,
+  onUpvote,
 }: Props): ReactElement {
   const isMobileSmall = useViewSize(ViewSize.MobileXL);
   const { isLoggedIn, user, showLogin } = useAuthContext();
@@ -330,14 +332,26 @@ export default function CommentActionButtons({
           id={`comment-${comment.id}-upvote-btn`}
           size={ButtonSize.Small}
           pressed={voteState.userState?.vote === UserVote.Up}
-          onClick={() => {
-            toggleUpvote({
-              payload: {
-                ...voteState,
-                post,
-              },
-              origin,
-            });
+          onClick={async () => {
+            const isRemovingUpvote = voteState.userState?.vote === UserVote.Up;
+            const shouldShowUpvoteNotification =
+              !isRemovingUpvote && !!user && !!onUpvote;
+
+            if (shouldShowUpvoteNotification) {
+              onUpvote(comment);
+            }
+
+            try {
+              await toggleUpvote({
+                payload: {
+                  ...voteState,
+                  post,
+                },
+                origin,
+              });
+            } catch {
+              // Ignore upvote callback side effects when mutation fails.
+            }
           }}
           icon={
             <UpvoteIcon secondary={voteState.userState?.vote === UserVote.Up} />

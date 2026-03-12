@@ -131,14 +131,15 @@ export const useStreakRecover = ({
     queryFn: async () => {
       const res = await gqlClient.request(USER_STREAK_RECOVER_QUERY);
 
-      const userCantRecoverInNotificationCenter =
-        !res?.streakRecover?.canRecover && !!streakRestore;
-      if (userCantRecoverInNotificationCenter) {
-        await hideRemoteAlert();
-        displayToast('Oops, you are no longer eligible to restore your streak');
-        onRequestClose?.();
-        onAfterClose?.();
-      }
+      // TODO(debug): temporarily disabled for preview — restore before merging
+      // const userCantRecoverInNotificationCenter =
+      //   !res?.streakRecover?.canRecover && !!streakRestore;
+      // if (userCantRecoverInNotificationCenter) {
+      //   await hideRemoteAlert();
+      //   displayToast('Oops, you are no longer eligible to restore your streak');
+      //   onRequestClose?.();
+      //   onAfterClose?.();
+      // }
 
       return res;
     },

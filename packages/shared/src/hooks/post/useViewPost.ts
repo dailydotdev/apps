@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { sendViewPost } from '../../graphql/posts';
@@ -38,20 +39,27 @@ export const useViewPost = (): UseMutateAsyncFunction<
     },
   });
 
-  return async (id: string) => {
-    try {
-      return await onSendViewPost(id);
-    } catch (err) {
-      const error = err as ApiErrorResult & {
-        response?: { errors?: Array<{ extensions?: { code?: string } }> };
-      };
-      const errorCode = error?.response?.errors?.[0]?.extensions?.code;
+  return useCallback(
+    async (id: string) => {
+      try {
+        return await onSendViewPost(id);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          return null;
+        }
 
-      if (errorCode === 'UNAUTHENTICATED') {
-        return null;
+        const error = err as ApiErrorResult & {
+          response?: { errors?: Array<{ extensions?: { code?: string } }> };
+        };
+        const errorCode = error?.response?.errors?.[0]?.extensions?.code;
+
+        if (errorCode === 'UNAUTHENTICATED' || errorCode === 'RATE_LIMITED') {
+          return null;
+        }
+
+        throw err;
       }
-
-      throw err;
-    }
-  };
+    },
+    [onSendViewPost, user?.id],
+  );
 };
