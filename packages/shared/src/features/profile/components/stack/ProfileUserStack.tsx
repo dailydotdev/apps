@@ -1,5 +1,21 @@
 import type { ReactElement } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import type {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import type { PublicProfile } from '../../../../lib/user';
 import { MAX_STACK_ITEMS } from '../../../../graphql/user/userStack';
 import { useUserStack } from '../../hooks/useUserStack';
@@ -24,23 +40,18 @@ import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
+import {
+  buildSectionsState,
+  getReorderPayload,
+  moveStackItem,
+  SECTION_ORDER,
+  sortSections,
+} from './dnd';
+import { UserStackItem } from './UserStackItem';
 
 interface ProfileUserStackProps {
   user: PublicProfile;
 }
-
-// Predefined section order - includes both stack sections and tool categories
-const SECTION_ORDER = [
-  'Primary',
-  'Hobby',
-  'Learning',
-  'Past',
-  'Development',
-  'Design',
-  'Productivity',
-  'Communication',
-  'AI',
-];
 
 export function ProfileUserStack({
   user,
@@ -53,6 +64,7 @@ export function ProfileUserStack({
     add,
     update,
     remove,
+    reorder,
   } = useUserStack(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
@@ -60,6 +72,34 @@ export function ProfileUserStack({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<UserStack | null>(null);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [sections, setSections] = useState<Record<string, UserStack[]>>(() =>
+    buildSectionsState(stackItems),
+  );
+  const sectionsRef = useRef(sections);
+
+  useEffect(() => {
+    const nextSections = buildSectionsState(stackItems);
+    sectionsRef.current = nextSections;
+    setSections(nextSections);
+  }, [stackItems]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150,
+        tolerance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const handleAdd = useCallback(
     async (input: AddUserStackInput) => {
@@ -140,23 +180,76 @@ export function ProfileUserStack({
     setIsModalOpen(true);
   }, [canAddMore, displayToast, logEvent]);
 
-  // Sort sections: predefined first, then custom alphabetically
-  const sortedSections = Object.keys(groupedBySection).sort((a, b) => {
-    const aIndex = SECTION_ORDER.indexOf(a);
-    const bIndex = SECTION_ORDER.indexOf(b);
-    if (aIndex !== -1 && bIndex !== -1) {
-      return aIndex - bIndex;
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveItemId(String(event.active.id));
+  }, []);
+
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      return;
     }
-    if (aIndex !== -1) {
-      return -1;
-    }
-    if (bIndex !== -1) {
-      return 1;
-    }
-    return a.localeCompare(b);
-  });
+
+    setSections((currentSections) => {
+      const nextSections = moveStackItem({
+        activeId: String(active.id),
+        overId: String(over.id),
+        sections: currentSections,
+      });
+      sectionsRef.current = nextSections;
+
+      return nextSections;
+    });
+  }, []);
+
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      setActiveItemId(null);
+
+      if (!event.over) {
+        const nextSections = buildSectionsState(stackItems);
+        sectionsRef.current = nextSections;
+        setSections(nextSections);
+        return;
+      }
+
+      const nextItems = getReorderPayload(sectionsRef.current);
+      const previousSections = buildSectionsState(stackItems);
+      const previousItems = getReorderPayload(previousSections);
+      const hasChanges =
+        JSON.stringify(nextItems) !== JSON.stringify(previousItems);
+
+      if (!hasChanges) {
+        return;
+      }
+
+      try {
+        await reorder(nextItems);
+      } catch (error) {
+        sectionsRef.current = previousSections;
+        setSections(previousSections);
+        displayToast('Failed to reorder stack items');
+      }
+    },
+    [displayToast, reorder, stackItems],
+  );
+
+  const handleDragCancel = useCallback(() => {
+    setActiveItemId(null);
+    const nextSections = buildSectionsState(stackItems);
+    sectionsRef.current = nextSections;
+    setSections(nextSections);
+  }, [stackItems]);
+
+  const activeItem =
+    activeItemId && stackItems.find((item) => item.id === activeItemId);
 
   const hasItems = stackItems.length > 0;
+  const visibleSections = isOwner
+    ? sortSections([
+        ...new Set([...SECTION_ORDER, ...Object.keys(groupedBySection)]),
+      ])
+    : sortSections(Object.keys(groupedBySection));
 
   if (!hasItems && !isOwner) {
     return null;
@@ -185,18 +278,34 @@ export function ProfileUserStack({
       </div>
 
       {hasItems ? (
-        <div className="flex flex-col gap-4">
-          {sortedSections.map((section) => (
-            <UserStackSection
-              key={section}
-              section={section}
-              items={groupedBySection[section]}
-              isOwner={isOwner}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <div className="flex flex-col gap-4">
+            {visibleSections.map((section) => (
+              <UserStackSection
+                key={section}
+                section={section}
+                items={sections[section] ?? []}
+                isOwner={isOwner}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+          <DragOverlay>
+            {activeItem ? (
+              <div className="opacity-90 w-fit max-w-full">
+                <UserStackItem item={activeItem} isOwner={false} />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       ) : (
         isOwner && (
           <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-6">

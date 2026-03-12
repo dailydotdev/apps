@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
+import { useDroppable } from '@dnd-kit/core';
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+} from '@dnd-kit/sortable';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import {
   Typography,
@@ -8,6 +14,7 @@ import {
 } from '../../../../components/typography/Typography';
 import { Pill, PillSize } from '../../../../components/Pill';
 import { UserStackItem } from './UserStackItem';
+import { getSectionContainerId } from './dnd';
 
 interface UserStackSectionProps {
   section: string;
@@ -24,6 +31,15 @@ export function UserStackSection({
   onEdit,
   onDelete,
 }: UserStackSectionProps): ReactElement {
+  const { isOver, setNodeRef } = useDroppable({
+    id: getSectionContainerId(section),
+    data: {
+      type: 'section',
+      section,
+    },
+    disabled: !isOwner,
+  });
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
@@ -40,17 +56,42 @@ export function UserStackSection({
           className="border border-border-subtlest-tertiary text-text-quaternary"
         />
       </div>
-      <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
-          <UserStackItem
-            key={item.id}
-            item={item}
-            isOwner={isOwner}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))}
-      </div>
+      <SortableContext
+        items={items.map((item) => item.id)}
+        strategy={horizontalListSortingStrategy}
+      >
+        <div
+          ref={setNodeRef}
+          className={classNames(
+            'flex min-h-16 flex-wrap gap-2 rounded-16 transition-colors',
+            isOwner && 'p-2',
+            isOwner &&
+              items.length === 0 &&
+              'border border-dashed border-border-subtlest-tertiary',
+            isOwner && isOver && 'bg-surface-secondary',
+          )}
+        >
+          {items.map((item) => (
+            <UserStackItem
+              key={item.id}
+              item={item}
+              isOwner={isOwner}
+              isDraggable={isOwner}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+          {isOwner && items.length === 0 && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="self-center px-2 py-3"
+            >
+              Drop items here
+            </Typography>
+          )}
+        </div>
+      </SortableContext>
     </div>
   );
 }
