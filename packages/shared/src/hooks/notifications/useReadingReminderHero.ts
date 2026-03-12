@@ -26,9 +26,13 @@ interface UseReadingReminderHero {
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
+const READING_REMINDER_DISMISSED = 'dismissed';
+
+const isDismissedValue = (lastSeen: string | null): boolean =>
+  lastSeen === READING_REMINDER_DISMISSED;
 
 const getHasSeenToday = (lastSeen: string | null): boolean => {
-  if (!lastSeen) {
+  if (!lastSeen || isDismissedValue(lastSeen)) {
     return false;
   }
 
@@ -65,11 +69,6 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const [lastSeen, setLastSeen, isFetched] = usePersistentContext<
     string | null
   >(PersistentContextKeys.ReadingReminderLastSeen, null);
-  const [isDismissed, setIsDismissed, isDismissedFetched] =
-    usePersistentContext<boolean>(
-      PersistentContextKeys.ReadingReminderDismissed,
-      false,
-    );
 
   const readingReminderDigest = getPersonalizedDigest(
     UserPersonalizedDigestType.ReadingReminder,
@@ -77,6 +76,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isSubscribedToReadingReminder = !!readingReminderDigest;
 
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
+  const isDismissed = isDismissedValue(lastSeen);
 
   const isMobile = useViewSize(ViewSize.MobileL);
   const shouldEvaluate =
@@ -97,8 +97,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const shouldShowBase =
-    shouldEvaluate && !hasSeenToday && isFetched && isDismissedFetched;
+  const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
@@ -132,8 +131,8 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const onDismiss = useCallback(async () => {
-    await setIsDismissed(true);
-  }, [setIsDismissed]);
+    await setLastSeen(READING_REMINDER_DISMISSED);
+  }, [setLastSeen]);
 
   const shouldShow =
     !isSubscribedToReadingReminder &&

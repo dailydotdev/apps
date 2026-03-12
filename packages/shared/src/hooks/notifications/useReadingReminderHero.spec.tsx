@@ -41,7 +41,6 @@ jest.mock('../usePersistentContext', () => ({
   __esModule: true,
   PersistentContextKeys: {
     ReadingReminderLastSeen: 'reading_reminder_last_seen',
-    ReadingReminderDismissed: 'reading_reminder_dismissed',
   },
   default: (...args) => mockPersistentContext(...args),
 }));
@@ -62,7 +61,6 @@ describe('useReadingReminderHero', () => {
   const subscribePersonalizedDigest = jest.fn(() => Promise.resolve(null));
   const onEnablePush = jest.fn(() => Promise.resolve(true));
   const setLastSeen = jest.fn(() => Promise.resolve());
-  const setIsDismissed = jest.fn(() => Promise.resolve());
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -97,33 +95,13 @@ describe('useReadingReminderHero', () => {
       isLoading: false,
       subscribePersonalizedDigest,
     });
-    mockPersistentContext.mockImplementation((key) => {
-      if (key === 'reading_reminder_last_seen') {
-        return [null, setLastSeen, true];
-      }
-
-      if (key === 'reading_reminder_dismissed') {
-        return [false, setIsDismissed, true];
-      }
-
-      return [null, jest.fn(), true];
-    });
+    mockPersistentContext.mockReturnValue([null, setLastSeen, true]);
     mockUseViewSize.mockReturnValue(true);
     mockUsePushNotificationMutation.mockReturnValue({ onEnablePush });
   });
 
   it('should show for invalid persisted timestamps', () => {
-    mockPersistentContext.mockImplementation((key) => {
-      if (key === 'reading_reminder_last_seen') {
-        return ['invalid-date', setLastSeen, true];
-      }
-
-      if (key === 'reading_reminder_dismissed') {
-        return [false, setIsDismissed, true];
-      }
-
-      return [null, jest.fn(), true];
-    });
+    mockPersistentContext.mockReturnValue(['invalid-date', setLastSeen, true]);
 
     const { result } = renderHook(() => useReadingReminderHero());
 
@@ -159,17 +137,7 @@ describe('useReadingReminderHero', () => {
   });
 
   it('should not show when dismissed', () => {
-    mockPersistentContext.mockImplementation((key) => {
-      if (key === 'reading_reminder_last_seen') {
-        return [null, setLastSeen, true];
-      }
-
-      if (key === 'reading_reminder_dismissed') {
-        return [true, setIsDismissed, true];
-      }
-
-      return [null, jest.fn(), true];
-    });
+    mockPersistentContext.mockReturnValue(['dismissed', setLastSeen, true]);
 
     const { result } = renderHook(() => useReadingReminderHero());
 
@@ -218,6 +186,6 @@ describe('useReadingReminderHero', () => {
       await result.current.onDismiss();
     });
 
-    expect(setIsDismissed).toHaveBeenCalledWith(true);
+    expect(setLastSeen).toHaveBeenCalledWith('dismissed');
   });
 });
