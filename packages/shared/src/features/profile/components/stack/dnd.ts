@@ -1,3 +1,4 @@
+import { arrayMove } from '@dnd-kit/sortable';
 import type {
   UserStack,
   ReorderUserStackInput,
@@ -92,6 +93,24 @@ export const moveStackItem = ({
   );
   if (activeIndex === -1) {
     throw new Error(`Missing source index for stack item ${activeId}`);
+  }
+
+  if (activeSection === overSection && !isSectionContainerId(overId)) {
+    const overIndex = sections[overSection].findIndex(
+      (item) => item.id === overId,
+    );
+    if (overIndex === -1) {
+      throw new Error(`Missing destination index for stack item ${overId}`);
+    }
+
+    return {
+      ...sections,
+      [activeSection]: arrayMove(
+        sections[activeSection],
+        activeIndex,
+        overIndex,
+      ),
+    };
   }
 
   const nextSections = Object.fromEntries(

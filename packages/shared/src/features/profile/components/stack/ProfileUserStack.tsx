@@ -56,16 +56,8 @@ interface ProfileUserStackProps {
 export function ProfileUserStack({
   user,
 }: ProfileUserStackProps): ReactElement | null {
-  const {
-    stackItems,
-    groupedBySection,
-    isOwner,
-    canAddMore,
-    add,
-    update,
-    remove,
-    reorder,
-  } = useUserStack(user);
+  const { stackItems, isOwner, canAddMore, add, update, remove, reorder } =
+    useUserStack(user);
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -78,11 +70,18 @@ export function ProfileUserStack({
   );
   const sectionsRef = useRef(sections);
 
+  const resetSections = useCallback(
+    (items: UserStack[]) => {
+      const nextSections = buildSectionsState(items);
+      sectionsRef.current = nextSections;
+      setSections(nextSections);
+    },
+    [setSections],
+  );
+
   useEffect(() => {
-    const nextSections = buildSectionsState(stackItems);
-    sectionsRef.current = nextSections;
-    setSections(nextSections);
-  }, [stackItems]);
+    resetSections(stackItems);
+  }, [resetSections, stackItems]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -207,9 +206,7 @@ export function ProfileUserStack({
       setActiveItemId(null);
 
       if (!event.over) {
-        const nextSections = buildSectionsState(stackItems);
-        sectionsRef.current = nextSections;
-        setSections(nextSections);
+        resetSections(stackItems);
         return;
       }
 
@@ -226,30 +223,25 @@ export function ProfileUserStack({
       try {
         await reorder(nextItems);
       } catch (error) {
-        sectionsRef.current = previousSections;
-        setSections(previousSections);
+        resetSections(stackItems);
         displayToast('Failed to reorder stack items');
       }
     },
-    [displayToast, reorder, stackItems],
+    [displayToast, reorder, resetSections, stackItems],
   );
 
   const handleDragCancel = useCallback(() => {
     setActiveItemId(null);
-    const nextSections = buildSectionsState(stackItems);
-    sectionsRef.current = nextSections;
-    setSections(nextSections);
-  }, [stackItems]);
+    resetSections(stackItems);
+  }, [resetSections, stackItems]);
 
   const activeItem =
     activeItemId && stackItems.find((item) => item.id === activeItemId);
 
   const hasItems = stackItems.length > 0;
   const visibleSections = isOwner
-    ? sortSections([
-        ...new Set([...SECTION_ORDER, ...Object.keys(groupedBySection)]),
-      ])
-    : sortSections(Object.keys(groupedBySection));
+    ? sortSections([...new Set([...SECTION_ORDER, ...Object.keys(sections)])])
+    : sortSections(Object.keys(sections));
 
   if (!hasItems && !isOwner) {
     return null;

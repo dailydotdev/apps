@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
@@ -28,35 +28,24 @@ import { UserStackTopSquadsTooltip } from './UserStackTopSquadsTooltip';
 interface UserStackItemProps {
   item: UserStack;
   isOwner: boolean;
-  isDraggable?: boolean;
   onEdit?: (item: UserStack) => void;
   onDelete?: (item: UserStack) => void;
 }
 
-export function UserStackItem({
+interface UserStackItemBodyProps extends UserStackItemProps {
+  className?: string;
+  dragHandle?: ReactNode;
+}
+
+function UserStackItemBody({
   item,
   isOwner,
-  isDraggable = false,
   onEdit,
   onDelete,
-}: UserStackItemProps): ReactElement {
+  className,
+  dragHandle,
+}: UserStackItemBodyProps): ReactElement {
   const [shouldFetchTooltipData, setShouldFetchTooltipData] = useState(false);
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: item.id,
-    disabled: !isDraggable,
-    data: {
-      type: 'stack-item',
-      section: item.section,
-    },
-  });
   const { tool, startedAt } = item;
   const title = item.title ?? tool.title;
   const { topSquads, isPending, isError } = useToolTopSquads({
@@ -67,10 +56,6 @@ export function UserStackItem({
   const usingSince = startedAt
     ? `Since ${formatMonthYearOnly(new Date(startedAt))}`
     : null;
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
 
   return (
     <Tooltip
@@ -90,29 +75,16 @@ export function UserStackItem({
       className="!max-w-none !rounded-14 !border !border-border-subtlest-secondary !bg-background-popover !p-0 !text-text-primary !shadow-2 [&>.TooltipArrow]:!fill-background-popover"
     >
       <div
-        ref={setNodeRef}
-        style={style}
         className={classNames(
-          'group relative flex touch-none items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 pb-2.5 pt-2',
+          'group relative flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 pb-2.5 pt-2',
           'hover:border-border-subtlest-secondary',
-          isDragging && 'z-10 opacity-70',
+          className,
         )}
         onMouseEnter={() => setShouldFetchTooltipData(true)}
         onFocusCapture={() => setShouldFetchTooltipData(true)}
       >
         <div className="flex items-center gap-2">
-          {isOwner && isDraggable && (
-            <Button
-              ref={setActivatorNodeRef}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<MenuIcon className="rotate-90 text-text-tertiary" />}
-              aria-label={`Drag ${title}`}
-              className="cursor-grab opacity-0 active:cursor-grabbing group-hover:opacity-100"
-              {...attributes}
-              {...listeners}
-            />
-          )}
+          {dragHandle}
           {tool.faviconUrl ? (
             <img
               src={tool.faviconUrl}
@@ -173,5 +145,73 @@ export function UserStackItem({
         )}
       </div>
     </Tooltip>
+  );
+}
+
+export function UserStackItem(props: UserStackItemProps): ReactElement {
+  return <UserStackItemBody {...props} />;
+}
+
+interface SortableUserStackItemProps extends UserStackItemProps {
+  isDraggable?: boolean;
+}
+
+export function SortableUserStackItem({
+  item,
+  isDraggable = true,
+  ...props
+}: SortableUserStackItemProps): ReactElement {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    disabled: !isDraggable,
+    data: {
+      type: 'stack-item',
+      section: item.section,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  const title = item.title ?? item.tool.title;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={classNames(
+        'relative touch-none',
+        isDragging && 'z-10 opacity-70',
+      )}
+    >
+      <UserStackItemBody
+        item={item}
+        {...props}
+        className="touch-none"
+        dragHandle={
+          props.isOwner && isDraggable ? (
+            <Button
+              ref={setActivatorNodeRef}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<MenuIcon className="rotate-90 text-text-tertiary" />}
+              aria-label={`Drag ${title}`}
+              className="cursor-grab opacity-0 active:cursor-grabbing group-hover:opacity-100"
+              {...attributes}
+              {...listeners}
+            />
+          ) : null
+        }
+      />
+    </div>
   );
 }

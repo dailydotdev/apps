@@ -13,7 +13,7 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import { Pill, PillSize } from '../../../../components/Pill';
-import { UserStackItem } from './UserStackItem';
+import { SortableUserStackItem, UserStackItem } from './UserStackItem';
 import { getSectionContainerId } from './dnd';
 
 interface UserStackSectionProps {
@@ -71,16 +71,25 @@ export function UserStackSection({
             isOwner && isOver && 'bg-surface-secondary',
           )}
         >
-          {items.map((item) => (
-            <UserStackItem
-              key={item.id}
-              item={item}
-              isOwner={isOwner}
-              isDraggable={isOwner}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
+          {items.map((item) =>
+            isOwner ? (
+              <SortableUserStackItem
+                key={item.id}
+                item={item}
+                isOwner={isOwner}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ) : (
+              <UserStackItem
+                key={item.id}
+                item={item}
+                isOwner={isOwner}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ),
+          )}
           {isOwner && items.length === 0 && (
             <Typography
               type={TypographyType.Footnote}

@@ -63,6 +63,22 @@ describe('stack dnd helpers', () => {
     expect(next.Hobby.map((item) => item.id)).toEqual(['a']);
   });
 
+  it('should reorder an item downward within the same section', () => {
+    const sections = buildSectionsState([
+      createItem({ id: 'a', section: 'Primary', position: 0 }),
+      createItem({ id: 'b', section: 'Primary', position: 1 }),
+      createItem({ id: 'c', section: 'Primary', position: 2 }),
+    ]);
+
+    const next = moveStackItem({
+      activeId: 'a',
+      overId: 'b',
+      sections,
+    });
+
+    expect(next.Primary.map((item) => item.id)).toEqual(['b', 'a', 'c']);
+  });
+
   it('should include section updates in reorder payload', () => {
     const payload = getReorderPayload({
       Primary: [],
