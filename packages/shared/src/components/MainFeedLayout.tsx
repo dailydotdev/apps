@@ -12,6 +12,9 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
+import ReadingReminderCatLaptop from './banners/ReadingReminderCatLaptop';
+import { Modal } from './modals/common/Modal';
+import { ModalSize } from './modals/common/types';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -65,7 +68,7 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import { isDevelopment, isProductionAPI } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 
 const FeedExploreHeader = dynamic(
@@ -214,6 +217,7 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const isMobile = useViewSize(ViewSize.MobileL);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
   const { shouldShow: shouldShowReadingReminder, onEnable } =
@@ -521,8 +525,26 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
-  const shouldShowReadingReminderOnHomepage =
-    router.pathname === webappUrl && shouldShowReadingReminder;
+  const shouldShowReadingReminderOnMobile =
+    shouldShowReadingReminder && isMobile;
+  const shouldShowReadingReminderOnDesktop =
+    shouldShowReadingReminder && !isMobile;
+  const [isReadingReminderModalOpen, setIsReadingReminderModalOpen] =
+    useState(false);
+
+  useEffect(() => {
+    if (!shouldShowReadingReminderOnDesktop) {
+      setIsReadingReminderModalOpen(false);
+      return;
+    }
+
+    setIsReadingReminderModalOpen(true);
+  }, [shouldShowReadingReminderOnDesktop]);
+
+  const onEnableDesktopReminder = useCallback(async () => {
+    await onEnable();
+    setIsReadingReminderModalOpen(false);
+  }, [onEnable]);
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -568,8 +590,24 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
-      {shouldShowReadingReminderOnHomepage && (
+      {shouldShowReadingReminderOnMobile && (
         <ReadingReminderHero className="px-4 pb-2" onEnable={onEnable} />
+      )}
+      {shouldShowReadingReminderOnDesktop && isReadingReminderModalOpen && (
+        <Modal
+          size={ModalSize.Small}
+          onRequestClose={() => setIsReadingReminderModalOpen(false)}
+          shouldCloseOnOverlayClick
+        >
+          <Modal.Body className="p-4">
+            <ReadingReminderCatLaptop />
+            <ReadingReminderHero
+              className="text-center"
+              onEnable={onEnableDesktopReminder}
+              onClose={() => setIsReadingReminderModalOpen(false)}
+            />
+          </Modal.Body>
+        </Modal>
       )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

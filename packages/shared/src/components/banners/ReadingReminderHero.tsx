@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { BellIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -13,11 +14,13 @@ import { LogEvent, TargetType } from '../../lib/log';
 interface ReadingReminderHeroProps {
   className?: string;
   onEnable: () => Promise<void>;
+  onClose?: () => void;
 }
 
 const ReadingReminderHero = ({
   className,
   onEnable,
+  onClose,
 }: ReadingReminderHeroProps): ReactElement => {
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
@@ -25,27 +28,48 @@ const ReadingReminderHero = ({
   }));
 
   return (
-    <div className={classNames('flex w-full', className)}>
-      <div className="flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
-        <Typography type={TypographyType.Title3}>
-          Never miss a learning day
-        </Typography>
-        <Typography
-          className="mt-1"
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
+    <div className={classNames('flex w-full flex-col', className)}>
+      <Typography type={TypographyType.Title3} bold>
+        Never miss a learning day
+      </Typography>
+      <Typography
+        className="mt-1"
+        type={TypographyType.Body}
+        color={TypographyColor.Tertiary}
+      >
+        Turn on your daily reading reminder and keep your routine.
+      </Typography>
+      <style>
+        {`
+          @keyframes enable-notification-bell-ring {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-16deg); }
+            40% { transform: rotate(14deg); }
+            60% { transform: rotate(-10deg); }
+            80% { transform: rotate(8deg); }
+          }
+        `}
+      </style>
+      <div className="mt-3">
+        <Button
+          className="w-full"
+          variant={ButtonVariant.Primary}
+          icon={
+            <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+          }
+          onClick={onEnable}
         >
-          Turn on your daily reading reminder and keep your routine.
-        </Typography>
-        <div className="mt-3">
+          Enable reminder
+        </Button>
+        {onClose && (
           <Button
-            className="w-full"
-            variant={ButtonVariant.Primary}
-            onClick={onEnable}
+            className="mt-2 w-full"
+            variant={ButtonVariant.Tertiary}
+            onClick={onClose}
           >
-            Enable reminder
+            Close
           </Button>
-        </div>
+        )}
       </div>
     </div>
   );
