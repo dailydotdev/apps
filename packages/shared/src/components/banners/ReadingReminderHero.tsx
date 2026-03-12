@@ -12,12 +12,20 @@ import { LogEvent, TargetType } from '../../lib/log';
 
 interface ReadingReminderHeroProps {
   className?: string;
+  title: string;
+  subtitle: string;
+  shouldShowDismiss?: boolean;
   onEnable: () => Promise<void>;
+  onDismiss: () => Promise<void>;
 }
 
 const ReadingReminderHero = ({
   className,
+  title,
+  subtitle,
+  shouldShowDismiss = false,
   onEnable,
+  onDismiss,
 }: ReadingReminderHeroProps): ReactElement => {
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
@@ -27,15 +35,13 @@ const ReadingReminderHero = ({
   return (
     <div className={classNames('flex w-full', className)}>
       <div className="flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
-        <Typography type={TypographyType.Title3}>
-          Never miss a learning day
-        </Typography>
+        <Typography type={TypographyType.Title3}>{title}</Typography>
         <Typography
           className="mt-1"
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Turn on your daily reading reminder and keep your routine.
+          {subtitle}
         </Typography>
         <div className="mt-3">
           <Button
@@ -46,6 +52,17 @@ const ReadingReminderHero = ({
             Enable reminder
           </Button>
         </div>
+        {shouldShowDismiss && (
+          <div className="mt-2">
+            <Button
+              className="w-full"
+              variant={ButtonVariant.Tertiary}
+              onClick={onDismiss}
+            >
+              Dismiss
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
