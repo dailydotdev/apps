@@ -227,6 +227,7 @@ Is it used by both webapp AND extension?
 - **Typography**: Use `typo-*` classes (typo-title1, typo-body, typo-callout)
 - **Responsive**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
 - **ESLint enforces** `no-custom-color` rule - use design system tokens
+- For dismissible banners/cards, default to the shared `CloseButton` icon pattern used elsewhere; do not introduce a separate full-width `Dismiss` button unless the request explicitly calls for text dismiss UI.
 
 ## Testing Approach
 
