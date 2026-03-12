@@ -131,6 +131,7 @@ export function CreateSharedPostModal({
             currentPercentage={user?.profileCompletion?.percentage}
             requiredPercentage={requiredPercentage}
             description="Update your profile to share posts in squads."
+            profileCompletion={user?.profileCompletion}
             buttonSize={ButtonSize.Small}
           />
         </div>

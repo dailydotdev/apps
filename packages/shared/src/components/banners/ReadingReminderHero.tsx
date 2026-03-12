@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
+import CloseButton from '../CloseButton';
 import {
   Typography,
   TypographyColor,
@@ -12,12 +13,20 @@ import { LogEvent, TargetType } from '../../lib/log';
 
 interface ReadingReminderHeroProps {
   className?: string;
+  title: string;
+  subtitle: string;
+  shouldShowDismiss?: boolean;
   onEnable: () => Promise<void>;
+  onDismiss: () => Promise<void>;
 }
 
 const ReadingReminderHero = ({
   className,
+  title,
+  subtitle,
+  shouldShowDismiss = false,
   onEnable,
+  onDismiss,
 }: ReadingReminderHeroProps): ReactElement => {
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
@@ -26,16 +35,20 @@ const ReadingReminderHero = ({
 
   return (
     <div className={classNames('flex w-full', className)}>
-      <div className="flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
-        <Typography type={TypographyType.Title3}>
-          Never miss a learning day
-        </Typography>
+      <div className="relative flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
+        {shouldShowDismiss && (
+          <CloseButton
+            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+            onClick={onDismiss}
+          />
+        )}
+        <Typography type={TypographyType.Title3}>{title}</Typography>
         <Typography
-          className="mt-1"
+          className="mt-1 pr-8 laptop:pr-0"
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Turn on your daily reading reminder and keep your routine.
+          {subtitle}
         </Typography>
         <div className="mt-3">
           <Button

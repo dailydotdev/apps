@@ -53,7 +53,7 @@ export default function ScrollToTopButton(): ReactElement {
       aria-label="scroll to top"
       {...props}
       className={classNames(
-        'absolute right-4 z-2 laptop:right-8',
+        'absolute right-4 z-2',
         showFeedbackButton
           ? '-top-26 tablet:-top-28 laptop:-top-32'
           : '-top-12 tablet:-top-18 laptop:-top-24',

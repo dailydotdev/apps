@@ -1,30 +1,34 @@
 import { useCallback } from 'react';
 import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
-import { fetchAd } from '../../lib/ads';
+import {
+  AdPlacement,
+  fetchAdByPlacement,
+  resolveAdFetchOptions,
+} from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
 
 interface UseFetchAds {
-  fetchAd: (params: { active?: boolean }) => Promise<Ad | null>;
+  fetchAd: (params: {
+    active?: boolean;
+    placement?: AdPlacement;
+  }) => Promise<Ad | null>;
 }
 
 export const useFetchAd = (): UseFetchAds => {
-  const isEnabled = useFeature(featurePostBoostAds);
+  const boostsEnabled = useFeature(featurePostBoostAds);
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
-    ({ active }) => {
-      const params = new URLSearchParams({
-        active: active ? 'true' : 'false',
-      });
-
-      if (isEnabled) {
-        params.append('allow_post_boost', 'true');
-        params.append('allow_squad_boost', 'true');
-      }
-
-      return fetchAd(params);
+    ({ active, placement = AdPlacement.Feed }) => {
+      return fetchAdByPlacement(
+        resolveAdFetchOptions({
+          placement,
+          active,
+          boostsEnabled,
+        }),
+      );
     },
-    [isEnabled],
+    [boostsEnabled],
   );
 
   return {
