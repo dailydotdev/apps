@@ -148,11 +148,6 @@ export const achievementTrackingWidgetFeature = new Feature(
   false,
 );
 
-export const featureProfileCompletionPostGate = new Feature(
-  'profile_completion_post_gate',
-  0,
-);
-
 export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
   false,

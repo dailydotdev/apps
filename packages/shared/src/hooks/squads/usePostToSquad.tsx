@@ -39,9 +39,6 @@ import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
 
-const PROFILE_COMPLETION_POST_GATE_MESSAGE =
-  'Complete your profile to create posts';
-
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
 
@@ -111,31 +108,15 @@ export const usePostToSquad = ({
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
 
-  const callOnError = useCallback(
+  const handleMutationError = useCallback(
     (err: unknown): void => {
-      if (isApiErrorResult(err)) {
-        onError?.(err);
+      if (!isApiErrorResult(err)) {
+        return;
       }
+
+      onError?.(err);
     },
     [onError],
-  );
-
-  const handlePostGateError = useCallback(
-    (err: unknown): boolean => {
-      if (!isApiErrorResult(err)) {
-        return false;
-      }
-
-      const forbiddenError = getApiError(err, ApiError.Forbidden);
-      if (forbiddenError?.message !== PROFILE_COMPLETION_POST_GATE_MESSAGE) {
-        return false;
-      }
-
-      displayToast(PROFILE_COMPLETION_POST_GATE_MESSAGE);
-      callOnError(err);
-      return true;
-    },
-    [callOnError, displayToast],
   );
 
   const handlePostSuccess = useCallback(
@@ -156,12 +137,7 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPost,
     onMutate,
-    onError: (err) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-      callOnError(err);
-    },
+    onError: handleMutationError,
     onSuccess: handlePostSuccess,
   });
   const {
@@ -172,12 +148,7 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: handlePostSuccess,
-    onError: (err) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-      callOnError(err);
-    },
+    onError: handleMutationError,
   });
 
   const {
@@ -203,12 +174,7 @@ export const usePostToSquad = ({
       }
       handlePostSuccess(data);
     },
-    onError: (err) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-      callOnError(err);
-    },
+    onError: handleMutationError,
   });
 
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
@@ -223,7 +189,7 @@ export const usePostToSquad = ({
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        callOnError(err);
+        handleMutationError(err);
       },
     });
 
@@ -291,12 +257,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully();
       handlePostSuccess(data);
     },
-    onError: (err) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-      callOnError(err);
-    },
+    onError: handleMutationError,
   });
 
   const {
@@ -309,12 +270,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully(true);
       handlePostSuccess(data);
     },
-    onError: (err) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-      callOnError(err);
-    },
+    onError: handleMutationError,
   });
 
   const {
@@ -332,14 +288,10 @@ export const usePostToSquad = ({
       onExternalLinkSuccess?.(preview, url);
     },
     onError: (err: ApiErrorResult) => {
-      if (handlePostGateError(err)) {
-        return;
-      }
-
       const rateLimited = getApiError(err, ApiError.RateLimited);
       const message = rateLimited?.message ?? DEFAULT_ERROR;
       displayToast(message);
-      callOnError(err);
+      handleMutationError(err);
     },
   });
 
