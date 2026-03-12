@@ -13,6 +13,7 @@ import { featureAutorotateAds } from '../../lib/featureManagement';
 import type { Ad } from '../../graphql/posts';
 import { generateAdLogEventKey } from './useLogImpression';
 import { disabledRefetch } from '../../lib/func';
+import { AdPlacement } from '../../lib/ads';
 import { RequestKey } from '../../lib/query';
 import { useFetchAd } from '../../features/monetization/useFetchAd';
 
@@ -54,7 +55,10 @@ export const useAutoRotatingAds = (
   );
 
   const fetchNewAd = useCallback(async (): Promise<Ad> => {
-    const newAd = await fetchAd({ active: true });
+    const newAd = await fetchAd({
+      placement: AdPlacement.Feed,
+      active: true,
+    });
     if (!newAd) {
       return null;
     }

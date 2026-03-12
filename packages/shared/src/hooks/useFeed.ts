@@ -24,6 +24,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
+import { AdPlacement } from '../lib/ads';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
@@ -210,7 +211,10 @@ export default function useFeed<T>(
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
-      const ad = await fetchAd({ active: !!pageParam });
+      const ad = await fetchAd({
+        placement: AdPlacement.Feed,
+        active: !!pageParam,
+      });
 
       if (!ad) {
         return {
