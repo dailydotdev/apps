@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
-import { checkBetterAuthEmail } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import type { AuthFormProps, Provider } from './common';
 import { getFormEmail } from './common';
@@ -71,10 +70,7 @@ const AuthDefault = ({
   const [registerEmail, setRegisterEmail] = useState<string>(null);
   const socialLoginListRef = useRef<HTMLDivElement>(null);
   const { mutateAsync: checkEmail } = useMutation({
-    mutationFn: (emailParam: string) =>
-      isBetterAuth
-        ? checkBetterAuthEmail(emailParam)
-        : checkKratosEmail(emailParam),
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
   });
 
   const focusFirstSocialLink = () => {
@@ -114,6 +110,10 @@ const AuthDefault = ({
 
     if (!email) {
       return null;
+    }
+
+    if (isBetterAuth) {
+      return onSignup(email);
     }
 
     const res = await checkEmail(email);

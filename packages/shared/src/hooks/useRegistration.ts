@@ -297,8 +297,11 @@ const useRegistration = ({
   const onSocialRegistration = async (provider: string) => {
     if (isBetterAuth) {
       const callbackURL = `${webappUrl}callback`;
-      const url = getBetterAuthSocialUrl(provider.toLowerCase(), callbackURL);
-      if (onRedirect) {
+      const url = await getBetterAuthSocialUrl(
+        provider.toLowerCase(),
+        callbackURL,
+      );
+      if (onRedirect && url) {
         onRedirect(url);
       }
       return;

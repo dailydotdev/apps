@@ -18,21 +18,25 @@ import { AuthTriggers } from '../../lib/auth';
 import * as betterAuthHook from '../../hooks/useIsBetterAuth';
 import type { AuthOptionsProps } from './common';
 
-jest.mock('@marsidev/react-turnstile', () => ({
-  Turnstile: React.forwardRef(function MockTurnstile(
-    props: { onWidgetLoad?: () => void },
-    ref: React.Ref<{ getResponse: () => string }>,
-  ) {
-    React.useImperativeHandle(ref, () => ({
-      getResponse: () => 'mock-turnstile-token',
-      reset: () => undefined,
-    }));
-    React.useEffect(() => {
-      props.onWidgetLoad?.();
-    }, [props]);
-    return <div data-testid="turnstile" />;
-  }),
-}));
+jest.mock('@marsidev/react-turnstile', () => {
+  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  const react = require('react');
+  return {
+    Turnstile: react.forwardRef(function MockTurnstile(
+      props: { onWidgetLoad?: () => void },
+      ref: unknown,
+    ) {
+      react.useImperativeHandle(ref, () => ({
+        getResponse: () => 'mock-turnstile-token',
+        reset: () => undefined,
+      }));
+      react.useEffect(() => {
+        props.onWidgetLoad?.();
+      }, [props]);
+      return react.createElement('div', { 'data-testid': 'turnstile' });
+    }),
+  };
+});
 
 const user = null;
 
@@ -154,12 +158,8 @@ const renderBetterAuthRegistration = async (
 ) => {
   jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(true);
   renderComponent();
-  await waitForNock();
-
-  nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .get('/a/auth/check-email')
-    .query({ email })
-    .reply(200, { result: false });
+  // Clean pending Kratos nocks that won't be consumed when betterAuth is enabled
+  nock.cleanAll();
 
   fireEvent.input(screen.getByPlaceholderText('Email'), {
     target: { value: email },
@@ -255,19 +255,22 @@ it('should show a generic sign up error when Better Auth sign up is privacy-prot
       name: 'Lee Solevilla',
       email,
       password: '#123xAbc',
+      username: 'leesolevilla',
+      experienceLevel: 'MORE_THAN_1_YEAR',
     })
     .reply(200, { status: true });
-  nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .post('/a/auth/sign-in/email', {
-      email,
-      password: '#123xAbc',
-    })
-    .reply(401, {
-      code: 'INVALID_CREDENTIALS',
-      message: 'Invalid credentials',
-    });
 
-  fireEvent.submit(await screen.findByTestId('registration_form'));
+  const form = await screen.findByTestId('registration_form');
+
+  // Inject experience level value into the form since the custom dropdown
+  // hidden input may not render properly in JSDOM
+  const expInput = document.createElement('input');
+  expInput.type = 'hidden';
+  expInput.name = 'traits.experienceLevel';
+  expInput.value = 'MORE_THAN_1_YEAR';
+  form.appendChild(expInput);
+
+  fireEvent.submit(form);
   await waitForNock();
 
   await waitFor(() => {

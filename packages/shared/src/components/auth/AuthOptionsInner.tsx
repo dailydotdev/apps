@@ -367,10 +367,13 @@ function AuthOptionsInner({
       const callbackURL = login
         ? `${webappUrl}callback?login=true`
         : `${webappUrl}callback`;
-      const socialUrl = getBetterAuthSocialUrl(
+      const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
       );
+      if (!socialUrl) {
+        return;
+      }
       if (!isNativeAuthSupported(provider)) {
         windowPopup.current = window.open(socialUrl);
       } else {

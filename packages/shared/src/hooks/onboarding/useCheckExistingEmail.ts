@@ -2,7 +2,6 @@ import type React from 'react';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { checkKratosEmail } from '../../lib/kratos';
-import { checkBetterAuthEmail } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../useIsBetterAuth';
 import { getFormEmail } from '../../components/auth/common';
 
@@ -33,10 +32,7 @@ export const useCheckExistingEmail = ({
   const [emailToCheck, setEmailToCheck] = useState<string>('');
   const [emailAlreadyExists, setEmailAlreadyExists] = useState(false);
   const { mutateAsync: checkEmail, isPending: isCheckPending } = useMutation({
-    mutationFn: (emailParam: string) =>
-      isBetterAuth
-        ? checkBetterAuthEmail(emailParam)
-        : checkKratosEmail(emailParam),
+    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
     onSuccess: (res, emailValue) => {
       const emailExists = !!res?.result;
 
@@ -57,6 +53,15 @@ export const useCheckExistingEmail = ({
     const emailValue = getFormEmail(e);
     if (isCheckPending || !emailValue) {
       return null;
+    }
+
+    if (isBetterAuth) {
+      onBeforeEmailCheck?.(emailValue);
+      onValidEmail(emailValue);
+      onAfterEmailCheck?.(false);
+      setEmailAlreadyExists(false);
+      setEmailToCheck('');
+      return { emailExists: false, emailValue };
     }
 
     onBeforeEmailCheck?.(emailValue);

@@ -172,10 +172,13 @@ const useLogin = ({
   });
 
   const onSubmitSocialLogin = useCallback(
-    (provider: string) => {
+    async (provider: string) => {
       if (isBetterAuth) {
         const callbackURL = `${webappUrl}callback?login=true`;
-        window.open(getBetterAuthSocialUrl(provider, callbackURL));
+        const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
+        if (socialUrl) {
+          window.open(socialUrl);
+        }
         return;
       }
 

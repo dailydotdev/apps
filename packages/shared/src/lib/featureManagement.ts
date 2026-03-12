@@ -167,7 +167,7 @@ export const agentsLeaderboardEntrypointFeature =
 
 export const featureAuthStrategy = new Feature<'kratos' | 'betterauth'>(
   'auth_strategy',
-  'kratos',
+  'betterauth',
 );
 
 export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);

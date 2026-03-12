@@ -18,7 +18,7 @@ import {
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
@@ -247,11 +247,10 @@ it('should show generic change email confirmation for Better Auth', async () => 
     .get('/a/auth/list-accounts')
     .reply(200, [{ providerId: 'credential' }]);
   const changeEmailScope = nock(process.env.NEXT_PUBLIC_API_URL as string)
-    .post('/a/auth/change-email', { newEmail: email })
-    .reply(200, { status: true });
+    .post('/a/auth/email-otp/request-email-change', { newEmail: email })
+    .reply(200, { success: true });
 
   renderComponent();
-  await waitForNock();
 
   fireEvent.click(await screen.findByText('Change email'));
   fireEvent.input(screen.getByPlaceholderText('Email'), {
@@ -268,11 +267,12 @@ it('should show generic change email confirmation for Better Auth', async () => 
   });
 
   await act(() => sendCodeButton.dispatchEvent(submitEvent));
-  await waitForNock();
 
-  expect(changeEmailScope.isDone()).toBeTruthy();
-  expect(displayToast).toHaveBeenCalledWith(
-    'If that email is available, we sent a verification code.',
+  await waitFor(() => expect(changeEmailScope.isDone()).toBeTruthy());
+  await waitFor(() =>
+    expect(displayToast).toHaveBeenCalledWith(
+      'If that email is available, we sent a verification code.',
+    ),
   );
 });
 

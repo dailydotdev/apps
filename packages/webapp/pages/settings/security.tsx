@@ -68,6 +68,7 @@ const AccountSecurityPage = (): ReactElement => {
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
   const [verificationId, setVerificationId] = useState<string>();
   const [hint, setHint] = useState<string>();
+  const [pendingEmail, setPendingEmail] = useState<string>();
   const { onUpdateSignBack, signBack, provider } = useSignBack();
   const isBetterAuth = useIsBetterAuth();
   const providersKey = generateQueryKey(RequestKey.Providers, user);
@@ -182,11 +183,15 @@ const AccountSecurityPage = (): ReactElement => {
   });
   const { session } = kratos ?? {};
   const onVerifyCodeBetterAuth = async (code: string) => {
-    const result = await betterAuthVerifyChangeEmail(code);
+    if (!pendingEmail) {
+      throw new Error('Request a verification code first');
+    }
+    const result = await betterAuthVerifyChangeEmail(pendingEmail, code);
     if (result.error) {
       throw new Error(result.error);
     }
     displayToast('Your email address has been updated.');
+    setPendingEmail(undefined);
     setActiveDisplay(Display.Default);
     await refetchBoot?.();
   };
@@ -203,7 +208,8 @@ const AccountSecurityPage = (): ReactElement => {
         setHint(result.error);
         return;
       }
-      if (result.status) {
+      if (result.success) {
+        setPendingEmail(email);
         displayToast(BETTER_AUTH_CHANGE_EMAIL_MESSAGE);
       }
       return;
@@ -275,8 +281,10 @@ const AccountSecurityPage = (): ReactElement => {
   ) => {
     if ('link' in postData && postData.link) {
       const callbackURL = `${window.location.origin}/callback?login=true`;
-      const url = getBetterAuthLinkSocialUrl(postData.link, callbackURL);
-      window.open(url);
+      const url = await getBetterAuthLinkSocialUrl(postData.link, callbackURL);
+      if (url) {
+        window.open(url);
+      }
     } else if ('unlink' in postData && postData.unlink) {
       const result = await unlinkBetterAuthAccount(postData.unlink);
       if (result.status) {

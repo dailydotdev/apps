@@ -15,6 +15,24 @@ export type BetterAuthResponse = {
 type BetterAuthResult<T = Record<string, unknown>> = T &
   Pick<BetterAuthResponse, 'error' | 'code' | 'message' | 'status'>;
 
+const betterAuthStateSuffix = '_ba';
+
+const markBetterAuthSocialUrl = (url?: string): string | undefined => {
+  if (!url) {
+    return undefined;
+  }
+
+  const authUrl = new URL(url);
+  const state = authUrl.searchParams.get('state');
+
+  if (!state || state.endsWith(betterAuthStateSuffix)) {
+    return authUrl.toString();
+  }
+
+  authUrl.searchParams.set('state', `${state}${betterAuthStateSuffix}`);
+  return authUrl.toString();
+};
+
 const betterAuthPost = async <T = Record<string, unknown>>(
   path: string,
   body?: Record<string, unknown>,
@@ -70,57 +88,54 @@ export const betterAuthSignUp = async ({
 }): Promise<BetterAuthResponse> => {
   const headers: Record<string, string> = {};
   if (turnstileToken) {
-    headers['x-turnstile-token'] = turnstileToken;
-  }
-  if (username) {
-    headers['x-profile-username'] = username;
-  }
-  if (experienceLevel) {
-    headers['x-profile-experience-level'] = experienceLevel;
+    headers['x-captcha-response'] = turnstileToken;
   }
   return betterAuthPost(
     'sign-up/email',
-    { name, email, password },
+    { name, email, password, username, experienceLevel },
     'Sign up failed',
     Object.keys(headers).length > 0 ? headers : undefined,
   );
 };
 
-const buildSocialRedirectUrl = (
+const getBetterAuthSocialRedirectUrl = async (
   path: string,
   provider: string,
   callbackURL: string,
-): string => {
+): Promise<string | undefined> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
     : `${window.location.origin}${
         callbackURL.startsWith('/') ? '' : '/'
       }${callbackURL}`;
-  return `${apiUrl}/a/auth/${path}?provider=${encodeURIComponent(
-    provider,
-  )}&callbackURL=${encodeURIComponent(absoluteCallbackURL)}`;
+
+  const response = await betterAuthPost<{
+    url?: string;
+    redirect?: boolean;
+  }>(
+    path,
+    {
+      provider,
+      callbackURL: absoluteCallbackURL,
+      disableRedirect: true,
+    },
+    'Failed to get social auth URL',
+  );
+
+  return markBetterAuthSocialUrl(response.url);
 };
 
 export const getBetterAuthSocialUrl = (
   provider: string,
   callbackURL: string,
-): string => buildSocialRedirectUrl('sign-in/social', provider, callbackURL);
+): Promise<string | undefined> =>
+  getBetterAuthSocialRedirectUrl('sign-in/social', provider, callbackURL);
 
 export const getBetterAuthLinkSocialUrl = (
   provider: string,
   callbackURL: string,
-): string => buildSocialRedirectUrl('link-social', provider, callbackURL);
-
-export const checkBetterAuthEmail = async (
-  email: string,
-): Promise<{ result: boolean }> => {
-  const url = new URL(`${apiUrl}/a/auth/check-email`, window.location.origin);
-  url.searchParams.set('email', email);
-  const res = await fetch(url.toString(), {
-    credentials: 'include',
-  });
-  return res.json();
-};
+): Promise<string | undefined> =>
+  getBetterAuthSocialRedirectUrl('link-social', provider, callbackURL);
 
 export const getBetterAuthProviders = async (): Promise<{
   ok: boolean;
@@ -167,16 +182,21 @@ export const betterAuthSetPassword = async (
 
 export const betterAuthChangeEmail = async (
   newEmail: string,
-): Promise<{ status?: boolean; error?: string }> => {
-  return betterAuthPost('change-email', { newEmail }, 'Failed to change email');
+): Promise<{ success?: boolean; error?: string }> => {
+  return betterAuthPost(
+    'email-otp/request-email-change',
+    { newEmail },
+    'Failed to change email',
+  );
 };
 
 export const betterAuthVerifyChangeEmail = async (
+  newEmail: string,
   code: string,
-): Promise<{ status?: boolean; error?: string }> => {
+): Promise<{ success?: boolean; error?: string }> => {
   return betterAuthPost(
-    'verify-change-email',
-    { code },
+    'email-otp/change-email',
+    { newEmail, otp: code },
     'Failed to verify email change',
   );
 };
