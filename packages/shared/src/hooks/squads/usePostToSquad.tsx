@@ -41,7 +41,6 @@ import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
 import {
-  ButtonColor,
   ButtonIconPosition,
   ButtonVariant,
 } from '../../components/buttons/Button';
@@ -303,7 +302,6 @@ export const usePostToSquad = ({
           buttonProps: {
             size: ButtonSize.Small,
             variant: ButtonVariant.Primary,
-            color: ButtonColor.Cabbage,
             icon: <BellIcon />,
             iconPosition: ButtonIconPosition.Left,
           },

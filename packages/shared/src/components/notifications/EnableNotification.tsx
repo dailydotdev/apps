@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
@@ -64,6 +63,7 @@ const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
 const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.SquadPostModal]: 'Subscribe',
   [NotificationPromptSource.SourceSubscribe]: 'Enable',
+  [NotificationPromptSource.NewComment]: 'Notify me',
   [NotificationPromptSource.CommentUpvote]: 'Turn on',
 };
 
@@ -124,6 +124,8 @@ function EnableNotification({
       source === NotificationPromptSource.CommentUpvote ||
       source === NotificationPromptSource.PostTagFollow) &&
     !acceptedJustNow;
+  const shouldUseVerticalContentLayout =
+    source === NotificationPromptSource.NotificationsPage;
   const handleEnable = async () => {
     const actions = [onEnable()];
 
@@ -219,69 +221,93 @@ function EnableNotification({
           `}
         </style>
       )}
-      {source === NotificationPromptSource.NotificationsPage && (
-        <h2 className="flex flex-row font-bold typo-body">
-          {acceptedJustNow && <VIcon className="mr-2" />}
-          Stay in the dev loop
-        </h2>
-      )}
       <div
         className={classNames(
-          'flex justify-between gap-2',
+          'flex gap-4',
+          shouldUseVerticalContentLayout ? 'justify-start' : 'justify-between',
           source === NotificationPromptSource.NewComment ||
             source === NotificationPromptSource.CommentUpvote ||
             source === NotificationPromptSource.PostTagFollow
             ? 'mt-0 w-full'
             : 'mt-2',
+          shouldUseVerticalContentLayout && 'items-center',
           (source === NotificationPromptSource.NewComment ||
             source === NotificationPromptSource.CommentUpvote ||
             source === NotificationPromptSource.PostTagFollow) &&
             'items-center',
         )}
       >
-        <p
+        <div
           className={classNames(
-            'w-full text-text-tertiary tablet:w-3/5',
-            source === NotificationPromptSource.SourceSubscribe && 'flex-1',
-            (source === NotificationPromptSource.NewComment ||
-              source === NotificationPromptSource.PostTagFollow) &&
-              'text-primary break-words typo-markdown tablet:w-full',
-            source === NotificationPromptSource.CommentUpvote &&
-              'text-primary break-words typo-callout tablet:w-full',
-            shouldInlineActionWithMessage && 'flex-1',
+            'min-w-0 flex flex-1',
+            shouldInlineActionWithMessage ? 'items-center gap-2' : 'flex-col gap-3',
           )}
         >
-          {acceptedJustNow ? (
-            <>
-              Changing your{' '}
-              <a
-                className="underline hover:no-underline"
-                href={`${webappUrl}account/notifications`}
-              >
-                notification settings
-              </a>{' '}
-              can be done anytime through your account details
-            </>
-          ) : (
-            message
+          {source === NotificationPromptSource.NotificationsPage && (
+            <h2 className="flex flex-row font-bold typo-body">
+              {acceptedJustNow && <VIcon className="mr-2" />}
+              Stay in the dev loop
+            </h2>
           )}
-        </p>
-        {shouldInlineActionWithMessage && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            className="shrink-0"
-            icon={
-              shouldAnimateBellCta ? (
-                <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
-              ) : undefined
-            }
-            onClick={handleEnable}
+          <p
+            className={classNames(
+              'min-w-0 flex-1 text-text-tertiary',
+              (source === NotificationPromptSource.NewComment ||
+                source === NotificationPromptSource.PostTagFollow) &&
+                'text-primary break-words typo-markdown tablet:w-full',
+              source === NotificationPromptSource.CommentUpvote &&
+                'text-primary break-words typo-callout tablet:w-full',
+              shouldInlineActionWithMessage && 'flex-1',
+            )}
           >
-            {buttonText}
-          </Button>
-        )}
+            {acceptedJustNow ? (
+              <>
+                Changing your{' '}
+                <a
+                  className="underline hover:no-underline"
+                  href={`${webappUrl}account/notifications`}
+                >
+                  notification settings
+                </a>{' '}
+                can be done anytime through your account details
+              </>
+            ) : (
+              message
+            )}
+          </p>
+          {shouldInlineActionWithMessage && (
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              className="shrink-0"
+              icon={
+                shouldAnimateBellCta ? (
+                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                ) : undefined
+              }
+              onClick={handleEnable}
+            >
+              {buttonText}
+            </Button>
+          )}
+          {shouldUseVerticalContentLayout &&
+            !acceptedJustNow &&
+            !shouldInlineActionWithMessage && (
+              <Button
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                className="w-fit"
+                icon={
+                  shouldAnimateBellCta ? (
+                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                  ) : undefined
+                }
+                onClick={handleEnable}
+              >
+                {buttonText}
+              </Button>
+            )}
+        </div>
         {notificationVisual}
       </div>
       <div
@@ -298,11 +324,12 @@ function EnableNotification({
             'justify-end',
         )}
       >
-        {!acceptedJustNow && !shouldInlineActionWithMessage && (
+        {!acceptedJustNow &&
+          !shouldInlineActionWithMessage &&
+          !shouldUseVerticalContentLayout && (
           <Button
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
             className={classNames(
               source !== NotificationPromptSource.NewComment &&
                 source !== NotificationPromptSource.CommentUpvote &&

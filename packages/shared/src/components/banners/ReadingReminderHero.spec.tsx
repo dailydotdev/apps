@@ -35,4 +35,14 @@ describe('ReadingReminderHero', () => {
       screen.queryByRole('button', { name: 'Dismiss reading reminder' }),
     ).not.toBeInTheDocument();
   });
+
+  it('should render and handle close action when provided', () => {
+    const onClose = jest.fn();
+
+    render(<ReadingReminderHero onEnable={jest.fn()} onClose={onClose} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

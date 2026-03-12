@@ -6,7 +6,6 @@ import { useReadingReminderHero } from './useReadingReminderHero';
 
 const mockUseAuthContext = jest.fn();
 const mockUseLogContext = jest.fn();
-const mockUseConditionalFeature = jest.fn();
 const mockUsePersonalizedDigest = jest.fn();
 const mockPersistentContext = jest.fn();
 const mockUseViewSize = jest.fn();
@@ -18,10 +17,6 @@ jest.mock('../../contexts/AuthContext', () => ({
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => mockUseLogContext(),
-}));
-
-jest.mock('../useConditionalFeature', () => ({
-  useConditionalFeature: (...args) => mockUseConditionalFeature(...args),
 }));
 
 jest.mock('../usePersonalizedDigest', () => ({
@@ -66,10 +61,6 @@ describe('useReadingReminderHero', () => {
       user: { timezone: 'UTC' },
     });
     mockUseLogContext.mockReturnValue({ logEvent });
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
       isLoading: false,
@@ -88,7 +79,7 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShow).toBe(true);
   });
 
-  it("should not show on the user's registration day", () => {
+  it("should still show on mobile on the user's registration day", () => {
     mockUseAuthContext.mockReturnValue({
       isLoggedIn: true,
       user: { timezone: 'UTC', createdAt: new Date().toISOString() },
@@ -96,11 +87,11 @@ describe('useReadingReminderHero', () => {
 
     const { result } = renderHook(() => useReadingReminderHero());
 
-    expect(result.current.shouldShow).toBe(false);
+    expect(result.current.shouldShow).toBe(true);
     expect(setLastSeen).not.toHaveBeenCalled();
   });
 
-  it('should not show while digest subscription data is loading', () => {
+  it('should still show on mobile while digest subscription data is loading', () => {
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
       isLoading: true,
@@ -109,11 +100,8 @@ describe('useReadingReminderHero', () => {
 
     const { result } = renderHook(() => useReadingReminderHero());
 
-    expect(result.current.shouldShow).toBe(false);
+    expect(result.current.shouldShow).toBe(true);
     expect(setLastSeen).not.toHaveBeenCalled();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it('should persist seen time immediately when shown', () => {
@@ -121,6 +109,14 @@ describe('useReadingReminderHero', () => {
 
     expect(result.current.shouldShow).toBe(true);
     expect(setLastSeen).toHaveBeenCalledTimes(1);
+  });
+
+  it('should show on desktop for logged in users', () => {
+    mockUseViewSize.mockReturnValue(false);
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(true);
   });
 
   it('should enable reminder and log schedule event', async () => {

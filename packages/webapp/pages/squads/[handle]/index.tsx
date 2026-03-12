@@ -58,7 +58,6 @@ import {
 import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
 import {
   ButtonIconPosition,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -228,7 +227,6 @@ const SquadPage = ({
         buttonProps: {
           size: ButtonSize.Small,
           variant: ButtonVariant.Primary,
-          color: ButtonColor.Cabbage,
           icon: (
             <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
           ),

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import { useConditionalFeature } from '../useConditionalFeature';
 import { SendType, usePersonalizedDigest } from '../usePersonalizedDigest';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -11,7 +10,6 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import { featureReadingReminderMobile } from '../../lib/featureManagement';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
@@ -67,16 +65,15 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
 
   const isMobile = useViewSize(ViewSize.MobileL);
+  const shouldForceShow = isLoggedIn;
   const shouldEvaluate =
     isMobile &&
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
     !isRegisteredToday;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureReadingReminderMobile,
-    shouldEvaluate,
-  });
+  // Reading reminder hero is now always enabled on mobile.
+  const isFeatureEnabled = true;
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
@@ -115,7 +112,8 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    !isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession);
+    shouldForceShow ||
+    (!isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession));
 
   return { shouldShow, onEnable };
 };
