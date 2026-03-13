@@ -29,51 +29,14 @@ import { ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonText } from '../../../graphql/posts';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { sanitizeMessage } from '../../../features/onboarding/shared';
 import {
-  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
-  stripRepostedOnXPrefix,
+  normalizeThreadBody,
+  useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 const HeaderActions = getGroupedHoverContainer('span');
-const normalizeThreadBody = ({
-  title,
-  content,
-  contentHtml,
-}: {
-  title?: string;
-  content?: string;
-  contentHtml?: string;
-}): string | undefined => {
-  const rawBody =
-    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
-  if (!rawBody) {
-    return undefined;
-  }
-
-  const trimmedBody = rawBody.trim();
-  if (!trimmedBody.length) {
-    return undefined;
-  }
-
-  const trimmedTitle = title?.trim();
-  if (!trimmedTitle?.length) {
-    return trimmedBody;
-  }
-
-  if (!trimmedBody.startsWith(trimmedTitle)) {
-    return trimmedBody;
-  }
-
-  const bodyWithoutTitle = trimmedBody
-    .slice(trimmedTitle.length)
-    .replace(/^[\s\n\r:.-]+/, '')
-    .trim();
-
-  return bodyWithoutTitle || undefined;
-};
 
 export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   {
@@ -93,19 +56,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   const isFeedPreview = useFeedPreviewMode();
   const isUserSource = isSourceUserSource(post.source);
   const rawTitle = post.title || post.sharedPost?.title;
-  const normalizedContent = (
-    post.content ||
-    (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
-  ).trim();
-  const titleWithoutRepostPrefix = stripRepostedOnXPrefix(rawTitle);
-  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
-  const hasTitleCommentary =
-    post.subType !== 'repost' &&
-    !!titleWithoutRepostPrefix &&
-    !!sharedTitle &&
-    !sharedTitle.startsWith(titleWithoutRepostPrefix);
-  const hasDailyDevMarkdown =
-    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
+  const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
+    useSocialTwitterCardData(post);
   const quoteDetailsContainerClass = 'mx-1 mb-1 mt-2';
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-6'
@@ -123,7 +75,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       commentaryBody = normalizedContent || undefined;
     }
   }
-  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardOverlayLabel = rawTitle;
   const metadataLabel = getSocialTwitterMetadataLabel();
   const metadataContent = (

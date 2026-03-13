@@ -20,19 +20,16 @@ describe('EmbeddedTweetPreview', () => {
     render(
       <TestBootProvider client={new QueryClient()}>
         <EmbeddedTweetPreview
-          post={{
-            ...basePost,
-            title: 'Noojaan Farahmand (@noojaanf): Some tweet text',
-            language: 'fa',
-          }}
+          post={{ ...basePost, language: 'fa' }}
           textClampClass=""
         />
       </TestBootProvider>,
     );
 
-    expect(
-      screen.getByText('Noojaan Farahmand @noojaanf'),
-    ).toHaveAttribute('dir', 'ltr');
+    const identityEl = screen.getByText((_, el) =>
+      el?.tagName === 'P' && el?.getAttribute('dir') === 'ltr',
+    );
+    expect(identityEl).toBeInTheDocument();
   });
 
   it('can clip tweet text inside the remaining container height', () => {

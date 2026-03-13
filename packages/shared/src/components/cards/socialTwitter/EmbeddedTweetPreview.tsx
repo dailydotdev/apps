@@ -8,7 +8,6 @@ import { TwitterIcon } from '../../icons';
 import {
   getSocialTextDirectionProps,
   getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
 } from './socialTwitterHelpers';
 
 interface EmbeddedTweetPreviewProps {
@@ -31,20 +30,11 @@ export function EmbeddedTweetPreview({
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
   const tweetLanguage = post.sharedPost?.language || post.language;
   const tweetTextDirectionProps = getSocialTextDirectionProps(tweetLanguage);
-
-  const rawTitle = post.sharedPost?.title || post.title;
-  const xTitleMatch = parseSocialTwitterTitle(rawTitle);
-  const tweetBody = xTitleMatch?.[3]?.trim() || rawTitle;
+  const tweetBody = post.sharedPost?.title || post.title;
   const tweetBodyHtml = post.sharedPost?.titleHtml || post.titleHtml;
 
   const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
     getSocialTwitterMetadata(post);
-
-  const parsedIdentity = xTitleMatch
-    ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-    : undefined;
-
-  const resolvedIdentity = parsedIdentity ?? embeddedTweetIdentity;
 
   const tweetBodyClassName = classNames(
     'min-h-0 whitespace-pre-line break-words',
@@ -71,7 +61,7 @@ export function EmbeddedTweetPreview({
             nativeLazyLoading
           />
           <div className="min-w-0 flex-1">
-            {!!resolvedIdentity && (
+            {!!embeddedTweetIdentity && (
               <p
                 dir="ltr"
                 suppressHydrationWarning
@@ -80,7 +70,7 @@ export function EmbeddedTweetPreview({
                   post.read ? 'text-text-tertiary' : 'text-text-primary',
                 )}
               >
-                {resolvedIdentity}
+                {embeddedTweetIdentity}
               </p>
             )}
           </div>

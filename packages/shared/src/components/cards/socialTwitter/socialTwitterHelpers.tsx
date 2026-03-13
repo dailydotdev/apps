@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
 import { fallbackImages } from '../../../lib/config';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
 
 const rtlLanguageCodes = new Set([
   'ar',
@@ -17,18 +18,8 @@ const rtlLanguageCodes = new Set([
   'yi',
 ]);
 
-export const socialTwitterTitlePattern = /^(.*?)\s+\(@([^)]+)\):\s*(.+)$/s;
-export const repostedOnXPrefixPattern = /^.*?reposted on x\.\s*/i;
-
 const getLanguagePrimarySubtag = (language?: string): string | undefined =>
   language?.toLowerCase().split(/[-_]/)[0].trim();
-
-export const parseSocialTwitterTitle = (
-  title?: string,
-): RegExpMatchArray | null => title?.match(socialTwitterTitlePattern) ?? null;
-
-export const stripRepostedOnXPrefix = (title?: string): string =>
-  title?.replace(repostedOnXPrefixPattern, '').trim() ?? '';
 
 export const getSocialTextDirection = (language?: string): 'rtl' | 'auto' => {
   const primarySubtag = getLanguagePrimarySubtag(language);
@@ -148,3 +139,79 @@ export const getSocialTwitterMetadataLabel = (): ReactElement => (
     From x.com
   </span>
 );
+
+export const normalizeThreadBody = ({
+  title,
+  content,
+  contentHtml,
+}: {
+  title?: string;
+  content?: string;
+  contentHtml?: string;
+}): string | undefined => {
+  const rawBody =
+    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
+  if (!rawBody) {
+    return undefined;
+  }
+
+  const trimmedBody = rawBody.trim();
+  if (!trimmedBody.length) {
+    return undefined;
+  }
+
+  const trimmedTitle = title?.trim();
+  if (!trimmedTitle?.length) {
+    return trimmedBody;
+  }
+
+  if (!trimmedBody.startsWith(trimmedTitle)) {
+    return trimmedBody;
+  }
+
+  const bodyWithoutTitle = trimmedBody
+    .slice(trimmedTitle.length)
+    .replace(/^[\s\n\r:.-]+/, '')
+    .trim();
+
+  return bodyWithoutTitle || undefined;
+};
+
+interface SocialTwitterCardData {
+  normalizedContent: string;
+  hasTitleCommentary: boolean;
+  hasDailyDevMarkdown: boolean;
+  socialTextDirectionProps: { dir: 'rtl' | 'auto'; lang?: string };
+}
+
+export const useSocialTwitterCardData = (post: Post): SocialTwitterCardData => {
+  const normalizedContent = useMemo(
+    () =>
+      (
+        post.content ||
+        (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
+      ).trim(),
+    [post.content, post.contentHtml],
+  );
+
+  const rawTitle = (post.title || post.sharedPost?.title)?.trim() ?? '';
+  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
+
+  const hasTitleCommentary =
+    post.subType !== 'repost' &&
+    !!rawTitle &&
+    !!sharedTitle &&
+    !sharedTitle.startsWith(rawTitle);
+
+  const hasDailyDevMarkdown =
+    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
+
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+
+  return {
+    normalizedContent,
+    hasTitleCommentary,
+    hasDailyDevMarkdown,
+    socialTextDirectionProps,
+  };
+};

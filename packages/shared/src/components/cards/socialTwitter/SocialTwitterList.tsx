@@ -15,7 +15,6 @@ import { PostCardHeader } from '../common/list/PostCardHeader';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
 import {
   getReadPostButtonText,
@@ -27,9 +26,8 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import {
   getSocialTwitterMetadata,
-  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
-  stripRepostedOnXPrefix,
+  useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
@@ -54,29 +52,19 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
-  const content = useMemo(
-    () => (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : ''),
-    [post.contentHtml],
+  const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
+    useSocialTwitterCardData(post);
+  const { title: truncatedTitle } = useTruncatedSummary(
+    title,
+    normalizedContent,
   );
-  const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
   const isRepostLike = isSocialTwitterPost(post);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
-  const titleWithoutRepostPrefix = stripRepostedOnXPrefix(post.title);
-  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
-  const hasTitleCommentary =
-    post.subType !== 'repost' &&
-    !!titleWithoutRepostPrefix &&
-    !!sharedTitle &&
-    !sharedTitle.startsWith(titleWithoutRepostPrefix);
-  const normalizedContent = (post.content || content).trim();
-  const hasDailyDevMarkdown =
-    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
     : 'line-clamp-10';
   const { repostedByName } = getSocialTwitterMetadata(post);
-  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardLinkTitle =
     isRepostLike && repostedByName
       ? `${repostedByName} reposted on X. ${

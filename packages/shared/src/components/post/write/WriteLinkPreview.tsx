@@ -26,7 +26,6 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { DateFormat } from '../../utilities';
 import { Separator } from '../../cards/common/common';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
-import { parseSocialTwitterTitle } from '../../cards/socialTwitter/socialTwitterHelpers';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -72,7 +71,6 @@ export function WriteLinkPreview({
     );
   }
 
-  const xTitleMatch = parseSocialTwitterTitle(preview.title);
   const isXPreview = [
     preview.finalUrl,
     preview.url,
@@ -82,7 +80,7 @@ export function WriteLinkPreview({
   ].some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
   const isXShareLikePreview = isSocialTwitterPost(preview as Post);
   const shouldUseXPreview =
-    !!preview.title && (isXPreview || !!xTitleMatch || isXShareLikePreview);
+    !!preview.title && (isXPreview || isXShareLikePreview);
   const xPreviewPost = shouldUseXPreview
     ? ({
         ...(preview as unknown as Post),
