@@ -74,8 +74,10 @@ export default function FooterWrapper({
         </div>
       )}
       {showNav && (
-        <div className="flex flex-col gap-2">
-          {showPlusButton && <FooterPlusButton />}
+        <div className="relative">
+          {showPlusButton && (
+            <FooterPlusButton className="absolute bottom-full right-2 z-1 mb-2" />
+          )}
           <MobileFooterNavbar />
         </div>
       )}
