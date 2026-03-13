@@ -53,23 +53,13 @@ export function Section({
   };
 
   return (
-    <NavSection className={classNames('mt-1', className)}>
+    <NavSection className={classNames('mt-1 pb-2 relative h-auto', className)}>
       {title && (
-        <NavHeader className="relative hidden laptop:flex">
-          {/* Divider shown when sidebar is collapsed */}
+        <NavHeader className="relative h-auto laptop:flex">
           <div
             className={classNames(
-              'absolute inset-x-0 flex items-center justify-center px-2 transition-opacity duration-300',
-              sidebarExpanded ? 'opacity-0' : 'opacity-100',
-            )}
-          >
-            <hr className="w-full border-t border-border-subtlest-tertiary" />
-          </div>
-          {/* Header content shown when sidebar is expanded */}
-          <div
-            className={classNames(
-              'group/section flex min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300',
-              sidebarExpanded ? 'opacity-100' : 'pointer-events-none opacity-0',
+              'group/section flex  min-h-9 w-full items-center justify-between px-2 py-1.5 transition-opacity duration-300 opacity-100',
+              !sidebarExpanded && 'flex-col',
             )}
           >
             <button
@@ -79,11 +69,19 @@ export function Section({
               aria-expanded={!!isVisible.current}
               aria-controls={flag ? `section-${flag}` : undefined}
               className="flex items-center gap-1 rounded-6 px-1 py-0.5 transition-colors hover:bg-surface-hover hover:text-text-primary"
+              title={
+                !sidebarExpanded
+                  ? isVisible.current
+                    ? `Hide ${title}`
+                    : `Show ${title}`
+                  : undefined
+              }
             >
+              {/*Header text is hidden when sidebar is collapsed */}
               <span
                 className={classNames(
                   'text-text-quaternary typo-callout',
-                  !sidebarExpanded && 'opacity-0',
+                  !sidebarExpanded && 'hidden',
                 )}
               >
                 {title}
@@ -100,6 +98,7 @@ export function Section({
                 <a
                   aria-label={`Add to ${title}`}
                   className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+                  title={!sidebarExpanded ? `Add to ${title}` : undefined}
                 >
                   <PlusIcon className="h-4 w-4" />
                 </a>
@@ -111,6 +110,7 @@ export function Section({
                 onClick={onAdd}
                 aria-label={`Add to ${title}`}
                 className="flex h-6 w-6 items-center justify-center rounded-6 text-text-tertiary transition-all hover:bg-surface-hover hover:text-text-primary"
+                title={!sidebarExpanded ? `Add to ${title}` : undefined}
               >
                 <PlusIcon className="h-4 w-4" />
               </button>
@@ -121,7 +121,7 @@ export function Section({
       <div
         id={flag ? `section-${flag}` : undefined}
         className={classNames(
-          'flex flex-col overflow-hidden transition-all duration-300',
+          'flex flex-col h-auto overflow-hidden transition-all duration-300',
           isVisible.current || shouldAlwaysBeVisible
             ? 'max-h-[2000px] opacity-100'
             : 'max-h-0 opacity-0',
@@ -136,6 +136,15 @@ export function Section({
             shouldShowLabel={shouldShowLabel}
           />
         ))}
+      </div>
+      {/* Divider shown when sidebar is collapsed */}
+      <div
+        className={classNames(
+          'absolute inset-x-0 h-full flex items-end justify-center px-2 transition-opacity duration-300 pointer-events-none',
+          sidebarExpanded ? 'opacity-0' : 'opacity-100',
+        )}
+      >
+        <hr className="w-full border-t border-border-subtlest-tertiary" />
       </div>
     </NavSection>
   );
