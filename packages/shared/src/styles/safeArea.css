@@ -8,7 +8,7 @@
   }
 }
 
-.ios {
+:root.ios {
   --safe-area-top: env(safe-area-inset-top);
 }
 
