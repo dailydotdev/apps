@@ -30,7 +30,6 @@ interface SourceInfoProps {
   className?: string;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   onReadArticle?: () => void;
-  readButtonText?: string;
   showActions?: boolean;
 }
 
@@ -40,7 +39,6 @@ function PostSourceInfo({
   className,
   onClose,
   onReadArticle,
-  readButtonText,
   showActions = true,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
@@ -124,7 +122,6 @@ function PostSourceInfo({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
-              readButtonText={readButtonText}
               className="ml-auto hidden laptop:flex"
               contextMenuId="post-widgets-context"
               buttonSize={ButtonSize.Small}

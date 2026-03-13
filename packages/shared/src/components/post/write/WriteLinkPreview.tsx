@@ -117,7 +117,7 @@ export function WriteLinkPreview({
               onInput={onLinkChange}
             />
           )}
-          {preview.title && (!xPreviewPost || !embeddedTweetAvatarUser) && (
+          {preview.title && !xPreviewPost && (
             <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
               <div className="flex flex-1 flex-col typo-footnote">
                 <span className="line-clamp-2 font-bold">{preview.title}</span>

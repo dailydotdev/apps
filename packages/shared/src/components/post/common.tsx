@@ -25,12 +25,7 @@ export interface PostContentClassName {
 
 type PostActions = Pick<
   PostHeaderActionsProps,
-  | 'post'
-  | 'onClose'
-  | 'onReadArticle'
-  | 'inlineActions'
-  | 'isFixedNavigation'
-  | 'readButtonText'
+  'post' | 'onClose' | 'onReadArticle' | 'inlineActions' | 'isFixedNavigation'
 >;
 
 export interface PostNavigationClassName {
@@ -58,7 +53,6 @@ export type PassedPostNavigationProps = Pick<
 export interface PostHeaderActionsProps {
   post: Post;
   onReadArticle?: () => void;
-  readButtonText?: string;
   onClose?: MouseEventHandler | KeyboardEventHandler;
   className?: string;
   style?: CSSProperties;
