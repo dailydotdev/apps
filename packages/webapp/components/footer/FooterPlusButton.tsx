@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
+import classNames from 'classnames';
 import type { DrawerRef } from '@dailydotdev/shared/src/components/drawers';
 import { Drawer } from '@dailydotdev/shared/src/components/drawers';
 import type {
@@ -39,7 +40,13 @@ const ActionButton = <TagName extends AllowedTags>({
   );
 };
 
-export function FooterPlusButton(): ReactElement {
+interface FooterPlusButtonProps {
+  className?: string;
+}
+
+export function FooterPlusButton({
+  className,
+}: FooterPlusButtonProps): ReactElement {
   const { user } = useAuthContext();
   const drawerRef = useRef<DrawerRef>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -53,7 +60,10 @@ export function FooterPlusButton(): ReactElement {
         {...props}
         icon={<PlusIcon />}
         variant={ButtonVariant.Primary}
-        className="absolute bottom-24 right-4 z-1 ml-auto justify-self-center border border-border-subtlest-tertiary"
+        className={classNames(
+          'border border-border-subtlest-tertiary',
+          className,
+        )}
       />
       <RootPortal>
         <Drawer
