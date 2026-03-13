@@ -50,7 +50,7 @@ export default function FooterWrapper({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-3 w-full',
+        'fixed !bottom-0 left-0 z-3 w-full pb-safe',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
