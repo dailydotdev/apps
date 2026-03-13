@@ -393,6 +393,7 @@ const handleClick = useCallback((key: string) => {
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
+When using `gh pr create` from the shell, avoid unescaped backticks in the body (command substitution). Prefer single-quoted heredocs (`cat <<'EOF'`) or plain text without backticks.
 
 Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
 
