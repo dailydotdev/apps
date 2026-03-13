@@ -11,10 +11,6 @@ import {
 } from '../../../hooks';
 import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
 import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
-import {
-  getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
-} from '../socialTwitter/socialTwitterHelpers';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
@@ -63,30 +59,6 @@ export const ShareList = forwardRef(function ShareList(
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
-
-  const tweetPreviewData = useMemo(() => {
-    if (!isSharedTweet || !sharedPost) {
-      return null;
-    }
-
-    const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
-    const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
-    const tweetPost = {
-      ...post,
-      sharedPost: { ...sharedPost, title: tweetBody },
-    };
-    const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-      getSocialTwitterMetadata(tweetPost);
-    const parsedIdentity = xTitleMatch
-      ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-      : undefined;
-
-    return {
-      tweetPost,
-      embeddedTweetAvatarUser,
-      embeddedTweetIdentity: parsedIdentity || embeddedTweetIdentity,
-    };
-  }, [isSharedTweet, sharedPost, post]);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -192,11 +164,9 @@ export const ShareList = forwardRef(function ShareList(
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}
         </div>
-        {tweetPreviewData ? (
+        {isSharedTweet ? (
           <EmbeddedTweetPreview
-            post={tweetPreviewData.tweetPost}
-            embeddedTweetAvatarUser={tweetPreviewData.embeddedTweetAvatarUser}
-            embeddedTweetIdentity={tweetPreviewData.embeddedTweetIdentity}
+            post={post}
             className="mt-4 w-full"
             textClampClass="line-clamp-8"
             showXLogo

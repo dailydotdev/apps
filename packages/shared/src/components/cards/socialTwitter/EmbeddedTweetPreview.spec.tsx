@@ -59,40 +59,4 @@ describe('EmbeddedTweetPreview', () => {
       'overflow-hidden',
     );
   });
-
-  it('does not render placeholder image as tweet media', () => {
-    render(
-      <TestBootProvider client={new QueryClient()}>
-        <EmbeddedTweetPreview
-          post={{
-            ...basePost,
-            image:
-              'https://media.daily.dev/image/upload/s--1KxV4ohY--/f_auto/v1722860400/public/Placeholder%2007',
-          }}
-          embeddedTweetAvatarUser={avatarUser}
-          embeddedTweetIdentity="daily.dev @dailydotdev"
-          textClampClass=""
-          showMedia
-        />
-      </TestBootProvider>,
-    );
-
-    expect(screen.queryByAltText('Tweet media')).not.toBeInTheDocument();
-  });
-
-  it('renders tweet media when image is real', () => {
-    render(
-      <TestBootProvider client={new QueryClient()}>
-        <EmbeddedTweetPreview
-          post={basePost}
-          embeddedTweetAvatarUser={avatarUser}
-          embeddedTweetIdentity="daily.dev @dailydotdev"
-          textClampClass=""
-          showMedia
-        />
-      </TestBootProvider>,
-    );
-
-    expect(screen.getByAltText('Tweet media')).toBeInTheDocument();
-  });
 });

@@ -26,10 +26,7 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { DateFormat } from '../../utilities';
 import { Separator } from '../../cards/common/common';
 import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
-import {
-  getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
-} from '../../cards/socialTwitter/socialTwitterHelpers';
+import { parseSocialTwitterTitle } from '../../cards/socialTwitter/socialTwitterHelpers';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -86,37 +83,20 @@ export function WriteLinkPreview({
   const isXShareLikePreview = isSocialTwitterPost(preview as Post);
   const shouldUseXPreview =
     !!preview.title && (isXPreview || !!xTitleMatch || isXShareLikePreview);
-  const xPreviewBody = xTitleMatch?.[3]?.trim() || preview.title;
   const xPreviewPost = shouldUseXPreview
     ? ({
         ...(preview as unknown as Post),
         type: PostType.SocialTwitter,
-        sharedPost: {
-          ...(preview as unknown as Post),
-          type: PostType.SocialTwitter,
-          title: xPreviewBody,
-          image: preview.image,
-          source: preview.source,
-        },
       } as Post)
     : null;
-  const { embeddedTweetIdentity, embeddedTweetAvatarUser } = xPreviewPost
-    ? getSocialTwitterMetadata(xPreviewPost)
-    : { embeddedTweetIdentity: '', embeddedTweetAvatarUser: null };
-  const parsedIdentity = xTitleMatch
-    ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-    : undefined;
   const shouldRenderWritePreviewContainer =
-    showPreviewLink ||
-    (!!preview.title && (!xPreviewPost || !embeddedTweetAvatarUser));
+    showPreviewLink || (!!preview.title && !xPreviewPost);
 
   return (
     <>
-      {preview.title && xPreviewPost && embeddedTweetAvatarUser && (
+      {preview.title && xPreviewPost && (
         <EmbeddedTweetPreview
           post={xPreviewPost}
-          embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-          embeddedTweetIdentity={parsedIdentity || embeddedTweetIdentity}
           className="w-auto"
           textClampClass="line-clamp-3"
           showXLogo

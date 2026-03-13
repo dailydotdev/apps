@@ -73,8 +73,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
     : 'line-clamp-10';
-  const { repostedByName, embeddedTweetIdentity, embeddedTweetAvatarUser } =
-    getSocialTwitterMetadata(post);
+  const { repostedByName } = getSocialTwitterMetadata(post);
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardLinkTitle =
     isRepostLike && repostedByName
@@ -192,8 +191,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             <div className="mt-4 min-h-0 flex-1 overflow-hidden">
               <EmbeddedTweetPreview
                 post={post}
-                embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-                embeddedTweetIdentity={embeddedTweetIdentity}
                 className="w-full"
                 textClampClass={quoteDetailsTextClampClass}
                 showXLogo

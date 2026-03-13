@@ -30,8 +30,6 @@ import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
-  getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
   getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
@@ -107,25 +105,7 @@ function SocialTwitterPostContentRaw({
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
     !post.content?.trim();
-  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-    getSocialTwitterMetadata(post);
   const metadataLabel = getSocialTwitterMetadataLabel();
-  const xTitleMatch = parseSocialTwitterTitle(post.title);
-  const primaryTweetBody = xTitleMatch?.[3]?.trim() || post.title;
-  const primaryTweetPost = shouldRenderPrimaryTweetPreview
-    ? ({
-        ...post,
-        sharedPost: {
-          ...post,
-          title: primaryTweetBody,
-          image: post.image,
-          source: post.source,
-        },
-      } as Post)
-    : post;
-  const primaryTweetIdentity = xTitleMatch
-    ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-    : embeddedTweetIdentity;
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
   return (
@@ -242,13 +222,7 @@ function SocialTwitterPostContentRaw({
           {(shouldRenderPrimaryTweetPreview ||
             (isQuoteLike && !!post.sharedPost)) && (
             <EmbeddedTweetPreview
-              post={shouldRenderPrimaryTweetPreview ? primaryTweetPost : post}
-              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-              embeddedTweetIdentity={
-                shouldRenderPrimaryTweetPreview
-                  ? primaryTweetIdentity
-                  : embeddedTweetIdentity
-              }
+              post={post}
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"

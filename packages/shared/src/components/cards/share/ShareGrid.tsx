@@ -4,10 +4,6 @@ import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
 import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
-import {
-  getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
-} from '../socialTwitter/socialTwitterHelpers';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardSpace,
@@ -96,24 +92,10 @@ export const ShareGrid = forwardRef(function ShareGrid(
     }
 
     if (isSharedTweet && sharedPost) {
-      const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
-      const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
-      const tweetPost = {
-        ...post,
-        sharedPost: { ...sharedPost, title: tweetBody },
-      };
-      const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-        getSocialTwitterMetadata(tweetPost);
-      const parsedIdentity = xTitleMatch
-        ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-        : undefined;
-
       return (
         <div className="mx-1 mb-1 mt-2 min-h-0 flex-1 overflow-hidden">
           <EmbeddedTweetPreview
-            post={tweetPost}
-            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-            embeddedTweetIdentity={parsedIdentity || embeddedTweetIdentity}
+            post={post}
             className="mx-1 my-2"
             textClampClass="line-clamp-6"
             showXLogo

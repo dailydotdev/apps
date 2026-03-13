@@ -33,10 +33,6 @@ import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
-import {
-  getSocialTwitterMetadata,
-  parseSocialTwitterTitle,
-} from '../cards/socialTwitter/socialTwitterHelpers';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -137,7 +133,6 @@ export function CommonSharePostContent({
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
   const { type } = sharedPostSource;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
-  const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
   const shouldRenderTweetPreview = isSocialTwitterPost(sharedPost);
 
   if (isDeleted) {
@@ -155,25 +150,9 @@ export function CommonSharePostContent({
   }
 
   if (shouldRenderTweetPreview) {
-    const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
-    const socialTwitterPostPreview: Post = {
-      ...sharedPost,
-      sharedPost: {
-        ...sharedPost,
-        title: tweetBody,
-      },
-    };
-    const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-      getSocialTwitterMetadata(socialTwitterPostPreview);
-    const parsedIdentity = xTitleMatch
-      ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
-      : undefined;
-
     return (
       <EmbeddedTweetPreview
-        post={socialTwitterPostPreview}
-        embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-        embeddedTweetIdentity={parsedIdentity || embeddedTweetIdentity}
+        post={sharedPost}
         className={classNames(sharedContainerClassName, 'w-full')}
         textClampClass=""
         bodyClassName="typo-markdown"

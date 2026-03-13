@@ -11,7 +11,7 @@ import {
 } from '../../graphql/posts';
 import { IconSize } from '../Icon';
 import classed from '../../lib/classed';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -70,6 +70,9 @@ export function PostHeaderActions({
                 <OpenLinkIcon />
               )
             }
+            {...(isTwitter && {
+              iconPosition: ButtonIconPosition.Right,
+            })}
             onClick={onReadArticle}
             data-testid="postActionsRead"
             size={buttonSize}

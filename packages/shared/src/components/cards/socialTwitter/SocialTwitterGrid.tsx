@@ -29,7 +29,6 @@ import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import {
-  getSocialTwitterMetadata,
   getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
   stripRepostedOnXPrefix,
@@ -122,8 +121,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       commentaryBody = normalizedContent || undefined;
     }
   }
-  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-    getSocialTwitterMetadata(post);
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
   const cardOverlayLabel = rawTitle;
   const metadataLabel = getSocialTwitterMetadataLabel();
@@ -218,8 +215,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         >
           <EmbeddedTweetPreview
             post={post}
-            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-            embeddedTweetIdentity={embeddedTweetIdentity}
             textClampClass={quoteDetailsTextClampClass}
             showXLogo
             fillAvailableHeight
