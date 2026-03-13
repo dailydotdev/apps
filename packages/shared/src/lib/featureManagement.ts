@@ -168,4 +168,9 @@ export const agentsLeaderboardEntrypointFeature =
     'agents_leaderboard_entrypoint',
   );
 
+export const featureAuthStrategy = new Feature<'kratos' | 'betterauth'>(
+  'auth_strategy',
+  'kratos',
+);
+
 export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);
