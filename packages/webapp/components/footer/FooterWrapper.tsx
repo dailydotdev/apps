@@ -74,10 +74,10 @@ export default function FooterWrapper({
         </div>
       )}
       {showNav && (
-        <>
+        <div className="flex flex-col gap-2">
           {showPlusButton && <FooterPlusButton />}
           <MobileFooterNavbar />
-        </>
+        </div>
       )}
     </div>
   );
