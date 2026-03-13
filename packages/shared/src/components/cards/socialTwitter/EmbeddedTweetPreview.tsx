@@ -31,7 +31,8 @@ export function EmbeddedTweetPreview({
   const tweetLanguage = post.sharedPost?.language || post.language;
   const tweetTextDirectionProps = getSocialTextDirectionProps(tweetLanguage);
   const tweetBody = post.sharedPost?.title || post.title;
-  const tweetBodyHtml = post.sharedPost?.titleHtml || post.titleHtml;
+  const tweetBodyHtml =
+    post.sharedPost?.titleHtml || post.sharedPost?.title || post.titleHtml;
 
   const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
     getSocialTwitterMetadata(post);
