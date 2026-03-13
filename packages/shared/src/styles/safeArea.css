@@ -27,8 +27,7 @@ body {
   padding-top: var(--safe-area-top);
 }
 
-.antialiased > .sticky.top-0,
-.fixed.inset-0 {
+.antialiased > .sticky.top-0 {
   top: var(--safe-area-top);
 }
 
