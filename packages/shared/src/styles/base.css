@@ -859,7 +859,7 @@ details.right-icon {
 .footer-navbar {
   min-height: $navBarHeight;
   grid-column-gap: 0.5rem;
-  padding-bottom: max(env(safe-area-inset-bottom, 0.5rem), 0.5rem);
+  padding-bottom: 0.5rem;
 }
 
 .hide-ms-reveal::-ms-reveal {
