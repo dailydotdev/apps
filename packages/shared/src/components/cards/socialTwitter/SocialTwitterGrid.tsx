@@ -103,9 +103,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     !!titleWithoutRepostPrefix &&
     !!sharedTitle &&
     !sharedTitle.startsWith(titleWithoutRepostPrefix);
-  const isStandaloneTweet = post.subType === 'tweet' && !post.sharedPost;
   const hasDailyDevMarkdown =
-    !isStandaloneTweet && (!!normalizedContent || hasTitleCommentary);
+    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
   const quoteDetailsContainerClass = 'mx-1 mb-1 mt-2';
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-6'
@@ -205,7 +204,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       >
         {metadataContent}
       </PostMetadata>
-      <Container>
+      <Container className="min-h-0 overflow-hidden">
         {commentaryBody && (
           <p
             {...socialTextDirectionProps}
@@ -214,17 +213,20 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             {commentaryBody}
           </p>
         )}
-        <EmbeddedTweetPreview
-          post={post}
-          embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-          embeddedTweetIdentity={embeddedTweetIdentity}
-          className={quoteDetailsContainerClass}
-          textClampClass={quoteDetailsTextClampClass}
-          showXLogo
-          showMedia={isStandaloneTweet}
-        />
+        <div
+          className={`${quoteDetailsContainerClass} min-h-0 flex-1 overflow-hidden`}
+        >
+          <EmbeddedTweetPreview
+            post={post}
+            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+            embeddedTweetIdentity={embeddedTweetIdentity}
+            textClampClass={quoteDetailsTextClampClass}
+            showXLogo
+            fillAvailableHeight
+          />
+        </div>
         <ActionButtons
-          className="mt-auto"
+          className="mt-auto shrink-0"
           onBookmarkClick={onBookmarkClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}

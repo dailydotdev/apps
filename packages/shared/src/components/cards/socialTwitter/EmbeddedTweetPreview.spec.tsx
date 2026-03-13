@@ -41,6 +41,25 @@ describe('EmbeddedTweetPreview', () => {
     );
   });
 
+  it('can clip tweet text inside the remaining container height', () => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <EmbeddedTweetPreview
+          post={basePost}
+          embeddedTweetAvatarUser={avatarUser}
+          embeddedTweetIdentity="daily.dev @dailydotdev"
+          textClampClass="overflow-hidden"
+          fillAvailableHeight
+        />
+      </TestBootProvider>,
+    );
+
+    expect(screen.getByText('Root tweet')).toHaveClass(
+      'min-h-0',
+      'overflow-hidden',
+    );
+  });
+
   it('does not render placeholder image as tweet media', () => {
     render(
       <TestBootProvider client={new QueryClient()}>

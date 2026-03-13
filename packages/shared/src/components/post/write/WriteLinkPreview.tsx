@@ -11,7 +11,7 @@ import {
   WritePreviewContent,
 } from './common';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
-import { isXShareLikePost, PostType } from '../../../graphql/posts';
+import { isSocialTwitterPost, PostType } from '../../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import {
@@ -83,7 +83,7 @@ export function WriteLinkPreview({
     link,
     preview.title,
   ].some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
-  const isXShareLikePreview = isXShareLikePost(preview as Post);
+  const isXShareLikePreview = isSocialTwitterPost(preview as Post);
   const shouldUseXPreview =
     !!preview.title && (isXPreview || !!xTitleMatch || isXShareLikePreview);
   const xPreviewBody = xTitleMatch?.[3]?.trim() || preview.title;
@@ -120,7 +120,6 @@ export function WriteLinkPreview({
           className="w-auto"
           textClampClass="line-clamp-3"
           showXLogo
-          showMedia={showPreviewLink}
         />
       )}
       {shouldRenderWritePreviewContainer && (

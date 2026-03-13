@@ -82,7 +82,6 @@ function SocialTwitterPostContentRaw({
     postPosition,
     onClose,
     inlineActions,
-    readButtonText: 'Read on X',
   };
   let sourceInfoClassName = 'mb-6';
   if (shouldShowBanner && isLaptop) {
@@ -180,7 +179,6 @@ function SocialTwitterPostContentRaw({
             post={post}
             onClose={onClose}
             onReadArticle={onReadArticle}
-            readButtonText="Read on X"
             className={sourceInfoClassName}
           />
           {shouldShowBanner && isLaptop && <BoostNewPostStrip />}
@@ -241,30 +239,19 @@ function SocialTwitterPostContentRaw({
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
-          {shouldRenderPrimaryTweetPreview && (
+          {(shouldRenderPrimaryTweetPreview ||
+            (isQuoteLike && !!post.sharedPost)) && (
             <EmbeddedTweetPreview
-              post={primaryTweetPost}
+              post={shouldRenderPrimaryTweetPreview ? primaryTweetPost : post}
               embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-              embeddedTweetIdentity={primaryTweetIdentity}
+              embeddedTweetIdentity={
+                shouldRenderPrimaryTweetPreview
+                  ? primaryTweetIdentity
+                  : embeddedTweetIdentity
+              }
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
-              mediaContainerClassName="max-w-[25.625rem]"
-              mediaClassName="aspect-[100/49] h-full"
-              showXLogo
-              showMedia
-            />
-          )}
-          {isQuoteLike && !!post.sharedPost && (
-            <EmbeddedTweetPreview
-              post={post}
-              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-              embeddedTweetIdentity={embeddedTweetIdentity}
-              className="mb-5 w-full"
-              textClampClass=""
-              bodyClassName="typo-markdown"
-              mediaContainerClassName="max-w-[25.625rem]"
-              mediaClassName="aspect-[100/49] h-full"
               showXLogo
             />
           )}

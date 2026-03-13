@@ -23,7 +23,7 @@ import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
-import { BlockIcon, EarthIcon } from '../icons';
+import { BlockIcon, EarthIcon, TwitterIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -105,6 +105,9 @@ const PrivatePost = ({
         title="Go to post"
         rel="noopener"
         {...combinedClicks(openArticle)}
+        {...(isSocialTwitterPost(post.sharedPost as Post) && {
+          icon: <TwitterIcon size={IconSize.Size16} />,
+        })}
       />
     </div>
   </SharedLinkContainer>
@@ -135,13 +138,7 @@ export function CommonSharePostContent({
   const { type } = sharedPostSource;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
   const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
-  const hasXDomain = [
-    sharedPost.permalink,
-    sharedPost.commentsPermalink,
-    sharedPost.domain,
-  ].some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
-  const shouldRenderTweetPreview =
-    isSocialTwitterPost(sharedPost) || hasXDomain || !!xTitleMatch;
+  const shouldRenderTweetPreview = isSocialTwitterPost(sharedPost);
 
   if (isDeleted) {
     return <DeletedPost isCompactSpacing={isCompactSpacing} />;
@@ -181,7 +178,6 @@ export function CommonSharePostContent({
         textClampClass=""
         bodyClassName="typo-markdown"
         showXLogo
-        showMedia
       />
     );
   }
@@ -236,6 +232,9 @@ export function CommonSharePostContent({
             title="Go to post"
             rel="noopener"
             {...combinedClicks(openArticle)}
+            {...(isSocialTwitterPost(sharedPost) && {
+              icon: <TwitterIcon size={IconSize.Size16} />,
+            })}
           />
         </div>
 
@@ -269,20 +268,26 @@ const SharePostContent = ({
   post,
   onReadArticle,
   isCompactSpacing,
-}: SharePostContentProps): ReactElement => (
-  <>
-    <SharePostTitle
-      title={post?.title}
-      titleHtml={post?.titleHtml}
-      isCompactSpacing={isCompactSpacing}
-    />
-    <CommonSharePostContent
-      onReadArticle={onReadArticle}
-      source={post.source}
-      sharedPost={post.sharedPost}
-      isCompactSpacing={isCompactSpacing}
-    />
-  </>
-);
+}: SharePostContentProps): ReactElement => {
+  const isSharedTweet = isSocialTwitterPost(post.sharedPost);
+
+  return (
+    <>
+      {!isSharedTweet && (
+        <SharePostTitle
+          title={post?.title}
+          titleHtml={post?.titleHtml}
+          isCompactSpacing={isCompactSpacing}
+        />
+      )}
+      <CommonSharePostContent
+        onReadArticle={onReadArticle}
+        source={post.source}
+        sharedPost={post.sharedPost}
+        isCompactSpacing={isCompactSpacing}
+      />
+    </>
+  );
+};
 
 export default SharePostContent;

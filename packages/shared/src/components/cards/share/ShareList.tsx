@@ -9,7 +9,12 @@ import {
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import { isVideoPost } from '../../../graphql/posts';
+import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
+import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
+import {
+  getSocialTwitterMetadata,
+  parseSocialTwitterTitle,
+} from '../socialTwitter/socialTwitterHelpers';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
@@ -54,9 +59,34 @@ export const ShareList = forwardRef(function ShareList(
   const { sharedPost } = post;
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
+  const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
+
+  const tweetPreviewData = useMemo(() => {
+    if (!isSharedTweet || !sharedPost) {
+      return null;
+    }
+
+    const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
+    const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
+    const tweetPost = {
+      ...post,
+      sharedPost: { ...sharedPost, title: tweetBody },
+    };
+    const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+      getSocialTwitterMetadata(tweetPost);
+    const parsedIdentity = xTitleMatch
+      ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
+      : undefined;
+
+    return {
+      tweetPost,
+      embeddedTweetAvatarUser,
+      embeddedTweetIdentity: parsedIdentity || embeddedTweetIdentity,
+    };
+  }, [isSharedTweet, sharedPost, post]);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
@@ -142,13 +172,17 @@ export const ShareList = forwardRef(function ShareList(
       </PostCardHeader>
       <CardContent>
         <div className="mr-4 flex flex-1 flex-col">
-          <CardTitle
-            lineClamp={undefined}
-            className={!!post.read && 'text-text-tertiary'}
-          >
-            {truncatedTitle}
-          </CardTitle>
-          <div className="flex flex-1 tablet:hidden" />
+          {(!isSharedTweet || post.title) && (
+            <>
+              <CardTitle
+                lineClamp={undefined}
+                className={!!post.read && 'text-text-tertiary'}
+              >
+                {truncatedTitle}
+              </CardTitle>
+              <div className="flex flex-1 tablet:hidden" />
+            </>
+          )}
           <div className="flex items-center">
             {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
@@ -158,7 +192,17 @@ export const ShareList = forwardRef(function ShareList(
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}
         </div>
-        {isSharedPostPreviewEnabled ? (
+        {tweetPreviewData ? (
+          <EmbeddedTweetPreview
+            post={tweetPreviewData.tweetPost}
+            embeddedTweetAvatarUser={tweetPreviewData.embeddedTweetAvatarUser}
+            embeddedTweetIdentity={tweetPreviewData.embeddedTweetIdentity}
+            className="mt-4 w-full"
+            textClampClass="line-clamp-8"
+            showXLogo
+            fillAvailableHeight
+          />
+        ) : isSharedPostPreviewEnabled ? (
           <SharedPostPreview
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}

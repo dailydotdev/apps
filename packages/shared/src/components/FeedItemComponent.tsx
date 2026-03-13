@@ -6,7 +6,7 @@ import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
-import { isXShareLikePost, PostType } from '../graphql/posts';
+import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
@@ -136,7 +136,7 @@ const getPostTypeForCard = (post?: Post): PostType => {
     return PostType.Article;
   }
 
-  if (isXShareLikePost(post)) {
+  if (isSocialTwitterPost(post)) {
     return PostType.SocialTwitter;
   }
 

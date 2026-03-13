@@ -17,7 +17,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { isXShareLikePost } from '../../../graphql/posts';
+import { isSocialTwitterPost } from '../../../graphql/posts';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -58,7 +58,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   );
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
   const isUserSource = isSourceUserSource(post.source);
-  const isRepostLike = isXShareLikePost(post);
+  const isRepostLike = isSocialTwitterPost(post);
   const postForTags = post.tags?.length ? post : post.sharedPost || post;
   const titleWithoutRepostPrefix = stripRepostedOnXPrefix(post.title);
   const sharedTitle = post.sharedPost?.title?.trim() ?? '';
@@ -68,9 +68,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
     !!sharedTitle &&
     !sharedTitle.startsWith(titleWithoutRepostPrefix);
   const normalizedContent = (post.content || content).trim();
-  const isStandaloneTweet = post.subType === 'tweet' && !post.sharedPost;
   const hasDailyDevMarkdown =
-    !isStandaloneTweet && (!!normalizedContent || hasTitleCommentary);
+    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
   const quoteDetailsTextClampClass = hasDailyDevMarkdown
     ? 'line-clamp-8'
     : 'line-clamp-10';
@@ -85,7 +84,10 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       : truncatedTitle || post.title;
 
   const actionButtons = (
-    <Container ref={containerRef} className="pointer-events-none flex-[unset]">
+    <Container
+      ref={containerRef}
+      className="pointer-events-none flex-[unset] shrink-0"
+    >
       <ActionButtons
         className="mt-4 justify-between tablet:mt-0"
         post={post}
@@ -163,7 +165,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
         </PostCardHeader>
 
         <CardContent>
-          <div className="mr-0 flex flex-1 flex-col">
+          <div className="mr-0 flex min-h-0 flex-1 flex-col overflow-hidden">
             {hasDailyDevMarkdown && (
               <CardTitle
                 {...socialTextDirectionProps}
@@ -187,15 +189,17 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 <PostTags post={postForTags} />
               </div>
             )}
-            <EmbeddedTweetPreview
-              post={post}
-              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-              embeddedTweetIdentity={embeddedTweetIdentity}
-              className="mt-4 w-full"
-              textClampClass={quoteDetailsTextClampClass}
-              showXLogo
-              showMedia={isStandaloneTweet}
-            />
+            <div className="mt-4 min-h-0 flex-1 overflow-hidden">
+              <EmbeddedTweetPreview
+                post={post}
+                embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+                embeddedTweetIdentity={embeddedTweetIdentity}
+                className="w-full"
+                textClampClass={quoteDetailsTextClampClass}
+                showXLogo
+                fillAvailableHeight
+              />
+            </div>
             {!isMobile && actionButtons}
           </div>
         </CardContent>

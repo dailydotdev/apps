@@ -1,12 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { OpenLinkIcon } from '../icons';
+import { OpenLinkIcon, TwitterIcon } from '../icons';
+import type { Post } from '../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   PostType,
 } from '../../graphql/posts';
+import { IconSize } from '../Icon';
 import classed from '../../lib/classed';
 import { Button, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
@@ -38,6 +41,8 @@ export function PostHeaderActions({
   const readButtonText = readButtonTextOverride || getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
+  const isTwitter =
+    isSocialTwitterPost(post) || isSocialTwitterPost(post?.sharedPost as Post);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const isPoll = post?.type === PostType.Poll;
 
@@ -58,7 +63,13 @@ export function PostHeaderActions({
             tag="a"
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
-            icon={<OpenLinkIcon />}
+            icon={
+              isTwitter ? (
+                <TwitterIcon size={IconSize.Size16} />
+              ) : (
+                <OpenLinkIcon />
+              )
+            }
             onClick={onReadArticle}
             data-testid="postActionsRead"
             size={buttonSize}

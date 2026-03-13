@@ -73,41 +73,6 @@ export const isSocialTwitterShareLike = (
   return ['quote', 'repost'].includes(post.subType || '');
 };
 
-export const isXShareLikePost = (
-  post:
-    | Pick<
-        Post,
-        'type' | 'permalink' | 'commentsPermalink' | 'domain' | 'sharedPost'
-      >
-    | undefined
-    | null,
-): boolean => {
-  if (!post) {
-    return false;
-  }
-
-  if (post.type === PostType.SocialTwitter) {
-    return true;
-  }
-
-  if (post.type !== PostType.Share) {
-    return false;
-  }
-
-  const candidates = [
-    post.permalink,
-    post.commentsPermalink,
-    post.domain,
-    post.sharedPost?.permalink,
-    post.sharedPost?.commentsPermalink,
-    post.sharedPost?.domain,
-  ];
-
-  return candidates.some((value) =>
-    /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''),
-  );
-};
-
 export const getSocialTwitterPostType = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): PostType | undefined => {
@@ -127,8 +92,11 @@ export const getReadPostButtonText = (post: Post): string => {
     return 'Watch video';
   }
 
-  if (isXShareLikePost(post)) {
-    return 'View on X';
+  if (
+    isSocialTwitterPost(post) ||
+    isSocialTwitterPost(post.sharedPost as Post)
+  ) {
+    return 'Read on';
   }
 
   return 'Read post';

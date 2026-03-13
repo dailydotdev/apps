@@ -2,7 +2,12 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo, useRef } from 'react';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
-import { isVideoPost } from '../../../graphql/posts';
+import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
+import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
+import {
+  getSocialTwitterMetadata,
+  parseSocialTwitterTitle,
+} from '../socialTwitter/socialTwitterHelpers';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardSpace,
@@ -63,6 +68,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     sharedPostPrivate && sharedPostSource?.type === SourceType.Squad;
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
+  const isSharedTweet = isSocialTwitterPost(sharedPost);
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -86,6 +92,34 @@ export const ShareGrid = forwardRef(function ShareGrid(
             This post is in a private squad.
           </Typography>
         </EmptyStateContainer>
+      );
+    }
+
+    if (isSharedTweet && sharedPost) {
+      const xTitleMatch = parseSocialTwitterTitle(sharedPost.title);
+      const tweetBody = xTitleMatch?.[3]?.trim() || sharedPost.title;
+      const tweetPost = {
+        ...post,
+        sharedPost: { ...sharedPost, title: tweetBody },
+      };
+      const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+        getSocialTwitterMetadata(tweetPost);
+      const parsedIdentity = xTitleMatch
+        ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
+        : undefined;
+
+      return (
+        <div className="mx-1 mb-1 mt-2 min-h-0 flex-1 overflow-hidden">
+          <EmbeddedTweetPreview
+            post={tweetPost}
+            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
+            embeddedTweetIdentity={parsedIdentity || embeddedTweetIdentity}
+            className="mx-1 my-2"
+            textClampClass="line-clamp-6"
+            showXLogo
+            fillAvailableHeight
+          />
+        </div>
       );
     }
 
@@ -118,12 +152,11 @@ export const ShareGrid = forwardRef(function ShareGrid(
   }, [
     isDeleted,
     isPrivate,
+    isSharedTweet,
     isSharedPostPreviewEnabled,
     openNewTab,
     post,
-    sharedPost?.image,
-    sharedPost?.source,
-    sharedPost?.title,
+    sharedPost,
   ]);
 
   return (
@@ -157,10 +190,10 @@ export const ShareGrid = forwardRef(function ShareGrid(
             postLink={sharedPost?.permalink}
             onReadArticleClick={onReadArticleClick}
           />
-          <CardTitle>{title}</CardTitle>
+          {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
         </CardTextContainer>
-        <Container>
-          <CardSpace />
+        <div className="relative flex flex-col">
+          {(!isSharedTweet || post.title) && <CardSpace />}
           <div className="mx-4 flex items-center">
             {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
@@ -173,7 +206,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
             isVideoType={isVideoType}
             className="mx-4"
           />
-        </Container>
+        </div>
       </>
       <Container ref={containerRef}>
         {footer}

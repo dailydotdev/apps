@@ -13,9 +13,12 @@ import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   isSharedPostSquadPost,
 } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
+import { IconSize } from '../../Icon';
+import { TwitterIcon } from '../../icons';
 import type { FlagProps } from './FeedItemContainer';
 import {
   BookmakProviderHeader,
@@ -120,6 +123,9 @@ export const PostCardHeader = ({
                   href={articleLink}
                   onClick={onReadArticleClick}
                   openNewTab={openNewTab}
+                  {...(isSocialTwitterPost(post.sharedPost as Post) && {
+                    icon: <TwitterIcon size={IconSize.Size16} />,
+                  })}
                 />
               )}
               <PostOptionButton post={post} />
