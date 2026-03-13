@@ -18,13 +18,15 @@ import SourceButton from '../common/SourceButton';
 import PostMetadata from '../common/PostMetadata';
 import ActionButtons from '../common/ActionButtons';
 import PostTags from '../common/PostTags';
-import { ReadArticleButton } from '../common/ReadArticleButton';
+import {
+  ReadArticleButton,
+  getReadPostButtonIcon,
+} from '../common/ReadArticleButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { ButtonVariant } from '../../buttons/Button';
-import { IconSize } from '../../Icon';
-import { TwitterIcon } from '../../icons';
+import { getReadPostButtonText } from '../../../graphql/posts';
 import { useFeedPreviewMode } from '../../../hooks';
 import { isSourceUserSource } from '../../../graphql/sources';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
@@ -169,9 +171,9 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             <HeaderActions className="absolute inset-y-0 right-0 flex flex-row items-center justify-end">
               {!isFeedPreview && (
                 <ReadArticleButton
-                  content="Read on"
+                  content={getReadPostButtonText(post)}
                   className="relative z-1 mr-2"
-                  icon={<TwitterIcon size={IconSize.Size16} />}
+                  icon={getReadPostButtonIcon(post)}
                   href={post.permalink}
                   variant={ButtonVariant.Primary}
                   openNewTab
@@ -216,7 +218,6 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           <EmbeddedTweetPreview
             post={post}
             textClampClass={quoteDetailsTextClampClass}
-            showXLogo
             fillAvailableHeight
           />
         </div>

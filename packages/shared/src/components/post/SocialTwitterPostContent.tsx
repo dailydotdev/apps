@@ -226,7 +226,6 @@ function SocialTwitterPostContentRaw({
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
-              showXLogo
             />
           )}
         </BasePostContent>

@@ -6,19 +6,16 @@ import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { ReadArticleButton } from './ReadArticleButton';
+import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
-  isSocialTwitterPost,
   isSharedPostSquadPost,
 } from '../../../graphql/posts';
 import { ButtonVariant } from '../../buttons/Button';
-import { IconSize } from '../../Icon';
-import { TwitterIcon } from '../../icons';
 import type { FlagProps } from './FeedItemContainer';
 import {
   BookmakProviderHeader,
@@ -123,9 +120,7 @@ export const PostCardHeader = ({
                   href={articleLink}
                   onClick={onReadArticleClick}
                   openNewTab={openNewTab}
-                  {...(isSocialTwitterPost(post.sharedPost as Post) && {
-                    icon: <TwitterIcon size={IconSize.Size16} />,
-                  })}
+                  icon={getReadPostButtonIcon(post)}
                 />
               )}
               <PostOptionButton post={post} />

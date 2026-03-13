@@ -15,30 +15,24 @@ const basePost: Post = {
   sharedPost: undefined,
 };
 
-const avatarUser = {
-  id: 'user-1',
-  image: 'https://pbs.twimg.com/profile_images/user.jpg',
-  username: 'dailydotdev',
-  name: 'daily.dev',
-};
-
 describe('EmbeddedTweetPreview', () => {
   it('always renders identity in ltr direction', () => {
     render(
       <TestBootProvider client={new QueryClient()}>
         <EmbeddedTweetPreview
-          post={{ ...basePost, language: 'fa' }}
-          embeddedTweetAvatarUser={avatarUser}
-          embeddedTweetIdentity="Noojaan Farahmand @noojaanf"
+          post={{
+            ...basePost,
+            title: 'Noojaan Farahmand (@noojaanf): Some tweet text',
+            language: 'fa',
+          }}
           textClampClass=""
         />
       </TestBootProvider>,
     );
 
-    expect(screen.getByText('Noojaan Farahmand @noojaanf')).toHaveAttribute(
-      'dir',
-      'ltr',
-    );
+    expect(
+      screen.getByText('Noojaan Farahmand @noojaanf'),
+    ).toHaveAttribute('dir', 'ltr');
   });
 
   it('can clip tweet text inside the remaining container height', () => {
@@ -46,8 +40,6 @@ describe('EmbeddedTweetPreview', () => {
       <TestBootProvider client={new QueryClient()}>
         <EmbeddedTweetPreview
           post={basePost}
-          embeddedTweetAvatarUser={avatarUser}
-          embeddedTweetIdentity="daily.dev @dailydotdev"
           textClampClass="overflow-hidden"
           fillAvailableHeight
         />

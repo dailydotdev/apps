@@ -169,7 +169,6 @@ export const ShareList = forwardRef(function ShareList(
             post={post}
             className="mt-4 w-full"
             textClampClass="line-clamp-8"
-            showXLogo
             fillAvailableHeight
           />
         ) : isSharedPostPreviewEnabled ? (

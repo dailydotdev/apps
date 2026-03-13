@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import PostSourceInfo from './PostSourceInfo';
-import { ReadArticleButton } from '../cards/common/ReadArticleButton';
+import {
+  ReadArticleButton,
+  getReadPostButtonIcon,
+} from '../cards/common/ReadArticleButton';
 import type { Post, SharedPost } from '../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -23,7 +26,7 @@ import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
-import { BlockIcon, EarthIcon, TwitterIcon } from '../icons';
+import { BlockIcon, EarthIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -101,9 +104,7 @@ const PrivatePost = ({
         title="Go to post"
         rel="noopener"
         {...combinedClicks(openArticle)}
-        {...(isSocialTwitterPost(post.sharedPost as Post) && {
-          icon: <TwitterIcon size={IconSize.Size16} />,
-        })}
+        icon={getReadPostButtonIcon(post)}
       />
     </div>
   </SharedLinkContainer>
@@ -156,7 +157,6 @@ export function CommonSharePostContent({
         className={classNames(sharedContainerClassName, 'w-full')}
         textClampClass=""
         bodyClassName="typo-markdown"
-        showXLogo
       />
     );
   }
@@ -211,9 +211,7 @@ export function CommonSharePostContent({
             title="Go to post"
             rel="noopener"
             {...combinedClicks(openArticle)}
-            {...(isSocialTwitterPost(sharedPost) && {
-              icon: <TwitterIcon size={IconSize.Size16} />,
-            })}
+            icon={getReadPostButtonIcon(sharedPost)}
           />
         </div>
 

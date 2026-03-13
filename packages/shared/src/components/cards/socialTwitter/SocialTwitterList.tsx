@@ -17,12 +17,14 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { sanitizeMessage } from '../../../features/onboarding/shared';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { isSocialTwitterPost } from '../../../graphql/posts';
+import {
+  getReadPostButtonText,
+  isSocialTwitterPost,
+} from '../../../graphql/posts';
+import { getReadPostButtonIcon } from '../common/ReadArticleButton';
 import PostTags from '../common/PostTags';
 import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { IconSize } from '../../Icon';
-import { TwitterIcon } from '../../icons';
 import {
   getSocialTwitterMetadata,
   getSocialTextDirectionProps,
@@ -151,8 +153,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           }}
           postLink={post.permalink}
           openNewTab
-          readButtonContent="Read on"
-          readButtonIcon={<TwitterIcon size={IconSize.Size16} />}
+          readButtonContent={getReadPostButtonText(post)}
+          readButtonIcon={getReadPostButtonIcon(post)}
         >
           {!isUserSource && !!post?.source && (
             <SourceButton
@@ -193,7 +195,6 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 post={post}
                 className="w-full"
                 textClampClass={quoteDetailsTextClampClass}
-                showXLogo
                 fillAvailableHeight
               />
             </div>

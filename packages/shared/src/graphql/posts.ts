@@ -87,15 +87,17 @@ export const isShareLikePost = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): boolean => post?.type === PostType.Share || isSocialTwitterShareLike(post);
 
+export const isPostOrSharedPostTwitter = (
+  post: Pick<Post, 'type' | 'sharedPost'> | undefined | null,
+): boolean =>
+  isSocialTwitterPost(post) || isSocialTwitterPost(post?.sharedPost as Post);
+
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
     return 'Watch video';
   }
 
-  if (
-    isSocialTwitterPost(post) ||
-    isSocialTwitterPost(post.sharedPost as Post)
-  ) {
+  if (isPostOrSharedPostTwitter(post)) {
     return 'Read on';
   }
 

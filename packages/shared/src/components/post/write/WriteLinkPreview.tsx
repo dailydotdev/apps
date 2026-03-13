@@ -99,7 +99,6 @@ export function WriteLinkPreview({
           post={xPreviewPost}
           className="w-auto"
           textClampClass="line-clamp-3"
-          showXLogo
         />
       )}
       {shouldRenderWritePreviewContainer && (

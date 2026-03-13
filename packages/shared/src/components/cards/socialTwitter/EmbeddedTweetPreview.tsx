@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import type { UserImageProps } from '../../ProfilePicture';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
@@ -14,8 +13,6 @@ import {
 
 interface EmbeddedTweetPreviewProps {
   post: Post;
-  embeddedTweetAvatarUser?: UserImageProps;
-  embeddedTweetIdentity?: string;
   className?: string;
   textClampClass: string;
   bodyClassName?: string;
@@ -25,12 +22,10 @@ interface EmbeddedTweetPreviewProps {
 
 export function EmbeddedTweetPreview({
   post,
-  embeddedTweetAvatarUser,
-  embeddedTweetIdentity,
   className,
   textClampClass,
   bodyClassName,
-  showXLogo = false,
+  showXLogo = true,
   fillAvailableHeight = false,
 }: EmbeddedTweetPreviewProps): ReactElement {
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
@@ -42,18 +37,14 @@ export function EmbeddedTweetPreview({
   const tweetBody = xTitleMatch?.[3]?.trim() || rawTitle;
   const tweetBodyHtml = post.sharedPost?.titleHtml || post.titleHtml;
 
-  const {
-    embeddedTweetIdentity: metadataIdentity,
-    embeddedTweetAvatarUser: metadataAvatar,
-  } = getSocialTwitterMetadata(post);
+  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
+    getSocialTwitterMetadata(post);
 
   const parsedIdentity = xTitleMatch
     ? `${xTitleMatch[1].trim()} @${xTitleMatch[2].trim()}`
     : undefined;
 
-  const resolvedIdentity =
-    embeddedTweetIdentity ?? parsedIdentity ?? metadataIdentity;
-  const resolvedAvatar = embeddedTweetAvatarUser ?? metadataAvatar;
+  const resolvedIdentity = parsedIdentity ?? embeddedTweetIdentity;
 
   const tweetBodyClassName = classNames(
     'min-h-0 whitespace-pre-line break-words',
@@ -73,7 +64,7 @@ export function EmbeddedTweetPreview({
       <div className="flex min-w-0 shrink-0 items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1">
           <ProfilePicture
-            user={resolvedAvatar}
+            user={embeddedTweetAvatarUser}
             size={ProfileImageSize.Size16}
             rounded="full"
             className="shrink-0"

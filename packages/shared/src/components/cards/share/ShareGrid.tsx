@@ -98,7 +98,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
             post={post}
             className="mx-1 my-2"
             textClampClass="line-clamp-6"
-            showXLogo
             fillAvailableHeight
           />
         </div>
