@@ -22,7 +22,7 @@ export type UpdateFeedProps = { feedId: string } & CreateFeedProps;
 export type DeleteFeedProps = Pick<UpdateFeedProps, 'feedId'>;
 
 export type UseFeeds = {
-  feeds: FeedList['feedList'];
+  feeds: FeedList['feedList'] | undefined;
   createFeed: (props: CreateFeedProps) => Promise<Feed>;
   updateFeed: (props: UpdateFeedProps) => Promise<Feed>;
   deleteFeed: (props: DeleteFeedProps) => Promise<Pick<Feed, 'id'>>;
@@ -58,6 +58,10 @@ export const useFeeds = (): UseFeeds => {
 
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        if (!current) {
+          return current;
+        }
+
         return {
           ...current,
           edges: [
@@ -87,6 +91,10 @@ export const useFeeds = (): UseFeeds => {
 
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        if (!current) {
+          return current;
+        }
+
         return {
           ...current,
           edges: (current?.edges || []).map((edge) => {
@@ -118,6 +126,10 @@ export const useFeeds = (): UseFeeds => {
 
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
+        if (!current) {
+          return current;
+        }
+
         return {
           ...current,
           edges: (current?.edges || []).filter(

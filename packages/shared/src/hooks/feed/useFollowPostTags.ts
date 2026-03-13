@@ -26,17 +26,18 @@ export const useFollowPostTags = ({
   const isModerationItem = !post?.permalink;
 
   const tags = useMemo(() => {
+    const all = post?.tags ?? [];
+
     if (!isLoggedIn || isModerationItem) {
       return {
-        all: post?.tags,
+        all,
         followed: [],
-        notFollowed: post?.tags,
+        notFollowed: all,
       };
     }
 
-    const all = post?.tags ?? [];
     const followedTags = new Set(feedSettings?.includeTags || []);
-    return all.reduce(
+    return all.reduce<Record<'all' | 'followed' | 'notFollowed', string[]>>(
       (acc, tag) => {
         const isFollowing = followedTags.has(tag);
         const group = isFollowing ? 'followed' : 'notFollowed';

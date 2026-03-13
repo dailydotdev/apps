@@ -41,7 +41,7 @@ export const useAutoRotatingAds = (
   const rotationTime = autorotateAds * 1_000;
 
   const refs = useCallback(
-    (node: HTMLElement) => {
+    (node?: Element | null) => {
       ref?.(node);
       inViewRef(node);
     },
@@ -50,7 +50,7 @@ export const useAutoRotatingAds = (
 
   const { fetchAd } = useFetchAd();
   const queryKey = useMemo(
-    () => [RequestKey.Ads, ...feedQueryKey],
+    () => [RequestKey.Ads, ...(feedQueryKey ?? [])],
     [feedQueryKey],
   );
 
@@ -60,7 +60,7 @@ export const useAutoRotatingAds = (
       active: true,
     });
     if (!newAd) {
-      return null;
+      throw new Error('Unable to fetch replacement ad');
     }
 
     // End the impression event for the old ad
