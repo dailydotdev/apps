@@ -164,14 +164,15 @@ export const ShareList = forwardRef(function ShareList(
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}
         </div>
-        {isSharedTweet ? (
+        {isSharedTweet && (
           <EmbeddedTweetPreview
             post={post}
             className="mt-4 w-full"
             textClampClass="line-clamp-8"
             fillAvailableHeight
           />
-        ) : isSharedPostPreviewEnabled ? (
+        )}
+        {!isSharedTweet && isSharedPostPreviewEnabled && (
           <SharedPostPreview
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}
@@ -183,7 +184,8 @@ export const ShareList = forwardRef(function ShareList(
               eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }
             }
           />
-        ) : (
+        )}
+        {!isSharedTweet && !isSharedPostPreviewEnabled && (
           <CardCoverList
             data-testid="postImage"
             isVideoType={isVideoType}
