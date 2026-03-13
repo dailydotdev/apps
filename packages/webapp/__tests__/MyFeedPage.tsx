@@ -7,7 +7,7 @@ import {
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { mocked } from 'ts-jest/utils';
@@ -95,13 +95,11 @@ it('should request user feed', async () => {
       ranking: RankingAlgorithm.Popularity,
     }),
   ]);
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeTruthy();
 });
 
-it('should request anonymous feed', async () => {
+it('should request anonymous my feed', async () => {
   renderComponent(
     [
       createFeedMock(defaultFeedPage, ANONYMOUS_FEED_QUERY, {
@@ -114,8 +112,6 @@ it('should request anonymous feed', async () => {
     ],
     null,
   );
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
-  });
+  const elements = await screen.findAllByTestId('postItem');
+  expect(elements.length).toBeTruthy();
 });

@@ -94,7 +94,7 @@ export function HorizontalScrollHeader({
             <ConditionalWrapper
               condition={!!linkToSeeAll}
               wrapper={(component) => (
-                <Link href={linkToSeeAll} passHref legacyBehavior>
+                <Link href={linkToSeeAll || ''} passHref legacyBehavior>
                   {component}
                 </Link>
               )}

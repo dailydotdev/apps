@@ -17,11 +17,11 @@ const noop = jest.fn();
 const updateAlerts = jest.fn();
 const defaultAlerts: Alerts = {};
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children }: React.PropsWithChildren) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={null}
+        user={undefined}
         squads={[]}
         getRedirectUri={noop}
         updateUser={noop}

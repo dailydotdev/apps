@@ -19,7 +19,6 @@ import {
   generateDefaultSquad,
   MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
-import { ProfileCompletionPostGate } from '@dailydotdev/shared/src/components/post/write/ProfileCompletionPostGate';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
@@ -40,7 +39,6 @@ import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/h
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useProfileCompletionPostGate } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionPostGate';
 
 import {
   Button,
@@ -48,13 +46,15 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
 
+const seoTitles = getPageSeoTitles('Create post');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Create post'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   nofollow: true,
   noindex: true,
   ...defaultSeo,
@@ -69,8 +69,6 @@ function CreatePost(): ReactElement {
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
-  const { isBlocked: isProfileBlocked, requiredPercentage } =
-    useProfileCompletionPostGate();
   const {
     flags: { defaultWriteTab },
     loadedSettings,
@@ -107,6 +105,7 @@ function CreatePost(): ReactElement {
     onAskConfirmation,
     draft,
     updateDraft,
+    isDraftReady,
     formRef,
     clearDraft,
     isUpdatingDraft,
@@ -122,6 +121,10 @@ function CreatePost(): ReactElement {
   };
 
   const isInitialized = useRef(false);
+  const prefillState = useMemo(
+    () => getSquadsCreatePrefillState(query, draft),
+    [query, draft],
+  );
   const sourceSelectProps = {
     selectedSourceIds,
     setSelectedSourceIds,
@@ -196,17 +199,14 @@ function CreatePost(): ReactElement {
   const initialSelected = !!activeSquads?.length && (query.sid as string);
   useEffect(() => {
     // Only run this once after router and user are ready
-    if (!user || !isRouteReady || isInitialized.current) {
+    if (!user || !isRouteReady || !isDraftReady || isInitialized.current) {
       return;
     }
 
     isInitialized.current = true;
 
-    const { share: isInitialShare, poll: isInitialPoll } = query;
-    if (isInitialShare) {
-      setDisplay(WriteFormTab.Share);
-    } else if (isInitialPoll) {
-      setDisplay(WriteFormTab.Poll);
+    if (prefillState.initialDisplay) {
+      setDisplay(prefillState.initialDisplay);
     } else if (defaultWriteTab in WriteFormTab) {
       setDisplay(WriteFormTab[defaultWriteTab]);
     }
@@ -234,11 +234,12 @@ function CreatePost(): ReactElement {
   }, [
     initialSelected,
     isRouteReady,
+    isDraftReady,
     user,
     activeSquads,
     selectedSourceIds.length,
-    query,
     defaultWriteTab,
+    prefillState.initialDisplay,
   ]);
 
   useEffect(() => {
@@ -247,26 +248,18 @@ function CreatePost(): ReactElement {
     }
   }, [display, hasCheckedPollTab, completeAction]);
 
-  if (!isFetched || !isAuthReady || !isRouteReady || !loadedSettings) {
+  if (
+    !isFetched ||
+    !isAuthReady ||
+    !isRouteReady ||
+    !loadedSettings ||
+    !isDraftReady
+  ) {
     return <WriteFreeFormSkeleton />;
   }
 
   if (!user || (!activeSquads?.length && isAuthReady)) {
     return <Unauthorized />;
-  }
-
-  if (isProfileBlocked) {
-    return (
-      <WritePageContainer className="px-5 py-10">
-        <ProfileCompletionPostGate
-          className="mt-8 max-w-[36rem]"
-          currentPercentage={user?.profileCompletion?.percentage}
-          requiredPercentage={requiredPercentage}
-          description="Add your profile details to keep post creation available."
-          buttonSize={ButtonSize.Medium}
-        />
-      </WritePageContainer>
-    );
   }
 
   return (
@@ -319,7 +312,10 @@ function CreatePost(): ReactElement {
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
-            <WriteFreeformContent />
+            <WriteFreeformContent
+              initialTitle={prefillState.initialDraft.title}
+              initialContent={prefillState.initialDraft.content}
+            />
           </Tab>
           <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
             {isMobile && (
@@ -327,6 +323,8 @@ function CreatePost(): ReactElement {
             )}
             <MultipleSourceSelect {...sourceSelectProps} />
             <ShareLink
+              initialUrl={prefillState.initialShareUrl}
+              initialCommentary={prefillState.initialShareCommentary}
               onPostSuccess={() => {
                 onAskConfirmation(false);
               }}

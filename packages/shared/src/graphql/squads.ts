@@ -83,6 +83,14 @@ export const LEAVE_SQUAD_MUTATION = gql`
   }
 `;
 
+export const DEMOTE_SELF_MUTATION = gql`
+  mutation DemoteSelf($sourceId: ID!) {
+    demoteSelf(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
 export const DELETE_SQUAD_MUTATION = gql`
   mutation DeleteSquad($sourceId: ID!) {
     deleteSource(sourceId: $sourceId) {
@@ -293,6 +301,8 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       type
       permalink
       moderationRequired
+      membersCount
+      createdAt
     }
   }
 `;
@@ -308,6 +318,8 @@ export type SquadStaticData = Pick<
   | 'type'
   | 'moderationRequired'
   | 'permalink'
+  | 'membersCount'
+  | 'createdAt'
 >;
 
 export const getSquadStaticFields = async (
@@ -458,6 +470,13 @@ export const leaveSquad = (sourceId: string): Promise<void> =>
     sourceId,
   });
 
+export const demoteSelfSquadMember = (
+  sourceId: string,
+): Promise<EmptyResponse> =>
+  gqlClient.request(DEMOTE_SELF_MUTATION, {
+    sourceId,
+  });
+
 export const deleteSquad = (sourceId: string): Promise<void> =>
   gqlClient.request(DELETE_SQUAD_MUTATION, {
     sourceId,
@@ -552,7 +571,7 @@ export interface SquadInvitationProps {
 
 export const getSquadInvitation = async (
   token: string,
-): Promise<SourceMember> => {
+): Promise<SourceMember | null> => {
   try {
     const res = await gqlClient.request<SquadInvitation>(
       SQUAD_INVITATION_QUERY,
@@ -655,13 +674,18 @@ export const verifyPermission = (
 
 export const isPrivilegedRole = (
   role?: SourceMemberRole | OrganizationMemberRole,
-): boolean =>
-  [
+): boolean => {
+  if (!role) {
+    return false;
+  }
+
+  return [
     SourceMemberRole.Admin,
     SourceMemberRole.Moderator,
     OrganizationMemberRole.Owner,
     OrganizationMemberRole.Admin,
   ].includes(role);
+};
 
 export const isSourcePublicSquad = (source: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);

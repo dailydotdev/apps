@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import {
+  usePlusPositioning,
   usePlusSubscription,
   useViewSize,
   ViewSize,
@@ -45,11 +46,11 @@ import {
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('API Access'),
+  ...getPageSeoTitles('API Access'),
 };
 
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';
@@ -63,8 +64,17 @@ const CLAUDE_INSTALL_COMMAND = [
   `claude "/daily.dev setup"`,
 ];
 
+const DAILY_DEV_ASK_OPENCLAW_INSTRUCTION =
+  'Install daily-dev-ask from clawhub and ask about my topic';
+const DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND = [
+  `claude plugin marketplace add https://github.com/dailydotdev/daily.git`,
+  `claude plugin install daily.dev@daily.dev`,
+  `claude "/daily-dev-ask your question here"`,
+];
+
 const CURSOR_REPO_URL = 'https://github.com/dailydotdev/daily.git';
 const CODEX_INSTALL_COMMAND = `$skill-installer install the daily.dev skill from ${CURSOR_REPO_URL}`;
+const CODEX_ASK_INSTALL_COMMAND = `$skill-installer install the daily-dev-ask skill from ${CURSOR_REPO_URL}`;
 
 interface SkillInstallMethod {
   tool: 'OpenClaw' | 'Claude Code' | 'Codex' | 'Cursor';
@@ -128,6 +138,53 @@ const SKILLS: SkillDefinition[] = [
         copyValue: CURSOR_REPO_URL,
         copySuccessMessage: 'URL copied to clipboard',
         note: 'Use /daily.dev in Agent chat to interact with your feed.',
+      },
+    ],
+  },
+  {
+    id: 'daily-dev-ask',
+    name: 'daily-dev-ask',
+    description:
+      "Your agent's WebSearch for development — like a senior dev's reading list. Search community-vetted articles ranked by upvotes, grounded in real sources.",
+    methods: [
+      {
+        tool: 'OpenClaw',
+        description: 'Copy this instruction to your agent to get started:',
+        code: DAILY_DEV_ASK_OPENCLAW_INSTRUCTION,
+        copyValue: DAILY_DEV_ASK_OPENCLAW_INSTRUCTION,
+        copySuccessMessage: 'Instruction copied to clipboard',
+      },
+      {
+        tool: 'Claude Code',
+        description:
+          'Add daily.dev to Claude Code as a plugin, then use /daily-dev-ask:',
+        code: DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND.join('\n'),
+        multilineCode: true,
+        copyValue: DAILY_DEV_ASK_CLAUDE_INSTALL_COMMAND.join(' && '),
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'After setup, use /daily-dev-ask to search and answer questions from daily.dev articles.',
+      },
+      {
+        tool: 'Codex',
+        description:
+          'Install the daily-dev-ask skill in Codex with this command:',
+        code: CODEX_ASK_INSTALL_COMMAND,
+        copyValue: CODEX_ASK_INSTALL_COMMAND,
+        copySuccessMessage: 'Command copied to clipboard',
+        note: 'Restart Codex after installation, then use $daily-dev-ask.',
+      },
+      {
+        tool: 'Cursor',
+        description: 'Add daily.dev as a remote skill in Cursor:',
+        steps: [
+          'Open Cursor Settings -> Rules (Cmd+Shift+J on Mac, Ctrl+Shift+J on Windows/Linux)',
+          'Click "Add Rule" -> "Remote Rule (Github)"',
+          'Enter the repository URL below',
+        ],
+        code: CURSOR_REPO_URL,
+        copyValue: CURSOR_REPO_URL,
+        copySuccessMessage: 'URL copied to clipboard',
+        note: 'Use /daily-dev-ask in Agent chat to search and answer questions.',
       },
     ],
   },
@@ -392,6 +449,7 @@ const CopyableCodeBlock = ({
 
 const ApiAccessPage = (): ReactElement => {
   const { isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { data: tokens, isLoading } = usePersonalAccessTokens();
   const { mutateAsync: revokeToken } = useRevokePersonalAccessToken();
   const { displayToast } = useToastNotification();
@@ -402,6 +460,13 @@ const ApiAccessPage = (): ReactElement => {
   const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>(
     {},
   );
+  let tokenEmptyStateText = 'No tokens yet. Create one to get started.';
+
+  if (!isPlus) {
+    tokenEmptyStateText = isAgentPositioning
+      ? 'Upgrade to Plus to create API tokens and connect your agents to the daily.dev API.'
+      : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.';
+  }
 
   const handleCopy = async (value: string, successMessage = 'Copied') => {
     try {
@@ -453,8 +518,18 @@ const ApiAccessPage = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Use tokens to authenticate with the daily.dev API. Tokens provide
-            read-only access to your personalized feed and posts.
+            {isAgentPositioning ? (
+              <>
+                Use tokens to authenticate with the daily.dev API. Tokens
+                provide read-only access to your personalized feed and posts for
+                your tools, automations, and AI agents.
+              </>
+            ) : (
+              <>
+                Use tokens to authenticate with the daily.dev API. Tokens
+                provide read-only access to your personalized feed and posts.
+              </>
+            )}
           </Typography>
         </div>
 
@@ -491,9 +566,7 @@ const ApiAccessPage = (): ReactElement => {
               type={TypographyType.Callout}
               color={TypographyColor.Tertiary}
             >
-              {isPlus
-                ? 'No tokens yet. Create one to get started.'
-                : 'Upgrade to Plus to create API tokens and authenticate with the daily.dev API.'}
+              {tokenEmptyStateText}
             </Typography>
             {isPlus ? (
               <Button

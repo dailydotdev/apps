@@ -63,7 +63,7 @@ function EnableNotification({
   contentName,
   className,
   label,
-}: EnableNotificationProps): ReactElement {
+}: EnableNotificationProps): ReactElement | null {
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
     useEnableNotification({ source });
 

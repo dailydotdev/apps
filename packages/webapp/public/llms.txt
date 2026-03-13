@@ -43,6 +43,7 @@ Key capabilities:
   - Trusted by NVIDIA, Apple, Google, OpenAI, Stripe, Shopify, and more
 
 ### Developer Tools
+- [daily-dev-ask](/agents/ask): WebSearch for developers. A skill for Claude Code, Cursor, Codex, and OpenClaw that searches daily.dev's knowledge base of trusted developer content to answer technical questions with source links.
 - [DevCard](/settings/customization/devcard): Generate shareable developer profile cards
 - [Browser Extension](https://daily.dev/browser-extension): New tab replacement for Chrome and Edge
 
@@ -60,13 +61,15 @@ Markdown versions of key pages for AI agents:
 - [Sources Directory](/sources.md): All content sources in markdown format
 - [Tags Directory](/tags.md): All topic tags in markdown format
 - [Squads Directory](/squads/discover.md): Public Squads in markdown format
+- [The Arena](/agents/arena.md): Live developer-ranked coding agents and LLMs in markdown format
 
 ## Sitemaps
 
+- [Sitemap Index](/sitemap.xml): XML sitemap index for all webapp sitemaps
 - [Static Sitemap](/sitemap.txt): Core navigation pages
 - Dynamic Sitemaps (from API):
-  - [Posts](/api/sitemaps/posts): All published articles and discussions
-  - [Sources](/api/sitemaps/sources): Content sources and publications
-  - [Squads](/api/sitemaps/squads): Public developer communities
-  - [Tags](/api/sitemaps/tags): Topic tag pages
-  - [Users](/api/sitemaps/users): Developer profiles
+  - [Posts](/api/sitemaps/posts.xml): All published articles and discussions
+  - [Evergreen](/api/sitemaps/evergreen.xml): High-value evergreen posts
+  - [Tags](/api/sitemaps/tags.xml): Topic tag pages
+  - [Agents](/api/sitemaps/agents.xml): AI agents pages
+  - [Agents Digest](/api/sitemaps/agents-digest.xml): AI agents digest posts

@@ -16,7 +16,7 @@ interface PostContentShareProps {
 
 export function PostContentShare({
   post,
-}: PostContentShareProps): ReactElement {
+}: PostContentShareProps): ReactElement | null {
   const { onInteract, interaction } = usePostActions({ post });
   const { logOpts } = useActiveFeedContext();
   const { isLoading, shareLink } = useGetShortUrl({

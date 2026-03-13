@@ -8,7 +8,6 @@ import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import classNames from 'classnames';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
@@ -91,7 +90,6 @@ function BaseDrawer({
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
-  useOutsideClick(container, onClose, closeOnOutsideClick && hasAnimated);
   const isAnimating = !hasAnimated || isClosing;
 
   useEffect(() => {
@@ -101,7 +99,21 @@ function BaseDrawer({
     };
   }, [onAfterClose, onAfterOpen]);
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (
+      closeOnOutsideClick &&
+      hasAnimated &&
+      container.current &&
+      !container.current.contains(e.target as Node)
+    ) {
+      onClose(e.nativeEvent);
+    }
+  };
+
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
         'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
@@ -109,6 +121,7 @@ function BaseDrawer({
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
+      onClick={handleOverlayClick}
     >
       <div
         {...props}
@@ -160,7 +173,7 @@ function BaseDrawer({
             <Button
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
-              onClick={(e) => onClose(e.nativeEvent)}
+              onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
             >
               Close
             </Button>
@@ -184,7 +197,7 @@ export interface DrawerRef {
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
   ref: MutableRefObject<DrawerRef>,
-): ReactElement {
+): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
   const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
     setIsClosing(false);
@@ -204,7 +217,7 @@ function AnimatedDrawer(
 
   return (
     <ConditionalWrapper
-      condition={appendOnRoot}
+      condition={appendOnRoot ?? false}
       wrapper={(component) => <RootPortal>{component}</RootPortal>}
     >
       <BaseDrawer {...props} isClosing={isClosing} onClose={onClosing} />

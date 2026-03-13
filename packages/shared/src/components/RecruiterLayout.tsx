@@ -22,7 +22,7 @@ export const RecruiterLayout = ({
   children,
   canGoBack,
   onLogoClick,
-}: RecruiterLayoutProps): ReactElement => {
+}: RecruiterLayoutProps): ReactElement | null => {
   const { autoDismissNotifications } = useContext(SettingsContext);
   const { isPageReady } = useRecruiterLayoutReady();
 

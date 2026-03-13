@@ -31,7 +31,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
       <FooterButton
         className="w-full tablet:ml-auto tablet:w-auto"
         variant={ButtonVariant.Primary}
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onTourIndexChange(0);
           setShouldShowCarousel(true);
@@ -53,7 +53,7 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
         <ModalFooter>
           <FooterButton
             variant={ButtonVariant.Tertiary}
-            onClick={(e) => onClose(e.nativeEvent)}
+            onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
           >
             Close
           </FooterButton>
@@ -111,14 +111,14 @@ function SquadTour({ onClose }: SquadTourProps): ReactElement {
           <ModalFooter justify={Justify.Between}>
             <FooterButton
               variant={ButtonVariant.Tertiary}
-              onClick={(e) => onSwipedRight(e)}
+              onClick={() => onSwipedRight(undefined as never)}
             >
               {index === 0 ? 'Close' : 'Back'}
             </FooterButton>
             {indicator}
             <FooterButton
               variant={ButtonVariant.Primary}
-              onClick={(e) => onSwipedLeft(e)}
+              onClick={() => onSwipedLeft(undefined as never)}
             >
               {index === items.length - 1 ? 'Close' : 'Next'}
             </FooterButton>

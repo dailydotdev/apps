@@ -13,6 +13,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { labels } from '../../../lib';
 import { editOpportunityRecruiterMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
+import type { GraphQLError } from '../../../lib/errors';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { useToastNotification } from '../../../hooks';
 import { applyZodErrorsToForm } from '../../../lib/form';
@@ -87,7 +88,8 @@ export const OpportunityEditRecruiterModal = ({
         id,
         payload: data as z.infer<typeof opportunityEditRecruiterSchema>,
       });
-    } catch (originalError) {
+    } catch (err) {
+      const originalError = err as GraphQLError;
       if (
         originalError.response?.errors?.[0]?.extensions?.code ===
         ApiError.ZodValidationError
@@ -102,7 +104,7 @@ export const OpportunityEditRecruiterModal = ({
         );
       }
 
-      throw originalError;
+      throw err;
     }
   });
 

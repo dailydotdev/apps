@@ -5,7 +5,7 @@ import type { NextSeoProps } from 'next-seo';
 import { FeedSettingsBlockingSection } from '@dailydotdev/shared/src/components/feeds/FeedSettings/sections/FeedSettingsBlockingSection';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getFeedSettingsLayout } from '../../../components/layouts/SettingsLayout/FeedSettingsLayout';
 
 const AccountManageSubscriptionPage = (): ReactElement => {
@@ -18,9 +18,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   );
 };
 
+const seoTitles = getPageSeoTitles('Edit blocked content');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Edit blocked content'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
 };
 

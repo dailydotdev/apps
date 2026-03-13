@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import EntityCard from '../cards/entity/EntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
@@ -10,11 +9,10 @@ import { getAdFaviconImageLink } from '../cards/ad/common/getAdFaviconImageLink'
 import { useFeature } from '../GrowthBookProvider';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
-import type { Ad } from '../../graphql/posts';
-import { useFetchAd } from '../../features/monetization/useFetchAd';
+import { useAdQuery } from '../../features/monetization/useAdQuery';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
-import { AdActions } from '../../lib/ads';
+import { AdActions, AdPlacement } from '../../lib/ads';
 import { adLogEvent } from '../../lib/feed';
 import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
@@ -39,16 +37,12 @@ export function PostSidebarAdWidget({
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
-  const { fetchAd } = useFetchAd();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
 
-  const { data: ad, isPending } = useQuery<Ad | null>({
+  const { data: ad, isPending } = useAdQuery({
+    placement: AdPlacement.PostSidebar,
     queryKey: generateQueryKey(RequestKey.Ads, user, postId, 'post-sidebar'),
-    queryFn: () => fetchAd({ active: false }),
     enabled: !isPlus,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
     staleTime: StaleTime.OneHour,
   });
 

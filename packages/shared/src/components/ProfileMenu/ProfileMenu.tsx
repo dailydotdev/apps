@@ -38,7 +38,7 @@ interface ProfileMenuProps {
 
 export default function ProfileMenu({
   onClose,
-}: ProfileMenuProps): ReactElement {
+}: ProfileMenuProps): ReactElement | null {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
   const { showIndicator: showProfileCompletion } =

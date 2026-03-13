@@ -27,24 +27,32 @@ export const useNotificationPreferenceToggle = ({
     isFetching,
     isPreferencesReady,
   } = useNotificationPreference({
-    params: params ? [params] : undefined,
+    params: params ? [params] : [],
   });
 
   const isSubscribed = useMemo(() => {
+    if (!params) {
+      return false;
+    }
+
     return !!preferences?.some((item) =>
       checkHasStatusPreference(
         item,
-        params?.notificationType,
-        params?.referenceId,
+        params.notificationType,
+        params.referenceId,
         [NotificationPreferenceStatus.Subscribed],
       ),
     );
-  }, [preferences, params?.notificationType, params?.referenceId]);
+  }, [preferences, params]);
 
   const { mutateAsync: onToggle } = useMutation({
     mutationFn: async (): ReturnType<
       UseNotificationPreferenceToggle['onToggle']
     > => {
+      if (!params) {
+        throw new Error('Notification preference params are required');
+      }
+
       const notificationPreferenceParams = {
         type: params.notificationType,
         referenceId: params.referenceId,

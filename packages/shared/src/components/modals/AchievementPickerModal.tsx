@@ -22,16 +22,19 @@ export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
   trackedAchievementId?: string | null;
   onTrack: (achievementId: string) => Promise<void>;
+  onUntrack: () => Promise<void>;
 }
 
 export const AchievementPickerModal = ({
   achievements,
   trackedAchievementId,
   onTrack,
+  onUntrack,
   onRequestClose,
   ...props
 }: AchievementPickerModalProps): ReactElement => {
   const [isTracking, setIsTracking] = useState(false);
+  const [isUntracking, setIsUntracking] = useState(false);
   const { logEvent } = useLogContext();
 
   const lockedAchievements = useMemo(() => {
@@ -50,6 +53,21 @@ export const AchievementPickerModal = ({
       });
     } finally {
       setIsTracking(false);
+    }
+  };
+
+  const handleUntrack = async () => {
+    setIsUntracking(true);
+    try {
+      await onUntrack();
+      logEvent({
+        event_name: LogEvent.UntrackAchievement,
+        target_type: TargetType.AchievementCard,
+        target_id: trackedAchievementId,
+        extra: JSON.stringify({ origin: 'picker_modal' }),
+      });
+    } finally {
+      setIsUntracking(false);
     }
   };
 
@@ -123,16 +141,16 @@ export const AchievementPickerModal = ({
                     </div>
                     <Button
                       variant={
-                        isTracked
-                          ? ButtonVariant.Secondary
-                          : ButtonVariant.Primary
+                        isTracked ? ButtonVariant.Subtle : ButtonVariant.Primary
                       }
-                      disabled={isTracking || isTracked}
+                      disabled={isTracking || isUntracking}
                       onClick={() =>
-                        handleTrack(userAchievement.achievement.id)
+                        isTracked
+                          ? handleUntrack()
+                          : handleTrack(userAchievement.achievement.id)
                       }
                     >
-                      {isTracked ? 'Tracking' : 'Track'}
+                      {isTracked ? 'Stop tracking' : 'Track'}
                     </Button>
                   </div>
 

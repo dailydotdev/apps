@@ -3,6 +3,7 @@ import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
 import {
   SOURCE_FEED_QUERY,
@@ -54,8 +55,9 @@ import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
 import ProtectedPage from '../../../components/ProtectedPage';
 import { getSquadOpenGraph } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
+import { getAppOrigin } from '../../../lib/seo';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -76,10 +78,71 @@ const SquadLoading = dynamic(
   { ssr: false },
 );
 
+const appOrigin = getAppOrigin();
+
+const getSquadPageJsonLd = (squad: SquadStaticData): string => {
+  const squadUrl = squad.permalink;
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${squadUrl}#organization`,
+        name: squad.name,
+        url: squadUrl,
+        ...(squad.description && { description: squad.description }),
+        ...(squad.image && { logo: squad.image, image: squad.image }),
+        ...(squad.createdAt && {
+          foundingDate: new Date(squad.createdAt).toISOString().split('T')[0],
+        }),
+        ...(squad.membersCount > 0 && {
+          interactionStatistic: {
+            '@type': 'InteractionCounter',
+            interactionType: { '@type': 'JoinAction' },
+            userInteractionCount: squad.membersCount,
+          },
+        }),
+      },
+      {
+        '@type': 'CollectionPage',
+        '@id': `${squadUrl}#page`,
+        url: squadUrl,
+        name: squad.name,
+        about: { '@id': `${squadUrl}#organization` },
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: appOrigin,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Squads',
+            item: `${appOrigin}/squads`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: squad.name,
+          },
+        ],
+      },
+    ],
+  });
+};
+
 interface SourcePageProps extends DynamicSeoProps {
   handle: string;
   initialData?: SquadStaticData;
   referringUser?: Pick<PublicProfile, 'id' | 'name' | 'image'>;
+  jsonLd?: string;
 }
 
 const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
@@ -92,7 +155,11 @@ const PageComponent = (props: ProtectedPageProps & { squad: Squad }) => {
   return <ProtectedPage {...restProtectedPageProps}>{children}</ProtectedPage>;
 };
 
-const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
+const SquadPage = ({
+  handle,
+  initialData,
+  jsonLd,
+}: SourcePageProps): ReactElement => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   useJoinReferral();
@@ -200,6 +267,14 @@ const SquadPage = ({ handle, initialData }: SourcePageProps): ReactElement => {
 
   return (
     <PageComponent squad={squad} fallback={<></>} shouldFallback={!user}>
+      {jsonLd && (
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+      )}
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
@@ -297,12 +372,18 @@ export async function getServerSideProps({
 
     setCacheHeader();
 
+    const seoTitleSource = referringUser
+      ? `${referringUser.name} invited you to ${squad.name}`
+      : `${squad.name} Squad`;
+    const squadSeoTitles = getPageSeoTitles(seoTitleSource);
+
     const seo: NextSeoProps = {
-      title: referringUser
-        ? `${referringUser.name} invited you to ${squad.name}`
-        : getTemplatedTitle(`${squad.name} Squad`),
+      title: squadSeoTitles.title,
       description: squad.description,
-      openGraph: getSquadOpenGraph({ squad }),
+      openGraph: {
+        ...squadSeoTitles.openGraph,
+        ...getSquadOpenGraph({ squad }),
+      },
       nofollow: !squad.public,
       noindex: !squad.public,
     };
@@ -313,6 +394,9 @@ export async function getServerSideProps({
         handle,
         initialData: squad as Squad,
         referringUser: referringUser || null,
+        ...(squad.public && {
+          jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
+        }),
       },
     };
   } catch (err) {

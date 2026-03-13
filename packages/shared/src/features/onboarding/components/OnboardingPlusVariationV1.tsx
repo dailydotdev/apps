@@ -7,8 +7,11 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { RadioItem } from '../../../components/fields/RadioItem';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { plusFeatureList } from '../../../components/plus/PlusList';
+import { usePlusPositioning, useViewSize, ViewSize } from '../../../hooks';
+import {
+  plusFeatureListControl,
+  plusFeatureListTreatment,
+} from '../../../components/plus/PlusList';
 import { LogEvent, TargetType } from '../../../lib/log';
 import type { PlusItem } from '../../../components/plus/PlusListItem';
 import { PlusItemStatus } from '../../../components/plus/PlusListItem';
@@ -81,20 +84,17 @@ interface OnboardingStepProps extends Parameters {
 export const OnboardingPlusVariationV1 = ({
   onSkip,
   onComplete,
-  parameters: {
-    headline = 'Suffer less. Debugging bad decisions is harder.',
-    free,
-    plus,
-  },
+  parameters: { headline, free, plus },
 }: OnboardingStepProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isAgentPositioning } = usePlusPositioning();
 
   const { logEvent } = useLogContext();
   const { item } = useFunnelAnnualPricing();
 
-  const featureCardsNew = plusFeatureList.filter(
-    (plusItem) => plusItem.status === PlusItemStatus.Ready,
-  );
+  const featureCardsNew = (
+    isAgentPositioning ? plusFeatureListTreatment : plusFeatureListControl
+  ).filter((plusItem) => plusItem.status === PlusItemStatus.Ready);
 
   const handleItemHover = (hoverItem: PlusItem) => {
     logEvent({
@@ -155,7 +155,10 @@ export const OnboardingPlusVariationV1 = ({
           type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
           className="mb-4 tablet:mb-6"
         >
-          {headline}
+          {headline ||
+            (isAgentPositioning
+              ? 'Your agents are only as good as their context.'
+              : 'Suffer less. Debugging bad decisions is harder.')}
         </Typography>
       </header>
 
@@ -188,7 +191,9 @@ export const OnboardingPlusVariationV1 = ({
                 title={plus?.title || 'Plus'}
                 description={
                   plus?.description ||
-                  'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.'
+                  (isAgentPositioning
+                    ? 'For developers using AI agents. Get API access, daily.dev skills, and real-time developer intelligence across your toolchain.'
+                    : 'For serious developers. Unlock smarter learning, pro insights, and exclusive tools to grow faster.')
                 }
                 price={item?.price.monthly?.formatted ?? '0'}
               />
@@ -210,7 +215,9 @@ export const OnboardingPlusVariationV1 = ({
               title={free?.title || 'Free'}
               description={
                 free?.description ||
-                'For casual browsing. Get the basics and stay updated with the essentials.'
+                (isAgentPositioning
+                  ? 'For developers who want to stay current. Get a personalized feed, search, squads, and essentials for free.'
+                  : 'For casual browsing. Get the basics and stay updated with the essentials.')
               }
               price={`${item?.currency?.symbol ?? '$'}0`}
             />
@@ -246,14 +253,14 @@ export const OnboardingPlusVariationV1 = ({
                 <Button
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="-rotate-90" />}
-                  onClick={(e) => onSwipedRight(e)}
+                  onClick={() => onSwipedRight(undefined as never)}
                   disabled={index === 0}
                 />
                 <span className="flex justify-center">{indicator}</span>
                 <Button
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="rotate-90" />}
-                  onClick={(e) => onSwipedLeft(e)}
+                  onClick={() => onSwipedLeft(undefined as never)}
                   disabled={index === items.length - 1}
                 />
               </div>

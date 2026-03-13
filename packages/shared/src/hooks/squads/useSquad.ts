@@ -13,7 +13,7 @@ interface UseSquadProps {
 }
 
 interface UseSquad {
-  squad: Squad;
+  squad: Squad | undefined;
   isForbidden: boolean;
   isLoading: boolean;
   isFetched: boolean;

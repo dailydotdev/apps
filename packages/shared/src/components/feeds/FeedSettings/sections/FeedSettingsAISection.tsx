@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import {
   useConditionalFeature,
+  usePlusPositioning,
   usePlusSubscription,
   useToastNotification,
   useClickbaitTries,
@@ -36,6 +37,7 @@ import { Tooltip } from '../../../tooltip/Tooltip';
 
 export const FeedSettingsAISection = (): ReactElement => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { isLoading } = useFeedSettings();
@@ -58,7 +60,9 @@ export const FeedSettingsAISection = (): ReactElement => {
         <>
           <div className="flex w-full items-center rounded-12 border border-border-subtlest-tertiary bg-action-plus-float p-3">
             <Typography type={TypographyType.Callout}>
-              Upgrade and use daily.dev&apos;s AI Superpowers!
+              {isAgentPositioning
+                ? 'Upgrade to unlock AI tools for your feed.'
+                : "Upgrade and use daily.dev's AI Superpowers!"}
             </Typography>
             <Link href={plusUrl} passHref>
               <Button
@@ -154,7 +158,11 @@ export const FeedSettingsAISection = (): ReactElement => {
             return (
               <Tooltip
                 className="max-w-70 text-center !typo-subhead"
-                content="Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically."
+                content={
+                  isAgentPositioning
+                    ? 'Upgrade to Plus to unlock Clickbait Shield and AI-powered clean titles.'
+                    : 'Upgrade to Plus to unlock Clickbait Shield and enhance titles automatically.'
+                }
               >
                 <div className="w-fit">{child as ReactElement}</div>
               </Tooltip>

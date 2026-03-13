@@ -51,7 +51,7 @@ export function WorkspacePhotoItem({
             variant={ButtonVariant.Float}
             size={ButtonSize.XSmall}
             icon={<TrashIcon />}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               onDelete(photo);
             }}

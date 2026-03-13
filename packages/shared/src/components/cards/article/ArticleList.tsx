@@ -74,9 +74,11 @@ export const ArticleList = forwardRef(function ArticleList(
   );
 
   const metadata = useMemo(() => {
+    const authorName = post.author?.name ?? post.source.name;
+
     if (isUserSource) {
       return {
-        topLabel: post.author.name,
+        topLabel: authorName,
       };
     }
 

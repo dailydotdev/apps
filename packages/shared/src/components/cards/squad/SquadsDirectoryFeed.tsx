@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useQuery } from '@tanstack/react-query';
 import type { Squad } from '../../../graphql/sources';
 import type { SourcesQueryProps } from '../../../hooks/source/useSources';
 import {
@@ -21,11 +20,12 @@ import type { HorizontalScrollTitleProps } from '../../HorizontalScroll/Horizont
 import { HorizontalScrollTitle } from '../../HorizontalScroll/HorizontalScrollHeader';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { fetchDirectoryAd } from '../../../lib/ads';
+import { AdPlacement } from '../../../lib/ads';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import type { Ad } from '../../../graphql/posts';
 import { AdPixel } from '../ad/common/AdPixel';
 import { TargetType } from '../../../lib/log';
+import { useAdQuery } from '../../../features/monetization/useAdQuery';
 
 interface SquadHorizontalListProps {
   title: HorizontalScrollTitleProps;
@@ -97,14 +97,14 @@ export function SquadsDirectoryFeed({
   const { isFetched } = result;
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLoading = !isFetched || (!inView && !result.data);
-  const { data: ad, isLoading: isLoadingAd } = useQuery({
+  const { data: ad, isLoading: isLoadingAd } = useAdQuery({
+    placement: AdPlacement.SquadDirectory,
     queryKey: generateQueryKey(
       RequestKey.Ads,
       user,
       'squads_directory',
       title.copy,
     ),
-    queryFn: fetchDirectoryAd,
     enabled: firstItemShouldBeAd && isAuthReady && !user?.isPlus,
   });
   const { squad: squadAd } = useSquad({ handle: ad?.data?.source?.handle });

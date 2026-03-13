@@ -26,6 +26,7 @@ import { LazyModal } from '../../../../components/modals/common/types';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
+import { ACHIEVEMENTS_LAUNCH_DATE } from './constants';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 type SyncOrigin = 'achievements_list' | 'sync_prompt_modal';
@@ -55,6 +56,8 @@ export function AchievementsList({
   const [trackingId, setTrackingId] = useState<string | null>(null);
   const { user: loggedUser } = useAuthContext();
   const isOwner = loggedUser?.id === user.id;
+  const shouldShowSync =
+    isOwner && new Date(user.createdAt) < ACHIEVEMENTS_LAUNCH_DATE;
   const {
     value: isAchievementTrackingWidgetEnabled,
     isLoading: isAchievementTrackingWidgetLoading,
@@ -66,10 +69,12 @@ export function AchievementsList({
     isOwner &&
     !isAchievementTrackingWidgetLoading &&
     isAchievementTrackingWidgetEnabled === true;
-  const { trackedAchievement, trackAchievement } = useTrackedAchievement(
-    user.id,
-    canTrackAchievements,
-  );
+  const {
+    trackedAchievement,
+    trackAchievement,
+    untrackAchievement,
+    isUntrackPending,
+  } = useTrackedAchievement(user.id, canTrackAchievements);
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const { logEvent } = useLogContext();
@@ -117,7 +122,7 @@ export function AchievementsList({
   useEffect(() => {
     if (
       !isActionsFetched ||
-      !isOwner ||
+      !shouldShowSync ||
       isStatusPending ||
       !syncStatus?.canSync ||
       checkHasCompleted(ActionType.AchievementSyncPrompt)
@@ -131,7 +136,7 @@ export function AchievementsList({
     });
   }, [
     isActionsFetched,
-    isOwner,
+    shouldShowSync,
     isStatusPending,
     syncStatus?.canSync,
     checkHasCompleted,
@@ -155,6 +160,16 @@ export function AchievementsList({
     },
     [logEvent, trackAchievement],
   );
+
+  const handleUntrack = useCallback(async () => {
+    const achievementId = trackedAchievement?.achievement.id;
+    await untrackAchievement();
+    logEvent({
+      event_name: LogEvent.UntrackAchievement,
+      target_type: TargetType.AchievementCard,
+      target_id: achievementId,
+    });
+  }, [logEvent, trackedAchievement?.achievement.id, untrackAchievement]);
 
   const filteredAchievements = useMemo(() => {
     const sorted = [...achievements].sort((a, b) => {
@@ -226,7 +241,7 @@ export function AchievementsList({
             </Button>
           ))}
         </div>
-        {isOwner && syncStatus?.canSync && (
+        {shouldShowSync && syncStatus?.canSync && (
           <Button
             variant={ButtonVariant.Secondary}
             disabled={isSyncing || isStatusPending}
@@ -262,6 +277,8 @@ export function AchievementsList({
                 trackingId === userAchievement.achievement.id
               }
               onTrack={canTrackAchievements ? handleTrack : undefined}
+              onUntrack={canTrackAchievements ? handleUntrack : undefined}
+              isUntrackPending={isUntrackPending}
             />
           ))}
         </div>

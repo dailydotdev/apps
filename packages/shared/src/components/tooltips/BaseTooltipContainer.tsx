@@ -31,7 +31,7 @@ export interface BaseTooltipContainerProps {
   bgClassName?: string;
 }
 
-const DefaultArrow = (arrowProps) => {
+const DefaultArrow = (arrowProps: TooltipArrowProps) => {
   return <div {...arrowProps} />;
 };
 

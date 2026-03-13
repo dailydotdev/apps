@@ -5,6 +5,7 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { blurClasses } from './common';
 
 const NewComment = dynamic(() =>
@@ -49,11 +50,14 @@ export default function FooterWrapper({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-3 w-full',
+        'fixed !bottom-0 left-0 z-3 w-full pb-safe',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
     >
+      <div className="hidden tablet:block">
+        <ScrollToTopButton />
+      </div>
       {post && post.type !== PostType.Brief && (
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment

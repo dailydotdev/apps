@@ -1,0 +1,207 @@
+import type { GetStaticPropsResult } from 'next';
+import type { ReactElement } from 'react';
+import React from 'react';
+import { useRouter } from 'next/router';
+import type { DehydratedState } from '@tanstack/react-query';
+import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
+import { ArenaPage } from '@dailydotdev/shared/src/features/agents/arena/ArenaPage';
+import { getArenaLastUpdatedIso } from '@dailydotdev/shared/src/features/agents/arena/timestamps';
+import type {
+  ArenaQueryResponse,
+  ArenaTab,
+} from '@dailydotdev/shared/src/features/agents/arena/types';
+import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
+import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../components/layouts/MainLayout';
+
+interface ArenaPageRouteProps {
+  initialTab: ArenaTab;
+  dehydratedState: DehydratedState;
+}
+
+const ARENA_TITLE = 'The Arena - Agents & LLM Leaderboard | daily.dev';
+const ARENA_DESCRIPTION =
+  "No benchmarks. No hype. Just developers voting on which AI coding agents and LLMs actually deliver. See who's on top right now.";
+
+const getTabUrl = (tab: ArenaTab): string =>
+  `https://app.daily.dev/agents/arena?tab=${tab}`;
+
+const resolveArenaTab = (
+  tab: string | string[] | undefined,
+  fallback: ArenaTab,
+): ArenaTab => {
+  const tabValue = Array.isArray(tab) ? tab[0] : tab;
+  if (tabValue === 'llms') {
+    return 'llms';
+  }
+  if (tabValue === 'coding-agents') {
+    return 'coding-agents';
+  }
+
+  return fallback;
+};
+
+const getArenaJsonLd = ({
+  activeTab,
+  rankings,
+  dateModified,
+}: {
+  activeTab: ArenaTab;
+  rankings: ReturnType<typeof computeRankings>;
+  dateModified?: string;
+}): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: ARENA_TITLE,
+    description: ARENA_DESCRIPTION,
+    url: getTabUrl(activeTab),
+    ...(dateModified ? { dateModified } : {}),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'daily.dev',
+      url: 'https://app.daily.dev',
+    },
+    about: [
+      { '@type': 'Thing', name: 'AI coding agents' },
+      { '@type': 'Thing', name: 'Large language models' },
+      { '@type': 'Thing', name: 'Developer sentiment' },
+    ],
+    mainEntity: {
+      '@type': 'ItemList',
+      name:
+        activeTab === 'coding-agents' ? 'Coding Agents Ranking' : 'LLM Ranking',
+      itemListOrder: 'https://schema.org/ItemListOrderDescending',
+      numberOfItems: Math.min(rankings.length, 10),
+      itemListElement: rankings.slice(0, 10).map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'SoftwareApplication',
+          name: item.entity.name,
+          image: item.entity.logo,
+          applicationCategory:
+            activeTab === 'coding-agents'
+              ? 'DeveloperApplication'
+              : 'ArtificialIntelligenceApplication',
+        },
+      })),
+    },
+  });
+
+const getArenaBreadcrumbJsonLd = (): string =>
+  JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://app.daily.dev',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Agentic Hub',
+        item: 'https://app.daily.dev/agents',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: 'The Arena',
+        item: 'https://app.daily.dev/agents/arena',
+      },
+    ],
+  });
+
+const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
+  const router = useRouter();
+
+  const activeTab = resolveArenaTab(router.query.tab, initialTab);
+
+  const { data } = useQuery(arenaOptions({ groupId: activeTab }));
+  const rankings =
+    data?.sentimentTimeSeries && data.sentimentGroup
+      ? computeRankings(
+          data.sentimentTimeSeries.entities.nodes,
+          data.sentimentGroup.entities,
+          data.sentimentTimeSeries.resolutionSeconds,
+        )
+      : [];
+  const dateModified = data
+    ? getArenaLastUpdatedIso(data as ArenaQueryResponse)
+    : undefined;
+
+  const handleTabChange = (tab: ArenaTab): void => {
+    router.replace({ pathname: router.pathname, query: { tab } }, undefined, {
+      shallow: true,
+    });
+  };
+
+  return (
+    <>
+      <script
+        key={activeTab}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getArenaJsonLd({ activeTab, rankings, dateModified }),
+        }}
+      />
+      <script
+        key="arena-breadcrumbs"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getArenaBreadcrumbJsonLd(),
+        }}
+      />
+      <ArenaPage activeTab={activeTab} onTabChange={handleTabChange} />
+    </>
+  );
+};
+
+export async function getStaticProps(): Promise<
+  GetStaticPropsResult<ArenaPageRouteProps>
+> {
+  const initialTab: ArenaTab = 'coding-agents';
+  const queryClient = new QueryClient();
+  await Promise.all([
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
+    queryClient.prefetchQuery(arenaOptions({ groupId: 'llms' })),
+  ]);
+
+  return {
+    props: {
+      initialTab,
+      dehydratedState: dehydrate(queryClient),
+    },
+    revalidate: 600,
+  };
+}
+
+const getArenaLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+ArenaPageRoute.getLayout = getArenaLayout;
+ArenaPageRoute.layoutProps = {
+  screenCentered: false,
+  seo: {
+    title: ARENA_TITLE,
+    description: ARENA_DESCRIPTION,
+    canonical: 'https://app.daily.dev/agents/arena',
+    openGraph: {
+      title: ARENA_TITLE,
+      description: ARENA_DESCRIPTION,
+      url: 'https://app.daily.dev/agents/arena',
+      type: 'website',
+      images: [
+        {
+          url: 'https://og.daily.dev/api/arena?tab=coding-agents&hideLink=1',
+        },
+      ],
+    },
+  },
+};
+
+export default ArenaPageRoute;

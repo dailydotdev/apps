@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React from 'react';
 import { EmptyScreenIcon } from './EmptyScreen';
 import { DevPlusIcon, HashtagIcon } from './icons';
@@ -23,9 +23,11 @@ import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import Link from './utilities/Link';
+import { usePlusPositioning } from '../hooks/usePlusPositioning';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -38,12 +40,20 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
     [0, 1],
     DEFAULT_ALGORITHM_INDEX,
   );
+  const setSelectedAlgoState: Dispatch<SetStateAction<number>> = (value) => {
+    const nextValue = typeof value === 'function' ? value(selectedAlgo) : value;
+    return setSelectedAlgo(nextValue);
+  };
+  const algoState: [number, Dispatch<SetStateAction<number>>] = [
+    selectedAlgo,
+    setSelectedAlgoState,
+  ];
 
   return (
     <div className="flex w-full flex-col">
       <div className="mr-auto mt-0 flex gap-3 tablet:mr-0 tablet:mt-2 laptop:mr-auto laptop:w-auto">
         <SearchControlHeader
-          algoState={[selectedAlgo, setSelectedAlgo]}
+          algoState={algoState}
           feedName={SharedFeedPage.Custom}
         />
       </div>
@@ -68,16 +78,22 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                 color={TypographyColor.Primary}
                 bold
               >
-                Custom feeds got a massive upgrade!
+                {isAgentPositioning
+                  ? 'Build feeds for both you and your agents'
+                  : 'Custom feeds got a massive upgrade!'}
               </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                Custom Feeds is now more powerful than ever before, with
+                {isAgentPositioning
+                  ? `Create laser-focused feeds with advanced filters and full
+                control, then use them in your own workflow or through the
+                daily.dev API. Upgrade to Plus to unlock the full setup.`
+                  : `Custom Feeds is now more powerful than ever before, with
                 advanced filters, extensive customization options, and complete
                 feed control. Upgrade to Plus to unlock this ultimate tool for
-                tailoring your content.
+                tailoring your content.`}
               </Typography>
               <Link href={plusUrl} passHref>
                 <Button

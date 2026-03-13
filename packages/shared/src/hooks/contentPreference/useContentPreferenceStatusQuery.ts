@@ -15,15 +15,17 @@ import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from './types';
-import type { PropsParameters } from '../../types';
 
 export type UseContentPreferenceStatusQueryProps = {
   id: string;
   entity: ContentPreferenceType;
-  queryOptions?: Partial<UseQueryOptions<ContentPreference>>;
+  queryOptions?: Partial<
+    Omit<UseQueryOptions<ContentPreference | null>, 'queryKey' | 'queryFn'>
+  >;
 };
 
-export type UseContentPreferenceStatusQuery = UseQueryResult<ContentPreference>;
+export type UseContentPreferenceStatusQuery =
+  UseQueryResult<ContentPreference | null>;
 
 export const useContentPreferenceStatusQuery = ({
   id,
@@ -37,7 +39,7 @@ export const useContentPreferenceStatusQuery = ({
     entity,
   });
 
-  const queryResult = useQuery({
+  const queryResult = useQuery<ContentPreference | null>({
     queryKey,
     queryFn: async ({ queryKey: fnQueryKey }) => {
       const [, , queryVariables] = fnQueryKey as [
@@ -84,7 +86,7 @@ export const useContentPreferenceStatusQuery = ({
       ];
 
       const { id: entityId, entity: entityType } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
       if (entityId !== id || entityType !== entity) {
         return;
@@ -92,13 +94,16 @@ export const useContentPreferenceStatusQuery = ({
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
-      if (!nextStatus) {
-        mutationQueryClient.setQueryData<ContentPreference>(queryKey, null);
+      if (nextStatus == null) {
+        mutationQueryClient.setQueryData<ContentPreference | null>(
+          queryKey,
+          null,
+        );
 
         return;
       }
 
-      mutationQueryClient.setQueryData<ContentPreference>(queryKey, {
+      mutationQueryClient.setQueryData<ContentPreference | null>(queryKey, {
         status: nextStatus,
         referenceId: entityId,
         type: entityType,

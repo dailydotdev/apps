@@ -11,7 +11,6 @@ import {
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
-import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from './search/useSearchResultsLayout';
 
 interface UseFeedLayoutReturn {
@@ -70,11 +69,17 @@ export const FeedLayoutMobileFeedPages = new Set<AllFeedPages>([
   OtherFeedPage.FeedByIds,
   OtherFeedPage.Welcome,
   OtherFeedPage.Following,
+  OtherFeedPage.AgentsVibes,
 ]);
 
 export const UserProfileFeedPages = new Set([
   OtherFeedPage.UserUpvoted,
   OtherFeedPage.UserPosts,
+]);
+
+export const PostFeedPages = new Set([
+  OtherFeedPage.Post,
+  OtherFeedPage.AgentsVibes,
 ]);
 
 interface GetFeedPageLayoutComponentProps
@@ -111,10 +116,12 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = isNullOrUndefined(isLaptopSize) || isLaptopSize;
+  const isLaptop = typeof window === 'undefined' || isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();
+
+  const isPostFeedPage = PostFeedPages.has(feedName as OtherFeedPage);
 
   const isListMode = isSearchPageLaptop || insaneMode;
 
@@ -128,7 +135,7 @@ export const useFeedLayout = ({
     !isLaptop && isFeedIncludedInListLayout;
 
   const shouldUseListMode =
-    isListMode && isLaptop && isFeedIncludedInListLayout;
+    (isListMode && isLaptop && isFeedIncludedInListLayout) || isPostFeedPage;
 
   const shouldUseListFeedLayout = feedRelated
     ? shouldUseListFeedLayoutOnMobileTablet ||

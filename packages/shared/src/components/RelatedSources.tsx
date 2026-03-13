@@ -16,7 +16,7 @@ export const RelatedSources = ({
   isLoading,
   sources,
   className,
-}: RelatedSourcesProps): ReactElement => {
+}: RelatedSourcesProps): ReactElement | null => {
   if (isLoading) {
     return (
       <div className={classNames('mb-10 w-auto', className)}>

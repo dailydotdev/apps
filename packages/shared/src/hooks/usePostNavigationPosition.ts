@@ -19,7 +19,7 @@ const usePostNavigationPosition = ({
   offset = 0,
 }: UsePostNavigationPositionProps): UsePostNavigationPosition => {
   useResetScrollForResponsiveModal();
-  useHideOnModal(isDisplayed);
+  useHideOnModal(isDisplayed ?? false);
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const [modalParent, setModalParent] = useState<HTMLElement>();

@@ -29,7 +29,10 @@ interface UsePushNotificationMutationProps {
 
 export const usePermissionCache =
   (): UserPersistentContextType<NotificationPermission> =>
-    usePersistentContext(PERMISSION_NOTIFICATION_KEY, 'default');
+    usePersistentContext<NotificationPermission>(
+      PERMISSION_NOTIFICATION_KEY,
+      'default',
+    );
 
 export const usePushNotificationMutation = ({
   onPopupGranted,
@@ -79,7 +82,7 @@ export const usePushNotificationMutation = ({
       }
 
       if (shouldOpenPopup()) {
-        onOpenPopup(source);
+        onOpenPopup?.(source);
         return false;
       }
 

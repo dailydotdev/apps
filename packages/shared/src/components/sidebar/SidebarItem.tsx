@@ -7,6 +7,7 @@ import type { SidebarMenuItem } from './common';
 import { ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
+import { SimpleTooltip } from '../tooltips';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -22,25 +23,24 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
+  const isActive = item.active || item.path === activePage;
+  const isCollapsed = !shouldShowLabel;
 
-  const isActive = (activeItem: SidebarMenuItem) => {
-    return activeItem.active || activeItem.path === activePage;
-  };
-
-  return (
+  const navItem = (
     <NavItem
-      active={isActive(item)}
+      active={isActive}
       ref={item.navItemRef}
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
         'mx-1 rounded-10',
         item.itemClassName,
-        !shouldShowLabel && 'justify-center',
+        isCollapsed && 'justify-center',
       )}
     >
       <ClickableNavItem
         item={item}
+        aria-label={isCollapsed ? item.title : undefined}
         showLogin={
           item.requiresLogin && !user
             ? () => showLogin({ trigger: item.title as AuthTriggersType })
@@ -51,9 +51,19 @@ export const SidebarItem = ({
         <ItemInner
           item={item}
           shouldShowLabel={shouldShowLabel}
-          active={isActive(item)}
+          active={isActive}
         />
       </ClickableNavItem>
     </NavItem>
   );
+
+  if (isCollapsed) {
+    return (
+      <SimpleTooltip content={item.title} placement="right" {...item.tooltip}>
+        {navItem}
+      </SimpleTooltip>
+    );
+  }
+
+  return navItem;
 };

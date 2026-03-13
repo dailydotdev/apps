@@ -12,8 +12,9 @@ import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
-import type { Post } from '../graphql/posts';
+import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
+import type { Spaciness } from '../graphql/settings';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -59,6 +60,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -86,10 +88,14 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  staticAd?: { ad: Ad; index: number };
+  disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
   pageSize?: number;
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
+  disableListFrame?: boolean;
+  disableListWidthConstraint?: boolean;
 }
 
 interface RankVariables {
@@ -157,6 +163,7 @@ export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.VideoYouTube]: ArticlePostModal,
   [PostType.Collection]: CollectionPostModal,
   [PostType.Brief]: BriefPostModal,
+  [PostType.Digest]: ArticlePostModal,
   [PostType.Poll]: PollPostModal,
   [PostType.SocialTwitter]: SocialTwitterPostModal,
 };
@@ -177,10 +184,14 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  staticAd,
+  disableAdRefresh = false,
   allowFetchMore,
   pageSize,
   isHorizontal = false,
   feedContainerRef,
+  disableListFrame = false,
+  disableListWidthConstraint = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -188,10 +199,15 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { isListMode } = useFeedLayout();
-  const numCards = currentSettings.numCards[spaciness ?? 'eco'];
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+  });
+  const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2
+    ? 'eco'
+    : spaciness ?? 'eco';
+  const numCards = currentSettings.numCards[effectiveSpaciness];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
   const showAcquisitionForm =
@@ -220,9 +236,13 @@ export default function Feed<T>({
     isLoading: isProfileCompletionCardLoading,
   } = useProfileCompletionCard({ isMyFeed });
 
+  const hasDismissedBriefCard =
+    isActionsFetched && checkHasCompleted(ActionType.DismissBriefCard);
+
   const shouldEvaluateBriefCard =
     isMyFeed &&
     hasNoBriefAction &&
+    !hasDismissedBriefCard &&
     !showProfileCompletionCard &&
     !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({
@@ -264,6 +284,7 @@ export default function Feed<T>({
       options,
       settings: {
         disableAds,
+        staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         showAcquisitionForm,
         ...(showMarketingCta && { marketingCta }),
@@ -549,6 +570,8 @@ export default function Feed<T>({
         isHorizontal,
         feedContainerRef,
         showBriefCard,
+        disableListFrame,
+        disableListWidthConstraint,
       };
 
   const currentPageSize = pageSize ?? currentSettings.pageSize;
@@ -621,6 +644,7 @@ export default function Feed<T>({
                   onCommentClick={onCommentClick}
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
+                  disableAdRefresh={disableAdRefresh}
                 />
               </FeedCardContext.Provider>
             ))}

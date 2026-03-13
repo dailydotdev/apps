@@ -165,9 +165,7 @@ export const UserHighlight = (props: UserHighlightProps): ReactElement => {
           </ProfileTooltip>
         )}
       >
-        <ProfileLink href={permalink}>
-          <Image {...props} className={className?.image} />
-        </ProfileLink>
+        <Image {...props} className={className?.image} />
       </ConditionalWrapper>
       {userType && Icon && (
         <Icon

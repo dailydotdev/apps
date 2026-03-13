@@ -23,6 +23,7 @@ import Link from '../utilities/Link';
 import type { MenuItemProps } from './common';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
+import { useScrollFade } from '../../hooks/useScrollFade';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
@@ -35,6 +36,7 @@ interface DropdownMenuContentProps
   className?: string;
   scrollableClassName?: string;
   align?: 'start' | 'center' | 'end';
+  variant?: 'action' | 'field';
 }
 
 export const DropdownMenuTrigger = React.forwardRef<
@@ -73,7 +75,10 @@ export const DropdownMenuTrigger = React.forwardRef<
 DropdownMenuTrigger.displayName = 'DropdownMenuTrigger';
 
 export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
-  ({ children, ...props }) => {
+  ({ children, ...props }, _forwardedRef) => {
+    if (_forwardedRef) {
+      // DropdownMenu is kept as forwardRef-compatible even though Radix root has no ref target here.
+    }
     const [open, setOpen] = useState(false);
 
     useEventListener(globalThis, 'scroll', () => {
@@ -103,11 +108,21 @@ export const DropdownMenuContent = React.forwardRef<
   DropdownMenuContentProps
 >(
   (
-    { children, className, scrollableClassName, align = 'end', ...props },
+    {
+      children,
+      className,
+      scrollableClassName,
+      align = 'end',
+      collisionPadding,
+      sideOffset,
+      variant = 'action',
+      ...props
+    },
     forwardedRef,
   ) => {
     const { isCompanion } = useRequestProtocol();
     const container = isCompanion ? getCompanionWrapper() : undefined;
+    const scrollFadeRef = useScrollFade<HTMLDivElement>();
     return (
       <DropdownMenuPortal container={container}>
         <DropdownMenuContentRoot
@@ -115,14 +130,21 @@ export const DropdownMenuContent = React.forwardRef<
           ref={forwardedRef}
           className={classNames(
             'DropdownMenuContent overflow-hidden',
+            variant === 'field'
+              ? 'DropdownMenuContentField'
+              : 'DropdownMenuContentAction',
             className,
           )}
           align={align}
+          sideOffset={sideOffset ?? (variant === 'action' ? 6 : undefined)}
+          collisionPadding={collisionPadding ?? 24}
         >
           <div
+            ref={scrollFadeRef}
             className={classNames(
               'DropdownMenuScrollable overflow-y-auto bg-inherit',
-              scrollableClassName ?? 'max-h-72',
+              scrollableClassName ??
+                'max-h-[var(--radix-dropdown-menu-content-available-height)]',
             )}
           >
             {children}

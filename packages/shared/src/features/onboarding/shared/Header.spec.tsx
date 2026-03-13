@@ -51,6 +51,15 @@ describe('Header component', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('should disable skip button when skip is pending', () => {
+    render(<Header {...defaultProps} isSkipDisabled />);
+    const skipButton = screen.getByRole('button', { name: 'Skip' });
+    expect(skipButton).toBeDisabled();
+
+    fireEvent.click(skipButton);
+    expect(mockOnSkip).not.toHaveBeenCalled();
+  });
+
   it('should not show back button when disabled', () => {
     render(
       <Header

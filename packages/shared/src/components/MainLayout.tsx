@@ -28,6 +28,7 @@ import {
 } from '../contexts';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
+import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
@@ -180,6 +181,7 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
+      <StreakMilestonePopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
           className="relative"

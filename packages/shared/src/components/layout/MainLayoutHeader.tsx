@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -41,6 +41,7 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
+  const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
   const { feedName } = useActiveFeedNameContext();
@@ -52,11 +53,21 @@ function MainLayoutHeader({
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { profile } = useActiveNav(feedName);
+  const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
+  const isMobile = !isLaptop;
+  const isMobileSearchPage =
+    shouldUseLoadedSettings && isMobile && isSearchPage;
+  const shouldRenderFeedNav =
+    shouldUseLoadedSettings && isMobile && !isSearchPage;
 
-  const RenderSearchPanel = useCallback(
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  const renderSearchPanel = useCallback(
     () =>
-      loadedSettings && (
+      shouldUseLoadedSettings && (
         <SearchPanel
           className={{
             container: classNames(
@@ -70,19 +81,10 @@ function MainLayoutHeader({
           }}
         />
       ),
-    [loadedSettings, isSearchPage, hasBanner],
+    [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
 
-  if (loadedSettings && !isLaptop) {
-    if (isSearchPage) {
-      return (
-        <div className="sticky top-0 z-header w-full bg-background-default tablet:pl-16">
-          <RenderSearchPanel />
-          {!isSearch && <MobileExploreHeader path={feedName as string} />}
-        </div>
-      );
-    }
-
+  if (shouldRenderFeedNav) {
     return (
       <>
         <FeedNav />
@@ -93,29 +95,40 @@ function MainLayoutHeader({
   return (
     <header
       className={classNames(
-        'fixed top-0 z-header h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
-        isMobileProfile ? 'hidden laptop:flex' : 'flex',
+        isMobileSearchPage
+          ? 'sticky top-0 w-full bg-background-default tablet:pl-16'
+          : 'fixed top-0 h-14 flex-row content-center items-center justify-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4 py-3 tablet:px-8 laptop:left-0 laptop:h-16 laptop:w-full laptop:px-4',
+        'z-header',
+        !isMobileSearchPage &&
+          (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
         hasBanner && 'laptop:top-8',
-        isSearchPage && 'mb-16 laptop:mb-0',
-        scrollClassName,
+        !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
+        !isMobileSearchPage && scrollClassName,
       )}
       style={featureTheme ? featureTheme.navbar : undefined}
     >
-      {sidebarRendered !== undefined && (
+      {isMobileSearchPage ? (
         <>
-          <div>
-            <HeaderLogo
-              position={
-                isStreaksEnabled && isStreakLarge
-                  ? LogoPosition.Relative
-                  : LogoPosition.Absolute
-              }
-              onLogoClick={onLogoClick}
-            />
-          </div>
-          <RenderSearchPanel />
-          <HeaderButtons additionalButtons={additionalButtons} />
+          {renderSearchPanel()}
+          {!isSearch && <MobileExploreHeader path={feedName as string} />}
         </>
+      ) : (
+        sidebarRendered !== undefined && (
+          <>
+            <div>
+              <HeaderLogo
+                position={
+                  isStreaksEnabled && isStreakLarge
+                    ? LogoPosition.Relative
+                    : LogoPosition.Absolute
+                }
+                onLogoClick={onLogoClick}
+              />
+            </div>
+            {renderSearchPanel()}
+            <HeaderButtons additionalButtons={additionalButtons} />
+          </>
+        )
       )}
     </header>
   );

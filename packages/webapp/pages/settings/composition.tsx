@@ -15,7 +15,7 @@ import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const defaultWriteTabs: RadioItemProps[] = Object.keys(WriteFormTab).map(
   (key) => ({
@@ -56,7 +56,7 @@ const AccountManageSubscriptionPage = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Appearance'),
+  ...getPageSeoTitles('Appearance'),
 };
 
 AccountManageSubscriptionPage.getLayout = getSettingsLayout;

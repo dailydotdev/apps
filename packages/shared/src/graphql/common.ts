@@ -126,7 +126,7 @@ export enum ApiErrorMessage {
 export const getApiError = (
   error: ApiErrorResult,
   code: ApiError,
-): ApiResponseError =>
+): ApiResponseError | undefined =>
   error?.response?.errors?.find(({ extensions }) => extensions?.code === code);
 
 interface ApiResponseErrorExtension {
@@ -192,7 +192,38 @@ export interface ResponseError {
 }
 
 GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
-  delete this.options.headers?.[name];
+  const options = Reflect.get(this, 'options');
+  if (!options || typeof options !== 'object') {
+    return this;
+  }
+
+  const headers = Reflect.get(options, 'headers');
+  if (!headers) {
+    return this;
+  }
+
+  if (
+    typeof Headers !== 'undefined' &&
+    headers instanceof Headers &&
+    typeof headers.delete === 'function'
+  ) {
+    headers.delete(name);
+    return this;
+  }
+
+  if (Array.isArray(headers)) {
+    Reflect.set(
+      options,
+      'headers',
+      headers.filter(([key]) => key !== name),
+    );
+    return this;
+  }
+
+  if (typeof headers === 'object') {
+    Reflect.deleteProperty(headers, name);
+  }
+
   return this;
 };
 

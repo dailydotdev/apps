@@ -53,9 +53,9 @@ import AccountContentSection from '../../components/layouts/SettingsLayout/Accou
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../next-seo';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const seo: NextSeoProps = { ...defaultSeo, title: getTemplatedTitle('Invite') };
+const seo: NextSeoProps = { ...defaultSeo, ...getPageSeoTitles('Invite') };
 
 const AccountInvitePage = (): ReactElement => {
   const { openModal } = useLazyModal();

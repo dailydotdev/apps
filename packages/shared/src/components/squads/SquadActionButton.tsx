@@ -75,7 +75,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
     <Button
       {...buttonProps}
       className={classNames(className)}
-      onClick={(event) => {
+      onClick={(event: React.MouseEvent<HTMLElement>) => {
         if (!squad.currentMember) {
           logEvent({
             event_name: LogEvent.ClickJoinSquad,
@@ -86,7 +86,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
           });
         }
 
-        onClick(event);
+        (onClick as React.MouseEventHandler<HTMLElement>)?.(event);
       }}
     >
       {children}
@@ -137,13 +137,16 @@ export const SquadActionButton = ({
   const categoryQueryKey = fuzzyQueryMatch?.[0]?.[0];
   const featuredQueryKey = fuzzyFeaturedQueryMatch?.[0]?.[0];
 
-  const joinSquadMutation = (data) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const joinSquadMutation = (data: any) => ({
     ...data,
-    pages: data?.pages?.map((edge) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pages: data?.pages?.map((edge: any) => ({
       ...edge,
       sources: {
         ...edge.sources,
-        edges: edge.sources.edges.map((subEdge) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        edges: edge.sources.edges.map((subEdge: any) => {
           const { node } = subEdge;
           return {
             ...subEdge,

@@ -37,7 +37,7 @@ export function SquadModerationSettingsSection({
     initialMemberInviteRole || SourceMemberRole.Member,
   );
   const [moderationRequired, setModerationRequired] = useToggle(
-    initialModerationRequired,
+    initialModerationRequired ?? false,
   );
 
   const handleMemberPostingRole = (value: SourceMemberRole) => {

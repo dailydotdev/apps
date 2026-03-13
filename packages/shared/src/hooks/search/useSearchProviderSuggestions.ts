@@ -20,7 +20,6 @@ import {
   contentPreferenceMutationMatcher,
   mutationKeyToContentPreferenceStatusMap,
 } from '../contentPreference/types';
-import type { PropsParameters } from '../../types';
 
 export type UseSearchProviderSuggestionsProps = {
   limit?: number;
@@ -28,7 +27,9 @@ export type UseSearchProviderSuggestionsProps = {
 
 export type UseSearchProviderSuggestions = {
   isLoading: boolean;
-  suggestions: Awaited<ReturnType<UseSearchProvider['getSuggestions']>>;
+  suggestions:
+    | Awaited<ReturnType<UseSearchProvider['getSuggestions']>>
+    | undefined;
 } & {
   queryKey: unknown[];
 };
@@ -92,22 +93,29 @@ export const useSearchProviderSuggestions = ({
       ];
 
       const { id: entityId } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
-      mutationQueryClient.setQueryData<SearchSuggestionResult>(
+      mutationQueryClient.setQueryData<SearchSuggestionResult | undefined>(
         queryKey,
         (subData) => {
+          if (!subData) {
+            return subData;
+          }
+
           return {
             ...subData,
             hits: subData.hits?.map((hit) => {
               if (hit.id === entityId) {
-                const newContentPreferenceEdge = structuredClone(hit);
-                newContentPreferenceEdge.contentPreference = {
-                  ...newContentPreferenceEdge.contentPreference,
-                  status: nextStatus,
+                return {
+                  ...hit,
+                  contentPreference: nextStatus
+                    ? {
+                        ...hit.contentPreference,
+                        status: nextStatus,
+                      }
+                    : undefined,
                 };
-                return newContentPreferenceEdge;
               }
 
               return hit;

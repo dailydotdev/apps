@@ -16,7 +16,7 @@ const client = new QueryClient();
 let mockedNow: Date;
 const logEvent = jest.fn();
 
-const Wrapper = ({ children }) => (
+const Wrapper = ({ children }: React.PropsWithChildren) => (
   <TestBootProvider client={client} log={{ logEvent }}>
     {children}
   </TestBootProvider>

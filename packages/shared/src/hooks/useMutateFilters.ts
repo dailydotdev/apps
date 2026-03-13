@@ -291,6 +291,9 @@ export default function useMutateFilters(
         (feedSettings, manipulateTags) => {
           const newData = normalizeFeedSettings(structuredClone(feedSettings));
           newData.includeTags = newData.includeTags.concat(manipulateTags);
+          newData.blockedTags = newData.blockedTags.filter(
+            (value) => manipulateTags.indexOf(value) < 0,
+          );
           return newData;
         },
         user,

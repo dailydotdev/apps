@@ -22,7 +22,7 @@ import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import {
   aiFluencyQuestions,
   aiFluencyTipsByTier,
@@ -42,7 +42,7 @@ const tiersFadeOutDurationMs = 420;
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('AI Fluency Quiz'),
+  ...getPageSeoTitles('AI Fluency Quiz'),
   description:
     'Assess your AI fluency tier and get actionable tips to improve your workflow.',
 };

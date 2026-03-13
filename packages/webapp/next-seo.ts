@@ -6,8 +6,17 @@ import type {
   OpenGraph,
 } from 'next-seo/lib/types';
 
+export const defaultOpenGraph: Partial<OpenGraph> = {
+  images: [
+    {
+      url: 'https://media.daily.dev/image/upload/s--VAY5ToZt--/f_auto/v1724209435/public/daily.dev%20-%20open%20graph',
+    },
+  ],
+};
+
 const config: DefaultSeoProps = {
   openGraph: {
+    ...defaultOpenGraph,
     type: 'website',
     site_name: 'daily.dev',
   },
@@ -22,12 +31,11 @@ export default config;
 export const defaultSeo: Partial<NextSeoProps> = {
   description:
     'daily.dev is the easiest way to stay updated on the latest programming news. Get the best content from the top tech publications on any topic you want.',
-};
-
-export const defaultOpenGraph: Partial<OpenGraph> = {
-  images: [
+  additionalMetaTags: [
     {
-      url: 'https://media.daily.dev/image/upload/s--VAY5ToZt--/f_auto/v1724209435/public/daily.dev%20-%20open%20graph',
+      name: 'robots',
+      content:
+        'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
     },
   ],
 };

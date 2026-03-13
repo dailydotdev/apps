@@ -7,7 +7,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 
 interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
-  onClick: (e) => void;
+  onClick: (e: React.MouseEvent) => void;
   disabled?: boolean;
 }
 

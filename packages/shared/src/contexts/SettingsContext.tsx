@@ -153,7 +153,7 @@ export const SettingsContextProvider = ({
   updateSettings,
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
-  const setTheme = useRef<ThemeMode>(null);
+  const setTheme = useRef<ThemeMode | null>(null);
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
@@ -290,7 +290,7 @@ export const SettingsContextProvider = ({
               ? CampaignCtaPlacement.ProfileMenu
               : CampaignCtaPlacement.Header,
         }),
-      loadedSettings,
+      loadedSettings: loadedSettings ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>

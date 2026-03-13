@@ -19,6 +19,21 @@ const resolveBySource = <T,>(
 ): T | undefined =>
   sourceId === UNKNOWN_SOURCE_ID ? creatorValue : sourceValue || creatorValue;
 
+const getUniqueHandles = (handles: (string | undefined)[]): string[] => {
+  const uniqueHandles = new Map<string, string>();
+
+  handles.filter(Boolean).forEach((handle) => {
+    const normalizedHandle = handle.toLowerCase();
+    if (uniqueHandles.has(normalizedHandle)) {
+      return;
+    }
+
+    uniqueHandles.set(normalizedHandle, handle);
+  });
+
+  return Array.from(uniqueHandles.values());
+};
+
 export const getSocialTwitterMetadata = (post: Post) => {
   const sourceHandle = resolveBySource(
     post.source?.id,
@@ -38,10 +53,7 @@ export const getSocialTwitterMetadata = (post: Post) => {
     post.author?.name || post.creatorTwitterName,
   );
 
-  const metadataHandles =
-    post.subType === 'repost'
-      ? [sourceHandle].filter(Boolean)
-      : [...new Set([sourceHandle, sharedPostHandle].filter(Boolean))];
+  const metadataHandles = getUniqueHandles([sourceHandle, sharedPostHandle]);
 
   const embeddedTweetDisplayName = resolveBySource(
     post.sharedPost?.source?.id,
@@ -92,14 +104,18 @@ export const getSocialTwitterMetadataLabel = ({
   repostedByName?: string | false;
   metadataHandles: string[];
 }): ReactElement => {
+  const twitterIcon = (
+    <TwitterIcon
+      className="relative top-px text-text-tertiary"
+      size={IconSize.XXSmall}
+    />
+  );
+
   if (isRepostLike && repostedByName) {
     return (
       <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
         <span>{repostedByName} reposted</span>
-        <TwitterIcon
-          className="relative top-px text-text-tertiary"
-          size={IconSize.XXSmall}
-        />
+        {twitterIcon}
       </span>
     );
   }
@@ -108,21 +124,21 @@ export const getSocialTwitterMetadataLabel = ({
     return (
       <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
         <span>{repostedByName}</span>
-        <TwitterIcon
-          className="relative top-px text-text-tertiary"
-          size={IconSize.XXSmall}
-        />
+        {twitterIcon}
       </span>
     );
   }
 
   return (
-    <>
-      {metadataHandles.map((handle, index) => (
-        <React.Fragment key={handle}>
-          {index > 0 && <Separator />}@{handle}
-        </React.Fragment>
-      ))}
-    </>
+    <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
+      <span>
+        {metadataHandles.map((handle, index) => (
+          <React.Fragment key={handle}>
+            {index > 0 && <Separator />}@{handle}
+          </React.Fragment>
+        ))}
+      </span>
+      {twitterIcon}
+    </span>
   );
 };
