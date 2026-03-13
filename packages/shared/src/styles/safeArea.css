@@ -1,27 +1,41 @@
+:root {
+  --safe-area-top: 0px;
+}
+
+@media (display-mode: standalone) {
+  :root {
+    --safe-area-top: env(safe-area-inset-top);
+  }
+}
+
+:root.ios {
+  --safe-area-top: env(safe-area-inset-top);
+}
+
 body::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: env(safe-area-inset-top);
+  height: var(--safe-area-top);
   background: var(--theme-background-default);
   z-index: 1000;
 }
 
 body {
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--safe-area-top);
 }
 
 .antialiased > .sticky.top-0,
 .fixed.inset-0 {
-  top: env(safe-area-inset-top);
+  top: var(--safe-area-top);
 }
 
 .min-h-dvh {
-  min-height: calc(100dvh - env(safe-area-inset-top));
+  min-height: calc(100dvh - var(--safe-area-top));
 }
 
 .max-h-dvh {
-  max-height: calc(100dvh - env(safe-area-inset-top));
+  max-height: calc(100dvh - var(--safe-area-top));
 }
