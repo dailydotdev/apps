@@ -9,7 +9,8 @@ import {
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import { isVideoPost } from '../../../graphql/posts';
+import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
+import { EmbeddedTweetPreview } from '../socialTwitter/EmbeddedTweetPreview';
 import FeedItemContainer from '../common/list/FeedItemContainer';
 import { PostCardHeader } from '../common/list/PostCardHeader';
 import Link from '../../utilities/Link';
@@ -54,6 +55,7 @@ export const ShareList = forwardRef(function ShareList(
   const { sharedPost } = post;
   const isVideoType = isVideoPost(post);
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
+  const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { title } = useSmartTitle(post);
   const { title: truncatedTitle } = useTruncatedSummary(title);
   const isUserSource = isSourceUserSource(post.source);
@@ -142,13 +144,17 @@ export const ShareList = forwardRef(function ShareList(
       </PostCardHeader>
       <CardContent>
         <div className="mr-4 flex flex-1 flex-col">
-          <CardTitle
-            lineClamp={undefined}
-            className={!!post.read && 'text-text-tertiary'}
-          >
-            {truncatedTitle}
-          </CardTitle>
-          <div className="flex flex-1 tablet:hidden" />
+          {(!isSharedTweet || post.title) && (
+            <>
+              <CardTitle
+                lineClamp={undefined}
+                className={!!post.read && 'text-text-tertiary'}
+              >
+                {truncatedTitle}
+              </CardTitle>
+              <div className="flex flex-1 tablet:hidden" />
+            </>
+          )}
           <div className="flex items-center">
             {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
@@ -158,7 +164,15 @@ export const ShareList = forwardRef(function ShareList(
           <div className="hidden flex-1 tablet:flex" />
           {!isMobile && actionButtons}
         </div>
-        {isSharedPostPreviewEnabled ? (
+        {isSharedTweet && (
+          <EmbeddedTweetPreview
+            post={post}
+            className="mt-4 w-full"
+            textClampClass="line-clamp-8"
+            fillAvailableHeight
+          />
+        )}
+        {!isSharedTweet && isSharedPostPreviewEnabled && (
           <SharedPostPreview
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}
@@ -170,7 +184,8 @@ export const ShareList = forwardRef(function ShareList(
               eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }
             }
           />
-        ) : (
+        )}
+        {!isSharedTweet && !isSharedPostPreviewEnabled && (
           <CardCoverList
             data-testid="postImage"
             isVideoType={isVideoType}

@@ -2,11 +2,15 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import PostSourceInfo from './PostSourceInfo';
-import { ReadArticleButton } from '../cards/common/ReadArticleButton';
+import {
+  ReadArticleButton,
+  getReadPostButtonIcon,
+} from '../cards/common/ReadArticleButton';
 import type { Post, SharedPost } from '../../graphql/posts';
 import {
   getReadPostButtonText,
   isInternalReadType,
+  isSocialTwitterPost,
   isSharedPostSquadPost,
 } from '../../graphql/posts';
 import SettingsContext, {
@@ -31,6 +35,7 @@ import {
 import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
+import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 
 export interface CommonSharePostContentProps {
   sharedPost: SharedPost;
@@ -99,6 +104,7 @@ const PrivatePost = ({
         title="Go to post"
         rel="noopener"
         {...combinedClicks(openArticle)}
+        icon={getReadPostButtonIcon(post)}
       />
     </div>
   </SharedLinkContainer>
@@ -128,6 +134,7 @@ export function CommonSharePostContent({
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
   const { type } = sharedPostSource;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
+  const shouldRenderTweetPreview = isSocialTwitterPost(sharedPost);
 
   if (isDeleted) {
     return <DeletedPost isCompactSpacing={isCompactSpacing} />;
@@ -139,6 +146,17 @@ export function CommonSharePostContent({
         post={sharedPost}
         openArticle={openArticle}
         isCompactSpacing={isCompactSpacing}
+      />
+    );
+  }
+
+  if (shouldRenderTweetPreview) {
+    return (
+      <EmbeddedTweetPreview
+        post={sharedPost}
+        className={classNames(sharedContainerClassName, 'w-full')}
+        textClampClass=""
+        bodyClassName="typo-markdown"
       />
     );
   }
@@ -193,6 +211,7 @@ export function CommonSharePostContent({
             title="Go to post"
             rel="noopener"
             {...combinedClicks(openArticle)}
+            icon={getReadPostButtonIcon(sharedPost)}
           />
         </div>
 
@@ -226,20 +245,26 @@ const SharePostContent = ({
   post,
   onReadArticle,
   isCompactSpacing,
-}: SharePostContentProps): ReactElement => (
-  <>
-    <SharePostTitle
-      title={post?.title}
-      titleHtml={post?.titleHtml}
-      isCompactSpacing={isCompactSpacing}
-    />
-    <CommonSharePostContent
-      onReadArticle={onReadArticle}
-      source={post.source}
-      sharedPost={post.sharedPost}
-      isCompactSpacing={isCompactSpacing}
-    />
-  </>
-);
+}: SharePostContentProps): ReactElement => {
+  const isSharedTweet = isSocialTwitterPost(post.sharedPost);
+
+  return (
+    <>
+      {!isSharedTweet && (
+        <SharePostTitle
+          title={post?.title}
+          titleHtml={post?.titleHtml}
+          isCompactSpacing={isCompactSpacing}
+        />
+      )}
+      <CommonSharePostContent
+        onReadArticle={onReadArticle}
+        source={post.source}
+        sharedPost={post.sharedPost}
+        isCompactSpacing={isCompactSpacing}
+      />
+    </>
+  );
+};
 
 export default SharePostContent;

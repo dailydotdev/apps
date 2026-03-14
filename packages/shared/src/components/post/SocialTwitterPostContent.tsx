@@ -5,7 +5,10 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import type { Post } from '../../graphql/posts';
-import { isSocialTwitterShareLike } from '../../graphql/posts';
+import {
+  isSocialTwitterPost,
+  isSocialTwitterShareLike,
+} from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
@@ -27,7 +30,7 @@ import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 import {
-  getSocialTwitterMetadata,
+  getSocialTextDirectionProps,
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
@@ -96,21 +99,14 @@ function SocialTwitterPostContentRaw({
   const { title } = useSmartTitle(post);
   const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
+  const shouldRenderPrimaryTweetPreview =
+    isSocialTwitterPost(post) && !isQuoteLike && !isThread;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
     !post.content?.trim();
-  const {
-    repostedByName,
-    metadataHandles,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
-  const metadataLabel = getSocialTwitterMetadataLabel({
-    isRepostLike: isQuoteLike,
-    repostedByName,
-    metadataHandles,
-  });
+  const metadataLabel = getSocialTwitterMetadataLabel();
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
   return (
     <PostContentContainer
@@ -174,28 +170,32 @@ function SocialTwitterPostContentRaw({
             {!!post.createdAt && <Separator className="mx-0" />}
             {metadataLabel}
           </PostMetadata>
-          {!shouldHideRepostHeadlineAndTags && (
-            <div className="mb-6 mt-0">
-              {post.titleHtml ? (
-                <h1
-                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                  data-testid="post-modal-title"
-                  dangerouslySetInnerHTML={{ __html: post.titleHtml }}
-                />
-              ) : (
-                <h1
-                  className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                  data-testid="post-modal-title"
-                >
-                  {title}
-                </h1>
-              )}
-              {post.clickbaitTitleDetected && (
-                <PostClickbaitShield post={post} />
-              )}
-            </div>
-          )}
           {!shouldHideRepostHeadlineAndTags &&
+            !shouldRenderPrimaryTweetPreview && (
+              <div className="mb-6 mt-0">
+                {post.titleHtml ? (
+                  <h1
+                    {...socialTextDirectionProps}
+                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                    data-testid="post-modal-title"
+                    dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                  />
+                ) : (
+                  <h1
+                    {...socialTextDirectionProps}
+                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                    data-testid="post-modal-title"
+                  >
+                    {title}
+                  </h1>
+                )}
+                {post.clickbaitTitleDetected && (
+                  <PostClickbaitShield post={post} />
+                )}
+              </div>
+            )}
+          {!shouldHideRepostHeadlineAndTags &&
+            !shouldRenderPrimaryTweetPreview &&
             !!post.image &&
             !isPlaceholderImage(post.image) &&
             !!post.permalink && (
@@ -219,15 +219,13 @@ function SocialTwitterPostContentRaw({
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
-          {isQuoteLike && !!post.sharedPost && (
+          {(shouldRenderPrimaryTweetPreview ||
+            (isQuoteLike && !!post.sharedPost)) && (
             <EmbeddedTweetPreview
               post={post}
-              embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-              embeddedTweetIdentity={embeddedTweetIdentity}
               className="mb-5 w-full"
               textClampClass=""
               bodyClassName="typo-markdown"
-              showXLogo
             />
           )}
         </BasePostContent>
