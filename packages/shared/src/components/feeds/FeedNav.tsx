@@ -198,7 +198,7 @@ function FeedNav(): ReactElement {
             <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
-        <div className="absolute inset-y-0 right-0 hidden items-center bg-background-default tablet:flex laptop:hidden">
+        <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
           <NotificationsBell compact />
         </div>
       </div>
