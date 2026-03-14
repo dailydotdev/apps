@@ -297,6 +297,7 @@ export enum LogEvent {
   ProfileView = 'profile view',
   UpdateProfile = 'update profile',
   UpdateProfileImage = 'update profile image',
+  HoverUserCard = 'hover user card',
   // End Profile
   TranslatePost = 'translate post',
   // Start Credits
@@ -454,6 +455,7 @@ export enum TargetType {
   OpportunityInterestButton = 'opportunity interest button',
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
+  BriefCard = 'brief card',
 }
 
 export enum TargetId {
@@ -506,6 +508,9 @@ export enum TargetId {
   Fullscreen = 'fullscreen',
   Popover = 'popover',
   Navigation = 'navigation',
+  DigestUpsell = 'digest upsell',
+  DigestUpsellBookmarks = 'digest upsell bookmarks',
+  AskPage = 'ask page',
 }
 
 export enum NotificationChannel {

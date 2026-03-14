@@ -1,6 +1,5 @@
 import type { Squad } from '../../graphql/sources';
 import type { RequestKey } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 import { useMutationSubscription } from '../mutationSubscription';
 import type { ContentPreferenceMutation } from './types';
 import {
@@ -39,9 +38,13 @@ export const useSourceContentPreferenceMutationSubscription = ({
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
       const { id: entityId } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
-      mutationQueryClient.setQueryData<Squad>(queryKey, (data) => {
+      mutationQueryClient.setQueryData<Squad | undefined>(queryKey, (data) => {
+        if (!data) {
+          return data;
+        }
+
         const newData = structuredClone(data);
 
         const followedMember = newData.privilegedMembers?.find(

@@ -13,17 +13,22 @@ export interface StepComponentProps<
 }
 
 type ModalStepsProps = {
-  children: (props: StepComponentProps) => ReactElement;
+  children: (props: StepComponentProps) => ReactElement | null;
   view?: string;
 };
 
 export function ModalStepsWrapper({
   view,
   children,
-}: ModalStepsProps): ReactElement {
+}: ModalStepsProps): ReactElement | null {
   const { logEvent } = useLogContext();
-  const { activeView, steps, setActiveView, onLogNext, onLogPrev } =
-    useContext(ModalPropsContext);
+  const {
+    activeView,
+    steps = [],
+    setActiveView,
+    onLogNext,
+    onLogPrev,
+  } = useContext(ModalPropsContext);
   const activeStepIndex = steps.findIndex(({ key }) => activeView === key);
   const activeStep = steps[activeStepIndex];
   if (!activeStep) {
@@ -40,7 +45,7 @@ export function ModalStepsWrapper({
               }),
             });
           }
-          return setActiveView(steps[activeStepIndex - 1]?.key);
+          return setActiveView?.(steps[activeStepIndex - 1]?.key);
         }
       : undefined;
   const nextStep =
@@ -54,7 +59,7 @@ export function ModalStepsWrapper({
               }),
             });
           }
-          return setActiveView(steps[activeStepIndex + 1]?.key);
+          return setActiveView?.(steps[activeStepIndex + 1]?.key);
         }
       : undefined;
 

@@ -15,17 +15,21 @@ interface NotificationSettingsResponse {
 const useNotificationSettingsQuery = () => {
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const nsKey = generateQueryKey(RequestKey.NotificationSettings, {
-    id: user?.id,
-  });
+  const nsKey = generateQueryKey(RequestKey.NotificationSettings, user);
   const { data, isLoading } = useQuery<NotificationSettingsResponse>({
     queryKey: nsKey,
     queryFn: () => gqlClient.request(GET_NOTIFICATION_SETTINGS),
     staleTime: StaleTime.Default,
   });
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    Awaited<ReturnType<typeof updateNotificationSettings>>,
+    unknown,
+    NotificationSettings,
+    { oldData: NotificationSettingsResponse | undefined }
+  >({
     onMutate: (notificationFlags) => {
-      const oldData = queryClient.getQueryData(nsKey);
+      const oldData =
+        queryClient.getQueryData<NotificationSettingsResponse>(nsKey);
 
       queryClient.setQueryData(nsKey, {
         notificationSettings: notificationFlags,
@@ -33,8 +37,12 @@ const useNotificationSettingsQuery = () => {
 
       return { oldData };
     },
-    onError: (err, _, { oldData }) => {
-      queryClient.setQueryData(nsKey, oldData);
+    onError: (_err, _, context) => {
+      if (!context) {
+        return;
+      }
+
+      queryClient.setQueryData(nsKey, context.oldData);
     },
     mutationFn: (notificationFlags: NotificationSettings) => {
       return updateNotificationSettings(notificationFlags);

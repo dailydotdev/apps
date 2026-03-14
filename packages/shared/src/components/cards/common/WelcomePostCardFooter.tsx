@@ -19,12 +19,14 @@ export const WelcomePostCardFooter = ({
   image,
   onShare,
   contentHtml,
-}: WelcomePostCardFooterProps): ReactElement => {
+}: WelcomePostCardFooterProps): ReactElement | null => {
   const { overlay } = useCardCover({
     post,
     className: {
       bookmark: {
-        container: !image && '!justify-start !items-start ml-2 mt-4 gap-1',
+        container: !image
+          ? '!justify-start !items-start ml-2 mt-4 gap-1'
+          : undefined,
       },
     },
   });
@@ -63,7 +65,7 @@ export const WelcomePostCardFooter = ({
     return (
       <p
         className={classNames(
-          'mt-1 line-clamp-6 break-words px-2 typo-callout',
+          'mt-1 line-clamp-6 break-words px-4 typo-callout',
         )}
       >
         {decodedText}

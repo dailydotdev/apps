@@ -1,6 +1,5 @@
 import type { SearchSuggestionResult } from '../../graphql/search';
 import type { RequestKey } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 import { useMutationSubscription } from '../mutationSubscription';
 import type { ContentPreferenceMutation } from './types';
 import {
@@ -39,11 +38,15 @@ export const useUseSearchSuggestionsContentPreferenceMutationSubscription = ({
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
       const { id: entityId } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
-      mutationQueryClient.setQueryData<SearchSuggestionResult>(
+      mutationQueryClient.setQueryData<SearchSuggestionResult | undefined>(
         queryKey,
         (data) => {
+          if (!data) {
+            return data;
+          }
+
           const newData = {
             ...data,
             hits: data.hits?.map((hit) => {

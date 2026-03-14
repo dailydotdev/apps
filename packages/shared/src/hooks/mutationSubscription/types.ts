@@ -6,11 +6,11 @@ import type {
 
 export type UseMutationMatcherProps<TVariables = unknown> = {
   status: MutationStatus;
-  mutation: Mutation<unknown, unknown, unknown>;
+  mutation: Mutation<unknown, unknown, unknown, unknown>;
   variables?: TVariables;
 };
 
-export type UseMutationMatcher<TVariables> = ({
+export type UseMutationMatcher<TVariables = unknown> = ({
   mutation,
   variables,
 }: UseMutationMatcherProps<TVariables>) => boolean;
@@ -21,7 +21,7 @@ export type UseMutationSubscriptionProps<TVariables = unknown> = {
     mutation,
     queryClient,
     variables,
-  }: UseMutationMatcherProps & {
+  }: UseMutationMatcherProps<TVariables> & {
     queryClient: QueryClient;
     variables?: TVariables;
   }) => void;

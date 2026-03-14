@@ -4,11 +4,13 @@ import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import {
   useEventListener,
+  usePlusPositioning,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
+import { NextSeo } from 'next-seo';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
@@ -17,7 +19,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 
 const PlusMobile = dynamic(() =>
@@ -38,11 +40,24 @@ const PlusIOS = dynamic(() =>
   ).then((mod) => mod.PlusIOS),
 );
 
-const seo: NextSeoProps = {
-  title: getTemplatedTitle('Unlock Premium Developer Features with Plus'),
-  openGraph: { ...defaultOpenGraph },
+const seoTitlesControl = getPageSeoTitles(
+  'Unlock Premium Developer Features with Plus',
+);
+const seoControl: NextSeoProps = {
+  title: seoTitlesControl.title,
+  openGraph: { ...seoTitlesControl.openGraph, ...defaultOpenGraph },
   description:
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
+};
+
+const seoTitlesTreatment = getPageSeoTitles(
+  'Power Your Agents with daily.dev Plus',
+);
+const seoTreatment: NextSeoProps = {
+  title: seoTitlesTreatment.title,
+  openGraph: { ...seoTitlesTreatment.openGraph, ...defaultOpenGraph },
+  description:
+    'Upgrade to daily.dev Plus for public API access, agent-ready developer intelligence, and AI tools that keep your workflows up to date.',
 };
 
 export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> &
@@ -54,6 +69,7 @@ const PlusPage = ({
 }: PlusPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { isReady } = useRouter();
+  const { isAgentPositioning } = usePlusPositioning();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const onScroll = useCallback(() => {
@@ -78,6 +94,7 @@ const PlusPage = ({
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
+      {isAgentPositioning && <NextSeo {...seoTreatment} />}
       {/* <HotJarTracking hotjarId="5215055" /> */}
       {isLaptop ? (
         <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />
@@ -89,6 +106,6 @@ const PlusPage = ({
 };
 
 PlusPage.getLayout = getPlusLayout;
-PlusPage.layoutProps = { seo };
+PlusPage.layoutProps = { seo: seoControl };
 
 export default PlusPage;

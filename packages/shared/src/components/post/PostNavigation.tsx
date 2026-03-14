@@ -79,7 +79,9 @@ function PostNavigation({
               variant={ButtonVariant.Tertiary}
               icon={<CloseIcon />}
               size={ButtonSize.Small}
-              onClick={(e) => props?.onClose(e)}
+              onClick={(e: React.MouseEvent<HTMLElement>) =>
+                (props?.onClose as React.MouseEventHandler)?.(e)
+              }
             />
           </Tooltip>
         )}

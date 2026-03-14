@@ -1,3 +1,5 @@
+update_settings(k8s_upsert_timeout_secs=600)
+
 def include_if_exists(path):
   if os.path.exists(path):
     print("including %s", path)

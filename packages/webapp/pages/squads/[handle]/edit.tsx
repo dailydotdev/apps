@@ -32,11 +32,12 @@ import {
 } from '@dailydotdev/shared/src/components/squads/SquadTabs';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 
+const seoTitles = getPageSeoTitles('Squad settings');
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Squad settings'),
-  openGraph: { ...defaultOpenGraph },
+  title: seoTitles.title,
+  openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   nofollow: true,
   noindex: true,
   ...defaultSeo,
@@ -114,7 +115,7 @@ EditSquad.getLayout = getMainLayout;
 EditSquad.layoutProps = { seo };
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 interface SquadPageParams extends ParsedUrlQuery {

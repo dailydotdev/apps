@@ -40,13 +40,19 @@ import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
+import { AgentsLeaderboardEntrypointButton } from '../filters/AgentsLeaderboardEntrypointButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isNullOrUndefined,
 } from '../../lib/func';
-import { installExtensionFeedMenuFeature } from '../../lib/featureManagement';
+import {
+  agentsLeaderboardEntrypointFeature,
+  installExtensionPromptFeature,
+} from '../../lib/featureManagement';
+import type { AgentsLeaderboardEntrypointFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -93,15 +99,25 @@ export const SearchControlHeader = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
-  const { checkHasCompleted, completeAction } = useActions();
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
-  const shouldEvaluateInstallExtensionExperiment =
-    !checkIsExtension() && user?.flags?.lastExtensionUse === null;
-  const { value: isInstallExtensionFeedMenuEnabled } = useConditionalFeature({
-    feature: installExtensionFeedMenuFeature,
-    shouldEvaluate: shouldEvaluateInstallExtensionExperiment,
+  const { value: isInstallExtensionPrompt } = useConditionalFeature({
+    feature: installExtensionPromptFeature,
+    shouldEvaluate:
+      !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse),
   });
+  const feedsWithActions = [
+    SharedFeedPage.MyFeed,
+    SharedFeedPage.Custom,
+    SharedFeedPage.CustomForm,
+  ];
+  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  const { value: leaderboardEntrypointConfig } =
+    useConditionalFeature<AgentsLeaderboardEntrypointFeature>({
+      feature: agentsLeaderboardEntrypointFeature,
+      shouldEvaluate: hasFeedActions,
+    });
 
   if (isMobile) {
     return null;
@@ -120,47 +136,44 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const feedsWithActions = [
-    SharedFeedPage.MyFeed,
-    SharedFeedPage.Custom,
-    SharedFeedPage.CustomForm,
-  ];
-  const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
-  const installExtensionButton = hasFeedActions &&
-    isInstallExtensionFeedMenuEnabled &&
-    !hasDismissedInstallExtension && (
-      <>
-        <div className="flex flex-1" />
-        <Button
-          key="install-extension"
-          tag="a"
-          href={downloadBrowserExtension}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-          size={ButtonSize.Medium}
-          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
-          rel={anchorDefaultRel}
-          target="_blank"
-          className="ml-auto"
-          onClick={() =>
-            logEvent({
-              event_name: LogEvent.DownloadExtension,
-              origin: Origin.Feed,
-            })
-          }
-        >
-          Get it for {isEdge ? 'Edge' : 'Chrome'}
-        </Button>
-        <Button
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<ClearIcon secondary />}
-          onClick={() => completeAction(ActionType.DismissInstallExtension)}
-        />
-      </>
-    );
+  const shouldShowInstallExtensionButton =
+    hasFeedActions &&
+    isActionsFetched &&
+    isInstallExtensionPrompt &&
+    !hasDismissedInstallExtension;
+  const installExtensionButton = shouldShowInstallExtensionButton && (
+    <React.Fragment key="install-extension">
+      <div className="flex flex-1" />
+      <Button
+        key="install-extension"
+        tag="a"
+        href={downloadBrowserExtension}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        size={ButtonSize.Medium}
+        icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
+        rel={anchorDefaultRel}
+        target="_blank"
+        className="ml-auto"
+        onClick={() =>
+          logEvent({
+            event_name: LogEvent.DownloadExtension,
+            origin: Origin.Feed,
+          })
+        }
+      >
+        Get it for {isEdge ? 'Edge' : 'Chrome'}
+      </Button>
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<ClearIcon secondary />}
+        onClick={() => completeAction(ActionType.DismissInstallExtension)}
+      />
+    </React.Fragment>
+  );
 
   const actionButtons = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
@@ -194,6 +207,14 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
+    hasFeedActions && leaderboardEntrypointConfig?.groupId && (
+      <AgentsLeaderboardEntrypointButton
+        key="agents-arena-entrypoint"
+        groupId={leaderboardEntrypointConfig.groupId}
+        showLabel={!!leaderboardEntrypointConfig.showLabel}
+        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+      />
+    ),
     isLaptop && installExtensionButton,
   ];
   const actions = actionButtons.filter((button) => !!button);

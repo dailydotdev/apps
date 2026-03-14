@@ -26,7 +26,10 @@ export const useTimedAnimation = ({
 }: UseTimedAnimationProps): UseTimedAnimation => {
   const [timer, setTimer] = useState(0);
   const interval = useRef<number>();
-  const [animationEnd] = useDebounceFn(onAnimationEnd, outAnimationDuration);
+  const [animationEnd] = useDebounceFn(
+    onAnimationEnd ?? (() => undefined),
+    outAnimationDuration,
+  );
 
   const clearInterval = () => {
     if (!interval?.current) {
@@ -34,7 +37,7 @@ export const useTimedAnimation = ({
     }
 
     window.clearInterval(interval.current);
-    interval.current = null;
+    interval.current = undefined;
   };
 
   const endAnimation = useCallback(() => {
@@ -85,8 +88,12 @@ export const useTimedAnimation = ({
 
   useEffect(() => {
     return () => {
+      if (!interval.current) {
+        return;
+      }
+
       window.clearInterval(interval.current);
-      interval.current = null;
+      interval.current = undefined;
     };
   }, []);
 

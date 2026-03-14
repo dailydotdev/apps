@@ -33,7 +33,7 @@ interface UseAccountEmail {
 interface UseAccountEmailProps {
   flow: EmailFlow;
   flowId?: string;
-  onSuccess?: (email, id) => void;
+  onSuccess?: (email: string, id: string) => void;
   onVerifyCodeSuccess?: () => void;
   onError?: (error: string) => void;
   onTimerFinished?: () => void;

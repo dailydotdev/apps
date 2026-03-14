@@ -15,6 +15,7 @@ import { AlertContextProvider } from '../../contexts/AlertContext';
 import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import type { Alerts } from '../../graphql/alerts';
+import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import { SidebarDesktop } from './SidebarDesktop';
 
 let client: QueryClient;
@@ -54,6 +55,7 @@ const renderComponent = (
     toggleSidebarExpanded,
   };
   client = new QueryClient();
+  client.setQueryData(TOAST_NOTIF_KEY, null);
   mocks.forEach(mockGraphQL);
 
   return render(
@@ -131,14 +133,14 @@ it('should show the For You items if the user has filters', async () => {
   expect(section).toBeInTheDocument();
 });
 
-it('should render Agents item linking to settings api', async () => {
+it('should render Agentic Hub item linking to agents hub', async () => {
   renderComponent();
-  const item = await screen.findByText('Agents');
+  const item = await screen.findByText('Agentic Hub');
   expect(item).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access
   expect(item.closest('a')).toHaveAttribute(
     'href',
-    expect.stringContaining('/settings/api'),
+    expect.stringContaining('/agents'),
   );
 });
 

@@ -102,7 +102,7 @@ const DeclinePage = (): ReactElement => {
     ...updateCandidatePreferencesMutationOptions(updateQuery, () => {
       logEvent({
         event_name: LogEvent.SelectCandidateAvailability,
-        target_id: preferences?.status,
+        target_id: preferences?.status?.toString(),
       });
     }),
     onError: () => {

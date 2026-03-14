@@ -73,7 +73,11 @@ export const useCalculateVisibleElements = <El extends HTMLElement>(
   }, [calculateVisibleCards]);
 
   // Recalculate number of cards on window resize
-  useEventListener(globalThis, 'resize', calculateVisibleCards);
+  useEventListener(
+    typeof window === 'undefined' ? null : window,
+    'resize',
+    calculateVisibleCards,
+  );
 
   return {
     calculateVisibleCards,

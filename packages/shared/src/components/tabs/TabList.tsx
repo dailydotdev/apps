@@ -40,7 +40,7 @@ function TabList<T extends string = string>({
 }: TabListProps<T>): ReactElement {
   const labels = items.map((item) => item.label);
   const hasActive = labels.includes(active);
-  const currentActiveTab = useRef<HTMLButtonElement>(null);
+  const currentActiveTab = useRef<HTMLElement | null>(null);
   const [dimensions, setDimensions] = useState<DimensionProps>({
     offset: 0,
     indicatorOffset: 0,
@@ -126,7 +126,7 @@ function TabList<T extends string = string>({
         return (
           <Tag
             key={`${label}-${href}`}
-            ref={(el) => {
+            ref={(el: HTMLElement | null) => {
               if (!el || !isActive) {
                 return;
               }

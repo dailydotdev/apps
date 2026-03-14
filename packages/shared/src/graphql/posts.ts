@@ -9,7 +9,6 @@ import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
-  SOURCE_SHORT_INFO_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
@@ -49,7 +48,7 @@ export const isInternalReadType = (post: Post): boolean =>
 
 export const isSharedPostSquadPost = (
   post: Pick<Post, 'sharedPost'>,
-): boolean => post.sharedPost?.source.type === SourceType.Squad;
+): boolean => post.sharedPost?.source?.type === SourceType.Squad;
 
 export const isVideoPost = (post: Post | ReadHistoryPost): boolean =>
   post?.type === PostType.VideoYouTube ||
@@ -63,7 +62,7 @@ export const isSocialTwitterPost = (
 export const isSocialTwitterShareLike = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): boolean => {
-  if (!isSocialTwitterPost(post)) {
+  if (!post || !isSocialTwitterPost(post)) {
     return false;
   }
 
@@ -111,6 +110,17 @@ export type PostTranslation = {
   [key in TranslateablePostField]?: boolean;
 };
 
+export type DigestPostAd = {
+  type: 'dynamic_ad';
+  index: number;
+  title: string;
+  link: string;
+  image: string;
+  companyName: string;
+  companyLogo: string;
+  callToAction: string;
+};
+
 type PostFlags = {
   sentAnalyticsReport: boolean;
   banned: boolean;
@@ -125,6 +135,8 @@ type PostFlags = {
   sources?: number;
   savedTime?: number;
   generatedAt?: Date;
+  digestPostIds?: string[];
+  ad?: DigestPostAd | null;
 };
 
 export enum UserVote {
@@ -205,7 +217,7 @@ export interface Post {
   pollOptions?: PollOption[];
   numPollVotes?: number;
   endsAt?: string;
-  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
 }
 
 export type RelatedPost = Pick<
@@ -233,6 +245,8 @@ export interface Ad {
   generationId?: string;
   matchingTags?: string[];
   adDomain?: string;
+  companyLogo?: string;
+  callToAction?: string;
 }
 
 export type ReadHistoryPost = Pick<
@@ -376,56 +390,24 @@ export const POST_REPOSTS_BY_ID_QUERY = gql`
 export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
   query Post($id: ID!) {
     post(id: $id) {
-      id
-      title
-      permalink
-      image
-      createdAt
-      readTime
-      tags
-      private
-      commentsPermalink
-      numUpvotes
-      numComments
-      numAwards
-      numReposts
-      source {
-        ...SourceShortInfo
-      }
+      ...SharedPostInfo
+      contentHtml
       description
-      summary
       toc {
         text
         id
       }
-      type
       updatedAt
       numCollectionSources
-      slug
-      domain
-      author {
-        ...UserAuthor
+      collectionSources {
+        handle
+        image
       }
       sharedPost {
         ...SharedPostInfo
       }
-      clickbaitTitleDetected
-      featuredAward {
-        award {
-          ...FeaturedAwardFragment
-        }
-      }
-      numPollVotes
-      pollOptions {
-        id
-        text
-        order
-        numVotes
-      }
-      endsAt
     }
   }
-  ${SOURCE_SHORT_INFO_FRAGMENT}
   ${SHARED_POST_INFO_FRAGMENT}
 `;
 
@@ -1218,8 +1200,13 @@ export const checkCanBoostByUser = (post: Post, userId: string) =>
 export const useCanBoostPost = (post: Post) => {
   const { user } = useAuthContext();
   const canBuy = useCanPurchaseCores();
+
+  if (!user?.id) {
+    return { canBoost: false };
+  }
+
   const canBoost =
-    canBuy && checkCanBoostByUser(post, user?.id) && !post?.private;
+    canBuy && checkCanBoostByUser(post, user.id) && !post?.private;
 
   return { canBoost };
 };
@@ -1318,12 +1305,14 @@ export type PostAnalytics = {
 };
 
 export const postAnalyticsQueryOptions = ({ id }: { id?: string }) => {
+  const postId = id ?? '';
+
   return {
-    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalytics],
+    queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalytics],
     queryFn: async () => {
       const result = await gqlClient.request<{
         postAnalytics: PostAnalytics;
-      }>(POST_ANALYTICS_QUERY, { id });
+      }>(POST_ANALYTICS_QUERY, { id: postId });
 
       return result.postAnalytics;
     },
@@ -1364,12 +1353,14 @@ export const postAnalyticsHistoryQuery = ({
   id?: string;
   first?: number;
 }) => {
+  const postId = id ?? '';
+
   return {
-    queryKey: [...getPostByIdKey(id), RequestKey.PostAnalyticsHistory],
+    queryKey: [...getPostByIdKey(postId), RequestKey.PostAnalyticsHistory],
     queryFn: async () => {
       const result = await gqlClient.request<{
         postAnalyticsHistory: Connection<PostAnalyticsHistory>;
-      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id });
+      }>(POST_ANALYTICS_HISTORY_QUERY, { first, id: postId });
 
       return result.postAnalyticsHistory;
     },

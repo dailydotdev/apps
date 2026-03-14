@@ -133,7 +133,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         )}
         <Container>
           <PostCardFooter
-            openNewTab={openNewTab}
+            openNewTab={openNewTab ?? false}
             post={post}
             onShare={onShare}
             className={{

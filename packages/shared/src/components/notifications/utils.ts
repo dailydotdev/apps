@@ -65,6 +65,7 @@ export enum NotificationType {
   UserTopReaderBadge = 'user_given_top_reader',
   UserReceivedAward = 'user_received_award',
   BriefingReady = 'briefing_ready',
+  DigestReady = 'digest_ready',
   UserFollow = 'user_follow',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
@@ -165,7 +166,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
 
 export const notificationIconStyle: Record<
   NotificationIconType,
-  Record<string, string>
+  Record<string, string> | null
 > = {
   [NotificationIconType.DailyDev]: null,
   [NotificationIconType.CommunityPicks]: null,
@@ -203,6 +204,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserTopReaderBadge]: 'text-brand-default',
     [NotificationType.UserReceivedAward]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
+    [NotificationType.DigestReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
 
@@ -538,13 +540,11 @@ export const BILLING_NOTIFICATIONS: NotificationItem[] = [
 export const isMutingDigestCompletely = (
   ns: NotificationSettings,
   currentChannel: NotificationChannel,
+  notificationType: NotificationType = NotificationType.BriefingReady,
 ) => {
-  const currentChannelStatus =
-    ns[NotificationType.BriefingReady][currentChannel];
+  const currentChannelStatus = ns[notificationType]?.[currentChannel];
   const otherChannelStatus =
-    ns[NotificationType.BriefingReady][
-      currentChannel === 'inApp' ? 'email' : 'inApp'
-    ];
+    ns[notificationType]?.[currentChannel === 'inApp' ? 'email' : 'inApp'];
 
   return (
     otherChannelStatus === 'muted' && currentChannelStatus === 'subscribed'

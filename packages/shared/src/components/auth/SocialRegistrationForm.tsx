@@ -79,7 +79,7 @@ export const SocialRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const logError = (error) => {
+  const logError = (error: unknown) => {
     logEvent({
       event_name: AuthEventNames.SubmitSignUpFormError,
       extra: JSON.stringify({ error }),
@@ -249,7 +249,7 @@ export const SocialRegistrationForm = ({
         </Checkbox>
       </AuthForm>
       <ConditionalWrapper
-        condition={simplified}
+        condition={simplified ?? false}
         wrapper={(component) => (
           <AuthContainer className="!mt-0">{component}</AuthContainer>
         )}

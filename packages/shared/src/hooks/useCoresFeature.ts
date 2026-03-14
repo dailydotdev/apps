@@ -4,8 +4,9 @@ import type { PropsParameters } from '../types';
 import { useIsSpecialUser } from './auth/useIsSpecialUser';
 import { iOSSupportsCoresPurchase } from '../lib/ios';
 import { isIOSNative } from '../lib/func';
+import type { Squad, SourceMember } from '../graphql/sources';
 import { SourceMemberRole } from '../graphql/sources';
-import type LoggedUser from '../../__tests__/fixture/loggedUser';
+import type { LoggedUser, UserShortProfile } from '../lib/user';
 
 const useCoresFeature = (): boolean => {
   const { user } = useAuthContext();
@@ -31,7 +32,14 @@ export const useCanAwardUser = (
   return hasAccess && !isSpecialUser && canAwardUser(props);
 };
 
-export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
+interface UseGetSquadAwardAdminProps {
+  sendingUser: LoggedUser;
+  squad: Squad;
+}
+
+export const useGetSquadAwardAdmin = (
+  props: UseGetSquadAwardAdminProps,
+): UserShortProfile | null | undefined => {
   const hasAccess = useCoresFeature();
 
   if (
@@ -42,13 +50,13 @@ export const useGetSquadAwardAdmin = (props): typeof LoggedUser => {
   }
 
   // Return the first user that's eligible for cores
-  return props.squad?.privilegedMembers?.find((receivingUser) => {
+  return props.squad?.privilegedMembers?.find((receivingUser: SourceMember) => {
     if (receivingUser.role !== SourceMemberRole.Admin) {
       return false;
     }
     return canAwardUser({
       sendingUser: props.sendingUser,
-      receivingUser: receivingUser.user,
+      receivingUser: receivingUser.user as unknown as LoggedUser,
     });
   })?.user;
 };

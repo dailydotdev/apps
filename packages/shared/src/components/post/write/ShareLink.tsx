@@ -25,6 +25,8 @@ interface ShareLinkProps {
   className?: string;
   onPostSuccess: (post: Post, url: string) => void;
   isPostingOnMySource?: boolean;
+  initialUrl?: string;
+  initialCommentary?: string;
 }
 
 const confirmSharingAgainPrompt = {
@@ -43,6 +45,8 @@ export function ShareLink({
   post,
   moderated,
   isPostingOnMySource = false,
+  initialUrl,
+  initialCommentary,
 }: ShareLinkProps): ReactElement {
   const fetchedPost = post || moderated;
   const isCreatingPost = !fetchedPost;
@@ -52,9 +56,17 @@ export function ShareLink({
   const { displayToast } = useToastNotification();
   const { onSubmitForm, isPosting: isPendingCreation } = useWritePostContext();
 
-  const [commentary, setCommentary] = useState(
-    fetchedPost?.sharedPost ? fetchedPost?.title : fetchedPost?.content,
-  );
+  const [commentary, setCommentary] = useState(() => {
+    if (fetchedPost?.sharedPost) {
+      return fetchedPost.title;
+    }
+
+    if (fetchedPost) {
+      return fetchedPost.content;
+    }
+
+    return initialCommentary ?? '';
+  });
   const {
     getLinkPreview,
     isLoadingPreview,
@@ -172,6 +184,7 @@ export function ShareLink({
           getLinkPreview={getLinkPreview}
           isLoadingPreview={isLoadingPreview}
           onSelectedHistory={onUpdatePreview}
+          initialUrl={initialUrl}
         />
       )}
 

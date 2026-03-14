@@ -58,10 +58,10 @@ const AwardItem = ({
     <Button
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center rounded-14 bg-surface-float !p-1"
-      onClick={(event) => {
+      onClick={(event: React.MouseEvent<HTMLElement>) => {
         logAwardEvent({ awardEvent: 'PICK', extra: { award: item.value } });
 
-        return handleClick({ product: item, event });
+        return handleClick({ product: item, event: event.nativeEvent });
       }}
     >
       <Image

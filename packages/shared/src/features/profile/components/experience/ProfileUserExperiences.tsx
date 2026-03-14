@@ -7,6 +7,8 @@ import {
   UserExperienceType,
 } from '../../../../graphql/user/profile';
 import { UserExperienceList } from './UserExperiencesList';
+import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 
 interface ProfileUserExperiencesProps {
   user: PublicProfile;
@@ -14,9 +16,15 @@ interface ProfileUserExperiencesProps {
 
 export function ProfileUserExperiences({
   user,
-}: ProfileUserExperiencesProps): ReactElement {
+}: ProfileUserExperiencesProps): ReactElement | null {
+  const { isPreviewMode } = useProfilePreview(user);
+  const { user: loggedUser } = useAuthContext();
   const { work, education, cert, project, opensource, volunteering, data } =
     useProfileExperiences(user, profileExperiencesLimit);
+
+  if (isPreviewMode && loggedUser?.hideExperience) {
+    return null;
+  }
 
   return (
     <>

@@ -23,7 +23,9 @@ interface FeedItemContainerProps {
   bookmarked?: boolean;
 }
 
-interface FlagProps extends Pick<Post, 'pinnedAt' | 'trending' | 'type'> {
+interface FlagProps
+  extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
+  type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }
 
@@ -38,7 +40,7 @@ function FeedItemContainer(
   ref?: Ref<HTMLElement>,
 ): ReactElement {
   const { highlightBookmarkedPost } = useBookmarkProvider({
-    bookmarked,
+    bookmarked: bookmarked ?? false,
   });
   const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
   const raisedLabelType = pinnedAt

@@ -46,7 +46,7 @@ export const useEnableNotification = ({
     [source, onEnablePush],
   );
 
-  const subscribed = isSubscribed || (shouldOpenPopup && hasPermissionCache);
+  const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
 
   const conditions = [

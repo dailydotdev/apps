@@ -18,7 +18,7 @@ export class HttpError extends Error {
 }
 
 export type GraphQLError = {
-  response: { errors: { extensions: { code: ApiError } }[] };
+  response: { errors: { extensions: { code: ApiError }; message?: string }[] };
 };
 
 export const isConnectionError = (error: Error | unknown): boolean => {

@@ -20,6 +20,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
+import { PostType } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import { useAuthContext } from '../../contexts/AuthContext';
 
@@ -74,15 +75,17 @@ export interface UseSourceModerationList {
 }
 
 const getLogPostsFromModerationArray = (data: SourcePostModeration[]) => {
-  return data.map<Post>((item) => ({
-    id: item.id,
-    source: item.source,
-    type: item.type,
-    image: item.image,
-    commentsPermalink: '',
-    author: item.createdBy,
-    createdAt: item.createdAt,
-  }));
+  return data.map<Post>((item) => {
+    return {
+      id: item.id,
+      source: item.source,
+      type: item.type ?? PostType.Article,
+      image: item.image ?? '',
+      commentsPermalink: '',
+      author: item.createdBy,
+      createdAt: item.createdAt,
+    };
+  });
 };
 
 export const useSourceModerationList = (): UseSourceModerationList => {

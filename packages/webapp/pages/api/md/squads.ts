@@ -8,6 +8,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SOURCES_QUERY } from '@dailydotdev/shared/src/graphql/squads';
 import { SOURCE_CATEGORIES_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
+import { getAppOrigin, getLlmsTxtUrl } from '../../../lib/seo';
 
 interface SquadsData {
   sources: Connection<Squad>;
@@ -16,6 +17,9 @@ interface SquadsData {
 interface CategoriesData {
   categories: Connection<SourceCategory>;
 }
+
+const appOrigin = getAppOrigin();
+const llmsTxtUrl = getLlmsTxtUrl();
 
 const formatSquad = (squad: Squad): string => {
   const name = escapeMarkdown(squad.name);
@@ -81,8 +85,14 @@ const handler = async (
       )
       .join('\n\n');
 
-    const markdown = `> ## Documentation Index
-> Fetch the complete documentation index at: https://app.daily.dev/llms.txt
+    const markdown = `---
+title: Squads Directory
+url: ${appOrigin}/squads/discover
+description: Developer communities on daily.dev
+---
+
+> ## Documentation Index
+> Fetch the complete documentation index at: ${llmsTxtUrl}
 > Use this file to discover all available pages before exploring further.
 
 # Squads Directory
@@ -104,11 +114,13 @@ ${categorySections}
 [Discover all Squads on daily.dev](/squads/discover)
 `;
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     res.setHeader(
       'Cache-Control',
       'public, s-maxage=86400, stale-while-revalidate=604800',
     );
+    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
+    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {
@@ -117,7 +129,7 @@ ${categorySections}
     res
       .status(500)
       .send(
-        'Unable to generate markdown. Please try again later or visit https://app.daily.dev/squads/discover',
+        `Unable to generate markdown. Please try again later or visit ${appOrigin}/squads/discover`,
       );
   }
 };

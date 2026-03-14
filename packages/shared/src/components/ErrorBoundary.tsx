@@ -16,6 +16,8 @@ type ErrorBoundaryState = {
   hasError: boolean;
 };
 
+const DOM_MUTATION_ERROR_TOKENS = ['removeChild', 'insertBefore'] as const;
+
 export class ErrorBoundary extends Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
@@ -39,6 +41,9 @@ export class ErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const { logEvent } = this.context;
     const { feature } = this.props;
+    const isDomMutationError = DOM_MUTATION_ERROR_TOKENS.some((token) =>
+      error.message.includes(token),
+    );
 
     if (!logEvent) {
       return;
@@ -53,6 +58,7 @@ export class ErrorBoundary extends Component<
         stack: errorInfo.componentStack,
         digest: errorInfo.digest,
         feature,
+        domMutation: isDomMutationError || undefined,
       }),
     });
   }

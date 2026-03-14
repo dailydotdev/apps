@@ -79,6 +79,10 @@ export const useSearchProvider = (): UseSearchProvider => {
           };
         }
 
+        if (!requestMethod) {
+          throw new Error('Request method is required');
+        }
+
         const searchVersion = getFeatureValue(feature.searchVersion);
 
         const result = await requestMethod(graphqlQuery, {

@@ -54,7 +54,8 @@ const CustomFeedOptionsMenu = ({
         },
       });
     }
-    return onCreateNewFeed();
+
+    return onCreateNewFeed?.();
   };
 
   const options: MenuItemProps[] = [

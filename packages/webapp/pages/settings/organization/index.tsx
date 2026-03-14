@@ -46,7 +46,7 @@ import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/org
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { defaultSeo } from '../../../next-seo';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const NoOrganizations = () => {
   const { url } = useReferralCampaign({
@@ -176,7 +176,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Organizations'),
+  ...getPageSeoTitles('Organizations'),
 };
 
 Page.getLayout = getSettingsLayout;

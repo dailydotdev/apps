@@ -21,6 +21,12 @@ import useProfileForm from '../../hooks/useProfileForm';
 
 const REP_TRESHOLD = 250;
 
+interface BootPopupEntry {
+  type: string;
+  props?: Record<string, unknown>;
+  persistOnRouteChange?: boolean;
+}
+
 /**
  * Boot popup system — centralized modal queue shown on page load.
  *
@@ -80,19 +86,11 @@ export const BootPopups = (): ReactElement => {
     ActionType.DisableReadingStreakMilestone,
   );
 
-  const shouldHideStreaksModal = [
-    !isStreaksEnabled,
-    !isActionsFetched,
-    isNullOrUndefined(isDisabledMilestone),
-    isDisabledMilestone,
-    alerts?.showStreakMilestone !== true,
-    !streak?.current,
-  ].some(Boolean);
-  const addBootPopup = (popup) => {
+  const addBootPopup = (popup: BootPopupEntry) => {
     setBootPopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
 
-  const addImmediatePopup = (popup) => {
+  const addImmediatePopup = (popup: BootPopupEntry) => {
     setImmediatePopups((prev) => new Map([...prev, [popup.type, popup]]));
   };
 
@@ -215,27 +213,6 @@ export const BootPopups = (): ReactElement => {
   }, [alerts?.showGenericReferral, updateLastBootPopup]);
 
   /**
-   * Boot popup for streaks milestone
-   */
-  useEffect(() => {
-    if (shouldHideStreaksModal) {
-      return;
-    }
-
-    addBootPopup({
-      type: LazyModal.NewStreak,
-      props: {
-        currentStreak: streak?.current,
-        maxStreak: streak?.max,
-        onAfterClose: () => {
-          updateLastBootPopup();
-          updateAlerts({ showStreakMilestone: false });
-        },
-      },
-    });
-  }, [shouldHideStreaksModal, streak, updateAlerts, updateLastBootPopup]);
-
-  /**
    * Streak recovery modal
    */
   useEffect(() => {
@@ -265,7 +242,6 @@ export const BootPopups = (): ReactElement => {
     isActionsFetched,
     isDisabledMilestone,
     isStreaksEnabled,
-    shouldHideStreaksModal,
     streak,
     updateAlerts,
     updateLastBootPopup,

@@ -16,12 +16,14 @@ import {
 import { ArrowIcon, VIcon } from '../icons';
 import styles from './Dropdown.module.css';
 import { usePrevious, useViewSize, ViewSize } from '../../hooks';
+import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 import { ListDrawer } from '../drawers/ListDrawer';
 import type { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { IconProps } from '../Icon';
+import { Loader } from '../Loader';
 
 export interface DropdownClassName {
   container?: string;
@@ -53,6 +55,9 @@ export interface DropdownProps {
   disabled?: boolean;
   valid?: boolean;
   hint?: string;
+  fetchNextPage?: () => Promise<unknown>;
+  canFetchMore?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 export function Dropdown({
@@ -74,6 +79,9 @@ export function Dropdown({
   disabled,
   valid,
   hint,
+  fetchNextPage,
+  canFetchMore = false,
+  isFetchingNextPage,
   ...props
 }: DropdownProps): ReactElement {
   const id = useId();
@@ -110,6 +118,11 @@ export function Dropdown({
         break;
     }
   };
+
+  const infiniteScrollRef = useFeedInfiniteScroll({
+    fetchPage: fetchNextPage ?? (() => {}),
+    canFetchMore: canFetchMore && !isFetchingNextPage,
+  });
 
   const fullScreen = openFullScreen ?? isMobile;
 
@@ -207,6 +220,9 @@ export function Dropdown({
               selected={selectedIndex}
               onSelectedChange={handleChange}
               shouldIndicateSelected={shouldIndicateSelected}
+              fetchNextPage={fetchNextPage}
+              canFetchMore={canFetchMore}
+              isFetchingNextPage={isFetchingNextPage}
             />
           </RootPortal>
         </>
@@ -215,6 +231,7 @@ export function Dropdown({
           <DropdownMenuTrigger asChild>{renderButton()}</DropdownMenuTrigger>
           <DropdownMenuContent
             id={`${id}-content`}
+            variant="field"
             className={classNames(
               'overflow-hidden',
               className.menu || 'menu-primary',
@@ -248,6 +265,13 @@ export function Dropdown({
                 </div>
               </DropdownMenuItem>
             ))}
+            {fetchNextPage && (
+              <div
+                ref={infiniteScrollRef}
+                className="pointer-events-none h-px w-px opacity-0"
+              />
+            )}
+            {isFetchingNextPage && <Loader className="mx-auto my-2" />}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
+import type { IconType } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
@@ -14,6 +16,30 @@ import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
 import { LazyImage } from '../LazyImage';
 import { LazyModal } from '../modals/common/types';
+import HoverCard from '../cards/common/HoverCard';
+import { AchievementCard } from '../../features/profile/components/achievements/AchievementCard';
+import { Tooltip } from '../tooltip/Tooltip';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+
+function AchievementIcon({
+  imgSrc,
+  imgAlt,
+  hasLabel,
+}: {
+  imgSrc: string;
+  imgAlt: string;
+  hasLabel: boolean;
+}): ReactElement {
+  return (
+    <LazyImage
+      imgSrc={imgSrc}
+      imgAlt={imgAlt}
+      className={classNames('size-5 rounded-6 object-cover', {
+        'mr-2': hasLabel,
+      })}
+    />
+  );
+}
 
 export function AchievementTrackerButton(): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
@@ -46,6 +72,7 @@ export function AchievementTrackerButton(): ReactElement | null {
   const {
     trackedAchievement,
     trackAchievement,
+    untrackAchievement,
     isPending: isTrackedAchievementPending,
     isTrackPending,
     isUntrackPending,
@@ -65,7 +92,7 @@ export function AchievementTrackerButton(): ReactElement | null {
 
   const buttonLabel = (() => {
     if (!isTrackingAchievement) {
-      return 'Track achievement';
+      return undefined;
     }
 
     if (targetCount <= 1) {
@@ -78,9 +105,15 @@ export function AchievementTrackerButton(): ReactElement | null {
       ? `${progressValue} of ${targetCount} ${unit}`
       : `${progressValue} of ${targetCount}`;
   })();
+  const hasButtonLabel = !!buttonLabel;
 
   const handleTrack = async (achievementId: string) => {
     await trackAchievement(achievementId);
+    closeModal();
+  };
+
+  const handleUntrack = async () => {
+    await untrackAchievement();
     closeModal();
   };
 
@@ -91,25 +124,57 @@ export function AchievementTrackerButton(): ReactElement | null {
         achievements: achievements ?? [],
         trackedAchievementId: trackedAchievement?.achievement.id,
         onTrack: handleTrack,
+        onUntrack: handleUntrack,
       },
     });
   };
 
-  if (
-    !user ||
-    isAchievementTrackingWidgetLoading ||
-    (isAchievementTrackingWidgetEnabled === true && isAchievementsPending) ||
-    !shouldRender
-  ) {
+  if (!user || isAchievementTrackingWidgetLoading) {
     return null;
   }
 
-  return (
+  if (isAchievementTrackingWidgetEnabled !== true) {
+    return null;
+  }
+
+  if (isAchievementsPending) {
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-10 w-10 animate-pulse rounded-12"
+      />
+    );
+  }
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  if (isTrackedAchievementPending) {
+    return (
+      <ElementPlaceholder
+        data-testid="achievement-tracker-skeleton"
+        className="h-10 w-10 animate-pulse rounded-12"
+      />
+    );
+  }
+
+  const buttonContent = (
     <div className="relative">
       <Button
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        icon={isTrackingAchievement ? undefined : <MedalBadgeIcon />}
+        icon={
+          (isTrackingAchievement ? (
+            <AchievementIcon
+              imgSrc={trackedAchievement.achievement.image}
+              imgAlt={trackedAchievement.achievement.name}
+              hasLabel={hasButtonLabel}
+            />
+          ) : (
+            <MedalBadgeIcon />
+          )) as unknown as IconType
+        }
         onClick={handleClick}
         disabled={isTrackerUpdating}
         aria-label={
@@ -120,14 +185,7 @@ export function AchievementTrackerButton(): ReactElement | null {
             : 'Track an achievement'
         }
       >
-        {isTrackingAchievement && (
-          <LazyImage
-            imgSrc={trackedAchievement.achievement.image}
-            imgAlt={trackedAchievement.achievement.name}
-            className="mr-2 size-5 rounded-6 object-cover"
-          />
-        )}
-        {buttonLabel}
+        {buttonLabel || undefined}
       </Button>
       {showAttentionDot && (
         <AlertDot
@@ -136,5 +194,21 @@ export function AchievementTrackerButton(): ReactElement | null {
         />
       )}
     </div>
+  );
+
+  if (!isTrackingAchievement) {
+    return (
+      <Tooltip content="Track achievement" side="bottom">
+        {buttonContent}
+      </Tooltip>
+    );
+  }
+
+  return (
+    <HoverCard openDelay={300} sideOffset={8} trigger={buttonContent}>
+      <div className="w-80 overflow-hidden rounded-16 bg-background-popover">
+        <AchievementCard userAchievement={trackedAchievement} />
+      </div>
+    </HoverCard>
   );
 }

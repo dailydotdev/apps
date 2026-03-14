@@ -14,7 +14,7 @@ interface SourceActionsFollowProps {
   className?: string;
   isFetching: boolean;
   isSubscribed: boolean;
-  onClick: (e) => void;
+  onClick: (e: React.MouseEvent) => void;
   variant: ButtonVariant;
   followedVariant?: ButtonVariant;
   copyType?: CopyType;

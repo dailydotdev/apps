@@ -10,7 +10,7 @@ import { pageMainClassNames } from '@dailydotdev/shared/src/components/layout/Pa
 import ProtectedPage from '../../components/ProtectedPage';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { getTemplatedTitle } from '../../components/layouts/utils';
+import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const Container = classed(
   'main',
@@ -47,7 +47,7 @@ const getBriefingLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 const seo: NextSeoProps = {
-  title: getTemplatedTitle('Presidential briefings'),
+  ...getPageSeoTitles('Presidential briefings'),
   description:
     'Fast, high-signal briefings delivered straight to you by your personal AI agent.',
   nofollow: true,

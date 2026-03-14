@@ -14,6 +14,7 @@ import { briefUIFeature } from '../../lib/featureManagement';
 import { PlusUser } from '../PlusUser';
 import {
   SendType,
+  usePlusPositioning,
   usePersonalizedDigest,
   usePlusSubscription,
 } from '../../hooks';
@@ -35,6 +36,7 @@ import { getPathnameWithQuery, labels } from '../../lib';
 import { OpenLinkIcon } from '../icons';
 import { isNullOrUndefined } from '../../lib/func';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import NotificationSectionHeading from './NotificationSectionHeading';
 
 const PersonalizedDigest = () => {
   const {
@@ -44,6 +46,7 @@ const PersonalizedDigest = () => {
   } = useNotificationSettings();
   const router = useRouter();
   const { isPlus } = usePlusSubscription();
+  const { isAgentPositioning } = usePlusPositioning();
   const { isPushSupported } = usePushNotificationContext();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -134,13 +137,17 @@ const PersonalizedDigest = () => {
 
   const onToggleBriefing = () => {
     toggleSetting(NotificationType.BriefingReady, 'email');
-    onLogToggle(isChecked, NotificationCategory.Digest);
+    onLogToggle(!isChecked, NotificationCategory.Digest);
 
     if (isChecked) {
       if (selectedDigest?.type === UserPersonalizedDigestType.Digest) {
-        unsubscribePersonalizedDigest({
-          type: UserPersonalizedDigestType.Digest,
-        });
+        const digestInAppActive =
+          ns?.[NotificationType.DigestReady]?.inApp === 'subscribed';
+        if (!digestInAppActive) {
+          unsubscribePersonalizedDigest({
+            type: UserPersonalizedDigestType.Digest,
+          });
+        }
       }
 
       if (
@@ -259,13 +266,24 @@ const PersonalizedDigest = () => {
                       color={TypographyColor.Tertiary}
                       className="text-wrap font-normal"
                     >
-                      Your AI agent scans the entire dev landscape (posts,
-                      releases, discussions) and compiles a personalized
-                      briefing of what actually matters. Each briefing is
-                      custom-built for you based on whats trending, whats
-                      shifting, and what aligns with your interests. Upgrade to
-                      get unlimited access and control when and how often you
-                      get them.
+                      {isAgentPositioning ? (
+                        <>
+                          Scans hundreds of posts, releases, and discussions
+                          daily and gives you a personalized briefing of what
+                          actually matters. Upgrade for unlimited briefings and
+                          full control of when and where they&apos;re delivered.
+                        </>
+                      ) : (
+                        <>
+                          Your AI agent scans the entire dev landscape (posts,
+                          releases, discussions) and compiles a personalized
+                          briefing of what actually matters. Each briefing is
+                          custom-built for you based on whats trending, whats
+                          shifting, and what aligns with your interests. Upgrade
+                          to get unlimited access and control when and how often
+                          you get them.
+                        </>
+                      )}
                     </Typography>
                     {!isPlus && (
                       <UpgradeToPlus
@@ -290,6 +308,11 @@ const PersonalizedDigest = () => {
                 await unsubscribePersonalizedDigest({
                   type: UserPersonalizedDigestType.Digest,
                 });
+                setNotificationStatus(
+                  NotificationType.DigestReady,
+                  'inApp',
+                  NotificationPreferenceStatus.Muted,
+                );
               } else {
                 await onSubscribeDigest({
                   type: UserPersonalizedDigestType.Digest,
@@ -342,7 +365,7 @@ const PersonalizedDigest = () => {
       </>
       {!!selectedDigest && isChecked && (
         <>
-          <h3 className="font-bold typo-callout">When to send</h3>
+          <NotificationSectionHeading>When to send</NotificationSectionHeading>
           <HourDropdown
             className={{
               container: 'w-40',

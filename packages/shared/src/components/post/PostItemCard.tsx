@@ -135,7 +135,8 @@ export default function PostItemCard({
                     color={showVoteActions ? ButtonColor.Avocado : undefined}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Up}
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
                       e.preventDefault();
                       toggleUpvote({ payload: post, origin: logOrigin });
                     }}
@@ -151,7 +152,8 @@ export default function PostItemCard({
                     color={showVoteActions ? ButtonColor.Ketchup : undefined}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Down}
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
                       e.preventDefault();
                       toggleDownvote({
                         payload: post,

@@ -100,7 +100,7 @@ export const voteMutationHandlers: Record<
   (payload: VoteEntityPayload) => Partial<VoteEntityPayload>
 > = {
   [UserVote.Up]: (payload) => ({
-    numUpvotes: payload.numUpvotes + 1,
+    numUpvotes: (payload.numUpvotes ?? 0) + 1,
     userState: {
       ...payload?.userState,
       vote: UserVote.Up,
@@ -109,8 +109,8 @@ export const voteMutationHandlers: Record<
   [UserVote.Down]: (payload) => ({
     numUpvotes:
       payload?.userState?.vote === UserVote.Up
-        ? payload.numUpvotes - 1
-        : payload.numUpvotes,
+        ? (payload.numUpvotes ?? 0) - 1
+        : payload.numUpvotes ?? 0,
     userState: {
       ...payload?.userState,
       vote: UserVote.Down,
@@ -119,8 +119,8 @@ export const voteMutationHandlers: Record<
   [UserVote.None]: (payload) => ({
     numUpvotes:
       payload.userState?.vote === UserVote.Up
-        ? payload.numUpvotes - 1
-        : payload.numUpvotes,
+        ? (payload.numUpvotes ?? 0) - 1
+        : payload.numUpvotes ?? 0,
     userState: {
       ...payload?.userState,
       vote: UserVote.None,

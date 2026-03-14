@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -22,6 +22,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import Head from 'next/head';
 import type { ClientError } from 'graphql-request';
 import { SCROLL_OFFSET } from '@dailydotdev/shared/src/components/post/PostContent';
+import type { PostContentProps } from '@dailydotdev/shared/src/components/post/common';
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -45,7 +46,7 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
-import { getTemplatedTitle } from '../../../components/layouts/utils';
+import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
 import {
@@ -107,6 +108,12 @@ const SocialTwitterPostContent = dynamic(() =>
   ).then((module) => module.SocialTwitterPostContent),
 );
 
+const DigestPostContent = dynamic(() =>
+  import(
+    /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
+  ).then((module) => module.DigestPostContent),
+);
+
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -114,7 +121,7 @@ export interface Props extends DynamicSeoProps {
   error?: ApiError;
 }
 
-const CONTENT_MAP: Record<PostType, typeof PostContent> = {
+const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent,
   share: SquadPostContent,
   welcome: SquadPostContent,
@@ -124,6 +131,7 @@ const CONTENT_MAP: Record<PostType, typeof PostContent> = {
   [PostType.Brief]: BriefPostContent,
   [PostType.Poll]: PollPostContent,
   [PostType.SocialTwitter]: SocialTwitterPostContent,
+  [PostType.Digest]: DigestPostContent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
@@ -156,7 +164,7 @@ export const PostPage = ({
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
-  const { isFallback } = router;
+  const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
@@ -205,7 +213,7 @@ export const PostPage = ({
 
   usePostReferrer({ post });
 
-  if (isLoading || isFallback || privateSourceJoin.isActive) {
+  if (isLoading || privateSourceJoin.isActive) {
     return (
       <>
         <PostSEOSchema post={post} topComments={topComments} />
@@ -272,7 +280,7 @@ PostPage.layoutProps = {
 export default PostPage;
 
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
 
 export async function getStaticProps({
@@ -290,12 +298,14 @@ export async function getStaticProps({
 
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
+    const pageSeoTitles = getPageSeoTitles(seoTitle(post));
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
-      title: getTemplatedTitle(seoTitle(post)),
+      title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex: post?.author ? post.author.reputation <= 10 : false,
       openGraph: {
+        ...pageSeoTitles.openGraph,
         images: [
           {
             url: `https://og.daily.dev/api/posts/${post?.id}`,

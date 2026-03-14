@@ -54,6 +54,7 @@ export enum OtherFeedPage {
   SourcePage = 'sources[source]',
   SourceMostUpvoted = 'sources[source]/most-upvoted',
   SourceBestDiscussed = 'sources[source]/best-discussed',
+  TagsTopPosts = 'tags[tag]/top-posts',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
   Explore = 'posts',
@@ -64,6 +65,8 @@ export enum OtherFeedPage {
   Welcome = 'welcome',
   Discussed = 'discussed',
   Following = 'following',
+  Post = 'posts[id]',
+  AgentsVibes = 'agents-vibes',
 }
 
 const ONE_MINUTE = 60 * 1000;
@@ -210,6 +213,8 @@ export enum RequestKey {
   Organizations = 'organizations',
   LottieAnimations = 'lottie_animations',
   NotificationSettings = 'notification_settings',
+  UserFeedback = 'user_feedback',
+  FeedbackList = 'feedback_list',
   PostAnalytics = 'post_analytics',
   PostAnalyticsHistory = 'post_analytics_history',
   ProfileAnalytics = 'profile_analytics',
@@ -245,11 +250,17 @@ export enum RequestKey {
   UserWorkspacePhotos = 'user_workspace_photos',
   Gear = 'gear',
   GearSearch = 'gear_search',
+  PopularGear = 'popular_gear',
+  GearCategories = 'gear_categories',
   PersonalAccessTokens = 'personal_access_tokens',
   UserAchievements = 'user_achievements',
+  UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
   QuestDashboard = 'quest_dashboard',
+  Arena = 'arena',
+  TopSentimentEntities = 'top_sentiment_entities',
+  ShowcaseAchievements = 'showcase_achievements',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
