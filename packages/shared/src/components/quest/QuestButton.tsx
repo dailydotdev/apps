@@ -270,102 +270,116 @@ const QuestItem = ({
   const canClaim =
     quest.claimable && !!quest.userQuestId && !isClaimAnimating && !isClaimed;
   const visibleRewards = getVisibleRewards(quest.rewards, showLevelSystem);
+  const disabledContentClass = classNames(
+    'flex flex-col gap-2 transition-[opacity,filter] duration-200',
+    isVisuallyDisabled && 'opacity-50 grayscale',
+  );
 
   return (
     <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
-      <div
-        className={classNames(
-          'flex flex-col gap-2 transition-[opacity,filter] duration-200',
-          isVisuallyDisabled && 'opacity-50 grayscale',
-        )}
-      >
-        <header className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="truncate font-bold text-text-primary typo-footnote">
-              {quest.quest.name}
-            </p>
-            <p className="line-clamp-2 text-text-tertiary typo-caption1">
-              {quest.quest.description}
-            </p>
-          </div>
-          {quest.locked && <LockIcon className="text-text-tertiary" />}
-        </header>
+      <div className="flex flex-col gap-2">
+        <div className={disabledContentClass}>
+          <header className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="truncate font-bold text-text-primary typo-footnote">
+                {quest.quest.name}
+              </p>
+              <p className="line-clamp-2 text-text-tertiary typo-caption1">
+                {quest.quest.description}
+              </p>
+            </div>
+            {quest.locked && <LockIcon className="text-text-tertiary" />}
+          </header>
 
-        <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
-          <span>
-            {value}/{target}
-          </span>
-          <span>{getStatusLabel(quest)}</span>
+          <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
+            <span>
+              {value}/{target}
+            </span>
+            <span>{getStatusLabel(quest)}</span>
+          </div>
         </div>
 
-        <ProgressBar
-          percentage={percentage}
-          shouldShowBg
-          className={{
-            wrapper: 'h-1.5 rounded-14',
-            bar: 'h-full rounded-14',
-            barColor: quest.locked
-              ? 'bg-border-subtler'
-              : 'bg-accent-cabbage-default',
-          }}
-        />
-
-        {visibleRewards.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {visibleRewards.map((reward, index) => {
-              const rewardKey = `${reward.type}-${index.toString()}`;
-
-              return (
-                <QuestRewardChip
-                  key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
-                  reward={reward}
-                  rewardRef={(element) => {
-                    rewardRefs.current[rewardKey] = element;
-                  }}
-                />
-              );
-            })}
-          </div>
-        )}
-
-        {canClaim && (
-          <Button
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            className="w-fit"
-            disabled={isClaiming}
-            loading={isClaiming}
-            onClick={() => {
-              if (!quest.userQuestId || isClaiming) {
-                return;
-              }
-
-              const rewardSources = visibleRewards.flatMap((reward, index) => {
-                const rewardKey = `${reward.type}-${index.toString()}`;
-                const rewardElement = rewardRefs.current[rewardKey];
-
-                if (!rewardElement) {
-                  return [];
-                }
-
-                const rect = rewardElement.getBoundingClientRect();
-
-                return [
-                  {
-                    id: rewardKey,
-                    type: reward.type,
-                    amount: reward.amount,
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2,
-                  },
-                ] satisfies QuestRewardSource[];
-              });
-
-              onClaim(quest.userQuestId, rewardSources, quest.rotationId);
+        <div
+          className={classNames(
+            'transition-opacity duration-200',
+            isVisuallyDisabled && 'opacity-50',
+          )}
+        >
+          <ProgressBar
+            percentage={percentage}
+            shouldShowBg
+            className={{
+              wrapper: 'h-1.5 rounded-14',
+              bar: 'h-full rounded-14',
+              barColor: quest.locked
+                ? 'bg-accent-cabbage-bolder'
+                : 'bg-accent-cabbage-default',
             }}
-          >
-            Claim
-          </Button>
+          />
+        </div>
+
+        {(visibleRewards.length > 0 || canClaim) && (
+          <div className={disabledContentClass}>
+            {visibleRewards.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {visibleRewards.map((reward, index) => {
+                  const rewardKey = `${reward.type}-${index.toString()}`;
+
+                  return (
+                    <QuestRewardChip
+                      key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
+                      reward={reward}
+                      rewardRef={(element) => {
+                        rewardRefs.current[rewardKey] = element;
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {canClaim && (
+              <Button
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                className="w-fit"
+                disabled={isClaiming}
+                loading={isClaiming}
+                onClick={() => {
+                  if (!quest.userQuestId || isClaiming) {
+                    return;
+                  }
+
+                  const rewardSources = visibleRewards.flatMap(
+                    (reward, index) => {
+                      const rewardKey = `${reward.type}-${index.toString()}`;
+                      const rewardElement = rewardRefs.current[rewardKey];
+
+                      if (!rewardElement) {
+                        return [];
+                      }
+
+                      const rect = rewardElement.getBoundingClientRect();
+
+                      return [
+                        {
+                          id: rewardKey,
+                          type: reward.type,
+                          amount: reward.amount,
+                          x: rect.left + rect.width / 2,
+                          y: rect.top + rect.height / 2,
+                        },
+                      ] satisfies QuestRewardSource[];
+                    },
+                  );
+
+                  onClaim(quest.userQuestId, rewardSources, quest.rotationId);
+                }}
+              >
+                Claim
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

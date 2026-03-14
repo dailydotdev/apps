@@ -58,6 +58,7 @@ const questDashboard = {
     regular: [
       {
         rotationId: 'daily-quest-1',
+        userQuestId: null,
         progress: 1,
         status: QuestStatus.InProgress,
         locked: false,
@@ -132,5 +133,57 @@ describe('QuestButton', () => {
     expect(screen.queryByText('250/400 XP')).not.toBeInTheDocument();
     expect(screen.queryByText('+150 XP')).not.toBeInTheDocument();
     expect(await screen.findByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should keep accent progress fill on locked quests', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus-locked',
+              userQuestId: null,
+              progress: 2,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus-locked',
+                name: 'Locked plus quest',
+                description: 'Vote on 8 hot takes',
+                type: QuestType.Daily,
+                plusOnly: false,
+                eventType: 'hot_take_vote',
+                targetCount: 8,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 15 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    const lockedQuestTitle = await screen.findByText('Locked plus quest');
+    const questCard = lockedQuestTitle.closest('article');
+    const headerBlock = questCard?.querySelector('header')
+      ?.parentElement as HTMLElement | null;
+    const progressBar = questCard?.querySelector('meter');
+    const progressWrapper = progressBar?.parentElement
+      ?.parentElement as HTMLElement | null;
+
+    expect(questCard).toBeInTheDocument();
+    expect(headerBlock).toHaveClass('opacity-50');
+    expect(headerBlock).toHaveClass('grayscale');
+    expect(progressWrapper).toHaveClass('opacity-50');
+    expect(progressWrapper).not.toHaveClass('grayscale');
+    expect(progressBar).toBeInTheDocument();
+    expect(progressBar).toHaveClass('bg-accent-cabbage-bolder');
+    expect(progressBar).not.toHaveClass('bg-border-subtler');
   });
 });
