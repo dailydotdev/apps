@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
+import { useRouter } from 'next/router';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   Typography,
   TypographyColor,
@@ -14,12 +17,29 @@ import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
 const GamificationSettingsPage = (): ReactElement => {
+  const router = useRouter();
   const {
     optOutLevelSystem,
     optOutQuestSystem,
     toggleOptOutLevelSystem,
     toggleOptOutQuestSystem,
   } = useSettingsContext();
+  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
+    useConditionalFeature({
+      feature: questsFeature,
+    });
+
+  useEffect(() => {
+    if (isQuestsFeatureLoading || isQuestsFeatureEnabled === true) {
+      return;
+    }
+
+    router.replace('/settings/customization/streaks');
+  }, [isQuestsFeatureEnabled, isQuestsFeatureLoading, router]);
+
+  if (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true) {
+    return null;
+  }
 
   return (
     <AccountPageContainer title="Gamification">

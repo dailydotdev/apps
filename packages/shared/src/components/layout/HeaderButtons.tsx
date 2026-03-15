@@ -8,6 +8,8 @@ import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestButton } from '../quest/QuestButton';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { questsFeature } from '../../lib/featureManagement';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -20,6 +22,10 @@ export function HeaderButtons({
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings, optOutQuestSystem } = useSettingsContext();
+  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
+    feature: questsFeature,
+    shouldEvaluate: isLoggedIn,
+  });
 
   if (!isAuthReady || !loadedSettings) {
     return <Container />;
@@ -41,7 +47,7 @@ export function HeaderButtons({
   return (
     <Container>
       <OpportunityEntryButton />
-      {!optOutQuestSystem && <QuestButton />}
+      {isQuestsFeatureEnabled === true && !optOutQuestSystem && <QuestButton />}
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />

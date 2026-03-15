@@ -70,7 +70,10 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
-import { achievementTrackingWidgetFeature } from '../../lib/featureManagement';
+import {
+  achievementTrackingWidgetFeature,
+  questsFeature,
+} from '../../lib/featureManagement';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { shouldShowAchievementTracker } from '../../lib/achievements';
@@ -93,6 +96,10 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
 
   const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
+    shouldEvaluate: !!user,
+  });
+  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
+    feature: questsFeature,
     shouldEvaluate: !!user,
   });
 
@@ -398,7 +405,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
     ],
   );
 
-  return { items, showAchievementTracker };
+  return { items, showAchievementTracker, isQuestsFeatureEnabled };
 };
 
 interface ProfileSettingsMenuProps {
@@ -416,8 +423,11 @@ export const InnerProfileSettingsMenu = ({
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const { items: accountPageItems, showAchievementTracker } =
-    useAccountPageItems({ onClose });
+  const {
+    items: accountPageItems,
+    showAchievementTracker,
+    isQuestsFeatureEnabled,
+  } = useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -438,6 +448,13 @@ export const InnerProfileSettingsMenu = ({
                 if (
                   itemKey === TRACK_ACHIEVEMENT_KEY &&
                   !showAchievementTracker
+                ) {
+                  return false;
+                }
+
+                if (
+                  itemKey === 'gamification' &&
+                  isQuestsFeatureEnabled !== true
                 ) {
                   return false;
                 }
