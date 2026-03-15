@@ -170,12 +170,14 @@ describe('QuestButton', () => {
     renderComponent(false);
 
     const lockedQuestTitle = await screen.findByText('Locked plus quest');
+    /* eslint-disable testing-library/no-node-access */
     const questCard = lockedQuestTitle.closest('article');
     const headerBlock = questCard?.querySelector('header')
       ?.parentElement as HTMLElement | null;
     const progressBar = questCard?.querySelector('meter');
     const progressWrapper = progressBar?.parentElement
       ?.parentElement as HTMLElement | null;
+    /* eslint-enable testing-library/no-node-access */
 
     expect(questCard).toBeInTheDocument();
     expect(headerBlock).toHaveClass('opacity-50');

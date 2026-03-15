@@ -327,7 +327,9 @@ const QuestItem = ({
 
                   return (
                     <QuestRewardChip
-                      key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
+                      key={`${quest.rotationId}-${
+                        reward.type
+                      }-${index.toString()}`}
                       reward={reward}
                       rewardRef={(element) => {
                         rewardRefs.current[rewardKey] = element;
