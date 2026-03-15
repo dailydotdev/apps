@@ -27,7 +27,6 @@ export interface QuestDefinition {
   name: string;
   description: string;
   type: QuestType;
-  plusOnly: boolean;
   eventType: string;
   targetCount: number;
 }
@@ -103,7 +102,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -126,7 +124,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -151,7 +148,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -174,7 +170,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -212,7 +207,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -235,7 +229,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -260,7 +253,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -283,7 +275,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
