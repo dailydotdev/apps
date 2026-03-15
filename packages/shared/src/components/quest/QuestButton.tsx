@@ -18,12 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { CoreIcon, LockIcon, ReputationIcon, TourIcon } from '../icons';
-import type {
-  QuestLevel,
-  QuestReward,
-  QuestType,
-  UserQuest,
-} from '../../graphql/quests';
+import type { QuestReward, QuestType, UserQuest } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -41,6 +36,10 @@ import { TargetId } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
+import {
+  getQuestLevelProgress,
+  QuestLevelProgressCircle,
+} from './QuestLevelProgressCircle';
 
 const getProgress = (progress: number, target: number) => {
   const safeTarget = Math.max(target, 1);
@@ -52,22 +51,6 @@ const getProgress = (progress: number, target: number) => {
   };
 };
 
-const getLevelProgress = (level: QuestLevel) => {
-  const totalForLevel = level.xpInLevel + level.xpToNextLevel;
-
-  if (!totalForLevel) {
-    return 0;
-  }
-
-  return Math.min(100, (level.xpInLevel / totalForLevel) * 100);
-};
-
-const QUEST_LEVEL_PROGRESS_SIZE = 40;
-const QUEST_LEVEL_PROGRESS_STROKE = 4;
-const QUEST_LEVEL_PROGRESS_RADIUS =
-  (QUEST_LEVEL_PROGRESS_SIZE - QUEST_LEVEL_PROGRESS_STROKE) / 2;
-const QUEST_LEVEL_PROGRESS_CIRCUMFERENCE =
-  2 * Math.PI * QUEST_LEVEL_PROGRESS_RADIUS;
 const QUEST_REWARD_FLY_DURATION_MS = 1850;
 const QUEST_REWARD_HIT_PROGRESS = 0.86;
 const QUEST_REWARD_FLIGHT_STAGGER_MS = 180;
@@ -833,7 +816,7 @@ export const QuestButton = (): ReactElement => {
   );
 
   const level = data?.level?.level ?? 1;
-  const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
+  const levelProgress = data?.level ? getQuestLevelProgress(data.level) : 0;
   const showLevelSystem = !optOutLevelSystem;
   const claimableCount = useMemo(() => {
     if (!data) {
@@ -1130,7 +1113,7 @@ export const QuestButton = (): ReactElement => {
           const initialProgress =
             claimProgressSnapshotRef.current ?? levelProgress;
           const initialLevel = claimLevelSnapshotRef.current ?? level;
-          const finalProgress = getLevelProgress(claimedDashboard.level);
+          const finalProgress = getQuestLevelProgress(claimedDashboard.level);
           const finalLevel = claimedDashboard.level.level;
 
           scheduleLevelProgressByHits({
@@ -1190,43 +1173,11 @@ export const QuestButton = (): ReactElement => {
             }
           >
             {showLevelSystem ? (
-              <span className="relative inline-flex size-10 items-center justify-center">
-                <svg
-                  width={QUEST_LEVEL_PROGRESS_SIZE}
-                  height={QUEST_LEVEL_PROGRESS_SIZE}
-                  viewBox={`0 0 ${QUEST_LEVEL_PROGRESS_SIZE} ${QUEST_LEVEL_PROGRESS_SIZE}`}
-                  fill="none"
-                  className="-rotate-90"
-                  aria-hidden
-                >
-                  <circle
-                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    r={QUEST_LEVEL_PROGRESS_RADIUS}
-                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
-                    className="stroke-border-subtlest-tertiary"
-                  />
-                  <circle
-                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    r={QUEST_LEVEL_PROGRESS_RADIUS}
-                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
-                    strokeLinecap="round"
-                    strokeDasharray={QUEST_LEVEL_PROGRESS_CIRCUMFERENCE}
-                    strokeDashoffset={
-                      QUEST_LEVEL_PROGRESS_CIRCUMFERENCE *
-                      (1 - renderedLevelProgress / 100)
-                    }
-                    className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-                  />
-                </svg>
-                <span
-                  data-reward-target={QuestRewardType.Xp}
-                  className="absolute font-bold text-text-primary typo-caption1"
-                >
-                  {renderedLevel}
-                </span>
-              </span>
+              <QuestLevelProgressCircle
+                level={renderedLevel}
+                progress={renderedLevelProgress}
+                dataRewardTarget={QuestRewardType.Xp}
+              />
             ) : (
               <span className="inline-flex size-10 items-center justify-center">
                 <TourIcon size={IconSize.Large} />

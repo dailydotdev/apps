@@ -56,6 +56,7 @@ export enum LeaderboardType {
   MostReadingDays = 'mostReadingDays',
   MostVerifiedUsers = 'mostVerifiedUsers',
   MostAchievementPoints = 'mostAchievementPoints',
+  HighestLevel = 'highestLevel',
 }
 
 export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
@@ -67,6 +68,7 @@ export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
   [LeaderboardType.MostReadingDays]: 'Most reading days',
   [LeaderboardType.MostVerifiedUsers]: 'Most verified employees',
   [LeaderboardType.MostAchievementPoints]: 'Most achievement points',
+  [LeaderboardType.HighestLevel]: 'Highest level',
 };
 
 export const isCompanyLeaderboard = (type: LeaderboardType): boolean =>
@@ -135,6 +137,21 @@ export const MOST_ACHIEVEMENT_POINTS_QUERY = gql`
   ${LEADERBOARD_FRAGMENT}
 `;
 
+export const HIGHEST_LEVEL_QUERY = gql`
+  query HighestLevel($limit: Int = 100) {
+    highestLevel(limit: $limit) {
+      ...LeaderboardFragment
+      level {
+        level
+        totalXp
+        xpInLevel
+        xpToNextLevel
+      }
+    }
+  }
+  ${LEADERBOARD_FRAGMENT}
+`;
+
 export const MOST_VERIFIED_USERS_QUERY = gql`
   query MostVerifiedUsers($limit: Int = 100) {
     mostVerifiedUsers(limit: $limit) {
@@ -155,5 +172,6 @@ export const leaderboardQueries: Record<LeaderboardType, string> = {
   [LeaderboardType.MostReferrals]: MOST_REFERRALS_QUERY,
   [LeaderboardType.MostReadingDays]: MOST_READING_DAYS_QUERY,
   [LeaderboardType.MostAchievementPoints]: MOST_ACHIEVEMENT_POINTS_QUERY,
+  [LeaderboardType.HighestLevel]: HIGHEST_LEVEL_QUERY,
   [LeaderboardType.MostVerifiedUsers]: MOST_VERIFIED_USERS_QUERY,
 };
