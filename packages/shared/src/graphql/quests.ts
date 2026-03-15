@@ -78,6 +78,17 @@ export interface QuestUpdateData {
   questUpdate: QuestUpdate;
 }
 
+export interface QuestRotationUpdate {
+  updatedAt: Date;
+  type: QuestType;
+  periodStart: Date;
+  periodEnd: Date;
+}
+
+export interface QuestRotationUpdateData {
+  questRotationUpdate: QuestRotationUpdate;
+}
+
 export const QUEST_DASHBOARD_QUERY = gql`
   query QuestDashboard {
     questDashboard {
@@ -292,6 +303,17 @@ export const QUEST_UPDATE_SUBSCRIPTION = gql`
   subscription QuestUpdate {
     questUpdate {
       updatedAt
+    }
+  }
+`;
+
+export const QUEST_ROTATION_UPDATE_SUBSCRIPTION = gql`
+  subscription QuestRotationUpdate {
+    questRotationUpdate {
+      updatedAt
+      type
+      periodStart
+      periodEnd
     }
   }
 `;

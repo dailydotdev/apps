@@ -3,10 +3,18 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { QuestRewardType, QuestStatus, QuestType } from '../../graphql/quests';
+import {
+  QuestRewardType,
+  QuestStatus,
+  QuestType,
+  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+  QUEST_UPDATE_SUBSCRIPTION,
+} from '../../graphql/quests';
 import { QuestButton } from './QuestButton';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import useSubscription from '../../hooks/useSubscription';
+import { generateQueryKey, RequestKey } from '../../lib/query';
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
@@ -46,6 +54,7 @@ jest.mock('../dropdown/DropdownMenu', () => ({
 
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
+const mockUseSubscription = useSubscription as jest.Mock;
 
 const questDashboard = {
   level: {
@@ -85,12 +94,12 @@ const questDashboard = {
   },
 };
 
-const renderComponent = (optOutLevelSystem = false) =>
+const renderComponent = (
+  optOutLevelSystem = false,
+  client: QueryClient = new QueryClient(),
+) =>
   render(
-    <TestBootProvider
-      client={new QueryClient()}
-      settings={{ optOutLevelSystem }}
-    >
+    <TestBootProvider client={client} settings={{ optOutLevelSystem }}>
       <QuestButton />
     </TestBootProvider>,
   );
@@ -106,6 +115,7 @@ beforeEach(() => {
     isPending: false,
     variables: undefined,
   });
+  mockUseSubscription.mockReset();
 });
 
 describe('QuestButton', () => {
@@ -185,5 +195,49 @@ describe('QuestButton', () => {
     expect(progressBar).toBeInTheDocument();
     expect(progressBar).toHaveClass('bg-accent-cabbage-bolder');
     expect(progressBar).not.toHaveClass('bg-border-subtler');
+  });
+
+  it('should invalidate the quest dashboard on quest progress and rollover updates', () => {
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    const client = new QueryClient();
+    const invalidateQueries = jest
+      .spyOn(client, 'invalidateQueries')
+      .mockResolvedValue(undefined);
+
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    renderComponent(false, client);
+
+    expect(subscriptions.map((subscription) => subscription.query)).toEqual([
+      QUEST_UPDATE_SUBSCRIPTION,
+      QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+    ]);
+
+    subscriptions.forEach((subscription) => {
+      subscription.next?.();
+    });
+
+    expect(invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(invalidateQueries).toHaveBeenNthCalledWith(1, {
+      queryKey: generateQueryKey(RequestKey.QuestDashboard),
+      exact: true,
+    });
+    expect(invalidateQueries).toHaveBeenNthCalledWith(2, {
+      queryKey: generateQueryKey(RequestKey.QuestDashboard),
+      exact: true,
+    });
   });
 });

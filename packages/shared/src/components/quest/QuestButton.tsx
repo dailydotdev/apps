@@ -27,6 +27,7 @@ import type {
 import {
   QuestRewardType,
   QuestStatus,
+  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
   QUEST_UPDATE_SUBSCRIPTION,
 } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
@@ -816,18 +817,29 @@ export const QuestButton = (): ReactElement => {
     RequestKey.QuestDashboard,
     user,
   );
+  const invalidateQuestDashboard = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: questDashboardQueryKey,
+      exact: true,
+    });
+  }, [queryClient, questDashboardQueryKey]);
 
   useSubscription(
     () => ({
       query: QUEST_UPDATE_SUBSCRIPTION,
     }),
     {
-      next: () => {
-        queryClient.invalidateQueries({
-          queryKey: questDashboardQueryKey,
-          exact: true,
-        });
-      },
+      next: invalidateQuestDashboard,
+    },
+    [user?.id],
+  );
+
+  useSubscription(
+    () => ({
+      query: QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+    }),
+    {
+      next: invalidateQuestDashboard,
     },
     [user?.id],
   );
