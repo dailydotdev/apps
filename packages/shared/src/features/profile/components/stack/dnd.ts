@@ -43,6 +43,15 @@ export const sortSections = (sections: string[]): string[] =>
     return a.localeCompare(b);
   });
 
+export const getVisibleSections = (
+  sections: Record<string, UserStack[]>,
+): string[] =>
+  sortSections(
+    Object.keys(sections).filter(
+      (section) => (sections[section]?.length ?? 0) > 0,
+    ),
+  );
+
 export const buildSectionsState = (
   items: UserStack[],
 ): Record<string, UserStack[]> =>

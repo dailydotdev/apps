@@ -42,10 +42,9 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 import {
   buildSectionsState,
+  getVisibleSections,
   getReorderPayload,
   moveStackItem,
-  SECTION_ORDER,
-  sortSections,
 } from './dnd';
 import { UserStackItem } from './UserStackItem';
 
@@ -239,9 +238,7 @@ export function ProfileUserStack({
     activeItemId && stackItems.find((item) => item.id === activeItemId);
 
   const hasItems = stackItems.length > 0;
-  const visibleSections = isOwner
-    ? sortSections([...new Set([...SECTION_ORDER, ...Object.keys(sections)])])
-    : sortSections(Object.keys(sections));
+  const visibleSections = getVisibleSections(sections);
 
   if (!hasItems && !isOwner) {
     return null;

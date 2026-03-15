@@ -1,5 +1,6 @@
 import {
   buildSectionsState,
+  getVisibleSections,
   getReorderPayload,
   getSectionContainerId,
   moveStackItem,
@@ -92,6 +93,16 @@ describe('stack dnd helpers', () => {
       { id: 'a', position: 0, section: 'Hobby' },
       { id: 'b', position: 1, section: 'Hobby' },
     ]);
+  });
+
+  it('should hide empty sections from the rendered list', () => {
+    expect(
+      getVisibleSections({
+        Primary: [createItem({ id: 'a', section: 'Primary', position: 0 })],
+        Hobby: [],
+        Zeta: [createItem({ id: 'b', section: 'Zeta', position: 0 })],
+      }),
+    ).toEqual(['Primary', 'Zeta']);
   });
 
   it('should keep predefined sections first', () => {
