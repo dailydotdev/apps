@@ -1,0 +1,153 @@
+{
+  "slug": "html-css",
+  "title": "Learn HTML & CSS",
+  "description": "HTML and CSS are the foundation of every website. HTML structures the content, CSS makes it look good. These are the easiest coding skills to learn — you'll see results in your browser within minutes.",
+  "dimension": "language",
+  "tags": ["html", "css", "webdev", "beginners"],
+  "projectDescription": "You'll build a real personal portfolio website from scratch — starting with text and images, then adding layout, colors, and responsive design. By the end, it'll be live on the internet with your own URL that you can share with anyone.",
+  "outcomes": [
+    "Build and publish a complete personal portfolio site from scratch",
+    "Write semantic HTML that is accessible and SEO-friendly",
+    "Create responsive layouts using Flexbox and CSS Grid that work on any device",
+    "Add polished animations and interactions using pure CSS and the Intersection Observer API"
+  ],
+  "aiTips": [
+    "Paste your full HTML into the chat and ask the AI to explain what each tag does — reading AI explanations of your own code is one of the fastest ways to learn",
+    "When a layout breaks, describe what you see vs. what you expect and ask the AI to diagnose it; this trains you to spot box-model and specificity issues yourself over time",
+    "Ask the AI to generate two or three alternative CSS approaches for the same layout so you can compare trade-offs between Flexbox, Grid, and older techniques",
+    "Use AI to review your finished page for accessibility issues — ask it to check color contrast, missing alt text, and keyboard navigation before you publish"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Your first web page",
+      "body": "Create a personal homepage about me. Include a heading with my name, a short bio paragraph, a profile photo placeholder, and a list of 3 hobbies. Use semantic HTML (header, main, section, footer). Add basic CSS to center everything and use a nice font.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "Open the page in Chrome, right-click any element, and choose 'Inspect' to see exactly what styles are being applied and why."
+    },
+    {
+      "step": 2,
+      "title": "Make it responsive",
+      "body": "Update the homepage to look great on both phones and desktops. Add a navigation bar that collapses into a hamburger menu on mobile. Use CSS Grid for the layout and Flexbox for the nav. Add a dark color scheme with good contrast.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~45 min",
+      "stuckTip": "Toggle Chrome DevTools into mobile view (Ctrl+Shift+M) and shrink the viewport width slowly to pinpoint exactly where the layout breaks."
+    },
+    {
+      "step": 3,
+      "title": "Add a project showcase",
+      "body": "Add a 'Projects' section with 4 cards in a responsive grid. Each card should have an image, title, description, and a 'View project' link. Cards should have a subtle shadow and a hover effect that lifts them up slightly.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~1 hr",
+      "stuckTip": "If the grid isn't behaving, paste your CSS into the AI and ask it to explain what each grid property does — understanding grid-template-columns will unblock most issues."
+    },
+    {
+      "step": 4,
+      "title": "Build a contact form",
+      "body": "Add a contact section with a form that has name, email, and message fields. Style the inputs to match the page design. Add CSS-only validation styles — green border for valid fields, red for invalid. The submit button should have a gradient background.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~1 hr",
+      "stuckTip": "CSS validation styles rely on :valid and :invalid pseudo-classes — ask the AI to explain how browsers decide when an input is valid, and make sure your inputs have the correct type attribute."
+    },
+    {
+      "step": 5,
+      "title": "Add animations and polish",
+      "body": "Add CSS animations: fade-in sections as you scroll down (using @keyframes and Intersection Observer), smooth transitions on all hover states, and a subtle parallax effect on the hero section. Add a custom favicon and Open Graph meta tags for social sharing.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~1.5 hrs",
+      "stuckTip": "If Intersection Observer isn't firing, add a console.log inside the callback to confirm the observer is attached, then ask the AI why the threshold or root margin might be causing it to miss your elements."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Semantic HTML",
+      "explanation": "Tags like <header>, <nav>, <main>, and <footer> tell browsers and screen readers what each part of the page means. This improves accessibility and SEO — Google understands your page structure better."
+    },
+    {
+      "name": "CSS Box Model",
+      "explanation": "Every HTML element is a box with content, padding, border, and margin. Understanding this model is the key to controlling spacing and layout. Once it clicks, CSS stops feeling random."
+    },
+    {
+      "name": "Flexbox and Grid",
+      "explanation": "Flexbox handles one-dimensional layouts (rows or columns). Grid handles two-dimensional layouts (rows AND columns). Together they solve 99% of layout challenges without any hacks."
+    },
+    {
+      "name": "Responsive Design",
+      "explanation": "Media queries let you apply different CSS at different screen sizes. Combined with relative units (%, rem, vw) and fluid layouts, your page adapts automatically from phone to desktop."
+    }
+  ],
+  "resources": [
+    {
+      "title": "freeCodeCamp — Responsive Web Design",
+      "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "CSS-Tricks — A Complete Guide to Flexbox",
+      "url": "https://css-tricks.com/snippets/css/a-guide-to-flexbox/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "MDN — Getting Started with the Web",
+      "url": "https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Kevin Powell — CSS tutorials",
+      "url": "https://www.youtube.com/@KevinPowell",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "Flexbox Froggy",
+      "url": "https://flexboxfroggy.com/",
+      "type": "course",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor — describe a layout and it writes the HTML and CSS for you"
+    },
+    {
+      "name": "CodePen",
+      "url": "https://codepen.io",
+      "description": "Live HTML/CSS playground — see your changes instantly in the browser"
+    },
+    {
+      "name": "Chrome DevTools",
+      "url": "https://developer.chrome.com/docs/devtools/",
+      "description": "Built into Chrome — inspect any website's HTML and CSS to learn how it works"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/webdev",
+      "url": "https://reddit.com/r/webdev",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/css",
+      "url": "https://reddit.com/r/css",
+      "platform": "reddit"
+    },
+    {
+      "name": "Frontend Mentor",
+      "url": "https://www.frontendmentor.io/",
+      "platform": "other"
+    }
+  ],
+  "relatedSlugs": ["javascript", "build/personal-website", "for/designers"],
+  "lastUpdated": "2026-03-10"
+}

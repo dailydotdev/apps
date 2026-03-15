@@ -1,0 +1,100 @@
+{
+  "slug": "build",
+  "title": "Build Something",
+  "description": "The fastest way to learn is to build. Pick a project below, paste the prompts into your AI coding tool, and ship something real this weekend. No experience required — each guide walks you through it step by step.",
+  "dimension": "category",
+  "tags": ["programming", "webdev", "beginners"],
+  "outcomes": [
+    "Go from zero to a working app you can share with a link",
+    "Understand the basics of how web apps, bots, and extensions work",
+    "Learn to iterate on AI-generated code — add features, fix bugs, make it yours",
+    "Deploy a real project to the internet"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "build/todo-app",
+      "title": "Build a Todo App",
+      "reason": "The classic first project. Simple enough to finish in an hour, complex enough to learn real concepts like state, storage, and UI."
+    },
+    {
+      "slug": "build/personal-website",
+      "title": "Build a Personal Website",
+      "reason": "Create a portfolio site you actually own. Great for anyone who wants a web presence — students, freelancers, job seekers."
+    },
+    {
+      "slug": "build/chrome-extension",
+      "title": "Build a Chrome Extension",
+      "reason": "Customize your browser with a tool you'll actually use every day. A satisfying project that feels immediately useful."
+    },
+    {
+      "slug": "build/discord-bot",
+      "title": "Build a Discord Bot",
+      "reason": "Build a bot for your server — moderator, game, or utility. Fun to build, fun to show friends, and teaches real API concepts."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Frontend vs Backend",
+      "explanation": "Frontend is what users see (HTML, CSS, JavaScript in the browser). Backend is the server-side logic — databases, APIs, authentication. Most projects touch both."
+    },
+    {
+      "name": "State Management",
+      "explanation": "State is the data your app holds in memory — the list of todos, whether a toggle is on or off. Understanding state is the key to understanding how apps behave."
+    },
+    {
+      "name": "Deployment",
+      "explanation": "Deployment means putting your app on the internet so anyone can use it. Services like Vercel, Railway, and Netlify make this free and simple for small projects."
+    }
+  ],
+  "resources": [
+    {
+      "title": "freeCodeCamp - Responsive Web Design",
+      "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "The Odin Project",
+      "url": "https://www.theodinproject.com/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "JavaScript.info",
+      "url": "https://javascript.info/",
+      "type": "docs",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI-first code editor — the fastest way to build projects with AI assistance"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Agentic coding in your terminal — describe what you want and it builds it"
+    },
+    {
+      "name": "Vercel",
+      "url": "https://vercel.com",
+      "description": "Free hosting for web apps — deploy with one command"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/webdev",
+      "url": "https://reddit.com/r/webdev",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["vibe-coding", "languages", "automate"],
+  "lastUpdated": "2026-03-11"
+}
