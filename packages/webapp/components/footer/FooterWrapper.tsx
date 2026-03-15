@@ -50,7 +50,7 @@ export default function FooterWrapper({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-3 w-full pb-safe',
+        'fixed !bottom-0 left-0 z-3 w-full',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}
@@ -74,10 +74,12 @@ export default function FooterWrapper({
         </div>
       )}
       {showNav && (
-        <>
-          {showPlusButton && <FooterPlusButton />}
+        <div className="relative">
+          {showPlusButton && (
+            <FooterPlusButton className="absolute bottom-full right-2 z-1 mb-2" />
+          )}
           <MobileFooterNavbar />
-        </>
+        </div>
       )}
     </div>
   );
