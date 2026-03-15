@@ -18,7 +18,12 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { CoreIcon, LockIcon, ReputationIcon, TourIcon } from '../icons';
-import type { QuestLevel, QuestReward, UserQuest } from '../../graphql/quests';
+import type {
+  QuestLevel,
+  QuestReward,
+  QuestType,
+  UserQuest,
+} from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -247,6 +252,8 @@ const QuestItem = ({
   quest: UserQuest;
   onClaim: (
     userQuestId: string,
+    questId: string,
+    questType: QuestType,
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
@@ -375,7 +382,13 @@ const QuestItem = ({
                     },
                   );
 
-                  onClaim(quest.userQuestId, rewardSources, quest.rotationId);
+                  onClaim(
+                    quest.userQuestId,
+                    quest.quest.id,
+                    quest.quest.type,
+                    rewardSources,
+                    quest.rotationId,
+                  );
                 }}
               >
                 Claim
@@ -466,6 +479,8 @@ const QuestSection = ({
   quests: UserQuest[];
   onClaim: (
     userQuestId: string,
+    questId: string,
+    questType: QuestType,
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
@@ -1075,6 +1090,8 @@ export const QuestButton = (): ReactElement => {
 
   const handleClaim = (
     userQuestId: string,
+    questId: string,
+    questType: QuestType,
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => {
@@ -1092,7 +1109,7 @@ export const QuestButton = (): ReactElement => {
     setAnimatedLevelProgress(startProgress);
 
     claimQuestReward(
-      { userQuestId },
+      { userQuestId, questId, questType },
       {
         onSuccess: (claimedDashboard) => {
           const claimId = `quest-claim-${Date.now().toString()}`;
