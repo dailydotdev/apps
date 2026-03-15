@@ -135,7 +135,7 @@ function FeedNav(): ReactElement {
       )}
     >
       {isMobile && <MobileFeedActions />}
-      <div className="mb-4 h-[3.25rem] tablet:mb-0">
+      <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
         <TabContainer
           controlledActive={urlToTab[router.asPath] ?? ''}
           shouldMountInactive
@@ -198,7 +198,7 @@ function FeedNav(): ReactElement {
             <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
-        <div className="absolute right-0 top-0 hidden h-[3.25rem] items-center bg-background-default tablet:flex laptop:hidden">
+        <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
           <NotificationsBell compact />
         </div>
       </div>
