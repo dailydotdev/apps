@@ -244,14 +244,22 @@ We write tests to validate functionality, not to achieve coverage metrics:
 
 ## Feature Flags & Experiments
 
-GrowthBook is integrated for A/B testing:
+GrowthBook is integrated for A/B testing. Define features in `packages/shared/src/lib/featureManagement.ts`:
+```typescript
+export const featureMyFlag = new Feature('my_flag', false);
+```
+
+Use `useConditionalFeature` with `shouldEvaluate` to gate evaluation — only evaluate the flag when the component would otherwise render (e.g., user is authenticated and Plus). This avoids unnecessary GrowthBook evaluations:
 ```typescript
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { featureMyFlag } from '../../lib/featureManagement';
 
-const { value, isLoading } = useConditionalFeature({
-  feature: 'feature_name',
-  shouldEvaluate: true,
+const shouldEvaluate = isAuthReady && isPlus;
+const { value: isEnabled } = useConditionalFeature({
+  feature: featureMyFlag,
+  shouldEvaluate,
 });
+const showComponent = shouldEvaluate && isEnabled;
 ```
 
 ## Key Configuration Files
