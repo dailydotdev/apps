@@ -158,7 +158,6 @@ export interface MainFeedLayoutProps
   searchQuery?: string;
   children?: ReactNode;
   searchChildren?: ReactNode;
-  feedHeader?: ReactNode;
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
@@ -197,7 +196,6 @@ export default function MainFeedLayout({
   isSearchOn,
   children,
   searchChildren,
-  feedHeader,
   shortcuts,
   navChildren,
   isFinder,
@@ -576,7 +574,7 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
-      {feedHeader}
+      {isSearchOn && isSearchPageLaptop && searchChildren}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero
           className="px-4 pb-2"

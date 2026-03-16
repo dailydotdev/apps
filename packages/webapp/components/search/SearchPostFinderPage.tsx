@@ -68,7 +68,7 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
-  feedHeader: <AskSearchBanner />,
+  searchChildren: <AskSearchBanner />,
 };
 
 export default Search;
