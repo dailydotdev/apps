@@ -46,6 +46,20 @@ const renderComponent = (user = defaultUser): RenderResult => {
   );
 };
 
+it('should show "Profile settings" tooltip on the profile picture', () => {
+  renderComponent();
+
+  const elementsWithLabel = screen.getAllByLabelText('Profile settings');
+  // The button itself has aria-label, and the Radix Tooltip trigger also sets aria-label
+  expect(elementsWithLabel.length).toBeGreaterThanOrEqual(2);
+});
+
+it('should show "Reputation" tooltip on the reputation badge', () => {
+  renderComponent();
+
+  expect(screen.getByLabelText('Reputation')).toBeInTheDocument();
+});
+
 it('should show settings option that opens modal', async () => {
   renderComponent();
 
