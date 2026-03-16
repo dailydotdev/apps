@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { TextField } from '../../fields/TextField';
 import { LinkIcon, OpenLinkIcon } from '../../icons';
@@ -10,7 +10,8 @@ import {
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import type { ExternalLinkPreview } from '../../../graphql/posts';
+import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import { isSocialTwitterPost, PostType } from '../../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import {
@@ -24,6 +25,7 @@ import { webappUrl } from '../../../lib/constants';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { DateFormat } from '../../utilities';
 import { Separator } from '../../cards/common/common';
+import { EmbeddedTweetPreview } from '../../cards/socialTwitter/EmbeddedTweetPreview';
 
 interface WriteLinkPreviewProps {
   link: string;
@@ -44,8 +46,13 @@ export function WriteLinkPreview({
   showPreviewLink = true,
   variant = 'default',
 }: WriteLinkPreviewProps): ReactElement {
-  return (
-    <>
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return (
       <WritePreviewContainer className={className}>
         {showPreviewLink && (
           <TextField
@@ -60,52 +67,100 @@ export function WriteLinkPreview({
             onInput={onLinkChange}
           />
         )}
-        {preview.title && (
-          <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
-            <div className="flex flex-1 flex-col typo-footnote">
-              <span className="line-clamp-2 font-bold">{preview.title}</span>
-              {preview.source?.id !== 'unknown' &&
-                (isMinimized ? (
-                  <SourceAvatar
-                    size={ProfileImageSize.Small}
-                    source={preview.source}
-                    className="absolute right-24 mr-4 mt-1"
-                  />
-                ) : (
-                  <span className="mt-1 flex flex-row items-center">
+      </WritePreviewContainer>
+    );
+  }
+
+  const isXPreview = [
+    preview.finalUrl,
+    preview.url,
+    preview.permalink,
+    link,
+    preview.title,
+  ].some((value) => /(?:x\.com|twitter\.com|t\.co)/i.test(value ?? ''));
+  const isXShareLikePreview = isSocialTwitterPost(preview as Post);
+  const shouldUseXPreview =
+    !!preview.title && (isXPreview || isXShareLikePreview);
+  const xPreviewPost = shouldUseXPreview
+    ? ({
+        ...(preview as unknown as Post),
+        type: PostType.SocialTwitter,
+      } as Post)
+    : null;
+  const shouldRenderWritePreviewContainer =
+    showPreviewLink || (!!preview.title && !xPreviewPost);
+
+  return (
+    <>
+      {preview.title && xPreviewPost && (
+        <EmbeddedTweetPreview
+          post={xPreviewPost}
+          className="w-auto"
+          textClampClass="line-clamp-3"
+        />
+      )}
+      {shouldRenderWritePreviewContainer && (
+        <WritePreviewContainer className={className}>
+          {showPreviewLink && (
+            <TextField
+              leftIcon={<LinkIcon />}
+              label="URL"
+              type="url"
+              name="url"
+              inputId="preview_url"
+              fieldType="tertiary"
+              className={{ container: 'w-full' }}
+              value={link}
+              onInput={onLinkChange}
+            />
+          )}
+          {preview.title && !xPreviewPost && (
+            <WritePreviewContent className={isMinimized && '!px-3 !py-2'}>
+              <div className="flex flex-1 flex-col typo-footnote">
+                <span className="line-clamp-2 font-bold">{preview.title}</span>
+                {preview.source?.id !== 'unknown' &&
+                  (isMinimized ? (
                     <SourceAvatar
                       size={ProfileImageSize.Small}
                       source={preview.source}
+                      className="absolute right-24 mr-4 mt-1"
                     />
-                    <span className="text-text-tertiary">
-                      {preview.source?.name}
+                  ) : (
+                    <span className="mt-1 flex flex-row items-center">
+                      <SourceAvatar
+                        size={ProfileImageSize.Small}
+                        source={preview.source}
+                      />
+                      <span className="text-text-tertiary">
+                        {preview.source?.name}
+                      </span>
                     </span>
-                  </span>
-                ))}
-            </div>
-            {preview.image && (
-              <Image
-                className={previewImageClass}
-                src={preview.image}
-                alt={`${preview.title}`}
-              />
-            )}
-            {!isMinimized && (
-              <Button
-                icon={<OpenLinkIcon />}
-                variant={ButtonVariant.Tertiary}
-                type="button"
-                tag="a"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={link}
-              />
-            )}
-          </WritePreviewContent>
-        )}
-      </WritePreviewContainer>
+                  ))}
+              </div>
+              {preview.image && (
+                <Image
+                  className={previewImageClass}
+                  src={preview.image}
+                  alt={`${preview.title}`}
+                />
+              )}
+              {!isMinimized && (
+                <Button
+                  icon={<OpenLinkIcon />}
+                  variant={ButtonVariant.Tertiary}
+                  type="button"
+                  tag="a"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={link}
+                />
+              )}
+            </WritePreviewContent>
+          )}
+        </WritePreviewContainer>
+      )}
 
-      {preview.relatedPublicPosts?.length > 0 && (
+      {isHydrated && preview.relatedPublicPosts?.length > 0 && (
         <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float py-4">
           <Typography bold type={TypographyType.Body} className="px-4">
             This link has already been shared here:

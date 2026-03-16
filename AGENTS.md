@@ -20,6 +20,10 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
 - Fail fast with a clear thrown error message when an internal invariant is violated
 
+**Drag-and-drop UI:**
+- Do not render owner-visible empty drag containers or empty categories unless the product requirement explicitly asks for visible empty drop targets
+- Any drag overlay or tooltip that reads async query data must defensively handle `undefined`/empty arrays without crashing
+
 ## Project Architecture
 
 This is a pnpm monorepo containing the daily.dev application suite:

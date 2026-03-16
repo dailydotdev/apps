@@ -27,7 +27,6 @@ export interface QuestDefinition {
   name: string;
   description: string;
   type: QuestType;
-  plusOnly: boolean;
   eventType: string;
   targetCount: number;
 }
@@ -79,6 +78,17 @@ export interface QuestUpdateData {
   questUpdate: QuestUpdate;
 }
 
+export interface QuestRotationUpdate {
+  updatedAt: Date;
+  type: QuestType;
+  periodStart: Date;
+  periodEnd: Date;
+}
+
+export interface QuestRotationUpdateData {
+  questRotationUpdate: QuestRotationUpdate;
+}
+
 export const QUEST_DASHBOARD_QUERY = gql`
   query QuestDashboard {
     questDashboard {
@@ -103,7 +113,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -126,7 +135,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -151,7 +159,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -174,7 +181,6 @@ export const QUEST_DASHBOARD_QUERY = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -212,7 +218,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -235,7 +240,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -260,7 +264,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -283,7 +286,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             name
             description
             type
-            plusOnly
             eventType
             targetCount
           }
@@ -301,6 +303,17 @@ export const QUEST_UPDATE_SUBSCRIPTION = gql`
   subscription QuestUpdate {
     questUpdate {
       updatedAt
+    }
+  }
+`;
+
+export const QUEST_ROTATION_UPDATE_SUBSCRIPTION = gql`
+  subscription QuestRotationUpdate {
+    questRotationUpdate {
+      updatedAt
+      type
+      periodStart
+      periodEnd
     }
   }
 `;

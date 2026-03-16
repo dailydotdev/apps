@@ -13,7 +13,7 @@ import type { ToolTopSquad } from '../../../../graphql/user/userStack';
 interface UserStackTopSquadsTooltipProps {
   toolTitle: string;
   toolFaviconUrl?: string | null;
-  topSquads: ToolTopSquad[];
+  topSquads?: ToolTopSquad[];
   isPending: boolean;
   hasError: boolean;
 }
@@ -88,7 +88,7 @@ const EmptyState = ({
 export const UserStackTopSquadsTooltip = ({
   toolTitle,
   toolFaviconUrl,
-  topSquads,
+  topSquads = [],
   isPending,
   hasError,
 }: UserStackTopSquadsTooltipProps): ReactElement => {
