@@ -9,7 +9,6 @@ import {
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardHeader,
-  CardImage,
   CardTextContainer,
   CardTitle,
   getPostClassNames,
@@ -19,60 +18,25 @@ import SourceButton from '../common/SourceButton';
 import PostMetadata from '../common/PostMetadata';
 import ActionButtons from '../common/ActionButtons';
 import PostTags from '../common/PostTags';
-import { ReadArticleButton } from '../common/ReadArticleButton';
+import {
+  ReadArticleButton,
+  getReadPostButtonIcon,
+} from '../common/ReadArticleButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { ButtonVariant } from '../../buttons/Button';
-import { IconSize } from '../../Icon';
-import { TwitterIcon } from '../../icons';
+import { getReadPostButtonText } from '../../../graphql/posts';
 import { useFeedPreviewMode } from '../../../hooks';
-import { isSocialTwitterShareLike } from '../../../graphql/posts';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { sanitizeMessage } from '../../../features/onboarding/shared';
 import {
-  getSocialTwitterMetadata,
   getSocialTwitterMetadataLabel,
+  normalizeThreadBody,
+  useSocialTwitterCardData,
 } from './socialTwitterHelpers';
 import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 const HeaderActions = getGroupedHoverContainer('span');
-const normalizeThreadBody = ({
-  title,
-  content,
-  contentHtml,
-}: {
-  title?: string;
-  content?: string;
-  contentHtml?: string;
-}): string | undefined => {
-  const rawBody =
-    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
-  if (!rawBody) {
-    return undefined;
-  }
-
-  const trimmedBody = rawBody.trim();
-  if (!trimmedBody.length) {
-    return undefined;
-  }
-
-  const trimmedTitle = title?.trim();
-  if (!trimmedTitle?.length) {
-    return trimmedBody;
-  }
-
-  if (!trimmedBody.startsWith(trimmedTitle)) {
-    return trimmedBody;
-  }
-
-  const bodyWithoutTitle = trimmedBody
-    .slice(trimmedTitle.length)
-    .replace(/^[\s\n\r:.-]+/, '')
-    .trim();
-
-  return bodyWithoutTitle || undefined;
-};
 
 export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
   {
@@ -91,45 +55,28 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
   const isUserSource = isSourceUserSource(post.source);
-  const isQuoteLike = isSocialTwitterShareLike(post);
-  const shouldHideMedia = post.subType === 'thread';
-  const showQuoteDetail = isQuoteLike;
-  const showMediaDetail = !isQuoteLike && !shouldHideMedia && !!post.image;
-  const shouldHideRepostHeadlineAndTags =
-    post.subType === 'repost' && !post.content?.trim();
-  const quoteDetailsContainerClass = shouldHideRepostHeadlineAndTags
-    ? 'mx-1 mb-1 mt-2 min-h-[13.5rem] flex-1'
-    : 'mx-1 mb-1 mt-2 h-40';
-  const quoteDetailsTextClampClass = shouldHideRepostHeadlineAndTags
-    ? 'line-clamp-[10]'
-    : 'line-clamp-5';
   const rawTitle = post.title || post.sharedPost?.title;
+  const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
+    useSocialTwitterCardData(post);
+  const quoteDetailsContainerClass = 'mx-1 mb-1 mt-2';
+  const quoteDetailsTextClampClass = hasDailyDevMarkdown
+    ? 'line-clamp-6'
+    : 'line-clamp-8';
   const cardTags = post.tags?.length ? post.tags : post.sharedPost?.tags;
-  const threadBody =
-    post.subType === 'thread'
-      ? normalizeThreadBody({
-          title: rawTitle,
-          content: post.content,
-          contentHtml: post.contentHtml,
-        })
-      : undefined;
-  const {
-    repostedByName,
-    metadataHandles,
-    embeddedTweetIdentity,
-    embeddedTweetAvatarUser,
-  } = getSocialTwitterMetadata(post);
-  const cardOverlayLabel =
-    isQuoteLike && repostedByName
-      ? `${repostedByName} reposted on X. ${
-          rawTitle || post.title || ''
-        }`.trim()
-      : rawTitle;
-  const metadataLabel = getSocialTwitterMetadataLabel({
-    isRepostLike: isQuoteLike,
-    repostedByName,
-    metadataHandles,
-  });
+  let commentaryBody: string | undefined;
+  if (hasDailyDevMarkdown) {
+    if (post.subType === 'thread') {
+      commentaryBody = normalizeThreadBody({
+        title: rawTitle,
+        content: post.content,
+        contentHtml: post.contentHtml,
+      });
+    } else {
+      commentaryBody = normalizedContent || undefined;
+    }
+  }
+  const cardOverlayLabel = rawTitle;
+  const metadataLabel = getSocialTwitterMetadataLabel();
   const metadataContent = (
     <>
       {!!post.createdAt && <Separator />}
@@ -147,7 +94,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-card max-h-card',
+          'min-h-card max-h-card overflow-hidden',
         ),
       }}
       ref={ref}
@@ -175,9 +122,9 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             <HeaderActions className="absolute inset-y-0 right-0 flex flex-row items-center justify-end">
               {!isFeedPreview && (
                 <ReadArticleButton
-                  content="Read on"
+                  content={getReadPostButtonText(post)}
                   className="relative z-1 mr-2"
-                  icon={<TwitterIcon size={IconSize.Size16} />}
+                  icon={getReadPostButtonIcon(post)}
                   href={post.permalink}
                   variant={ButtonVariant.Primary}
                   openNewTab
@@ -187,14 +134,17 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
             </HeaderActions>
           </div>
         </CardHeader>
-        {!shouldHideRepostHeadlineAndTags && (
-          <CardTitle className="min-h-[4.5rem]" lineClamp="line-clamp-3">
+        {hasDailyDevMarkdown && (
+          <CardTitle
+            {...socialTextDirectionProps}
+            className="min-h-[4.5rem]"
+            lineClamp="line-clamp-3"
+          >
             {rawTitle}
           </CardTitle>
         )}
       </CardTextContainer>
-      {!shouldHideRepostHeadlineAndTags && <div className="flex flex-1" />}
-      {!shouldHideRepostHeadlineAndTags && !!cardTags?.length && (
+      {hasDailyDevMarkdown && !!cardTags?.length && (
         <PostTags className="mx-4 mt-0" post={{ tags: cardTags }} />
       )}
       <PostMetadata
@@ -204,33 +154,26 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       >
         {metadataContent}
       </PostMetadata>
-      <Container>
-        {threadBody && (
-          <p className="mx-4 mt-1 line-clamp-6 whitespace-pre-line break-words text-text-primary typo-callout">
-            {threadBody}
+      <Container className="min-h-0 overflow-hidden">
+        {commentaryBody && (
+          <p
+            {...socialTextDirectionProps}
+            className="mx-4 mt-1 line-clamp-6 whitespace-pre-line break-words text-text-primary typo-callout"
+          >
+            {commentaryBody}
           </p>
         )}
-        {showQuoteDetail ? (
+        <div
+          className={`${quoteDetailsContainerClass} min-h-0 flex-1 overflow-hidden`}
+        >
           <EmbeddedTweetPreview
             post={post}
-            embeddedTweetAvatarUser={embeddedTweetAvatarUser}
-            embeddedTweetIdentity={embeddedTweetIdentity}
-            className={`${quoteDetailsContainerClass} flex flex-col`}
             textClampClass={quoteDetailsTextClampClass}
-            showXLogo={false}
+            fillAvailableHeight
           />
-        ) : null}
-        {showMediaDetail && (
-          <div className="mx-1 mb-1 mt-2 h-40 overflow-hidden rounded-12 border border-border-subtlest-tertiary">
-            <CardImage
-              alt="Tweet media"
-              className="size-full object-cover"
-              src={post.image}
-            />
-          </div>
-        )}
+        </div>
         <ActionButtons
-          className="mt-auto"
+          className="mt-auto shrink-0"
           onBookmarkClick={onBookmarkClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}

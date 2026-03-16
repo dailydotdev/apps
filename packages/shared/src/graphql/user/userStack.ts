@@ -45,6 +45,7 @@ export interface UpdateUserStackInput {
 export interface ReorderUserStackInput {
   id: string;
   position: number;
+  section?: string;
 }
 
 const USER_STACK_FRAGMENT = gql`

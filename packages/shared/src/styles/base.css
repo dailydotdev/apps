@@ -918,6 +918,131 @@ meter::-webkit-meter-bar {
     animation: full-sequence 1s ease-in-out forwards;
   }
 
+  @keyframes quest-reward-fly {
+    0% {
+      opacity: 0;
+      transform: perspective(720px) translate(-50%, calc(-50% - 1.65rem))
+        scale(0.62) rotateY(0deg);
+    }
+
+    14% {
+      opacity: 1;
+      transform: perspective(720px) translate(-50%, calc(-50% - 2.25rem))
+        scale(0.84) rotateY(132deg);
+    }
+
+    22% {
+      opacity: 1;
+      transform: perspective(720px) translate(-50%, calc(-50% - 2.75rem))
+        scale(0.98) rotateY(238deg);
+    }
+
+    30% {
+      opacity: 1;
+      transform: perspective(720px) translate(-50%, calc(-50% - 3rem))
+        scale(1.16) rotateY(324deg);
+    }
+
+    36% {
+      opacity: 1;
+      transform: perspective(720px) translate(-50%, calc(-50% - 2.7rem))
+        scale(1.1) rotateY(360deg);
+    }
+
+    40% {
+      opacity: 1;
+      transform: perspective(720px) translate(-50%, calc(-50% - 2.35rem))
+        scale(1.04) rotateY(360deg);
+      animation-timing-function: cubic-bezier(0.42, 0, 1, 1);
+    }
+
+    86% {
+      opacity: 1;
+      transform: perspective(720px)
+        translate(
+          calc(-50% + var(--quest-reward-fly-x)),
+          calc(-50% + var(--quest-reward-fly-y))
+        )
+        scale(0.84) rotateY(360deg);
+    }
+
+    100% {
+      opacity: 0;
+      transform: perspective(720px)
+        translate(
+          calc(-50% + var(--quest-reward-fly-x)),
+          calc(-50% + var(--quest-reward-fly-y))
+        )
+        scale(0.78) rotateY(360deg);
+    }
+  }
+
+  .quest-reward-flight {
+    animation: quest-reward-fly 1.85s linear forwards;
+    animation-fill-mode: both;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+  }
+
+  @keyframes quest-level-firework {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.25);
+    }
+
+    12% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(
+          calc(-50% + var(--quest-level-firework-x)),
+          calc(-50% + var(--quest-level-firework-y))
+        )
+        scale(0);
+    }
+  }
+
+  .quest-level-firework-particle {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: currentColor;
+    box-shadow: 0 0 0.65rem currentColor, 0 0 0.2rem rgb(255 255 255 / 0.75);
+    animation: quest-level-firework 0.82s cubic-bezier(0.08, 0.72, 0.24, 1) forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes quest-claimed-stamp {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(1.42);
+      filter: saturate(1.32) blur(0.04rem);
+    }
+
+    62% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(0.9);
+      filter: saturate(1.08);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(1);
+      filter: saturate(1);
+    }
+  }
+
+  .quest-claimed-stamp {
+    transform-origin: center;
+    animation: quest-claimed-stamp 0.34s cubic-bezier(0.18, 0.82, 0.2, 1)
+      forwards;
+    will-change: transform, opacity, filter;
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translateY(0);

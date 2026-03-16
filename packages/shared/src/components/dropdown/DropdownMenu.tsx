@@ -34,6 +34,7 @@ interface DropdownMenuContentProps
   extends Omit<RadixDropdownMenuContentProps, 'className'> {
   children: ReactNode;
   className?: string;
+  scrollableClassName?: string;
   align?: 'start' | 'center' | 'end';
   variant?: 'action' | 'field';
 }
@@ -110,6 +111,7 @@ export const DropdownMenuContent = React.forwardRef<
     {
       children,
       className,
+      scrollableClassName,
       align = 'end',
       collisionPadding,
       sideOffset,
@@ -139,7 +141,11 @@ export const DropdownMenuContent = React.forwardRef<
         >
           <div
             ref={scrollFadeRef}
-            className="DropdownMenuScrollable max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto bg-inherit"
+            className={classNames(
+              'DropdownMenuScrollable overflow-y-auto bg-inherit',
+              scrollableClassName ??
+                'max-h-[var(--radix-dropdown-menu-content-available-height)]',
+            )}
           >
             {children}
           </div>

@@ -394,6 +394,8 @@ export enum LogEvent {
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
+  // Quests
+  ClaimQuest = 'claim quest',
 }
 
 export enum TargetType {
@@ -431,6 +433,7 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Quest = 'quest',
   // Settings
   Layout = 'layout',
   Theme = 'theme',
