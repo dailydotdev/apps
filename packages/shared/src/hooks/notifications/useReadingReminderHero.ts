@@ -65,10 +65,21 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
 
   const isMobile = useViewSize(ViewSize.MobileL);
+  const forceSideMenuPromptFromUrl =
+    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
+  const forceInFeedHeroFromUrl =
+    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
   const forceBottomHeroFromUrl =
     globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const forceTopHeroFromUrl =
+    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
+  const forcePopupNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
+    false;
   const forceNotificationCtaFromUrl =
     globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
+  const shouldForcePopupNotificationCta =
+    forcePopupNotificationCtaFromUrl || forceNotificationCtaFromUrl;
   const shouldForceShow = isLoggedIn;
   const shouldEvaluate =
     isMobile &&
@@ -116,8 +127,11 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    !forceNotificationCtaFromUrl &&
+    !shouldForcePopupNotificationCta &&
+    !forceSideMenuPromptFromUrl &&
     (forceBottomHeroFromUrl ||
+      forceInFeedHeroFromUrl ||
+      forceTopHeroFromUrl ||
       shouldForceShow ||
       (!isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession)));
 

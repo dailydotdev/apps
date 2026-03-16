@@ -41,8 +41,17 @@ export const useEnableNotification = ({
     false;
   const forceNotificationCtaFromUrl =
     globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
+  const forcePopupNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
+    false;
+  const forceSideMenuPromptFromUrl =
+    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
+  const forceInFeedHeroFromUrl =
+    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
   const forceBottomHeroFromUrl =
     globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const forceTopHeroFromUrl =
+    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
   const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
     globalThis?.sessionStorage?.getItem(
       FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
@@ -51,8 +60,15 @@ export const useEnableNotification = ({
   const shouldForceUpvoteNotificationCtaForSession =
     source === NotificationPromptSource.CommentUpvote &&
     (forceUpvoteNotificationCtaFromSession || forceUpvoteNotificationCtaFromUrl);
+  const shouldForcePopupNotificationCta =
+    forcePopupNotificationCtaFromUrl || forceNotificationCtaFromUrl;
   const shouldHideNotificationCtaForBottomHero =
-    forceBottomHeroFromUrl && source === NotificationPromptSource.NotificationsPage;
+    (forceBottomHeroFromUrl ||
+      forceInFeedHeroFromUrl ||
+      forceTopHeroFromUrl ||
+      forceSideMenuPromptFromUrl) &&
+    source === NotificationPromptSource.NotificationsPage &&
+    !shouldForcePopupNotificationCta;
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -64,7 +80,7 @@ export const useEnableNotification = ({
   const effectiveIsDismissed =
     shouldIgnoreDismissStateForSource ||
     shouldForceUpvoteNotificationCtaForSession ||
-    forceNotificationCtaFromUrl
+    shouldForcePopupNotificationCta
       ? false
       : isDismissed;
   const onDismiss = useCallback(() => {
@@ -103,7 +119,7 @@ export const useEnableNotification = ({
 
   const shouldShowCta =
     (shouldForceCtaInDevelopment
-      ? (forceNotificationCtaFromUrl || isLoaded) && !effectiveIsDismissed
+      ? (shouldForcePopupNotificationCta || isLoaded) && !effectiveIsDismissed
       : isCommentUpvoteSource
         ? !effectiveIsDismissed
         : (conditions.every(Boolean) ||

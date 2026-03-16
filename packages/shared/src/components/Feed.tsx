@@ -256,10 +256,21 @@ export default function Feed<T>({
   });
   const forceBottomHeroFromUrl =
     globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const forceInFeedHeroFromUrl =
+    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
+  const forceSideMenuPromptFromUrl =
+    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
+  const forceTopHeroFromUrl =
+    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
+  const forcePopupNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
+    false;
+  const forceNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
   const { shouldShow: shouldShowReadingReminder, onEnable } =
     useReadingReminderHero();
   const [hasScrolledForHero, setHasScrolledForHero] = useState(
-    forceBottomHeroFromUrl,
+    forceBottomHeroFromUrl || forceInFeedHeroFromUrl,
   );
   const [isHeroDismissed, setIsHeroDismissed] = useState(false);
   const {
@@ -464,7 +475,7 @@ export default function Feed<T>({
   }, []);
 
   useEffect(() => {
-    if (forceBottomHeroFromUrl || hasScrolledForHero) {
+    if (forceBottomHeroFromUrl || forceInFeedHeroFromUrl || hasScrolledForHero) {
       return undefined;
     }
 
@@ -476,7 +487,7 @@ export default function Feed<T>({
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [forceBottomHeroFromUrl, hasScrolledForHero]);
+  }, [forceBottomHeroFromUrl, forceInFeedHeroFromUrl, hasScrolledForHero]);
 
   useEffect(() => {
     if (!shouldShowReadingReminder) {
@@ -611,6 +622,10 @@ export default function Feed<T>({
     Number(showFirstSlotCard);
   const shouldShowInFeedHero =
     shouldShowReadingReminder &&
+    !forceSideMenuPromptFromUrl &&
+    !forcePopupNotificationCtaFromUrl &&
+    !forceNotificationCtaFromUrl &&
+    !forceTopHeroFromUrl &&
     hasScrolledForHero &&
     !isHeroDismissed &&
     items.length > HERO_INSERT_INDEX;

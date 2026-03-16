@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import { TopHero } from './banners/HeroBottomBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -65,6 +66,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI } from '../lib/constants';
+import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -214,6 +216,22 @@ export default function MainFeedLayout({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
+  const forceTopHeroFromUrl =
+    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
+  const forceSideMenuPromptFromUrl =
+    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
+  const forceInFeedHeroFromUrl =
+    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
+  const forceBottomHeroFromUrl =
+    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const forcePopupNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
+    false;
+  const forceNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
+  const { shouldShow: shouldShowReadingReminder, onEnable } =
+    useReadingReminderHero();
+  const [isTopHeroDismissed, setIsTopHeroDismissed] = useState(false);
   const {
     isUpvoted,
     isPopular,
@@ -516,7 +534,27 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
+  useEffect(() => {
+    if (!shouldShowReadingReminder) {
+      setIsTopHeroDismissed(false);
+    }
+  }, [shouldShowReadingReminder]);
+
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  const shouldShowTopHero =
+    forceTopHeroFromUrl &&
+    !forceSideMenuPromptFromUrl &&
+    !forceInFeedHeroFromUrl &&
+    !forceBottomHeroFromUrl &&
+    !forcePopupNotificationCtaFromUrl &&
+    !forceNotificationCtaFromUrl &&
+    shouldShowReadingReminder &&
+    !isTopHeroDismissed;
+
+  const onEnableTopHeroReminder = useCallback(async () => {
+    await onEnable();
+    setIsTopHeroDismissed(true);
+  }, [onEnable]);
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -562,6 +600,13 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {shouldShowTopHero && (
+        <TopHero
+          className="pt-2"
+          onCtaClick={onEnableTopHeroReminder}
+          onClose={() => setIsTopHeroDismissed(true)}
+        />
+      )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
