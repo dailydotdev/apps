@@ -6,7 +6,7 @@ import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
@@ -134,6 +134,10 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
 const getPostTypeForCard = (post?: Post): PostType => {
   if (!post) {
     return PostType.Article;
+  }
+
+  if (isSocialTwitterPost(post)) {
+    return PostType.SocialTwitter;
   }
 
   return post.type;
