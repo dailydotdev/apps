@@ -24,6 +24,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   optOutCompanion: true,
   autoDismissNotifications: true,
   customLinks: [
@@ -34,6 +36,7 @@ const defaultSettings: RemoteSettings = {
     'http://custom5.com',
   ],
   sortCommentsBy: SortCommentsBy.NewestFirst,
+  showFeedbackButton: true,
 };
 
 export const defaultBootData: actual.BootCacheData = {

@@ -89,6 +89,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   optOutCompanion: true,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
