@@ -49,7 +49,7 @@ export function AskSearchBanner(): ReactElement | null {
   };
 
   return (
-    <div className="relative mx-4 mb-4 overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout laptop:mx-auto laptop:max-w-[40rem]">
+    <div className="relative overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-4 py-4 typo-callout">
       <span className="flex flex-row items-center font-bold">
         <MagicIcon className="mr-2" />
         Get better answers with daily-dev-ask
@@ -78,7 +78,7 @@ export function AskSearchBanner(): ReactElement | null {
       </div>
       <CloseButton
         size={ButtonSize.XSmall}
-        className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+        className="absolute right-1 top-1"
         onClick={onDismiss}
       />
     </div>

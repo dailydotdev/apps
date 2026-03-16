@@ -8,7 +8,6 @@ import { MagicIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import classNames from 'classnames';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { AskSearchBanner } from '@dailydotdev/shared/src/components/notifications/AskSearchBanner';
 import {
   getMainFeedLayout,
   mainFeedLayoutProps,
@@ -68,7 +67,6 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
-  searchChildren: <AskSearchBanner />,
 };
 
 export default Search;

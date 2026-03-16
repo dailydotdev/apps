@@ -574,7 +574,6 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
-      {isSearchOn && isSearchPageLaptop && searchChildren}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero
           className="px-4 pb-2"
