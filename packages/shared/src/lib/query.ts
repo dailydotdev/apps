@@ -257,6 +257,7 @@ export enum RequestKey {
   UserFeedbackByUserId = 'user_feedback_by_user_id',
   TrackedAchievement = 'tracked_achievement',
   AchievementSyncStatus = 'achievement_sync_status',
+  QuestDashboard = 'quest_dashboard',
   Arena = 'arena',
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
