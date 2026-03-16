@@ -514,6 +514,7 @@ export enum TargetId {
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
   AskPage = 'ask page',
+  AskUpsellSearch = 'ask upsell search',
 }
 
 export enum NotificationChannel {
