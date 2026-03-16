@@ -21,7 +21,7 @@ const MainFeedLayout = dynamic(
 export type MainFeedPageProps = {
   children?: ReactNode;
   isFinder?: boolean;
-} & Pick<MainFeedLayoutProps, 'searchChildren'>;
+} & Pick<MainFeedLayoutProps, 'searchChildren' | 'feedHeader'>;
 
 const getInternalFeedName = (
   path: string,
@@ -65,6 +65,7 @@ export default function MainFeedPage({
   children,
   isFinder,
   searchChildren,
+  feedHeader,
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
@@ -109,6 +110,7 @@ export default function MainFeedPage({
       searchQuery={router.query?.q?.toString()}
       isFinder={isFinder}
       searchChildren={searchChildren}
+      feedHeader={feedHeader}
     >
       <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
       {children}

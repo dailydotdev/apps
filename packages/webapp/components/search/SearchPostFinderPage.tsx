@@ -40,7 +40,6 @@ const Search = (): ReactElement => {
   return (
     <>
       <NextSeo {...seo} {...baseSeo} />
-      <AskSearchBanner />
       {!searchQuery && (
         <div
           className={classNames(
@@ -69,6 +68,7 @@ Search.getLayout = getMainFeedLayout;
 Search.layoutProps = {
   ...mainFeedLayoutProps,
   isFinder: true,
+  feedHeader: <AskSearchBanner />,
 };
 
 export default Search;
