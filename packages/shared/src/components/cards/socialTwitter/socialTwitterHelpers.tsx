@@ -204,7 +204,8 @@ export const useSocialTwitterCardData = (post: Post): SocialTwitterCardData => {
     !sharedTitle.startsWith(rawTitle);
 
   const hasDailyDevMarkdown =
-    !!post.sharedPost && (!!normalizedContent || hasTitleCommentary);
+    (post.subType === 'thread' && !!normalizedContent) ||
+    (!!post.sharedPost && (!!normalizedContent || hasTitleCommentary));
 
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
