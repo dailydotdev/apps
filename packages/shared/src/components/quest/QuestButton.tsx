@@ -65,10 +65,6 @@ const getLevelProgress = (level: QuestLevel) => {
 
 const QUEST_LEVEL_PROGRESS_SIZE = 40;
 const QUEST_LEVEL_PROGRESS_STROKE = 4;
-const QUEST_LEVEL_PROGRESS_RADIUS =
-  (QUEST_LEVEL_PROGRESS_SIZE - QUEST_LEVEL_PROGRESS_STROKE) / 2;
-const QUEST_LEVEL_PROGRESS_CIRCUMFERENCE =
-  2 * Math.PI * QUEST_LEVEL_PROGRESS_RADIUS;
 const QUEST_REWARD_FLY_DURATION_MS = 1850;
 const QUEST_REWARD_HIT_PROGRESS = 0.86;
 const QUEST_REWARD_FLIGHT_STAGGER_MS = 180;
@@ -803,7 +799,13 @@ const QuestLevelFireworkLayer = ({
   );
 };
 
-export const QuestButton = (): ReactElement => {
+interface QuestButtonProps {
+  compact?: boolean;
+}
+
+export const QuestButton = ({
+  compact = false,
+}: QuestButtonProps): ReactElement => {
   const { optOutLevelSystem } = useSettingsContext();
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -881,6 +883,16 @@ export const QuestButton = (): ReactElement => {
   const claimAnimationRotationIdRef = useRef<string | null>(null);
   const renderedLevel = animatedLevel ?? level;
   const renderedLevelProgress = animatedLevelProgress ?? levelProgress;
+  const triggerButtonSize = compact ? ButtonSize.Small : ButtonSize.Medium;
+  const triggerButtonVariant = compact
+    ? ButtonVariant.Tertiary
+    : ButtonVariant.Float;
+  const triggerVisualSize = compact ? 32 : QUEST_LEVEL_PROGRESS_SIZE;
+  const triggerProgressStroke = compact ? 3 : QUEST_LEVEL_PROGRESS_STROKE;
+  const triggerProgressRadius = (triggerVisualSize - triggerProgressStroke) / 2;
+  const triggerProgressCircumference = 2 * Math.PI * triggerProgressRadius;
+  const triggerVisualClassName = compact ? 'size-8' : 'size-10';
+  const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
@@ -1191,8 +1203,9 @@ export const QuestButton = (): ReactElement => {
           }}
         >
           <Button
-            variant={ButtonVariant.Float}
-            className="relative !size-10 !rounded-full !p-0"
+            variant={triggerButtonVariant}
+            size={triggerButtonSize}
+            className={classNames('relative !p-0', !compact && '!rounded-full')}
             aria-label={
               showLevelSystem
                 ? `Quests, level ${renderedLevel}, ${Math.round(
@@ -1202,31 +1215,36 @@ export const QuestButton = (): ReactElement => {
             }
           >
             {showLevelSystem ? (
-              <span className="relative inline-flex size-10 items-center justify-center">
+              <span
+                className={classNames(
+                  'relative inline-flex items-center justify-center',
+                  triggerVisualClassName,
+                )}
+              >
                 <svg
-                  width={QUEST_LEVEL_PROGRESS_SIZE}
-                  height={QUEST_LEVEL_PROGRESS_SIZE}
-                  viewBox={`0 0 ${QUEST_LEVEL_PROGRESS_SIZE} ${QUEST_LEVEL_PROGRESS_SIZE}`}
+                  width={triggerVisualSize}
+                  height={triggerVisualSize}
+                  viewBox={`0 0 ${triggerVisualSize} ${triggerVisualSize}`}
                   fill="none"
                   className="-rotate-90"
                   aria-hidden
                 >
                   <circle
-                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    r={QUEST_LEVEL_PROGRESS_RADIUS}
-                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
+                    cx={triggerVisualSize / 2}
+                    cy={triggerVisualSize / 2}
+                    r={triggerProgressRadius}
+                    strokeWidth={triggerProgressStroke}
                     className="stroke-border-subtlest-tertiary"
                   />
                   <circle
-                    cx={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    cy={QUEST_LEVEL_PROGRESS_SIZE / 2}
-                    r={QUEST_LEVEL_PROGRESS_RADIUS}
-                    strokeWidth={QUEST_LEVEL_PROGRESS_STROKE}
+                    cx={triggerVisualSize / 2}
+                    cy={triggerVisualSize / 2}
+                    r={triggerProgressRadius}
+                    strokeWidth={triggerProgressStroke}
                     strokeLinecap="round"
-                    strokeDasharray={QUEST_LEVEL_PROGRESS_CIRCUMFERENCE}
+                    strokeDasharray={triggerProgressCircumference}
                     strokeDashoffset={
-                      QUEST_LEVEL_PROGRESS_CIRCUMFERENCE *
+                      triggerProgressCircumference *
                       (1 - renderedLevelProgress / 100)
                     }
                     className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
@@ -1234,18 +1252,32 @@ export const QuestButton = (): ReactElement => {
                 </svg>
                 <span
                   data-reward-target={QuestRewardType.Xp}
-                  className="absolute font-bold text-text-primary typo-caption1"
+                  className={classNames(
+                    'absolute font-bold text-text-primary',
+                    triggerLevelClassName,
+                  )}
                 >
                   {renderedLevel}
                 </span>
               </span>
             ) : (
-              <span className="inline-flex size-10 items-center justify-center">
-                <TourIcon size={IconSize.Large} />
+              <span
+                className={classNames(
+                  'inline-flex items-center justify-center',
+                  triggerVisualClassName,
+                )}
+              >
+                <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
               </span>
             )}
             {claimableCount > 0 && (
-              <Bubble className="-right-1.5 -top-1.5 px-1">
+              <Bubble
+                className={classNames(
+                  compact
+                    ? '-right-1 -top-1 px-0.5'
+                    : '-right-1.5 -top-1.5 px-1',
+                )}
+              >
                 {claimableCount}
               </Bubble>
             )}
@@ -1253,7 +1285,7 @@ export const QuestButton = (): ReactElement => {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
-          className="w-[22rem] !p-0"
+          className="w-[min(22rem,calc(100vw-2rem))] !p-0"
           scrollableClassName="max-h-[var(--radix-dropdown-menu-content-available-height)]"
         >
           <div className="flex flex-col">
