@@ -191,8 +191,7 @@ export const ShareList = forwardRef(function ShareList(
             {!isMobile && actionButtons}
           </div>
         )}
-        {!isSharedTweet &&
-          (isSharedPostPreviewEnabled ? (
+        {!isSharedTweet && isSharedPostPreviewEnabled && (
           <SharedPostPreview
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}
@@ -226,7 +225,7 @@ export const ShareList = forwardRef(function ShareList(
               className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
             }}
           />
-        ))}
+        )}
       </CardContent>
       {isMobile && actionButtons}
       {children}
