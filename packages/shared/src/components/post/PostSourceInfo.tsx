@@ -109,7 +109,6 @@ function PostSourceInfo({
                     squad={squad}
                     copy={{
                       join: 'Join',
-                      leave: 'Leave',
                     }}
                     origin={Origin.PostContent}
                   />
