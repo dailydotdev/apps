@@ -216,8 +216,14 @@ export default function MainFeedLayout({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const { shouldShow: shouldShowReadingReminder, onEnable } =
-    useReadingReminderHero();
+  const {
+    shouldShow: shouldShowReadingReminder,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnable,
+    onDismiss,
+  } = useReadingReminderHero();
   const {
     isUpvoted,
     isPopular,
@@ -569,7 +575,14 @@ export default function MainFeedLayout({
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
       {shouldShowReadingReminderOnHomepage && (
-        <ReadingReminderHero className="px-4 pb-2" onEnable={onEnable} />
+        <ReadingReminderHero
+          className="px-4 pb-2"
+          title={readingReminderTitle}
+          subtitle={readingReminderSubtitle}
+          shouldShowDismiss={shouldShowReadingReminderDismiss}
+          onEnable={onEnable}
+          onDismiss={onDismiss}
+        />
       )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

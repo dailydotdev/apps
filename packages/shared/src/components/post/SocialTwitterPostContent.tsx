@@ -19,7 +19,10 @@ import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import PostMetadata from '../cards/common/PostMetadata';
 import { LazyImage } from '../LazyImage';
-import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
+import {
+  cloudinaryPostImageCoverPlaceholder,
+  isPlaceholderImage,
+} from '../../lib/image';
 import Markdown from '../Markdown';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
@@ -112,7 +115,7 @@ function SocialTwitterPostContentRaw({
   return (
     <PostContentContainer
       className={classNames(
-        'relative flex-1 flex-col overflow-x-hidden laptop:flex-row laptop:pb-0',
+        'relative flex-1 flex-col laptop:flex-row laptop:pb-0',
         className?.container,
       )}
       hasNavigation={hasNavigation}
@@ -194,6 +197,7 @@ function SocialTwitterPostContentRaw({
           )}
           {!shouldHideRepostHeadlineAndTags &&
             !!post.image &&
+            !isPlaceholderImage(post.image) &&
             !!post.permalink && (
               <a
                 href={post.permalink}

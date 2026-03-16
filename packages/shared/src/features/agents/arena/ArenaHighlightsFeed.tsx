@@ -117,8 +117,27 @@ const HighlightCard = ({
 }): ReactElement => {
   const cleanText = decodeHtmlEntities(stripTcoLinks(item.text));
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+    if ((e.target as HTMLElement).closest('a')) {
+      return;
+    }
+
+    window.open(item.url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <div className="flex gap-3 px-4 py-3">
+    <div
+      className="flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-surface-hover"
+      onClick={handleCardClick}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.open(item.url, '_blank', 'noopener,noreferrer');
+        }
+      }}
+    >
       <AuthorAvatar author={item.author} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex min-w-0 items-center gap-1.5">

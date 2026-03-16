@@ -11,17 +11,28 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import { featureReadingReminderMobile } from '../../lib/featureManagement';
+import {
+  featureReadingReminderHeroCopy,
+  featureReadingReminderHeroDismiss,
+} from '../../lib/featureManagement';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
+  title: string;
+  subtitle: string;
+  shouldShowDismiss: boolean;
   onEnable: () => Promise<void>;
+  onDismiss: () => Promise<void>;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
+const READING_REMINDER_DISMISSED = 'dismissed';
+
+const isDismissedValue = (lastSeen: string | null): boolean =>
+  lastSeen === READING_REMINDER_DISMISSED;
 
 const getHasSeenToday = (lastSeen: string | null): boolean => {
-  if (!lastSeen) {
+  if (!lastSeen || isDismissedValue(lastSeen)) {
     return false;
   }
 
@@ -65,6 +76,7 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isSubscribedToReadingReminder = !!readingReminderDigest;
 
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
+  const isDismissed = isDismissedValue(lastSeen);
 
   const isMobile = useViewSize(ViewSize.MobileL);
   const shouldEvaluate =
@@ -72,16 +84,20 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
-    !isRegisteredToday;
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureReadingReminderMobile,
+    !isRegisteredToday &&
+    !isDismissed;
+  const { value: shouldShowDismiss } = useConditionalFeature({
+    feature: featureReadingReminderHeroDismiss,
+    shouldEvaluate,
+  });
+  const { value: copy } = useConditionalFeature({
+    feature: featureReadingReminderHeroCopy,
     shouldEvaluate,
   });
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const shouldShowBase =
-    shouldEvaluate && isFeatureEnabled && !hasSeenToday && isFetched;
+  const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
@@ -114,8 +130,21 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     });
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
-  const shouldShow =
-    !isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession);
+  const onDismiss = useCallback(async () => {
+    await setLastSeen(READING_REMINDER_DISMISSED);
+  }, [setLastSeen]);
 
-  return { shouldShow, onEnable };
+  const shouldShow =
+    !isSubscribedToReadingReminder &&
+    !isDismissed &&
+    (shouldShowBase || hasShownInSession);
+
+  return {
+    shouldShow,
+    title: copy.title,
+    subtitle: copy.subtitle,
+    shouldShowDismiss,
+    onEnable,
+    onDismiss,
+  };
 };
