@@ -10,6 +10,7 @@ const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockUsePlusSubscription = jest.fn();
 const mockUseAuthContext = jest.fn();
+const mockUseConditionalFeature = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -31,6 +32,10 @@ jest.mock('../../hooks/useActions', () => ({
   }),
 }));
 
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: (args: unknown) => mockUseConditionalFeature(args),
+}));
+
 const client = new QueryClient();
 
 const renderComponent = () =>
@@ -46,13 +51,30 @@ describe('AskSearchBanner', () => {
     mockUseAuthContext.mockReturnValue({ isAuthReady: true });
     mockUsePlusSubscription.mockReturnValue({ isPlus: true });
     mockCheckHasCompleted.mockReturnValue(false);
+    mockUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
   });
 
-  it('should render banner for Plus users', () => {
+  it('should render banner for Plus users when feature enabled', () => {
     renderComponent();
 
     expect(screen.getByText('WebSearch for Developers')).toBeInTheDocument();
     expect(screen.getByText('Try /daily-dev-ask')).toBeInTheDocument();
+  });
+
+  it('should not render when feature flag is disabled', () => {
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
+
+    renderComponent();
+
+    expect(
+      screen.queryByText('WebSearch for Developers'),
+    ).not.toBeInTheDocument();
   });
 
   it('should not render for non-Plus users', () => {
@@ -83,6 +105,24 @@ describe('AskSearchBanner', () => {
     expect(
       screen.queryByText('WebSearch for Developers'),
     ).not.toBeInTheDocument();
+  });
+
+  it('should evaluate feature only when user is auth and plus', () => {
+    renderComponent();
+
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: true }),
+    );
+  });
+
+  it('should not evaluate feature when not plus', () => {
+    mockUsePlusSubscription.mockReturnValue({ isPlus: false });
+
+    renderComponent();
+
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 
   it('should log impression on render', () => {

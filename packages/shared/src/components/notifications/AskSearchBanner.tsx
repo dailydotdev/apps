@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   ButtonColor,
@@ -14,8 +15,16 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
+import { useConditionalFeature } from '../../hooks';
+import { featureAskUpsellSearch } from '../../lib/featureManagement';
 
-export function AskSearchBanner(): ReactElement | null {
+interface AskSearchBannerProps {
+  className?: string;
+}
+
+export function AskSearchBanner({
+  className,
+}: AskSearchBannerProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -23,7 +32,15 @@ export function AskSearchBanner(): ReactElement | null {
   const dismissed = checkHasCompleted(ActionType.AskUpsellSearch);
   const impressionLogged = useRef(false);
 
-  const showBanner = isAuthReady && isPlus && !dismissed && isActionsFetched;
+  const shouldEvaluate =
+    isAuthReady && isPlus && !dismissed && isActionsFetched;
+
+  const { value: isFeatureEnabled } = useConditionalFeature({
+    feature: featureAskUpsellSearch,
+    shouldEvaluate,
+  });
+
+  const showBanner = shouldEvaluate && isFeatureEnabled;
 
   useEffect(() => {
     if (showBanner && !impressionLogged.current) {
@@ -49,7 +66,12 @@ export function AskSearchBanner(): ReactElement | null {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-4 py-4 typo-callout">
+    <div
+      className={classNames(
+        'relative overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-4 py-4 typo-callout',
+        className,
+      )}
+    >
       <span className="flex flex-row items-center font-bold">
         <MagicIcon className="mr-2" />
         WebSearch for Developers
