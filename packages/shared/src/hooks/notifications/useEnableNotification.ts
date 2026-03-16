@@ -41,6 +41,8 @@ export const useEnableNotification = ({
     false;
   const forceNotificationCtaFromUrl =
     globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
+  const forceBottomHeroFromUrl =
+    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
   const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
     globalThis?.sessionStorage?.getItem(
       FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
@@ -49,6 +51,8 @@ export const useEnableNotification = ({
   const shouldForceUpvoteNotificationCtaForSession =
     source === NotificationPromptSource.CommentUpvote &&
     (forceUpvoteNotificationCtaFromSession || forceUpvoteNotificationCtaFromUrl);
+  const shouldHideNotificationCtaForBottomHero =
+    forceBottomHeroFromUrl && source === NotificationPromptSource.NotificationsPage;
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -97,14 +101,15 @@ export const useEnableNotification = ({
     isPushSupported || isExtension,
   ];
 
-  const shouldShowCta = shouldForceCtaInDevelopment
-    ? (forceNotificationCtaFromUrl || isLoaded) && !effectiveIsDismissed
-    : isCommentUpvoteSource
-      ? !effectiveIsDismissed
-      : (conditions.every(Boolean) ||
-          (enabledJustNow &&
-            source !== NotificationPromptSource.SquadPostModal)) &&
-        !effectiveIsDismissed;
+  const shouldShowCta =
+    (shouldForceCtaInDevelopment
+      ? (forceNotificationCtaFromUrl || isLoaded) && !effectiveIsDismissed
+      : isCommentUpvoteSource
+        ? !effectiveIsDismissed
+        : (conditions.every(Boolean) ||
+            (enabledJustNow &&
+              source !== NotificationPromptSource.SquadPostModal)) &&
+          !effectiveIsDismissed) && !shouldHideNotificationCtaForBottomHero;
 
   useEffect(() => {
     if (!shouldShowCta || hasLoggedImpression.current) {

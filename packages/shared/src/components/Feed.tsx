@@ -66,6 +66,8 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
+import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
+import { TopHero } from './banners/HeroBottomBanner';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -192,6 +194,8 @@ export default function Feed<T>({
   disableListFrame = false,
   disableListWidthConstraint = false,
 }: FeedProps<T>): ReactElement {
+  const HERO_INSERT_INDEX = 6;
+  const HERO_SCROLL_THRESHOLD_PX = 300;
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
   const currentSettings = useContext(FeedContext);
@@ -250,6 +254,14 @@ export default function Feed<T>({
     feature: briefFeedEntrypointPage,
     shouldEvaluate: !user?.isPlus && isMyFeed,
   });
+  const forceBottomHeroFromUrl =
+    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const { shouldShow: shouldShowReadingReminder, onEnable } =
+    useReadingReminderHero();
+  const [hasScrolledForHero, setHasScrolledForHero] = useState(
+    forceBottomHeroFromUrl,
+  );
+  const [isHeroDismissed, setIsHeroDismissed] = useState(false);
   const {
     items,
     updatePost,
@@ -452,6 +464,27 @@ export default function Feed<T>({
   }, []);
 
   useEffect(() => {
+    if (forceBottomHeroFromUrl || hasScrolledForHero) {
+      return undefined;
+    }
+
+    const onScroll = () => {
+      if (window.scrollY >= HERO_SCROLL_THRESHOLD_PX) {
+        setHasScrolledForHero(true);
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [forceBottomHeroFromUrl, hasScrolledForHero]);
+
+  useEffect(() => {
+    if (!shouldShowReadingReminder) {
+      setIsHeroDismissed(false);
+    }
+  }, [shouldShowReadingReminder]);
+
+  useEffect(() => {
     if (!selectedPost) {
       document.body.classList.remove('hidden-scrollbar');
     }
@@ -576,6 +609,16 @@ export default function Feed<T>({
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
     Number(showFirstSlotCard);
+  const shouldShowInFeedHero =
+    shouldShowReadingReminder &&
+    hasScrolledForHero &&
+    !isHeroDismissed &&
+    items.length > HERO_INSERT_INDEX;
+
+  const onEnableInFeedHero = useCallback(async () => {
+    await onEnable();
+    setIsHeroDismissed(true);
+  }, [onEnable]);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
@@ -616,6 +659,21 @@ export default function Feed<T>({
                         `span ${virtualizedNumCards}`,
                     }}
                   />
+                )}
+                {shouldShowInFeedHero && index === HERO_INSERT_INDEX && (
+                  <div
+                    style={{
+                      gridColumn:
+                        !shouldUseListFeedLayout &&
+                        `span ${virtualizedNumCards}`,
+                    }}
+                  >
+                    <TopHero
+                      className="pt-0"
+                      onCtaClick={onEnableInFeedHero}
+                      onClose={() => setIsHeroDismissed(true)}
+                    />
+                  </div>
                 )}
                 <FeedItemComponent
                   item={item}

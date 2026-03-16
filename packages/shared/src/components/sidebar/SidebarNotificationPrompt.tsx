@@ -13,11 +13,13 @@ type SidebarNotificationPromptProps = {
 export const SidebarNotificationPrompt = ({
   sidebarExpanded,
 }: SidebarNotificationPromptProps): ReactElement | null => {
+  const forceBottomHeroFromUrl =
+    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
   const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
     source: NotificationPromptSource.NotificationsPage,
   });
 
-  if (!sidebarExpanded || !shouldShowCta) {
+  if (forceBottomHeroFromUrl || !sidebarExpanded || !shouldShowCta) {
     return null;
   }
 

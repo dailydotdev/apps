@@ -3,24 +3,29 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { MiniCloseIcon } from '../icons';
+import feedStyles from '../Feed.module.css';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 
-type HeroBottomBannerProps = {
+type TopHeroProps = {
   className?: string;
   onCtaClick?: () => void;
   onClose?: () => void;
 };
 
-export const HeroBottomBanner = ({
+export const TopHero = ({
   className,
   onCtaClick,
   onClose,
-}: HeroBottomBannerProps): ReactElement => {
+}: TopHeroProps): ReactElement => {
   return (
-    <section className={classNames('w-full px-4 pb-0', className)}>
+    <section
+      className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
+    >
       <div className="relative overflow-hidden rounded-t-16 rounded-b-none px-[1px] pb-0 pt-[1px]">
         <div className="absolute inset-0 rounded-t-16 rounded-b-none bg-[linear-gradient(122deg,#2d1b8f_0%,#5d1fb7_45%,#ff00a8_100%)]" />
         <div className="pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-[#ff00a8]/35 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="relative overflow-hidden rounded-t-[0.9375rem] rounded-b-none bg-raw-pepper-90 shadow-2">
           <Button
             type="button"

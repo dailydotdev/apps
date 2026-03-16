@@ -65,6 +65,10 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
 
   const isMobile = useViewSize(ViewSize.MobileL);
+  const forceBottomHeroFromUrl =
+    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
+  const forceNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
   const shouldForceShow = isLoggedIn;
   const shouldEvaluate =
     isMobile &&
@@ -112,8 +116,10 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    shouldForceShow ||
-    (!isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession));
+    !forceNotificationCtaFromUrl &&
+    (forceBottomHeroFromUrl ||
+      shouldForceShow ||
+      (!isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession)));
 
   return { shouldShow, onEnable };
 };
