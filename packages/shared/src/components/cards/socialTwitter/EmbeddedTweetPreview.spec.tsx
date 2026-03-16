@@ -28,8 +28,8 @@ describe('EmbeddedTweetPreview', () => {
       </TestBootProvider>,
     );
 
-    const identityEl = screen.getByText((_, el) =>
-      el?.tagName === 'P' && el?.getAttribute('dir') === 'ltr',
+    const identityEl = screen.getByText(
+      (_, el) => el?.tagName === 'P' && el?.getAttribute('dir') === 'ltr',
     );
     expect(identityEl).toBeInTheDocument();
   });

@@ -204,7 +204,8 @@ export const ShareList = forwardRef(function ShareList(
               eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : { loading: 'lazy' }
             }
           />
-        ) : (
+        )}
+        {!isSharedTweet && !isSharedPostPreviewEnabled && (
           <CardCoverList
             data-testid="postImage"
             isVideoType={isVideoType}
