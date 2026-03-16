@@ -20,6 +20,8 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
+import { betterAuthSignIn, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import { useIsBetterAuth } from './useIsBetterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
 import type { SignBackProvider } from './auth/useSignBack';
@@ -27,7 +29,7 @@ import { useSignBack } from './auth/useSignBack';
 import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
 import { useEventListener } from './useEventListener';
-import { broadcastChannel } from '../lib/constants';
+import { broadcastChannel, webappUrl } from '../lib/constants';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -61,6 +63,7 @@ const useLogin = ({
   session,
   onLoginError,
 }: UseLoginProps = {}): UseLogin => {
+  const isBetterAuth = useIsBetterAuth();
   const { onUpdateSignBack } = useSignBack();
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -70,9 +73,48 @@ const useLogin = ({
   const { data: login } = useQuery({
     queryKey: [AuthEvent.Login, { ...queryParams }],
     queryFn: () => initializeKratosFlow(AuthFlow.Login, queryParams),
-    enabled: queryEnabled,
+    enabled: queryEnabled && !isBetterAuth,
     refetchOnWindowFocus: false,
   });
+
+  const {
+    mutateAsync: onBetterAuthPasswordLogin,
+    isPending: isBetterAuthPasswordLoading,
+  } = useMutation({
+    mutationFn: async (form: LoginFormParams) => {
+      logEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.LoginProvider,
+        target_id: 'email',
+        extra: JSON.stringify({ trigger }),
+      });
+      return betterAuthSignIn({
+        email: form.identifier,
+        password: form.password,
+      });
+    },
+    onSuccess: async (res) => {
+      if (res.error) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: labels.auth.error.invalidEmailOrPassword,
+          }),
+        });
+        setHint(labels.auth.error.invalidEmailOrPassword);
+        return;
+      }
+
+      const { data: boot } = await refetchBoot();
+
+      if (boot.user && !boot.user.shouldVerify) {
+        onUpdateSignBack(boot.user as LoggedUser, 'password');
+      }
+
+      onSuccessfulLogin?.(boot?.user?.shouldVerify);
+    },
+  });
+
   const { mutateAsync: onPasswordLogin, isPending: isLoading } = useMutation({
     mutationFn: (params: ValidateLoginParams) => {
       logEvent({
@@ -130,7 +172,16 @@ const useLogin = ({
   });
 
   const onSubmitSocialLogin = useCallback(
-    (provider: string) => {
+    async (provider: string) => {
+      if (isBetterAuth) {
+        const callbackURL = `${webappUrl}callback?login=true`;
+        const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
+        if (socialUrl) {
+          window.open(socialUrl);
+        }
+        return;
+      }
+
       if (!login?.ui) {
         displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
         return;
@@ -144,11 +195,16 @@ const useLogin = ({
       };
       onSocialLogin({ action, params });
     },
-    [displayToast, login?.ui, onSocialLogin],
+    [isBetterAuth, displayToast, login?.ui, onSocialLogin],
   );
 
   const onSubmitPasswordLogin = useCallback(
     (form: LoginFormParams) => {
+      if (isBetterAuth) {
+        onBetterAuthPasswordLogin(form);
+        return;
+      }
+
       if (!login?.ui) {
         displayToast(LOGIN_FLOW_NOT_AVAILABLE_TOAST);
         return;
@@ -162,7 +218,13 @@ const useLogin = ({
       };
       onPasswordLogin({ action, params });
     },
-    [displayToast, login?.ui, onPasswordLogin],
+    [
+      isBetterAuth,
+      onBetterAuthPasswordLogin,
+      displayToast,
+      login?.ui,
+      onPasswordLogin,
+    ],
   );
 
   const onLoginMessage = async (e: MessageEvent) => {
@@ -213,8 +275,10 @@ const useLogin = ({
 
   return {
     loginHint: hintState,
-    isPasswordLoginLoading: isLoading,
-    isReady: !!login?.ui,
+    isPasswordLoginLoading: isBetterAuth
+      ? isBetterAuthPasswordLoading
+      : isLoading,
+    isReady: isBetterAuth ? true : !!login?.ui,
     onSocialLogin: onSubmitSocialLogin,
     onPasswordLogin: onSubmitPasswordLogin,
   };

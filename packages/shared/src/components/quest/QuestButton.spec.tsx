@@ -97,10 +97,11 @@ const questDashboard = {
 const renderComponent = (
   optOutLevelSystem = false,
   client: QueryClient = new QueryClient(),
+  compact = false,
 ) =>
   render(
     <TestBootProvider client={client} settings={{ optOutLevelSystem }}>
-      <QuestButton />
+      <QuestButton compact={compact} />
     </TestBootProvider>,
   );
 
@@ -122,14 +123,28 @@ describe('QuestButton', () => {
   it('should show level progress and xp rewards when levels are enabled', async () => {
     renderComponent(false);
 
-    expect(
-      screen.getByRole('button', { name: /Quests, level 7, 63% progress/i }),
-    ).toBeInTheDocument();
+    const button = screen.getByRole('button', {
+      name: /Quests, level 7, 63% progress/i,
+    });
+
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('h-10');
 
     expect(await screen.findByText('Level 7')).toBeInTheDocument();
     expect(screen.getByText('250/400 XP')).toBeInTheDocument();
     expect(screen.getByText('+150 XP')).toBeInTheDocument();
     expect(screen.getByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should render a smaller trigger when compact', () => {
+    renderComponent(false, new QueryClient(), true);
+
+    const button = screen.getByRole('button', {
+      name: /Quests, level 7, 63% progress/i,
+    });
+
+    expect(button).toHaveClass('h-8');
+    expect(button).not.toHaveClass('h-10');
   });
 
   it('should hide level progress and xp rewards when levels are disabled', async () => {
