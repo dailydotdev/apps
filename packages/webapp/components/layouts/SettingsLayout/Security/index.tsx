@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { FormEvent, MutableRefObject, ReactElement } from 'react';
+import { useIsBetterAuth } from '@dailydotdev/shared/src/hooks/useIsBetterAuth';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
@@ -121,6 +122,7 @@ function AccountSecurityDefault({
   const { deleteAccount } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { onUpdateSignBack } = useSignBack();
+  const isBetterAuth = useIsBetterAuth();
   const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
@@ -170,6 +172,9 @@ function AccountSecurityDefault({
   });
 
   useEventListener(globalThis, 'message', async (e) => {
+    if (isBetterAuth) {
+      return;
+    }
     if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
       return;
     }

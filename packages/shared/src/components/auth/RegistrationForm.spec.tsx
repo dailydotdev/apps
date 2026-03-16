@@ -15,7 +15,28 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_USERNAME_SUGGESTION } from '../../graphql/users';
 import { AuthTriggers } from '../../lib/auth';
+import * as betterAuthHook from '../../hooks/useIsBetterAuth';
 import type { AuthOptionsProps } from './common';
+
+jest.mock('@marsidev/react-turnstile', () => {
+  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
+  const react = require('react');
+  return {
+    Turnstile: react.forwardRef(function MockTurnstile(
+      props: { onWidgetLoad?: () => void },
+      ref: unknown,
+    ) {
+      react.useImperativeHandle(ref, () => ({
+        getResponse: () => 'mock-turnstile-token',
+        reset: () => undefined,
+      }));
+      react.useEffect(() => {
+        props.onWidgetLoad?.();
+      }, [props]);
+      return react.createElement('div', { 'data-testid': 'turnstile' });
+    }),
+  };
+});
 
 const user = null;
 
@@ -24,6 +45,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   jest.clearAllMocks();
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(false);
 });
 
 const onSuccessfulLogin = jest.fn();
@@ -129,6 +151,59 @@ const renderLogin = async (email: string) => {
   });
 };
 
+const renderBetterAuthRegistration = async (
+  email = 'sshanzel@yahoo.com',
+  name = 'Lee Solevilla',
+  username = 'leesolevilla',
+) => {
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(true);
+  renderComponent();
+  // Clean pending Kratos nocks that won't be consumed when betterAuth is enabled
+  nock.cleanAll();
+
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+  fireEvent.click(await screen.findByTestId('email_signup_submit'));
+  await waitForNock();
+
+  let queryCalled = false;
+  mockGraphQL({
+    request: {
+      query: GET_USERNAME_SUGGESTION,
+      variables: { name },
+    },
+    result: () => {
+      queryCalled = true;
+      return { data: { generateUniqueUsername: username } };
+    },
+  });
+
+  await screen.findByTestId('registration_form');
+  const nameInput = screen.getByPlaceholderText('Name');
+  fireEvent.input(screen.getByPlaceholderText('Enter a username'), {
+    target: { value: username },
+  });
+  fireEvent.input(screen.getByPlaceholderText('Name'), {
+    target: { value: name },
+  });
+  simulateTextboxInput(nameInput as HTMLTextAreaElement, name);
+  fireEvent.input(screen.getByPlaceholderText('Create a password'), {
+    target: { value: '#123xAbc' },
+  });
+
+  // Select experience level
+  const expDropdown = screen.getByRole('button', {
+    name: /experience level/i,
+  });
+  fireEvent.click(expDropdown);
+  const expOption = await screen.findByText('Entry-level (1 year)');
+  fireEvent.click(expOption);
+
+  await waitForNock();
+  await waitFor(() => expect(queryCalled).toBeTruthy());
+};
+
 // NOTE: Chris turned this off needs a good re-look at
 // it('should post registration', async () => {
 //   const email = 'sshanzel@yahoo.com';
@@ -169,6 +244,42 @@ it('should show login if email exists', async () => {
 
   const text = screen.queryByText('Facebook');
   expect(text).toBeInTheDocument();
+});
+
+it('should show a generic sign up error when Better Auth sign up is privacy-protected', async () => {
+  const email = 'sshanzel@yahoo.com';
+  await renderBetterAuthRegistration(email);
+
+  nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .post('/auth/sign-up/email', {
+      name: 'Lee Solevilla',
+      email,
+      password: '#123xAbc',
+      username: 'leesolevilla',
+      experienceLevel: 'MORE_THAN_1_YEAR',
+    })
+    .reply(200, { status: true });
+
+  const form = await screen.findByTestId('registration_form');
+
+  // Inject experience level value into the form since the custom dropdown
+  // hidden input may not render properly in JSDOM
+  const expInput = document.createElement('input');
+  expInput.type = 'hidden';
+  expInput.name = 'traits.experienceLevel';
+  expInput.value = 'MORE_THAN_1_YEAR';
+  form.appendChild(expInput);
+
+  fireEvent.submit(form);
+  await waitForNock();
+
+  await waitFor(() => {
+    expect(
+      screen.getByText(
+        "We couldn't complete sign up. If you already have an account, try signing in instead.",
+      ),
+    ).toBeInTheDocument();
+  });
 });
 
 describe('testing username auto generation', () => {

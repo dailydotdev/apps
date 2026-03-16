@@ -20,6 +20,7 @@ import { CommonTextField } from './common';
 export interface EmailFormProps {
   onSubmit: (email: string) => void;
   onVerifySuccess: () => Promise<void>;
+  onVerifyCode?: (code: string) => Promise<void>;
   className?: string;
   verificationId?: string;
   emailProps?: Partial<TextFieldProps>;
@@ -31,6 +32,7 @@ export interface EmailFormProps {
 function EmailForm({
   onSubmit,
   onVerifySuccess,
+  onVerifyCode,
   className,
   hint,
   setHint,
@@ -41,11 +43,12 @@ function EmailForm({
   const { logEvent } = useLogContext();
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
+  const [codeHint, setCodeHint] = useState<string>();
   const { timer, setTimer, runTimer } = useTimer(null, 0);
   const { verifyCode } = useAccountEmailFlow({
     flow: AuthFlow.Verification,
     flowId: verificationId,
-    onError: setHint,
+    onError: setCodeHint,
     onVerifyCodeSuccess: () => {
       logEvent({
         event_name: AuthEventNames.VerifiedSuccessfully,
@@ -59,8 +62,18 @@ function EmailForm({
       event_name: LogEvent.Click,
       target_type: TargetType.VerifyEmail,
     });
-    setHint('');
-    await verifyCode({ code, altFlowId: verificationId });
+    setCodeHint('');
+    if (onVerifyCode) {
+      try {
+        await onVerifyCode(code);
+      } catch (error) {
+        setCodeHint(
+          error instanceof Error ? error.message : 'Verification failed',
+        );
+      }
+    } else {
+      await verifyCode({ code, altFlowId: verificationId });
+    }
   };
 
   const onSubmitEmail = () => {
@@ -116,11 +129,11 @@ function EmailForm({
         inputId="code"
         label="Enter 6-digit code"
         placeholder="Enter 6-digit code"
-        hint={hint}
+        hint={codeHint}
         defaultValue={code}
-        valid={!hint}
+        valid={!codeHint}
         valueChanged={setCode}
-        onChange={() => hint && setHint('')}
+        onChange={() => codeHint && setCodeHint('')}
         actionButton={
           <Button
             variant={ButtonVariant.Primary}
