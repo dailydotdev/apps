@@ -70,6 +70,7 @@ export function AskSearchBanner(): ReactElement | null {
               event_name: LogEvent.Click,
               target_id: TargetId.AskUpsellSearch,
             });
+            completeAction(ActionType.AskUpsellSearch);
           }}
         >
           Try daily-dev-ask

@@ -96,7 +96,7 @@ describe('AskSearchBanner', () => {
     });
   });
 
-  it('should log click and navigate on CTA', () => {
+  it('should log click, complete action, and navigate on CTA', async () => {
     renderComponent();
 
     const ctaLink = screen.getByRole('link', { name: 'Try daily-dev-ask' });
@@ -108,6 +108,12 @@ describe('AskSearchBanner', () => {
     });
 
     expect(ctaLink).toHaveAttribute('href', '/agents/ask');
+
+    await waitFor(() => {
+      expect(mockCompleteAction).toHaveBeenCalledWith(
+        ActionType.AskUpsellSearch,
+      );
+    });
   });
 
   it('should log dismiss and complete action on dismiss', async () => {
