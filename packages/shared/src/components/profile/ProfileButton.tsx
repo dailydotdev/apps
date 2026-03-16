@@ -239,32 +239,34 @@ export default function ProfileButton({
               </div>
             </Tooltip>
           )}
-          <Tooltip side="bottom" content="Profile settings">
-            <button
-              type="button"
-              className={classNames(
-                'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
-                className ?? 'flex',
-              )}
-              onClick={wrapHandler(() => onUpdate(!isOpen))}
+          <button
+            type="button"
+            aria-label="Profile settings"
+            className={classNames(
+              'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
+              className ?? 'flex',
+            )}
+            onClick={wrapHandler(() => onUpdate(!isOpen))}
+          >
+            <span
+              ref={reputationCounterRef}
+              className="inline-flex items-center"
+              data-reward-target={QuestRewardType.Reputation}
             >
-              <span
-                ref={reputationCounterRef}
-                className="inline-flex items-center"
-                data-reward-target={QuestRewardType.Reputation}
-              >
-                <ReputationUserBadge
-                  className="ml-1 !typo-subhead"
-                  user={{ reputation: displayedReputation ?? 0 }}
-                  iconProps={{
-                    size: IconSize.Small,
-                  }}
-                  disableTooltip
-                />
-              </span>
-              <ProfilePictureWithIndicator user={user} />
-            </button>
-          </Tooltip>
+              <ReputationUserBadge
+                className="ml-1 !typo-subhead"
+                user={{ reputation: displayedReputation ?? 0 }}
+                iconProps={{
+                  size: IconSize.Small,
+                }}
+              />
+            </span>
+            <Tooltip side="bottom" content="Profile settings">
+              <div className="flex items-center">
+                <ProfilePictureWithIndicator user={user} />
+              </div>
+            </Tooltip>
+          </button>
         </div>
       )}
       {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}

@@ -49,7 +49,9 @@ const renderComponent = (user = defaultUser): RenderResult => {
 it('should show settings option that opens modal', async () => {
   renderComponent();
 
-  const profileBtn = await screen.findByLabelText('Profile settings');
+  const profileBtn = await screen.findByRole('button', {
+    name: 'Profile settings',
+  });
   await act(async () => {
     profileBtn.click();
   });
@@ -63,7 +65,9 @@ it('should show settings option that opens modal', async () => {
 it('should click the logout button and logout', async () => {
   renderComponent();
 
-  const profileBtn = await screen.findByLabelText('Profile settings');
+  const profileBtn = await screen.findByRole('button', {
+    name: 'Profile settings',
+  });
   await act(async () => {
     profileBtn.click();
   });
