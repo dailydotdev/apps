@@ -51,10 +51,8 @@ describe('AskSearchBanner', () => {
   it('should render banner for Plus users', () => {
     renderComponent();
 
-    expect(
-      screen.getByText('Get better answers with daily-dev-ask'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Try daily-dev-ask')).toBeInTheDocument();
+    expect(screen.getByText('WebSearch for Developers')).toBeInTheDocument();
+    expect(screen.getByText('Try /daily-dev-ask')).toBeInTheDocument();
   });
 
   it('should not render for non-Plus users', () => {
@@ -63,7 +61,7 @@ describe('AskSearchBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get better answers with daily-dev-ask'),
+      screen.queryByText('WebSearch for Developers'),
     ).not.toBeInTheDocument();
   });
 
@@ -73,7 +71,7 @@ describe('AskSearchBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get better answers with daily-dev-ask'),
+      screen.queryByText('WebSearch for Developers'),
     ).not.toBeInTheDocument();
   });
 
@@ -83,7 +81,7 @@ describe('AskSearchBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get better answers with daily-dev-ask'),
+      screen.queryByText('WebSearch for Developers'),
     ).not.toBeInTheDocument();
   });
 
@@ -99,7 +97,7 @@ describe('AskSearchBanner', () => {
   it('should log click, complete action, and navigate on CTA', async () => {
     renderComponent();
 
-    const ctaLink = screen.getByRole('link', { name: 'Try daily-dev-ask' });
+    const ctaLink = screen.getByRole('link', { name: 'Try /daily-dev-ask' });
     fireEvent.click(ctaLink);
 
     expect(mockLogEvent).toHaveBeenCalledWith({

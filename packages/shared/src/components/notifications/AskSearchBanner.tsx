@@ -52,11 +52,12 @@ export function AskSearchBanner(): ReactElement | null {
     <div className="relative overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-4 py-4 typo-callout">
       <span className="flex flex-row items-center font-bold">
         <MagicIcon className="mr-2" />
-        Get better answers with daily-dev-ask
+        WebSearch for Developers
       </span>
       <p className="mt-2 text-text-tertiary">
-        Search community-vetted developer articles ranked by upvotes — not SEO.
-        Connect your AI tools for source-grounded answers.
+        Search community vetted developer articles ranked by upvotes, not SEO.
+        Connect your AI tools to get answers backed by trusted developer
+        content.
       </p>
       <div className="mt-3 flex items-center">
         <Button
@@ -73,7 +74,7 @@ export function AskSearchBanner(): ReactElement | null {
             completeAction(ActionType.AskUpsellSearch);
           }}
         >
-          Try daily-dev-ask
+          Try /daily-dev-ask
         </Button>
       </div>
       <CloseButton
