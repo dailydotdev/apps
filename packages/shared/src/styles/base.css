@@ -681,6 +681,19 @@ html.light .invert .invert,
   }
 }
 
+/* Hide third-party floating launcher injected into the app shell */
+#__next .qd-parent-container .qd-open-btn-container,
+#__next [class*='qd-parent-container'] [class*='qd-open-btn-container'] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Fallback if only the launcher circle is rendered */
+#__next .qd-parent-container .qd-open-btn-container svg circle,
+#__next [class*='qd-open-btn-container'] svg circle {
+  display: none !important;
+}
+
 img.lazyload:not([src]) {
   visibility: hidden;
 }

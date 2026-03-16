@@ -39,6 +39,8 @@ export const useEnableNotification = ({
   const forceUpvoteNotificationCtaFromUrl =
     globalThis?.location?.search?.includes('forceUpvoteNotificationCta=1') ??
     false;
+  const forceNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
   const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
     globalThis?.sessionStorage?.getItem(
       FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
@@ -56,16 +58,12 @@ export const useEnableNotification = ({
     source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.CommentUpvote;
   const effectiveIsDismissed =
-    isDevelopment ||
     shouldIgnoreDismissStateForSource ||
-    shouldForceUpvoteNotificationCtaForSession
+    shouldForceUpvoteNotificationCtaForSession ||
+    forceNotificationCtaFromUrl
       ? false
       : isDismissed;
   const onDismiss = useCallback(() => {
-    if (isDevelopment) {
-      return;
-    }
-
     logEvent({
       event_name: LogEvent.ClickNotificationDismiss,
       extra: JSON.stringify({ origin: source }),
@@ -100,7 +98,7 @@ export const useEnableNotification = ({
   ];
 
   const shouldShowCta = shouldForceCtaInDevelopment
-    ? true
+    ? (forceNotificationCtaFromUrl || isLoaded) && !effectiveIsDismissed
     : isCommentUpvoteSource
       ? !effectiveIsDismissed
       : (conditions.every(Boolean) ||

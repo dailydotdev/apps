@@ -320,6 +320,7 @@ const nextConfig: NextConfig = {
         ];
       },
       poweredByHeader: false,
+      devIndicators: false,
       reactStrictMode: false,
       productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
     }),

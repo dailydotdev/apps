@@ -11,12 +11,6 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import ReadingReminderHero from './banners/ReadingReminderHero';
-import ReadingReminderCatLaptop from './banners/ReadingReminderCatLaptop';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
-import { MiniCloseIcon } from './icons';
-import { Modal } from './modals/common/Modal';
-import { ModalSize } from './modals/common/types';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -71,7 +65,6 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI } from '../lib/constants';
-import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -195,8 +188,6 @@ const feedWithDateRange = [
   ExploreTabs.BestDiscussions,
 ];
 
-type DesktopReadingReminderStyle = 'boxed' | 'floating';
-
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -221,11 +212,8 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isMobile = useViewSize(ViewSize.MobileL);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const { shouldShow: shouldShowReadingReminder, onEnable } =
-    useReadingReminderHero();
   const {
     isUpvoted,
     isPopular,
@@ -529,38 +517,6 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
-  const shouldShowReadingReminderOnMobile =
-    shouldShowReadingReminder && isMobile;
-  const shouldShowReadingReminderOnDesktop =
-    shouldShowReadingReminder && !isMobile;
-  const desktopReadingReminderStyle: DesktopReadingReminderStyle = 'floating';
-  const isFloatingDesktopReadingReminder =
-    desktopReadingReminderStyle === 'floating';
-  const desktopReadingReminderModalClassName = isFloatingDesktopReadingReminder
-    ? 'tablet:!w-[26.25rem] !w-auto !h-auto !border-0 !bg-transparent !shadow-none tablet:!rounded-none tablet:!bg-transparent'
-    : undefined;
-  const desktopReadingReminderOverlayClassName = isFloatingDesktopReadingReminder
-    ? 'bg-overlay-dark-dark3 backdrop-blur-sm'
-    : undefined;
-  const desktopReadingReminderBodyClassName = isFloatingDesktopReadingReminder
-    ? 'p-4 tablet:!px-0 tablet:!py-0'
-    : 'p-4';
-  const [isReadingReminderModalOpen, setIsReadingReminderModalOpen] =
-    useState(false);
-
-  useEffect(() => {
-    if (!shouldShowReadingReminderOnDesktop) {
-      setIsReadingReminderModalOpen(false);
-      return;
-    }
-
-    setIsReadingReminderModalOpen(true);
-  }, [shouldShowReadingReminderOnDesktop]);
-
-  const onEnableDesktopReminder = useCallback(async () => {
-    await onEnable();
-    setIsReadingReminderModalOpen(false);
-  }, [onEnable]);
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -606,44 +562,6 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
-      {shouldShowReadingReminderOnMobile && (
-        <ReadingReminderHero className="px-4 pb-2" onEnable={onEnable} />
-      )}
-      {shouldShowReadingReminderOnDesktop && isReadingReminderModalOpen && (
-        <Modal
-          size={ModalSize.Small}
-          className={desktopReadingReminderModalClassName}
-          overlayClassName={desktopReadingReminderOverlayClassName}
-          onRequestClose={() => setIsReadingReminderModalOpen(false)}
-          shouldCloseOnOverlayClick
-        >
-          <Modal.Body className={desktopReadingReminderBodyClassName}>
-            <div className="relative">
-              {isFloatingDesktopReadingReminder && (
-                <Button
-                  className="absolute right-0 top-0 z-1"
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  icon={<MiniCloseIcon />}
-                  aria-label="Close reading reminder"
-                  onClick={() => setIsReadingReminderModalOpen(false)}
-                />
-              )}
-              <ReadingReminderCatLaptop />
-            </div>
-            <ReadingReminderHero
-              className="text-center"
-              onEnable={onEnableDesktopReminder}
-              onClose={
-                isFloatingDesktopReadingReminder
-                  ? undefined
-                  : () => setIsReadingReminderModalOpen(false)
-              }
-            />
-          </Modal.Body>
-        </Modal>
-      )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
