@@ -152,7 +152,7 @@ it('should render the component with a view squad button', async () => {
   await waitFor(async () => {
     const button = await screen.findByTestId('squad-action');
     expect(button).toBeInTheDocument();
-    expect(button).toHaveTextContent('Leave Squad');
+    expect(button).toHaveTextContent('Leave');
   });
 });
 
