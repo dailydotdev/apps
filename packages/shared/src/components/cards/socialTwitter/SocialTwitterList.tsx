@@ -78,7 +78,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       className="pointer-events-none flex-[unset] shrink-0"
     >
       <ActionButtons
-        className="mt-4 justify-between tablet:mt-0"
+        className="mt-4 justify-between"
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}

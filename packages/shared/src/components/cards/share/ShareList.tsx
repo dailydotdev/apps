@@ -63,7 +63,10 @@ export const ShareList = forwardRef(function ShareList(
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none flex-[unset]">
       <ActionButtons
-        className="mt-4 justify-between tablet:mt-0"
+        className={classNames(
+          'mt-4 justify-between',
+          !isSharedTweet && 'tablet:mt-0',
+        )}
         post={post}
         onUpvoteClick={onUpvoteClick}
         onDownvoteClick={onDownvoteClick}
@@ -143,35 +146,53 @@ export const ShareList = forwardRef(function ShareList(
         )}
       </PostCardHeader>
       <CardContent>
-        <div className="mr-4 flex flex-1 flex-col">
-          {(!isSharedTweet || post.title) && (
-            <>
+        {isSharedTweet ? (
+          <div className="flex flex-1 flex-col">
+            {!!post.title && (
               <CardTitle
                 lineClamp={undefined}
                 className={!!post.read && 'text-text-tertiary'}
               >
                 {truncatedTitle}
               </CardTitle>
-              <div className="flex flex-1 tablet:hidden" />
-            </>
-          )}
-          <div className="flex items-center">
-            {!post.title && sharedPost?.clickbaitTitleDetected && (
-              <ClickbaitShield post={post} />
             )}
-            <PostTags post={post} />
+            <div className="flex items-center">
+              {!post.title && sharedPost?.clickbaitTitleDetected && (
+                <ClickbaitShield post={post} />
+              )}
+              <PostTags post={post} />
+            </div>
+            <div className="mt-4 min-h-0 overflow-hidden">
+              <EmbeddedTweetPreview
+                post={post}
+                className="w-full"
+                textClampClass="line-clamp-8"
+                fillAvailableHeight
+              />
+            </div>
+            {!isMobile && actionButtons}
           </div>
-          <div className="hidden flex-1 tablet:flex" />
-          {!isMobile && actionButtons}
-        </div>
-        {isSharedTweet ? (
-          <EmbeddedTweetPreview
-            post={post}
-            className="mt-4 w-full"
-            textClampClass="line-clamp-8"
-            fillAvailableHeight
-          />
-        ) : isSharedPostPreviewEnabled ? (
+        ) : (
+          <div className="mr-4 flex flex-1 flex-col">
+            <CardTitle
+              lineClamp={undefined}
+              className={!!post.read && 'text-text-tertiary'}
+            >
+              {truncatedTitle}
+            </CardTitle>
+            <div className="flex flex-1 tablet:hidden" />
+            <div className="flex items-center">
+              {!post.title && sharedPost?.clickbaitTitleDetected && (
+                <ClickbaitShield post={post} />
+              )}
+              <PostTags post={post} />
+            </div>
+            <div className="hidden flex-1 tablet:flex" />
+            {!isMobile && actionButtons}
+          </div>
+        )}
+        {!isSharedTweet &&
+          (isSharedPostPreviewEnabled ? (
           <SharedPostPreview
             className="mt-4 w-full mobileXL:mt-0 mobileXL:w-40 mobileXL:self-start mobileXXL:w-56"
             post={post}
@@ -204,7 +225,7 @@ export const ShareList = forwardRef(function ShareList(
               className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
             }}
           />
-        )}
+        ))}
       </CardContent>
       {isMobile && actionButtons}
       {children}

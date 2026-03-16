@@ -2,9 +2,14 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { LazyImage } from '../../LazyImage';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { IconSize } from '../../Icon';
 import { TwitterIcon } from '../../icons';
+import {
+  cloudinaryPostImageCoverPlaceholder,
+  isPlaceholderImage,
+} from '../../../lib/image';
 import {
   getSocialTextDirectionProps,
   getSocialTwitterMetadata,
@@ -17,6 +22,7 @@ interface EmbeddedTweetPreviewProps {
   bodyClassName?: string;
   showXLogo?: boolean;
   fillAvailableHeight?: boolean;
+  showImage?: boolean;
 }
 
 export function EmbeddedTweetPreview({
@@ -26,6 +32,7 @@ export function EmbeddedTweetPreview({
   bodyClassName,
   showXLogo = true,
   fillAvailableHeight = false,
+  showImage = false,
 }: EmbeddedTweetPreviewProps): ReactElement {
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
   const tweetLanguage = post.sharedPost?.language || post.language;
@@ -33,6 +40,9 @@ export function EmbeddedTweetPreview({
   const tweetBody = post.sharedPost?.title || post.title;
   const tweetBodyHtml =
     post.sharedPost?.titleHtml || post.sharedPost?.title || post.titleHtml;
+  const tweetImage = post.sharedPost?.image || post.image;
+  const shouldRenderTweetImage =
+    showImage && !!tweetImage && !isPlaceholderImage(tweetImage);
 
   const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
     getSocialTwitterMetadata(post);
@@ -106,6 +116,16 @@ export function EmbeddedTweetPreview({
           </p>
         )}
       </div>
+      {shouldRenderTweetImage && (
+        <LazyImage
+          imgSrc={tweetImage}
+          imgAlt="Post cover image"
+          ratio="52%"
+          eager
+          className="mt-3 h-auto w-full rounded-12 object-cover"
+          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+        />
+      )}
     </div>
   );
 }

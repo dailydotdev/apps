@@ -42,6 +42,7 @@ export interface CommonSharePostContentProps {
   source: Post['source'];
   onReadArticle: () => Promise<void>;
   isCompactSpacing?: boolean;
+  showTweetImage?: boolean;
 }
 
 const SharePostContentSkeleton = () => (
@@ -115,6 +116,7 @@ export function CommonSharePostContent({
   source,
   onReadArticle,
   isCompactSpacing,
+  showTweetImage = false,
 }: CommonSharePostContentProps): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { openNewTab } = useContext(SettingsContext);
@@ -157,6 +159,7 @@ export function CommonSharePostContent({
         className={classNames(sharedContainerClassName, 'w-full')}
         textClampClass=""
         bodyClassName="typo-markdown"
+        showImage={showTweetImage}
       />
     );
   }
@@ -262,6 +265,7 @@ const SharePostContent = ({
         source={post.source}
         sharedPost={post.sharedPost}
         isCompactSpacing={isCompactSpacing}
+        showTweetImage
       />
     </>
   );

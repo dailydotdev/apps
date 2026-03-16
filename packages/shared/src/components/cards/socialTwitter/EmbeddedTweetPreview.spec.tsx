@@ -12,6 +12,8 @@ const basePost: Post = {
   type: PostType.SocialTwitter,
   title: 'Root tweet',
   image: 'https://pbs.twimg.com/media/tweet.jpg',
+  creatorTwitter: 'dailydotdev',
+  creatorTwitterName: 'daily.dev',
   sharedPost: undefined,
 };
 
@@ -46,6 +48,19 @@ describe('EmbeddedTweetPreview', () => {
     expect(screen.getByText('Root tweet')).toHaveClass(
       'min-h-0',
       'overflow-hidden',
+    );
+  });
+
+  it('renders the tweet image when explicitly enabled', () => {
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <EmbeddedTweetPreview post={basePost} textClampClass="" showImage />
+      </TestBootProvider>,
+    );
+
+    expect(screen.getByAltText('Post cover image')).toHaveAttribute(
+      'src',
+      basePost.image,
     );
   });
 });
