@@ -73,9 +73,10 @@ describe('ShareList', () => {
     const previewText = await screen.findByText('Referenced tweet body');
     const commentsButton = await screen.findByLabelText('Comment');
 
-    expect(
+    const position =
+      // eslint-disable-next-line no-bitwise
       previewText.compareDocumentPosition(commentsButton) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(position).toBeTruthy();
   });
 });
