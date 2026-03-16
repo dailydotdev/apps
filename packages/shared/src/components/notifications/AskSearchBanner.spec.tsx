@@ -36,6 +36,10 @@ jest.mock('../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: (args: unknown) => mockUseConditionalFeature(args),
 }));
 
+jest.mock('../../lib/constants', () => ({
+  webappUrl: 'http://localhost/',
+}));
+
 const client = new QueryClient();
 
 const renderComponent = () =>
@@ -97,7 +101,7 @@ describe('AskSearchBanner', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should not render when not authenticated', () => {
+  it('should not render while auth is still loading', () => {
     mockUseAuthContext.mockReturnValue({ isAuthReady: false });
 
     renderComponent();
@@ -145,7 +149,7 @@ describe('AskSearchBanner', () => {
       target_id: TargetId.AskUpsellSearch,
     });
 
-    expect(ctaLink).toHaveAttribute('href', '/agents/ask');
+    expect(ctaLink).toHaveAttribute('href', 'http://localhost/agents/ask');
 
     await waitFor(() => {
       expect(mockCompleteAction).toHaveBeenCalledWith(

@@ -17,6 +17,7 @@ import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useConditionalFeature } from '../../hooks';
 import { featureAskUpsellSearch } from '../../lib/featureManagement';
+import { webappUrl } from '../../lib/constants';
 
 interface AskSearchBannerProps {
   className?: string;
@@ -87,7 +88,7 @@ export function AskSearchBanner({
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           tag="a"
-          href="/agents/ask"
+          href={`${webappUrl}agents/ask`}
           onClick={() => {
             logEvent({
               event_name: LogEvent.Click,
