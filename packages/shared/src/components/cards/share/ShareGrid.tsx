@@ -173,8 +173,8 @@ export const ShareGrid = forwardRef(function ShareGrid(
           />
           {(!isSharedTweet || post.title) && <CardTitle>{title}</CardTitle>}
         </CardTextContainer>
+        {(!isSharedTweet || post.title) && <CardSpace />}
         <div className="relative flex flex-col">
-          {(!isSharedTweet || post.title) && <CardSpace />}
           <div className="mx-4 flex items-center">
             {!post.title && sharedPost?.clickbaitTitleDetected && (
               <ClickbaitShield post={post} />
