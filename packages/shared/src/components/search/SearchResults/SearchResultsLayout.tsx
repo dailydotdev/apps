@@ -87,12 +87,7 @@ export const SearchResultsLayout = (
   };
 
   if (!isSearchPageLaptop) {
-    return (
-      <>
-        <AskSearchBanner className="mx-4 mb-4" />
-        {children}
-      </>
-    );
+    return <>{children}</>;
   }
 
   return (
@@ -128,6 +123,7 @@ export const SearchResultsLayout = (
           </div>
         </div>
         <PageWidgets className="py-5">
+          <AskSearchBanner />
           <SearchResultsTags
             isLoading={isTagsLoading}
             items={tags}

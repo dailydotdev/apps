@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
+import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -576,6 +577,9 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {isSearchOn && isFinder && !isSearchPageLaptop && (
+        <AskSearchBanner className="mx-4 mb-4" />
+      )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero
           className="px-4 pb-2"
