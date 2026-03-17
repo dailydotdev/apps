@@ -19,6 +19,112 @@ const basePost: Post = {
 };
 
 describe('getSocialTwitterMetadata', () => {
+  it('prefers creator twitter image over author image when both are available', () => {
+    const authorImage = 'https://example.com/author-avatar.png';
+    const creatorTwitterImage = 'https://example.com/creator-avatar.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage,
+        author: {
+          ...basePost.sharedPost.author,
+          image: authorImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
+  it('falls back to author image when creator twitter image is unavailable', () => {
+    const authorImage = 'https://example.com/author-avatar.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage: undefined,
+        author: {
+          ...basePost.sharedPost.author,
+          image: authorImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(authorImage);
+  });
+
+  it('prefers creator twitter image over source image for known sources', () => {
+    const creatorTwitterImage = 'https://example.com/creator-avatar.png';
+    const sourceImage = 'https://example.com/source-logo.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage,
+        author: {
+          ...basePost.sharedPost.author,
+          image: undefined,
+        },
+        source: {
+          ...basePost.sharedPost.source,
+          id: 'known-source',
+          image: sourceImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
+  it('uses creator twitter image for unknown sources', () => {
+    const creatorTwitterImage = 'https://example.com/creator-avatar.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage,
+        author: {
+          ...basePost.sharedPost.author,
+          image: undefined,
+        },
+        source: {
+          ...basePost.sharedPost.source,
+          id: 'unknown',
+          image: 'https://example.com/source-logo.png',
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
+  it('falls back to source image when no author avatar is available', () => {
+    const sourceImage = 'https://example.com/source-logo.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage: undefined,
+        author: {
+          ...basePost.sharedPost.author,
+          image: undefined,
+        },
+        source: {
+          ...basePost.sharedPost.source,
+          image: sourceImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(sourceImage);
+  });
+
   it('deduplicates handles case-insensitively', () => {
     const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,
