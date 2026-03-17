@@ -244,14 +244,22 @@ We write tests to validate functionality, not to achieve coverage metrics:
 
 ## Feature Flags & Experiments
 
-GrowthBook is integrated for A/B testing:
+GrowthBook is integrated for A/B testing. Define features in `packages/shared/src/lib/featureManagement.ts`:
+```typescript
+export const featureMyFlag = new Feature('my_flag', false);
+```
+
+Use `useConditionalFeature` with `shouldEvaluate` to gate evaluation — only evaluate the flag when the component would otherwise render (e.g., user is authenticated and Plus). This avoids unnecessary GrowthBook evaluations:
 ```typescript
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { featureMyFlag } from '../../lib/featureManagement';
 
-const { value, isLoading } = useConditionalFeature({
-  feature: 'feature_name',
-  shouldEvaluate: true,
+const shouldEvaluate = isAuthReady && isPlus;
+const { value: isEnabled } = useConditionalFeature({
+  feature: featureMyFlag,
+  shouldEvaluate,
 });
+const showComponent = shouldEvaluate && isEnabled;
 ```
 
 ## Key Configuration Files
@@ -415,6 +423,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Place feed promos in content flow unless explicitly sticky** - If a promo belongs between feed navigation and the feed list, render it in the feed/content layout so it pushes content down. Do not attach it to sticky nav with absolute positioning unless the requirement explicitly asks for overlay behavior.
+- **Use `searchChildren` prop for content above feed results on search pages** - In `MainFeedLayout`, page `children` render AFTER the `<Feed>` component. To place banners/promos above feed results, pass them via the `searchChildren` prop (through `layoutProps` on the page component). Do NOT render them as page children — they will appear below all posts. Prefer reusing existing props over introducing new ones.
 - **Preserve spacing intent across breakpoints** - When fixing missing padding/margins, do not re-disable them at larger breakpoints with classes like `laptop:mx-0` unless the requirement explicitly asks for desktop edge-to-edge layout. Verify mobile and desktop behavior before shipping.
 - **Fix spacing consistently across sibling sections** - On page layout bugs, audit all adjacent sections (headers, modules, horizontal feeds, list feeds) and keep spacing rules consistent unless explicitly specified otherwise.
 - **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
