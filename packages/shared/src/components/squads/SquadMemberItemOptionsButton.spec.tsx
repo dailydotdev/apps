@@ -25,9 +25,14 @@ jest.mock('../../hooks', () => ({
 }));
 
 jest.mock('../dropdown/DropdownMenu', () => ({
-  DropdownMenu: ({ children }) => <div>{children}</div>,
-  DropdownMenuTrigger: ({ children }) => children,
-  DropdownMenuContent: ({ children }) => <div>{children}</div>,
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   DropdownMenuOptions: ({ options }: { options: MenuItemProps[] }) => (
     <div>
       {options.map(({ label, action }) => (

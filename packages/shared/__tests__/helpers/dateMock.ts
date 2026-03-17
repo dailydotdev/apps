@@ -4,7 +4,7 @@
 
 import { act } from '@testing-library/react';
 
-type DateMock = {
+export type DateMock = {
   advanceTimeByMinutes: (minutes: number) => void;
   getCurrentMockDate: () => Date;
   cleanup: () => void;
