@@ -11,8 +11,8 @@ const replace = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
-  window.history.replaceState({}, 'Test page', '/following');
   (useRouter as jest.Mock).mockReturnValue({
+    asPath: '/following?sort=latest',
     replace,
   } as unknown as NextRouter);
 });
@@ -44,7 +44,7 @@ describe('ProtectedPage', () => {
     await waitFor(() => {
       expect(replace).toHaveBeenCalledWith(
         `${onboardingUrl}?${new URLSearchParams({
-          [AFTER_AUTH_PARAM]: '/following',
+          [AFTER_AUTH_PARAM]: '/following?sort=latest',
         }).toString()}`,
       );
     });

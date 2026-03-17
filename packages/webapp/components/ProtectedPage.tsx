@@ -11,6 +11,11 @@ export interface ProtectedPageProps {
   shouldFallback?: boolean;
 }
 
+const getOnboardingRedirect = (path: string): string =>
+  `${onboardingUrl}?${new URLSearchParams({
+    [AFTER_AUTH_PARAM]: path,
+  }).toString()}`;
+
 function ProtectedPage({
   children,
   fallback,
@@ -21,14 +26,11 @@ function ProtectedPage({
 
   useEffect(() => {
     if (tokenRefreshed && !user) {
-      const params = new URLSearchParams({
-        [AFTER_AUTH_PARAM]: window.location.pathname,
-      });
-      router.replace(`${onboardingUrl}?${params.toString()}`);
+      router.replace(getOnboardingRedirect(router.asPath || '/'));
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenRefreshed, user]);
+  }, [router, tokenRefreshed, user]);
 
   return <>{shouldFallback ? fallback : children}</>;
 }
