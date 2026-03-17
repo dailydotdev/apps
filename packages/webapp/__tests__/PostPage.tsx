@@ -880,10 +880,7 @@ describe('downvote flow', () => {
     const close = await screen.findByTitle('Close');
     fireEvent.click(close);
     await screen.findAllByText('No topics were blocked');
-    const dontAskAgainItems = await screen.findAllByLabelText(
-      "Don't ask again",
-    );
-    const dontAskAgain = dontAskAgainItems[dontAskAgainItems.length - 1];
+    const [dontAskAgain] = await screen.findAllByLabelText("Don't ask again");
     fireEvent.click(dontAskAgain);
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
