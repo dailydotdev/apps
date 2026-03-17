@@ -107,20 +107,19 @@ export const getSocialTwitterMetadata = (post: Post) => {
     .map((value, index) => (index === 1 ? `@${value}` : value))
     .join(' ');
 
+  const embeddedTweetAvatarImage =
+    post.sharedPost?.author?.image ||
+    post.sharedPost?.creatorTwitterImage ||
+    post.sharedPost?.source?.image ||
+    fallbackImages.avatar;
+
   const embeddedTweetAvatarUser = {
     id:
       post.sharedPost?.author?.id ||
       post.sharedPost?.source?.id ||
       sharedPostHandle ||
       'shared-post-avatar',
-    image:
-      resolveBySource(
-        post.sharedPost?.source?.id,
-        post.sharedPost?.author?.image ||
-          post.sharedPost?.creatorTwitterImage ||
-          post.sharedPost?.source?.image,
-        post.sharedPost?.creatorTwitterImage,
-      ) || fallbackImages.avatar,
+    image: embeddedTweetAvatarImage,
     username: sharedPostHandle,
     name: embeddedTweetDisplayName,
   };
