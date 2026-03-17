@@ -56,7 +56,7 @@ export function AskSearchBanner({
 
   const onDismiss = async () => {
     logEvent({
-      event_name: LogEvent.DismissAskUpsellSearch,
+      event_name: LogEvent.Dismiss,
       target_id: TargetId.AskUpsellSearch,
     });
     await completeAction(ActionType.AskUpsellSearch);
