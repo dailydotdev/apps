@@ -78,7 +78,13 @@ jest.mock('../dropdown/DropdownMenu', () => {
         </DropdownMenuContext.Provider>
       );
     },
-    DropdownMenuTrigger: ({ children }: { children: ReactNode }) => {
+    DropdownMenuTrigger: ({
+      children,
+      tooltip,
+    }: {
+      children: ReactNode;
+      tooltip?: { content?: string };
+    }) => {
       const { useContext } = mockReactModule();
       const { setOpen } = useContext(DropdownMenuContext);
 
@@ -91,6 +97,7 @@ jest.mock('../dropdown/DropdownMenu', () => {
         | undefined;
 
       return cloneElement(children, {
+        'data-tooltip-content': tooltip?.content,
         onClick: (...args: unknown[]) => {
           originalOnClick?.(...args);
           setOpen(true);
@@ -210,6 +217,28 @@ describe('QuestButton', () => {
 
     expect(button).toHaveClass('h-8');
     expect(button).not.toHaveClass('h-10');
+  });
+
+  it('should show total xp in the quest trigger tooltip', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        level: {
+          ...questDashboard.level,
+          totalXp: 123456,
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    expect(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    ).toHaveAttribute('data-tooltip-content', 'Total XP: 123.456');
   });
 
   it('should hide level progress and xp rewards when levels are disabled', async () => {
