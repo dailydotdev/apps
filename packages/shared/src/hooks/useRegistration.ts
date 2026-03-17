@@ -28,6 +28,8 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
+import { betterAuthSignUp, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import { useLogContext } from '../contexts/LogContext';
@@ -35,6 +37,7 @@ import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { disabledRefetch } from '../lib/func';
+import { webappUrl } from '../lib/constants';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -62,6 +65,8 @@ interface UseRegistration {
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
 const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
+const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
+  "We couldn't complete sign up. If you already have an account, try signing in instead.";
 
 const useRegistration = ({
   key,
@@ -73,6 +78,7 @@ const useRegistration = ({
   onInitializeVerification,
   keepSession = false,
 }: UseRegistrationProps): UseRegistration => {
+  const isBetterAuth = useIsBetterAuth();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
@@ -87,7 +93,7 @@ const useRegistration = ({
     queryKey: key,
     queryFn: () => initializeKratosFlow(AuthFlow.Registration, _params),
     ...disabledRefetch,
-    enabled,
+    enabled: enabled && !isBetterAuth,
   });
 
   if (registration?.error) {
@@ -215,7 +221,65 @@ const useRegistration = ({
     },
   });
 
-  const onValidateRegistration = async (values: RegistrationParameters) => {
+  const {
+    mutateAsync: betterAuthRegister,
+    isPending: isBetterAuthMutationLoading,
+  } = useMutation({
+    mutationFn: async (params: {
+      name: string;
+      email: string;
+      password: string;
+      turnstileToken?: string;
+      username?: string;
+      experienceLevel?: string;
+    }) => {
+      logEvent({
+        event_name: 'click',
+        target_type: AuthEventNames.SignUpProvider,
+        target_id: 'email',
+        extra: JSON.stringify({ trigger: 'registration' }),
+      });
+      return betterAuthSignUp({
+        ...params,
+      });
+    },
+    onSuccess: async (res) => {
+      if (res.error) {
+        onInvalidRegistration?.({
+          'traits.email': res.error,
+        });
+        return;
+      }
+
+      if (res.status && !res.user) {
+        onInvalidRegistration?.({
+          'traits.email': BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
+        });
+        return;
+      }
+
+      onInitializeVerification?.();
+    },
+  });
+
+  const onValidateRegistration = async (
+    values: RegistrationParameters & {
+      headers?: Record<string, string>;
+    },
+  ) => {
+    if (isBetterAuth) {
+      const turnstileToken = values.headers?.['True-Client-Ip'];
+      await betterAuthRegister({
+        name: values['traits.name'] as string,
+        email: values['traits.email'] as string,
+        password: values.password as string,
+        turnstileToken,
+        username: values['traits.username'] as string,
+        experienceLevel: values['traits.experienceLevel'] as string,
+      });
+      return;
+    }
+
     const { nodes, action } = registration.ui;
     const postData: RegistrationParameters = {
       ...values,
@@ -231,6 +295,18 @@ const useRegistration = ({
   };
 
   const onSocialRegistration = async (provider: string) => {
+    if (isBetterAuth) {
+      const callbackURL = `${webappUrl}callback`;
+      const url = await getBetterAuthSocialUrl(
+        provider.toLowerCase(),
+        callbackURL,
+      );
+      if (onRedirect && url) {
+        onRedirect(url);
+      }
+      return;
+    }
+
     if (!registration?.ui) {
       logEvent({
         event_name: AuthEventNames.RegistrationError,
@@ -277,8 +353,10 @@ const useRegistration = ({
 
   return useMemo<UseRegistration>(
     () => ({
-      isReady: !!registration?.ui,
-      isLoading: isQueryLoading || isMutationLoading,
+      isReady: isBetterAuth ? true : !!registration?.ui,
+      isLoading: isBetterAuth
+        ? isBetterAuthMutationLoading
+        : isQueryLoading || isMutationLoading,
       registration,
       onSocialRegistration,
       validateRegistration: onValidateRegistration,
@@ -287,7 +365,15 @@ const useRegistration = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [registration, status, isQueryLoading, isMutationLoading, verificationId],
+    [
+      registration,
+      status,
+      isQueryLoading,
+      isMutationLoading,
+      isBetterAuth,
+      isBetterAuthMutationLoading,
+      verificationId,
+    ],
   );
 };
 

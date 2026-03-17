@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -13,6 +13,13 @@ import {
   AuthTriggers,
   getNodeValue,
 } from '../../lib/auth';
+import {
+  getBetterAuthSocialUrl,
+  betterAuthSendVerificationOTP,
+  betterAuthVerifyEmailOTP,
+} from '../../lib/betterAuth';
+import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
+import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -36,7 +43,6 @@ import {
   useEventListener,
   usePersistentState,
 } from '../../hooks';
-import { broadcastChannel, isTesting } from '../../lib/constants';
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
@@ -129,6 +135,7 @@ function AuthOptionsInner({
   const { syncSettings } = useSettingsContext();
   const { trackSignup } = usePixelsContext();
   const { logEvent } = useLogContext();
+  const isBetterAuth = useIsBetterAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
@@ -144,7 +151,7 @@ function AuthOptionsInner({
       : defaultDisplay,
   );
 
-  const { setEmail } = useAuthData();
+  const { email, setEmail } = useAuthData();
 
   const onSetActiveDisplay = (display: AuthDisplay) => {
     onDisplayChange?.(display);
@@ -255,12 +262,13 @@ function AuthOptionsInner({
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
   const autoCompleteProfileForRecruiter = async (
-    email: string,
+    recruiterEmail: string,
     name?: string,
   ) => {
     try {
       // Generate name from email if not provided by OAuth
-      const displayName = name || generateNameFromEmail(email, 'Recruiter');
+      const displayName =
+        name || generateNameFromEmail(recruiterEmail, 'Recruiter');
 
       // Generate username from the display name
       const username = await generateUsername(displayName);
@@ -354,6 +362,28 @@ function AuthOptionsInner({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
+
+    if (isBetterAuth) {
+      const callbackURL = login
+        ? `${webappUrl}callback?login=true`
+        : `${webappUrl}callback`;
+      const socialUrl = await getBetterAuthSocialUrl(
+        provider.toLowerCase(),
+        callbackURL,
+      );
+      if (!socialUrl) {
+        return;
+      }
+      if (!isNativeAuthSupported(provider)) {
+        windowPopup.current = window.open(socialUrl);
+      } else {
+        windowPopup.current.location.href = socialUrl;
+      }
+      await setChosenProvider(provider);
+      onAuthStateUpdate?.({ isLoading: true });
+      return;
+    }
+
     // Only web auth requires a popup
     if (!isNativeAuthSupported(provider)) {
       windowPopup.current = window.open();
@@ -481,7 +511,9 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    await onProfileSuccess({ setSignBack: false });
+    if (!isBetterAuth) {
+      await onProfileSuccess({ setSignBack: false });
+    }
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -675,6 +707,23 @@ function AuthOptionsInner({
           <EmailCodeVerification
             flowId={verificationFlowId}
             onSubmit={onProfileSuccess}
+            onVerifyCode={
+              isBetterAuth
+                ? async (code) => {
+                    const res = await betterAuthVerifyEmailOTP(email, code);
+                    if (res.error) {
+                      throw new Error(res.error);
+                    }
+                  }
+                : undefined
+            }
+            onResendCode={
+              isBetterAuth
+                ? async () => {
+                    await betterAuthSendVerificationOTP(email);
+                  }
+                : undefined
+            }
           />
         </Tab>
       </TabContainer>

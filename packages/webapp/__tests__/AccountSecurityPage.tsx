@@ -18,10 +18,12 @@ import {
   verifiedLoginData,
 } from '@dailydotdev/shared/__tests__/fixture/auth';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getNodeValue } from '@dailydotdev/shared/src/lib/auth';
+import * as betterAuthHook from '@dailydotdev/shared/src/hooks/useIsBetterAuth';
+import * as toastNotificationHook from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import nock from 'nock';
@@ -46,12 +48,18 @@ const matchMedia = (value: string) => {
   });
 };
 
+const displayToast = jest.fn();
+
 beforeEach(() => {
   jest.resetAllMocks();
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
   matchMedia('1020');
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(false);
+  jest
+    .spyOn(toastNotificationHook, 'useToastNotification')
+    .mockReturnValue({ displayToast } as never);
 });
 
 const defaultLoggedUser: LoggedUser = {
@@ -231,6 +239,42 @@ it('should allow changing of email but require verification', async () => {
   await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
   const sent = await screen.findByTestId('email_verification_sent');
   expect(sent).toBeInTheDocument();
+});
+
+it('should show generic change email confirmation for Better Auth', async () => {
+  jest.spyOn(betterAuthHook, 'useIsBetterAuth').mockReturnValue(true);
+  const email = 'sample@email.com';
+  nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .get('/auth/list-accounts')
+    .reply(200, [{ providerId: 'credential' }]);
+  const changeEmailScope = nock(process.env.NEXT_PUBLIC_API_URL as string)
+    .post('/auth/email-otp/request-email-change', { newEmail: email })
+    .reply(200, { success: true });
+
+  renderComponent();
+
+  fireEvent.click(await screen.findByText('Change email'));
+  fireEvent.input(screen.getByPlaceholderText('Email'), {
+    target: { value: email },
+  });
+
+  const sendCodeButton = await screen.findByText('Send code');
+  const submitEvent = new Event('submit', {
+    bubbles: true,
+    cancelable: true,
+  });
+  Object.defineProperty(submitEvent, 'submitter', {
+    value: sendCodeButton,
+  });
+
+  await act(() => sendCodeButton.dispatchEvent(submitEvent));
+
+  await waitFor(() =>
+    expect(displayToast).toHaveBeenCalledWith(
+      'If that email is available, we sent a verification code.',
+    ),
+  );
+  expect(changeEmailScope.isDone()).toBeTruthy();
 });
 
 it('should allow setting new password', async () => {
