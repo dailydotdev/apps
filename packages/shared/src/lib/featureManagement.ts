@@ -176,3 +176,5 @@ export const featureAuthStrategy = new Feature<'kratos' | 'betterauth'>(
 );
 
 export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);
+
+export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
