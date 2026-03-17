@@ -12,7 +12,6 @@ import { MagicIcon } from '../icons';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { useConditionalFeature } from '../../hooks';
@@ -28,13 +27,11 @@ export function AskSearchBanner({
 }: AskSearchBannerProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const { isAuthReady } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const dismissed = checkHasCompleted(ActionType.AskUpsellSearch);
   const impressionLogged = useRef(false);
 
-  const shouldEvaluate =
-    isAuthReady && isPlus && !dismissed && isActionsFetched;
+  const shouldEvaluate = isAuthReady && !dismissed && isActionsFetched;
 
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureAskUpsellSearch,

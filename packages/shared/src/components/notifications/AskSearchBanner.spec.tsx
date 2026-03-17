@@ -8,7 +8,6 @@ import { ActionType } from '../../graphql/actions';
 const mockLogEvent = jest.fn();
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
-const mockUsePlusSubscription = jest.fn();
 const mockUseAuthContext = jest.fn();
 const mockUseConditionalFeature = jest.fn();
 
@@ -18,10 +17,6 @@ jest.mock('../../contexts/LogContext', () => ({
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
-}));
-
-jest.mock('../../hooks/usePlusSubscription', () => ({
-  usePlusSubscription: () => mockUsePlusSubscription(),
 }));
 
 jest.mock('../../hooks/useActions', () => ({
@@ -53,7 +48,6 @@ describe('AskSearchBanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAuthContext.mockReturnValue({ isAuthReady: true });
-    mockUsePlusSubscription.mockReturnValue({ isPlus: true });
     mockCheckHasCompleted.mockReturnValue(false);
     mockUseConditionalFeature.mockReturnValue({
       value: true,
@@ -61,7 +55,7 @@ describe('AskSearchBanner', () => {
     });
   });
 
-  it('should render banner for Plus users when feature enabled', () => {
+  it('should render banner when feature enabled', () => {
     renderComponent();
 
     expect(screen.getByText('WebSearch for Developers')).toBeInTheDocument();
@@ -73,16 +67,6 @@ describe('AskSearchBanner', () => {
       value: false,
       isLoading: false,
     });
-
-    renderComponent();
-
-    expect(
-      screen.queryByText('WebSearch for Developers'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should not render for non-Plus users', () => {
-    mockUsePlusSubscription.mockReturnValue({ isPlus: false });
 
     renderComponent();
 
@@ -111,7 +95,7 @@ describe('AskSearchBanner', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should evaluate feature only when user is auth and plus', () => {
+  it('should evaluate feature only when user is authenticated', () => {
     renderComponent();
 
     expect(mockUseConditionalFeature).toHaveBeenCalledWith(
@@ -119,8 +103,8 @@ describe('AskSearchBanner', () => {
     );
   });
 
-  it('should not evaluate feature when not plus', () => {
-    mockUsePlusSubscription.mockReturnValue({ isPlus: false });
+  it('should not evaluate feature while auth is loading', () => {
+    mockUseAuthContext.mockReturnValue({ isAuthReady: false });
 
     renderComponent();
 
