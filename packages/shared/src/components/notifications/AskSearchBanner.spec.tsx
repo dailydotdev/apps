@@ -149,7 +149,7 @@ describe('AskSearchBanner', () => {
     fireEvent.click(closeButton);
 
     expect(mockLogEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.MarketingCtaDismiss,
+      event_name: LogEvent.DismissAskUpsellSearch,
       target_id: TargetId.AskUpsellSearch,
     });
     await waitFor(() => {

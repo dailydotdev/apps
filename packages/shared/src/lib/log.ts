@@ -396,6 +396,8 @@ export enum LogEvent {
   DismissAchievementCompletion = 'dismiss achievement completion',
   // Quests
   ClaimQuest = 'claim quest',
+  // Ask upsell
+  DismissAskUpsellSearch = 'dismiss ask upsell search',
 }
 
 export enum TargetType {
