@@ -1,7 +1,7 @@
-import { useFeature } from '../components/GrowthBookProvider';
-import { featureAuthStrategy } from '../lib/featureManagement';
+import { useGrowthBookContext } from '../components/GrowthBookProvider';
 
 export const useIsBetterAuth = (): boolean => {
-  const authStrategy = useFeature(featureAuthStrategy);
+  const { growthbook } = useGrowthBookContext();
+  const authStrategy = growthbook?.getAttributes?.()?.authStrategy;
   return authStrategy === 'betterauth';
 };
