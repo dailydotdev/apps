@@ -1011,6 +1011,9 @@ export const QuestButton = ({
   const claimAnimationRotationIdRef = useRef<string | null>(null);
   const renderedLevel = animatedLevel ?? level;
   const renderedLevelProgress = animatedLevelProgress ?? levelProgress;
+  const triggerTooltipContent = data?.level
+    ? `Total XP: ${data.level.totalXp.toLocaleString('de-DE')}`
+    : 'Quests';
   const triggerButtonSize = compact ? ButtonSize.Small : ButtonSize.Medium;
   const triggerButtonVariant = compact
     ? ButtonVariant.Tertiary
@@ -1326,7 +1329,7 @@ export const QuestButton = ({
         <DropdownMenuTrigger
           asChild
           tooltip={{
-            content: 'Quests',
+            content: triggerTooltipContent,
             side: 'bottom',
           }}
         >
