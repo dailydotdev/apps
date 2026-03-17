@@ -12,12 +12,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { ButtonProps } from '../../buttons/Button';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
@@ -183,7 +178,8 @@ const StreakRecoverNotificationReminder = () => {
     true,
   );
   const { onTogglePermission } = usePushNotificationMutation();
-  const showAlert = isPushSupported && isAlertShown && isInitialized && !isSubscribed;
+  const showAlert =
+    isPushSupported && isAlertShown && isInitialized && !isSubscribed;
 
   if (!showAlert) {
     return null;
@@ -240,47 +236,6 @@ export const StreakRecoverModal = (
     onRequestClose,
   });
 
-  // TODO(debug): force-open for preview — remove before merging
-  const mockRecover: UserStreakRecoverData = {
-    canRecover: true,
-    cost: 0,
-    oldStreakLength: 14,
-    regularCost: 100,
-  };
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      isDrawerOnMobile={isOpen}
-      onRequestClose={onRequestClose}
-      size={ModalSize.XSmall}
-    >
-      <ModalClose
-        aria-label="Close streak recover popup"
-        onClick={onRequestClose}
-        title="Close streak recover popup"
-      />
-      <ModalBody className="!p-4">
-        <StreakRecoverOptout
-          id={id}
-          className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
-          hideForever={{ isChecked: false, toggle: () => {} }}
-        />
-        <div className="flex flex-col gap-4 pt-8">
-          <StreakRecoverCover />
-          <StreakRecoverHeading days={mockRecover.oldStreakLength} />
-          <StreakRecoveryCopy recover={mockRecover} />
-          <StreakRecoverButton
-            onClick={onRequestClose}
-            recover={mockRecover}
-          />
-        </div>
-        <StreakRecoverNotificationReminder />
-      </ModalBody>
-    </Modal>
-  );
-
-  /* Original guarded version — restore when done previewing:
   if (!user || !isStreaksEnabled || !recover.canRecover || recover.isLoading) {
     return null;
   }
@@ -317,7 +272,6 @@ export const StreakRecoverModal = (
       </ModalBody>
     </Modal>
   );
-  */
 };
 
 export default StreakRecoverModal;

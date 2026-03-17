@@ -281,7 +281,8 @@ export const usePostModalNavigation = ({
 
   const activeSelectedPost = selectedPost ?? selectedPostFallback;
   const selectedPostIsAd =
-    typeof openedPostIndex !== 'undefined' && isBoostedPostAd(items[openedPostIndex]);
+    typeof openedPostIndex !== 'undefined' &&
+    isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,

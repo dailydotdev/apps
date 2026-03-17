@@ -39,17 +39,6 @@ const ReadingReminderHero = ({
       >
         Turn on your daily reading reminder and keep your routine.
       </Typography>
-      <style>
-        {`
-          @keyframes enable-notification-bell-ring {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-16deg); }
-            40% { transform: rotate(14deg); }
-            60% { transform: rotate(-10deg); }
-            80% { transform: rotate(8deg); }
-          }
-        `}
-      </style>
       <div className="mt-3">
         <Button
           className="w-full"

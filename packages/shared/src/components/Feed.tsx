@@ -476,7 +476,11 @@ export default function Feed<T>({
   }, []);
 
   useEffect(() => {
-    if (forceBottomHeroFromUrl || forceInFeedHeroFromUrl || hasScrolledForHero) {
+    if (
+      forceBottomHeroFromUrl ||
+      forceInFeedHeroFromUrl ||
+      hasScrolledForHero
+    ) {
       return undefined;
     }
 

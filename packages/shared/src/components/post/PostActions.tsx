@@ -34,7 +34,10 @@ import { Tooltip } from '../tooltip/Tooltip';
 import EnableNotificationsCta from '../cards/entity/EnableNotificationsCta';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
-import { ContentPreferenceStatus, ContentPreferenceType } from '../../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
 import ConditionalWrapper from '../ConditionalWrapper';
 
 interface PostActionsProps {
@@ -91,7 +94,9 @@ export function PostActions({
       return;
     }
 
-    if (creatorContentPreference?.status === ContentPreferenceStatus.Subscribed) {
+    if (
+      creatorContentPreference?.status === ContentPreferenceStatus.Subscribed
+    ) {
       return;
     }
 

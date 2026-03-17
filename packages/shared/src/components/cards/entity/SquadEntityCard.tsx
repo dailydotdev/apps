@@ -53,11 +53,7 @@ const SquadEntityCard = ({
     source: squad,
   });
 
-  if (!squad) {
-    return null;
-  }
-
-  const isSquadMember = !!squad.currentMember;
+  const isSquadMember = !!squad?.currentMember;
 
   useEffect(() => {
     if (
@@ -91,6 +87,10 @@ const SquadEntityCard = ({
     await onNotify();
     setShowNotificationCta(false);
   };
+
+  if (!squad) {
+    return null;
+  }
 
   const { description, name, image, membersCount, flags, permalink } =
     squad || {};

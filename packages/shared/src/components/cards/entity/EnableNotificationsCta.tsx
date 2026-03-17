@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { BellIcon } from '../../icons';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
@@ -40,17 +36,6 @@ const EnableNotificationsCta = ({
       >
         Enable
       </Button>
-      <style>
-        {`
-          @keyframes enable-notification-bell-ring {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-16deg); }
-            40% { transform: rotate(14deg); }
-            60% { transform: rotate(-10deg); }
-            80% { transform: rotate(8deg); }
-          }
-        `}
-      </style>
     </div>
   );
 };

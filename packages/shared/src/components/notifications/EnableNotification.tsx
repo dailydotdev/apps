@@ -1,11 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import {
   cloudinaryNotificationsBrowserEnabled,
@@ -210,19 +206,6 @@ function EnableNotification({
         className,
       )}
     >
-      {shouldAnimateBellCta && (
-        <style>
-          {`
-            @keyframes enable-notification-bell-ring {
-              0%, 100% { transform: rotate(0deg); }
-              20% { transform: rotate(-16deg); }
-              40% { transform: rotate(14deg); }
-              60% { transform: rotate(-10deg); }
-              80% { transform: rotate(8deg); }
-            }
-          `}
-        </style>
-      )}
       <div
         className={classNames(
           'flex gap-4',
@@ -242,7 +225,9 @@ function EnableNotification({
         <div
           className={classNames(
             'min-w-0 flex flex-1',
-            shouldInlineActionWithMessage ? 'items-center gap-2' : 'flex-col gap-3',
+            shouldInlineActionWithMessage
+              ? 'items-center gap-2'
+              : 'flex-col gap-3',
           )}
         >
           {source === NotificationPromptSource.NotificationsPage && (
@@ -329,25 +314,25 @@ function EnableNotification({
         {!acceptedJustNow &&
           !shouldInlineActionWithMessage &&
           !shouldUseVerticalContentLayout && (
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            className={classNames(
-              source !== NotificationPromptSource.NewComment &&
-                source !== NotificationPromptSource.CommentUpvote &&
-                source !== NotificationPromptSource.PostTagFollow &&
-                'mr-4',
-            )}
-            icon={
-              shouldAnimateBellCta ? (
-                <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
-              ) : undefined
-            }
-            onClick={handleEnable}
-          >
-            {buttonText}
-          </Button>
-        )}
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              className={classNames(
+                source !== NotificationPromptSource.NewComment &&
+                  source !== NotificationPromptSource.CommentUpvote &&
+                  source !== NotificationPromptSource.PostTagFollow &&
+                  'mr-4',
+              )}
+              icon={
+                shouldAnimateBellCta ? (
+                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                ) : undefined
+              }
+              onClick={handleEnable}
+            >
+              {buttonText}
+            </Button>
+          )}
         {showTextCloseButton && (
           <Button
             size={ButtonSize.Small}

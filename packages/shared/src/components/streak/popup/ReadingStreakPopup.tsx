@@ -132,11 +132,12 @@ export function ReadingStreakPopup({
     true,
   );
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
-  const forceNotificationCtaFromUrl =
-    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
 
-  // TODO(debug): hardcoded to always show — remove before merging
-  const showAlert = true;
+  const showAlert =
+    isPushSupported &&
+    isAlertShown &&
+    isInitialized &&
+    (!isSubscribed || acceptedJustNow);
 
   const streaks = useMemo(() => {
     const today = new Date();
@@ -166,7 +167,7 @@ export function ReadingStreakPopup({
 
   const onTogglePush = async () => {
     logEvent({
-      event_name: LogEvent.DisableNotification,
+      event_name: LogEvent.EnableNotification,
       extra: JSON.stringify({
         channel: NotificationChannel.Web,
         category: NotificationCategory.Product,
@@ -315,7 +316,7 @@ export function ReadingStreakPopup({
       </div>
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
-          {(!isSubscribed || true) && (
+          {!isSubscribed && (
             <>
               <div className="flex w-full flex-1 justify-between gap-3">
                 <Typography

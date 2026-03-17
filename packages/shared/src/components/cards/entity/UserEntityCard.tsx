@@ -132,11 +132,7 @@ const UserEntityCard = ({
     }
 
     prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
-  }, [
-    haveNotificationsOn,
-    isAuthorPostUpvoted,
-    showNotificationCtaOnUpvote,
-  ]);
+  }, [haveNotificationsOn, isAuthorPostUpvoted, showNotificationCtaOnUpvote]);
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,

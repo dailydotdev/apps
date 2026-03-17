@@ -30,7 +30,8 @@ export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
   ignoreDismissState = false,
 }: UseEnableNotificationProps): UseEnableNotification => {
-  const isCommentUpvoteSource = source === NotificationPromptSource.CommentUpvote;
+  const isCommentUpvoteSource =
+    source === NotificationPromptSource.CommentUpvote;
   const isExtension = checkIsExtension();
   const { logEvent } = useLogContext();
   const hasLoggedImpression = useRef(false);
@@ -64,7 +65,8 @@ export const useEnableNotification = ({
   );
   const shouldForceUpvoteNotificationCtaForSession =
     source === NotificationPromptSource.CommentUpvote &&
-    (forceUpvoteNotificationCtaFromSession || forceUpvoteNotificationCtaFromUrl);
+    (forceUpvoteNotificationCtaFromSession ||
+      forceUpvoteNotificationCtaFromUrl);
   const shouldForceSquadNotificationCta =
     source === NotificationPromptSource.SquadPage &&
     forceSquadNotificationCtaFromUrl;
@@ -128,16 +130,28 @@ export const useEnableNotification = ({
     isPushSupported || isExtension,
   ];
 
+  const computeShouldShowCta = (): boolean => {
+    if (shouldForceCtaInDevelopment) {
+      return (
+        (shouldForcePopupNotificationCta || isLoaded) && !effectiveIsDismissed
+      );
+    }
+
+    if (isCommentUpvoteSource) {
+      return !effectiveIsDismissed;
+    }
+
+    return (
+      (shouldForceSquadNotificationCta ||
+        conditions.every(Boolean) ||
+        (enabledJustNow &&
+          source !== NotificationPromptSource.SquadPostModal)) &&
+      !effectiveIsDismissed
+    );
+  };
+
   const shouldShowCta =
-    (shouldForceCtaInDevelopment
-      ? (shouldForcePopupNotificationCta || isLoaded) && !effectiveIsDismissed
-      : isCommentUpvoteSource
-        ? !effectiveIsDismissed
-        : (shouldForceSquadNotificationCta ||
-            conditions.every(Boolean) ||
-            (enabledJustNow &&
-              source !== NotificationPromptSource.SquadPostModal)) &&
-          !effectiveIsDismissed) && !shouldHideNotificationCtaForBottomHero;
+    computeShouldShowCta() && !shouldHideNotificationCtaForBottomHero;
 
   useEffect(() => {
     if (!shouldShowCta || hasLoggedImpression.current) {
