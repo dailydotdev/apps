@@ -1,7 +1,7 @@
 import React from 'react';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
@@ -21,9 +21,11 @@ import { SidebarDesktop } from './SidebarDesktop';
 let client: QueryClient;
 const updateAlerts = jest.fn();
 const toggleSidebarExpanded = jest.fn();
+const showLogin = jest.fn();
 
 beforeEach(() => {
   nock.cleanAll();
+  showLogin.mockReset();
 });
 
 const createMockFeedSettings = () => ({
@@ -72,7 +74,7 @@ const renderComponent = (
             isFetched: true,
             isLoggedIn: !!user?.id,
             shouldShowLogin: false,
-            showLogin: jest.fn(),
+            showLogin,
             logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
@@ -142,6 +144,17 @@ it('should render Agentic Hub item linking to agents hub', async () => {
     'href',
     expect.stringContaining('/agents'),
   );
+});
+
+it('should require login before opening following for anonymous users', async () => {
+  renderComponent(defaultAlerts, [createMockFeedSettings()], null);
+  const item = await screen.findByText('Following');
+
+  fireEvent.click(item);
+
+  expect(showLogin).toHaveBeenCalledWith({
+    trigger: 'Following',
+  });
 });
 
 const sidebarItems = [
