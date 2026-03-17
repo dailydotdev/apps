@@ -31,14 +31,14 @@ const CreatePoll = () => {
 
   const onAddOption = () => {
     const opts = draft?.options || [];
-    updateDraft({
+    updateDraft?.({
       ...draft,
       options: [...opts, ''],
     });
   };
 
   const handleTitle = (value: string) => {
-    updateDraft({
+    updateDraft?.({
       ...draft,
       title: value,
     });
@@ -48,7 +48,7 @@ const CreatePoll = () => {
     const newOpts = draft?.options?.map((opt, i) =>
       i === index ? value : opt,
     );
-    updateDraft({
+    updateDraft?.({
       ...draft,
       options: newOpts,
     });
@@ -56,7 +56,7 @@ const CreatePoll = () => {
 
   useEffect(() => {
     if (!isUpdatingDraft && !draft?.options) {
-      updateDraft({
+      updateDraft?.({
         ...draft,
         options: ['', ''],
         duration: 7,

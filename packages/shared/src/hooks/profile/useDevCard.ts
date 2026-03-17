@@ -42,7 +42,7 @@ export const useDevCard = (userId: string): UseDevCard => {
     queryKey: generateQueryKey(RequestKey.DevCard, { id: userId }),
 
     queryFn: async () =>
-      await requestMethod(DEV_CARD_QUERY, {
+      await requestMethod?.(DEV_CARD_QUERY, {
         id: userId,
       }),
     staleTime: StaleTime.Default,

@@ -22,7 +22,7 @@ export const useClaimQuestReward = () => {
 
   return useMutation({
     mutationFn: async ({ userQuestId }: ClaimQuestRewardArgs) => {
-      const result = await requestMethod<ClaimQuestRewardData>(
+      const result = await requestMethod?.<ClaimQuestRewardData>(
         CLAIM_QUEST_REWARD_MUTATION,
         {
           userQuestId,

@@ -54,7 +54,7 @@ export const StreakMilestonePopup = (): ReactElement => {
         currentStreak: streak?.current,
         maxStreak: streak?.max,
         onAfterClose: () => {
-          updateAlerts({ showStreakMilestone: false });
+          updateAlerts?.({ showStreakMilestone: false });
         },
       },
     });

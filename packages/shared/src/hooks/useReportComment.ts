@@ -30,7 +30,7 @@ export default function useReportComment(): UseReportCommentRet {
     ReportCommentProps
   >({
     mutationFn: (variables) =>
-      requestMethod(REPORT_COMMENT_MUTATION, variables),
+      requestMethod?.(REPORT_COMMENT_MUTATION, variables),
   });
 
   const reportComment = async (params: ReportCommentProps) => {

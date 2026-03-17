@@ -41,7 +41,7 @@ function CodeVerificationForm({
         setEmailSent(true);
       },
       onVerifyCodeSuccess: () => {
-        onSubmit();
+        onSubmit?.();
       },
     },
   );

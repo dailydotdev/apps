@@ -325,7 +325,7 @@ export const mutationSuccessSubscribers: Map<
 
 export const globalMutationCache = new MutationCache({
   onSuccess: (...args) => {
-    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
+    mutationSuccessSubscribers.forEach((subscriber) => subscriber?.(...args));
   },
 });
 

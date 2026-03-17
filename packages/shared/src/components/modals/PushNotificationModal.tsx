@@ -41,7 +41,7 @@ const ModalImg = () => {
 function PushNotificationModal(modalProps: ModalProps): ReactElement {
   const { onRequestClose } = modalProps;
   const { onEnablePush } = usePushNotificationMutation({
-    onPopupGranted: () => onRequestClose(null),
+    onPopupGranted: () => onRequestClose?.(null),
   });
 
   const enableNotifications = async () => {

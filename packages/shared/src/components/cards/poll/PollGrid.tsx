@@ -50,8 +50,8 @@ const PollGrid = forwardRef(function PollCard(
     >
       <CardOverlay
         post={post}
-        onPostCardAuxClick={() => onPostAuxClick(post)}
-        onPostCardClick={() => onPostClick(post)}
+        onPostCardAuxClick={() => onPostAuxClick?.(post)}
+        onPostCardClick={() => onPostClick?.(post)}
       />
       <CardTextContainer>
         <SquadPostCardHeader

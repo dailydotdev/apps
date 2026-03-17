@@ -17,7 +17,7 @@ export function ModalTabs({
 }: ModalTabsProps): ReactElement {
   const { activeView, setActiveView, tabs } = useContext(ModalPropsContext);
   const onClick = (tab: string) => {
-    setActiveView(tab);
+    setActiveView?.(tab);
     onTabClick?.(tab);
   };
 

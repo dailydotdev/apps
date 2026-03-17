@@ -36,7 +36,7 @@ function VerifySessionModal({
     queryParams: { refresh: 'true' },
     onSuccessfulLogin: () => {
       onVerified();
-      onRequestClose(null);
+      onRequestClose?.(null);
     },
   });
 

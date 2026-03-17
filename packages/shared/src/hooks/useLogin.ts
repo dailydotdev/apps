@@ -105,7 +105,7 @@ const useLogin = ({
         return;
       }
 
-      const { data: boot } = await refetchBoot();
+      const { data: boot } = await refetchBoot?.();
 
       if (boot.user && !boot.user.shouldVerify) {
         onUpdateSignBack(boot.user as LoggedUser, 'password');
@@ -141,7 +141,7 @@ const useLogin = ({
         return;
       }
 
-      const { data: boot } = await refetchBoot();
+      const { data: boot } = await refetchBoot?.();
 
       if (boot.user && !boot.user.shouldVerify) {
         onUpdateSignBack(boot.user as LoggedUser, 'password');
@@ -233,7 +233,7 @@ const useLogin = ({
     }
 
     if (!session) {
-      const { data: boot } = await refetchBoot();
+      const { data: boot } = await refetchBoot?.();
 
       if (boot.user) {
         onUpdateSignBack(
@@ -256,7 +256,7 @@ const useLogin = ({
       session.authenticated_at !== verified.authenticated_at;
 
     if (hasRenewedSession) {
-      const { data: boot } = await refetchBoot();
+      const { data: boot } = await refetchBoot?.();
 
       if (boot.user) {
         onUpdateSignBack(

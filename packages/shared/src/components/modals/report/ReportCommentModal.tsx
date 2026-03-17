@@ -62,7 +62,7 @@ export function ReportCommentModal({
       onReport(comment);
     }
 
-    props.onRequestClose(event);
+    props.onRequestClose?.(event);
   };
 
   return (

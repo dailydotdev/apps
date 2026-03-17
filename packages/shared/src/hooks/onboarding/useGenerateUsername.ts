@@ -23,7 +23,7 @@ export const useGenerateUsername = (
   }>({
     queryKey: usernameQueryKey,
     queryFn: () =>
-      requestMethod(
+      requestMethod?.(
         GET_USERNAME_SUGGESTION,
         { name },
         { requestKey: JSON.stringify(usernameQueryKey) },

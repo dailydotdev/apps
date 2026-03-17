@@ -36,7 +36,7 @@ const useCommentById = ({
     isLoading,
   } = useQuery<CommentOnData>({
     queryKey: generateQueryKey(RequestKey.Comment, user, id),
-    queryFn: () => requestMethod(query, { id: `${id}` }),
+    queryFn: () => requestMethod?.(query, { id: `${id}` }),
     ...options,
     enabled: !!id && options.enabled,
   });

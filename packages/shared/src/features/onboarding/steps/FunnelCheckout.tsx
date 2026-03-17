@@ -40,7 +40,7 @@ export const FunnelCheckout = ({
 
     currentPriceIdRef.current = priceId;
 
-    openCheckout({
+    openCheckout?.({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,
     });

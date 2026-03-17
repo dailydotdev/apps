@@ -27,7 +27,7 @@ export function RepostsModal({
   const queryResult = useInfiniteQuery({
     queryKey,
     queryFn: ({ pageParam }) =>
-      requestMethod(
+      requestMethod?.(
         query,
         { ...params, after: pageParam },
         { requestKey: JSON.stringify(queryKey) },

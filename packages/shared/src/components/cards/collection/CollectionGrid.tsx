@@ -35,8 +35,8 @@ export const CollectionGrid = forwardRef(function CollectionCard(
 ) {
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
   return (
     <FeedItemContainer

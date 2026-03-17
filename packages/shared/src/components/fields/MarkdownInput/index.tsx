@@ -171,7 +171,7 @@ function MarkdownInput(
   }));
 
   const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
-    onUploadCommand(e.currentTarget.files);
+    onUploadCommand?.(e.currentTarget.files);
 
   const actionButtonSizes = shouldShowSubmit
     ? ButtonSize.Small

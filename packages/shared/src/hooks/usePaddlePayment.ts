@@ -91,7 +91,7 @@ export const usePaddlePayment = ({
 
         switch (event?.name) {
           case CheckoutEventNames.CHECKOUT_PAYMENT_INITIATED:
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.InitiatePayment,
               target_id: event?.data?.payment.method_details.type,
@@ -102,7 +102,7 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_LOADED:
             isCheckoutOpenRef.current = true;
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.InitiateCheckout,
               target_id: event?.data?.payment.method_details.type,
@@ -112,7 +112,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_SELECTED:
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.SelectCheckoutPayment,
               target_id: event?.data?.payment.method_details.type,
@@ -123,7 +123,7 @@ export const usePaddlePayment = ({
             break;
           case CheckoutEventNames.CHECKOUT_COMPLETED:
             isCheckoutOpenRef.current = false;
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.CompleteCheckout,
               extra: JSON.stringify({
@@ -149,7 +149,7 @@ export const usePaddlePayment = ({
             break;
           // This doesn't exist in the original code
           case 'checkout.warning' as CheckoutEventNames:
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.WarningCheckout,
               extra: JSON.stringify({
@@ -158,7 +158,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_ERROR:
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.ErrorCheckout,
               extra: JSON.stringify({
@@ -167,7 +167,7 @@ export const usePaddlePayment = ({
             });
             break;
           case CheckoutEventNames.CHECKOUT_PAYMENT_FAILED:
-            logRef.current({
+            logRef.current?.({
               target_type: targetType,
               event_name: LogEvent.ErrorPayment,
               extra: JSON.stringify({

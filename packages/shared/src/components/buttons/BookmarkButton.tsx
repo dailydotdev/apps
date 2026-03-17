@@ -53,7 +53,7 @@ export function BookmarkButton({
     {
       label: 'Remove bookmark',
       action: (e: React.MouseEvent<HTMLButtonElement>) =>
-        buttonProps.onClick(e),
+        buttonProps.onClick?.(e),
     },
   ];
 

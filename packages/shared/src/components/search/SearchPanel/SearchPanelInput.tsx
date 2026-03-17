@@ -201,14 +201,14 @@ export const SearchPanelInput = ({
             onFocus={(event) => {
               onFocus();
               externalOnFocus?.(event);
-              itemProps.onFocus(event);
+              itemProps.onFocus?.(event);
 
               logEvent({ event_name: LogEvent.FocusSearch });
             }}
             onBlur={(event) => {
               onBlur();
               externalOnBlur?.(event);
-              itemProps.onBlur(event);
+              itemProps.onBlur?.(event);
             }}
             onClick={(event) => {
               onInputClick();

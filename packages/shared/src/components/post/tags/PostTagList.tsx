@@ -81,7 +81,7 @@ const PostTagItem = ({
       <Tooltip content={`Follow #${tag}`}>
         <Button
           icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
-          onClick={() => onFollow(tag)}
+          onClick={() => onFollow?.(tag)}
           size={ButtonSize.XSmall}
         />
       </Tooltip>

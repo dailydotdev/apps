@@ -94,7 +94,7 @@ const useRegistrationListeners = (
       return handleExistingFlow(e.data.flow);
     }
 
-    const bootResponse = await refetchBoot();
+    const bootResponse = await refetchBoot?.();
     const user = bootResponse?.data?.user;
 
     if (!user || !('providers' in user)) {
@@ -173,7 +173,7 @@ function InnerFunnelRegistration({
     if (!isBetterAuth && !isNativeAuthSupported(provider) && !shouldRedirect) {
       windowPopup.current = window.open();
     }
-    onSocialRegistration(provider);
+    onSocialRegistration?.(provider);
   };
 
   useRegistrationListeners(onTransition);

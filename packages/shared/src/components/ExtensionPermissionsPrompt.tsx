@@ -13,15 +13,15 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
   const { refetch: refetchHostPermissions } = useHostStatus();
 
   useEffect(() => {
-    setCurrentPage('/permissions');
+    setCurrentPage?.('/permissions');
 
     return () => {
-      setCurrentPage('/');
+      setCurrentPage?.('/');
     };
   }, [setCurrentPage]);
 
   const handleRequestHostPermissions = async () => {
-    const success = await requestHostPermissions({ origins });
+    const success = await requestHostPermissions?.({ origins });
     if (success) {
       refetchHostPermissions();
     }

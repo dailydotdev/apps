@@ -39,7 +39,7 @@ export const PlusDesktop = ({
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId, quantity }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId, quantity });
+      openCheckout?.({ priceId, giftToUserId, quantity });
     },
     [openCheckout],
   );
@@ -56,7 +56,7 @@ export const PlusDesktop = ({
 
       const { priceId } = giftOneYear;
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId: giftToUser.id });
+      openCheckout?.({ priceId, giftToUserId: giftToUser.id });
 
       return;
     }
@@ -66,7 +66,7 @@ export const PlusDesktop = ({
     // Auto-select if user is not plus or it is organization checkout
     if (option && (!isPlus || isOrganization)) {
       setSelectedOption(option);
-      openCheckout({ priceId: option });
+      openCheckout?.({ priceId: option });
     }
   }, [
     giftOneYear,

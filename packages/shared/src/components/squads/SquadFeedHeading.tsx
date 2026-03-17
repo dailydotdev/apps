@@ -21,8 +21,8 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
 
   const onClick = async () => {
     return collapsePinnedPosts
-      ? await expandSquadPinnedPosts(squad.id)
-      : await collapseSquadPinnedPosts(squad.id);
+      ? await expandSquadPinnedPosts?.(squad.id)
+      : await collapseSquadPinnedPosts?.(squad.id);
   };
 
   const pinnedPostsCount = useMemo(

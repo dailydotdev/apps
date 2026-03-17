@@ -326,7 +326,7 @@ export const BuyCoresProcessing = ({ ...props }: ModalProps): ReactElement => {
           return error?.onRequestClose?.();
         }
 
-        return onCompletion();
+        return onCompletion?.();
       }}
       isDrawerOnMobile
     >
@@ -350,7 +350,7 @@ const BuyCoresMobile = ({ amountNeededCopy }: BuyCoresProps) => {
     }
 
     if (selectedProduct) {
-      openCheckout({ priceId: selectedProduct.id });
+      openCheckout?.({ priceId: selectedProduct.id });
     }
   }, [openCheckout, selectedProduct, paddle]);
 

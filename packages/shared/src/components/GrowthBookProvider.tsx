@@ -74,7 +74,7 @@ export const GrowthBookProvider = ({
   const [ready, setReady] = useState(false);
   const { mutateAsync: sendAllocation } = useMutation({
     mutationFn: async (data: { experimentId: string; variationId: string }) => {
-      const res = await fetchMethod(`${apiUrl}/e/x`, {
+      const res = await fetchMethod?.(`${apiUrl}/e/x`, {
         method: 'POST',
         body: JSON.stringify({
           event_timestamp: new Date(),

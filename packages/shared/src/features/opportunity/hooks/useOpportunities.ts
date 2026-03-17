@@ -32,7 +32,7 @@ export const useOpportunities = ({
       first,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await requestMethod<OpportunitiesData>(
+      const result = await requestMethod?.<OpportunitiesData>(
         OPPORTUNITIES_QUERY,
         {
           state,

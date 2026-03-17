@@ -61,7 +61,7 @@ export const useAdvancedSettings = (
   const onToggleSettings = useCallback(
     (id: number, defaultEnabledState: boolean) => {
       if (alerts?.filter && user) {
-        updateAlerts({ filter: false });
+        updateAlerts?.({ filter: false });
       }
 
       const enabled = !(selectedSettings[id] ?? defaultEnabledState);

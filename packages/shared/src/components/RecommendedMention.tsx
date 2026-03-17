@@ -58,7 +58,7 @@ export function RecommendedMention({
             }}
             imageSize="large"
             tag="li"
-            onClick={() => onClick(user)}
+            onClick={() => onClick?.(user)}
             aria-selected={index === selected}
             role="option"
             disableTooltip

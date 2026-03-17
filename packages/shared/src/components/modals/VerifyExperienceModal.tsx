@@ -151,7 +151,7 @@ function VerifyExperienceModal({
           ? 'Verification successful'
           : 'Verification initiated',
       );
-      onRequestClose(null);
+      onRequestClose?.(null);
     },
     onError: () => displayToast(labels.error.generic),
   });

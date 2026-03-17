@@ -143,7 +143,7 @@ function TabList<T extends string = string>({
               if (isAnchor) {
                 event.preventDefault();
               }
-              onClick(label, event);
+              onClick?.(label, event);
             }}
             {...(isAnchor
               ? {

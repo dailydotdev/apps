@@ -57,7 +57,7 @@ const PlusWebapp = (): ReactElement => {
             if (!element) {
               return;
             }
-            openCheckout({ priceId: selectedOption });
+            openCheckout?.({ priceId: selectedOption });
           }}
         >
           <PlusCheckoutContainer

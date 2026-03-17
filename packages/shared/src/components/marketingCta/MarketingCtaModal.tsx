@@ -36,7 +36,7 @@ export const MarketingCtaModal = ({
     });
 
     clearMarketingCta(campaignId);
-    onRequestClose(param);
+    onRequestClose?.(param);
   };
 
   return (

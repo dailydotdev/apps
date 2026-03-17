@@ -12,7 +12,7 @@ export const useQuestDashboard = () => {
   return useQuery({
     queryKey: generateQueryKey(RequestKey.QuestDashboard, user),
     queryFn: async () => {
-      const result = await requestMethod<QuestDashboardData>(
+      const result = await requestMethod?.<QuestDashboardData>(
         QUEST_DASHBOARD_QUERY,
       );
 

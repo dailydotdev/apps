@@ -90,7 +90,7 @@ export function WriteFreeformContent({
     const { title, content } = formToJson<{ title: string; content: string }>(
       formRef.current,
     );
-    await updateDraft({ title, content, image: draft?.image });
+    await updateDraft?.({ title, content, image: draft?.image });
   };
 
   const [onFormUpdate] = useDebounceFn(onUpdate, 3000);
@@ -116,7 +116,7 @@ export function WriteFreeformContent({
         name="image"
         initialValue={draft?.image ?? fetchedPost?.image}
         onChange={(base64, file) =>
-          updateDraft({
+          updateDraft?.({
             ...draft,
             image: base64,
             filename: file?.name ?? defaultFilename,

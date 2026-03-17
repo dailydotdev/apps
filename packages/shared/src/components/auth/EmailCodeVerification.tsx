@@ -59,7 +59,7 @@ function EmailCodeVerification({
       logEvent({
         event_name: AuthEventNames.VerifiedSuccessfully,
       });
-      onSubmit();
+      onSubmit?.();
     },
   });
 
@@ -88,7 +88,7 @@ function EmailCodeVerification({
         logEvent({
           event_name: AuthEventNames.VerifiedSuccessfully,
         });
-        onSubmit();
+        onSubmit?.();
       } catch (err) {
         verifyingRef.current = false;
         setHint(err instanceof Error ? err.message : 'Verification failed');

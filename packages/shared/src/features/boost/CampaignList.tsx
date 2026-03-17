@@ -65,7 +65,7 @@ export function CampaignList({
         <CampaignListItem
           key={campaign.id}
           campaign={campaign}
-          onClick={() => onClick(campaign)}
+          onClick={() => onClick?.(campaign)}
           className="px-6 py-2"
         />
       ))}

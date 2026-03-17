@@ -119,7 +119,7 @@ export const PollOptionButtons = ({
   return options.map((option) => (
     <button
       disabled={isNullOrUndefined(onClick)}
-      onClick={() => onClick(option.id, option.text)}
+      onClick={() => onClick?.(option.id, option.text)}
       key={option.order}
       type="button"
       className="flex w-full flex-1 items-center justify-center rounded-12 border border-border-subtlest-tertiary p-2 text-center text-text-secondary typo-callout hover:bg-surface-hover"

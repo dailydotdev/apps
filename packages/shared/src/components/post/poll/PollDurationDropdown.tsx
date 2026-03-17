@@ -48,7 +48,7 @@ const PollDurationDropdown = () => {
   );
 
   const handleChange = (index: number) => {
-    updateDraft({ ...draft, duration: options[index].value });
+    updateDraft?.({ ...draft, duration: options[index].value });
     setSelectedIndex(index);
   };
 

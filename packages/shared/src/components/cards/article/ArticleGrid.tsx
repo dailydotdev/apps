@@ -47,8 +47,8 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
 ): ReactElement {
   const { className, style } = domProps;
   const { data } = useBlockPostPanel(post);
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { pinnedAt, trending } = post;
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
@@ -87,8 +87,8 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
       {showFeedback && (
         <FeedbackGrid
           post={post}
-          onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
-          onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
+          onUpvoteClick={() => onUpvoteClick?.(post, Origin.FeedbackCard)}
+          onDownvoteClick={() => onDownvoteClick?.(post, Origin.FeedbackCard)}
           isVideoType={isVideoType}
         />
       )}

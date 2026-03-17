@@ -103,7 +103,7 @@ export const RecruiterSeatsModal = ({
       payload: value,
     });
 
-    onRequestClose(null);
+    onRequestClose?.(null);
 
     onNext();
   });

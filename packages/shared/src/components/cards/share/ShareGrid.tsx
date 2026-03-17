@@ -52,8 +52,8 @@ export const ShareGrid = forwardRef(function ShareGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { pinnedAt, trending } = post;
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const containerRef = useRef<HTMLDivElement>();
   const { title } = useSmartTitle(post);
   const { sharedPost } = post;

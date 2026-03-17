@@ -93,7 +93,7 @@ export const AuthSignBack = ({
           <SignBackButton
             signBack={signBack}
             provider={provider}
-            onClick={() => onProviderClick(provider)}
+            onClick={() => onProviderClick?.(provider)}
           />
         )}
         <div className="flex flex-1" />

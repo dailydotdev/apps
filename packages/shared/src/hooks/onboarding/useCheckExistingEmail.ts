@@ -43,7 +43,7 @@ export const useCheckExistingEmail = ({
         return;
       }
 
-      onValidEmail(emailValue);
+      onValidEmail?.(emailValue);
     },
   });
 
@@ -57,7 +57,7 @@ export const useCheckExistingEmail = ({
 
     if (isBetterAuth) {
       onBeforeEmailCheck?.(emailValue);
-      onValidEmail(emailValue);
+      onValidEmail?.(emailValue);
       onAfterEmailCheck?.(false);
       setEmailAlreadyExists(false);
       setEmailToCheck('');

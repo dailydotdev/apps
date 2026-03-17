@@ -52,7 +52,7 @@ const useReferralCampaign = ({
   const { data, isSuccess, fetchStatus } = useQuery({
     queryKey,
     queryFn: async () => {
-      const result = await requestMethod<{
+      const result = await requestMethod?.<{
         referralCampaign: ReferralCampaign;
       }>(
         REFERRAL_CAMPAIGN_QUERY,

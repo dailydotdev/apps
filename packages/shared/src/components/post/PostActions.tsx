@@ -294,7 +294,7 @@ export function PostActions({
           <div className="group/link-btn">
             <QuaternaryButton
               id="copy-post-btn-post"
-              onClick={() => onCopyLinkClick(post)}
+              onClick={() => onCopyLinkClick?.(post)}
               icon={<LinkIcon />}
               variant={ButtonVariant.Tertiary}
               className={classNames(

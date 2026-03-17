@@ -105,7 +105,7 @@ export const SocialShare = ({
           emailSummary={post?.summary}
           isCopying={copying}
           onCopy={logAndCopyLink}
-          onNativeShare={() => openNativeSharePost(post)}
+          onNativeShare={() => openNativeSharePost?.(post)}
           onClickSocial={logClick}
           emailTitle={emailTitle}
         />

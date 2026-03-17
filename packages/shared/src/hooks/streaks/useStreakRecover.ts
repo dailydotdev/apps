@@ -121,7 +121,7 @@ export const useStreakRecover = ({
   });
 
   const hideRemoteAlert = useCallback(async () => {
-    await updateAlerts({
+    await updateAlerts?.({
       showRecoverStreak: false,
     });
   }, [updateAlerts]);

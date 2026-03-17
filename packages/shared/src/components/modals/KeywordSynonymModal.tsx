@@ -35,7 +35,7 @@ export default function KeywordSynonymModal({
         keywordToUpdate: selectedKeyword.toLowerCase(),
       }),
 
-    onSuccess: () => props.onRequestClose(null),
+    onSuccess: () => props.onRequestClose?.(null),
   });
 
   const emptyResults =

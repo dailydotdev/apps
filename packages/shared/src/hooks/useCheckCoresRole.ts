@@ -15,7 +15,7 @@ export const useCheckCoresRole = (): void => {
   useQuery({
     queryKey: generateQueryKey(RequestKey.CheckCoresRole, user),
     queryFn: async () => {
-      const result = await requestMethod<{
+      const result = await requestMethod?.<{
         checkCoresRole: Pick<LoggedUser, 'coresRole'>;
       }>(CHECK_CORES_ROLE_QUERY);
 

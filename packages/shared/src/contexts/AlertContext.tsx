@@ -69,7 +69,7 @@ export const AlertContextProvider = ({
       gqlClient.request(UPDATE_ALERTS, {
         data: params,
       }),
-    onMutate: (params) => updateAlerts({ ...alerts, ...params }),
+    onMutate: (params) => updateAlerts?.({ ...alerts, ...params }),
 
     onError: (_, params) => {
       const rollback = Object.keys(params).reduce(
@@ -77,7 +77,7 @@ export const AlertContextProvider = ({
         {},
       );
 
-      updateAlerts({ ...alerts, ...rollback });
+      updateAlerts?.({ ...alerts, ...rollback });
     },
   });
 
@@ -89,14 +89,14 @@ export const AlertContextProvider = ({
     mutationFn: () => gqlClient.request(UPDATE_LAST_BOOT_POPUP),
 
     onMutate: () =>
-      updateAlerts({
+      updateAlerts?.({
         ...alerts,
         lastBootPopup: new Date(),
         bootPopup: false,
       }),
 
     onError: () => {
-      updateAlerts({
+      updateAlerts?.({
         ...alerts,
         lastBootPopup: null,
         bootPopup: true,

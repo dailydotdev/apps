@@ -38,7 +38,7 @@ export function useMentionAutocomplete({
     useQuery<RecommendedMentionsData>({
       queryKey: key,
       queryFn: () =>
-        requestMethod(
+        requestMethod?.(
           RECOMMEND_MENTIONS_QUERY,
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },

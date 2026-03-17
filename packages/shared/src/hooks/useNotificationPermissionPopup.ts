@@ -41,7 +41,7 @@ export const useNotificationPermissionPopup = ({
       return;
     }
 
-    onPermissionChange(permission);
+    onPermissionChange?.(permission);
   });
 
   return { onOpenPopup };

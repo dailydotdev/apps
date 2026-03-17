@@ -27,7 +27,7 @@ export function useCopyLink(
   const { getShortUrl } = useGetShortUrl();
 
   const copy: CopyNotifyFunction = async (props = {}) => {
-    const link = props.link || getLink();
+    const link = props.link || getLink?.();
     const shortenLink = props.shorten || shorten;
 
     if (link) {

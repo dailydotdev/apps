@@ -63,7 +63,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       flagProps={{ pinnedAt: post.pinnedAt, type: post.type }}
       linkProps={{
         title: post.title,
-        onClick: () => onPostClick(post),
+        onClick: () => onPostClick?.(post),
         href: post.commentsPermalink,
       }}
       bookmarked={post.bookmarked}

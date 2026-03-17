@@ -45,12 +45,12 @@ export const AchievementSyncPromptModal = ({
     logEvent({
       event_name: LogEvent.DismissAchievementSyncPrompt,
     });
-    onRequestClose(event);
+    onRequestClose?.(event);
   };
 
   const handleSync = (event: MouseEvent) => {
     completePromptAction();
-    onRequestClose(event);
+    onRequestClose?.(event);
     onSync();
   };
 

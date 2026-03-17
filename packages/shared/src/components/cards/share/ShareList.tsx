@@ -49,7 +49,7 @@ export const ShareList = forwardRef(function ShareList(
 ): ReactElement {
   const { pinnedAt, trending, type } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const { sharedPost } = post;

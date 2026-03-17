@@ -48,17 +48,17 @@ export const CookieConsentModal = ({
     );
     onAcceptCookies(acceptedConsents, rejectedConsents);
 
-    onRequestClose(null);
+    onRequestClose?.(null);
   };
 
   const onAcceptAll = (e: React.MouseEvent) => {
     onAcceptCookies(otherGdprConsents);
-    onRequestClose(e);
+    onRequestClose?.(e);
   };
 
   const onRejectAll = (e: React.MouseEvent) => {
     onAcceptCookies(); // this will accept just the necessary ones
-    onRequestClose(e);
+    onRequestClose?.(e);
   };
 
   return (

@@ -123,7 +123,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             }
 
             if (isMobile) {
-              setActiveView(undefined);
+              setActiveView?.(undefined);
             } else {
               onBackToFeed({ action: 'discard' });
             }

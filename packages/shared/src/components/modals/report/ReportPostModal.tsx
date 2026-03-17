@@ -173,7 +173,7 @@ export function ReportPostModal({
       onReported(post, { index, shouldBlockSource: inputRef.current?.checked });
     }
 
-    props.onRequestClose(event);
+    props.onRequestClose?.(event);
   };
 
   return (

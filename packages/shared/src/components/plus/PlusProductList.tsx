@@ -44,7 +44,7 @@ const PlusProductList = ({
           value={priceId}
           checked={selected === priceId}
           onChange={() => {
-            onChange(priceId);
+            onChange?.(priceId);
             logSubscriptionEvent({
               event_name: LogEvent.SelectBillingCycle,
               target_id: metadata.title.toLowerCase(),

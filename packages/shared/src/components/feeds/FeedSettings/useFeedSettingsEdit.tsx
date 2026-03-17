@@ -293,7 +293,7 @@ export const useFeedSettingsEdit = ({
   useEffect(() => {
     return () => {
       // cleanup on discard or navigation without save
-      cleanupRef.current();
+      cleanupRef.current?.();
     };
   }, []);
 

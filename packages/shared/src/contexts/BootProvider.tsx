@@ -157,7 +157,7 @@ export const BootDataProvider = ({
       applyTheme(themeModes[boot.settings.theme]);
     }
 
-    preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
+    preloadFeedsRef.current?.({ feeds: boot.feeds, user: boot.user });
 
     setCachedBootData(boot);
   }, [localBootData]);
@@ -180,7 +180,7 @@ export const BootDataProvider = ({
     queryFn: async () => {
       const pathname = globalThis?.location?.pathname;
       const result = await getBootData({ app, pathname });
-      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
+      preloadFeedsRef.current?.({ feeds: result.feeds, user: result.user });
 
       return result;
     },

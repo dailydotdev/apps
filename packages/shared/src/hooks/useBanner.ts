@@ -37,7 +37,7 @@ export function useBanner(): UseBanner {
     mutationFn: () => {
       const currentDate = new Date();
 
-      return updateAlerts({
+      return updateAlerts?.({
         lastBanner: currentDate.toISOString(),
       });
     },

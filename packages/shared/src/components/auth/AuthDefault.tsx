@@ -113,7 +113,7 @@ const AuthDefault = ({
     }
 
     if (isBetterAuth) {
-      return onSignup(email);
+      return onSignup?.(email);
     }
 
     const res = await checkEmail(email);
@@ -126,7 +126,7 @@ const AuthDefault = ({
       return setShouldLogin(true);
     }
 
-    return onSignup(email);
+    return onSignup?.(email);
   };
 
   const onSocialClick = (provider: string) => {

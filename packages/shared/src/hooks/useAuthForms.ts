@@ -39,13 +39,13 @@ const useAuthForms = ({ onDiscard }: UseAuthFormsProps = {}): UseAuthForms => {
     e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,
   ) => {
     if (await showPrompt(promptOptions)) {
-      onDiscard(e);
+      onDiscard?.(e);
     }
   };
 
   const onDiscardAttempt: CloseAuthModalFunc = (e, forceClose = false) => {
     if (forceClose || !formRef?.current) {
-      return onDiscard(e, forceClose);
+      return onDiscard?.(e, forceClose);
     }
     return openPrompt(e);
   };

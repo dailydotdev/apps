@@ -28,7 +28,7 @@ export const useOpportunityMatches = ({
       status,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await requestMethod<OpportunityMatchesData>(
+      const result = await requestMethod?.<OpportunityMatchesData>(
         OPPORTUNITY_MATCHES_QUERY,
         {
           opportunityId,

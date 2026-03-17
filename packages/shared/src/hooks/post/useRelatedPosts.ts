@@ -56,7 +56,7 @@ export const useRelatedPosts = ({
       type: relationType,
     }),
     queryFn: async ({ pageParam }) => {
-      const result = await requestMethod<{
+      const result = await requestMethod?.<{
         relatedPosts: RelatedPostsQueryData;
       }>(RELATED_POSTS_QUERY, {
         id: postId,

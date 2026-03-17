@@ -29,7 +29,7 @@ function MarkdownPreview({
     queryKey: query,
 
     queryFn: () =>
-      requestMethod(
+      requestMethod?.(
         PREVIEW_COMMENT_MUTATION,
         { content: input, sourceId },
         { requestKey: isCompanion ? JSON.stringify(query) : undefined },

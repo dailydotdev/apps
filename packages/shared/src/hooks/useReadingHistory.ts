@@ -51,7 +51,7 @@ function useReadingHistory(key: QueryKey): UseReadingHistoryReturn {
           },
         );
     },
-    onError: (_, __, rollback) => rollback(),
+    onError: (_, __, rollback) => rollback?.(),
   });
 
   return { hideReadHistory };

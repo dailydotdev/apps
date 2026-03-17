@@ -182,7 +182,7 @@ export const SettingsContextProvider = ({
         {},
       );
 
-      updateSettings({ ...settings, ...rollback });
+      updateSettings?.({ ...settings, ...rollback });
     },
   });
 
@@ -218,7 +218,7 @@ export const SettingsContextProvider = ({
   };
 
   const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
-    updateSettings({ ...settings, ...newSettings });
+    updateSettings?.({ ...settings, ...newSettings });
     await updateRemoteSettingsFn(newSettings);
   };
 

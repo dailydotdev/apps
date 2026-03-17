@@ -245,7 +245,7 @@ export const useOrganization = (
       message: 'The organization member seat has been toggled',
       callback: async ({ memberId }) => {
         if (memberId === user.id) {
-          await refetchBoot();
+          await refetchBoot?.();
         }
       },
     }),
@@ -271,7 +271,7 @@ export const useOrganization = (
         queryClient.invalidateQueries({
           queryKey: generateQueryKey(RequestKey.Organizations, user),
         });
-        await refetchBoot();
+        await refetchBoot?.();
         router.replace(`${settingsUrl}/organization`);
       },
       onError,
@@ -284,7 +284,7 @@ export const useOrganization = (
       onSuccess: onSuccess({
         callback: async () => {
           router.push(getOrganizationSettingsUrl(organizationId, 'members'));
-          await refetchBoot();
+          await refetchBoot?.();
         },
       }),
       onError,

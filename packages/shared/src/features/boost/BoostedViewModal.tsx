@@ -61,7 +61,7 @@ export function BoostedViewModal({
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { showPrompt } = usePrompt();
-  const callbackFn = onBack || (() => props.onRequestClose(null));
+  const callbackFn = onBack || (() => props.onRequestClose?.(null));
   const { onCancelBoost, isLoadingCancel } = useCampaignMutation({
     onCancelSuccess: (data) => {
       if (!data.transactionId) {
@@ -122,7 +122,7 @@ export function BoostedViewModal({
       return onCancelBoost(campaign.id);
     }
 
-    return onBoostAgain(campaign);
+    return onBoostAgain?.(campaign);
   };
 
   return (

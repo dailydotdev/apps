@@ -92,14 +92,14 @@ const RegistrationForm = ({
   logRef.current = logEvent;
 
   useEffect(() => {
-    logRef.current({
+    logRef.current?.({
       event_name: AuthEventNames.StartSignUpForm,
     });
   }, []);
 
   useEffect(() => {
     if (Object.keys(hints).length) {
-      logRef.current({
+      logRef.current?.({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({ error: hints }),
       });
@@ -117,7 +117,7 @@ const RegistrationForm = ({
 
     const turnstileLoadTimeout = setTimeout(() => {
       if (!turnstileLoaded) {
-        logRef.current({
+        logRef.current?.({
           event_name: AuthEventNames.TurnstileLoadError,
         });
         setTurnstileErrorLoading(true);
@@ -134,7 +134,7 @@ const RegistrationForm = ({
     onValidEmail: () => null,
     onAfterEmailCheck: (emailExists) => {
       if (emailExists) {
-        logRef.current({
+        logRef.current?.({
           event_name: AuthEventNames.OpenLogin,
           extra: JSON.stringify({ trigger }),
           target_id: targetId,
@@ -151,7 +151,7 @@ const RegistrationForm = ({
     }
 
     setTurnstileError(false);
-    logRef.current({
+    logRef.current?.({
       event_name: AuthEventNames.SubmitSignUpForm,
     });
 
@@ -183,12 +183,12 @@ const RegistrationForm = ({
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
       }
 
-      onUpdateHints(setHints);
+      onUpdateHints?.(setHints);
       return;
     }
 
     if (!turnstileRef?.current?.getResponse()) {
-      logRef.current({
+      logRef.current?.({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
@@ -212,11 +212,11 @@ const RegistrationForm = ({
         updatedHints['traits.username'] = error.username;
       }
 
-      onUpdateHints(updatedHints);
+      onUpdateHints?.(updatedHints);
       return;
     }
 
-    onSignup({
+    onSignup?.({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
       // Set experience level to "not an engineer" for recruiters
@@ -347,7 +347,7 @@ const RegistrationForm = ({
           onBlur={(e) => setName(e.target.value)}
           valueChanged={() =>
             hints?.['traits.name'] &&
-            onUpdateHints({ ...hints, 'traits.name': '' })
+            onUpdateHints?.({ ...hints, 'traits.name': '' })
           }
           rightIcon={
             isNameValid && (
@@ -388,7 +388,7 @@ const RegistrationForm = ({
           }
           valueChanged={() =>
             hints?.['traits.username'] &&
-            onUpdateHints({ ...hints, 'traits.username': '' })
+            onUpdateHints?.({ ...hints, 'traits.username': '' })
           }
           rightIcon={usernameIcon}
         />
@@ -400,7 +400,7 @@ const RegistrationForm = ({
             hint={hints?.['traits.experienceLevel']}
             onChange={() =>
               hints?.['traits.experienceLevel'] &&
-              onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+              onUpdateHints?.({ ...hints, 'traits.experienceLevel': '' })
             }
             saveHintSpace
           />

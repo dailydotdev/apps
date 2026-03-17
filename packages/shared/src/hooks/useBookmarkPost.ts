@@ -141,7 +141,7 @@ const useBookmarkPost = ({
       ? [...bookmarkMutationKey, ...mutationKey]
       : bookmarkMutationKey,
     mutationFn: ({ mutation, payload }: UseBookmarkPostMutationProps) =>
-      requestMethod(mutation, {
+      requestMethod?.(mutation, {
         ...payload,
       }),
     onMutate: onMutate || defaultOnMutate,

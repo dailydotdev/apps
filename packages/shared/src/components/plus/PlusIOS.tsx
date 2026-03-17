@@ -78,7 +78,7 @@ export const PlusIOS = ({
     logSubscriptionEvent({
       event_name: LogEvent.InitiateCheckout,
     });
-    openCheckout({ priceId: selectedOption });
+    openCheckout?.({ priceId: selectedOption });
   }, [logSubscriptionEvent, openCheckout, selectedOption]);
 
   useEffect(() => {

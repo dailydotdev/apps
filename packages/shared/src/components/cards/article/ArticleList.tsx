@@ -120,8 +120,8 @@ export const ArticleList = forwardRef(function ArticleList(
       {showFeedback ? (
         <FeedbackList
           post={post}
-          onUpvoteClick={() => onUpvoteClick(post, Origin.FeedbackCard)}
-          onDownvoteClick={() => onDownvoteClick(post, Origin.FeedbackCard)}
+          onUpvoteClick={() => onUpvoteClick?.(post, Origin.FeedbackCard)}
+          onDownvoteClick={() => onDownvoteClick?.(post, Origin.FeedbackCard)}
           isVideoType={isVideoType}
         />
       ) : (

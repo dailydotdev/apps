@@ -53,7 +53,7 @@ export const useControlledImageUpload = ({
     const { validFiles, errors } = validateFiles(files);
 
     if (errors.length) {
-      onError(errors);
+      onError?.(errors);
       return;
     }
 

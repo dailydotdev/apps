@@ -46,7 +46,7 @@ function LoginForm({
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = formToJson<LoginFormParams>(e.currentTarget);
-    onPasswordLogin(form);
+    onPasswordLogin?.(form);
   };
   const [shouldFocus, setShouldFocus] = useState(autoFocus);
   const [innerEmail, setInnerEmail] = useState(email || '');

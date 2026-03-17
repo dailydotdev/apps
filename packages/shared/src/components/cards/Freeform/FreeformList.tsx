@@ -47,7 +47,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);

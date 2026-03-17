@@ -197,7 +197,7 @@ export default function MainComment({
           post={props.post}
           onCommented={(...params) => {
             onEdit(null);
-            onCommented(...params);
+            onCommented?.(...params);
           }}
           onClose={() => onEdit(null)}
           className={{ input: className?.commentBox }}
@@ -210,7 +210,7 @@ export default function MainComment({
             post={props.post}
             onCommented={(...params) => {
               onReplyTo(null);
-              onCommented(...params);
+              onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
             className={{ input: className?.commentBox }}

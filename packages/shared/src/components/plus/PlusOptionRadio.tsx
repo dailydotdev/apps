@@ -44,7 +44,7 @@ export function PlusOptionRadio({
       id={`${metadata.title}-${priceId}`}
       value={priceId}
       checked={checked}
-      onChange={() => onChange(priceId)}
+      onChange={() => onChange?.(priceId)}
       className={{
         content: classNames(
           'min-h-12 rounded-10 !p-2',

@@ -119,7 +119,7 @@ export default function useTagAndSource({
         extra: JSON.stringify({ origin, feed_id: feedId }),
       });
       if (alerts?.filter && user && shouldUpdateAlerts) {
-        updateAlerts({ filter: false, myFeed: 'created' });
+        updateAlerts?.({ filter: false, myFeed: 'created' });
       }
       await followTags({ tags });
 

@@ -43,7 +43,7 @@ export function CreateSharedPostModal({
   const onSuccess = () => {
     onSharedSuccessfully?.();
     onSubmitted();
-    onRequestClose(null);
+    onRequestClose?.(null);
   };
   const {
     getLinkPreview,

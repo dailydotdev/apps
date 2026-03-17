@@ -140,7 +140,7 @@ export function SquadMemberModal({
               key={`squad_option_${user.id}`}
               member={members[index]}
               onUnblock={() =>
-                onUnblock({ sourceId: squad.id, memberId: user.id })
+                onUnblock?.({ sourceId: squad.id, memberId: user.id })
               }
             />
           ),

@@ -32,7 +32,7 @@ export const JobOpportunityModal = ({
 
   const onClick = (event: MouseEvent) => {
     logOpportunityNudgeClick();
-    onRequestClose(event);
+    onRequestClose?.(event);
   };
 
   return (

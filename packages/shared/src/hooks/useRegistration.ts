@@ -168,7 +168,7 @@ const useRegistration = ({
       }
 
       if (redirect) {
-        return onRedirect(redirect);
+        return onRedirect?.(redirect);
       }
 
       // If it's native auth, we can proceed by simulating the callback page
@@ -327,7 +327,7 @@ const useRegistration = ({
         }),
       });
       displayToast('An error occurred, please refresh the page.');
-      onRedirectFail();
+      onRedirectFail?.();
       return;
     }
 

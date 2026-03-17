@@ -112,7 +112,7 @@ export const BootPopups = (): ReactElement => {
         persistOnRouteChange: true,
         props: {
           onAfterClose: () => {
-            updateLastBootPopup();
+            updateLastBootPopup?.();
           },
         },
       });
@@ -140,7 +140,7 @@ export const BootPopups = (): ReactElement => {
             });
           },
           onAfterClose: () => {
-            updateLastBootPopup();
+            updateLastBootPopup?.();
           },
         },
       });
@@ -158,7 +158,7 @@ export const BootPopups = (): ReactElement => {
             });
           },
           onAfterClose: () => {
-            updateLastBootPopup();
+            updateLastBootPopup?.();
           },
         },
       });
@@ -205,7 +205,7 @@ export const BootPopups = (): ReactElement => {
       type: LazyModal.GenericReferral,
       props: {
         onAfterOpen: () => {
-          updateLastBootPopup();
+          updateLastBootPopup?.();
         },
         isDrawerOnMobile: true,
       },
@@ -282,8 +282,8 @@ export const BootPopups = (): ReactElement => {
       props: {
         origin: Origin.Boot,
         onAfterClose: () => {
-          updateAlerts({ showTopReader: false });
-          updateLastBootPopup();
+          updateAlerts?.({ showTopReader: false });
+          updateLastBootPopup?.();
         },
       },
     });
@@ -311,7 +311,7 @@ export const BootPopups = (): ReactElement => {
       props: {
         achievementId: alerts.showAchievementUnlock,
         onAfterClose: () => {
-          updateAlerts({ showAchievementUnlock: null });
+          updateAlerts?.({ showAchievementUnlock: null });
         },
       },
     });
@@ -335,8 +335,8 @@ export const BootPopups = (): ReactElement => {
       props: {
         opportunityId: alerts.opportunityId,
         onAfterClose: () => {
-          updateHasSeenOpportunity();
-          updateLastBootPopup();
+          updateHasSeenOpportunity?.();
+          updateLastBootPopup?.();
         },
       },
     });

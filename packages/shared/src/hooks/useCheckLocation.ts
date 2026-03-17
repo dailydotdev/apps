@@ -12,7 +12,7 @@ export const useCheckLocation = (): void => {
   useQuery({
     queryKey: generateQueryKey(RequestKey.CheckLocation, user),
     queryFn: async () => {
-      const result = await requestMethod<{
+      const result = await requestMethod?.<{
         location: Pick<LoggedUser, 'hasLocationSet'>;
       }>(CHECK_LOCATION_QUERY);
       await updateUser({

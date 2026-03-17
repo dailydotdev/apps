@@ -64,7 +64,7 @@ export const usePostMenuActions = ({
   const { showPrompt } = usePrompt();
   const { mutateAsync: onDeletePost } = useMutation({
     mutationFn: ({ id }: DeletePostProps) => deletePost(id),
-    onSuccess: (_, vars) => onPostDeleted(vars),
+    onSuccess: (_, vars) => onPostDeleted?.(vars),
   });
   const deletePostPrompt = useCallback(async () => {
     const param = { id: post.id, index: postIndex, post };

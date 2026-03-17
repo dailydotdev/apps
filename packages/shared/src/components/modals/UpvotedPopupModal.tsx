@@ -25,7 +25,7 @@ export function UpvotedPopupModal({
   const queryResult = useInfiniteQuery({
     queryKey,
     queryFn: ({ pageParam }) =>
-      requestMethod(
+      requestMethod?.(
         query,
         { ...params, after: pageParam },
         { requestKey: JSON.stringify(queryKey) },

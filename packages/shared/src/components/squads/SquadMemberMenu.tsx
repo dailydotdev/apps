@@ -174,7 +174,7 @@ export default function SquadMemberMenu({
       return;
     }
 
-    await onUpdateRole({
+    await onUpdateRole?.({
       sourceId: squad.id,
       memberId: member.user.id,
       role,

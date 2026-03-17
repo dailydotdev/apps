@@ -84,8 +84,8 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
     </>
   );
 
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
   return (
     <FeedItemContainer

@@ -37,7 +37,7 @@ export default function useReportPost(): UseReportPostRet {
     unknown,
     ReportPostProps
   >({
-    mutationFn: (variables) => requestMethod(REPORT_POST_MUTATION, variables),
+    mutationFn: (variables) => requestMethod?.(REPORT_POST_MUTATION, variables),
   });
 
   const { mutateAsync: hidePostAsync } = useMutation<void, unknown, string>({

@@ -87,7 +87,7 @@ export function useChangelog(): UseChangelog {
     mutationFn: () => {
       const currentDate = new Date();
 
-      return updateAlerts({
+      return updateAlerts?.({
         lastChangelog: currentDate.toISOString(),
       });
     },

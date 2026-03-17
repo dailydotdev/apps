@@ -429,7 +429,7 @@ const SuccessScreen = () => {
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={() => {
-              onRequestClose(undefined);
+              onRequestClose?.(undefined);
             }}
           >
             Close

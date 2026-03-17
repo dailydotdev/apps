@@ -23,7 +23,7 @@ export const useLogOpportunityNudgeImpression = (
       return;
     }
 
-    logRef.current({
+    logRef.current?.({
       event_name: LogEvent.ImpressionOpportunityNudge,
       target_id: targetId,
       extra: logExtraPayload,

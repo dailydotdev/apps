@@ -139,7 +139,7 @@ export const SocialRegistrationForm = ({
       provider as SignBackProvider,
     );
     const { file, optOutMarketing, ...rest } = values;
-    onSignup({ ...rest, acceptedMarketing: !optOutMarketing });
+    onSignup?.({ ...rest, acceptedMarketing: !optOutMarketing });
   };
 
   const emailFieldIcon = (providerI: string) => {
@@ -225,7 +225,7 @@ export const SocialRegistrationForm = ({
           }
           onBlur={(e) => setUsername(e.target.value)}
           valueChanged={() =>
-            hints?.[username] && onUpdateHints({ ...hints, username: '' })
+            hints?.[username] && onUpdateHints?.({ ...hints, username: '' })
           }
           rightIcon={isLoadingUsername ? <Loader /> : null}
         />

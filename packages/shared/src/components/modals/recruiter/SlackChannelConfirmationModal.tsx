@@ -44,7 +44,7 @@ export const SlackChannelConfirmationModal = ({
         channelName,
         opportunityId,
       });
-      onRequestClose(null);
+      onRequestClose?.(null);
     } catch (err) {
       setError(
         err?.response?.errors?.[0]?.message ||
@@ -101,7 +101,7 @@ export const SlackChannelConfirmationModal = ({
       <Modal.Footer className="flex gap-3 p-6">
         <Button
           variant={ButtonVariant.Secondary}
-          onClick={() => onRequestClose(null)}
+          onClick={() => onRequestClose?.(null)}
           disabled={isCreating}
           className="flex-1"
         >

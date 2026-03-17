@@ -21,7 +21,7 @@ function InnerFunnelProfileForm({
   const { user, refetchBoot } = useAuthContext();
   const { updateUserProfile, hint, onUpdateHint } = useProfileForm({
     onSuccess: async () => {
-      await refetchBoot();
+      await refetchBoot?.();
       onTransition({ type: FunnelStepTransitionType.Complete });
     },
   });

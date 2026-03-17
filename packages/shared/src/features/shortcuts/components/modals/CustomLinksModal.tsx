@@ -41,7 +41,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   useEffect(() => {
     document.body.classList.add('hidden-scrollbar');
 
-    logRef.current({
+    logRef.current?.({
       event_name: LogEvent.OpenShortcutConfig,
       target_type: TargetType.Shortcuts,
     });

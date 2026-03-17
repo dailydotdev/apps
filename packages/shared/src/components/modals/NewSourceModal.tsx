@@ -221,7 +221,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
 
   const onNotificationClose = async (e: React.MouseEvent) => {
     await setIsDismissed(true);
-    onRequestClose(e);
+    onRequestClose?.(e);
   };
 
   const modalProps: ModalProps = {

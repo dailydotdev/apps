@@ -169,7 +169,7 @@ function AuthOptionsInner({
   const windowPopup = useRef<Window | null>(null);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
-    onAuthStateUpdate({ isLoading: true });
+    onAuthStateUpdate?.({ isLoading: true });
     const isOnboardingPage = router?.pathname?.startsWith('/onboarding');
 
     if (isOnboardingPage) {
@@ -196,7 +196,7 @@ function AuthOptionsInner({
       }
     }
 
-    onAuthStateUpdate({ isLoading: false });
+    onAuthStateUpdate?.({ isLoading: false });
     return false;
   };
 
@@ -214,7 +214,7 @@ function AuthOptionsInner({
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
@@ -228,7 +228,7 @@ function AuthOptionsInner({
   ) => {
     setIsRegistration(true);
     const { redirect, setSignBack = true } = options;
-    const { data } = await refetchBoot();
+    const { data } = await refetchBoot?.();
 
     const isLoggedUser = 'infoConfirmed' in data.user;
     if (!isLoggedUser) {
@@ -315,7 +315,7 @@ function AuthOptionsInner({
       // Check for claimable items on login (e.g., Plus subscription)
       claimClaimableItem().then((hasClaimed) => {
         if (hasClaimed) {
-          refetchBoot();
+          refetchBoot?.();
         }
       });
 
@@ -389,7 +389,7 @@ function AuthOptionsInner({
       windowPopup.current = window.open();
     }
     await setChosenProvider(provider);
-    await onSocialRegistration(provider);
+    await onSocialRegistration?.(provider);
     onAuthStateUpdate?.({ isLoading: true });
   };
 
@@ -404,7 +404,7 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async () => {
-    const { data: boot } = await refetchBoot();
+    const { data: boot } = await refetchBoot?.();
 
     if (!boot.user || !('email' in boot.user)) {
       logEvent({
@@ -435,7 +435,7 @@ function AuthOptionsInner({
     }
 
     await setChosenProvider(chosenProvider || 'password');
-    onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
+    onAuthStateUpdate?.({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
 
@@ -593,13 +593,13 @@ function AuthOptionsInner({
                 : undefined
             }
             onBackToIntro={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: undefined,
                 defaultDisplay: AuthDisplay.OnboardingSignup,
               });
             }}
             onExistingEmailLoginClick={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isLoginFlow: true,
               });
               setActiveDisplay(AuthDisplay.Default);
@@ -620,20 +620,20 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
               });
             }}
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
                 defaultDisplay: AuthDisplay.Registration,
               });
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 isLoginFlow: true,
                 email: existingEmail,

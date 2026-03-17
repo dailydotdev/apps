@@ -23,11 +23,11 @@ export default function useLogPageView(): MutableRefObject<() => void> {
   }, [logEventStart, logEventEnd]);
 
   useEffect(() => {
-    const handleRouteChange = () => routeChangedCallbackRef.current();
+    const handleRouteChange = () => routeChangedCallbackRef.current?.();
     router.events.on('routeChangeComplete', handleRouteChange);
 
     const handleLifecycle = (event: CustomEvent) =>
-      lifecycleCallbackRef.current(event);
+      lifecycleCallbackRef.current?.(event);
     window.addEventListener('statechange', handleLifecycle);
 
     return () => {

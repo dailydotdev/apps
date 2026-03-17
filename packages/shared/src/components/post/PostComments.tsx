@@ -69,7 +69,7 @@ export function PostComments({
       queryKey,
 
       queryFn: () =>
-        requestMethod(
+        requestMethod?.(
           POST_COMMENTS_QUERY,
           { postId: id, [initialDataKey]: comments, first: 500, sortBy },
           { requestKey: JSON.stringify(queryKey) },

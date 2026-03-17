@@ -57,7 +57,7 @@ function CustomStreaksTooltip({
         className: 'border border-border-subtlest-tertiary rounded-16',
       }}
       content={<ReadingStreakPopup streak={streak} />}
-      onClickOutside={() => setShouldShowStreaks(false)}
+      onClickOutside={() => setShouldShowStreaks?.(false)}
     >
       {children}
     </SimpleTooltip>

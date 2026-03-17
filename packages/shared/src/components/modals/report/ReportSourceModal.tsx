@@ -69,7 +69,7 @@ export function ReportSourceModal({
       }
 
       onReported?.();
-      onRequestClose(null);
+      onRequestClose?.(null);
     },
   });
 

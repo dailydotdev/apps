@@ -63,7 +63,7 @@ export default function ShareModal({
     const { scrollTop } = currentTarget;
 
     if (scrollTop === 0) {
-      onRequestClose(e.event as React.MouseEvent);
+      onRequestClose?.(e.event as React.MouseEvent);
     }
   };
 
@@ -90,7 +90,7 @@ export default function ShareModal({
           columns={columns}
           column={column}
           row={row}
-          onClose={() => onRequestClose(null)}
+          onClose={() => onRequestClose?.(null)}
           parentSelector={parentSelector}
           shareToSquadState={squadState}
         />
