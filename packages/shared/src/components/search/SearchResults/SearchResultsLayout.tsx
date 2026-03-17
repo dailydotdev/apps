@@ -20,6 +20,7 @@ import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
 import { featureFeedLayoutV2 } from '../../../lib/featureManagement';
+import { AskSearchBanner } from '../../notifications/AskSearchBanner';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -122,6 +123,7 @@ export const SearchResultsLayout = (
           </div>
         </div>
         <PageWidgets className="py-5">
+          <AskSearchBanner />
           <SearchResultsTags
             isLoading={isTagsLoading}
             items={tags}
