@@ -10,14 +10,10 @@ import {
 import type { SourceTooltip } from '../../../graphql/sources';
 import { largeNumberFormat } from '../../../lib';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/Button';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
+import EnableNotificationsCta from './EnableNotificationsCta';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
 import {
   ContentPreferenceStatus,
@@ -27,7 +23,6 @@ import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
-import { BellIcon } from '../../icons';
 
 type SourceEntityCardProps = {
   source?: SourceTooltip;
@@ -141,35 +136,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           </Typography>
         </div>
         {showNotificationCta && !haveNotificationsOn && (
-          <div className="flex w-full items-center gap-2 rounded-8 bg-surface-float px-3 py-2">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="flex-1"
-            >
-              Get notified about new posts
-            </Typography>
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              color={ButtonColor.Cabbage}
-              icon={<BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />}
-              onClick={handleTurnOn}
-            >
-              Enable
-            </Button>
-            <style>
-              {`
-                @keyframes enable-notification-bell-ring {
-                  0%, 100% { transform: rotate(0deg); }
-                  20% { transform: rotate(-16deg); }
-                  40% { transform: rotate(14deg); }
-                  60% { transform: rotate(-10deg); }
-                  80% { transform: rotate(8deg); }
-                }
-              `}
-            </style>
-          </div>
+          <EnableNotificationsCta onEnable={handleTurnOn} />
         )}
       </div>
     </EntityCard>

@@ -12,6 +12,7 @@ import { FooterLinks } from '../footer';
 import type { UserShortProfile } from '../../lib/user';
 import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
+import { UserVote } from '../../graphql/posts';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 
@@ -63,6 +64,9 @@ export function PostWidgets({
           }}
           handle={post.source.handle}
           origin={origin}
+          showNotificationCtaOnJoin
+          showNotificationCtaOnUpvote
+          isSquadPostUpvoted={post.userState?.vote === UserVote.Up}
         />
       ) : (
         <SourceEntityCard
@@ -78,6 +82,9 @@ export function PostWidgets({
             container: cardClasses,
           }}
           user={creator as UserShortProfile}
+          showNotificationCtaOnFollow
+          showNotificationCtaOnUpvote
+          isAuthorPostUpvoted={post.userState?.vote === UserVote.Up}
         />
       )}
       <PostSidebarAdWidget

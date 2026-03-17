@@ -273,6 +273,7 @@ export default function Feed<T>({
     forceBottomHeroFromUrl || forceInFeedHeroFromUrl,
   );
   const [isHeroDismissed, setIsHeroDismissed] = useState(false);
+  const [isTopHeroDismissed, setIsTopHeroDismissed] = useState(false);
   const {
     items,
     updatePost,
@@ -492,6 +493,7 @@ export default function Feed<T>({
   useEffect(() => {
     if (!shouldShowReadingReminder) {
       setIsHeroDismissed(false);
+      setIsTopHeroDismissed(false);
     }
   }, [shouldShowReadingReminder]);
 
@@ -506,6 +508,14 @@ export default function Feed<T>({
       openSharePost({ post, columns: virtualizedNumCards, column, row }),
     [openSharePost, virtualizedNumCards],
   );
+  const onEnableInFeedHero = useCallback(async () => {
+    await onEnable();
+    setIsHeroDismissed(true);
+  }, [onEnable]);
+  const onEnableTopHero = useCallback(async () => {
+    await onEnable();
+    setIsTopHeroDismissed(true);
+  }, [onEnable]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -593,25 +603,6 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
-  const FeedWrapperComponent = isSearchPageLaptop
-    ? SearchResultsLayout
-    : FeedContainer;
-  const containerProps = isSearchPageLaptop
-    ? {}
-    : {
-        header,
-        inlineHeader,
-        className,
-        showSearch: showSearch && isValidFeed,
-        shortcuts,
-        actionButtons,
-        isHorizontal,
-        feedContainerRef,
-        showBriefCard,
-        disableListFrame,
-        disableListWidthConstraint,
-      };
-
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
@@ -629,11 +620,42 @@ export default function Feed<T>({
     hasScrolledForHero &&
     !isHeroDismissed &&
     items.length > HERO_INSERT_INDEX;
+  const shouldShowTopHero =
+    forceTopHeroFromUrl &&
+    !forceSideMenuPromptFromUrl &&
+    !forceInFeedHeroFromUrl &&
+    !forceBottomHeroFromUrl &&
+    !forcePopupNotificationCtaFromUrl &&
+    !forceNotificationCtaFromUrl &&
+    !isTopHeroDismissed;
 
-  const onEnableInFeedHero = useCallback(async () => {
-    await onEnable();
-    setIsHeroDismissed(true);
-  }, [onEnable]);
+  const FeedWrapperComponent = isSearchPageLaptop
+    ? SearchResultsLayout
+    : FeedContainer;
+  const containerProps = isSearchPageLaptop
+    ? {}
+    : {
+        topContent: shouldShowTopHero && (
+          <TopHero
+            className="pt-2"
+            variant="default"
+            applyFeedWidthConstraint={false}
+            onCtaClick={onEnableTopHero}
+            onClose={() => setIsTopHeroDismissed(true)}
+          />
+        ),
+        header,
+        inlineHeader,
+        className,
+        showSearch: showSearch && isValidFeed,
+        shortcuts,
+        actionButtons,
+        isHorizontal,
+        feedContainerRef,
+        showBriefCard,
+        disableListFrame,
+        disableListWidthConstraint,
+      };
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>

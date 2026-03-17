@@ -22,7 +22,10 @@ import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRec
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
 import { ModalClose } from '../common/ModalClose';
-import { cloudinaryStreakLost } from '../../../lib/image';
+import {
+  cloudinaryNotificationsBrowser,
+  cloudinaryStreakLost,
+} from '../../../lib/image';
 import { useReadingStreak } from '../../../hooks/streaks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { formatCoresCurrency } from '../../../lib/utils';
@@ -31,8 +34,11 @@ import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { NotificationPromptSource } from '../../../lib/log';
-import { useEnableNotification } from '../../../hooks/notifications';
-import { BellIcon } from '../../icons';
+import { usePushNotificationMutation } from '../../../hooks/notifications';
+import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
+import usePersistentContext, {
+  PersistentContextKeys,
+} from '../../../hooks/usePersistentContext';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -170,45 +176,54 @@ export const StreakRecoverOptout = ({
 );
 
 const StreakRecoverNotificationReminder = () => {
-  const { shouldShowCta, onEnable } = useEnableNotification({
-    source: NotificationPromptSource.SourceSubscribe,
-  });
+  const { isSubscribed, isInitialized, isPushSupported } =
+    usePushNotificationContext();
+  const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
+    PersistentContextKeys.StreakAlertPushKey,
+    true,
+  );
+  const { onTogglePermission } = usePushNotificationMutation();
+  const showAlert = isPushSupported && isAlertShown && isInitialized && !isSubscribed;
 
-  if (!shouldShowCta) {
+  if (!showAlert) {
     return null;
   }
 
   return (
-    <div className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-3 pb-2 pt-3">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
-        className="flex-1"
-      >
-        Never lose your streak again.
-      </Typography>
-      <Button
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Bacon}
-        icon={
-          <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
-        }
-        onClick={onEnable}
-      >
-        Enable
-      </Button>
-      <style>
-        {`
-          @keyframes enable-notification-bell-ring {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-16deg); }
-            40% { transform: rotate(14deg); }
-            60% { transform: rotate(-10deg); }
-            80% { transform: rotate(8deg); }
+    <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
+      <div className="flex w-full flex-1 justify-between gap-3">
+        <Typography bold type={TypographyType.Callout} className="flex-1">
+          Get notified to keep your streak
+        </Typography>
+
+        <div className="h-12 w-22 overflow-hidden">
+          <img
+            src={cloudinaryNotificationsBrowser}
+            alt="A sample browser notification"
+          />
+        </div>
+      </div>
+
+      <div className="flex w-full justify-between gap-3">
+        <Button
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={() =>
+            onTogglePermission(NotificationPromptSource.NotificationsPage)
           }
-        `}
-      </style>
+        >
+          Enable notification
+        </Button>
+        <Button
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          onClick={() => {
+            setIsAlertShown(false);
+          }}
+        >
+          Dismiss
+        </Button>
+      </div>
     </div>
   );
 };

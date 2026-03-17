@@ -34,7 +34,6 @@ import {
 } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import Link from '../../utilities/Link';
-import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../../hooks/usePersistentContext';
@@ -43,8 +42,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { cloudinaryNotificationsBrowser } from '../../../lib/image';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
+import { NotificationSvg } from '../../notifications/NotificationSvg';
+import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 
@@ -131,14 +131,12 @@ export function ReadingStreakPopup({
     PersistentContextKeys.StreakAlertPushKey,
     true,
   );
-
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
+  const forceNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
 
-  const showAlert =
-    isPushSupported &&
-    isAlertShown &&
-    isInitialized &&
-    (!isSubscribed || acceptedJustNow);
+  // TODO(debug): hardcoded to always show — remove before merging
+  const showAlert = true;
 
   const streaks = useMemo(() => {
     const today = new Date();
@@ -317,7 +315,7 @@ export function ReadingStreakPopup({
       </div>
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
-          {!isSubscribed && (
+          {(!isSubscribed || true) && (
             <>
               <div className="flex w-full flex-1 justify-between gap-3">
                 <Typography
@@ -328,11 +326,8 @@ export function ReadingStreakPopup({
                   Get notified to keep your streak
                 </Typography>
 
-                <div className="h-12 w-22 overflow-hidden">
-                  <img
-                    src={cloudinaryNotificationsBrowser}
-                    alt="A sample browser notification"
-                  />
+                <div className="h-12 w-22 shrink-0 overflow-hidden">
+                  <NotificationSvg />
                 </div>
               </div>
 
@@ -356,9 +351,8 @@ export function ReadingStreakPopup({
               </div>
             </>
           )}
-
           {acceptedJustNow && (
-            <>
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
               <VIcon size={IconSize.Small} />
               <div className="flex flex-1 flex-col gap-2">
                 <Typography bold type={TypographyType.Callout}>
@@ -376,7 +370,7 @@ export function ReadingStreakPopup({
                   can be done anytime through account details
                 </Typography>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}

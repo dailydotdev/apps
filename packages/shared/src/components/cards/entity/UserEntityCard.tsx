@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
@@ -32,22 +32,35 @@ import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import type { MenuItemProps } from '../../dropdown/common';
+import EnableNotificationsCta from './EnableNotificationsCta';
 
 type Props = {
   user?: UserShortProfile;
+  showNotificationCtaOnFollow?: boolean;
+  showNotificationCtaOnUpvote?: boolean;
+  isAuthorPostUpvoted?: boolean;
   className?: {
     container?: string;
   };
 };
 
-const UserEntityCard = ({ user, className }: Props) => {
+const UserEntityCard = ({
+  user,
+  className,
+  showNotificationCtaOnFollow = false,
+  showNotificationCtaOnUpvote = false,
+  isAuthorPostUpvoted = false,
+}: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
   });
-  const { unblock, block } = useContentPreference();
+  const { unblock, block, subscribe } = useContentPreference();
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
+  const prevStatusRef = useRef(contentPreference?.status);
+  const prevAuthorPostUpvotedRef = useRef(isAuthorPostUpvoted);
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -74,6 +87,56 @@ const UserEntityCard = ({ user, className }: Props) => {
   );
   const { username, bio, name, image, isPlus, createdAt, id, permalink } =
     user || {};
+
+  const currentStatus = contentPreference?.status;
+  const isNowFollowing =
+    currentStatus === ContentPreferenceStatus.Follow ||
+    currentStatus === ContentPreferenceStatus.Subscribed;
+  const haveNotificationsOn =
+    currentStatus === ContentPreferenceStatus.Subscribed;
+
+  useEffect(() => {
+    const previousStatus = prevStatusRef.current;
+
+    if (previousStatus === currentStatus) {
+      return;
+    }
+
+    const wasFollowing =
+      previousStatus === ContentPreferenceStatus.Follow ||
+      previousStatus === ContentPreferenceStatus.Subscribed;
+
+    if (showNotificationCtaOnFollow && isNowFollowing && !wasFollowing) {
+      setShowNotificationCta(true);
+    } else if (!isNowFollowing && wasFollowing) {
+      setShowNotificationCta(false);
+    }
+
+    prevStatusRef.current = currentStatus;
+  }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
+
+  useEffect(() => {
+    const wasAuthorPostUpvoted = prevAuthorPostUpvotedRef.current;
+
+    if (wasAuthorPostUpvoted === isAuthorPostUpvoted) {
+      return;
+    }
+
+    if (
+      showNotificationCtaOnUpvote &&
+      isAuthorPostUpvoted &&
+      !wasAuthorPostUpvoted &&
+      !haveNotificationsOn
+    ) {
+      setShowNotificationCta(true);
+    }
+
+    prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
+  }, [
+    haveNotificationsOn,
+    isAuthorPostUpvoted,
+    showNotificationCtaOnUpvote,
+  ]);
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -120,6 +183,19 @@ const UserEntityCard = ({ user, className }: Props) => {
   if (!user) {
     return null;
   }
+
+  const handleEnableNotifications = async () => {
+    if (!id || !username) {
+      throw new Error('Cannot subscribe to notifications without user id');
+    }
+
+    await subscribe({
+      id,
+      entity: ContentPreferenceType.User,
+      entityName: username,
+    });
+    setShowNotificationCta(false);
+  };
 
   return (
     <EntityCard
@@ -206,6 +282,9 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
+        {showNotificationCta && !haveNotificationsOn && (
+          <EnableNotificationsCta onEnable={handleEnableNotifications} />
+        )}
       </div>
     </EntityCard>
   );

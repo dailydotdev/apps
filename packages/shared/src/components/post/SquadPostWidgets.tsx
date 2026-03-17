@@ -8,6 +8,7 @@ import FurtherReading from '../widgets/FurtherReading';
 import type { SourceTooltip, Squad } from '../../graphql/sources';
 import { isSourceUserSource, SourceType } from '../../graphql/sources';
 import { isSourcePublicSquad } from '../../graphql/squads';
+import { UserVote } from '../../graphql/posts';
 import type { PostWidgetsProps } from './PostWidgets';
 import { FooterLinks } from '../footer';
 import SquadEntityCard from '../cards/entity/SquadEntityCard';
@@ -39,6 +40,9 @@ export function SquadPostWidgets({
             }}
             handle={post.source.handle}
             origin={origin}
+            showNotificationCtaOnJoin
+            showNotificationCtaOnUpvote
+            isSquadPostUpvoted={post.userState?.vote === UserVote.Up}
           />
         ) : (
           <SourceEntityCard
@@ -54,6 +58,9 @@ export function SquadPostWidgets({
             container: cardClasses,
           }}
           user={post.author as UserShortProfile}
+          showNotificationCtaOnFollow
+          showNotificationCtaOnUpvote
+          isAuthorPostUpvoted={post.userState?.vote === UserVote.Up}
         />
       )}
       <PostSidebarAdWidget

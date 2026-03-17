@@ -16,6 +16,7 @@ const isTruthySessionFlag = (value: string | null): boolean =>
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
+  ignoreDismissState?: boolean;
 }
 
 interface UseEnableNotification {
@@ -27,6 +28,7 @@ interface UseEnableNotification {
 
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
+  ignoreDismissState = false,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isCommentUpvoteSource = source === NotificationPromptSource.CommentUpvote;
   const isExtension = checkIsExtension();
@@ -52,6 +54,9 @@ export const useEnableNotification = ({
     globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
   const forceTopHeroFromUrl =
     globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
+  const forceSquadNotificationCtaFromUrl =
+    globalThis?.location?.search?.includes('forceSquadNotificationCta=1') ??
+    false;
   const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
     globalThis?.sessionStorage?.getItem(
       FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
@@ -60,6 +65,9 @@ export const useEnableNotification = ({
   const shouldForceUpvoteNotificationCtaForSession =
     source === NotificationPromptSource.CommentUpvote &&
     (forceUpvoteNotificationCtaFromSession || forceUpvoteNotificationCtaFromUrl);
+  const shouldForceSquadNotificationCta =
+    source === NotificationPromptSource.SquadPage &&
+    forceSquadNotificationCtaFromUrl;
   const shouldForcePopupNotificationCta =
     forcePopupNotificationCtaFromUrl || forceNotificationCtaFromUrl;
   const shouldHideNotificationCtaForBottomHero =
@@ -76,10 +84,13 @@ export const useEnableNotification = ({
   const shouldIgnoreDismissStateForSource =
     source === NotificationPromptSource.PostTagFollow ||
     source === NotificationPromptSource.NewComment ||
-    source === NotificationPromptSource.CommentUpvote;
+    source === NotificationPromptSource.CommentUpvote ||
+    source === NotificationPromptSource.SquadPage;
   const effectiveIsDismissed =
+    ignoreDismissState ||
     shouldIgnoreDismissStateForSource ||
     shouldForceUpvoteNotificationCtaForSession ||
+    shouldForceSquadNotificationCta ||
     shouldForcePopupNotificationCta
       ? false
       : isDismissed;
@@ -122,7 +133,8 @@ export const useEnableNotification = ({
       ? (shouldForcePopupNotificationCta || isLoaded) && !effectiveIsDismissed
       : isCommentUpvoteSource
         ? !effectiveIsDismissed
-        : (conditions.every(Boolean) ||
+        : (shouldForceSquadNotificationCta ||
+            conditions.every(Boolean) ||
             (enabledJustNow &&
               source !== NotificationPromptSource.SquadPostModal)) &&
           !effectiveIsDismissed) && !shouldHideNotificationCtaForBottomHero;

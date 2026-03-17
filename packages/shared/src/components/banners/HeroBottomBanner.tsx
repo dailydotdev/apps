@@ -1,25 +1,94 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { MiniCloseIcon } from '../icons';
 import feedStyles from '../Feed.module.css';
 import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 
 type TopHeroProps = {
   className?: string;
+  variant?: 'default' | 'lightAndTight';
+  applyFeedWidthConstraint?: boolean;
   onCtaClick?: () => void;
   onClose?: () => void;
 };
 
 export const TopHero = ({
   className,
+  variant = 'default',
+  applyFeedWidthConstraint = true,
   onCtaClick,
   onClose,
 }: TopHeroProps): ReactElement => {
+  if (variant === 'lightAndTight') {
+    return (
+      <section
+        className={classNames(
+          'mb-4 h-fit w-full pb-0',
+          applyFeedWidthConstraint && feedStyles.cards,
+          className,
+        )}
+      >
+        <style>
+          {`
+            @keyframes top-hero-border-shift {
+              0% {
+                background-position: 0% 50%;
+              }
+              50% {
+                background-position: 100% 50%;
+              }
+              100% {
+                background-position: 0% 50%;
+              }
+            }
+          `}
+        </style>
+        <div className="overflow-hidden rounded-16 bg-[linear-gradient(122deg,#2d1b8f_0%,#5d1fb7_45%,#ff00a8_100%)] bg-[length:200%_200%] p-[1px] shadow-2 motion-safe:[animation:top-hero-border-shift_4s_ease-in-out_infinite]">
+          <div className="overflow-hidden rounded-[0.9375rem] bg-raw-pepper-90">
+            <div className="flex flex-col gap-4 px-4 py-2 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-5 tablet:py-2">
+              <div className="flex flex-col gap-0">
+                <h3 className="typo-title3 font-bold text-white/70">
+                  Never miss read day
+                </h3>
+                <p className="text-[0.9375rem] font-normal leading-5 text-text-secondary">
+                  Turn on your daily reading reminder and keep your routine.
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 self-end tablet:self-auto">
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Primary}
+                  onClick={onCtaClick}
+                >
+                  Enable reminder
+                </Button>
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  className="text-white/80 hover:text-white"
+                  icon={<MiniCloseIcon />}
+                  aria-label="Close banner"
+                  onClick={onClose}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
-      className={classNames('mb-4 w-full pb-0', feedStyles.cards, className)}
+      className={classNames(
+        'mb-4 w-full pb-0',
+        applyFeedWidthConstraint && feedStyles.cards,
+        className,
+      )}
     >
       <div className="relative overflow-hidden rounded-t-16 rounded-b-none px-[1px] pb-0 pt-[1px]">
         <div className="absolute inset-0 rounded-t-16 rounded-b-none bg-[linear-gradient(122deg,#2d1b8f_0%,#5d1fb7_45%,#ff00a8_100%)]" />

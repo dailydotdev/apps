@@ -34,6 +34,7 @@ import { TargetId } from '../../lib/log';
 
 export interface FeedContainerProps {
   children: ReactNode;
+  topContent?: ReactNode;
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -148,6 +149,7 @@ const feedNameToHeading: Record<
 
 export const FeedContainer = ({
   children,
+  topContent,
   header,
   footer,
   className,
@@ -290,6 +292,7 @@ export const FeedContainer = ({
           data-testid="posts-feed"
         >
           {inlineHeader && header}
+          {topContent}
           {isSearch && !shouldUseListFeedLayout && (
             <span
               className={classNames(

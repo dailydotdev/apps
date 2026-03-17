@@ -23,6 +23,7 @@ type EnableNotificationProps = {
   className?: string;
   label?: string;
   onEnableAction?: () => Promise<unknown> | unknown;
+  ignoreDismissState?: boolean;
 };
 
 const containerClassName: Record<NotificationPromptSource, string> = {
@@ -73,9 +74,10 @@ function EnableNotification({
   className,
   label,
   onEnableAction,
+  ignoreDismissState = false,
 }: EnableNotificationProps): ReactElement | null {
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
-    useEnableNotification({ source });
+    useEnableNotification({ source, ignoreDismissState });
 
   if (!shouldShowCta) {
     return null;
