@@ -165,9 +165,8 @@ describe('AskSearchBanner', () => {
     fireEvent.click(closeButton);
 
     expect(mockLogEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.Click,
+      event_name: LogEvent.MarketingCtaDismiss,
       target_id: TargetId.AskUpsellSearch,
-      extra: JSON.stringify({ action: 'dismiss' }),
     });
     await waitFor(() => {
       expect(mockCompleteAction).toHaveBeenCalledWith(
