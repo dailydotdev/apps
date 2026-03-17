@@ -21,7 +21,7 @@
     "@dailydotdev/shared": "workspace:*",
     "@hookform/resolvers": "5.2.2",
     "@intercom/messenger-js-sdk": "^0.0.18",
-    "@kickass-coderz/react": "^0.0.4",
+    "@kickass-coderz/react": "^0.0.5",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
     "@serwist/next": "^9.0.9",
@@ -49,7 +49,7 @@
     "react-modal": "^3.16.3",
     "react-parallax-tilt": "^1.7.319",
     "react-swipeable": "^7.0.1",
-    "zod": "4.1.8"
+    "zod": "4.3.6"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.27.1",
@@ -59,7 +59,7 @@
     "@next/bundle-analyzer": "15.4.11",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^16.0.1",
+    "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/dompurify": "^2.3.2",
     "@types/jest": "^26.0.24",
