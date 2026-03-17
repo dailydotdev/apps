@@ -12,6 +12,7 @@ import {
   FunnelPricingType,
 } from '../../types/funnel';
 import { PricingPlanVariation } from '../../shared';
+import type { DateMock } from '../../../../../__tests__/helpers/dateMock';
 import { setupDateMock } from '../../../../../__tests__/helpers/dateMock';
 import {
   applyDiscountAtom,
@@ -231,7 +232,7 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
 };
 
 describe('FunnelPricingV2', () => {
-  let dateMock;
+  let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {

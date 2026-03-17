@@ -18,7 +18,7 @@ const defaultAlerts: Alerts = {
   lastChangelog: new Date(defaultPost.createdAt).toISOString(),
 };
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider

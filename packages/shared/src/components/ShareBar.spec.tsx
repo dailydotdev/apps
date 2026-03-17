@@ -75,7 +75,7 @@ const renderComponent = (
 
 describe('ShareBar Test Suite:', () => {
   const mockWindowOpen = jest.fn();
-  let origWindowOpen = null;
+  let origWindowOpen: typeof window.open | null = null;
 
   beforeEach(() => {
     origWindowOpen = window.open;
