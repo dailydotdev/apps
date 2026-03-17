@@ -33,12 +33,13 @@ import {
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
 import { UpgradeToPlus } from '../UpgradeToPlus';
-import { TargetId } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
@@ -803,6 +804,133 @@ interface QuestButtonProps {
   compact?: boolean;
 }
 
+interface QuestDropdownPanelProps {
+  showLevelSystem: boolean;
+  renderedLevel: number;
+  data?: ReturnType<typeof useQuestDashboard>['data'];
+  isPending: boolean;
+  isError: boolean;
+  claimingQuestId?: string;
+  animatingClaimRotationId?: string;
+  claimedStampRotationIds: Set<string>;
+  onClaim: (
+    userQuestId: string,
+    questId: string,
+    questType: QuestType,
+    rewardSources: QuestRewardSource[],
+    claimRotationId: string,
+  ) => void;
+}
+
+const QuestDropdownPanel = ({
+  showLevelSystem,
+  renderedLevel,
+  data,
+  isPending,
+  isError,
+  claimingQuestId,
+  animatingClaimRotationId,
+  claimedStampRotationIds,
+  onClaim,
+}: QuestDropdownPanelProps): ReactElement => {
+  const { logEvent } = useLogContext();
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.Quest,
+    });
+  }, [logEvent]);
+
+  return (
+    <div className="flex flex-col">
+      <header className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-3">
+        <p className="font-bold text-text-primary typo-callout">Quests</p>
+        {showLevelSystem && (
+          <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
+            <span>Level {renderedLevel}</span>
+            {data?.level && (
+              <span>
+                {data.level.xpInLevel}/
+                {data.level.xpInLevel + data.level.xpToNextLevel} XP
+              </span>
+            )}
+          </div>
+        )}
+      </header>
+
+      <div className="flex flex-col gap-4 p-3">
+        {isPending && (
+          <p className="text-text-tertiary typo-caption1">Loading quests...</p>
+        )}
+
+        {isError && !data && (
+          <p className="text-text-tertiary typo-caption1">
+            Quests are unavailable right now.
+          </p>
+        )}
+
+        {!isPending && data && (
+          <>
+            <QuestSection
+              title="Daily"
+              quests={data.daily.regular}
+              showLevelSystem={showLevelSystem}
+              claimingQuestId={claimingQuestId}
+              animatingClaimRotationId={animatingClaimRotationId}
+              claimedStampRotationIds={claimedStampRotationIds}
+              onClaim={onClaim}
+            />
+            <QuestSection
+              title="Weekly"
+              quests={data.weekly.regular}
+              showLevelSystem={showLevelSystem}
+              claimingQuestId={claimingQuestId}
+              animatingClaimRotationId={animatingClaimRotationId}
+              claimedStampRotationIds={claimedStampRotationIds}
+              onClaim={onClaim}
+            />
+            {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
+              <section className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-action-plus-default typo-caption1">
+                    Plus quests
+                  </p>
+                  <UpgradeToPlus
+                    target={TargetId.Popover}
+                    size={ButtonSize.Small}
+                    className="!flex-none"
+                  />
+                </div>
+                <QuestSection
+                  title="Daily"
+                  quests={data.daily.plus}
+                  showLevelSystem={showLevelSystem}
+                  claimingQuestId={claimingQuestId}
+                  animatingClaimRotationId={animatingClaimRotationId}
+                  claimedStampRotationIds={claimedStampRotationIds}
+                  onClaim={onClaim}
+                  emptyLabel="No active plus quests yet."
+                />
+                <QuestSection
+                  title="Weekly"
+                  quests={data.weekly.plus}
+                  showLevelSystem={showLevelSystem}
+                  claimingQuestId={claimingQuestId}
+                  animatingClaimRotationId={animatingClaimRotationId}
+                  claimedStampRotationIds={claimedStampRotationIds}
+                  onClaim={onClaim}
+                  emptyLabel="No active plus quests yet."
+                />
+              </section>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const QuestButton = ({
   compact = false,
 }: QuestButtonProps): ReactElement => {
@@ -1288,102 +1416,17 @@ export const QuestButton = ({
           className="w-[min(22rem,calc(100vw-2rem))] !p-0"
           scrollableClassName="max-h-[var(--radix-dropdown-menu-content-available-height)]"
         >
-          <div className="flex flex-col">
-            <header className="flex flex-col gap-2 border-b border-border-subtlest-tertiary p-3">
-              <p className="font-bold text-text-primary typo-callout">Quests</p>
-              {showLevelSystem && (
-                <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
-                  <span>Level {renderedLevel}</span>
-                  {data?.level && (
-                    <span>
-                      {data.level.xpInLevel}/
-                      {data.level.xpInLevel + data.level.xpToNextLevel} XP
-                    </span>
-                  )}
-                </div>
-              )}
-            </header>
-
-            <div className="flex flex-col gap-4 p-3">
-              {isPending && (
-                <p className="text-text-tertiary typo-caption1">
-                  Loading quests...
-                </p>
-              )}
-
-              {isError && !data && (
-                <p className="text-text-tertiary typo-caption1">
-                  Quests are unavailable right now.
-                </p>
-              )}
-
-              {!isPending && data && (
-                <>
-                  <QuestSection
-                    title="Daily"
-                    quests={data.daily.regular}
-                    showLevelSystem={showLevelSystem}
-                    claimingQuestId={claimingQuestId}
-                    animatingClaimRotationId={
-                      animatingClaimRotationId ?? undefined
-                    }
-                    claimedStampRotationIds={claimedStampRotationIdSet}
-                    onClaim={handleClaim}
-                  />
-                  <QuestSection
-                    title="Weekly"
-                    quests={data.weekly.regular}
-                    showLevelSystem={showLevelSystem}
-                    claimingQuestId={claimingQuestId}
-                    animatingClaimRotationId={
-                      animatingClaimRotationId ?? undefined
-                    }
-                    claimedStampRotationIds={claimedStampRotationIdSet}
-                    onClaim={handleClaim}
-                  />
-                  {(data.daily.plus.length > 0 ||
-                    data.weekly.plus.length > 0) && (
-                    <section className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-action-plus-default typo-caption1">
-                          Plus quests
-                        </p>
-                        <UpgradeToPlus
-                          target={TargetId.Popover}
-                          size={ButtonSize.Small}
-                          className="!flex-none"
-                        />
-                      </div>
-                      <QuestSection
-                        title="Daily"
-                        quests={data.daily.plus}
-                        showLevelSystem={showLevelSystem}
-                        claimingQuestId={claimingQuestId}
-                        animatingClaimRotationId={
-                          animatingClaimRotationId ?? undefined
-                        }
-                        claimedStampRotationIds={claimedStampRotationIdSet}
-                        onClaim={handleClaim}
-                        emptyLabel="No active plus quests yet."
-                      />
-                      <QuestSection
-                        title="Weekly"
-                        quests={data.weekly.plus}
-                        showLevelSystem={showLevelSystem}
-                        claimingQuestId={claimingQuestId}
-                        animatingClaimRotationId={
-                          animatingClaimRotationId ?? undefined
-                        }
-                        claimedStampRotationIds={claimedStampRotationIdSet}
-                        onClaim={handleClaim}
-                        emptyLabel="No active plus quests yet."
-                      />
-                    </section>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
+          <QuestDropdownPanel
+            showLevelSystem={showLevelSystem}
+            renderedLevel={renderedLevel}
+            data={data}
+            isPending={isPending}
+            isError={isError}
+            claimingQuestId={claimingQuestId}
+            animatingClaimRotationId={animatingClaimRotationId ?? undefined}
+            claimedStampRotationIds={claimedStampRotationIdSet}
+            onClaim={handleClaim}
+          />
         </DropdownMenuContent>
       </DropdownMenu>
       {rewardFlights.length > 0 && (
