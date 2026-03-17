@@ -142,7 +142,7 @@
     "uuid": "^8.3.2",
     "web-vitals": "^3.5.0",
     "webextension-polyfill": "^0.12.0",
-    "zod": "4.3.6"
+    "zod": "4.1.8"
   },
   "sideEffects": [
     "*.css"
