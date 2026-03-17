@@ -6,23 +6,32 @@ import { LeaderboardList } from './LeaderboardList';
 import { LeaderboardListItem } from './LeaderboardListItem';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 import type { LoggedUser } from '../../../lib/user';
+import type { QuestLevel } from '../../../graphql/quests';
 import {
   runIconPopAnimation,
   runSparkAnimation,
   TOP_RANK_STYLES,
 } from './common';
 import { TopRankBadge } from './TopRankBadge';
+import {
+  getQuestLevelProgress,
+  QuestLevelProgressCircle,
+} from '../../quest/QuestLevelProgressCircle';
 
 export interface UserLeaderboard {
   score: number;
   user: LoggedUser;
+  level?: QuestLevel | null;
 }
 
 export function UserTopList({
   items,
   concatScore = true,
+  showLevel = false,
   ...props
-}: CommonLeaderboardProps<UserLeaderboard[]>): ReactElement {
+}: CommonLeaderboardProps<UserLeaderboard[]> & {
+  showLevel?: boolean;
+}): ReactElement {
   const createRowMouseEnter = useCallback(
     (rankIndex: number) => (e: React.MouseEvent<HTMLLIElement>) => {
       const rankStyle = TOP_RANK_STYLES[rankIndex];
@@ -55,6 +64,13 @@ export function UserTopList({
           onMouseEnter={TOP_RANK_STYLES[i] ? createRowMouseEnter(i) : undefined}
         >
           <TopRankBadge rankIndex={i} />
+          {showLevel && item.level && (
+            <QuestLevelProgressCircle
+              level={item.level.level}
+              progress={getQuestLevelProgress(item.level)}
+              className="mr-2 shrink-0"
+            />
+          )}
           <UserHighlight
             {...item.user}
             showReputation

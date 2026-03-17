@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -17,6 +17,8 @@ import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -36,18 +38,56 @@ interface PageProps extends DynamicSeoProps {
   companyItems?: CompanyLeaderboard[];
 }
 
+const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(
+      ({ message }) =>
+        message?.includes('Cannot query field "highestLevel"') ||
+        message?.includes('Cannot query field "level" on type "Leaderboard"'),
+    ) ?? false
+  );
+};
+
 const LeaderboardDetailPage = ({
   leaderboardType,
   title,
   userItems,
   companyItems,
 }: PageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
+  const router = useRouter();
+  const { isFallback: isLoading } = router;
+  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
+    useConditionalFeature({
+      feature: questsFeature,
+    });
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
+  const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
 
-  if (isLoading || !title) {
+  useEffect(() => {
+    if (
+      !isLevelLeaderboard ||
+      isQuestsFeatureLoading ||
+      isQuestsFeatureEnabled === true
+    ) {
+      return;
+    }
+
+    router.replace('/users');
+  }, [
+    isLevelLeaderboard,
+    isQuestsFeatureEnabled,
+    isQuestsFeatureLoading,
+    router,
+  ]);
+
+  if (
+    isLoading ||
+    !title ||
+    (isLevelLeaderboard &&
+      (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true))
+  ) {
     return <></>;
   }
 
@@ -76,6 +116,7 @@ const LeaderboardDetailPage = ({
             items={userItems || []}
             isLoading={isLoading}
             concatScore={concatScore}
+            showLevel={isLevelLeaderboard}
           />
         )}
       </div>
@@ -149,6 +190,16 @@ export async function getStaticProps({
     };
   } catch (err: unknown) {
     const error = err as GraphQLError;
+    if (
+      leaderboardType === LeaderboardType.HighestLevel &&
+      isHighestLevelSchemaMissing(error)
+    ) {
+      return {
+        notFound: true,
+        revalidate: 60,
+      };
+    }
+
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
         error?.response?.errors?.[0]?.extensions?.code,
