@@ -116,7 +116,9 @@ export const getSocialTwitterMetadata = (post: Post) => {
     image:
       resolveBySource(
         post.sharedPost?.source?.id,
-        post.sharedPost?.author?.image || post.sharedPost?.source?.image,
+        post.sharedPost?.author?.image ||
+          post.sharedPost?.creatorTwitterImage ||
+          post.sharedPost?.source?.image,
         post.sharedPost?.creatorTwitterImage,
       ) || fallbackImages.avatar,
     username: sharedPostHandle,

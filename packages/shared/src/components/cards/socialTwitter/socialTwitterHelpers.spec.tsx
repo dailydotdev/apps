@@ -19,6 +19,49 @@ const basePost: Post = {
 };
 
 describe('getSocialTwitterMetadata', () => {
+  it('prefers creator twitter image over source image for known sources', () => {
+    const creatorTwitterImage = 'https://example.com/creator-avatar.png';
+    const sourceImage = 'https://example.com/source-logo.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage,
+        author: {
+          ...basePost.sharedPost.author,
+          image: undefined,
+        },
+        source: {
+          ...basePost.sharedPost.source,
+          id: 'known-source',
+          image: sourceImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
+  it('uses creator twitter image for unknown sources', () => {
+    const creatorTwitterImage = 'https://example.com/creator-avatar.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage,
+        source: {
+          ...basePost.sharedPost.source,
+          id: 'unknown',
+          image: 'https://example.com/source-logo.png',
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
   it('deduplicates handles case-insensitively', () => {
     const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,

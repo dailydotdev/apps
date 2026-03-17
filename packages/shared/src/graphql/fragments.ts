@@ -597,6 +597,7 @@ export const FEED_POST_FRAGMENT = gql`
       author {
         id
         username
+        image
       }
       slug
       clickbaitTitleDetected
