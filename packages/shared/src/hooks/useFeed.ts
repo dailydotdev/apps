@@ -323,7 +323,7 @@ export default function useFeed<T>(
     if (feedQuery.data) {
       const seenPostIds = new Set<string>();
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }, index: number) => {
+        page.edges.forEach(({ node }: { node: Post }, index: number) => {
           if (seenPostIds.has(node.id)) {
             return;
           }

@@ -179,7 +179,7 @@ const getPlusType = ({
 const getCopy = (
   plusType: PlusType,
   copy: Record<PlusType, PageCopy>,
-  { title, description, subtitle },
+  { title, description, subtitle }: Partial<PageCopy>,
 ) => {
   const fallback = copy[plusType];
 
