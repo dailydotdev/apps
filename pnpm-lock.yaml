@@ -90,8 +90,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
       '@kickass-coderz/react':
-        specifier: ^0.0.4
-        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.0.5
+        version: 0.0.5(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.80.5
         version: 5.80.6(react@18.3.1)
@@ -172,7 +172,7 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^16.0.1
+        specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.0)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
@@ -418,8 +418,8 @@ importers:
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.54.2(react@18.3.1))
       '@kickass-coderz/react':
-        specifier: ^0.0.4
-        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.0.5
+        version: 0.0.5(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@marsidev/react-turnstile':
         specifier: ^1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -554,7 +554,7 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^16.0.1
+        specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.0)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
@@ -873,8 +873,8 @@ importers:
         specifier: ^0.0.18
         version: 0.0.18
       '@kickass-coderz/react':
-        specifier: ^0.0.4
-        version: 0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.0.5
+        version: 0.0.5(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@marsidev/react-turnstile':
         specifier: 1.1.0
         version: 1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -982,7 +982,7 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^16.0.1
+        specifier: ^16.3.2
         version: 16.3.2(@testing-library/dom@10.4.0)(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
@@ -2546,8 +2546,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kickass-coderz/react@0.0.4':
-    resolution: {integrity: sha512-4sxQsTf6iLxjCzZTms1gmptJj7iGaseqaVrTnJOBPNkQOGSz7U1P6o7HNjgb7oo+dmWJFGln2+B0+TP9ld6J+Q==}
+  '@kickass-coderz/react@0.0.5':
+    resolution: {integrity: sha512-crTOFGW7B1ugkSy57ntcp0CDtWFkVpghny/p9qb9/bIGUczgyEVIsPoafCDiAzTTLxq6sJTw0Yn5rEeLGNSsIA==}
     peerDependencies:
       '@types/react': '>= 18.0.0'
       '@types/react-dom': '>= 18.0.0'
@@ -11803,7 +11803,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kickass-coderz/react@0.0.4(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@kickass-coderz/react@0.0.5(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@kickass-coderz/utils': 0.0.4
       '@types/react': 18.3.12
