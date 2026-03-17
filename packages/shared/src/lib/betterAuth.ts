@@ -78,6 +78,10 @@ export const betterAuthSignUp = async ({
   turnstileToken,
   username,
   experienceLevel,
+  referral,
+  referralOrigin,
+  timezone,
+  region,
 }: {
   name: string;
   email: string;
@@ -85,6 +89,10 @@ export const betterAuthSignUp = async ({
   turnstileToken?: string;
   username?: string;
   experienceLevel?: string;
+  referral?: string;
+  referralOrigin?: string;
+  timezone?: string;
+  region?: string;
 }): Promise<BetterAuthResponse> => {
   const headers: Record<string, string> = {};
   if (turnstileToken) {
@@ -92,7 +100,17 @@ export const betterAuthSignUp = async ({
   }
   return betterAuthPost(
     'sign-up/email',
-    { name, email, password, username, experienceLevel },
+    {
+      name,
+      email,
+      password,
+      username,
+      experienceLevel,
+      referral,
+      referralOrigin,
+      timezone,
+      region,
+    },
     'Sign up failed',
     Object.keys(headers).length > 0 ? headers : undefined,
   );
