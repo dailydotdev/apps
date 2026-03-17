@@ -19,7 +19,7 @@ const basePost: Post = {
 };
 
 describe('getSocialTwitterMetadata', () => {
-  it('prefers author image when it is available', () => {
+  it('prefers creator twitter image over author image when both are available', () => {
     const authorImage = 'https://example.com/author-avatar.png';
     const creatorTwitterImage = 'https://example.com/creator-avatar.png';
 
@@ -28,6 +28,24 @@ describe('getSocialTwitterMetadata', () => {
       sharedPost: {
         ...basePost.sharedPost,
         creatorTwitterImage,
+        author: {
+          ...basePost.sharedPost.author,
+          image: authorImage,
+        },
+      },
+    });
+
+    expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
+  });
+
+  it('falls back to author image when creator twitter image is unavailable', () => {
+    const authorImage = 'https://example.com/author-avatar.png';
+
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
+      ...basePost,
+      sharedPost: {
+        ...basePost.sharedPost,
+        creatorTwitterImage: undefined,
         author: {
           ...basePost.sharedPost.author,
           image: authorImage,

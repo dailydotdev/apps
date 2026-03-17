@@ -108,8 +108,8 @@ export const getSocialTwitterMetadata = (post: Post) => {
     .join(' ');
 
   const embeddedTweetAvatarImage =
-    post.sharedPost?.author?.image ||
     post.sharedPost?.creatorTwitterImage ||
+    post.sharedPost?.author?.image ||
     post.sharedPost?.source?.image ||
     fallbackImages.avatar;
 
