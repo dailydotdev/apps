@@ -18,7 +18,7 @@ const testFeature: Feature<string> = new Feature<string>(
 );
 
 const createWrapper = ({ value = testFeature.defaultValue }) => {
-  const Wrapper = ({ children }) => (
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={client}>
       <AuthContextProvider
         user={loggedUser}

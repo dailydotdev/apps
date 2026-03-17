@@ -1,10 +1,11 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { DiscountTimer } from './DiscountTimer';
+import type { DateMock } from '../../../../__tests__/helpers/dateMock';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
 
 describe('DiscountTimer component', () => {
-  let dateMock;
+  let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {

@@ -13,7 +13,7 @@ import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
   const createWrapper = ({ user = null, client = new QueryClient() }) => {
-    const Wrapper = ({ children }) => (
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>
         <AuthContextProvider
           user={user}

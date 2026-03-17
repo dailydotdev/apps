@@ -13,6 +13,7 @@ import {
   successfulRegistrationMockData,
 } from '../../../__tests__/fixture/auth';
 import type { LoginPasswordParameters } from '../../lib/auth';
+import type { LoggedUser } from '../../lib/user';
 import { AuthTriggers, getNodeByKey } from '../../lib/auth';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { formToJson } from '../../lib/form';
@@ -20,7 +21,7 @@ import type { AuthOptionsProps } from './AuthOptions';
 import AuthOptions from './AuthOptions';
 import SettingsContext from '../../contexts/SettingsContext';
 
-let user = null;
+let user: LoggedUser | null = null;
 
 beforeEach(() => {
   nock.cleanAll();
