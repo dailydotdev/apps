@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import {
@@ -14,7 +15,12 @@ import { QuestButton } from './QuestButton';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import useSubscription from '../../hooks/useSubscription';
+import { LogEvent, TargetType } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
+
+function mockReactModule() {
+  return React;
+}
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
@@ -40,17 +46,69 @@ jest.mock('../../hooks/useSubscription', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('../dropdown/DropdownMenu', () => ({
-  DropdownMenu: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
-  DropdownMenuTrigger: ({ children }: { children: ReactNode }) => (
-    <>{children}</>
-  ),
-  DropdownMenuContent: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
-}));
+jest.mock('../dropdown/DropdownMenu', () => {
+  const { createContext, isValidElement, cloneElement } = mockReactModule();
+  const DropdownMenuContext = createContext<{
+    open: boolean;
+    setOpen: (value: boolean) => void;
+    onOpenChange?: (value: boolean) => void;
+  }>({
+    open: false,
+    setOpen: () => {},
+  });
+
+  return {
+    DropdownMenu: ({
+      children,
+      onOpenChange,
+    }: {
+      children: ReactNode;
+      onOpenChange?: (value: boolean) => void;
+    }) => {
+      const { useState } = mockReactModule();
+      const [open, setOpenState] = useState(false);
+      const setOpen = (value: boolean) => {
+        onOpenChange?.(value);
+        setOpenState(value);
+      };
+
+      return (
+        <DropdownMenuContext.Provider value={{ open, setOpen, onOpenChange }}>
+          <div>{children}</div>
+        </DropdownMenuContext.Provider>
+      );
+    },
+    DropdownMenuTrigger: ({ children }: { children: ReactNode }) => {
+      const { useContext } = mockReactModule();
+      const { setOpen } = useContext(DropdownMenuContext);
+
+      if (!isValidElement(children)) {
+        return <>{children}</>;
+      }
+
+      const originalOnClick = children.props.onClick as
+        | ((...args: unknown[]) => void)
+        | undefined;
+
+      return cloneElement(children, {
+        onClick: (...args: unknown[]) => {
+          originalOnClick?.(...args);
+          setOpen(true);
+        },
+      });
+    },
+    DropdownMenuContent: ({ children }: { children: ReactNode }) => {
+      const { useContext } = mockReactModule();
+      const { open } = useContext(DropdownMenuContext);
+
+      if (!open) {
+        return null;
+      }
+
+      return <div>{children}</div>;
+    },
+  };
+});
 
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
@@ -98,9 +156,14 @@ const renderComponent = (
   optOutLevelSystem = false,
   client: QueryClient = new QueryClient(),
   compact = false,
+  log = {},
 ) =>
   render(
-    <TestBootProvider client={client} settings={{ optOutLevelSystem }}>
+    <TestBootProvider
+      client={client}
+      settings={{ optOutLevelSystem }}
+      log={log}
+    >
       <QuestButton compact={compact} />
     </TestBootProvider>,
   );
@@ -130,6 +193,8 @@ describe('QuestButton', () => {
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('h-10');
 
+    await userEvent.click(button);
+
     expect(await screen.findByText('Level 7')).toBeInTheDocument();
     expect(screen.getByText('250/400 XP')).toBeInTheDocument();
     expect(screen.getByText('+150 XP')).toBeInTheDocument();
@@ -150,13 +215,34 @@ describe('QuestButton', () => {
   it('should hide level progress and xp rewards when levels are disabled', async () => {
     renderComponent(true);
 
-    expect(screen.getByRole('button', { name: 'Quests' })).toBeInTheDocument();
+    const button = screen.getByRole('button', { name: 'Quests' });
+
+    expect(button).toBeInTheDocument();
     expect(screen.getByTestId('tour-icon')).toBeInTheDocument();
+
+    await userEvent.click(button);
 
     expect(screen.queryByText('Level 7')).not.toBeInTheDocument();
     expect(screen.queryByText('250/400 XP')).not.toBeInTheDocument();
     expect(screen.queryByText('+150 XP')).not.toBeInTheDocument();
     expect(await screen.findByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should log when opening the quest dropdown', async () => {
+    const logEvent = jest.fn();
+
+    renderComponent(false, new QueryClient(), false, { logEvent });
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.Quest,
+    });
   });
 
   it('should keep accent progress fill on locked quests', async () => {
@@ -191,6 +277,11 @@ describe('QuestButton', () => {
     });
 
     renderComponent(false);
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
 
     const lockedQuestTitle = await screen.findByText('Locked plus quest');
     /* eslint-disable testing-library/no-node-access */
