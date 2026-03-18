@@ -164,7 +164,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
           </p>
         )}
         <div
-          className={`${quoteDetailsContainerClass} min-h-0 flex-1 overflow-hidden`}
+          className={`${quoteDetailsContainerClass} flex min-h-0 flex-1 flex-col overflow-hidden`}
         >
           <EmbeddedTweetPreview
             post={post}
