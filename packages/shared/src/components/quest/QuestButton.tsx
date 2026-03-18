@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
   Button,
   ButtonColor,
@@ -17,11 +18,6 @@ import {
 } from '../buttons/Button';
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
 import {
   CoreIcon,
   DevPlusIcon,
@@ -57,6 +53,9 @@ import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
+import { PopoverContent } from '../popover/Popover';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useScrollFade } from '../../hooks/useScrollFade';
 
 const getProgress = (progress: number, target: number) => {
   const safeTarget = Math.max(target, 1);
@@ -1099,10 +1098,12 @@ export const QuestButton = ({
   const triggerProgressCircumference = 2 * Math.PI * triggerProgressRadius;
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
+  const [isOpen, setIsOpen] = useState(false);
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
   );
+  const scrollFadeRef = useScrollFade<HTMLDivElement>();
 
   const clearProgressTimers = useCallback(() => {
     progressTimersRef.current.forEach((timerId) => {
@@ -1400,113 +1401,124 @@ export const QuestButton = ({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          asChild
-          tooltip={{
-            content: triggerTooltipContent,
-            side: 'bottom',
-          }}
-        >
-          <Button
-            variant={triggerButtonVariant}
-            size={triggerButtonSize}
-            className={classNames('relative !p-0', !compact && '!rounded-full')}
-            aria-label={
-              showLevelSystem
-                ? `Quests, level ${renderedLevel}, ${Math.round(
-                    renderedLevelProgress,
-                  )}% progress`
-                : 'Quests'
-            }
-          >
-            {showLevelSystem ? (
-              <span
-                className={classNames(
-                  'relative inline-flex items-center justify-center',
-                  triggerVisualClassName,
-                )}
-              >
-                <svg
-                  width={triggerVisualSize}
-                  height={triggerVisualSize}
-                  viewBox={`0 0 ${triggerVisualSize} ${triggerVisualSize}`}
-                  fill="none"
-                  className="-rotate-90"
-                  aria-hidden
-                >
-                  <circle
-                    cx={triggerVisualSize / 2}
-                    cy={triggerVisualSize / 2}
-                    r={triggerProgressRadius}
-                    strokeWidth={triggerProgressStroke}
-                    className="stroke-border-subtlest-tertiary"
-                  />
-                  <circle
-                    cx={triggerVisualSize / 2}
-                    cy={triggerVisualSize / 2}
-                    r={triggerProgressRadius}
-                    strokeWidth={triggerProgressStroke}
-                    strokeLinecap="round"
-                    strokeDasharray={triggerProgressCircumference}
-                    strokeDashoffset={
-                      triggerProgressCircumference *
-                      (1 - renderedLevelProgress / 100)
-                    }
-                    className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-                  />
-                </svg>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <Tooltip content={triggerTooltipContent} side="bottom">
+          <PopoverTrigger asChild>
+            <Button
+              variant={triggerButtonVariant}
+              size={triggerButtonSize}
+              className={classNames(
+                'relative !p-0',
+                !compact && '!rounded-full',
+              )}
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              aria-label={
+                showLevelSystem
+                  ? `Quests, level ${renderedLevel}, ${Math.round(
+                      renderedLevelProgress,
+                    )}% progress`
+                  : 'Quests'
+              }
+            >
+              {showLevelSystem ? (
                 <span
-                  data-reward-target={QuestRewardType.Xp}
                   className={classNames(
-                    'absolute font-bold text-text-primary',
-                    triggerLevelClassName,
+                    'relative inline-flex items-center justify-center',
+                    triggerVisualClassName,
                   )}
                 >
-                  {renderedLevel}
+                  <svg
+                    width={triggerVisualSize}
+                    height={triggerVisualSize}
+                    viewBox={`0 0 ${triggerVisualSize} ${triggerVisualSize}`}
+                    fill="none"
+                    className="-rotate-90"
+                    aria-hidden
+                  >
+                    <circle
+                      cx={triggerVisualSize / 2}
+                      cy={triggerVisualSize / 2}
+                      r={triggerProgressRadius}
+                      strokeWidth={triggerProgressStroke}
+                      className="stroke-border-subtlest-tertiary"
+                    />
+                    <circle
+                      cx={triggerVisualSize / 2}
+                      cy={triggerVisualSize / 2}
+                      r={triggerProgressRadius}
+                      strokeWidth={triggerProgressStroke}
+                      strokeLinecap="round"
+                      strokeDasharray={triggerProgressCircumference}
+                      strokeDashoffset={
+                        triggerProgressCircumference *
+                        (1 - renderedLevelProgress / 100)
+                      }
+                      className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                    />
+                  </svg>
+                  <span
+                    data-reward-target={QuestRewardType.Xp}
+                    className={classNames(
+                      'absolute font-bold text-text-primary',
+                      triggerLevelClassName,
+                    )}
+                  >
+                    {renderedLevel}
+                  </span>
                 </span>
-              </span>
-            ) : (
-              <span
-                className={classNames(
-                  'inline-flex items-center justify-center',
-                  triggerVisualClassName,
-                )}
-              >
-                <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
-              </span>
-            )}
-            {claimableCount > 0 && (
-              <Bubble
-                className={classNames(
-                  compact
-                    ? '-right-1 -top-1 px-0.5'
-                    : '-right-1.5 -top-1.5 px-1',
-                )}
-              >
-                {claimableCount}
-              </Bubble>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
+              ) : (
+                <span
+                  className={classNames(
+                    'inline-flex items-center justify-center',
+                    triggerVisualClassName,
+                  )}
+                >
+                  <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
+                </span>
+              )}
+              {claimableCount > 0 && (
+                <Bubble
+                  className={classNames(
+                    compact
+                      ? '-right-1 -top-1 px-0.5'
+                      : '-right-1.5 -top-1.5 px-1',
+                  )}
+                >
+                  {claimableCount}
+                </Bubble>
+              )}
+            </Button>
+          </PopoverTrigger>
+        </Tooltip>
 
-        <DropdownMenuContent
-          className="w-[min(22rem,calc(100vw-2rem))] !p-0"
-          scrollableClassName="max-h-[var(--radix-dropdown-menu-content-available-height)]"
+        <PopoverContent
+          className="w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-popover !p-0 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          side="bottom"
+          align="end"
+          sideOffset={6}
+          collisionPadding={24}
+          avoidCollisions
+          onOpenAutoFocus={(event) => event.preventDefault()}
         >
-          <QuestDropdownPanel
-            showLevelSystem={showLevelSystem}
-            renderedLevel={renderedLevel}
-            data={data}
-            isPending={isPending}
-            isError={isError}
-            claimingQuestId={claimingQuestId}
-            animatingClaimRotationId={animatingClaimRotationId ?? undefined}
-            claimedStampRotationIds={claimedStampRotationIdSet}
-            onClaim={handleClaim}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <div
+            ref={scrollFadeRef}
+            className="max-h-[var(--radix-popover-content-available-height)] overflow-y-auto bg-inherit"
+          >
+            <QuestDropdownPanel
+              showLevelSystem={showLevelSystem}
+              renderedLevel={renderedLevel}
+              data={data}
+              isPending={isPending}
+              isError={isError}
+              claimingQuestId={claimingQuestId}
+              animatingClaimRotationId={animatingClaimRotationId ?? undefined}
+              claimedStampRotationIds={claimedStampRotationIdSet}
+              onClaim={handleClaim}
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
       {rewardFlights.length > 0 && (
         <QuestRewardFlightLayer
           flights={rewardFlights}

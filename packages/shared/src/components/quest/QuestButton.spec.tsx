@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -51,9 +51,10 @@ jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: jest.fn(),
 }));
 
-jest.mock('../dropdown/DropdownMenu', () => {
-  const { createContext, isValidElement, cloneElement } = mockReactModule();
-  const DropdownMenuContext = createContext<{
+jest.mock('@radix-ui/react-popover', () => {
+  const { cloneElement, createContext, isValidElement, useContext } =
+    mockReactModule();
+  const PopoverContext = createContext<{
     open: boolean;
     setOpen: (value: boolean) => void;
     onOpenChange?: (value: boolean) => void;
@@ -63,35 +64,41 @@ jest.mock('../dropdown/DropdownMenu', () => {
   });
 
   return {
-    DropdownMenu: ({
+    Popover: ({
       children,
+      open: controlledOpen,
       onOpenChange,
     }: {
       children: ReactNode;
+      open?: boolean;
       onOpenChange?: (value: boolean) => void;
     }) => {
       const { useState } = mockReactModule();
-      const [open, setOpenState] = useState(false);
+      const [internalOpen, setInternalOpen] = useState(false);
+      const open = controlledOpen ?? internalOpen;
       const setOpen = (value: boolean) => {
         onOpenChange?.(value);
-        setOpenState(value);
+        if (controlledOpen === undefined) {
+          setInternalOpen(value);
+        }
       };
 
       return (
-        <DropdownMenuContext.Provider value={{ open, setOpen, onOpenChange }}>
+        <PopoverContext.Provider value={{ open, setOpen, onOpenChange }}>
           <div>{children}</div>
-        </DropdownMenuContext.Provider>
+        </PopoverContext.Provider>
       );
     },
-    DropdownMenuTrigger: ({
+    PopoverTrigger: ({
       children,
-      tooltip,
+      asChild: _asChild,
+      ...props
     }: {
       children: ReactNode;
-      tooltip?: { content?: string };
+      asChild?: boolean;
+      [key: string]: unknown;
     }) => {
-      const { useContext } = mockReactModule();
-      const { setOpen } = useContext(DropdownMenuContext);
+      const { open, setOpen } = useContext(PopoverContext);
 
       if (!isValidElement(children)) {
         return <>{children}</>;
@@ -102,22 +109,45 @@ jest.mock('../dropdown/DropdownMenu', () => {
         | undefined;
 
       return cloneElement(children, {
-        'data-tooltip-content': tooltip?.content,
+        ...props,
         onClick: (...args: unknown[]) => {
           originalOnClick?.(...args);
-          setOpen(true);
+          setOpen(!open);
         },
       });
     },
-    DropdownMenuContent: ({ children }: { children: ReactNode }) => {
-      const { useContext } = mockReactModule();
-      const { open } = useContext(DropdownMenuContext);
+    PopoverPortal: ({ children }: { children: ReactNode }) => <>{children}</>,
+    PopoverContent: ({ children }: { children: ReactNode }) => {
+      const { open } = useContext(PopoverContext);
 
       if (!open) {
         return null;
       }
 
       return <div>{children}</div>;
+    },
+  };
+});
+
+jest.mock('../tooltip/Tooltip', () => {
+  const { cloneElement, isValidElement } = mockReactModule();
+
+  return {
+    Tooltip: ({
+      children,
+      content,
+    }: {
+      children: ReactNode;
+      content?: string;
+    }) => {
+      if (!isValidElement<{ 'data-tooltip-content'?: string }>(children)) {
+        return <>{children}</>;
+      }
+
+      return cloneElement(children, {
+        'data-tooltip-content':
+          typeof content === 'string' ? content : undefined,
+      });
     },
   };
 });
@@ -284,6 +314,24 @@ describe('QuestButton', () => {
       event_name: LogEvent.Impression,
       target_type: TargetType.Quest,
     });
+  });
+
+  it('should stay open when the page scrolls', async () => {
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText('Level 7')).toBeInTheDocument();
+
+    act(() => {
+      globalThis.dispatchEvent(new Event('scroll'));
+    });
+
+    expect(screen.getByText('Level 7')).toBeInTheDocument();
   });
 
   it('should keep accent progress fill on locked quests', async () => {
