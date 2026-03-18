@@ -133,4 +133,10 @@ it('should hide headline and tags for repost cards without repost text', async (
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();
+  expect(
+    screen.queryByTestId('social-twitter-list-spacer'),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByTestId('social-twitter-list-embedded-preview'),
+  ).not.toHaveClass('flex-1');
 });

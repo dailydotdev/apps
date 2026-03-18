@@ -171,19 +171,26 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 {normalizedContent}
               </p>
             )}
-            <div className="flex flex-1 tablet:hidden" />
+            {hasDailyDevMarkdown && (
+              <div
+                data-testid="social-twitter-list-spacer"
+                className="flex flex-1 tablet:hidden"
+              />
+            )}
             {hasDailyDevMarkdown && (
               <div className="flex items-center">
                 {post.clickbaitTitleDetected && <ClickbaitShield post={post} />}
                 <PostTags post={postForTags} />
               </div>
             )}
-            <div className="mt-4 min-h-0 flex-1 overflow-hidden">
+            <div
+              data-testid="social-twitter-list-embedded-preview"
+              className="mt-4 min-h-0 overflow-hidden"
+            >
               <EmbeddedTweetPreview
                 post={post}
                 className="w-full"
                 textClampClass={quoteDetailsTextClampClass}
-                fillAvailableHeight
               />
             </div>
             {!isMobile && actionButtons}
