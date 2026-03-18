@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { sendViewPost } from '../../graphql/posts';
@@ -6,7 +5,6 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { UserStreak } from '../../graphql/users';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import type { ApiErrorResult } from '../../graphql/common';
 
 export const useViewPost = (): UseMutateAsyncFunction<
   unknown,
@@ -39,29 +37,5 @@ export const useViewPost = (): UseMutateAsyncFunction<
     },
   });
 
-  return useCallback(
-    async (id: string) => {
-      try {
-        return await onSendViewPost(id);
-      } catch (err) {
-        if (err instanceof TypeError) {
-          return null;
-        }
-
-        const error = err as ApiErrorResult & {
-          response?: { errors?: Array<{ extensions?: { code?: string } }> };
-        };
-        const errorCode = error?.response?.errors?.[0]?.extensions?.code as
-          | string
-          | undefined;
-
-        if (errorCode === 'UNAUTHENTICATED' || errorCode === 'RATE_LIMITED') {
-          return null;
-        }
-
-        throw err;
-      }
-    },
-    [onSendViewPost],
-  );
+  return onSendViewPost;
 };

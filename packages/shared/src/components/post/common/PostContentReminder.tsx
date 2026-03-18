@@ -3,6 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { PostContentWidget } from './PostContentWidget';
 import type { Post } from '../../../graphql/posts';
+import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
+import { IconSize } from '../../Icon';
 import { PostReminderOptions } from './PostReminderOptions';
 import { useBookmarkReminderCover } from '../../../hooks/bookmark/useBookmarkReminderCover';
 
@@ -24,7 +26,8 @@ export function PostContentReminder({
   return (
     <PostContentWidget
       className={classNames('mt-6 w-full', className)}
-      title="Read it later? Set a reminder."
+      icon={<BookmarkReminderIcon size={IconSize.Small} secondary />}
+      title="Don’t have time now? Set a reminder"
     >
       <PostReminderOptions post={post} className="laptop:ml-auto" />
     </PostContentWidget>

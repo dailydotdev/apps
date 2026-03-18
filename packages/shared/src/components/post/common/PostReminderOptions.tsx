@@ -43,18 +43,18 @@ export function PostReminderOptions({
       <Button
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
-          runBookmarkReminder(ReminderPreference.Tomorrow),
+          runBookmarkReminder(ReminderPreference.OneHour),
         )}
       >
-        Tomorrow
+        1h
       </Button>
       <Button
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
-          runBookmarkReminder(ReminderPreference.OneHour),
+          runBookmarkReminder(ReminderPreference.Tomorrow),
         )}
       >
-        1 hour
+        24h
       </Button>
       <Button
         {...buttonProps}
@@ -69,7 +69,7 @@ export function PostReminderOptions({
           }),
         )}
       >
-        More
+        Other
       </Button>
     </span>
   );

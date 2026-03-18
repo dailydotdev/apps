@@ -26,7 +26,6 @@ import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -78,11 +77,6 @@ export default function MainComment({
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: showNotificationPermissionBanner,
-    });
-
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,
     false,

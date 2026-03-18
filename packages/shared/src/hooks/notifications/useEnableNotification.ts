@@ -53,7 +53,7 @@ export const useEnableNotification = ({
     }
 
     try {
-      await Promise.resolve(onEnableAction());
+      await onEnableAction();
       setHasCompletedEnableAction(true);
       return true;
     } catch {
@@ -79,9 +79,7 @@ export const useEnableNotification = ({
     source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.SquadPage;
   const effectiveIsDismissed =
-    ignoreDismissState ||
-    shouldIgnoreDismissStateForSource ||
-    isPreviewActive
+    ignoreDismissState || shouldIgnoreDismissStateForSource || isPreviewActive
       ? false
       : isDismissed;
   useEffect(() => {

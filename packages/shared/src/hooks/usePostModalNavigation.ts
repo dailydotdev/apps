@@ -41,17 +41,6 @@ export type UsePostModalNavigationProps = {
   feedName: string;
 };
 
-const normalizePostIdentifier = (value?: string | null): string | undefined => {
-  if (!value || value === 'null' || value === 'undefined') {
-    return undefined;
-  }
-
-  return value;
-};
-
-const getPostIdentifier = (post: Post): string | undefined =>
-  normalizePostIdentifier(post.slug) ?? normalizePostIdentifier(post.id);
-
 // for extension we use in memory router
 const useRouter: () => UsePostModalRouter = isExtension
   ? useRouterMemory
@@ -74,9 +63,6 @@ export const usePostModalNavigation = ({
   const pmid = router.query?.pmid as string;
   const { logEvent } = useLogContext();
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-  const [selectedPostFallback, setSelectedPostFallback] = useState<Post | null>(
-    null,
-  );
   const scrollPositionOnFeed = useRef(0);
 
   // if multiple feeds/hooks are rendered prevent effects from running while other modal is open
@@ -97,14 +83,10 @@ export const usePostModalNavigation = ({
 
     const foundIndex = items.findIndex((item) => {
       if (item.type === 'post') {
-        const postIdentifier = getPostIdentifier(item.post);
-
-        return postIdentifier === pmid || item.post.id === pmid;
+        return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        const postIdentifier = getPostIdentifier(item.ad.data.post);
-
-        return postIdentifier === pmid || item.ad.data.post.id === pmid;
+        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
       }
 
       return false;
@@ -166,10 +148,7 @@ export const usePostModalNavigation = ({
       const post = getPost(index);
 
       if (post) {
-        const postId = getPostIdentifier(post);
-        if (!postId) {
-          return;
-        }
+        const postId = post.slug || post.id;
 
         const newPathname = getPathnameWithQuery(
           basePathname,
@@ -242,14 +221,10 @@ export const usePostModalNavigation = ({
 
     const indexFromQuery = items.findIndex((item) => {
       if (item.type === 'post') {
-        const postIdentifier = getPostIdentifier(item.post);
-
-        return postIdentifier === pmid || item.post.id === pmid;
+        return item.post.slug === pmid || item.post.id === pmid;
       }
       if (isBoostedPostAd(item)) {
-        const postIdentifier = getPostIdentifier(item.ad.data.post);
-
-        return postIdentifier === pmid || item.ad.data.post.id === pmid;
+        return item.ad.data.post.slug === pmid || item.ad.data.post.id === pmid;
       }
 
       return false;
@@ -260,29 +235,7 @@ export const usePostModalNavigation = ({
     }
   }, [openedPostIndex, pmid, items, onChangeSelected, isNavigationActive]);
 
-  const selectedPost = useMemo(() => {
-    if (typeof openedPostIndex !== 'undefined') {
-      return getPost(openedPostIndex);
-    }
-
-    return null;
-  }, [getPost, openedPostIndex]);
-
-  useEffect(() => {
-    if (selectedPost) {
-      setSelectedPostFallback(selectedPost);
-      return;
-    }
-
-    if (!pmid) {
-      setSelectedPostFallback(null);
-    }
-  }, [pmid, selectedPost]);
-
-  const activeSelectedPost = selectedPost ?? selectedPostFallback;
-  const selectedPostIsAd =
-    typeof openedPostIndex !== 'undefined' &&
-    isBoostedPostAd(items[openedPostIndex]);
+  const selectedPostIsAd = isBoostedPostAd(items[openedPostIndex]);
   const result = {
     postPosition: getPostPosition(),
     isFetchingNextPage: false,
@@ -306,10 +259,6 @@ export const usePostModalNavigation = ({
     },
     onOpenModal,
     onPrevious: () => {
-      if (typeof openedPostIndex === 'undefined') {
-        return;
-      }
-
       let index = openedPostIndex - 1;
       // look for the first post before the current one
       while (index > 0 && !isPostItem(items[index])) {
@@ -331,10 +280,6 @@ export const usePostModalNavigation = ({
       onChangeSelected(index);
     },
     onNext: async () => {
-      if (typeof openedPostIndex === 'undefined') {
-        return;
-      }
-
       let index = openedPostIndex + 1;
       // eslint-disable-next-line no-empty
       for (; index < items.length && !isPostItem(items[index]); index += 1) {}
@@ -363,8 +308,8 @@ export const usePostModalNavigation = ({
       );
       onChangeSelected(index);
     },
-    selectedPost: activeSelectedPost,
-    selectedPostIndex: openedPostIndex ?? -1,
+    selectedPost: getPost(openedPostIndex),
+    selectedPostIndex: openedPostIndex,
   };
 
   const parent = typeof window !== 'undefined' ? window : null;

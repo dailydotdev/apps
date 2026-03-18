@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NotificationPromptSource } from '../lib/log';
 import { stripLinkParameters } from '../lib/links';
@@ -8,13 +8,7 @@ import { usePushNotificationMutation } from './notifications';
 export const useNotificationParams = (): void => {
   const router = useRouter();
   const { isSubscribed } = usePushNotificationContext();
-  const stripNotifyParam = useCallback(() => {
-    const link = stripLinkParameters(window.location.href);
-    return router.replace(link);
-  }, [router]);
-  const { onEnablePush } = usePushNotificationMutation({
-    onPopupGranted: stripNotifyParam,
-  });
+  const { onEnablePush } = usePushNotificationMutation();
 
   useEffect(() => {
     if (isSubscribed || !router?.query.notify) {
@@ -27,8 +21,9 @@ export const useNotificationParams = (): void => {
           return;
         }
 
-        stripNotifyParam();
+        const link = stripLinkParameters(window.location.href);
+        router.replace(link);
       },
     );
-  }, [onEnablePush, isSubscribed, router?.query.notify, stripNotifyParam]);
+  }, [onEnablePush, isSubscribed, router]);
 };
