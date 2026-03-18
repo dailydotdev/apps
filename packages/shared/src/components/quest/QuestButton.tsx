@@ -566,7 +566,7 @@ const QuestPlusUnlockButton = (): ReactElement | null => {
 
       logSubscriptionEvent({
         event_name: LogEvent.UpgradeSubscription,
-        target_id: TargetId.Popover,
+        target_id: TargetId.QuestDropdown,
       });
     },
     [isLoggedIn, logSubscriptionEvent, showLogin],
