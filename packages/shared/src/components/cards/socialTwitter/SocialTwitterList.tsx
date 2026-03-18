@@ -178,7 +178,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 <PostTags post={postForTags} />
               </div>
             )}
-            <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="mt-4 min-h-0 flex-1 overflow-hidden">
               <EmbeddedTweetPreview
                 post={post}
                 className="w-full"
