@@ -99,6 +99,10 @@ const UserEntityCard = ({
     currentStatus === ContentPreferenceStatus.Subscribed;
   const haveNotificationsOn =
     currentStatus === ContentPreferenceStatus.Subscribed;
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled &&
+    showNotificationCta &&
+    !haveNotificationsOn;
 
   useEffect(() => {
     const previousStatus = prevStatusRef.current;
@@ -283,18 +287,16 @@ const UserEntityCard = ({
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
-        {isNotificationCtaExperimentEnabled &&
-          showNotificationCta &&
-          !haveNotificationsOn && (
-            <EnableNotificationsCta
-              onEnable={handleEnableNotifications}
-              analytics={{
-                placement: NotificationCtaPlacement.UserCard,
-                targetType: ContentPreferenceType.User,
-                targetId: id,
-              }}
-            />
-          )}
+        {shouldRenderNotificationCta && (
+          <EnableNotificationsCta
+            onEnable={handleEnableNotifications}
+            analytics={{
+              placement: NotificationCtaPlacement.UserCard,
+              targetType: ContentPreferenceType.User,
+              targetId: id,
+            }}
+          />
+        )}
       </div>
     </EntityCard>
   );

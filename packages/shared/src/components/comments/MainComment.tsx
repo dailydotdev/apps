@@ -83,16 +83,16 @@ export default function MainComment({
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
-  const shouldEvaluateNotificationCta =
-    showNotificationPermissionBanner ||
+  const hasUpvoteNotificationCtaCandidate =
     upvoteNotificationCommentId === comment.id;
+  const shouldEvaluateNotificationCta =
+    showNotificationPermissionBanner || hasUpvoteNotificationCtaCandidate;
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment({
       shouldEvaluate: shouldEvaluateNotificationCta,
     });
   const showUpvoteNotificationPermissionBanner =
-    isNotificationCtaExperimentEnabled &&
-    upvoteNotificationCommentId === comment.id;
+    isNotificationCtaExperimentEnabled && hasUpvoteNotificationCtaCandidate;
 
   const [isJoinSquadBannerDismissed] = usePersistentContext(
     SQUAD_COMMENT_JOIN_BANNER_KEY,

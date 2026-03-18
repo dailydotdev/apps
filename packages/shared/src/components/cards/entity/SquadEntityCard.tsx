@@ -64,6 +64,10 @@ const SquadEntityCard = ({
   });
 
   const isSquadMember = !!squad?.currentMember;
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled &&
+    showNotificationCta &&
+    !haveNotificationsOn;
 
   useEffect(() => {
     if (
@@ -176,19 +180,17 @@ const SquadEntityCard = ({
             {largeNumberFormat(flags?.totalUpvotes)} Upvotes
           </Typography>
         </div>
-        {isNotificationCtaExperimentEnabled &&
-          showNotificationCta &&
-          !haveNotificationsOn && (
-            <EnableNotificationsCta
-              onEnable={handleEnableNotifications}
-              analytics={{
-                placement: NotificationCtaPlacement.SquadCard,
-                targetType: TargetType.Source,
-                targetId: squad?.id,
-                source: NotificationPromptSource.SourceSubscribe,
-              }}
-            />
-          )}
+        {shouldRenderNotificationCta && (
+          <EnableNotificationsCta
+            onEnable={handleEnableNotifications}
+            analytics={{
+              placement: NotificationCtaPlacement.SquadCard,
+              targetType: TargetType.Source,
+              targetId: squad?.id,
+              source: NotificationPromptSource.SourceSubscribe,
+            }}
+          />
+        )}
       </div>
     </EntityCard>
   );

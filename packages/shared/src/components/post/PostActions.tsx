@@ -75,6 +75,8 @@ export function PostActions({
     id: creator?.id,
     entity: ContentPreferenceType.User,
   });
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled && showNotificationCta;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
@@ -350,7 +352,7 @@ export function PostActions({
           </div>
         </div>
       </div>
-      {isNotificationCtaExperimentEnabled && showNotificationCta && (
+      {shouldRenderNotificationCta && (
         <EnableNotificationsCta
           onEnable={handleEnableNotifications}
           analytics={{

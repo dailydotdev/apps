@@ -281,6 +281,8 @@ const TagPage = ({
     });
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
+  const shouldShowTagFollowCta =
+    isNotificationCtaExperimentEnabled && !!newlyFollowedTag;
   const title = initialData?.flags?.title || tag;
   const jsonLd = initialData
     ? getTagPageJsonLd({ tag, initialData, topPosts })
@@ -415,10 +417,10 @@ const TagPage = ({
             }}
           />
         </div>
-        {isNotificationCtaExperimentEnabled && newlyFollowedTag && (
+        {shouldShowTagFollowCta && (
           <EnableNotification
             className="mt-3"
-            contentName={newlyFollowedTag}
+            contentName={newlyFollowedTag ?? undefined}
             placement={NotificationCtaPlacement.TagPage}
             source={NotificationPromptSource.PostTagFollow}
           />

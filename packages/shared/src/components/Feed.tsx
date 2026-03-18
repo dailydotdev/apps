@@ -31,12 +31,9 @@ import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import {
   LogEvent,
-  NotificationCtaKind,
   NotificationCtaPlacement,
-  NotificationPromptSource,
   Origin,
   TargetId,
-  TargetType,
 } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
@@ -83,6 +80,7 @@ import {
   useNotificationCtaExperiment,
 } from '../hooks/notifications/useNotificationCtaExperiment';
 import {
+  getReadingReminderCtaParams,
   useNotificationCtaAnalytics,
   useNotificationCtaImpression,
 } from '../hooks/notifications/useNotificationCtaAnalytics';
@@ -285,12 +283,15 @@ export default function Feed<T>({
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
+  const isHomePage = pathname === webappUrl;
+  const shouldEvaluateReminderExperiment =
+    isHomePage && shouldShowReadingReminder;
   const {
     isEnabled: isNotificationCtaExperimentEnabled,
     isPlacementForced,
     shouldHidePlacement,
   } = useNotificationCtaExperiment({
-    shouldEvaluate: pathname === webappUrl && shouldShowReadingReminder,
+    shouldEvaluate: shouldEvaluateReminderExperiment,
   });
   const isTopHeroForced = isPlacementForced(
     NotificationCtaPreviewPlacement.TopHero,
@@ -555,80 +556,50 @@ export default function Feed<T>({
       openSharePost({ post, columns: virtualizedNumCards, column, row }),
     [openSharePost, virtualizedNumCards],
   );
+  const canShowReminderPlacements =
+    isNotificationCtaExperimentEnabled && shouldEvaluateReminderExperiment;
   const onEnableInFeedHero = useCallback(async () => {
-    logClick({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.InFeedHero,
-    });
+    logClick(getReadingReminderCtaParams(NotificationCtaPlacement.InFeedHero));
     await onEnable();
     setIsHeroDismissed(true);
   }, [logClick, onEnable]);
   const onEnableTopHero = useCallback(async () => {
-    logClick({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.TopHero,
-    });
+    logClick(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
     await onEnable();
     setIsTopHeroDismissed(true);
   }, [logClick, onEnable]);
   const onDismissInFeedHero = useCallback(async () => {
     setIsHeroDismissed(true);
-    logDismiss({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.InFeedHero,
-    });
+    logDismiss(
+      getReadingReminderCtaParams(NotificationCtaPlacement.InFeedHero),
+    );
     await onDismiss();
   }, [logDismiss, onDismiss]);
   const onDismissTopHero = useCallback(async () => {
     setIsTopHeroDismissed(true);
-    logDismiss({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.TopHero,
-    });
+    logDismiss(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
     await onDismiss();
   }, [logDismiss, onDismiss]);
 
   const shouldShowInFeedHero =
-    isNotificationCtaExperimentEnabled &&
-    pathname === webappUrl &&
-    shouldShowReadingReminder &&
+    canShowReminderPlacements &&
     !shouldHideInFeedHero &&
     (isInFeedHeroForced || hasScrolledForHero) &&
     !isHeroDismissed &&
     items.length > HERO_INSERT_INDEX;
   const shouldShowTopHero =
-    isNotificationCtaExperimentEnabled &&
-    pathname === webappUrl &&
-    shouldShowReadingReminder &&
+    canShowReminderPlacements &&
     isTopHeroForced &&
     !shouldHideTopHero &&
     !isTopHeroDismissed;
 
   useNotificationCtaImpression(
-    {
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.TopHero,
-    },
+    getReadingReminderCtaParams(NotificationCtaPlacement.TopHero),
     shouldShowTopHero,
   );
 
   useNotificationCtaImpression(
-    {
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.InFeedHero,
-    },
+    getReadingReminderCtaParams(NotificationCtaPlacement.InFeedHero),
     shouldShowInFeedHero,
   );
 

@@ -5,18 +5,14 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import ReadingReminderCatLaptop from '../banners/ReadingReminderCatLaptop';
 import { useReadingReminderHero } from '../../hooks/notifications/useReadingReminderHero';
-import {
-  NotificationCtaKind,
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/log';
+import { NotificationCtaPlacement } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
 import {
   NotificationCtaPreviewPlacement,
   useNotificationCtaExperiment,
 } from '../../hooks/notifications/useNotificationCtaExperiment';
 import {
+  getReadingReminderCtaParams,
   useNotificationCtaAnalytics,
   useNotificationCtaImpression,
 } from '../../hooks/notifications/useNotificationCtaAnalytics';
@@ -39,9 +35,12 @@ export const SidebarNotificationPrompt = ({
   } = useReadingReminderHero({
     requireMobile: false,
   });
+  const isHomePage = pathname === webappUrl;
+  const shouldEvaluateReminderExperiment =
+    isHomePage && sidebarExpanded && shouldShow;
   const { isEnabled: isNotificationCtaExperimentEnabled, shouldHidePlacement } =
     useNotificationCtaExperiment({
-      shouldEvaluate: pathname === webappUrl && sidebarExpanded && shouldShow,
+      shouldEvaluate: shouldEvaluateReminderExperiment,
     });
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
 
@@ -51,38 +50,25 @@ export const SidebarNotificationPrompt = ({
 
   const shouldShowSidebarPrompt =
     isNotificationCtaExperimentEnabled &&
-    pathname === webappUrl &&
-    sidebarExpanded &&
-    !shouldHideSideMenuPrompt &&
-    shouldShow;
+    shouldEvaluateReminderExperiment &&
+    !shouldHideSideMenuPrompt;
 
   useNotificationCtaImpression(
-    {
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.SidebarPrompt,
-    },
+    getReadingReminderCtaParams(NotificationCtaPlacement.SidebarPrompt),
     shouldShowSidebarPrompt,
   );
 
   const onEnableClick = useCallback(async () => {
-    logClick({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.SidebarPrompt,
-    });
+    logClick(
+      getReadingReminderCtaParams(NotificationCtaPlacement.SidebarPrompt),
+    );
     await onEnable();
   }, [logClick, onEnable]);
 
   const onDismissClick = useCallback(async () => {
-    logDismiss({
-      kind: NotificationCtaKind.ReadingReminder,
-      targetType: TargetType.ReadingReminder,
-      source: NotificationPromptSource.ReadingReminder,
-      placement: NotificationCtaPlacement.SidebarPrompt,
-    });
+    logDismiss(
+      getReadingReminderCtaParams(NotificationCtaPlacement.SidebarPrompt),
+    );
     await onDismiss();
   }, [logDismiss, onDismiss]);
 

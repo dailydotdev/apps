@@ -68,6 +68,10 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   const wasFollowing =
     prevStatusRef.current === ContentPreferenceStatus.Follow ||
     prevStatusRef.current === ContentPreferenceStatus.Subscribed;
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled &&
+    showNotificationCta &&
+    !haveNotificationsOn;
 
   useEffect(() => {
     if (currentStatus === prevStatusRef.current) {
@@ -152,19 +156,17 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             {largeNumberFormat(flags?.totalUpvotes) || 0} Upvotes
           </Typography>
         </div>
-        {isNotificationCtaExperimentEnabled &&
-          showNotificationCta &&
-          !haveNotificationsOn && (
-            <EnableNotificationsCta
-              onEnable={handleTurnOn}
-              analytics={{
-                placement: NotificationCtaPlacement.SourceCard,
-                targetType: TargetType.Source,
-                targetId: source?.id,
-                source: NotificationPromptSource.SourceSubscribe,
-              }}
-            />
-          )}
+        {shouldRenderNotificationCta && (
+          <EnableNotificationsCta
+            onEnable={handleTurnOn}
+            analytics={{
+              placement: NotificationCtaPlacement.SourceCard,
+              targetType: TargetType.Source,
+              targetId: source?.id,
+              source: NotificationPromptSource.SourceSubscribe,
+            }}
+          />
+        )}
       </div>
     </EntityCard>
   );

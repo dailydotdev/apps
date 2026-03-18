@@ -110,6 +110,8 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
       shouldEvaluate: !!newlyFollowedTag,
     });
   const { onFollowTag, tags } = useFollowPostTags({ post });
+  const shouldShowTagFollowCta =
+    isNotificationCtaExperimentEnabled && !!newlyFollowedTag;
 
   useEffect(() => {
     setNewlyFollowedTag(null);
@@ -147,10 +149,10 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
           />
         ))}
       </ul>
-      {isNotificationCtaExperimentEnabled && newlyFollowedTag && (
+      {shouldShowTagFollowCta && (
         <EnableNotification
           className="mt-3"
-          contentName={newlyFollowedTag}
+          contentName={newlyFollowedTag ?? undefined}
           placement={NotificationCtaPlacement.TagFollowInline}
           source={NotificationPromptSource.PostTagFollow}
         />

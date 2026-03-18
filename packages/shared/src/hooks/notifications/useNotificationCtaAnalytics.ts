@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
-import type {
+import {
+  LogEvent,
   NotificationCtaKind,
-  NotificationCtaPlacement,
   NotificationPromptSource,
+  TargetType,
 } from '../../lib/log';
+import type { NotificationCtaPlacement } from '../../lib/log';
 import useLogEventOnce from '../log/useLogEventOnce';
 
 type NotificationCtaTargetType = string;
@@ -53,6 +54,15 @@ export const useNotificationCtaImpression = (
     { condition },
   );
 };
+
+export const getReadingReminderCtaParams = (
+  placement: NotificationCtaPlacement,
+): NotificationCtaAnalyticsParams => ({
+  kind: NotificationCtaKind.ReadingReminder,
+  targetType: TargetType.ReadingReminder,
+  source: NotificationPromptSource.ReadingReminder,
+  placement,
+});
 
 export const useNotificationCtaAnalytics = () => {
   const { logEvent } = useLogContext();

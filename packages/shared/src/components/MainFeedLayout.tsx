@@ -226,10 +226,12 @@ export default function MainFeedLayout({
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
+  const isHomePage = router.pathname === webappUrl;
+  const shouldEvaluateReminderExperiment =
+    isHomePage && shouldShowReadingReminder;
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment({
-      shouldEvaluate:
-        router.pathname === webappUrl && shouldShowReadingReminder,
+      shouldEvaluate: shouldEvaluateReminderExperiment,
     });
   const {
     isUpvoted,
@@ -537,9 +539,7 @@ export default function MainFeedLayout({
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
   const shouldShowReadingReminderOnHomepage =
-    !isNotificationCtaExperimentEnabled &&
-    router.pathname === webappUrl &&
-    shouldShowReadingReminder;
+    !isNotificationCtaExperimentEnabled && shouldEvaluateReminderExperiment;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
