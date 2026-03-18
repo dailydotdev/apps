@@ -27,7 +27,7 @@ interface BookmarkReminderModalOptionProps {
   isActive: boolean;
   onClick: () => void;
   option: {
-    key: keyof typeof ReminderPreference;
+    key: ReminderPreference;
     value: ReminderPreference;
   };
 }

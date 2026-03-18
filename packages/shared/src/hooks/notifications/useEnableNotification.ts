@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLogContext } from '../../contexts/LogContext';
 import usePersistentContext from '../usePersistentContext';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
@@ -17,6 +17,7 @@ const isTruthySessionFlag = (value: string | null): boolean =>
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
   ignoreDismissState?: boolean;
+  onEnableAction?: () => Promise<unknown> | unknown;
 }
 
 interface UseEnableNotification {
@@ -29,6 +30,7 @@ interface UseEnableNotification {
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
   ignoreDismissState = false,
+  onEnableAction,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
     useNotificationCtaExperiment();
@@ -39,8 +41,33 @@ export const useEnableNotification = ({
   const hasLoggedImpression = useRef(false);
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
-  const { hasPermissionCache, acceptedJustNow, onEnablePush } =
-    usePushNotificationMutation();
+  const [hasCompletedEnableAction, setHasCompletedEnableAction] = useState(
+    !onEnableAction,
+  );
+  const runEnableAction = useCallback(async (): Promise<boolean> => {
+    if (!onEnableAction) {
+      setHasCompletedEnableAction(true);
+      return true;
+    }
+
+    try {
+      await Promise.resolve(onEnableAction());
+      setHasCompletedEnableAction(true);
+      return true;
+    } catch {
+      setHasCompletedEnableAction(false);
+      return false;
+    }
+  }, [onEnableAction]);
+  const {
+    hasPermissionCache,
+    acceptedJustNow: acceptedPushJustNow,
+    onEnablePush,
+  } = usePushNotificationMutation({
+    onPopupGranted: () => {
+      runEnableAction().catch(() => null);
+    },
+  });
   const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
     globalThis?.sessionStorage?.getItem(
       FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
@@ -65,6 +92,12 @@ export const useEnableNotification = ({
     isPreviewActive
       ? false
       : isDismissed;
+  useEffect(() => {
+    setHasCompletedEnableAction(!onEnableAction);
+  }, [onEnableAction]);
+
+  const acceptedJustNow = acceptedPushJustNow && hasCompletedEnableAction;
+
   const onDismiss = useCallback(() => {
     logEvent({
       event_name: LogEvent.ClickNotificationDismiss,
@@ -73,10 +106,15 @@ export const useEnableNotification = ({
     setIsDismissed(true);
   }, [source, logEvent, setIsDismissed]);
 
-  const onEnable = useCallback(
-    () => onEnablePush(source),
-    [source, onEnablePush],
-  );
+  const onEnable = useCallback(async () => {
+    const isEnabled = await onEnablePush(source);
+
+    if (!isEnabled) {
+      return false;
+    }
+
+    return runEnableAction();
+  }, [source, onEnablePush, runEnableAction]);
 
   const isRolloutOnlySource =
     source === NotificationPromptSource.CommentUpvote ||

@@ -114,16 +114,19 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
     return null;
   }
 
-  const handleFollowTag = async (tag: string): Promise<void> => {
-    const { successful } = await onFollowTag(tag);
+  const handleFollowTag = async (tag: string) => {
+    const result = await onFollowTag(tag);
+    const { successful } = result;
 
     if (!successful) {
-      return;
+      return result;
     }
 
     if (isNotificationCtaExperimentEnabled) {
       setNewlyFollowedTag(tag);
     }
+
+    return result;
   };
 
   return (

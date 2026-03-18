@@ -86,17 +86,7 @@ function EnableNotification({
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
-    useEnableNotification({ source, ignoreDismissState });
-
-  const handleEnable = async () => {
-    const actions = [onEnable()];
-
-    if (onEnableAction) {
-      actions.push(Promise.resolve(onEnableAction()));
-    }
-
-    await Promise.allSettled(actions);
-  };
+    useEnableNotification({ source, ignoreDismissState, onEnableAction });
 
   if (
     !shouldShowCta ||
@@ -207,7 +197,7 @@ function EnableNotification({
           className="ml-auto mr-14"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.XSmall}
-          onClick={handleEnable}
+          onClick={onEnable}
         >
           {buttonText}
         </Button>
@@ -277,7 +267,7 @@ function EnableNotification({
               variant={ButtonVariant.Primary}
               color={ButtonColor.Cabbage}
               className="mr-4"
-              onClick={handleEnable}
+              onClick={onEnable}
             >
               {buttonText}
             </Button>
@@ -381,7 +371,7 @@ function EnableNotification({
                   <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
                 ) : undefined
               }
-              onClick={handleEnable}
+              onClick={onEnable}
             >
               {buttonText}
             </Button>
@@ -398,7 +388,7 @@ function EnableNotification({
                     <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
                   ) : undefined
                 }
-                onClick={handleEnable}
+                onClick={onEnable}
               >
                 {buttonText}
               </Button>
@@ -437,7 +427,7 @@ function EnableNotification({
                   <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
                 ) : undefined
               }
-              onClick={handleEnable}
+              onClick={onEnable}
             >
               {buttonText}
             </Button>

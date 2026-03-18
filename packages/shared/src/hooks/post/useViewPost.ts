@@ -51,7 +51,9 @@ export const useViewPost = (): UseMutateAsyncFunction<
         const error = err as ApiErrorResult & {
           response?: { errors?: Array<{ extensions?: { code?: string } }> };
         };
-        const errorCode = error?.response?.errors?.[0]?.extensions?.code;
+        const errorCode = error?.response?.errors?.[0]?.extensions?.code as
+          | string
+          | undefined;
 
         if (errorCode === 'UNAUTHENTICATED' || errorCode === 'RATE_LIMITED') {
           return null;

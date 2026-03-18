@@ -10,6 +10,9 @@ type TopHeroProps = {
   className?: string;
   variant?: 'default' | 'lightAndTight';
   applyFeedWidthConstraint?: boolean;
+  title?: string;
+  subtitle?: string;
+  shouldShowDismiss?: boolean;
   onCtaClick?: () => void;
   onClose?: () => void;
 };
@@ -18,6 +21,9 @@ export const TopHero = ({
   className,
   variant = 'default',
   applyFeedWidthConstraint = true,
+  title = 'Never miss a learning day',
+  subtitle = 'Turn on your daily reading reminder and keep your routine.',
+  shouldShowDismiss = false,
   onCtaClick,
   onClose,
 }: TopHeroProps): ReactElement => {
@@ -34,11 +40,9 @@ export const TopHero = ({
           <div className="overflow-hidden rounded-[0.9375rem] bg-raw-pepper-90">
             <div className="flex flex-col gap-4 px-4 py-2 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-5 tablet:py-2">
               <div className="flex flex-col gap-0">
-                <h3 className="text-white/70 font-bold typo-title3">
-                  Never miss read day
-                </h3>
+                <h3 className="text-white/70 font-bold typo-title3">{title}</h3>
                 <p className="text-[0.9375rem] font-normal leading-5 text-text-secondary">
-                  Turn on your daily reading reminder and keep your routine.
+                  {subtitle}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2 self-end tablet:self-auto">
@@ -50,15 +54,17 @@ export const TopHero = ({
                 >
                   Enable reminder
                 </Button>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  className="text-white/80 hover:text-white"
-                  icon={<MiniCloseIcon />}
-                  aria-label="Close banner"
-                  onClick={onClose}
-                />
+                {shouldShowDismiss && (
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    className="text-white/80 hover:text-white"
+                    icon={<MiniCloseIcon />}
+                    aria-label="Close banner"
+                    onClick={onClose}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -81,23 +87,21 @@ export const TopHero = ({
         <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
-            icon={<MiniCloseIcon />}
-            aria-label="Close banner"
-            onClick={onClose}
-          />
+          {shouldShowDismiss && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
+              icon={<MiniCloseIcon />}
+              aria-label="Close banner"
+              onClick={onClose}
+            />
+          )}
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
             <div className="flex flex-1 flex-col justify-between p-5 tablet:p-6">
               <div className="flex flex-col gap-1">
-                <p className="text-white/80 mt-2 text-[0.9375rem]">
-                  Never miss a learning day
-                </p>
-                <h3 className="font-bold text-white typo-title2">
-                  Turn on your daily reading reminder and keep your routine.
-                </h3>
+                <p className="text-white/80 mt-2 text-[0.9375rem]">{title}</p>
+                <h3 className="font-bold text-white typo-title2">{subtitle}</h3>
               </div>
               <Button
                 type="button"

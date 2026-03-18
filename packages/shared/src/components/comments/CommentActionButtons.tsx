@@ -337,10 +337,6 @@ export default function CommentActionButtons({
             const shouldShowUpvoteNotification =
               !isRemovingUpvote && !!user && !!onUpvote;
 
-            if (shouldShowUpvoteNotification) {
-              onUpvote(comment);
-            }
-
             try {
               await toggleUpvote({
                 payload: {
@@ -349,6 +345,10 @@ export default function CommentActionButtons({
                 },
                 origin,
               });
+
+              if (shouldShowUpvoteNotification) {
+                onUpvote(comment);
+              }
             } catch {
               // Ignore upvote callback side effects when mutation fails.
             }

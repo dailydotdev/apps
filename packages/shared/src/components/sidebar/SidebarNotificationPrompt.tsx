@@ -3,8 +3,7 @@ import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import ReadingReminderCatLaptop from '../banners/ReadingReminderCatLaptop';
-import { useEnableNotification } from '../../hooks/notifications';
-import { NotificationPromptSource } from '../../lib/log';
+import { useReadingReminderHero } from '../../hooks/notifications/useReadingReminderHero';
 import {
   NotificationCtaPreviewPlacement,
   useNotificationCtaExperiment,
@@ -17,21 +16,23 @@ type SidebarNotificationPromptProps = {
 export const SidebarNotificationPrompt = ({
   sidebarExpanded,
 }: SidebarNotificationPromptProps): ReactElement | null => {
-  const { isEnabled, shouldHidePlacement } = useNotificationCtaExperiment();
-  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
-    source: NotificationPromptSource.NotificationsPage,
+  const { shouldHidePlacement } = useNotificationCtaExperiment();
+  const {
+    shouldShow,
+    title,
+    subtitle,
+    shouldShowDismiss,
+    onEnable,
+    onDismiss,
+  } = useReadingReminderHero({
+    requireMobile: false,
   });
 
   const shouldHideSideMenuPrompt = shouldHidePlacement(
     NotificationCtaPreviewPlacement.SidebarPrompt,
   );
 
-  if (
-    !isEnabled ||
-    !sidebarExpanded ||
-    shouldHideSideMenuPrompt ||
-    !shouldShowCta
-  ) {
+  if (!sidebarExpanded || shouldHideSideMenuPrompt || !shouldShow) {
     return null;
   }
 
@@ -43,20 +44,18 @@ export const SidebarNotificationPrompt = ({
         </div>
         <div className="pointer-events-none absolute -right-8 top-1/2 h-[0.1875rem] w-10 -translate-y-1/2 bg-gradient-to-r from-white to-transparent blur-[2px] motion-safe:[animation:sidebar-popover-tail_5s_ease-in-out_infinite]" />
         <div className="relative rounded-[0.9375rem] bg-background-popover p-3 text-center shadow-2">
-          <CloseButton
-            size={ButtonSize.XSmall}
-            className="absolute right-1 top-1"
-            onClick={onDismiss}
-          />
+          {shouldShowDismiss && (
+            <CloseButton
+              size={ButtonSize.XSmall}
+              className="absolute right-1 top-1"
+              onClick={onDismiss}
+            />
+          )}
           <div className="mb-2 flex justify-center pr-6">
             <ReadingReminderCatLaptop className="max-w-none rounded-8" />
           </div>
-          <p className="text-text-tertiary typo-caption1">
-            Never miss a learning day.
-          </p>
-          <p className="mt-1 text-text-primary typo-footnote">
-            Turn on your daily reading reminder and keep your routine.
-          </p>
+          <p className="text-text-tertiary typo-caption1">{title}</p>
+          <p className="mt-1 text-text-primary typo-footnote">{subtitle}</p>
           <Button
             type="button"
             size={ButtonSize.XSmall}

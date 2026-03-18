@@ -184,6 +184,18 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShow).toBe(true);
   });
 
+  it('should show on desktop when mobile-only gating is disabled', () => {
+    mockUseViewSize.mockReturnValue(false);
+
+    const { result } = renderHook(() =>
+      useReadingReminderHero({
+        requireMobile: false,
+      }),
+    );
+
+    expect(result.current.shouldShow).toBe(true);
+  });
+
   it('should enable reminder and log schedule event', async () => {
     const { result } = renderHook(() => useReadingReminderHero());
 

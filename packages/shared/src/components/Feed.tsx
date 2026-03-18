@@ -278,8 +278,14 @@ export default function Feed<T>({
   const shouldHideInFeedHero = shouldHidePlacement(
     NotificationCtaPreviewPlacement.InFeedHero,
   );
-  const { shouldShow: shouldShowReadingReminder, onEnable } =
-    useReadingReminderHero();
+  const {
+    shouldShow: shouldShowReadingReminder,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnable,
+    onDismiss,
+  } = useReadingReminderHero();
   const [hasScrolledForHero, setHasScrolledForHero] =
     useState(isInFeedHeroForced);
   const [isHeroDismissed, setIsHeroDismissed] = useState(false);
@@ -538,6 +544,14 @@ export default function Feed<T>({
     await onEnable();
     setIsTopHeroDismissed(true);
   }, [onEnable]);
+  const onDismissInFeedHero = useCallback(async () => {
+    setIsHeroDismissed(true);
+    await onDismiss();
+  }, [onDismiss]);
+  const onDismissTopHero = useCallback(async () => {
+    setIsTopHeroDismissed(true);
+    await onDismiss();
+  }, [onDismiss]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -656,8 +670,11 @@ export default function Feed<T>({
             className="pt-2"
             variant="default"
             applyFeedWidthConstraint={false}
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            shouldShowDismiss={shouldShowReadingReminderDismiss}
             onCtaClick={onEnableTopHero}
-            onClose={() => setIsTopHeroDismissed(true)}
+            onClose={onDismissTopHero}
           />
         ),
         header,
@@ -723,8 +740,11 @@ export default function Feed<T>({
                   >
                     <TopHero
                       className="pt-0"
+                      title={readingReminderTitle}
+                      subtitle={readingReminderSubtitle}
+                      shouldShowDismiss={shouldShowReadingReminderDismiss}
                       onCtaClick={onEnableInFeedHero}
-                      onClose={() => setIsHeroDismissed(true)}
+                      onClose={onDismissInFeedHero}
                     />
                   </div>
                 )}

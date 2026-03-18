@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { NotificationPromptSource } from '../../lib/log';
 import { useEnableNotification } from './useEnableNotification';
 
@@ -18,7 +18,7 @@ jest.mock('../usePersistentContext', () => ({
 }));
 
 jest.mock('./usePushNotificationMutation', () => ({
-  usePushNotificationMutation: () => mockUsePushNotificationMutation(),
+  usePushNotificationMutation: (args) => mockUsePushNotificationMutation(args),
 }));
 
 jest.mock('../../contexts/PushNotificationContext', () => ({
@@ -30,16 +30,25 @@ jest.mock('./useNotificationCtaExperiment', () => ({
 }));
 
 describe('useEnableNotification', () => {
+  let popupGrantedHandler: (() => void) | undefined;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    popupGrantedHandler = undefined;
 
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockPersistentContext.mockReturnValue([false, jest.fn(), true]);
-    mockUsePushNotificationMutation.mockReturnValue({
-      hasPermissionCache: false,
-      acceptedJustNow: false,
-      onEnablePush: jest.fn(),
-    });
+    mockUsePushNotificationMutation.mockImplementation(
+      ({ onPopupGranted } = {}) => {
+        popupGrantedHandler = onPopupGranted;
+
+        return {
+          hasPermissionCache: false,
+          acceptedJustNow: false,
+          onEnablePush: jest.fn(),
+        };
+      },
+    );
     mockUsePushNotificationContext.mockReturnValue({
       isInitialized: true,
       isPushSupported: true,
@@ -82,5 +91,75 @@ describe('useEnableNotification', () => {
     );
 
     expect(result.current.shouldShowCta).toBe(true);
+  });
+
+  it('should run onEnableAction after direct permission enable succeeds', async () => {
+    const onEnableAction = jest.fn().mockResolvedValue(undefined);
+    const onEnablePush = jest.fn().mockResolvedValue(true);
+
+    mockUsePushNotificationMutation.mockImplementation(
+      ({ onPopupGranted } = {}) => {
+        popupGrantedHandler = onPopupGranted;
+
+        return {
+          hasPermissionCache: false,
+          acceptedJustNow: true,
+          onEnablePush,
+        };
+      },
+    );
+
+    const { result } = renderHook(() =>
+      useEnableNotification({
+        source: NotificationPromptSource.CommentUpvote,
+        onEnableAction,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.onEnable();
+    });
+
+    expect(onEnablePush).toHaveBeenCalledWith(
+      NotificationPromptSource.CommentUpvote,
+    );
+    expect(onEnableAction).toHaveBeenCalledTimes(1);
+    expect(result.current.acceptedJustNow).toBe(true);
+  });
+
+  it('should run onEnableAction after popup permission is granted', async () => {
+    const onEnableAction = jest.fn().mockResolvedValue(undefined);
+
+    mockUsePushNotificationMutation.mockImplementation(
+      ({ onPopupGranted } = {}) => {
+        popupGrantedHandler = onPopupGranted;
+
+        return {
+          hasPermissionCache: false,
+          acceptedJustNow: true,
+          onEnablePush: jest.fn().mockResolvedValue(false),
+        };
+      },
+    );
+
+    const { result } = renderHook(() =>
+      useEnableNotification({
+        source: NotificationPromptSource.CommentUpvote,
+        onEnableAction,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.onEnable();
+    });
+
+    expect(onEnableAction).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await popupGrantedHandler?.();
+    });
+
+    expect(onEnableAction).toHaveBeenCalledTimes(1);
+    expect(result.current.acceptedJustNow).toBe(true);
   });
 });
