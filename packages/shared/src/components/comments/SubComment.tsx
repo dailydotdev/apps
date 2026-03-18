@@ -50,8 +50,12 @@ function SubComment({
   ...props
 }: SubCommentProps): ReactElement {
   const { user } = useAuthContext();
+  const shouldEvaluateNotificationCta =
+    upvoteNotificationCommentId === comment.id;
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate: shouldEvaluateNotificationCta,
+    });
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
   const showUpvoteNotificationPermissionBanner =

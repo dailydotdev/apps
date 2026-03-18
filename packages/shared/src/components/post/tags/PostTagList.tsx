@@ -104,10 +104,12 @@ const PostTagItem = ({
 };
 
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
-  const { onFollowTag, tags } = useFollowPostTags({ post });
   const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: !!newlyFollowedTag,
+    });
+  const { onFollowTag, tags } = useFollowPostTags({ post });
 
   useEffect(() => {
     setNewlyFollowedTag(null);
@@ -125,9 +127,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
       return result;
     }
 
-    if (isNotificationCtaExperimentEnabled) {
-      setNewlyFollowedTag(tag);
-    }
+    setNewlyFollowedTag(tag);
 
     return result;
   };

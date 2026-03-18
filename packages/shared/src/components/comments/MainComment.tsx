@@ -83,8 +83,13 @@ export default function MainComment({
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
+  const shouldEvaluateNotificationCta =
+    showNotificationPermissionBanner ||
+    upvoteNotificationCommentId === comment.id;
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate: shouldEvaluateNotificationCta,
+    });
   const showUpvoteNotificationPermissionBanner =
     isNotificationCtaExperimentEnabled &&
     upvoteNotificationCommentId === comment.id;

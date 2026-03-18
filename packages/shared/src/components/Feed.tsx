@@ -278,10 +278,20 @@ export default function Feed<T>({
     shouldEvaluate: !user?.isPlus && isMyFeed,
   });
   const {
+    shouldShow: shouldShowReadingReminder,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnable,
+    onDismiss,
+  } = useReadingReminderHero();
+  const {
     isEnabled: isNotificationCtaExperimentEnabled,
     isPlacementForced,
     shouldHidePlacement,
-  } = useNotificationCtaExperiment();
+  } = useNotificationCtaExperiment({
+    shouldEvaluate: pathname === webappUrl && shouldShowReadingReminder,
+  });
   const isTopHeroForced = isPlacementForced(
     NotificationCtaPreviewPlacement.TopHero,
   );
@@ -294,14 +304,6 @@ export default function Feed<T>({
   const shouldHideInFeedHero = shouldHidePlacement(
     NotificationCtaPreviewPlacement.InFeedHero,
   );
-  const {
-    shouldShow: shouldShowReadingReminder,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    shouldShowDismiss: shouldShowReadingReminderDismiss,
-    onEnable,
-    onDismiss,
-  } = useReadingReminderHero();
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [hasScrolledForHero, setHasScrolledForHero] =
     useState(isInFeedHeroForced);

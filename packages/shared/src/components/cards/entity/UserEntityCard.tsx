@@ -54,14 +54,16 @@ const UserEntityCard = ({
 }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
   const { data: contentPreference } = useContentPreferenceStatusQuery({
     id: user?.id,
     entity: ContentPreferenceType.User,
   });
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
   const { unblock, block, subscribe } = useContentPreference();
-  const [showNotificationCta, setShowNotificationCta] = useState(false);
   const prevStatusRef = useRef(contentPreference?.status);
   const prevAuthorPostUpvotedRef = useRef(isAuthorPostUpvoted);
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
@@ -99,12 +101,6 @@ const UserEntityCard = ({
     currentStatus === ContentPreferenceStatus.Subscribed;
 
   useEffect(() => {
-    if (!isNotificationCtaExperimentEnabled) {
-      setShowNotificationCta(false);
-      prevStatusRef.current = currentStatus;
-      return;
-    }
-
     const previousStatus = prevStatusRef.current;
 
     if (previousStatus === currentStatus) {
@@ -122,20 +118,9 @@ const UserEntityCard = ({
     }
 
     prevStatusRef.current = currentStatus;
-  }, [
-    currentStatus,
-    isNotificationCtaExperimentEnabled,
-    isNowFollowing,
-    showNotificationCtaOnFollow,
-  ]);
+  }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
 
   useEffect(() => {
-    if (!isNotificationCtaExperimentEnabled) {
-      setShowNotificationCta(false);
-      prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
-      return;
-    }
-
     const wasAuthorPostUpvoted = prevAuthorPostUpvotedRef.current;
 
     if (wasAuthorPostUpvoted === isAuthorPostUpvoted) {
@@ -152,12 +137,7 @@ const UserEntityCard = ({
     }
 
     prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
-  }, [
-    haveNotificationsOn,
-    isAuthorPostUpvoted,
-    isNotificationCtaExperimentEnabled,
-    showNotificationCtaOnUpvote,
-  ]);
+  }, [haveNotificationsOn, isAuthorPostUpvoted, showNotificationCtaOnUpvote]);
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,

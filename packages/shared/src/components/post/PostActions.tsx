@@ -58,11 +58,13 @@ export function PostActions({
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const creator = post.author || post.scout;
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
-  const [showNotificationCta, setShowNotificationCta] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
   const canAward = useCanAwardUser({
     sendingUser: user,
@@ -98,7 +100,6 @@ export function PostActions({
     }
 
     if (
-      !isNotificationCtaExperimentEnabled ||
       creatorContentPreference?.status === ContentPreferenceStatus.Subscribed
     ) {
       return;

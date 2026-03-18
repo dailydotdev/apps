@@ -29,9 +29,6 @@ export const SidebarNotificationPrompt = ({
   sidebarExpanded,
 }: SidebarNotificationPromptProps): ReactElement | null => {
   const { pathname } = useRouter();
-  const { isEnabled: isNotificationCtaExperimentEnabled, shouldHidePlacement } =
-    useNotificationCtaExperiment();
-  const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const {
     shouldShow,
     title,
@@ -42,6 +39,11 @@ export const SidebarNotificationPrompt = ({
   } = useReadingReminderHero({
     requireMobile: false,
   });
+  const { isEnabled: isNotificationCtaExperimentEnabled, shouldHidePlacement } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: pathname === webappUrl && sidebarExpanded && shouldShow,
+    });
+  const { logClick, logDismiss } = useNotificationCtaAnalytics();
 
   const shouldHideSideMenuPrompt = shouldHidePlacement(
     NotificationCtaPreviewPlacement.SidebarPrompt,

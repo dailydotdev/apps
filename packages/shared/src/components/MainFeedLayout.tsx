@@ -227,7 +227,10 @@ export default function MainFeedLayout({
     onDismiss,
   } = useReadingReminderHero();
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate:
+        router.pathname === webappUrl && shouldShowReadingReminder,
+    });
   const {
     isUpvoted,
     isPopular,

@@ -90,65 +90,66 @@ export interface UseNotificationCtaExperiment {
   ) => boolean;
 }
 
-export const useNotificationCtaExperiment =
-  (): UseNotificationCtaExperiment => {
-    const { value: isFeatureEnabled } = useConditionalFeature({
-      feature: notificationCtaV2Feature,
-    });
+interface UseNotificationCtaExperimentProps {
+  shouldEvaluate?: boolean;
+}
 
-    const queryPreviewValue = getQueryPreviewValue();
-    const previewValue = isDevelopment
-      ? parsePreviewValue(queryPreviewValue ?? getStoredPreviewValue())
-      : null;
-    const forcedPlacement =
-      previewValue && previewValue !== 'on' ? previewValue : null;
-    const isPreviewActive = !!previewValue;
+export const useNotificationCtaExperiment = ({
+  shouldEvaluate = true,
+}: UseNotificationCtaExperimentProps = {}): UseNotificationCtaExperiment => {
+  const queryPreviewValue = getQueryPreviewValue();
+  const previewValue = isDevelopment
+    ? parsePreviewValue(queryPreviewValue ?? getStoredPreviewValue())
+    : null;
+  const forcedPlacement =
+    previewValue && previewValue !== 'on' ? previewValue : null;
+  const isPreviewActive = !!previewValue;
+  const { value: isFeatureEnabled } = useConditionalFeature({
+    feature: notificationCtaV2Feature,
+    shouldEvaluate,
+  });
 
-    useEffect(() => {
-      if (
-        !isDevelopment ||
-        typeof window === 'undefined' ||
-        !queryPreviewValue
-      ) {
-        return;
-      }
+  useEffect(() => {
+    if (!isDevelopment || typeof window === 'undefined' || !queryPreviewValue) {
+      return;
+    }
 
-      const normalizedValue = queryPreviewValue.trim().toLowerCase();
-      if (clearPreviewValues.has(normalizedValue)) {
-        window.sessionStorage.removeItem(NOTIFICATION_CTA_PREVIEW_SESSION_KEY);
-        return;
-      }
+    const normalizedValue = queryPreviewValue.trim().toLowerCase();
+    if (clearPreviewValues.has(normalizedValue)) {
+      window.sessionStorage.removeItem(NOTIFICATION_CTA_PREVIEW_SESSION_KEY);
+      return;
+    }
 
-      if (
-        validPreviewValues.has(normalizedValue as NotificationCtaPreviewValue)
-      ) {
-        window.sessionStorage.setItem(
-          NOTIFICATION_CTA_PREVIEW_SESSION_KEY,
-          normalizedValue,
-        );
-      }
-    }, [queryPreviewValue]);
+    if (
+      validPreviewValues.has(normalizedValue as NotificationCtaPreviewValue)
+    ) {
+      window.sessionStorage.setItem(
+        NOTIFICATION_CTA_PREVIEW_SESSION_KEY,
+        normalizedValue,
+      );
+    }
+  }, [queryPreviewValue]);
 
-    const isPlacementForced = useCallback(
-      (placement: NotificationCtaPreviewPlacementValue) => {
-        return forcedPlacement === placement;
-      },
-      [forcedPlacement],
-    );
+  const isPlacementForced = useCallback(
+    (placement: NotificationCtaPreviewPlacementValue) => {
+      return forcedPlacement === placement;
+    },
+    [forcedPlacement],
+  );
 
-    const shouldHidePlacement = useCallback(
-      (placement: NotificationCtaPreviewPlacementValue) => {
-        return !!forcedPlacement && forcedPlacement !== placement;
-      },
-      [forcedPlacement],
-    );
+  const shouldHidePlacement = useCallback(
+    (placement: NotificationCtaPreviewPlacementValue) => {
+      return !!forcedPlacement && forcedPlacement !== placement;
+    },
+    [forcedPlacement],
+  );
 
-    return {
-      isEnabled: Boolean(isFeatureEnabled) || isPreviewActive,
-      isFeatureEnabled: Boolean(isFeatureEnabled),
-      isPreviewActive,
-      forcedPlacement,
-      isPlacementForced,
-      shouldHidePlacement,
-    };
+  return {
+    isEnabled: Boolean(isFeatureEnabled) || isPreviewActive,
+    isFeatureEnabled: Boolean(isFeatureEnabled),
+    isPreviewActive,
+    forcedPlacement,
+    isPlacementForced,
+    shouldHidePlacement,
   };
+};

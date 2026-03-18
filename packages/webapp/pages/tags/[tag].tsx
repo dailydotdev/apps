@@ -274,11 +274,13 @@ const TagPage = ({
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
   const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
+    useNotificationCtaExperiment({
+      shouldEvaluate: !!newlyFollowedTag,
+    });
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
-  const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
   const title = initialData?.flags?.title || tag;
   const jsonLd = initialData
     ? getTagPageJsonLd({ tag, initialData, topPosts })
@@ -321,9 +323,7 @@ const TagPage = ({
             return;
           }
 
-          if (isNotificationCtaExperimentEnabled) {
-            setNewlyFollowedTag(tag);
-          }
+          setNewlyFollowedTag(tag);
         }
       } else {
         showLogin({ trigger: AuthTriggers.Filter });

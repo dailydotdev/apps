@@ -47,9 +47,11 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     id: source?.id,
     entity: ContentPreferenceType.Source,
   });
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const [showNotificationCta, setShowNotificationCta] = useState(false);
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
   const prevStatusRef = useRef(contentPreference?.status);
   const menuProps = useSourceMenuProps({ source });
   const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
@@ -68,12 +70,6 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     prevStatusRef.current === ContentPreferenceStatus.Subscribed;
 
   useEffect(() => {
-    if (!isNotificationCtaExperimentEnabled) {
-      setShowNotificationCta(false);
-      prevStatusRef.current = currentStatus;
-      return;
-    }
-
     if (currentStatus === prevStatusRef.current) {
       return;
     }
@@ -88,12 +84,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     if (!isNowFollowing && wasFollowing) {
       setShowNotificationCta(false);
     }
-  }, [
-    currentStatus,
-    isNotificationCtaExperimentEnabled,
-    isNowFollowing,
-    wasFollowing,
-  ]);
+  }, [currentStatus, isNowFollowing, wasFollowing]);
 
   const handleTurnOn = async () => {
     await onNotify();
