@@ -9,7 +9,12 @@ import React, {
   useState,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import {
@@ -17,7 +22,13 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { CoreIcon, LockIcon, ReputationIcon, TourIcon } from '../icons';
+import {
+  CoreIcon,
+  DevPlusIcon,
+  LockIcon,
+  ReputationIcon,
+  TourIcon,
+} from '../icons';
 import type {
   QuestLevel,
   QuestReward,
@@ -32,13 +43,16 @@ import {
 } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { plusUrl } from '../../lib/constants';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
-import { UpgradeToPlus } from '../UpgradeToPlus';
+import Link from '../utilities/Link';
+import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
@@ -516,6 +530,68 @@ const QuestSection = ({
   );
 };
 
+const PlusQuestSectionHeader = (): ReactElement => (
+  <div className="flex flex-col items-center gap-2 text-center">
+    <div
+      aria-hidden
+      className="flex w-full items-center gap-3"
+      role="presentation"
+    >
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      <DevPlusIcon
+        secondary
+        size={IconSize.Medium}
+        className="text-action-plus-default"
+      />
+      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+    </div>
+    <p className="max-w-72 text-text-secondary typo-callout">
+      Plus users have two additional quest slots
+    </p>
+    <QuestPlusUnlockButton />
+  </div>
+);
+
+const QuestPlusUnlockButton = (): ReactElement | null => {
+  const { isLoggedIn, showLogin } = useAuthContext();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+
+  const onClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isLoggedIn) {
+        e.preventDefault();
+        showLogin({ trigger: AuthTriggers.Plus });
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Popover,
+      });
+    },
+    [isLoggedIn, logSubscriptionEvent, showLogin],
+  );
+
+  if (isPlus) {
+    return null;
+  }
+
+  return (
+    <Link passHref href={plusUrl}>
+      <Button
+        tag="a"
+        size={ButtonSize.Small}
+        color={ButtonColor.Avocado}
+        variant={ButtonVariant.Primary}
+        className="!flex-none"
+        onClick={onClick}
+      >
+        Unlock
+      </Button>
+    </Link>
+  );
+};
+
 const getQuestRewardAnimationIcon = (
   rewardType: QuestRewardType,
 ): ReactElement => {
@@ -892,16 +968,7 @@ const QuestDropdownPanel = ({
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
               <section className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-action-plus-default typo-caption1">
-                    Plus quests
-                  </p>
-                  <UpgradeToPlus
-                    target={TargetId.Popover}
-                    size={ButtonSize.Small}
-                    className="!flex-none"
-                  />
-                </div>
+                <PlusQuestSectionHeader />
                 <QuestSection
                   title="Daily"
                   quests={data.daily.plus}

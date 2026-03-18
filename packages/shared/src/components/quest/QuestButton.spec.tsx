@@ -332,6 +332,52 @@ describe('QuestButton', () => {
     expect(progressBar).not.toHaveClass('bg-border-subtler');
   });
 
+  it('should explain plus quests are additional slots', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByText('Plus users have two additional quest slots'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Unlock' })).toBeInTheDocument();
+    expect(screen.queryByText('Plus quests')).not.toBeInTheDocument();
+  });
+
   it('should invalidate the quest dashboard on quest progress and rollover updates', () => {
     const subscriptions: Array<{
       query: string;
