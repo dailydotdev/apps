@@ -570,27 +570,35 @@ function QuestPlusUnlockButton(): ReactElement | null {
   );
 }
 
-const PlusQuestSectionHeader = (): ReactElement => (
-  <div className="flex flex-col items-center gap-2 text-center">
-    <div
-      aria-hidden
-      className="flex w-full items-center gap-3"
-      role="presentation"
-    >
-      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
-      <DevPlusIcon
-        secondary
-        size={IconSize.Medium}
-        className="text-action-plus-default"
-      />
-      <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+const PlusQuestSectionHeader = (): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+
+  return (
+    <div className="flex flex-col items-center gap-2 text-center">
+      <div
+        aria-hidden
+        className="flex w-full items-center gap-3"
+        role="presentation"
+      >
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        <DevPlusIcon
+          secondary
+          size={IconSize.Medium}
+          className="text-action-plus-default"
+        />
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      </div>
+      {!isPlus && (
+        <>
+          <p className="max-w-72 text-text-secondary typo-callout">
+            Plus users have two additional quest slots
+          </p>
+          <QuestPlusUnlockButton />
+        </>
+      )}
     </div>
-    <p className="max-w-72 text-text-secondary typo-callout">
-      Plus users have two additional quest slots
-    </p>
-    <QuestPlusUnlockButton />
-  </div>
-);
+  );
+};
 
 const getQuestRewardAnimationIcon = (
   rewardType: QuestRewardType,

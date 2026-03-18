@@ -390,6 +390,57 @@ describe('QuestButton', () => {
     expect(screen.queryByText('Plus quests')).not.toBeInTheDocument();
   });
 
+  it('should hide the plus explainer and unlock button for subscribed users', async () => {
+    mockUsePlusSubscription.mockReturnValue({
+      isPlus: true,
+      logSubscriptionEvent: mockLogSubscriptionEvent,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      screen.queryByText('Plus users have two additional quest slots'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Unlock' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('should log the plus unlock click with the quest dropdown target', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
