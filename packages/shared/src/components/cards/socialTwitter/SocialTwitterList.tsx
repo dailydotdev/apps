@@ -172,10 +172,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
               </p>
             )}
             {hasDailyDevMarkdown && (
-              <div
-                data-testid="social-twitter-list-spacer"
-                className="flex flex-1 tablet:hidden"
-              />
+              <div className="flex flex-1 tablet:hidden" />
             )}
             {hasDailyDevMarkdown && (
               <div className="flex items-center">
@@ -183,10 +180,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
                 <PostTags post={postForTags} />
               </div>
             )}
-            <div
-              data-testid="social-twitter-list-embedded-preview"
-              className="mt-4 min-h-0 overflow-hidden"
-            >
+            <div className="mt-4 min-h-0 overflow-hidden">
               <EmbeddedTweetPreview
                 post={post}
                 className="w-full"
