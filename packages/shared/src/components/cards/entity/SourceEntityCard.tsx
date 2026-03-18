@@ -27,6 +27,7 @@ import {
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
 import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
@@ -52,6 +53,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     useNotificationCtaExperiment({
       shouldEvaluate: showNotificationCta,
     });
+  const { subscribe } = useContentPreference();
   const prevStatusRef = useRef(contentPreference?.status);
   const menuProps = useSourceMenuProps({ source });
   const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
@@ -91,6 +93,18 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   }, [currentStatus, isNowFollowing, wasFollowing]);
 
   const handleTurnOn = async () => {
+    if (!source?.id) {
+      throw new Error('Cannot subscribe to notifications without source id');
+    }
+
+    if (currentStatus !== ContentPreferenceStatus.Subscribed) {
+      await subscribe({
+        id: source.id,
+        entity: ContentPreferenceType.Source,
+        entityName: source.name ?? source.id,
+      });
+    }
+
     await onNotify();
     setShowNotificationCta(false);
   };
