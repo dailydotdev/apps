@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import ReadingReminderCatLaptop from '../banners/ReadingReminderCatLaptop';
@@ -10,6 +11,7 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../lib/log';
+import { webappUrl } from '../../lib/constants';
 import {
   NotificationCtaPreviewPlacement,
   useNotificationCtaExperiment,
@@ -26,7 +28,9 @@ type SidebarNotificationPromptProps = {
 export const SidebarNotificationPrompt = ({
   sidebarExpanded,
 }: SidebarNotificationPromptProps): ReactElement | null => {
-  const { shouldHidePlacement } = useNotificationCtaExperiment();
+  const { pathname } = useRouter();
+  const { isEnabled: isNotificationCtaExperimentEnabled, shouldHidePlacement } =
+    useNotificationCtaExperiment();
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const {
     shouldShow,
@@ -44,7 +48,11 @@ export const SidebarNotificationPrompt = ({
   );
 
   const shouldShowSidebarPrompt =
-    sidebarExpanded && !shouldHideSideMenuPrompt && shouldShow;
+    isNotificationCtaExperimentEnabled &&
+    pathname === webappUrl &&
+    sidebarExpanded &&
+    !shouldHideSideMenuPrompt &&
+    shouldShow;
 
   useNotificationCtaImpression(
     {

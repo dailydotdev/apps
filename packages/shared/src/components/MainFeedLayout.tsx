@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
+import ReadingReminderHero from './banners/ReadingReminderHero';
 import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -65,7 +66,9 @@ import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
-import { isDevelopment, isProductionAPI } from '../lib/constants';
+import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
+import { useNotificationCtaExperiment } from '../hooks/notifications/useNotificationCtaExperiment';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -215,6 +218,16 @@ export default function MainFeedLayout({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
+  const {
+    shouldShow: shouldShowReadingReminder,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnable,
+    onDismiss,
+  } = useReadingReminderHero();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const {
     isUpvoted,
     isPopular,
@@ -520,6 +533,10 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  const shouldShowReadingReminderOnHomepage =
+    !isNotificationCtaExperimentEnabled &&
+    router.pathname === webappUrl &&
+    shouldShowReadingReminder;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -567,6 +584,16 @@ export default function MainFeedLayout({
       {isSearchOn && !isSearchPageLaptop && search}
       {isSearchOn && isFinder && !isSearchPageLaptop && (
         <AskSearchBanner className="mx-4 mb-4" />
+      )}
+      {shouldShowReadingReminderOnHomepage && (
+        <ReadingReminderHero
+          className="px-4 pb-2"
+          title={readingReminderTitle}
+          subtitle={readingReminderSubtitle}
+          shouldShowDismiss={shouldShowReadingReminderDismiss}
+          onEnable={onEnable}
+          onDismiss={onDismiss}
+        />
       )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed

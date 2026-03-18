@@ -68,8 +68,7 @@ export const useReadingReminderHero = ({
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
-  const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
-    useNotificationCtaExperiment();
+  const { isPreviewActive } = useNotificationCtaExperiment();
   const {
     getPersonalizedDigest,
     isLoading: isDigestLoading,
@@ -91,7 +90,6 @@ export const useReadingReminderHero = ({
   const isEligibleViewSize = !requireMobile || isMobile;
   const shouldForceShow = isPreviewActive && isLoggedIn;
   const shouldEvaluate =
-    isNotificationCtaExperimentEnabled &&
     isEligibleViewSize &&
     isLoggedIn &&
     !isDigestLoading &&

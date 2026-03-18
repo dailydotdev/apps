@@ -60,6 +60,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import type { PostClick } from '../lib/click';
+import { webappUrl } from '../lib/constants';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
@@ -217,7 +218,7 @@ export default function Feed<T>({
   const { logEvent } = useLogContext();
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
-  const { isFallback, query: routerQuery } = useRouter();
+  const { isFallback, pathname, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
   const { value: isFeedLayoutV2 } = useConditionalFeature({
     feature: featureFeedLayoutV2,
@@ -276,8 +277,11 @@ export default function Feed<T>({
     feature: briefFeedEntrypointPage,
     shouldEvaluate: !user?.isPlus && isMyFeed,
   });
-  const { isPlacementForced, shouldHidePlacement } =
-    useNotificationCtaExperiment();
+  const {
+    isEnabled: isNotificationCtaExperimentEnabled,
+    isPlacementForced,
+    shouldHidePlacement,
+  } = useNotificationCtaExperiment();
   const isTopHeroForced = isPlacementForced(
     NotificationCtaPreviewPlacement.TopHero,
   );
@@ -591,12 +595,16 @@ export default function Feed<T>({
   }, [logDismiss, onDismiss]);
 
   const shouldShowInFeedHero =
+    isNotificationCtaExperimentEnabled &&
+    pathname === webappUrl &&
     shouldShowReadingReminder &&
     !shouldHideInFeedHero &&
     (isInFeedHeroForced || hasScrolledForHero) &&
     !isHeroDismissed &&
     items.length > HERO_INSERT_INDEX;
   const shouldShowTopHero =
+    isNotificationCtaExperimentEnabled &&
+    pathname === webappUrl &&
     shouldShowReadingReminder &&
     isTopHeroForced &&
     !shouldHideTopHero &&
