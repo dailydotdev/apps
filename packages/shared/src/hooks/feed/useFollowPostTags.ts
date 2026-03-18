@@ -5,14 +5,13 @@ import useTagAndSource from '../useTagAndSource';
 import { Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCustomFeed } from './useCustomFeed';
-import type { BooleanPromise } from '../../lib/func';
 
 interface UseFollowPostTagsProps {
   post: Post;
 }
 
 interface UseFollowPostTags {
-  onFollowTag: (tag: string) => BooleanPromise;
+  onFollowTag: (tag: string) => void;
   tags: Record<'all' | 'followed' | 'notFollowed', string[]>;
 }
 

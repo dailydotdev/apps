@@ -6,7 +6,7 @@ import type {
 import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
   BlockIcon,
   DiscussIcon,
@@ -45,12 +45,7 @@ import {
   RequestKey,
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  Origin,
-} from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -78,8 +73,6 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
-import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { useNotificationCtaExperiment } from '@dailydotdev/shared/src/hooks/notifications/useNotificationCtaExperiment';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -274,15 +267,8 @@ const TagPage = ({
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
-  const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: !!newlyFollowedTag,
-    });
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
-  const shouldShowTagFollowCta =
-    isNotificationCtaExperimentEnabled && !!newlyFollowedTag;
   const title = initialData?.flags?.title || tag;
   const jsonLd = initialData
     ? getTagPageJsonLd({ tag, initialData, topPosts })
@@ -318,14 +304,8 @@ const TagPage = ({
       if (user) {
         if (tagStatus === 'followed') {
           await onUnfollowTags({ tags: [tag] });
-          setNewlyFollowedTag(null);
         } else {
-          const { successful } = await onFollowTags({ tags: [tag] });
-          if (!successful) {
-            return;
-          }
-
-          setNewlyFollowedTag(tag);
+          await onFollowTags({ tags: [tag] });
         }
       } else {
         showLogin({ trigger: AuthTriggers.Filter });
@@ -342,7 +322,6 @@ const TagPage = ({
           await onUnblockTags({ tags: [tag] });
         } else {
           await onBlockTags({ tags: [tag] });
-          setNewlyFollowedTag(null);
         }
       } else {
         showLogin({ trigger: AuthTriggers.Filter });
@@ -417,14 +396,6 @@ const TagPage = ({
             }}
           />
         </div>
-        {shouldShowTagFollowCta && (
-          <EnableNotification
-            className="mt-3"
-            contentName={newlyFollowedTag ?? undefined}
-            placement={NotificationCtaPlacement.TagPage}
-            source={NotificationPromptSource.PostTagFollow}
-          />
-        )}
         {initialData?.flags?.description && (
           <p className="typo-body">{initialData?.flags?.description}</p>
         )}

@@ -1,12 +1,7 @@
-import type { MouseEvent, PropsWithChildren, ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import type { BooleanPromise } from '../../../lib/func';
-import {
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-} from '../../../lib/log';
 import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
 import type { TypographyProps } from '../../typography/Typography';
 import {
@@ -21,8 +16,6 @@ import { Button, ButtonSize } from '../../buttons/Button';
 import { PlusIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
-import EnableNotification from '../../notifications/EnableNotification';
-import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 interface PostTagListProps {
   post: Post;
@@ -30,7 +23,7 @@ interface PostTagListProps {
 
 interface PostTagItemProps {
   isFollowed?: boolean;
-  onFollow?: (tag: string) => BooleanPromise;
+  onFollow?: (tag: string) => void;
   tag: string;
 }
 
@@ -58,12 +51,6 @@ const PostTagItem = ({
   onFollow,
   tag,
 }: PostTagItemProps): ReactElement => {
-  const handleFollowClick = (event: MouseEvent<HTMLButtonElement>): void => {
-    event.preventDefault();
-    event.stopPropagation();
-    onFollow?.(tag);
-  };
-
   if (isFollowed) {
     return (
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
@@ -94,9 +81,8 @@ const PostTagItem = ({
       <Tooltip content={`Follow #${tag}`}>
         <Button
           icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
-          onClick={handleFollowClick}
+          onClick={() => onFollow(tag)}
           size={ButtonSize.XSmall}
-          type="button"
         />
       </Tooltip>
     </Chip>
@@ -104,59 +90,25 @@ const PostTagItem = ({
 };
 
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
-  const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: !!newlyFollowedTag,
-    });
   const { onFollowTag, tags } = useFollowPostTags({ post });
-  const shouldShowTagFollowCta =
-    isNotificationCtaExperimentEnabled && !!newlyFollowedTag;
-
-  useEffect(() => {
-    setNewlyFollowedTag(null);
-  }, [post.id]);
 
   if (!tags.all.length) {
     return null;
   }
 
-  const handleFollowTag = async (tag: string) => {
-    const result = await onFollowTag(tag);
-    const { successful } = result;
-
-    if (!successful) {
-      return result;
-    }
-
-    setNewlyFollowedTag(tag);
-
-    return result;
-  };
-
   return (
-    <div>
-      <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
-        {tags.followed.map((tag) => (
-          <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
-        ))}
-        {tags.notFollowed.map((tag) => (
-          <PostTagItem
-            isFollowed={false}
-            key={`notFollowed-${tag}`}
-            onFollow={handleFollowTag}
-            tag={tag}
-          />
-        ))}
-      </ul>
-      {shouldShowTagFollowCta && (
-        <EnableNotification
-          className="mt-3"
-          contentName={newlyFollowedTag ?? undefined}
-          placement={NotificationCtaPlacement.TagFollowInline}
-          source={NotificationPromptSource.PostTagFollow}
+    <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
+      {tags.followed.map((tag) => (
+        <PostTagItem key={`followed-${tag}`} tag={tag} isFollowed />
+      ))}
+      {tags.notFollowed.map((tag) => (
+        <PostTagItem
+          isFollowed={false}
+          key={`notFollowed-${tag}`}
+          onFollow={onFollowTag}
+          tag={tag}
         />
-      )}
-    </div>
+      ))}
+    </ul>
   );
 };
