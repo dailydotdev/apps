@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
+import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import type { AuthFormProps, Provider } from './common';
 import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
@@ -62,6 +63,7 @@ const AuthDefault = ({
   simplified,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const isBetterAuth = useIsBetterAuth();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();
@@ -108,6 +110,10 @@ const AuthDefault = ({
 
     if (!email) {
       return null;
+    }
+
+    if (isBetterAuth) {
+      return onSignup(email);
     }
 
     const res = await checkEmail(email);

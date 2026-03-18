@@ -23,6 +23,7 @@ interface UseAccountEmail {
     altFlowId?: string;
   }) => Promise<unknown>;
   resendTimer: number;
+  resetResendTimer: () => void;
   isLoading?: boolean;
   token?: string;
   flow?: string;
@@ -155,12 +156,21 @@ function useAccountEmailFlow({
     },
   });
 
+  const resetResendTimer = useMemo(
+    () => () => {
+      setTimer(60);
+      runTimer();
+    },
+    [setTimer, runTimer],
+  );
+
   return useMemo(
     () => ({
       sendEmail,
       verifyCode,
       token: getNodeValue('csrf_token', emailFlow?.ui?.nodes),
       resendTimer: timer,
+      resetResendTimer,
       isLoading,
       flow: emailFlow?.id,
       autoResend,
@@ -171,6 +181,7 @@ function useAccountEmailFlow({
       verifyCode,
       emailFlow,
       timer,
+      resetResendTimer,
       isLoading,
       autoResend,
       isVerifyingCode,

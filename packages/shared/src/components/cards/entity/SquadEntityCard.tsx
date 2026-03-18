@@ -139,7 +139,6 @@ const SquadEntityCard = ({
               size={ButtonSize.Small}
               copy={{
                 join: 'Join',
-                leave: 'Leave',
               }}
               squad={squad}
               origin={origin}

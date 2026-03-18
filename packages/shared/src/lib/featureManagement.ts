@@ -74,14 +74,22 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const featureReadingReminderMobile = new Feature(
-  'reading_reminder_mobile',
+export const featureReadingReminderHeroDismiss = new Feature(
+  'reading_reminder_hero_dismiss',
   false,
 );
 
 export const notificationCtaV2Feature = new Feature(
   'notification_cta_v2',
   false,
+);
+
+export const featureReadingReminderHeroCopy = new Feature(
+  'reading_reminder_hero_copy',
+  {
+    title: 'Never miss a learning day',
+    subtitle: 'Turn on your daily reading reminder and keep your routine.',
+  },
 );
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
@@ -140,14 +148,11 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
+export const questsFeature = new Feature('quests', false);
+
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
-);
-
-export const featureProfileCompletionPostGate = new Feature(
-  'profile_completion_post_gate',
-  0,
 );
 
 export const sharedPostPreviewFeature = new Feature(
@@ -171,3 +176,5 @@ export const agentsLeaderboardEntrypointFeature =
   );
 
 export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);
+
+export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);

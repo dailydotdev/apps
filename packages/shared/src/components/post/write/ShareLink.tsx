@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import z from 'zod';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
@@ -67,6 +67,22 @@ export function ShareLink({
 
     return initialCommentary ?? '';
   });
+
+  useEffect(() => {
+    if (!fetchedPost?.sharedPost) {
+      return;
+    }
+
+    if (fetchedPost.title !== fetchedPost.sharedPost.title) {
+      return;
+    }
+
+    if (commentary !== fetchedPost.sharedPost.title) {
+      return;
+    }
+
+    setCommentary('');
+  }, [commentary, fetchedPost]);
   const {
     getLinkPreview,
     isLoadingPreview,

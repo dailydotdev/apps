@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { TruncateText } from '../utilities';
 import AdLink from '../cards/ad/common/AdLink';
 import { adLogEvent } from '../../lib/feed';
@@ -11,13 +10,13 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { AdPixel } from '../cards/ad/common/AdPixel';
-import { AdActions, fetchCommentAd } from '../../lib/ads';
+import { AdActions, AdPlacement } from '../../lib/ads';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { RemoveAd } from '../cards/ad/common/RemoveAd';
 import { AdRefresh } from '../cards/ad/common/AdRefresh';
 import { ButtonVariant } from '../buttons/common';
 import { MiniCloseIcon } from '../icons';
-import type { Ad } from '../../graphql/posts';
+import { useAdQuery } from '../../features/monetization/useAdQuery';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
 import { useScrambler } from '../../hooks/useScrambler';
 
@@ -34,13 +33,9 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     refetch,
     isFetching,
     isRefetching,
-  } = useQuery<Ad>({
+  } = useAdQuery({
+    placement: AdPlacement.PostComment,
     queryKey: generateQueryKey(RequestKey.Ads, user, postId),
-    queryFn: fetchCommentAd,
-    enabled: true,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchOnWindowFocus: false,
     staleTime: StaleTime.OneHour,
   });
 

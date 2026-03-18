@@ -186,6 +186,25 @@ describe('function getReadPostButtonText', () => {
 
     expect(getReadPostButtonText(post)).toEqual('Watch video');
   });
+
+  it('should return "Read on" if post is social twitter', () => {
+    const post = {
+      type: PostType.SocialTwitter,
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Read on');
+  });
+
+  it('should return "Read on" if post is shared tweet', () => {
+    const post = {
+      type: PostType.Share,
+      sharedPost: {
+        type: PostType.SocialTwitter,
+      },
+    } as Post;
+
+    expect(getReadPostButtonText(post)).toEqual('Read on');
+  });
 });
 
 describe('social twitter helpers', () => {

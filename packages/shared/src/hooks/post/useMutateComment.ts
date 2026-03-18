@@ -1,3 +1,4 @@
+import type { QueryKey } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useContext } from 'react';
 import type { Comment, PostCommentsData } from '../../graphql/comments';
@@ -131,7 +132,7 @@ export const useMutateComment = ({
       return copy;
     };
 
-    const forInvalidation = [];
+    const forInvalidation: QueryKey[] = [];
 
     getAllCommentsQuery(postId).forEach((queryKey) => {
       client.setQueryData<PostCommentsData>(queryKey, (data) => {

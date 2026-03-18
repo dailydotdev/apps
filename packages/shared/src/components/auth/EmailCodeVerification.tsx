@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import type { AuthFormProps } from './common';
@@ -23,6 +23,8 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   flowId: string;
   onSubmit?: () => void;
   className?: string;
+  onVerifyCode?: (code: string) => Promise<void>;
+  onResendCode?: () => Promise<void>;
 }
 
 function EmailCodeVerification({
@@ -30,31 +32,73 @@ function EmailCodeVerification({
   flowId,
   onSubmit,
   className,
+  onVerifyCode,
+  onResendCode,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
   const [alert, setAlert] = useState({ firstAlert: true, alert: false });
   const [code, setCode] = useState(codeProp);
-  const { sendEmail, verifyCode, resendTimer, autoResend, isVerifyingCode } =
-    useAccountEmailFlow({
-      flow: AuthFlow.Verification,
-      flowId,
-      timerOnLoad: 60,
-      onError: setHint,
-      onVerifyCodeSuccess: () => {
+  const [isCustomVerifying, setIsCustomVerifying] = useState(false);
+  const verifyingRef = useRef(false);
+
+  const {
+    sendEmail,
+    verifyCode,
+    resendTimer,
+    resetResendTimer,
+    autoResend,
+    isVerifyingCode,
+  } = useAccountEmailFlow({
+    flow: AuthFlow.Verification,
+    flowId: onVerifyCode ? 'skip' : flowId,
+    timerOnLoad: 60,
+    onError: setHint,
+    onVerifyCodeSuccess: () => {
+      logEvent({
+        event_name: AuthEventNames.VerifiedSuccessfully,
+      });
+      onSubmit();
+    },
+  });
+
+  const isVerifying = onVerifyCode ? isCustomVerifying : isVerifyingCode;
+
+  useEffect(() => {
+    if (
+      !onVerifyCode &&
+      autoResend &&
+      !alert.alert &&
+      alert.firstAlert === true
+    ) {
+      setAlert({ firstAlert: false, alert: true });
+    }
+  }, [autoResend, alert, onVerifyCode]);
+
+  const handleVerify = async (verifyCodeValue: string) => {
+    if (onVerifyCode) {
+      if (verifyingRef.current) {
+        return;
+      }
+      verifyingRef.current = true;
+      setIsCustomVerifying(true);
+      try {
+        await onVerifyCode(verifyCodeValue);
         logEvent({
           event_name: AuthEventNames.VerifiedSuccessfully,
         });
         onSubmit();
-      },
-    });
-
-  useEffect(() => {
-    if (autoResend && !alert.alert && alert.firstAlert === true) {
-      setAlert({ firstAlert: false, alert: true });
+      } catch (err) {
+        verifyingRef.current = false;
+        setHint(err instanceof Error ? err.message : 'Verification failed');
+      } finally {
+        setIsCustomVerifying(false);
+      }
+    } else {
+      await verifyCode({ code: verifyCodeValue });
     }
-  }, [autoResend, alert]);
+  };
 
   const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,22 +108,27 @@ function EmailCodeVerification({
     });
     setHint('');
     setAlert({ firstAlert: false, alert: false });
-    await verifyCode({ code });
+    await handleVerify(code);
   };
 
-  const onSendCode = () => {
+  const onSendCode = async () => {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.ResendVerificationCode,
     });
     setAlert({ firstAlert: false, alert: false });
-    sendEmail(email);
+    if (onResendCode) {
+      await onResendCode();
+      resetResendTimer();
+    } else {
+      sendEmail(email);
+    }
   };
 
   const onCodeSubmit = async (newCode: string) => {
     if (newCode.length === 6) {
       setCode(newCode);
-      await verifyCode({ code: newCode });
+      await handleVerify(newCode);
     }
   };
 
@@ -120,7 +169,7 @@ function EmailCodeVerification({
         <CodeField
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
-          disabled={isVerifyingCode}
+          disabled={isVerifying}
         />
         {hint && (
           <Typography
@@ -150,12 +199,12 @@ function EmailCodeVerification({
         className="w-full"
         type="submit"
         variant={ButtonVariant.Primary}
-        loading={isVerifyingCode}
-        disabled={autoResend}
+        loading={isVerifying}
+        disabled={onVerifyCode ? false : autoResend}
       >
         Verify
       </Button>
-      {alert.alert && (
+      {!onVerifyCode && alert.alert && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
           <AlertParagraph className="!mt-0 flex-1">
             Your session expired, please click the resend button above to get a

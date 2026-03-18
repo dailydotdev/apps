@@ -110,7 +110,7 @@ export const SquadActionButton = ({
   });
   const {
     join = 'Join Squad',
-    leave = 'Leave Squad',
+    leave = 'Leave',
     blockedTooltip = 'You are not allowed to join the Squad',
   } = copy;
   const [joinVariant, memberVariant] = buttonVariants;

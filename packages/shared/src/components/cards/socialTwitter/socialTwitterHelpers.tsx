@@ -1,11 +1,44 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Post } from '../../../graphql/posts';
 import { UNKNOWN_SOURCE_ID } from '../../../lib/utils';
 import { fallbackImages } from '../../../lib/config';
-import { IconSize } from '../../Icon';
-import { TwitterIcon } from '../../icons';
-import { Separator } from '../common/common';
+import { sanitizeMessage } from '../../../features/onboarding/shared';
+
+const rtlLanguageCodes = new Set([
+  'ar',
+  'dv',
+  'fa',
+  'he',
+  'ku',
+  'ps',
+  'sd',
+  'ug',
+  'ur',
+  'yi',
+]);
+
+const getLanguagePrimarySubtag = (language?: string): string | undefined =>
+  language?.toLowerCase().split(/[-_]/)[0].trim();
+
+export const getSocialTextDirection = (language?: string): 'rtl' | 'auto' => {
+  const primarySubtag = getLanguagePrimarySubtag(language);
+  if (!primarySubtag) {
+    return 'auto';
+  }
+
+  return rtlLanguageCodes.has(primarySubtag) ? 'rtl' : 'auto';
+};
+
+export const getSocialTextDirectionProps = (
+  language?: string,
+): { dir: 'rtl' | 'auto'; lang?: string } => {
+  const normalizedLanguage = language?.trim().toLowerCase();
+  return {
+    dir: getSocialTextDirection(normalizedLanguage),
+    ...(normalizedLanguage && { lang: normalizedLanguage }),
+  };
+};
 
 /**
  * Resolve a field based on whether the source is the unknown placeholder.
@@ -19,19 +52,22 @@ const resolveBySource = <T,>(
 ): T | undefined =>
   sourceId === UNKNOWN_SOURCE_ID ? creatorValue : sourceValue || creatorValue;
 
-const getUniqueHandles = (handles: (string | undefined)[]): string[] => {
-  const uniqueHandles = new Map<string, string>();
+const getUniqueHandles = (handles: Array<string | undefined>): string[] => {
+  const seenHandles = new Set<string>();
 
-  handles.filter(Boolean).forEach((handle) => {
-    const normalizedHandle = handle.toLowerCase();
-    if (uniqueHandles.has(normalizedHandle)) {
-      return;
+  return handles.filter((handle): handle is string => {
+    if (!handle) {
+      return false;
     }
 
-    uniqueHandles.set(normalizedHandle, handle);
-  });
+    const normalizedHandle = handle.toLowerCase();
+    if (seenHandles.has(normalizedHandle)) {
+      return false;
+    }
 
-  return Array.from(uniqueHandles.values());
+    seenHandles.add(normalizedHandle);
+    return true;
+  });
 };
 
 export const getSocialTwitterMetadata = (post: Post) => {
@@ -53,7 +89,10 @@ export const getSocialTwitterMetadata = (post: Post) => {
     post.author?.name || post.creatorTwitterName,
   );
 
-  const metadataHandles = getUniqueHandles([sourceHandle, sharedPostHandle]);
+  const metadataHandles =
+    post.subType === 'repost'
+      ? [sourceHandle].filter(Boolean)
+      : getUniqueHandles([sourceHandle, sharedPostHandle]);
 
   const embeddedTweetDisplayName = resolveBySource(
     post.sharedPost?.source?.id,
@@ -68,18 +107,19 @@ export const getSocialTwitterMetadata = (post: Post) => {
     .map((value, index) => (index === 1 ? `@${value}` : value))
     .join(' ');
 
+  const embeddedTweetAvatarImage =
+    post.sharedPost?.creatorTwitterImage ||
+    post.sharedPost?.author?.image ||
+    post.sharedPost?.source?.image ||
+    fallbackImages.avatar;
+
   const embeddedTweetAvatarUser = {
     id:
       post.sharedPost?.author?.id ||
       post.sharedPost?.source?.id ||
       sharedPostHandle ||
       'shared-post-avatar',
-    image:
-      resolveBySource(
-        post.sharedPost?.source?.id,
-        post.sharedPost?.author?.image || post.sharedPost?.source?.image,
-        post.sharedPost?.creatorTwitterImage,
-      ) || fallbackImages.avatar,
+    image: embeddedTweetAvatarImage,
     username: sharedPostHandle,
     name: embeddedTweetDisplayName,
   };
@@ -95,50 +135,85 @@ export const getSocialTwitterMetadata = (post: Post) => {
   };
 };
 
-export const getSocialTwitterMetadataLabel = ({
-  isRepostLike,
-  repostedByName,
-  metadataHandles,
+export const getSocialTwitterMetadataLabel = (): ReactElement => (
+  <span className="inline-flex h-4 items-center align-middle leading-4">
+    From x.com
+  </span>
+);
+
+export const normalizeThreadBody = ({
+  title,
+  content,
+  contentHtml,
 }: {
-  isRepostLike?: boolean;
-  repostedByName?: string | false;
-  metadataHandles: string[];
-}): ReactElement => {
-  const twitterIcon = (
-    <TwitterIcon
-      className="relative top-px text-text-tertiary"
-      size={IconSize.XXSmall}
-    />
-  );
-
-  if (isRepostLike && repostedByName) {
-    return (
-      <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-        <span>{repostedByName} reposted</span>
-        {twitterIcon}
-      </span>
-    );
+  title?: string;
+  content?: string;
+  contentHtml?: string;
+}): string | undefined => {
+  const rawBody =
+    content || (contentHtml ? sanitizeMessage(contentHtml, []) : null);
+  if (!rawBody) {
+    return undefined;
   }
 
-  if (metadataHandles.length === 1 && repostedByName) {
-    return (
-      <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-        <span>{repostedByName}</span>
-        {twitterIcon}
-      </span>
-    );
+  const trimmedBody = rawBody.trim();
+  if (!trimmedBody.length) {
+    return undefined;
   }
 
-  return (
-    <span className="inline-flex h-4 items-center gap-1 align-middle leading-4">
-      <span>
-        {metadataHandles.map((handle, index) => (
-          <React.Fragment key={handle}>
-            {index > 0 && <Separator />}@{handle}
-          </React.Fragment>
-        ))}
-      </span>
-      {twitterIcon}
-    </span>
+  const trimmedTitle = title?.trim();
+  if (!trimmedTitle?.length) {
+    return trimmedBody;
+  }
+
+  if (!trimmedBody.startsWith(trimmedTitle)) {
+    return trimmedBody;
+  }
+
+  const bodyWithoutTitle = trimmedBody
+    .slice(trimmedTitle.length)
+    .replace(/^[\s\n\r:.-]+/, '')
+    .trim();
+
+  return bodyWithoutTitle || undefined;
+};
+
+interface SocialTwitterCardData {
+  normalizedContent: string;
+  hasTitleCommentary: boolean;
+  hasDailyDevMarkdown: boolean;
+  socialTextDirectionProps: { dir: 'rtl' | 'auto'; lang?: string };
+}
+
+export const useSocialTwitterCardData = (post: Post): SocialTwitterCardData => {
+  const normalizedContent = useMemo(
+    () =>
+      (
+        post.content ||
+        (post.contentHtml ? sanitizeMessage(post.contentHtml, []) : '')
+      ).trim(),
+    [post.content, post.contentHtml],
   );
+
+  const rawTitle = (post.title || post.sharedPost?.title)?.trim() ?? '';
+  const sharedTitle = post.sharedPost?.title?.trim() ?? '';
+
+  const hasTitleCommentary =
+    post.subType !== 'repost' &&
+    !!rawTitle &&
+    !!sharedTitle &&
+    !sharedTitle.startsWith(rawTitle);
+
+  const hasDailyDevMarkdown =
+    (post.subType === 'thread' && !!normalizedContent) ||
+    (!!post.sharedPost && (!!normalizedContent || hasTitleCommentary));
+
+  const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+
+  return {
+    normalizedContent,
+    hasTitleCommentary,
+    hasDailyDevMarkdown,
+    socialTextDirectionProps,
+  };
 };

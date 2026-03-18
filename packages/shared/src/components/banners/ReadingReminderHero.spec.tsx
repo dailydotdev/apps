@@ -12,7 +12,14 @@ describe('ReadingReminderHero', () => {
   });
 
   it('should log impression target on mount', () => {
-    render(<ReadingReminderHero onEnable={jest.fn()} />);
+    render(
+      <ReadingReminderHero
+        title="Never miss a learning day"
+        subtitle="Turn on your daily reading reminder and keep your routine."
+        onEnable={jest.fn()}
+        onDismiss={jest.fn()}
+      />,
+    );
 
     expect(useLogEventOnce).toHaveBeenCalledTimes(1);
 
@@ -26,23 +33,38 @@ describe('ReadingReminderHero', () => {
   it('should handle enable action', () => {
     const onEnable = jest.fn();
 
-    render(<ReadingReminderHero onEnable={onEnable} />);
+    render(
+      <ReadingReminderHero
+        title="Never miss a learning day"
+        subtitle="Turn on your daily reading reminder and keep your routine."
+        onEnable={onEnable}
+        onDismiss={jest.fn()}
+      />,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Enable reminder' }));
 
     expect(onEnable).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole('button', { name: 'Dismiss reading reminder' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
   });
 
-  it('should render and handle close action when provided', () => {
-    const onClose = jest.fn();
+  it('should handle dismiss action when enabled', () => {
+    const onDismiss = jest.fn();
 
-    render(<ReadingReminderHero onEnable={jest.fn()} onClose={onClose} />);
+    render(
+      <ReadingReminderHero
+        title="Reminder title"
+        subtitle="Reminder subtitle"
+        shouldShowDismiss
+        onEnable={jest.fn()}
+        onDismiss={onDismiss}
+      />,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
-    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Reminder title')).toBeInTheDocument();
+    expect(screen.getByText('Reminder subtitle')).toBeInTheDocument();
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

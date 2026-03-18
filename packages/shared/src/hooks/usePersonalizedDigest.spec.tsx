@@ -18,7 +18,7 @@ import { ApiError } from '../graphql/common';
 const client = new QueryClient();
 const noop = jest.fn();
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider

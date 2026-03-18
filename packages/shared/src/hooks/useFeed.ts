@@ -24,6 +24,7 @@ import type { FeedAdTemplate } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
+import { AdPlacement } from '../lib/ads';
 import { SharedFeedPage } from '../components/utilities';
 import { useTranslation } from './translation/useTranslation';
 import { useFetchAd } from '../features/monetization/useFetchAd';
@@ -210,7 +211,10 @@ export default function useFeed<T>(
   const adsQuery = useInfiniteQuery<Ad>({
     queryKey: [RequestKey.Ads, ...feedQueryKey],
     queryFn: async ({ pageParam }) => {
-      const ad = await fetchAd({ active: !!pageParam });
+      const ad = await fetchAd({
+        placement: AdPlacement.Feed,
+        active: !!pageParam,
+      });
 
       if (!ad) {
         return {
@@ -319,7 +323,7 @@ export default function useFeed<T>(
     if (feedQuery.data) {
       const seenPostIds = new Set<string>();
       newItems = feedQuery.data.pages.reduce((acc, { page }, pageIndex) => {
-        page.edges.forEach(({ node }, index: number) => {
+        page.edges.forEach(({ node }: { node: Post }, index: number) => {
           if (seenPostIds.has(node.id)) {
             return;
           }

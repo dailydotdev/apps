@@ -3,6 +3,11 @@ import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { SendType } from '../usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useReadingReminderHero } from './useReadingReminderHero';
+import {
+  featureReadingReminderHeroCopy,
+  featureReadingReminderHeroDismiss,
+} from '../../lib/featureManagement';
+import { useConditionalFeature } from '../useConditionalFeature';
 
 const mockUseAuthContext = jest.fn();
 const mockUseLogContext = jest.fn();
@@ -52,6 +57,10 @@ jest.mock('./useNotificationCtaExperiment', () => ({
   useNotificationCtaExperiment: () => mockUseNotificationCtaExperiment(),
 }));
 
+jest.mock('../useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
+}));
+
 describe('useReadingReminderHero', () => {
   const logEvent = jest.fn();
   const subscribePersonalizedDigest = jest.fn(() => Promise.resolve(null));
@@ -66,6 +75,26 @@ describe('useReadingReminderHero', () => {
       user: { timezone: 'UTC' },
     });
     mockUseLogContext.mockReturnValue({ logEvent });
+    (useConditionalFeature as jest.Mock).mockImplementation(({ feature }) => {
+      if (feature.id === featureReadingReminderHeroDismiss.id) {
+        return {
+          value: true,
+          isLoading: false,
+        };
+      }
+
+      if (feature.id === featureReadingReminderHeroCopy.id) {
+        return {
+          value: featureReadingReminderHeroCopy.defaultValue,
+          isLoading: false,
+        };
+      }
+
+      return {
+        value: true,
+        isLoading: false,
+      };
+    });
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
       isLoading: false,
@@ -76,6 +105,7 @@ describe('useReadingReminderHero', () => {
     mockUsePushNotificationMutation.mockReturnValue({ onEnablePush });
     mockUseNotificationCtaExperiment.mockReturnValue({
       isEnabled: true,
+      isFeatureEnabled: true,
       isPreviewActive: false,
     });
   });
@@ -113,11 +143,25 @@ describe('useReadingReminderHero', () => {
     expect(setLastSeen).not.toHaveBeenCalled();
   });
 
+  it('should not show when dismissed', () => {
+    mockPersistentContext.mockReturnValue(['dismissed', setLastSeen, true]);
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+    expect(setLastSeen).not.toHaveBeenCalled();
+  });
+
   it('should persist seen time immediately when shown', () => {
     const { result } = renderHook(() => useReadingReminderHero());
 
     expect(result.current.shouldShow).toBe(true);
     expect(setLastSeen).toHaveBeenCalledTimes(1);
+    expect(result.current.title).toBe('Never miss a learning day');
+    expect(result.current.subtitle).toBe(
+      'Turn on your daily reading reminder and keep your routine.',
+    );
+    expect(result.current.shouldShowDismiss).toBe(true);
   });
 
   it('should not show on desktop without preview', () => {
@@ -160,5 +204,15 @@ describe('useReadingReminderHero', () => {
       event_name: LogEvent.ScheduleReadingReminder,
       extra: JSON.stringify({ hour: 9, timezone: 'UTC' }),
     });
+  });
+
+  it('should persist dismissal', async () => {
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    await act(async () => {
+      await result.current.onDismiss();
+    });
+
+    expect(setLastSeen).toHaveBeenCalledWith('dismissed');
   });
 });

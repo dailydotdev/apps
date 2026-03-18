@@ -2,12 +2,19 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AFTER_AUTH_PARAM } from '@dailydotdev/shared/src/components/auth/common';
+import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 
 export interface ProtectedPageProps {
   children: ReactNode;
   fallback?: ReactNode;
   shouldFallback?: boolean;
 }
+
+const getOnboardingRedirect = (path: string): string =>
+  `${onboardingUrl}?${new URLSearchParams({
+    [AFTER_AUTH_PARAM]: path,
+  }).toString()}`;
 
 function ProtectedPage({
   children,
@@ -19,11 +26,11 @@ function ProtectedPage({
 
   useEffect(() => {
     if (tokenRefreshed && !user) {
-      router.replace('/');
+      router.replace(getOnboardingRedirect(router.asPath || '/'));
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tokenRefreshed, user]);
+  }, [router, tokenRefreshed, user]);
 
   return <>{shouldFallback ? fallback : children}</>;
 }

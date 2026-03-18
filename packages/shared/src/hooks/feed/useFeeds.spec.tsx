@@ -4,6 +4,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import { useFeeds } from './useFeeds';
+import type { Feed } from '../../graphql/feed';
 import {
   CREATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
@@ -18,7 +19,7 @@ const client = new QueryClient();
 const noop = jest.fn();
 let queryCalled = false;
 
-const Wrapper = ({ children }) => {
+const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider
@@ -193,7 +194,7 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    let feed;
+    let feed: Feed | undefined;
 
     await act(async () => {
       feed = await result.current.createFeed({ name: 'New feed' });
@@ -214,7 +215,7 @@ describe('useFeeds hook', () => {
 
     await waitFor(() => expect(queryCalled).toBe(true));
 
-    let feed;
+    let feed: Feed | undefined;
     await act(async () => {
       feed = await result.current.updateFeed({
         feedId: 'cf1',

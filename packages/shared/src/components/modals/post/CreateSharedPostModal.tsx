@@ -22,9 +22,6 @@ import { useDebouncedUrl } from '../../../hooks/input';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import { ProfileImageSize } from '../../ProfilePicture';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useProfileCompletionPostGate } from '../../../hooks/profile/useProfileCompletionPostGate';
-import { ProfileCompletionPostGate } from '../../post/write/ProfileCompletionPostGate';
 
 export interface CreateSharedPostModalProps extends ModalProps {
   preview: ExternalLinkPreview;
@@ -39,9 +36,6 @@ export function CreateSharedPostModal({
   onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
-  const { user } = useAuthContext();
-  const { isBlocked: isPostBlocked, requiredPercentage } =
-    useProfileCompletionPostGate();
   const richTextRef = useRef<RichTextInputRef>();
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
@@ -111,86 +105,66 @@ export function CreateSharedPostModal({
       size={Modal.Size.Medium}
       onRequestClose={onRequestClose}
       {...props}
-      formProps={
-        isPostBlocked
-          ? undefined
-          : {
-              form: 'share_post',
-              title: 'New post',
-              rightButtonProps: submitProps,
-              copy: { right: 'Post' },
-            }
-      }
+      formProps={{
+        form: 'share_post',
+        title: 'New post',
+        rightButtonProps: submitProps,
+        copy: { right: 'Post' },
+      }}
     >
       <Modal.Header title="New post" />
-      {isPostBlocked ? (
-        <div className="px-6 py-5">
-          <ProfileCompletionPostGate
-            className="w-auto"
-            compact
-            currentPercentage={user?.profileCompletion?.percentage}
-            requiredPercentage={requiredPercentage}
-            description="Update your profile to share posts in squads."
-            buttonSize={ButtonSize.Small}
-          />
-        </div>
-      ) : (
-        <form
-          className="flex w-full flex-col p-3"
-          action="#"
-          onSubmit={onFormSubmit}
-          id="share_post"
-        >
-          <RichTextInput
-            ref={richTextRef}
-            showUserAvatar
-            textareaProps={{ rows: 5, name: 'commentary' }}
-            sourceId={squad?.id}
-            enabledCommand={{ mention: true }}
-            footer={
-              isLoadingPreview ? (
-                <WritePreviewSkeleton
-                  link={link}
-                  className="m-3 flex-col-reverse"
-                />
-              ) : (
-                <WriteLinkPreview
-                  className="m-3 !w-auto flex-col-reverse"
-                  preview={updatedPreview ?? preview}
-                  link={link}
-                  onLinkChange={onInput}
-                  variant="modal"
-                />
-              )
-            }
-          />
-          {shouldShowCta && (
-            <Switch
-              data-testid="push_notification-switch"
-              inputId="push_notification-switch"
-              name="push_notification"
-              labelClassName="flex-1 font-normal"
-              className="py-3"
-              compact={false}
-              checked={isEnabled}
-              onToggle={onToggle}
-            >
-              Receive updates whenever your Squad members engage with your post
-            </Switch>
-          )}
-        </form>
-      )}
+      <form
+        className="flex w-full flex-col p-3"
+        action="#"
+        onSubmit={onFormSubmit}
+        id="share_post"
+      >
+        <RichTextInput
+          ref={richTextRef}
+          showUserAvatar
+          textareaProps={{ rows: 5, name: 'commentary' }}
+          sourceId={squad?.id}
+          enabledCommand={{ mention: true }}
+          footer={
+            isLoadingPreview ? (
+              <WritePreviewSkeleton
+                link={link}
+                className="m-3 flex-col-reverse"
+              />
+            ) : (
+              <WriteLinkPreview
+                className="m-3 !w-auto flex-col-reverse"
+                preview={updatedPreview ?? preview}
+                link={link}
+                onLinkChange={onInput}
+                variant="modal"
+              />
+            )
+          }
+        />
+        {shouldShowCta && (
+          <Switch
+            data-testid="push_notification-switch"
+            inputId="push_notification-switch"
+            name="push_notification"
+            labelClassName="flex-1 font-normal"
+            className="py-3"
+            compact={false}
+            checked={isEnabled}
+            onToggle={onToggle}
+          >
+            Receive updates whenever your Squad members engage with your post
+          </Switch>
+        )}
+      </form>
       <span className="flex flex-row items-center gap-2 px-4 tablet:hidden">
         {footer}
       </span>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         {footer}
-
-        {!isPostBlocked && (
-          <Button {...submitProps} className="ml-auto" form="share_post">
-            Post
-          </Button>
-        )}
+        <Button {...submitProps} className="ml-auto" form="share_post">
+          Post
+        </Button>
       </Modal.Footer>
     </Modal>
   );

@@ -1,4 +1,4 @@
-FROM node:22.22-alpine
+FROM node:24.14-alpine
 RUN apk add g++ make python3
 
 RUN mkdir -p /opt/app
@@ -29,4 +29,3 @@ COPY packages ./packages
 
 WORKDIR /opt/app/packages/webapp
 CMD ["npm", "run", "dev"]
-
