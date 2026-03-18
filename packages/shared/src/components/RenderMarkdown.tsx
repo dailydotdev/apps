@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { LightAsync as SyntaxHighlighterAsync } from 'react-syntax-highlighter';
 import dynamic from 'next/dynamic';
-import type { ReactMarkdownOptions } from 'react-markdown/lib/react-markdown';
+import type {
+  PluggableList,
+  ReactMarkdownOptions,
+} from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import {
   Button,
@@ -20,11 +23,9 @@ import {
   TypographyType,
 } from './typography/Typography';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const ReactMarkdown = dynamic(() =>
   import(/* webpackChunkName: "reactMarkdown" */ 'react-markdown').then(
-    (mod) => mod.default,
+    (mod) => mod.default as React.ComponentType<ReactMarkdownOptions>,
   ),
 );
 
@@ -62,7 +63,7 @@ const containerReset = {
 let languagesLoad: Promise<unknown>;
 
 const loadAndRegisterLanguages = async () => {
-  const languages = await import(
+  const { default: languages } = await import(
     /* webpackChunkName: "reactSyntaxHighlighterLanguages" */
     'react-syntax-highlighter/dist/esm/languages/hljs'
   );
@@ -95,28 +96,22 @@ const loadLanguages = async (): Promise<unknown> => {
   }
 };
 
-let pluginsLoad: Promise<unknown[]>;
+let pluginsLoad: Promise<PluggableList>;
 
-const loadPlugins = async (): Promise<unknown[]> => {
-  const loadPlugin = async (loadFn: () => Promise<unknown>) => {
-    return loadFn();
-  };
-
+const loadPlugins = async (): Promise<PluggableList> => {
   try {
     if (!pluginsLoad) {
-      pluginsLoad = Promise.all([
-        loadPlugin(async () => {
-          const importedModule = await import(
-            /* webpackChunkName: "remarkGfm" */ 'remark-gfm'
-          );
-          const remarkGfm = importedModule.default;
+      pluginsLoad = (async () => {
+        const importedModule = await import(
+          /* webpackChunkName: "remarkGfm" */ 'remark-gfm'
+        );
+        const remarkGfm = importedModule.default;
 
-          return [
-            remarkGfm,
-            { singleTilde: false } as Parameters<typeof remarkGfm>[0],
-          ];
-        }),
-      ]);
+        return [
+          remarkGfm,
+          { singleTilde: false } as Parameters<typeof remarkGfm>[0],
+        ] as PluggableList[number];
+      })().then((plugin) => [plugin]);
     }
 
     return pluginsLoad;
@@ -139,7 +134,7 @@ const RenderMarkdown = ({
 }: RenderMarkdownProps): ReactElement => {
   const [canExpand, setCanExpand] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [plugins, setPlugins] = useState([]);
+  const [plugins, setPlugins] = useState<PluggableList>([]);
   const [copying, copy] = useCopyText();
 
   useEffect(() => {

@@ -44,6 +44,16 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': 0,
     'react/no-danger': 0,
     '@typescript-eslint/return-await': 0,
+    '@typescript-eslint/ban-ts-comment': [
+      'error',
+      {
+        'ts-ignore': true,
+        'ts-nocheck': true,
+        'ts-check': false,
+        'ts-expect-error': 'allow-with-description',
+        minimumDescriptionLength: 5,
+      },
+    ],
     '@typescript-eslint/consistent-type-imports': 'error',
     'tailwindcss/classnames-order': 'warn',
     'tailwindcss/no-contradicting-classname': 'error',

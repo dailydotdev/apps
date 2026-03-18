@@ -82,6 +82,22 @@ jobs:
           name: Lint
           command: npm run pretest
           working_directory: packages/shared
+  typecheck_strict_changed:
+    docker:
+      - image: cimg/node:24.14
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v7-{{ .Branch }}
+      - run:
+          name: Fetch base branch
+          command: git fetch origin main
+      - run:
+          name: Check changed files in strict mode
+          command: npm run typecheck:strict:changed
   test_shared:
     docker:
       - image: cimg/node:24.14
@@ -131,6 +147,9 @@ workflows:
           requires:
             - install_deps
       - lint_shared:
+          requires:
+            - install_deps
+      - typecheck_strict_changed:
           requires:
             - install_deps
       - test_shared:

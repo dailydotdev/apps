@@ -2,6 +2,11 @@ declare module '*.css';
 
 type SvgrComponent = React.FC<React.SVGAttributes<SVGElement>>;
 
+declare module 'react-syntax-highlighter/dist/esm/languages/hljs' {
+  const languages: Record<string, unknown>;
+  export = languages;
+}
+
 declare module '*.svg' {
   const value: SvgrComponent;
   export default value;

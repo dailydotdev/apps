@@ -10,6 +10,7 @@
     "typecheck": "pnpm --filter @dailydotdev/shared typecheck && pnpm --filter webapp typecheck && pnpm --filter extension typecheck",
     "typecheck:strict": "pnpm --filter @dailydotdev/shared typecheck:strict && pnpm --filter webapp typecheck:strict && pnpm --filter extension typecheck:strict",
     "typecheck:strict:report": "pnpm --filter @dailydotdev/shared typecheck:strict || true; pnpm --filter webapp typecheck:strict || true; pnpm --filter extension typecheck:strict || true",
+    "typecheck:strict:changed": "node ./scripts/typecheck-strict-changed.js",
     "test:e2e": "pnpm --filter playwright test",
     "test:e2e:headed": "pnpm --filter playwright test:headed",
     "test:e2e:ui": "pnpm --filter playwright test:ui"
