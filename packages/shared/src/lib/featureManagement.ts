@@ -79,6 +79,11 @@ export const featureReadingReminderMobile = new Feature(
   false,
 );
 
+export const notificationCtaV2Feature = new Feature(
+  'notification_cta_v2',
+  false,
+);
+
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
 export { feature };

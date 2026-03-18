@@ -24,6 +24,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationType } from '../notifications/utils';
+import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -77,7 +78,10 @@ export default function MainComment({
     () => shouldShowBannerOnComment(permissionNotificationCommentId, comment),
     [permissionNotificationCommentId, comment],
   );
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const showUpvoteNotificationPermissionBanner =
+    isNotificationCtaExperimentEnabled &&
     upvoteNotificationCommentId === comment.id;
 
   const [isJoinSquadBannerDismissed] = usePersistentContext(
@@ -278,7 +282,9 @@ export default function MainComment({
           <EnableNotification
             source={NotificationPromptSource.CommentUpvote}
             contentName={
-              user?.id !== comment?.author.id ? comment?.author?.name : undefined
+              user?.id !== comment?.author.id
+                ? comment?.author?.name
+                : undefined
             }
             onEnableAction={onEnableUpvoteNotification}
           />
@@ -321,7 +327,9 @@ export default function MainComment({
               className={className?.commentBox}
               onCommented={onCommented}
               isModalThread={isModalThread}
-              isFirst={index === 0 && !(showUpvoteCtaInReplyFlow && areRepliesExpanded)}
+              isFirst={
+                index === 0 && !(showUpvoteCtaInReplyFlow && areRepliesExpanded)
+              }
               isLast={index === comment.children.edges.length - 1}
               extendTopConnector={isModalThread && commentId === comment.id}
             />

@@ -60,6 +60,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -68,6 +69,10 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { TopHero } from './banners/HeroBottomBanner';
+import {
+  NotificationCtaPreviewPlacement,
+  useNotificationCtaExperiment,
+} from '../hooks/notifications/useNotificationCtaExperiment';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -202,8 +207,13 @@ export default function Feed<T>({
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
   const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
+  const { value: isFeedLayoutV2 } = useConditionalFeature({
+    feature: featureFeedLayoutV2,
+  });
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
-  const effectiveSpaciness: Spaciness = spaciness ?? 'eco';
+  const effectiveSpaciness: Spaciness = isFeedLayoutV2
+    ? 'eco'
+    : spaciness ?? 'eco';
   const numCards = currentSettings.numCards[effectiveSpaciness];
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
@@ -254,24 +264,24 @@ export default function Feed<T>({
     feature: briefFeedEntrypointPage,
     shouldEvaluate: !user?.isPlus && isMyFeed,
   });
-  const forceBottomHeroFromUrl =
-    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
-  const forceInFeedHeroFromUrl =
-    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
-  const forceSideMenuPromptFromUrl =
-    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
-  const forceTopHeroFromUrl =
-    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
-  const forcePopupNotificationCtaFromUrl =
-    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
-    false;
-  const forceNotificationCtaFromUrl =
-    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
+  const { isPlacementForced, shouldHidePlacement } =
+    useNotificationCtaExperiment();
+  const isTopHeroForced = isPlacementForced(
+    NotificationCtaPreviewPlacement.TopHero,
+  );
+  const isInFeedHeroForced = isPlacementForced(
+    NotificationCtaPreviewPlacement.InFeedHero,
+  );
+  const shouldHideTopHero = shouldHidePlacement(
+    NotificationCtaPreviewPlacement.TopHero,
+  );
+  const shouldHideInFeedHero = shouldHidePlacement(
+    NotificationCtaPreviewPlacement.InFeedHero,
+  );
   const { shouldShow: shouldShowReadingReminder, onEnable } =
     useReadingReminderHero();
-  const [hasScrolledForHero, setHasScrolledForHero] = useState(
-    forceBottomHeroFromUrl || forceInFeedHeroFromUrl,
-  );
+  const [hasScrolledForHero, setHasScrolledForHero] =
+    useState(isInFeedHeroForced);
   const [isHeroDismissed, setIsHeroDismissed] = useState(false);
   const [isTopHeroDismissed, setIsTopHeroDismissed] = useState(false);
   const {
@@ -477,8 +487,8 @@ export default function Feed<T>({
 
   useEffect(() => {
     if (
-      forceBottomHeroFromUrl ||
-      forceInFeedHeroFromUrl ||
+      !shouldShowReadingReminder ||
+      isInFeedHeroForced ||
       hasScrolledForHero
     ) {
       return undefined;
@@ -492,7 +502,15 @@ export default function Feed<T>({
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [forceBottomHeroFromUrl, forceInFeedHeroFromUrl, hasScrolledForHero]);
+  }, [hasScrolledForHero, isInFeedHeroForced, shouldShowReadingReminder]);
+
+  useEffect(() => {
+    if (!isInFeedHeroForced) {
+      return;
+    }
+
+    setHasScrolledForHero(true);
+  }, [isInFeedHeroForced]);
 
   useEffect(() => {
     if (!shouldShowReadingReminder) {
@@ -617,20 +635,14 @@ export default function Feed<T>({
     Number(showFirstSlotCard);
   const shouldShowInFeedHero =
     shouldShowReadingReminder &&
-    !forceSideMenuPromptFromUrl &&
-    !forcePopupNotificationCtaFromUrl &&
-    !forceNotificationCtaFromUrl &&
-    !forceTopHeroFromUrl &&
-    hasScrolledForHero &&
+    !shouldHideInFeedHero &&
+    (isInFeedHeroForced || hasScrolledForHero) &&
     !isHeroDismissed &&
     items.length > HERO_INSERT_INDEX;
   const shouldShowTopHero =
-    forceTopHeroFromUrl &&
-    !forceSideMenuPromptFromUrl &&
-    !forceInFeedHeroFromUrl &&
-    !forceBottomHeroFromUrl &&
-    !forcePopupNotificationCtaFromUrl &&
-    !forceNotificationCtaFromUrl &&
+    shouldShowReadingReminder &&
+    isTopHeroForced &&
+    !shouldHideTopHero &&
     !isTopHeroDismissed;
 
   const FeedWrapperComponent = isSearchPageLaptop

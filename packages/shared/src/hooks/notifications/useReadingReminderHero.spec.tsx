@@ -10,6 +10,7 @@ const mockUsePersonalizedDigest = jest.fn();
 const mockPersistentContext = jest.fn();
 const mockUseViewSize = jest.fn();
 const mockUsePushNotificationMutation = jest.fn();
+const mockUseNotificationCtaExperiment = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
@@ -47,6 +48,10 @@ jest.mock('./usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => mockUsePushNotificationMutation(),
 }));
 
+jest.mock('./useNotificationCtaExperiment', () => ({
+  useNotificationCtaExperiment: () => mockUseNotificationCtaExperiment(),
+}));
+
 describe('useReadingReminderHero', () => {
   const logEvent = jest.fn();
   const subscribePersonalizedDigest = jest.fn(() => Promise.resolve(null));
@@ -69,6 +74,10 @@ describe('useReadingReminderHero', () => {
     mockPersistentContext.mockReturnValue([null, setLastSeen, true]);
     mockUseViewSize.mockReturnValue(true);
     mockUsePushNotificationMutation.mockReturnValue({ onEnablePush });
+    mockUseNotificationCtaExperiment.mockReturnValue({
+      isEnabled: true,
+      isPreviewActive: false,
+    });
   });
 
   it('should show for invalid persisted timestamps', () => {
@@ -79,7 +88,7 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShow).toBe(true);
   });
 
-  it("should still show on mobile on the user's registration day", () => {
+  it("should not show on the user's registration day", () => {
     mockUseAuthContext.mockReturnValue({
       isLoggedIn: true,
       user: { timezone: 'UTC', createdAt: new Date().toISOString() },
@@ -87,11 +96,11 @@ describe('useReadingReminderHero', () => {
 
     const { result } = renderHook(() => useReadingReminderHero());
 
-    expect(result.current.shouldShow).toBe(true);
+    expect(result.current.shouldShow).toBe(false);
     expect(setLastSeen).not.toHaveBeenCalled();
   });
 
-  it('should still show on mobile while digest subscription data is loading', () => {
+  it('should not show while digest subscription data is loading', () => {
     mockUsePersonalizedDigest.mockReturnValue({
       getPersonalizedDigest: jest.fn(() => null),
       isLoading: true,
@@ -100,7 +109,7 @@ describe('useReadingReminderHero', () => {
 
     const { result } = renderHook(() => useReadingReminderHero());
 
-    expect(result.current.shouldShow).toBe(true);
+    expect(result.current.shouldShow).toBe(false);
     expect(setLastSeen).not.toHaveBeenCalled();
   });
 
@@ -111,8 +120,20 @@ describe('useReadingReminderHero', () => {
     expect(setLastSeen).toHaveBeenCalledTimes(1);
   });
 
-  it('should show on desktop for logged in users', () => {
+  it('should not show on desktop without preview', () => {
     mockUseViewSize.mockReturnValue(false);
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+  });
+
+  it('should show on desktop while preview is active', () => {
+    mockUseViewSize.mockReturnValue(false);
+    mockUseNotificationCtaExperiment.mockReturnValue({
+      isEnabled: true,
+      isPreviewActive: true,
+    });
 
     const { result } = renderHook(() => useReadingReminderHero());
 

@@ -10,6 +10,7 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
+import { useNotificationCtaExperiment } from './useNotificationCtaExperiment';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
@@ -48,6 +49,8 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
+  const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
+    useNotificationCtaExperiment();
   const {
     getPersonalizedDigest,
     isLoading: isDigestLoading,
@@ -65,35 +68,18 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isRegisteredToday = getIsRegisteredToday(user?.createdAt);
 
   const isMobile = useViewSize(ViewSize.MobileL);
-  const forceSideMenuPromptFromUrl =
-    globalThis?.location?.search?.includes('forceSideMenuPrompt=1') ?? false;
-  const forceInFeedHeroFromUrl =
-    globalThis?.location?.search?.includes('forceInFeedHero=1') ?? false;
-  const forceBottomHeroFromUrl =
-    globalThis?.location?.search?.includes('forceBottomHero=1') ?? false;
-  const forceTopHeroFromUrl =
-    globalThis?.location?.search?.includes('forceTopHero=1') ?? false;
-  const forcePopupNotificationCtaFromUrl =
-    globalThis?.location?.search?.includes('forcePopupNotificationCta=1') ??
-    false;
-  const forceNotificationCtaFromUrl =
-    globalThis?.location?.search?.includes('forceNotificationCta=1') ?? false;
-  const shouldForcePopupNotificationCta =
-    forcePopupNotificationCtaFromUrl || forceNotificationCtaFromUrl;
-  const shouldForceShow = isLoggedIn;
+  const shouldForceShow = isPreviewActive && isLoggedIn;
   const shouldEvaluate =
+    isNotificationCtaExperimentEnabled &&
     isMobile &&
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
     !isRegisteredToday;
-  // Reading reminder hero is now always enabled on mobile.
-  const isFeatureEnabled = true;
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const shouldShowBase =
-    shouldEvaluate && isFeatureEnabled && !hasSeenToday && isFetched;
+  const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
 
   useEffect(() => {
     if (!shouldShowBase || hasShownInSession) {
@@ -127,13 +113,10 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const shouldShow =
-    !shouldForcePopupNotificationCta &&
-    !forceSideMenuPromptFromUrl &&
-    (forceBottomHeroFromUrl ||
-      forceInFeedHeroFromUrl ||
-      forceTopHeroFromUrl ||
-      shouldForceShow ||
-      (!isSubscribedToReadingReminder && (shouldShowBase || hasShownInSession)));
+    shouldForceShow ||
+    (isNotificationCtaExperimentEnabled &&
+      !isSubscribedToReadingReminder &&
+      (shouldShowBase || hasShownInSession));
 
   return { shouldShow, onEnable };
 };

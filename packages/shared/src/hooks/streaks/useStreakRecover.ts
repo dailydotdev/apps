@@ -66,9 +66,6 @@ export const useStreakRecover = ({
   const { isStreaksEnabled } = useReadingStreak();
   const client = useQueryClient();
   const router = useRouter();
-  const {
-    query: { streak_restore: streakRestore },
-  } = router;
 
   const recoverMutation = useMutation({
     mutationKey: generateQueryKey(RequestKey.UserStreakRecover),

@@ -126,7 +126,10 @@ const Toast = ({
   const progress = (timer / toast.timer) * 100;
 
   return (
-    <Container className={(isAnimating || isPersistentToast) && 'slide-in'} role="alert">
+    <Container
+      className={(isAnimating || isPersistentToast) && 'slide-in'}
+      role="alert"
+    >
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
         {toast.action && (
@@ -135,7 +138,10 @@ const Toast = ({
             size={ButtonSize.XSmall}
             aria-label={toast.action.copy}
             {...(toast.action.buttonProps ?? {})}
-            className={classNames('shrink-0', toast.action.buttonProps?.className)}
+            className={classNames(
+              'shrink-0',
+              toast.action.buttonProps?.className,
+            )}
             onClick={onAction}
           >
             {toast.action.copy}

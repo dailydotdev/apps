@@ -19,6 +19,7 @@ import { PlusIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import EnableNotification from '../../notifications/EnableNotification';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 interface PostTagListProps {
   post: Post;
@@ -100,6 +101,8 @@ const PostTagItem = ({
 };
 
 export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { onFollowTag, tags } = useFollowPostTags({ post });
   const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
 
@@ -118,7 +121,9 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
       return;
     }
 
-    setNewlyFollowedTag(tag);
+    if (isNotificationCtaExperimentEnabled) {
+      setNewlyFollowedTag(tag);
+    }
   };
 
   return (
@@ -136,7 +141,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
           />
         ))}
       </ul>
-      {newlyFollowedTag && (
+      {isNotificationCtaExperimentEnabled && newlyFollowedTag && (
         <EnableNotification
           className="mt-3"
           contentName={newlyFollowedTag}

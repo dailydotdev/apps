@@ -21,6 +21,7 @@ import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import EnableNotificationsCta from './EnableNotificationsCta';
 import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type SquadEntityCardProps = {
   handle: string;
@@ -42,6 +43,8 @@ const SquadEntityCard = ({
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const [showNotificationCta, setShowNotificationCta] = useState(false);
   const wasSquadMemberRef = useRef(!!squad?.currentMember);
   const wasSquadPostUpvotedRef = useRef(isSquadPostUpvoted);
@@ -56,6 +59,12 @@ const SquadEntityCard = ({
   const isSquadMember = !!squad?.currentMember;
 
   useEffect(() => {
+    if (!isNotificationCtaExperimentEnabled) {
+      setShowNotificationCta(false);
+      wasSquadMemberRef.current = isSquadMember;
+      return;
+    }
+
     if (
       showNotificationCtaOnJoin &&
       isSquadMember &&
@@ -68,9 +77,20 @@ const SquadEntityCard = ({
     }
 
     wasSquadMemberRef.current = isSquadMember;
-  }, [haveNotificationsOn, isSquadMember, showNotificationCtaOnJoin]);
+  }, [
+    haveNotificationsOn,
+    isNotificationCtaExperimentEnabled,
+    isSquadMember,
+    showNotificationCtaOnJoin,
+  ]);
 
   useEffect(() => {
+    if (!isNotificationCtaExperimentEnabled) {
+      setShowNotificationCta(false);
+      wasSquadPostUpvotedRef.current = isSquadPostUpvoted;
+      return;
+    }
+
     if (
       showNotificationCtaOnUpvote &&
       isSquadPostUpvoted &&
@@ -81,7 +101,12 @@ const SquadEntityCard = ({
     }
 
     wasSquadPostUpvotedRef.current = isSquadPostUpvoted;
-  }, [haveNotificationsOn, isSquadPostUpvoted, showNotificationCtaOnUpvote]);
+  }, [
+    haveNotificationsOn,
+    isNotificationCtaExperimentEnabled,
+    isSquadPostUpvoted,
+    showNotificationCtaOnUpvote,
+  ]);
 
   const handleEnableNotifications = async () => {
     await onNotify();
@@ -167,9 +192,11 @@ const SquadEntityCard = ({
             {largeNumberFormat(flags?.totalUpvotes)} Upvotes
           </Typography>
         </div>
-        {showNotificationCta && !haveNotificationsOn && (
-          <EnableNotificationsCta onEnable={handleEnableNotifications} />
-        )}
+        {isNotificationCtaExperimentEnabled &&
+          showNotificationCta &&
+          !haveNotificationsOn && (
+            <EnableNotificationsCta onEnable={handleEnableNotifications} />
+          )}
       </div>
     </EntityCard>
   );

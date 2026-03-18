@@ -30,26 +30,11 @@ export const TopHero = ({
           className,
         )}
       >
-        <style>
-          {`
-            @keyframes top-hero-border-shift {
-              0% {
-                background-position: 0% 50%;
-              }
-              50% {
-                background-position: 100% 50%;
-              }
-              100% {
-                background-position: 0% 50%;
-              }
-            }
-          `}
-        </style>
-        <div className="overflow-hidden rounded-16 bg-[linear-gradient(122deg,#2d1b8f_0%,#5d1fb7_45%,#ff00a8_100%)] bg-[length:200%_200%] p-[1px] shadow-2 motion-safe:[animation:top-hero-border-shift_4s_ease-in-out_infinite]">
+        <div className="top-hero-animated-border overflow-hidden rounded-16 bg-[length:200%_200%] p-px shadow-2 motion-safe:[animation:top-hero-border-shift_4s_ease-in-out_infinite]">
           <div className="overflow-hidden rounded-[0.9375rem] bg-raw-pepper-90">
             <div className="flex flex-col gap-4 px-4 py-2 tablet:flex-row tablet:items-center tablet:justify-between tablet:px-5 tablet:py-2">
               <div className="flex flex-col gap-0">
-                <h3 className="typo-title3 font-bold text-white/70">
+                <h3 className="text-white/70 font-bold typo-title3">
                   Never miss read day
                 </h3>
                 <p className="text-[0.9375rem] font-normal leading-5 text-text-secondary">
@@ -90,16 +75,16 @@ export const TopHero = ({
         className,
       )}
     >
-      <div className="relative overflow-hidden rounded-t-16 rounded-b-none px-[1px] pb-0 pt-[1px]">
-        <div className="absolute inset-0 rounded-t-16 rounded-b-none bg-[linear-gradient(122deg,#2d1b8f_0%,#5d1fb7_45%,#ff00a8_100%)]" />
-        <div className="pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-[#ff00a8]/35 blur-3xl" />
+      <div className="relative overflow-hidden rounded-b-none rounded-t-16 px-px pb-0 pt-px">
+        <div className="top-hero-panel-border absolute inset-0 rounded-b-none rounded-t-16" />
+        <div className="top-hero-glow pointer-events-none absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
-        <div className="relative overflow-hidden rounded-t-[0.9375rem] rounded-b-none bg-raw-pepper-90 shadow-2">
+        <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
-            className="absolute right-3 top-3 z-2 text-white/80 hover:text-white"
+            className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
             icon={<MiniCloseIcon />}
             aria-label="Close banner"
             onClick={onClose}
@@ -107,10 +92,10 @@ export const TopHero = ({
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
             <div className="flex flex-1 flex-col justify-between p-5 tablet:p-6">
               <div className="flex flex-col gap-1">
-                <p className="mt-2 text-[0.9375rem] text-white/80">
+                <p className="text-white/80 mt-2 text-[0.9375rem]">
                   Never miss a learning day
                 </p>
-                <h3 className="typo-title2 font-bold text-white">
+                <h3 className="font-bold text-white typo-title2">
                   Turn on your daily reading reminder and keep your routine.
                 </h3>
               </div>
@@ -123,7 +108,7 @@ export const TopHero = ({
                 Enable reminder
               </Button>
             </div>
-            <div className="flex h-[12rem] w-full items-center justify-center bg-black/20 p-3 tablet:h-auto tablet:w-[13.5rem] tablet:p-4">
+            <div className="bg-black/20 flex h-[12rem] w-full items-center justify-center p-3 tablet:h-auto tablet:w-[13.5rem] tablet:p-4">
               <ReadingReminderCatLaptop className="m-0 h-full w-full max-w-none object-contain" />
             </div>
           </div>

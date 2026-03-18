@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import {
   cloudinaryNotificationsBrowserEnabled,
@@ -12,6 +17,7 @@ import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/log';
 import { useEnableNotification } from '../../hooks/notifications';
 import { NotificationSvg } from './NotificationSvg';
+import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
@@ -64,6 +70,11 @@ const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.CommentUpvote]: 'Turn on',
 };
 
+const rolloutOnlySources = new Set<NotificationPromptSource>([
+  NotificationPromptSource.CommentUpvote,
+  NotificationPromptSource.PostTagFollow,
+]);
+
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
   contentName,
@@ -72,22 +83,42 @@ function EnableNotification({
   onEnableAction,
   ignoreDismissState = false,
 }: EnableNotificationProps): ReactElement | null {
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
     useEnableNotification({ source, ignoreDismissState });
 
-  if (!shouldShowCta) {
+  const handleEnable = async () => {
+    const actions = [onEnable()];
+
+    if (onEnableAction) {
+      actions.push(Promise.resolve(onEnableAction()));
+    }
+
+    await Promise.allSettled(actions);
+  };
+
+  if (
+    !shouldShowCta ||
+    (rolloutOnlySources.has(source) && !isNotificationCtaExperimentEnabled)
+  ) {
     return null;
   }
 
   const sourceToMessage: Record<NotificationPromptSource, string> = {
     [NotificationPromptSource.SquadPostModal]: '',
-    [NotificationPromptSource.NewComment]:
-      'Someone might reply soon. Don’t miss it.',
+    [NotificationPromptSource.NewComment]: isNotificationCtaExperimentEnabled
+      ? 'Someone might reply soon. Don’t miss it.'
+      : `Want to get notified when ${
+          contentName ?? 'someone'
+        } responds so you can continue the conversation?`,
     [NotificationPromptSource.CommentUpvote]:
       'Get notified when someone replies to this comment.',
     [NotificationPromptSource.PostTagFollow]: `Get notified when new #${contentName} stories are posted.`,
     [NotificationPromptSource.NotificationsPage]:
-      'Get notified when someone replies to your posts, mentions you, or when discussions you follow get new activity.',
+      isNotificationCtaExperimentEnabled
+        ? 'Get notified when someone replies to your posts, mentions you, or when discussions you follow get new activity.'
+        : 'Stay in the loop whenever you get a mention, reply and other important updates.',
     [NotificationPromptSource.NewSourceModal]: '',
     [NotificationPromptSource.NotificationItem]: '',
     [NotificationPromptSource.SquadPostCommentary]: '',
@@ -124,15 +155,6 @@ function EnableNotification({
     !acceptedJustNow;
   const shouldUseVerticalContentLayout =
     source === NotificationPromptSource.NotificationsPage;
-  const handleEnable = async () => {
-    const actions = [onEnable()];
-
-    if (onEnableAction) {
-      actions.push(Promise.resolve(onEnableAction()));
-    }
-
-    await Promise.allSettled(actions);
-  };
   const notificationVisual = (() => {
     if (shouldShowNotificationArtwork) {
       return (
@@ -194,6 +216,93 @@ function EnableNotification({
     );
   }
 
+  if (!isNotificationCtaExperimentEnabled) {
+    return (
+      <div
+        className={classNames(
+          'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
+          classes,
+          className,
+        )}
+      >
+        {source === NotificationPromptSource.NotificationsPage && (
+          <span className="flex flex-row font-bold">
+            {acceptedJustNow && <VIcon className="mr-2" />}
+            {`Push notifications${
+              acceptedJustNow ? ' successfully enabled' : ''
+            }`}
+          </span>
+        )}
+        <div className="mt-2 flex justify-between gap-2">
+          <p
+            className={classNames(
+              'w-full text-text-tertiary tablet:w-3/5',
+              source === NotificationPromptSource.SourceSubscribe && 'flex-1',
+            )}
+          >
+            {acceptedJustNow ? (
+              <>
+                Changing your{' '}
+                <a
+                  className="underline hover:no-underline"
+                  href={`${webappUrl}account/notifications`}
+                >
+                  notification settings
+                </a>{' '}
+                can be done anytime through your account details
+              </>
+            ) : (
+              message
+            )}
+          </p>
+          <img
+            className={classNames(
+              source === NotificationPromptSource.SourceSubscribe
+                ? 'h-16 w-auto'
+                : 'absolute -bottom-2 hidden w-[7.5rem] tablet:flex',
+              acceptedJustNow ? 'right-14' : 'right-4',
+            )}
+            src={
+              acceptedJustNow
+                ? cloudinaryNotificationsBrowserEnabled
+                : cloudinaryNotificationsBrowser
+            }
+            alt="A sample browser notification"
+          />
+        </div>
+        <div className="align-center mt-4 flex">
+          {!acceptedJustNow && (
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
+              className="mr-4"
+              onClick={handleEnable}
+            >
+              {buttonText}
+            </Button>
+          )}
+          {showTextCloseButton && (
+            <Button
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              onClick={onDismiss}
+            >
+              Dismiss
+            </Button>
+          )}
+        </div>
+        {!showTextCloseButton && (
+          <CloseButton
+            size={ButtonSize.XSmall}
+            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+            onClick={onDismiss}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className={classNames(
@@ -224,7 +333,7 @@ function EnableNotification({
       >
         <div
           className={classNames(
-            'min-w-0 flex flex-1',
+            'flex min-w-0 flex-1',
             shouldInlineActionWithMessage
               ? 'items-center gap-2'
               : 'flex-col gap-3',

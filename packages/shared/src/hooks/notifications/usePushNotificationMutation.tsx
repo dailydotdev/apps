@@ -93,13 +93,7 @@ export const usePushNotificationMutation = ({
 
       return isGranted;
     },
-    [
-      user,
-      shouldOpenPopup,
-      subscribe,
-      onOpenPopup,
-      onGranted,
-    ],
+    [user, shouldOpenPopup, subscribe, onOpenPopup, onGranted],
   );
 
   const onTogglePermission = useCallback(

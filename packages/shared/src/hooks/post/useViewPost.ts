@@ -60,6 +60,6 @@ export const useViewPost = (): UseMutateAsyncFunction<
         throw err;
       }
     },
-    [onSendViewPost, user?.id],
+    [onSendViewPost],
   );
 };

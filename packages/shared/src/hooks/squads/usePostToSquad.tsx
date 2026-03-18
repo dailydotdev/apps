@@ -25,9 +25,8 @@ import {
   getApiError,
   gqlClient,
 } from '../../graphql/common';
-import { useToastNotification } from '../useToastNotification';
+import { useToastNotification, ToastSubject } from '../useToastNotification';
 import type { NotifyOptionalProps } from '../useToastNotification';
-import { ToastSubject } from '../useToastNotification';
 import type { SourcePostModeration } from '../../graphql/squads';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
 import { ActionType } from '../../graphql/actions';
@@ -47,7 +46,7 @@ import {
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../notifications/usePushNotificationMutation';
 import { NotificationPromptSource } from '../../lib/log';
-import { isDevelopment } from '../../lib/constants';
+import { useNotificationCtaExperiment } from '../notifications/useNotificationCtaExperiment';
 
 const PROFILE_COMPLETION_POST_GATE_MESSAGE =
   'Complete your profile to create posts';
@@ -119,6 +118,8 @@ export const usePostToSquad = ({
   const { user } = useAuthContext();
   const { isSubscribed, shouldOpenPopup } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
+  const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
+    useNotificationCtaExperiment();
   const client = useQueryClient();
   const { completeAction } = useActions();
   const [preview, setPreview] = useState<ExternalLinkPreview>(
@@ -126,9 +127,9 @@ export const usePostToSquad = ({
   );
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
-  const forceNotificationQaFlow = isDevelopment;
   const shouldShowEnableNotificationToast =
-    !shouldOpenPopup() && (forceNotificationQaFlow || !isSubscribed);
+    isNotificationCtaExperimentEnabled &&
+    (isPreviewActive || (!shouldOpenPopup() && !isSubscribed));
 
   const callOnError = useCallback(
     (err: unknown): void => {

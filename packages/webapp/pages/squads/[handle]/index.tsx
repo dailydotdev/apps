@@ -30,7 +30,10 @@ import type {
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
-import { LogEvent, NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
@@ -51,6 +54,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import { useNotificationCtaExperiment } from '@dailydotdev/shared/src/hooks/notifications/useNotificationCtaExperiment';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -239,6 +243,8 @@ const SquadPage = ({
   }, [shouldManageSlack, squad, openModal, router]);
 
   const privateSourceJoin = usePrivateSourceJoin();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
 
   if ((isLoading && !isFetched) || privateSourceJoin.isActive) {
     return (
@@ -281,11 +287,13 @@ const SquadPage = ({
           members={squadMembers}
           shouldUseListMode={shouldUseListMode}
         />
-        <EnableNotification
-          source={NotificationPromptSource.SquadPage}
-          contentName={squad.name}
-          className="mx-6 mb-4 !mt-2"
-        />
+        {isNotificationCtaExperimentEnabled && (
+          <EnableNotification
+            source={NotificationPromptSource.SquadPage}
+            contentName={squad.name}
+            className="mx-6 !mt-2 mb-4"
+          />
+        )}
         <FeedPageComponent>
           <Feed
             className={classNames(shouldUseListFeedLayout ? 'px-0' : 'px-6')}

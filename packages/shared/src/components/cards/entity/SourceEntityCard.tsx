@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from '../../utilities/Link';
 import EntityCard from './EntityCard';
 import {
@@ -23,6 +23,7 @@ import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type SourceEntityCardProps = {
   source?: SourceTooltip;
@@ -41,6 +42,8 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     id: source?.id,
     entity: ContentPreferenceType.Source,
   });
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const [showNotificationCta, setShowNotificationCta] = useState(false);
   const prevStatusRef = useRef(contentPreference?.status);
   const menuProps = useSourceMenuProps({ source });
@@ -59,15 +62,33 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     prevStatusRef.current === ContentPreferenceStatus.Follow ||
     prevStatusRef.current === ContentPreferenceStatus.Subscribed;
 
-  if (currentStatus !== prevStatusRef.current) {
+  useEffect(() => {
+    if (!isNotificationCtaExperimentEnabled) {
+      setShowNotificationCta(false);
+      prevStatusRef.current = currentStatus;
+      return;
+    }
+
+    if (currentStatus === prevStatusRef.current) {
+      return;
+    }
+
     prevStatusRef.current = currentStatus;
 
     if (isNowFollowing && !wasFollowing) {
       setShowNotificationCta(true);
-    } else if (!isNowFollowing && wasFollowing) {
+      return;
+    }
+
+    if (!isNowFollowing && wasFollowing) {
       setShowNotificationCta(false);
     }
-  }
+  }, [
+    currentStatus,
+    isNotificationCtaExperimentEnabled,
+    isNowFollowing,
+    wasFollowing,
+  ]);
 
   const handleTurnOn = async () => {
     await onNotify();
@@ -135,9 +156,11 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             {largeNumberFormat(flags?.totalUpvotes) || 0} Upvotes
           </Typography>
         </div>
-        {showNotificationCta && !haveNotificationsOn && (
-          <EnableNotificationsCta onEnable={handleTurnOn} />
-        )}
+        {isNotificationCtaExperimentEnabled &&
+          showNotificationCta &&
+          !haveNotificationsOn && (
+            <EnableNotificationsCta onEnable={handleTurnOn} />
+          )}
       </div>
     </EntityCard>
   );

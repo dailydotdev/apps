@@ -33,7 +33,10 @@ export interface ToastNotification {
 export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
-  Pick<ToastNotification, 'timer' | 'subject' | 'persistent' | 'onClose' | 'action'>
+  Pick<
+    ToastNotification,
+    'timer' | 'subject' | 'persistent' | 'onClose' | 'action'
+  >
 >;
 
 export const useToastNotification = (): UseToastNotification => {

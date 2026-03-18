@@ -14,6 +14,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { SourceType } from '../../graphql/sources';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationType } from '../notifications/utils';
+import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -46,9 +47,12 @@ function SubComment({
   ...props
 }: SubCommentProps): ReactElement {
   const { user } = useAuthContext();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
   const showUpvoteNotificationPermissionBanner =
+    isNotificationCtaExperimentEnabled &&
     upvoteNotificationCommentId === comment.id;
   const replyNotificationType =
     props.post.source?.type === SourceType.Squad
@@ -171,7 +175,9 @@ function SubComment({
             className={!comment.children?.edges?.length && 'mt-3'}
             source={NotificationPromptSource.CommentUpvote}
             contentName={
-              user?.id !== comment?.author.id ? comment?.author?.name : undefined
+              user?.id !== comment?.author.id
+                ? comment?.author?.name
+                : undefined
             }
             onEnableAction={onEnableUpvoteNotification}
           />

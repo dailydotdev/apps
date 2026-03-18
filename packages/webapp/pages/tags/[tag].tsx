@@ -78,6 +78,7 @@ import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeed
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
+import { useNotificationCtaExperiment } from '@dailydotdev/shared/src/hooks/notifications/useNotificationCtaExperiment';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -272,6 +273,8 @@ const TagPage = ({
   const queryVariables = useMemo(() => ({ tag, ranking: 'TIME' }), [tag]);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const [newlyFollowedTag, setNewlyFollowedTag] = useState<string | null>(null);
@@ -317,7 +320,9 @@ const TagPage = ({
             return;
           }
 
-          setNewlyFollowedTag(tag);
+          if (isNotificationCtaExperimentEnabled) {
+            setNewlyFollowedTag(tag);
+          }
         }
       } else {
         showLogin({ trigger: AuthTriggers.Filter });
@@ -409,7 +414,7 @@ const TagPage = ({
             }}
           />
         </div>
-        {newlyFollowedTag && (
+        {isNotificationCtaExperimentEnabled && newlyFollowedTag && (
           <EnableNotification
             className="mt-3"
             contentName={newlyFollowedTag}

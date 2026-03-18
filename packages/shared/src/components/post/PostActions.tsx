@@ -39,6 +39,7 @@ import {
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 interface PostActionsProps {
   post: Post;
@@ -57,6 +58,8 @@ export function PostActions({
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const creator = post.author || post.scout;
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const [showNotificationCta, setShowNotificationCta] = useState(false);
@@ -95,6 +98,7 @@ export function PostActions({
     }
 
     if (
+      !isNotificationCtaExperimentEnabled ||
       creatorContentPreference?.status === ContentPreferenceStatus.Subscribed
     ) {
       return;
@@ -345,7 +349,7 @@ export function PostActions({
           </div>
         </div>
       </div>
-      {showNotificationCta && (
+      {isNotificationCtaExperimentEnabled && showNotificationCta && (
         <EnableNotificationsCta onEnable={handleEnableNotifications} />
       )}
       {showTagsPanel !== undefined && (

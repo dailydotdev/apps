@@ -33,6 +33,7 @@ import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import type { MenuItemProps } from '../../dropdown/common';
 import EnableNotificationsCta from './EnableNotificationsCta';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type Props = {
   user?: UserShortProfile;
@@ -57,6 +58,8 @@ const UserEntityCard = ({
     id: user?.id,
     entity: ContentPreferenceType.User,
   });
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { unblock, block, subscribe } = useContentPreference();
   const [showNotificationCta, setShowNotificationCta] = useState(false);
   const prevStatusRef = useRef(contentPreference?.status);
@@ -96,6 +99,12 @@ const UserEntityCard = ({
     currentStatus === ContentPreferenceStatus.Subscribed;
 
   useEffect(() => {
+    if (!isNotificationCtaExperimentEnabled) {
+      setShowNotificationCta(false);
+      prevStatusRef.current = currentStatus;
+      return;
+    }
+
     const previousStatus = prevStatusRef.current;
 
     if (previousStatus === currentStatus) {
@@ -113,9 +122,20 @@ const UserEntityCard = ({
     }
 
     prevStatusRef.current = currentStatus;
-  }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
+  }, [
+    currentStatus,
+    isNotificationCtaExperimentEnabled,
+    isNowFollowing,
+    showNotificationCtaOnFollow,
+  ]);
 
   useEffect(() => {
+    if (!isNotificationCtaExperimentEnabled) {
+      setShowNotificationCta(false);
+      prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
+      return;
+    }
+
     const wasAuthorPostUpvoted = prevAuthorPostUpvotedRef.current;
 
     if (wasAuthorPostUpvoted === isAuthorPostUpvoted) {
@@ -132,7 +152,12 @@ const UserEntityCard = ({
     }
 
     prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
-  }, [haveNotificationsOn, isAuthorPostUpvoted, showNotificationCtaOnUpvote]);
+  }, [
+    haveNotificationsOn,
+    isAuthorPostUpvoted,
+    isNotificationCtaExperimentEnabled,
+    showNotificationCtaOnUpvote,
+  ]);
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -278,9 +303,11 @@ const UserEntityCard = ({
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
-        {showNotificationCta && !haveNotificationsOn && (
-          <EnableNotificationsCta onEnable={handleEnableNotifications} />
-        )}
+        {isNotificationCtaExperimentEnabled &&
+          showNotificationCta &&
+          !haveNotificationsOn && (
+            <EnableNotificationsCta onEnable={handleEnableNotifications} />
+          )}
       </div>
     </EntityCard>
   );

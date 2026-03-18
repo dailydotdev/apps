@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
+import classNames from 'classnames';
 import { ModalSize } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
 import type { ModalProps } from '../common/Modal';
@@ -34,6 +35,7 @@ import { usePushNotificationContext } from '../../../contexts/PushNotificationCo
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../../hooks/usePersistentContext';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -141,16 +143,18 @@ export const StreakRecoverOptout = ({
   hideForever,
   id,
   className,
+  compact = false,
 }: {
   id: string;
   className?: string;
+  compact?: boolean;
 } & Pick<UseStreakRecoverReturn, 'hideForever'>): ReactElement => (
   <div className={className ?? 'flex flex-row items-center justify-center'}>
     <Checkbox
       aria-labelledby={`showAgain-label-${id}`}
       checked={hideForever.isChecked}
-      className="!w-5 !p-0 !pr-0"
-      checkmarkClassName="mr-2 h-4 w-4 rounded-4"
+      className={compact ? '!w-5 !p-0 !pr-0' : '!pr-0'}
+      checkmarkClassName={compact ? 'mr-2 h-4 w-4 rounded-4' : undefined}
       data-testid="streak-recover-optout"
       id={`showAgain-${id}`}
       name="showAgain"
@@ -158,19 +162,21 @@ export const StreakRecoverOptout = ({
     />
     <Typography
       aria-label="Never show 'reading streak recover' popup again"
-      className="cursor-pointer py-0"
+      className={compact ? 'cursor-pointer py-0' : 'cursor-pointer py-2.5'}
       htmlFor={`showAgain-${id}`}
       id={`showAgain-label-${id}`}
       tag={TypographyTag.Label}
       type={TypographyType.Footnote}
       color={TypographyColor.Tertiary}
     >
-      Hide this
+      {compact ? 'Hide this' : 'Never show this again'}
     </Typography>
   </div>
 );
 
 const StreakRecoverNotificationReminder = () => {
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const [isAlertShown, setIsAlertShown] = usePersistentContext<boolean>(
@@ -179,7 +185,11 @@ const StreakRecoverNotificationReminder = () => {
   );
   const { onTogglePermission } = usePushNotificationMutation();
   const showAlert =
-    isPushSupported && isAlertShown && isInitialized && !isSubscribed;
+    isNotificationCtaExperimentEnabled &&
+    isPushSupported &&
+    isAlertShown &&
+    isInitialized &&
+    !isSubscribed;
 
   if (!showAlert) {
     return null;
@@ -229,6 +239,8 @@ export const StreakRecoverModal = (
 ): ReactElement => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
   const { isStreaksEnabled } = useReadingStreak();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment();
 
   const id = useId();
   const { recover, hideForever, onClose, onRecover } = useStreakRecover({
@@ -253,12 +265,20 @@ export const StreakRecoverModal = (
         title="Close streak recover popup"
       />
       <ModalBody className="!p-4">
-        <StreakRecoverOptout
-          id={id}
-          className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
-          hideForever={hideForever}
-        />
-        <div className="flex flex-col gap-4 pt-8">
+        {isNotificationCtaExperimentEnabled && (
+          <StreakRecoverOptout
+            id={id}
+            className="absolute left-0 top-0 z-1 ml-4 mr-4 flex h-10 flex-row items-center gap-2"
+            hideForever={hideForever}
+            compact
+          />
+        )}
+        <div
+          className={classNames(
+            'flex flex-col gap-4',
+            isNotificationCtaExperimentEnabled && 'pt-8',
+          )}
+        >
           <StreakRecoverCover />
           <StreakRecoverHeading days={recover.oldStreakLength} />
           <StreakRecoveryCopy recover={recover} />
@@ -267,8 +287,13 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
+          {!isNotificationCtaExperimentEnabled && (
+            <StreakRecoverOptout id={id} hideForever={hideForever} />
+          )}
         </div>
-        <StreakRecoverNotificationReminder />
+        {isNotificationCtaExperimentEnabled && (
+          <StreakRecoverNotificationReminder />
+        )}
       </ModalBody>
     </Modal>
   );
