@@ -2,7 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import {
   QuestRewardType,
@@ -21,6 +21,11 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 function mockReactModule() {
   return React;
 }
+
+type MockDropdownTriggerChildProps = {
+  onClick?: (...args: unknown[]) => void;
+  'data-tooltip-content'?: string;
+};
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
@@ -92,11 +97,12 @@ jest.mock('../dropdown/DropdownMenu', () => {
         return <>{children}</>;
       }
 
-      const originalOnClick = children.props.onClick as
+      const triggerChild = children as ReactElement<MockDropdownTriggerChildProps>;
+      const originalOnClick = triggerChild.props.onClick as
         | ((...args: unknown[]) => void)
         | undefined;
 
-      return cloneElement(children, {
+      return cloneElement(triggerChild, {
         'data-tooltip-content': tooltip?.content,
         onClick: (...args: unknown[]) => {
           originalOnClick?.(...args);

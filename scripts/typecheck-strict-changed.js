@@ -5,7 +5,6 @@ const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 
 const repoRoot = process.cwd();
-const tscBinaryPath = path.join(repoRoot, 'node_modules', '.bin', 'tsc');
 
 const packageConfigs = [
   {
@@ -165,9 +164,10 @@ function findStrictErrorViolations(files) {
 
   relevantPackages.forEach((config) => {
     const packageDir = path.join(repoRoot, config.dir);
-    const command = fs.existsSync(tscBinaryPath) ? tscBinaryPath : 'pnpm';
-    const args = fs.existsSync(tscBinaryPath)
-      ? ['-p', config.tsconfig, '--noEmit', '--pretty', 'false']
+    const tscBinaryPath = resolveTypeScriptBinary(packageDir);
+    const command = tscBinaryPath ? process.execPath : 'pnpm';
+    const args = tscBinaryPath
+      ? [tscBinaryPath, '-p', config.tsconfig, '--noEmit', '--pretty', 'false']
       : [
           'exec',
           'tsc',
@@ -211,6 +211,16 @@ function findStrictErrorViolations(files) {
   });
 
   return violations;
+}
+
+function resolveTypeScriptBinary(packageDir) {
+  try {
+    return require.resolve('typescript/bin/tsc', {
+      paths: [packageDir, repoRoot],
+    });
+  } catch (error) {
+    return null;
+  }
 }
 
 function parseTypeScriptErrors(output, packageDir) {
