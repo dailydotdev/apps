@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -14,8 +14,9 @@ import {
 import { QuestButton } from './QuestButton';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import useSubscription from '../../hooks/useSubscription';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 
 function mockReactModule() {
@@ -51,9 +52,14 @@ jest.mock('../../hooks/useSubscription', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('../dropdown/DropdownMenu', () => {
-  const { createContext, isValidElement, cloneElement } = mockReactModule();
-  const DropdownMenuContext = createContext<{
+jest.mock('../../hooks/usePlusSubscription', () => ({
+  usePlusSubscription: jest.fn(),
+}));
+
+jest.mock('@radix-ui/react-popover', () => {
+  const { cloneElement, createContext, isValidElement, useContext } =
+    mockReactModule();
+  const PopoverContext = createContext<{
     open: boolean;
     setOpen: (value: boolean) => void;
     onOpenChange?: (value: boolean) => void;
@@ -63,35 +69,41 @@ jest.mock('../dropdown/DropdownMenu', () => {
   });
 
   return {
-    DropdownMenu: ({
+    Popover: ({
       children,
+      open: controlledOpen,
       onOpenChange,
     }: {
       children: ReactNode;
+      open?: boolean;
       onOpenChange?: (value: boolean) => void;
     }) => {
       const { useState } = mockReactModule();
-      const [open, setOpenState] = useState(false);
+      const [internalOpen, setInternalOpen] = useState(false);
+      const open = controlledOpen ?? internalOpen;
       const setOpen = (value: boolean) => {
         onOpenChange?.(value);
-        setOpenState(value);
+        if (controlledOpen === undefined) {
+          setInternalOpen(value);
+        }
       };
 
       return (
-        <DropdownMenuContext.Provider value={{ open, setOpen, onOpenChange }}>
+        <PopoverContext.Provider value={{ open, setOpen, onOpenChange }}>
           <div>{children}</div>
-        </DropdownMenuContext.Provider>
+        </PopoverContext.Provider>
       );
     },
-    DropdownMenuTrigger: ({
+    PopoverTrigger: ({
       children,
-      tooltip,
+      asChild: _asChild,
+      ...props
     }: {
       children: ReactNode;
-      tooltip?: { content?: string };
+      asChild?: boolean;
+      [key: string]: unknown;
     }) => {
-      const { useContext } = mockReactModule();
-      const { setOpen } = useContext(DropdownMenuContext);
+      const { open, setOpen } = useContext(PopoverContext);
 
       if (!isValidElement(children)) {
         return <>{children}</>;
@@ -103,17 +115,17 @@ jest.mock('../dropdown/DropdownMenu', () => {
         | ((...args: unknown[]) => void)
         | undefined;
 
-      return cloneElement(triggerChild, {
-        'data-tooltip-content': tooltip?.content,
+      return cloneElement(children, {
+        ...props,
         onClick: (...args: unknown[]) => {
           originalOnClick?.(...args);
-          setOpen(true);
+          setOpen(!open);
         },
       });
     },
-    DropdownMenuContent: ({ children }: { children: ReactNode }) => {
-      const { useContext } = mockReactModule();
-      const { open } = useContext(DropdownMenuContext);
+    PopoverPortal: ({ children }: { children: ReactNode }) => <>{children}</>,
+    PopoverContent: ({ children }: { children: ReactNode }) => {
+      const { open } = useContext(PopoverContext);
 
       if (!open) {
         return null;
@@ -124,9 +136,34 @@ jest.mock('../dropdown/DropdownMenu', () => {
   };
 });
 
+jest.mock('../tooltip/Tooltip', () => {
+  const { cloneElement, isValidElement } = mockReactModule();
+
+  return {
+    Tooltip: ({
+      children,
+      content,
+    }: {
+      children: ReactNode;
+      content?: string;
+    }) => {
+      if (!isValidElement<{ 'data-tooltip-content'?: string }>(children)) {
+        return <>{children}</>;
+      }
+
+      return cloneElement(children, {
+        'data-tooltip-content':
+          typeof content === 'string' ? content : undefined,
+      });
+    },
+  };
+});
+
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
 const mockUseSubscription = useSubscription as jest.Mock;
+const mockUsePlusSubscription = usePlusSubscription as jest.Mock;
+const mockLogSubscriptionEvent = jest.fn();
 
 const questDashboard = {
   level: {
@@ -194,6 +231,11 @@ beforeEach(() => {
     variables: undefined,
   });
   mockUseSubscription.mockReset();
+  mockLogSubscriptionEvent.mockReset();
+  mockUsePlusSubscription.mockReturnValue({
+    isPlus: false,
+    logSubscriptionEvent: mockLogSubscriptionEvent,
+  });
 });
 
 describe('QuestButton', () => {
@@ -281,6 +323,24 @@ describe('QuestButton', () => {
     });
   });
 
+  it('should stay open when the page scrolls', async () => {
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText('Level 7')).toBeInTheDocument();
+
+    act(() => {
+      globalThis.dispatchEvent(new Event('scroll'));
+    });
+
+    expect(screen.getByText('Level 7')).toBeInTheDocument();
+  });
+
   it('should keep accent progress fill on locked quests', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
@@ -337,6 +397,150 @@ describe('QuestButton', () => {
     expect(progressBar).toBeInTheDocument();
     expect(progressBar).toHaveClass('bg-accent-cabbage-bolder');
     expect(progressBar).not.toHaveClass('bg-border-subtler');
+  });
+
+  it('should explain plus quests are additional slots', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByText('Plus users have two additional quest slots'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Unlock' })).toBeInTheDocument();
+    expect(screen.queryByText('Plus quests')).not.toBeInTheDocument();
+  });
+
+  it('should hide the plus explainer and unlock button for subscribed users', async () => {
+    mockUsePlusSubscription.mockReturnValue({
+      isPlus: true,
+      logSubscriptionEvent: mockLogSubscriptionEvent,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      screen.queryByText('Plus users have two additional quest slots'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Unlock' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should log the plus unlock click with the quest dropdown target', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(screen.getByRole('link', { name: 'Unlock' }));
+
+    expect(mockLogSubscriptionEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: TargetId.QuestDropdown,
+    });
   });
 
   it('should invalidate the quest dashboard on quest progress and rollover updates', () => {
