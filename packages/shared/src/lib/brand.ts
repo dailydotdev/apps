@@ -42,6 +42,7 @@ export interface TagBrandingConfig {
   style: TagBrandingStyle;
   delay: number; // Animation delay in ms
   targetUrl?: string; // Optional click-through URL
+  showLogo?: boolean; // Whether to show brand logo next to tag (default: true)
 }
 
 // ============================================================================
@@ -169,7 +170,8 @@ export const MOCK_COPILOT_TASKS: PromotedTask[] = [
     title: 'Share your Copilot experience',
     description: 'Post about Copilot on social media',
     reward: 100,
-    verifyUrl: 'https://x.com/intent/tweet?text=I%20love%20using%20%40GitHubCopilot%20for%20coding!',
+    verifyUrl:
+      'https://x.com/intent/tweet?text=I%20love%20using%20%40GitHubCopilot%20for%20coding!',
     icon: 'share',
   },
 ];
@@ -216,7 +218,13 @@ export const MOCK_COPILOT_BRAND: BrandConfig = {
   },
 
   highlightedWord: {
-    keywords: ['AI', 'artificial intelligence', 'code completion', 'copilot', 'Claude'],
+    keywords: [
+      'AI',
+      'artificial intelligence',
+      'code completion',
+      'copilot',
+      'Claude',
+    ],
     tooltipTitle: 'GitHub Copilot',
     tooltipDescription:
       'Your AI pair programmer. Write code faster with intelligent suggestions.',
@@ -285,6 +293,13 @@ export const isWordHighlighted = (
 };
 
 /**
+ * Escape special regex characters
+ */
+const escapeRegex = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+/**
  * Find highlighted keyword matches in text
  * Returns an array of match objects with start/end indices
  */
@@ -309,14 +324,16 @@ export const findHighlightedKeywords = (
     const lowerKeyword = keyword.toLowerCase();
     // Use word boundary regex to match whole words only
     const regex = new RegExp(`\\b${escapeRegex(lowerKeyword)}\\b`, 'gi');
-    let match: RegExpExecArray | null;
+    let match: RegExpExecArray | null = regex.exec(lowerText);
 
-    while ((match = regex.exec(lowerText)) !== null) {
+    while (match !== null) {
       matches.push({
         keyword: text.slice(match.index, match.index + keyword.length),
         start: match.index,
         end: match.index + keyword.length,
       });
+
+      match = regex.exec(lowerText);
     }
   });
 
@@ -326,11 +343,4 @@ export const findHighlightedKeywords = (
     .filter(
       (match, index, arr) => index === 0 || match.start >= arr[index - 1].end,
     );
-};
-
-/**
- * Escape special regex characters
- */
-const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };

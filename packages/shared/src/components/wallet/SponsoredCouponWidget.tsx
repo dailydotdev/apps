@@ -2,11 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
-import {
-  Button,
-  ButtonVariant,
-  ButtonSize,
-} from '../buttons/Button';
+import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import {
   Typography,
   TypographyType,

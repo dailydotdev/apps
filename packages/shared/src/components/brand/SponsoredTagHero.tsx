@@ -35,7 +35,10 @@ export const SponsoredTagHero = ({
 
   return (
     <div
-      className={classNames('relative w-full overflow-hidden rounded-16', className)}
+      className={classNames(
+        'relative w-full overflow-hidden rounded-16',
+        className,
+      )}
       style={{
         background: `linear-gradient(135deg, 
           ${primary} 0%, 
@@ -74,7 +77,7 @@ export const SponsoredTagHero = ({
         }}
       />
       <div
-        className="pointer-events-none absolute left-1/2 top-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-2xl"
+        className="opacity-30 pointer-events-none absolute left-1/2 top-1/2 size-20 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
         style={{
           background: secondary,
           animation: 'heroPulse 4s ease-in-out infinite',
@@ -88,7 +91,7 @@ export const SponsoredTagHero = ({
           {activeBrand.logo && (
             <div className="relative flex-shrink-0">
               <div
-                className="absolute inset-0 rounded-full opacity-70 blur-md"
+                className="opacity-70 absolute inset-0 rounded-full blur-md"
                 style={{ background: 'white' }}
               />
               <img
@@ -100,12 +103,12 @@ export const SponsoredTagHero = ({
           )}
 
           <div className="flex flex-col gap-1">
-            <span className="typo-callout text-white/80">Sponsored by</span>
-            <span className="typo-title3 font-bold text-white">
+            <span className="text-white/80 typo-callout">Sponsored by</span>
+            <span className="font-bold text-white typo-title3">
               {activeBrand.name}
             </span>
             {highlightedWordConfig.config?.tooltipDescription && (
-              <span className="typo-body max-w-lg text-white/90">
+              <span className="text-white/90 max-w-lg typo-body">
                 {highlightedWordConfig.config.tooltipDescription}
               </span>
             )}
@@ -121,7 +124,7 @@ export const SponsoredTagHero = ({
             href={ctaUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 self-start bg-white !text-gray-900 hover:bg-white/90 tablet:self-center"
+            className="!text-gray-900 hover:bg-white/90 flex-shrink-0 self-start bg-white tablet:self-center"
           >
             {ctaText}
             <OpenLinkIcon className="ml-2" />

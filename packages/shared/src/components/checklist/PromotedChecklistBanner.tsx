@@ -2,14 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import * as Popover from '@radix-ui/react-popover';
-import type { BrandConfig } from '../../lib/brand';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { usePromotedChecklist } from '../../hooks/usePromotedChecklist';
 import { PromotedChecklist } from './PromotedChecklist';
-import {
-  Typography,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { CoreIcon, MiniCloseIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
@@ -36,13 +32,8 @@ export const PromotedChecklistBanner = ({
   const { activeBrand, getPromotedChecklist } = useBrandSponsorship();
   const checklistConfig = getPromotedChecklist();
 
-  const {
-    isTaskCompleted,
-    completeTask,
-    progress,
-    coresEarned,
-    isComplete,
-  } = usePromotedChecklist(checklistConfig);
+  const { isTaskCompleted, completeTask, progress, coresEarned, isComplete } =
+    usePromotedChecklist(checklistConfig);
 
   const handleOpenChange = useCallback((open: boolean): void => {
     setIsOpen(open);
@@ -80,19 +71,30 @@ export const PromotedChecklistBanner = ({
             />
           )}
           <div className={styles.bannerText}>
-            <Typography type={TypographyType.Callout} bold className="text-white">
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              className="text-white"
+            >
               {checklistConfig.title}
             </Typography>
             <div className={styles.bannerReward}>
               <CoreIcon size={IconSize.XSmall} className="text-white" />
-              <Typography type={TypographyType.Footnote} className="text-white opacity-90">
+              <Typography
+                type={TypographyType.Footnote}
+                className="opacity-90 text-white"
+              >
                 Earn up to {checklistConfig.totalReward} Cores
               </Typography>
             </div>
           </div>
           {progress > 0 && (
             <div className={styles.bannerProgress}>
-              <Typography type={TypographyType.Footnote} bold className="text-white">
+              <Typography
+                type={TypographyType.Footnote}
+                bold
+                className="text-white"
+              >
                 {progress}%
               </Typography>
             </div>
@@ -124,7 +126,10 @@ export const PromotedChecklistBanner = ({
             {checklistConfig.title}
           </Typography>
         </div>
-        <Typography type={TypographyType.Footnote} className="text-text-tertiary mb-2">
+        <Typography
+          type={TypographyType.Footnote}
+          className="mb-2 text-text-tertiary"
+        >
           Complete tasks to earn Cores!
         </Typography>
         <div className={styles.compactProgress}>

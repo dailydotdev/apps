@@ -18,7 +18,6 @@ import {
   LinkIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
-import { anchorDefaultRel } from '../../lib/strings';
 import styles from './PromotedChecklist.module.css';
 
 interface PromotedChecklistProps {
@@ -101,10 +100,10 @@ export const PromotedChecklist = ({
       className={classNames(styles.container, className)}
       style={
         brand.colors
-          ? {
+          ? ({
               '--brand-primary': brand.colors.primary,
               '--brand-secondary': brand.colors.secondary,
-            } as React.CSSProperties
+            } as React.CSSProperties)
           : undefined
       }
     >
@@ -114,6 +113,7 @@ export const PromotedChecklist = ({
         <div className={styles.coinsContainer}>
           {[...Array(5)].map((_, i) => (
             <CoreIcon
+              // eslint-disable-next-line react/no-array-index-key
               key={i}
               size={IconSize.Medium}
               className={styles.coin}
@@ -123,11 +123,7 @@ export const PromotedChecklist = ({
         </div>
 
         {brand.logo && (
-          <img
-            src={brand.logo}
-            alt={brand.name}
-            className={styles.brandLogo}
-          />
+          <img src={brand.logo} alt={brand.name} className={styles.brandLogo} />
         )}
 
         <div className={styles.heroContent}>
@@ -152,9 +148,7 @@ export const PromotedChecklist = ({
               <span style={{ color: brand.colors?.primary }}>
                 {coresEarned}
               </span>
-              <span className="text-text-tertiary">
-                {' '}/ {totalReward} Cores
-              </span>
+              <span className="text-text-tertiary"> / {totalReward} Cores</span>
             </Typography>
           </div>
 

@@ -95,8 +95,7 @@ const mockCoupons: Coupon[] = [
     company: 'Notion',
     logo: 'https://www.notion.so/images/favicon.ico',
     title: '20% off Plus Plan',
-    description:
-      'Upgrade to Notion Plus with 20% discount for the first year.',
+    description: 'Upgrade to Notion Plus with 20% discount for the first year.',
     code: 'DAILYNOTION',
     discount: '20%',
     expiresAt: '2026-08-15',
@@ -120,7 +119,8 @@ const mockCoupons: Coupon[] = [
     company: 'Linear',
     logo: 'https://linear.app/favicon.ico',
     title: 'Free Plus Plan for 6 Months',
-    description: 'Streamline your workflow with Linear Plus, free for 6 months.',
+    description:
+      'Streamline your workflow with Linear Plus, free for 6 months.',
     code: 'DAILYLINEAR6',
     discount: '6 months free',
     expiresAt: '2026-11-30',
@@ -321,7 +321,9 @@ const CouponCard = ({
               <span className="rounded-8 bg-accent-avocado-default px-2 py-1 font-bold text-raw-pepper-90">
                 {coupon.discount}
               </span>
-              <span>Expires: {new Date(coupon.expiresAt).toLocaleDateString()}</span>
+              <span>
+                Expires: {new Date(coupon.expiresAt).toLocaleDateString()}
+              </span>
             </div>
 
             <Button
@@ -355,20 +357,6 @@ const CouponsPage = (): ReactElement => {
     }
   }, [router]);
 
-  if (!COUPONS_PAGE_ENABLED) {
-    return null;
-  }
-
-  const handleToggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const newFavorites = prev.includes(id)
-        ? prev.filter((fav) => fav !== id)
-        : [...prev, id];
-      saveFavoritesToStorage(newFavorites);
-      return newFavorites;
-    });
-  };
-
   const filteredAndSortedCoupons = useMemo(() => {
     const filtered = mockCoupons.filter((coupon) => {
       const query = searchQuery.toLowerCase();
@@ -394,13 +382,30 @@ const CouponsPage = (): ReactElement => {
     });
   }, [searchQuery, favorites]);
 
+  if (!COUPONS_PAGE_ENABLED) {
+    return null;
+  }
+
+  const handleToggleFavorite = (id: string) => {
+    setFavorites((prev) => {
+      const newFavorites = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      saveFavoritesToStorage(newFavorites);
+      return newFavorites;
+    });
+  };
+
   const favoriteCount = favorites.length;
 
   return (
     <AccountPageContainer title="Coupons">
       <div className="mb-6 flex flex-col gap-4">
         <div className="flex items-center gap-3">
-          <GiftIcon size={IconSize.Large} className="text-accent-bacon-default" />
+          <GiftIcon
+            size={IconSize.Large}
+            className="text-accent-bacon-default"
+          />
           <div>
             <Typography type={TypographyType.Body} bold>
               Exclusive deals for the daily.dev community
@@ -426,8 +431,13 @@ const CouponsPage = (): ReactElement => {
             color={TypographyColor.Secondary}
             className="flex items-center gap-1"
           >
-            <StarIcon size={IconSize.XSmall} secondary className="text-accent-cheese-default" />
-            {favoriteCount} favorite{favoriteCount !== 1 ? 's' : ''} pinned to top
+            <StarIcon
+              size={IconSize.XSmall}
+              secondary
+              className="text-accent-cheese-default"
+            />
+            {favoriteCount} favorite{favoriteCount !== 1 ? 's' : ''} pinned to
+            top
           </Typography>
         )}
       </div>

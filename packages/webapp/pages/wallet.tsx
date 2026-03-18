@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';

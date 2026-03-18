@@ -25,6 +25,7 @@ import type { Feature } from '../lib/featureManagement';
  * In production, this would come from GrowthBook
  * For the prototype, we use mock data
  */
+// @ts-expect-error JsonValue will not be needed when moved to boot and context
 const brandSponsorshipFeature: Feature<BrandConfig | null> = {
   id: 'brand_sponsorship_config',
   defaultValue: MOCK_COPILOT_BRAND, // Use mock data for prototype
@@ -126,7 +127,8 @@ interface UseBrandSponsorshipReturn {
  * ```
  */
 export const useBrandSponsorship = (): UseBrandSponsorshipReturn => {
-  const { value: brandConfig, isLoading } = useConditionalFeature({
+  // @ts-expect-error JsonValue will not be needed when moved to boot and context
+  const { value: brandConfig, isLoading } = useConditionalFeature<BrandConfig>({
     feature: brandSponsorshipFeature,
     shouldEvaluate: true,
   });

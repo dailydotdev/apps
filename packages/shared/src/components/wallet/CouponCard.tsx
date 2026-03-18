@@ -1,18 +1,14 @@
 import type { ReactElement } from 'react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import type { BrandCoupon, BrandConfig } from '../../lib/brand';
-import {
-  Button,
-  ButtonVariant,
-  ButtonSize,
-} from '../buttons/Button';
+import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import {
   Typography,
   TypographyType,
   TypographyColor,
 } from '../typography/Typography';
-import { CheckIcon, CopyIcon, ArrowIcon } from '../icons';
+import { ChecklistBIcon, CopyIcon, ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -60,20 +56,41 @@ export const CouponCard = ({
     (new Date(coupon.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
   );
 
-  const expiryText = isExpired
-    ? 'Expired'
-    : daysUntilExpiry === 1
-      ? 'Expires tomorrow'
-      : daysUntilExpiry <= 7
-        ? `Expires in ${daysUntilExpiry} days`
-        : `Expires ${new Date(coupon.expiresAt).toLocaleDateString()}`;
+  const expiryText = useMemo(() => {
+    if (isExpired) {
+      return 'Expired';
+    }
+
+    if (daysUntilExpiry === 1) {
+      return 'Expires tomorrow';
+    }
+
+    if (daysUntilExpiry <= 7) {
+      return `Expires in ${daysUntilExpiry} days`;
+    }
+
+    return `Expires ${new Date(coupon.expiresAt).toLocaleDateString()}`;
+  }, [isExpired, daysUntilExpiry, coupon.expiresAt]);
+
+  const expiryColor = useMemo(() => {
+    if (isExpired) {
+      return TypographyColor.StatusError;
+    }
+
+    if (daysUntilExpiry <= 7) {
+      return TypographyColor.StatusHelp;
+    }
+
+    return TypographyColor.Tertiary;
+  }, [isExpired, daysUntilExpiry]);
 
   return (
     <div
       className={classNames(
         'relative flex flex-col gap-4 rounded-16 border p-4 transition-all',
         {
-          'border-border-subtlest-tertiary bg-surface-float': !coupon.isUsed && !isExpired,
+          'border-border-subtlest-tertiary bg-surface-float':
+            !coupon.isUsed && !isExpired,
           'border-border-subtlest-tertiary bg-surface-float opacity-60':
             coupon.isUsed || isExpired,
         },
@@ -107,16 +124,7 @@ export const CouponCard = ({
             {brand.name}
           </Typography>
           <div className="flex items-center gap-1">
-            <Typography
-              type={TypographyType.Footnote}
-              color={
-                isExpired
-                  ? TypographyColor.StatusError
-                  : daysUntilExpiry <= 7
-                    ? TypographyColor.StatusWarning
-                    : TypographyColor.Tertiary
-              }
-            >
+            <Typography type={TypographyType.Footnote} color={expiryColor}>
               {expiryText}
             </Typography>
             {coupon.termsUrl && (
@@ -126,7 +134,7 @@ export const CouponCard = ({
                   href={coupon.termsUrl}
                   target="_blank"
                   rel={anchorDefaultRel}
-                  className="typo-footnote text-text-quaternary underline hover:text-text-tertiary"
+                  className="text-text-quaternary underline typo-footnote hover:text-text-tertiary"
                 >
                   Terms
                 </a>
@@ -167,7 +175,7 @@ export const CouponCard = ({
           disabled={coupon.isUsed || isExpired}
           icon={
             copied ? (
-              <CheckIcon size={IconSize.Small} />
+              <ChecklistBIcon size={IconSize.Small} />
             ) : (
               <CopyIcon size={IconSize.Small} />
             )

@@ -63,11 +63,7 @@ export const HighlightedWord = ({
       delayDuration={100}
     >
       <span
-        className={classNames(
-          'transition-colors',
-          highlightClasses,
-          className,
-        )}
+        className={classNames('transition-colors', highlightClasses, className)}
       >
         {word}
       </span>

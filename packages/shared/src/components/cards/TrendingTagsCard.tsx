@@ -49,7 +49,7 @@ const TagChip = ({ tag, href, isActive }: TagChipProps): ReactElement => (
   <Link href={href}>
     <span
       className={classNames(
-        'flex h-8 flex-shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-10 border px-3 typo-callout transition-colors',
+        'flex h-8 flex-shrink-0 cursor-pointer items-center justify-center whitespace-nowrap rounded-10 border px-3 transition-colors typo-callout',
         isActive
           ? 'border-text-primary bg-text-primary text-background-default'
           : 'border-border-subtlest-tertiary bg-background-default text-text-tertiary hover:bg-surface-hover hover:text-text-secondary',
@@ -88,7 +88,7 @@ const MobileTrendingCard = ({
     <div className="flex flex-wrap gap-2">
       {TRENDING_TAGS.slice(0, 8).map((tag) => (
         <Link key={tag} href={`${webappUrl}tags/${tag}`}>
-          <span className="flex items-center rounded-8 bg-surface-float px-2.5 py-1 typo-footnote text-text-secondary hover:bg-surface-hover">
+          <span className="flex items-center rounded-8 bg-surface-float px-2.5 py-1 text-text-secondary typo-footnote hover:bg-surface-hover">
             #{tag}
           </span>
         </Link>
@@ -125,7 +125,7 @@ const DesktopTrendingStrip = ({
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) {
-      return;
+      return undefined;
     }
 
     checkScrollPosition();
@@ -176,7 +176,7 @@ const DesktopTrendingStrip = ({
 
       <div
         ref={scrollContainerRef}
-        className="flex w-full items-center gap-2 overflow-x-auto py-2 no-scrollbar px-2"
+        className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto px-2 py-2"
       >
         {/* All tag - always first */}
         <TagChip tag="All" href={`${webappUrl}`} isActive />

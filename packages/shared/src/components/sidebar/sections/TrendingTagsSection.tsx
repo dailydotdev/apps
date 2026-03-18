@@ -30,7 +30,7 @@ export const TrendingTagsSection = ({
         rightIcon:
           isSponsored && activeBrand
             ? () => (
-                <span className="flex items-center gap-1 typo-caption2 text-text-quaternary">
+                <span className="flex items-center gap-1 text-text-quaternary typo-caption2">
                   {activeBrand.logo && (
                     <img
                       src={activeBrand.logo}
@@ -38,7 +38,9 @@ export const TrendingTagsSection = ({
                       className="size-3.5 rounded-full"
                     />
                   )}
-                  <span className="truncate">by {activeBrand.name.split(' ')[0]}</span>
+                  <span className="truncate">
+                    by {activeBrand.name.split(' ')[0]}
+                  </span>
                 </span>
               )
             : undefined,

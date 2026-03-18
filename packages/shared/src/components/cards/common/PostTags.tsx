@@ -55,10 +55,7 @@ export default function PostTags({
       )}
       ref={elementRef}
     >
-      {width > 0 &&
-        list.map((tag) => (
-          <Chip key={tag}>#{tag}</Chip>
-        ))}
+      {width > 0 && list.map((tag) => <Chip key={tag}>#{tag}</Chip>)}
       {remainingTags > 0 && <Chip>+{remainingTags}</Chip>}
     </div>
   );

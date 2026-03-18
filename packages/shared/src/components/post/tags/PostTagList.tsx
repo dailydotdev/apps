@@ -78,7 +78,7 @@ const PostTagItem = ({
             tag={tag}
             asSpan
             disableBranding={disableBranding}
-            className="!border-0 !bg-transparent !h-auto py-1"
+            className="!h-auto !border-0 !bg-transparent py-1"
           />
         </a>
       </Link>

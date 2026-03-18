@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import type { PromotedTask, PromotedChecklistConfig } from '../lib/brand';
+import type { PromotedChecklistConfig } from '../lib/brand';
 
 interface TaskState {
   isCompleted: boolean;

@@ -34,13 +34,8 @@ export const PromotedChecklistMenuItem = ({
   const { activeBrand, getPromotedChecklist } = useBrandSponsorship();
   const checklistConfig = getPromotedChecklist();
 
-  const {
-    isTaskCompleted,
-    completeTask,
-    progress,
-    coresEarned,
-    isComplete,
-  } = usePromotedChecklist(checklistConfig);
+  const { isTaskCompleted, completeTask, progress, coresEarned, isComplete } =
+    usePromotedChecklist(checklistConfig);
 
   const handleOpenChange = useCallback((open: boolean): void => {
     setIsOpen(open);
@@ -80,6 +75,7 @@ export const PromotedChecklistMenuItem = ({
           <div className={menuStyles.coinsContainer}>
             {[...Array(5)].map((_, i) => (
               <CoreIcon
+                // eslint-disable-next-line react/no-array-index-key
                 key={i}
                 size={IconSize.Small}
                 className={menuStyles.coin}
@@ -99,7 +95,9 @@ export const PromotedChecklistMenuItem = ({
                 bold
                 className="text-accent-onion-default"
               >
-                {isComplete ? 'Challenge Complete!' : `Earn ${remainingCores} Cores`}
+                {isComplete
+                  ? 'Challenge Complete!'
+                  : `Earn ${remainingCores} Cores`}
               </Typography>
             </div>
             <div className="flex items-center gap-1">
@@ -146,37 +144,39 @@ export const PromotedChecklistMenuItem = ({
             aria-hidden="true"
           />
           {/* Custom centered content - not using Popover.Content to avoid Radix positioning */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
           <div
             className={styles.popoverContent}
-            role="dialog"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={styles.popoverHeader}>
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.XSmall}
-                icon={<MiniCloseIcon size={IconSize.Small} />}
-                className={styles.closeButton}
-                onClick={() => setIsOpen(false)}
+            <div role="dialog" aria-label={checklistConfig.title}>
+              <div className={styles.popoverHeader}>
+                <Button
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.XSmall}
+                  icon={<MiniCloseIcon size={IconSize.Small} />}
+                  className={styles.closeButton}
+                  onClick={() => setIsOpen(false)}
+                />
+              </div>
+
+              <PromotedChecklist
+                title={checklistConfig.title}
+                description={checklistConfig.description}
+                tasks={checklistConfig.tasks}
+                brand={{
+                  name: activeBrand.name,
+                  logo: activeBrand.logo,
+                  colors: activeBrand.colors,
+                }}
+                isTaskCompleted={isTaskCompleted}
+                onCompleteTask={completeTask}
+                progress={progress}
+                coresEarned={coresEarned}
+                totalReward={checklistConfig.totalReward}
+                isComplete={isComplete}
               />
             </div>
-
-            <PromotedChecklist
-              title={checklistConfig.title}
-              description={checklistConfig.description}
-              tasks={checklistConfig.tasks}
-              brand={{
-                name: activeBrand.name,
-                logo: activeBrand.logo,
-                colors: activeBrand.colors,
-              }}
-              isTaskCompleted={isTaskCompleted}
-              onCompleteTask={completeTask}
-              progress={progress}
-              coresEarned={coresEarned}
-              totalReward={checklistConfig.totalReward}
-              isComplete={isComplete}
-            />
           </div>
         </div>
       </Popover.Portal>

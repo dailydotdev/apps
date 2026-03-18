@@ -18,6 +18,8 @@ import { useUserStack } from '../../features/profile/hooks/useUserStack';
 import { UserStackModal } from '../../features/profile/components/stack/UserStackModal';
 import type { AddUserStackInput } from '../../graphql/user/userStack';
 import { webappUrl } from '../../lib/constants';
+import { AuthTriggers } from '../../lib/auth';
+import type { PublicProfile } from '../../lib/user';
 
 interface Tool {
   id: string;
@@ -114,7 +116,7 @@ export const MentionedToolsWidget = ({
     useBrandSponsorship();
   const { displayToast } = useToastNotification();
 
-  const { stackItems, add, remove } = useUserStack(user);
+  const { stackItems, add, remove } = useUserStack(user as PublicProfile);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedToolName, setSelectedToolName] = useState<string | null>(null);
@@ -165,7 +167,7 @@ export const MentionedToolsWidget = ({
   const handleToolClick = useCallback(
     (tool: Tool) => {
       if (!user) {
-        showLogin({ trigger: 'add_to_stack' });
+        showLogin({ trigger: AuthTriggers.AddToStack });
         return;
       }
 
@@ -265,7 +267,7 @@ export const MentionedToolsWidget = ({
                       className="size-6 flex-shrink-0 rounded-full"
                     />
                   ) : (
-                    <div className="size-6 flex-shrink-0 rounded bg-surface-float" />
+                    <div className="rounded size-6 flex-shrink-0 bg-surface-float" />
                   )}
                   <div className="flex flex-col">
                     <Typography

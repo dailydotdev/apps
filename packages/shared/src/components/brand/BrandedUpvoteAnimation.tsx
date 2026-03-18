@@ -30,6 +30,73 @@ interface BrandedUpvoteAnimationProps {
   className?: string;
 }
 
+const drawStar = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  rotation: number,
+): void => {
+  const spikes = 5;
+  const outerRadius = size;
+  const innerRadius = size / 2;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.beginPath();
+
+  for (let i = 0; i < spikes * 2; i += 1) {
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const angle = (i * Math.PI) / spikes - Math.PI / 2;
+    const px = Math.cos(angle) * radius;
+    const py = Math.sin(angle) * radius;
+
+    if (i === 0) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+};
+
+const drawParticle = (
+  ctx: CanvasRenderingContext2D,
+  particle: Particle,
+): void => {
+  ctx.globalAlpha = particle.alpha;
+  ctx.fillStyle = particle.color;
+
+  switch (particle.type) {
+    case 'circle':
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    case 'star':
+      drawStar(ctx, particle.x, particle.y, particle.size, particle.rotation);
+      break;
+    case 'square':
+      ctx.save();
+      ctx.translate(particle.x, particle.y);
+      ctx.rotate(particle.rotation);
+      ctx.fillRect(
+        -particle.size / 2,
+        -particle.size / 2,
+        particle.size,
+        particle.size,
+      );
+      ctx.restore();
+      break;
+    default:
+      break;
+  }
+};
+
 /**
  * BrandedUpvoteAnimation
  *
@@ -80,79 +147,6 @@ const BrandedUpvoteAnimation = memo(
       [colors],
     );
 
-    const drawStar = (
-      ctx: CanvasRenderingContext2D,
-      x: number,
-      y: number,
-      size: number,
-      rotation: number,
-    ): void => {
-      const spikes = 5;
-      const outerRadius = size;
-      const innerRadius = size / 2;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.beginPath();
-
-      for (let i = 0; i < spikes * 2; i += 1) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (i * Math.PI) / spikes - Math.PI / 2;
-        const px = Math.cos(angle) * radius;
-        const py = Math.sin(angle) * radius;
-
-        if (i === 0) {
-          ctx.moveTo(px, py);
-        } else {
-          ctx.lineTo(px, py);
-        }
-      }
-
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    };
-
-    const drawParticle = (
-      ctx: CanvasRenderingContext2D,
-      particle: Particle,
-    ): void => {
-      ctx.globalAlpha = particle.alpha;
-      ctx.fillStyle = particle.color;
-
-      switch (particle.type) {
-        case 'circle':
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-          ctx.fill();
-          break;
-        case 'star':
-          drawStar(
-            ctx,
-            particle.x,
-            particle.y,
-            particle.size,
-            particle.rotation,
-          );
-          break;
-        case 'square':
-          ctx.save();
-          ctx.translate(particle.x, particle.y);
-          ctx.rotate(particle.rotation);
-          ctx.fillRect(
-            -particle.size / 2,
-            -particle.size / 2,
-            particle.size,
-            particle.size,
-          );
-          ctx.restore();
-          break;
-        default:
-          break;
-      }
-    };
-
     const animate = useCallback(() => {
       const canvas = canvasRef.current;
       if (!canvas) {
@@ -200,7 +194,7 @@ const BrandedUpvoteAnimation = memo(
     // Trigger animation when isActive becomes true
     useEffect(() => {
       if (!isActive) {
-        return;
+        return undefined;
       }
 
       // Start animation

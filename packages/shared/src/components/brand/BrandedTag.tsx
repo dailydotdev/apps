@@ -94,13 +94,13 @@ export const BrandedTag = ({
   };
 
   const baseClassName = classNames(
-    'rounded-8 border border-border-subtlest-tertiary px-2 h-6 flex items-center justify-center typo-footnote text-text-quaternary',
+    'flex h-6 items-center justify-center rounded-8 border border-border-subtlest-tertiary px-2 text-text-quaternary typo-footnote',
     className,
   );
 
   const sponsoredClassName = classNames(
     styles.brandedTag,
-    'relative overflow-hidden rounded-8 border px-2 h-6 flex items-center typo-footnote transition-all duration-500',
+    'relative flex h-6 items-center overflow-hidden rounded-8 border px-2 transition-all duration-500 typo-footnote',
     {
       'border-border-subtlest-tertiary text-text-quaternary': !isAnimated,
       [styles.animated]: isAnimated,
@@ -126,7 +126,7 @@ export const BrandedTag = ({
       <span
         className={classNames(
           styles.tagContent,
-          'transition-all duration-300 whitespace-nowrap',
+          'whitespace-nowrap transition-all duration-300',
           {
             [styles.fadeOut]: showBranding && sponsorInfo.isSponsored,
             'invisible w-0': showBranding && sponsorInfo.isSponsored,
@@ -141,7 +141,7 @@ export const BrandedTag = ({
         <span
           className={classNames(
             styles.brandedContent,
-            'flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap text-text-tertiary',
+            'flex items-center justify-center gap-1.5 whitespace-nowrap text-text-tertiary transition-all duration-300',
             {
               [styles.fadeIn]: showBranding,
               'invisible w-0 overflow-hidden': !showBranding,
