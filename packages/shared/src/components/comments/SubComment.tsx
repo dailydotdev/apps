@@ -9,7 +9,10 @@ import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentM
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import EnableNotification from '../notifications/EnableNotification';
-import { NotificationPromptSource } from '../../lib/log';
+import {
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+} from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { SourceType } from '../../graphql/sources';
 import { useNotificationPreference } from '../../hooks/notifications';
@@ -173,6 +176,7 @@ function SubComment({
           )}
           <EnableNotification
             className={!comment.children?.edges?.length && 'mt-3'}
+            placement={NotificationCtaPlacement.CommentInline}
             source={NotificationPromptSource.CommentUpvote}
             contentName={
               user?.id !== comment?.author.id

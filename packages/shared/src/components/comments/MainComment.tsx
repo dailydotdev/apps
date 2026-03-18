@@ -9,7 +9,12 @@ import CommentBox from './CommentBox';
 import SubComment from './SubComment';
 import CollapsedRepliesPreview from './CollapsedRepliesPreview';
 import AuthContext from '../../contexts/AuthContext';
-import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
+import {
+  LogEvent,
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { SquadCommentJoinBanner } from '../squads/SquadCommentJoinBanner';
@@ -260,6 +265,7 @@ export default function MainComment({
       {shouldRenderStandaloneUpvoteCta && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
+          placement={NotificationCtaPlacement.CommentInline}
           source={NotificationPromptSource.CommentUpvote}
           contentName={
             user?.id !== comment?.author.id ? comment?.author?.name : undefined
@@ -270,6 +276,7 @@ export default function MainComment({
       {!showJoinSquadBanner && showNotificationPermissionBanner && (
         <EnableNotification
           className={!comment.children?.edges?.length && 'mt-3'}
+          placement={NotificationCtaPlacement.CommentInline}
           source={NotificationPromptSource.NewComment}
           contentName={
             user?.id !== comment?.author.id ? comment?.author?.name : undefined
@@ -280,6 +287,7 @@ export default function MainComment({
         <div className="relative mb-1">
           <div className="pointer-events-none absolute -bottom-4 -top-4 left-5 w-px bg-accent-pepper-subtle" />
           <EnableNotification
+            placement={NotificationCtaPlacement.CommentReplyFlow}
             source={NotificationPromptSource.CommentUpvote}
             contentName={
               user?.id !== comment?.author.id

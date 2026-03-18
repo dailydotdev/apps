@@ -19,6 +19,11 @@ import {
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
+import {
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../../lib/log';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
@@ -159,7 +164,15 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
         {isNotificationCtaExperimentEnabled &&
           showNotificationCta &&
           !haveNotificationsOn && (
-            <EnableNotificationsCta onEnable={handleTurnOn} />
+            <EnableNotificationsCta
+              onEnable={handleTurnOn}
+              analytics={{
+                placement: NotificationCtaPlacement.SourceCard,
+                targetType: TargetType.Source,
+                targetId: source?.id,
+                source: NotificationPromptSource.SourceSubscribe,
+              }}
+            />
           )}
       </div>
     </EntityCard>

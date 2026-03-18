@@ -14,7 +14,7 @@ import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
-import { Origin } from '../../lib/log';
+import { NotificationCtaPlacement, Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
@@ -350,7 +350,14 @@ export function PostActions({
         </div>
       </div>
       {isNotificationCtaExperimentEnabled && showNotificationCta && (
-        <EnableNotificationsCta onEnable={handleEnableNotifications} />
+        <EnableNotificationsCta
+          onEnable={handleEnableNotifications}
+          analytics={{
+            placement: NotificationCtaPlacement.PostActions,
+            targetType: ContentPreferenceType.User,
+            targetId: creator?.id,
+          }}
+        />
       )}
       {showTagsPanel !== undefined && (
         <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />

@@ -7,6 +7,11 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { Origin } from '../../../lib/log';
+import {
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
@@ -194,7 +199,15 @@ const SquadEntityCard = ({
         {isNotificationCtaExperimentEnabled &&
           showNotificationCta &&
           !haveNotificationsOn && (
-            <EnableNotificationsCta onEnable={handleEnableNotifications} />
+            <EnableNotificationsCta
+              onEnable={handleEnableNotifications}
+              analytics={{
+                placement: NotificationCtaPlacement.SquadCard,
+                targetType: TargetType.Source,
+                targetId: squad?.id,
+                source: NotificationPromptSource.SourceSubscribe,
+              }}
+            />
           )}
       </div>
     </EntityCard>

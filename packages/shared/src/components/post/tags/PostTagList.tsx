@@ -3,7 +3,10 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { BooleanPromise } from '../../../lib/func';
-import { NotificationPromptSource } from '../../../lib/log';
+import {
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+} from '../../../lib/log';
 import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
 import type { TypographyProps } from '../../typography/Typography';
 import {
@@ -148,6 +151,7 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
         <EnableNotification
           className="mt-3"
           contentName={newlyFollowedTag}
+          placement={NotificationCtaPlacement.TagFollowInline}
           source={NotificationPromptSource.PostTagFollow}
         />
       )}

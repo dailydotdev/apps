@@ -24,7 +24,7 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, NotificationCtaPlacement, TargetId } from '../../../lib/log';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
@@ -306,7 +306,14 @@ const UserEntityCard = ({
         {isNotificationCtaExperimentEnabled &&
           showNotificationCta &&
           !haveNotificationsOn && (
-            <EnableNotificationsCta onEnable={handleEnableNotifications} />
+            <EnableNotificationsCta
+              onEnable={handleEnableNotifications}
+              analytics={{
+                placement: NotificationCtaPlacement.UserCard,
+                targetType: ContentPreferenceType.User,
+                targetId: id,
+              }}
+            />
           )}
       </div>
     </EntityCard>

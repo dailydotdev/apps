@@ -15,12 +15,14 @@ import {
 import { VIcon, BellIcon, BellNotifyIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 import { NotificationPromptSource } from '../../lib/log';
+import type { NotificationCtaPlacement } from '../../lib/log';
 import { useEnableNotification } from '../../hooks/notifications';
 import { NotificationSvg } from './NotificationSvg';
 import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 type EnableNotificationProps = {
   source?: NotificationPromptSource;
+  placement?: NotificationCtaPlacement;
   contentName?: string;
   className?: string;
   label?: string;
@@ -77,6 +79,7 @@ const rolloutOnlySources = new Set<NotificationPromptSource>([
 
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
+  placement,
   contentName,
   className,
   label,
@@ -86,7 +89,12 @@ function EnableNotification({
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
-    useEnableNotification({ source, ignoreDismissState, onEnableAction });
+    useEnableNotification({
+      source,
+      placement,
+      ignoreDismissState,
+      onEnableAction,
+    });
 
   if (
     !shouldShowCta ||

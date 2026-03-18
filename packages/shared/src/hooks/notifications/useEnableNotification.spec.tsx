@@ -1,5 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
-import { NotificationPromptSource } from '../../lib/log';
+import {
+  LogEvent,
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/log';
 import { useEnableNotification } from './useEnableNotification';
 
 const mockUseLogContext = jest.fn();
@@ -31,12 +36,14 @@ jest.mock('./useNotificationCtaExperiment', () => ({
 
 describe('useEnableNotification', () => {
   let popupGrantedHandler: (() => void) | undefined;
+  let logEvent: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     popupGrantedHandler = undefined;
+    logEvent = jest.fn();
 
-    mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
+    mockUseLogContext.mockReturnValue({ logEvent });
     mockPersistentContext.mockReturnValue([false, jest.fn(), true]);
     mockUsePushNotificationMutation.mockImplementation(
       ({ onPopupGranted } = {}) => {
@@ -93,6 +100,30 @@ describe('useEnableNotification', () => {
     expect(result.current.shouldShowCta).toBe(true);
   });
 
+  it('should log impression with placement when shown', () => {
+    mockUseNotificationCtaExperiment.mockReturnValue({
+      isEnabled: true,
+      isPreviewActive: false,
+    });
+
+    renderHook(() =>
+      useEnableNotification({
+        source: NotificationPromptSource.CommentUpvote,
+        placement: NotificationCtaPlacement.CommentInline,
+      }),
+    );
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.EnableNotifications,
+      extra: JSON.stringify({
+        kind: 'push_cta',
+        placement: NotificationCtaPlacement.CommentInline,
+        origin: NotificationPromptSource.CommentUpvote,
+      }),
+    });
+  });
+
   it('should run onEnableAction after direct permission enable succeeds', async () => {
     const onEnableAction = jest.fn().mockResolvedValue(undefined);
     const onEnablePush = jest.fn().mockResolvedValue(true);
@@ -120,6 +151,14 @@ describe('useEnableNotification', () => {
       await result.current.onEnable();
     });
 
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
+      target_type: TargetType.EnableNotifications,
+      extra: JSON.stringify({
+        kind: 'push_cta',
+        origin: NotificationPromptSource.CommentUpvote,
+      }),
+    });
     expect(onEnablePush).toHaveBeenCalledWith(
       NotificationPromptSource.CommentUpvote,
     );
@@ -161,5 +200,32 @@ describe('useEnableNotification', () => {
 
     expect(onEnableAction).toHaveBeenCalledTimes(1);
     expect(result.current.acceptedJustNow).toBe(true);
+  });
+
+  it('should log dismiss with placement', () => {
+    const setIsDismissed = jest.fn();
+    mockPersistentContext.mockReturnValue([false, setIsDismissed, true]);
+
+    const { result } = renderHook(() =>
+      useEnableNotification({
+        source: NotificationPromptSource.SquadPage,
+        placement: NotificationCtaPlacement.SquadPage,
+      }),
+    );
+
+    act(() => {
+      result.current.onDismiss();
+    });
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ClickNotificationDismiss,
+      target_type: TargetType.EnableNotifications,
+      extra: JSON.stringify({
+        kind: 'push_cta',
+        placement: NotificationCtaPlacement.SquadPage,
+        origin: NotificationPromptSource.SquadPage,
+      }),
+    });
+    expect(setIsDismissed).toHaveBeenCalledWith(true);
   });
 });

@@ -29,7 +29,15 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { LogEvent, Origin, TargetId } from '../lib/log';
+import {
+  LogEvent,
+  NotificationCtaKind,
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  Origin,
+  TargetId,
+  TargetType,
+} from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -73,6 +81,10 @@ import {
   NotificationCtaPreviewPlacement,
   useNotificationCtaExperiment,
 } from '../hooks/notifications/useNotificationCtaExperiment';
+import {
+  useNotificationCtaAnalytics,
+  useNotificationCtaImpression,
+} from '../hooks/notifications/useNotificationCtaAnalytics';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -286,6 +298,7 @@ export default function Feed<T>({
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
+  const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [hasScrolledForHero, setHasScrolledForHero] =
     useState(isInFeedHeroForced);
   const [isHeroDismissed, setIsHeroDismissed] = useState(false);
@@ -537,21 +550,77 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
   const onEnableInFeedHero = useCallback(async () => {
+    logClick({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.InFeedHero,
+    });
     await onEnable();
     setIsHeroDismissed(true);
-  }, [onEnable]);
+  }, [logClick, onEnable]);
   const onEnableTopHero = useCallback(async () => {
+    logClick({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.TopHero,
+    });
     await onEnable();
     setIsTopHeroDismissed(true);
-  }, [onEnable]);
+  }, [logClick, onEnable]);
   const onDismissInFeedHero = useCallback(async () => {
     setIsHeroDismissed(true);
+    logDismiss({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.InFeedHero,
+    });
     await onDismiss();
-  }, [onDismiss]);
+  }, [logDismiss, onDismiss]);
   const onDismissTopHero = useCallback(async () => {
     setIsTopHeroDismissed(true);
+    logDismiss({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.TopHero,
+    });
     await onDismiss();
-  }, [onDismiss]);
+  }, [logDismiss, onDismiss]);
+
+  const shouldShowInFeedHero =
+    shouldShowReadingReminder &&
+    !shouldHideInFeedHero &&
+    (isInFeedHeroForced || hasScrolledForHero) &&
+    !isHeroDismissed &&
+    items.length > HERO_INSERT_INDEX;
+  const shouldShowTopHero =
+    shouldShowReadingReminder &&
+    isTopHeroForced &&
+    !shouldHideTopHero &&
+    !isTopHeroDismissed;
+
+  useNotificationCtaImpression(
+    {
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.TopHero,
+    },
+    shouldShowTopHero,
+  );
+
+  useNotificationCtaImpression(
+    {
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.InFeedHero,
+    },
+    shouldShowInFeedHero,
+  );
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -647,17 +716,6 @@ export default function Feed<T>({
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
     Number(showFirstSlotCard);
-  const shouldShowInFeedHero =
-    shouldShowReadingReminder &&
-    !shouldHideInFeedHero &&
-    (isInFeedHeroForced || hasScrolledForHero) &&
-    !isHeroDismissed &&
-    items.length > HERO_INSERT_INDEX;
-  const shouldShowTopHero =
-    shouldShowReadingReminder &&
-    isTopHeroForced &&
-    !shouldHideTopHero &&
-    !isTopHeroDismissed;
 
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout

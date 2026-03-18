@@ -47,6 +47,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import {
   LogEvent,
+  NotificationCtaPlacement,
   NotificationPromptSource,
   Origin,
 } from '@dailydotdev/shared/src/lib/log';
@@ -418,6 +419,7 @@ const TagPage = ({
           <EnableNotification
             className="mt-3"
             contentName={newlyFollowedTag}
+            placement={NotificationCtaPlacement.TagPage}
             source={NotificationPromptSource.PostTagFollow}
           />
         )}

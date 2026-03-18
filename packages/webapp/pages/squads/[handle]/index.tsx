@@ -32,6 +32,7 @@ import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized
 import { useQuery } from '@tanstack/react-query';
 import {
   LogEvent,
+  NotificationCtaPlacement,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -290,6 +291,7 @@ const SquadPage = ({
         {isNotificationCtaExperimentEnabled && (
           <EnableNotification
             source={NotificationPromptSource.SquadPage}
+            placement={NotificationCtaPlacement.SquadPage}
             contentName={squad.name}
             className="mx-6 !mt-2 mb-4"
           />

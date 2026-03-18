@@ -539,6 +539,29 @@ export enum NotificationTarget {
   Icon = 'notifications icon',
 }
 
+export enum NotificationCtaPlacement {
+  TopHero = 'top-hero',
+  InFeedHero = 'in-feed-hero',
+  SidebarPrompt = 'sidebar-prompt',
+  CommentInline = 'comment-inline',
+  CommentReplyFlow = 'comment-reply-flow',
+  TagFollowInline = 'tag-follow-inline',
+  TagPage = 'tag-page',
+  SquadPage = 'squad-page',
+  UserCard = 'user-card',
+  SourceCard = 'source-card',
+  SquadCard = 'squad-card',
+  PostActions = 'post-actions',
+  SquadShareToast = 'squad-share-toast',
+}
+
+export enum NotificationCtaKind {
+  PushCta = 'push_cta',
+  ReadingReminder = 'reading_reminder',
+  FollowUpCta = 'followup_cta',
+  ToastCta = 'toast_cta',
+}
+
 export enum NotificationPromptSource {
   BookmarkReminder = 'bookmark reminder',
   NotificationsPage = 'notifications page',

@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLogContext } from '../../contexts/LogContext';
+import { useCallback, useEffect, useState } from 'react';
 import usePersistentContext from '../usePersistentContext';
-import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
+import {
+  NotificationCtaKind,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/log';
+import type { NotificationCtaPlacement } from '../../lib/log';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
 import { useNotificationCtaExperiment } from './useNotificationCtaExperiment';
+import {
+  useNotificationCtaAnalytics,
+  useNotificationCtaImpression,
+} from './useNotificationCtaAnalytics';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 export const FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY =
@@ -16,6 +24,7 @@ const isTruthySessionFlag = (value: string | null): boolean =>
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
+  placement?: NotificationCtaPlacement;
   ignoreDismissState?: boolean;
   onEnableAction?: () => Promise<unknown> | unknown;
 }
@@ -29,6 +38,7 @@ interface UseEnableNotification {
 
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
+  placement,
   ignoreDismissState = false,
   onEnableAction,
 }: UseEnableNotificationProps): UseEnableNotification => {
@@ -37,8 +47,7 @@ export const useEnableNotification = ({
   const isCommentUpvoteSource =
     source === NotificationPromptSource.CommentUpvote;
   const isExtension = checkIsExtension();
-  const { logEvent } = useLogContext();
-  const hasLoggedImpression = useRef(false);
+  const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
   const [hasCompletedEnableAction, setHasCompletedEnableAction] = useState(
@@ -99,14 +108,22 @@ export const useEnableNotification = ({
   const acceptedJustNow = acceptedPushJustNow && hasCompletedEnableAction;
 
   const onDismiss = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ClickNotificationDismiss,
-      extra: JSON.stringify({ origin: source }),
+    logDismiss({
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
     });
     setIsDismissed(true);
-  }, [source, logEvent, setIsDismissed]);
+  }, [logDismiss, placement, setIsDismissed, source]);
 
   const onEnable = useCallback(async () => {
+    logClick({
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
+    });
     const isEnabled = await onEnablePush(source);
 
     if (!isEnabled) {
@@ -114,7 +131,7 @@ export const useEnableNotification = ({
     }
 
     return runEnableAction();
-  }, [source, onEnablePush, runEnableAction]);
+  }, [logClick, onEnablePush, placement, runEnableAction, source]);
 
   const isRolloutOnlySource =
     source === NotificationPromptSource.CommentUpvote ||
@@ -155,20 +172,15 @@ export const useEnableNotification = ({
       ? computeShouldShowCta()
       : false;
 
-  useEffect(() => {
-    if (!shouldShowCta || hasLoggedImpression.current) {
-      return;
-    }
-
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.EnableNotifications,
-      extra: JSON.stringify({ origin: source }),
-    });
-    hasLoggedImpression.current = true;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldShowCta]);
+  useNotificationCtaImpression(
+    {
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
+    },
+    shouldShowCta,
+  );
 
   return {
     acceptedJustNow,

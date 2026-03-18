@@ -1,13 +1,23 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import ReadingReminderCatLaptop from '../banners/ReadingReminderCatLaptop';
 import { useReadingReminderHero } from '../../hooks/notifications/useReadingReminderHero';
 import {
+  NotificationCtaKind,
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/log';
+import {
   NotificationCtaPreviewPlacement,
   useNotificationCtaExperiment,
 } from '../../hooks/notifications/useNotificationCtaExperiment';
+import {
+  useNotificationCtaAnalytics,
+  useNotificationCtaImpression,
+} from '../../hooks/notifications/useNotificationCtaAnalytics';
 
 type SidebarNotificationPromptProps = {
   sidebarExpanded: boolean;
@@ -17,6 +27,7 @@ export const SidebarNotificationPrompt = ({
   sidebarExpanded,
 }: SidebarNotificationPromptProps): ReactElement | null => {
   const { shouldHidePlacement } = useNotificationCtaExperiment();
+  const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const {
     shouldShow,
     title,
@@ -32,7 +43,40 @@ export const SidebarNotificationPrompt = ({
     NotificationCtaPreviewPlacement.SidebarPrompt,
   );
 
-  if (!sidebarExpanded || shouldHideSideMenuPrompt || !shouldShow) {
+  const shouldShowSidebarPrompt =
+    sidebarExpanded && !shouldHideSideMenuPrompt && shouldShow;
+
+  useNotificationCtaImpression(
+    {
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.SidebarPrompt,
+    },
+    shouldShowSidebarPrompt,
+  );
+
+  const onEnableClick = useCallback(async () => {
+    logClick({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.SidebarPrompt,
+    });
+    await onEnable();
+  }, [logClick, onEnable]);
+
+  const onDismissClick = useCallback(async () => {
+    logDismiss({
+      kind: NotificationCtaKind.ReadingReminder,
+      targetType: TargetType.ReadingReminder,
+      source: NotificationPromptSource.ReadingReminder,
+      placement: NotificationCtaPlacement.SidebarPrompt,
+    });
+    await onDismiss();
+  }, [logDismiss, onDismiss]);
+
+  if (!shouldShowSidebarPrompt) {
     return null;
   }
 
@@ -48,7 +92,7 @@ export const SidebarNotificationPrompt = ({
             <CloseButton
               size={ButtonSize.XSmall}
               className="absolute right-1 top-1"
-              onClick={onDismiss}
+              onClick={onDismissClick}
             />
           )}
           <div className="mb-2 flex justify-center pr-6">
@@ -61,7 +105,7 @@ export const SidebarNotificationPrompt = ({
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Primary}
             className="mt-3 w-full justify-center"
-            onClick={onEnable}
+            onClick={onEnableClick}
           >
             Enable reminder
           </Button>
