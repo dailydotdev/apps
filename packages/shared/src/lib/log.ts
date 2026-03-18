@@ -511,6 +511,7 @@ export enum TargetId {
   ProfileSettingsMenu = 'profile settings menu',
   Fullscreen = 'fullscreen',
   Popover = 'popover',
+  QuestDropdown = 'quest dropdown',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',

@@ -403,7 +403,7 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
-  const handleLoginMessage = async () => {
+  const handleLoginMessage = async (e?: MessageEvent) => {
     const { data: boot } = await refetchBoot();
 
     if (!boot.user || !('email' in boot.user)) {
@@ -411,6 +411,8 @@ function AuthOptionsInner({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Could not find email on social registration',
+          data:
+            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
       });
       displayToast(labels.auth.error.generic);
@@ -441,7 +443,7 @@ function AuthOptionsInner({
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {
-      return handleLoginMessage();
+      return handleLoginMessage(e);
     }
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
@@ -488,7 +490,7 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     }
 
-    return handleLoginMessage();
+    return handleLoginMessage(e);
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);

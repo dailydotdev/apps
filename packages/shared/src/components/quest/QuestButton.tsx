@@ -9,15 +9,22 @@ import React, {
   useState,
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
-import { CoreIcon, LockIcon, ReputationIcon, TourIcon } from '../icons';
+  CoreIcon,
+  DevPlusIcon,
+  LockIcon,
+  ReputationIcon,
+  TourIcon,
+} from '../icons';
 import type {
   QuestLevel,
   QuestReward,
@@ -32,17 +39,23 @@ import {
 } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { plusUrl } from '../../lib/constants';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
-import { UpgradeToPlus } from '../UpgradeToPlus';
+import Link from '../utilities/Link';
+import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
 import { RootPortal } from '../tooltips/Portal';
 import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
+import { PopoverContent } from '../popover/Popover';
+import { Tooltip } from '../tooltip/Tooltip';
+import { useScrollFade } from '../../hooks/useScrollFade';
 
 const getProgress = (progress: number, target: number) => {
   const safeTarget = Math.max(target, 1);
@@ -516,6 +529,76 @@ const QuestSection = ({
   );
 };
 
+function QuestPlusUnlockButton(): ReactElement | null {
+  const { isLoggedIn, showLogin } = useAuthContext();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+
+  const onClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isLoggedIn) {
+        e.preventDefault();
+        showLogin({ trigger: AuthTriggers.Plus });
+        return;
+      }
+
+      logSubscriptionEvent({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.QuestDropdown,
+      });
+    },
+    [isLoggedIn, logSubscriptionEvent, showLogin],
+  );
+
+  if (isPlus) {
+    return null;
+  }
+
+  return (
+    <Link passHref href={plusUrl}>
+      <Button
+        tag="a"
+        size={ButtonSize.Small}
+        color={ButtonColor.Avocado}
+        variant={ButtonVariant.Primary}
+        className="!flex-none"
+        onClick={onClick}
+      >
+        Unlock
+      </Button>
+    </Link>
+  );
+}
+
+const PlusQuestSectionHeader = (): ReactElement => {
+  const { isPlus } = usePlusSubscription();
+
+  return (
+    <div className="flex flex-col items-center gap-2 text-center">
+      <div
+        aria-hidden
+        className="flex w-full items-center gap-3"
+        role="presentation"
+      >
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+        <DevPlusIcon
+          secondary
+          size={IconSize.Medium}
+          className="text-action-plus-default"
+        />
+        <span className="h-px flex-1 bg-border-subtlest-tertiary" />
+      </div>
+      {!isPlus && (
+        <>
+          <p className="max-w-72 text-text-secondary typo-callout">
+            Plus users have two additional quest slots
+          </p>
+          <QuestPlusUnlockButton />
+        </>
+      )}
+    </div>
+  );
+};
+
 const getQuestRewardAnimationIcon = (
   rewardType: QuestRewardType,
 ): ReactElement => {
@@ -892,16 +975,7 @@ const QuestDropdownPanel = ({
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
               <section className="flex flex-col gap-4">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-action-plus-default typo-caption1">
-                    Plus quests
-                  </p>
-                  <UpgradeToPlus
-                    target={TargetId.Popover}
-                    size={ButtonSize.Small}
-                    className="!flex-none"
-                  />
-                </div>
+                <PlusQuestSectionHeader />
                 <QuestSection
                   title="Daily"
                   quests={data.daily.plus}
@@ -1024,10 +1098,12 @@ export const QuestButton = ({
   const triggerProgressCircumference = 2 * Math.PI * triggerProgressRadius;
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
+  const [isOpen, setIsOpen] = useState(false);
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
   );
+  const scrollFadeRef = useScrollFade<HTMLDivElement>();
 
   const clearProgressTimers = useCallback(() => {
     progressTimersRef.current.forEach((timerId) => {
@@ -1325,113 +1401,124 @@ export const QuestButton = ({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          asChild
-          tooltip={{
-            content: triggerTooltipContent,
-            side: 'bottom',
-          }}
-        >
-          <Button
-            variant={triggerButtonVariant}
-            size={triggerButtonSize}
-            className={classNames('relative !p-0', !compact && '!rounded-full')}
-            aria-label={
-              showLevelSystem
-                ? `Quests, level ${renderedLevel}, ${Math.round(
-                    renderedLevelProgress,
-                  )}% progress`
-                : 'Quests'
-            }
-          >
-            {showLevelSystem ? (
-              <span
-                className={classNames(
-                  'relative inline-flex items-center justify-center',
-                  triggerVisualClassName,
-                )}
-              >
-                <svg
-                  width={triggerVisualSize}
-                  height={triggerVisualSize}
-                  viewBox={`0 0 ${triggerVisualSize} ${triggerVisualSize}`}
-                  fill="none"
-                  className="-rotate-90"
-                  aria-hidden
-                >
-                  <circle
-                    cx={triggerVisualSize / 2}
-                    cy={triggerVisualSize / 2}
-                    r={triggerProgressRadius}
-                    strokeWidth={triggerProgressStroke}
-                    className="stroke-border-subtlest-tertiary"
-                  />
-                  <circle
-                    cx={triggerVisualSize / 2}
-                    cy={triggerVisualSize / 2}
-                    r={triggerProgressRadius}
-                    strokeWidth={triggerProgressStroke}
-                    strokeLinecap="round"
-                    strokeDasharray={triggerProgressCircumference}
-                    strokeDashoffset={
-                      triggerProgressCircumference *
-                      (1 - renderedLevelProgress / 100)
-                    }
-                    className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
-                  />
-                </svg>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <Tooltip content={triggerTooltipContent} side="bottom">
+          <PopoverTrigger asChild>
+            <Button
+              variant={triggerButtonVariant}
+              size={triggerButtonSize}
+              className={classNames(
+                'relative !p-0',
+                !compact && '!rounded-full',
+              )}
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              aria-label={
+                showLevelSystem
+                  ? `Quests, level ${renderedLevel}, ${Math.round(
+                      renderedLevelProgress,
+                    )}% progress`
+                  : 'Quests'
+              }
+            >
+              {showLevelSystem ? (
                 <span
-                  data-reward-target={QuestRewardType.Xp}
                   className={classNames(
-                    'absolute font-bold text-text-primary',
-                    triggerLevelClassName,
+                    'relative inline-flex items-center justify-center',
+                    triggerVisualClassName,
                   )}
                 >
-                  {renderedLevel}
+                  <svg
+                    width={triggerVisualSize}
+                    height={triggerVisualSize}
+                    viewBox={`0 0 ${triggerVisualSize} ${triggerVisualSize}`}
+                    fill="none"
+                    className="-rotate-90"
+                    aria-hidden
+                  >
+                    <circle
+                      cx={triggerVisualSize / 2}
+                      cy={triggerVisualSize / 2}
+                      r={triggerProgressRadius}
+                      strokeWidth={triggerProgressStroke}
+                      className="stroke-border-subtlest-tertiary"
+                    />
+                    <circle
+                      cx={triggerVisualSize / 2}
+                      cy={triggerVisualSize / 2}
+                      r={triggerProgressRadius}
+                      strokeWidth={triggerProgressStroke}
+                      strokeLinecap="round"
+                      strokeDasharray={triggerProgressCircumference}
+                      strokeDashoffset={
+                        triggerProgressCircumference *
+                        (1 - renderedLevelProgress / 100)
+                      }
+                      className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                    />
+                  </svg>
+                  <span
+                    data-reward-target={QuestRewardType.Xp}
+                    className={classNames(
+                      'absolute font-bold text-text-primary',
+                      triggerLevelClassName,
+                    )}
+                  >
+                    {renderedLevel}
+                  </span>
                 </span>
-              </span>
-            ) : (
-              <span
-                className={classNames(
-                  'inline-flex items-center justify-center',
-                  triggerVisualClassName,
-                )}
-              >
-                <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
-              </span>
-            )}
-            {claimableCount > 0 && (
-              <Bubble
-                className={classNames(
-                  compact
-                    ? '-right-1 -top-1 px-0.5'
-                    : '-right-1.5 -top-1.5 px-1',
-                )}
-              >
-                {claimableCount}
-              </Bubble>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
+              ) : (
+                <span
+                  className={classNames(
+                    'inline-flex items-center justify-center',
+                    triggerVisualClassName,
+                  )}
+                >
+                  <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
+                </span>
+              )}
+              {claimableCount > 0 && (
+                <Bubble
+                  className={classNames(
+                    compact
+                      ? '-right-1 -top-1 px-0.5'
+                      : '-right-1.5 -top-1.5 px-1',
+                  )}
+                >
+                  {claimableCount}
+                </Bubble>
+              )}
+            </Button>
+          </PopoverTrigger>
+        </Tooltip>
 
-        <DropdownMenuContent
-          className="w-[min(22rem,calc(100vw-2rem))] !p-0"
-          scrollableClassName="max-h-[var(--radix-dropdown-menu-content-available-height)]"
+        <PopoverContent
+          className="w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-popover !p-0 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+          side="bottom"
+          align="end"
+          sideOffset={6}
+          collisionPadding={24}
+          avoidCollisions
+          onOpenAutoFocus={(event) => event.preventDefault()}
         >
-          <QuestDropdownPanel
-            showLevelSystem={showLevelSystem}
-            renderedLevel={renderedLevel}
-            data={data}
-            isPending={isPending}
-            isError={isError}
-            claimingQuestId={claimingQuestId}
-            animatingClaimRotationId={animatingClaimRotationId ?? undefined}
-            claimedStampRotationIds={claimedStampRotationIdSet}
-            onClaim={handleClaim}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <div
+            ref={scrollFadeRef}
+            className="max-h-[var(--radix-popover-content-available-height)] overflow-y-auto bg-inherit"
+          >
+            <QuestDropdownPanel
+              showLevelSystem={showLevelSystem}
+              renderedLevel={renderedLevel}
+              data={data}
+              isPending={isPending}
+              isError={isError}
+              claimingQuestId={claimingQuestId}
+              animatingClaimRotationId={animatingClaimRotationId ?? undefined}
+              claimedStampRotationIds={claimedStampRotationIdSet}
+              onClaim={handleClaim}
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
       {rewardFlights.length > 0 && (
         <QuestRewardFlightLayer
           flights={rewardFlights}
