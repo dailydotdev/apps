@@ -38,8 +38,6 @@ import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNo
 type Props = {
   user?: UserShortProfile;
   showNotificationCtaOnFollow?: boolean;
-  showNotificationCtaOnUpvote?: boolean;
-  isAuthorPostUpvoted?: boolean;
   className?: {
     container?: string;
   };
@@ -49,8 +47,6 @@ const UserEntityCard = ({
   user,
   className,
   showNotificationCtaOnFollow = false,
-  showNotificationCtaOnUpvote = false,
-  isAuthorPostUpvoted = false,
 }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
@@ -65,7 +61,6 @@ const UserEntityCard = ({
     });
   const { unblock, block, subscribe } = useContentPreference();
   const prevStatusRef = useRef(contentPreference?.status);
-  const prevAuthorPostUpvotedRef = useRef(isAuthorPostUpvoted);
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
@@ -124,24 +119,6 @@ const UserEntityCard = ({
     prevStatusRef.current = currentStatus;
   }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
 
-  useEffect(() => {
-    const wasAuthorPostUpvoted = prevAuthorPostUpvotedRef.current;
-
-    if (wasAuthorPostUpvoted === isAuthorPostUpvoted) {
-      return;
-    }
-
-    if (
-      showNotificationCtaOnUpvote &&
-      isAuthorPostUpvoted &&
-      !wasAuthorPostUpvoted &&
-      !haveNotificationsOn
-    ) {
-      setShowNotificationCta(true);
-    }
-
-    prevAuthorPostUpvotedRef.current = isAuthorPostUpvoted;
-  }, [haveNotificationsOn, isAuthorPostUpvoted, showNotificationCtaOnUpvote]);
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,

@@ -8,16 +8,6 @@ import CommentBox from './CommentBox';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
-import EnableNotification from '../notifications/EnableNotification';
-import {
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-} from '../../lib/log';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { SourceType } from '../../graphql/sources';
-import { useNotificationPreference } from '../../hooks/notifications';
-import { NotificationType } from '../notifications/utils';
-import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -29,7 +19,6 @@ const CommentInputOrModal = dynamic(
 export interface SubCommentProps
   extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
-  upvoteNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];
   isModalThread?: boolean;
   isFirst?: boolean;
@@ -40,7 +29,6 @@ export interface SubCommentProps
 function SubComment({
   comment,
   parentComment,
-  upvoteNotificationCommentId,
   className,
   onCommented,
   isModalThread = false,
@@ -49,34 +37,8 @@ function SubComment({
   extendTopConnector = false,
   ...props
 }: SubCommentProps): ReactElement {
-  const { user } = useAuthContext();
-  const shouldEvaluateNotificationCta =
-    upvoteNotificationCommentId === comment.id;
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: shouldEvaluateNotificationCta,
-    });
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
-  const showUpvoteNotificationPermissionBanner =
-    isNotificationCtaExperimentEnabled &&
-    upvoteNotificationCommentId === comment.id;
-  const replyNotificationType =
-    props.post.source?.type === SourceType.Squad
-      ? NotificationType.SquadReply
-      : NotificationType.CommentReply;
-  const { subscribeNotification } = useNotificationPreference({ params: [] });
-
-  const onEnableUpvoteNotification = async () => {
-    if (!upvoteNotificationCommentId) {
-      return;
-    }
-
-    await subscribeNotification({
-      type: replyNotificationType,
-      referenceId: upvoteNotificationCommentId,
-    });
-  };
 
   return (
     <>
@@ -168,26 +130,6 @@ function SubComment({
             }}
             onClose={() => onReplyTo(null)}
             replyToCommentId={commentId}
-          />
-        </div>
-      )}
-      {showUpvoteNotificationPermissionBanner && (
-        <div className={classNames(isModalThread && 'relative mb-1')}>
-          {isModalThread && !isLast && (
-            // Keep modal-thread connector continuous when CTA is inserted
-            // between reply items.
-            <div className="pointer-events-none absolute -bottom-4 -top-4 left-5 w-px bg-accent-pepper-subtle" />
-          )}
-          <EnableNotification
-            className={!comment.children?.edges?.length && 'mt-3'}
-            placement={NotificationCtaPlacement.CommentInline}
-            source={NotificationPromptSource.CommentUpvote}
-            contentName={
-              user?.id !== comment?.author.id
-                ? comment?.author?.name
-                : undefined
-            }
-            onEnableAction={onEnableUpvoteNotification}
           />
         </div>
       )}

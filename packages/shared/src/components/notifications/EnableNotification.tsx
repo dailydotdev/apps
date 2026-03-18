@@ -376,7 +376,7 @@ function EnableNotification({
               className="shrink-0"
               icon={
                 shouldAnimateBellCta ? (
-                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
                 ) : undefined
               }
               onClick={onEnable}
@@ -393,7 +393,7 @@ function EnableNotification({
                 className="w-fit"
                 icon={
                   shouldAnimateBellCta ? (
-                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
                   ) : undefined
                 }
                 onClick={onEnable}
@@ -432,7 +432,7 @@ function EnableNotification({
               )}
               icon={
                 shouldAnimateBellCta ? (
-                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_infinite]" />
+                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
                 ) : undefined
               }
               onClick={onEnable}

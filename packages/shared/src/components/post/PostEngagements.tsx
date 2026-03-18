@@ -69,8 +69,6 @@ function PostEngagements({
     useState<string>();
   const [joinNotificationCommentId, setJoinNotificationCommentId] =
     useState<string>();
-  const [upvoteNotificationCommentId, setUpvoteNotificationCommentId] =
-    useState<string>();
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(logOrigin);
@@ -103,10 +101,6 @@ function PostEngagements({
     if (post.source?.type === SourceType.Squad) {
       completeAction(ActionType.SquadFirstComment);
     }
-  };
-
-  const onCommentUpvoted = (comment: Comment) => {
-    setUpvoteNotificationCommentId(comment.id);
   };
 
   useEffect(() => {
@@ -177,9 +171,7 @@ function PostEngagements({
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
         permissionNotificationCommentId={permissionNotificationCommentId}
         joinNotificationCommentId={joinNotificationCommentId}
-        upvoteNotificationCommentId={upvoteNotificationCommentId}
         onCommented={onCommented}
-        onCommentUpvoted={onCommentUpvoted}
       />
       {authorOnboarding && (
         <AuthorOnboarding

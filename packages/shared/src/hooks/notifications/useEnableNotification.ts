@@ -16,11 +16,6 @@ import {
 } from './useNotificationCtaAnalytics';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
-export const FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY =
-  'force_upvote_notification_cta';
-
-const isTruthySessionFlag = (value: string | null): boolean =>
-  value === '1' || value === 'true' || value === 'yes';
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
@@ -44,8 +39,6 @@ export const useEnableNotification = ({
 }: UseEnableNotificationProps): UseEnableNotification => {
   const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
     useNotificationCtaExperiment();
-  const isCommentUpvoteSource =
-    source === NotificationPromptSource.CommentUpvote;
   const isExtension = checkIsExtension();
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
@@ -77,14 +70,6 @@ export const useEnableNotification = ({
       runEnableAction().catch(() => null);
     },
   });
-  const forceUpvoteNotificationCtaFromSession = isTruthySessionFlag(
-    globalThis?.sessionStorage?.getItem(
-      FORCE_UPVOTE_NOTIFICATION_CTA_SESSION_KEY,
-    ) ?? null,
-  );
-  const shouldForceUpvoteNotificationCtaForSession =
-    source === NotificationPromptSource.CommentUpvote &&
-    forceUpvoteNotificationCtaFromSession;
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
@@ -92,12 +77,10 @@ export const useEnableNotification = ({
   const shouldIgnoreDismissStateForSource =
     source === NotificationPromptSource.PostTagFollow ||
     source === NotificationPromptSource.NewComment ||
-    source === NotificationPromptSource.CommentUpvote ||
     source === NotificationPromptSource.SquadPage;
   const effectiveIsDismissed =
     ignoreDismissState ||
     shouldIgnoreDismissStateForSource ||
-    shouldForceUpvoteNotificationCtaForSession ||
     isPreviewActive
       ? false
       : isDismissed;
@@ -139,9 +122,7 @@ export const useEnableNotification = ({
   const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
   const shouldRequireNotSubscribed =
-    source !== NotificationPromptSource.CommentUpvote &&
-    !isPreviewActive &&
-    !shouldForceUpvoteNotificationCtaForSession;
+    source !== NotificationPromptSource.CommentUpvote && !isPreviewActive;
 
   const conditions = [
     isLoaded || isPreviewActive,
@@ -153,10 +134,6 @@ export const useEnableNotification = ({
   const computeShouldShowCta = (): boolean => {
     if (isPreviewActive) {
       return true;
-    }
-
-    if (isCommentUpvoteSource) {
-      return !effectiveIsDismissed;
     }
 
     return (

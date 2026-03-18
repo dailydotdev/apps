@@ -32,8 +32,6 @@ type SquadEntityCardProps = {
   handle: string;
   origin: Origin;
   showNotificationCtaOnJoin?: boolean;
-  showNotificationCtaOnUpvote?: boolean;
-  isSquadPostUpvoted?: boolean;
   className?: {
     container?: string;
   };
@@ -43,8 +41,6 @@ const SquadEntityCard = ({
   handle,
   origin,
   showNotificationCtaOnJoin = false,
-  showNotificationCtaOnUpvote = false,
-  isSquadPostUpvoted = false,
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
@@ -54,7 +50,6 @@ const SquadEntityCard = ({
       shouldEvaluate: showNotificationCta,
     });
   const wasSquadMemberRef = useRef(!!squad?.currentMember);
-  const wasSquadPostUpvotedRef = useRef(isSquadPostUpvoted);
   const { isLoading } = useShowFollowAction({
     entityId: squad?.id,
     entityType: ContentPreferenceType.Source,
@@ -83,19 +78,6 @@ const SquadEntityCard = ({
 
     wasSquadMemberRef.current = isSquadMember;
   }, [haveNotificationsOn, isSquadMember, showNotificationCtaOnJoin]);
-
-  useEffect(() => {
-    if (
-      showNotificationCtaOnUpvote &&
-      isSquadPostUpvoted &&
-      !wasSquadPostUpvotedRef.current &&
-      !haveNotificationsOn
-    ) {
-      setShowNotificationCta(true);
-    }
-
-    wasSquadPostUpvotedRef.current = isSquadPostUpvoted;
-  }, [haveNotificationsOn, isSquadPostUpvoted, showNotificationCtaOnUpvote]);
 
   const handleEnableNotifications = async () => {
     await onNotify();

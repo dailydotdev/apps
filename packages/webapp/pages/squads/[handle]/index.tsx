@@ -1,11 +1,13 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
+import {
+  BellIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
@@ -32,7 +34,6 @@ import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized
 import { useQuery } from '@tanstack/react-query';
 import {
   LogEvent,
-  NotificationCtaPlacement,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -55,7 +56,17 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { useNotificationCtaExperiment } from '@dailydotdev/shared/src/hooks/notifications/useNotificationCtaExperiment';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
+import {
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -64,6 +75,7 @@ import { getSquadOpenGraph } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin } from '../../../lib/seo';
+import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -169,12 +181,95 @@ const SquadPage = ({
   const { openModal } = useLazyModal();
   useJoinReferral();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
+  const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
+  const squadNotificationToastState = useMemo(
+    () => createSquadNotificationToastStateStore(user?.id),
+    [user?.id],
+  );
+  const { shouldShowCta, onEnable } = useEnableNotification({
+    source: NotificationPromptSource.SquadPage,
+  });
+  const shouldForceSquadNotificationCta = useMemo(() => {
+    const forceValue = router.query?.forceSquadNotificationCta;
+    const normalizedValue = Array.isArray(forceValue) ? forceValue[0] : forceValue;
+
+    if (!normalizedValue) {
+      return false;
+    }
+
+    return ['1', 'true', 'yes', 'on'].includes(
+      normalizedValue.toString().toLowerCase(),
+    );
+  }, [router.query?.forceSquadNotificationCta]);
+
+  useEffect(() => {
+    if (
+      (!shouldShowCta && !shouldForceSquadNotificationCta) ||
+      !squadId ||
+      !isFetched ||
+      shownToastForSquadInSession.current[squadId]
+    ) {
+      return;
+    }
+
+    const shouldShowToast = shouldForceSquadNotificationCta
+      ? true
+      : squadNotificationToastState.registerToastView({
+          squadId,
+          isSquadMember: !!squad?.currentMember,
+        });
+    if (!shouldShowToast) {
+      return;
+    }
+
+    shownToastForSquadInSession.current[squadId] = true;
+
+    displayToast('Get notified about new Squad activity.', {
+      subject: ToastSubject.Feed,
+      persistent: true,
+      action: {
+        copy: 'Turn on',
+        onClick: async () => {
+          const didEnable = await onEnable();
+          if (!didEnable && !shouldForceSquadNotificationCta) {
+            squadNotificationToastState.dismissUntilTomorrow({ squadId });
+          }
+
+          return didEnable;
+        },
+        buttonProps: {
+          size: ButtonSize.Small,
+          variant: ButtonVariant.Primary,
+          color: ButtonColor.Cabbage,
+          icon: (
+            <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
+          ),
+          iconPosition: ButtonIconPosition.Left,
+        },
+      },
+      onClose: () => {
+        if (!shouldForceSquadNotificationCta) {
+          squadNotificationToastState.dismissUntilTomorrow({ squadId });
+        }
+      },
+    });
+  }, [
+    displayToast,
+    isFetched,
+    onEnable,
+    shouldShowCta,
+    shouldForceSquadNotificationCta,
+    squad?.currentMember,
+    squadId,
+    squadNotificationToastState,
+  ]);
 
   useEffect(() => {
     if (loggedImpression || !squadId) {
@@ -244,8 +339,6 @@ const SquadPage = ({
   }, [shouldManageSlack, squad, openModal, router]);
 
   const privateSourceJoin = usePrivateSourceJoin();
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
 
   if ((isLoading && !isFetched) || privateSourceJoin.isActive) {
     return (
@@ -288,14 +381,6 @@ const SquadPage = ({
           members={squadMembers}
           shouldUseListMode={shouldUseListMode}
         />
-        {isNotificationCtaExperimentEnabled && (
-          <EnableNotification
-            source={NotificationPromptSource.SquadPage}
-            placement={NotificationCtaPlacement.SquadPage}
-            contentName={squad.name}
-            className="mx-6 !mt-2 mb-4"
-          />
-        )}
         <FeedPageComponent>
           <Feed
             className={classNames(shouldUseListFeedLayout ? 'px-0' : 'px-6')}
