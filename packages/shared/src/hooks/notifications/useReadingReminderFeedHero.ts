@@ -18,6 +18,7 @@ const HERO_SCROLL_THRESHOLD_PX = 300;
 
 interface UseReadingReminderFeedHeroProps {
   itemCount: number;
+  itemsPerRow: number;
 }
 
 interface UseReadingReminderFeedHero {
@@ -35,7 +36,11 @@ interface UseReadingReminderFeedHero {
 
 export const useReadingReminderFeedHero = ({
   itemCount,
+  itemsPerRow,
 }: UseReadingReminderFeedHeroProps): UseReadingReminderFeedHero => {
+  const safeItemsPerRow = Math.max(1, itemsPerRow);
+  const heroInsertIndex =
+    Math.ceil(HERO_INSERT_INDEX / safeItemsPerRow) * safeItemsPerRow;
   const { pathname } = useRouter();
   const {
     shouldShow,
@@ -114,7 +119,7 @@ export const useReadingReminderFeedHero = ({
     !shouldHideInFeedHero &&
     (isInFeedHeroForced || hasScrolledForHero) &&
     !isInFeedHeroDismissed &&
-    itemCount > HERO_INSERT_INDEX;
+    itemCount > heroInsertIndex;
 
   useNotificationCtaImpression(
     getReadingReminderCtaParams(NotificationCtaPlacement.TopHero),
@@ -152,7 +157,7 @@ export const useReadingReminderFeedHero = ({
   }, [logDismiss, onDismiss]);
 
   return {
-    heroInsertIndex: HERO_INSERT_INDEX,
+    heroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
     title,

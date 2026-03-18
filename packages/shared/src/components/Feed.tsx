@@ -326,7 +326,10 @@ export default function Feed<T>({
     onDismissTopHero,
     onEnableInFeedHero,
     onDismissInFeedHero,
-  } = useReadingReminderFeedHero({ itemCount: items.length });
+  } = useReadingReminderFeedHero({
+    itemCount: items.length,
+    itemsPerRow: virtualizedNumCards,
+  });
 
   useMutationSubscription({
     matcher: ({ mutation }) => {

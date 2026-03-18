@@ -98,22 +98,22 @@ export const TopHero = ({
             />
           )}
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col justify-between p-5 tablet:p-6">
-              <div className="flex flex-col gap-1">
+            <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
+              <div className="flex flex-col items-center gap-1 tablet:items-start">
                 <p className="text-white/80 mt-2 text-[0.9375rem]">{title}</p>
                 <h3 className="font-bold text-white typo-title2">{subtitle}</h3>
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  className="mt-4 w-fit"
+                  onClick={onCtaClick}
+                >
+                  Enable reminder
+                </Button>
               </div>
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                className="mt-4 w-fit"
-                onClick={onCtaClick}
-              >
-                Enable reminder
-              </Button>
             </div>
-            <div className="bg-black/20 flex h-[12rem] w-full items-center justify-center p-3 tablet:h-auto tablet:w-[13.5rem] tablet:p-4">
-              <ReadingReminderCatLaptop className="m-0 h-full w-full max-w-none object-contain" />
+            <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+              <ReadingReminderCatLaptop className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110" />
             </div>
           </div>
         </div>
