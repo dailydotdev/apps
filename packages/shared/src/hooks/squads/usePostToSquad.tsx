@@ -113,7 +113,7 @@ export const usePostToSquad = ({
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
-  const { isSubscribed, shouldOpenPopup } = usePushNotificationContext();
+  const { isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
   const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
     useNotificationCtaExperiment();
@@ -125,8 +125,7 @@ export const usePostToSquad = ({
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
   const shouldShowEnableNotificationToast =
-    isNotificationCtaExperimentEnabled &&
-    (isPreviewActive || (!shouldOpenPopup() && !isSubscribed));
+    isNotificationCtaExperimentEnabled && (isPreviewActive || !isSubscribed);
 
   const handleMutationError = useCallback(
     (err: unknown): void => {

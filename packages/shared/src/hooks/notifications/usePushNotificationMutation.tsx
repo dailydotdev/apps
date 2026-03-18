@@ -111,7 +111,7 @@ export const usePushNotificationMutation = ({
     const { permission }: PermissionEvent = e?.data ?? {};
     const earlyReturnChecks = [
       e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
-      !shouldOpenPopup,
+      !shouldOpenPopup(),
       permission !== 'granted',
     ];
 
