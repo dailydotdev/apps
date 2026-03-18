@@ -97,7 +97,8 @@ jest.mock('../dropdown/DropdownMenu', () => {
         return <>{children}</>;
       }
 
-      const triggerChild = children as ReactElement<MockDropdownTriggerChildProps>;
+      const triggerChild =
+        children as ReactElement<MockDropdownTriggerChildProps>;
       const originalOnClick = triggerChild.props.onClick as
         | ((...args: unknown[]) => void)
         | undefined;
