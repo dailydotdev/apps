@@ -25,6 +25,10 @@ interface UseReadingReminderHero {
   onDismiss: () => Promise<void>;
 }
 
+interface UseReadingReminderHeroProps {
+  requireMobile?: boolean;
+}
+
 const DEFAULT_READING_REMINDER_HOUR = 9;
 const READING_REMINDER_DISMISSED = 'dismissed';
 
@@ -57,7 +61,9 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   return isToday(parsedDate);
 };
 
-export const useReadingReminderHero = (): UseReadingReminderHero => {
+export const useReadingReminderHero = ({
+  requireMobile = true,
+}: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
@@ -79,8 +85,9 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isDismissed = isDismissedValue(lastSeen);
 
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isEligibleViewSize = !requireMobile || isMobile;
   const shouldEvaluate =
-    isMobile &&
+    isEligibleViewSize &&
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&

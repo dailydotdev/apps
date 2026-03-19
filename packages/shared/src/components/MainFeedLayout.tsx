@@ -69,8 +69,8 @@ import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
-import { useNotificationCtaExperiment } from '../hooks/notifications/useNotificationCtaExperiment';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
+import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -232,12 +232,11 @@ export default function MainFeedLayout({
     onDismiss,
   } = useReadingReminderHero();
   const isHomePage = router.pathname === webappUrl;
-  const shouldEvaluateReminderExperiment =
+  const shouldEvaluateReminderPlacement =
     isHomePage && shouldShowReadingReminder;
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: shouldEvaluateReminderExperiment,
-    });
+  const { isControl: isControlVariation } = useReadingReminderVariation({
+    shouldEvaluate: shouldEvaluateReminderPlacement,
+  });
   const {
     isUpvoted,
     isPopular,
@@ -570,7 +569,7 @@ export default function MainFeedLayout({
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
   const shouldShowReadingReminderOnHomepage =
-    !isNotificationCtaExperimentEnabled && shouldEvaluateReminderExperiment;
+    shouldEvaluateReminderPlacement && isControlVariation;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {

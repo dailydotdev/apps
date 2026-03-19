@@ -322,10 +322,13 @@ export default function Feed<T>({
   });
   const {
     heroInsertIndex,
+    shouldShowTopHero,
     shouldShowInFeedHero,
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
     shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnableTopHero,
+    onDismissTopHero,
     onEnableInFeedHero,
     onDismissInFeedHero,
   } = useReadingReminderFeedHero({
@@ -595,6 +598,16 @@ export default function Feed<T>({
   const containerProps = isSearchPageLaptop
     ? {}
     : {
+        topContent: shouldShowTopHero ? (
+          <TopHero
+            className="pt-2"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            shouldShowDismiss={shouldShowReadingReminderDismiss}
+            onCtaClick={onEnableTopHero}
+            onClose={onDismissTopHero}
+          />
+        ) : undefined,
         header,
         inlineHeader,
         className,
