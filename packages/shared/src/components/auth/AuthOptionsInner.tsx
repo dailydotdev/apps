@@ -214,11 +214,15 @@ function AuthOptionsInner({
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
+      if (windowPopup.current) {
+        windowPopup.current.location.href = redirect;
+      } else {
+        window.location.href = redirect;
+      }
     },
     keepSession: isOnboardingOrFunnel,
   });
@@ -376,8 +380,10 @@ function AuthOptionsInner({
       }
       if (!isNativeAuthSupported(provider)) {
         windowPopup.current = window.open(socialUrl);
-      } else {
+      } else if (windowPopup.current) {
         windowPopup.current.location.href = socialUrl;
+      } else {
+        window.location.href = socialUrl;
       }
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
@@ -403,7 +409,7 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
-  const handleLoginMessage = async () => {
+  const handleLoginMessage = async (e?: MessageEvent) => {
     const { data: boot } = await refetchBoot();
 
     if (!boot.user || !('email' in boot.user)) {
@@ -411,6 +417,8 @@ function AuthOptionsInner({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
           error: 'Could not find email on social registration',
+          data:
+            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
       });
       displayToast(labels.auth.error.generic);
@@ -441,7 +449,7 @@ function AuthOptionsInner({
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {
-      return handleLoginMessage();
+      return handleLoginMessage(e);
     }
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
@@ -488,7 +496,7 @@ function AuthOptionsInner({
       return displayToast(labels.auth.error.generic);
     }
 
-    return handleLoginMessage();
+    return handleLoginMessage(e);
   };
 
   useEventListener(broadcastChannel, 'message', onProviderMessage);

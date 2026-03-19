@@ -160,8 +160,10 @@ function InnerFunnelRegistration({
         window.location.href = redirect;
       } else if (isBetterAuth) {
         windowPopup.current = window.open(redirect);
-      } else {
+      } else if (windowPopup.current) {
         windowPopup.current.location.href = redirect;
+      } else {
+        window.location.href = redirect;
       }
     },
     keepSession: true,

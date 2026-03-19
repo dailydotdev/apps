@@ -59,6 +59,7 @@ import type { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
+import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -69,6 +70,7 @@ import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useNotificationCtaExperiment } from '../hooks/notifications/useNotificationCtaExperiment';
+import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -243,6 +245,14 @@ export default function MainFeedLayout({
     isSearch: isSearchPage,
   } = useFeedName({
     feedName,
+  });
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitExplorePage,
+    enabled: feedName === OtherFeedPage.Explore,
+  });
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitDiscussionsPage,
+    enabled: feedName === OtherFeedPage.Discussed,
   });
   const {
     shouldUseListFeedLayout,

@@ -11,13 +11,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v7-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-v8-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -26,6 +26,7 @@ jobs:
             - ./packages/shared/node_modules
             - ./packages/webapp/node_modules
             - ./packages/extension/node_modules
+            - ./packages/storybook/node_modules
   test_extension:
     docker:
       - image: cimg/node:24.14
@@ -34,8 +35,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -55,8 +56,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -76,12 +77,28 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
           working_directory: packages/shared
+  typecheck_strict_changed:
+    docker:
+      - image: cimg/node:24.14
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
+      - run:
+          name: Fetch base branch
+          command: git fetch origin main
+      - run:
+          name: Check changed files in strict mode
+          command: npm run typecheck:strict:changed
   test_shared:
     docker:
       - image: cimg/node:24.14
@@ -90,8 +107,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -113,8 +130,8 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v7-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v7-{{ .Branch }}
+            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v8-{{ .Branch }}
       - run:
           name: Build Extension
           command: pnpm --filter extension build
@@ -131,6 +148,9 @@ workflows:
           requires:
             - install_deps
       - lint_shared:
+          requires:
+            - install_deps
+      - typecheck_strict_changed:
           requires:
             - install_deps
       - test_shared:
