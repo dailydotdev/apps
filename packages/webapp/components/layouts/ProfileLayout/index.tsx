@@ -17,8 +17,11 @@ import type { ClientError } from 'graphql-request';
 import type { ProfileV2 } from '@dailydotdev/shared/src/graphql/users';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
@@ -97,9 +100,15 @@ export default function ProfileLayout({
   const router = useRouter();
   const { isFallback } = router;
   const { user } = useProfile(initialUser);
+  const { user: viewer } = useAuthContext();
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
   const { referrerPost } = usePostReferrerContext();
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.ViewUserProfile,
+    enabled: !!user && !!viewer?.id && viewer.id !== user.id,
+    eventKey: user ? `profile:${user.id}` : undefined,
+  });
 
   // Auto-collapse sidebar on small screens
   useProfileSidebarCollapse();

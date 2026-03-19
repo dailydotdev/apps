@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { gqlClient } from './common';
 
 export enum QuestType {
   Daily = 'daily',
@@ -87,6 +88,14 @@ export interface QuestRotationUpdate {
 
 export interface QuestRotationUpdateData {
   questRotationUpdate: QuestRotationUpdate;
+}
+
+export enum ClientQuestEventType {
+  VisitArena = 'visit_arena',
+  VisitExplorePage = 'visit_explore_page',
+  VisitDiscussionsPage = 'visit_discussions_page',
+  VisitReadItLaterPage = 'visit_read_it_later_page',
+  ViewUserProfile = 'view_user_profile',
 }
 
 export const QUEST_DASHBOARD_QUERY = gql`
@@ -299,6 +308,14 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
   }
 `;
 
+export const TRACK_QUEST_EVENT_MUTATION = gql`
+  mutation TrackQuestEvent($eventType: ClientQuestEventType!) {
+    trackQuestEvent(eventType: $eventType) {
+      _
+    }
+  }
+`;
+
 export const QUEST_UPDATE_SUBSCRIPTION = gql`
   subscription QuestUpdate {
     questUpdate {
@@ -317,3 +334,9 @@ export const QUEST_ROTATION_UPDATE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const trackQuestClientEvent = async (
+  eventType: ClientQuestEventType,
+): Promise<void> => {
+  await gqlClient.request(TRACK_QUEST_EVENT_MUTATION, { eventType });
+};
