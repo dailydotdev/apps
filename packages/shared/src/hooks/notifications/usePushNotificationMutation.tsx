@@ -107,24 +107,28 @@ export const usePushNotificationMutation = ({
     [isSubscribed, onEnablePush, unsubscribe],
   );
 
-  useEventListener(window, 'message', async (e) => {
-    const { permission }: PermissionEvent = e?.data ?? {};
-    const earlyReturnChecks = [
-      e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
-      !shouldOpenPopup(),
-      permission !== 'granted',
-    ];
+  useEventListener(
+    typeof window === 'undefined' ? null : window,
+    'message',
+    async (e) => {
+      const { permission }: PermissionEvent = e?.data ?? {};
+      const earlyReturnChecks = [
+        e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,
+        !shouldOpenPopup(),
+        permission !== 'granted',
+      ];
 
-    if (earlyReturnChecks.some(Boolean)) {
-      return;
-    }
+      if (earlyReturnChecks.some(Boolean)) {
+        return;
+      }
 
-    await onGranted();
+      await onGranted();
 
-    if (onPopupGranted) {
-      onPopupGranted();
-    }
-  });
+      if (onPopupGranted) {
+        onPopupGranted();
+      }
+    },
+  );
 
   return {
     hasPermissionCache: permissionCache === 'granted',
