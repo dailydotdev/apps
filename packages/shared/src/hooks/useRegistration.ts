@@ -86,7 +86,7 @@ const useRegistration = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo } =
+  const { trackingId, referral, referralOrigin, logout, geo, refetchBoot } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -323,10 +323,10 @@ const useRegistration = ({
           console.error('Native sign in failed:', result.error);
           return;
         }
-        window.location.reload();
+        await refetchBoot();
         return;
       }
-      const callbackURL = `${webappUrl}callback`;
+      const callbackURL = webappUrl;
       const url = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,

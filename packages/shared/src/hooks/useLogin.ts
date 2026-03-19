@@ -198,10 +198,13 @@ const useLogin = ({
             console.error('Native sign in failed:', result.error);
             return;
           }
-          window.location.reload();
+          const { data: boot } = await refetchBoot();
+          if (boot.user) {
+            onUpdateSignBack(boot.user as LoggedUser, provider);
+          }
           return;
         }
-        const callbackURL = `${webappUrl}callback?login=true`;
+        const callbackURL = webappUrl;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
           window.open(socialUrl);
