@@ -22,7 +22,7 @@ function ReadingHistoryEmptyScreen(): ReactElement {
         Go back to your feed and read posts that spark your interest. Each post
         you read will be listed here.
       </EmptyScreenDescription>
-      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL}>
+      <Link href={process.env.NEXT_PUBLIC_WEBAPP_URL ?? '/'}>
         <EmptyScreenButton size={ButtonSize.Large}>
           Back to feed
         </EmptyScreenButton>
