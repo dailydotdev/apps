@@ -28,7 +28,7 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignUp, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import { betterAuthSignUp, betterAuthSignInWithIdToken, getBetterAuthSocialUrl } from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
@@ -304,6 +304,19 @@ const useRegistration = ({
 
   const onSocialRegistration = async (provider: string) => {
     if (isBetterAuth) {
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        if (!res) {
+          return;
+        }
+        await betterAuthSignInWithIdToken({
+          provider: provider.toLowerCase(),
+          token: res.token,
+          nonce: res.nonce,
+        });
+        window.location.reload();
+        return;
+      }
       const callbackURL = `${webappUrl}callback`;
       const url = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
