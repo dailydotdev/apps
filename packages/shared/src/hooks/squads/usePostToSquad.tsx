@@ -122,7 +122,7 @@ export const usePostToSquad = ({
   const { isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
   const { logClick, logImpression } = useNotificationCtaAnalytics();
-  const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
   const client = useQueryClient();
   const { completeAction } = useActions();
@@ -132,7 +132,7 @@ export const usePostToSquad = ({
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
   const shouldShowEnableNotificationToast =
-    isNotificationCtaExperimentEnabled && (isPreviewActive || !isSubscribed);
+    isNotificationCtaExperimentEnabled && !isSubscribed;
 
   const handleMutationError = useCallback(
     (err: unknown): void => {

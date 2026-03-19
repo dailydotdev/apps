@@ -15,7 +15,6 @@ const mockUsePersonalizedDigest = jest.fn();
 const mockPersistentContext = jest.fn();
 const mockUseViewSize = jest.fn();
 const mockUsePushNotificationMutation = jest.fn();
-const mockUseNotificationCtaExperiment = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
@@ -51,10 +50,6 @@ jest.mock('../useViewSize', () => ({
 
 jest.mock('./usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => mockUsePushNotificationMutation(),
-}));
-
-jest.mock('./useNotificationCtaExperiment', () => ({
-  useNotificationCtaExperiment: () => mockUseNotificationCtaExperiment(),
 }));
 
 jest.mock('../useConditionalFeature', () => ({
@@ -103,11 +98,6 @@ describe('useReadingReminderHero', () => {
     mockPersistentContext.mockReturnValue([null, setLastSeen, true]);
     mockUseViewSize.mockReturnValue(true);
     mockUsePushNotificationMutation.mockReturnValue({ onEnablePush });
-    mockUseNotificationCtaExperiment.mockReturnValue({
-      isEnabled: true,
-      isFeatureEnabled: true,
-      isPreviewActive: false,
-    });
   });
 
   it('should show for invalid persisted timestamps', () => {
@@ -164,36 +154,12 @@ describe('useReadingReminderHero', () => {
     expect(result.current.shouldShowDismiss).toBe(true);
   });
 
-  it('should not show on desktop without preview', () => {
+  it('should not show on desktop', () => {
     mockUseViewSize.mockReturnValue(false);
 
     const { result } = renderHook(() => useReadingReminderHero());
 
     expect(result.current.shouldShow).toBe(false);
-  });
-
-  it('should show on desktop while preview is active', () => {
-    mockUseViewSize.mockReturnValue(false);
-    mockUseNotificationCtaExperiment.mockReturnValue({
-      isEnabled: true,
-      isPreviewActive: true,
-    });
-
-    const { result } = renderHook(() => useReadingReminderHero());
-
-    expect(result.current.shouldShow).toBe(true);
-  });
-
-  it('should show on desktop when mobile-only gating is disabled', () => {
-    mockUseViewSize.mockReturnValue(false);
-
-    const { result } = renderHook(() =>
-      useReadingReminderHero({
-        requireMobile: false,
-      }),
-    );
-
-    expect(result.current.shouldShow).toBe(true);
   });
 
   it('should enable reminder and log schedule event', async () => {

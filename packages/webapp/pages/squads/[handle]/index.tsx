@@ -5,9 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
-import {
-  BellIcon,
-} from '@dailydotdev/shared/src/components/icons';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
@@ -196,22 +194,10 @@ const SquadPage = ({
   const { shouldShowCta, onEnable } = useEnableNotification({
     source: NotificationPromptSource.SquadPage,
   });
-  const shouldForceSquadNotificationCta = useMemo(() => {
-    const forceValue = router.query?.forceSquadNotificationCta;
-    const normalizedValue = Array.isArray(forceValue) ? forceValue[0] : forceValue;
-
-    if (!normalizedValue) {
-      return false;
-    }
-
-    return ['1', 'true', 'yes', 'on'].includes(
-      normalizedValue.toString().toLowerCase(),
-    );
-  }, [router.query?.forceSquadNotificationCta]);
 
   useEffect(() => {
     if (
-      (!shouldShowCta && !shouldForceSquadNotificationCta) ||
+      !shouldShowCta ||
       !squadId ||
       !isFetched ||
       shownToastForSquadInSession.current[squadId]
@@ -219,12 +205,10 @@ const SquadPage = ({
       return;
     }
 
-    const shouldShowToast = shouldForceSquadNotificationCta
-      ? true
-      : squadNotificationToastState.registerToastView({
-          squadId,
-          isSquadMember: !!squad?.currentMember,
-        });
+    const shouldShowToast = squadNotificationToastState.registerToastView({
+      squadId,
+      isSquadMember: !!squad?.currentMember,
+    });
     if (!shouldShowToast) {
       return;
     }
@@ -238,7 +222,7 @@ const SquadPage = ({
         copy: 'Turn on',
         onClick: async () => {
           const didEnable = await onEnable();
-          if (!didEnable && !shouldForceSquadNotificationCta) {
+          if (!didEnable) {
             squadNotificationToastState.dismissUntilTomorrow({ squadId });
           }
 
@@ -255,9 +239,7 @@ const SquadPage = ({
         },
       },
       onClose: () => {
-        if (!shouldForceSquadNotificationCta) {
-          squadNotificationToastState.dismissUntilTomorrow({ squadId });
-        }
+        squadNotificationToastState.dismissUntilTomorrow({ squadId });
       },
     });
   }, [
@@ -265,7 +247,6 @@ const SquadPage = ({
     isFetched,
     onEnable,
     shouldShowCta,
-    shouldForceSquadNotificationCta,
     squad?.currentMember,
     squadId,
     squadNotificationToastState,

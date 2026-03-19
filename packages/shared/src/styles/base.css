@@ -1056,61 +1056,12 @@ meter::-webkit-meter-bar {
     animation: float 1.5s ease-in-out infinite;
   }
 
-  .top-hero-animated-border {
-    background: linear-gradient(122deg, #2d1b8f 0%, #5d1fb7 45%, #ff00a8 100%);
-    background-size: 200% 200%;
-  }
-
   .top-hero-panel-border {
     background: linear-gradient(122deg, #2d1b8f 0%, #5d1fb7 45%, #ff00a8 100%);
   }
 
   .top-hero-glow {
     background: rgb(255 0 168 / 35%);
-  }
-
-  .sidebar-notification-border {
-    background: conic-gradient(
-      from 0deg,
-      rgb(255 255 255 / 0.06),
-      rgb(255 255 255 / 0.9),
-      rgb(255 255 255 / 0.08),
-      rgb(255 255 255 / 0.95),
-      rgb(255 255 255 / 0.06)
-    );
-  }
-
-  @keyframes top-hero-border-shift {
-    0% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-
-  @keyframes sidebar-popover-border-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes sidebar-popover-tail {
-    0%,
-    100% {
-      opacity: 0.35;
-      transform: translateX(0);
-    }
-    50% {
-      opacity: 0.95;
-      transform: translateX(0.25rem);
-    }
   }
 
   @keyframes enable-notification-bell-ring {

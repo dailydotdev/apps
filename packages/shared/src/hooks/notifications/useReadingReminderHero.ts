@@ -10,7 +10,6 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import { useNotificationCtaExperiment } from './useNotificationCtaExperiment';
 import {
   featureReadingReminderHeroCopy,
   featureReadingReminderHeroDismiss,
@@ -24,10 +23,6 @@ interface UseReadingReminderHero {
   shouldShowDismiss: boolean;
   onEnable: () => Promise<void>;
   onDismiss: () => Promise<void>;
-}
-
-interface UseReadingReminderHeroProps {
-  requireMobile?: boolean;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
@@ -62,13 +57,10 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   return isToday(parsedDate);
 };
 
-export const useReadingReminderHero = ({
-  requireMobile = true,
-}: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
+export const useReadingReminderHero = (): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
-  const { isPreviewActive } = useNotificationCtaExperiment();
   const {
     getPersonalizedDigest,
     isLoading: isDigestLoading,
@@ -87,10 +79,8 @@ export const useReadingReminderHero = ({
   const isDismissed = isDismissedValue(lastSeen);
 
   const isMobile = useViewSize(ViewSize.MobileL);
-  const isEligibleViewSize = !requireMobile || isMobile;
-  const shouldForceShow = isPreviewActive && isLoggedIn;
   const shouldEvaluate =
-    isEligibleViewSize &&
+    isMobile &&
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
@@ -145,10 +135,9 @@ export const useReadingReminderHero = ({
   }, [setLastSeen]);
 
   const shouldShow =
-    shouldForceShow ||
-    (!isSubscribedToReadingReminder &&
-      !isDismissed &&
-      (shouldShowBase || hasShownInSession));
+    !isSubscribedToReadingReminder &&
+    !isDismissed &&
+    (shouldShowBase || hasShownInSession);
 
   return {
     shouldShow,

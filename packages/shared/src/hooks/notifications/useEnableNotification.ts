@@ -20,7 +20,6 @@ export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
   placement?: NotificationCtaPlacement;
-  ignoreDismissState?: boolean;
   onEnableAction?: () => Promise<unknown> | unknown;
 }
 
@@ -34,10 +33,9 @@ interface UseEnableNotification {
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
   placement,
-  ignoreDismissState = false,
   onEnableAction,
 }: UseEnableNotificationProps): UseEnableNotification => {
-  const { isEnabled: isNotificationCtaExperimentEnabled, isPreviewActive } =
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
   const isExtension = checkIsExtension();
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
@@ -78,10 +76,9 @@ export const useEnableNotification = ({
     source === NotificationPromptSource.PostTagFollow ||
     source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.SquadPage;
-  const effectiveIsDismissed =
-    ignoreDismissState || shouldIgnoreDismissStateForSource || isPreviewActive
-      ? false
-      : isDismissed;
+  const effectiveIsDismissed = shouldIgnoreDismissStateForSource
+    ? false
+    : isDismissed;
   useEffect(() => {
     setHasCompletedEnableAction(!onEnableAction);
   }, [onEnableAction]);
@@ -120,20 +117,16 @@ export const useEnableNotification = ({
   const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
   const shouldRequireNotSubscribed =
-    source !== NotificationPromptSource.CommentUpvote && !isPreviewActive;
+    source !== NotificationPromptSource.CommentUpvote;
 
   const conditions = [
-    isLoaded || isPreviewActive,
+    isLoaded,
     shouldRequireNotSubscribed ? !subscribed : true,
     isInitialized,
     isPushSupported || isExtension,
   ];
 
   const computeShouldShowCta = (): boolean => {
-    if (isPreviewActive) {
-      return true;
-    }
-
     return (
       (conditions.every(Boolean) ||
         (enabledJustNow &&

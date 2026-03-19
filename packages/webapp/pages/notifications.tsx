@@ -116,7 +116,7 @@ const Notifications = (): ReactElement => {
       <main
         className={classNames(pageBorders, pageContainerClassNames, 'pb-12')}
       >
-        <EnableNotification ignoreDismissState />
+        <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         <h2
           className="p-6 font-bold typo-body"

@@ -27,10 +27,9 @@ type EnableNotificationProps = {
   className?: string;
   label?: string;
   onEnableAction?: () => Promise<unknown> | unknown;
-  ignoreDismissState?: boolean;
 };
 
-const containerClassName: Record<NotificationPromptSource, string> = {
+const containerClassName: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.NotificationsPage]: 'px-6 w-full bg-surface-float',
   [NotificationPromptSource.NewComment]:
     'rounded-16 px-4 w-full bg-surface-float',
@@ -40,7 +39,6 @@ const containerClassName: Record<NotificationPromptSource, string> = {
     'rounded-16 px-4 w-full bg-surface-float',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.NotificationItem]: '',
-  [NotificationPromptSource.SquadPage]: 'rounded-16 border px-4 mt-6',
   [NotificationPromptSource.SquadPostCommentary]: '',
   [NotificationPromptSource.SquadPostModal]: '',
   [NotificationPromptSource.SquadChecklist]: '',
@@ -49,13 +47,14 @@ const containerClassName: Record<NotificationPromptSource, string> = {
   [NotificationPromptSource.BookmarkReminder]: '',
 };
 
-const sourceRenderTextCloseButton: Record<NotificationPromptSource, boolean> = {
+const sourceRenderTextCloseButton: Partial<
+  Record<NotificationPromptSource, boolean>
+> = {
   [NotificationPromptSource.NotificationsPage]: false,
   [NotificationPromptSource.NewComment]: false,
   [NotificationPromptSource.CommentUpvote]: false,
   [NotificationPromptSource.PostTagFollow]: false,
   [NotificationPromptSource.NewSourceModal]: false,
-  [NotificationPromptSource.SquadPage]: true,
   [NotificationPromptSource.SquadPostCommentary]: false,
   [NotificationPromptSource.SquadPostModal]: false,
   [NotificationPromptSource.NotificationItem]: false,
@@ -84,7 +83,6 @@ function EnableNotification({
   className,
   label,
   onEnableAction,
-  ignoreDismissState = false,
 }: EnableNotificationProps): ReactElement | null {
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
@@ -92,7 +90,6 @@ function EnableNotification({
     useEnableNotification({
       source,
       placement,
-      ignoreDismissState,
       onEnableAction,
     });
 
@@ -103,7 +100,7 @@ function EnableNotification({
     return null;
   }
 
-  const sourceToMessage: Record<NotificationPromptSource, string> = {
+  const sourceToMessage: Partial<Record<NotificationPromptSource, string>> = {
     [NotificationPromptSource.SquadPostModal]: '',
     [NotificationPromptSource.NewComment]: isNotificationCtaExperimentEnabled
       ? 'Someone might reply soon. Don’t miss it.'
@@ -120,15 +117,14 @@ function EnableNotification({
     [NotificationPromptSource.NewSourceModal]: '',
     [NotificationPromptSource.NotificationItem]: '',
     [NotificationPromptSource.SquadPostCommentary]: '',
-    [NotificationPromptSource.SquadPage]: `Get notified whenever something important happens on ${contentName}.`,
     [NotificationPromptSource.SquadChecklist]: '',
     [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}.`,
     [NotificationPromptSource.ReadingReminder]: '',
     [NotificationPromptSource.BookmarkReminder]: '',
   };
-  const message = sourceToMessage[source];
-  const classes = containerClassName[source];
-  const showTextCloseButton = sourceRenderTextCloseButton[source];
+  const message = sourceToMessage[source] ?? '';
+  const classes = containerClassName[source] ?? '';
+  const showTextCloseButton = sourceRenderTextCloseButton[source] ?? false;
   const hideCloseButton =
     source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.CommentUpvote ||

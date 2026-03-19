@@ -9,7 +9,6 @@ import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { SidebarMenuIcon } from './SidebarMenuIcon';
-import { SidebarNotificationPrompt } from './SidebarNotificationPrompt';
 import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
@@ -111,7 +110,6 @@ export const SidebarDesktop = ({
           />
         </Nav>
       </SidebarScrollWrapper>
-      <SidebarNotificationPrompt sidebarExpanded={sidebarExpanded} />
     </SidebarAside>
   );
 };

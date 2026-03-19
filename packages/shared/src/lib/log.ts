@@ -540,9 +540,7 @@ export enum NotificationTarget {
 }
 
 export enum NotificationCtaPlacement {
-  TopHero = 'top-hero',
   InFeedHero = 'in-feed-hero',
-  SidebarPrompt = 'sidebar-prompt',
   CommentInline = 'comment-inline',
   CommentReplyFlow = 'comment-reply-flow',
   TagFollowInline = 'tag-follow-inline',
