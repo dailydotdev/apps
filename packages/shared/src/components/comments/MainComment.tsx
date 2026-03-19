@@ -52,11 +52,13 @@ export interface MainCommentProps
 }
 
 const shouldShowBannerOnComment = (
-  commentId: string,
+  commentId: string | undefined,
   comment: Comment,
 ): boolean =>
-  commentId === comment.id ||
-  (comment.children?.edges?.some(({ node }) => node.id === commentId) ?? false);
+  !!commentId &&
+  (commentId === comment.id ||
+    (comment.children?.edges?.some(({ node }) => node.id === commentId) ??
+      false));
 
 export default function MainComment({
   className,
@@ -95,8 +97,8 @@ export default function MainComment({
     onReplyTo,
   } = useComments(props.post);
   const { inputProps: editProps, onEdit } = useEditCommentProps();
-
-  const replyCount = comment.children?.edges?.length ?? 0;
+  const commentChildren = comment.children?.edges ?? [];
+  const replyCount = commentChildren.length;
 
   const initialInView = !lazy;
   const { ref: inViewRef, inView } = useInView({
@@ -149,9 +151,7 @@ export default function MainComment({
             parentId={comment.id}
             className={{
               container: classNames(
-                comment.children?.edges?.length > 0 &&
-                  !isModalThread &&
-                  'border-b',
+                commentChildren.length > 0 && !isModalThread && 'border-b',
                 isModalThread &&
                   'rounded-none border-0 bg-transparent px-0 pb-0 pt-0 hover:bg-transparent',
               ),
@@ -165,7 +165,7 @@ export default function MainComment({
             appendTooltipTo={appendTooltipTo}
             onComment={(selected, parentId) =>
               onReplyTo({
-                username: selected.author.username,
+                username: selected.author?.username ?? null,
                 parentCommentId: parentId,
                 commentId: selected.id,
               })
@@ -201,7 +201,7 @@ export default function MainComment({
           post={props.post}
           onCommented={(...params) => {
             onEdit(null);
-            onCommented(...params);
+            onCommented?.(...params);
           }}
           onClose={() => onEdit(null)}
           className={{ input: className?.commentBox }}
@@ -214,7 +214,7 @@ export default function MainComment({
             post={props.post}
             onCommented={(...params) => {
               onReplyTo(null);
-              onCommented(...params);
+              onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
             className={{ input: className?.commentBox }}
@@ -224,7 +224,7 @@ export default function MainComment({
       )}
       {showJoinSquadBanner && (
         <SquadCommentJoinBanner
-          className={!comment.children?.edges?.length && 'mt-3'}
+          className={commentChildren.length === 0 ? 'mt-3' : undefined}
           squad={props.post?.source as Squad}
           logOrigin={props.origin}
           post={props.post}
@@ -232,17 +232,17 @@ export default function MainComment({
       )}
       {!showJoinSquadBanner && showNotificationPermissionBanner && (
         <EnableNotification
-          className={!comment.children?.edges?.length && 'mt-3'}
+          className={commentChildren.length === 0 ? 'mt-3' : undefined}
           placement={NotificationCtaPlacement.CommentInline}
           source={NotificationPromptSource.NewComment}
           contentName={
-            user?.id !== comment?.author.id ? comment?.author?.name : undefined
+            user?.id !== comment.author?.id ? comment.author?.name : undefined
           }
         />
       )}
       {inView && replyCount > 0 && !areRepliesExpanded && (
         <CollapsedRepliesPreview
-          replies={comment.children.edges}
+          replies={commentChildren}
           onExpand={() => setAreRepliesExpanded(true)}
           isThreadStyle={isModalThread}
           className={isModalThread ? 'ml-12 mt-3' : undefined}
@@ -266,7 +266,7 @@ export default function MainComment({
               <span>Hide replies</span>
             </button>
           )}
-          {comment.children?.edges.map(({ node }, index) => (
+          {commentChildren.map(({ node }, index) => (
             <SubComment
               {...props}
               key={node.id}
@@ -277,7 +277,7 @@ export default function MainComment({
               onCommented={onCommented}
               isModalThread={isModalThread}
               isFirst={index === 0}
-              isLast={index === comment.children.edges.length - 1}
+              isLast={index === commentChildren.length - 1}
               extendTopConnector={isModalThread && commentId === comment.id}
             />
           ))}

@@ -38,14 +38,14 @@ jest.mock('../usePersistentContext', () => ({
   PersistentContextKeys: {
     ReadingReminderLastSeen: 'reading_reminder_last_seen',
   },
-  default: (...args) => mockPersistentContext(...args),
+  default: (...args: unknown[]) => mockPersistentContext(...args),
 }));
 
 jest.mock('../useViewSize', () => ({
   ViewSize: {
     MobileL: 767,
   },
-  useViewSize: (...args) => mockUseViewSize(...args),
+  useViewSize: (...args: unknown[]) => mockUseViewSize(...args),
 }));
 
 jest.mock('./usePushNotificationMutation', () => ({

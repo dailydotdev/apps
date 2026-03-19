@@ -2,10 +2,10 @@ import type { CommentMarkdownInputProps } from '../../components/fields/Markdown
 
 export interface CommentWriteProps {
   commentId: string;
-  parentCommentId?: string;
+  parentCommentId?: string | null;
   lastUpdatedAt?: string;
 }
 
 export interface CommentWrite {
-  inputProps: Partial<CommentMarkdownInputProps>;
+  inputProps: Partial<CommentMarkdownInputProps> | null;
 }

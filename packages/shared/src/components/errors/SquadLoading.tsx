@@ -36,7 +36,7 @@ function SquadLoading({
   squad,
   sidebarRendered,
 }: {
-  squad: Pick<Squad, 'image' | 'description' | 'name' | 'public'>;
+  squad?: Pick<Squad, 'image' | 'description' | 'name' | 'public'>;
   sidebarRendered: boolean;
 }): ReactElement {
   return (

@@ -3,13 +3,13 @@ import type { CommentWrite, CommentWriteProps } from './common';
 import useCommentById from '../comments/useCommentById';
 
 interface UseCommentEdit extends CommentWrite {
-  onEdit: (params: CommentWriteProps) => void;
+  onEdit: (params: CommentWriteProps | null) => void;
 }
 
 export const useEditCommentProps = (): UseCommentEdit => {
-  const [state, setState] = useState<CommentWriteProps>();
+  const [state, setState] = useState<CommentWriteProps | null>(null);
   const { commentId: id } = state ?? {};
-  const { comment, onEdit } = useCommentById({ id });
+  const { comment, onEdit } = useCommentById({ id: id ?? '' });
 
   const inputProps = useMemo(() => {
     if (!state || !comment) {
@@ -18,8 +18,10 @@ export const useEditCommentProps = (): UseCommentEdit => {
 
     return {
       editCommentId: state.commentId,
-      parentCommentId: state.parentCommentId,
-      initialContent: comment?.content,
+      ...(state.parentCommentId
+        ? { parentCommentId: state.parentCommentId }
+        : {}),
+      ...(comment?.content ? { initialContent: comment.content } : {}),
     };
   }, [comment, state]);
 

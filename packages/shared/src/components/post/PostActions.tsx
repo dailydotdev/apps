@@ -68,11 +68,11 @@ export function PostActions({
   const actionsRef = useRef<HTMLDivElement>(null);
   const canAward = useCanAwardUser({
     sendingUser: user,
-    receivingUser: post.author as LoggedUser,
+    receivingUser: post.author as LoggedUser | undefined,
   });
   const { subscribe } = useContentPreference();
   const { data: creatorContentPreference } = useContentPreferenceStatusQuery({
-    id: creator?.id,
+    id: creator?.id ?? '',
     entity: ContentPreferenceType.User,
   });
   const shouldRenderNotificationCta =
@@ -143,11 +143,11 @@ export function PostActions({
       });
 
       mutationQueryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Products, null, 'summary'),
+        queryKey: generateQueryKey(RequestKey.Products, undefined, 'summary'),
       });
 
       mutationQueryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Awards, null, {
+        queryKey: generateQueryKey(RequestKey.Awards, undefined, {
           id: entityId,
           type,
         }),
@@ -162,6 +162,10 @@ export function PostActions({
         const awardProduct = getProducts()?.edges.find(
           (item) => item.node.id === productId,
         )?.node;
+
+        if (!post.userState || awardProduct?.value === undefined) {
+          return;
+        }
 
         updatePostCache(mutationQueryClient, post.id, {
           userState: {
@@ -298,10 +302,15 @@ export function PostActions({
                 pressed={post?.userState?.awarded}
                 onClick={() => {
                   if (!user) {
-                    return showLogin({ trigger: AuthTriggers.GiveAward });
+                    showLogin({ trigger: AuthTriggers.GiveAward });
+                    return;
                   }
 
-                  return openModal({
+                  if (!post.author) {
+                    return;
+                  }
+
+                  openModal({
                     type: LazyModal.GiveAward,
                     props: {
                       type: 'POST',
@@ -338,7 +347,7 @@ export function PostActions({
           <div className="group/link-btn">
             <QuaternaryButton
               id="copy-post-btn-post"
-              onClick={() => onCopyLinkClick(post)}
+              onClick={() => onCopyLinkClick?.(post)}
               icon={<LinkIcon />}
               variant={ButtonVariant.Tertiary}
               className={classNames(

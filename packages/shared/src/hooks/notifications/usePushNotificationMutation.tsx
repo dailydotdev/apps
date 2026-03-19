@@ -107,7 +107,7 @@ export const usePushNotificationMutation = ({
     [isSubscribed, onEnablePush, unsubscribe],
   );
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(window, 'message', async (e) => {
     const { permission }: PermissionEvent = e?.data ?? {};
     const earlyReturnChecks = [
       e.data?.eventKey !== ENABLE_NOTIFICATION_WINDOW_KEY,

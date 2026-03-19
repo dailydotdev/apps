@@ -110,16 +110,19 @@ interface ReadingStreakPopupProps {
 export function ReadingStreakPopup({
   streak,
   fullWidth,
-}: ReadingStreakPopupProps): ReactElement {
+}: ReadingStreakPopupProps): ReactElement | null {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
+  const userId = user?.id;
+  const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const { data: history } = useQuery<ReadingDay[]>({
     queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    queryFn: () => getReadingStreak30Days(user?.id),
+    queryFn: () => getReadingStreak30Days(userId ?? ''),
     staleTime: StaleTime.Default,
+    enabled: !!userId,
   });
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
@@ -144,14 +147,14 @@ export function ReadingStreakPopup({
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
-      const isToday = isSameDayInTimezone(value, today, user?.timezone);
+      const isToday = isSameDayInTimezone(value, today, timezone);
 
       const streakDef = getStreak({
         value,
         today,
         history,
         startOfWeek: streak.weekStart,
-        timezone: user?.timezone,
+        timezone,
       });
 
       return (
@@ -163,7 +166,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, user?.timezone]);
+  }, [history, streak.weekStart, timezone]);
 
   const onTogglePush = async () => {
     logEvent({
@@ -260,7 +263,7 @@ export function ReadingStreakPopup({
                       const promptResult = await showPrompt({
                         title: 'Streak timezone mismatch',
                         description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                          user?.timezone,
+                          timezone,
                         )} does not match your current device timezone ${getTimezoneOffsetLabel(
                           deviceTimezone,
                         )}. You can update your timezone in settings.`,
@@ -294,9 +297,7 @@ export function ReadingStreakPopup({
                     }}
                     href={timezoneSettingsUrl}
                   >
-                    {isTimezoneOk
-                      ? user?.timezone || DEFAULT_TIMEZONE
-                      : 'Timezone mismatch'}
+                    {isTimezoneOk ? timezone : 'Timezone mismatch'}
                   </Link>
                 </div>
               </div>

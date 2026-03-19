@@ -1,17 +1,17 @@
 import { useAuthContext } from '../contexts/AuthContext';
 import { canAwardUser, hasAccessToCores } from '../lib/cores';
-import type { PropsParameters } from '../types';
 import { useIsSpecialUser } from './auth/useIsSpecialUser';
 import { iOSSupportsCoresPurchase } from '../lib/ios';
 import { isIOSNative } from '../lib/func';
 import type { Squad, SourceMember } from '../graphql/sources';
 import { SourceMemberRole } from '../graphql/sources';
 import type { LoggedUser, UserShortProfile } from '../lib/user';
+import { CoresRole } from '../lib/user';
 
 const useCoresFeature = (): boolean => {
   const { user } = useAuthContext();
 
-  return !!user && user.coresRole > 0;
+  return !!user && (user.coresRole ?? CoresRole.None) > CoresRole.None;
 };
 
 export const useHasAccessToCores = (): boolean => {
@@ -19,17 +19,30 @@ export const useHasAccessToCores = (): boolean => {
 
   const hasAccess = useCoresFeature();
 
-  return hasAccess && hasAccessToCores(user);
+  return hasAccess && !!user && hasAccessToCores(user);
 };
 
-export const useCanAwardUser = (
-  props: PropsParameters<typeof canAwardUser>,
-): boolean => {
-  const isSpecialUser = useIsSpecialUser({ userId: props.receivingUser?.id });
+interface UseCanAwardUserProps {
+  sendingUser?: LoggedUser;
+  receivingUser?: LoggedUser;
+}
+
+export const useCanAwardUser = (props: UseCanAwardUserProps): boolean => {
+  const isSpecialUser = useIsSpecialUser({
+    userId: props.receivingUser?.id ?? '',
+  });
 
   const hasAccess = useCoresFeature();
 
-  return hasAccess && !isSpecialUser && canAwardUser(props);
+  if (!props.sendingUser || !props.receivingUser) {
+    return false;
+  }
+
+  const { sendingUser, receivingUser } = props;
+
+  return (
+    hasAccess && !isSpecialUser && canAwardUser({ sendingUser, receivingUser })
+  );
 };
 
 interface UseGetSquadAwardAdminProps {

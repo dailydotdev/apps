@@ -6,7 +6,12 @@ import type { Origin } from '../lib/log';
 export type ActiveFeedContextValue = {
   queryKey?: QueryKey;
   items: FeedReturnType['items'];
-  logOpts?: { columns: number; row: number; column: number; is_ad?: boolean };
+  logOpts?: {
+    columns: number;
+    row?: number;
+    column?: number;
+    is_ad?: boolean;
+  };
   allowPin?: boolean;
   origin?: Origin;
   onRemovePost?: (postIndex: number) => void;

@@ -25,9 +25,7 @@ import {
 import type {
   BasicSourceMember,
   Squad,
-  Source,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -268,7 +266,7 @@ const SquadPage = ({
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],
-    queryFn: () => getSquadMembers(squadId),
+    queryFn: () => getSquadMembers(squadId ?? ''),
     enabled: isBootFetched && !!squadId,
     staleTime: StaleTime.OneHour,
   });
@@ -359,7 +357,7 @@ const SquadPage = ({
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
-          members={squadMembers}
+          members={squadMembers ?? []}
           shouldUseListMode={shouldUseListMode}
         />
         <FeedPageComponent>
@@ -402,7 +400,12 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
   GetServerSidePropsResult<SourcePageProps>
 > {
-  const { handle } = params;
+  const handle = params?.handle;
+  if (!handle) {
+    return {
+      notFound: true,
+    };
+  }
   const { userid: userId, cid: campaign } = query;
 
   const setCacheHeader = () => {
@@ -413,43 +416,23 @@ export async function getServerSideProps({
   };
 
   try {
-    const promises: [Promise<Source | Squad>, Promise<PublicProfile>?] = [
+    const referringUserPromise =
+      userId && campaign
+        ? gqlClient
+            .request<{ user: SourcePageProps['referringUser'] }>(
+              GET_REFERRING_USER_QUERY,
+              {
+                id: userId,
+              },
+            )
+            .then((data) => data?.user)
+            .catch(() => undefined)
+        : Promise.resolve(undefined);
+
+    const [squad, referringUser] = await Promise.all([
       getSquadStaticFields(handle),
-    ];
-
-    if (userId && campaign) {
-      promises.push(
-        gqlClient
-          .request<{ user: SourcePageProps['referringUser'] }>(
-            GET_REFERRING_USER_QUERY,
-            {
-              id: userId,
-            },
-          )
-          .then((data) => data?.user)
-          .catch(() => undefined),
-      );
-    }
-
-    const [squad, referringUser] = await Promise.all(promises);
-
-    if (squad?.type === SourceType.User) {
-      return {
-        redirect: {
-          destination: `/${squad.id}`,
-          permanent: false,
-        },
-      };
-    }
-
-    if (squad?.type === SourceType.Machine) {
-      return {
-        redirect: {
-          destination: `/sources/${handle}`,
-          permanent: false,
-        },
-      };
-    }
+      referringUserPromise,
+    ]);
 
     setCacheHeader();
 
@@ -474,7 +457,7 @@ export async function getServerSideProps({
         seo,
         handle,
         initialData: squad as Squad,
-        referringUser: referringUser || null,
+        referringUser: referringUser ?? undefined,
         ...(squad.public && {
           jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
         }),

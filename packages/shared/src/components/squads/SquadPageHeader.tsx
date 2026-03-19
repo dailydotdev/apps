@@ -50,6 +50,7 @@ export function SquadPageHeader({
   const { openModal } = useLazyModal();
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
+  const squadId = squad.id ?? '';
   const isSquadMember = !!squad.currentMember;
 
   const createdAt = squad.createdAt
@@ -111,9 +112,12 @@ export function SquadPageHeader({
                 <div className="flex flex-row gap-2">{component}</div>
               )}
             >
-              <SquadStat count={squad.flags?.totalPosts} label="Posts" />
-              <SquadStat count={squad.flags?.totalViews} label="Views" />
-              <SquadStat count={squad.flags?.totalUpvotes} label="Upvotes" />
+              <SquadStat count={squad.flags?.totalPosts ?? 0} label="Posts" />
+              <SquadStat count={squad.flags?.totalViews ?? 0} label="Views" />
+              <SquadStat
+                count={squad.flags?.totalUpvotes ?? 0}
+                label="Upvotes"
+              />
               {squad.flags?.totalAwards ? (
                 <ClickableText
                   onClick={() => {
@@ -121,7 +125,7 @@ export function SquadPageHeader({
                       type: LazyModal.ListAwards,
                       props: {
                         queryProps: {
-                          id: squad.id,
+                          id: squadId,
                           type: 'SQUAD',
                         },
                       },

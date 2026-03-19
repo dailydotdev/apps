@@ -49,30 +49,38 @@ export function PostWidgets({
   origin,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
+  const { source } = post;
 
   const cardClasses = 'w-full bg-transparent';
 
   const creator = post.author || post.scout;
+  let sourceCard = null;
+
+  if (source?.type === SourceType.Squad) {
+    sourceCard = (
+      <SquadEntityCard
+        className={{
+          container: cardClasses,
+        }}
+        handle={source.handle}
+        origin={origin}
+        showNotificationCtaOnJoin
+      />
+    );
+  } else if (source) {
+    sourceCard = (
+      <SourceEntityCard
+        className={{
+          container: cardClasses,
+        }}
+        source={source as SourceTooltip}
+      />
+    );
+  }
 
   return (
     <PageWidgets className={className}>
-      {post.source.type === SourceType.Squad ? (
-        <SquadEntityCard
-          className={{
-            container: cardClasses,
-          }}
-          handle={post.source.handle}
-          origin={origin}
-          showNotificationCtaOnJoin
-        />
-      ) : (
-        <SourceEntityCard
-          className={{
-            container: cardClasses,
-          }}
-          source={post.source as SourceTooltip}
-        />
-      )}
+      {sourceCard}
       {creator && (
         <UserEntityCard
           className={{

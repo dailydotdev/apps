@@ -50,9 +50,10 @@ const UserEntityCard = ({
 }: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
+  const userId = user?.id ?? '';
   const [showNotificationCta, setShowNotificationCta] = useState(false);
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: user?.id,
+    id: userId,
     entity: ContentPreferenceType.User,
   });
   const { isEnabled: isNotificationCtaExperimentEnabled } =
@@ -66,18 +67,22 @@ const UserEntityCard = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   const menuProps = useUserMenuProps({ user });
   const { isLoading } = useShowFollowAction({
-    entityId: user?.id,
+    entityId: userId,
     entityType: ContentPreferenceType.User,
   });
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
+      if (!user?.id || !user.username) {
+        return;
+      }
+
       openModal({
         type: LazyModal.ReportUser,
         props: {
           offendingUser: {
-            id: user?.id,
-            username: user?.username,
+            id: user.id,
+            username: user.username,
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -119,6 +124,12 @@ const UserEntityCard = ({
     prevStatusRef.current = currentStatus;
   }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
 
+  const showActionBtns = !!user && !isLoading && !isSameUser;
+
+  if (!user || !id || !username || !image || !permalink || !createdAt) {
+    return null;
+  }
+
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -158,12 +169,6 @@ const UserEntityCard = ({
         });
       },
     });
-  }
-
-  const showActionBtns = !!user && !isLoading && !isSameUser;
-
-  if (!user) {
-    return null;
   }
 
   const handleEnableNotifications = async () => {

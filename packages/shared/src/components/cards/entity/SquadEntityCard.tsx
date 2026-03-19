@@ -51,7 +51,7 @@ const SquadEntityCard = ({
     });
   const wasSquadMemberRef = useRef(!!squad?.currentMember);
   const { isLoading } = useShowFollowAction({
-    entityId: squad?.id,
+    entityId: squad?.id ?? '',
     entityType: ContentPreferenceType.Source,
   });
   const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
@@ -84,7 +84,7 @@ const SquadEntityCard = ({
     setShowNotificationCta(false);
   };
 
-  if (!squad) {
+  if (!squad?.id || !squad.name || !squad.image || !squad.permalink) {
     return null;
   }
 
@@ -152,14 +152,14 @@ const SquadEntityCard = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount)} Members
+            {largeNumberFormat(membersCount ?? 0)} Members
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes)} Upvotes
+            {largeNumberFormat(flags?.totalUpvotes ?? 0)} Upvotes
           </Typography>
         </div>
         {shouldRenderNotificationCta && (
@@ -168,7 +168,7 @@ const SquadEntityCard = ({
             analytics={{
               placement: NotificationCtaPlacement.SquadCard,
               targetType: TargetType.Source,
-              targetId: squad?.id,
+              targetId: squad.id,
               source: NotificationPromptSource.SourceSubscribe,
             }}
           />

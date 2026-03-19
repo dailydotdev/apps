@@ -74,7 +74,8 @@ const StreakRecoveryCopy = ({
 }) => {
   const { user } = useAuthContext();
   const isFree = recover.cost === 0;
-  const canRecover = user.balance.amount >= recover.cost;
+  const balance = user?.balance.amount ?? 0;
+  const canRecover = balance >= recover.cost;
   const coresLink = (
     <a
       target="_blank"
@@ -123,6 +124,7 @@ const StreakRecoverButton = ({
   ...props
 }: { recover: UserStreakRecoverData } & ButtonProps<'button'>) => {
   const { user } = useAuthContext();
+  const balance = user?.balance.amount ?? 0;
 
   return (
     <Button
@@ -132,7 +134,7 @@ const StreakRecoverButton = ({
       size={ButtonSize.Large}
       data-testid="streak-recover-button"
     >
-      {recover.cost > user.balance.amount ? 'Buy Cores' : 'Restore my streak'}
+      {recover.cost > balance ? 'Buy Cores' : 'Restore my streak'}
       <CoreIcon />
       {recover.cost === 0 ? 'Free' : formatCoresCurrency(recover.cost)}
     </Button>
@@ -236,7 +238,7 @@ const StreakRecoverNotificationReminder = () => {
 
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
-): ReactElement => {
+): ReactElement | null => {
   const { isOpen, onRequestClose, onAfterClose, user } = props;
   const { isStreaksEnabled } = useReadingStreak();
   const { isEnabled: isNotificationCtaExperimentEnabled } =

@@ -15,7 +15,6 @@ import {
 import type { Post } from '../../../graphql/posts';
 import type { ActiveFeedContextValue } from '../../../contexts';
 import { ActiveFeedContext } from '../../../contexts';
-import ConditionalWrapper from '../../ConditionalWrapper';
 
 export interface BookmarkReminderProps extends LazyModalCommonProps {
   onReminderSet?: (reminder: string) => void;
@@ -109,7 +108,7 @@ export const BookmarkReminderModal = (
       postId: post.id,
       preference: selectedOption,
     }).then(() => {
-      onRequestClose(null);
+      onRequestClose();
     });
   };
 
@@ -161,17 +160,13 @@ export const BookmarkReminderModal = (
 const ModalComponent: typeof BookmarkReminderModal = ({
   feedContextData,
   ...props
-}) => (
-  <ConditionalWrapper
-    condition={!!feedContextData}
-    wrapper={(component) => (
-      <ActiveFeedContext.Provider value={feedContextData}>
-        {component}
-      </ActiveFeedContext.Provider>
-    )}
-  >
+}) =>
+  feedContextData ? (
+    <ActiveFeedContext.Provider value={feedContextData}>
+      <BookmarkReminderModal {...props} />
+    </ActiveFeedContext.Provider>
+  ) : (
     <BookmarkReminderModal {...props} />
-  </ConditionalWrapper>
-);
+  );
 
 export default ModalComponent;

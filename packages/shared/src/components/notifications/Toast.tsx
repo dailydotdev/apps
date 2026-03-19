@@ -27,7 +27,7 @@ const Progress = classed(NotifProgress, styles.toastProgress);
 
 const Toast = ({
   autoDismissNotifications = false,
-}: ToastProps): ReactElement => {
+}: ToastProps): ReactElement | null => {
   const router = useRouter();
   const client = useQueryClient();
   const toastRef = useRef<ToastNotification | null>(null);
@@ -36,10 +36,12 @@ const Toast = ({
       autoEndAnimation: autoDismissNotifications,
       onAnimationEnd: () => client.setQueryData(TOAST_NOTIF_KEY, null),
     });
-  const { data: toast } = useQuery<ToastNotification>({
+  const { data: toast = null } = useQuery<ToastNotification | null>({
     queryKey: TOAST_NOTIF_KEY,
-    queryFn: () => client.getQueryData(TOAST_NOTIF_KEY),
-    enabled: false,
+    queryFn: () =>
+      client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY) ?? null,
+    initialData: () =>
+      client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY) ?? null,
   });
   const isPersistentToast = !!toast?.persistent;
 
@@ -127,7 +129,7 @@ const Toast = ({
 
   return (
     <Container
-      className={(isAnimating || isPersistentToast) && 'slide-in'}
+      className={isAnimating || isPersistentToast ? 'slide-in' : undefined}
       role="alert"
     >
       <NotifContent>

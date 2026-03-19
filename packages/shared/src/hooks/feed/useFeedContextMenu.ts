@@ -4,8 +4,8 @@ import type { Post } from '../../graphql/posts';
 
 export type PostLocation = {
   index: number;
-  row: number;
-  column: number;
+  row?: number;
+  column?: number;
   isAd?: boolean;
 };
 
@@ -23,13 +23,14 @@ type FeedContextMenu = {
     row: number,
     column: number,
   ) => void;
-  postMenuIndex: number;
-  postMenuLocation: PostLocation;
-  setPostMenuIndex: (value: PostLocation | undefined) => void;
+  postMenuIndex?: number;
+  postMenuLocation?: PostLocation | null;
+  setPostMenuIndex: (value?: PostLocation | null) => void;
 };
 
 export default function useFeedContextMenu(): FeedContextMenu {
-  const [postMenuLocation, setPostMenuLocation] = useState<PostLocation>();
+  const [postMenuLocation, setPostMenuLocation] =
+    useState<PostLocation | null>();
   const postMenuIndex = postMenuLocation?.index;
 
   const onMenuClick = (

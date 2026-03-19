@@ -60,6 +60,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  featureFeedAdTemplate,
   featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -253,6 +254,8 @@ export default function Feed<T>({
   });
   const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+  const adTemplate = currentSettings.adTemplate ??
+    featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
@@ -274,10 +277,10 @@ export default function Feed<T>({
     pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseListFeedLayout
       ? {
-          ...currentSettings.adTemplate,
+          ...adTemplate,
           adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
         }
-      : currentSettings.adTemplate,
+      : adTemplate,
     numCards,
     {
       onEmptyFeed,
@@ -296,7 +299,9 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
-  const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
+  const [postModalIndex, setPostModalIndex] = useState<PostLocation | null>(
+    null,
+  );
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -340,18 +345,23 @@ export default function Feed<T>({
 
       if (type === 'POST') {
         const postItem = items.find(
-          (item: PostItem) => item.post.id === entityId && item.type === 'post',
-        ) as PostItem;
+          (item): item is PostItem =>
+            item.type === 'post' && item.post.id === entityId,
+        );
 
-        const currentPost = postItem?.post;
-
-        if (!!currentPost && entityId !== currentPost.id) {
+        if (!postItem) {
           return;
         }
+
+        const currentPost = postItem.post;
 
         const awardProduct = getProducts()?.edges.find(
           (item) => item.node.id === productId,
         )?.node;
+
+        if (!currentPost.userState || awardProduct?.value === undefined) {
+          return;
+        }
 
         updatePost(postItem.page, postItem.index, {
           ...currentPost,
@@ -373,13 +383,14 @@ export default function Feed<T>({
   });
 
   const logOpts = useMemo(() => {
+    const modalRow = postModalIndex?.row;
+    const modalColumn = postModalIndex?.column;
+
     return {
       columns: virtualizedNumCards,
-      row: !isNullOrUndefined(postModalIndex?.row)
-        ? postModalIndex.row
-        : postMenuLocation?.row,
-      column: !isNullOrUndefined(postModalIndex?.column)
-        ? postModalIndex.column
+      row: !isNullOrUndefined(modalRow) ? modalRow : postMenuLocation?.row,
+      column: !isNullOrUndefined(modalColumn)
+        ? modalColumn
         : postMenuLocation?.column,
       is_ad: selectedPostIsAd ? true : undefined,
     };
@@ -413,7 +424,7 @@ export default function Feed<T>({
 
   const { toggleUpvote, toggleDownvote } = useFeedVotePost({
     feedName,
-    ranking,
+    ranking: ranking ?? '',
     items,
     updatePost,
     feedQueryKey,
@@ -422,7 +433,7 @@ export default function Feed<T>({
   const { toggleBookmark } = useFeedBookmarkPost({
     feedName,
     feedQueryKey,
-    ranking,
+    ranking: ranking ?? '',
     items,
     updatePost,
   });
@@ -555,7 +566,7 @@ export default function Feed<T>({
     }
   };
 
-  const PostModal = PostModalMap[selectedPost?.type];
+  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
@@ -623,26 +634,26 @@ export default function Feed<T>({
               <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
                 value={{
-                  boostedBy:
-                    isBoostedPostAd(item) &&
-                    (item.ad.data?.post?.author || item.ad.data?.post?.scout),
+                  boostedBy: isBoostedPostAd(item)
+                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                    : undefined,
                 }}
               >
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (
                   <BriefBannerFeed
                     style={{
-                      gridColumn:
-                        !shouldUseListFeedLayout &&
-                        `span ${virtualizedNumCards}`,
+                      gridColumn: !shouldUseListFeedLayout
+                        ? `span ${virtualizedNumCards}`
+                        : undefined,
                     }}
                   />
                 )}
                 {shouldShowInFeedHero && index === heroInsertIndex && (
                   <div
                     style={{
-                      gridColumn:
-                        !shouldUseListFeedLayout &&
-                        `span ${virtualizedNumCards}`,
+                      gridColumn: !shouldUseListFeedLayout
+                        ? `span ${virtualizedNumCards}`
+                        : undefined,
                     }}
                   >
                     <TopHero

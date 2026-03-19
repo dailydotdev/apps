@@ -39,13 +39,14 @@ type SourceEntityCardProps = {
 };
 
 const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
+  const sourceId = source?.id ?? '';
   const { showActionBtn } = useShowFollowAction({
-    entityId: source?.id,
+    entityId: sourceId,
     entityType: ContentPreferenceType.Source,
   });
 
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: source?.id,
+    id: sourceId,
     entity: ContentPreferenceType.Source,
   });
   const [showNotificationCta, setShowNotificationCta] = useState(false);
@@ -59,9 +60,6 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
   const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
     source,
   });
-
-  const { description, membersCount, flags, name, image, permalink } =
-    source || {};
 
   const currentStatus = contentPreference?.status;
   const isNowFollowing =
@@ -92,6 +90,10 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     }
   }, [currentStatus, isNowFollowing, wasFollowing]);
 
+  if (!source?.id || !source.name || !source.image || !source.permalink) {
+    return null;
+  }
+
   const handleTurnOn = async () => {
     if (!source?.id) {
       throw new Error('Cannot subscribe to notifications without source id');
@@ -111,14 +113,14 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
 
   return (
     <EntityCard
-      permalink={permalink}
-      image={image}
+      permalink={source.permalink}
+      image={source.image}
       type="source"
       className={{
         container: className?.container,
         image: 'size-10 rounded-full',
       }}
-      entityName={name}
+      entityName={source.name}
       actionButtons={
         <>
           <CustomFeedOptionsMenu
@@ -131,8 +133,8 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           />
           {showActionBtn && (
             <FollowButton
-              entityId={source?.id}
-              entityName={source?.name}
+              entityId={source.id}
+              entityName={source.name}
               type={ContentPreferenceType.Source}
               variant={ButtonVariant.Primary}
               status={contentPreference?.status}
@@ -143,7 +145,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
       }
     >
       <div className="mt-3 flex w-full flex-col gap-2">
-        <Link passHref href={permalink}>
+        <Link passHref href={source.permalink}>
           <Typography
             tag={TypographyTag.Link}
             className="flex"
@@ -151,23 +153,25 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             color={TypographyColor.Primary}
             bold
           >
-            {name}
+            {source.name}
           </Typography>
         </Link>
-        {description && <EntityDescription copy={description} length={100} />}
+        {source.description && (
+          <EntityDescription copy={source.description} length={100} />
+        )}
         <div className="flex items-center gap-1 text-text-tertiary">
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount) || 0} Followers
+            {largeNumberFormat(source.membersCount ?? 0)} Followers
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes) || 0} Upvotes
+            {largeNumberFormat(source.flags?.totalUpvotes ?? 0)} Upvotes
           </Typography>
         </div>
         {shouldRenderNotificationCta && (
@@ -176,7 +180,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             analytics={{
               placement: NotificationCtaPlacement.SourceCard,
               targetType: TargetType.Source,
-              targetId: source?.id,
+              targetId: source.id,
               source: NotificationPromptSource.SourceSubscribe,
             }}
           />
