@@ -375,18 +375,19 @@ function AuthOptionsInner({
         if (!res) {
           return;
         }
-        await betterAuthSignInWithIdToken({
+        const result = await betterAuthSignInWithIdToken({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
         });
+        if (result.error) {
+          return;
+        }
         await setChosenProvider(provider);
-        window.location.reload();
+        await refetchBoot();
         return;
       }
-      const callbackURL = login
-        ? `${webappUrl}callback?login=true`
-        : `${webappUrl}callback`;
+      const callbackURL = webappUrl;
       const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,

@@ -86,7 +86,7 @@ const useRegistration = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo } =
+  const { trackingId, referral, referralOrigin, logout, geo, refetchBoot } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -313,15 +313,18 @@ const useRegistration = ({
         if (!res) {
           return;
         }
-        await betterAuthSignInWithIdToken({
+        const result = await betterAuthSignInWithIdToken({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
         });
-        window.location.reload();
+        if (result.error) {
+          return;
+        }
+        await refetchBoot();
         return;
       }
-      const callbackURL = `${webappUrl}callback`;
+      const callbackURL = webappUrl;
       const url = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,

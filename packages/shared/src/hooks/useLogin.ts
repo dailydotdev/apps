@@ -188,15 +188,24 @@ const useLogin = ({
           if (!res) {
             return;
           }
-          await betterAuthSignInWithIdToken({
+          const result = await betterAuthSignInWithIdToken({
             provider: provider.toLowerCase(),
             token: res.token,
             nonce: res.nonce,
           });
-          window.location.reload();
+          if (result.error) {
+            return;
+          }
+          const { data: boot } = await refetchBoot();
+          if (boot.user) {
+            onUpdateSignBack(
+              boot.user as LoggedUser,
+              provider as SignBackProvider,
+            );
+          }
           return;
         }
-        const callbackURL = `${webappUrl}callback?login=true`;
+        const callbackURL = webappUrl;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
           window.open(socialUrl);
@@ -217,7 +226,14 @@ const useLogin = ({
       };
       onSocialLogin({ action, params });
     },
-    [isBetterAuth, displayToast, login?.ui, onSocialLogin],
+    [
+      isBetterAuth,
+      displayToast,
+      login?.ui,
+      onSocialLogin,
+      refetchBoot,
+      onUpdateSignBack,
+    ],
   );
 
   const onSubmitPasswordLogin = useCallback(
