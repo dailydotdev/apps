@@ -7,7 +7,12 @@ import type {
   LoginSocialParameters,
   ValidateLoginParams,
 } from '../lib/auth';
-import { AuthEventNames, getNodeValue } from '../lib/auth';
+import {
+  AuthEventNames,
+  getNodeValue,
+  iosNativeAuth,
+  isNativeAuthSupported,
+} from '../lib/auth';
 import type {
   AuthSession,
   EmptyObjectLiteral,
@@ -20,7 +25,11 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignIn, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import {
+  betterAuthSignIn,
+  betterAuthSignInWithIdToken,
+  getBetterAuthSocialUrl,
+} from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
@@ -174,6 +183,19 @@ const useLogin = ({
   const onSubmitSocialLogin = useCallback(
     async (provider: string) => {
       if (isBetterAuth) {
+        if (isNativeAuthSupported(provider)) {
+          const res = await iosNativeAuth(provider);
+          if (!res) {
+            return;
+          }
+          await betterAuthSignInWithIdToken({
+            provider: provider.toLowerCase(),
+            token: res.token,
+            nonce: res.nonce,
+          });
+          window.location.reload();
+          return;
+        }
         const callbackURL = `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
