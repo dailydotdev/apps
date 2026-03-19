@@ -153,7 +153,6 @@ export const betterAuthSignInWithIdToken = async ({
   provider,
   token,
   nonce,
-  callbackURL,
 }: {
   provider: string;
   token: string;
