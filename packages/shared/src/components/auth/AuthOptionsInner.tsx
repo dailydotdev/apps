@@ -8,6 +8,7 @@ import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
 import type { RegistrationError } from '../../lib/auth';
 import {
+  iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
   AuthTriggers,
@@ -15,6 +16,7 @@ import {
 } from '../../lib/auth';
 import {
   getBetterAuthSocialUrl,
+  betterAuthSignInWithIdToken,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
@@ -368,6 +370,20 @@ function AuthOptionsInner({
     });
 
     if (isBetterAuth) {
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        if (!res) {
+          return;
+        }
+        await betterAuthSignInWithIdToken({
+          provider: provider.toLowerCase(),
+          token: res.token,
+          nonce: res.nonce,
+        });
+        await setChosenProvider(provider);
+        window.location.reload();
+        return;
+      }
       const callbackURL = login
         ? `${webappUrl}callback?login=true`
         : `${webappUrl}callback`;
@@ -378,13 +394,7 @@ function AuthOptionsInner({
       if (!socialUrl) {
         return;
       }
-      if (!isNativeAuthSupported(provider)) {
-        windowPopup.current = window.open(socialUrl);
-      } else if (windowPopup.current) {
-        windowPopup.current.location.href = socialUrl;
-      } else {
-        window.location.href = socialUrl;
-      }
+      windowPopup.current = window.open(socialUrl);
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;

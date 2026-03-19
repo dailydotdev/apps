@@ -149,6 +149,28 @@ export const getBetterAuthSocialUrl = (
 ): Promise<string | undefined> =>
   getBetterAuthSocialRedirectUrl('sign-in/social', provider, callbackURL);
 
+export const betterAuthSignInWithIdToken = async ({
+  provider,
+  token,
+  nonce,
+}: {
+  provider: string;
+  token: string;
+  nonce?: string;
+}): Promise<BetterAuthResponse> => {
+  return betterAuthPost(
+    'sign-in/social',
+    {
+      provider,
+      idToken: {
+        token,
+        ...(nonce && { nonce }),
+      },
+    },
+    'Native sign in failed',
+  );
+};
+
 export const getBetterAuthLinkSocialUrl = (
   provider: string,
   callbackURL: string,
