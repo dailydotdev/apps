@@ -200,7 +200,7 @@ const useLogin = ({
           }
           const { data: boot } = await refetchBoot();
           if (boot.user) {
-            onUpdateSignBack(boot.user as LoggedUser, provider);
+            onUpdateSignBack(boot.user as LoggedUser, provider as SignBackProvider);
           }
           return;
         }
