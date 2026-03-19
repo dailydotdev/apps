@@ -1,9 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import {
-  ClientQuestEventType,
-  trackQuestClientEvent,
-} from '../graphql/quests';
+import type { ClientQuestEventType } from '../graphql/quests';
+import { trackQuestClientEvent } from '../graphql/quests';
 
 interface UseTrackQuestClientEventProps {
   eventType: ClientQuestEventType;
