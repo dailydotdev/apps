@@ -115,6 +115,7 @@ jest.mock('@radix-ui/react-popover', () => {
         | ((...args: unknown[]) => void)
         | undefined;
 
+      // @ts-ignore - test mock doesn't need strict prop typing
       return cloneElement(children, {
         ...props,
         onClick: (...args: unknown[]) => {
