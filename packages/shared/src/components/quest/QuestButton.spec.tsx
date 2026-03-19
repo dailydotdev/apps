@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -54,6 +55,10 @@ jest.mock('../../hooks/useSubscription', () => ({
 
 jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: jest.fn(),
+}));
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
 }));
 
 jest.mock('@radix-ui/react-popover', () => {
@@ -164,6 +169,7 @@ const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
 const mockUseSubscription = useSubscription as jest.Mock;
 const mockUsePlusSubscription = usePlusSubscription as jest.Mock;
 const mockLogSubscriptionEvent = jest.fn();
+const mockPush = jest.fn();
 
 const questDashboard = {
   level: {
@@ -220,6 +226,10 @@ const renderComponent = (
   );
 
 beforeEach(() => {
+  mockPush.mockReset();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: mockPush,
+  });
   mockUseQuestDashboard.mockReturnValue({
     data: questDashboard,
     isPending: false,
@@ -304,6 +314,255 @@ describe('QuestButton', () => {
     expect(screen.queryByText('250/400 XP')).not.toBeInTheDocument();
     expect(screen.queryByText('+150 XP')).not.toBeInTheDocument();
     expect(await screen.findByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should route feed-based quests back to the main feed', async () => {
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    const destinationButton = await screen.findByRole('button', {
+      name: 'Go to Feed',
+    });
+
+    expect(destinationButton).toHaveAttribute(
+      'data-tooltip-content',
+      'Go to Feed',
+    );
+
+    await userEvent.click(destinationButton);
+
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('should route hot take quests to the hot takes modal path', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-hot-takes',
+              userQuestId: null,
+              progress: 1,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-hot-takes',
+                name: 'Turn up the heat',
+                description: 'Create a hot take',
+                type: QuestType.Daily,
+                eventType: 'hot_take_create',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Hot takes' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('/?openModal=hottakes');
+  });
+
+  it('should route share-post quests back to the feed', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-share-post',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-share-post',
+                name: 'Hey, Check This Out...',
+                description: 'Share 1 post',
+                type: QuestType.Daily,
+                eventType: 'post_share',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 25 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Feed' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  it('should label user follow quests as leaderboards', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-follow-user',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-follow-user',
+                name: "Don't Mind Me...",
+                description: 'Follow 1 user',
+                type: QuestType.Daily,
+                eventType: 'user_follow',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Go to Leaderboards' }),
+    ).toHaveAttribute('data-tooltip-content', 'Go to Leaderboards');
+  });
+
+  it('should label arena quests as the Arena', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-visit-arena',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-visit-arena',
+                name: 'Arena ready',
+                description: 'Visit the Arena',
+                type: QuestType.Daily,
+                eventType: 'visit_arena',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Go to the Arena' }),
+    ).toHaveAttribute('data-tooltip-content', 'Go to the Arena');
+  });
+
+  it('should route link post quests to the squads create page', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-link-post',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-link-post',
+                name: 'Link drop',
+                description: 'Create a shared link post',
+                type: QuestType.Daily,
+                eventType: 'post_share',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 25 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Create post' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('/squads/create');
   });
 
   it('should log when opening the quest dropdown', async () => {

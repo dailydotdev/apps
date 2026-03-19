@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
@@ -19,6 +20,7 @@ import {
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import {
+  ArrowIcon,
   CoreIcon,
   DevPlusIcon,
   LockIcon,
@@ -253,9 +255,63 @@ const QuestRewardChip = ({
   );
 };
 
+type QuestDestination = {
+  label: string;
+  path: string;
+};
+
+const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
+
+const getQuestDestination = (
+  quest: UserQuest['quest'],
+): QuestDestination | null => {
+  if (quest.eventType === 'post_share') {
+    if (quest.description === 'Create a shared link post') {
+      return { label: 'Create post', path: '/squads/create' };
+    }
+
+    return { label: 'Feed', path: '/' };
+  }
+
+  switch (quest.eventType) {
+    case 'read_post':
+    case 'post_upvote':
+    case 'award_given':
+    case 'share_post_click':
+    case 'comment_upvote':
+    case 'comment_create':
+    case 'bookmark_post':
+      return { label: 'Feed', path: '/' };
+    case 'brief_read':
+      return { label: 'Briefs', path: '/briefing' };
+    case 'hot_take_vote':
+    case 'hot_take_create':
+      return { label: 'Hot takes', path: HOT_TAKES_MODAL_PATH };
+    case 'user_follow':
+      return { label: 'Leaderboards', path: '/users' };
+    case 'view_user_profile':
+      return { label: 'Profiles', path: '/users' };
+    case 'visit_arena':
+      return { label: 'the Arena', path: '/agents/arena' };
+    case 'visit_explore_page':
+      return { label: 'Explore', path: '/posts' };
+    case 'visit_discussions_page':
+      return { label: 'Discuss', path: '/discussed' };
+    case 'visit_read_it_later_page':
+      return { label: 'Later', path: '/bookmarks/later' };
+    case 'feedback_submit':
+      return { label: 'Feedback', path: '/settings/feedback' };
+    case 'squad_join':
+      return { label: 'Squads', path: '/squads/discover' };
+    default:
+      return null;
+  }
+};
+
 const QuestItem = ({
   quest,
   onClaim,
+  onDestinationClick,
   showLevelSystem,
   isClaiming,
   isClaimAnimating,
@@ -271,6 +327,7 @@ const QuestItem = ({
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
+  onDestinationClick: (destination: QuestDestination) => void;
   showLevelSystem: boolean;
   isClaiming: boolean;
   isClaimAnimating: boolean;
@@ -300,6 +357,9 @@ const QuestItem = ({
   const canClaim =
     quest.claimable && !!quest.userQuestId && !isClaimAnimating && !isClaimed;
   const visibleRewards = getVisibleRewards(quest.rewards, showLevelSystem);
+  const destination = getQuestDestination(quest.quest);
+  const shouldShowDestination =
+    Boolean(destination) && !quest.claimable && !isVisuallyDisabled;
   const disabledContentClass = classNames(
     'flex flex-col gap-2 transition-[opacity,filter] duration-200',
     isVisuallyDisabled && 'opacity-50 grayscale',
@@ -310,15 +370,31 @@ const QuestItem = ({
       <div className="flex flex-col gap-2">
         <div className={disabledContentClass}>
           <header className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="truncate font-bold text-text-primary typo-footnote">
-                {quest.quest.name}
-              </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start gap-2">
+                <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+                  {quest.quest.name}
+                </p>
+                {shouldShowDestination && destination && (
+                  <Tooltip content={`Go to ${destination.label}`}>
+                    <Button
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Small}
+                      className="!flex-none"
+                      icon={<ArrowIcon className="rotate-90" />}
+                      aria-label={`Go to ${destination.label}`}
+                      onClick={() => onDestinationClick(destination)}
+                    />
+                  </Tooltip>
+                )}
+              </div>
               <p className="line-clamp-2 text-text-tertiary typo-caption1">
                 {quest.quest.description}
               </p>
             </div>
-            {quest.locked && <LockIcon className="text-text-tertiary" />}
+            {quest.locked && (
+              <LockIcon className="shrink-0 text-text-tertiary" />
+            )}
           </header>
 
           <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
@@ -495,6 +571,7 @@ const QuestSection = ({
   title,
   quests,
   onClaim,
+  onDestinationClick,
   showLevelSystem,
   claimingQuestId,
   animatingClaimRotationId,
@@ -512,6 +589,7 @@ const QuestSection = ({
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
+  onDestinationClick: (destination: QuestDestination) => void;
   showLevelSystem: boolean;
   claimingQuestId?: string;
   animatingClaimRotationId?: string;
@@ -538,6 +616,7 @@ const QuestSection = ({
           key={quest.rotationId}
           quest={quest}
           onClaim={onClaim}
+          onDestinationClick={onDestinationClick}
           showLevelSystem={showLevelSystem}
           isClaiming={claimingQuestId === quest.userQuestId}
           isClaimAnimating={animatingClaimRotationId === quest.rotationId}
@@ -930,6 +1009,7 @@ interface QuestDropdownPanelProps {
     rewardSources: QuestRewardSource[],
     claimRotationId: string,
   ) => void;
+  onDestinationClick: (destination: QuestDestination) => void;
 }
 
 const QuestDropdownPanel = ({
@@ -944,6 +1024,7 @@ const QuestDropdownPanel = ({
   animatingClaimedStampRotationIds,
   deferredClaimedStampRotationIds,
   onClaim,
+  onDestinationClick,
 }: QuestDropdownPanelProps): ReactElement => {
   const { logEvent } = useLogContext();
 
@@ -988,6 +1069,7 @@ const QuestDropdownPanel = ({
               title="Daily"
               quests={data.daily.regular}
               showLevelSystem={showLevelSystem}
+              onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
               animatingClaimRotationId={animatingClaimRotationId}
               claimedStampRotationIds={claimedStampRotationIds}
@@ -1001,6 +1083,7 @@ const QuestDropdownPanel = ({
               title="Weekly"
               quests={data.weekly.regular}
               showLevelSystem={showLevelSystem}
+              onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
               animatingClaimRotationId={animatingClaimRotationId}
               claimedStampRotationIds={claimedStampRotationIds}
@@ -1017,6 +1100,7 @@ const QuestDropdownPanel = ({
                   title="Daily"
                   quests={data.daily.plus}
                   showLevelSystem={showLevelSystem}
+                  onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
                   animatingClaimRotationId={animatingClaimRotationId}
                   claimedStampRotationIds={claimedStampRotationIds}
@@ -1033,6 +1117,7 @@ const QuestDropdownPanel = ({
                   title="Weekly"
                   quests={data.weekly.plus}
                   showLevelSystem={showLevelSystem}
+                  onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
                   animatingClaimRotationId={animatingClaimRotationId}
                   claimedStampRotationIds={claimedStampRotationIds}
@@ -1057,6 +1142,7 @@ const QuestDropdownPanel = ({
 export const QuestButton = ({
   compact = false,
 }: QuestButtonProps): ReactElement => {
+  const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
@@ -1489,6 +1575,14 @@ export const QuestButton = ({
     );
   };
 
+  const handleDestinationClick = useCallback(
+    async (destination: QuestDestination) => {
+      setIsOpen(false);
+      await router.push(destination.path);
+    },
+    [router],
+  );
+
   useEffect(() => {
     return () => {
       clearProgressTimers();
@@ -1618,6 +1712,7 @@ export const QuestButton = ({
                 deferredClaimedStampRotationIdSet
               }
               onClaim={handleClaim}
+              onDestinationClick={handleDestinationClick}
             />
           </div>
         </PopoverContent>
