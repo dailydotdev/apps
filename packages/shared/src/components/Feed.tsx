@@ -29,7 +29,12 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { LogEvent, Origin, TargetId } from '../lib/log';
+import {
+  LogEvent,
+  NotificationCtaPlacement,
+  Origin,
+  TargetId,
+} from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -327,10 +332,8 @@ export default function Feed<T>({
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
     shouldShowDismiss: shouldShowReadingReminderDismiss,
-    onEnableTopHero,
-    onDismissTopHero,
-    onEnableInFeedHero,
-    onDismissInFeedHero,
+    onEnableHero,
+    onDismissHero,
   } = useReadingReminderFeedHero({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
@@ -604,8 +607,8 @@ export default function Feed<T>({
             title={readingReminderTitle}
             subtitle={readingReminderSubtitle}
             shouldShowDismiss={shouldShowReadingReminderDismiss}
-            onCtaClick={onEnableTopHero}
-            onClose={onDismissTopHero}
+            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
+            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
           />
         ) : undefined,
         header,
@@ -674,8 +677,12 @@ export default function Feed<T>({
                       title={readingReminderTitle}
                       subtitle={readingReminderSubtitle}
                       shouldShowDismiss={shouldShowReadingReminderDismiss}
-                      onCtaClick={onEnableInFeedHero}
-                      onClose={onDismissInFeedHero}
+                      onCtaClick={() =>
+                        onEnableHero(NotificationCtaPlacement.InFeedHero)
+                      }
+                      onClose={() =>
+                        onDismissHero(NotificationCtaPlacement.InFeedHero)
+                      }
                     />
                   </div>
                 )}

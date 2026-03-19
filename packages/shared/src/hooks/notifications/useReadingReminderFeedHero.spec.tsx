@@ -111,7 +111,7 @@ describe('useReadingReminderFeedHero', () => {
     expect(result.current.shouldShowInFeedHero).toBe(false);
 
     await act(async () => {
-      await result.current.onEnableTopHero();
+      await result.current.onEnableHero(NotificationCtaPlacement.TopHero);
     });
 
     expect(logClick).toHaveBeenCalledWith(

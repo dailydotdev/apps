@@ -33,10 +33,6 @@ const containerClassName: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.NotificationsPage]: 'px-6 w-full bg-surface-float',
   [NotificationPromptSource.NewComment]:
     'rounded-16 px-4 w-full bg-surface-float',
-  [NotificationPromptSource.CommentUpvote]:
-    'ml-[3.25rem] w-[calc(100%-3.25rem)] rounded-16 px-4 bg-surface-float',
-  [NotificationPromptSource.PostTagFollow]:
-    'rounded-16 px-4 w-full bg-surface-float',
   [NotificationPromptSource.NewSourceModal]: '',
   [NotificationPromptSource.NotificationItem]: '',
   [NotificationPromptSource.SquadPostCommentary]: '',
@@ -52,8 +48,6 @@ const sourceRenderTextCloseButton: Partial<
 > = {
   [NotificationPromptSource.NotificationsPage]: false,
   [NotificationPromptSource.NewComment]: false,
-  [NotificationPromptSource.CommentUpvote]: false,
-  [NotificationPromptSource.PostTagFollow]: false,
   [NotificationPromptSource.NewSourceModal]: false,
   [NotificationPromptSource.SquadPostCommentary]: false,
   [NotificationPromptSource.SquadPostModal]: false,
@@ -68,13 +62,7 @@ const sourceToButtonText: Partial<Record<NotificationPromptSource, string>> = {
   [NotificationPromptSource.SquadPostModal]: 'Subscribe',
   [NotificationPromptSource.SourceSubscribe]: 'Enable',
   [NotificationPromptSource.NewComment]: 'Notify me',
-  [NotificationPromptSource.CommentUpvote]: 'Turn on',
 };
-
-const rolloutOnlySources = new Set<NotificationPromptSource>([
-  NotificationPromptSource.CommentUpvote,
-  NotificationPromptSource.PostTagFollow,
-]);
 
 function EnableNotification({
   source = NotificationPromptSource.NotificationsPage,
@@ -93,10 +81,7 @@ function EnableNotification({
       onEnableAction,
     });
 
-  if (
-    !shouldShowCta ||
-    (rolloutOnlySources.has(source) && !isNotificationCtaExperimentEnabled)
-  ) {
+  if (!shouldShowCta) {
     return null;
   }
 
@@ -107,9 +92,6 @@ function EnableNotification({
       : `Want to get notified when ${
           contentName ?? 'someone'
         } responds so you can continue the conversation?`,
-    [NotificationPromptSource.CommentUpvote]:
-      'Get notified when someone replies to this comment.',
-    [NotificationPromptSource.PostTagFollow]: `Get notified when new #${contentName} stories are posted.`,
     [NotificationPromptSource.NotificationsPage]:
       isNotificationCtaExperimentEnabled
         ? 'Get notified when someone replies to your posts, mentions you, or when discussions you follow get new activity.'
@@ -125,28 +107,18 @@ function EnableNotification({
   const message = sourceToMessage[source] ?? '';
   const classes = containerClassName[source] ?? '';
   const showTextCloseButton = sourceRenderTextCloseButton[source] ?? false;
-  const hideCloseButton =
-    source === NotificationPromptSource.NewComment ||
-    source === NotificationPromptSource.CommentUpvote ||
-    source === NotificationPromptSource.PostTagFollow;
+  const hideCloseButton = source === NotificationPromptSource.NewComment;
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
   const shouldShowNotificationArtwork =
     source === NotificationPromptSource.NotificationsPage;
   const shouldAnimateBellCta =
     source === NotificationPromptSource.NotificationsPage ||
-    source === NotificationPromptSource.NewComment ||
-    source === NotificationPromptSource.CommentUpvote ||
-    source === NotificationPromptSource.PostTagFollow;
+    source === NotificationPromptSource.NewComment;
   const shouldShowInlineNotificationImage =
     source !== NotificationPromptSource.NotificationsPage &&
-    source !== NotificationPromptSource.NewComment &&
-    source !== NotificationPromptSource.CommentUpvote &&
-    source !== NotificationPromptSource.PostTagFollow;
+    source !== NotificationPromptSource.NewComment;
   const shouldInlineActionWithMessage =
-    (source === NotificationPromptSource.NewComment ||
-      source === NotificationPromptSource.CommentUpvote ||
-      source === NotificationPromptSource.PostTagFollow) &&
-    !acceptedJustNow;
+    source === NotificationPromptSource.NewComment && !acceptedJustNow;
   const shouldUseVerticalContentLayout =
     source === NotificationPromptSource.NotificationsPage;
   const notificationVisual = (() => {
@@ -301,10 +273,7 @@ function EnableNotification({
     <div
       className={classNames(
         'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
-        (source === NotificationPromptSource.NewComment ||
-          source === NotificationPromptSource.CommentUpvote ||
-          source === NotificationPromptSource.PostTagFollow) &&
-          'flex',
+        source === NotificationPromptSource.NewComment && 'flex',
         classes,
         className,
       )}
@@ -313,16 +282,11 @@ function EnableNotification({
         className={classNames(
           'flex gap-4',
           shouldUseVerticalContentLayout ? 'justify-start' : 'justify-between',
-          source === NotificationPromptSource.NewComment ||
-            source === NotificationPromptSource.CommentUpvote ||
-            source === NotificationPromptSource.PostTagFollow
+          source === NotificationPromptSource.NewComment
             ? 'mt-0 w-full'
             : 'mt-2',
           shouldUseVerticalContentLayout && 'items-center',
-          (source === NotificationPromptSource.NewComment ||
-            source === NotificationPromptSource.CommentUpvote ||
-            source === NotificationPromptSource.PostTagFollow) &&
-            'items-center',
+          source === NotificationPromptSource.NewComment && 'items-center',
         )}
       >
         <div
@@ -342,11 +306,8 @@ function EnableNotification({
           <p
             className={classNames(
               'min-w-0 flex-1 text-text-tertiary',
-              (source === NotificationPromptSource.NewComment ||
-                source === NotificationPromptSource.PostTagFollow) &&
+              source === NotificationPromptSource.NewComment &&
                 'text-primary break-words typo-markdown tablet:w-full',
-              source === NotificationPromptSource.CommentUpvote &&
-                'text-primary break-words typo-callout tablet:w-full',
               shouldInlineActionWithMessage && 'flex-1',
             )}
           >
@@ -403,15 +364,8 @@ function EnableNotification({
       <div
         className={classNames(
           'align-center flex',
-          source === NotificationPromptSource.NewComment ||
-            source === NotificationPromptSource.CommentUpvote ||
-            source === NotificationPromptSource.PostTagFollow
-            ? 'mt-3'
-            : 'mt-4',
-          (source === NotificationPromptSource.NewComment ||
-            source === NotificationPromptSource.CommentUpvote ||
-            source === NotificationPromptSource.PostTagFollow) &&
-            'justify-end',
+          source === NotificationPromptSource.NewComment ? 'mt-3' : 'mt-4',
+          source === NotificationPromptSource.NewComment && 'justify-end',
         )}
       >
         {!acceptedJustNow &&
@@ -421,10 +375,7 @@ function EnableNotification({
               size={ButtonSize.Small}
               variant={ButtonVariant.Primary}
               className={classNames(
-                source !== NotificationPromptSource.NewComment &&
-                  source !== NotificationPromptSource.CommentUpvote &&
-                  source !== NotificationPromptSource.PostTagFollow &&
-                  'mr-4',
+                source !== NotificationPromptSource.NewComment && 'mr-4',
               )}
               icon={
                 shouldAnimateBellCta ? (

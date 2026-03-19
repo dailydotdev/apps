@@ -12,6 +12,9 @@ import { useReadingReminderVariation } from './useReadingReminderVariation';
 
 const HERO_INSERT_INDEX = 6;
 const HERO_SCROLL_THRESHOLD_PX = 300;
+type ReadingReminderHeroPlacement =
+  | NotificationCtaPlacement.TopHero
+  | NotificationCtaPlacement.InFeedHero;
 
 interface UseReadingReminderFeedHeroProps {
   itemCount: number;
@@ -25,11 +28,17 @@ interface UseReadingReminderFeedHero {
   title: string;
   subtitle: string;
   shouldShowDismiss: boolean;
-  onEnableTopHero: () => Promise<void>;
-  onDismissTopHero: () => Promise<void>;
-  onEnableInFeedHero: () => Promise<void>;
-  onDismissInFeedHero: () => Promise<void>;
+  onEnableHero: (placement: ReadingReminderHeroPlacement) => Promise<void>;
+  onDismissHero: (placement: ReadingReminderHeroPlacement) => Promise<void>;
 }
+
+const getInitialDismissedPlacements = (): Record<
+  ReadingReminderHeroPlacement,
+  boolean
+> => ({
+  [NotificationCtaPlacement.TopHero]: false,
+  [NotificationCtaPlacement.InFeedHero]: false,
+});
 
 export const useReadingReminderFeedHero = ({
   itemCount,
@@ -56,8 +65,9 @@ export const useReadingReminderFeedHero = ({
   });
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const [hasScrolledForHero, setHasScrolledForHero] = useState(false);
-  const [isInFeedHeroDismissed, setIsInFeedHeroDismissed] = useState(false);
-  const [isTopHeroDismissed, setIsTopHeroDismissed] = useState(false);
+  const [dismissedPlacements, setDismissedPlacements] = useState(
+    getInitialDismissedPlacements,
+  );
 
   useEffect(() => {
     if (!shouldShow || !isInline || hasScrolledForHero) {
@@ -77,19 +87,20 @@ export const useReadingReminderFeedHero = ({
   useEffect(() => {
     if (!shouldShow) {
       setHasScrolledForHero(false);
-      setIsInFeedHeroDismissed(false);
-      setIsTopHeroDismissed(false);
+      setDismissedPlacements(getInitialDismissedPlacements());
     }
   }, [shouldShow]);
 
   const canShowReminderPlacements = shouldEvaluateReminderPlacement;
   const shouldShowTopHero =
-    canShowReminderPlacements && isHero && !isTopHeroDismissed;
+    canShowReminderPlacements &&
+    isHero &&
+    !dismissedPlacements[NotificationCtaPlacement.TopHero];
   const shouldShowInFeedHero =
     canShowReminderPlacements &&
     isInline &&
     hasScrolledForHero &&
-    !isInFeedHeroDismissed &&
+    !dismissedPlacements[NotificationCtaPlacement.InFeedHero] &&
     itemCount > heroInsertIndex;
 
   useNotificationCtaImpression(
@@ -101,31 +112,33 @@ export const useReadingReminderFeedHero = ({
     shouldShowInFeedHero,
   );
 
-  const onEnableTopHero = useCallback(async () => {
-    logClick(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
-    await onEnable();
-    setIsTopHeroDismissed(true);
-  }, [logClick, onEnable]);
+  const setPlacementDismissed = useCallback(
+    (placement: ReadingReminderHeroPlacement) => {
+      setDismissedPlacements((current) => ({
+        ...current,
+        [placement]: true,
+      }));
+    },
+    [],
+  );
 
-  const onDismissTopHero = useCallback(async () => {
-    setIsTopHeroDismissed(true);
-    logDismiss(getReadingReminderCtaParams(NotificationCtaPlacement.TopHero));
-    await onDismiss();
-  }, [logDismiss, onDismiss]);
+  const onEnableHero = useCallback(
+    async (placement: ReadingReminderHeroPlacement) => {
+      logClick(getReadingReminderCtaParams(placement));
+      await onEnable();
+      setPlacementDismissed(placement);
+    },
+    [logClick, onEnable, setPlacementDismissed],
+  );
 
-  const onEnableInFeedHero = useCallback(async () => {
-    logClick(getReadingReminderCtaParams(NotificationCtaPlacement.InFeedHero));
-    await onEnable();
-    setIsInFeedHeroDismissed(true);
-  }, [logClick, onEnable]);
-
-  const onDismissInFeedHero = useCallback(async () => {
-    setIsInFeedHeroDismissed(true);
-    logDismiss(
-      getReadingReminderCtaParams(NotificationCtaPlacement.InFeedHero),
-    );
-    await onDismiss();
-  }, [logDismiss, onDismiss]);
+  const onDismissHero = useCallback(
+    async (placement: ReadingReminderHeroPlacement) => {
+      setPlacementDismissed(placement);
+      logDismiss(getReadingReminderCtaParams(placement));
+      await onDismiss();
+    },
+    [logDismiss, onDismiss, setPlacementDismissed],
+  );
 
   return {
     heroInsertIndex,
@@ -134,9 +147,7 @@ export const useReadingReminderFeedHero = ({
     title,
     subtitle,
     shouldShowDismiss,
-    onEnableTopHero,
-    onDismissTopHero,
-    onEnableInFeedHero,
-    onDismissInFeedHero,
+    onEnableHero,
+    onDismissHero,
   };
 };

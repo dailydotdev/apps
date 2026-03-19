@@ -48,7 +48,7 @@ export const useNotificationCtaImpression = (
 ): void => {
   useLogEventOnce(
     () => ({
-      event_name: LogEvent.Impression,
+      event_name: LogEvent.ImpressionNotificationCta,
       ...getBaseNotificationCtaEvent(params),
     }),
     { condition },
@@ -70,7 +70,7 @@ export const useNotificationCtaAnalytics = () => {
   const logClick = useCallback(
     (params: NotificationCtaAnalyticsParams) => {
       logEvent({
-        event_name: LogEvent.Click,
+        event_name: LogEvent.ClickNotificationCta,
         ...getBaseNotificationCtaEvent(params),
       });
     },
@@ -90,7 +90,7 @@ export const useNotificationCtaAnalytics = () => {
   const logImpression = useCallback(
     (params: NotificationCtaAnalyticsParams) => {
       logEvent({
-        event_name: LogEvent.Impression,
+        event_name: LogEvent.ImpressionNotificationCta,
         ...getBaseNotificationCtaEvent(params),
       });
     },

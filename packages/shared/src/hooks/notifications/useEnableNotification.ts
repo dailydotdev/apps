@@ -9,7 +9,6 @@ import type { NotificationCtaPlacement } from '../../lib/log';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
-import { useNotificationCtaExperiment } from './useNotificationCtaExperiment';
 import {
   useNotificationCtaAnalytics,
   useNotificationCtaImpression,
@@ -35,8 +34,6 @@ export const useEnableNotification = ({
   placement,
   onEnableAction,
 }: UseEnableNotificationProps): UseEnableNotification => {
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const isExtension = checkIsExtension();
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
@@ -73,7 +70,6 @@ export const useEnableNotification = ({
     false,
   );
   const shouldIgnoreDismissStateForSource =
-    source === NotificationPromptSource.PostTagFollow ||
     source === NotificationPromptSource.NewComment ||
     source === NotificationPromptSource.SquadPage;
   const effectiveIsDismissed = shouldIgnoreDismissStateForSource
@@ -111,17 +107,12 @@ export const useEnableNotification = ({
     return runEnableAction();
   }, [logClick, onEnablePush, placement, runEnableAction, source]);
 
-  const isRolloutOnlySource =
-    source === NotificationPromptSource.CommentUpvote ||
-    source === NotificationPromptSource.PostTagFollow;
   const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
-  const shouldRequireNotSubscribed =
-    source !== NotificationPromptSource.CommentUpvote;
 
   const conditions = [
     isLoaded,
-    shouldRequireNotSubscribed ? !subscribed : true,
+    !subscribed,
     isInitialized,
     isPushSupported || isExtension,
   ];
@@ -135,10 +126,7 @@ export const useEnableNotification = ({
     );
   };
 
-  const shouldShowCta =
-    !isRolloutOnlySource || isNotificationCtaExperimentEnabled
-      ? computeShouldShowCta()
-      : false;
+  const shouldShowCta = computeShouldShowCta();
 
   useNotificationCtaImpression(
     {
