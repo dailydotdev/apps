@@ -399,6 +399,174 @@ describe('QuestButton', () => {
     expect(progressBar).not.toHaveClass('bg-border-subtler');
   });
 
+  it('should show the claimed stamp for persisted claimed quests after reload', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-quest-claimed',
+              userQuestId: 'user-quest-claimed',
+              progress: 3,
+              status: QuestStatus.Claimed,
+              completedAt: new Date('2026-03-18T12:00:00.000Z'),
+              claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-claimed',
+                name: 'Claimed quest',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 150 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText('Claimed quest')).toBeInTheDocument();
+    expect(screen.getByText('Claimed')).toBeInTheDocument();
+    /* eslint-disable testing-library/no-node-access */
+    const claimedStamp = screen.getByText('CLAIMED').closest('svg');
+    /* eslint-enable testing-library/no-node-access */
+
+    expect(claimedStamp).toBeInTheDocument();
+    expect(claimedStamp).not.toHaveClass('quest-claimed-stamp');
+  });
+
+  it('should keep the claimed stamp static after the initial reveal animation', async () => {
+    jest.useFakeTimers();
+
+    try {
+      const claimedQuestDashboard = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-quest-ready-to-claim',
+              userQuestId: 'user-quest-ready-to-claim',
+              progress: 3,
+              status: QuestStatus.Claimed,
+              completedAt: new Date('2026-03-18T12:00:00.000Z'),
+              claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-ready-to-claim',
+                name: 'Ready quest',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [],
+            },
+          ],
+        },
+      };
+
+      mockUseQuestDashboard.mockReturnValue({
+        data: {
+          ...questDashboard,
+          daily: {
+            ...questDashboard.daily,
+            regular: [
+              {
+                rotationId: 'daily-quest-ready-to-claim',
+                userQuestId: 'user-quest-ready-to-claim',
+                progress: 3,
+                status: QuestStatus.Completed,
+                completedAt: new Date('2026-03-18T12:00:00.000Z'),
+                claimedAt: null,
+                locked: false,
+                claimable: true,
+                quest: {
+                  id: 'quest-ready-to-claim',
+                  name: 'Ready quest',
+                  description: 'Read 3 posts today',
+                  type: QuestType.Daily,
+                  eventType: 'read_post',
+                  targetCount: 3,
+                },
+                rewards: [],
+              },
+            ],
+          },
+        },
+        isPending: false,
+        isError: false,
+      });
+      mockUseClaimQuestReward.mockReturnValue({
+        mutate: jest.fn((_variables, callbacks) => {
+          mockUseQuestDashboard.mockReturnValue({
+            data: claimedQuestDashboard,
+            isPending: false,
+            isError: false,
+          });
+          callbacks.onSuccess?.(claimedQuestDashboard);
+        }),
+        isPending: false,
+        variables: undefined,
+      });
+
+      renderComponent(false);
+
+      act(() => {
+        screen
+          .getByRole('button', {
+            name: /Quests, level 7, 63% progress/i,
+          })
+          .click();
+      });
+
+      act(() => {
+        screen.getByRole('button', { name: 'Claim' }).click();
+      });
+
+      expect(screen.queryByText('CLAIMED')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(250);
+      });
+
+      /* eslint-disable testing-library/no-node-access */
+      const animatedStamp = screen.getByText('CLAIMED').closest('svg');
+      /* eslint-enable testing-library/no-node-access */
+
+      expect(animatedStamp).toBeInTheDocument();
+      expect(animatedStamp).toHaveClass('quest-claimed-stamp');
+
+      act(() => {
+        jest.advanceTimersByTime(400);
+      });
+
+      /* eslint-disable testing-library/no-node-access */
+      expect(screen.getByText('CLAIMED').closest('svg')).not.toHaveClass(
+        'quest-claimed-stamp',
+      );
+      /* eslint-enable testing-library/no-node-access */
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('should explain plus quests are additional slots', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {

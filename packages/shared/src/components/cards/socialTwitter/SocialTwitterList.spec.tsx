@@ -10,6 +10,7 @@ import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { sharePost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { SocialTwitterList } from './SocialTwitterList';
+import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -20,6 +21,22 @@ jest.mock('../common/PostTags', () => ({
   default: ({ post }: { post: { tags?: string[] } }) => (
     <div data-testid="post-tags">{post.tags?.join(',')}</div>
   ),
+}));
+
+jest.mock('./EmbeddedTweetPreview', () => ({
+  __esModule: true,
+  EmbeddedTweetPreview: jest.fn(({ post }) => {
+    const handle = post.sharedPost?.source?.handle || post.source?.handle;
+    const name = post.sharedPost?.source?.name || post.source?.name;
+
+    return (
+      <div>
+        {handle && <img alt={`${handle}'s profile`} />}
+        {name && handle && <div>{`${name} @${handle}`}</div>}
+        <div>{post.sharedPost?.title || post.title}</div>
+      </div>
+    );
+  }),
 }));
 
 const basePost: Post = {
@@ -52,6 +69,8 @@ beforeEach(() => {
       } as unknown as NextRouter),
   );
 });
+
+const mockedEmbeddedTweetPreview = mocked(EmbeddedTweetPreview);
 
 const renderComponent = (props: Partial<PostCardProps> = {}) =>
   render(
@@ -133,4 +152,11 @@ it('should hide headline and tags for repost cards without repost text', async (
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();
+  expect(mockedEmbeddedTweetPreview).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      className: 'w-full',
+      textClampClass: 'line-clamp-10',
+    }),
+    {},
+  );
 });

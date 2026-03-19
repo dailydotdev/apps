@@ -93,6 +93,7 @@ const QUEST_LEVEL_FIREWORK_DISTANCE_STEP_PX = 4;
 const QUEST_LEVEL_FIREWORK_BURST_DISTANCE_OFFSET_PX = 3;
 const QUEST_LEVEL_PROGRESS_SPIKE_SETTLE_MS = 90;
 const QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS = 220;
+const QUEST_CLAIMED_STAMP_ANIMATION_MS = 340;
 const QUEST_REWARD_LAYER_Z_INDEX = 2147483647;
 
 type ClaimedStampMaskHole = {
@@ -259,6 +260,8 @@ const QuestItem = ({
   isClaiming,
   isClaimAnimating,
   showClaimedStamp,
+  animateClaimedStamp,
+  suppressPersistedClaimedStamp,
 }: {
   quest: UserQuest;
   onClaim: (
@@ -272,6 +275,8 @@ const QuestItem = ({
   isClaiming: boolean;
   isClaimAnimating: boolean;
   showClaimedStamp: boolean;
+  animateClaimedStamp: boolean;
+  suppressPersistedClaimedStamp: boolean;
 }): ReactElement => {
   const { value, percentage, target } = getProgress(
     quest.progress,
@@ -282,7 +287,14 @@ const QuestItem = ({
     /[^a-zA-Z0-9_-]/g,
     '',
   )}`;
-  const isClaimed = quest.status === QuestStatus.Claimed || showClaimedStamp;
+  const hasPersistedClaim =
+    quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
+  const isClaimed = hasPersistedClaim || showClaimedStamp;
+  const shouldShowClaimedStamp =
+    showClaimedStamp ||
+    (hasPersistedClaim && !isClaimAnimating && !suppressPersistedClaimedStamp);
+  const shouldAnimateClaimedStamp =
+    animateClaimedStamp && shouldShowClaimedStamp;
   const isVisuallyDisabled =
     quest.locked || isClaiming || isClaimAnimating || isClaimed;
   const canClaim =
@@ -409,10 +421,13 @@ const QuestItem = ({
         )}
       </div>
 
-      {showClaimedStamp && (
+      {shouldShowClaimedStamp && (
         <div className="z-10 pointer-events-none absolute inset-0 overflow-hidden">
           <svg
-            className="quest-claimed-stamp absolute left-1/2 top-1/2 w-[13.25rem] -translate-x-1/2 -translate-y-1/2 -rotate-[12deg] text-accent-avocado-default"
+            className={classNames(
+              'absolute left-1/2 top-1/2 w-[13.25rem] -translate-x-1/2 -translate-y-1/2 -rotate-[12deg] text-accent-avocado-default',
+              shouldAnimateClaimedStamp && 'quest-claimed-stamp',
+            )}
             viewBox="0 0 360 120"
             aria-hidden
           >
@@ -484,6 +499,8 @@ const QuestSection = ({
   claimingQuestId,
   animatingClaimRotationId,
   claimedStampRotationIds,
+  animatingClaimedStampRotationIds,
+  deferredClaimedStampRotationIds,
   emptyLabel = 'No active quests yet.',
 }: {
   title: string;
@@ -499,6 +516,8 @@ const QuestSection = ({
   claimingQuestId?: string;
   animatingClaimRotationId?: string;
   claimedStampRotationIds: Set<string>;
+  animatingClaimedStampRotationIds: Set<string>;
+  deferredClaimedStampRotationIds: Set<string>;
   emptyLabel?: string;
 }): ReactElement => {
   if (!quests.length) {
@@ -523,6 +542,12 @@ const QuestSection = ({
           isClaiming={claimingQuestId === quest.userQuestId}
           isClaimAnimating={animatingClaimRotationId === quest.rotationId}
           showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
+          animateClaimedStamp={animatingClaimedStampRotationIds.has(
+            quest.rotationId,
+          )}
+          suppressPersistedClaimedStamp={deferredClaimedStampRotationIds.has(
+            quest.rotationId,
+          )}
         />
       ))}
     </section>
@@ -896,6 +921,8 @@ interface QuestDropdownPanelProps {
   claimingQuestId?: string;
   animatingClaimRotationId?: string;
   claimedStampRotationIds: Set<string>;
+  animatingClaimedStampRotationIds: Set<string>;
+  deferredClaimedStampRotationIds: Set<string>;
   onClaim: (
     userQuestId: string,
     questId: string,
@@ -914,6 +941,8 @@ const QuestDropdownPanel = ({
   claimingQuestId,
   animatingClaimRotationId,
   claimedStampRotationIds,
+  animatingClaimedStampRotationIds,
+  deferredClaimedStampRotationIds,
   onClaim,
 }: QuestDropdownPanelProps): ReactElement => {
   const { logEvent } = useLogContext();
@@ -962,6 +991,10 @@ const QuestDropdownPanel = ({
               claimingQuestId={claimingQuestId}
               animatingClaimRotationId={animatingClaimRotationId}
               claimedStampRotationIds={claimedStampRotationIds}
+              animatingClaimedStampRotationIds={
+                animatingClaimedStampRotationIds
+              }
+              deferredClaimedStampRotationIds={deferredClaimedStampRotationIds}
               onClaim={onClaim}
             />
             <QuestSection
@@ -971,6 +1004,10 @@ const QuestDropdownPanel = ({
               claimingQuestId={claimingQuestId}
               animatingClaimRotationId={animatingClaimRotationId}
               claimedStampRotationIds={claimedStampRotationIds}
+              animatingClaimedStampRotationIds={
+                animatingClaimedStampRotationIds
+              }
+              deferredClaimedStampRotationIds={deferredClaimedStampRotationIds}
               onClaim={onClaim}
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
@@ -983,6 +1020,12 @@ const QuestDropdownPanel = ({
                   claimingQuestId={claimingQuestId}
                   animatingClaimRotationId={animatingClaimRotationId}
                   claimedStampRotationIds={claimedStampRotationIds}
+                  animatingClaimedStampRotationIds={
+                    animatingClaimedStampRotationIds
+                  }
+                  deferredClaimedStampRotationIds={
+                    deferredClaimedStampRotationIds
+                  }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
                 />
@@ -993,6 +1036,12 @@ const QuestDropdownPanel = ({
                   claimingQuestId={claimingQuestId}
                   animatingClaimRotationId={animatingClaimRotationId}
                   claimedStampRotationIds={claimedStampRotationIds}
+                  animatingClaimedStampRotationIds={
+                    animatingClaimedStampRotationIds
+                  }
+                  deferredClaimedStampRotationIds={
+                    deferredClaimedStampRotationIds
+                  }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
                 />
@@ -1078,6 +1127,12 @@ export const QuestButton = ({
   const [claimedStampRotationIds, setClaimedStampRotationIds] = useState<
     string[]
   >([]);
+  const [
+    animatingClaimedStampRotationIds,
+    setAnimatingClaimedStampRotationIds,
+  ] = useState<string[]>([]);
+  const [deferredClaimedStampRotationIds, setDeferredClaimedStampRotationIds] =
+    useState<string[]>([]);
   const progressTimersRef = useRef<number[]>([]);
   const claimedStampTimersRef = useRef<number[]>([]);
   const claimProgressSnapshotRef = useRef<number | null>(null);
@@ -1103,6 +1158,14 @@ export const QuestButton = ({
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
   );
+  const animatingClaimedStampRotationIdSet = useMemo(
+    () => new Set(animatingClaimedStampRotationIds),
+    [animatingClaimedStampRotationIds],
+  );
+  const deferredClaimedStampRotationIdSet = useMemo(
+    () => new Set(deferredClaimedStampRotationIds),
+    [deferredClaimedStampRotationIds],
+  );
   const scrollFadeRef = useScrollFade<HTMLDivElement>();
 
   const clearProgressTimers = useCallback(() => {
@@ -1118,7 +1181,7 @@ export const QuestButton = ({
     claimedStampTimersRef.current = [];
   }, []);
   const scheduleClaimedStampReveal = useCallback((claimRotationId: string) => {
-    const timerId = window.setTimeout(() => {
+    const revealTimerId = window.setTimeout(() => {
       setClaimedStampRotationIds((current) => {
         if (current.includes(claimRotationId)) {
           return current;
@@ -1126,12 +1189,33 @@ export const QuestButton = ({
 
         return [...current, claimRotationId];
       });
-      claimedStampTimersRef.current = claimedStampTimersRef.current.filter(
-        (activeTimerId) => activeTimerId !== timerId,
+      setAnimatingClaimedStampRotationIds((current) => {
+        if (current.includes(claimRotationId)) {
+          return current;
+        }
+
+        return [...current, claimRotationId];
+      });
+      setDeferredClaimedStampRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
       );
+      claimedStampTimersRef.current = claimedStampTimersRef.current.filter(
+        (activeTimerId) => activeTimerId !== revealTimerId,
+      );
+
+      const animationTimerId = window.setTimeout(() => {
+        setAnimatingClaimedStampRotationIds((current) =>
+          current.filter((id) => id !== claimRotationId),
+        );
+        claimedStampTimersRef.current = claimedStampTimersRef.current.filter(
+          (activeTimerId) => activeTimerId !== animationTimerId,
+        );
+      }, QUEST_CLAIMED_STAMP_ANIMATION_MS);
+
+      claimedStampTimersRef.current.push(animationTimerId);
     }, QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS);
 
-    claimedStampTimersRef.current.push(timerId);
+    claimedStampTimersRef.current.push(revealTimerId);
   }, []);
   const clearRewardFlights = useCallback(() => {
     const completedClaimRotationId = claimAnimationRotationIdRef.current;
@@ -1334,6 +1418,16 @@ export const QuestButton = ({
     setClaimedStampRotationIds((current) =>
       current.filter((id) => id !== claimRotationId),
     );
+    setAnimatingClaimedStampRotationIds((current) =>
+      current.filter((id) => id !== claimRotationId),
+    );
+    setDeferredClaimedStampRotationIds((current) => {
+      if (current.includes(claimRotationId)) {
+        return current;
+      }
+
+      return [...current, claimRotationId];
+    });
     claimProgressSnapshotRef.current = startProgress;
     claimLevelSnapshotRef.current = startLevel;
     setAnimatedLevel(startLevel);
@@ -1383,6 +1477,9 @@ export const QuestButton = ({
           claimProgressSnapshotRef.current = null;
           claimLevelSnapshotRef.current = null;
           claimAnimationRotationIdRef.current = null;
+          setDeferredClaimedStampRotationIds((current) =>
+            current.filter((id) => id !== claimRotationId),
+          );
           clearProgressTimers();
           setAnimatedLevel(null);
           setAnimatedLevelProgress(null);
@@ -1514,6 +1611,12 @@ export const QuestButton = ({
               claimingQuestId={claimingQuestId}
               animatingClaimRotationId={animatingClaimRotationId ?? undefined}
               claimedStampRotationIds={claimedStampRotationIdSet}
+              animatingClaimedStampRotationIds={
+                animatingClaimedStampRotationIdSet
+              }
+              deferredClaimedStampRotationIds={
+                deferredClaimedStampRotationIdSet
+              }
               onClaim={handleClaim}
             />
           </div>
