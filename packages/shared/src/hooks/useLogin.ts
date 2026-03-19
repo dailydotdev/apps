@@ -7,7 +7,12 @@ import type {
   LoginSocialParameters,
   ValidateLoginParams,
 } from '../lib/auth';
-import { AuthEventNames, getNodeValue, iosNativeAuth, isNativeAuthSupported } from '../lib/auth';
+import {
+  AuthEventNames,
+  getNodeValue,
+  iosNativeAuth,
+  isNativeAuthSupported,
+} from '../lib/auth';
 import type {
   AuthSession,
   EmptyObjectLiteral,
@@ -20,7 +25,11 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignIn, betterAuthSignInWithIdToken, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import {
+  betterAuthSignIn,
+  betterAuthSignInWithIdToken,
+  getBetterAuthSocialUrl,
+} from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';

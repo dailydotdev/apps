@@ -28,7 +28,11 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignUp, betterAuthSignInWithIdToken, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import {
+  betterAuthSignUp,
+  betterAuthSignInWithIdToken,
+  getBetterAuthSocialUrl,
+} from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
