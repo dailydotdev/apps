@@ -29,7 +29,7 @@ export const PlusUserBadge = ({
   user,
   tooltip = true,
   size = IconSize.Size16,
-}: Props): ReactElement => {
+}: Props): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const {
     value: { full: plusCta },

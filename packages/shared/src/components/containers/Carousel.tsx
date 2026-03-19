@@ -74,7 +74,9 @@ function Carousel({
       max={items.length}
       active={index}
       className={{
-        container: !children && 'absolute bottom-4 left-1/2 -translate-x-1/2',
+        container:
+          (!children && 'absolute bottom-4 left-1/2 -translate-x-1/2') ||
+          undefined,
       }}
     />
   );

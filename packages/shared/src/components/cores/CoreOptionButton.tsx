@@ -48,7 +48,7 @@ export const CoreOptionButton = ({
     });
 
     if (!isMobile) {
-      openCheckout({ priceId: id });
+      openCheckout?.({ priceId: id });
     }
   }, [
     logEvent,

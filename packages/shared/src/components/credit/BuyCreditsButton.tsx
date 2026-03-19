@@ -23,7 +23,7 @@ export const BuyCreditsButton = ({
   className,
   onPlusClick,
   hideBuyButton,
-}: BuyCreditsButtonProps): ReactElement => {
+}: BuyCreditsButtonProps): ReactElement | null => {
   const hasCoresAccess = useHasAccessToCores();
   const isInsideModal = useModalContext().onRequestClose !== null;
   const { user } = useAuthContext();

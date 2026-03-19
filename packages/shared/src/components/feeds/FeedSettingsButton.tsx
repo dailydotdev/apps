@@ -86,7 +86,7 @@ export function FeedSettingsButton({
       return;
     }
 
-    onClick(event);
+    onClick?.(event);
   };
 
   return (

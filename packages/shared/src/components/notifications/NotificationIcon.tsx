@@ -48,7 +48,7 @@ function NotificationItemIcon({
   return (
     <span
       className="h-fit overflow-hidden rounded-8 bg-surface-float p-1 typo-callout"
-      style={style}
+      style={style ?? undefined}
     >
       <Icon
         size={IconSize.Small}

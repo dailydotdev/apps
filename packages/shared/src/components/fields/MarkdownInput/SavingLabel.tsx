@@ -15,7 +15,7 @@ export function SavingLabel({
   isUptoDate,
   isUpdating,
   className,
-}: SavingLabelProps): ReactElement {
+}: SavingLabelProps): ReactElement | null {
   if (!isUptoDate && !isUpdating) {
     return null;
   }

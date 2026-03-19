@@ -28,7 +28,7 @@ export const checkFetchMore = <TPage,>(
   !queryResult.isLoading &&
   !queryResult.isFetchingNextPage &&
   queryResult.hasNextPage &&
-  queryResult.data?.pages.length > 0;
+  (queryResult.data?.pages.length ?? 0) > 0;
 
 function InfiniteScrolling({
   children,
