@@ -2,7 +2,7 @@ import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import {
   QuestRewardType,
@@ -22,6 +22,11 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 function mockReactModule() {
   return React;
 }
+
+type MockDropdownTriggerChildProps = {
+  onClick?: (...args: unknown[]) => void;
+  'data-tooltip-content'?: string;
+};
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
@@ -104,7 +109,9 @@ jest.mock('@radix-ui/react-popover', () => {
         return <>{children}</>;
       }
 
-      const originalOnClick = children.props.onClick as
+      const triggerChild =
+        children as ReactElement<MockDropdownTriggerChildProps>;
+      const originalOnClick = triggerChild.props.onClick as
         | ((...args: unknown[]) => void)
         | undefined;
 
@@ -114,7 +121,7 @@ jest.mock('@radix-ui/react-popover', () => {
           originalOnClick?.(...args);
           setOpen(!open);
         },
-      });
+      } as Record<string, unknown>);
     },
     PopoverPortal: ({ children }: { children: ReactNode }) => <>{children}</>,
     PopoverContent: ({ children }: { children: ReactNode }) => {

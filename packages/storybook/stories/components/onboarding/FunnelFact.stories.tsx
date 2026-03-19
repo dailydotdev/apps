@@ -8,7 +8,6 @@ import {
   FunnelStepBackground,
   StepHeadlineAlign,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
-// @ts-ignore
 import image from '../../../public/images/onboarding/onboarding-fact-img.png';
 import ExtensionProviders from '../../extension/_providers';
 

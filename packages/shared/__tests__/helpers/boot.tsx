@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { QueryClient } from '@tanstack/react-query';
