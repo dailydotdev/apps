@@ -320,7 +320,6 @@ const useRegistration = ({
           callbackURL: `${webappUrl}`,
         });
         if (result.error) {
-          console.error('Native sign in failed:', result.error);
           return;
         }
         await refetchBoot();
