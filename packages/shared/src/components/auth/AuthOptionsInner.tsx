@@ -214,11 +214,15 @@ function AuthOptionsInner({
     },
     onInvalidRegistration: setRegistrationHints,
     onRedirectFail: () => {
-      windowPopup.current.close();
+      windowPopup.current?.close();
       windowPopup.current = null;
     },
     onRedirect: (redirect) => {
-      windowPopup.current.location.href = redirect;
+      if (windowPopup.current) {
+        windowPopup.current.location.href = redirect;
+      } else {
+        window.location.href = redirect;
+      }
     },
     keepSession: isOnboardingOrFunnel,
   });
@@ -376,8 +380,10 @@ function AuthOptionsInner({
       }
       if (!isNativeAuthSupported(provider)) {
         windowPopup.current = window.open(socialUrl);
-      } else {
+      } else if (windowPopup.current) {
         windowPopup.current.location.href = socialUrl;
+      } else {
+        window.location.href = socialUrl;
       }
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
