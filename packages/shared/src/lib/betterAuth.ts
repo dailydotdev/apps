@@ -158,7 +158,6 @@ export const betterAuthSignInWithIdToken = async ({
   provider: string;
   token: string;
   nonce?: string;
-  callbackURL?: string;
 }): Promise<BetterAuthResponse> => {
   return betterAuthPost(
     'sign-in/social',
@@ -168,7 +167,6 @@ export const betterAuthSignInWithIdToken = async ({
         token,
         ...(nonce && { nonce }),
       },
-      ...(callbackURL && { callbackURL }),
     },
     'Native sign in failed',
   );

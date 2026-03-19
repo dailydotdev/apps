@@ -317,7 +317,6 @@ const useRegistration = ({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
-          callbackURL: `${webappUrl}`,
         });
         if (result.error) {
           return;
