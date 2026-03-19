@@ -375,11 +375,16 @@ function AuthOptionsInner({
         if (!res) {
           return;
         }
-        await betterAuthSignInWithIdToken({
+        const result = await betterAuthSignInWithIdToken({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
+          callbackURL: `${webappUrl}`,
         });
+        if (result.error) {
+          console.error('Native sign in failed:', result.error);
+          return;
+        }
         await setChosenProvider(provider);
         window.location.reload();
         return;
