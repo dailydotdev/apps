@@ -293,3 +293,25 @@ export const betterAuthChangePassword = async (
     'Failed to change password',
   );
 };
+
+export const betterAuthForgetPassword = async (
+  email: string,
+  redirectTo: string,
+): Promise<{ status?: boolean; error?: string }> => {
+  return betterAuthPost(
+    'request-password-reset',
+    { email, redirectTo },
+    'Failed to send password reset email',
+  );
+};
+
+export const betterAuthResetPassword = async (
+  newPassword: string,
+  token: string,
+): Promise<{ status?: boolean; error?: string }> => {
+  return betterAuthPost(
+    'reset-password',
+    { newPassword, token },
+    'Failed to reset password',
+  );
+};

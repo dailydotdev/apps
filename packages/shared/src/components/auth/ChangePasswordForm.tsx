@@ -19,21 +19,26 @@ import { errorsToJson, getNodeValue } from '../../lib/auth';
 import AuthForm from './AuthForm';
 import { PasswordField } from '../fields/PasswordField';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { betterAuthResetPassword } from '../../lib/betterAuth';
 
 interface ChangePasswordFormProps extends AuthFormProps {
   onSubmit: () => void;
+  token?: string;
 }
 
 function ChangePasswordForm({
   onSubmit,
   simplified,
+  token,
 }: ChangePasswordFormProps): ReactElement {
   const [hint, setHint] = useState('');
+  const [isBaLoading, setIsBaLoading] = useState(false);
   const { displayToast } = useToastNotification();
 
   const { data: settings } = useQuery({
     queryKey: ['settings'],
     queryFn: () => initializeKratosFlow(AuthFlow.Settings),
+    enabled: !token,
   });
 
   const { mutateAsync: reset, isPending: isLoading } = useMutation({
@@ -55,13 +60,30 @@ function ChangePasswordForm({
     },
   });
 
-  const onChangePasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onChangePasswordSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const { password } = formToJson<{ password: string }>(e.currentTarget);
+
+    if (token) {
+      setIsBaLoading(true);
+      setHint('');
+      const res = await betterAuthResetPassword(password, token);
+      setIsBaLoading(false);
+
+      if (res.error) {
+        setHint(res.error);
+        return;
+      }
+
+      displayToast('Password changed successfully!');
+      onSubmit();
+      return;
+    }
+
     if ('code' in settings) {
       return;
     }
 
-    const { password } = formToJson<{ password: string }>(e.currentTarget);
     const params: RegistrationParameters = {
       method: 'password',
       csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
@@ -102,7 +124,7 @@ function ChangePasswordForm({
           className="mt-6"
           variant={ButtonVariant.Primary}
           type="submit"
-          disabled={isLoading}
+          disabled={token ? isBaLoading : isLoading}
         >
           Change password
         </Button>

@@ -5,6 +5,7 @@ import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
+import { IconSize } from '../Icon';
 import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import type { AuthFormProps } from './common';
@@ -16,6 +17,9 @@ import { AuthEventNames } from '../../lib/auth';
 import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { useAuthData } from '../../contexts/AuthDataContext';
+import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
+import { betterAuthForgetPassword } from '../../lib/betterAuth';
+import { webappUrl } from '../../lib/constants';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -34,6 +38,9 @@ function ForgotPasswordForm({
   const { email: initialEmail, setEmail } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [isBALoading, setIsBALoading] = useState(false);
+  const isBetterAuth = useIsBetterAuth();
   const { sendEmail, isLoading, token } = useAccountEmailFlow({
     flow: AuthFlow.Recovery,
     onError: setHint,
@@ -47,8 +54,60 @@ function ForgotPasswordForm({
     });
     const { email } = formToJson<{ email: string }>(e.currentTarget);
     setEmail(email);
+
+    if (isBetterAuth) {
+      setIsBALoading(true);
+      setHint('');
+      const redirectTo = `${webappUrl}reset-password`;
+      const res = await betterAuthForgetPassword(email, redirectTo);
+      setIsBALoading(false);
+
+      if (res.error) {
+        setHint(res.error);
+        return;
+      }
+
+      setEmailSent(true);
+      return;
+    }
+
     await sendEmail(email);
   };
+
+  if (isBetterAuth && emailSent) {
+    return (
+      <>
+        <AuthHeader
+          simplified={simplified}
+          title="Check your email"
+          onBack={onBack}
+        />
+        <div className="flex flex-col items-center px-14 py-8">
+          <MailIcon
+            className="mb-4 text-text-tertiary"
+            size={IconSize.XXLarge}
+          />
+          <AuthModalText className="text-center">
+            We sent a password reset link to your email. Click the link in the
+            email to reset your password.
+          </AuthModalText>
+          <Button
+            className="mt-6"
+            variant={ButtonVariant.Secondary}
+            onClick={() => setEmailSent(false)}
+          >
+            Didn&apos;t receive it? Try again
+          </Button>
+        </div>
+        {simplified && (
+          <AuthModalFooter
+            text={{ button: `\u2190 Back to log in` }}
+            onClick={onBack}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -63,10 +122,11 @@ function ForgotPasswordForm({
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
-        <TokenInput token={token} />
+        {!isBetterAuth && <TokenInput token={token} />}
         <AuthModalText className="text-center">
-          Enter the email address you registered with and we will send you a
-          verification code.
+          {isBetterAuth
+            ? 'Enter the email address you registered with and we will send you a password reset link.'
+            : 'Enter the email address you registered with and we will send you a verification code.'}
         </AuthModalText>
         <TextField
           className={{ container: 'mt-6 w-full' }}
@@ -85,9 +145,9 @@ function ForgotPasswordForm({
           className="mt-6"
           variant={ButtonVariant.Primary}
           type="submit"
-          disabled={isLoading}
+          disabled={isBetterAuth ? isBALoading : isLoading}
         >
-          Send verification code
+          {isBetterAuth ? 'Send reset link' : 'Send verification code'}
         </Button>
       </AuthForm>
       {simplified && (
