@@ -61,13 +61,6 @@ function CallbackPage(): ReactElement | null {
         return;
       }
 
-      // iOS native app navigates in-place (no popup), so the session
-      // cookie is already set. Redirect straight to homepage.
-      if (params.ios) {
-        window.location.replace('/');
-        return;
-      }
-
       if (checkShouldSendBroadcast()) {
         broadcastMessage({ ...params, eventKey });
       } else {

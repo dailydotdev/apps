@@ -388,13 +388,7 @@ function AuthOptionsInner({
         await refetchBoot();
         return;
       }
-      // On iOS native, window.open() launches an in-app browser that
-      // can't be closed via JS. Navigate in-place instead so the
-      // callback redirect brings the user back to the main webview.
-      const isIOSApp = isIOSNative();
-      const callbackURL = isIOSApp
-        ? `${webappUrl}callback?login=true&ios=true`
-        : `${webappUrl}callback?login=true`;
+      const callbackURL = `${webappUrl}callback?login=true`;
       const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
@@ -402,11 +396,11 @@ function AuthOptionsInner({
       if (!socialUrl) {
         return;
       }
-      if (isIOSApp) {
+      if (isIOSNative()) {
         window.location.href = socialUrl;
-      } else {
-        windowPopup.current = window.open(socialUrl);
+        return;
       }
+      windowPopup.current = window.open(socialUrl);
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;
