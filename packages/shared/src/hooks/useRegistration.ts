@@ -40,7 +40,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
-import { disabledRefetch } from '../lib/func';
+import { disabledRefetch, isIOSNative } from '../lib/func';
 import { webappUrl } from '../lib/constants';
 
 type ParamKeys = keyof RegistrationParameters;
@@ -324,7 +324,9 @@ const useRegistration = ({
         await refetchBoot();
         return;
       }
-      const callbackURL = `${webappUrl}callback?login=true`;
+      const callbackURL = isIOSNative()
+        ? webappUrl
+        : `${webappUrl}callback?login=true`;
       const url = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,

@@ -388,7 +388,10 @@ function AuthOptionsInner({
         await refetchBoot();
         return;
       }
-      const callbackURL = `${webappUrl}callback?login=true`;
+      const isIOSApp = isIOSNative();
+      const callbackURL = isIOSApp
+        ? webappUrl
+        : `${webappUrl}callback?login=true`;
       const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
@@ -396,7 +399,7 @@ function AuthOptionsInner({
       if (!socialUrl) {
         return;
       }
-      if (isIOSNative()) {
+      if (isIOSApp) {
         window.location.href = socialUrl;
         return;
       }

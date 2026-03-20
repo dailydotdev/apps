@@ -206,10 +206,13 @@ const useLogin = ({
           }
           return;
         }
-        const callbackURL = `${webappUrl}callback?login=true`;
+        const isIOSApp = isIOSNative();
+        const callbackURL = isIOSApp
+          ? webappUrl
+          : `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
-          if (isIOSNative()) {
+          if (isIOSApp) {
             window.location.href = socialUrl;
           } else {
             window.open(socialUrl);
