@@ -7,8 +7,8 @@ import {
   socialGradient,
   socialIcon,
   SocialIconType,
-  type SupportedSocialReferrer,
 } from '../../../lib/socialMedia';
+import type { SupportedSocialReferrer } from '../../../lib/socialMedia';
 import { capitalize } from '../../../lib/strings';
 import { IconSize } from '../../Icon';
 
