@@ -8,13 +8,14 @@ import {
   socialIcon,
   SocialIconType,
 } from '../../../lib/socialMedia';
+import type { SupportedSocialReferrer } from '../../../lib/socialMedia';
 import { capitalize } from '../../../lib/strings';
 import { IconSize } from '../../Icon';
 
 const SocialPersonalizedBanner = ({
   site,
 }: {
-  site: SocialIconType;
+  site: SupportedSocialReferrer;
 }): ReactElement => {
   const Icon = socialIcon[site];
   const gradient = socialGradient[site];
