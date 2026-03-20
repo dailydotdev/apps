@@ -19,21 +19,26 @@ import { errorsToJson, getNodeValue } from '../../lib/auth';
 import AuthForm from './AuthForm';
 import { PasswordField } from '../fields/PasswordField';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { betterAuthResetPassword } from '../../lib/betterAuth';
 
 interface ChangePasswordFormProps extends AuthFormProps {
   onSubmit: () => void;
+  token?: string;
 }
 
 function ChangePasswordForm({
   onSubmit,
   simplified,
+  token,
 }: ChangePasswordFormProps): ReactElement {
   const [hint, setHint] = useState('');
+  const [isBaLoading, setIsBaLoading] = useState(false);
   const { displayToast } = useToastNotification();
 
   const { data: settings } = useQuery({
     queryKey: ['settings'],
     queryFn: () => initializeKratosFlow(AuthFlow.Settings),
+    enabled: !token,
   });
 
   const { mutateAsync: reset, isPending: isLoading } = useMutation({
@@ -55,20 +60,38 @@ function ChangePasswordForm({
     },
   });
 
-  const onChangePasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onChangePasswordSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if ('code' in settings) {
+    const { password } = formToJson<{ password: string }>(e.currentTarget);
+
+    if (token) {
+      setIsBaLoading(true);
+      setHint('');
+      const res = await betterAuthResetPassword(password, token);
+      setIsBaLoading(false);
+
+      if (res.error) {
+        setHint(res.error);
+        return;
+      }
+
+      displayToast('Password changed successfully!');
+      onSubmit();
       return;
     }
 
-    const { password } = formToJson<{ password: string }>(e.currentTarget);
+    if (!settings || 'code' in settings) {
+      return;
+    }
+
     const params: RegistrationParameters = {
       method: 'password',
-      csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
-      'traits.email': getNodeValue('traits.email', settings.ui.nodes),
-      'traits.name': getNodeValue('traits.name', settings.ui.nodes),
-      'traits.username': getNodeValue('traits.username', settings.ui.nodes),
-      'traits.image': getNodeValue('traits.image', settings.ui.nodes),
+      csrf_token: getNodeValue('csrf_token', settings.ui.nodes) ?? '',
+      'traits.email': getNodeValue('traits.email', settings.ui.nodes) ?? '',
+      'traits.name': getNodeValue('traits.name', settings.ui.nodes) ?? '',
+      'traits.username':
+        getNodeValue('traits.username', settings.ui.nodes) ?? '',
+      'traits.image': getNodeValue('traits.image', settings.ui.nodes) ?? '',
       password,
     };
     reset({ params, action: settings.ui.action });
@@ -102,7 +125,7 @@ function ChangePasswordForm({
           className="mt-6"
           variant={ButtonVariant.Primary}
           type="submit"
-          disabled={isLoading}
+          disabled={token ? isBaLoading : isLoading}
         >
           Change password
         </Button>
