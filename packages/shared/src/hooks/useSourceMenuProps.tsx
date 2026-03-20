@@ -16,16 +16,17 @@ const useSourceMenuProps = ({
 }) => {
   const router = useRouter();
   const { follow, unfollow } = useContentPreference();
+  const sourceId = source.id ?? '';
 
   const onCreateNewFeed = () => {
     router.push(
-      `${webappUrl}feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
+      `${webappUrl}feeds/new?entityId=${sourceId}&entityType=${ContentPreferenceType.Source}`,
     );
   };
 
   const onUndo = () => {
     unfollow({
-      id: source.id,
+      id: sourceId,
       entity: ContentPreferenceType.Source,
       entityName: source.handle,
       feedId,
@@ -34,7 +35,7 @@ const useSourceMenuProps = ({
 
   const onAdd = () => {
     follow({
-      id: source.id,
+      id: sourceId,
       entity: ContentPreferenceType.Source,
       entityName: source.handle,
       feedId,
@@ -47,7 +48,7 @@ const useSourceMenuProps = ({
     cid: ReferralCampaignKey.ShareSource,
     logObject: () => ({
       event_name: LogEvent.ShareSource,
-      target_id: source.id,
+      target_id: sourceId,
     }),
   };
 

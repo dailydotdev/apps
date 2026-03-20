@@ -11,6 +11,10 @@ export enum SocialIconType {
   WhatsApp = 'whatsapp',
 }
 
+export type SupportedSocialReferrer =
+  | SocialIconType.Reddit
+  | SocialIconType.X;
+
 export const socials = [
   SocialIconType.Reddit,
   SocialIconType.X,
@@ -25,11 +29,15 @@ export const socialIcon: Record<SocialIconType, ComponentType<IconProps>> = {
   [SocialIconType.WhatsApp]: WhatsappIcon,
 };
 
-export const socialGradient = {
+export const socialGradient: Partial<Record<SupportedSocialReferrer, string>> =
+  {
   reddit: 'bg-gradient-to-r !from-[#FF4500] !to-[#FF6B00]',
-};
+  };
 
-export const socialCTA = {
+export const socialCTA: Record<
+  SupportedSocialReferrer,
+  { title: string; description: string }
+> = {
   x: {
     title:
       'Tired of endless hot takes and scrolling through threads that go nowhere?',
@@ -46,7 +54,7 @@ export const socialCTA = {
 /**
  * NOTE! document.referrer does not contain a referrer on localhost
  */
-export const getSocialReferrer = (): SocialIconType | null => {
+export const getSocialReferrer = (): SupportedSocialReferrer | null => {
   if (!document.referrer) {
     return null;
   }
