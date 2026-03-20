@@ -387,7 +387,7 @@ function AuthOptionsInner({
         await refetchBoot();
         return;
       }
-      const callbackURL = webappUrl;
+      const callbackURL = `${webappUrl}callback?login=true`;
       const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
