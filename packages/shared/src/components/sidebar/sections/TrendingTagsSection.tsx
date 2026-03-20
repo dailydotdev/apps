@@ -14,12 +14,12 @@ export const TrendingTagsSection = ({
   isItemsButton,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
-  const { activeBrand, isTagSponsored } = useBrandSponsorship();
+  const { getSponsoredTag } = useBrandSponsorship();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return TRENDING_TAGS.map((tag) => {
       const tagPath = `${webappUrl}tags/${tag}`;
-      const isSponsored = isTagSponsored(tag);
+      const sponsorInfo = getSponsoredTag(tag);
 
       return {
         icon: (active: boolean) => (
@@ -27,26 +27,25 @@ export const TrendingTagsSection = ({
         ),
         title: tag,
         path: tagPath,
-        rightIcon:
-          isSponsored && activeBrand
-            ? () => (
-                <span className="flex items-center gap-1 text-text-quaternary typo-caption2">
-                  {activeBrand.logo && (
-                    <img
-                      src={activeBrand.logo}
-                      alt={activeBrand.name}
-                      className="size-3.5 rounded-full"
-                    />
-                  )}
-                  <span className="truncate">
-                    by {activeBrand.name.split(' ')[0]}
-                  </span>
+        rightIcon: sponsorInfo.isSponsored
+          ? () => (
+              <span className="flex items-center gap-1 text-text-quaternary typo-caption2">
+                {sponsorInfo.brandLogo && (
+                  <img
+                    src={sponsorInfo.brandLogo}
+                    alt={sponsorInfo.brandName}
+                    className="size-3.5 rounded-full"
+                  />
+                )}
+                <span className="truncate">
+                  by {sponsorInfo.brandName?.split(' ')[0]}
                 </span>
-              )
-            : undefined,
+              </span>
+            )
+          : undefined,
       };
     });
-  }, [activeBrand, isTagSponsored]);
+  }, [getSponsoredTag]);
 
   return (
     <Section

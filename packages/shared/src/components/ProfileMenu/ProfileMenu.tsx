@@ -72,8 +72,6 @@ export default function ProfileMenu({
         className="flex-initial"
       />
 
-      {/* TODO: Re-enable when ready - <PromotedChecklistMenuItem /> */}
-
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">

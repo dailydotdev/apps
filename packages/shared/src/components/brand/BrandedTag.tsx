@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import type { TagBrandingStyle } from '../../lib/brand';
@@ -41,28 +41,8 @@ export const BrandedTag = ({
   const sponsorInfo = disableBranding
     ? { ...rawSponsorInfo, isSponsored: false }
     : rawSponsorInfo;
-  const [isAnimated, setIsAnimated] = useState(false);
-  const [showBranding, setShowBranding] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (sponsorInfo.isSponsored && sponsorInfo.branding) {
-      // Start animation after the configured delay
-      timeoutRef.current = setTimeout(() => {
-        setIsAnimated(true);
-        // Small delay before showing new content for smoother transition
-        setTimeout(() => {
-          setShowBranding(true);
-        }, 150);
-      }, sponsorInfo.branding.delay);
-    }
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [sponsorInfo.isSponsored, sponsorInfo.branding]);
+  const isAnimated = sponsorInfo.isSponsored && !!sponsorInfo.branding;
+  const showBranding = isAnimated;
 
   const getBrandedContent = (style: TagBrandingStyle): string => {
     if (!sponsorInfo.brandName) {
@@ -100,7 +80,7 @@ export const BrandedTag = ({
 
   const sponsoredClassName = classNames(
     styles.brandedTag,
-    'relative flex h-6 items-center overflow-hidden rounded-8 border px-2 transition-all duration-500 typo-footnote',
+    'relative flex h-6 items-center overflow-hidden rounded-8 border px-2 typo-footnote',
     {
       'border-border-subtlest-tertiary text-text-quaternary': !isAnimated,
       [styles.animated]: isAnimated,
@@ -110,10 +90,11 @@ export const BrandedTag = ({
 
   const sponsoredStyle =
     isAnimated && sponsorInfo.colors
-      ? {
+      ? ({
           borderColor: sponsorInfo.colors.primary,
           background: `linear-gradient(135deg, ${sponsorInfo.colors.primary}15 0%, ${sponsorInfo.colors.secondary}15 100%)`,
-        }
+          '--brand-primary': sponsorInfo.colors.primary,
+        } as React.CSSProperties)
       : undefined;
 
   const brandedText = sponsorInfo.branding
@@ -122,30 +103,20 @@ export const BrandedTag = ({
 
   const content = (
     <>
-      {/* Original tag content - hidden when branding shows but still takes space initially */}
-      <span
-        className={classNames(
-          styles.tagContent,
-          'whitespace-nowrap transition-all duration-300',
-          {
-            [styles.fadeOut]: showBranding && sponsorInfo.isSponsored,
-            'invisible w-0': showBranding && sponsorInfo.isSponsored,
-          },
-        )}
-      >
-        #{tag}
-      </span>
+      {/* Original tag — hidden when branded */}
+      {!showBranding && (
+        <span className={classNames(styles.tagContent, 'whitespace-nowrap')}>
+          #{tag}
+        </span>
+      )}
 
-      {/* Branded content - uses normal flow to expand container */}
-      {sponsorInfo.isSponsored && sponsorInfo.branding && (
+      {/* Branded content with logo and styled text */}
+      {showBranding && sponsorInfo.branding && (
         <span
           className={classNames(
             styles.brandedContent,
-            'flex items-center justify-center gap-1.5 whitespace-nowrap text-text-tertiary transition-all duration-300',
-            {
-              [styles.fadeIn]: showBranding,
-              'invisible w-0 overflow-hidden': !showBranding,
-            },
+            styles.fadeIn,
+            'flex items-center justify-center gap-1.5 whitespace-nowrap text-text-tertiary',
           )}
         >
           {sponsorInfo.branding.showLogo !== false && sponsorInfo.brandLogo && (
@@ -158,25 +129,11 @@ export const BrandedTag = ({
           <span className={styles.brandText}>{brandedText}</span>
         </span>
       )}
-
-      {/* Shimmer effect during transition */}
-      {sponsorInfo.isSponsored && isAnimated && !showBranding && (
-        <span
-          className={styles.shimmer}
-          style={
-            sponsorInfo.colors
-              ? {
-                  background: `linear-gradient(90deg, transparent 0%, ${sponsorInfo.colors.primary}40 50%, transparent 100%)`,
-                }
-              : undefined
-          }
-        />
-      )}
     </>
   );
 
   // Get tooltip config for sponsored tags
-  const highlightedWordResult = getHighlightedWordConfig();
+  const highlightedWordResult = getHighlightedWordConfig([tag]);
   const showTooltip =
     showBranding &&
     sponsorInfo.isSponsored &&

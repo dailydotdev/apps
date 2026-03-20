@@ -5,10 +5,14 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { SponsoredTooltip } from './SponsoredTooltip';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import type { HighlightStyle } from '../../lib/brand';
+import { findHighlightedKeywords } from '../../lib/brand';
+import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 
 interface HighlightedWordProps {
   /** The word/text to highlight */
   word: string;
+  /** Tags used to look up the matching creative. When omitted, checks all creatives. */
+  tags?: string[];
   className?: string;
 }
 
@@ -36,10 +40,32 @@ const getHighlightClasses = (style: HighlightStyle): string => {
  */
 export const HighlightedWord = ({
   word,
+  tags,
   className,
 }: HighlightedWordProps): ReactElement => {
   const { getHighlightedWordConfig } = useBrandSponsorship();
-  const { config, brandName, brandLogo, colors } = getHighlightedWordConfig();
+  const { creatives } = useEngagementAdsContext();
+
+  // When tags are provided, use them to find the creative.
+  // When omitted, find the first creative whose keywords include this word.
+  const highlightResult = useMemo(() => {
+    if (tags?.length) {
+      return getHighlightedWordConfig(tags);
+    }
+
+    const lowerWord = word.toLowerCase().trim();
+    const match = creatives.find((c) =>
+      c.keywords.some((k) => k.toLowerCase() === lowerWord),
+    );
+
+    if (!match) {
+      return { config: null, brandName: null, brandLogo: null, colors: null };
+    }
+
+    return getHighlightedWordConfig(match.tags);
+  }, [tags, word, creatives, getHighlightedWordConfig]);
+
+  const { config, brandName, brandLogo, colors } = highlightResult;
 
   if (!config || !brandName) {
     return <>{word}</>;
@@ -74,6 +100,8 @@ export const HighlightedWord = ({
 interface HighlightedTextProps {
   /** The full text to scan for keywords */
   text: string;
+  /** Tags used to look up the matching creative. When omitted, checks all creatives. */
+  tags?: string[];
   /** Optional className for the container */
   className?: string;
 }
@@ -92,18 +120,44 @@ interface HighlightedTextProps {
  */
 export const HighlightedText = ({
   text,
+  tags,
   className,
 }: HighlightedTextProps): ReactElement => {
-  const { findKeywordsInText, getHighlightedWordConfig } =
-    useBrandSponsorship();
-  const { config } = getHighlightedWordConfig();
+  const { getHighlightedWordConfig } = useBrandSponsorship();
+  const { creatives } = useEngagementAdsContext();
+
+  // Build a highlight config: from specific tags, or by merging all creatives' keywords
+  const config = useMemo(() => {
+    if (tags?.length) {
+      return getHighlightedWordConfig(tags).config;
+    }
+
+    if (!creatives.length) {
+      return null;
+    }
+
+    // Merge all creatives' keywords into one config for text scanning
+    const allKeywords = creatives.flatMap((c) => c.keywords);
+
+    if (!allKeywords.length) {
+      return null;
+    }
+
+    return {
+      keywords: allKeywords,
+      highlightStyle: 'dotted' as const,
+      triggerOn: 'hover' as const,
+      tooltipTitle: '',
+      tooltipDescription: '',
+    };
+  }, [tags, creatives, getHighlightedWordConfig]);
 
   const parts = useMemo((): ReactNode[] => {
     if (!config || !text) {
       return [text];
     }
 
-    const matches = findKeywordsInText(text);
+    const matches = findHighlightedKeywords(text, config);
 
     if (matches.length === 0) {
       return [text];
@@ -114,10 +168,10 @@ export const HighlightedText = ({
 
     return [
       text.slice(0, match.start),
-      <HighlightedWord key="highlight-0" word={match.keyword} />,
+      <HighlightedWord key="highlight-0" word={match.keyword} tags={tags} />,
       text.slice(match.end),
     ];
-  }, [text, config, findKeywordsInText]);
+  }, [text, tags, config]);
 
   return <span className={className}>{parts}</span>;
 };

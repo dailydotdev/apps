@@ -1,57 +1,53 @@
 import { useMemo, useCallback } from 'react';
 import type {
-  BrandConfig,
-  BrandCoupon,
-  PromotedChecklistConfig,
-  UpvoteAnimationConfig,
-  GreetingSponsorConfig,
+  BrandColors,
   TagBrandingConfig,
+  UpvoteAnimationConfig,
   HighlightedWordConfig,
-  KeywordMatch,
 } from '../lib/brand';
-import {
-  MOCK_COPILOT_BRAND,
-  isTagSponsored,
-  hasAnySponsoredTag,
-  formatSponsoredGreeting,
-  isWordHighlighted,
-  findHighlightedKeywords,
-} from '../lib/brand';
-import { useConditionalFeature } from './useConditionalFeature';
-import type { Feature } from '../lib/featureManagement';
+import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
+import type { ResolvedCreative } from '../lib/engagementAds';
 
-/**
- * Feature flag for brand sponsorship configuration
- * In production, this would come from GrowthBook
- * For the prototype, we use mock data
- */
-// @ts-expect-error JsonValue will not be needed when moved to boot and context
-const brandSponsorshipFeature: Feature<BrandConfig | null> = {
-  id: 'brand_sponsorship_config',
-  defaultValue: MOCK_COPILOT_BRAND, // Use mock data for prototype
+// ============================================================================
+// Static defaults — presentation config not in EngagementCreative
+// ============================================================================
+
+const DEFAULT_TAG_BRANDING: TagBrandingConfig = {
+  style: 'suffix',
+  delay: 1000,
 };
+
+const DEFAULT_UPVOTE_ANIMATION: UpvoteAnimationConfig = {
+  type: 'confetti',
+  particleCount: 30,
+  duration: 1500,
+};
+
+const DEFAULT_HIGHLIGHT_STYLE: Pick<
+  HighlightedWordConfig,
+  'highlightStyle' | 'triggerOn'
+> = {
+  highlightStyle: 'dotted',
+  triggerOn: 'hover',
+};
+
+// ============================================================================
+// Return types
+// ============================================================================
 
 interface SponsoredTagResult {
   isSponsored: boolean;
   brandName: string | null;
   brandLogo: string | null;
   branding: TagBrandingConfig | null;
-  colors: BrandConfig['colors'] | null;
+  colors: BrandColors | null;
   targetUrl: string | null;
-}
-
-interface SponsoredGreetingResult {
-  isSponsored: boolean;
-  greeting: string;
-  brandName: string | null;
-  brandLogo: string | null;
-  config: GreetingSponsorConfig | null;
 }
 
 interface UpvoteAnimationResult {
   shouldAnimate: boolean;
   config: UpvoteAnimationConfig | null;
-  colors: BrandConfig['colors'] | null;
+  colors: BrandColors | null;
   brandName: string | null;
   brandLogo: string | null;
 }
@@ -60,245 +56,173 @@ interface HighlightedWordResult {
   config: HighlightedWordConfig | null;
   brandName: string | null;
   brandLogo: string | null;
-  colors: BrandConfig['colors'] | null;
+  colors: BrandColors | null;
 }
 
 interface UseBrandSponsorshipReturn {
-  /** The active brand configuration, or null if no sponsorship is active */
-  activeBrand: BrandConfig | null;
-  /** Whether a brand sponsorship is currently active */
+  /** Whether any engagement creative is available */
   isActive: boolean;
-  /** Whether the brand config is still loading */
-  isLoading: boolean;
 
   /** Get sponsorship info for a specific tag */
   getSponsoredTag: (tag: string) => SponsoredTagResult;
 
-  /** Get greeting sponsorship for a user */
-  getGreetingSponsorship: (userName: string) => SponsoredGreetingResult;
-
   /** Get upvote animation config if post has sponsored tags */
   getUpvoteAnimation: (postTags: string[]) => UpvoteAnimationResult;
 
-  /** Get available coupons for the active brand */
-  getCoupons: () => BrandCoupon[];
+  /** Get the highlighted word config for a set of tags */
+  getHighlightedWordConfig: (tags: string[]) => HighlightedWordResult;
 
-  /** Get the promoted checklist config */
-  getPromotedChecklist: () => PromotedChecklistConfig | null;
-
-  /** Get the highlighted word config */
-  getHighlightedWordConfig: () => HighlightedWordResult;
-
-  /** Check if a word should be highlighted */
-  isKeywordHighlighted: (word: string) => boolean;
-
-  /** Find all highlighted keywords in text */
-  findKeywordsInText: (text: string) => KeywordMatch[];
-
-  /** Check if a tag is sponsored */
+  /** Check if a tag is sponsored by any creative */
   isTagSponsored: (tag: string) => boolean;
 
   /** Check if any of the given tags are sponsored */
   hasAnySponsoredTag: (tags: string[]) => boolean;
 }
 
+// ============================================================================
+// Helpers
+// ============================================================================
+
+const colorsFromCreative = (creative: ResolvedCreative): BrandColors => ({
+  primary: creative.primaryColor,
+  secondary: creative.secondaryColor,
+  gradient: `linear-gradient(135deg, ${creative.primaryColor} 0%, ${creative.secondaryColor} 100%)`,
+});
+
+const EMPTY_SPONSORED_TAG: SponsoredTagResult = {
+  isSponsored: false,
+  brandName: null,
+  brandLogo: null,
+  branding: null,
+  colors: null,
+  targetUrl: null,
+};
+
+const EMPTY_UPVOTE: UpvoteAnimationResult = {
+  shouldAnimate: false,
+  config: null,
+  colors: null,
+  brandName: null,
+  brandLogo: null,
+};
+
+const EMPTY_HIGHLIGHT: HighlightedWordResult = {
+  config: null,
+  brandName: null,
+  brandLogo: null,
+  colors: null,
+};
+
+// ============================================================================
+// Hook
+// ============================================================================
+
 /**
- * Central hook for brand sponsorship features
+ * Central hook for brand sponsorship features.
  *
- * This hook provides access to all brand sponsorship data and utilities.
- * In the prototype, it uses mock data for GitHub Copilot.
- * In production, it would fetch the active brand config from GrowthBook.
- *
- * @example
- * ```tsx
- * const { activeBrand, getSponsoredTag, getUpvoteAnimation } = useBrandSponsorship();
- *
- * // Check if a tag is sponsored
- * const tagInfo = getSponsoredTag('ai');
- * if (tagInfo.isSponsored) {
- *   console.log(`Sponsored by ${tagInfo.brandName}`);
- * }
- *
- * // Get upvote animation for a post
- * const animation = getUpvoteAnimation(['ai', 'programming']);
- * if (animation.shouldAnimate) {
- *   // Trigger brand-colored animation
- * }
- * ```
+ * All lookups are stateless — pass the tags you have and get the result.
+ * No global "active creative" state to manage or conflict between pages.
  */
 export const useBrandSponsorship = (): UseBrandSponsorshipReturn => {
-  // @ts-expect-error JsonValue will not be needed when moved to boot and context
-  const { value: brandConfig, isLoading } = useConditionalFeature<BrandConfig>({
-    feature: brandSponsorshipFeature,
-    shouldEvaluate: true,
-  });
+  const { creatives, getCreativeForTags } = useEngagementAdsContext();
 
-  const activeBrand = brandConfig as BrandConfig | null;
+  const isActive = creatives.length > 0;
 
   const getSponsoredTag = useCallback(
     (tag: string): SponsoredTagResult => {
-      const sponsored = isTagSponsored(tag, activeBrand);
+      const creative = getCreativeForTags([tag]);
 
-      if (!sponsored || !activeBrand) {
-        return {
-          isSponsored: false,
-          brandName: null,
-          brandLogo: null,
-          branding: null,
-          colors: null,
-          targetUrl: null,
-        };
+      if (!creative) {
+        return EMPTY_SPONSORED_TAG;
       }
 
       return {
         isSponsored: true,
-        brandName: activeBrand.name,
-        brandLogo: activeBrand.logo,
-        branding: activeBrand.tagBranding || null,
-        colors: activeBrand.colors,
-        targetUrl: activeBrand.tagBranding?.targetUrl || null,
+        brandName: creative.name,
+        brandLogo: creative.logo,
+        branding: {
+          ...DEFAULT_TAG_BRANDING,
+          targetUrl: creative.url,
+        },
+        colors: colorsFromCreative(creative),
+        targetUrl: creative.url,
       };
     },
-    [activeBrand],
-  );
-
-  const getGreetingSponsorship = useCallback(
-    (userName: string): SponsoredGreetingResult => {
-      if (!activeBrand?.greetingSponsorship) {
-        return {
-          isSponsored: false,
-          greeting: `Hey ${userName}!`,
-          brandName: null,
-          brandLogo: null,
-          config: null,
-        };
-      }
-
-      const { greetingSponsorship } = activeBrand;
-      const formattedGreeting = formatSponsoredGreeting(
-        greetingSponsorship.template,
-        userName,
-        activeBrand.name,
-      );
-
-      return {
-        isSponsored: true,
-        greeting: formattedGreeting,
-        brandName: activeBrand.name,
-        brandLogo: activeBrand.logo,
-        config: greetingSponsorship,
-      };
-    },
-    [activeBrand],
+    [getCreativeForTags],
   );
 
   const getUpvoteAnimation = useCallback(
     (postTags: string[]): UpvoteAnimationResult => {
-      const hasSponsoredTag = hasAnySponsoredTag(postTags, activeBrand);
+      const creative = getCreativeForTags(postTags);
 
-      if (!hasSponsoredTag || !activeBrand?.upvoteAnimation) {
-        return {
-          shouldAnimate: false,
-          config: null,
-          colors: null,
-          brandName: null,
-          brandLogo: null,
-        };
+      if (!creative) {
+        return EMPTY_UPVOTE;
       }
 
       return {
         shouldAnimate: true,
-        config: activeBrand.upvoteAnimation,
-        colors: activeBrand.colors,
-        brandName: activeBrand.name,
-        brandLogo: activeBrand.logo,
+        config: DEFAULT_UPVOTE_ANIMATION,
+        colors: colorsFromCreative(creative),
+        brandName: creative.name,
+        brandLogo: creative.logo,
       };
     },
-    [activeBrand],
+    [getCreativeForTags],
   );
 
-  const getCoupons = useCallback((): BrandCoupon[] => {
-    return activeBrand?.couponCampaign?.coupons || [];
-  }, [activeBrand]);
+  const getHighlightedWordConfig = useCallback(
+    (tags: string[]): HighlightedWordResult => {
+      const creative = getCreativeForTags(tags);
 
-  const getPromotedChecklist =
-    useCallback((): PromotedChecklistConfig | null => {
-      return activeBrand?.promotedChecklist || null;
-    }, [activeBrand]);
+      if (!creative) {
+        return EMPTY_HIGHLIGHT;
+      }
 
-  const getHighlightedWordConfig = useCallback((): HighlightedWordResult => {
-    if (!activeBrand?.highlightedWord) {
       return {
-        config: null,
-        brandName: null,
-        brandLogo: null,
-        colors: null,
+        config: {
+          keywords: creative.keywords,
+          tooltipTitle: creative.name,
+          tooltipDescription: creative.body,
+          ctaText: creative.cta,
+          ctaUrl: creative.url,
+          ...DEFAULT_HIGHLIGHT_STYLE,
+        },
+        brandName: creative.name,
+        brandLogo: creative.logo,
+        colors: colorsFromCreative(creative),
       };
-    }
-
-    return {
-      config: activeBrand.highlightedWord,
-      brandName: activeBrand.name,
-      brandLogo: activeBrand.logo,
-      colors: activeBrand.colors,
-    };
-  }, [activeBrand]);
-
-  const checkIsKeywordHighlighted = useCallback(
-    (word: string): boolean => {
-      return isWordHighlighted(word, activeBrand?.highlightedWord);
     },
-    [activeBrand],
-  );
-
-  const findKeywordsInText = useCallback(
-    (text: string): KeywordMatch[] => {
-      return findHighlightedKeywords(text, activeBrand?.highlightedWord);
-    },
-    [activeBrand],
+    [getCreativeForTags],
   );
 
   const checkIsTagSponsored = useCallback(
     (tag: string): boolean => {
-      return isTagSponsored(tag, activeBrand);
+      return !!getCreativeForTags([tag]);
     },
-    [activeBrand],
+    [getCreativeForTags],
   );
 
   const checkHasAnySponsoredTag = useCallback(
     (tags: string[]): boolean => {
-      return hasAnySponsoredTag(tags, activeBrand);
+      return !!getCreativeForTags(tags);
     },
-    [activeBrand],
+    [getCreativeForTags],
   );
 
   return useMemo(
     () => ({
-      activeBrand,
-      isActive: !!activeBrand,
-      isLoading,
+      isActive,
       getSponsoredTag,
-      getGreetingSponsorship,
       getUpvoteAnimation,
-      getCoupons,
-      getPromotedChecklist,
       getHighlightedWordConfig,
-      isKeywordHighlighted: checkIsKeywordHighlighted,
-      findKeywordsInText,
       isTagSponsored: checkIsTagSponsored,
       hasAnySponsoredTag: checkHasAnySponsoredTag,
     }),
     [
-      activeBrand,
-      isLoading,
+      isActive,
       getSponsoredTag,
-      getGreetingSponsorship,
       getUpvoteAnimation,
-      getCoupons,
-      getPromotedChecklist,
       getHighlightedWordConfig,
-      checkIsKeywordHighlighted,
-      findKeywordsInText,
       checkIsTagSponsored,
       checkHasAnySponsoredTag,
     ],

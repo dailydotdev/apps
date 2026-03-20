@@ -42,6 +42,8 @@ import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import { findCreativeForTags } from '../lib/engagementAds';
+import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
@@ -192,6 +194,7 @@ export const withFeedLogExtraContext = (
     props: FeedItemComponentProps,
   ): ReactElement | null => {
     const { item } = props;
+    const { creatives } = useEngagementAdsContext();
 
     if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
       return (
@@ -213,6 +216,17 @@ export const withFeedLogExtraContext = (
               extraData.referrer_target_type = post?.id
                 ? TargetType.Post
                 : undefined;
+
+              if (
+                item.type === FeedItemType.Post &&
+                post?.tags &&
+                creatives.length > 0
+              ) {
+                const creative = findCreativeForTags(creatives, post.tags);
+                if (creative) {
+                  extraData.gen_id = creative.genId;
+                }
+              }
             }
 
             if (isBoostedSquadAd(item)) {

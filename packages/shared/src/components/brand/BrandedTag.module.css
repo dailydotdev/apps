@@ -2,25 +2,20 @@
 
 .brandedTag {
   cursor: pointer;
-  will-change: transform, border-color, background;
+  transition: transform 0.2s ease;
 }
 
 .brandedTag:hover {
   transform: scale(1.02);
 }
 
-/* Tag content animations */
+/* Tag content */
 .tagContent {
   opacity: 1;
   transform: translateY(0);
 }
 
-.tagContent.fadeOut {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-/* Branded content animations */
+/* Branded content */
 .brandedContent {
   opacity: 0;
   transform: scale(0.9);
@@ -52,7 +47,7 @@
   white-space: nowrap;
 }
 
-/* Animated state - glow effect */
+/* Animated (branded) state — continuous glow, no entrance animation */
 .animated {
   animation: tagGlow 2s ease-in-out infinite;
 }
@@ -63,38 +58,5 @@
   }
   50% {
     box-shadow: 0 0 8px 0 var(--brand-primary, #6e40c9);
-  }
-}
-
-/* Shimmer effect during transition */
-.shimmer {
-  position: absolute;
-  inset: 0;
-  animation: shimmerMove 0.8s ease-out forwards;
-}
-
-@keyframes shimmerMove {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Entry animation for the whole tag */
-.brandedTag.animated {
-  animation: tagEntrance 0.5s ease-out forwards, tagGlow 2s ease-in-out 0.5s infinite;
-}
-
-@keyframes tagEntrance {
-  0% {
-    transform: scale(0.95);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
   }
 }

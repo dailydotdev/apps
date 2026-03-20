@@ -12,6 +12,7 @@ import type {
 } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
+import type { EngagementCreative } from './engagementAds';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -81,6 +82,7 @@ export type Boot = {
     continent?: Continent;
   };
   isAndroidApp?: boolean;
+  engagementCreatives?: EngagementCreative[];
 };
 
 export type BootCacheData = Pick<
@@ -146,6 +148,38 @@ interface GetBootDataParams {
   pathname?: string;
 }
 
+// TODO: Remove before merging — mock engagement creatives for testing
+const MOCK_ENGAGEMENT_CREATIVES: EngagementCreative[] = [
+  {
+    gen_id: 'ec-copilot-2026-q1',
+    promoted_name: 'GitHub Copilot',
+    promoted_body:
+      'Your AI pair programmer. Write code faster with intelligent suggestions.',
+    promoted_cta: 'Try Free for 30 Days',
+    promoted_url: 'https://github.com/features/copilot',
+    promoted_logo_img: {
+      dark: 'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+      light:
+        'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+    },
+    promoted_background_img: {
+      dark: 'https://github.githubassets.com/images/modules/site/copilot/hero-bg-dark.webp',
+      light:
+        'https://github.githubassets.com/images/modules/site/copilot/hero-bg-light.webp',
+    },
+    promoted_icon_img: {
+      dark: 'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+      light:
+        'https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png',
+    },
+    promoted_primary_color: { dark: '#6e40c9', light: '#5a32a3' },
+    promoted_secondary_color: { dark: '#1f6feb', light: '#0969da' },
+    tools: ['copilot', 'vscode'],
+    keywords: ['AI', 'artificial intelligence', 'code completion', 'copilot'],
+    tags: ['ai', 'copilot', 'github-copilot', 'machine-learning', 'llm'],
+  },
+];
+
 export async function getBootData({
   app,
   url,
@@ -163,5 +197,10 @@ export async function getBootData({
     },
   });
   const result = await res.json();
-  return await enrichBootWithFeatures(result);
+  const boot = await enrichBootWithFeatures(result);
+
+  // TODO Micro-interactions-ads Remove before merging — inject mock engagement creatives
+  boot.engagementCreatives = MOCK_ENGAGEMENT_CREATIVES;
+
+  return boot;
 }

@@ -19,19 +19,18 @@ export const SponsoredTagHero = ({
   tag,
   className,
 }: SponsoredTagHeroProps): ReactElement | null => {
-  const { activeBrand, isTagSponsored, getHighlightedWordConfig } =
-    useBrandSponsorship();
+  const { getSponsoredTag, getHighlightedWordConfig } = useBrandSponsorship();
+  const sponsorInfo = getSponsoredTag(tag);
 
-  // Only show for sponsored tags
-  if (!isTagSponsored(tag) || !activeBrand) {
+  if (!sponsorInfo.isSponsored) {
     return null;
   }
 
-  const highlightedWordConfig = getHighlightedWordConfig();
+  const highlightedWordConfig = getHighlightedWordConfig([tag]);
   const ctaUrl = highlightedWordConfig.config?.ctaUrl;
   const ctaText = highlightedWordConfig.config?.ctaText || 'Learn more';
 
-  const { primary, secondary } = activeBrand.colors;
+  const { primary, secondary } = sponsorInfo.colors;
 
   return (
     <div
@@ -40,11 +39,11 @@ export const SponsoredTagHero = ({
         className,
       )}
       style={{
-        background: `linear-gradient(135deg, 
-          ${primary} 0%, 
-          ${secondary} 25%, 
-          #a855f7 50%, 
-          #ec4899 75%, 
+        background: `linear-gradient(135deg,
+          ${primary} 0%,
+          ${secondary} 25%,
+          #a855f7 50%,
+          #ec4899 75%,
           #f472b6 100%)`,
       }}
     >
@@ -88,15 +87,15 @@ export const SponsoredTagHero = ({
       <div className="relative flex flex-col gap-4 p-6 tablet:flex-row tablet:items-center tablet:justify-between">
         <div className="flex items-center gap-4">
           {/* Brand logo with glow */}
-          {activeBrand.logo && (
+          {sponsorInfo.brandLogo && (
             <div className="relative flex-shrink-0">
               <div
                 className="opacity-70 absolute inset-0 rounded-full blur-md"
                 style={{ background: 'white' }}
               />
               <img
-                src={activeBrand.logo}
-                alt={activeBrand.name}
+                src={sponsorInfo.brandLogo}
+                alt={sponsorInfo.brandName}
                 className="relative size-12 rounded-full bg-white object-cover p-1 shadow-2"
               />
             </div>
@@ -105,7 +104,7 @@ export const SponsoredTagHero = ({
           <div className="flex flex-col gap-1">
             <span className="text-white/80 typo-callout">Sponsored by</span>
             <span className="font-bold text-white typo-title3">
-              {activeBrand.name}
+              {sponsorInfo.brandName}
             </span>
             {highlightedWordConfig.config?.tooltipDescription && (
               <span className="text-white/90 max-w-lg typo-body">

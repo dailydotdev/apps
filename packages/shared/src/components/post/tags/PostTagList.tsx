@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { useFollowPostTags } from '../../../hooks/feed/useFollowPostTags';
@@ -55,30 +55,25 @@ const PostTagItem = ({
   tag,
   disableBranding,
 }: PostTagItemProps): ReactElement => {
-  if (isFollowed) {
-    return (
-      <Link href={getTagPageLink(tag)} passHref prefetch={false}>
-        <a title={`Check all #${tag} posts`}>
-          <BrandedTag
-            tag={tag}
-            asSpan
-            disableBranding={disableBranding}
-            className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
-          />
-        </a>
-      </Link>
-    );
-  }
-
   return (
-    <Chip className="flex items-center bg-surface-float" role="listitem">
+    <Chip
+      className={classNames(
+        'flex items-center',
+        isFollowed ? '' : 'bg-surface-float',
+      )}
+      role="listitem"
+    >
       <Link href={getTagPageLink(tag)} passHref prefetch={false}>
         <a title={`Check all #${tag} posts`}>
           <BrandedTag
             tag={tag}
             asSpan
             disableBranding={disableBranding}
-            className="!h-auto !border-0 !bg-transparent py-1"
+            className={
+              isFollowed
+                ? 'border px-2 py-1 hover:bg-border-subtlest-tertiary'
+                : '!h-auto !border-0 !bg-transparent py-1'
+            }
           />
         </a>
       </Link>
@@ -94,15 +89,29 @@ const PostTagItem = ({
           type="button"
         />
       </Tooltip>
+      {!isFollowed && (
+        <>
+          <span
+            className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
+            role="separator"
+          />
+          <Tooltip content={`Follow #${tag}`}>
+            <Button
+              icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
+              onClick={() => onFollow(tag)}
+              size={ButtonSize.XSmall}
+            />
+          </Tooltip>
+        </>
+      )}
     </Chip>
   );
 };
 
-export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
+const PostTagListInner = ({ post }: PostTagListProps): ReactElement => {
   const { onFollowTag, tags } = useFollowPostTags({ post });
   const { isTagSponsored } = useBrandSponsorship();
 
-  // Only allow one tag to show branding - find the first sponsored tag
   const firstSponsoredTag = useMemo(() => {
     return tags.all.find((tag) => isTagSponsored(tag)) || null;
   }, [tags.all, isTagSponsored]);
@@ -111,25 +120,24 @@ export const PostTagList = ({ post }: PostTagListProps): ReactElement => {
     return null;
   }
 
+  const followedSet = new Set(tags.followed);
+
   return (
     <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
-      {tags.followed.map((tag) => (
+      {tags.all.map((tag) => (
         <PostTagItem
-          key={`followed-${tag}`}
+          key={tag}
           tag={tag}
-          isFollowed
-          disableBranding={tag !== firstSponsoredTag}
-        />
-      ))}
-      {tags.notFollowed.map((tag) => (
-        <PostTagItem
-          isFollowed={false}
-          key={`notFollowed-${tag}`}
+          isFollowed={followedSet.has(tag)}
           onFollow={onFollowTag}
-          tag={tag}
           disableBranding={tag !== firstSponsoredTag}
         />
       ))}
     </ul>
   );
 };
+
+export const PostTagList = memo(
+  PostTagListInner,
+  (prev, next) => prev.post?.tags?.join() === next.post?.tags?.join(),
+);
