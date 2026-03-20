@@ -80,17 +80,18 @@ function ChangePasswordForm({
       return;
     }
 
-    if ('code' in settings) {
+    if (!settings || 'code' in settings) {
       return;
     }
 
     const params: RegistrationParameters = {
       method: 'password',
-      csrf_token: getNodeValue('csrf_token', settings.ui.nodes),
-      'traits.email': getNodeValue('traits.email', settings.ui.nodes),
-      'traits.name': getNodeValue('traits.name', settings.ui.nodes),
-      'traits.username': getNodeValue('traits.username', settings.ui.nodes),
-      'traits.image': getNodeValue('traits.image', settings.ui.nodes),
+      csrf_token: getNodeValue('csrf_token', settings.ui.nodes) ?? '',
+      'traits.email': getNodeValue('traits.email', settings.ui.nodes) ?? '',
+      'traits.name': getNodeValue('traits.name', settings.ui.nodes) ?? '',
+      'traits.username':
+        getNodeValue('traits.username', settings.ui.nodes) ?? '',
+      'traits.image': getNodeValue('traits.image', settings.ui.nodes) ?? '',
       password,
     };
     reset({ params, action: settings.ui.action });

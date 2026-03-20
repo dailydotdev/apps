@@ -99,7 +99,7 @@ function ForgotPasswordForm({
             Didn&apos;t receive it? Try again
           </Button>
         </div>
-        {simplified && (
+        {simplified && onBack && (
           <AuthModalFooter
             text={{ button: `\u2190 Back to log in` }}
             onClick={onBack}
@@ -122,7 +122,7 @@ function ForgotPasswordForm({
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
-        {!isBetterAuth && <TokenInput token={token} />}
+        {!isBetterAuth && token && <TokenInput token={token} />}
         <AuthModalText className="text-center">
           {isBetterAuth
             ? 'Enter the email address you registered with and we will send you a password reset link.'
@@ -135,7 +135,7 @@ function ForgotPasswordForm({
           inputId="email"
           label="Email"
           defaultValue={initialEmail}
-          hint={hint as string}
+          hint={hint}
           valid={!hint}
           onChange={() => hint && setHint('')}
           leftIcon={<MailIcon aria-hidden role="presentation" />}
@@ -150,7 +150,7 @@ function ForgotPasswordForm({
           {isBetterAuth ? 'Send reset link' : 'Send verification code'}
         </Button>
       </AuthForm>
-      {simplified && (
+      {simplified && onBack && (
         <AuthModalFooter
           text={{ button: `\u2190 Back to log in` }}
           onClick={onBack}

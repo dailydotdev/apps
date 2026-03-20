@@ -9,7 +9,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 
-const ResetPassword = (): ReactElement => {
+const ResetPassword = (): ReactElement | null => {
   const router = useRouter();
 
   if (!router.isReady) {
