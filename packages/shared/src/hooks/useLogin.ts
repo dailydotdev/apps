@@ -205,7 +205,7 @@ const useLogin = ({
           }
           return;
         }
-        const callbackURL = webappUrl;
+        const callbackURL = `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
           window.open(socialUrl);
