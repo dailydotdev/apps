@@ -61,6 +61,13 @@ function CallbackPage(): ReactElement | null {
         return;
       }
 
+      // iOS native app navigates in-place (no popup), so the session
+      // cookie is already set. Redirect straight to homepage.
+      if (params.ios) {
+        window.location.replace('/');
+        return;
+      }
+
       if (checkShouldSendBroadcast()) {
         broadcastMessage({ ...params, eventKey });
       } else {
@@ -72,9 +79,9 @@ function CallbackPage(): ReactElement | null {
       }
 
       // window.close() silently fails when the tab wasn't opened via
-      // window.open() (e.g. iOS native, mobile browsers opening new
-      // tabs instead of popups). Fall back to redirecting home so the
-      // user isn't stuck on a blank page.
+      // window.open() (e.g. mobile browsers opening new tabs instead
+      // of popups). Fall back to redirecting home so the user isn't
+      // stuck on a blank page.
       setTimeout(() => {
         window.location.replace('/');
       }, 1000);

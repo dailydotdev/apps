@@ -22,6 +22,7 @@ import {
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
+import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -387,7 +388,13 @@ function AuthOptionsInner({
         await refetchBoot();
         return;
       }
-      const callbackURL = `${webappUrl}callback?login=true`;
+      // On iOS native, window.open() launches an in-app browser that
+      // can't be closed via JS. Navigate in-place instead so the
+      // callback redirect brings the user back to the main webview.
+      const isIOSApp = isIOSNative();
+      const callbackURL = isIOSApp
+        ? `${webappUrl}callback?login=true&ios=true`
+        : `${webappUrl}callback?login=true`;
       const socialUrl = await getBetterAuthSocialUrl(
         provider.toLowerCase(),
         callbackURL,
@@ -395,7 +402,11 @@ function AuthOptionsInner({
       if (!socialUrl) {
         return;
       }
-      windowPopup.current = window.open(socialUrl);
+      if (isIOSApp) {
+        window.location.href = socialUrl;
+      } else {
+        windowPopup.current = window.open(socialUrl);
+      }
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;

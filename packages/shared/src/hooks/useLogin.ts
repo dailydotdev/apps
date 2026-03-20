@@ -39,6 +39,7 @@ import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
 import { useEventListener } from './useEventListener';
 import { broadcastChannel, webappUrl } from '../lib/constants';
+import { isIOSNative } from '../lib/func';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -205,10 +206,17 @@ const useLogin = ({
           }
           return;
         }
-        const callbackURL = `${webappUrl}callback?login=true`;
+        const isIOSApp = isIOSNative();
+        const callbackURL = isIOSApp
+          ? `${webappUrl}callback?login=true&ios=true`
+          : `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
-          window.open(socialUrl);
+          if (isIOSApp) {
+            window.location.href = socialUrl;
+          } else {
+            window.open(socialUrl);
+          }
         }
         return;
       }
