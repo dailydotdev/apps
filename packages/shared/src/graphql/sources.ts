@@ -122,9 +122,9 @@ export type SourceTooltip = Pick<
   'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
 > &
   Required<Pick<Source, 'id'>> & {
-  membersCount?: number;
-  type?: SourceType;
-};
+    membersCount?: number;
+    type?: SourceType;
+  };
 
 export type SourceData = { source: Source };
 
