@@ -37,7 +37,7 @@ const handleRedirectAuth = (params: URLSearchParams) => {
   }
 };
 
-function CallbackPage(): ReactElement {
+function CallbackPage(): ReactElement | null {
   const { logEvent } = useLogContext();
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -70,6 +70,14 @@ function CallbackPage(): ReactElement {
       if (!isPWA()) {
         window.close();
       }
+
+      // window.close() silently fails when the tab wasn't opened via
+      // window.open() (e.g. iOS native, mobile browsers opening new
+      // tabs instead of popups). Fall back to redirecting home so the
+      // user isn't stuck on a blank page.
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 1000);
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
       window.location.replace(url);
