@@ -360,69 +360,6 @@ function AuthOptionsInner({
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
-  const onProviderClick = async (provider: string, login = true) => {
-    logEvent({
-      event_name: 'click',
-      target_type: login
-        ? AuthEventNames?.LoginProvider
-        : AuthEventNames.SignUpProvider,
-      target_id: provider,
-      extra: JSON.stringify({ trigger }),
-    });
-
-    if (isBetterAuth) {
-      if (isNativeAuthSupported(provider)) {
-        const res = await iosNativeAuth(provider);
-        if (!res) {
-          return;
-        }
-        const result = await betterAuthSignInWithIdToken({
-          provider: provider.toLowerCase(),
-          token: res.token,
-          nonce: res.nonce,
-        });
-        if (result.error) {
-          return;
-        }
-        await setChosenProvider(provider);
-        await refetchBoot();
-        return;
-      }
-      const isIOSApp = isIOSNative();
-      const callbackURL = isIOSApp
-        ? window.location.href
-        : `${webappUrl}callback?login=true`;
-      const socialUrl = await getBetterAuthSocialUrl(
-        provider.toLowerCase(),
-        callbackURL,
-      );
-      if (!socialUrl) {
-        return;
-      }
-      if (isIOSApp) {
-        window.location.href = socialUrl;
-        return;
-      }
-      windowPopup.current = window.open(socialUrl);
-      await setChosenProvider(provider);
-      onAuthStateUpdate?.({ isLoading: true });
-      return;
-    }
-
-    // Only web auth requires a popup
-    if (!isNativeAuthSupported(provider)) {
-      windowPopup.current = window.open();
-    }
-    await setChosenProvider(provider);
-    await onSocialRegistration(provider);
-    onAuthStateUpdate?.({ isLoading: true });
-  };
-
-  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
-    setEmail(inputEmail);
-    setFlow(inputFlow);
-    onSetActiveDisplay(AuthDisplay.CodeVerification);
-  };
 
   const checkIsLoginMessage = (e: MessageEvent) => {
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
@@ -464,6 +401,70 @@ function AuthOptionsInner({
     await setChosenProvider(chosenProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
+  const onProviderClick = async (provider: string, login = true) => {
+    logEvent({
+      event_name: 'click',
+      target_type: login
+        ? AuthEventNames?.LoginProvider
+        : AuthEventNames.SignUpProvider,
+      target_id: provider,
+      extra: JSON.stringify({ trigger }),
+    });
+
+    if (isBetterAuth) {
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        if (!res) {
+          return;
+        }
+        const result = await betterAuthSignInWithIdToken({
+          provider: provider.toLowerCase(),
+          token: res.token,
+          nonce: res.nonce,
+        });
+        if (result.error) {
+          return;
+        }
+        await setChosenProvider(provider);
+        await handleLoginMessage();
+        return;
+      }
+      const isIOSApp = isIOSNative();
+      onAuthStateUpdate?.({ isLoading: true });
+      const callbackURL = `${webappUrl}callback?login=true`;
+      const socialUrl = await getBetterAuthSocialUrl(
+        provider.toLowerCase(),
+        callbackURL,
+      );
+      if (!socialUrl) {
+        onAuthStateUpdate?.({ isLoading: false });
+        return;
+      }
+      if (isIOSApp) {
+        window.location.href = socialUrl;
+        return;
+      }
+      windowPopup.current = window.open(socialUrl);
+      await setChosenProvider(provider);
+      onAuthStateUpdate?.({ isLoading: true });
+      return;
+    }
+
+    // Only web auth requires a popup
+    if (!isNativeAuthSupported(provider)) {
+      windowPopup.current = window.open();
+    }
+    await setChosenProvider(provider);
+    await onSocialRegistration(provider);
+    onAuthStateUpdate?.({ isLoading: true });
+  };
+
+  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
+    setEmail(inputEmail);
+    setFlow(inputFlow);
+    onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
   const onProviderMessage = async (e: MessageEvent) => {

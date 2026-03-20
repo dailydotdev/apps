@@ -158,7 +158,7 @@ describe('CallbackPage', () => {
       token: '456',
       eventKey: AuthEvent.SocialRegistration,
     });
-    expect(mockClose).toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('/onboarding');
   });
 
   it('should handle Facebook referrer case', () => {
@@ -230,7 +230,8 @@ describe('CallbackPage', () => {
       token: 'insta',
       eventKey: AuthEvent.Login,
     });
-    expect(mockClose).toHaveBeenCalled();
+    // No window.opener in Instagram webview, so redirect instead of close
+    expect(mockReplace).toHaveBeenCalledWith('/onboarding');
 
     // Restore user agent
     Object.defineProperty(navigator, 'userAgent', {
