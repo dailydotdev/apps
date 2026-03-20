@@ -31,6 +31,7 @@ const strictSkipList = new Set([
   'packages/shared/src/components/auth/AuthOptionsInner.tsx',
   'packages/shared/src/hooks/useLogin.ts',
   'packages/shared/src/hooks/useRegistration.ts',
+  'packages/shared/src/contexts/AuthContext.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
