@@ -22,6 +22,7 @@ import {
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
+import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -393,6 +394,10 @@ function AuthOptionsInner({
         callbackURL,
       );
       if (!socialUrl) {
+        return;
+      }
+      if (isIOSNative()) {
+        window.location.href = socialUrl;
         return;
       }
       windowPopup.current = window.open(socialUrl);

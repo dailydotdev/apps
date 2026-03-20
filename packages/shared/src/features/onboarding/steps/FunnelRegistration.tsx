@@ -38,6 +38,7 @@ import {
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { useIsBetterAuth } from '../../../hooks/useIsBetterAuth';
+import { isIOSNative } from '../../../lib/func';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import Alert, { AlertType } from '../../../components/widgets/Alert';
 
@@ -159,7 +160,11 @@ function InnerFunnelRegistration({
         window.sessionStorage.setItem(AUTH_REDIRECT_KEY, window.location.href);
         window.location.href = redirect;
       } else if (isBetterAuth) {
-        windowPopup.current = window.open(redirect);
+        if (isIOSNative()) {
+          window.location.href = redirect;
+        } else {
+          windowPopup.current = window.open(redirect);
+        }
       } else if (windowPopup.current) {
         windowPopup.current.location.href = redirect;
       } else {
