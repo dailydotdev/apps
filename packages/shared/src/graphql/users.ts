@@ -346,8 +346,8 @@ export const UPDATE_USER_INFO_MUTATION = gql`
 
 export const mutateUserInfo = async (
   data: Partial<UserProfile>,
-  upload: File,
-  coverUpload: File,
+  upload?: File | null,
+  coverUpload?: File | null,
 ) => {
   const res = await gqlClient.request(UPDATE_USER_INFO_MUTATION, {
     data,

@@ -27,7 +27,7 @@ export const useSquadNavigation = (): UseSquadNavigation => {
   const newSquadUrl = `${webappUrl}squads/new`;
 
   const openNewSquad = useCallback(
-    (props: OpenNewSquadProps) => {
+    (props?: OpenNewSquadProps) => {
       if (!user) {
         props?.event?.preventDefault();
         showLogin({ trigger: AuthTriggers.CreateSquad });
