@@ -17,7 +17,7 @@ import {
 } from './types';
 
 export type UseContentPreferenceStatusQueryProps = {
-  id: string;
+  id?: string;
   entity: ContentPreferenceType;
   queryOptions?: Partial<
     Omit<UseQueryOptions<ContentPreference | null>, 'queryKey' | 'queryFn'>
@@ -33,9 +33,10 @@ export const useContentPreferenceStatusQuery = ({
   queryOptions,
 }: UseContentPreferenceStatusQueryProps): UseContentPreferenceStatusQuery => {
   const { user, isLoggedIn } = useAuthContext();
-  const enabled = !!(isLoggedIn && id && entity);
+  const entityId = id ?? '';
+  const enabled = !!(isLoggedIn && entityId && entity);
   const queryKey = generateQueryKey(RequestKey.ContentPreference, user, {
-    id,
+    id: entityId,
     entity,
   });
 
@@ -85,10 +86,10 @@ export const useContentPreferenceStatusQuery = ({
         ...unknown[],
       ];
 
-      const { id: entityId, entity: entityType } =
+      const { id: mutatedEntityId, entity: entityType } =
         mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
-      if (entityId !== id || entityType !== entity) {
+      if (mutatedEntityId !== entityId || entityType !== entity) {
         return;
       }
 
@@ -105,7 +106,7 @@ export const useContentPreferenceStatusQuery = ({
 
       mutationQueryClient.setQueryData<ContentPreference | null>(queryKey, {
         status: nextStatus,
-        referenceId: entityId,
+        referenceId: mutatedEntityId,
         type: entityType,
         createdAt: new Date(),
       });

@@ -115,9 +115,10 @@ const useUserExperienceForm = ({
   const qc = useQueryClient();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const userId = user?.id ?? '';
   const { queryKey: experienceQueryKey } = useUserExperiencesByType(
     defaultValues.type,
-    user?.id,
+    userId,
   );
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
@@ -186,7 +187,7 @@ const useUserExperienceForm = ({
     },
   });
   dirtyFormRef.current = dirtyForm;
-  return { methods, save: dirtyFormRef.current?.save, isPending };
+  return { methods, save: dirtyForm.save, isPending };
 };
 
 export default useUserExperienceForm;

@@ -120,7 +120,8 @@ export interface Source {
 export type SourceTooltip = Pick<
   Source,
   'id' | 'name' | 'image' | 'handle' | 'permalink' | 'description' | 'flags'
-> & {
+> &
+  Required<Pick<Source, 'id'>> & {
   membersCount?: number;
   type?: SourceType;
 };

@@ -37,17 +37,18 @@ const useUserInfoForm = (): UseUserInfoForm => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const router = useRouter();
+  const userId = user?.id ?? '';
 
   // Fetch full profile via GraphQL to get socialLinks (boot endpoint doesn't include them)
   const userQueryKey = generateQueryKey(RequestKey.Profile, user, {
-    id: user?.id,
+    id: userId,
   });
   const { data: fullProfile } = useQuery({
     queryKey: userQueryKey,
-    queryFn: () => getProfile(user?.id),
+    queryFn: () => getProfile(userId),
     ...disabledRefetch,
     staleTime: StaleTime.OneHour,
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   useEffect(() => {
@@ -118,10 +119,10 @@ const useUserInfoForm = (): UseUserInfoForm => {
     },
 
     onError: (err) => {
-      if (err?.response?.errors?.length) {
-        const data: ProfileFormHint = JSON.parse(
-          err.response.errors[0].message,
-        );
+      const errorMessage = err?.response?.errors?.[0]?.message;
+
+      if (errorMessage) {
+        const data: ProfileFormHint = JSON.parse(errorMessage);
 
         Object.entries(data).forEach(([key, value]) => {
           methods.setError(key as keyof UserProfile, {

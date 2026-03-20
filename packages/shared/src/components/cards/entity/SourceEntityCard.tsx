@@ -20,7 +20,7 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 
 type SourceEntityCardProps = {
-  source?: SourceTooltip;
+  source: SourceTooltip;
   className?: {
     container?: string;
   };
@@ -91,14 +91,14 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount) || 0} Followers
+            {largeNumberFormat(membersCount ?? 0) || 0} Followers
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes) || 0} Upvotes
+            {largeNumberFormat(flags?.totalUpvotes ?? 0) || 0} Upvotes
           </Typography>
         </div>
       </div>
