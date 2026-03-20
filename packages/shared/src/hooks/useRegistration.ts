@@ -325,7 +325,7 @@ const useRegistration = ({
         return;
       }
       const callbackURL = isIOSNative()
-        ? webappUrl
+        ? window.location.href
         : `${webappUrl}callback?login=true`;
       const url = await getBetterAuthSocialUrl(
         provider.toLowerCase(),

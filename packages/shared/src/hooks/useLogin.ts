@@ -208,7 +208,7 @@ const useLogin = ({
         }
         const isIOSApp = isIOSNative();
         const callbackURL = isIOSApp
-          ? webappUrl
+          ? window.location.href
           : `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
         if (socialUrl) {
