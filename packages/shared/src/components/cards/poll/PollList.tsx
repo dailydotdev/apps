@@ -17,7 +17,10 @@ import SourceButton from '../common/SourceButton';
 import { ProfileImageSize } from '../../ProfilePicture';
 import ActionButtons from '../common/ActionButtons';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  isSourceUserSource,
+  type SourceTooltip,
+} from '../../../graphql/sources';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
@@ -112,7 +115,7 @@ export const PollList = forwardRef(function PollList(
           {!isUserSource && (
             <SourceButton
               size={ProfileImageSize.Large}
-              source={post.source}
+              source={post.source as SourceTooltip}
               className="relative"
             />
           )}

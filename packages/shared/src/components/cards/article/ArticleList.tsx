@@ -27,7 +27,10 @@ import { FeedbackList } from './feedback/FeedbackList';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  isSourceUserSource,
+  type SourceTooltip,
+} from '../../../graphql/sources';
 
 export const ArticleList = forwardRef(function ArticleList(
   {
@@ -137,7 +140,7 @@ export const ArticleList = forwardRef(function ArticleList(
               {!isUserSource && (
                 <SourceButton
                   size={ProfileImageSize.Large}
-                  source={post.source}
+                  source={post.source as SourceTooltip}
                   className="relative"
                 />
               )}

@@ -28,7 +28,10 @@ import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonText } from '../../../graphql/posts';
 import { useFeedPreviewMode } from '../../../hooks';
-import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  isSourceUserSource,
+  type SourceTooltip,
+} from '../../../graphql/sources';
 import {
   getSocialTwitterMetadataLabel,
   normalizeThreadBody,
@@ -110,7 +113,7 @@ export const SocialTwitterGrid = forwardRef(function SocialTwitterGrid(
       <CardTextContainer>
         <CardHeader>
           {!isUserSource && post.source && (
-            <SourceButton source={post.source} size={ProfileImageSize.Medium} />
+            <SourceButton source={post.source as SourceTooltip} size={ProfileImageSize.Medium} />
           )}
           {!!post.author && (
             <ProfileImageLink

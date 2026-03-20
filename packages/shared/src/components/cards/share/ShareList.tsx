@@ -23,7 +23,10 @@ import ActionButtons from '../common/ActionButtons';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  isSourceUserSource,
+  type SourceTooltip,
+} from '../../../graphql/sources';
 import { useFeature } from '../../GrowthBookProvider';
 import { sharedPostPreviewFeature } from '../../../lib/featureManagement';
 import { SharedPostPreview } from './SharedPostPreview';
@@ -140,7 +143,7 @@ export const ShareList = forwardRef(function ShareList(
         {!isUserSource && (
           <SourceButton
             size={ProfileImageSize.Large}
-            source={post.source}
+            source={post.source as SourceTooltip}
             className="relative"
           />
         )}

@@ -15,7 +15,10 @@ import { PostCardHeader } from '../common/list/PostCardHeader';
 import ActionButtons from '../common/ActionButtons';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { isSourceUserSource } from '../../../graphql/sources';
+import {
+  isSourceUserSource,
+  type SourceTooltip,
+} from '../../../graphql/sources';
 import {
   getReadPostButtonText,
   isSocialTwitterPost,
@@ -147,7 +150,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
           {!isUserSource && !!post?.source && (
             <SourceButton
               size={ProfileImageSize.Large}
-              source={post.source}
+              source={post.source as SourceTooltip}
               className="relative"
             />
           )}
