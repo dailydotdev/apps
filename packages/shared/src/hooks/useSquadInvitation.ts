@@ -24,13 +24,13 @@ export const useSquadInvitation = ({
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
 
-  const invitation = squad.referralUrl;
+  const invitation = squad.referralUrl ?? '';
   const [copying, copyLink] = useCopyLink(() => invitation);
 
   const logAndCopyLink = () => {
     logEvent({
       event_name: LogEvent.ShareSquadInvitation,
-      extra: JSON.stringify({ origin, squad: squad?.id }),
+      extra: JSON.stringify({ origin, squad: squad.id }),
     });
 
     completeAction(ActionType.SquadInvite);
