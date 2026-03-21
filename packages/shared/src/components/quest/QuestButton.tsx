@@ -45,7 +45,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { plusUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -1578,7 +1578,7 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
-      await router.push(destination.path);
+      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [router],
   );
