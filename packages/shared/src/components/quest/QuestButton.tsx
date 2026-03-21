@@ -1578,7 +1578,7 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
-      await router.push(`${webappUrl}${destination.path}`);
+      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [router],
   );
