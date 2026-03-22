@@ -83,6 +83,7 @@ const PostTagItem = ({
           icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
           onClick={() => onFollow(tag)}
           size={ButtonSize.XSmall}
+          type="button"
         />
       </Tooltip>
     </Chip>
