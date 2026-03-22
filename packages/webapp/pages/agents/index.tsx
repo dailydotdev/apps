@@ -38,6 +38,7 @@ const AGENTS_TITLE = 'Agentic Hub | daily.dev';
 const AGENTS_DESCRIPTION =
   'Stay on top of AI coding with live rankings, momentum shifts, developer sentiment, and the latest news and content to make smarter tool decisions.';
 const HUB_ARENA_TAB: ArenaTab = 'llms';
+const MAJOR_HEADLINES_LIMIT = 10;
 const HIGHLIGHTS_QUERY_KEY = generateQueryKey(
   RequestKey.PostHighlights,
   undefined,
@@ -46,6 +47,16 @@ const HIGHLIGHTS_QUERY_KEY = generateQueryKey(
 interface AgentsHomePageProps {
   dehydratedState: DehydratedState;
 }
+
+const fetchMajorHeadlines = async (): Promise<PostHighlight[]> => {
+  const data = await gqlClient.request<{
+    majorHeadlines: PostHighlightConnection;
+  }>(MAJOR_HEADLINES_QUERY, {
+    first: MAJOR_HEADLINES_LIMIT,
+  });
+
+  return data.majorHeadlines.edges.map((edge) => edge.node);
+};
 
 const AgentsHomePage = (): ReactElement => {
   useScrollRestoration();
@@ -79,15 +90,10 @@ const AgentsHomePage = (): ReactElement => {
 
   const { data: highlightsData, isFetching: isFetchingHighlights } = useQuery({
     queryKey: HIGHLIGHTS_QUERY_KEY,
-    queryFn: () =>
-      gqlClient.request<{ majorHeadlines: PostHighlightConnection }>(
-        MAJOR_HEADLINES_QUERY,
-        { first: 10 },
-      ),
+    queryFn: fetchMajorHeadlines,
   });
 
-  const highlights: PostHighlight[] =
-    highlightsData?.majorHeadlines.edges.map((edge) => edge.node) ?? [];
+  const highlights = highlightsData ?? [];
   const isHighlightsLoading = isFetchingHighlights && !highlightsData;
 
   const { data: digestSource } = useQuery(
@@ -194,11 +200,7 @@ export async function getStaticProps(): Promise<
   await Promise.all([
     queryClient.prefetchQuery({
       queryKey: HIGHLIGHTS_QUERY_KEY,
-      queryFn: () =>
-        gqlClient.request<{ majorHeadlines: PostHighlightConnection }>(
-          MAJOR_HEADLINES_QUERY,
-          { first: 10 },
-        ),
+      queryFn: fetchMajorHeadlines,
     }),
     queryClient.prefetchQuery(arenaOptions({ groupId: HUB_ARENA_TAB })),
     queryClient.prefetchQuery(
