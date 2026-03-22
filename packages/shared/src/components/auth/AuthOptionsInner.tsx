@@ -466,9 +466,6 @@ function AuthOptionsInner({
       }
       const isIOSApp = isIOSNative();
       onAuthStateUpdate?.({ isLoading: true });
-      if (!isIOSApp) {
-        windowPopup.current = window.open();
-      }
       const callbackURL = `${webappUrl}callback?login=true`;
       const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
@@ -482,8 +479,6 @@ function AuthOptionsInner({
             origin: 'betterauth social url',
           }),
         });
-        windowPopup.current?.close();
-        windowPopup.current = null;
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
@@ -491,6 +486,7 @@ function AuthOptionsInner({
         window.location.href = socialUrl;
         return;
       }
+      windowPopup.current = window.open(socialUrl);
       if (!windowPopup.current) {
         logEvent({
           event_name: authErrorEventName,
@@ -502,7 +498,6 @@ function AuthOptionsInner({
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
-      windowPopup.current.location.href = socialUrl;
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;

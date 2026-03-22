@@ -266,7 +266,6 @@ const useLogin = ({
           return;
         }
         const isIOSApp = isIOSNative();
-        const socialPopup = isIOSApp ? null : window.open();
         const callbackURL = `${webappUrl}callback?login=true`;
         const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
           provider,
@@ -280,7 +279,6 @@ const useLogin = ({
               origin: 'betterauth social url',
             }),
           });
-          socialPopup?.close();
           displayToast(labels.auth.error.generic);
           return;
         }
@@ -288,8 +286,8 @@ const useLogin = ({
           window.location.href = socialUrl;
           return;
         }
+        const socialPopup = window.open(socialUrl);
         if (socialPopup) {
-          socialPopup.location.href = socialUrl;
           return;
         }
         logEvent({
