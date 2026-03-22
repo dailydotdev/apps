@@ -9,6 +9,7 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Code will likely change - don't over-engineer
 - A/B experiments are common (GrowthBook integration)
 - Test coverage isn't a goal - write tests that validate functionality, not hit metrics
+- When work spans multiple repos, only open a PR for this repo if the user explicitly wants one or the repo contains changes that still need review.
 
 ## Code Style
 
