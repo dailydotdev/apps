@@ -57,6 +57,16 @@ jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: jest.fn(),
 }));
 
+jest.mock('../../lib/constants', () => {
+  const actual = jest.requireActual('../../lib/constants');
+
+  return {
+    ...actual,
+    plusUrl: 'https://app.daily.dev/plus',
+    webappUrl: 'https://app.daily.dev/',
+  };
+});
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
@@ -178,6 +188,7 @@ const questDashboard = {
     xpInLevel: 250,
     xpToNextLevel: 150,
   },
+  currentStreak: 0,
   daily: {
     regular: [
       {
@@ -336,7 +347,7 @@ describe('QuestButton', () => {
 
     await userEvent.click(destinationButton);
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('https://app.daily.dev/');
   });
 
   it('should route hot take quests to the hot takes modal path', async () => {
@@ -382,7 +393,9 @@ describe('QuestButton', () => {
       await screen.findByRole('button', { name: 'Go to Hot takes' }),
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/?openModal=hottakes');
+    expect(mockPush).toHaveBeenCalledWith(
+      'https://app.daily.dev/?openModal=hottakes',
+    );
   });
 
   it('should route share-post quests back to the feed', async () => {
@@ -428,7 +441,7 @@ describe('QuestButton', () => {
       await screen.findByRole('button', { name: 'Go to Feed' }),
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/');
+    expect(mockPush).toHaveBeenCalledWith('https://app.daily.dev/');
   });
 
   it('should label user follow quests as leaderboards', async () => {
@@ -562,7 +575,9 @@ describe('QuestButton', () => {
       await screen.findByRole('button', { name: 'Go to Create post' }),
     );
 
-    expect(mockPush).toHaveBeenCalledWith('/squads/create');
+    expect(mockPush).toHaveBeenCalledWith(
+      'https://app.daily.dev/squads/create',
+    );
   });
 
   it('should log when opening the quest dropdown', async () => {

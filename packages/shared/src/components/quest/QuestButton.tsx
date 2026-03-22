@@ -45,7 +45,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { plusUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -261,6 +261,18 @@ type QuestDestination = {
 };
 
 const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
+
+const getQuestDestinationHref = (path: string): string => {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  if (path === '/') {
+    return webappUrl;
+  }
+
+  return `${webappUrl}${path.replace(/^\//, '')}`;
+};
 
 const getQuestDestination = (
   quest: UserQuest['quest'],
@@ -1578,7 +1590,7 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
-      await router.push(destination.path);
+      await router.push(getQuestDestinationHref(destination.path));
     },
     [router],
   );
