@@ -7,8 +7,11 @@ import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/quer
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
 import type { ArenaTab } from '@dailydotdev/shared/src/features/agents/arena/types';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
-import { POST_HIGHLIGHTS_QUERY } from '@dailydotdev/shared/src/graphql/highlights';
+import type {
+  PostHighlight,
+  PostHighlightConnection,
+} from '@dailydotdev/shared/src/graphql/highlights';
+import { MAJOR_HEADLINES_QUERY } from '@dailydotdev/shared/src/graphql/highlights';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -35,11 +38,10 @@ const AGENTS_TITLE = 'Agentic Hub | daily.dev';
 const AGENTS_DESCRIPTION =
   'Stay on top of AI coding with live rankings, momentum shifts, developer sentiment, and the latest news and content to make smarter tool decisions.';
 const HUB_ARENA_TAB: ArenaTab = 'llms';
-const HIGHLIGHTS_CHANNEL = 'vibes';
 const HIGHLIGHTS_QUERY_KEY = generateQueryKey(
   RequestKey.PostHighlights,
   undefined,
-  HIGHLIGHTS_CHANNEL,
+  'majorHeadlines',
 );
 interface AgentsHomePageProps {
   dehydratedState: DehydratedState;
@@ -78,13 +80,14 @@ const AgentsHomePage = (): ReactElement => {
   const { data: highlightsData, isFetching: isFetchingHighlights } = useQuery({
     queryKey: HIGHLIGHTS_QUERY_KEY,
     queryFn: () =>
-      gqlClient.request<{ postHighlights: PostHighlight[] }>(
-        POST_HIGHLIGHTS_QUERY,
-        { channel: HIGHLIGHTS_CHANNEL },
+      gqlClient.request<{ majorHeadlines: PostHighlightConnection }>(
+        MAJOR_HEADLINES_QUERY,
+        { first: 10 },
       ),
   });
 
-  const highlights = highlightsData?.postHighlights ?? [];
+  const highlights: PostHighlight[] =
+    highlightsData?.majorHeadlines.edges.map((edge) => edge.node) ?? [];
   const isHighlightsLoading = isFetchingHighlights && !highlightsData;
 
   const { data: digestSource } = useQuery(
@@ -192,9 +195,9 @@ export async function getStaticProps(): Promise<
     queryClient.prefetchQuery({
       queryKey: HIGHLIGHTS_QUERY_KEY,
       queryFn: () =>
-        gqlClient.request<{ postHighlights: PostHighlight[] }>(
-          POST_HIGHLIGHTS_QUERY,
-          { channel: HIGHLIGHTS_CHANNEL },
+        gqlClient.request<{ majorHeadlines: PostHighlightConnection }>(
+          MAJOR_HEADLINES_QUERY,
+          { first: 10 },
         ),
     }),
     queryClient.prefetchQuery(arenaOptions({ groupId: HUB_ARENA_TAB })),
