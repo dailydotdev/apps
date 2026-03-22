@@ -16,7 +16,7 @@ const useSourceMenuProps = ({
 }) => {
   const router = useRouter();
   const { follow, unfollow } = useContentPreference();
-  const sourceId = source.id ?? '';
+  const sourceId = source?.id ?? '';
 
   const onCreateNewFeed = () => {
     if (!source?.id) {

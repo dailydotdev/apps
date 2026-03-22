@@ -164,14 +164,14 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount ?? 0) || 0} Followers
+            {largeNumberFormat(source.membersCount ?? 0) || 0} Followers
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes ?? 0) || 0} Upvotes
+            {largeNumberFormat(source.flags?.totalUpvotes ?? 0) || 0} Upvotes
           </Typography>
         </div>
         {shouldRenderNotificationCta && (
