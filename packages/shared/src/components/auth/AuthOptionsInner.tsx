@@ -15,7 +15,8 @@ import {
   getNodeValue,
 } from '../../lib/auth';
 import {
-  getBetterAuthSocialUrl,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
   betterAuthSignInWithIdToken,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
@@ -164,6 +165,7 @@ function AuthOptionsInner({
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
+  const socialErrorEventName = useRef(AuthEventNames.LoginError);
   const [chosenProvider, setChosenProvider] = usePersistentState(
     CHOSEN_PROVIDER_KEY,
     null,
@@ -366,13 +368,32 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
-    const { data: boot } = await refetchBoot();
+    let boot;
+    try {
+      ({ data: boot } = await refetchBoot());
+    } catch (error) {
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          error: getBetterAuthErrorMessage(
+            error,
+            'Failed to refresh Better Auth social auth state',
+          ),
+          origin: 'betterauth social auth boot',
+          data:
+            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+        }),
+      });
+      displayToast(labels.auth.error.generic);
+      return;
+    }
 
     if (!boot.user || !('email' in boot.user)) {
       logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
+        event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          error: 'Could not find email on social registration',
+          error: 'Could not find email after social authentication',
+          origin: 'betterauth social auth boot',
           data:
             typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
@@ -404,6 +425,10 @@ function AuthOptionsInner({
   };
 
   const onProviderClick = async (provider: string, login = true) => {
+    const authErrorEventName = login
+      ? AuthEventNames.LoginError
+      : AuthEventNames.RegistrationError;
+
     logEvent({
       event_name: 'click',
       target_type: login
@@ -412,6 +437,7 @@ function AuthOptionsInner({
       target_id: provider,
       extra: JSON.stringify({ trigger }),
     });
+    socialErrorEventName.current = authErrorEventName;
 
     if (isBetterAuth) {
       if (isNativeAuthSupported(provider)) {
@@ -425,6 +451,13 @@ function AuthOptionsInner({
           nonce: res.nonce,
         });
         if (result.error) {
+          logEvent({
+            event_name: authErrorEventName,
+            extra: JSON.stringify({
+              error: result.error,
+              origin: 'betterauth native id token',
+            }),
+          });
           return;
         }
         await setChosenProvider(provider);
@@ -433,12 +466,24 @@ function AuthOptionsInner({
       }
       const isIOSApp = isIOSNative();
       onAuthStateUpdate?.({ isLoading: true });
+      if (!isIOSApp) {
+        windowPopup.current = window.open();
+      }
       const callbackURL = `${webappUrl}callback?login=true`;
-      const socialUrl = await getBetterAuthSocialUrl(
+      const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
       );
       if (!socialUrl) {
+        logEvent({
+          event_name: authErrorEventName,
+          extra: JSON.stringify({
+            error: error || 'Failed to get social login URL',
+            origin: 'betterauth social url',
+          }),
+        });
+        windowPopup.current?.close();
+        windowPopup.current = null;
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
@@ -446,7 +491,18 @@ function AuthOptionsInner({
         window.location.href = socialUrl;
         return;
       }
-      windowPopup.current = window.open(socialUrl);
+      if (!windowPopup.current) {
+        logEvent({
+          event_name: authErrorEventName,
+          extra: JSON.stringify({
+            error: 'Failed to open social login window',
+            origin: 'betterauth social popup',
+          }),
+        });
+        onAuthStateUpdate?.({ isLoading: false });
+        return;
+      }
+      windowPopup.current.location.href = socialUrl;
       await setChosenProvider(provider);
       onAuthStateUpdate?.({ isLoading: true });
       return;
