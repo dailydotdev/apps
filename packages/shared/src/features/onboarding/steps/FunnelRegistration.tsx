@@ -37,7 +37,6 @@ import {
 } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
-import { useIsBetterAuth } from '../../../hooks/useIsBetterAuth';
 import { isIOSNative } from '../../../lib/func';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import Alert, { AlertType } from '../../../components/widgets/Alert';
@@ -141,7 +140,6 @@ function InnerFunnelRegistration({
 }: FunnelStepSignup): ReactElement {
   const router = useRouter();
   const isTablet = useViewSize(ViewSize.Tablet);
-  const isBetterAuth = useIsBetterAuth();
   const shouldRedirect = shouldRedirectAuth();
   const windowPopup = useRef<Window | null>(null);
   const { cookieExists } = useConsentCookie(GdprConsentKey.Marketing);
@@ -159,12 +157,11 @@ function InnerFunnelRegistration({
       if (shouldRedirect) {
         window.sessionStorage.setItem(AUTH_REDIRECT_KEY, window.location.href);
         window.location.href = redirect;
-      } else if (isBetterAuth) {
-        if (isIOSNative()) {
-          window.location.href = redirect;
-        } else {
-          windowPopup.current = window.open(redirect);
-        }
+        return;
+      }
+
+      if (isIOSNative()) {
+        window.location.href = redirect;
       } else if (windowPopup.current) {
         windowPopup.current.location.href = redirect;
       } else {
@@ -177,7 +174,10 @@ function InnerFunnelRegistration({
   const subscriberEmail = router?.query?.subscribed;
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isBetterAuth && !isNativeAuthSupported(provider) && !shouldRedirect) {
+    const shouldUsePopup =
+      !shouldRedirect && !isNativeAuthSupported(provider) && !isIOSNative();
+
+    if (shouldUsePopup) {
       windowPopup.current = window.open();
     }
     onSocialRegistration(provider);

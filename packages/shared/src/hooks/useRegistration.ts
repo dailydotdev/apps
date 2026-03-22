@@ -31,7 +31,8 @@ import {
 import {
   betterAuthSignUp,
   betterAuthSignInWithIdToken,
-  getBetterAuthSocialUrl,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
 } from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
@@ -342,21 +343,55 @@ const useRegistration = ({
           });
           return;
         }
-        await refetchBoot();
+        try {
+          const { data: boot } = await refetchBoot();
+          if (!boot.user) {
+            logEvent({
+              event_name: AuthEventNames.RegistrationError,
+              extra: JSON.stringify({
+                error: 'Missing user after Better Auth social registration',
+                origin: 'betterauth native id token registration boot',
+              }),
+            });
+            displayToast('An error occurred, please refresh the page.');
+            return;
+          }
+        } catch (error) {
+          logEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify({
+              error: getBetterAuthErrorMessage(
+                error,
+                'Failed to refresh Better Auth registration state',
+              ),
+              origin: 'betterauth native id token registration boot',
+            }),
+          });
+          displayToast('An error occurred, please refresh the page.');
+          return;
+        }
         return;
       }
       const callbackURL = `${webappUrl}callback?login=true`;
-      const url = await getBetterAuthSocialUrl(
+      const { url, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
       );
       if (onRedirect && url) {
         onRedirect(url);
+      } else if (!onRedirect && url) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: 'Missing social registration redirect handler',
+            origin: 'betterauth social url registration',
+          }),
+        });
       } else if (!url) {
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
-            error: 'Failed to get social registration URL',
+            error: error || 'Failed to get social registration URL',
             origin: 'betterauth social url registration',
           }),
         });
