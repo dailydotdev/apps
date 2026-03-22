@@ -195,6 +195,13 @@ const useLogin = ({
             nonce: res.nonce,
           });
           if (result.error) {
+            logEvent({
+              event_name: AuthEventNames.LoginError,
+              extra: JSON.stringify({
+                error: result.error,
+                origin: 'betterauth native id token',
+              }),
+            });
             return;
           }
           const { data: boot } = await refetchBoot();
@@ -209,12 +216,20 @@ const useLogin = ({
         const isIOSApp = isIOSNative();
         const callbackURL = `${webappUrl}callback?login=true`;
         const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
-        if (socialUrl) {
-          if (isIOSApp) {
-            window.location.href = socialUrl;
-          } else {
-            window.open(socialUrl);
-          }
+        if (!socialUrl) {
+          logEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({
+              error: 'Failed to get social login URL',
+              origin: 'betterauth social url',
+            }),
+          });
+          return;
+        }
+        if (isIOSApp) {
+          window.location.href = socialUrl;
+        } else {
+          window.open(socialUrl);
         }
         return;
       }

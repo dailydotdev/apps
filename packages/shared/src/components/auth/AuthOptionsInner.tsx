@@ -425,6 +425,13 @@ function AuthOptionsInner({
           nonce: res.nonce,
         });
         if (result.error) {
+          logEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({
+              error: result.error,
+              origin: 'betterauth native id token',
+            }),
+          });
           return;
         }
         await setChosenProvider(provider);
@@ -439,6 +446,13 @@ function AuthOptionsInner({
         callbackURL,
       );
       if (!socialUrl) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: 'Failed to get social login URL',
+            origin: 'betterauth social url',
+          }),
+        });
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
