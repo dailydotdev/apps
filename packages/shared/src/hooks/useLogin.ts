@@ -7,7 +7,12 @@ import type {
   LoginSocialParameters,
   ValidateLoginParams,
 } from '../lib/auth';
-import { AuthEventNames, getNodeValue } from '../lib/auth';
+import {
+  AuthEventNames,
+  getNodeValue,
+  iosNativeAuth,
+  isNativeAuthSupported,
+} from '../lib/auth';
 import type {
   AuthSession,
   EmptyObjectLiteral,
@@ -20,7 +25,12 @@ import {
   initializeKratosFlow,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignIn, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import {
+  betterAuthSignIn,
+  betterAuthSignInWithIdToken,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
+} from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useLogContext } from '../contexts/LogContext';
 import { useToastNotification } from './useToastNotification';
@@ -30,6 +40,7 @@ import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
 import { useEventListener } from './useEventListener';
 import { broadcastChannel, webappUrl } from '../lib/constants';
+import { isIOSNative } from '../lib/func';
 
 const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
   'An error occurred, please refresh the page.';
@@ -98,20 +109,48 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
-            error: labels.auth.error.invalidEmailOrPassword,
+            error: res.error,
+            displayedError: labels.auth.error.invalidEmailOrPassword,
+            origin: 'betterauth email login',
           }),
         });
         setHint(labels.auth.error.invalidEmailOrPassword);
         return;
       }
 
-      const { data: boot } = await refetchBoot();
+      try {
+        const { data: boot } = await refetchBoot();
 
-      if (boot.user && !boot.user.shouldVerify) {
-        onUpdateSignBack(boot.user as LoggedUser, 'password');
+        if (!boot.user) {
+          logEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({
+              error: 'Missing user after Better Auth email login',
+              origin: 'betterauth email login boot',
+            }),
+          });
+          setHint(labels.auth.error.generic);
+          return;
+        }
+
+        if (!boot.user.shouldVerify) {
+          onUpdateSignBack(boot.user as LoggedUser, 'password');
+        }
+
+        onSuccessfulLogin?.(boot.user.shouldVerify);
+      } catch (error) {
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: getBetterAuthErrorMessage(
+              error,
+              'Failed to refresh Better Auth login state',
+            ),
+            origin: 'betterauth email login boot',
+          }),
+        });
+        setHint(labels.auth.error.generic);
       }
-
-      onSuccessfulLogin?.(boot?.user?.shouldVerify);
     },
   });
 
@@ -174,11 +213,93 @@ const useLogin = ({
   const onSubmitSocialLogin = useCallback(
     async (provider: string) => {
       if (isBetterAuth) {
-        const callbackURL = `${webappUrl}callback?login=true`;
-        const socialUrl = await getBetterAuthSocialUrl(provider, callbackURL);
-        if (socialUrl) {
-          window.open(socialUrl);
+        if (isNativeAuthSupported(provider)) {
+          const res = await iosNativeAuth(provider);
+          if (!res) {
+            return;
+          }
+          const result = await betterAuthSignInWithIdToken({
+            provider: provider.toLowerCase(),
+            token: res.token,
+            nonce: res.nonce,
+          });
+          if (result.error) {
+            logEvent({
+              event_name: AuthEventNames.LoginError,
+              extra: JSON.stringify({
+                error: result.error,
+                origin: 'betterauth native id token',
+              }),
+            });
+            return;
+          }
+          try {
+            const { data: boot } = await refetchBoot();
+            if (!boot.user) {
+              logEvent({
+                event_name: AuthEventNames.LoginError,
+                extra: JSON.stringify({
+                  error: 'Missing user after Better Auth social login',
+                  origin: 'betterauth native id token boot',
+                }),
+              });
+              displayToast(labels.auth.error.generic);
+              return;
+            }
+            onUpdateSignBack(
+              boot.user as LoggedUser,
+              provider as SignBackProvider,
+            );
+          } catch (error) {
+            logEvent({
+              event_name: AuthEventNames.LoginError,
+              extra: JSON.stringify({
+                error: getBetterAuthErrorMessage(
+                  error,
+                  'Failed to refresh Better Auth social login state',
+                ),
+                origin: 'betterauth native id token boot',
+              }),
+            });
+            displayToast(labels.auth.error.generic);
+          }
+          return;
         }
+        const isIOSApp = isIOSNative();
+        const socialPopup = isIOSApp ? null : window.open();
+        const callbackURL = `${webappUrl}callback?login=true`;
+        const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
+          provider,
+          callbackURL,
+        );
+        if (!socialUrl) {
+          logEvent({
+            event_name: AuthEventNames.LoginError,
+            extra: JSON.stringify({
+              error: error || 'Failed to get social login URL',
+              origin: 'betterauth social url',
+            }),
+          });
+          socialPopup?.close();
+          displayToast(labels.auth.error.generic);
+          return;
+        }
+        if (isIOSApp) {
+          window.location.href = socialUrl;
+          return;
+        }
+        if (socialPopup) {
+          socialPopup.location.href = socialUrl;
+          return;
+        }
+        logEvent({
+          event_name: AuthEventNames.LoginError,
+          extra: JSON.stringify({
+            error: 'Failed to open social login window',
+            origin: 'betterauth social popup',
+          }),
+        });
+        displayToast(labels.auth.error.generic);
         return;
       }
 
@@ -195,7 +316,15 @@ const useLogin = ({
       };
       onSocialLogin({ action, params });
     },
-    [isBetterAuth, displayToast, login?.ui, onSocialLogin],
+    [
+      isBetterAuth,
+      displayToast,
+      login?.ui,
+      logEvent,
+      onSocialLogin,
+      refetchBoot,
+      onUpdateSignBack,
+    ],
   );
 
   const onSubmitPasswordLogin = useCallback(

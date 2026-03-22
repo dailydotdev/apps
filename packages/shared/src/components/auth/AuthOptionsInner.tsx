@@ -8,18 +8,22 @@ import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
 import type { RegistrationError } from '../../lib/auth';
 import {
+  iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
   AuthTriggers,
   getNodeValue,
 } from '../../lib/auth';
 import {
-  getBetterAuthSocialUrl,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
+  betterAuthSignInWithIdToken,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
+import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -161,6 +165,7 @@ function AuthOptionsInner({
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
+  const socialErrorEventName = useRef(AuthEventNames.LoginError);
   const [chosenProvider, setChosenProvider] = usePersistentState(
     CHOSEN_PROVIDER_KEY,
     null,
@@ -357,66 +362,38 @@ function AuthOptionsInner({
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
-  const onProviderClick = async (provider: string, login = true) => {
-    logEvent({
-      event_name: 'click',
-      target_type: login
-        ? AuthEventNames?.LoginProvider
-        : AuthEventNames.SignUpProvider,
-      target_id: provider,
-      extra: JSON.stringify({ trigger }),
-    });
-
-    if (isBetterAuth) {
-      const callbackURL = login
-        ? `${webappUrl}callback?login=true`
-        : `${webappUrl}callback`;
-      const socialUrl = await getBetterAuthSocialUrl(
-        provider.toLowerCase(),
-        callbackURL,
-      );
-      if (!socialUrl) {
-        return;
-      }
-      if (!isNativeAuthSupported(provider)) {
-        windowPopup.current = window.open(socialUrl);
-      } else if (windowPopup.current) {
-        windowPopup.current.location.href = socialUrl;
-      } else {
-        window.location.href = socialUrl;
-      }
-      await setChosenProvider(provider);
-      onAuthStateUpdate?.({ isLoading: true });
-      return;
-    }
-
-    // Only web auth requires a popup
-    if (!isNativeAuthSupported(provider)) {
-      windowPopup.current = window.open();
-    }
-    await setChosenProvider(provider);
-    await onSocialRegistration(provider);
-    onAuthStateUpdate?.({ isLoading: true });
-  };
-
-  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
-    setEmail(inputEmail);
-    setFlow(inputFlow);
-    onSetActiveDisplay(AuthDisplay.CodeVerification);
-  };
 
   const checkIsLoginMessage = (e: MessageEvent) => {
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
-    const { data: boot } = await refetchBoot();
+    let boot;
+    try {
+      ({ data: boot } = await refetchBoot());
+    } catch (error) {
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          error: getBetterAuthErrorMessage(
+            error,
+            'Failed to refresh Better Auth social auth state',
+          ),
+          origin: 'betterauth social auth boot',
+          data:
+            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+        }),
+      });
+      displayToast(labels.auth.error.generic);
+      return;
+    }
 
     if (!boot.user || !('email' in boot.user)) {
       logEvent({
-        event_name: AuthEventNames.SubmitSignUpFormError,
+        event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          error: 'Could not find email on social registration',
+          error: 'Could not find email after social authentication',
+          origin: 'betterauth social auth boot',
           data:
             typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
@@ -445,6 +422,105 @@ function AuthOptionsInner({
     await setChosenProvider(chosenProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
+  };
+
+  const onProviderClick = async (provider: string, login = true) => {
+    const authErrorEventName = login
+      ? AuthEventNames.LoginError
+      : AuthEventNames.RegistrationError;
+
+    logEvent({
+      event_name: 'click',
+      target_type: login
+        ? AuthEventNames?.LoginProvider
+        : AuthEventNames.SignUpProvider,
+      target_id: provider,
+      extra: JSON.stringify({ trigger }),
+    });
+    socialErrorEventName.current = authErrorEventName;
+
+    if (isBetterAuth) {
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        if (!res) {
+          return;
+        }
+        const result = await betterAuthSignInWithIdToken({
+          provider: provider.toLowerCase(),
+          token: res.token,
+          nonce: res.nonce,
+        });
+        if (result.error) {
+          logEvent({
+            event_name: authErrorEventName,
+            extra: JSON.stringify({
+              error: result.error,
+              origin: 'betterauth native id token',
+            }),
+          });
+          return;
+        }
+        await setChosenProvider(provider);
+        await handleLoginMessage();
+        return;
+      }
+      const isIOSApp = isIOSNative();
+      onAuthStateUpdate?.({ isLoading: true });
+      if (!isIOSApp) {
+        windowPopup.current = window.open();
+      }
+      const callbackURL = `${webappUrl}callback?login=true`;
+      const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
+        provider.toLowerCase(),
+        callbackURL,
+      );
+      if (!socialUrl) {
+        logEvent({
+          event_name: authErrorEventName,
+          extra: JSON.stringify({
+            error: error || 'Failed to get social login URL',
+            origin: 'betterauth social url',
+          }),
+        });
+        windowPopup.current?.close();
+        windowPopup.current = null;
+        onAuthStateUpdate?.({ isLoading: false });
+        return;
+      }
+      if (isIOSApp) {
+        window.location.href = socialUrl;
+        return;
+      }
+      if (!windowPopup.current) {
+        logEvent({
+          event_name: authErrorEventName,
+          extra: JSON.stringify({
+            error: 'Failed to open social login window',
+            origin: 'betterauth social popup',
+          }),
+        });
+        onAuthStateUpdate?.({ isLoading: false });
+        return;
+      }
+      windowPopup.current.location.href = socialUrl;
+      await setChosenProvider(provider);
+      onAuthStateUpdate?.({ isLoading: true });
+      return;
+    }
+
+    // Only web auth requires a popup
+    if (!isNativeAuthSupported(provider)) {
+      windowPopup.current = window.open();
+    }
+    await setChosenProvider(provider);
+    await onSocialRegistration(provider);
+    onAuthStateUpdate?.({ isLoading: true });
+  };
+
+  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
+    setEmail(inputEmail);
+    setFlow(inputFlow);
+    onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
   const onProviderMessage = async (e: MessageEvent) => {

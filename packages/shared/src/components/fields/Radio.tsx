@@ -49,7 +49,7 @@ export function Radio<T extends string = string>({
           value={option.value}
           disabled={option.disabled || disabled}
           checked={value === option.value}
-          onChange={() => onChange(option.value)}
+          onChange={() => option.value !== undefined && onChange(option.value)}
           className={{
             content: classNames(
               'truncate',

@@ -32,7 +32,7 @@ import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNo
 import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type SourceEntityCardProps = {
-  source?: SourceTooltip;
+  source: SourceTooltip;
   className?: {
     container?: string;
   };
@@ -133,7 +133,7 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
           />
           {showActionBtn && (
             <FollowButton
-              entityId={source.id}
+              entityId={source.id ?? ''}
               entityName={source.name}
               type={ContentPreferenceType.Source}
               variant={ButtonVariant.Primary}
@@ -164,14 +164,14 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(source.membersCount ?? 0)} Followers
+            {largeNumberFormat(membersCount ?? 0) || 0} Followers
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(source.flags?.totalUpvotes ?? 0)} Upvotes
+            {largeNumberFormat(flags?.totalUpvotes ?? 0) || 0} Upvotes
           </Typography>
         </div>
         {shouldRenderNotificationCta && (

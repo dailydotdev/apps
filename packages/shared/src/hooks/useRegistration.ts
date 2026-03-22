@@ -28,7 +28,12 @@ import {
   KRATOS_ERROR_MESSAGE,
   submitKratosFlow,
 } from '../lib/kratos';
-import { betterAuthSignUp, getBetterAuthSocialUrl } from '../lib/betterAuth';
+import {
+  betterAuthSignUp,
+  betterAuthSignInWithIdToken,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
+} from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
@@ -82,7 +87,7 @@ const useRegistration = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo } =
+  const { trackingId, referral, referralOrigin, logout, geo, refetchBoot } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
   const {
@@ -249,6 +254,13 @@ const useRegistration = ({
     },
     onSuccess: async (res) => {
       if (res.error) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: res.error,
+            origin: 'betterauth signup error',
+          }),
+        });
         onInvalidRegistration?.({
           'traits.email': res.error,
         });
@@ -256,6 +268,13 @@ const useRegistration = ({
       }
 
       if (res.status && !res.user) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
+            origin: 'betterauth signup fallback error',
+          }),
+        });
         onInvalidRegistration?.({
           'traits.email': BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
         });
@@ -304,13 +323,78 @@ const useRegistration = ({
 
   const onSocialRegistration = async (provider: string) => {
     if (isBetterAuth) {
-      const callbackURL = `${webappUrl}callback`;
-      const url = await getBetterAuthSocialUrl(
+      if (isNativeAuthSupported(provider)) {
+        const res = await iosNativeAuth(provider);
+        if (!res) {
+          return;
+        }
+        const result = await betterAuthSignInWithIdToken({
+          provider: provider.toLowerCase(),
+          token: res.token,
+          nonce: res.nonce,
+        });
+        if (result.error) {
+          logEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify({
+              error: result.error,
+              origin: 'betterauth native id token registration',
+            }),
+          });
+          return;
+        }
+        try {
+          const { data: boot } = await refetchBoot();
+          if (!boot.user) {
+            logEvent({
+              event_name: AuthEventNames.RegistrationError,
+              extra: JSON.stringify({
+                error: 'Missing user after Better Auth social registration',
+                origin: 'betterauth native id token registration boot',
+              }),
+            });
+            displayToast('An error occurred, please refresh the page.');
+            return;
+          }
+        } catch (error) {
+          logEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify({
+              error: getBetterAuthErrorMessage(
+                error,
+                'Failed to refresh Better Auth registration state',
+              ),
+              origin: 'betterauth native id token registration boot',
+            }),
+          });
+          displayToast('An error occurred, please refresh the page.');
+          return;
+        }
+        return;
+      }
+      const callbackURL = `${webappUrl}callback?login=true`;
+      const { url, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
       );
       if (onRedirect && url) {
         onRedirect(url);
+      } else if (!onRedirect && url) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: 'Missing social registration redirect handler',
+            origin: 'betterauth social url registration',
+          }),
+        });
+      } else if (!url) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: error || 'Failed to get social registration URL',
+            origin: 'betterauth social url registration',
+          }),
+        });
       }
       return;
     }

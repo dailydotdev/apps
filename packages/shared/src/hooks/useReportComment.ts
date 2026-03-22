@@ -4,6 +4,7 @@ import AuthContext from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import { useRequestProtocol } from './useRequestProtocol';
 import { REPORT_COMMENT_MUTATION } from '../graphql/comments';
+import { gqlRequest } from '../graphql/common';
 import type { ReportReason } from '../report';
 import type { BooleanPromise } from '../lib/func';
 
@@ -18,19 +19,19 @@ type UseReportCommentRet = {
 interface ReportCommentProps {
   commentId: string;
   reason: ReportReason;
-  note: string;
+  note?: string;
 }
 
 export default function useReportComment(): UseReportCommentRet {
   const { user, showLogin } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
+  const request = requestMethod ?? gqlRequest;
   const { mutateAsync: reportCommentAsync } = useMutation<
     void,
     unknown,
     ReportCommentProps
   >({
-    mutationFn: (variables) =>
-      requestMethod(REPORT_COMMENT_MUTATION, variables),
+    mutationFn: (variables) => request(REPORT_COMMENT_MUTATION, variables),
   });
 
   const reportComment = async (params: ReportCommentProps) => {

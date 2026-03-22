@@ -78,7 +78,7 @@ export function PostSidebarAdWidget({
     return <EntityCardSkeleton className={className} />;
   }
 
-  if (!ad) {
+  if (!ad?.link) {
     return null;
   }
 

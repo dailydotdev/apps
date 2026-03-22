@@ -34,8 +34,22 @@ const EntityCard = ({
       )}
     >
       <div className="flex w-full items-start justify-between gap-2">
-        <Link href={permalink}>
-          <a className={classNames(className?.image, 'overflow-hidden')}>
+        {permalink ? (
+          <Link href={permalink}>
+            <a className={classNames(className?.image, 'overflow-hidden')}>
+              <Image
+                className="h-full w-full object-cover"
+                src={image}
+                alt={
+                  type === 'user'
+                    ? `${entityName}'s user avatar`
+                    : `${entityName}'s image`
+                }
+              />
+            </a>
+          </Link>
+        ) : (
+          <div className={classNames(className?.image, 'overflow-hidden')}>
             <Image
               className="h-full w-full object-cover"
               src={image}
@@ -45,8 +59,8 @@ const EntityCard = ({
                   : `${entityName}'s image`
               }
             />
-          </a>
-        </Link>
+          </div>
+        )}
         <div className="flex items-center gap-2">{actionButtons}</div>
       </div>
       {children}

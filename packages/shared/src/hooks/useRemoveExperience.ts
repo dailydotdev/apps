@@ -16,9 +16,10 @@ const useRemoveExperience = ({ type }: { type: UserExperienceType }) => {
   const { logEvent } = useLogContext();
   const router = useRouter();
   const { displayToast } = useToastNotification();
+  const userId = user?.id ?? '';
   const { queryKey: experienceQueryKey } = useUserExperiencesByType(
     type,
-    user?.id,
+    userId,
   );
   const qc = useQueryClient();
   const { mutate, isPending } = useMutation({

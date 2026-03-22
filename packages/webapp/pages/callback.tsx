@@ -37,7 +37,7 @@ const handleRedirectAuth = (params: URLSearchParams) => {
   }
 };
 
-function CallbackPage(): ReactElement {
+function CallbackPage(): ReactElement | null {
   const { logEvent } = useLogContext();
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -65,6 +65,14 @@ function CallbackPage(): ReactElement {
         broadcastMessage({ ...params, eventKey });
       } else {
         postWindowMessage(eventKey, params);
+      }
+
+      // No opener means we can't close this window (iOS native,
+      // mobile browsers opening tabs instead of popups). Redirect
+      // to onboarding which routes based on auth state.
+      if (!window.opener) {
+        window.location.replace('/onboarding');
+        return;
       }
 
       if (!isPWA()) {
