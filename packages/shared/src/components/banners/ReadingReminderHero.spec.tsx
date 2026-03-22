@@ -45,9 +45,7 @@ describe('ReadingReminderHero', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Enable reminder' }));
 
     expect(onEnable).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole('button', { name: 'Close' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Close')).not.toBeInTheDocument();
   });
 
   it('should handle dismiss action when enabled', () => {

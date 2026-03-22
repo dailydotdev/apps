@@ -107,8 +107,10 @@ export enum LogEvent {
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
   ClickNotification = 'click notification',
+  ClickNotificationCta = 'click notification cta',
   ClickEnableNotification = 'click enable notification',
   ClickNotificationDismiss = 'click notification dismiss',
+  ImpressionNotificationCta = 'impression notification cta',
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
@@ -538,6 +540,24 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+}
+
+export enum NotificationCtaPlacement {
+  TopHero = 'top-hero',
+  InFeedHero = 'in-feed-hero',
+  CommentInline = 'comment-inline',
+  UserCard = 'user-card',
+  SourceCard = 'source-card',
+  SquadCard = 'squad-card',
+  PostActions = 'post-actions',
+  SquadShareToast = 'squad-share-toast',
+}
+
+export enum NotificationCtaKind {
+  PushCta = 'push_cta',
+  ReadingReminder = 'reading_reminder',
+  FollowUpCta = 'followup_cta',
+  ToastCta = 'toast_cta',
 }
 
 export enum NotificationPromptSource {

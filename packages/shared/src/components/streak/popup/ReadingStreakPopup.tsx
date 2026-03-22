@@ -34,7 +34,6 @@ import {
 } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import Link from '../../utilities/Link';
-import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import usePersistentContext, {
   PersistentContextKeys,
 } from '../../../hooks/usePersistentContext';
@@ -43,8 +42,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { cloudinaryNotificationsBrowser } from '../../../lib/image';
 import { usePushNotificationMutation } from '../../../hooks/notifications';
+import { NotificationSvg } from '../../notifications/NotificationSvg';
+import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 
@@ -110,16 +110,19 @@ interface ReadingStreakPopupProps {
 export function ReadingStreakPopup({
   streak,
   fullWidth,
-}: ReadingStreakPopupProps): ReactElement {
+}: ReadingStreakPopupProps): ReactElement | null {
   const router = useRouter();
   const { flags, updateFlag } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { user } = useAuthContext();
   const { completeAction } = useActions();
+  const userId = user?.id;
+  const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const { data: history } = useQuery<ReadingDay[]>({
     queryKey: generateQueryKey(RequestKey.ReadingStreak30Days, user),
-    queryFn: () => getReadingStreak30Days(user?.id),
+    queryFn: () => getReadingStreak30Days(userId ?? ''),
     staleTime: StaleTime.Default,
+    enabled: !!userId,
   });
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
@@ -131,7 +134,6 @@ export function ReadingStreakPopup({
     PersistentContextKeys.StreakAlertPushKey,
     true,
   );
-
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
 
   const showAlert =
@@ -145,14 +147,14 @@ export function ReadingStreakPopup({
     const streakDays = getStreakDays(today);
 
     return streakDays.map((value) => {
-      const isToday = isSameDayInTimezone(value, today, user?.timezone);
+      const isToday = isSameDayInTimezone(value, today, timezone);
 
       const streakDef = getStreak({
         value,
         today,
         history,
         startOfWeek: streak.weekStart,
-        timezone: user?.timezone,
+        timezone,
       });
 
       return (
@@ -164,11 +166,11 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, user?.timezone]);
+  }, [history, streak.weekStart, timezone]);
 
   const onTogglePush = async () => {
     logEvent({
-      event_name: LogEvent.DisableNotification,
+      event_name: LogEvent.EnableNotification,
       extra: JSON.stringify({
         channel: NotificationChannel.Web,
         category: NotificationCategory.Product,
@@ -261,7 +263,7 @@ export function ReadingStreakPopup({
                       const promptResult = await showPrompt({
                         title: 'Streak timezone mismatch',
                         description: `We detected your current timezone setting ${getTimezoneOffsetLabel(
-                          user?.timezone,
+                          timezone,
                         )} does not match your current device timezone ${getTimezoneOffsetLabel(
                           deviceTimezone,
                         )}. You can update your timezone in settings.`,
@@ -295,9 +297,7 @@ export function ReadingStreakPopup({
                     }}
                     href={timezoneSettingsUrl}
                   >
-                    {isTimezoneOk
-                      ? user?.timezone || DEFAULT_TIMEZONE
-                      : 'Timezone mismatch'}
+                    {isTimezoneOk ? timezone : 'Timezone mismatch'}
                   </Link>
                 </div>
               </div>
@@ -328,11 +328,8 @@ export function ReadingStreakPopup({
                   Get notified to keep your streak
                 </Typography>
 
-                <div className="h-12 w-22 overflow-hidden">
-                  <img
-                    src={cloudinaryNotificationsBrowser}
-                    alt="A sample browser notification"
-                  />
+                <div className="h-12 w-22 shrink-0 overflow-hidden">
+                  <NotificationSvg />
                 </div>
               </div>
 
@@ -356,9 +353,8 @@ export function ReadingStreakPopup({
               </div>
             </>
           )}
-
           {acceptedJustNow && (
-            <>
+            <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
               <VIcon size={IconSize.Small} />
               <div className="flex flex-1 flex-col gap-2">
                 <Typography bold type={TypographyType.Callout}>
@@ -376,7 +372,7 @@ export function ReadingStreakPopup({
                   can be done anytime through account details
                 </Typography>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}

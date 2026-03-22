@@ -29,7 +29,12 @@ import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import { LogEvent, Origin, TargetId } from '../lib/log';
+import {
+  LogEvent,
+  NotificationCtaPlacement,
+  Origin,
+  TargetId,
+} from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
@@ -60,6 +65,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  featureFeedAdTemplate,
   featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -67,6 +73,8 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
+import { TopHero } from './banners/HeroBottomBanner';
+import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -251,6 +259,8 @@ export default function Feed<T>({
   });
   const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
+  const adTemplate = currentSettings.adTemplate ??
+    featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
@@ -272,10 +282,10 @@ export default function Feed<T>({
     pageSize ?? currentSettings.pageSize,
     isSquadFeed || shouldUseListFeedLayout
       ? {
-          ...currentSettings.adTemplate,
+          ...adTemplate,
           adStart: 2, // always make adStart 2 for squads due to welcome and pinned posts
         }
-      : currentSettings.adTemplate,
+      : adTemplate,
     numCards,
     {
       onEmptyFeed,
@@ -294,7 +304,9 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
-  const [postModalIndex, setPostModalIndex] = useState<PostLocation>(null);
+  const [postModalIndex, setPostModalIndex] = useState<PostLocation | null>(
+    null,
+  );
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -313,6 +325,19 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
+  const {
+    heroInsertIndex,
+    shouldShowTopHero,
+    shouldShowInFeedHero,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    shouldShowDismiss: shouldShowReadingReminderDismiss,
+    onEnableHero,
+    onDismissHero,
+  } = useReadingReminderFeedHero({
+    itemCount: items.length,
+    itemsPerRow: virtualizedNumCards,
+  });
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -326,18 +351,23 @@ export default function Feed<T>({
 
       if (type === 'POST') {
         const postItem = items.find(
-          (item: PostItem) => item.post.id === entityId && item.type === 'post',
-        ) as PostItem;
+          (item): item is PostItem =>
+            item.type === 'post' && item.post.id === entityId,
+        );
 
-        const currentPost = postItem?.post;
-
-        if (!!currentPost && entityId !== currentPost.id) {
+        if (!postItem) {
           return;
         }
+
+        const currentPost = postItem.post;
 
         const awardProduct = getProducts()?.edges.find(
           (item) => item.node.id === productId,
         )?.node;
+
+        if (!currentPost.userState || awardProduct?.value === undefined) {
+          return;
+        }
 
         updatePost(postItem.page, postItem.index, {
           ...currentPost,
@@ -359,13 +389,14 @@ export default function Feed<T>({
   });
 
   const logOpts = useMemo(() => {
+    const modalRow = postModalIndex?.row;
+    const modalColumn = postModalIndex?.column;
+
     return {
       columns: virtualizedNumCards,
-      row: !isNullOrUndefined(postModalIndex?.row)
-        ? postModalIndex.row
-        : postMenuLocation?.row,
-      column: !isNullOrUndefined(postModalIndex?.column)
-        ? postModalIndex.column
+      row: !isNullOrUndefined(modalRow) ? modalRow : postMenuLocation?.row,
+      column: !isNullOrUndefined(modalColumn)
+        ? modalColumn
         : postMenuLocation?.column,
       is_ad: selectedPostIsAd ? true : undefined,
     };
@@ -399,7 +430,7 @@ export default function Feed<T>({
 
   const { toggleUpvote, toggleDownvote } = useFeedVotePost({
     feedName,
-    ranking,
+    ranking: ranking ?? '',
     items,
     updatePost,
     feedQueryKey,
@@ -408,7 +439,7 @@ export default function Feed<T>({
   const { toggleBookmark } = useFeedBookmarkPost({
     feedName,
     feedQueryKey,
-    ranking,
+    ranking: ranking ?? '',
     items,
     updatePost,
   });
@@ -541,7 +572,7 @@ export default function Feed<T>({
     }
   };
 
-  const PostModal = PostModalMap[selectedPost?.type];
+  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
@@ -555,12 +586,31 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
+  const currentPageSize = pageSize ?? currentSettings.pageSize;
+  const showPromoBanner = !!briefBannerPage;
+  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
+  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+  const indexWhenShowingPromoBanner =
+    currentPageSize * Number(briefBannerPage) - // number of items at that page
+    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
+    Number(showFirstSlotCard);
+
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
+        topContent: shouldShowTopHero ? (
+          <TopHero
+            className="pt-2"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            shouldShowDismiss={shouldShowReadingReminderDismiss}
+            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
+            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
+          />
+        ) : undefined,
         header,
         inlineHeader,
         className,
@@ -573,15 +623,6 @@ export default function Feed<T>({
         disableListFrame,
         disableListWidthConstraint,
       };
-
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
 
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
@@ -609,19 +650,41 @@ export default function Feed<T>({
               <FeedCardContext.Provider
                 key={getFeedItemKey(item, index)}
                 value={{
-                  boostedBy:
-                    isBoostedPostAd(item) &&
-                    (item.ad.data?.post?.author || item.ad.data?.post?.scout),
+                  boostedBy: isBoostedPostAd(item)
+                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                    : undefined,
                 }}
               >
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (
                   <BriefBannerFeed
                     style={{
-                      gridColumn:
-                        !shouldUseListFeedLayout &&
-                        `span ${virtualizedNumCards}`,
+                      gridColumn: !shouldUseListFeedLayout
+                        ? `span ${virtualizedNumCards}`
+                        : undefined,
                     }}
                   />
+                )}
+                {shouldShowInFeedHero && index === heroInsertIndex && (
+                  <div
+                    style={{
+                      gridColumn: !shouldUseListFeedLayout
+                        ? `span ${virtualizedNumCards}`
+                        : undefined,
+                    }}
+                  >
+                    <TopHero
+                      className="pt-0"
+                      title={readingReminderTitle}
+                      subtitle={readingReminderSubtitle}
+                      shouldShowDismiss={shouldShowReadingReminderDismiss}
+                      onCtaClick={() =>
+                        onEnableHero(NotificationCtaPlacement.InFeedHero)
+                      }
+                      onClose={() =>
+                        onDismissHero(NotificationCtaPlacement.InFeedHero)
+                      }
+                    />
+                  </div>
                 )}
                 <FeedItemComponent
                   item={item}

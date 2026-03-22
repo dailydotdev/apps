@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Link from '../../utilities/Link';
 import type { UserShortProfile } from '../../../lib/user';
 import EntityCard from './EntityCard';
@@ -24,7 +24,7 @@ import { useContentPreference } from '../../../hooks/contentPreference/useConten
 import { LazyModal } from '../../modals/common/types';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { LogEvent, TargetId } from '../../../lib/log';
+import { LogEvent, NotificationCtaPlacement, TargetId } from '../../../lib/log';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import AuthContext from '../../../contexts/AuthContext';
 import { ButtonVariant } from '../../buttons/Button';
@@ -32,39 +32,57 @@ import EntityDescription from './EntityDescription';
 import useUserMenuProps from '../../../hooks/useUserMenuProps';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import type { MenuItemProps } from '../../dropdown/common';
+import EnableNotificationsCta from './EnableNotificationsCta';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type Props = {
   user?: UserShortProfile;
+  showNotificationCtaOnFollow?: boolean;
   className?: {
     container?: string;
   };
 };
 
-const UserEntityCard = ({ user, className }: Props) => {
+const UserEntityCard = ({
+  user,
+  className,
+  showNotificationCtaOnFollow = false,
+}: Props) => {
   const { user: loggedUser } = useContext(AuthContext);
   const isSameUser = loggedUser?.id === user?.id;
+  const userId = user?.id ?? '';
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
   const { data: contentPreference } = useContentPreferenceStatusQuery({
-    id: user?.id,
+    id: userId,
     entity: ContentPreferenceType.User,
   });
-  const { unblock, block } = useContentPreference();
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
+  const { unblock, block, subscribe } = useContentPreference();
+  const prevStatusRef = useRef(contentPreference?.status);
   const blocked = contentPreference?.status === ContentPreferenceStatus.Blocked;
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
   const menuProps = useUserMenuProps({ user });
   const { isLoading } = useShowFollowAction({
-    entityId: user?.id,
+    entityId: userId,
     entityType: ContentPreferenceType.User,
   });
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
+      if (!user?.id || !user.username) {
+        return;
+      }
+
       openModal({
         type: LazyModal.ReportUser,
         props: {
           offendingUser: {
-            id: user?.id,
-            username: user?.username,
+            id: user.id,
+            username: user.username,
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -74,6 +92,44 @@ const UserEntityCard = ({ user, className }: Props) => {
   );
   const { username, bio, name, image, isPlus, createdAt, id, permalink } =
     user || {};
+
+  const currentStatus = contentPreference?.status;
+  const isNowFollowing =
+    currentStatus === ContentPreferenceStatus.Follow ||
+    currentStatus === ContentPreferenceStatus.Subscribed;
+  const haveNotificationsOn =
+    currentStatus === ContentPreferenceStatus.Subscribed;
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled &&
+    showNotificationCta &&
+    !haveNotificationsOn;
+
+  useEffect(() => {
+    const previousStatus = prevStatusRef.current;
+
+    if (previousStatus === currentStatus) {
+      return;
+    }
+
+    const wasFollowing =
+      previousStatus === ContentPreferenceStatus.Follow ||
+      previousStatus === ContentPreferenceStatus.Subscribed;
+
+    if (showNotificationCtaOnFollow && isNowFollowing && !wasFollowing) {
+      setShowNotificationCta(true);
+    } else if (!isNowFollowing && wasFollowing) {
+      setShowNotificationCta(false);
+    }
+
+    prevStatusRef.current = currentStatus;
+  }, [currentStatus, isNowFollowing, showNotificationCtaOnFollow]);
+
+  const showActionBtns = !!user && !isLoading && !isSameUser;
+
+  if (!user || !id || !username || !image || !permalink || !createdAt) {
+    return null;
+  }
+
   const options: MenuItemProps[] = [
     {
       icon: <BlockIcon />,
@@ -115,11 +171,18 @@ const UserEntityCard = ({ user, className }: Props) => {
     });
   }
 
-  const showActionBtns = !!user && !isLoading && !isSameUser;
+  const handleEnableNotifications = async () => {
+    if (!id || !username) {
+      throw new Error('Cannot subscribe to notifications without user id');
+    }
 
-  if (!user) {
-    return null;
-  }
+    await subscribe({
+      id,
+      entity: ContentPreferenceType.User,
+      entityName: username,
+    });
+    setShowNotificationCta(false);
+  };
 
   return (
     <EntityCard
@@ -206,6 +269,16 @@ const UserEntityCard = ({ user, className }: Props) => {
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
+        {shouldRenderNotificationCta && (
+          <EnableNotificationsCta
+            onEnable={handleEnableNotifications}
+            analytics={{
+              placement: NotificationCtaPlacement.UserCard,
+              targetType: ContentPreferenceType.User,
+              targetId: id,
+            }}
+          />
+        )}
       </div>
     </EntityCard>
   );

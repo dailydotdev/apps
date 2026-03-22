@@ -1055,4 +1055,31 @@ meter::-webkit-meter-bar {
   .float-animation {
     animation: float 1.5s ease-in-out infinite;
   }
+
+  .top-hero-panel-border {
+    background: linear-gradient(122deg, #2d1b8f 0%, #5d1fb7 45%, #ff00a8 100%);
+  }
+
+  .top-hero-glow {
+    background: rgb(255 0 168 / 35%);
+  }
+
+  @keyframes enable-notification-bell-ring {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(-16deg);
+    }
+    40% {
+      transform: rotate(14deg);
+    }
+    60% {
+      transform: rotate(-10deg);
+    }
+    80% {
+      transform: rotate(8deg);
+    }
+  }
 }
