@@ -113,7 +113,7 @@ export const AgentsHighlightsSection = ({
                 {highlight.headline}
               </span>
               <RelativeTime
-                dateTime={highlight.post.createdAt}
+                dateTime={highlight.highlightedAt}
                 className="ml-auto shrink-0 text-text-tertiary typo-caption2"
               />
             </a>
