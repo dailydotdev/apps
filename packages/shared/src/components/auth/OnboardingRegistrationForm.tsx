@@ -31,6 +31,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   signUpTitle?: string;
   trigger: AuthTriggersType;
   isReady: boolean;
+  isSocialAuthLoading?: boolean;
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
 }
@@ -96,6 +97,7 @@ const getSignupProviders = () => {
 
 export const OnboardingRegistrationForm = ({
   isReady,
+  isSocialAuthLoading,
   onContinueWithEmail,
   onExistingEmail,
   onProviderClick,
@@ -132,8 +134,9 @@ export const OnboardingRegistrationForm = ({
               aria-label={`Continue using ${provider.label}`}
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
+              disabled={!isReady || isSocialAuthLoading}
               icon={provider.icon}
-              loading={!isReady}
+              loading={!isReady || isSocialAuthLoading}
               onClick={() => onProviderClick?.(provider.value, false)}
               size={ButtonSize.Large}
               type="button"
@@ -164,11 +167,13 @@ export const OnboardingRegistrationForm = ({
           aria-label="Signup using email"
           className="mb-8"
           data-funnel-track={FunnelTargetId.SignupProvider}
+          disabled={isSocialAuthLoading}
           onClick={() => {
             trackOpenSignup();
             onContinueWithEmail?.();
           }}
           size={ButtonSize.Large}
+          type="button"
           variant={ButtonVariant.Float}
         >
           Continue with email

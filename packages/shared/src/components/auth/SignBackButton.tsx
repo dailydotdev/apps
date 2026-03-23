@@ -10,20 +10,26 @@ import { providerMap } from './common';
 interface SignBackButtonProps {
   signBack: SignedInUser;
   provider: SignBackProvider;
+  disabled?: boolean;
   onClick: MouseEventHandler;
 }
 
 export function SignBackButton({
   signBack,
   provider,
+  disabled = false,
   onClick,
 }: SignBackButtonProps): ReactElement {
   const item = providerMap[provider.toLowerCase()];
 
   return (
     <button
-      className="btn-signback btn-primary"
+      aria-busy={disabled}
+      className={`btn-signback btn-primary ${
+        disabled ? 'opacity-60 pointer-events-none' : ''
+      }`}
       type="button"
+      disabled={disabled}
       onClick={onClick}
       aria-label={`Continue as ${
         signBack.name || signBack.email

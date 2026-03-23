@@ -117,6 +117,33 @@ const EmailCodeVerification = dynamic(
 );
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
+const SOCIAL_AUTH_RETRY_MESSAGE =
+  "We couldn't complete your social sign-in. Please try again.";
+
+const getSocialAuthCallbackError = (data?: unknown): string | undefined => {
+  if (!data || typeof data !== 'object') {
+    return undefined;
+  }
+
+  const callbackData = data as Record<string, unknown>;
+  const { error, error_description: errorDescription, message } = callbackData;
+  if (typeof error === 'string' && error.trim().length > 0) {
+    return error;
+  }
+
+  if (
+    typeof errorDescription === 'string' &&
+    errorDescription.trim().length > 0
+  ) {
+    return errorDescription;
+  }
+
+  if (typeof message === 'string' && message.trim().length > 0) {
+    return message;
+  }
+
+  return undefined;
+};
 
 function AuthOptionsInner({
   onClose,
@@ -171,6 +198,7 @@ function AuthOptionsInner({
     null,
   );
   const [isRegistration, setIsRegistration] = useState(false);
+  const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
@@ -368,10 +396,27 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
+    const callbackError = getSocialAuthCallbackError(e?.data);
+    if (callbackError) {
+      setIsSocialAuthLoading(false);
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          error: callbackError,
+          origin: 'betterauth social auth callback',
+          data:
+            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+        }),
+      });
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      return;
+    }
+
     let boot;
     try {
       ({ data: boot } = await refetchBoot());
     } catch (error) {
+      setIsSocialAuthLoading(false);
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
@@ -384,26 +429,29 @@ function AuthOptionsInner({
             typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
       });
-      displayToast(labels.auth.error.generic);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
       return;
     }
 
     if (!boot.user || !('email' in boot.user)) {
+      setIsSocialAuthLoading(false);
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          error: 'Could not find email after social authentication',
+          error:
+            'Could not find authenticated user after social authentication',
           origin: 'betterauth social auth boot',
           data:
             typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
         }),
       });
-      displayToast(labels.auth.error.generic);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
       return;
     }
 
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
+      setIsSocialAuthLoading(false);
       await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
       const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
       if (!isAlreadyOnboarded) {
@@ -414,17 +462,22 @@ function AuthOptionsInner({
 
     // For RecruiterSelfServe, auto-complete profile without showing the form
     if (trigger === AuthTriggers.RecruiterSelfServe) {
+      setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
       await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
       return;
     }
 
+    setIsSocialAuthLoading(false);
     await setChosenProvider(chosenProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
 
   const onProviderClick = async (provider: string, login = true) => {
+    if (isSocialAuthLoading) {
+      return;
+    }
     const authErrorEventName = login
       ? AuthEventNames.LoginError
       : AuthEventNames.RegistrationError;
@@ -438,11 +491,13 @@ function AuthOptionsInner({
       extra: JSON.stringify({ trigger }),
     });
     socialErrorEventName.current = authErrorEventName;
+    setIsSocialAuthLoading(true);
 
     if (isBetterAuth) {
       if (isNativeAuthSupported(provider)) {
         const res = await iosNativeAuth(provider);
         if (!res) {
+          setIsSocialAuthLoading(false);
           return;
         }
         const result = await betterAuthSignInWithIdToken({
@@ -458,6 +513,8 @@ function AuthOptionsInner({
               origin: 'betterauth native id token',
             }),
           });
+          setIsSocialAuthLoading(false);
+          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
           return;
         }
         await setChosenProvider(provider);
@@ -484,6 +541,8 @@ function AuthOptionsInner({
         });
         windowPopup.current?.close();
         windowPopup.current = null;
+        setIsSocialAuthLoading(false);
+        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
@@ -499,6 +558,8 @@ function AuthOptionsInner({
             origin: 'betterauth social popup',
           }),
         });
+        setIsSocialAuthLoading(false);
+        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
         onAuthStateUpdate?.({ isLoading: false });
         return;
       }
@@ -562,13 +623,16 @@ function AuthOptionsInner({
         if (registerUser.email) {
           const { result } = await getKratosProviders(connected.id);
           setIsConnected(true);
+          setIsSocialAuthLoading(false);
           await onSignBackLogin(registerUser, result[0] as SignBackProvider);
           return onSetActiveDisplay(AuthDisplay.SignBack);
         }
+        setIsSocialAuthLoading(false);
         onSetActiveDisplay(AuthDisplay.SignBack);
         return displayToast(labels.auth.error.existingEmail);
       }
 
+      setIsSocialAuthLoading(false);
       return displayToast(labels.auth.error.generic);
     }
 
@@ -646,6 +710,7 @@ function AuthOptionsInner({
             onPasswordLogin={onEmailLogin}
             onProviderClick={onProviderClick}
             onSignup={onEmailRegistration}
+            isSocialAuthLoading={isSocialAuthLoading}
             providers={providers}
             simplified={simplified}
             trigger={trigger}
@@ -726,6 +791,7 @@ function AuthOptionsInner({
             onProviderClick={onProviderClick}
             trigger={trigger}
             isReady={isReady}
+            isSocialAuthLoading={isSocialAuthLoading}
             simplified={simplified}
             targetId={targetId}
             className={className}
@@ -744,6 +810,7 @@ function AuthOptionsInner({
             isLoginFlow={isLoginFlow}
             isConnectedAccount={isConnected}
             onProviderClick={onProviderClick}
+            isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {

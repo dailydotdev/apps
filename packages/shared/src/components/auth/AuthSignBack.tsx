@@ -18,6 +18,7 @@ interface AuthSignBackProps extends AuthFormProps {
   isConnectedAccount?: boolean;
   onRegister?: () => void;
   onProviderClick?: (provider: string) => unknown;
+  isProviderLoading?: boolean;
   loginFormProps?: LoginFormProps;
   onShowLoginOptions?: MouseEventHandler;
 }
@@ -27,6 +28,7 @@ export const AuthSignBack = ({
   onRegister,
   isLoginFlow,
   onProviderClick,
+  isProviderLoading,
   simplified,
   onShowLoginOptions,
   isConnectedAccount,
@@ -91,6 +93,7 @@ export const AuthSignBack = ({
           />
         ) : (
           <SignBackButton
+            disabled={isProviderLoading}
             signBack={signBack}
             provider={provider}
             onClick={() => onProviderClick(provider)}

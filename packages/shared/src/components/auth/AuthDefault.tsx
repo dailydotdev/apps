@@ -39,6 +39,7 @@ interface AuthDefaultProps extends AuthFormProps {
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;
+  isSocialAuthLoading?: boolean;
   isReady: boolean;
   loginButton?: string;
 }
@@ -55,6 +56,7 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
+  isSocialAuthLoading,
   isReady,
   trigger,
   signUpTitle = 'Sign up',
@@ -177,11 +179,13 @@ const AuthDefault = ({
             <Button
               aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
               autoFocus={index === 0}
+              disabled={!isReady || isSocialAuthLoading}
               icon={icon}
               key={label}
-              loading={!isReady}
+              loading={!isReady || isSocialAuthLoading}
               onClick={() => onSocialClick(value)}
               size={ButtonSize.Large}
+              type="button"
               variant={ButtonVariant.Primary}
             >
               {label}
