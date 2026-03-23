@@ -190,6 +190,8 @@ pnpm --filter webapp build        # Build webapp
 pnpm --filter extension build:chrome # Build Chrome extension
 ```
 
+**IMPORTANT**: When running Jest manually with `pnpm exec jest` or a direct file path, set `NODE_ENV=test` so React and Testing Library do not run under a production build.
+
 **IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
 
 ## Where Should I Put This Code?

@@ -10,8 +10,15 @@ beforeEach(() => {
 });
 
 const defaultPosts: Post[] = [
-  { ...defaultFeedPage.edges[0].node, trending: 50 },
-  defaultFeedPage.edges[2].node,
+  {
+    ...defaultFeedPage.edges[0].node,
+    trending: 50,
+    analytics: { bookmarks: 99 },
+  },
+  {
+    ...defaultFeedPage.edges[2].node,
+    analytics: { bookmarks: 42 },
+  },
   defaultFeedPage.edges[3].node,
 ];
 
@@ -51,6 +58,8 @@ it('should show number of upvotes and comments', async () => {
   );
   expect(element1).toHaveTextContent('15 Comments');
   expect(element1).toHaveTextContent('1 Upvotes');
+  expect(element1).not.toHaveTextContent('Bookmarks');
   expect(element2).toHaveTextContent('5 Comments');
   expect(element2).toHaveTextContent('1 Upvotes');
+  expect(element2).not.toHaveTextContent('Bookmarks');
 });
