@@ -78,7 +78,7 @@ function CallbackPage(): ReactElement | null {
       if (!window.opener) {
         setTimeout(() => {
           window.location.replace('/onboarding');
-        }, 1000);
+        }, 300);
       }
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
