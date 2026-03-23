@@ -7,7 +7,6 @@ import SettingsContext, {
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
-import { usePlusPositioning } from '../../../hooks/usePlusPositioning';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { withPostById } from '../withPostById';
 import PostContentContainer from '../PostContentContainer';
@@ -60,7 +59,6 @@ const DigestPostContentRaw = ({
 }: PostContentProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { isAgentPositioning } = usePlusPositioning();
   const { subject } = useToastNotification();
   const settingsContext = useSettingsContext();
   // ensure digest feed renders list mode
@@ -237,11 +235,7 @@ const DigestPostContentRaw = ({
             {isLoggedIn && !isPlus && isFeedLoaded && (
               <BriefUpgradeAlert
                 className="!mb-0 mt-4"
-                text={
-                  isAgentPositioning
-                    ? 'Want deeper insights? Upgrade to Plus for presidential briefings that go beyond the headlines.'
-                    : 'Want deeper insights? Upgrade to Plus for AI-powered briefings that go beyond the headlines.'
-                }
+                text="Want deeper insights? Upgrade to Plus for AI-powered briefings that go beyond the headlines."
               />
             )}
           </div>
