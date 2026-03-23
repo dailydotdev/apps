@@ -336,6 +336,7 @@ export default function Feed<T>({
   } = useReadingReminderFeedHero({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
+    firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
   });
 
   useMutationSubscription({
