@@ -14,7 +14,6 @@ import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
-import type { Spaciness } from '../graphql/settings';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -66,7 +65,6 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
-  featureFeedLayoutV2,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -103,7 +101,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  disableListWidthConstraint?: boolean;
 }
 
 interface RankVariables {
@@ -199,22 +196,15 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
-  disableListWidthConstraint = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
   const currentSettings = useContext(FeedContext);
   const { user } = useContext(AuthContext);
   const { isFallback, query: routerQuery } = useRouter();
-  const { openNewTab, spaciness, loadedSettings } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
+  const { openNewTab, loadedSettings } = useContext(SettingsContext);
   const { isListMode, shouldUseListFeedLayout } = useFeedLayout();
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2
-    ? 'eco'
-    : spaciness ?? 'eco';
-  const numCards = currentSettings.numCards[effectiveSpaciness];
+  const numCards = currentSettings.numCards.eco;
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
@@ -619,7 +609,6 @@ export default function Feed<T>({
         feedContainerRef,
         showBriefCard,
         disableListFrame,
-        disableListWidthConstraint,
       };
 
   return (
