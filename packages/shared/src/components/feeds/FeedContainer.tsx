@@ -8,7 +8,6 @@ import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
-  useConditionalFeature,
   useFeedLayout,
   ToastSubject,
   useToastNotification,
@@ -17,7 +16,6 @@ import {
   useFeeds,
   useBoot,
 } from '../../hooks';
-import { featureFeedLayoutV2 } from '../../lib/featureManagement';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
@@ -76,7 +74,6 @@ const cardListClass: Partial<Record<number, string>> = {
 export const getFeedGapPx = {
   'gap-2': 8,
   'gap-3': 12,
-  'gap-4': 16,
   'gap-5': 20,
   'gap-8': 32,
   'gap-12': 48,
@@ -87,24 +84,18 @@ type FeedGapClass = keyof typeof getFeedGapPx;
 
 /**
  * Returns the appropriate gap class based on layout mode and spaciness.
- * @param defaultGridGap - Optional override for grid gap (used by feature flags like feed_layout_v2)
  */
 export const gapClass = ({
   isList,
   isFeedLayoutList,
   space,
-  defaultGridGap,
 }: {
   isList: boolean;
   isFeedLayoutList: boolean;
   space: Spaciness;
-  defaultGridGap?: string;
 }): string => {
   if (isFeedLayoutList) {
     return '';
-  }
-  if (defaultGridGap) {
-    return defaultGridGap;
   }
   return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
 };
@@ -171,10 +162,7 @@ export const FeedContainer = ({
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { spaciness, loadedSettings } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
+  const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
@@ -183,20 +171,15 @@ export const FeedContainer = ({
     feedName: activeFeedName,
   });
   const router = useRouter();
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2
-    ? 'eco'
-    : spaciness ?? 'eco';
-  const numCards = currentSettings.numCards[effectiveSpaciness];
+  const numCards = currentSettings.numCards.eco;
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
-  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const feedGapClass = gapClass({
     isList,
     isFeedLayoutList: shouldUseListFeedLayout,
-    space: effectiveSpaciness,
-    defaultGridGap: v2GridGap,
+    space: 'eco',
   }) as FeedGapClass;
   const feedGapPx = getFeedGapPx[feedGapClass];
   const style = {
@@ -205,7 +188,7 @@ export const FeedContainer = ({
   } as CSSProperties;
   const cardContainerStyle = disableListWidthConstraint
     ? {}
-    : { ...getStyle(isList, effectiveSpaciness) };
+    : { ...getStyle(isList, 'eco') };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
@@ -263,7 +246,7 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
-        isFeedLayoutV2 ? styles.containerV2 : styles.container,
+        styles.containerV2,
         className,
       )}
     >
@@ -312,7 +295,7 @@ export const FeedContainer = ({
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
-            !isList && (isFeedLayoutV2 ? styles.cardsV2 : styles.cards),
+            !isList && styles.cardsV2,
           )}
           style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
@@ -373,8 +356,7 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: effectiveSpaciness,
-                  defaultGridGap: v2GridGap,
+                  space: 'eco',
                 }),
                 cardClass({
                   isList,
