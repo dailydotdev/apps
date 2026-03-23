@@ -19,11 +19,15 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 
 export type RecruiterSignInModalProps = ModalProps & {
   onSuccess?: () => void;
+  headerTitle?: string;
+  headerDescription?: string;
 };
 
 export const RecruiterSignInModal = ({
   onRequestClose,
   onSuccess,
+  headerTitle,
+  headerDescription,
   ...modalProps
 }: RecruiterSignInModalProps): ReactElement => {
   const { trackingId, user } = useAuthContext();
@@ -104,15 +108,15 @@ export const RecruiterSignInModal = ({
           <>
             <Logo />
             <Typography type={TypographyType.Title1} bold center>
-              Last step to see your matches
+              {headerTitle ?? 'Last step to see your matches'}
             </Typography>
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Tertiary}
               center
             >
-              We&apos;re analyzing your job now. Sign up to see developers who
-              already opted in to hear about roles like yours.
+              {headerDescription ??
+                "We're analyzing your job now. Sign up to see developers who already opted in to hear about roles like yours."}
             </Typography>
           </>
         )}

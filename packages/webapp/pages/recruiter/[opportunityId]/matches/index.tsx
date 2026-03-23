@@ -24,11 +24,18 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { AgentStatusBar } from '@dailydotdev/shared/src/features/recruiter/components/AgentStatusBar';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { oneMinute } from '@dailydotdev/shared/src/lib/dateFormat';
 import { transactionRefetchIntervalMs } from '@dailydotdev/shared/src/graphql/njord';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
+import { recruiterUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import {
   getLayout,
@@ -39,8 +46,25 @@ function RecruiterMatchesPage(): ReactElement {
   const router = useRouter();
   const { opportunityId } = router.query;
   const queryClient = useQueryClient();
+  const { user } = useAuthContext();
+  const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
 
-  const { data: opportunity } = useQuery({
+  // Open auth modal for anonymous users
+  useEffect(() => {
+    if (!user) {
+      openModal({
+        type: LazyModal.RecruiterSignIn,
+        props: {
+          headerTitle: 'Sign in to continue',
+          headerDescription:
+            'Sign in or create an account to access this opportunity.',
+        },
+      });
+    }
+  }, [user, openModal]);
+
+  const { data: opportunity, error: opportunityError } = useQuery({
     ...opportunityByIdOptions({
       id: opportunityId as string,
     }),
@@ -58,8 +82,16 @@ function RecruiterMatchesPage(): ReactElement {
 
       const queryError = query.state.error;
 
-      // in case of query error keep refetching until maxRetries is reached
       if (queryError) {
+        const errorCode = (queryError as unknown as ApiErrorResult).response
+          ?.errors?.[0]?.extensions?.code;
+
+        // Stop polling on access errors
+        if ([ApiError.Forbidden, ApiError.NotFound].includes(errorCode)) {
+          return false;
+        }
+
+        // in case of other query errors keep refetching until maxRetries is reached
         return transactionRefetchIntervalMs;
       }
 
@@ -73,6 +105,21 @@ function RecruiterMatchesPage(): ReactElement {
       return transactionRefetchIntervalMs;
     },
   });
+
+  // Handle access errors after auth
+  useEffect(() => {
+    if (!opportunityError || !user) {
+      return;
+    }
+
+    const errorCode = (opportunityError as unknown as ApiErrorResult).response
+      ?.errors?.[0]?.extensions?.code;
+
+    if ([ApiError.Forbidden, ApiError.NotFound].includes(errorCode)) {
+      displayToast("You don't have access to this opportunity");
+      router.push(recruiterUrl);
+    }
+  }, [opportunityError, user, displayToast, router]);
 
   const { isCheckingPayment } = useRequirePayment({
     opportunity,

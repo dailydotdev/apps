@@ -1,7 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FormProvider } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
 import {
   RecruiterProgress,
   RecruiterProgressStep,
@@ -24,7 +25,7 @@ import {
   OpportunityEditProvider,
   useOpportunityEditContext,
 } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { recruiterUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
   useViewSize,
@@ -42,6 +43,13 @@ import {
   EditPreviewTab,
 } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/EditPreviewTabs';
 import { BrowserPreviewFrame } from '@dailydotdev/shared/src/components/opportunity/SideBySideEdit/BrowserPreviewFrame';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
+import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import JobPage from '../../jobs/[id]';
 import {
   getLayout,
@@ -51,10 +59,47 @@ import {
 function PreparePageContent(): ReactElement {
   const router = useRouter();
   const { opportunityId } = useOpportunityEditContext();
+  const { user } = useAuthContext();
+  const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [activeTab, setActiveTab] = useState<EditPreviewTab>(
     EditPreviewTab.Edit,
   );
+
+  // Open auth modal for anonymous users
+  useEffect(() => {
+    if (!user) {
+      openModal({
+        type: LazyModal.RecruiterSignIn,
+        props: {
+          headerTitle: 'Sign in to continue',
+          headerDescription:
+            'Sign in or create an account to access this opportunity.',
+        },
+      });
+    }
+  }, [user, openModal]);
+
+  // Monitor opportunity query for access errors after auth
+  const { error: opportunityError } = useQuery({
+    ...opportunityByIdOptions({ id: opportunityId }),
+    enabled: !!user,
+  });
+
+  useEffect(() => {
+    if (!opportunityError) {
+      return;
+    }
+
+    const errorCode = (opportunityError as unknown as ApiErrorResult).response
+      ?.errors?.[0]?.extensions?.code;
+
+    if ([ApiError.Forbidden, ApiError.NotFound].includes(errorCode)) {
+      displayToast("You don't have access to this opportunity");
+      router.push(recruiterUrl);
+    }
+  }, [opportunityError, displayToast, router]);
 
   const {
     opportunity,
