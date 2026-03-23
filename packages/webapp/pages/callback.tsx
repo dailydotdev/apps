@@ -67,16 +67,18 @@ function CallbackPage(): ReactElement | null {
         postWindowMessage(eventKey, params);
       }
 
-      // No opener means we can't close this window (iOS native,
-      // mobile browsers opening tabs instead of popups). Redirect
-      // to onboarding which routes based on auth state.
-      if (!window.opener) {
-        window.location.replace('/onboarding');
-        return;
-      }
-
       if (!isPWA()) {
         window.close();
+      }
+
+      // Some browsers/app webviews null out `window.opener` during auth,
+      // while still allowing a script-opened tab to close itself. Try the
+      // close first and only fall back to a redirect if we know there is no
+      // opener to return to.
+      if (!window.opener) {
+        setTimeout(() => {
+          window.location.replace('/onboarding');
+        }, 1000);
       }
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;
