@@ -12,7 +12,7 @@ import {
 import { useToastNotification } from '../useToastNotification';
 
 export type UseSourceSubscriptionProps = {
-  source: Pick<Source, 'id'> | Source;
+  source?: Pick<Source, 'id'> | Source | null;
 };
 
 export type UseSourceSubscription = {
@@ -61,7 +61,8 @@ export const useSourceActionsNotify = ({
       target_type: TargetType.Source,
     });
 
-    const displayName = 'name' in source ? source.name : source?.id;
+    const displayName =
+      source && 'name' in source && source.name ? source.name : source?.id;
 
     displayToast(
       notifications.isSubscribed

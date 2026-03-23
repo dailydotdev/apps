@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   InputHTMLAttributes,
-  MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
@@ -35,7 +35,7 @@ function SwitchComponent(
     'aria-label': ariaLabel,
     ...props
   }: SwitchProps,
-  ref: MutableRefObject<HTMLLabelElement>,
+  ref: ForwardedRef<HTMLLabelElement>,
 ): ReactElement {
   return (
     // eslint-disable-next-line jsx-a11y/label-has-associated-control

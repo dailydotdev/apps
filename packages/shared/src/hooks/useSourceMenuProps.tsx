@@ -11,21 +11,30 @@ const useSourceMenuProps = ({
   source,
   feedId,
 }: {
-  source: SourceTooltip;
+  source?: SourceTooltip | null;
   feedId?: string;
 }) => {
   const router = useRouter();
   const { follow, unfollow } = useContentPreference();
+  const sourceId = source?.id ?? '';
 
   const onCreateNewFeed = () => {
+    if (!source?.id) {
+      return;
+    }
+
     router.push(
-      `${webappUrl}feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
+      `${webappUrl}feeds/new?entityId=${sourceId}&entityType=${ContentPreferenceType.Source}`,
     );
   };
 
   const onUndo = () => {
+    if (!source?.id || !source.handle) {
+      return;
+    }
+
     unfollow({
-      id: source.id,
+      id: sourceId,
       entity: ContentPreferenceType.Source,
       entityName: source.handle,
       feedId,
@@ -33,8 +42,12 @@ const useSourceMenuProps = ({
   };
 
   const onAdd = () => {
+    if (!source?.id || !source.handle) {
+      return;
+    }
+
     follow({
-      id: source.id,
+      id: sourceId,
       entity: ContentPreferenceType.Source,
       entityName: source.handle,
       feedId,
@@ -42,12 +55,14 @@ const useSourceMenuProps = ({
   };
 
   const shareProps: UseShareOrCopyLinkProps = {
-    text: `Check out ${source.handle} on daily.dev`,
-    link: source.permalink,
+    text: source?.handle
+      ? `Check out ${source.handle} on daily.dev`
+      : 'Check out this source on daily.dev',
+    link: source?.permalink || webappUrl,
     cid: ReferralCampaignKey.ShareSource,
     logObject: () => ({
       event_name: LogEvent.ShareSource,
-      target_id: source.id,
+      ...(source?.id ? { target_id: source.id } : {}),
     }),
   };
 

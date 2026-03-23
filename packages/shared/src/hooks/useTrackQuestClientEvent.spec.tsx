@@ -35,7 +35,7 @@ describe('useTrackQuestClientEvent', () => {
     jest.clearAllMocks();
     mockUseAuthContext.mockReturnValue({
       user: { id: 'test-user-id' },
-    } as ReturnType<typeof useAuthContext>);
+    } as unknown as ReturnType<typeof useAuthContext>);
     mockTrackQuestClientEvent.mockResolvedValue(undefined);
   });
 
@@ -81,7 +81,7 @@ describe('useTrackQuestClientEvent', () => {
   it('should not track when the user is logged out', () => {
     mockUseAuthContext.mockReturnValue({
       user: null,
-    } as ReturnType<typeof useAuthContext>);
+    } as unknown as ReturnType<typeof useAuthContext>);
 
     renderTrackQuestHook({
       eventType: ClientQuestEventType.VisitExplorePage,

@@ -87,7 +87,7 @@ export const DEFAULT_ALGORITHM_INDEX = 0;
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
-}: SearchControlHeaderProps): ReactElement => {
+}: SearchControlHeaderProps): ReactElement | null => {
   const [selectedPeriod, setSelectedPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
     defaultValue: 0,

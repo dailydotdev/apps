@@ -10,8 +10,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode, useConditionalFeature } from '../../../hooks';
-import { featureShowBookmarkCount } from '../../../lib/featureManagement';
+import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -58,7 +57,7 @@ const variantConfig = {
     iconSize: IconSize.XSmall,
     containerClassName: '',
     showTagsPanel: false,
-    useCommentLink: false,
+    useCommentLink: true,
   },
 } as const;
 
@@ -73,14 +72,9 @@ const ActionButtons = ({
   variant = 'grid',
   showDownvoteAction = true,
   showAwardAction = true,
-}: ActionButtonsProps): ReactElement => {
+}: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const { value: showBookmarkCount } = useConditionalFeature({
-    feature: featureShowBookmarkCount,
-    shouldEvaluate: true,
-  });
-  const bookmarkCount = post?.analytics?.bookmarks ?? 0;
 
   const {
     isUpvoteActive,
@@ -103,6 +97,9 @@ const ActionButtons = ({
     return null;
   }
 
+  const commentCount = post.numComments ?? 0;
+  const upvoteCount = post.numUpvotes ?? 0;
+
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
       tooltip={{ content: 'Comment' }}
@@ -121,13 +118,10 @@ const ActionButtons = ({
         icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
         onClick={() => onCommentClick?.(post)}
       >
-        {post?.numComments > 0 && (
+        {commentCount > 0 && (
           <InteractionCounter
-            className={classNames(
-              'tabular-nums',
-              !post.numComments && 'invisible',
-            )}
-            value={post.numComments}
+            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            value={commentCount}
           />
         )}
       </QuaternaryButton>
@@ -143,13 +137,13 @@ const ActionButtons = ({
         size={config.buttonSize}
         className="btn-tertiary-blueCheese"
       >
-        {post?.numComments > 0 && (
+        {commentCount > 0 && (
           <InteractionCounter
             className={classNames(
               'tabular-nums !typo-footnote',
-              !post.numComments && 'invisible',
+              !commentCount && 'invisible',
             )}
-            value={post.numComments}
+            value={commentCount}
           />
         )}
       </QuaternaryButton>
@@ -185,14 +179,14 @@ const ActionButtons = ({
               />
             }
           >
-            {post?.numUpvotes > 0 && (
+            {upvoteCount > 0 && (
               <InteractionCounter
                 className={classNames(
                   'tabular-nums',
                   variant === 'grid' && 'typo-footnote',
-                  !post.numUpvotes && 'invisible',
+                  !upvoteCount && 'invisible',
                 )}
-                value={post.numUpvotes}
+                value={upvoteCount}
               />
             )}
           </QuaternaryButton>
@@ -239,17 +233,7 @@ const ActionButtons = ({
             }),
           }}
           iconSize={config.iconSize}
-        >
-          {showBookmarkCount && bookmarkCount > 0 && (
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                variant === 'grid' && 'typo-footnote',
-              )}
-              value={bookmarkCount}
-            />
-          )}
-        </BookmarkButton>
+        />
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}

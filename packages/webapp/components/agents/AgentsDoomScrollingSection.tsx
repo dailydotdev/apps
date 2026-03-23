@@ -62,14 +62,9 @@ export const AgentsDoomScrollingSection = ({
           query={CHANNEL_FEED_QUERY}
           variables={vibesVariables}
           disableListFrame
-          disableListWidthConstraint
         />
       ) : (
-        <FeedContainer
-          showSearch={false}
-          disableListFrame
-          disableListWidthConstraint
-        >
+        <FeedContainer showSearch={false} disableListFrame>
           <DoomScrollingSkeleton />
         </FeedContainer>
       )}

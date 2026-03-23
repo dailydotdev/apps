@@ -141,7 +141,7 @@ export function CodeField({
           type="tel"
           inputId={`code-${index}`}
           tabIndex={index + 1}
-          label={null}
+          label=""
           maxLength={1}
           showMaxLength={false}
           className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}

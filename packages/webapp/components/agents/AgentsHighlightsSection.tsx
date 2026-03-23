@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
@@ -18,7 +18,7 @@ const DigestSubscribeButton = ({
   source,
 }: {
   source: Source;
-}): ReactElement => {
+}): ReactElement | null => {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
     enabled: isLoggedIn && !!source?.id,
@@ -36,7 +36,7 @@ const DigestSubscribeButton = ({
     return (
       <SourceActionsNotify
         haveNotificationsOn={haveNotificationsOn}
-        onClick={async (event) => {
+        onClick={async (event: MouseEvent) => {
           event.preventDefault();
           event.stopPropagation();
           await toggleNotify();
@@ -51,7 +51,7 @@ const DigestSubscribeButton = ({
       variant={ButtonVariant.Primary}
       size={ButtonSize.Small}
       className="w-28"
-      onClick={async (event) => {
+      onClick={async (event: MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
         await toggleFollow();
@@ -113,7 +113,7 @@ export const AgentsHighlightsSection = ({
                 {highlight.headline}
               </span>
               <RelativeTime
-                dateTime={highlight.post.createdAt}
+                dateTime={highlight.highlightedAt}
                 className="ml-auto shrink-0 text-text-tertiary typo-caption2"
               />
             </a>

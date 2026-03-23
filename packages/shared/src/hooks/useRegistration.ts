@@ -31,7 +31,8 @@ import {
 import {
   betterAuthSignUp,
   betterAuthSignInWithIdToken,
-  getBetterAuthSocialUrl,
+  getBetterAuthErrorMessage,
+  getBetterAuthSocialRedirectData,
 } from '../lib/betterAuth';
 import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
@@ -253,6 +254,13 @@ const useRegistration = ({
     },
     onSuccess: async (res) => {
       if (res.error) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: res.error,
+            origin: 'betterauth signup error',
+          }),
+        });
         onInvalidRegistration?.({
           'traits.email': res.error,
         });
@@ -260,6 +268,13 @@ const useRegistration = ({
       }
 
       if (res.status && !res.user) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
+            origin: 'betterauth signup fallback error',
+          }),
+        });
         onInvalidRegistration?.({
           'traits.email': BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
         });
@@ -319,18 +334,67 @@ const useRegistration = ({
           nonce: res.nonce,
         });
         if (result.error) {
+          logEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify({
+              error: result.error,
+              origin: 'betterauth native id token registration',
+            }),
+          });
           return;
         }
-        await refetchBoot();
+        try {
+          const { data: boot } = await refetchBoot();
+          if (!boot.user) {
+            logEvent({
+              event_name: AuthEventNames.RegistrationError,
+              extra: JSON.stringify({
+                error: 'Missing user after Better Auth social registration',
+                origin: 'betterauth native id token registration boot',
+              }),
+            });
+            displayToast('An error occurred, please refresh the page.');
+            return;
+          }
+        } catch (error) {
+          logEvent({
+            event_name: AuthEventNames.RegistrationError,
+            extra: JSON.stringify({
+              error: getBetterAuthErrorMessage(
+                error,
+                'Failed to refresh Better Auth registration state',
+              ),
+              origin: 'betterauth native id token registration boot',
+            }),
+          });
+          displayToast('An error occurred, please refresh the page.');
+          return;
+        }
         return;
       }
-      const callbackURL = webappUrl;
-      const url = await getBetterAuthSocialUrl(
+      const callbackURL = `${webappUrl}callback?login=true`;
+      const { url, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
       );
       if (onRedirect && url) {
         onRedirect(url);
+      } else if (!onRedirect && url) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: 'Missing social registration redirect handler',
+            origin: 'betterauth social url registration',
+          }),
+        });
+      } else if (!url) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: error || 'Failed to get social registration URL',
+            origin: 'betterauth social url registration',
+          }),
+        });
       }
       return;
     }
