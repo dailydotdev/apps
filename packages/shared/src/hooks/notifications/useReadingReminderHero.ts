@@ -10,17 +10,13 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import {
-  featureReadingReminderHeroCopy,
-  featureReadingReminderHeroDismiss,
-} from '../../lib/featureManagement';
+import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
   title: string;
   subtitle: string;
-  shouldShowDismiss: boolean;
   onEnable: () => Promise<void>;
   onDismiss: () => Promise<void>;
 }
@@ -93,10 +89,6 @@ export const useReadingReminderHero = ({
     !isSubscribedToReadingReminder &&
     !isRegisteredToday &&
     !isDismissed;
-  const { value: shouldShowDismiss } = useConditionalFeature({
-    feature: featureReadingReminderHeroDismiss,
-    shouldEvaluate,
-  });
   const { value: copy } = useConditionalFeature({
     feature: featureReadingReminderHeroCopy,
     shouldEvaluate,
@@ -150,7 +142,6 @@ export const useReadingReminderHero = ({
     shouldShow,
     title: copy.title,
     subtitle: copy.subtitle,
-    shouldShowDismiss,
     onEnable,
     onDismiss,
   };

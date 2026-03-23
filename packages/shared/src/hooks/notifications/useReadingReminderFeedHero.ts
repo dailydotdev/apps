@@ -27,7 +27,6 @@ interface UseReadingReminderFeedHero {
   shouldShowInFeedHero: boolean;
   title: string;
   subtitle: string;
-  shouldShowDismiss: boolean;
   onEnableHero: (placement: ReadingReminderHeroPlacement) => Promise<void>;
   onDismissHero: (placement: ReadingReminderHeroPlacement) => Promise<void>;
 }
@@ -48,16 +47,10 @@ export const useReadingReminderFeedHero = ({
   const heroInsertIndex =
     Math.ceil(HERO_INSERT_INDEX / safeItemsPerRow) * safeItemsPerRow;
   const { pathname } = useRouter();
-  const {
-    shouldShow,
-    title,
-    subtitle,
-    shouldShowDismiss,
-    onEnable,
-    onDismiss,
-  } = useReadingReminderHero({
-    requireMobile: false,
-  });
+  const { shouldShow, title, subtitle, onEnable, onDismiss } =
+    useReadingReminderHero({
+      requireMobile: false,
+    });
   const isHomePage = pathname === webappUrl;
   const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
   const { isHero, isInline } = useReadingReminderVariation({
@@ -146,7 +139,6 @@ export const useReadingReminderFeedHero = ({
     shouldShowInFeedHero,
     title,
     subtitle,
-    shouldShowDismiss,
     onEnableHero,
     onDismissHero,
   };

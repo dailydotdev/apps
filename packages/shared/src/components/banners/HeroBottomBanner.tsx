@@ -10,16 +10,14 @@ type TopHeroProps = {
   className?: string;
   title?: string;
   subtitle?: string;
-  shouldShowDismiss?: boolean;
-  onCtaClick?: () => void;
-  onClose?: () => void;
+  onCtaClick: () => void;
+  onClose: () => void;
 };
 
 export const TopHero = ({
   className,
   title = 'Never miss a learning day',
   subtitle = 'Turn on your daily reading reminder and keep your routine.',
-  shouldShowDismiss = false,
   onCtaClick,
   onClose,
 }: TopHeroProps): ReactElement => {
@@ -33,16 +31,14 @@ export const TopHero = ({
         <div className="pointer-events-none absolute bottom-0 left-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
-          {shouldShowDismiss && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Tertiary}
-              className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
-              icon={<MiniCloseIcon />}
-              aria-label="Close banner"
-              onClick={onClose}
-            />
-          )}
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            className="text-white/80 absolute right-3 top-3 z-2 hover:text-white"
+            icon={<MiniCloseIcon />}
+            aria-label="Close banner"
+            onClick={onClose}
+          />
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
             <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
               <div className="flex flex-col items-center gap-1 tablet:items-start">
