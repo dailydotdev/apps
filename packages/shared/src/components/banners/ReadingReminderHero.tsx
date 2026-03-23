@@ -15,7 +15,6 @@ interface ReadingReminderHeroProps {
   className?: string;
   title: string;
   subtitle: string;
-  shouldShowDismiss?: boolean;
   onEnable: () => Promise<void>;
   onDismiss: () => Promise<void>;
 }
@@ -24,7 +23,6 @@ const ReadingReminderHero = ({
   className,
   title,
   subtitle,
-  shouldShowDismiss = false,
   onEnable,
   onDismiss,
 }: ReadingReminderHeroProps): ReactElement => {
@@ -36,12 +34,10 @@ const ReadingReminderHero = ({
   return (
     <div className={classNames('flex w-full', className)}>
       <div className="relative flex w-full flex-col rounded-16 border border-border-subtlest-secondary bg-surface-float px-4 py-3">
-        {shouldShowDismiss && (
-          <CloseButton
-            className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-            onClick={onDismiss}
-          />
-        )}
+        <CloseButton
+          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+          onClick={onDismiss}
+        />
         <Typography type={TypographyType.Title3}>{title}</Typography>
         <Typography
           className="mt-1 pr-8 laptop:pr-0"

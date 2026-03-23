@@ -3,10 +3,7 @@ import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { SendType } from '../usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useReadingReminderHero } from './useReadingReminderHero';
-import {
-  featureReadingReminderHeroCopy,
-  featureReadingReminderHeroDismiss,
-} from '../../lib/featureManagement';
+import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
 
 const mockUseAuthContext = jest.fn();
@@ -71,13 +68,6 @@ describe('useReadingReminderHero', () => {
     });
     mockUseLogContext.mockReturnValue({ logEvent });
     (useConditionalFeature as jest.Mock).mockImplementation(({ feature }) => {
-      if (feature.id === featureReadingReminderHeroDismiss.id) {
-        return {
-          value: true,
-          isLoading: false,
-        };
-      }
-
       if (feature.id === featureReadingReminderHeroCopy.id) {
         return {
           value: featureReadingReminderHeroCopy.defaultValue,
@@ -151,7 +141,6 @@ describe('useReadingReminderHero', () => {
     expect(result.current.subtitle).toBe(
       'Turn on your daily reading reminder and keep your routine.',
     );
-    expect(result.current.shouldShowDismiss).toBe(true);
   });
 
   it('should not show on desktop', () => {

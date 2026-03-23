@@ -60,7 +60,6 @@ describe('useReadingReminderFeedHero', () => {
       shouldShow: true,
       title: 'Title',
       subtitle: 'Subtitle',
-      shouldShowDismiss: true,
       onEnable,
       onDismiss,
     });

@@ -331,7 +331,6 @@ export default function Feed<T>({
     shouldShowInFeedHero,
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
-    shouldShowDismiss: shouldShowReadingReminderDismiss,
     onEnableHero,
     onDismissHero,
   } = useReadingReminderFeedHero({
@@ -606,7 +605,6 @@ export default function Feed<T>({
             className="pt-2"
             title={readingReminderTitle}
             subtitle={readingReminderSubtitle}
-            shouldShowDismiss={shouldShowReadingReminderDismiss}
             onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
             onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
           />
@@ -676,7 +674,6 @@ export default function Feed<T>({
                       className="pt-0"
                       title={readingReminderTitle}
                       subtitle={readingReminderSubtitle}
-                      shouldShowDismiss={shouldShowReadingReminderDismiss}
                       onCtaClick={() =>
                         onEnableHero(NotificationCtaPlacement.InFeedHero)
                       }

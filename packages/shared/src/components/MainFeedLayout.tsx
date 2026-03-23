@@ -227,7 +227,6 @@ export default function MainFeedLayout({
     shouldShow: shouldShowReadingReminder,
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
-    shouldShowDismiss: shouldShowReadingReminderDismiss,
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
@@ -623,7 +622,6 @@ export default function MainFeedLayout({
           className="px-4 pb-2"
           title={readingReminderTitle}
           subtitle={readingReminderSubtitle}
-          shouldShowDismiss={shouldShowReadingReminderDismiss}
           onEnable={onEnable}
           onDismiss={onDismiss}
         />
