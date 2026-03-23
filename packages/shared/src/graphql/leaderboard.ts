@@ -60,6 +60,8 @@ export enum LeaderboardType {
   HighestLevel = 'highestLevel',
 }
 
+export const MOST_QUESTS_COMPLETED_LIMIT = 10;
+
 export type QuestCompletionLeader = {
   questId: string;
   questName: string;
@@ -153,7 +155,7 @@ export const MOST_ACHIEVEMENT_POINTS_QUERY = gql`
 `;
 
 export const MOST_QUESTS_COMPLETED_QUERY = gql`
-  query MostQuestsCompleted($limit: Int = 100) {
+  query MostQuestsCompleted($limit: Int = ${MOST_QUESTS_COMPLETED_LIMIT}) {
     mostQuestsCompleted(limit: $limit) {
       ...LeaderboardFragment
     }

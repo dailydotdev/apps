@@ -70,7 +70,7 @@ export interface QuestDashboardData {
 }
 
 export interface ClaimQuestRewardData {
-  claimQuestReward: QuestDashboard;
+  claimQuestReward: Pick<QuestDashboard, 'level' | 'daily' | 'weekly'>;
 }
 
 export interface QuestUpdate {
@@ -216,8 +216,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
         xpInLevel
         xpToNextLevel
       }
-      currentStreak
-      longestStreak
       daily {
         regular {
           userQuestId

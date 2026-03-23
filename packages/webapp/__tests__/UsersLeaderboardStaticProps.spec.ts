@@ -4,6 +4,8 @@ import {
   HIGHEST_LEVEL_QUERY,
   LEADERBOARD_QUERY,
   LeaderboardType,
+  MOST_QUESTS_COMPLETED_LIMIT,
+  MOST_QUESTS_COMPLETED_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { getStaticProps as getUsersStaticProps } from '../pages/users';
 import { getStaticProps as getLeaderboardDetailStaticProps } from '../pages/users/[id]';
@@ -130,6 +132,26 @@ describe('leaderboard static props', () => {
     expect(result).toMatchObject({
       notFound: true,
       revalidate: 60,
+    });
+  });
+
+  it('should request a smaller limit for most quests completed detail', async () => {
+    mockRequest.mockResolvedValue({
+      mostQuestsCompleted: [],
+    });
+
+    const result = await getLeaderboardDetailStaticProps({
+      params: { id: LeaderboardType.MostQuestsCompleted },
+    } as never);
+
+    expect(mockRequest).toHaveBeenCalledWith(MOST_QUESTS_COMPLETED_QUERY, {
+      limit: MOST_QUESTS_COMPLETED_LIMIT,
+    });
+    expect(result).toMatchObject({
+      props: {
+        leaderboardType: LeaderboardType.MostQuestsCompleted,
+        userItems: [],
+      },
     });
   });
 });
