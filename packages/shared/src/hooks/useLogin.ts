@@ -1,6 +1,9 @@
 import { useCallback, useContext, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { LoginFormParams } from '../components/auth/LoginForm';
+import type {
+  LoginFormParams,
+  LoginHintState,
+} from '../components/auth/LoginForm';
 import AuthContext from '../contexts/AuthContext';
 import type {
   LoginPasswordParameters,
@@ -47,7 +50,7 @@ const LOGIN_FLOW_NOT_AVAILABLE_TOAST =
 
 interface UseLogin {
   isPasswordLoginLoading?: boolean;
-  loginHint?: ReturnType<typeof useState>;
+  loginHint?: LoginHintState;
   isReady: boolean;
   onSocialLogin: (provider: string) => void;
   onPasswordLogin: (params: LoginFormParams) => void;
@@ -79,7 +82,7 @@ const useLogin = ({
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { refetchBoot } = useContext(AuthContext);
-  const hintState = useState('Enter your password to login');
+  const hintState = useState<string | null>('Enter your password to login');
   const [, setHint] = hintState;
   const { data: login } = useQuery({
     queryKey: [AuthEvent.Login, { ...queryParams }],

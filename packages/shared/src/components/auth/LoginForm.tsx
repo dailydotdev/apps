@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { FormEvent, ReactElement } from 'react';
+import type { Dispatch, FormEvent, ReactElement, SetStateAction } from 'react';
 import React, { useState } from 'react';
 import type { LoginPasswordParameters } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
@@ -17,7 +17,7 @@ export interface LoginFormProps {
   onForgotPassword?: (email: string) => unknown;
   onPasswordLogin?: (params: LoginFormParams) => void;
   email?: string;
-  loginHint: ReturnType<typeof useState>;
+  loginHint: LoginHintState;
   loginButton?: string;
   className?: string;
   isLoading?: boolean;
@@ -25,6 +25,11 @@ export interface LoginFormProps {
   autoFocus?: boolean;
   onSignup: () => void;
 }
+
+export type LoginHintState = [
+  string | null,
+  Dispatch<SetStateAction<string | null>>,
+];
 
 export type LoginFormParams = Pick<
   LoginPasswordParameters,
@@ -45,6 +50,11 @@ function LoginForm({
 }: LoginFormProps): ReactElement {
   const onLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!onPasswordLogin) {
+      return;
+    }
+
     const form = formToJson<LoginFormParams>(e.currentTarget);
     onPasswordLogin(form);
   };
