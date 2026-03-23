@@ -102,7 +102,6 @@ export const SearchResultsLayout = (
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
-                space: 'eco',
               }),
               isListMode
                 ? `flex flex-col`

@@ -1,14 +1,14 @@
 .feed {
   grid-template-columns: 100%;
 }
-.containerV2 {
+.container {
   max-width: 100%;
 
   @screen desktopL {
     max-width: calc(21.25rem * var(--num-cards) + var(--feed-gap) * (var(--num-cards) - 1));
   }
 }
-.cardsV2 {
+.cards {
   max-width: 100%;
 
   @screen desktopL {
@@ -20,7 +20,7 @@
   padding-bottom: var(--feed-gap);
 }
 
-.cardsV2 .feedRow {
+.cards .feedRow {
   grid-template-columns: repeat(var(--num-cards), 1fr);
   grid-gap: var(--feed-gap);
 

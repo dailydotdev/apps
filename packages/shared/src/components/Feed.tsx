@@ -101,7 +101,6 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  disableListWidthConstraint?: boolean;
 }
 
 interface RankVariables {
@@ -197,7 +196,6 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
-  disableListWidthConstraint = false,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -611,7 +609,6 @@ export default function Feed<T>({
         feedContainerRef,
         showBriefCard,
         disableListFrame,
-        disableListWidthConstraint,
       };
 
   return (
