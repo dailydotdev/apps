@@ -58,7 +58,7 @@ const variantConfig = {
     iconSize: IconSize.XSmall,
     containerClassName: '',
     showTagsPanel: false,
-    useCommentLink: false,
+    useCommentLink: true,
   },
 } as const;
 
@@ -73,7 +73,7 @@ const ActionButtons = ({
   variant = 'grid',
   showDownvoteAction = true,
   showAwardAction = true,
-}: ActionButtonsProps): ReactElement => {
+}: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
   const { value: showBookmarkCount } = useConditionalFeature({
@@ -103,6 +103,9 @@ const ActionButtons = ({
     return null;
   }
 
+  const commentCount = post.numComments ?? 0;
+  const upvoteCount = post.numUpvotes ?? 0;
+
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
       tooltip={{ content: 'Comment' }}
@@ -121,13 +124,10 @@ const ActionButtons = ({
         icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
         onClick={() => onCommentClick?.(post)}
       >
-        {post?.numComments > 0 && (
+        {commentCount > 0 && (
           <InteractionCounter
-            className={classNames(
-              'tabular-nums',
-              !post.numComments && 'invisible',
-            )}
-            value={post.numComments}
+            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            value={commentCount}
           />
         )}
       </QuaternaryButton>
@@ -143,13 +143,13 @@ const ActionButtons = ({
         size={config.buttonSize}
         className="btn-tertiary-blueCheese"
       >
-        {post?.numComments > 0 && (
+        {commentCount > 0 && (
           <InteractionCounter
             className={classNames(
               'tabular-nums !typo-footnote',
-              !post.numComments && 'invisible',
+              !commentCount && 'invisible',
             )}
-            value={post.numComments}
+            value={commentCount}
           />
         )}
       </QuaternaryButton>
@@ -185,14 +185,14 @@ const ActionButtons = ({
               />
             }
           >
-            {post?.numUpvotes > 0 && (
+            {upvoteCount > 0 && (
               <InteractionCounter
                 className={classNames(
                   'tabular-nums',
                   variant === 'grid' && 'typo-footnote',
-                  !post.numUpvotes && 'invisible',
+                  !upvoteCount && 'invisible',
                 )}
-                value={post.numUpvotes}
+                value={upvoteCount}
               />
             )}
           </QuaternaryButton>
