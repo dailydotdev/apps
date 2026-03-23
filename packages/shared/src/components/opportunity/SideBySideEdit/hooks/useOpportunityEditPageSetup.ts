@@ -74,7 +74,11 @@ export function useOpportunityEditPageSetup({
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Opportunity, undefined, opportunityId),
+        queryKey: generateQueryKey(
+          RequestKey.Opportunity,
+          undefined,
+          opportunityId,
+        ),
       });
     },
   });

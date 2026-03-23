@@ -43,7 +43,8 @@ export function PricingPlan<T extends string = string>({
   const baseClassName: RadioItemProps<T>['className'] = {
     wrapper:
       (isBestValue &&
-      `relative p-1 pt-8 rounded-16 overflow-hidden ${styles.bestValue}`) || undefined,
+        `relative p-1 pt-8 rounded-16 overflow-hidden ${styles.bestValue}`) ||
+      undefined,
     content: classNames(
       styles.label,
       'z-1 !items-start gap-2 overflow-hidden rounded-12 border p-3',

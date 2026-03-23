@@ -49,7 +49,9 @@ export const SearchResultsLayout = (
       provider: SearchProviderEnum.Tags,
       limit: 10,
     });
-  const tags = (suggestedTags?.hits?.map(({ id }) => id) ?? []).filter((id): id is string => !!id);
+  const tags = (suggestedTags?.hits?.map(({ id }) => id) ?? []).filter(
+    (id): id is string => !!id,
+  );
 
   const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
     useSearchProviderSuggestions({

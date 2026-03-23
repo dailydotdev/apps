@@ -7,7 +7,11 @@ export function useGearSearch(query: string) {
   const trimmedQuery = query.trim();
   const enabled = trimmedQuery.length >= 1;
 
-  const queryKey = generateQueryKey(RequestKey.GearSearch, undefined, trimmedQuery);
+  const queryKey = generateQueryKey(
+    RequestKey.GearSearch,
+    undefined,
+    trimmedQuery,
+  );
 
   const searchQuery = useQuery<DatasetGear[]>({
     queryKey,

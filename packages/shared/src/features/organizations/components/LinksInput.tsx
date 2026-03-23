@@ -153,7 +153,11 @@ export const LinksInput = ({
             size={ButtonSize.XSmall}
             icon={<PlusIcon />}
             onClick={handleAdd}
-            disabled={!url.trim() || (isUnrecognized && !customLabel.trim()) || undefined}
+            disabled={
+              !url.trim() ||
+              (isUnrecognized && !customLabel.trim()) ||
+              undefined
+            }
           >
             Add
           </Button>

@@ -45,7 +45,9 @@ export const InlineContentEditor = ({
   isRequired = false,
 }: InlineContentEditorProps): ReactElement => {
   const { displayToast } = useToastNotification();
-  const richTextRef = useRef<RichTextRef>(null) as React.MutableRefObject<RichTextRef>;
+  const richTextRef = useRef<RichTextRef>(
+    null,
+  ) as React.MutableRefObject<RichTextRef>;
 
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id: opportunityId }),

@@ -25,7 +25,11 @@ export function useUserStack(user: PublicProfile | null) {
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const queryKey = generateQueryKey(RequestKey.UserStack, user ?? undefined, 'profile');
+  const queryKey = generateQueryKey(
+    RequestKey.UserStack,
+    user ?? undefined,
+    'profile',
+  );
 
   const query = useQuery({
     queryKey,

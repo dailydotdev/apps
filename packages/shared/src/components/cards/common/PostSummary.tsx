@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactElement } from 'react';
+import type { HTMLAttributes } from 'react';
 import React, { forwardRef } from 'react';
 import { SummaryContainer, TLDRText } from '../../utilities';
 import ShowMoreContent from './ShowMoreContent';
@@ -7,10 +7,10 @@ interface SummaryProps extends HTMLAttributes<HTMLDivElement> {
   summary: string;
 }
 
-const PostSummary: React.ForwardRefRenderFunction<HTMLDivElement, SummaryProps> = (
-  { summary, ...props },
-  ref,
-) => {
+const PostSummary: React.ForwardRefRenderFunction<
+  HTMLDivElement,
+  SummaryProps
+> = ({ summary, ...props }, ref) => {
   return (
     <SummaryContainer ref={ref} {...props}>
       <ShowMoreContent
@@ -22,6 +22,6 @@ const PostSummary: React.ForwardRefRenderFunction<HTMLDivElement, SummaryProps> 
       />
     </SummaryContainer>
   );
-}
+};
 
 export default forwardRef(PostSummary);

@@ -4,7 +4,10 @@ import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Opportunity, OpportunityLocation } from '../../../../features/opportunity/types';
+import type {
+  Opportunity,
+  OpportunityLocation,
+} from '../../../../features/opportunity/types';
 import { OpportunityState } from '../../../../features/opportunity/protobuf/opportunity';
 import {
   opportunityEditInfoSchema,

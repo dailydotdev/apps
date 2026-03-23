@@ -77,7 +77,10 @@ const ProfileCompany = ({
     }
   };
 
-  const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q ?? ''), 300);
+  const [debouncedQuery] = useDebounceFn<string>(
+    (q) => handleSearch(q ?? ''),
+    300,
+  );
 
   return (
     <div className="flex flex-col gap-1">

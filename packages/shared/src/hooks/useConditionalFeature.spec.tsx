@@ -30,7 +30,9 @@ const createWrapper = ({ value = testFeature.defaultValue }) => {
         loadedUserFromCache
         squads={[]}
       >
-        <FeaturesReadyContext.Provider value={{ ready: !!value } as FeaturesReadyContextValue}>
+        <FeaturesReadyContext.Provider
+          value={{ ready: !!value } as FeaturesReadyContextValue}
+        >
           <GrowthBookProvider
             app={BootApp.Test}
             user={loggedUser}

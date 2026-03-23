@@ -29,7 +29,9 @@ export const BookmarkSection = ({
   const { createFolder } = useCreateBookmarkFolder();
 
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const rightIcon = !isLaptop && (() => <ArrowIcon className="rotate-90" />);
+  const rightIcon = !isLaptop
+    ? (_active: boolean) => <ArrowIcon className="rotate-90" />
+    : undefined;
 
   const handleAddFolder = useCallback(() => {
     openModal({
@@ -43,7 +45,7 @@ export const BookmarkSection = ({
     });
   }, [openModal, closeModal, createFolder]);
 
-  const menuItems: SidebarMenuItem[] = ([
+  const allMenuItems = [
     briefUIFeatureValue && {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BriefIcon secondary={active} />} />
@@ -86,7 +88,8 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     })),
-  ].filter(Boolean) as SidebarMenuItem[];
+  ];
+  const menuItems: SidebarMenuItem[] = allMenuItems.filter(Boolean) as SidebarMenuItem[];
 
   return (
     <Section

@@ -24,7 +24,11 @@ export function useSourceStack(squad: Squad | null) {
     ? verifyPermission(squad, SourcePermissionsEnum.Edit)
     : false;
 
-  const queryKey = generateQueryKey(RequestKey.SourceStack, undefined, squad?.id);
+  const queryKey = generateQueryKey(
+    RequestKey.SourceStack,
+    undefined,
+    squad?.id,
+  );
 
   const query = useQuery({
     queryKey,

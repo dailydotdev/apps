@@ -32,7 +32,10 @@ export const StepHeadline = ({
   className,
 }: StepHeadlineProps): ReactElement => {
   const titleHtml = useMemo(() => sanitizeMessage(heading), [heading]);
-  const descHtml = useMemo(() => description ? sanitizeMessage(description) : undefined, [description]);
+  const descHtml = useMemo(
+    () => (description ? sanitizeMessage(description) : undefined),
+    [description],
+  );
 
   return (
     <div

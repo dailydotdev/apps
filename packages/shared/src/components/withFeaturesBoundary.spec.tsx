@@ -8,7 +8,9 @@ import { withFeaturesBoundary } from './withFeaturesBoundary';
 const renderComponent = (Component: React.ElementType, ready = true) => {
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <FeaturesReadyContext.Provider value={{ ready } as FeaturesReadyContextValue}>
+      <FeaturesReadyContext.Provider
+        value={{ ready } as FeaturesReadyContextValue}
+      >
         <Component />
       </FeaturesReadyContext.Provider>
       ,

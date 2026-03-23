@@ -142,7 +142,8 @@ export const SignalList = forwardRef(function SignalList(
           title: resolvedTitle || post.title,
           href: post.commentsPermalink,
           onClick: onPostCardClick,
-        }) || undefined
+        }) ||
+        undefined
       }
       bookmarked={post.bookmarked}
     >
