@@ -589,6 +589,11 @@ export default function Feed<T>({
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
   const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+  const firstGridSlotOffset = Number(showFirstSlotCard);
+  const adjustedHeroInsertIndex = Math.max(
+    heroInsertIndex - firstGridSlotOffset,
+    0,
+  );
   const indexWhenShowingPromoBanner =
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
@@ -662,7 +667,7 @@ export default function Feed<T>({
                     }}
                   />
                 )}
-                {shouldShowInFeedHero && index === heroInsertIndex && (
+                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
                   <div
                     style={{
                       gridColumn: !shouldUseListFeedLayout
