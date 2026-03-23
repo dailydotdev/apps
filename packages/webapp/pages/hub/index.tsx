@@ -5,30 +5,31 @@ import type { NextSeoProps } from 'next-seo';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_REPUTATION_QUERY,
   LeaderboardType,
   MOST_QUESTS_COMPLETED_QUERY,
+  QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   ProductType,
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
 import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
-import type { UserPostsAnalytics } from '@dailydotdev/shared/src/graphql/users';
-import { USER_POSTS_ANALYTICS_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '@dailydotdev/shared/src/hooks/profile/useTrackedAchievement';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
-import { useRequestProtocol } from '@dailydotdev/shared/src/hooks/useRequestProtocol';
 import { shouldShowAchievementTracker } from '@dailydotdev/shared/src/lib/achievements';
 import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import {
   achievementTrackingWidgetFeature,
   questsFeature,
@@ -55,6 +56,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
@@ -76,10 +78,6 @@ import {
   CoreIcon,
   MedalBadgeIcon,
   PinIcon,
-  ReputationIcon,
-  SparkleIcon,
-  StarIcon,
-  TrendingIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -97,6 +95,7 @@ import {
 type HubPageProps = {
   highestReputation: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
+  questCompletionStats: QuestCompletionStats | null;
 };
 
 type SectionProps = {
@@ -107,6 +106,18 @@ type SectionProps = {
 
 const dividerClassName = 'bg-border-subtlest-tertiary';
 const leaderboardLimit = 3;
+
+const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(({ message }) =>
+      message?.includes('Cannot query field "questCompletionStats"'),
+    ) ?? false
+  );
+};
+
+const formatQuestCompletionCount = (count: number): string => {
+  return count === 1 ? '1 completion' : `${count.toLocaleString()} completions`;
+};
 
 const SectionHeader = ({
   title,
@@ -205,7 +216,7 @@ const TrophyCard = ({
   );
 };
 
-const seoTitles = getPageSeoTitles('Gamification hub');
+const seoTitles = getPageSeoTitles('The Hub');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
@@ -218,9 +229,9 @@ const seo: NextSeoProps = {
 function HubPage({
   highestReputation,
   mostQuestsCompleted,
+  questCompletionStats,
 }: HubPageProps): ReactElement {
   const { user } = useAuthContext();
-  const { requestMethod } = useRequestProtocol();
   const { value: isQuestsFeatureEnabled } = useConditionalFeature({
     feature: questsFeature,
     shouldEvaluate: !!user,
@@ -259,23 +270,6 @@ function HubPage({
     [achievements, trackedAchievementState.trackedAchievement],
   );
   const hasCoresAccess = useHasAccessToCores();
-
-  const analyticsQueryKey = generateQueryKey(
-    RequestKey.UserPostsAnalytics,
-    user,
-  );
-  const { data: analytics } = useQuery({
-    queryKey: analyticsQueryKey,
-    queryFn: async () => {
-      const result = await requestMethod<{
-        userPostsAnalytics: UserPostsAnalytics;
-      }>(USER_POSTS_ANALYTICS_QUERY);
-
-      return result.userPostsAnalytics;
-    },
-    staleTime: StaleTime.Default,
-    enabled: !!user,
-  });
 
   const topReaderQueryKey = generateQueryKey(
     RequestKey.TopReaderBadge,
@@ -326,6 +320,8 @@ function HubPage({
   const { featuredAchievements } = achievementSummary;
   const [featuredAchievement] = featuredAchievements;
   const { highlightedQuest } = questSummary;
+  const hasCommunityLeaderboards =
+    highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   let mostEarnedBadgeSubtitle =
     'Read in a topic more than once to see a favorite';
 
@@ -486,16 +482,18 @@ function HubPage({
             }
           />
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2">
-          {badgeCaseBadges.map((badge) => (
-            <div key={badge.id} className="shrink-0">
-              <TopReaderBadge
-                user={badge.user}
-                issuedAt={badge.issuedAt}
-                keyword={badge.keyword}
-              />
-            </div>
-          ))}
+        <div className="overflow-x-auto pb-2">
+          <div className="mx-auto flex w-max gap-4">
+            {badgeCaseBadges.map((badge) => (
+              <div key={badge.id} className="shrink-0">
+                <TopReaderBadge
+                  user={badge.user}
+                  issuedAt={badge.issuedAt}
+                  keyword={badge.keyword}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </>
     );
@@ -575,7 +573,12 @@ function HubPage({
             value={awardSummary.favoriteAward?.count ?? 0}
             info="The award type you have collected the most."
             icon={
-              <StarIcon size={IconSize.Small} className="text-text-tertiary" />
+              <Image
+                src={awardSummary.favoriteAward?.image ?? featuredAwardImage}
+                alt={awardSummary.favoriteAward?.name ?? 'Award'}
+                fallbackSrc={featuredAwardImage}
+                className="size-6 shrink-0 object-contain"
+              />
             }
             subtitle={
               <Typography
@@ -627,7 +630,7 @@ function HubPage({
             color={TypographyColor.Primary}
             className="flex-1"
           >
-            Gamification hub
+            The Hub
           </Typography>
         </LayoutHeader>
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
@@ -651,7 +654,7 @@ function HubPage({
                     type={TypographyType.Title1}
                     bold
                   >
-                    {firstName}, here&apos;s how your game is moving.
+                    {firstName}, here&apos;s how you&apos;re doing.
                   </Typography>
                   <Typography
                     type={TypographyType.Body}
@@ -664,7 +667,7 @@ function HubPage({
                   </Typography>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 laptop:max-w-[24rem]">
+                <div className="grid grid-cols-2 gap-3 tablet:max-w-[calc(75%-0.1875rem)] tablet:grid-cols-3">
                   <StatPill
                     label="Total XP"
                     value={(
@@ -678,6 +681,16 @@ function HubPage({
                         ? '...'
                         : `${
                             questDashboard?.currentStreak?.toLocaleString() ?? 0
+                          } days`
+                    }
+                  />
+                  <StatPill
+                    label="Longest quest streak"
+                    value={
+                      isQuestPending
+                        ? '...'
+                        : `${
+                            questDashboard?.longestStreak?.toLocaleString() ?? 0
                           } days`
                     }
                   />
@@ -858,72 +871,12 @@ function HubPage({
             </div>
           </section>
 
-          <section className="grid grid-cols-2 gap-4 tablet:grid-cols-3">
-            <DataTile
-              label="Achievements unlocked"
-              value={achievementSummary.unlockedCount}
-              info="How many achievements you have unlocked so far."
-              icon={
-                <MedalBadgeIcon
-                  size={IconSize.Small}
-                  className="text-text-tertiary"
-                />
-              }
-              subtitle={
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {achievementSummary.totalCount} total available
-                </Typography>
-              }
-            />
-            <DataTile
-              label="Badges earned"
-              value={badgeSummary.totalBadges}
-              info="Top reader badges you have collected."
-              icon={
-                <StarIcon
-                  size={IconSize.Small}
-                  className="text-text-tertiary"
-                />
-              }
-              subtitle={
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {badgeSummary.uniqueTopics} distinct topics
-                </Typography>
-              }
-            />
-            <DataTile
-              label="Awards on posts"
-              value={analytics?.awards ?? 0}
-              info="Awards other developers have given to your posts."
-              icon={
-                <CoreIcon
-                  size={IconSize.Small}
-                  className="text-text-tertiary"
-                />
-              }
-              subtitle={
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  creator rewards
-                </Typography>
-              }
-            />
-          </section>
-
           <Divider className={dividerClassName} />
 
           <section className="flex flex-col gap-4">
             <SectionHeader
               title="Community pulse"
-              description="A quick look at who is leading the broader community in reputation and completed quests."
+              description="A quick look at what the community is up to"
               action={
                 <Link href="/users" passHref>
                   <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
@@ -933,7 +886,86 @@ function HubPage({
                 </Link>
               }
             />
-            {highestReputation.length > 0 || mostQuestsCompleted.length > 0 ? (
+            {questCompletionStats && (
+              <div className="grid gap-4 tablet:grid-cols-3">
+                <DataTile
+                  label="Most completed of all time"
+                  value={
+                    questCompletionStats.allTimeLeader?.questName ??
+                    'No quest data yet'
+                  }
+                  valueClassName="max-w-full truncate !text-lg !leading-6"
+                  info="The quest with the most completed or claimed runs across the whole community."
+                  subtitle={
+                    <div className="mt-1 flex flex-col gap-1">
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="truncate"
+                      >
+                        {questCompletionStats.allTimeLeader?.questDescription ??
+                          'Criteria will show once the first quest is completed'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {questCompletionStats.allTimeLeader
+                          ? formatQuestCompletionCount(
+                              questCompletionStats.allTimeLeader.count,
+                            )
+                          : 'Waiting on the first completion'}
+                      </Typography>
+                    </div>
+                  }
+                />
+                <DataTile
+                  label="Most completed this week"
+                  value={
+                    questCompletionStats.weeklyLeader?.questName ??
+                    'No quest data yet'
+                  }
+                  valueClassName="max-w-full truncate !text-lg !leading-6"
+                  info="The quest leading community completions since this week began."
+                  subtitle={
+                    <div className="mt-1 flex flex-col gap-1">
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="truncate"
+                      >
+                        {questCompletionStats.weeklyLeader?.questDescription ??
+                          'Criteria will show once a quest is completed this week'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {questCompletionStats.weeklyLeader
+                          ? formatQuestCompletionCount(
+                              questCompletionStats.weeklyLeader.count,
+                            )
+                          : 'No completed quests yet this week'}
+                      </Typography>
+                    </div>
+                  }
+                />
+                <DataTile
+                  label="Total quests completed"
+                  value={questCompletionStats.totalCount}
+                  info="Every completed or claimed quest across the community."
+                  subtitle={
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      all-time community total
+                    </Typography>
+                  }
+                />
+              </div>
+            )}
+            {hasCommunityLeaderboards ? (
               <div className="grid gap-4 tablet:grid-cols-2">
                 {highestReputation.length > 0 && (
                   <UserTopList
@@ -1001,65 +1033,10 @@ function HubPage({
           <section className="flex flex-col gap-4">
             <SectionHeader
               title="Trophy case"
-              description="Every award you have earned, with the count for each trophy in your collection."
+              description="Every award you've earned"
             />
 
             {trophyCaseContent}
-          </section>
-
-          <Divider className={dividerClassName} />
-
-          <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Awards and impact"
-              description="How your posts are converting attention into awards, reputation, and creator value."
-            />
-            <div className="grid grid-cols-2 gap-4 tablet:grid-cols-4">
-              <DataTile
-                label="Current reputation"
-                value={user?.reputation ?? 0}
-                info="Your current all-up community reputation score."
-                icon={
-                  <ReputationIcon
-                    size={IconSize.Small}
-                    className="text-text-tertiary"
-                  />
-                }
-              />
-              <DataTile
-                label="Reputation from posts"
-                value={analytics?.reputation ?? 0}
-                info="Total reputation earned by the posts you published."
-                icon={
-                  <TrendingIcon
-                    size={IconSize.Small}
-                    className="text-text-tertiary"
-                  />
-                }
-              />
-              <DataTile
-                label="Cores earned"
-                value={analytics?.coresEarned ?? 0}
-                info="Cores collected through awards on your posts."
-                icon={
-                  <CoreIcon
-                    size={IconSize.Small}
-                    className="text-text-tertiary"
-                  />
-                }
-              />
-              <DataTile
-                label="Post upvotes"
-                value={analytics?.upvotes ?? 0}
-                info="Upvotes accumulated across all your posts."
-                icon={
-                  <SparkleIcon
-                    size={IconSize.Small}
-                    className="text-text-tertiary"
-                  />
-                }
-              />
-            </div>
           </section>
         </ResponsivePageContainer>
       </div>
@@ -1087,11 +1064,27 @@ export async function getStaticProps(): Promise<
         mostQuestsCompleted: UserLeaderboard[];
       }>(MOST_QUESTS_COMPLETED_QUERY, { limit: leaderboardLimit }),
     ]);
+    let questCompletionStats: QuestCompletionStats | null = null;
+
+    try {
+      const statsRes = await gqlClient.request<{
+        questCompletionStats: QuestCompletionStats | null;
+      }>(QUEST_COMPLETION_STATS_QUERY);
+
+      questCompletionStats = statsRes.questCompletionStats ?? null;
+    } catch (statsError: unknown) {
+      const error = statsError as GraphQLError;
+
+      if (isQuestCompletionStatsSchemaMissing(error)) {
+        questCompletionStats = null;
+      }
+    }
 
     return {
       props: {
         highestReputation: highestReputationRes.highestReputation ?? [],
         mostQuestsCompleted: mostQuestsCompletedRes.mostQuestsCompleted ?? [],
+        questCompletionStats,
       },
       revalidate: 3600,
     };
@@ -1115,6 +1108,7 @@ export async function getStaticProps(): Promise<
         props: {
           highestReputation: [],
           mostQuestsCompleted: [],
+          questCompletionStats: null,
         },
         revalidate: 300,
       };
@@ -1124,6 +1118,7 @@ export async function getStaticProps(): Promise<
       props: {
         highestReputation: [],
         mostQuestsCompleted: [],
+        questCompletionStats: null,
       },
       revalidate: 300,
     };

@@ -60,6 +60,19 @@ export enum LeaderboardType {
   HighestLevel = 'highestLevel',
 }
 
+export type QuestCompletionLeader = {
+  questId: string;
+  questName: string;
+  questDescription: string;
+  count: number;
+};
+
+export type QuestCompletionStats = {
+  totalCount: number;
+  allTimeLeader: QuestCompletionLeader | null;
+  weeklyLeader: QuestCompletionLeader | null;
+};
+
 export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
   [LeaderboardType.HighestReputation]: 'Highest reputation',
   [LeaderboardType.LongestStreak]: 'Longest streak',
@@ -146,6 +159,26 @@ export const MOST_QUESTS_COMPLETED_QUERY = gql`
     }
   }
   ${LEADERBOARD_FRAGMENT}
+`;
+
+export const QUEST_COMPLETION_STATS_QUERY = gql`
+  query QuestCompletionStats {
+    questCompletionStats {
+      totalCount
+      allTimeLeader {
+        questId
+        questName
+        questDescription
+        count
+      }
+      weeklyLeader {
+        questId
+        questName
+        questDescription
+        count
+      }
+    }
+  }
 `;
 
 export const HIGHEST_LEVEL_QUERY = gql`

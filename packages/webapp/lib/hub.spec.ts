@@ -77,6 +77,7 @@ describe('hub helpers', () => {
         xpToNextLevel: 250,
       },
       currentStreak: 4,
+      longestStreak: 9,
       daily: {
         regular: [
           createQuest({

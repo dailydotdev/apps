@@ -60,6 +60,7 @@ export interface QuestLevel {
 export interface QuestDashboard {
   level: QuestLevel;
   currentStreak: number;
+  longestStreak: number;
   daily: QuestBucket;
   weekly: QuestBucket;
 }
@@ -109,6 +110,7 @@ export const QUEST_DASHBOARD_QUERY = gql`
         xpToNextLevel
       }
       currentStreak
+      longestStreak
       daily {
         regular {
           userQuestId
@@ -215,6 +217,7 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
         xpToNextLevel
       }
       currentStreak
+      longestStreak
       daily {
         regular {
           userQuestId
