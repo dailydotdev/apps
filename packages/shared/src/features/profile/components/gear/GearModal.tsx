@@ -57,7 +57,7 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
     await onSubmit({
       name: data.name.trim(),
     });
-    rest.onRequestClose?.(null);
+    rest.onRequestClose?.();
   });
 
   const filteredSuggestions = useMemo(() => {

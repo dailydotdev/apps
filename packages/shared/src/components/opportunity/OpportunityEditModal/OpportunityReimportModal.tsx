@@ -47,7 +47,7 @@ export const OpportunityReimportModal = ({
     onSuccess: (data) => {
       // Immediately update the cache with the returned data
       queryClient.setQueryData(getOpportunityByIdKey(opportunityId), data);
-      onRequestClose?.(null);
+      onRequestClose?.();
     },
     onError: (err) => {
       setError(err?.message || 'Failed to reimport. Please try again.');

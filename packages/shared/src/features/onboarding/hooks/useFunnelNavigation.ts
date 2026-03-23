@@ -211,7 +211,7 @@ export const useFunnelNavigation = ({
   );
 
   const step: FunnelStep = useMemo(
-    () => getFunnelStepByPosition(funnel, position),
+    () => getFunnelStepByPosition(funnel, position)!,
     [funnel, position],
   );
   const navigationStateRef = useRef({ step, stepTimerStart });

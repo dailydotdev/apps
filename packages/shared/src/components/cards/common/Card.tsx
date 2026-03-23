@@ -84,7 +84,7 @@ export const getPostClassNames = (
   ...postClassNames: string[]
 ): string =>
   classNames(
-    { [styles.read]: post.read, [styles.trending]: post.trending > 0 },
+    { [styles.read]: post.read, [styles.trending]: (post.trending ?? 0) > 0 },
     styles.post,
     'group',
     ...postClassNames,

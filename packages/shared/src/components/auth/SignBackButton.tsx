@@ -18,7 +18,7 @@ export function SignBackButton({
   provider,
   onClick,
 }: SignBackButtonProps): ReactElement {
-  const item = providerMap[provider.toLowerCase()];
+  const item = providerMap[provider.toLowerCase() as keyof typeof providerMap];
 
   return (
     <button

@@ -67,7 +67,7 @@ export function SourceStackModal({
     await onSubmit({
       title: data.title.trim(),
     });
-    rest.onRequestClose?.(null);
+    rest.onRequestClose?.();
   });
 
   const filteredSuggestions = useMemo(() => {

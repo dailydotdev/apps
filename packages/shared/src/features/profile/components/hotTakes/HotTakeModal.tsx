@@ -71,7 +71,7 @@ export function HotTakeModal({
       title: data.title.trim(),
       subtitle: data.subtitle?.trim() || undefined,
     });
-    rest.onRequestClose?.(null);
+    rest.onRequestClose?.();
   });
 
   return (

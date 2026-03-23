@@ -5,12 +5,13 @@ import {
   RecruiterProgress,
   RecruiterProgressStep,
 } from '../../../components/recruiter/Progress';
+import type { OpportunityPreviewContextType } from '../../opportunity/context/OpportunityPreviewContext';
 import { OpportunityPreviewProvider } from '../../opportunity/context/OpportunityPreviewContext';
 import { AnalyzeContent } from '../../opportunity/components/analyze/AnalyzeContent';
 
 export const OnboardingView = (): ReactElement => {
   return (
-    <OpportunityPreviewProvider mockData={{}}>
+    <OpportunityPreviewProvider mockData={{} as OpportunityPreviewContextType}>
       <div className="pointer-events-none flex flex-1 flex-col blur-sm">
         <RecruiterHeader />
         <RecruiterProgress activeStep={RecruiterProgressStep.AnalyzeAndMatch} />

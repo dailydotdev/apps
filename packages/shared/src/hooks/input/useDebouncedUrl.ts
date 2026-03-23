@@ -9,7 +9,7 @@ export const useDebouncedUrl = (
 ): [StartFn<string>, CancelEvent] =>
   useDebounceFn((value: string) => {
     if (!isValidHttpUrl(value) || !onValidate(value)) {
-      return null;
+      return undefined;
     }
 
     return callback(value);

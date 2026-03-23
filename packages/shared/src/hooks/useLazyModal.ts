@@ -41,7 +41,7 @@ export function useLazyModal<
     () => ({
       openModal,
       closeModal,
-      modal,
+      modal: modal as T,
     }),
     [openModal, closeModal, modal],
   );

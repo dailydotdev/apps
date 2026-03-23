@@ -23,14 +23,14 @@ const SearchFilterTimeButton = () => {
             size={ButtonSize.Small}
             aria-label="Open time filter menu"
           >
-            {SearchTime[time]}
+            {SearchTime[time as keyof typeof SearchTime]}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {Object.entries(SearchTime).map(([value, label]) => (
             <DropdownMenuItem
               key={label}
-              onClick={() => setTime(value as keyof SearchTime)}
+              onClick={() => setTime(value as SearchTime)}
               className={classNames(
                 'flex',
                 time === value

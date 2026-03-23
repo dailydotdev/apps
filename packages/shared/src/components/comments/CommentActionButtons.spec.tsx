@@ -39,7 +39,7 @@ beforeEach(() => {
 
 const renderComponent = (
   commentUpdate: Partial<Comment> = {},
-  user: LoggedUser = null,
+  user: LoggedUser = null as unknown as LoggedUser,
   mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const props: Props = {

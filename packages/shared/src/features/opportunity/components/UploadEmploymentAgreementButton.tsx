@@ -22,7 +22,7 @@ export const UploadEmploymentAgreementButton = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
 
-  const updateQuery = useUpdateQuery(getCandidatePreferencesOptions(user?.id));
+  const updateQuery = useUpdateQuery(getCandidatePreferencesOptions(user!.id));
 
   const { mutate: uploadEmploymentAgreement, isPending: isUploadPending } =
     useMutation({

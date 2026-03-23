@@ -5,7 +5,7 @@ import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 
 describe('getAdFaviconImageLink', () => {
   afterEach(() => {
-    delete (globalThis as typeof globalThis & { window?: Window }).window;
+    (globalThis as Record<string, unknown>).window = undefined;
   });
 
   it('returns companyLogo first when available', () => {

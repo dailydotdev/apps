@@ -70,7 +70,7 @@ export const AchievementCompletionModal = ({
   const [sparklesFalling, setSparklesFalling] = useState(false);
   const loggedImpression = useRef(false);
   const handleClose = (event?: MouseEvent | KeyboardEvent) =>
-    onRequestClose?.(event);
+    onRequestClose?.(event!);
 
   const unlockedAchievement = useMemo(
     () => achievements?.find((item) => item.achievement.id === achievementId),

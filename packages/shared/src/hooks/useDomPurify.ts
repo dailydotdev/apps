@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import createDOMPurify from 'dompurify';
 
 export const useDomPurify = (): DOMPurify.DOMPurifyI => {
-  const [purify, setPurify] = useState<DOMPurify.DOMPurifyI>();
+  const [purify, setPurify] = useState<DOMPurify.DOMPurifyI>(undefined as unknown as DOMPurify.DOMPurifyI);
 
   useEffect(() => {
     setPurify(createDOMPurify(globalThis.window));

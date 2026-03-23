@@ -30,7 +30,7 @@ export function ListDrawer({
   canFetchMore = false,
   isFetchingNextPage,
 }: ListDrawerProps): ReactElement {
-  const ref = React.useRef<DrawerRef>();
+  const ref = React.useRef<DrawerRef>(null) as React.MutableRefObject<DrawerRef>;
   const infiniteScrollRef = useFeedInfiniteScroll({
     fetchPage: fetchNextPage ?? (() => {}),
     canFetchMore: canFetchMore && !isFetchingNextPage,

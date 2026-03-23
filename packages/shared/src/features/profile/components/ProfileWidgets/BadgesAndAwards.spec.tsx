@@ -35,7 +35,6 @@ const defaultUser: PublicProfile = {
   image: 'https://daily.dev/test.png',
   bio: 'Test bio',
   createdAt: '2020-01-01T00:00:00.000Z',
-  twitter: 'testuser',
   github: 'testuser',
   hashnode: 'testuser',
   portfolio: 'https://test.com',

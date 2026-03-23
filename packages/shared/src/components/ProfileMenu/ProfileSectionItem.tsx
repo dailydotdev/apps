@@ -65,7 +65,7 @@ export const ProfileSectionItem = ({
     <ConditionalWrapper
       condition={!!href}
       wrapper={(children) => (
-        <Link href={href} passHref>
+        <Link href={href!} passHref>
           {children}
         </Link>
       )}

@@ -54,7 +54,7 @@ const PanelItem = ({
 export const SearchPanelPostSuggestions = ({
   className,
   title,
-}: SearchPanelPostSuggestionsProps): ReactElement => {
+}: SearchPanelPostSuggestionsProps): ReactElement | null => {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const searchPanel = useContext(SearchPanelContext);

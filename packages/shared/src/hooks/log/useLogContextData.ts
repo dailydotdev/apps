@@ -71,7 +71,7 @@ export default function useLogContextData(
         if (event) {
           durationEventsQueue.current.delete(id);
           event.event_duration =
-            now.getTime() - event.event_timestamp.getTime();
+            now.getTime() - event.event_timestamp!.getTime();
           if (window.scrollY > 0 && event.event_name !== 'page inactive') {
             event.page_state = 'active';
           }

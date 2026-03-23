@@ -138,11 +138,11 @@ export const SignalList = forwardRef(function SignalList(
         type: typeLabel,
       }}
       linkProps={
-        !isFeedPreview && {
+        (!isFeedPreview && {
           title: resolvedTitle || post.title,
           href: post.commentsPermalink,
           onClick: onPostCardClick,
-        }
+        }) || undefined
       }
       bookmarked={post.bookmarked}
     >

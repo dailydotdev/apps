@@ -22,7 +22,7 @@ export const ClearEmploymentAgreementButton = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
-  const opts = getCandidatePreferencesOptions(user?.id);
+  const opts = getCandidatePreferencesOptions(user!.id);
   const updateQuery = useUpdateQuery(opts);
 
   const { mutate: clearFile, isPending: isClearFilePending } = useMutation({

@@ -31,7 +31,7 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
   const anchorRef = useRef<ButtonElementType<TagName>>(null);
-  useImperativeHandle(ref, () => anchorRef?.current);
+  useImperativeHandle(ref, () => anchorRef?.current!);
   const [isHovered, setIsHovered] = useState(false);
   const onLabelClick = (event: React.MouseEvent<HTMLLabelElement>): void => {
     event.preventDefault();

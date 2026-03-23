@@ -49,7 +49,7 @@ export const NewOpportunityPopover = (): ReactElement => {
           type={TypographyType.Subhead}
           color={TypographyColor.Primary}
         >
-          Hey {user.name}, We&#39;ve found a new opportunity that aligns with
+          Hey {user!.name}, We&#39;ve found a new opportunity that aligns with
           your experience and what you’ve been exploring lately.
         </Typography>
         <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>

@@ -37,7 +37,7 @@ function UserList({
   userInfoProps = {},
 }: UserListProps): ReactElement {
   const loader = (
-    <UserShortInfoPlaceholder placeholderAmount={placeholderAmount} />
+    <UserShortInfoPlaceholder placeholderAmount={placeholderAmount ?? 0} />
   );
 
   if (users?.length) {

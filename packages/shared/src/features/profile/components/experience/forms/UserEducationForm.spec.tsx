@@ -313,7 +313,7 @@ describe('UserEducationForm', () => {
     const descriptionTextarea = getFieldByName(
       container,
       'description',
-    ) as HTMLTextAreaElement;
+    ) as unknown as HTMLTextAreaElement;
 
     // Textarea has a 5000 character limit
     const description =

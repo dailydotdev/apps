@@ -191,7 +191,7 @@ export function SquadsList({
       {edges.map(({ node }) => (
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
-      {isWide && memberships.edges.length > MAX_SQUADS && (
+      {isWide && memberships!.edges.length > MAX_SQUADS && (
         <Button
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}

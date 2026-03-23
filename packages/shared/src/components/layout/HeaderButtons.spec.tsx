@@ -57,7 +57,7 @@ const renderComponent = ({
     <TestBootProvider
       client={new QueryClient()}
       settings={{ optOutQuestSystem }}
-      gb={getGrowthBook(isQuestsFeatureEnabled)}
+      gb={getGrowthBook(isQuestsFeatureEnabled) as any}
     >
       <HeaderButtons />
     </TestBootProvider>,

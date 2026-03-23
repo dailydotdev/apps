@@ -81,7 +81,7 @@ export const OpportunityStepsQuestions = (
               </ul>
             </div>
           ),
-          cancelButton: null,
+          cancelButton: undefined,
         });
 
         return;

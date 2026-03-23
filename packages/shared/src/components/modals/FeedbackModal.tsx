@@ -159,7 +159,7 @@ const FeedbackModal = ({
     mutationFn: (input: FeedbackInput) => submitFeedback(input),
     onSuccess: () => {
       displayToast('Thank you for your feedback!');
-      onRequestClose?.(null);
+      onRequestClose?.();
     },
     onError: () => {
       hasSubmitted.current = false;

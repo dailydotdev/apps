@@ -242,7 +242,7 @@ describe('FunnelPricing', () => {
     );
 
     // Click on the monthly plan
-    fireEvent.click(monthlyPlan);
+    fireEvent.click(monthlyPlan!);
 
     // Then click the CTA
     const proceedButtons = screen.getAllByText('Checkout');

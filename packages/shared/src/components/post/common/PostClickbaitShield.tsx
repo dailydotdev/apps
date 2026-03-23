@@ -84,7 +84,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                       });
                     } else {
                       router.push(
-                        `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
+                        `${webappUrl}feeds/${user!.id}/edit?dview=${FeedSettingsMenu.AI}`,
                       );
                     }
                   }}

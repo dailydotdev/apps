@@ -32,7 +32,7 @@ function GenericReferralModal({
 
   useEffect(() => {
     if (!isLogged.current) {
-      updateLastReferralReminder();
+      updateLastReferralReminder?.();
       isLogged.current = true;
       logEvent({
         event_name: LogEvent.Impression,

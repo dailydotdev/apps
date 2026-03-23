@@ -54,7 +54,7 @@ export const ConnectHeader = ({
 
   const { data: prices } = useQuery(
     recruiterPricesQueryOptions({
-      user,
+      user: user!,
       isLoggedIn,
     }),
   );

@@ -25,7 +25,7 @@ describe('GearModal', () => {
     mockUseGearSearch.mockReturnValue({
       results: [],
       isSearching: false,
-    } as ReturnType<typeof useGearSearch>);
+    } as unknown as ReturnType<typeof useGearSearch>);
     mockUseViewSize.mockReturnValue(false);
   });
 

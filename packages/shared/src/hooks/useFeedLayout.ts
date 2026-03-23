@@ -129,7 +129,7 @@ export const useFeedLayout = ({
     feedName as UserProfileFeedType,
   );
 
-  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(feedName);
+  const isFeedIncludedInListLayout = FeedLayoutMobileFeedPages.has(feedName!);
 
   const shouldUseListFeedLayoutOnMobileTablet =
     !isLaptop && isFeedIncludedInListLayout;

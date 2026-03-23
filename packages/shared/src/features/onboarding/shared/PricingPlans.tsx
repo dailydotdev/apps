@@ -31,7 +31,7 @@ export function PricingPlans<T extends string = string>({
           id={`${name}-${plan.id || plan.value}`}
           value={plan.value}
           checked={value === plan.value}
-          onChange={() => onChange(plan.value)}
+          onChange={() => onChange(plan.value!)}
           perks={perks}
         />
       ))}

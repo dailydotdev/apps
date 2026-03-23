@@ -47,7 +47,7 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
       target_id: campaignId,
     });
     closeModal();
-    clearMarketingCta(campaignId);
+    clearMarketingCta(campaignId!);
   };
 
   const plusComponent = useMemo(() => {

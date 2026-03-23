@@ -96,7 +96,7 @@ const ProfileGithubRepository = ({
     });
   };
 
-  const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q), 300);
+  const [debouncedQuery] = useDebounceFn<string>((q) => handleSearch(q ?? ''), 300);
 
   const repositoryFullName = repository?.owner
     ? `${repository.owner}/${repository.name}`

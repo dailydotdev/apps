@@ -172,7 +172,7 @@ const FeedbackCard = ({ feedback }: FeedbackCardProps): ReactElement => {
 
       {/* User context - seniority and location */}
       {hasUserContext && (
-        <UserContextDisplay userContext={feedback.userContext} />
+        <UserContextDisplay userContext={feedback.userContext!} />
       )}
     </div>
   );

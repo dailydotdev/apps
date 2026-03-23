@@ -113,7 +113,7 @@ export function UserStackModal({
       section: effectiveSection.trim(),
       startedAt: startedAtValue,
     });
-    rest.onRequestClose?.(null);
+    rest.onRequestClose?.();
   });
 
   const filteredSuggestions = useMemo(() => {

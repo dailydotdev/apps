@@ -50,7 +50,7 @@ export function BasePostContent({
             post={post}
             className="ml-auto"
             contextMenuId="post-page-header-actions"
-            onReadArticle={navigationProps.onReadArticle}
+            onReadArticle={navigationProps!.onReadArticle}
             buttonSize={ButtonSize.Small}
           />
         </GoBackHeaderMobile>

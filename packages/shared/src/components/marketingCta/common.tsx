@@ -80,7 +80,7 @@ export const Header = ({
       label={tagText}
       className={tagColorMap[tagColor || 'avocado']}
       size={PillSize.Small}
-      alignment={null}
+      alignment={undefined}
     />
     <Button
       className="ml-auto"

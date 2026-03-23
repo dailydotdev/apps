@@ -61,7 +61,7 @@ export function PostUpvotesCommentsCount({
         </span>
       )}
       {upvotes > 0 && (
-        <ClickableText onClick={() => onUpvotesClick(upvotes)}>
+        <ClickableText onClick={() => onUpvotesClick?.(upvotes)}>
           {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}

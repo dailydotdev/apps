@@ -30,7 +30,7 @@ export default function PostMetadata({
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
   const promotedText = useScrambler(
-    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+    boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
   );
 
   return (

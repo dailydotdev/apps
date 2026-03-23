@@ -9,7 +9,7 @@ export interface NotificationsContextData {
 }
 
 const NotificationsContext =
-  React.createContext<NotificationsContextData>(null);
+  React.createContext<NotificationsContextData>(null as unknown as NotificationsContextData);
 
 export default NotificationsContext;
 

@@ -394,9 +394,10 @@ function FeedItemComponent({
   }
 
   switch (item.type) {
-    case FeedItemType.Ad:
+    case FeedItemType.Ad: {
+      const AdComponent = AdTag as React.ComponentType<Record<string, unknown>>;
       return (
-        <AdTag
+        <AdComponent
           ref={inViewRef}
           ad={item.ad}
           index={item.index}
@@ -409,6 +410,7 @@ function FeedItemComponent({
           }
         />
       );
+    }
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:

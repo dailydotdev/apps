@@ -25,7 +25,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const queryKey = generateQueryKey(RequestKey.UserHotTakes, user, 'profile');
+  const queryKey = generateQueryKey(RequestKey.UserHotTakes, user ?? undefined, 'profile');
 
   const query = useQuery({
     queryKey,

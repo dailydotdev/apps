@@ -24,7 +24,7 @@ export function SquadTabs({ active, handle }: SquadTabsProps): ReactElement {
   const { count } = useSquadPendingPosts({
     squadId: squad?.id,
   });
-  const isModerator = verifyPermission(squad, SourcePermissions.ModeratePost);
+  const isModerator = verifyPermission(squad!, SourcePermissions.ModeratePost);
   const squadLink = `${webappUrl}squads/${handle}`;
   const pendingTabLabel = count
     ? `${SquadTab.PendingPosts} (${count})`

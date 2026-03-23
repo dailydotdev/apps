@@ -57,7 +57,7 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
     <Badge
       label={badge.cta}
       icon={<ReputationLightningIcon className="h-6 w-6" secondary />}
-      variant={badge.variant}
+      variant={badge.variant ?? 'primary'}
     />
   );
 

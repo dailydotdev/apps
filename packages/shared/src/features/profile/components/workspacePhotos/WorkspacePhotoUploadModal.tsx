@@ -102,7 +102,7 @@ export function WorkspacePhotoUploadModal({
     try {
       const imageUrl = await uploadContentImage(selectedFile);
       await onSubmit({ image: imageUrl });
-      rest.onRequestClose?.(null);
+      rest.onRequestClose?.();
     } catch (err) {
       setError('Failed to upload image. Please try again.');
     } finally {

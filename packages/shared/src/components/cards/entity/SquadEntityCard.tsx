@@ -114,7 +114,7 @@ const SquadEntityCard = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes)} Upvotes
+            {largeNumberFormat(flags?.totalUpvotes ?? 0)} Upvotes
           </Typography>
         </div>
       </div>

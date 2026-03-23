@@ -45,7 +45,7 @@ export const CVExists = ({
         className="flex items-center gap-2"
       >
         <DocsIcon size={IconSize.Large} />
-        {preferences?.cv?.fileName ?? `${user.username}.pdf`}
+        {preferences?.cv?.fileName ?? `${user!.username}.pdf`}
       </Typography>
 
       <CandidatePreferenceButton targetId={TargetId.OpportunityWelcomePage} />

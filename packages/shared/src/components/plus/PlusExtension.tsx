@@ -23,7 +23,7 @@ const PlusExtension = (): ReactElement => {
     logEvent({
       event_name: LogEvent.UpgradeSubscription,
       target_type: TargetType.MarketingCtaPlus,
-      target_id: marketingCta.campaignId,
+      target_id: marketingCta!.campaignId,
       extra: JSON.stringify({
         origin: Origin.InAppPromotion,
       }),

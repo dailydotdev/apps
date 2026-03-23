@@ -34,7 +34,7 @@ export const SquadList = ({
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
   const campaignId = ad?.data?.source?.flags?.campaignId;
-  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
+  const { ref, onClickAd } = useSquadsDirectoryLogging(ad!);
   const promotedText = useScrambler('Promoted');
 
   return (

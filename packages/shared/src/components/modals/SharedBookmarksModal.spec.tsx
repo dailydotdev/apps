@@ -89,7 +89,7 @@ it('should enable public mode on toggle click', async () => {
   const checkboxes = await screen.findAllByRole('checkbox');
   const checkbox = checkboxes.find((el) =>
     // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-    queryByText(el.parentElement, 'Public mode'),
+    queryByText(el.parentElement!, 'Public mode'),
   ) as HTMLInputElement;
   fireEvent.click(checkbox);
   await waitForNock();

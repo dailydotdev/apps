@@ -263,7 +263,7 @@ export default function ProfileButton({
             </span>
             <Tooltip side="bottom" content="Profile settings">
               <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user} />
+                <ProfilePictureWithIndicator user={user!} />
               </div>
             </Tooltip>
           </button>

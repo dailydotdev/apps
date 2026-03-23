@@ -6,7 +6,7 @@ import type { Origin } from '../../lib/log';
 import type { ProductPricingPreview } from '../../graphql/paddle';
 
 export const RecruiterPaymentContext =
-  createContext<RecruiterPaymentContextData>(undefined);
+  createContext<RecruiterPaymentContextData>(undefined as unknown as RecruiterPaymentContextData);
 
 export const useRecruiterPaymentContext = (): RecruiterPaymentContextData =>
   useContext(RecruiterPaymentContext);

@@ -62,7 +62,7 @@ export const usePrivateSourceJoin = ({
 
     router.replace(
       getPathnameWithQuery(
-        `${webappUrl}${sourceTypeToPage[sourceType]}/${sourceId}/${squadJoinToken}`,
+        `${webappUrl}${sourceTypeToPage[sourceType as SourceType]}/${sourceId}/${squadJoinToken}`,
         searchParams,
       ),
     );

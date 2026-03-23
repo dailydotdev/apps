@@ -47,7 +47,7 @@ function UserListModal({
   children,
   ...props
 }: UserListModalProps): ReactElement {
-  const container = useRef<HTMLElement>();
+  const container = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLElement>;
   const [modalRef, setModalRef] = useState<HTMLElement>();
 
   const { onScroll, ...otherScrollingProps } = scrollingProps;

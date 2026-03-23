@@ -263,5 +263,5 @@ export const FeedSettingsCreate = (): ReactElement => {
     );
   }
 
-  return <FeedSettingsEdit isNewFeed feedSlugOrId={createdFeedId} />;
+  return <FeedSettingsEdit isNewFeed feedSlugOrId={createdFeedId!} />;
 };

@@ -39,7 +39,7 @@ const usePrivilegedSession = ({
       const onVerified = () => {
         if (onVerification?.current) {
           onVerification.current();
-          onVerification.current = null;
+          onVerification.current = undefined;
         } else {
           displayToast('Session successfully verified!');
         }

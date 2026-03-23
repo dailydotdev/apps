@@ -4,7 +4,7 @@ import { createContext, useContext } from 'react';
 import type { OpenCheckoutFn } from '../payment/context';
 import type { Origin } from '../../lib/log';
 
-export const BuyCoresContext = createContext<BuyCoresContextData>(undefined);
+export const BuyCoresContext = createContext<BuyCoresContextData>(undefined as unknown as BuyCoresContextData);
 
 export const useBuyCoresContext = (): BuyCoresContextData =>
   useContext(BuyCoresContext);

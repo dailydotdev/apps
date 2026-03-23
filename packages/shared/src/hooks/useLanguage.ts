@@ -22,7 +22,7 @@ export const useLanguage = (): UseLanguage => {
   const { mutate: onLanguageChange } = useMutation({
     mutationFn: async (value?: string) => {
       await updateUser({
-        ...user,
+        ...user!,
         language: value,
       });
 

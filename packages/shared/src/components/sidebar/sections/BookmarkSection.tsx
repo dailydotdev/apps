@@ -43,7 +43,7 @@ export const BookmarkSection = ({
     });
   }, [openModal, closeModal, createFolder]);
 
-  const menuItems: SidebarMenuItem[] = [
+  const menuItems: SidebarMenuItem[] = ([
     briefUIFeatureValue && {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BriefIcon secondary={active} />} />
@@ -86,7 +86,7 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     })),
-  ].filter(Boolean);
+  ].filter(Boolean) as SidebarMenuItem[];
 
   return (
     <Section

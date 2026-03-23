@@ -27,7 +27,7 @@ function SquadTourModal({
       isDrawerOnMobile
       drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >
-      <SquadTour onClose={() => onModalClose(null)} />
+      <SquadTour onClose={() => onModalClose(undefined!)} />
       <ModalClose
         size={ButtonSize.Small}
         variant={ButtonVariant.Secondary}

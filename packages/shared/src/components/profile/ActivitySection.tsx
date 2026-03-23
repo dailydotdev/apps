@@ -53,7 +53,7 @@ export default function ActivitySection<TElement, TError>({
     <ActivityContainer>
       <ActivitySectionTitle>
         {title}
-        {count >= 0 && (
+        {count !== undefined && count >= 0 && (
           <ActivitySectionTitleStat>({count})</ActivitySectionTitleStat>
         )}
       </ActivitySectionTitle>

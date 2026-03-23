@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Opportunity } from '../../../../features/opportunity/types';
+import type { Opportunity, OpportunityLocation } from '../../../../features/opportunity/types';
 import { OpportunityState } from '../../../../features/opportunity/protobuf/opportunity';
 import {
   opportunityEditInfoSchema,
@@ -130,13 +130,13 @@ export function formDataToPreviewOpportunity(
     locations:
       formData.locations?.map((loc) => ({
         type: formData.locationType,
-        location: loc.locationData
+        location: (loc.locationData
           ? {
               city: loc.locationData.city,
               country: loc.locationData.country,
               subdivision: loc.locationData.subdivision,
             }
-          : null,
+          : {}) as OpportunityLocation,
       })) || [],
     meta: formData.meta
       ? {

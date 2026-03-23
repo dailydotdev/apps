@@ -35,7 +35,7 @@ export const usePopupSelector = ({
 
   return {
     parentSelector: useMemo(
-      () => parentSelector ?? propSelector,
+      () => (parentSelector ?? propSelector)!,
       [parentSelector, propSelector],
     ),
     onAppendTooltipTo: useCallback(

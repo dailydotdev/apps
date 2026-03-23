@@ -27,7 +27,7 @@ export const PaymentContextProvider = ({
 
   if (checkIsExtension()) {
     return (
-      <ChromeExtensionProvider {...props}>{children}</ChromeExtensionProvider>
+      <ChromeExtensionProvider>{children}</ChromeExtensionProvider>
     );
   }
 

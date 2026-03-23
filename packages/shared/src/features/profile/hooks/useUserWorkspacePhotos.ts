@@ -25,7 +25,7 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
 
   const queryKey = generateQueryKey(
     RequestKey.UserWorkspacePhotos,
-    user,
+    user ?? undefined,
     'profile',
   );
 

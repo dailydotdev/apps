@@ -35,7 +35,7 @@ export function ClickableNavItem({
 
   if (!isButton && (!item.action || item.path)) {
     return (
-      <Link href={item.path} passHref prefetch={false}>
+      <Link href={item.path!} passHref prefetch={false}>
         <a
           {...props}
           {...combinedClicks(onClick)}

@@ -29,7 +29,7 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
 
       if (balance) {
         updateUser({
-          ...user,
+          ...user!,
           balance,
         });
       }

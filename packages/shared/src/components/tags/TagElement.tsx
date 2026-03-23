@@ -30,7 +30,7 @@ export const TagElement = ({
         'relative',
       )}
       variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-      color={isSelected ? ButtonColor.Cabbage : undefined}
+      {...(isSelected && { color: ButtonColor.Cabbage })}
       onClick={() => {
         onClick({ tag });
       }}

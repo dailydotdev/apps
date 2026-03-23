@@ -61,7 +61,7 @@ export const useSources = <T extends Source | Squad>({
   const result = useInfiniteQuery({
     queryKey: generateQueryKey(
       RequestKey.Sources,
-      null,
+      undefined,
       featured,
       isPublic,
       categoryId,

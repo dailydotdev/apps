@@ -13,7 +13,7 @@ function ProfileLinkComponent(
   ref?: Ref<HTMLAnchorElement>,
 ): ReactElement {
   return (
-    <Link href={href} passHref prefetch={false}>
+    <Link href={href ?? ''} passHref prefetch={false}>
       <a
         {...props}
         ref={ref}

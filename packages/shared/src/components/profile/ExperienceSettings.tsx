@@ -20,7 +20,7 @@ export const ExperienceSettings = ({
   const { user } = useAuthContext();
   const { experiences, isPending } = useUserExperiencesByType(
     experienceType,
-    user?.id,
+    user!.id,
   );
 
   if (isPending) {

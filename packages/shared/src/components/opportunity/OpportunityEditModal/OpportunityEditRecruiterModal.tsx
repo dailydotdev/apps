@@ -53,7 +53,7 @@ export const OpportunityEditRecruiterModal = ({
     onSuccess: (result) => {
       updateOpportunity(result);
 
-      rest.onRequestClose?.(null);
+      rest.onRequestClose?.();
     },
   });
 

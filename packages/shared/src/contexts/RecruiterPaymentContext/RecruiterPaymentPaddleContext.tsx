@@ -36,7 +36,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const { data: prices } = useQuery(
     recruiterPricesQueryOptions({
-      user,
+      user: user!,
       isLoggedIn,
       discountId: appliedDiscountId ?? undefined,
     }),

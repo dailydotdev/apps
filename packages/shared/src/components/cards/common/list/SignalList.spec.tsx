@@ -91,7 +91,7 @@ it('should render retweet content when tweet content is empty', async () => {
         ...sharePost.sharedPost,
         type: PostType.SocialTwitter,
         title: 'Retweet content should be shown',
-      },
+      } as Post['sharedPost'],
     },
   });
 

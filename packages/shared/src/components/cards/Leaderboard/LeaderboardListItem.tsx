@@ -32,7 +32,7 @@ export function LeaderboardListItem({
       <ConditionalWrapper
         condition={!!href}
         wrapper={(child) => (
-          <Link href={href} passHref key={href} prefetch={false}>
+          <Link href={href!} passHref key={href} prefetch={false}>
             <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
               {child}
             </a>
