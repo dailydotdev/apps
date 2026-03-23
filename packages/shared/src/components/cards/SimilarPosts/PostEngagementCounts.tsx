@@ -7,14 +7,12 @@ import { largeNumberFormat } from '../../../lib';
 interface PostEngagementCountsProps {
   upvotes: number;
   comments: number;
-  bookmarks?: number;
   className?: string;
 }
 
 export function PostEngagementCounts({
   upvotes,
   comments,
-  bookmarks,
   className,
 }: PostEngagementCountsProps): ReactElement {
   return (
@@ -25,12 +23,6 @@ export function PostEngagementCounts({
       {upvotes ? `${largeNumberFormat(upvotes)} Upvotes` : ''}
       {upvotes && comments ? <> {separatorCharacter} </> : ''}
       {comments ? `${largeNumberFormat(comments)} Comments` : ''}
-      {bookmarks ? (
-        <>
-          {upvotes || comments ? <> {separatorCharacter} </> : null}
-          {largeNumberFormat(bookmarks)} Bookmarks
-        </>
-      ) : null}
     </p>
   );
 }
