@@ -37,4 +37,3 @@ export * from './useClickbaitTries';
 export * from './usePostById';
 export * from './usePersistentState';
 export * from './useImagePreloader';
-export * from './usePlusPositioning';

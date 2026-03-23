@@ -13,7 +13,7 @@ type ControlledTextFieldProps = Pick<
   | 'fieldType'
   | 'className'
   | 'readOnly'
->;
+> & { name: string };
 
 const ControlledTextField = ({
   name,

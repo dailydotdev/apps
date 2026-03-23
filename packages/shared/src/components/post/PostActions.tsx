@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
@@ -14,8 +14,7 @@ import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
 import type { PostOrigin } from '../../hooks/log/useLogContextData';
 import { useMutationSubscription, useVotePost } from '../../hooks';
-import { Origin } from '../../lib/log';
-import ConditionalWrapper from '../ConditionalWrapper';
+import { NotificationCtaPlacement, Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
@@ -32,6 +31,15 @@ import type { LoggedUser } from '../../lib/user';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 import { Tooltip } from '../tooltip/Tooltip';
+import EnableNotificationsCta from '../cards/entity/EnableNotificationsCta';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
+import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
+import ConditionalWrapper from '../ConditionalWrapper';
+import { useNotificationCtaExperiment } from '../../hooks/notifications/useNotificationCtaExperiment';
 
 interface PostActionsProps {
   post: Post;
@@ -49,13 +57,26 @@ export function PostActions({
 }: PostActionsProps): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
+  const creator = post.author || post.scout;
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
   const canAward = useCanAwardUser({
     sendingUser: user,
-    receivingUser: post.author as LoggedUser,
+    receivingUser: post.author as LoggedUser | undefined,
   });
+  const { subscribe } = useContentPreference();
+  const { data: creatorContentPreference } = useContentPreferenceStatusQuery({
+    id: creator?.id ?? '',
+    entity: ContentPreferenceType.User,
+  });
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled && showNotificationCta;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
@@ -68,11 +89,25 @@ export function PostActions({
   };
 
   const onToggleUpvote = async () => {
+    const isNewUpvote = post?.userState?.vote !== UserVote.Up;
+
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
 
     await toggleUpvote({ payload: post, origin });
+
+    if (!isNewUpvote) {
+      return;
+    }
+
+    if (
+      creatorContentPreference?.status === ContentPreferenceStatus.Subscribed
+    ) {
+      return;
+    }
+
+    setShowNotificationCta(true);
   };
 
   const onToggleDownvote = async () => {
@@ -108,11 +143,11 @@ export function PostActions({
       });
 
       mutationQueryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Products, null, 'summary'),
+        queryKey: generateQueryKey(RequestKey.Products, undefined, 'summary'),
       });
 
       mutationQueryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Awards, null, {
+        queryKey: generateQueryKey(RequestKey.Awards, undefined, {
           id: entityId,
           type,
         }),
@@ -127,6 +162,10 @@ export function PostActions({
         const awardProduct = getProducts()?.edges.find(
           (item) => item.node.id === productId,
         )?.node;
+
+        if (!post.userState || awardProduct?.value === undefined) {
+          return;
+        }
 
         updatePostCache(mutationQueryClient, post.id, {
           userState: {
@@ -154,6 +193,10 @@ export function PostActions({
       }
     },
   });
+
+  useEffect(() => {
+    setShowNotificationCta(false);
+  }, [post.id]);
 
   useEffect(() => {
     const adjustActions = () => {
@@ -187,16 +230,21 @@ export function PostActions({
     // for labels is executed after the DOM is updated with the new state.
   }, [post?.userState?.awarded, canAward]);
 
+  const handleEnableNotifications = async () => {
+    if (!creator?.id || !creator?.username) {
+      throw new Error('Cannot subscribe to notifications without creator id');
+    }
+
+    await subscribe({
+      id: creator.id,
+      entity: ContentPreferenceType.User,
+      entityName: creator.username,
+    });
+    setShowNotificationCta(false);
+  };
+
   return (
-    <ConditionalWrapper
-      condition={showTagsPanel !== undefined}
-      wrapper={(children) => (
-        <div className="flex flex-col">
-          {children}
-          <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
-        </div>
-      )}
-    >
+    <div className="flex flex-col gap-4">
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
         <div
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
@@ -254,10 +302,15 @@ export function PostActions({
                 pressed={post?.userState?.awarded}
                 onClick={() => {
                   if (!user) {
-                    return showLogin({ trigger: AuthTriggers.GiveAward });
+                    showLogin({ trigger: AuthTriggers.GiveAward });
+                    return;
                   }
 
-                  return openModal({
+                  if (!post.author) {
+                    return;
+                  }
+
+                  openModal({
                     type: LazyModal.GiveAward,
                     props: {
                       type: 'POST',
@@ -294,7 +347,7 @@ export function PostActions({
           <div className="group/link-btn">
             <QuaternaryButton
               id="copy-post-btn-post"
-              onClick={() => onCopyLinkClick(post)}
+              onClick={() => onCopyLinkClick?.(post)}
               icon={<LinkIcon />}
               variant={ButtonVariant.Tertiary}
               className={classNames(
@@ -308,6 +361,19 @@ export function PostActions({
           </div>
         </div>
       </div>
-    </ConditionalWrapper>
+      {shouldRenderNotificationCta && (
+        <EnableNotificationsCta
+          onEnable={handleEnableNotifications}
+          analytics={{
+            placement: NotificationCtaPlacement.PostActions,
+            targetType: ContentPreferenceType.User,
+            targetId: creator?.id,
+          }}
+        />
+      )}
+      {showTagsPanel !== undefined && (
+        <PostTagsPanel post={post} className="mt-4" toastOnSuccess={false} />
+      )}
+    </div>
   );
 }

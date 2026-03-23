@@ -37,7 +37,7 @@ const handleRedirectAuth = (params: URLSearchParams) => {
   }
 };
 
-function CallbackPage(): ReactElement {
+function CallbackPage(): ReactElement | null {
   const { logEvent } = useLogContext();
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
@@ -69,6 +69,16 @@ function CallbackPage(): ReactElement {
 
       if (!isPWA()) {
         window.close();
+      }
+
+      // Some browsers/app webviews null out `window.opener` during auth,
+      // while still allowing a script-opened tab to close itself. Try the
+      // close first and only fall back to a redirect if we know there is no
+      // opener to return to.
+      if (!window.opener) {
+        setTimeout(() => {
+          window.location.replace('/onboarding');
+        }, 300);
       }
     } catch (err) {
       const url = `${process.env.NEXT_PUBLIC_WEBAPP_URL}?${search}`;

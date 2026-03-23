@@ -1,10 +1,11 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
+import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
@@ -24,12 +25,13 @@ import {
 import type {
   BasicSourceMember,
   Squad,
-  Source,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import {
+  LogEvent,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import dynamic from 'next/dynamic';
 import useSidebarRendered from '@dailydotdev/shared/src/hooks/useSidebarRendered';
@@ -50,6 +52,17 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { usePrivateSourceJoin } from '@dailydotdev/shared/src/hooks/source/usePrivateSourceJoin';
 import { GET_REFERRING_USER_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
+import {
+  ToastSubject,
+  useToastNotification,
+} from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useEnableNotification } from '@dailydotdev/shared/src/hooks/notifications/useEnableNotification';
+import {
+  ButtonColor,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
@@ -58,6 +71,7 @@ import { getSquadOpenGraph } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin } from '../../../lib/seo';
+import { createSquadNotificationToastStateStore } from '../../../lib/squadNotificationToastState';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../404'),
@@ -79,7 +93,6 @@ const SquadLoading = dynamic(
 );
 
 const appOrigin = getAppOrigin();
-
 const getSquadPageJsonLd = (squad: SquadStaticData): string => {
   const squadUrl = squad.permalink;
 
@@ -164,12 +177,78 @@ const SquadPage = ({
   const { openModal } = useLazyModal();
   useJoinReferral();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const { sidebarRendered } = useSidebarRendered();
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { user, isFetched: isBootFetched } = useAuthContext();
   const [loggedImpression, setLoggedImpression] = useState(false);
   const { squad, isLoading, isFetched, isForbidden } = useSquad({ handle });
   const squadId = squad?.id;
+  const shownToastForSquadInSession = useRef<Record<string, boolean>>({});
+  const squadNotificationToastState = useMemo(
+    () => createSquadNotificationToastStateStore(user?.id),
+    [user?.id],
+  );
+  const { shouldShowCta, onEnable } = useEnableNotification({
+    source: NotificationPromptSource.SquadPage,
+  });
+
+  useEffect(() => {
+    if (
+      !shouldShowCta ||
+      !squadId ||
+      !isFetched ||
+      shownToastForSquadInSession.current[squadId]
+    ) {
+      return;
+    }
+
+    const shouldShowToast = squadNotificationToastState.registerToastView({
+      squadId,
+      isSquadMember: !!squad?.currentMember,
+    });
+    if (!shouldShowToast) {
+      return;
+    }
+
+    shownToastForSquadInSession.current[squadId] = true;
+
+    displayToast('Get notified about new Squad activity.', {
+      subject: ToastSubject.Feed,
+      persistent: true,
+      action: {
+        copy: 'Turn on',
+        onClick: async () => {
+          const didEnable = await onEnable();
+          if (!didEnable) {
+            squadNotificationToastState.dismissUntilTomorrow({ squadId });
+          }
+
+          return didEnable;
+        },
+        buttonProps: {
+          size: ButtonSize.Small,
+          variant: ButtonVariant.Primary,
+          color: ButtonColor.Cabbage,
+          icon: (
+            <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
+          ),
+          iconPosition: ButtonIconPosition.Left,
+        },
+      },
+      onClose: () => {
+        squadNotificationToastState.dismissUntilTomorrow({ squadId });
+      },
+    });
+  }, [
+    displayToast,
+    isFetched,
+    onEnable,
+    shouldShowCta,
+    squad?.currentMember,
+    squadId,
+    squadNotificationToastState,
+  ]);
 
   useEffect(() => {
     if (loggedImpression || !squadId) {
@@ -187,7 +266,7 @@ const SquadPage = ({
 
   const { data: squadMembers } = useQuery<BasicSourceMember[]>({
     queryKey: ['squadMembersInitial', handle],
-    queryFn: () => getSquadMembers(squadId),
+    queryFn: () => getSquadMembers(squadId ?? ''),
     enabled: isBootFetched && !!squadId,
     staleTime: StaleTime.OneHour,
   });
@@ -278,7 +357,7 @@ const SquadPage = ({
       <div className="relative mb-4 pt-2">
         <SquadPageHeader
           squad={squad}
-          members={squadMembers}
+          members={squadMembers ?? []}
           shouldUseListMode={shouldUseListMode}
         />
         <FeedPageComponent>
@@ -321,7 +400,12 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<SquadPageParams>): Promise<
   GetServerSidePropsResult<SourcePageProps>
 > {
-  const { handle } = params;
+  const handle = params?.handle;
+  if (!handle) {
+    return {
+      notFound: true,
+    };
+  }
   const { userid: userId, cid: campaign } = query;
 
   const setCacheHeader = () => {
@@ -332,43 +416,23 @@ export async function getServerSideProps({
   };
 
   try {
-    const promises: [Promise<Source | Squad>, Promise<PublicProfile>?] = [
+    const referringUserPromise =
+      userId && campaign
+        ? gqlClient
+            .request<{ user: SourcePageProps['referringUser'] }>(
+              GET_REFERRING_USER_QUERY,
+              {
+                id: userId,
+              },
+            )
+            .then((data) => data?.user)
+            .catch(() => undefined)
+        : Promise.resolve(undefined);
+
+    const [squad, referringUser] = await Promise.all([
       getSquadStaticFields(handle),
-    ];
-
-    if (userId && campaign) {
-      promises.push(
-        gqlClient
-          .request<{ user: SourcePageProps['referringUser'] }>(
-            GET_REFERRING_USER_QUERY,
-            {
-              id: userId,
-            },
-          )
-          .then((data) => data?.user)
-          .catch(() => undefined),
-      );
-    }
-
-    const [squad, referringUser] = await Promise.all(promises);
-
-    if (squad?.type === SourceType.User) {
-      return {
-        redirect: {
-          destination: `/${squad.id}`,
-          permanent: false,
-        },
-      };
-    }
-
-    if (squad?.type === SourceType.Machine) {
-      return {
-        redirect: {
-          destination: `/sources/${handle}`,
-          permanent: false,
-        },
-      };
-    }
+      referringUserPromise,
+    ]);
 
     setCacheHeader();
 
@@ -393,7 +457,7 @@ export async function getServerSideProps({
         seo,
         handle,
         initialData: squad as Squad,
-        referringUser: referringUser || null,
+        referringUser: referringUser ?? undefined,
         ...(squad.public && {
           jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
         }),

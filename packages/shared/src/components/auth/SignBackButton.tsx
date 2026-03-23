@@ -1,29 +1,33 @@
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import type {
-  SignBackProvider,
-  SignedInUser,
-} from '../../hooks/auth/useSignBack';
+import type { SignedInUser } from '../../hooks/auth/useSignBack';
+import type { SocialProvider } from './common';
 import { providerMap } from './common';
 
 interface SignBackButtonProps {
   signBack: SignedInUser;
-  provider: SignBackProvider;
+  provider: SocialProvider;
+  disabled?: boolean;
   onClick: MouseEventHandler;
 }
 
 export function SignBackButton({
   signBack,
   provider,
+  disabled = false,
   onClick,
 }: SignBackButtonProps): ReactElement {
-  const item = providerMap[provider.toLowerCase()];
+  const item = providerMap[provider];
 
   return (
     <button
-      className="btn-signback btn-primary"
+      aria-busy={disabled}
+      className={`btn-signback btn-primary ${
+        disabled ? 'opacity-60 pointer-events-none' : ''
+      }`}
       type="button"
+      disabled={disabled}
       onClick={onClick}
       aria-label={`Continue as ${
         signBack.name || signBack.email

@@ -158,13 +158,16 @@ export const AuthContextProvider = ({
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
   const isRecruiterPage = router?.pathname?.startsWith('/recruiter');
+  const isAuthTransitPage =
+    router?.pathname === '/callback' || router?.pathname === '/onboarding';
 
   if (
     firstLoad === true &&
     endUser &&
     !endUser?.infoConfirmed &&
     !isFunnelRef.current &&
-    !isRecruiterPage
+    !isRecruiterPage &&
+    !isAuthTransitPage
   ) {
     logout(LogoutReason.IncomleteOnboarding);
   }

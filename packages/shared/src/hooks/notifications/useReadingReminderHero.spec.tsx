@@ -3,14 +3,11 @@ import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { SendType } from '../usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useReadingReminderHero } from './useReadingReminderHero';
-import {
-  featureReadingReminderHeroCopy,
-  featureReadingReminderHeroDismiss,
-} from '../../lib/featureManagement';
+import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../useConditionalFeature';
 
 const mockUseAuthContext = jest.fn();
 const mockUseLogContext = jest.fn();
-const mockUseConditionalFeature = jest.fn();
 const mockUsePersonalizedDigest = jest.fn();
 const mockPersistentContext = jest.fn();
 const mockUseViewSize = jest.fn();
@@ -22,10 +19,6 @@ jest.mock('../../contexts/AuthContext', () => ({
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => mockUseLogContext(),
-}));
-
-jest.mock('../useConditionalFeature', () => ({
-  useConditionalFeature: (...args) => mockUseConditionalFeature(...args),
 }));
 
 jest.mock('../usePersonalizedDigest', () => ({
@@ -42,18 +35,22 @@ jest.mock('../usePersistentContext', () => ({
   PersistentContextKeys: {
     ReadingReminderLastSeen: 'reading_reminder_last_seen',
   },
-  default: (...args) => mockPersistentContext(...args),
+  default: (...args: unknown[]) => mockPersistentContext(...args),
 }));
 
 jest.mock('../useViewSize', () => ({
   ViewSize: {
     MobileL: 767,
   },
-  useViewSize: (...args) => mockUseViewSize(...args),
+  useViewSize: (...args: unknown[]) => mockUseViewSize(...args),
 }));
 
 jest.mock('./usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => mockUsePushNotificationMutation(),
+}));
+
+jest.mock('../useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
 }));
 
 describe('useReadingReminderHero', () => {
@@ -70,14 +67,7 @@ describe('useReadingReminderHero', () => {
       user: { timezone: 'UTC' },
     });
     mockUseLogContext.mockReturnValue({ logEvent });
-    mockUseConditionalFeature.mockImplementation(({ feature }) => {
-      if (feature.id === featureReadingReminderHeroDismiss.id) {
-        return {
-          value: true,
-          isLoading: false,
-        };
-      }
-
+    (useConditionalFeature as jest.Mock).mockImplementation(({ feature }) => {
       if (feature.id === featureReadingReminderHeroCopy.id) {
         return {
           value: featureReadingReminderHeroCopy.defaultValue,
@@ -131,9 +121,6 @@ describe('useReadingReminderHero', () => {
 
     expect(result.current.shouldShow).toBe(false);
     expect(setLastSeen).not.toHaveBeenCalled();
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it('should not show when dismissed', () => {
@@ -154,7 +141,24 @@ describe('useReadingReminderHero', () => {
     expect(result.current.subtitle).toBe(
       'Turn on your daily reading reminder and keep your routine.',
     );
-    expect(result.current.shouldShowDismiss).toBe(true);
+  });
+
+  it('should not show on desktop', () => {
+    mockUseViewSize.mockReturnValue(false);
+
+    const { result } = renderHook(() => useReadingReminderHero());
+
+    expect(result.current.shouldShow).toBe(false);
+  });
+
+  it('should show on desktop when mobile requirement is disabled', () => {
+    mockUseViewSize.mockReturnValue(false);
+
+    const { result } = renderHook(() =>
+      useReadingReminderHero({ requireMobile: false }),
+    );
+
+    expect(result.current.shouldShow).toBe(true);
   });
 
   it('should enable reminder and log schedule event', async () => {

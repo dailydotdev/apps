@@ -4,13 +4,11 @@ import React, { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import {
   useEventListener,
-  usePlusPositioning,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
-import { NextSeo } from 'next-seo';
 import type { GiftUserContextData } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import { GiftUserContext } from '@dailydotdev/shared/src/components/plus/GiftUserContext';
 import type { CommonPlusPageProps } from '@dailydotdev/shared/src/components/plus/common';
@@ -50,16 +48,6 @@ const seoControl: NextSeoProps = {
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };
 
-const seoTitlesTreatment = getPageSeoTitles(
-  'Power Your Agents with daily.dev Plus',
-);
-const seoTreatment: NextSeoProps = {
-  title: seoTitlesTreatment.title,
-  openGraph: { ...seoTitlesTreatment.openGraph, ...defaultOpenGraph },
-  description:
-    'Upgrade to daily.dev Plus for public API access, agent-ready developer intelligence, and AI tools that keep your workflows up to date.',
-};
-
 export type PlusPageProps = Pick<GiftUserContextData, 'giftToUser'> &
   CommonPlusPageProps;
 
@@ -69,7 +57,6 @@ const PlusPage = ({
 }: PlusPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { isReady } = useRouter();
-  const { isAgentPositioning } = usePlusPositioning();
   const isLaptop = useViewSize(ViewSize.Laptop);
 
   const onScroll = useCallback(() => {
@@ -94,7 +81,6 @@ const PlusPage = ({
 
   return (
     <GiftUserContext.Provider value={{ giftToUser }}>
-      {isAgentPositioning && <NextSeo {...seoTreatment} />}
       {/* <HotJarTracking hotjarId="5215055" /> */}
       {isLaptop ? (
         <PlusDesktop shouldShowPlusHeader={shouldShowPlusHeader} />

@@ -53,6 +53,7 @@ describe('CallbackPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
 
     // Store original window
     originalWindow = { ...window };
@@ -97,6 +98,8 @@ describe('CallbackPage', () => {
       value: originalWindow.opener,
     });
 
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -159,6 +162,10 @@ describe('CallbackPage', () => {
       eventKey: AuthEvent.SocialRegistration,
     });
     expect(mockClose).toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+
+    expect(mockReplace).toHaveBeenCalledWith('/onboarding');
   });
 
   it('should handle Facebook referrer case', () => {
@@ -231,6 +238,10 @@ describe('CallbackPage', () => {
       eventKey: AuthEvent.Login,
     });
     expect(mockClose).toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+
+    expect(mockReplace).toHaveBeenCalledWith('/onboarding');
 
     // Restore user agent
     Object.defineProperty(navigator, 'userAgent', {

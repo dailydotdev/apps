@@ -1,15 +1,25 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useLogContext } from '../../contexts/LogContext';
+import { useCallback, useEffect, useState } from 'react';
 import usePersistentContext from '../usePersistentContext';
-import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
+import {
+  NotificationCtaKind,
+  NotificationPromptSource,
+  TargetType,
+} from '../../lib/log';
+import type { NotificationCtaPlacement } from '../../lib/log';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { checkIsExtension } from '../../lib/func';
+import {
+  useNotificationCtaAnalytics,
+  useNotificationCtaImpression,
+} from './useNotificationCtaAnalytics';
 
 export const DISMISS_PERMISSION_BANNER = 'DISMISS_PERMISSION_BANNER';
 
 interface UseEnableNotificationProps {
   source: NotificationPromptSource;
+  placement?: NotificationCtaPlacement;
+  onEnableAction?: () => Promise<unknown> | unknown;
 }
 
 interface UseEnableNotification {
@@ -21,30 +31,81 @@ interface UseEnableNotification {
 
 export const useEnableNotification = ({
   source = NotificationPromptSource.NotificationsPage,
+  placement,
+  onEnableAction,
 }: UseEnableNotificationProps): UseEnableNotification => {
   const isExtension = checkIsExtension();
-  const { logEvent } = useLogContext();
-  const hasLoggedImpression = useRef(false);
+  const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
-  const { hasPermissionCache, acceptedJustNow, onEnablePush } =
-    usePushNotificationMutation();
+  const [hasCompletedEnableAction, setHasCompletedEnableAction] = useState(
+    !onEnableAction,
+  );
+  const runEnableAction = useCallback(async (): Promise<boolean> => {
+    if (!onEnableAction) {
+      setHasCompletedEnableAction(true);
+      return true;
+    }
+
+    try {
+      await onEnableAction();
+      setHasCompletedEnableAction(true);
+      return true;
+    } catch {
+      setHasCompletedEnableAction(false);
+      return false;
+    }
+  }, [onEnableAction]);
+  const {
+    hasPermissionCache,
+    acceptedJustNow: acceptedPushJustNow,
+    onEnablePush,
+  } = usePushNotificationMutation({
+    onPopupGranted: () => {
+      runEnableAction().catch(() => null);
+    },
+  });
   const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
     DISMISS_PERMISSION_BANNER,
     false,
   );
+  const shouldIgnoreDismissStateForSource =
+    source === NotificationPromptSource.NewComment ||
+    source === NotificationPromptSource.SquadPage;
+  const effectiveIsDismissed = shouldIgnoreDismissStateForSource
+    ? false
+    : isDismissed;
+  useEffect(() => {
+    setHasCompletedEnableAction(!onEnableAction);
+  }, [onEnableAction]);
+
+  const acceptedJustNow = acceptedPushJustNow && hasCompletedEnableAction;
+
   const onDismiss = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.ClickNotificationDismiss,
-      extra: JSON.stringify({ origin: source }),
+    logDismiss({
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
     });
     setIsDismissed(true);
-  }, [source, logEvent, setIsDismissed]);
+  }, [logDismiss, placement, setIsDismissed, source]);
 
-  const onEnable = useCallback(
-    () => onEnablePush(source),
-    [source, onEnablePush],
-  );
+  const onEnable = useCallback(async () => {
+    logClick({
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
+    });
+    const isEnabled = await onEnablePush(source);
+
+    if (!isEnabled) {
+      return false;
+    }
+
+    return runEnableAction();
+  }, [logClick, onEnablePush, placement, runEnableAction, source]);
 
   const subscribed = isSubscribed || (shouldOpenPopup() && hasPermissionCache);
   const enabledJustNow = subscribed && acceptedJustNow;
@@ -56,25 +117,26 @@ export const useEnableNotification = ({
     isPushSupported || isExtension,
   ];
 
-  const shouldShowCta =
-    (conditions.every(Boolean) ||
-      (enabledJustNow && source !== NotificationPromptSource.SquadPostModal)) &&
-    !isDismissed;
+  const computeShouldShowCta = (): boolean => {
+    return (
+      (conditions.every(Boolean) ||
+        (enabledJustNow &&
+          source !== NotificationPromptSource.SquadPostModal)) &&
+      !effectiveIsDismissed
+    );
+  };
 
-  useEffect(() => {
-    if (!shouldShowCta || hasLoggedImpression.current) {
-      return;
-    }
+  const shouldShowCta = computeShouldShowCta();
 
-    logEvent({
-      event_name: LogEvent.Impression,
-      target_type: TargetType.EnableNotifications,
-      extra: JSON.stringify({ origin: source }),
-    });
-    hasLoggedImpression.current = true;
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldShowCta]);
+  useNotificationCtaImpression(
+    {
+      kind: NotificationCtaKind.PushCta,
+      targetType: TargetType.EnableNotifications,
+      source,
+      placement,
+    },
+    shouldShowCta,
+  );
 
   return {
     acceptedJustNow,

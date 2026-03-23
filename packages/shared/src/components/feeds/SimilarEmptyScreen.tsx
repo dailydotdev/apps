@@ -20,7 +20,7 @@ function SquadEmptyScreen({ post }: { post: Post }): ReactElement {
           ? `We couldn't find posts similar to "${post?.title}"`
           : `We couldn't find any similar posts`}
       </p>
-      {post?.tags?.length > 0 && (
+      {(post?.tags?.length ?? 0) > 0 && (
         <>
           <p className="text-text-tertiary typo-callout">
             Try exploring some related tags instead:

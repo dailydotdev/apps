@@ -23,8 +23,6 @@ import {
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
 import { WidgetContainer } from './common';
-import { useConditionalFeature } from '../../hooks';
-import { featureShowBookmarkCount } from '../../lib/featureManagement';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -42,18 +40,13 @@ export type SimilarPostsProps = {
 
 type PostProps = {
   post: Post;
-  onLinkClick: (post: Post) => unknown;
-  showBookmarkCount?: boolean;
+  onLinkClick: () => unknown;
 };
 
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
 const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 
-const DefaultListItem = ({
-  post,
-  onLinkClick,
-  showBookmarkCount,
-}: PostProps): ReactElement => (
+const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
   <article
     className={classNames(
       'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
@@ -63,7 +56,7 @@ const DefaultListItem = ({
     <CardLink
       href={post.commentsPermalink}
       title={post.title}
-      {...combinedClicks(() => onLinkClick(post))}
+      {...combinedClicks(onLinkClick)}
     />
     <LazyImage
       imgSrc={post.source.image}
@@ -88,7 +81,6 @@ const DefaultListItem = ({
         <PostEngagementCounts
           upvotes={post.numUpvotes}
           comments={post.numComments}
-          bookmarks={showBookmarkCount ? post.analytics?.bookmarks : undefined}
           className="text-text-tertiary"
         />
       )}
@@ -120,10 +112,6 @@ export default function SimilarPosts({
 }: SimilarPostsProps): ReactElement {
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
-  const { value: showBookmarkCount } = useConditionalFeature({
-    feature: featureShowBookmarkCount,
-    shouldEvaluate: true,
-  });
   const moreButtonHref =
     moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
   const moreButtonText = moreButtonProps?.text || 'View all';
@@ -155,7 +143,6 @@ export default function SimilarPosts({
               key={post.id}
               post={post}
               onLinkClick={() => onLinkClick(post)}
-              showBookmarkCount={showBookmarkCount}
             />
           ))}
         </>

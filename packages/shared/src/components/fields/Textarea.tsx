@@ -106,8 +106,8 @@ function Textarea(
         })}
         name={name}
         id={inputId}
-        ref={(element) => {
-          inputRef.current = element;
+        ref={(element: HTMLTextAreaElement | null) => {
+          inputRef.current = element as HTMLTextAreaElement;
 
           if (typeof ref === 'function') {
             ref(element);

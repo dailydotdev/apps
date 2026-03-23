@@ -42,11 +42,6 @@ export const plusTakeoverContent = new Feature<{
   shouldShowReviews: boolean;
 }>('plus_takeover_content');
 
-export const plusAgentsPositioningFeature = new Feature(
-  'plus_agents_positioning',
-  false,
-);
-
 export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   full: 'Level Up with Plus',
   short: 'Upgrade',
@@ -74,10 +69,14 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const featureReadingReminderHeroDismiss = new Feature(
-  'reading_reminder_hero_dismiss',
+export const notificationCtaV2Feature = new Feature(
+  'notification_cta_v2',
   false,
 );
+
+export const featureReadingReminderVariation = new Feature<
+  'control' | 'hero' | 'inline'
+>('reading_reminder_variation', 'control');
 
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
@@ -131,11 +130,6 @@ export const boostSettingsFeature = new Feature('boost_settings', {
 
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
 
-export const featureShowBookmarkCount = new Feature(
-  'show_bookmark_count',
-  false,
-);
-
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
@@ -169,7 +163,5 @@ export const agentsLeaderboardEntrypointFeature =
   new Feature<AgentsLeaderboardEntrypointFeature>(
     'agents_leaderboard_entrypoint',
   );
-
-export const featureFeedLayoutV2 = new Feature('feed_layout_v2', isDevelopment);
 
 export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
