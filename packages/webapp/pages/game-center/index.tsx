@@ -660,10 +660,10 @@ function GameCenterPage({
                     type={TypographyType.Body}
                     color={TypographyColor.Tertiary}
                   >
-                    The Game Center pulls together your quest progress, achievement
-                    milestones, recent badges, creator rewards, and a few
-                    community benchmarks so you can see both momentum and upside
-                    at a glance.
+                    The Game Center pulls together your quest progress,
+                    achievement milestones, recent badges, creator rewards, and
+                    a few community benchmarks so you can see both momentum and
+                    upside at a glance.
                   </Typography>
                 </div>
 
