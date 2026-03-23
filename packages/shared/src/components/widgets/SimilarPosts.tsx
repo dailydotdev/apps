@@ -40,7 +40,7 @@ export type SimilarPostsProps = {
 
 type PostProps = {
   post: Post;
-  onLinkClick: (post: Post) => unknown;
+  onLinkClick: () => unknown;
 };
 
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
@@ -56,7 +56,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
     <CardLink
       href={post.commentsPermalink}
       title={post.title}
-      {...combinedClicks(() => onLinkClick(post))}
+      {...combinedClicks(onLinkClick)}
     />
     <LazyImage
       imgSrc={post.source.image}
