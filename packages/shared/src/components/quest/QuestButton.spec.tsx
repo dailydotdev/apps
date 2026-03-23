@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { QueryClient } from '@tanstack/react-query';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -835,6 +835,149 @@ describe('QuestButton', () => {
         'quest-claimed-stamp',
       );
       /* eslint-enable testing-library/no-node-access */
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('should reveal claimed stamps for quests claimed back-to-back', async () => {
+    jest.useFakeTimers();
+
+    try {
+      const readyQuestOne = {
+        rotationId: 'daily-quest-ready-one',
+        userQuestId: 'user-quest-ready-one',
+        progress: 3,
+        status: QuestStatus.Completed,
+        completedAt: new Date('2026-03-18T12:00:00.000Z'),
+        claimedAt: null,
+        locked: false,
+        claimable: true,
+        quest: {
+          id: 'quest-ready-one',
+          name: 'Ready quest one',
+          description: 'Read 3 posts today',
+          type: QuestType.Daily,
+          eventType: 'read_post',
+          targetCount: 3,
+        },
+        rewards: [{ type: QuestRewardType.Xp, amount: 50 }],
+      };
+      const readyQuestTwo = {
+        rotationId: 'daily-quest-ready-two',
+        userQuestId: 'user-quest-ready-two',
+        progress: 3,
+        status: QuestStatus.Completed,
+        completedAt: new Date('2026-03-18T12:10:00.000Z'),
+        claimedAt: null,
+        locked: false,
+        claimable: true,
+        quest: {
+          id: 'quest-ready-two',
+          name: 'Ready quest two',
+          description: 'Read 3 more posts today',
+          type: QuestType.Daily,
+          eventType: 'read_post',
+          targetCount: 3,
+        },
+        rewards: [{ type: QuestRewardType.Xp, amount: 75 }],
+      };
+      const claimedQuestOne = {
+        ...readyQuestOne,
+        status: QuestStatus.Claimed,
+        claimable: false,
+        claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+      };
+      const claimedQuestTwo = {
+        ...readyQuestTwo,
+        status: QuestStatus.Claimed,
+        claimable: false,
+        claimedAt: new Date('2026-03-18T12:15:00.000Z'),
+      };
+      const dashboardAfterFirstClaim = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [claimedQuestOne, readyQuestTwo],
+        },
+      };
+      const dashboardAfterSecondClaim = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [claimedQuestOne, claimedQuestTwo],
+        },
+      };
+      let claimCount = 0;
+
+      mockUseQuestDashboard.mockReturnValue({
+        data: {
+          ...questDashboard,
+          daily: {
+            ...questDashboard.daily,
+            regular: [readyQuestOne, readyQuestTwo],
+          },
+        },
+        isPending: false,
+        isError: false,
+      });
+      mockUseClaimQuestReward.mockReturnValue({
+        mutate: jest.fn((_variables, callbacks) => {
+          claimCount += 1;
+
+          const claimedDashboard =
+            claimCount === 1
+              ? dashboardAfterFirstClaim
+              : dashboardAfterSecondClaim;
+
+          mockUseQuestDashboard.mockReturnValue({
+            data: claimedDashboard,
+            isPending: false,
+            isError: false,
+          });
+          callbacks.onSuccess?.(claimedDashboard);
+        }),
+        isPending: false,
+        variables: undefined,
+      });
+
+      renderComponent(false);
+
+      act(() => {
+        screen
+          .getByRole('button', {
+            name: /Quests, level 7, 63% progress/i,
+          })
+          .click();
+      });
+
+      act(() => {
+        /* eslint-disable testing-library/no-node-access */
+        within(
+          screen.getByText('Ready quest one').closest('article') as HTMLElement,
+        )
+          .getByRole('button', { name: 'Claim' })
+          .click();
+        /* eslint-enable testing-library/no-node-access */
+      });
+
+      act(() => {
+        /* eslint-disable testing-library/no-node-access */
+        within(
+          screen.getByText('Ready quest two').closest('article') as HTMLElement,
+        )
+          .getByRole('button', { name: 'Claim' })
+          .click();
+        /* eslint-enable testing-library/no-node-access */
+      });
+
+      expect(screen.queryByText('CLAIMED')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(3200);
+      });
+
+      expect(screen.getAllByText('CLAIMED')).toHaveLength(2);
     } finally {
       jest.useRealTimers();
     }
