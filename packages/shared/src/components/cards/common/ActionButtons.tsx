@@ -10,8 +10,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode, useConditionalFeature } from '../../../hooks';
-import { featureShowBookmarkCount } from '../../../lib/featureManagement';
+import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -76,11 +75,6 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const { value: showBookmarkCount } = useConditionalFeature({
-    feature: featureShowBookmarkCount,
-    shouldEvaluate: true,
-  });
-  const bookmarkCount = post?.analytics?.bookmarks ?? 0;
 
   const {
     isUpvoteActive,
@@ -239,17 +233,7 @@ const ActionButtons = ({
             }),
           }}
           iconSize={config.iconSize}
-        >
-          {showBookmarkCount && bookmarkCount > 0 && (
-            <InteractionCounter
-              className={classNames(
-                'tabular-nums',
-                variant === 'grid' && 'typo-footnote',
-              )}
-              value={bookmarkCount}
-            />
-          )}
-        </BookmarkButton>
+        />
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}
