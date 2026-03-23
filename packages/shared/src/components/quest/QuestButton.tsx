@@ -262,18 +262,6 @@ type QuestDestination = {
 
 const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
 
-const getQuestDestinationHref = (path: string): string => {
-  if (/^https?:\/\//.test(path)) {
-    return path;
-  }
-
-  if (path === '/') {
-    return webappUrl;
-  }
-
-  return `${webappUrl}${path.replace(/^\//, '')}`;
-};
-
 const getQuestDestination = (
   quest: UserQuest['quest'],
 ): QuestDestination | null => {
@@ -1590,7 +1578,7 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
-      await router.push(getQuestDestinationHref(destination.path));
+      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [router],
   );
