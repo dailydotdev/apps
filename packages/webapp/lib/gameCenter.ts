@@ -30,7 +30,7 @@ const getQuestProgressRatio = (quest: UserQuest): number => {
 const getQuestRewardTotal = (quest: UserQuest): number =>
   quest.rewards.reduce((total, reward) => total + reward.amount, 0);
 
-export type HubQuestBucketSummary = {
+export type GameCenterQuestBucketSummary = {
   all: UserQuest[];
   regular: UserQuest[];
   plus: UserQuest[];
@@ -42,13 +42,15 @@ export type HubQuestBucketSummary = {
   completionRate: number;
 };
 
-export type HubQuestSummary = HubQuestBucketSummary & {
-  daily: HubQuestBucketSummary;
-  weekly: HubQuestBucketSummary;
+export type GameCenterQuestSummary = GameCenterQuestBucketSummary & {
+  daily: GameCenterQuestBucketSummary;
+  weekly: GameCenterQuestBucketSummary;
   highlightedQuest: UserQuest | null;
 };
 
-const getQuestBucketSummary = (bucket?: QuestBucket): HubQuestBucketSummary => {
+const getQuestBucketSummary = (
+  bucket?: QuestBucket,
+): GameCenterQuestBucketSummary => {
   const regular = bucket?.regular ?? [];
   const plus = bucket?.plus ?? [];
   const all = [...regular, ...plus];
@@ -98,7 +100,7 @@ const getHighlightedQuest = (quests: UserQuest[]): UserQuest | null => {
 
 export const getQuestSummary = (
   dashboard?: QuestDashboard,
-): HubQuestSummary => {
+): GameCenterQuestSummary => {
   const daily = getQuestBucketSummary(dashboard?.daily);
   const weekly = getQuestBucketSummary(dashboard?.weekly);
   const all = [...daily.all, ...weekly.all];
@@ -148,7 +150,7 @@ const dedupeAchievements = (
   });
 };
 
-export type HubAchievementSummary = {
+export type GameCenterAchievementSummary = {
   unlockedCount: number;
   totalCount: number;
   totalPoints: number;
@@ -161,7 +163,7 @@ export type HubAchievementSummary = {
 export const getAchievementSummary = (
   achievements?: UserAchievement[],
   trackedAchievement?: UserAchievement | null,
-): HubAchievementSummary => {
+): GameCenterAchievementSummary => {
   const allAchievements = achievements ?? [];
   const unlocked = allAchievements.filter(
     (achievement) => achievement.unlockedAt !== null,
@@ -241,7 +243,7 @@ const sortAwardsByCount = (
   });
 };
 
-export type HubAwardSummary = {
+export type GameCenterAwardSummary = {
   awards: UserProductSummary[];
   totalAwards: number;
   uniqueAwards: number;
@@ -250,7 +252,7 @@ export type HubAwardSummary = {
 
 export const getAwardSummary = (
   awards?: UserProductSummary[],
-): HubAwardSummary => {
+): GameCenterAwardSummary => {
   const allAwards = sortAwardsByCount(awards ?? []);
 
   return {
@@ -261,7 +263,7 @@ export const getAwardSummary = (
   };
 };
 
-export type HubBadgeSummary = {
+export type GameCenterBadgeSummary = {
   totalBadges: number;
   uniqueTopics: number;
   latestBadge: TopReader | null;
@@ -269,7 +271,9 @@ export type HubBadgeSummary = {
   mostEarnedBadgeCount: number;
 };
 
-export const getBadgeSummary = (badges?: TopReader[]): HubBadgeSummary => {
+export const getBadgeSummary = (
+  badges?: TopReader[],
+): GameCenterBadgeSummary => {
   const allBadges = badges ?? [];
   const latestBadge =
     [...allBadges].sort(

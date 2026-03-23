@@ -1,12 +1,12 @@
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_REPUTATION_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
-  type QuestCompletionStats,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
-import { getStaticProps as getHubStaticProps } from '../pages/hub/index';
+import { getStaticProps as getGameCenterStaticProps } from '../pages/game-center/index';
 
 jest.mock('@dailydotdev/shared/src/graphql/common', () => {
   const actual = jest.requireActual('@dailydotdev/shared/src/graphql/common');
@@ -63,7 +63,7 @@ const createMissingSchemaError = (message: string) => ({
   },
 });
 
-describe('hub static props', () => {
+describe('game center static props', () => {
   beforeEach(() => {
     mockRequest.mockReset();
   });
@@ -85,7 +85,7 @@ describe('hub static props', () => {
       return Promise.reject(new Error('Unexpected query'));
     });
 
-    const result = await getHubStaticProps();
+    const result = await getGameCenterStaticProps();
 
     expect(result).toMatchObject({
       props: {
@@ -117,7 +117,7 @@ describe('hub static props', () => {
       return Promise.reject(new Error('Unexpected query'));
     });
 
-    const result = await getHubStaticProps();
+    const result = await getGameCenterStaticProps();
 
     expect(result).toMatchObject({
       props: {

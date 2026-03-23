@@ -17,7 +17,7 @@ import {
   getBadgeSummary,
   getQuestSummary,
   getTopReaderTopicLabel,
-} from './hub';
+} from './gameCenter';
 
 const createQuest = (
   overrides: Partial<UserQuest> & { questId: string; name: string },
@@ -67,7 +67,7 @@ const createAchievement = (
   ...overrides,
 });
 
-describe('hub helpers', () => {
+describe('game center helpers', () => {
   it('builds quest summaries and prioritizes claimable quests', () => {
     const dashboard: QuestDashboard = {
       level: {

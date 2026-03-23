@@ -90,9 +90,9 @@ import {
   getBadgeSummary,
   getQuestSummary,
   getTopReaderTopicLabel,
-} from '../../lib/hub';
+} from '../../lib/gameCenter';
 
-type HubPageProps = {
+type GameCenterPageProps = {
   highestReputation: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
   questCompletionStats: QuestCompletionStats | null;
@@ -216,7 +216,7 @@ const TrophyCard = ({
   );
 };
 
-const seoTitles = getPageSeoTitles('The Hub');
+const seoTitles = getPageSeoTitles('Game Center');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
@@ -226,11 +226,11 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-function HubPage({
+function GameCenterPage({
   highestReputation,
   mostQuestsCompleted,
   questCompletionStats,
-}: HubPageProps): ReactElement {
+}: GameCenterPageProps): ReactElement {
   const { user } = useAuthContext();
   const { value: isQuestsFeatureEnabled } = useConditionalFeature({
     feature: questsFeature,
@@ -274,7 +274,7 @@ function HubPage({
   const topReaderQueryKey = generateQueryKey(
     RequestKey.TopReaderBadge,
     user,
-    'hub:100',
+    'game-center:100',
   );
   const { data: topReaderBadges = [], isPending: isBadgesPending } = useQuery({
     queryKey: topReaderQueryKey,
@@ -630,7 +630,7 @@ function HubPage({
             color={TypographyColor.Primary}
             className="flex-1"
           >
-            The Hub
+            Game Center
           </Typography>
         </LayoutHeader>
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
@@ -660,7 +660,7 @@ function HubPage({
                     type={TypographyType.Body}
                     color={TypographyColor.Tertiary}
                   >
-                    This hub pulls together your quest progress, achievement
+                    The Game Center pulls together your quest progress, achievement
                     milestones, recent badges, creator rewards, and a few
                     community benchmarks so you can see both momentum and upside
                     at a glance.
@@ -991,7 +991,7 @@ function HubPage({
             ) : (
               <EmptyStateCard
                 title="Community stats are unavailable right now"
-                description="We could not load the global leaderboards for this build, but your personal hub data is still live."
+                description="We could not load the global leaderboards for this build, but your personal Game Center data is still live."
               />
             )}
           </section>
@@ -1044,16 +1044,16 @@ function HubPage({
   );
 }
 
-const getHubLayout: typeof getLayout = (...props) =>
+const getGameCenterLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
-HubPage.getLayout = getHubLayout;
-HubPage.layoutProps = { screenCentered: false, seo };
+GameCenterPage.getLayout = getGameCenterLayout;
+GameCenterPage.layoutProps = { screenCentered: false, seo };
 
-export default HubPage;
+export default GameCenterPage;
 
 export async function getStaticProps(): Promise<
-  GetStaticPropsResult<HubPageProps>
+  GetStaticPropsResult<GameCenterPageProps>
 > {
   try {
     const [highestReputationRes, mostQuestsCompletedRes] = await Promise.all([
