@@ -1645,7 +1645,7 @@ export const QuestButton = ({
                         triggerProgressCircumference *
                         (1 - renderedLevelProgress / 100)
                       }
-                      className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                      className="stroke-accent-avocado-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                     />
                   </svg>
                   <span
