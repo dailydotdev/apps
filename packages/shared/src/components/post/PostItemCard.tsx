@@ -52,13 +52,18 @@ export default function PostItemCard({
   indexes,
 }: PostItemCardProps): ReactElement {
   const { timestampDb, post } = postItem;
+  const { source } = post;
+  const sourceImage = source?.image ?? '';
   const onHideClick = (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    if (!onHide || !timestampDb) {
+      return;
+    }
     onHide({ postId: post.id, timestamp: timestampDb });
   };
   const article = post?.sharedPost ?? post;
-  const isUserSource = isSourceUserSource(post.source);
+  const isUserSource = isSourceUserSource(source);
 
   const { toggleUpvote, toggleDownvote } = useReadHistoryVotePost();
 
@@ -105,7 +110,10 @@ export default function PostItemCard({
               showVoteActions && 'top-8',
             )}
             user={{
-              image: isUserSource ? post.author.image : post.source.image,
+              image:
+                isUserSource && post.author?.image
+                  ? post.author.image
+                  : sourceImage,
               username: `source of ${title}`,
             }}
             nativeLazyLoading
@@ -132,7 +140,7 @@ export default function PostItemCard({
                   <Button
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
-                    color={showVoteActions ? ButtonColor.Avocado : undefined}
+                    color={ButtonColor.Avocado}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Up}
                     onClick={(e: React.MouseEvent) => {
@@ -149,7 +157,7 @@ export default function PostItemCard({
                   <Button
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
-                    color={showVoteActions ? ButtonColor.Ketchup : undefined}
+                    color={ButtonColor.Ketchup}
                     className={showVoteActions ? 'flex' : 'hidden laptop:flex'}
                     pressed={post?.userState?.vote === UserVote.Down}
                     onClick={(e: React.MouseEvent) => {
@@ -182,7 +190,7 @@ export default function PostItemCard({
                   post={post}
                   indexes={indexes}
                   onHide={
-                    onHide
+                    onHide && timestampDb
                       ? () =>
                           onHide({ postId: post.id, timestamp: timestampDb })
                       : undefined
