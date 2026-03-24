@@ -60,6 +60,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
 import type { PostClick } from '../lib/click';
+import { isDevelopment } from '../lib/constants';
 
 import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedContentPreferenceMutationSubscription';
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
@@ -236,7 +237,8 @@ export default function Feed<T>({
     feature: featureFeedHighlightsModule,
     shouldEvaluate: isMyFeed,
   });
-  const shouldShowFeedHighlights = isMyFeed && isFeedHighlightsModuleEnabled;
+  const shouldShowFeedHighlights =
+    isMyFeed && (isFeedHighlightsModuleEnabled || isDevelopment);
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
