@@ -12,6 +12,8 @@ import { expireCookie, getCookies } from '../../../lib/cookie';
 
 let client: QueryClient;
 
+type ConsentCookies = Partial<Record<GdprConsentKey, string>>;
+
 ReactModal.setAppElement('body');
 
 beforeEach(() => {
@@ -43,11 +45,14 @@ const renderComponent = () => {
   );
 };
 
+const getConsentCookies = (): ConsentCookies =>
+  getCookies(Object.values(GdprConsentKey)) ?? {};
+
 describe('CookieConsentModal', () => {
   it('should render default value to be false', async () => {
-    const cookies = getCookies(Object.values(GdprConsentKey));
-    expect(cookies.ilikecookies).toBeUndefined();
-    expect(cookies.ilikecookies_marketing).toBeUndefined();
+    const cookies = getConsentCookies();
+    expect(cookies[GdprConsentKey.Necessary]).toBeUndefined();
+    expect(cookies[GdprConsentKey.Marketing]).toBeUndefined();
 
     renderComponent();
 
@@ -59,14 +64,14 @@ describe('CookieConsentModal', () => {
     expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Save preferences');
     fireEvent.click(save);
-    const cookiesAfter = getCookies(Object.values(GdprConsentKey));
-    expect(cookiesAfter.ilikecookies).toBeTruthy();
-    expect(cookiesAfter.ilikecookies_marketing).not.toBeTruthy();
+    const cookiesAfter = getConsentCookies();
+    expect(cookiesAfter[GdprConsentKey.Necessary]).toBeTruthy();
+    expect(cookiesAfter[GdprConsentKey.Marketing]).not.toBeTruthy();
   });
 
   it('should allow toggling the other options', async () => {
-    const cookies = getCookies(Object.values(GdprConsentKey));
-    expect(cookies.ilikecookies_marketing).toBeUndefined();
+    const cookies = getConsentCookies();
+    expect(cookies[GdprConsentKey.Marketing]).toBeUndefined();
     renderComponent();
     const clickable = await screen.findByText('Marketing cookies');
     const [, marketingBefore] = screen.getAllByRole('checkbox', {
@@ -82,8 +87,8 @@ describe('CookieConsentModal', () => {
     expect(marketingAfter).toBeChecked();
     const save = screen.getByText('Save preferences');
     fireEvent.click(save);
-    const cookiesAfter = getCookies(Object.values(GdprConsentKey));
-    expect(cookiesAfter.ilikecookies_marketing).toBeTruthy();
+    const cookiesAfter = getConsentCookies();
+    expect(cookiesAfter[GdprConsentKey.Marketing]).toBeTruthy();
   });
 
   it('should retain previous option if the item was disabled', async () => {
@@ -107,9 +112,9 @@ describe('CookieConsentModal', () => {
   });
 
   it('should save everything when "Accept all" is clicked', async () => {
-    const cookies = getCookies(Object.values(GdprConsentKey));
-    expect(cookies.ilikecookies).toBeUndefined();
-    expect(cookies.ilikecookies_marketing).toBeUndefined();
+    const cookies = getConsentCookies();
+    expect(cookies[GdprConsentKey.Necessary]).toBeUndefined();
+    expect(cookies[GdprConsentKey.Marketing]).toBeUndefined();
 
     renderComponent();
 
@@ -121,15 +126,15 @@ describe('CookieConsentModal', () => {
     expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Accept all');
     fireEvent.click(save);
-    const cookiesAfter = getCookies(Object.values(GdprConsentKey));
-    expect(cookiesAfter.ilikecookies).toBeTruthy();
-    expect(cookiesAfter.ilikecookies_marketing).toBeTruthy();
+    const cookiesAfter = getConsentCookies();
+    expect(cookiesAfter[GdprConsentKey.Necessary]).toBeTruthy();
+    expect(cookiesAfter[GdprConsentKey.Marketing]).toBeTruthy();
   });
 
   it('should save the necessary only', async () => {
-    const cookies = getCookies(Object.values(GdprConsentKey));
-    expect(cookies.ilikecookies).toBeUndefined();
-    expect(cookies.ilikecookies_marketing).toBeUndefined();
+    const cookies = getConsentCookies();
+    expect(cookies[GdprConsentKey.Necessary]).toBeUndefined();
+    expect(cookies[GdprConsentKey.Marketing]).toBeUndefined();
 
     renderComponent();
 
@@ -141,8 +146,8 @@ describe('CookieConsentModal', () => {
     expect(isUnchecked).toBeTruthy();
     const save = screen.getByText('Reject all');
     fireEvent.click(save);
-    const cookiesAfter = getCookies(Object.values(GdprConsentKey));
-    expect(cookiesAfter.ilikecookies).toBeTruthy();
-    expect(cookiesAfter.ilikecookies_marketing).toBeUndefined();
+    const cookiesAfter = getConsentCookies();
+    expect(cookiesAfter[GdprConsentKey.Necessary]).toBeTruthy();
+    expect(cookiesAfter[GdprConsentKey.Marketing]).toBeUndefined();
   });
 });
