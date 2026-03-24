@@ -1,7 +1,3 @@
-const { fetch: globalFetch, Headers, Request, Response } = globalThis;
+const crossFetchShim = {};
 
-const fetchFn = globalFetch?.bind(globalThis);
-
-export default fetchFn;
-export const fetch = fetchFn;
-export { Headers, Request, Response };
+export default crossFetchShim;
