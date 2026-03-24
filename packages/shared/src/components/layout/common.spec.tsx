@@ -9,10 +9,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import {
-  agentsLeaderboardEntrypointFeature,
-  installExtensionPromptFeature,
-} from '../../lib/featureManagement';
+import { installExtensionPromptFeature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -74,6 +71,13 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
   },
 }));
 
+jest.mock('../filters/AgentsLeaderboardEntrypointButton', () => ({
+  AgentsLeaderboardEntrypointButton:
+    function MockAgentsLeaderboardEntrypointButton() {
+      return <div data-testid="agents-arena-entrypoint" />;
+    },
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
@@ -115,10 +119,6 @@ describe('SearchControlHeader', () => {
     mockUseConditionalFeature.mockImplementation(({ feature }) => {
       if (feature === installExtensionPromptFeature) {
         return { value: isInstallExtensionPromptEnabled };
-      }
-
-      if (feature === agentsLeaderboardEntrypointFeature) {
-        return { value: null };
       }
 
       return { value: null };
@@ -169,5 +169,17 @@ describe('SearchControlHeader', () => {
     expect(
       screen.getByRole('link', { name: 'Get it for Chrome' }),
     ).toBeInTheDocument();
+  });
+
+  it('renders the agents arena entrypoint on feed pages without a feature flag', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn().mockReturnValue(false),
+      completeAction: jest.fn(),
+      isActionsFetched: false,
+    });
+
+    renderComponent();
+
+    expect(screen.getByTestId('agents-arena-entrypoint')).toBeInTheDocument();
   });
 });

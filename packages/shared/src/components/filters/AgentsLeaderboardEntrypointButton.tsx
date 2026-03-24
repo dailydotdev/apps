@@ -4,25 +4,25 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import { useAgentsLeaderboardEntrypoint } from '../../features/agents/leaderboard/useAgentsLeaderboardEntrypoint';
 
+const AGENTS_ARENA_ENTRYPOINT_HREF = `${webappUrl}agents/arena?tab=llms`;
+
 interface AgentsLeaderboardEntrypointButtonProps {
-  groupId: string;
   showLabel?: boolean;
   variant?: ButtonVariant;
 }
 
 export function AgentsLeaderboardEntrypointButton({
-  groupId,
   showLabel = false,
   variant = ButtonVariant.Tertiary,
 }: AgentsLeaderboardEntrypointButtonProps): ReactElement {
-  const { topEntity } = useAgentsLeaderboardEntrypoint({ groupId });
+  const { topEntity } = useAgentsLeaderboardEntrypoint();
   const isIconOnly = !showLabel;
   const label = topEntity?.entity.name ?? 'Agents';
 
   return (
     <Button
       tag="a"
-      href={`${webappUrl}agents/arena`}
+      href={AGENTS_ARENA_ENTRYPOINT_HREF}
       size={ButtonSize.Medium}
       variant={variant}
       className={

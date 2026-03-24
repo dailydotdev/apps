@@ -154,14 +154,4 @@ export const installExtensionPromptFeature = new Feature(
   false,
 );
 
-export type AgentsLeaderboardEntrypointFeature = {
-  groupId: string;
-  showLabel?: boolean;
-};
-
-export const agentsLeaderboardEntrypointFeature =
-  new Feature<AgentsLeaderboardEntrypointFeature>(
-    'agents_leaderboard_entrypoint',
-  );
-
 export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
