@@ -30,7 +30,7 @@ export const BookmarkSection = ({
 
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop
-    ? (_active: boolean) => <ArrowIcon className="rotate-90" />
+    ? () => <ArrowIcon className="rotate-90" />
     : undefined;
 
   const handleAddFolder = useCallback(() => {
@@ -89,7 +89,9 @@ export const BookmarkSection = ({
       rightIcon,
     })),
   ];
-  const menuItems: SidebarMenuItem[] = allMenuItems.filter(Boolean) as SidebarMenuItem[];
+  const menuItems: SidebarMenuItem[] = allMenuItems.filter(
+    Boolean,
+  ) as SidebarMenuItem[];
 
   return (
     <Section

@@ -35,9 +35,15 @@ export function BasePostContent({
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
   const { onCopyPostLink } = engagementProps ?? {};
+  const postPageNavigationProps = isPostPage ? navigationProps : undefined;
+  const onReadArticle = postPageNavigationProps?.onReadArticle;
 
   if (!id && !isFallback) {
     return <Custom404 />;
+  }
+
+  if (isPostPage && !postPageNavigationProps) {
+    throw new Error('BasePostContent requires navigationProps on post pages');
   }
 
   return (
@@ -50,7 +56,7 @@ export function BasePostContent({
             post={post}
             className="ml-auto"
             contextMenuId="post-page-header-actions"
-            onReadArticle={navigationProps!.onReadArticle}
+            onReadArticle={onReadArticle}
             buttonSize={ButtonSize.Small}
           />
         </GoBackHeaderMobile>

@@ -3,7 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ModalProps } from '../../../../components/modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
@@ -18,7 +21,8 @@ const gearFormSchema = z.object({
 
 type GearFormData = z.infer<typeof gearFormSchema>;
 
-type GearModalProps = Omit<ModalProps, 'children'> & {
+type GearModalProps = Omit<ModalProps, 'children' | 'onRequestClose'> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
   onSubmit: (input: AddGearInput) => Promise<void>;
 };
 
@@ -57,7 +61,7 @@ export function GearModal({ onSubmit, ...rest }: GearModalProps): ReactElement {
     await onSubmit({
       name: data.name.trim(),
     });
-    rest.onRequestClose?.();
+    rest.onRequestClose?.(undefined);
   });
 
   const filteredSuggestions = useMemo(() => {

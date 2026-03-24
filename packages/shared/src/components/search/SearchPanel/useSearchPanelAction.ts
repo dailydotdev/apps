@@ -34,7 +34,7 @@ export const useSearchPanelAction = ({
 
   const onInactive = () => {
     searchPanel.setProvider({
-      provider: undefined!,
+      provider: undefined,
     });
   };
 

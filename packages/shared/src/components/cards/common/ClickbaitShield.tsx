@@ -71,10 +71,14 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   type: LazyModal.ClickbaitShield,
                 });
               } else {
+                if (!user) {
+                  throw new Error(
+                    'ClickbaitShield requires an authenticated user to edit feed settings',
+                  );
+                }
+
                 router.push(
-                  `${webappUrl}feeds/${user!.id}/edit?dview=${
-                    FeedSettingsMenu.AI
-                  }`,
+                  `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
                 );
               }
             } else if (isMobile) {

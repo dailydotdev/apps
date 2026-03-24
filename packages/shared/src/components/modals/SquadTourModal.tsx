@@ -1,16 +1,20 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import SquadTour from '../squads/SquadTour';
-import type { ModalProps } from './common/Modal';
+import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { ModalClose } from './common/ModalClose';
 
+type SquadTourModalProps = Omit<ModalProps, 'onRequestClose'> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
+};
+
 function SquadTourModal({
   onRequestClose,
   ...props
-}: ModalProps): ReactElement {
+}: SquadTourModalProps): ReactElement {
   const { onCloseTour } = useSquadTour();
   const onModalClose: typeof onRequestClose = (param) => {
     onCloseTour();
@@ -27,7 +31,7 @@ function SquadTourModal({
       isDrawerOnMobile
       drawerProps={{ className: { drawer: 'pb-4', close: 'mx-4' } }}
     >
-      <SquadTour onClose={() => onModalClose(undefined!)} />
+      <SquadTour onClose={() => onModalClose(undefined)} />
       <ModalClose
         size={ButtonSize.Small}
         variant={ButtonVariant.Secondary}

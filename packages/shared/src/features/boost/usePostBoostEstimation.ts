@@ -17,9 +17,15 @@ export const usePostBoostEstimation = ({
   post: postFromProps,
   query,
 }: UsePostBoostEstimationProps) => {
+  const { createdAt } = postFromProps;
+
+  if (!createdAt) {
+    throw new Error('usePostBoostEstimation requires post.createdAt');
+  }
+
   const isOldPost = useMemo(
-    () => isOlderThan(oneMinute * 5, new Date(postFromProps.createdAt!)),
-    [postFromProps.createdAt],
+    () => isOlderThan(oneMinute * 5, new Date(createdAt)),
+    [createdAt],
   );
   const [retriesExhausted, setRetriesExhausted] = useState(false);
   const [post, setPost] = useState(postFromProps);

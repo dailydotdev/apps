@@ -1,7 +1,7 @@
 import type { ReactElement, ChangeEvent } from 'react';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import type { ModalProps } from './common/Modal';
+import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalSize } from './common/types';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
@@ -29,6 +29,9 @@ import {
 import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const FEEDBACK_MAX_LENGTH = 2000;
+type FeedbackModalProps = Omit<ModalProps, 'onRequestClose'> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
+};
 
 const categoryOptions: { value: FeedbackCategory; label: string }[] = [
   { value: FeedbackCategory.BugReport, label: 'Bug Report' },
@@ -41,7 +44,7 @@ const categoryOptions: { value: FeedbackCategory; label: string }[] = [
 const FeedbackModal = ({
   onRequestClose,
   ...props
-}: ModalProps): ReactElement => {
+}: FeedbackModalProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { themeMode } = useSettingsContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -159,7 +162,7 @@ const FeedbackModal = ({
     mutationFn: (input: FeedbackInput) => submitFeedback(input),
     onSuccess: () => {
       displayToast('Thank you for your feedback!');
-      onRequestClose?.();
+      onRequestClose?.(undefined);
     },
     onError: () => {
       hasSubmitted.current = false;

@@ -23,7 +23,8 @@ export const useConditionalFeature = <T extends JSONValue>({
 
   if (!isPending) {
     value = growthbook
-      ? growthbook.getFeatureValue(feature.id, feature.defaultValue)!
+      ? growthbook.getFeatureValue(feature.id, feature.defaultValue) ??
+        (feature.defaultValue as WidenPrimitives<T>)
       : value;
   }
 

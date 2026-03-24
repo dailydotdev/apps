@@ -23,7 +23,11 @@ export const useLogOpportunityNudgeImpression = (
       return;
     }
 
-    logRef.current!({
+    if (!logRef.current) {
+      throw new Error('Log function is required to track opportunity nudges');
+    }
+
+    logRef.current({
       event_name: LogEvent.ImpressionOpportunityNudge,
       target_id: targetId,
       extra: logExtraPayload,

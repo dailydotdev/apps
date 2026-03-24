@@ -52,9 +52,13 @@ export const ConnectHeader = ({
   const { opportunity } = useOpportunityContext();
   const { user, isLoggedIn } = useAuthContext();
 
+  if (!user) {
+    throw new Error('ConnectHeader requires an authenticated user');
+  }
+
   const { data: prices } = useQuery(
     recruiterPricesQueryOptions({
-      user: user!,
+      user,
       isLoggedIn,
     }),
   );

@@ -32,7 +32,7 @@ const ExperienceLevelDropdown = ({
 }: Props): ReactElement => {
   const [open, setOpen] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(
-    Object.keys(UserExperienceLevel).indexOf(defaultValue!),
+    Object.keys(UserExperienceLevel).indexOf(defaultValue ?? ''),
   );
 
   const {

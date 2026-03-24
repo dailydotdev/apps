@@ -69,9 +69,13 @@ export default function useLogContextData(
       logEventEnd(id, now = new Date()) {
         const event = durationEventsQueue.current.get(id);
         if (event) {
+          if (!event.event_timestamp) {
+            throw new Error('Missing event timestamp for duration event');
+          }
+
           durationEventsQueue.current.delete(id);
           event.event_duration =
-            now.getTime() - event.event_timestamp!.getTime();
+            now.getTime() - event.event_timestamp.getTime();
           if (window.scrollY > 0 && event.event_name !== 'page inactive') {
             event.page_state = 'active';
           }

@@ -28,6 +28,10 @@ export const SearchPanelProvider = ({
     return searchPanel.providerIcon;
   }
 
+  if (!searchPanel.provider) {
+    return null;
+  }
+
   const Component = providerToComponentMap[searchPanel.provider];
 
   if (!Component) {

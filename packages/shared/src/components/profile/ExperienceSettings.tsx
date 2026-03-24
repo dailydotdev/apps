@@ -18,9 +18,14 @@ export const ExperienceSettings = ({
   emptyStateMessage,
 }: ExperienceSettingsProps): ReactElement => {
   const { user } = useAuthContext();
+
+  if (!user) {
+    throw new Error('ExperienceSettings requires an authenticated user');
+  }
+
   const { experiences, isPending } = useUserExperiencesByType(
     experienceType,
-    user!.id,
+    user.id,
   );
 
   if (isPending) {

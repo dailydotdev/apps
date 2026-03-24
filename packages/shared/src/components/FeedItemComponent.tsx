@@ -20,6 +20,7 @@ import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
+import type { AdCardProps } from './cards/ad/common/common';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
@@ -395,7 +396,9 @@ function FeedItemComponent({
 
   switch (item.type) {
     case FeedItemType.Ad: {
-      const AdComponent = AdTag as React.ComponentType<Record<string, unknown>>;
+      const AdComponent = AdTag as React.ForwardRefExoticComponent<
+        AdCardProps & React.RefAttributes<Element>
+      >;
       return (
         <AdComponent
           ref={inViewRef}

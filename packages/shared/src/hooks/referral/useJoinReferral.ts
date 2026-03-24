@@ -33,7 +33,11 @@ export const useJoinReferral = (): void => {
           id: referringUserId,
         });
 
-        refetchBoot!();
+        if (!refetchBoot) {
+          throw new Error('Missing refetchBoot after setting join referral');
+        }
+
+        refetchBoot();
       } catch (error) {
         if (
           (error as ApiErrorResult).response?.errors?.[0]?.message ===

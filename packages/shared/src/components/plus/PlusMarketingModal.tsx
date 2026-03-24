@@ -41,13 +41,17 @@ const PlusMarketingModal = (modalProps: ModalProps): ReactElement => {
   const isTablet = useViewSize(ViewSize.Tablet);
 
   const handleClose = () => {
+    if (!campaignId) {
+      throw new Error('PlusMarketingModal requires a campaign id');
+    }
+
     logEvent({
       event_name: LogEvent.MarketingCtaDismiss,
       target_type: TargetType.MarketingCtaPlus,
       target_id: campaignId,
     });
     closeModal();
-    clearMarketingCta(campaignId!);
+    clearMarketingCta(campaignId);
   };
 
   const plusComponent = useMemo(() => {

@@ -22,6 +22,13 @@ export const RecruiterPaymentPaddleContextProvider = ({
   const router = useRouter();
   const { user, isLoggedIn } = useAuthContext();
   const { logEvent } = useLogContext();
+
+  if (!user) {
+    throw new Error(
+      'RecruiterPaymentPaddleContextProvider requires an authenticated user',
+    );
+  }
+
   const [selectedProduct, setSelectedProduct] =
     useState<RecruiterProductOption>();
   const logRef = useRef<typeof logEvent>();
@@ -36,7 +43,7 @@ export const RecruiterPaymentPaddleContextProvider = ({
 
   const { data: prices } = useQuery(
     recruiterPricesQueryOptions({
-      user: user!,
+      user,
       isLoggedIn,
       discountId: appliedDiscountId ?? undefined,
     }),

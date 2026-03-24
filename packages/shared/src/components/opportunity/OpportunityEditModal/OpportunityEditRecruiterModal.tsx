@@ -3,7 +3,10 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import type { ModalProps } from '../../modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
@@ -33,13 +36,15 @@ export const opportunityEditRecruiterSchema = z.object({
 export type OpportunityEditRecruiterModalProps = {
   id: string;
   recruiterId?: string;
-};
+} & Omit<ModalProps, 'onRequestClose'> & {
+    onRequestClose?: LazyModalCommonProps['onRequestClose'];
+  };
 
 export const OpportunityEditRecruiterModal = ({
   id,
   recruiterId,
   ...rest
-}: OpportunityEditRecruiterModalProps & ModalProps) => {
+}: OpportunityEditRecruiterModalProps) => {
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
@@ -53,7 +58,7 @@ export const OpportunityEditRecruiterModal = ({
     onSuccess: (result) => {
       updateOpportunity(result);
 
-      rest.onRequestClose?.();
+      rest.onRequestClose?.(undefined);
     },
   });
 

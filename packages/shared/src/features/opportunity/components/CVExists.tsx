@@ -18,6 +18,10 @@ export const CVExists = ({
   preferences: UserCandidatePreferences;
 }): ReactElement => {
   const { user } = useAuthContext();
+  const fileName =
+    preferences?.cv?.fileName ||
+    (user?.username ? `${user.username}.pdf` : 'resume.pdf');
+
   return (
     <div className="mx-auto mt-10 flex max-w-[42.5rem] flex-col items-center gap-6 rounded-16 border border-border-subtlest-secondary bg-blur-baseline p-6 tablet:w-full">
       <Typography type={TypographyType.LargeTitle} bold center>
@@ -45,7 +49,7 @@ export const CVExists = ({
         className="flex items-center gap-2"
       >
         <DocsIcon size={IconSize.Large} />
-        {preferences?.cv?.fileName ?? `${user!.username}.pdf`}
+        {fileName}
       </Typography>
 
       <CandidatePreferenceButton targetId={TargetId.OpportunityWelcomePage} />

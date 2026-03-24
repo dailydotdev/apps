@@ -11,7 +11,7 @@ import { useProfileAchievements } from '../../hooks/profile/useProfileAchievemen
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { ActionType } from '../../graphql/actions';
 import { LogEvent, TargetType } from '../../lib/log';
-import type { ModalProps } from './common/Modal';
+import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
 import {
@@ -35,9 +35,11 @@ const sparkles = Array.from({ length: 60 }, (_, i) => ({
   size: 3 + ((i * 7) % 5),
 }));
 
-interface AchievementCompletionModalProps extends ModalProps {
+interface AchievementCompletionModalProps
+  extends Omit<ModalProps, 'onRequestClose'> {
   achievementId: string;
   onAfterClose?: () => void;
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
 }
 
 export const AchievementCompletionModal = ({
@@ -70,7 +72,7 @@ export const AchievementCompletionModal = ({
   const [sparklesFalling, setSparklesFalling] = useState(false);
   const loggedImpression = useRef(false);
   const handleClose = (event?: MouseEvent | KeyboardEvent) =>
-    onRequestClose?.(event!);
+    onRequestClose?.(event);
 
   const unlockedAchievement = useMemo(
     () => achievements?.find((item) => item.achievement.id === achievementId),

@@ -60,6 +60,10 @@ export default function ProfileButton({
       ? animatedReputation
       : user?.reputation;
 
+  if (!user) {
+    throw new Error('ProfileButton requires an authenticated user');
+  }
+
   const preciseBalance = formatCurrency(displayedBalance, {
     minimumFractionDigits: 0,
   });
@@ -263,7 +267,7 @@ export default function ProfileButton({
             </span>
             <Tooltip side="bottom" content="Profile settings">
               <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user!} />
+                <ProfilePictureWithIndicator user={user} />
               </div>
             </Tooltip>
           </button>

@@ -27,9 +27,9 @@ export const useGenerateBrief = ({ onGenerated }: UseGenerateBriefingProps) => {
     onSuccess: async ({ id, balance }) => {
       displayToast('Your Presidential Briefing is being generated ✅');
 
-      if (balance) {
+      if (balance && user) {
         updateUser({
-          ...user!,
+          ...user,
           balance,
         });
       }

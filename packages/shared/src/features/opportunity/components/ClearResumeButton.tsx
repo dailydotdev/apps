@@ -22,7 +22,12 @@ export const ClearResumeButton = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
-  const opts = getCandidatePreferencesOptions(user!.id);
+
+  if (!user) {
+    throw new Error('ClearResumeButton requires an authenticated user');
+  }
+
+  const opts = getCandidatePreferencesOptions(user.id);
   const updateQuery = useUpdateQuery(opts);
 
   const { mutate: clearResume, isPending: isClearResumePending } = useMutation({

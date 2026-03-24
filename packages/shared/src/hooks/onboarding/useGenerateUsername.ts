@@ -17,13 +17,18 @@ export const useGenerateUsername = (
   const [username, setUsername] = useState('');
   const usernameRef = useRef(false);
   const { requestMethod } = useRequestProtocol();
+
+  if (!requestMethod) {
+    throw new Error('Request method is required in useGenerateUsername');
+  }
+
   const usernameQueryKey = ['generateUsername', name];
   const { data, isLoading } = useQuery<{
     generateUniqueUsername: string;
   }>({
     queryKey: usernameQueryKey,
     queryFn: () =>
-      requestMethod!(
+      requestMethod(
         GET_USERNAME_SUGGESTION,
         { name },
         { requestKey: JSON.stringify(usernameQueryKey) },

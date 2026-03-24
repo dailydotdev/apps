@@ -3,7 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ModalProps } from '../../modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
 import { Button, ButtonVariant } from '../../buttons/Button';
@@ -23,7 +26,8 @@ const sourceStackFormSchema = z.object({
 
 type SourceStackFormData = z.infer<typeof sourceStackFormSchema>;
 
-type SourceStackModalProps = Omit<ModalProps, 'children'> & {
+type SourceStackModalProps = Omit<ModalProps, 'children' | 'onRequestClose'> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
   onSubmit: (input: AddSourceStackInput) => Promise<void>;
   existingItem?: SourceStack;
 };
@@ -67,7 +71,7 @@ export function SourceStackModal({
     await onSubmit({
       title: data.title.trim(),
     });
-    rest.onRequestClose?.();
+    rest.onRequestClose?.(undefined);
   });
 
   const filteredSuggestions = useMemo(() => {
