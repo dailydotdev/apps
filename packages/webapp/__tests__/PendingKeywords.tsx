@@ -42,16 +42,20 @@ const defaultKeyword: Keyword = {
   status: 'pending',
 };
 
-const createRandomKeywordMock = (
-  keyword: Keyword | undefined = defaultKeyword,
-): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> => ({
-  request: {
-    query: RANDOM_PENDING_KEYWORD_QUERY,
-  },
-  result: {
-    data: { keyword, countPendingKeywords: 1234 },
-  },
-});
+function createRandomKeywordMock(
+  keyword?: Keyword,
+): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> {
+  const resolvedKeyword = arguments.length < 1 ? defaultKeyword : keyword;
+
+  return {
+    request: {
+      query: RANDOM_PENDING_KEYWORD_QUERY,
+    },
+    result: {
+      data: { keyword: resolvedKeyword, countPendingKeywords: 1234 },
+    },
+  };
+}
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRandomKeywordMock()],

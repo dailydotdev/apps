@@ -146,10 +146,10 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
           ...(sendType && { sendType }),
         },
       };
-      queryClient.setQueryData(
-        queryKey,
-        [...currentData.filter((item) => item.type !== type), newValues],
-      );
+      queryClient.setQueryData(queryKey, [
+        ...currentData.filter((item) => item.type !== type),
+        newValues,
+      ]);
 
       return () => {
         queryClient.setQueryData(queryKey, null);
@@ -197,7 +197,8 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   return {
     getPersonalizedDigest,
     isLoading: isPending,
-    subscribePersonalizedDigest: (params) => subscribePersonalizedDigest(params),
+    subscribePersonalizedDigest: (params) =>
+      subscribePersonalizedDigest(params),
     unsubscribePersonalizedDigest: (params) =>
       unsubscribePersonalizedDigest(params),
   };

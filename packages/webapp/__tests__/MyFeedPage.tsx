@@ -47,7 +47,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  variables: Record<string, any> = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -65,10 +65,11 @@ const createFeedMock = (
 });
 let client: QueryClient;
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser | undefined = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
@@ -76,13 +77,13 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user }}
+      auth={{ user: resolvedUser }}
       alerts={{ alerts: defaultAlerts, updateAlerts }}
     >
       {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
     </TestBootProvider>,
   );
-};
+}
 
 it('should request user feed', async () => {
   renderComponent([

@@ -43,19 +43,23 @@ const defaultKeyword: Keyword = {
   status: 'allow',
 };
 
-const createKeywordMock = (
-  keyword: Keyword | undefined = defaultKeyword,
-): MockedGraphQLResponse<KeywordData> => ({
-  request: {
-    query: KEYWORD_QUERY,
-    variables: {
-      value: defaultKeyword.value,
+function createKeywordMock(
+  keyword?: Keyword,
+): MockedGraphQLResponse<KeywordData> {
+  const resolvedKeyword = arguments.length < 1 ? defaultKeyword : keyword;
+
+  return {
+    request: {
+      query: KEYWORD_QUERY,
+      variables: {
+        value: defaultKeyword.value,
+      },
     },
-  },
-  result: {
-    data: { keyword },
-  },
-});
+    result: {
+      data: { keyword: resolvedKeyword },
+    },
+  };
+}
 
 let client: QueryClient;
 

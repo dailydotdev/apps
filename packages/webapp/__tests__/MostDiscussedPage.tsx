@@ -37,7 +37,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = MOST_DISCUSSED_FEED_QUERY,
-  variables: Record<string, any> = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -57,7 +57,7 @@ const createFeedMock = (
 const createCommentFeedMock = (
   page = defaultCommentsPage,
   query: string = COMMENT_FEED_QUERY,
-  variables: Record<string, any> = {
+  variables: Record<string, unknown> = {
     first: 20,
     after: '',
   },
@@ -73,20 +73,21 @@ const createCommentFeedMock = (
   },
 });
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser | undefined = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
   return render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user: resolvedUser }}>
       {Discussed.getLayout(<Discussed />, {}, Discussed.layoutProps)}
     </TestBootProvider>,
   );
-};
+}
 
 it('should request most discussed feed when logged-in', async () => {
   renderComponent([createCommentFeedMock()]);

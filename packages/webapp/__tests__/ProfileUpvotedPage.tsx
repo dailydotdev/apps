@@ -96,7 +96,9 @@ it('should show the cards', async () => {
   await waitForNock();
   await Promise.all(
     defaultFeedPage.edges.map(async (edge) => {
-      expect(await screen.findByText(edge.node.title ?? '')).toBeInTheDocument();
+      expect(
+        await screen.findByText(edge.node.title ?? ''),
+      ).toBeInTheDocument();
     }),
   );
 });

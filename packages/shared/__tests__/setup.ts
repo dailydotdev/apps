@@ -109,7 +109,7 @@ jest.mock('next/navigation', () => ({
 document.addEventListener(
   'click',
   (event) => {
-    const target = event.target;
+    const { target } = event;
 
     if (!(target instanceof Element)) {
       return;

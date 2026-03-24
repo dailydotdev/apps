@@ -368,11 +368,11 @@ const AlertsMock = (params: Partial<Alerts>) => {
   const { updateAlerts, alerts } = useContext(AlertContext);
 
   return (
-      <button
-        onClick={() => updateAlerts?.(params)}
-        type="button"
-        data-test-value={JSON.stringify(alerts)}
-      >
+    <button
+      onClick={() => updateAlerts?.(params)}
+      type="button"
+      data-test-value={JSON.stringify(alerts)}
+    >
       Alerts
     </button>
   );

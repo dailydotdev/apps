@@ -124,7 +124,7 @@ jest.mock('../hooks/useSubscription', () => ({
     ),
 }));
 
-let variables: Record<string, any>;
+let variables: Record<string, unknown>;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
@@ -172,7 +172,7 @@ const createTagsSettingsMock = (
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  params: Record<string, any> = variables,
+  params: Record<string, unknown> = variables,
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
     query,

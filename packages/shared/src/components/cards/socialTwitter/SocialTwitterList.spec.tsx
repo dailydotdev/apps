@@ -51,7 +51,9 @@ const basePost: Post = {
 const referencedPost = sharePost.sharedPost;
 
 if (!referencedPost?.source) {
-  throw new Error('Expected referenced source fixture for SocialTwitterList tests');
+  throw new Error(
+    'Expected referenced source fixture for SocialTwitterList tests',
+  );
 }
 
 const referencedSource = referencedPost.source;

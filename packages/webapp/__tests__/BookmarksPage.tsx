@@ -45,7 +45,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = BOOKMARKS_FEED_QUERY,
-  variables: Record<string, any> = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -66,17 +66,18 @@ const createFeedMock = (
 
 let client: QueryClient;
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser | undefined = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
 
   return render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user: resolvedUser }}>
       {BookmarksPage.getLayout(
         <BookmarksPage />,
         {},
@@ -84,7 +85,7 @@ const renderComponent = (
       )}
     </TestBootProvider>,
   );
-};
+}
 it('should request bookmarks feed', async () => {
   renderComponent();
   await waitForNock();

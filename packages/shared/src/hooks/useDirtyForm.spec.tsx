@@ -27,23 +27,20 @@ describe('useDirtyForm', () => {
     routerEventHandlers = {};
     windowEventHandlers = new Map();
 
-    jest
-      .spyOn(window, 'addEventListener')
-      .mockImplementation(
-        ((event: string, handler: EventListenerOrEventListenerObject) => {
-          if (typeof handler === 'function') {
-            windowEventHandlers.set(event, handler);
-          }
-        }) as typeof window.addEventListener,
-      );
+    jest.spyOn(window, 'addEventListener').mockImplementation(((
+      event: string,
+      handler: EventListenerOrEventListenerObject,
+    ) => {
+      if (typeof handler === 'function') {
+        windowEventHandlers.set(event, handler);
+      }
+    }) as typeof window.addEventListener);
 
-    jest
-      .spyOn(window, 'removeEventListener')
-      .mockImplementation(
-        ((event: string) => {
-          windowEventHandlers.delete(event);
-        }) as typeof window.removeEventListener,
-      );
+    jest.spyOn(window, 'removeEventListener').mockImplementation(((
+      event: string,
+    ) => {
+      windowEventHandlers.delete(event);
+    }) as typeof window.removeEventListener);
 
     mockRouter = {
       asPath: '/current-path',

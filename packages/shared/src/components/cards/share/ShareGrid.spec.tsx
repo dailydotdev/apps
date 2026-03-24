@@ -16,7 +16,7 @@ jest.mock('next/router', () => ({
 }));
 
 const post = sharePost;
-const sharedPost = post.sharedPost;
+const { sharedPost } = post;
 
 if (!sharedPost) {
   throw new Error('Expected sharedPost fixture for ShareGrid tests');

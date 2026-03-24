@@ -48,11 +48,15 @@ const referencedPost = sharePost.sharedPost;
 const rootSource = basePost.source;
 
 if (!referencedPost?.source) {
-  throw new Error('Expected referenced source fixture for SocialTwitterGrid tests');
+  throw new Error(
+    'Expected referenced source fixture for SocialTwitterGrid tests',
+  );
 }
 
 if (!referencedPost.author) {
-  throw new Error('Expected referenced author fixture for SocialTwitterGrid tests');
+  throw new Error(
+    'Expected referenced author fixture for SocialTwitterGrid tests',
+  );
 }
 
 if (!rootSource) {

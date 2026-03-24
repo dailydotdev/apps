@@ -24,7 +24,7 @@ describe('useJoinReferral hook', () => {
     const Wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>
         <AuthContextProvider
-        user={user}
+          user={user}
           getRedirectUri={jest.fn()}
           updateUser={jest.fn()}
           tokenRefreshed={false}

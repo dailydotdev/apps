@@ -109,7 +109,9 @@ describe('user reading history page', () => {
         await screen.findByTestId('reading-history-container')
       ).getAttribute('aria-busy');
 
-      return expect(JSON.parse(afterFetchingBusyState ?? 'true')).toEqual(false);
+      return expect(JSON.parse(afterFetchingBusyState ?? 'true')).toEqual(
+        false,
+      );
     });
   });
 
