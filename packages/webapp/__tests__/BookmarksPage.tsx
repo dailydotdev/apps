@@ -45,7 +45,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = BOOKMARKS_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, any> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -68,7 +68,7 @@ let client: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | undefined = defaultUser,
 ): RenderResult => {
   client = new QueryClient();
 
@@ -95,7 +95,7 @@ it('should request bookmarks feed', async () => {
 });
 
 it('should redirect to home page when logged-out', async () => {
-  renderComponent([], null);
+  renderComponent([], undefined);
   await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
 });
 

@@ -2,7 +2,7 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { sharePost } from '../../../../__tests__/fixture/post';
@@ -16,6 +16,12 @@ jest.mock('next/router', () => ({
 }));
 
 const post = sharePost;
+const sharedPost = post.sharedPost;
+
+if (!sharedPost) {
+  throw new Error('Expected sharedPost fixture for ShareGrid tests');
+}
+
 const defaultProps: PostCardProps = {
   post,
   onPostClick: jest.fn(),
@@ -73,11 +79,11 @@ const renderComponent = (
   );
 };
 
-const videoPostTypeComponentProps = {
+const videoPostTypeComponentProps: Partial<PostCardProps> = {
   post: {
     ...defaultProps.post,
     sharedPost: {
-      ...defaultProps.post?.sharedPost,
+      ...sharedPost,
       type: PostType.VideoYouTube,
     },
   },
@@ -114,7 +120,7 @@ it('should call on share click on copy link button click', async () => {
 it('should not display publication date createdAt is empty', async () => {
   renderComponent({
     ...defaultProps,
-    post: { ...post, createdAt: null },
+    post: { ...post, createdAt: undefined },
   });
   const el = screen.queryByText('Jun 13, 2018');
   expect(el).not.toBeInTheDocument();
@@ -127,9 +133,14 @@ it('should format publication date', async () => {
 });
 
 it('should hide read time when not available', async () => {
-  const usePost = { ...post };
-  delete usePost.sharedPost.readTime;
-  renderComponent({ post: usePost });
+  const sharedPostWithoutReadTime = { ...sharedPost };
+  delete sharedPostWithoutReadTime.readTime;
+  renderComponent({
+    post: {
+      ...post,
+      sharedPost: sharedPostWithoutReadTime,
+    },
+  });
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 

@@ -48,7 +48,6 @@ import {
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
-import { VOTE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
@@ -146,6 +145,29 @@ const createPostMock = (
   },
 });
 
+const getPostFromMock = (mock: MockedGraphQLResponse<PostData>): Post => {
+  const result =
+    typeof mock.result === 'function' ? mock.result() : mock.result;
+  const post = result.data?.post;
+
+  if (!post) {
+    throw new Error('Expected post in GraphQL mock');
+  }
+
+  return post;
+};
+
+const getRequiredElement = <T,>(
+  value: T | null | undefined,
+  message: string,
+): T => {
+  if (value == null) {
+    throw new Error(message);
+  }
+
+  return value;
+};
+
 const createActionsMock = (): MockedGraphQLResponse<{ actions: Action[] }> => ({
   request: { query: COMPLETED_USER_ACTIONS },
   result: {
@@ -171,14 +193,55 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
   },
 });
 
+const mockVoteMutation = ({
+  vote,
+  onSuccess,
+}: {
+  vote: UserVote;
+  onSuccess?: () => void;
+}): void => {
+  nock('http://localhost:3000')
+    .post(
+      '/graphql',
+      (body: {
+        query?: string;
+        variables?: { id?: string; vote?: UserVote; entity?: UserVoteEntity };
+      }) =>
+        Boolean(
+          body.query?.includes('mutation Vote(') &&
+            body.variables?.id === defaultPost.id &&
+            body.variables?.vote === vote &&
+            body.variables?.entity === UserVoteEntity.Post,
+        ),
+    )
+    .reply(200, () => {
+      onSuccess?.();
+      return { data: { _: true } };
+    });
+};
+
+const mockCompleteActionMutation = (action: ActionType): void => {
+  nock('http://localhost:3000')
+    .post(
+      '/graphql',
+      (body: { query?: string; variables?: { type?: ActionType } }) =>
+        Boolean(
+          body.query?.includes('mutation CompleteAction(') &&
+            body.variables?.type === action,
+        ),
+    )
+    .reply(200, { data: { _: true } });
+};
+
 let client: QueryClient;
 const logEvent = jest.fn();
 
-const renderPost = (
+function renderPost(
   props: Partial<Props> = {},
   mocks: MockedGraphQLResponse[] = [createPostMock(), createCommentsMock()],
-  user: LoggedUser = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 3 ? defaultUser : user;
   const defaultProps: Props = {
     id: '0e4005b2d3cf191f8c44c2718a457a1e',
   };
@@ -202,13 +265,16 @@ const renderPost = (
     <TestBootProvider
       client={client}
       auth={{
-        user,
-        shouldShowLogin: false,
+        user: resolvedUser,
+        shouldShowLogin: !resolvedUser,
+        isLoggedIn: !!resolvedUser,
         showLogin,
         logout: jest.fn(),
         updateUser: jest.fn(),
         tokenRefreshed: true,
         getRedirectUri: jest.fn(),
+        closeLogin: jest.fn(),
+        isAuthReady: true,
       }}
       settings={createTestSettings()}
     >
@@ -224,7 +290,7 @@ const renderPost = (
       </LogContext.Provider>
     </TestBootProvider>,
   );
-};
+}
 
 it('should show source name', async () => {
   renderPost();
@@ -243,7 +309,10 @@ it('should format read time when available', async () => {
 });
 
 it('should hide read time when not available', async () => {
-  renderPost({}, [createPostMock({ readTime: null }), createCommentsMock()]);
+  renderPost({}, [
+    createPostMock({ readTime: undefined }),
+    createCommentsMock(),
+  ]);
   await screen.findByText('May 16, 2019');
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
@@ -291,7 +360,7 @@ it('should show post image', async () => {
 });
 
 it('should show login on upvote click', async () => {
-  renderPost({}, [createPostMock(), createCommentsMock()], null);
+  renderPost({}, [createPostMock(), createCommentsMock()], undefined);
   const el = await screen.findByLabelText('Upvote');
   fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
@@ -299,24 +368,28 @@ it('should show login on upvote click', async () => {
 
 it('should check meta tag with only summary', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      summary: 'Test summary',
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        summary: 'Test summary',
+      }),
+    ),
   );
   expect(seo).toEqual('Test summary');
 });
 
 it('should check meta tag with only description', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      description: 'Test description',
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        description: 'Test description',
+      }),
+    ),
   );
   expect(seo).toEqual('Test description');
 });
 
 it('should check meta tag with no description and no summary', async () => {
-  const seo = getSeoDescription(createPostMock({}).result.data.post);
+  const seo = getSeoDescription(getPostFromMock(createPostMock({})));
   expect(seo).toEqual(
     'Discussion about "Learn SQL" on daily.dev - join the developer community',
   );
@@ -324,30 +397,36 @@ it('should check meta tag with no description and no summary', async () => {
 
 it('should check meta tag with both summary and description', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      description: 'Test description',
-      summary: 'Test summary',
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        description: 'Test description',
+        summary: 'Test summary',
+      }),
+    ),
   );
   expect(seo).toEqual('Test summary');
 });
 
 it('should check meta tag with empty summary and description', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      description: 'Test description',
-      summary: '',
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        description: 'Test description',
+        summary: '',
+      }),
+    ),
   );
   expect(seo).toEqual('Test description');
 });
 
 it('should check meta tag with empty summary and empty description', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      description: '',
-      summary: '',
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        description: '',
+        summary: '',
+      }),
+    ),
   );
   expect(seo).toEqual(
     'Discussion about "Learn SQL" on daily.dev - join the developer community',
@@ -356,19 +435,21 @@ it('should check meta tag with empty summary and empty description', async () =>
 
 it('should check meta tag with no description, summary of shared post', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      title: null,
-      description: null,
-      summary: null,
-      sharedPost: {
-        id: 'sp1',
-        image: null,
-        permalink: 'https://daily.dev',
-        commentsPermalink: 'https://daily.dev',
-        type: PostType.Article,
-        title: 'GitHub is down',
-      },
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        title: undefined,
+        description: undefined,
+        summary: undefined,
+        sharedPost: {
+          id: 'sp1',
+          image: '',
+          permalink: 'https://daily.dev',
+          commentsPermalink: 'https://daily.dev',
+          type: PostType.Article,
+          title: 'GitHub is down',
+        },
+      }),
+    ),
   );
   expect(seo).toEqual(
     'Discussion about "GitHub is down" on daily.dev - join the developer community',
@@ -377,11 +458,13 @@ it('should check meta tag with no description, summary of shared post', async ()
 
 it('should check meta tag with no description, summary or title', async () => {
   const seo = getSeoDescription(
-    createPostMock({
-      title: null,
-      description: null,
-      summary: null,
-    }).result.data.post,
+    getPostFromMock(
+      createPostMock({
+        title: undefined,
+        description: undefined,
+        summary: undefined,
+      }),
+    ),
   );
   expect(seo).toEqual(
     'Join the discussion on daily.dev - the developer community',
@@ -390,32 +473,30 @@ it('should check meta tag with no description, summary or title', async () => {
 
 it('should send upvote mutation', async () => {
   let mutationCalled = false;
-  renderPost({}, [
-    createPostMock(),
-    createCommentsMock(),
-    {
-      request: {
-        query: VOTE_MUTATION,
-        variables: {
-          id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserVote.Up,
-          entity: UserVoteEntity.Post,
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
+  mockVoteMutation({
+    vote: UserVote.Up,
+    onSuccess: () => {
+      mutationCalled = true;
     },
-    completeActionMock({ action: ActionType.VotePost }),
-  ]);
+  });
+  mockCompleteActionMutation(ActionType.VotePost);
+
+  renderPost({}, [createPostMock(), createCommentsMock()]);
   const el = await screen.findByLabelText('Upvote');
   fireEvent.click(el);
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should send cancel upvote mutation', async () => {
   let mutationCalled = false;
+  mockVoteMutation({
+    vote: UserVote.None,
+    onSuccess: () => {
+      mutationCalled = true;
+    },
+  });
+  mockCompleteActionMutation(ActionType.VotePost);
+
   renderPost({}, [
     createPostMock({
       userState: {
@@ -423,25 +504,10 @@ it('should send cancel upvote mutation', async () => {
       },
     }),
     createCommentsMock(),
-    {
-      request: {
-        query: VOTE_MUTATION,
-        variables: {
-          id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserVote.None,
-          entity: UserVoteEntity.Post,
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
-    },
-    completeActionMock({ action: ActionType.VotePost }),
   ]);
   const el = await screen.findByLabelText('Upvote');
   fireEvent.click(el);
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should open new comment modal and set the correct props', async () => {
@@ -641,7 +707,10 @@ it('should show TLDR when there is a summary', async () => {
   expect(el).toBeInTheDocument();
   expect(el).toHaveTextContent('test summary');
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-  const link = queryByText(el.parentElement, 'Show more');
+  const link = queryByText(
+    getRequiredElement(el.parentElement, 'Expected TLDR container parent'),
+    'Show more',
+  );
   expect(link).not.toBeInTheDocument();
 });
 
@@ -656,9 +725,12 @@ it('should toggle TLDR on click', async () => {
   const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-  const showMoreLink = queryByText(el.parentElement, 'Show more');
+  const showMoreLink = queryByText(
+    getRequiredElement(el.parentElement, 'Expected TLDR container parent'),
+    'Show more',
+  );
   expect(showMoreLink).toBeInTheDocument();
-  fireEvent.click(showMoreLink);
+  fireEvent.click(getRequiredElement(showMoreLink, 'Expected show more link'));
   const showLessLink = await screen.findByText('Show less');
   expect(showLessLink).toBeInTheDocument();
 });
@@ -673,7 +745,10 @@ it('should not show Show more link when there is a summary without reaching thre
   const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-  const link = queryByText(el.parentElement, 'Show more');
+  const link = queryByText(
+    getRequiredElement(el.parentElement, 'Expected TLDR container parent'),
+    'Show more',
+  );
   expect(link).not.toBeInTheDocument();
 });
 
@@ -692,7 +767,7 @@ it('should not cut summary when there is a summary without reaching threshold', 
 });
 
 it('should show login on downvote click', async () => {
-  renderPost({}, [createPostMock(), createCommentsMock()], null);
+  renderPost({}, [createPostMock(), createCommentsMock()], undefined);
 
   const el = await screen.findByLabelText('Downvote');
   fireEvent.click(el);
@@ -701,34 +776,30 @@ it('should show login on downvote click', async () => {
 
 it('should send downvote mutation', async () => {
   let mutationCalled = false;
-
-  renderPost({}, [
-    createPostMock(),
-    createCommentsMock(),
-    {
-      request: {
-        query: VOTE_MUTATION,
-        variables: {
-          id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserVote.Down,
-          entity: UserVoteEntity.Post,
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
+  mockVoteMutation({
+    vote: UserVote.Down,
+    onSuccess: () => {
+      mutationCalled = true;
     },
-    completeActionMock({ action: ActionType.VotePost }),
-  ]);
+  });
+  mockCompleteActionMutation(ActionType.VotePost);
+
+  renderPost({}, [createPostMock(), createCommentsMock()]);
 
   const el = await screen.findByLabelText('Downvote');
   fireEvent.click(el);
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should send cancel downvote mutation', async () => {
   let mutationCalled = false;
+  mockVoteMutation({
+    vote: UserVote.None,
+    onSuccess: () => {
+      mutationCalled = true;
+    },
+  });
+  mockCompleteActionMutation(ActionType.VotePost);
 
   renderPost({}, [
     createPostMock({
@@ -737,30 +808,23 @@ it('should send cancel downvote mutation', async () => {
       },
     }),
     createCommentsMock(),
-    {
-      request: {
-        query: VOTE_MUTATION,
-        variables: {
-          id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserVote.None,
-          entity: UserVoteEntity.Post,
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
-    },
-    completeActionMock({ action: ActionType.VotePost }),
   ]);
 
   const el = await screen.findByLabelText('Downvote');
   fireEvent.click(el);
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
 it('should decrement number of upvotes if downvoting post that was upvoted', async () => {
   let mutationCalled = false;
+  mockVoteMutation({
+    vote: UserVote.Down,
+    onSuccess: () => {
+      mutationCalled = true;
+    },
+  });
+  mockCompleteActionMutation(ActionType.VotePost);
+
   renderPost({}, [
     createPostMock({
       userState: {
@@ -769,27 +833,12 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
       numUpvotes: 15,
     }),
     createCommentsMock(),
-    {
-      request: {
-        query: VOTE_MUTATION,
-        variables: {
-          id: '0e4005b2d3cf191f8c44c2718a457a1e',
-          vote: UserVote.Down,
-          entity: UserVoteEntity.Post,
-        },
-      },
-      result: () => {
-        mutationCalled = true;
-        return { data: { _: true } };
-      },
-    },
-    completeActionMock({ action: ActionType.VotePost }),
   ]);
 
   const downvote = await screen.findByLabelText('Downvote');
   fireEvent.click(downvote);
   await new Promise(process.nextTick);
-  await waitFor(() => mutationCalled);
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
 
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('14 Upvotes');
@@ -819,6 +868,9 @@ describe('downvote flow', () => {
 
   const prepareDownvote = async () => {
     let queryCalled = false;
+    mockVoteMutation({ vote: UserVote.Down });
+    mockCompleteActionMutation(ActionType.VotePost);
+
     renderPost({}, [
       createActionsMock(),
       createPostMock({
@@ -831,18 +883,6 @@ describe('downvote flow', () => {
         queryCalled = true;
       }),
       createCommentsMock(),
-      {
-        request: {
-          query: VOTE_MUTATION,
-          variables: {
-            id: '0e4005b2d3cf191f8c44c2718a457a1e',
-            vote: UserVote.Down,
-            entity: UserVoteEntity.Post,
-          },
-        },
-        result: () => ({ data: { _: true } }),
-      },
-      completeActionMock({ action: ActionType.VotePost }),
     ]);
     const downvote = await screen.findByLabelText('Downvote');
     fireEvent.click(downvote);
@@ -889,7 +929,10 @@ describe('downvote flow', () => {
     const [, tag] = await screen.findAllByTestId('blockTagButton');
     fireEvent.click(tag);
     let mutationCalled = false;
-    const label = tag.textContent.substring(1);
+    const label = getRequiredElement(
+      tag.textContent,
+      'Expected tag text',
+    ).substring(1);
     mockGraphQL({
       request: {
         query: ADD_FILTERS_TO_FEED_MUTATION,

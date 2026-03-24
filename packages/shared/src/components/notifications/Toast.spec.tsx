@@ -1,8 +1,9 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
-  waitForElementToBeRemoved,
+  waitFor,
 } from '@testing-library/react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -66,8 +67,12 @@ it('should display a toast notification', async () => {
   expect(jest.getTimerCount()).toBeGreaterThan(0);
   const el = await screen.findByText('Sample Notification');
   expect(el).toBeInTheDocument();
-  jest.advanceTimersByTime(500);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
+  );
 });
 
 it('should display a toast notification and be dismissable', async () => {
@@ -81,8 +86,12 @@ it('should display a toast notification and be dismissable', async () => {
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
-  jest.advanceTimersByTime(500);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
+  );
 });
 
 it('should display a toast notification and do not automatically close', async () => {
@@ -96,8 +105,12 @@ it('should display a toast notification and do not automatically close', async (
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
-  jest.advanceTimersByTime(500);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
+  );
 });
 
 it('should display a toast notification and undoable action', async () => {
@@ -113,7 +126,11 @@ it('should display a toast notification and undoable action', async () => {
   const undoBtn = await screen.findByLabelText('Undo');
   expect(undoBtn).toBeInTheDocument();
   fireEvent.click(undoBtn);
-  jest.advanceTimersByTime(500);
-  await waitForElementToBeRemoved(() => screen.queryByRole('alert'));
+  act(() => {
+    jest.advanceTimersByTime(500);
+  });
+  await waitFor(() =>
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument(),
+  );
   expect(undo).toBeCalled();
 });

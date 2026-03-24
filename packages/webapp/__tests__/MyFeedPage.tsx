@@ -47,7 +47,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, any> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -67,7 +67,7 @@ let client: QueryClient;
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | undefined = defaultUser,
 ): RenderResult => {
   client = new QueryClient();
 
@@ -109,7 +109,7 @@ it('should request anonymous my feed', async () => {
         ranking: RankingAlgorithm.Popularity,
       }),
     ],
-    null,
+    undefined,
   );
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();

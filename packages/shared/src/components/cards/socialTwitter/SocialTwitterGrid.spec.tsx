@@ -39,10 +39,28 @@ const basePost: Post = {
   title: 'Root tweet',
   permalink: 'https://x.com/dailydotdev/status/12345',
   commentsPermalink: 'https://app.daily.dev/posts/12345',
-  image: null,
+  image: '',
   content: 'Root tweet\n\nThread tweet 2',
   sharedPost: undefined,
 };
+
+const referencedPost = sharePost.sharedPost;
+const rootSource = basePost.source;
+
+if (!referencedPost?.source) {
+  throw new Error('Expected referenced source fixture for SocialTwitterGrid tests');
+}
+
+if (!referencedPost.author) {
+  throw new Error('Expected referenced author fixture for SocialTwitterGrid tests');
+}
+
+if (!rootSource) {
+  throw new Error('Expected root source fixture for SocialTwitterGrid tests');
+}
+
+const referencedSource = referencedPost.source;
+const referencedAuthor = referencedPost.author;
 
 const defaultProps: PostCardProps = {
   post: basePost,
@@ -115,10 +133,10 @@ it('should render quote/repost detail from shared post', async () => {
       ...basePost,
       subType: 'quote',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'DevRel Weekly',
           handle: 'devrelweekly',
         },
@@ -148,17 +166,17 @@ it('should use creatorTwitter when shared source is unknown', async () => {
       subType: 'quote',
       creatorTwitter: 'root_creator',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
         creatorTwitter: 'shared_creator',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           id: 'unknown',
           name: 'Referenced post',
           handle: 'unknown',
         },
         author: {
-          ...(sharePost.sharedPost.author || { id: 'author-id' }),
+          ...referencedAuthor,
           username: 'creator_twitter',
         },
       },
@@ -177,7 +195,7 @@ it('should use creator identity when source id is unknown', async () => {
     post: {
       ...basePost,
       source: {
-        ...basePost.source,
+        ...rootSource,
         id: 'unknown',
         handle: 'unknown',
       },
@@ -196,13 +214,13 @@ it('should hide headline and tags for repost cards without repost text', async (
       subType: 'repost',
       title:
         '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-      content: null,
-      contentHtml: null,
+      content: undefined,
+      contentHtml: undefined,
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Y Combinator',
           handle: 'ycombinator',
         },
@@ -235,7 +253,7 @@ it('should keep headline and tags for repost cards with repost text', async () =
       content: 'My thoughts on this',
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
       },
     },
@@ -252,8 +270,8 @@ it('should keep actions visible when there is no media and no shared post detail
     post: {
       ...basePost,
       subType: 'tweet',
-      content: null,
-      image: null,
+      content: undefined,
+      image: '',
     },
   });
 

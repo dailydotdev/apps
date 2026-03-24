@@ -240,6 +240,30 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
 describe('FunnelPricingV2', () => {
   let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
+  const getProceedButton = (): HTMLElement => {
+    const proceedButton = screen
+      .getAllByText('Get my plan')
+      .filter((button) => button.tagName === 'BUTTON')
+      .at(0);
+
+    if (!proceedButton) {
+      throw new Error('Expected pricing CTA button');
+    }
+
+    return proceedButton;
+  };
+
+  const getMonthlyPlanRadio = (): HTMLElement => {
+    const monthlyPlan = screen
+      .getAllByRole('radio')
+      .find((input) => input.getAttribute('value') === 'monthly');
+
+    if (!monthlyPlan) {
+      throw new Error('Expected monthly plan radio');
+    }
+
+    return monthlyPlan;
+  };
 
   beforeEach(() => {
     dateMock = setupDateMock(initialDate);
@@ -269,12 +293,7 @@ describe('FunnelPricingV2', () => {
   it('should call onTransition with the selected plan when clicking the CTA button', () => {
     renderComponent();
 
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     expect(mockOnTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
@@ -285,21 +304,9 @@ describe('FunnelPricingV2', () => {
   it('should switch plans when clicking on a different plan', () => {
     renderComponent({}, { selectedPlan: 'annual' });
 
-    // Get the monthly plan radio button
-    const monthlyPlan = screen
-      .getAllByRole('radio')
-      .find((input) => input.getAttribute('value') === 'monthly');
+    fireEvent.click(getMonthlyPlanRadio());
 
-    // Click on the monthly plan
-    fireEvent.click(monthlyPlan);
-
-    // Then click the CTA
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     expect(mockOnTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
@@ -324,12 +331,7 @@ describe('FunnelPricingV2', () => {
     );
 
     // Click the CTA button
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     // Check if mockOnTransition was called with applyDiscount: false
     expect(mockOnTransition).toHaveBeenCalledWith({

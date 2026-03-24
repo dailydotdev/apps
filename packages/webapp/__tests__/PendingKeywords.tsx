@@ -43,7 +43,7 @@ const defaultKeyword: Keyword = {
 };
 
 const createRandomKeywordMock = (
-  keyword: Keyword | null = defaultKeyword,
+  keyword: Keyword | undefined = defaultKeyword,
 ): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> => ({
   request: {
     query: RANDOM_PENDING_KEYWORD_QUERY,
@@ -65,11 +65,15 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user: { ...user, ...userUpdate },
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <PendingKeywords />
@@ -84,7 +88,7 @@ it('should redirect to home page if not moderator', async () => {
 });
 
 it('should show empty screen when no keyword', async () => {
-  renderComponent([createRandomKeywordMock(null)]);
+  renderComponent([createRandomKeywordMock(undefined)]);
   expect(await screen.findByTestId('empty')).toBeInTheDocument();
 });
 

@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import type {
   LoggedUser,
   PublicProfile,
+  UserSocialLink,
 } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
@@ -66,10 +67,12 @@ const defaultProfile: PublicProfile = {
   cover: 'https://daily.dev/cover.png',
   bio: 'The best company!',
   createdAt: '2020-08-26T13:04:35.000Z',
-  twitter: 'dailydotdev',
-  github: 'dailydotdev',
-  hashnode: 'dailydotdev',
-  portfolio: 'https://daily.dev/?key=vaue',
+  socialLinks: [
+    { platform: 'twitter', url: 'https://x.com/dailydotdev' },
+    { platform: 'github', url: 'https://github.com/dailydotdev' },
+    { platform: 'hashnode', url: 'https://dailydotdev.hashnode.dev' },
+    { platform: 'portfolio', url: 'https://daily.dev/?key=vaue' },
+  ] as UserSocialLink[],
   permalink: 'https://daily.dev/dailydotdev',
 };
 
@@ -83,7 +86,7 @@ const renderComponent = (
   mocks.forEach(mockGraphQL);
   return render(
     <TestBootProvider client={client} auth={{ user }}>
-      <ProfilePage user={{ ...defaultProfile, ...profile }} />
+      <ProfilePage user={{ ...defaultProfile, ...profile }} noindex={false} />
     </TestBootProvider>,
   );
 };
@@ -93,7 +96,7 @@ it('should show the cards', async () => {
   await waitForNock();
   await Promise.all(
     defaultFeedPage.edges.map(async (edge) => {
-      expect(await screen.findByText(edge.node.title)).toBeInTheDocument();
+      expect(await screen.findByText(edge.node.title ?? '')).toBeInTheDocument();
     }),
   );
 });

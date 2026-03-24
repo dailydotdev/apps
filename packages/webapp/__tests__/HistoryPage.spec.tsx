@@ -46,7 +46,7 @@ const edge = {
       },
     },
   },
-};
+} as ReadHistoryData['readHistory']['edges'][number];
 const getDefaultHistory = (edges = [edge]): ReadHistoryData => ({
   readHistory: {
     pageInfo: {
@@ -75,6 +75,7 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -82,6 +83,7 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <SearchProvider>
@@ -98,7 +100,7 @@ describe('user reading history page', () => {
     const initialBusyState = (
       await screen.findByTestId('reading-history-container')
     ).getAttribute('aria-busy');
-    expect(JSON.parse(initialBusyState)).toEqual(true);
+    expect(JSON.parse(initialBusyState ?? 'false')).toEqual(true);
 
     await waitForNock();
 
@@ -107,7 +109,7 @@ describe('user reading history page', () => {
         await screen.findByTestId('reading-history-container')
       ).getAttribute('aria-busy');
 
-      return expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+      return expect(JSON.parse(afterFetchingBusyState ?? 'true')).toEqual(false);
     });
   });
 

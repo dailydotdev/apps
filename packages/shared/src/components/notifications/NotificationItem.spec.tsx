@@ -32,36 +32,39 @@ beforeEach(() => {
 const sampleNotificationTitle = 'Welcome to your new notification center!';
 const sampleNotificationDescription =
   'The notification system notifies you of important events such as replies, mentions, updates etc.';
+const sampleNotificationAttachments = [
+  {
+    title: 'Sample attachment',
+    image: 'sample attachment image',
+    type: NotificationAttachmentType.Post,
+  },
+];
+const sampleNotificationAvatars = [
+  {
+    name: 'source',
+    image: 'source avatar',
+    referenceId: 'source',
+    targetUrl: 'webapp/source',
+    type: NotificationAvatarType.Source,
+  },
+  {
+    name: 'user',
+    image: 'user avatar',
+    referenceId: 'user',
+    targetUrl: 'webapp/user',
+    type: NotificationAvatarType.User,
+  },
+];
 const sampleNotification: NotificationItemProps = {
   isUnread: true,
   icon: NotificationIconType.Comment,
   title: `<p>${sampleNotificationTitle}</p>`,
   description: `<p>${sampleNotificationDescription}</p>`,
   type: NotificationType.System,
+  referenceId: 'sample-notification',
   targetUrl: 'post url',
-  attachments: [
-    {
-      title: 'Sample attachment',
-      image: 'sample attachment image',
-      type: NotificationAttachmentType.Post,
-    },
-  ],
-  avatars: [
-    {
-      name: 'source',
-      image: 'source avatar',
-      referenceId: 'source',
-      targetUrl: 'webapp/source',
-      type: NotificationAvatarType.Source,
-    },
-    {
-      name: 'user',
-      image: 'user avatar',
-      referenceId: 'user',
-      targetUrl: 'webapp/user',
-      type: NotificationAvatarType.User,
-    },
-  ],
+  attachments: sampleNotificationAttachments,
+  avatars: sampleNotificationAvatars,
 };
 
 const mockReact = React;
@@ -80,7 +83,7 @@ const renderComponent = (component: ReactNode) => {
 
 describe('notification attachment', () => {
   it('should display image', async () => {
-    const [attachment] = sampleNotification.attachments;
+    const [attachment] = sampleNotificationAttachments;
     renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(
       `Cover preview of: ${attachment.title}`,
@@ -89,7 +92,7 @@ describe('notification attachment', () => {
   });
 
   it('should have a title', async () => {
-    const [attachment] = sampleNotification.attachments;
+    const [attachment] = sampleNotificationAttachments;
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(attachment.title);
   });
@@ -97,14 +100,14 @@ describe('notification attachment', () => {
 
 describe('notification avatars', () => {
   it('should display the avatar of the source', async () => {
-    const [source] = sampleNotification.avatars;
+    const [source] = sampleNotificationAvatars;
     renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(`${source.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', source.image);
   });
 
   it('should display the avatar of the user', async () => {
-    const [, user] = sampleNotification.avatars;
+    const [, user] = sampleNotificationAvatars;
     renderComponent(<NotificationItem {...sampleNotification} />);
     const img = await screen.findByAltText(`${user.referenceId}'s profile`);
     expect(img).toHaveAttribute('src', user.image);
@@ -114,8 +117,8 @@ describe('notification avatars', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const notif = { ...sampleNotification } as any;
     notif.avatars[1].type = 'Test';
-    const [, user] = sampleNotification.avatars;
-    renderComponent(<NotificationItem {...sampleNotification} />);
+    const [, user] = sampleNotificationAvatars;
+    renderComponent(<NotificationItem {...notif} />);
     const img = screen.queryByAltText(`${user.referenceId}'s profile`);
     expect(img).not.toBeInTheDocument();
   });
@@ -182,6 +185,7 @@ describe('ExperienceCompanyEnriched notification', () => {
     icon: NotificationIconType.Bell,
     title: 'Your work experience has been linked to Acme Corp',
     type: NotificationType.ExperienceCompanyEnriched,
+    referenceId: 'experience-company-enriched',
     targetUrl: '/recruiter/profile',
   };
 

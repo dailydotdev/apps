@@ -15,10 +15,9 @@ import type {
 import { KEYWORD_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { settingsContext as baseSettingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import user from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import SettingsContext, {
-  ThemeMode,
-} from '@dailydotdev/shared/src/contexts/SettingsContext';
+import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import KeywordsPage from '../pages/backoffice/keywords/[value]';
 
 jest.mock('next/router', () => ({
@@ -45,7 +44,7 @@ const defaultKeyword: Keyword = {
 };
 
 const createKeywordMock = (
-  keyword: Keyword | null = defaultKeyword,
+  keyword: Keyword | undefined = defaultKeyword,
 ): MockedGraphQLResponse<KeywordData> => ({
   request: {
     query: KEYWORD_QUERY,
@@ -72,26 +71,24 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user: userUpdate,
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          closeLogin: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <SettingsContext.Provider
           value={{
-            spaciness: 'eco',
-            openNewTab: true,
+            ...baseSettingsContext,
             setTheme: jest.fn(),
-            themeMode: ThemeMode.Dark,
             setSpaciness: jest.fn(),
             toggleOpenNewTab: jest.fn(),
-            insaneMode: false,
-            loadedSettings: true,
             toggleInsaneMode: jest.fn(),
-            showTopSites: true,
             toggleShowTopSites: jest.fn(),
           }}
         >
@@ -108,7 +105,7 @@ it('should redirect to home page if not moderator', async () => {
 });
 
 it('should show 404 when no keyword', async () => {
-  renderComponent([createKeywordMock(null)]);
+  renderComponent([createKeywordMock(undefined)]);
   expect(await screen.findByTestId('notFound')).toBeInTheDocument();
 });
 

@@ -37,7 +37,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = MOST_DISCUSSED_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, any> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -57,7 +57,7 @@ const createFeedMock = (
 const createCommentFeedMock = (
   page = defaultCommentsPage,
   query: string = COMMENT_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, any> = {
     first: 20,
     after: '',
   },
@@ -75,7 +75,7 @@ const createCommentFeedMock = (
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | undefined = defaultUser,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -97,7 +97,7 @@ it('should request most discussed feed when logged-in', async () => {
 });
 
 it('should not request most discussed feed when not logged-in', async () => {
-  renderComponent([createCommentFeedMock()], null);
+  renderComponent([createCommentFeedMock()], undefined);
   const elements = screen.queryAllByTestId('comment');
   expect(elements.length).toBeFalsy();
 });

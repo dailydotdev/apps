@@ -70,17 +70,17 @@ describe('useSourceModerationList', () => {
 
     jest.mocked(useToastNotification).mockReturnValue({
       displayToast,
-    } as ReturnType<typeof useToastNotification>);
+    } as unknown as ReturnType<typeof useToastNotification>);
     jest.mocked(useLazyModal).mockReturnValue({
       openModal,
       closeModal,
-    } as ReturnType<typeof useLazyModal>);
+    } as unknown as ReturnType<typeof useLazyModal>);
     jest.mocked(usePrompt).mockReturnValue({
       showPrompt,
-    } as ReturnType<typeof usePrompt>);
+    } as unknown as ReturnType<typeof usePrompt>);
     jest.mocked(useLogContext).mockReturnValue({
       logEvent,
-    } as ReturnType<typeof useLogContext>);
+    } as unknown as ReturnType<typeof useLogContext>);
     jest.mocked(useAuthContext).mockReturnValue({
       user: { id: 'user-1' },
     } as ReturnType<typeof useAuthContext>);
@@ -90,13 +90,13 @@ describe('useSourceModerationList', () => {
     jest.mocked(squadApproveMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Approved,
-        type: 'article',
+        type: PostType.Article,
         image: 'https://daily.dev/post.jpg',
       }),
       createModerationItem({
         id: 'missing-image',
         status: SourcePostModerationStatus.Approved,
-        type: 'article',
+        type: PostType.Article,
       }),
     ]);
 
@@ -130,7 +130,7 @@ describe('useSourceModerationList', () => {
     jest.mocked(squadRejectMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Rejected,
-        type: 'article',
+        type: PostType.Article,
         image: 'https://daily.dev/post.jpg',
       }),
       createModerationItem({

@@ -106,6 +106,22 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+document.addEventListener(
+  'click',
+  (event) => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    if (target.closest('a')) {
+      event.preventDefault();
+    }
+  },
+  true,
+);
+
 beforeEach(() => {
   clear();
   storage.clear();

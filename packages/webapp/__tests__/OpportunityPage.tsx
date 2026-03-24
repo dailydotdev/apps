@@ -74,7 +74,7 @@ const mockOpportunity: Opportunity = {
     requirements: ['5+ years experience', 'Strong JavaScript skills'],
   },
   applicationUrl: 'https://testcompany.com/apply',
-} as Opportunity;
+} as unknown as Opportunity;
 
 beforeEach(() => {
   nock.cleanAll();

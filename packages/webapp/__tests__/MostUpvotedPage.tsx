@@ -34,7 +34,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = MOST_UPVOTED_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, any> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -53,7 +53,7 @@ const createFeedMock = (
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | undefined = defaultUser,
 ): RenderResult => {
   const client = new QueryClient();
 
@@ -94,7 +94,7 @@ it('should request most upvoted feed when not', async () => {
         version: 15,
       }),
     ],
-    null,
+    undefined,
   );
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');

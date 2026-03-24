@@ -52,7 +52,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
+const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
 
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
@@ -167,7 +167,11 @@ const SettingsMock = ({
         Sidebar
       </button>
       <button
-        onClick={() => setTheme(toTheme)}
+        onClick={() => {
+          if (toTheme) {
+            setTheme(toTheme);
+          }
+        }}
         type="button"
         data-test-value={themeMode}
       >
@@ -195,14 +199,22 @@ const SettingsMock = ({
         Show Quest System
       </button>
       <button
-        onClick={() => setSpaciness(toSpaciness)}
+        onClick={() => {
+          if (toSpaciness) {
+            setSpaciness(toSpaciness);
+          }
+        }}
         type="button"
         data-test-value={spaciness}
       >
         Spaciness
       </button>
       <button
-        onClick={() => toggleInsaneMode(toInsaneMode)}
+        onClick={() => {
+          if (typeof toInsaneMode === 'boolean') {
+            toggleInsaneMode(toInsaneMode);
+          }
+        }}
         type="button"
         data-test-value={insaneMode}
       >
@@ -356,11 +368,11 @@ const AlertsMock = (params: Partial<Alerts>) => {
   const { updateAlerts, alerts } = useContext(AlertContext);
 
   return (
-    <button
-      onClick={() => updateAlerts(params)}
-      type="button"
-      data-test-value={JSON.stringify(alerts)}
-    >
+      <button
+        onClick={() => updateAlerts?.(params)}
+        type="button"
+        data-test-value={JSON.stringify(alerts)}
+      >
       Alerts
     </button>
   );
@@ -410,7 +422,11 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
   return (
     <>
       <button
-        onClick={() => updateUser(updatedUser)}
+        onClick={() => {
+          if (updatedUser) {
+            updateUser(updatedUser);
+          }
+        }}
         type="button"
         data-test-value={user?.name || 'anonymous'}
       >
@@ -423,7 +439,11 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         Logout
       </button>
       <button
-        onClick={() => showLogin({ trigger: loginTrigger })}
+        onClick={() => {
+          if (loginTrigger) {
+            showLogin({ trigger: loginTrigger });
+          }
+        }}
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >
