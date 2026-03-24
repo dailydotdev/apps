@@ -38,15 +38,15 @@ describe('SquadActionButton cache helpers', () => {
 
     const updatedData = updateSquadMembershipInListData(
       data,
-      squad.id,
+      squad.id!,
       (currentSquad) => ({
         ...currentSquad,
-        currentMember: null,
+        currentMember: undefined,
         membersCount: currentSquad.membersCount - 1,
       }),
     );
 
-    expect(updatedData.pages[0].sources.edges[0].node.currentMember).toBeNull();
+    expect(updatedData.pages[0].sources.edges[0].node.currentMember).toBeUndefined();
     expect(updatedData.pages[0].sources.edges[0].node.membersCount).toBe(
       squad.membersCount - 1,
     );
@@ -61,7 +61,7 @@ describe('SquadActionButton cache helpers', () => {
     const squad = generateTestSquad();
     const firstCategoryKey = generateQueryKey(
       RequestKey.Sources,
-      null,
+      undefined,
       undefined,
       true,
       squad.category?.id,
@@ -69,7 +69,7 @@ describe('SquadActionButton cache helpers', () => {
     );
     const secondCategoryKey = generateQueryKey(
       RequestKey.Sources,
-      null,
+      undefined,
       undefined,
       true,
       squad.category?.id,
@@ -81,11 +81,11 @@ describe('SquadActionButton cache helpers', () => {
 
     updateSquadDirectoryCache({
       queryClient,
-      squadId: squad.id,
+      squadId: squad.id!,
       categoryId: squad.category?.id,
-      updateSquad: (currentSquad) => ({
+      updateSquad: (currentSquad): Squad => ({
         ...currentSquad,
-        currentMember: null,
+        currentMember: undefined,
         membersCount: currentSquad.membersCount - 1,
       }),
     });
@@ -94,11 +94,11 @@ describe('SquadActionButton cache helpers', () => {
       queryClient.getQueryData<InfiniteData<SourcesQueryData<Squad>>>(
         firstCategoryKey,
       )?.pages[0].sources.edges[0].node.currentMember,
-    ).toBeNull();
+    ).toBeUndefined();
     expect(
       queryClient.getQueryData<InfiniteData<SourcesQueryData<Squad>>>(
         secondCategoryKey,
       )?.pages[0].sources.edges[0].node.currentMember,
-    ).toBeNull();
+    ).toBeUndefined();
   });
 });

@@ -87,7 +87,7 @@ export const updateSquadDirectoryCache = ({
     {
       queryKey: generateQueryKey(
         RequestKey.Sources,
-        null,
+        undefined,
         featured,
         true,
         categoryId,
@@ -164,7 +164,7 @@ export const SquadActionButton = ({
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   alwaysShow = false,
   ...rest
-}: SquadActionButtonProps): ReactElement => {
+}: SquadActionButtonProps): ReactElement | null => {
   const { showActionBtn } = useShowFollowAction({
     entityId: squad?.id,
     entityType: ContentPreferenceType.Source,
@@ -196,22 +196,22 @@ export const SquadActionButton = ({
       displayToast(labels.error.generic);
     },
     onMutate: () => {
-      const updateJoinedSquad = (currentSquad: Squad) => ({
+      const updateJoinedSquad = (currentSquad: Squad): Squad => ({
         ...currentSquad,
-        currentMember,
+        currentMember: currentMember ?? undefined,
         membersCount: currentSquad.currentMember
           ? currentSquad.membersCount
           : currentSquad.membersCount + 1,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id,
+        squadId: squad.id!,
         categoryId: squad.category?.id,
         updateSquad: updateJoinedSquad,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id,
+        squadId: squad.id!,
         featured: true,
         updateSquad: updateJoinedSquad,
       });
@@ -234,26 +234,26 @@ export const SquadActionButton = ({
       if (currenSquad) {
         queryClient.setQueryData(queryKey, {
           ...currenSquad,
-          currentMember: null,
+          currentMember: undefined,
           membersCount: currenSquad.membersCount - 1,
         });
       }
-      const updateLeftSquad = (currentSquad: Squad) => ({
+      const updateLeftSquad = (currentSquad: Squad): Squad => ({
         ...currentSquad,
-        currentMember: null,
+        currentMember: undefined,
         membersCount: currentSquad.currentMember
           ? currentSquad.membersCount - 1
           : currentSquad.membersCount,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id,
+        squadId: squad.id!,
         categoryId: squad.category?.id,
         updateSquad: updateLeftSquad,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id,
+        squadId: squad.id!,
         featured: true,
         updateSquad: updateLeftSquad,
       });
