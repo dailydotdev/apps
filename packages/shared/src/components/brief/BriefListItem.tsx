@@ -15,11 +15,10 @@ import type { Origin, TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import useOnPostClick from '../../hooks/useOnPostClick';
 import type { Post } from '../../graphql/posts';
-import { isNullOrUndefined } from '../../lib/func';
+import { isNullOrUndefined, isSpecialKeyPressed } from '../../lib/func';
 import { CardLink } from '../cards/common/Card';
 import { webappUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import { combinedClicks } from '../../lib/click';
 import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
@@ -57,11 +56,7 @@ export const BriefListItem = ({
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
 
-  const onCombinedClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (typeof onClick === 'function') {
-      onClick(post, event);
-    }
-
+  const trackBriefClick = () => {
     onPostClick({ post });
 
     logEvent({
@@ -72,6 +67,13 @@ export const BriefListItem = ({
         brief_date: post.createdAt,
       }),
     });
+  };
+
+  const onPostCardClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!isSpecialKeyPressed({ event })) {
+      onClick?.(post, event);
+    }
+    trackBriefClick();
   };
 
   return (
@@ -144,7 +146,8 @@ export const BriefListItem = ({
           className="cursor-pointer"
           title={post.title}
           rel={anchorDefaultRel}
-          {...combinedClicks(onCombinedClick)}
+          onClick={onPostCardClick}
+          onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
     </article>
