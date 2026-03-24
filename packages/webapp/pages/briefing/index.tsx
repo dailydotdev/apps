@@ -36,8 +36,6 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
-import { featureFeedAdTemplate } from '@dailydotdev/shared/src/lib/featureManagement';
-import { isSpecialKeyPressed } from '@dailydotdev/shared/src/lib/func';
 import {
   BRIEFING_POSTS_PER_PAGE_DEFAULT,
   BRIEFING_POSTS_QUERY,
@@ -58,7 +56,7 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const Page = (): ReactElement | null => {
+const Page = (): ReactElement => {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const currentYear = new Date().getFullYear().toString();
   const router = useRouter();
@@ -71,13 +69,10 @@ const Page = (): ReactElement | null => {
     router?.query ?? {};
 
   const feedQueryKey = generateQueryKey(RequestKey.Feeds, user, 'briefing');
-  const adTemplate = featureFeedAdTemplate.defaultValue?.default ?? {
-    adStart: 2,
-  };
   const feedQuery = useFeed(
     feedQueryKey,
     BRIEFING_POSTS_PER_PAGE_DEFAULT,
-    adTemplate,
+    null,
     BRIEFING_POSTS_PER_PAGE_DEFAULT,
     {
       query: BRIEFING_POSTS_QUERY,
@@ -104,14 +99,10 @@ const Page = (): ReactElement | null => {
     feedName: 'briefing',
   });
 
-  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : null;
+  const PostModal = PostModalMap[selectedPost?.type];
 
   const onBriefClick = (post: Post, event: MouseEvent<HTMLAnchorElement>) => {
     if (isMobile) {
-      return;
-    }
-
-    if (isSpecialKeyPressed({ event }) || event.button === 1) {
       return;
     }
 
@@ -136,11 +127,10 @@ const Page = (): ReactElement | null => {
     minutes: 0,
     seconds: 0,
   });
-  const firstBriefCreatedAt =
-    firstBrief && 'post' in firstBrief ? firstBrief.post.createdAt : undefined;
-  const hasTodayBrief = firstBriefCreatedAt
-    ? new Date(firstBriefCreatedAt) >= todayTime
-    : false;
+  const hasTodayBrief =
+    firstBrief &&
+    'post' in firstBrief &&
+    new Date(firstBrief.post.createdAt) >= todayTime;
 
   useEffect(() => {
     return () => {
@@ -241,9 +231,6 @@ const Page = (): ReactElement | null => {
                         const previousItem = acc[acc.length - 1];
 
                         if (item.type === 'post') {
-                          if (!item.post.createdAt) {
-                            return acc;
-                          }
                           const year = format(
                             new Date(item.post.createdAt),
                             'yyyy',
@@ -322,7 +309,7 @@ const Page = (): ReactElement | null => {
           </div>
         </main>
       </div>
-      {!!selectedBriefId && !!selectedPost && PostModal && (
+      {!!selectedBriefId && !!selectedPost && (
         <PostModal
           isOpen
           id={selectedPost.id}
