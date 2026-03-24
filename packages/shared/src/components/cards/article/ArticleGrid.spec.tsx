@@ -102,7 +102,7 @@ it('should call on share click on copy link button click', async () => {
 it('should not display publication date createdAt is empty', async () => {
   renderComponent({
     ...defaultProps,
-    post: { ...post, createdAt: null },
+    post: { ...post, createdAt: undefined },
   });
   const el = screen.queryByText('Jun 13, 2018');
   expect(el).not.toBeInTheDocument();

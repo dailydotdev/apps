@@ -33,8 +33,8 @@ export const EditTag = ({
   const isPreviewEnabled = tagsCount >= requiredTags;
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [onSearch] = useDebounceFn((value: string) => {
-    setSearchQuery(value);
+  const [onSearch] = useDebounceFn((value?: string) => {
+    setSearchQuery(value ?? '');
   }, 350);
 
   const { data: searchResult } = useTagSearch({

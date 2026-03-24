@@ -42,7 +42,7 @@ const BriefBannerWithContext = ({ style, ...props }: ComponentProps<'div'>) => {
 
   const saveBannerState = useCallback(() => {
     if (bannerLastSeenRef.current !== null) {
-      updateAlerts({ briefBannerLastSeen: bannerLastSeenRef.current });
+      updateAlerts?.({ briefBannerLastSeen: bannerLastSeenRef.current });
       bannerLastSeenRef.current = null;
     }
   }, [updateAlerts]);

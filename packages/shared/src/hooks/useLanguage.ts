@@ -21,6 +21,10 @@ export const useLanguage = (): UseLanguage => {
 
   const { mutate: onLanguageChange } = useMutation({
     mutationFn: async (value?: string) => {
+      if (!user) {
+        throw new Error('Cannot update language without an authenticated user');
+      }
+
       await updateUser({
         ...user,
         language: value,

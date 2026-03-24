@@ -29,7 +29,9 @@ export interface PaymentContextData {
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
 }
 
-export const PaymentContext = createContext<PaymentContextData>(undefined);
+export const PaymentContext = createContext<PaymentContextData>(
+  undefined as unknown as PaymentContextData,
+);
 
 export const usePaymentContext = (): PaymentContextData => {
   const context = useContext(PaymentContext);

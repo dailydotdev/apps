@@ -81,7 +81,7 @@ export const SquadListItem = ({
           }}
           origin={Origin.Profile}
           size={ButtonSize.Small}
-          squad={{ ...squad, currentMember: null }}
+          squad={{ ...squad, currentMember: undefined }}
         />
       )}
     </li>

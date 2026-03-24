@@ -38,7 +38,7 @@ const renderComponent = (user = defaultUser): RenderResult => {
         getRedirectUri: jest.fn(),
         closeLogin: jest.fn(),
         trackingId: '21',
-        loginState: null,
+        loginState: undefined,
       }}
     >
       <ProfileButton />

@@ -13,7 +13,7 @@ export type SearchPanelInputCursorProps = {
 
 export const SearchPanelInputCursor = ({
   className,
-}: SearchPanelInputCursorProps): ReactElement => {
+}: SearchPanelInputCursorProps): ReactElement | null => {
   const searchPanel = useContext(SearchPanelContext);
   const purify = useDomPurify();
 

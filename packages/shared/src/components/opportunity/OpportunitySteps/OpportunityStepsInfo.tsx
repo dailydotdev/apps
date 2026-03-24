@@ -3,6 +3,7 @@ import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { recommendOpportunityScreeningQuestionsOptions } from '../../../features/opportunity/mutations';
+import type { Opportunity } from '../../../features/opportunity/types';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import {
   ToastSubject,
@@ -59,7 +60,7 @@ export const OpportunityStepsInfo = (
       });
     },
     onSuccess: (data) => {
-      updateOpportunity({ ...opportunity, questions: data });
+      updateOpportunity({ ...opportunity, questions: data } as Opportunity);
 
       goToNextStep();
     },

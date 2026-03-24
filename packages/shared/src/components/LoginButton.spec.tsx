@@ -18,7 +18,9 @@ describe('LoginButton', () => {
     logEvent.mockReset();
   });
 
-  const renderLayout = (user: LoggedUser = null): RenderResult => {
+  const renderLayout = (
+    user: LoggedUser = null as unknown as LoggedUser,
+  ): RenderResult => {
     const client = new QueryClient();
 
     return render(

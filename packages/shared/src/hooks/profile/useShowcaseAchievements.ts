@@ -21,7 +21,7 @@ export function useShowcaseAchievements(
 
   const queryKey = generateQueryKey(
     RequestKey.ShowcaseAchievements,
-    user,
+    user ?? undefined,
     'profile',
   );
 

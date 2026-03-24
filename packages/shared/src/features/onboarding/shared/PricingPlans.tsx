@@ -23,18 +23,30 @@ export function PricingPlans<T extends string = string>({
 }: PricingPlansProps<T>): ReactElement {
   return (
     <div className={classNames('flex flex-col gap-2', className)}>
-      {plans.map((plan) => (
-        <PricingPlan
-          {...plan}
-          key={plan.value}
-          name={name}
-          id={`${name}-${plan.id || plan.value}`}
-          value={plan.value}
-          checked={value === plan.value}
-          onChange={() => onChange(plan.value)}
-          perks={perks}
-        />
-      ))}
+      {plans.map((plan) =>
+        (() => {
+          const planValue = plan.value;
+
+          if (!planValue) {
+            throw new Error(
+              'PricingPlans requires each plan to define a value',
+            );
+          }
+
+          return (
+            <PricingPlan
+              {...plan}
+              key={planValue}
+              name={name}
+              id={`${name}-${plan.id || planValue}`}
+              value={planValue}
+              checked={value === planValue}
+              onChange={() => onChange(planValue)}
+              perks={perks}
+            />
+          );
+        })(),
+      )}
     </div>
   );
 }

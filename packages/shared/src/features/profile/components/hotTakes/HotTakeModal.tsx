@@ -4,7 +4,10 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dynamic from 'next/dynamic';
-import type { ModalProps } from '../../../../components/modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
@@ -31,7 +34,8 @@ const hotTakeFormSchema = z.object({
 
 type HotTakeFormData = z.infer<typeof hotTakeFormSchema>;
 
-type HotTakeModalProps = Omit<ModalProps, 'children'> & {
+type HotTakeModalProps = Omit<ModalProps, 'children' | 'onRequestClose'> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
   onSubmit: (input: AddHotTakeInput) => Promise<void>;
   existingItem?: HotTake;
 };
@@ -71,7 +75,7 @@ export function HotTakeModal({
       title: data.title.trim(),
       subtitle: data.subtitle?.trim() || undefined,
     });
-    rest.onRequestClose?.(null);
+    rest.onRequestClose?.(undefined);
   });
 
   return (

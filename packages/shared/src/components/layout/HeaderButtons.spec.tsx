@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import { GrowthBook } from '@growthbook/growthbook';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { HeaderButtons } from './HeaderButtons';
 

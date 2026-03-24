@@ -15,7 +15,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 export const BriefPlusUpgradeCTA = ({
   className,
   ...attrs
-}: ButtonProps<'a'> | undefined): ReactElement => {
+}: ButtonProps<'a'>): ReactElement => {
   const { isAuthReady } = useAuthContext();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const {

@@ -21,11 +21,15 @@ const providerToComponentMap: Record<
 
 export const SearchPanelProvider = ({
   className,
-}: SearchPanelProviderProps): ReactElement => {
+}: SearchPanelProviderProps): ReactElement | null => {
   const searchPanel = useContext(SearchPanelContext);
 
   if (searchPanel.providerIcon) {
     return searchPanel.providerIcon;
+  }
+
+  if (!searchPanel.provider) {
+    return null;
   }
 
   const Component = providerToComponentMap[searchPanel.provider];

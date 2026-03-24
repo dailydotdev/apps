@@ -38,16 +38,14 @@ const renderWithAuth = (user: LoggedUser | null) => {
   return render(
     <QueryClientProvider client={queryClient}>
       <AuthContextProvider
-        user={user}
+        user={user ?? undefined}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
-        closeLogin={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
         refetchBoot={jest.fn()}
         firstLoad={false}
-        isValidSession
       >
         <ProfileCompletion />
       </AuthContextProvider>

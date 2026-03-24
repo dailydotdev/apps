@@ -781,7 +781,7 @@ const HotTakeCard = ({
             </div>
             <div className="flex gap-2">
               <ReputationUserBadge user={hotTake.user} disableTooltip />
-              {hotTake.user.companies?.length > 0 && (
+              {(hotTake.user.companies?.length ?? 0) > 0 && (
                 <VerifiedCompanyUserBadge
                   user={{ companies: hotTake.user.companies }}
                 />

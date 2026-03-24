@@ -253,7 +253,7 @@ export const FeedSettingsCreate = (): ReactElement => {
 
   const createdFeedId = createdFeedData?.id;
 
-  if (!newFeedId) {
+  if (!createdFeedId) {
     return (
       <Modal isOpen kind={Modal.Kind.FixedCenter} size={Modal.Size.Small}>
         <Modal.Body className="items-center justify-center">

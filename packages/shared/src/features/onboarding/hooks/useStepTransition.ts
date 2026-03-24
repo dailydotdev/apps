@@ -38,7 +38,7 @@ export function useStepTransition(sessionId: string): UseStepTransitionRet {
   });
 
   return {
-    transition: mutateAsync,
+    transition: mutateAsync as UseStepTransitionRet['transition'],
     isPending,
   };
 }

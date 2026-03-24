@@ -3,9 +3,19 @@ import { apiUrl } from '../../../../lib/config';
 import { adFaviconPlaceholder } from '../../../../lib/image';
 import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 
+const originalWindowDescriptor = Object.getOwnPropertyDescriptor(
+  globalThis,
+  'window',
+);
+
 describe('getAdFaviconImageLink', () => {
   afterEach(() => {
-    delete (globalThis as typeof globalThis & { window?: Window }).window;
+    if (originalWindowDescriptor) {
+      Object.defineProperty(globalThis, 'window', originalWindowDescriptor);
+      return;
+    }
+
+    Reflect.deleteProperty(globalThis, 'window');
   });
 
   it('returns companyLogo first when available', () => {
@@ -29,6 +39,11 @@ describe('getAdFaviconImageLink', () => {
   });
 
   it('uses a large fallback favicon size during SSR when window is unavailable', () => {
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: undefined,
+    });
+
     expect(
       getAdFaviconImageLink({
         ad: { ...ad, adDomain: 'daily.dev' },

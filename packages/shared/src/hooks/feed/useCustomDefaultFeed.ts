@@ -12,7 +12,7 @@ const useCustomDefaultFeed = (): UseCustomDefaultFeed => {
     isCustomDefaultFeed: !!(
       user?.defaultFeedId && user.defaultFeedId !== user?.id
     ),
-    defaultFeedId: user?.defaultFeedId ?? user?.id,
+    defaultFeedId: user?.defaultFeedId ?? user?.id ?? '',
   };
 };
 

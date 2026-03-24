@@ -96,9 +96,9 @@ export const useSearchProviderSuggestions = ({
         mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
-      mutationQueryClient.setQueryData<SearchSuggestionResult | undefined>(
+      mutationQueryClient.setQueryData(
         queryKey,
-        (subData) => {
+        (subData: SearchSuggestionResult | undefined) => {
           if (!subData) {
             return subData;
           }
@@ -110,17 +110,17 @@ export const useSearchProviderSuggestions = ({
                 return {
                   ...hit,
                   contentPreference: nextStatus
-                    ? {
+                    ? ({
                         ...hit.contentPreference,
                         status: nextStatus,
-                      }
+                      } as typeof hit.contentPreference)
                     : undefined,
                 };
               }
 
               return hit;
             }),
-          };
+          } as SearchSuggestionResult;
         },
       );
     },

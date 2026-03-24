@@ -32,7 +32,7 @@ export const SquadCommentJoinBanner = ({
   squad,
   logOrigin,
   post,
-}: SquadCommentJoinBannerProps): ReactElement => {
+}: SquadCommentJoinBannerProps): ReactElement | null => {
   const queryClient = useQueryClient();
   const [isSquadMember, setIsSquadMember] = useState(!!squad?.currentMember);
   const isMobile = useViewSize(ViewSize.MobileL);

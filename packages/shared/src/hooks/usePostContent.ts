@@ -95,7 +95,7 @@ const usePostContent = ({
     },
   );
 
-  const loggedPostEvent = useRef(null);
+  const loggedPostEvent = useRef<string | null>(null);
 
   useEffect(() => {
     if (!post) {

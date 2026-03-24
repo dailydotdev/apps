@@ -36,7 +36,7 @@ export default function ProfileButton({
   settingsIconOnly,
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
   const [animatedCores, setAnimatedCores] = useState<number | null>(null);
@@ -192,6 +192,10 @@ export default function ProfileButton({
       });
     };
   }, [playCounterImpactAnimation, user?.balance?.amount, user?.reputation]);
+
+  if (!isAuthReady || !user) {
+    return <></>;
+  }
 
   return (
     <>

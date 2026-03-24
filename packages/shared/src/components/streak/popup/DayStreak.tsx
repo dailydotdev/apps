@@ -87,7 +87,7 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {dateFormatInTimezone(date, 'iiiii', user.timezone)}
+        {dateFormatInTimezone(date, 'iiiii', user?.timezone ?? 'UTC')}
       </div>
     </Tooltip>
   );

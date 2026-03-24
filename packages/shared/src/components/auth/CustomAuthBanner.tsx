@@ -7,7 +7,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from '../banners';
 
-const CustomAuthBanner = (): ReactElement => {
+const CustomAuthBanner = (): ReactElement | null => {
   const { shouldShowAuthBanner } = useOnboardingActions();
   const { shouldShowLogin } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);

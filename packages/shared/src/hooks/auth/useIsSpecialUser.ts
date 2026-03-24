@@ -16,7 +16,7 @@ export const useIsSpecialUser = ({
   return useMemo(() => {
     return isSpecialUser({
       userId,
-      loggedUserId: user?.id,
+      loggedUserId: user?.id ?? null,
     });
   }, [userId, user?.id]);
 };

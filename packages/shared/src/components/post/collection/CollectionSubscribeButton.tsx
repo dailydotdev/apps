@@ -35,7 +35,7 @@ export const CollectionSubscribeButton = ({
             referenceId: post.id,
           },
         ]
-      : undefined,
+      : [],
   });
   const isSubscribed = !!preferences?.some((item) =>
     checkHasStatusPreference(
