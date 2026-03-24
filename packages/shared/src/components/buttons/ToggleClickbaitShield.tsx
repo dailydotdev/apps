@@ -38,6 +38,7 @@ export const ToggleClickbaitShield = ({
   const router = useRouter();
   const { user } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+  const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -67,6 +68,9 @@ export const ToggleClickbaitShield = ({
             )
           }
           onClick={() => {
+            if (!user) {
+              return;
+            }
             router.push(
               `${webappUrl}feeds/${user.id}/edit?dview=${FeedSettingsMenu.AI}`,
             );
@@ -82,13 +86,13 @@ export const ToggleClickbaitShield = ({
     <Tooltip
       side="bottom"
       content={`Toggle Clickbait Shield ${
-        flags.clickbaitShieldEnabled ? 'off' : 'on'
+        isClickbaitShieldEnabled ? 'off' : 'on'
       }`}
     >
       <Button
         {...commonIconProps}
         icon={
-          flags.clickbaitShieldEnabled ? (
+          isClickbaitShieldEnabled ? (
             <ShieldCheckIcon className="text-status-success" />
           ) : (
             <ShieldIcon />
@@ -96,7 +100,7 @@ export const ToggleClickbaitShield = ({
         }
         loading={loading}
         onClick={async () => {
-          const newState = !flags?.clickbaitShieldEnabled;
+          const newState = !isClickbaitShieldEnabled;
           setLoading(true);
           await updateFlag(
             SidebarSettingsFlags.ClickbaitShieldEnabled,
