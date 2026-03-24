@@ -65,8 +65,12 @@ describe('ReadingHistoryList component', () => {
             user,
             shouldShowLogin: false,
             showLogin: jest.fn(),
+            isLoggedIn: true,
+            closeLogin: jest.fn(),
+            logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
             isAuthReady: true,
           }}
         >
@@ -123,6 +127,7 @@ describe('PostItemCard component', () => {
   const onHide = jest.fn();
 
   const createdAt = new Date('202-10-22T07:15:51.247Z');
+  const postTitle = post.title ?? '';
   const defaultHistory = {
     timestamp: createdAt,
     timestampDb: createdAt,
@@ -153,12 +158,12 @@ describe('PostItemCard component', () => {
 
   it('should show view history post title', async () => {
     renderCard();
-    await screen.findByText(defaultHistory.post.title);
+    await screen.findByText(postTitle);
   });
 
   it('should show view history post image', async () => {
     renderCard();
-    await screen.findByAltText(defaultHistory.post.title);
+    await screen.findByAltText(postTitle);
   });
 
   it('should show view history post source image', async () => {
@@ -176,7 +181,9 @@ describe('PostItemCard component', () => {
           ...defaultHistory.post,
           author: undefined,
           source: {
-            ...defaultHistory.post.source,
+            ...(defaultHistory.post.source as NonNullable<
+              typeof defaultHistory.post.source
+            >),
             type: SourceType.User,
           },
         },
@@ -184,11 +191,11 @@ describe('PostItemCard component', () => {
     });
 
     const sourceImage = await screen.findByAltText(
-      `source of ${defaultHistory.post.title}'s profile`,
+      `source of ${postTitle}'s profile`,
     );
     expect(sourceImage).toHaveAttribute(
       'src',
-      defaultHistory.post.source.image,
+      defaultHistory.post.source?.image,
     );
   });
 

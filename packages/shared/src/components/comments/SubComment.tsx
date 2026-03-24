@@ -112,13 +112,13 @@ function SubComment({
           post={props.post}
           onCommented={(data, isNew) => {
             onEdit(null);
-            onCommented(data, isNew);
+            onCommented?.(data, isNew);
           }}
           onClose={() => onEdit(null)}
           className={{ input: className }}
         />
       )}
-      {commentId === comment.id && (
+      {commentId === comment.id && inputProps && (
         <div className={classNames(isModalThread && 'mt-2')}>
           <CommentInputOrModal
             {...inputProps}
@@ -126,7 +126,7 @@ function SubComment({
             post={props.post}
             onCommented={(...params) => {
               onReplyTo(null);
-              onCommented(...params);
+              onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
             replyToCommentId={commentId}

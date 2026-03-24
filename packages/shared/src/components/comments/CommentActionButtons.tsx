@@ -113,6 +113,7 @@ export default function CommentActionButtons({
   const authorBlockLabel = author?.username
     ? `@${author.username}`
     : authorName;
+  const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
     setVoteState({
@@ -244,7 +245,7 @@ export default function CommentActionButtons({
   }
 
   const shouldShowFollow =
-    !useIsSpecialUser({ userId: author?.id }) &&
+    !useIsSpecialUser({ userId: author?.id ?? '' }) &&
     isLoggedIn &&
     !!author &&
     !isCompanion;
@@ -313,7 +314,7 @@ export default function CommentActionButtons({
     <div
       className={classNames(
         'flex flex-row items-center',
-        threadRepliesControl && 'relative',
+        { relative: !!threadRepliesControl },
         className,
       )}
     >
@@ -418,14 +419,14 @@ export default function CommentActionButtons({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-      {voteState.numUpvotes > 0 && (
+      {numUpvotes > 0 && (
         <Tooltip content="See who upvoted">
           <ClickableText
             className={classNames('ml-auto !block', truncateTextClassNames)}
-            onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
+            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
           >
-            {largeNumberFormat(voteState.numUpvotes)} upvote
-            {voteState.numUpvotes === 1 ? '' : 's'}
+            {largeNumberFormat(numUpvotes)} upvote
+            {numUpvotes === 1 ? '' : 's'}
           </ClickableText>
         </Tooltip>
       )}

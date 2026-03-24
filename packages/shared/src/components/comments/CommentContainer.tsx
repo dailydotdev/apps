@@ -63,6 +63,7 @@ export default function CommentContainer({
 }: CommentContainerProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { author } = comment;
+  const companies = author?.companies;
   const authorHandle = author?.username ? `@${author.username}` : null;
   const { role } = useMemberRoleForSource({
     source: post.source,
@@ -99,7 +100,7 @@ export default function CommentContainer({
             </p>
           ) : (
             <p>
-              Commented on <strong>{comment.post.title}</strong>
+              Commented on <strong>{comment.post?.title}</strong>
             </p>
           )}
         </header>
@@ -151,10 +152,10 @@ export default function CommentContainer({
           </FlexRow>
           <FlexRow className="gap-1">
             {author && <ReputationUserBadge user={author} />}
-            {author?.companies?.length > 0 && (
-              <VerifiedCompanyUserBadge user={author} />
+            {companies && companies.length > 0 && (
+              <VerifiedCompanyUserBadge user={{ companies }} />
             )}
-            {!isSourceUserSource(post?.source) && (
+            {!!role && !isSourceUserSource(post?.source) && (
               <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
             {author?.id === postAuthorId && <UserBadge>Creator</UserBadge>}
