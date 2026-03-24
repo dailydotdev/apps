@@ -5,7 +5,7 @@ import type { ButtonProps } from '../components/buttons/Button';
 import type { ModalSize } from '../components/modals/common/types';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
-export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, null);
+export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, undefined);
 
 export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
   title?: string;
@@ -34,20 +34,22 @@ type Prompt = {
   onFail: () => void;
 };
 
+type PromptState = Prompt | null;
+
 type UsePromptRet = {
   showPrompt: (options: PromptOptions) => Promise<boolean>;
-  prompt: Prompt;
+  prompt: PromptState;
 };
 
 export function usePrompt(): UsePromptRet {
   const client = useQueryClient();
   const { data: prompt } = useQuery({
     queryKey: PROMPT_KEY,
-    queryFn: () => client.getQueryData<Prompt>(PROMPT_KEY) || null,
+    queryFn: () => client.getQueryData<PromptState>(PROMPT_KEY) ?? null,
   });
 
   const setPrompt = useCallback(
-    (data: Prompt) => client.setQueryData(PROMPT_KEY, data),
+    (data: PromptState) => client.setQueryData(PROMPT_KEY, data),
     [client],
   );
 
@@ -68,5 +70,5 @@ export function usePrompt(): UsePromptRet {
     [setPrompt],
   );
 
-  return { showPrompt, prompt };
+  return { showPrompt, prompt: prompt ?? null };
 }

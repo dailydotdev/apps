@@ -3,7 +3,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { RequestProtocol } from '../graphql/common';
 import { REQUEST_PROTOCOL_KEY, gqlRequest } from '../graphql/common';
 
-export const useRequestProtocol = (): RequestProtocol => {
+type ResolvedRequestProtocol = {
+  requestMethod: NonNullable<RequestProtocol['requestMethod']>;
+  fetchMethod: NonNullable<RequestProtocol['fetchMethod']>;
+  isCompanion?: boolean;
+};
+
+export const useRequestProtocol = (): ResolvedRequestProtocol => {
   const client = useQueryClient();
   const { requestMethod, fetchMethod, isCompanion } =
     client.getQueryData<RequestProtocol>(REQUEST_PROTOCOL_KEY) || {};
