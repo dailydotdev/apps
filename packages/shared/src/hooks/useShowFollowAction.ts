@@ -26,13 +26,15 @@ const useShowFollowAction = ({
   });
 
   useEffect(() => {
-    if (isSuccess && !showActionBtn) {
-      const isFollowing =
-        data?.status === ContentPreferenceStatus.Follow ||
-        data?.status === ContentPreferenceStatus.Subscribed;
-      setShowActionBtn(!isFollowing);
+    if (!isSuccess) {
+      return;
     }
-  }, [isSuccess, data?.status, showActionBtn]);
+
+    const isFollowing =
+      data?.status === ContentPreferenceStatus.Follow ||
+      data?.status === ContentPreferenceStatus.Subscribed;
+    setShowActionBtn(!isFollowing);
+  }, [isSuccess, data?.status]);
 
   return { showActionBtn, isLoading };
 };
