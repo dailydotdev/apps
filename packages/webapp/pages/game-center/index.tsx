@@ -1103,11 +1103,11 @@ export async function getStaticProps(): Promise<
         }>;
       };
     };
+    const errorCode = error?.response?.errors?.[0]?.extensions?.code;
 
     if (
-      [ApiError.NotFound, ApiError.Forbidden].includes(
-        error?.response?.errors?.[0]?.extensions?.code,
-      )
+      errorCode &&
+      [ApiError.NotFound, ApiError.Forbidden].includes(errorCode)
     ) {
       return {
         props: {
