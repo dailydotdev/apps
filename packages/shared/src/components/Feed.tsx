@@ -566,16 +566,6 @@ export default function Feed<T>({
     });
   }, [logEvent]);
 
-  const onFeedHighlightsSubscribeClick = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_id: TargetId.FeedHighlightsModule,
-      extra: JSON.stringify({
-        action: 'subscribe_click',
-      }),
-    });
-  }, [logEvent]);
-
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -736,7 +726,6 @@ export default function Feed<T>({
                     loading={isFetchingFeedHighlights && !feedHighlightsData}
                     onHighlightClick={onFeedHighlightClick}
                     onAgentsLinkClick={onFeedHighlightsAgentsLinkClick}
-                    onSubscribeClick={onFeedHighlightsSubscribeClick}
                   />
                 )}
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (

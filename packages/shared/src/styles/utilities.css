@@ -684,3 +684,31 @@
   padding-right: 0.375rem;
   padding-left: 0.375rem;
 }
+
+@keyframes feed-highlights-new-item-border-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.feed-highlights-new-item-border {
+  border: 0.0625rem solid transparent;
+  background-image: linear-gradient(
+      var(--theme-background-default),
+      var(--theme-background-default)
+    ),
+    linear-gradient(
+      120deg,
+      var(--theme-accent-blueCheese-default),
+      var(--theme-accent-cheese-default),
+      var(--theme-accent-avocado-default)
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 200% 200%;
+  animation: feed-highlights-new-item-border-shift 1s linear 1;
+}
