@@ -61,10 +61,6 @@ describe('useSearchProvider hook', () => {
     );
   });
 
-  it('should be defined', () => {
-    expect(useSearchProvider).toBeDefined();
-  });
-
   it('should return search provider', () => {
     const { result } = renderHook(() => useSearchProvider(), {
       wrapper: Wrapper,

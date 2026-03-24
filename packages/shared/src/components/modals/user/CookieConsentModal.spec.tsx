@@ -44,11 +44,6 @@ const renderComponent = () => {
 };
 
 describe('CookieConsentModal', () => {
-  it('should render', async () => {
-    renderComponent();
-    await screen.findByText('Cookie preferences');
-  });
-
   it('should render default value to be false', async () => {
     const cookies = getCookies(Object.values(GdprConsentKey));
     expect(cookies.ilikecookies).toBeUndefined();

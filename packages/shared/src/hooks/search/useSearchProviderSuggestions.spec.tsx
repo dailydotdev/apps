@@ -46,10 +46,6 @@ describe('useSearchProviderSuggestions hook', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(useSearchProviderSuggestions).toBeDefined();
-  });
-
   it('should get suggesstions', async () => {
     let queryCalled = false;
     const mockedSuggestions = [
