@@ -44,7 +44,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
   return {
     hasSquad,
     squads,
-    categoryPaths: tabs,
+    categoryPaths: tabs as Record<string, string>,
     isMobileLayout: !isLaptop,
   };
 };

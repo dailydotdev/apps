@@ -42,12 +42,10 @@ const renderWithAuth = (user: LoggedUser | null) => {
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
-        closeLogin={jest.fn()}
         loadingUser={false}
         loadedUserFromCache
         refetchBoot={jest.fn()}
         firstLoad={false}
-        isValidSession
       >
         <ProfileCompletion />
       </AuthContextProvider>

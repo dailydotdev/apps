@@ -7,8 +7,8 @@ export const useDebouncedUrl = (
   onValidate: StartFn<string, boolean>,
   delay = 1000,
 ): [StartFn<string>, CancelEvent] =>
-  useDebounceFn((value: string) => {
-    if (!isValidHttpUrl(value) || !onValidate(value)) {
+  useDebounceFn((value?: string) => {
+    if (!value || !isValidHttpUrl(value) || !onValidate(value)) {
       return undefined;
     }
 

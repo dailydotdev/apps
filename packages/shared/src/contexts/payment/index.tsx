@@ -10,7 +10,10 @@ import type { StoreKitSubProviderProps } from './StoreKit';
 import { iOSSupportsPlusPurchase } from '../../lib/ios';
 
 const StoreKitSubProvider = dynamic(() =>
-  import('./StoreKit').then((mod) => mod.StoreKitSubProvider),
+  import('./StoreKit').then(
+    (mod) =>
+      mod.StoreKitSubProvider as React.ComponentType<StoreKitSubProviderProps>,
+  ),
 );
 
 export const PaymentContextProvider = ({

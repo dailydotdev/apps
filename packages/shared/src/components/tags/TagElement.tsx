@@ -21,21 +21,10 @@ export const TagElement = ({
   isHighlighted = false,
   ...attrs
 }: OnboardingTagProps): ReactElement => {
-  return (
-    <Button
-      className={classNames(
-        {
-          'btn-tag': !isSelected,
-        },
-        'relative',
-      )}
-      variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
-      {...(isSelected && { color: ButtonColor.Cabbage })}
-      onClick={() => {
-        onClick({ tag });
-      }}
-      {...attrs}
-    >
+  const className = classNames({ 'btn-tag': !isSelected }, 'relative');
+  const handleClick = () => onClick({ tag });
+  const content = (
+    <>
       {tag.name}
       {isHighlighted && (
         <AlertDot
@@ -43,6 +32,31 @@ export const TagElement = ({
           color={AlertColor.Cabbage}
         />
       )}
+    </>
+  );
+
+  if (isSelected) {
+    return (
+      <Button
+        className={className}
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+        onClick={handleClick}
+        {...attrs}
+      >
+        {content}
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      className={className}
+      variant={ButtonVariant.Float}
+      onClick={handleClick}
+      {...attrs}
+    >
+      {content}
     </Button>
   );
 };

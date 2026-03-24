@@ -13,7 +13,7 @@ import { UpvoteIcon } from '../icons';
 const renderComponent = <Tag extends AllowedTags>(
   props: Partial<ButtonProps<Tag>> = {},
 ): RenderResult => {
-  return render(<Button {...(props as ButtonProps<Tag>)} />);
+  return render(<Button {...(props as ButtonProps<'button'>)} />);
 };
 
 describe('Button', () => {
