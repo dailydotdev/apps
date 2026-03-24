@@ -566,6 +566,16 @@ export default function Feed<T>({
     });
   }, [logEvent]);
 
+  const onFeedHighlightsSubscribeClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_id: TargetId.FeedHighlightsModule,
+      extra: JSON.stringify({
+        action: 'subscribe_click',
+      }),
+    });
+  }, [logEvent]);
+
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -664,28 +674,15 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const feedTopContent =
-    shouldRenderFeedHighlights || shouldShowTopHero ? (
-      <>
-        {shouldRenderFeedHighlights && (
-          <FeedHighlightsTopModule
-            highlights={feedHighlights}
-            loading={isFetchingFeedHighlights && !feedHighlightsData}
-            onHighlightClick={onFeedHighlightClick}
-            onAgentsLinkClick={onFeedHighlightsAgentsLinkClick}
-          />
-        )}
-        {shouldShowTopHero && (
-          <TopHero
-            className="pt-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
-          />
-        )}
-      </>
-    ) : undefined;
+  const feedTopContent = shouldShowTopHero ? (
+    <TopHero
+      className="pt-2"
+      title={readingReminderTitle}
+      subtitle={readingReminderSubtitle}
+      onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
+      onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
+    />
+  ) : undefined;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
@@ -733,6 +730,15 @@ export default function Feed<T>({
                     : undefined,
                 }}
               >
+                {shouldRenderFeedHighlights && index === 0 && (
+                  <FeedHighlightsTopModule
+                    highlights={feedHighlights}
+                    loading={isFetchingFeedHighlights && !feedHighlightsData}
+                    onHighlightClick={onFeedHighlightClick}
+                    onAgentsLinkClick={onFeedHighlightsAgentsLinkClick}
+                    onSubscribeClick={onFeedHighlightsSubscribeClick}
+                  />
+                )}
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (
                   <BriefBannerFeed
                     style={{
