@@ -34,8 +34,6 @@ type NextSvgFileLoaderRule = {
   exclude?: RegExp;
 };
 
-const crossFetchShimImport = './crossFetchShim.ts';
-
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
@@ -66,11 +64,6 @@ const nextConfig: NextConfig = {
           },
         ],
         as: '*.js',
-      },
-    },
-    resolveAlias: {
-      'cross-fetch': {
-        browser: crossFetchShimImport,
       },
     },
   },
