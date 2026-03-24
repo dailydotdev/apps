@@ -22,7 +22,9 @@ function VerifySessionModal({
   onVerified,
   ...props
 }: VerifySessionModalProps): ReactElement {
-  const [hint, setHint] = useState('Enter your password to login');
+  const [hint, setHint] = useState<string | null>(
+    'Enter your password to login',
+  );
   const filteredProviders = providers.filter(
     ({ value }) => !userProviders?.indexOf(value),
   );
@@ -36,7 +38,7 @@ function VerifySessionModal({
     queryParams: { refresh: 'true' },
     onSuccessfulLogin: () => {
       onVerified();
-      onRequestClose(null);
+      onRequestClose?.(undefined as never);
     },
   });
 
