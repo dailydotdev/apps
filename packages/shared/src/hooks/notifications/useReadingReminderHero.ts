@@ -12,7 +12,6 @@ import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../useConditionalFeature';
-import { isNotificationExperimentDebugEnabled } from './notificationExperimentDebug';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
@@ -61,7 +60,6 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
 export const useReadingReminderHero = ({
   requireMobile = true,
 }: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
-  const isNotificationDebugMode = isNotificationExperimentDebugEnabled();
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
@@ -98,7 +96,6 @@ export const useReadingReminderHero = ({
 
   const hasSeenToday = getHasSeenToday(lastSeen);
   const [hasShownInSession, setHasShownInSession] = useState(false);
-  const [hasDismissedInSession, setHasDismissedInSession] = useState(false);
   const shouldShowBase = shouldEvaluate && !hasSeenToday && isFetched;
 
   useEffect(() => {
@@ -133,15 +130,13 @@ export const useReadingReminderHero = ({
   }, [logEvent, onEnablePush, setLastSeen, subscribePersonalizedDigest, user]);
 
   const onDismiss = useCallback(async () => {
-    setHasDismissedInSession(true);
     await setLastSeen(READING_REMINDER_DISMISSED);
   }, [setLastSeen]);
 
-  const shouldShow = isNotificationDebugMode
-    ? !hasDismissedInSession
-    : !isSubscribedToReadingReminder &&
-      !isDismissed &&
-      (shouldShowBase || hasShownInSession);
+  const shouldShow =
+    !isSubscribedToReadingReminder &&
+    !isDismissed &&
+    (shouldShowBase || hasShownInSession);
 
   return {
     shouldShow,

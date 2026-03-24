@@ -310,6 +310,7 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
+  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const {
     onOpenModal,
     onCloseModal,
@@ -326,7 +327,7 @@ export default function Feed<T>({
     feedName,
   });
   const {
-    heroInsertIndex,
+    adjustedHeroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
     title: readingReminderTitle,
@@ -589,12 +590,6 @@ export default function Feed<T>({
   const currentPageSize = pageSize ?? currentSettings.pageSize;
   const showPromoBanner = !!briefBannerPage;
   const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
-  const firstGridSlotOffset = Number(showFirstSlotCard);
-  const adjustedHeroInsertIndex = Math.max(
-    heroInsertIndex - firstGridSlotOffset,
-    0,
-  );
   const indexWhenShowingPromoBanner =
     currentPageSize * Number(briefBannerPage) - // number of items at that page
     columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number

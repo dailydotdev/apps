@@ -9,7 +9,6 @@ import {
   useNotificationCtaImpression,
 } from './useNotificationCtaAnalytics';
 import { useReadingReminderVariation } from './useReadingReminderVariation';
-import { isNotificationExperimentDebugEnabled } from './notificationExperimentDebug';
 
 const HERO_INSERT_INDEX = 6;
 const HERO_SCROLL_THRESHOLD_PX = 300;
@@ -24,7 +23,7 @@ interface UseReadingReminderFeedHeroProps {
 }
 
 interface UseReadingReminderFeedHero {
-  heroInsertIndex: number;
+  adjustedHeroInsertIndex: number;
   shouldShowTopHero: boolean;
   shouldShowInFeedHero: boolean;
   title: string;
@@ -46,7 +45,6 @@ export const useReadingReminderFeedHero = ({
   itemsPerRow,
   firstSlotOffset = 0,
 }: UseReadingReminderFeedHeroProps): UseReadingReminderFeedHero => {
-  const isNotificationDebugMode = isNotificationExperimentDebugEnabled();
   const safeItemsPerRow = Math.max(1, itemsPerRow);
   const heroInsertIndex =
     Math.ceil(HERO_INSERT_INDEX / safeItemsPerRow) * safeItemsPerRow;
@@ -60,8 +58,7 @@ export const useReadingReminderFeedHero = ({
       requireMobile: false,
     });
   const isHomePage = pathname === webappUrl;
-  const shouldEvaluateReminderPlacement =
-    (isHomePage || isNotificationDebugMode) && shouldShow;
+  const shouldEvaluateReminderPlacement = isHomePage && shouldShow;
   const { isHero, isInline } = useReadingReminderVariation({
     shouldEvaluate: shouldEvaluateReminderPlacement,
   });
@@ -101,7 +98,7 @@ export const useReadingReminderFeedHero = ({
   const shouldShowInFeedHero =
     canShowReminderPlacements &&
     isInline &&
-    (isNotificationDebugMode || hasScrolledForHero) &&
+    hasScrolledForHero &&
     !dismissedPlacements[NotificationCtaPlacement.InFeedHero] &&
     itemCount > adjustedHeroInsertIndex;
 
@@ -143,7 +140,7 @@ export const useReadingReminderFeedHero = ({
   );
 
   return {
-    heroInsertIndex,
+    adjustedHeroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
     title,

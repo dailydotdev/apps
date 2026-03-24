@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -72,7 +72,6 @@ function EnableNotification({
   label,
   onEnableAction,
 }: EnableNotificationProps): ReactElement | null {
-  const [isDismissedLocally, setIsDismissedLocally] = useState(false);
   const { isEnabled: isNotificationCtaExperimentEnabled } =
     useNotificationCtaExperiment();
   const { shouldShowCta, acceptedJustNow, onEnable, onDismiss } =
@@ -82,12 +81,7 @@ function EnableNotification({
       onEnableAction,
     });
 
-  const handleDismiss = useCallback(() => {
-    setIsDismissedLocally(true);
-    onDismiss();
-  }, [onDismiss]);
-
-  if (!shouldShowCta || isDismissedLocally) {
+  if (!shouldShowCta) {
     return null;
   }
 
@@ -185,7 +179,7 @@ function EnableNotification({
         >
           {buttonText}
         </Button>
-        <CloseButton className="absolute right-3" onClick={handleDismiss} />
+        <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
     );
   }
@@ -260,20 +254,20 @@ function EnableNotification({
             <Button
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
-              onClick={handleDismiss}
+              onClick={onDismiss}
             >
               Dismiss
             </Button>
           )}
           {!showTextCloseButton && !shouldUseTopRightCloseButton && (
-            <CloseButton size={ButtonSize.XSmall} onClick={handleDismiss} />
+            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
           )}
         </div>
         {shouldUseTopRightCloseButton && (
           <CloseButton
             size={ButtonSize.XSmall}
             className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-            onClick={handleDismiss}
+            onClick={onDismiss}
           />
         )}
       </div>
@@ -352,7 +346,7 @@ function EnableNotification({
               >
                 {buttonText}
               </Button>
-              <CloseButton size={ButtonSize.XSmall} onClick={handleDismiss} />
+              <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
             </div>
           )}
           {shouldUseVerticalContentLayout &&
@@ -405,7 +399,7 @@ function EnableNotification({
           <Button
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
-            onClick={handleDismiss}
+            onClick={onDismiss}
           >
             Dismiss
           </Button>
@@ -413,14 +407,14 @@ function EnableNotification({
         {!showTextCloseButton &&
           !shouldInlineActionWithMessage &&
           !shouldUseTopRightCloseButton && (
-            <CloseButton size={ButtonSize.XSmall} onClick={handleDismiss} />
+            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
           )}
       </div>
       {shouldUseTopRightCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}
           className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
-          onClick={handleDismiss}
+          onClick={onDismiss}
         />
       )}
     </div>
