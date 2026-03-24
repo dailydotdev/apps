@@ -164,4 +164,9 @@ export const agentsLeaderboardEntrypointFeature =
     'agents_leaderboard_entrypoint',
   );
 
+export const featureFeedHighlightsModule = new Feature(
+  'feed_highlights_module',
+  false,
+);
+
 export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);

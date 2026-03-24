@@ -9,11 +9,15 @@ import React, {
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 import type { QueryKey } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
+import { gqlClient } from '../graphql/common';
+import { POST_HIGHLIGHTS_QUERY } from '../graphql/highlights';
+import type { PostHighlight } from '../graphql/highlights';
 import AuthContext from '../contexts/AuthContext';
 import FeedContext from '../contexts/FeedContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -64,6 +68,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  featureFeedHighlightsModule,
   featureFeedAdTemplate,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -72,6 +77,7 @@ import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
+import { FeedHighlightsTopModule } from './banners/FeedHighlightsTopModule';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 
 const FeedErrorScreen = dynamic(
@@ -159,6 +165,7 @@ const calculateRow = (index: number, numCards: number): number =>
   Math.floor(index / numCards);
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
+const FEED_HIGHLIGHTS_CHANNEL = 'vibes';
 
 export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
@@ -225,6 +232,11 @@ export default function Feed<T>({
     !!marketingCta &&
     (marketingCta?.variant !== MarketingCtaVariant.BriefCard ||
       !hasDismissBriefCta);
+  const { value: isFeedHighlightsModuleEnabled } = useConditionalFeature({
+    feature: featureFeedHighlightsModule,
+    shouldEvaluate: isMyFeed,
+  });
+  const shouldShowFeedHighlights = isMyFeed && isFeedHighlightsModuleEnabled;
   const { isSearchPageLaptop } = useSearchResultsLayout();
   const hasNoBriefAction =
     isActionsFetched && !checkHasCompleted(ActionType.GeneratedBrief);
@@ -327,6 +339,23 @@ export default function Feed<T>({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
   });
+  const {
+    data: feedHighlightsData,
+    isFetching: isFetchingFeedHighlights,
+  } = useQuery({
+    queryKey: [RequestKey.PostHighlights, FEED_HIGHLIGHTS_CHANNEL],
+    queryFn: () =>
+      gqlClient.request<{ postHighlights: PostHighlight[] }>(
+        POST_HIGHLIGHTS_QUERY,
+        { channel: FEED_HIGHLIGHTS_CHANNEL },
+      ),
+    enabled: shouldShowFeedHighlights,
+  });
+  const feedHighlights = feedHighlightsData?.postHighlights ?? [];
+  const shouldRenderFeedHighlights =
+    shouldShowFeedHighlights &&
+    (isFetchingFeedHighlights || feedHighlights.length > 0);
+  const feedHighlightsImpressionLoggedRef = useRef(false);
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -489,6 +518,51 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  useEffect(() => {
+    if (!shouldRenderFeedHighlights) {
+      feedHighlightsImpressionLoggedRef.current = false;
+      return;
+    }
+
+    if (!feedHighlightsImpressionLoggedRef.current && feedHighlights.length > 0) {
+      feedHighlightsImpressionLoggedRef.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_id: TargetId.FeedHighlightsModule,
+        extra: JSON.stringify({
+          channel: FEED_HIGHLIGHTS_CHANNEL,
+          count: feedHighlights.length,
+        }),
+      });
+    }
+  }, [feedHighlights.length, logEvent, shouldRenderFeedHighlights]);
+
+  const onFeedHighlightClick = useCallback(
+    (highlight: PostHighlight, position: number) => {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_id: TargetId.FeedHighlightsModule,
+        extra: JSON.stringify({
+          action: 'highlight_click',
+          position,
+          channel: highlight.channel,
+          post_id: highlight.post.id,
+        }),
+      });
+    },
+    [logEvent],
+  );
+
+  const onFeedHighlightsAgentsLinkClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_id: TargetId.FeedHighlightsModule,
+      extra: JSON.stringify({
+        action: 'agents_link_click',
+      }),
+    });
+  }, [logEvent]);
+
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -587,10 +661,18 @@ export default function Feed<T>({
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
-  const containerProps = isSearchPageLaptop
-    ? {}
-    : {
-        topContent: shouldShowTopHero ? (
+  const feedTopContent =
+    shouldRenderFeedHighlights || shouldShowTopHero ? (
+      <>
+        {shouldRenderFeedHighlights && (
+          <FeedHighlightsTopModule
+            highlights={feedHighlights}
+            loading={isFetchingFeedHighlights && !feedHighlightsData}
+            onHighlightClick={onFeedHighlightClick}
+            onAgentsLinkClick={onFeedHighlightsAgentsLinkClick}
+          />
+        )}
+        {shouldShowTopHero && (
           <TopHero
             className="pt-2"
             title={readingReminderTitle}
@@ -598,7 +680,13 @@ export default function Feed<T>({
             onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
             onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
           />
-        ) : undefined,
+        )}
+      </>
+    ) : undefined;
+  const containerProps = isSearchPageLaptop
+    ? {}
+    : {
+        topContent: feedTopContent,
         header,
         inlineHeader,
         className,

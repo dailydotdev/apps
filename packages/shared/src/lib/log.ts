@@ -517,6 +517,7 @@ export enum TargetId {
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
+  FeedHighlightsModule = 'feed highlights module',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
 }
