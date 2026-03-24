@@ -36,10 +36,6 @@ export function SharedCardCover({
   renderOverlay,
   CardImageComponent,
 }: SharedCardCoverProps): ReactElement {
-  if (!post) {
-    throw new Error('SharedCardCover requires a post');
-  }
-
   const { overlay } = useCardCover({ post, onShare });
   const imageClasses = classNames(
     imageProps?.className,

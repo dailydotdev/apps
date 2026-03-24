@@ -15,7 +15,7 @@ interface UseCardCover {
 }
 
 interface UseCardCoverProps {
-  post: Post;
+  post?: Post;
   onShare?: (post: Post) => void;
   className?: {
     bookmark?: {
@@ -33,6 +33,10 @@ export const useCardCover = ({
   const shouldShowReminder = useBookmarkReminderCover(post);
 
   const overlay = useMemo(() => {
+    if (!post) {
+      return undefined;
+    }
+
     if (interaction === 'copy') {
       return (
         <CardCoverContainer title="Why not share it on social, too?">

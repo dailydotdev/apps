@@ -99,5 +99,9 @@ export const ProfileSectionItem = ({
     return content;
   }
 
-  return <Link href={href}>{content}</Link>;
+  return (
+    <Link href={href} passHref>
+      {content}
+    </Link>
+  );
 };

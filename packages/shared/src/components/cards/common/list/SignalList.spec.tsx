@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import { mocked } from 'ts-jest/utils';
-import type { Post, SharedPost } from '../../../../graphql/posts';
+import type { Post } from '../../../../graphql/posts';
 import { PostType } from '../../../../graphql/posts';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import { sharePost } from '../../../../../__tests__/fixture/post';

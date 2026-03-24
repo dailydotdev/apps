@@ -15,11 +15,12 @@ type UsePostActions = PostActionData & {
   onInteract: (interaction: PostActionData['interaction']) => void;
 };
 
-export const usePostActions = ({ post }: { post: Post }): UsePostActions => {
+export const usePostActions = ({ post }: { post?: Post }): UsePostActions => {
   const client = useQueryClient();
+  const postId = post?.id ?? 'missing-post';
   const key = useMemo(() => {
-    return generateQueryKey(RequestKey.PostActions, { id: post?.id });
-  }, [post?.id]);
+    return generateQueryKey(RequestKey.PostActions, { id: postId });
+  }, [postId]);
 
   const queryFn = useCallback((): PostActionData => {
     return {
@@ -36,21 +37,22 @@ export const usePostActions = ({ post }: { post: Post }): UsePostActions => {
     gcTime: Infinity,
     ...disabledRefetch,
   });
+  const actionData = data ?? queryFn();
 
   const onInteract = useCallback(
     (interaction: PostActionData['interaction']) => {
       client.setQueryData<PostActionData>(key, {
         interaction,
         previousInteraction:
-          data?.interaction === interaction ? 'none' : data?.interaction,
+          actionData.interaction === interaction ? 'none' : actionData.interaction,
       });
     },
-    [client, key, data.interaction],
+    [client, key, actionData.interaction],
   );
 
   return {
-    interaction: data?.interaction,
-    previousInteraction: data?.previousInteraction,
+    interaction: actionData.interaction,
+    previousInteraction: actionData.previousInteraction,
     onInteract,
   };
 };
