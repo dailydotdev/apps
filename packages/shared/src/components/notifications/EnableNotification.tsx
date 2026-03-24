@@ -111,7 +111,6 @@ function EnableNotification({
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
   const shouldUseTopRightCloseButton =
     source === NotificationPromptSource.NotificationsPage;
-  const shouldClipBannerOverflow = !shouldUseTopRightCloseButton;
   const shouldShowNotificationArtwork =
     source === NotificationPromptSource.NotificationsPage;
   const shouldAnimateBellCta =
@@ -189,8 +188,7 @@ function EnableNotification({
     return (
       <div
         className={classNames(
-          'relative border-accent-cabbage-default py-4 typo-callout',
-          shouldClipBannerOverflow && 'overflow-hidden',
+          'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
           classes,
           className,
         )}
@@ -279,8 +277,7 @@ function EnableNotification({
   return (
     <div
       className={classNames(
-        'relative border-accent-cabbage-default py-4 typo-callout',
-        shouldClipBannerOverflow && 'overflow-hidden',
+        'relative overflow-hidden border-accent-cabbage-default py-4 typo-callout',
         source === NotificationPromptSource.NewComment && 'flex',
         classes,
         className,

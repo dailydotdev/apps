@@ -15,7 +15,6 @@ function CloseButtonComponent(
   return (
     <Button
       title="Close"
-      type="button"
       {...props}
       size={size}
       variant={variant}
