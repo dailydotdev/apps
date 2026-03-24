@@ -4,7 +4,6 @@ import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
 import type { Rewrite } from 'next/dist/lib/load-custom-routes';
-import { resolve } from 'path';
 import { getMarkdownRewrites } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
@@ -35,7 +34,6 @@ type NextSvgFileLoaderRule = {
   exclude?: RegExp;
 };
 
-const crossFetchShim = resolve(__dirname, 'crossFetchShim.ts');
 const crossFetchShimImport = './crossFetchShim.ts';
 
 const securityHeaders = [
@@ -85,7 +83,7 @@ const nextConfig: NextConfig = {
       compiler: {
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
-      webpack: (config, { isServer }) => {
+      webpack: (config) => {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find(
           (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
@@ -121,12 +119,13 @@ const nextConfig: NextConfig = {
           },
         });
 
-        // Keep cross-fetch out of the browser bundle; the server build can keep
-        // the package resolution as-is.
-        if (!isServer) {
-          // eslint-disable-next-line no-param-reassign
-          config.resolve.alias['cross-fetch'] = crossFetchShim;
-        }
+        // we don't need cross-fetch in our bundle since we are using the native fetch
+        // cross-fetch is here due to graphql-request dependency
+        // it was removedi n graphql-request@7.x but due to a lot of breaking changes
+        // for now we apply https://github.com/graffle-js/graffle/pull/296
+        // as patch graphql-request manually through pnpm
+        // eslint-disable-next-line no-param-reassign
+        config.resolve.alias['cross-fetch'] = false;
 
         return config;
       },
