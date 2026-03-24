@@ -23,11 +23,7 @@ export const ClearResumeButton = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
 
-  if (!user) {
-    throw new Error('ClearResumeButton requires an authenticated user');
-  }
-
-  const opts = getCandidatePreferencesOptions(user.id);
+  const opts = getCandidatePreferencesOptions(user?.id ?? '');
   const updateQuery = useUpdateQuery(opts);
 
   const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
@@ -41,6 +37,11 @@ export const ClearResumeButton = (): ReactElement => {
       displayToast('Failed to remove uploaded CV. Please try again.');
     },
   });
+
+  if (!user) {
+    return <></>;
+  }
+
   return (
     <Tooltip content="Remove uploaded CV">
       <Button

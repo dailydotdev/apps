@@ -17,18 +17,13 @@ export const ExperienceSettings = ({
   experienceType,
   emptyStateMessage,
 }: ExperienceSettingsProps): ReactElement => {
-  const { user } = useAuthContext();
-
-  if (!user) {
-    throw new Error('ExperienceSettings requires an authenticated user');
-  }
-
+  const { user, isAuthReady } = useAuthContext();
   const { experiences, isPending } = useUserExperiencesByType(
     experienceType,
-    user.id,
+    user?.id ?? '',
   );
 
-  if (isPending) {
+  if (!isAuthReady || !user || isPending) {
     return (
       <div className="flex flex-col gap-4">
         <UserExperienceItemSkeleton count={2} />

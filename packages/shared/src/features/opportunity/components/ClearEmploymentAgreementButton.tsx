@@ -23,13 +23,7 @@ export const ClearEmploymentAgreementButton = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
 
-  if (!user) {
-    throw new Error(
-      'ClearEmploymentAgreementButton requires an authenticated user',
-    );
-  }
-
-  const opts = getCandidatePreferencesOptions(user.id);
+  const opts = getCandidatePreferencesOptions(user?.id ?? '');
   const updateQuery = useUpdateQuery(opts);
 
   const { mutate: clearFile, isPending: isClearFilePending } = useMutation({
@@ -45,6 +39,11 @@ export const ClearEmploymentAgreementButton = (): ReactElement => {
       );
     },
   });
+
+  if (!user) {
+    return <></>;
+  }
+
   return (
     <Tooltip content="Remove uploaded employment agreement">
       <Button

@@ -22,13 +22,9 @@ export const UploadEmploymentAgreementButton = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
 
-  if (!user) {
-    throw new Error(
-      'UploadEmploymentAgreementButton requires an authenticated user',
-    );
-  }
-
-  const updateQuery = useUpdateQuery(getCandidatePreferencesOptions(user.id));
+  const updateQuery = useUpdateQuery(
+    getCandidatePreferencesOptions(user?.id ?? ''),
+  );
 
   const { mutate: uploadEmploymentAgreement, isPending: isUploadPending } =
     useMutation({
@@ -54,6 +50,10 @@ export const UploadEmploymentAgreementButton = (): ReactElement => {
     },
     [uploadEmploymentAgreement],
   );
+
+  if (!user) {
+    return <></>;
+  }
 
   return (
     <UploadButton
