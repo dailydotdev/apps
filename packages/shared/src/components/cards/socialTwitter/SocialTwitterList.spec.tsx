@@ -3,7 +3,6 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -49,6 +48,16 @@ const basePost: Post = {
   sharedPost: undefined,
 };
 
+const referencedPost = sharePost.sharedPost;
+
+if (!referencedPost?.source) {
+  throw new Error(
+    'Expected referenced source fixture for SocialTwitterList tests',
+  );
+}
+
+const referencedSource = referencedPost.source;
+
 const defaultProps: PostCardProps = {
   post: basePost,
   onPostClick: jest.fn(),
@@ -62,7 +71,7 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',
@@ -70,7 +79,7 @@ beforeEach(() => {
   );
 });
 
-const mockedEmbeddedTweetPreview = mocked(EmbeddedTweetPreview);
+const mockedEmbeddedTweetPreview = jest.mocked(EmbeddedTweetPreview);
 
 const renderComponent = (props: Partial<PostCardProps> = {}) =>
   render(
@@ -85,11 +94,11 @@ it('should show referenced tweet block for shared social tweets', async () => {
       ...basePost,
       subType: 'quote',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         type: PostType.SocialTwitter,
         title: 'Referenced tweet body',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Referenced post',
           handle: 'devrelweekly',
         },
@@ -126,15 +135,15 @@ it('should hide headline and tags for repost cards without repost text', async (
       subType: 'repost',
       title:
         '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-      content: null,
-      contentHtml: null,
+      content: undefined,
+      contentHtml: undefined,
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         type: PostType.SocialTwitter,
         title: 'Referenced tweet body',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Y Combinator',
           handle: 'ycombinator',
         },

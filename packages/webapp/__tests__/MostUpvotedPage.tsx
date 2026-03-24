@@ -6,7 +6,6 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
@@ -21,7 +20,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/upvoted',
@@ -35,7 +34,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = MOST_UPVOTED_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -52,21 +51,22 @@ const createFeedMock = (
   },
 });
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   const client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
 
   return render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user: resolvedUser }}>
       {Upvoted.getLayout(<Upvoted />, {}, Upvoted.layoutProps)}
     </TestBootProvider>,
   );
-};
+}
 
 it('should request most upvoted feed when logged-in', async () => {
   renderComponent([
@@ -95,7 +95,7 @@ it('should request most upvoted feed when not', async () => {
         version: 15,
       }),
     ],
-    null,
+    undefined,
   );
   await waitFor(async () => {
     const elements = await screen.findAllByTestId('postItem');

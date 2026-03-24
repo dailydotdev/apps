@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import { useDirtyForm } from './useDirtyForm';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -16,7 +15,7 @@ jest.mock('./useLazyModal', () => ({
 }));
 
 describe('useDirtyForm', () => {
-  let mockRouter: Partial<NextRouter>;
+  let mockRouter: NextRouter;
   let mockOpenModal: jest.Mock;
   let mockFormMethods: UseFormReturn;
   let mockOnSave: jest.Mock;
@@ -28,15 +27,20 @@ describe('useDirtyForm', () => {
     routerEventHandlers = {};
     windowEventHandlers = new Map();
 
-    window.addEventListener = jest.fn(
-      (event: string, handler: EventListener) => {
+    jest.spyOn(window, 'addEventListener').mockImplementation(((
+      event: string,
+      handler: EventListenerOrEventListenerObject,
+    ) => {
+      if (typeof handler === 'function') {
         windowEventHandlers.set(event, handler);
-      },
-    );
+      }
+    }) as typeof window.addEventListener);
 
-    window.removeEventListener = jest.fn((event: string) => {
+    jest.spyOn(window, 'removeEventListener').mockImplementation(((
+      event: string,
+    ) => {
       windowEventHandlers.delete(event);
-    });
+    }) as typeof window.removeEventListener);
 
     mockRouter = {
       asPath: '/current-path',
@@ -50,14 +54,14 @@ describe('useDirtyForm', () => {
         }),
         emit: jest.fn(),
       },
-    };
+    } as unknown as NextRouter;
 
-    mocked(useRouter).mockReturnValue(mockRouter as NextRouter);
+    jest.mocked(useRouter).mockReturnValue(mockRouter);
 
     mockOpenModal = jest.fn();
-    mocked(useLazyModal).mockReturnValue({
+    jest.mocked(useLazyModal).mockReturnValue({
       openModal: mockOpenModal,
-    } as ReturnType<typeof useLazyModal>);
+    } as unknown as ReturnType<typeof useLazyModal>);
 
     mockFormMethods = {
       formState: {
@@ -144,7 +148,7 @@ describe('useDirtyForm', () => {
       mockFormMethods.formState.isDirty = true;
 
       const { result } = renderHook(() =>
-        useDirtyForm(mockFormMethods, {
+        useDirtyForm(mockFormMethods.formState.isDirty, {
           onSave: mockOnSave,
           onDiscard: mockOnDiscard,
         }),
