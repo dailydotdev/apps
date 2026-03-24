@@ -4,6 +4,7 @@ import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
 import type { NextConfig } from 'next';
 import type { Rewrite } from 'next/dist/lib/load-custom-routes';
+import { resolve } from 'path';
 import { getMarkdownRewrites } from './lib/markdownRoutes';
 
 const { version } = JSON.parse(
@@ -13,6 +14,22 @@ const { version } = JSON.parse(
 const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
+
+const svgrOptions = {
+  icon: true,
+  svgo: true,
+  replaceAttrValues: {
+    '#fff': 'currentcolor',
+    '#FFF': 'currentcolor',
+    '#FFFFFF': 'currentcolor',
+  },
+  svgProps: {
+    className: 'icon',
+  },
+};
+
+const crossFetchShim = resolve(__dirname, 'crossFetchShim.ts');
+const crossFetchShimImport = './crossFetchShim.ts';
 
 const securityHeaders = [
   {
@@ -34,6 +51,22 @@ const withSerwist = withSerwistInit({
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: [
+          {
+            loader: '@svgr/webpack',
+            options: svgrOptions,
+          },
+        ],
+        as: '*.js',
+      },
+    },
+    resolveAlias: {
+      'cross-fetch': crossFetchShimImport,
+    },
+  },
   ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {
@@ -50,12 +83,6 @@ const nextConfig: NextConfig = {
         );
 
         config.module.rules.push(
-          // Reapply the existing rule, but only for svg imports ending in ?url
-          {
-            ...fileLoaderRule,
-            test: /\.svg$/i,
-            resourceQuery: /url/, // *.svg?url
-          },
           // Convert all other *.svg imports to React components
           {
             test: /\.svg$/i,
@@ -66,18 +93,7 @@ const nextConfig: NextConfig = {
             use: [
               {
                 loader: '@svgr/webpack',
-                options: {
-                  icon: true,
-                  svgo: true,
-                  replaceAttrValues: {
-                    '#fff': 'currentcolor',
-                    '#FFF': 'currentcolor',
-                    '#FFFFFF': 'currentcolor',
-                  },
-                  svgProps: {
-                    className: 'icon',
-                  },
-                },
+                options: svgrOptions,
               },
             ],
           },
@@ -93,12 +109,10 @@ const nextConfig: NextConfig = {
         });
 
         // we don't need cross-fetch in our bundle since we are using the native fetch
-        // cross-fetch is here due to graphql-request dependency
-        // it was removedi n graphql-request@7.x but due to a lot of breaking changes
-        // for now we apply https://github.com/graffle-js/graffle/pull/296
-        // as patch graphql-request manually through pnpm
+        // cross-fetch is here due to graphql-request dependency.
+        // Use a small shim so webpack and Turbopack resolve it the same way.
         // eslint-disable-next-line no-param-reassign
-        config.resolve.alias['cross-fetch'] = false;
+        config.resolve.alias['cross-fetch'] = crossFetchShim;
 
         return config;
       },
