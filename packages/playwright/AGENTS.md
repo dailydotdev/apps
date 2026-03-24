@@ -108,7 +108,7 @@ WebKit (Desktop Safari) is configured but currently commented out.
 E2E tests run via GitHub Actions (`.github/workflows/e2e-tests.yml`):
 
 - **Trigger**: Vercel deployment success on `main` branch (repository dispatch)
-- **Container**: `mcr.microsoft.com/playwright:v1.54.2-noble` (browsers pre-installed)
+- **Container**: `mcr.microsoft.com/playwright:v1.58.2-noble` (browsers pre-installed)
 - **Artifacts**: Playwright HTML report uploaded (30-day retention)
 - **Alerts**: Slack notification on failure
 

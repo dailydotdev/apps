@@ -10,7 +10,6 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
@@ -34,7 +33,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/my-feed',
@@ -48,7 +47,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -66,10 +65,11 @@ const createFeedMock = (
 });
 let client: QueryClient;
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
@@ -77,13 +77,13 @@ const renderComponent = (
   return render(
     <TestBootProvider
       client={client}
-      auth={{ user }}
+      auth={{ user: resolvedUser }}
       alerts={{ alerts: defaultAlerts, updateAlerts }}
     >
       {MyFeed.getLayout(<MyFeed />, {}, MyFeed.layoutProps)}
     </TestBootProvider>,
   );
-};
+}
 
 it('should request user feed', async () => {
   renderComponent([
@@ -110,7 +110,7 @@ it('should request anonymous my feed', async () => {
         ranking: RankingAlgorithm.Popularity,
       }),
     ],
-    null,
+    undefined,
   );
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();

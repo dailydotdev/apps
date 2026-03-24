@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import nock from 'nock';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 
 import { BriefPayForGenerateCard } from './BriefPayForGenerateCard';
 // eslint-disable-next-line import/extensions
@@ -35,14 +34,14 @@ jest.mock('../../../hooks/useActions');
 jest.mock('../../../hooks/useToastNotification');
 jest.mock('../../../components/GrowthBookProvider');
 
-const mockGetGenerateBriefingMutationOptions = mocked(
+const mockGetGenerateBriefingMutationOptions = jest.mocked(
   getGenerateBriefingMutationOptions,
 );
-const mockUseMutation = mocked(useMutation);
-const mockUseActions = mocked(useActions);
-const mockUseToastNotification = mocked(useToastNotification);
-const mockUseFeature = mocked(useFeature);
-const mockRouter = mocked(useRouter);
+const mockUseMutation = jest.mocked(useMutation);
+const mockUseActions = jest.mocked(useActions);
+const mockUseToastNotification = jest.mocked(useToastNotification);
+const mockUseFeature = jest.mocked(useFeature);
+const mockRouter = jest.mocked(useRouter);
 
 const mockPush = jest.fn();
 const mockMutationFn = jest.fn();
