@@ -339,18 +339,16 @@ export default function Feed<T>({
     itemCount: items.length,
     itemsPerRow: virtualizedNumCards,
   });
-  const {
-    data: feedHighlightsData,
-    isFetching: isFetchingFeedHighlights,
-  } = useQuery({
-    queryKey: [RequestKey.PostHighlights, FEED_HIGHLIGHTS_CHANNEL],
-    queryFn: () =>
-      gqlClient.request<{ postHighlights: PostHighlight[] }>(
-        POST_HIGHLIGHTS_QUERY,
-        { channel: FEED_HIGHLIGHTS_CHANNEL },
-      ),
-    enabled: shouldShowFeedHighlights,
-  });
+  const { data: feedHighlightsData, isFetching: isFetchingFeedHighlights } =
+    useQuery({
+      queryKey: [RequestKey.PostHighlights, FEED_HIGHLIGHTS_CHANNEL],
+      queryFn: () =>
+        gqlClient.request<{ postHighlights: PostHighlight[] }>(
+          POST_HIGHLIGHTS_QUERY,
+          { channel: FEED_HIGHLIGHTS_CHANNEL },
+        ),
+      enabled: shouldShowFeedHighlights,
+    });
   const feedHighlights = feedHighlightsData?.postHighlights ?? [];
   const shouldRenderFeedHighlights =
     shouldShowFeedHighlights &&
@@ -524,7 +522,10 @@ export default function Feed<T>({
       return;
     }
 
-    if (!feedHighlightsImpressionLoggedRef.current && feedHighlights.length > 0) {
+    if (
+      !feedHighlightsImpressionLoggedRef.current &&
+      feedHighlights.length > 0
+    ) {
       feedHighlightsImpressionLoggedRef.current = true;
       logEvent({
         event_name: LogEvent.Impression,
