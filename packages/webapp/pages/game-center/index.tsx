@@ -83,6 +83,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import ProtectedPage from '../../components/ProtectedPage';
+import Custom404Seo from '../404';
 import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
@@ -232,10 +233,11 @@ function GameCenterPage({
   questCompletionStats,
 }: GameCenterPageProps): ReactElement {
   const { user } = useAuthContext();
-  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
-    feature: questsFeature,
-    shouldEvaluate: !!user,
-  });
+  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
+    useConditionalFeature({
+      feature: questsFeature,
+      shouldEvaluate: !!user,
+    });
   const { value: isAchievementTrackingEnabled } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: !!user,
@@ -619,7 +621,10 @@ function GameCenterPage({
   }
 
   return (
-    <ProtectedPage>
+    <ProtectedPage
+      shouldFallback={isQuestsFeatureLoading || isQuestsFeatureEnabled !== true}
+      fallback={isQuestsFeatureLoading ? <></> : <Custom404Seo />}
+    >
       <div className="mx-auto w-full max-w-[72rem]">
         <LayoutHeader
           className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
