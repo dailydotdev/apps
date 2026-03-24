@@ -20,7 +20,7 @@ export const ReputationPrivilegesModal = ({
   const onClose = (event: MouseEvent) => {
     completeAction(ActionType.AckRep250);
 
-    onRequestClose(event);
+    onRequestClose?.(event);
   };
 
   return (

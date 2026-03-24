@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should add relevant properties when user is signed-in 1`] = `
-Array [
-  Object {
+[
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",
@@ -28,8 +28,8 @@ Array [
 `;
 
 exports[`should batch events before sending 1`] = `
-Array [
-  Object {
+[
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",
@@ -50,7 +50,7 @@ Array [
     "window_height": 768,
     "window_width": 1024,
   },
-  Object {
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",
@@ -75,8 +75,8 @@ Array [
 `;
 
 exports[`should send events in different batches 1`] = `
-Array [
-  Object {
+[
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",
@@ -101,8 +101,8 @@ Array [
 `;
 
 exports[`should send events in different batches 2`] = `
-Array [
-  Object {
+[
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",
@@ -127,8 +127,8 @@ Array [
 `;
 
 exports[`should send pending events when user information is fetched 1`] = `
-Array [
-  Object {
+[
+  {
     "app_platform": "test",
     "app_theme": "light",
     "device_id": "",

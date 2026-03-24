@@ -458,7 +458,7 @@ const BriefPostContentRaw = ({
                     className={{
                       button: '!max-w-40',
                     }}
-                    hourIndex={digestTimeIndex}
+                    hourIndex={digestTimeIndex ?? 0}
                     setHourIndex={(index) => {
                       onSubscribeDigest({
                         preferredHour: index,

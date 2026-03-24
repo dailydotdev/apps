@@ -25,7 +25,7 @@ const setBrowserCookie = (key: string): void => {
 
   const cookies = getCookies([key]);
 
-  if (cookies[key]) {
+  if (cookies?.[key]) {
     return;
   }
 

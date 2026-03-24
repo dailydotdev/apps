@@ -33,7 +33,7 @@ export interface SidebarMenuItem {
 }
 
 interface ListIconProps {
-  Icon: React.ComponentType<{ className }>;
+  Icon: React.ComponentType<{ className?: string }>;
 }
 
 export interface ItemInnerProps {

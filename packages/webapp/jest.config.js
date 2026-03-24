@@ -3,6 +3,10 @@
 module.exports = {
   roots: ['<rootDir>'],
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
+  testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
+  },
   setupFilesAfterEnv: ['./__tests__/setup.ts'],
   testPathIgnorePatterns: [
     './.next/',
@@ -24,7 +28,7 @@ module.exports = {
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '^node-emoji$': 'node-emoji/lib/index.cjs',
+    '^node-emoji$': '<rootDir>/../shared/node_modules/node-emoji/lib/index.cjs',
     '\\.svg$': '<rootDir>/__mocks__/svgrMock.ts',
     '\\.css$': 'identity-obj-proxy',
     'react-markdown': '<rootDir>/__mocks__/reactMarkdownMock.tsx',

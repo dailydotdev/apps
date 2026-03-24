@@ -8,7 +8,7 @@ interface UseScrollTopOffsetProps {
 }
 
 export const useScrollTopOffset = (
-  getElement: () => HTMLElement | Window,
+  getElement: () => HTMLElement | Window | null | undefined,
   {
     onOverOffset,
     onUnderOffset,

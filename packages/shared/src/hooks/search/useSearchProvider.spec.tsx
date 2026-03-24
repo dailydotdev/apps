@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import { AlertContextProvider } from '../../contexts/AlertContext';
 import { AuthContextProvider } from '../../contexts/AuthContext';
 import type { Alerts } from '../../graphql/alerts';
@@ -49,7 +48,7 @@ describe('useSearchProvider hook', () => {
     client.clear();
 
     jest.clearAllMocks();
-    mocked(useRouter).mockImplementation(
+    jest.mocked(useRouter).mockImplementation(
       () =>
         ({
           pathname: '/search',
@@ -59,10 +58,6 @@ describe('useSearchProvider hook', () => {
           isReady: true,
         } as unknown as NextRouter),
     );
-  });
-
-  it('should be defined', () => {
-    expect(useSearchProvider).toBeDefined();
   });
 
   it('should return search provider', () => {

@@ -29,7 +29,7 @@ export const BadgesAndAwards = ({
   user,
 }: {
   user: PublicProfile;
-}): ReactElement => {
+}): ReactElement | null => {
   const { data: topReaders, isPending: isTopReaderLoading } = useTopReader({
     user,
     limit: 5,

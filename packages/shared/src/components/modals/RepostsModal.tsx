@@ -24,6 +24,11 @@ export function RepostsModal({
   const container = useRef<HTMLElement>(null);
   const modalRef = useRef<HTMLElement | null>(null);
   const { requestMethod } = useRequestProtocol();
+
+  if (!requestMethod) {
+    throw new Error('Request method is required in RepostsModal');
+  }
+
   const queryResult = useInfiniteQuery({
     queryKey,
     queryFn: ({ pageParam }) =>

@@ -24,7 +24,7 @@ export const RelatedPostsWidget = ({
   post,
   perPage = RELATED_POSTS_PER_PAGE_DEFAULT,
   relationType,
-}: RelatedPostsWidgetProps): ReactElement => {
+}: RelatedPostsWidgetProps): ReactElement | null => {
   const {
     relatedPosts,
     isLoading,

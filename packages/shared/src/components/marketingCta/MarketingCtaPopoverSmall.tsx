@@ -104,7 +104,7 @@ export function MarketingCtaPopoverSmall({
           className={classNames(
             isMobile ? 'mb-4 w-full' : 'absolute right-2 top-2 z-1',
           )}
-          icon={!isMobile && <MiniCloseIcon />}
+          icon={(!isMobile && <MiniCloseIcon />) || undefined}
           onClick={onCtaDismiss}
         >
           {isMobile ? 'Close' : null}

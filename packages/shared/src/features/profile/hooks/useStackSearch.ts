@@ -12,7 +12,7 @@ export function useStackSearch(query: string) {
 
   const queryKey = generateQueryKey(
     RequestKey.StackSearch,
-    null,
+    undefined,
     debouncedQuery,
   );
 

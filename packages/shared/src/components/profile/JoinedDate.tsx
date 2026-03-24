@@ -11,7 +11,7 @@ export default function JoinedDate({
   date,
   dateFormat = 'MMMM y',
   ...props
-}: JoinedDateProps): ReactElement {
+}: JoinedDateProps): ReactElement | null {
   if (!isValid(date)) {
     return null;
   }

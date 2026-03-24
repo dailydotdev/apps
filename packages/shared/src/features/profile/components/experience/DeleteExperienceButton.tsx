@@ -35,7 +35,7 @@ const DeleteExperienceButton = ({
   experienceType,
 }: DeleteExperienceButtonProps): React.ReactElement => {
   const { removeExperience, isPending } = useRemoveExperience({
-    type: experienceType,
+    type: experienceType ?? UserExperienceType.Work,
   });
   const { showPrompt } = usePrompt();
 

@@ -6,7 +6,6 @@ import nock from 'nock';
 import type { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -21,7 +20,7 @@ const routerReplace = jest.fn();
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/history',
@@ -47,7 +46,7 @@ const edge = {
       },
     },
   },
-};
+} as ReadHistoryData['readHistory']['edges'][number];
 const getDefaultHistory = (edges = [edge]): ReadHistoryData => ({
   readHistory: {
     pageInfo: {
@@ -76,6 +75,7 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user,
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -83,6 +83,7 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <SearchProvider>
@@ -99,7 +100,7 @@ describe('user reading history page', () => {
     const initialBusyState = (
       await screen.findByTestId('reading-history-container')
     ).getAttribute('aria-busy');
-    expect(JSON.parse(initialBusyState)).toEqual(true);
+    expect(JSON.parse(initialBusyState ?? 'false')).toEqual(true);
 
     await waitForNock();
 
@@ -108,7 +109,9 @@ describe('user reading history page', () => {
         await screen.findByTestId('reading-history-container')
       ).getAttribute('aria-busy');
 
-      return expect(JSON.parse(afterFetchingBusyState)).toEqual(false);
+      return expect(JSON.parse(afterFetchingBusyState ?? 'true')).toEqual(
+        false,
+      );
     });
   });
 
@@ -132,23 +135,25 @@ describe('user reading history page', () => {
     expect(await screen.findByTestId('searchField')).toBeInTheDocument();
   });
 
-  it('should update query param on enter', async (done) => {
+  it('should update query param on enter', async () => {
     renderComponent();
     await waitForNock();
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;
     input.value = 'daily';
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    setTimeout(async () => {
-      input.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
-      );
-      await waitFor(() =>
-        expect(routerReplace).toBeCalledWith({
-          pathname: '/history',
-          query: { q: 'daily' },
-        }),
-      );
-      done();
-    }, 150);
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        input.dispatchEvent(
+          new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+        );
+        resolve();
+      }, 150);
+    });
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/history',
+        query: { q: 'daily' },
+      }),
+    );
   });
 });

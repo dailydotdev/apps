@@ -39,7 +39,7 @@ beforeEach(() => {
 
 const renderComponent = (
   commentUpdate: Partial<Comment> = {},
-  user: LoggedUser = null,
+  user: LoggedUser = null as unknown as LoggedUser,
   mocks: MockedGraphQLResponse[] = [],
 ): RenderResult => {
   const props: Props = {
@@ -120,6 +120,18 @@ it('should show options button with report option when user is not the author', 
   });
   const reportItem = await screen.findByText('Report comment');
   expect(reportItem).toBeInTheDocument();
+});
+
+it('should omit author-specific options when the comment author is missing', async () => {
+  renderComponent({ author: undefined }, loggedUser);
+  const el = await screen.findByLabelText('Options');
+  fireEvent.keyDown(el, {
+    key: ' ',
+  });
+
+  expect(await screen.findByText('Report comment')).toBeInTheDocument();
+  expect(screen.queryByText(/Block /)).not.toBeInTheDocument();
+  expect(screen.queryByText('Gift daily.dev Plus')).not.toBeInTheDocument();
 });
 
 it('should show login on upvote click', async () => {

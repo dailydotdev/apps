@@ -83,7 +83,7 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
                 className="text-accent-onion-default"
                 size={IconSize.XSmall}
               />
-              <span>{largeNumberFormat(profile.reputation)}</span>
+              <span>{largeNumberFormat(profile.reputation ?? 0)}</span>
             </FlexRow>
           }
         />

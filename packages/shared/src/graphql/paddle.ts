@@ -119,7 +119,7 @@ export const fetchPricingPreview = async (
     { type, locale, discountId },
   );
 
-  return pricingPreview;
+  return pricingPreview ?? [];
 };
 
 const PRICING_PREVIEW_BY_IDS_QUERY = gql`
@@ -172,7 +172,7 @@ export const fetchPricingPreviewByIds = async (
     pricingPreviewByIds: ProductPricingPreview[];
   }>(PRICING_PREVIEW_BY_IDS_QUERY, { ids, locale, loadMetadata });
 
-  return pricingPreviewByIds;
+  return pricingPreviewByIds ?? [];
 };
 
 const PRICING_METADATA_QUERY = gql`

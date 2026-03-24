@@ -22,7 +22,8 @@ export const ClearResumeButton = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { completeAction } = useActions();
-  const opts = getCandidatePreferencesOptions(user?.id);
+
+  const opts = getCandidatePreferencesOptions(user?.id ?? '');
   const updateQuery = useUpdateQuery(opts);
 
   const { mutate: clearResume, isPending: isClearResumePending } = useMutation({
@@ -36,6 +37,11 @@ export const ClearResumeButton = (): ReactElement => {
       displayToast('Failed to remove uploaded CV. Please try again.');
     },
   });
+
+  if (!user) {
+    return <></>;
+  }
+
   return (
     <Tooltip content="Remove uploaded CV">
       <Button

@@ -210,10 +210,17 @@ export const useFunnelNavigation = ({
     [setPosition, stepMap],
   );
 
-  const step: FunnelStep = useMemo(
-    () => getFunnelStepByPosition(funnel, position),
-    [funnel, position],
-  );
+  const step: FunnelStep = useMemo(() => {
+    const currentStep = getFunnelStepByPosition(funnel, position);
+
+    if (!currentStep) {
+      throw new Error(
+        'Failed to resolve funnel step from the current position',
+      );
+    }
+
+    return currentStep;
+  }, [funnel, position]);
   const navigationStateRef = useRef({ step, stepTimerStart });
   navigationStateRef.current = { step, stepTimerStart };
 

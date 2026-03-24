@@ -143,7 +143,7 @@ const PostOptionButtonContent = ({
     origin: feedOrigin,
     onRemovePost,
   } = feedContextData;
-  const origin = initialOrigin || feedOrigin;
+  const origin = initialOrigin || feedOrigin || Origin.Feed;
 
   const { postIndex, prevPost, nextPost } = useMemo(() => {
     const postIndexSelect = items.findIndex(
@@ -173,6 +173,11 @@ const PostOptionButtonContent = ({
   const isCustomFeed = feedQueryKey?.[0] === 'custom';
   const customFeedId = isCustomFeed ? (feedQueryKey?.[2] as string) : undefined;
   const post = loadedPost ?? (initialPost as Post);
+  const { source } = post;
+  if (!source) {
+    throw new Error('PostOptionButton requires post.source');
+  }
+  const activeFeedQueryKey = feedQueryKey ?? [];
   const isBriefPost = post?.type === PostType.Brief;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { feedSettings } = useFeedSettings({
@@ -276,16 +281,16 @@ const PostOptionButtonContent = ({
 
   const showMessageAndRemovePost = async (
     message: string,
-    _postIndex: number,
+    _postIndex?: number | null,
     undo?: () => unknown,
   ) => {
     const onUndo = async () => {
       await undo?.();
-      client.invalidateQueries({ queryKey: feedQueryKey });
+      client.invalidateQueries({ queryKey: activeFeedQueryKey });
     };
     displayToast(message, {
       subject: ToastSubject.Feed,
-      ...(undo !== null && {
+      ...(undo && {
         action: {
           copy: 'Undo',
           onClick: onUndo,
@@ -306,13 +311,17 @@ const PostOptionButtonContent = ({
       const key = getPostByIdKey(post.id);
       const cached = client.getQueryData(key);
       if (cached) {
-        client.setQueryData<Post>(key, (data) => ({
-          ...data,
-          pinnedAt: post.pinnedAt ? null : new Date(),
-        }));
+        client.setQueryData<Post>(key, (data) =>
+          data
+            ? {
+                ...data,
+                pinnedAt: post.pinnedAt ? undefined : new Date(),
+              }
+            : data,
+        );
       }
 
-      await client.invalidateQueries({ queryKey: feedQueryKey });
+      await client.invalidateQueries({ queryKey: activeFeedQueryKey });
       displayToast(
         post.pinnedAt
           ? 'Your post has been unpinned'
@@ -320,7 +329,7 @@ const PostOptionButtonContent = ({
       );
     },
     onSwapPostSuccessful: async () => {
-      await client.invalidateQueries({ queryKey: feedQueryKey });
+      await client.invalidateQueries({ queryKey: activeFeedQueryKey });
     },
     onPostDeleted: ({ index, post: deletedPost }) => {
       logEvent(
@@ -329,7 +338,7 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
       );
-      return showMessageAndRemovePost('The post has been deleted', index, null);
+      return showMessageAndRemovePost('The post has been deleted', index);
     },
     origin,
   });
@@ -341,13 +350,16 @@ const PostOptionButtonContent = ({
     showMessageAndRemovePost(labels.reporting.reportFeedbackText, index);
 
     if (shouldBlockSource) {
-      await onBlockSource({ source: reportedPost?.source });
+      if (!reportedPost?.source) {
+        throw new Error('Reported post source is required');
+      }
+      await onBlockSource({ source: reportedPost.source });
     }
   };
 
   const onBlockSourceClick = async (): Promise<void> => {
     const { successful } = await onBlockSource({
-      source: post?.source,
+      source,
       requireLogin: true,
     });
 
@@ -355,16 +367,14 @@ const PostOptionButtonContent = ({
       return;
     }
 
-    showMessageAndRemovePost(
-      `🚫 ${post?.source?.name} blocked`,
-      postIndex,
-      () => onUnblockSource({ source: post?.source }),
+    showMessageAndRemovePost(`🚫 ${source.name} blocked`, postIndex, () =>
+      onUnblockSource({ source }),
     );
   };
 
   const onUnblockSourceClick = async (): Promise<void> => {
     const { successful } = await onUnblockSource({
-      source: post?.source,
+      source,
       requireLogin: true,
     });
 
@@ -372,7 +382,7 @@ const PostOptionButtonContent = ({
       return;
     }
 
-    displayToast(`${post?.source?.name} unblocked`, {
+    displayToast(`${source.name} unblocked`, {
       subject: ToastSubject.Feed,
     });
   };
@@ -457,19 +467,26 @@ const PostOptionButtonContent = ({
           ...logOpts,
         }),
     },
-    canViewPostAnalytics({ user, post }) && {
+  ];
+
+  if (canViewPostAnalytics({ user, post })) {
+    postOptions.push({
       icon: <MenuIcon Icon={AnalyticsIcon} />,
       label: 'Post analytics',
       anchorProps: {
         href: `${webappUrl}posts/${post.id}/analytics`,
       },
-    },
-    !isBriefPost && {
+    });
+  }
+
+  if (!isBriefPost) {
+    postOptions.push({
       icon: <MenuIcon Icon={EyeIcon} />,
       label: 'Hide',
       action: onHidePost,
-    },
-    !isBriefPost && {
+    });
+
+    postOptions.push({
       icon: <MenuIcon Icon={FlagIcon} />,
       label: 'Report',
       action: async () =>
@@ -483,15 +500,18 @@ const PostOptionButtonContent = ({
             isAd: !!boostedBy,
           },
         }),
-    },
-    isBriefPost && {
+    });
+  }
+
+  if (isBriefPost) {
+    postOptions.push({
       icon: <MenuIcon Icon={SettingsIcon} />,
       label: 'Settings',
       action: () => {
         router?.push(`${settingsUrl}/notifications`);
       },
-    },
-  ].filter(Boolean);
+    });
+  }
 
   const onBoostPost = () => {
     openModal({
@@ -503,9 +523,14 @@ const PostOptionButtonContent = ({
   };
 
   const onManageBoost = async () => {
+    const campaignId = post.flags?.campaignId;
+    if (!campaignId) {
+      throw new Error('Boosted post campaign id is required');
+    }
+
     openModal({
       type: LazyModal.FetchBoostedPostView,
-      props: { campaignId: post.flags.campaignId },
+      props: { campaignId },
     });
   };
 
@@ -580,7 +605,7 @@ const PostOptionButtonContent = ({
           );
         }
 
-        if (feedQueryKey.some((qk) => qk === SharedFeedPage.Custom)) {
+        if (activeFeedQueryKey.some((qk) => qk === SharedFeedPage.Custom)) {
           return router.push(
             `${webappUrl}feeds/${router.query.slugOrId}/edit?dview=${FeedSettingsMenu.AI}`,
           );
@@ -626,7 +651,7 @@ const PostOptionButtonContent = ({
                 logEvent(
                   postLogEvent(LogEvent.MoveBookmarkToFolder, post, logOpts),
                 );
-                client.invalidateQueries({ queryKey: feedQueryKey });
+                client.invalidateQueries({ queryKey: activeFeedQueryKey });
               },
             },
           });
@@ -637,13 +662,16 @@ const PostOptionButtonContent = ({
 
   const { haveNotificationsOn, onNotify: onNotifyToggle } = sourceSubscribe;
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
-    source: post?.source,
+    source,
   });
+  const author = post?.author;
+  const authorName =
+    author?.name || (author?.username ? `@${author.username}` : null);
 
   if (shouldShowSubscribe) {
     postOptions.push({
       icon: <MenuIcon Icon={isFollowing ? MinusIcon : PlusIcon} />,
-      label: `${isFollowing ? 'Unfollow' : 'Follow'} ${post?.source?.name}`,
+      label: `${isFollowing ? 'Unfollow' : 'Follow'} ${source.name}`,
       action: toggleFollow,
     });
 
@@ -655,22 +683,21 @@ const PostOptionButtonContent = ({
           />
         ),
         label: haveNotificationsOn
-          ? `Remove notifications from ${post.source.name}`
-          : `Notify on new post from ${post.source.name}`,
+          ? `Remove notifications from ${source.name}`
+          : `Notify on new post from ${source.name}`,
         action: onNotifyToggle,
       });
     }
   }
 
   const shouldShowFollow =
-    !useIsSpecialUser({ userId: post?.author?.id }) &&
-    post?.author &&
+    !useIsSpecialUser({ userId: author?.id ?? '' }) &&
+    !!author &&
     !isBlockedAuthor &&
     isLoggedIn;
 
-  if (shouldShowFollow) {
-    const authorName = post.author.name || `@${post.author.username}`;
-    const isFollowingUser = isFollowingContent(post.author?.contentPreference);
+  if (shouldShowFollow && authorName) {
+    const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     postOptions.push({
       icon: <MenuIcon Icon={isFollowingUser ? RemoveUserIcon : AddUserIcon} />,
@@ -685,14 +712,14 @@ const PostOptionButtonContent = ({
 
         if (!isFollowingUser) {
           follow({
-            id: post.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
           });
         } else {
           unfollow({
-            id: post.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
@@ -702,10 +729,10 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (!isBriefPost && post?.source?.name && !isSourceUserSource(post?.source)) {
+  if (!isBriefPost && source.name && !isSourceUserSource(source)) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockLabel(post.source.name, {
+      label: getBlockLabel(source.name, {
         isCustomFeed,
         isBlocked: isSourceBlocked,
       }),
@@ -713,19 +740,21 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.author && post?.author?.id !== user?.id) {
+  if (author && authorName && author.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockLabel(post.author.name, {
+      label: getBlockLabel(authorName, {
         isCustomFeed,
         isBlocked: isBlockedAuthor,
       }),
       action: async () => {
         const params = {
-          id: post.author.id,
+          id: author.id,
           entity: ContentPreferenceType.User,
-          entityName: post.author.name,
-          feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
+          entityName: authorName,
+          ...(router.query.slugOrId
+            ? { feedId: `${router.query.slugOrId}` }
+            : {}),
         };
 
         if (isBlockedAuthor) {
@@ -739,9 +768,7 @@ const PostOptionButtonContent = ({
           });
 
           await showMessageAndRemovePost(
-            `🚫 ${post.author.name} has been ${
-              isCustomFeed ? 'removed' : 'blocked'
-            }`,
+            `🚫 ${authorName} has been ${isCustomFeed ? 'removed' : 'blocked'}`,
             postIndex,
             () => unblock(params),
           );
@@ -771,7 +798,7 @@ const PostOptionButtonContent = ({
   if (!isBriefPost) {
     post?.tags?.forEach((tag) => {
       if (tag.length) {
-        const isBlocked = feedSettings?.blockedTags?.includes(tag);
+        const isBlocked = feedSettings?.blockedTags?.includes(tag) ?? false;
         if (isBlocked && isCustomFeed) {
           return;
         }

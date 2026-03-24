@@ -12,7 +12,7 @@ export function useToolSearch(query: string) {
 
   const queryKey = generateQueryKey(
     RequestKey.ToolSearch,
-    null,
+    undefined,
     debouncedQuery,
   );
 

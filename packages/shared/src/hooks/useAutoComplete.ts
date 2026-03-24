@@ -29,7 +29,9 @@ export function useAutoComplete(
           setSelectedItemIndex(event.key === 'ArrowDown' ? 0 : n - 1);
         }
       } else if (event.key === 'Enter') {
-        submitQuery(selectedItemIndex > -1 && items[selectedItemIndex]);
+        submitQuery(
+          (selectedItemIndex > -1 && items[selectedItemIndex]) || undefined,
+        );
       }
     },
   };

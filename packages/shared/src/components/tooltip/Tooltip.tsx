@@ -47,9 +47,11 @@ export function Tooltip({
         onOpenChange={setOpen}
       >
         <RadixPrimitive.Trigger
-          aria-label={showAriaLabel && content.toString()}
+          aria-label={showAriaLabel ? content.toString() : undefined}
           asChild
-          onMouseUp={(e) => e.currentTarget.blur()}
+          onMouseUp={(e: React.MouseEvent) =>
+            (e.currentTarget as HTMLElement).blur()
+          }
           {...(enableMobileClick && { onClick: () => setOpen(true) })}
         >
           {children}

@@ -60,14 +60,14 @@ export function PostHeaderActions({
             href={post.sharedPost?.permalink ?? post.permalink}
             target={openNewTab ? '_blank' : '_self'}
             icon={getReadPostButtonIcon(post)}
-            {...(isTwitter && {
-              iconPosition: ButtonIconPosition.Right,
-            })}
+            iconPosition={
+              isTwitter ? ButtonIconPosition.Right : (undefined as never)
+            }
             onClick={onReadArticle}
             data-testid="postActionsRead"
             size={buttonSize}
           >
-            {!inlineActions ? readButtonText : null}
+            {!inlineActions ? readButtonText : undefined}
           </Button>
         </Tooltip>
       )}

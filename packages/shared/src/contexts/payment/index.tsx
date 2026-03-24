@@ -10,7 +10,10 @@ import type { StoreKitSubProviderProps } from './StoreKit';
 import { iOSSupportsPlusPurchase } from '../../lib/ios';
 
 const StoreKitSubProvider = dynamic(() =>
-  import('./StoreKit').then((mod) => mod.StoreKitSubProvider),
+  import('./StoreKit').then(
+    (mod) =>
+      mod.StoreKitSubProvider as React.ComponentType<StoreKitSubProviderProps>,
+  ),
 );
 
 export const PaymentContextProvider = ({
@@ -26,9 +29,7 @@ export const PaymentContextProvider = ({
   }
 
   if (checkIsExtension()) {
-    return (
-      <ChromeExtensionProvider {...props}>{children}</ChromeExtensionProvider>
-    );
+    return <ChromeExtensionProvider>{children}</ChromeExtensionProvider>;
   }
 
   return (

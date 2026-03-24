@@ -13,7 +13,7 @@ interface SearchResultsTagsProps {
 
 export const SearchResultsTags = (
   props: SearchResultsTagsProps,
-): ReactElement => {
+): ReactElement | null => {
   const { items = [], isLoading, onTagClick } = props;
 
   if (!isLoading && !items.length) {

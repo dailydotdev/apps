@@ -39,7 +39,7 @@ export function NavDrawer({
 
   const router = useRouter();
   const canPurchaseCores = useCanPurchaseCores();
-  const ref = useRef<DrawerRef>();
+  const ref = useRef<DrawerRef>(null) as React.MutableRefObject<DrawerRef>;
 
   return (
     <Drawer

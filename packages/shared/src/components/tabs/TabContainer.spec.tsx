@@ -4,7 +4,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import nock from 'nock';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { TabContainerProps } from './TabContainer';
 import { Tab, TabContainer } from './TabContainer';
 
@@ -84,7 +83,7 @@ describe('tab container component', () => {
 
     beforeAll(() => {
       const mockPathname = '/second';
-      mocked(useRouter).mockImplementation(
+      jest.mocked(useRouter).mockImplementation(
         () =>
           ({
             pathname: mockPathname,

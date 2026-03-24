@@ -42,7 +42,7 @@ const useGif = ({
         const params = new URLSearchParams({
           q: query,
           limit: limit.toString(),
-          ...(pageParam && { pos: pageParam as string }),
+          ...(pageParam ? { pos: pageParam as string } : {}),
         });
 
         const response = await fetch(`${apiUrl}/gifs?${params}`, {

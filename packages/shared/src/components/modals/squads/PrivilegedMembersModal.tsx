@@ -32,7 +32,7 @@ function PrivilegedMembersModal({
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
       <Modal.Header title="Moderated by" />
       <Modal.Body className="!p-0">
-        {squad.privilegedMembers?.map(({ user, role }) => (
+        {squad?.privilegedMembers?.map(({ user, role }) => (
           <Link key={user.username} href={user.permalink}>
             <UserShortInfo
               tag="a"

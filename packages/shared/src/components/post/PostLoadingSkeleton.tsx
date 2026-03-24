@@ -15,7 +15,7 @@ function PostLoadingSkeleton({
   type,
   className,
   hasNavigation,
-}: PostLoadingSkeletonProps): ReactElement {
+}: PostLoadingSkeletonProps): ReactElement | null {
   if (!type) {
     return null;
   }

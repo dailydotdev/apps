@@ -242,6 +242,10 @@ describe('FunnelPricing', () => {
     );
 
     // Click on the monthly plan
+    if (!monthlyPlan) {
+      throw new Error('Missing monthly plan radio button');
+    }
+
     fireEvent.click(monthlyPlan);
 
     // Then click the CTA

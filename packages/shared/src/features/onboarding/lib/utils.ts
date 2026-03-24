@@ -59,7 +59,7 @@ export const getCookiesAndHeadersFromRequest = (
     },
   );
   if (!forwardedHeaders['x-forwarded-for']) {
-    forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress;
+    forwardedHeaders['x-forwarded-for'] = req.socket.remoteAddress ?? '';
   }
 
   return { cookies: allCookies, forwardedHeaders };

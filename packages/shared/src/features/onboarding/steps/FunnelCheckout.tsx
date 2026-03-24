@@ -40,6 +40,10 @@ export const FunnelCheckout = ({
 
     currentPriceIdRef.current = priceId;
 
+    if (!openCheckout) {
+      throw new Error('FunnelCheckout requires an available checkout handler');
+    }
+
     openCheckout({
       priceId,
       discountId: applyDiscount ? discountCode : undefined,

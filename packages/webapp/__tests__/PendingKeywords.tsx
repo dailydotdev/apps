@@ -1,6 +1,5 @@
 import React from 'react';
 import nock from 'nock';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
@@ -29,7 +28,7 @@ const routerReplace = jest.fn();
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         replace: routerReplace,
@@ -43,16 +42,20 @@ const defaultKeyword: Keyword = {
   status: 'pending',
 };
 
-const createRandomKeywordMock = (
-  keyword: Keyword | null = defaultKeyword,
-): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> => ({
-  request: {
-    query: RANDOM_PENDING_KEYWORD_QUERY,
-  },
-  result: {
-    data: { keyword, countPendingKeywords: 1234 },
-  },
-});
+function createRandomKeywordMock(
+  keyword?: Keyword,
+): MockedGraphQLResponse<KeywordData & CountPendingKeywordsData> {
+  const resolvedKeyword = arguments.length < 1 ? defaultKeyword : keyword;
+
+  return {
+    request: {
+      query: RANDOM_PENDING_KEYWORD_QUERY,
+    },
+    result: {
+      data: { keyword: resolvedKeyword, countPendingKeywords: 1234 },
+    },
+  };
+}
 
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createRandomKeywordMock()],
@@ -66,11 +69,15 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user: { ...user, ...userUpdate },
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
           updateUser: jest.fn(),
           tokenRefreshed: true,
+          closeLogin: jest.fn(),
+          getRedirectUri: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <PendingKeywords />
@@ -85,7 +92,7 @@ it('should redirect to home page if not moderator', async () => {
 });
 
 it('should show empty screen when no keyword', async () => {
-  renderComponent([createRandomKeywordMock(null)]);
+  renderComponent([createRandomKeywordMock(undefined)]);
   expect(await screen.findByTestId('empty')).toBeInTheDocument();
 });
 
