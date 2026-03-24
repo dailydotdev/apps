@@ -11,7 +11,7 @@ import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
 import UserBadge from '../UserBadge';
 import { FlexRow, getRoleName, TruncateText } from '../utilities';
-import CommentAuthor from './CommentAuthor';
+import CommentAuthor, { deletedCommentAuthorName } from './CommentAuthor';
 import { CommentPublishDate } from './CommentPublishDate';
 import { useMemberRoleForSource } from '../../hooks/useMemberRoleForSource';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -20,7 +20,7 @@ import { ReputationUserBadge } from '../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { Separator } from '../cards/common/common';
 import { PlusUserBadge } from '../PlusUserBadge';
-import { ProfileImageSize } from '../ProfilePicture';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { AnimatedAwardImage } from '../AnimatedAward';
 import { isSourceUserSource } from '../../graphql/sources';
@@ -62,9 +62,11 @@ export default function CommentContainer({
   onClick,
 }: CommentContainerProps): ReactElement {
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
+  const { author } = comment;
+  const authorHandle = author?.username ? `@${author.username}` : null;
   const { role } = useMemberRoleForSource({
     source: post.source,
-    user: comment.author,
+    user: author,
   });
   const hasAccessToCores = useHasAccessToCores();
 
@@ -103,54 +105,60 @@ export default function CommentContainer({
         </header>
       )}
       <header className="z-1 flex w-full flex-row self-start">
-        <ProfileTooltip
-          userId={comment.author.id}
-          tooltip={{ appendTo: appendTooltipTo }}
-        >
-          <ProfileImageLink
-            user={comment.author}
-            picture={{
-              width: 40,
-              height: 40,
-              size: ProfileImageSize.Large,
-              fetchPriority: 'low',
-            }}
+        {author ? (
+          <ProfileTooltip
+            userId={author.id}
+            tooltip={{ appendTo: appendTooltipTo }}
+          >
+            <ProfileImageLink
+              user={author}
+              picture={{
+                width: 40,
+                height: 40,
+                size: ProfileImageSize.Large,
+                fetchPriority: 'low',
+              }}
+            />
+          </ProfileTooltip>
+        ) : (
+          <ProfilePicture
+            user={{ image: '', name: deletedCommentAuthorName }}
+            width={40}
+            height={40}
+            size={ProfileImageSize.Large}
+            fetchPriority="low"
+            nativeLazyLoading
           />
-        </ProfileTooltip>
+        )}
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
           <FlexRow className="items-center gap-1 text-text-quaternary">
-            <CommentAuthor
-              author={comment.author}
-              appendTooltipTo={appendTooltipTo}
-            />
-            {!!comment.author?.isPlus && (
-              <PlusUserBadge user={comment.author} />
+            <CommentAuthor author={author} appendTooltipTo={appendTooltipTo} />
+            {!!author?.isPlus && <PlusUserBadge user={author} />}
+            {author && authorHandle && (
+              <div className="flex min-w-0 shrink items-center">
+                <ProfileLink href={author.permalink}>
+                  <TruncateText
+                    className="text-text-tertiary typo-footnote"
+                    title={authorHandle}
+                  >
+                    {authorHandle}
+                  </TruncateText>
+                </ProfileLink>
+              </div>
             )}
-            <div className="flex min-w-0 shrink items-center">
-              <ProfileLink href={comment.author.permalink}>
-                <TruncateText
-                  className="text-text-tertiary typo-footnote"
-                  title={`@${comment.author.username}`}
-                >
-                  @{comment.author.username}
-                </TruncateText>
-              </ProfileLink>
-            </div>
             <Separator className="!mx-0" />
             <CommentPublishDate comment={comment} />
           </FlexRow>
           <FlexRow className="gap-1">
-            <ReputationUserBadge user={comment.author} />
-            {comment.author?.companies?.length > 0 && (
-              <VerifiedCompanyUserBadge user={comment.author} />
+            {author && <ReputationUserBadge user={author} />}
+            {author?.companies?.length > 0 && (
+              <VerifiedCompanyUserBadge user={author} />
             )}
             {!isSourceUserSource(post?.source) && (
               <UserBadge role={role}>{getRoleName(role)}</UserBadge>
             )}
-            {comment.author.id === postAuthorId && (
-              <UserBadge>Creator</UserBadge>
-            )}
-            {comment.author.id === postScoutId && <UserBadge>Scout</UserBadge>}
+            {author?.id === postAuthorId && <UserBadge>Creator</UserBadge>}
+            {author?.id === postScoutId && <UserBadge>Scout</UserBadge>}
           </FlexRow>
         </div>
         {hasAccessToCores && !!comment.award && (

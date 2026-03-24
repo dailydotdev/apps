@@ -114,6 +114,26 @@ it('should render the comment box', async () => {
   expect(commentBox).toBeInTheDocument();
 });
 
+it('should handle replies from comments with no author', async () => {
+  renderLayout(
+    {
+      comment: {
+        ...comment,
+        author: undefined,
+      },
+    },
+    loggedUser,
+  );
+
+  await screen.findByText('Deleted user');
+
+  const el = await screen.findByLabelText('Reply');
+  await el.click();
+
+  const [commentBox] = await screen.findAllByRole('textbox');
+  expect(commentBox).toBeInTheDocument();
+});
+
 it('should call onDelete callback', async () => {
   renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Options');

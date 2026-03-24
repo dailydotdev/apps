@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
 import post from '../../../__tests__/fixture/post';
+import { SourceType } from '../../graphql/sources';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -164,6 +165,30 @@ describe('PostItemCard component', () => {
     renderCard();
     await screen.findByAltText(
       `source of ${defaultHistory.post.title}'s profile`,
+    );
+  });
+
+  it('should fall back to the source image when a user-source author is missing', async () => {
+    renderCard({
+      postItem: {
+        ...defaultHistory,
+        post: {
+          ...defaultHistory.post,
+          author: undefined,
+          source: {
+            ...defaultHistory.post.source,
+            type: SourceType.User,
+          },
+        },
+      },
+    });
+
+    const sourceImage = await screen.findByAltText(
+      `source of ${defaultHistory.post.title}'s profile`,
+    );
+    expect(sourceImage).toHaveAttribute(
+      'src',
+      defaultHistory.post.source.image,
     );
   });
 

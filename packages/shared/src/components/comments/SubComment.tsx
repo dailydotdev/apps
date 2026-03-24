@@ -70,7 +70,7 @@ function SubComment({
           }}
           onComment={(selected, parent) =>
             onReplyTo({
-              username: comment.author.username,
+              username: comment.author?.username ?? null,
               parentCommentId: parent,
               commentId: selected.id,
             })

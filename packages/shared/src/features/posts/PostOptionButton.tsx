@@ -639,6 +639,9 @@ const PostOptionButtonContent = ({
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source: post?.source,
   });
+  const author = post?.author;
+  const authorName =
+    author?.name || (author?.username ? `@${author.username}` : null);
 
   if (shouldShowSubscribe) {
     postOptions.push({
@@ -663,14 +666,13 @@ const PostOptionButtonContent = ({
   }
 
   const shouldShowFollow =
-    !useIsSpecialUser({ userId: post?.author?.id }) &&
-    post?.author &&
+    !useIsSpecialUser({ userId: author?.id }) &&
+    !!author &&
     !isBlockedAuthor &&
     isLoggedIn;
 
-  if (shouldShowFollow) {
-    const authorName = post.author.name || `@${post.author.username}`;
-    const isFollowingUser = isFollowingContent(post.author?.contentPreference);
+  if (shouldShowFollow && authorName) {
+    const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     postOptions.push({
       icon: <MenuIcon Icon={isFollowingUser ? RemoveUserIcon : AddUserIcon} />,
@@ -685,14 +687,14 @@ const PostOptionButtonContent = ({
 
         if (!isFollowingUser) {
           follow({
-            id: post.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
           });
         } else {
           unfollow({
-            id: post.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
@@ -713,18 +715,18 @@ const PostOptionButtonContent = ({
     });
   }
 
-  if (post?.author && post?.author?.id !== user?.id) {
+  if (author && authorName && author.id !== user?.id) {
     postOptions.push({
       icon: <MenuIcon Icon={BlockIcon} />,
-      label: getBlockLabel(post.author.name, {
+      label: getBlockLabel(authorName, {
         isCustomFeed,
         isBlocked: isBlockedAuthor,
       }),
       action: async () => {
         const params = {
-          id: post.author.id,
+          id: author.id,
           entity: ContentPreferenceType.User,
-          entityName: post.author.name,
+          entityName: authorName,
           feedId: router.query.slugOrId ? `${router.query.slugOrId}` : null,
         };
 
@@ -739,9 +741,7 @@ const PostOptionButtonContent = ({
           });
 
           await showMessageAndRemovePost(
-            `🚫 ${post.author.name} has been ${
-              isCustomFeed ? 'removed' : 'blocked'
-            }`,
+            `🚫 ${authorName} has been ${isCustomFeed ? 'removed' : 'blocked'}`,
             postIndex,
             () => unblock(params),
           );

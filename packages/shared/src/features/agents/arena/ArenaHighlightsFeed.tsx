@@ -115,6 +115,7 @@ const HighlightCard = ({
   item: SentimentHighlightItem;
   tab?: 'coding-agents' | 'llms';
 }): ReactElement => {
+  const { author } = item;
   const cleanText = decodeHtmlEntities(stripTcoLinks(item.text));
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>): void => {
@@ -138,17 +139,17 @@ const HighlightCard = ({
         }
       }}
     >
-      <AuthorAvatar author={item.author} />
+      <AuthorAvatar author={author} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex min-w-0 items-center gap-1.5">
-          {item.author?.name && (
+          {author?.name && (
             <span className="shrink truncate font-bold text-text-primary typo-caption1">
-              {item.author.name}
+              {author.name}
             </span>
           )}
-          {item.author?.handle && (
+          {author?.handle && (
             <span className="shrink truncate text-text-quaternary typo-caption2">
-              @{item.author.handle}
+              @{author.handle}
             </span>
           )}
           <span className="shrink-0 text-text-disabled typo-caption2">

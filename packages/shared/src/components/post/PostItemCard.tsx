@@ -105,7 +105,10 @@ export default function PostItemCard({
               showVoteActions && 'top-8',
             )}
             user={{
-              image: isUserSource ? post.author.image : post.source.image,
+              image:
+                isUserSource && post.author?.image
+                  ? post.author.image
+                  : post.source.image,
               username: `source of ${title}`,
             }}
             nativeLazyLoading
