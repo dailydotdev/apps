@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import { useRouter } from 'next/router';
 
 import { BriefBanner } from './BriefBanner';
@@ -20,8 +19,8 @@ jest.mock('../../../../hooks/utils', () => ({
   useIsLightTheme: jest.fn(() => false),
 }));
 
-const mockUseRouter = mocked(useRouter);
-const mockUseAuthContext = mocked(useAuthContext);
+const mockUseRouter = jest.mocked(useRouter);
+const mockUseAuthContext = jest.mocked(useAuthContext);
 
 const mockPush = jest.fn();
 const mockLogEvent = jest.fn();

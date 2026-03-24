@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import { mocked } from 'ts-jest/utils';
 import {
   PostModerationReason,
   SourcePostModerationStatus,
@@ -69,26 +68,26 @@ describe('useSourceModerationList', () => {
     client = new QueryClient();
     jest.clearAllMocks();
 
-    mocked(useToastNotification).mockReturnValue({
+    jest.mocked(useToastNotification).mockReturnValue({
       displayToast,
     } as ReturnType<typeof useToastNotification>);
-    mocked(useLazyModal).mockReturnValue({
+    jest.mocked(useLazyModal).mockReturnValue({
       openModal,
       closeModal,
     } as ReturnType<typeof useLazyModal>);
-    mocked(usePrompt).mockReturnValue({
+    jest.mocked(usePrompt).mockReturnValue({
       showPrompt,
     } as ReturnType<typeof usePrompt>);
-    mocked(useLogContext).mockReturnValue({
+    jest.mocked(useLogContext).mockReturnValue({
       logEvent,
     } as ReturnType<typeof useLogContext>);
-    mocked(useAuthContext).mockReturnValue({
+    jest.mocked(useAuthContext).mockReturnValue({
       user: { id: 'user-1' },
     } as ReturnType<typeof useAuthContext>);
   });
 
   it('resolves approve flow and logs all posts including partial data', async () => {
-    mocked(squadApproveMutation).mockResolvedValue([
+    jest.mocked(squadApproveMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Approved,
         type: 'article',
@@ -128,7 +127,7 @@ describe('useSourceModerationList', () => {
   });
 
   it('resolves reject flow, closes modal, and logs all posts including partial data', async () => {
-    mocked(squadRejectMutation).mockResolvedValue([
+    jest.mocked(squadRejectMutation).mockResolvedValue([
       createModerationItem({
         status: SourcePostModerationStatus.Rejected,
         type: 'article',

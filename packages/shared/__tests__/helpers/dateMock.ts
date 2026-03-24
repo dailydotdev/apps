@@ -16,30 +16,8 @@ export type DateMock = {
  * @returns Object with utility functions and cleanup method
  */
 export const setupDateMock = (initialDate = new Date()): DateMock => {
-  let mockDate = new Date(initialDate);
-  const RealDate = global.Date;
-
-  // Create a mock Date class
-  const MockDate = class extends Date {
-    constructor(...args: Parameters<typeof Date>) {
-      if (args.length === 0) {
-        super(mockDate);
-        return this;
-      }
-      super(...args);
-      return this;
-    }
-
-    static now() {
-      return new RealDate(mockDate).getTime();
-    }
-  };
-
-  // Replace the global Date constructor
-  global.Date = MockDate as typeof Date;
-
-  // Use fake timers
   jest.useFakeTimers();
+  jest.setSystemTime(initialDate);
 
   return {
     /**
@@ -47,26 +25,20 @@ export const setupDateMock = (initialDate = new Date()): DateMock => {
      * @param minutes - Number of minutes to advance the time
      */
     advanceTimeByMinutes: (minutes: number) => {
-      const seconds = Math.floor(minutes * 60);
-      for (let i = 0; i < seconds; i += 1) {
-        // eslint-disable-next-line @typescript-eslint/no-loop-func
-        act(() => {
-          mockDate = new Date(mockDate.getTime() + 1000);
-          jest.advanceTimersByTime(1000);
-        });
-      }
+      act(() => {
+        jest.advanceTimersByTime(minutes * 60 * 1000);
+      });
     },
 
     /**
      * Get the current mock date
      */
-    getCurrentMockDate: () => new Date(mockDate),
+    getCurrentMockDate: () => new Date(jest.now()),
 
     /**
      * Clean up the date mock
      */
     cleanup: () => {
-      global.Date = RealDate;
       jest.useRealTimers();
     },
   };

@@ -29,7 +29,6 @@ import {
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import nock from 'nock';
 import { QueryClient } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
@@ -87,7 +86,7 @@ jest.mock('next/router', () => ({
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,
@@ -504,7 +503,7 @@ it('should not show author onboarding by default', () => {
 });
 
 it('should show author onboarding when the query param is set', async () => {
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,

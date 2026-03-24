@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { NotificationItemProps } from './NotificationItem';
 import NotificationItem from './NotificationItem';
 import {
@@ -19,7 +18,7 @@ jest.mock('next/router', () => ({
 }));
 
 beforeEach(() => {
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,

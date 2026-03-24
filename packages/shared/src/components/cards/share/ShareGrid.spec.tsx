@@ -5,7 +5,6 @@ import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import { sharePost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { PostType } from '../../../graphql/posts';
@@ -41,7 +40,7 @@ jest.mock('../../../hooks', () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',

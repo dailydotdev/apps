@@ -21,7 +21,6 @@ import {
   NotificationType,
 } from '@dailydotdev/shared/src/components/notifications/utils';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';
@@ -33,7 +32,7 @@ jest.mock('next/router', () => ({
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,

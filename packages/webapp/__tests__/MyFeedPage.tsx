@@ -10,7 +10,6 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
@@ -34,7 +33,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/my-feed',

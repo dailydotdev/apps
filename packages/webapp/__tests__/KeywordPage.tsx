@@ -1,6 +1,5 @@
 import React from 'react';
 import nock from 'nock';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
@@ -31,7 +30,7 @@ const routerReplace = jest.fn();
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         replace: routerReplace,

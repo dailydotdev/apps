@@ -9,7 +9,6 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { mocked } from 'ts-jest/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -137,7 +136,7 @@ jest.spyOn(libFuncs, 'checkIsExtension').mockReturnValue(true);
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
-  mocked(getBootData).mockResolvedValue(getBootMock(bootData));
+  jest.mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <div id="__next">
       <QueryClientProvider client={queryClient}>

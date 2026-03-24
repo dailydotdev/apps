@@ -17,7 +17,6 @@ import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import ProfilePage from '../pages/[userId]/upvoted';
 
 jest.mock('next/router', () => ({
@@ -28,7 +27,7 @@ beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',

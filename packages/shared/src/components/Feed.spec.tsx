@@ -10,7 +10,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
@@ -72,7 +71,7 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-mocked(useRouter).mockImplementation(
+jest.mocked(useRouter).mockImplementation(
   () =>
     ({
       pathname: '/',
@@ -754,7 +753,7 @@ describe('Feed logged in', () => {
   });
 
   it('should open a modal to view post details', async () => {
-    mocked(useRouter).mockImplementation(() => ({
+    jest.mocked(useRouter).mockImplementation(() => ({
       route: '/',
       pathname: '/',
       query: {
@@ -833,7 +832,7 @@ describe('Feed logged in', () => {
   });
 
   it('should be able to navigate through posts', async () => {
-    mocked(useRouter).mockImplementation(() => {
+    jest.mocked(useRouter).mockImplementation(() => {
       const [id, setId] = useState('4f354bb73009e4adfa5dbcbf9b3c4ebf');
 
       return {
@@ -1009,7 +1008,7 @@ describe('Feed logged in', () => {
     beforeEach(() => {
       /* eslint-disable @typescript-eslint/no-var-requires,global-require */
       mockedQuery[acquisitionKey] = 'true';
-      mocked(useRouter).mockImplementation(() => ({
+      jest.mocked(useRouter).mockImplementation(() => ({
         route: '/',
         pathname: '',
         query: mockedQuery,

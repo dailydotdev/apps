@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import type { NextRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import { useDirtyForm } from './useDirtyForm';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
@@ -52,10 +51,10 @@ describe('useDirtyForm', () => {
       },
     };
 
-    mocked(useRouter).mockReturnValue(mockRouter as NextRouter);
+    jest.mocked(useRouter).mockReturnValue(mockRouter as NextRouter);
 
     mockOpenModal = jest.fn();
-    mocked(useLazyModal).mockReturnValue({
+    jest.mocked(useLazyModal).mockReturnValue({
       openModal: mockOpenModal,
     } as ReturnType<typeof useLazyModal>);
 

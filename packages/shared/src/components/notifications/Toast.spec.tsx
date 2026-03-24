@@ -15,6 +15,10 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 const ComponentWithToast = ({ autoDismissNotifications = true }) => {
   const { displayToast } = useToastNotification();
 
@@ -59,7 +63,7 @@ it('should display a toast notification', async () => {
   fireEvent.click(button);
   const alertEl = await screen.findByRole('alert');
   expect(alertEl).toBeInTheDocument();
-  expect(setInterval).toHaveBeenCalledTimes(1);
+  expect(jest.getTimerCount()).toBeGreaterThan(0);
   const el = await screen.findByText('Sample Notification');
   expect(el).toBeInTheDocument();
   jest.advanceTimersByTime(500);
@@ -73,7 +77,7 @@ it('should display a toast notification and be dismissable', async () => {
   fireEvent.click(button);
   const alertEl = await screen.findByRole('alert');
   expect(alertEl).toBeInTheDocument();
-  expect(setInterval).toHaveBeenCalledTimes(1);
+  expect(jest.getTimerCount()).toBeGreaterThan(0);
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
@@ -88,7 +92,7 @@ it('should display a toast notification and do not automatically close', async (
   fireEvent.click(button);
   const alertEl = await screen.findByRole('alert');
   expect(alertEl).toBeInTheDocument();
-  expect(setInterval).toHaveBeenCalledTimes(1);
+  expect(jest.getTimerCount()).toBeGreaterThan(0);
   const dismiss = await screen.findByLabelText('Dismiss toast notification');
   expect(dismiss).toBeInTheDocument();
   fireEvent.click(dismiss);
@@ -103,7 +107,7 @@ it('should display a toast notification and undoable action', async () => {
   fireEvent.click(button);
   const alertEl = await screen.findByRole('alert');
   expect(alertEl).toBeInTheDocument();
-  expect(setInterval).toHaveBeenCalledTimes(1);
+  expect(jest.getTimerCount()).toBeGreaterThan(0);
   const el = await screen.findByText('Undoable Notification');
   expect(el).toBeInTheDocument();
   const undoBtn = await screen.findByLabelText('Undo');

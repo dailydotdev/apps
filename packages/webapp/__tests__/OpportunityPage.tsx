@@ -3,7 +3,6 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import nock from 'nock';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
@@ -80,7 +79,7 @@ const mockOpportunity: Opportunity = {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,

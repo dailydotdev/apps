@@ -12,7 +12,6 @@ import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -32,7 +31,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/bookmarks',

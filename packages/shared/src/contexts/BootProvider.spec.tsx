@@ -4,7 +4,6 @@ import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
@@ -95,7 +94,7 @@ const renderComponent = (
 ): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
-  mocked(getBootData).mockResolvedValue(getBootMock(bootData));
+  jest.mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>
       <BootDataProvider

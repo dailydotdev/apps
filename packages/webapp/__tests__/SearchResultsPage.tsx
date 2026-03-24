@@ -3,7 +3,6 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
@@ -30,7 +29,7 @@ const DEFAULT_QUERY = 'react';
 beforeEach(() => {
   jest.spyOn(hooks, 'useViewSize').mockReset();
 
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/search',

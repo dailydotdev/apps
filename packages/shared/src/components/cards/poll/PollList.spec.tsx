@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { PostCardProps } from '../common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import {
@@ -19,11 +18,11 @@ jest.mock('next/router', () => ({
 
 jest.mock('../../../hooks/usePoll');
 
-const mockUsePoll = mocked(usePollModule.default);
+const mockUsePoll = jest.mocked(usePollModule.default);
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',

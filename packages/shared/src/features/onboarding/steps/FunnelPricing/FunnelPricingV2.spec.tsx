@@ -1,6 +1,12 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import type { WritableAtom } from 'jotai';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
@@ -301,7 +307,7 @@ describe('FunnelPricingV2', () => {
     });
   });
 
-  it('should set applyDiscount to false when the timer expires', () => {
+  it('should set applyDiscount to false when the timer expires', async () => {
     renderComponent();
 
     // Simulate timer expiration by calling the onTimerEnd function
@@ -310,6 +316,12 @@ describe('FunnelPricingV2', () => {
 
     // Simulate timer expiration
     dateMock.advanceTimeByMinutes(16);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    await waitFor(() =>
+      expect(screen.queryAllByTestId('mini-discount-timer')).toHaveLength(0),
+    );
 
     // Click the CTA button
     const proceedButton = screen

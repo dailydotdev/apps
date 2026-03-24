@@ -6,7 +6,6 @@ import nock from 'nock';
 import type { ReadHistoryData } from '@dailydotdev/shared/src/hooks/useInfiniteReadingHistory';
 import { READING_HISTORY_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -21,7 +20,7 @@ const routerReplace = jest.fn();
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/history',
@@ -132,23 +131,25 @@ describe('user reading history page', () => {
     expect(await screen.findByTestId('searchField')).toBeInTheDocument();
   });
 
-  it('should update query param on enter', async (done) => {
+  it('should update query param on enter', async () => {
     renderComponent();
     await waitForNock();
     const input = (await screen.findByRole('textbox')) as HTMLInputElement;
     input.value = 'daily';
     input.dispatchEvent(new Event('input', { bubbles: true }));
-    setTimeout(async () => {
-      input.dispatchEvent(
-        new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
-      );
-      await waitFor(() =>
-        expect(routerReplace).toBeCalledWith({
-          pathname: '/history',
-          query: { q: 'daily' },
-        }),
-      );
-      done();
-    }, 150);
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        input.dispatchEvent(
+          new KeyboardEvent('keydown', { bubbles: true, keyCode: 13 }),
+        );
+        resolve();
+      }, 150);
+    });
+    await waitFor(() =>
+      expect(routerReplace).toBeCalledWith({
+        pathname: '/history',
+        query: { q: 'daily' },
+      }),
+    );
   });
 });
