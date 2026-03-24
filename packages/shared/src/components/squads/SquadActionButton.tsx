@@ -70,6 +70,39 @@ export const updateSquadMembershipInListData = (
   })),
 });
 
+export const updateSquadDirectoryCache = ({
+  queryClient,
+  squadId,
+  categoryId,
+  featured,
+  updateSquad,
+}: {
+  queryClient: ReturnType<typeof useQueryClient>;
+  squadId: string;
+  categoryId?: string;
+  featured?: boolean;
+  updateSquad: (currentSquad: Squad) => Squad;
+}) => {
+  queryClient.setQueriesData<SquadDirectoryData>(
+    {
+      queryKey: generateQueryKey(
+        RequestKey.Sources,
+        null,
+        featured,
+        true,
+        categoryId,
+      ),
+    },
+    (currentData) => {
+      if (!currentData) {
+        return currentData;
+      }
+
+      return updateSquadMembershipInListData(currentData, squadId, updateSquad);
+    },
+  );
+};
+
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
   squad,
@@ -148,41 +181,14 @@ export const SquadActionButton = ({
   const isMemberBlocked =
     squad?.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
-
-  const fuzzyQueryKey = generateQueryKey(
-    RequestKey.Sources,
-    null,
-    undefined,
-    true,
-    squad?.category?.id,
-  );
-  const fuzzyQueryMatch = queryClient.getQueriesData({
-    queryKey: fuzzyQueryKey,
-  });
-  const fuzzyFeaturedQueryMatch = queryClient.getQueriesData({
-    queryKey: generateQueryKey(RequestKey.Sources, null, true, true),
-  });
-  const categoryQueryKey = fuzzyQueryMatch?.[0]?.[0];
-  const featuredQueryKey = fuzzyFeaturedQueryMatch?.[0]?.[0];
-
-  const updateDirectorySquadCache = (
-    queryKey: readonly unknown[] | undefined,
-    updateSquad: (currentSquad: Squad) => Squad,
-  ) => {
-    if (!queryKey) {
-      return;
-    }
-
-    const currentData = queryClient.getQueryData<SquadDirectoryData>(queryKey);
-    if (!currentData) {
-      return;
-    }
-
-    queryClient.setQueryData(
-      queryKey,
-      updateSquadMembershipInListData(currentData, squad.id, updateSquad),
-    );
-  };
+  const currentMember = user
+    ? ({
+        role: SourceMemberRole.Member,
+        referralToken: '',
+        user,
+        source: squad,
+      } as Squad['currentMember'])
+    : null;
 
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
     mutationFn: useJoinSquad({ squad }),
@@ -190,22 +196,25 @@ export const SquadActionButton = ({
       displayToast(labels.error.generic);
     },
     onMutate: () => {
-      updateDirectorySquadCache(categoryQueryKey, (currentSquad) => ({
+      const updateJoinedSquad = (currentSquad: Squad) => ({
         ...currentSquad,
-        currentMember:
-          currentSquad.currentMember ?? (user as Squad['currentMember']),
+        currentMember,
         membersCount: currentSquad.currentMember
           ? currentSquad.membersCount
           : currentSquad.membersCount + 1,
-      }));
-      updateDirectorySquadCache(featuredQueryKey, (currentSquad) => ({
-        ...currentSquad,
-        currentMember:
-          currentSquad.currentMember ?? (user as Squad['currentMember']),
-        membersCount: currentSquad.currentMember
-          ? currentSquad.membersCount
-          : currentSquad.membersCount + 1,
-      }));
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id,
+        categoryId: squad.category?.id,
+        updateSquad: updateJoinedSquad,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id,
+        featured: true,
+        updateSquad: updateJoinedSquad,
+      });
     },
     onSuccess,
   });
@@ -229,20 +238,25 @@ export const SquadActionButton = ({
           membersCount: currenSquad.membersCount - 1,
         });
       }
-      updateDirectorySquadCache(categoryQueryKey, (currentSquad) => ({
+      const updateLeftSquad = (currentSquad: Squad) => ({
         ...currentSquad,
         currentMember: null,
         membersCount: currentSquad.currentMember
           ? currentSquad.membersCount - 1
           : currentSquad.membersCount,
-      }));
-      updateDirectorySquadCache(featuredQueryKey, (currentSquad) => ({
-        ...currentSquad,
-        currentMember: null,
-        membersCount: currentSquad.currentMember
-          ? currentSquad.membersCount - 1
-          : currentSquad.membersCount,
-      }));
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id,
+        categoryId: squad.category?.id,
+        updateSquad: updateLeftSquad,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id,
+        featured: true,
+        updateSquad: updateLeftSquad,
+      });
       queryClient.invalidateQueries({
         queryKey: ['squadMembersInitial', squad.handle],
       });

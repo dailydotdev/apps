@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { ContentPreferenceStatus } from '../graphql/contentPreference';
 import type { ContentPreferenceType } from '../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from './contentPreference/useContentPreferenceStatusQuery';
@@ -19,22 +18,14 @@ const useShowFollowAction = ({
   entityId,
   entityType,
 }: UseShowFollowActionProps): UseShowFollowAction => {
-  const [showActionBtn, setShowActionBtn] = useState(false);
   const { data, isSuccess, isLoading } = useContentPreferenceStatusQuery({
     id: entityId,
     entity: entityType,
   });
-
-  useEffect(() => {
-    if (!isSuccess) {
-      return;
-    }
-
-    const isFollowing =
-      data?.status === ContentPreferenceStatus.Follow ||
-      data?.status === ContentPreferenceStatus.Subscribed;
-    setShowActionBtn(!isFollowing);
-  }, [isSuccess, data?.status]);
+  const isFollowing =
+    data?.status === ContentPreferenceStatus.Follow ||
+    data?.status === ContentPreferenceStatus.Subscribed;
+  const showActionBtn = isSuccess ? !isFollowing : false;
 
   return { showActionBtn, isLoading };
 };
