@@ -15,18 +15,24 @@ type UsePostActions = PostActionData & {
   onInteract: (interaction: PostActionData['interaction']) => void;
 };
 
+const defaultPostActionData: PostActionData = {
+  interaction: 'none',
+  previousInteraction: 'none',
+};
+
 export const usePostActions = ({ post }: { post?: Post }): UsePostActions => {
   const client = useQueryClient();
-  const postId = post?.id ?? 'missing-post';
+  const postId = post?.id;
   const key = useMemo(() => {
+    if (!postId) {
+      return [RequestKey.PostActions, 'missing-post'];
+    }
+
     return generateQueryKey(RequestKey.PostActions, { id: postId });
   }, [postId]);
 
   const queryFn = useCallback((): PostActionData => {
-    return {
-      interaction: 'none',
-      previousInteraction: 'none',
-    };
+    return defaultPostActionData;
   }, []);
 
   const { data } = useQuery({
@@ -35,19 +41,26 @@ export const usePostActions = ({ post }: { post?: Post }): UsePostActions => {
     initialData: queryFn,
     staleTime: Infinity,
     gcTime: Infinity,
+    enabled: !!postId,
     ...disabledRefetch,
   });
   const actionData = data ?? queryFn();
 
   const onInteract = useCallback(
     (interaction: PostActionData['interaction']) => {
+      if (!postId) {
+        return;
+      }
+
       client.setQueryData<PostActionData>(key, {
         interaction,
         previousInteraction:
-          actionData.interaction === interaction ? 'none' : actionData.interaction,
+          actionData.interaction === interaction
+            ? 'none'
+            : actionData.interaction,
       });
     },
-    [client, key, actionData.interaction],
+    [client, key, actionData.interaction, postId],
   );
 
   return {

@@ -16,8 +16,7 @@ import Link from '../utilities/Link';
 import { useOpportunityContext } from '../../features/opportunity/context/OpportunityContext';
 import { boostOpportunityLink, opportunityUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
-import { recruiterPricesQueryOptions } from '../../features/opportunity/queries';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { recruiterPricesPublicQueryOptions } from '../../features/opportunity/queries';
 
 type ItemProps = {
   children: ReactNode;
@@ -50,18 +49,7 @@ export const ConnectHeader = ({
   activeTab,
 }: ConnectHeaderProps = {}): ReactElement => {
   const { opportunity } = useOpportunityContext();
-  const { user, isLoggedIn } = useAuthContext();
-
-  if (!user) {
-    throw new Error('ConnectHeader requires an authenticated user');
-  }
-
-  const { data: prices } = useQuery(
-    recruiterPricesQueryOptions({
-      user,
-      isLoggedIn,
-    }),
-  );
+  const { data: prices } = useQuery(recruiterPricesPublicQueryOptions());
 
   const opportunityId = opportunity?.id;
   const forReviewHref = opportunityId
