@@ -102,13 +102,15 @@ function EnableNotification({
     [NotificationPromptSource.SquadChecklist]: '',
     [NotificationPromptSource.SourceSubscribe]: `Get notified whenever there are new posts from ${contentName}.`,
     [NotificationPromptSource.ReadingReminder]: '',
-    [NotificationPromptSource.BookmarkReminder]: '',
+    [NotificationPromptSource.BookmarkReminder]:
+      'Get a push reminder right on time, even when you leave the app.',
   };
   const message = sourceToMessage[source] ?? '';
   const classes = containerClassName[source] ?? '';
   const showTextCloseButton = sourceRenderTextCloseButton[source] ?? false;
-  const hideCloseButton = source === NotificationPromptSource.NewComment;
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
+  const shouldUseTopRightCloseButton =
+    source === NotificationPromptSource.NotificationsPage;
   const shouldShowNotificationArtwork =
     source === NotificationPromptSource.NotificationsPage;
   const shouldAnimateBellCta =
@@ -236,7 +238,7 @@ function EnableNotification({
             alt="A sample browser notification"
           />
         </div>
-        <div className="align-center mt-4 flex">
+        <div className="mt-4 flex items-center justify-start">
           {!acceptedJustNow && (
             <Button
               size={ButtonSize.Small}
@@ -257,8 +259,11 @@ function EnableNotification({
               Dismiss
             </Button>
           )}
+          {!showTextCloseButton && !shouldUseTopRightCloseButton && (
+            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
+          )}
         </div>
-        {!showTextCloseButton && (
+        {shouldUseTopRightCloseButton && (
           <CloseButton
             size={ButtonSize.XSmall}
             className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
@@ -327,19 +332,22 @@ function EnableNotification({
             )}
           </p>
           {shouldInlineActionWithMessage && (
-            <Button
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              className="shrink-0"
-              icon={
-                shouldAnimateBellCta ? (
-                  <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
-                ) : undefined
-              }
-              onClick={onEnable}
-            >
-              {buttonText}
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                className="shrink-0"
+                icon={
+                  shouldAnimateBellCta ? (
+                    <BellIcon className="origin-top motion-safe:[animation:enable-notification-bell-ring_1.1s_ease-in-out_1.5s_infinite]" />
+                  ) : undefined
+                }
+                onClick={onEnable}
+              >
+                {buttonText}
+              </Button>
+              <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
+            </div>
           )}
           {shouldUseVerticalContentLayout &&
             !acceptedJustNow &&
@@ -363,7 +371,7 @@ function EnableNotification({
       </div>
       <div
         className={classNames(
-          'align-center flex',
+          'flex items-center justify-start',
           source === NotificationPromptSource.NewComment ? 'mt-3' : 'mt-4',
           source === NotificationPromptSource.NewComment && 'justify-end',
         )}
@@ -396,8 +404,13 @@ function EnableNotification({
             Dismiss
           </Button>
         )}
+        {!showTextCloseButton &&
+          !shouldInlineActionWithMessage &&
+          !shouldUseTopRightCloseButton && (
+            <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
+          )}
       </div>
-      {!showTextCloseButton && !hideCloseButton && (
+      {shouldUseTopRightCloseButton && (
         <CloseButton
           size={ButtonSize.XSmall}
           className="absolute right-1 top-1 laptop:right-3 laptop:top-3"

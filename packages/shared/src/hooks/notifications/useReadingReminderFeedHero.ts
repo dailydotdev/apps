@@ -19,10 +19,11 @@ type ReadingReminderHeroPlacement =
 interface UseReadingReminderFeedHeroProps {
   itemCount: number;
   itemsPerRow: number;
+  firstSlotOffset?: number;
 }
 
 interface UseReadingReminderFeedHero {
-  heroInsertIndex: number;
+  adjustedHeroInsertIndex: number;
   shouldShowTopHero: boolean;
   shouldShowInFeedHero: boolean;
   title: string;
@@ -42,10 +43,15 @@ const getInitialDismissedPlacements = (): Record<
 export const useReadingReminderFeedHero = ({
   itemCount,
   itemsPerRow,
+  firstSlotOffset = 0,
 }: UseReadingReminderFeedHeroProps): UseReadingReminderFeedHero => {
   const safeItemsPerRow = Math.max(1, itemsPerRow);
   const heroInsertIndex =
     Math.ceil(HERO_INSERT_INDEX / safeItemsPerRow) * safeItemsPerRow;
+  const adjustedHeroInsertIndex = Math.max(
+    heroInsertIndex - firstSlotOffset,
+    0,
+  );
   const { pathname } = useRouter();
   const { shouldShow, title, subtitle, onEnable, onDismiss } =
     useReadingReminderHero({
@@ -94,7 +100,7 @@ export const useReadingReminderFeedHero = ({
     isInline &&
     hasScrolledForHero &&
     !dismissedPlacements[NotificationCtaPlacement.InFeedHero] &&
-    itemCount > heroInsertIndex;
+    itemCount > adjustedHeroInsertIndex;
 
   useNotificationCtaImpression(
     getReadingReminderCtaParams(NotificationCtaPlacement.TopHero),
@@ -134,7 +140,7 @@ export const useReadingReminderFeedHero = ({
   );
 
   return {
-    heroInsertIndex,
+    adjustedHeroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
     title,

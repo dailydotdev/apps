@@ -166,6 +166,31 @@ describe('useReadingReminderFeedHero', () => {
     expect(result.current.shouldShowInFeedHero).toBe(false);
   });
 
+  it('should account for the first feed slot offset when placing the inline hero', () => {
+    mockUseReadingReminderVariation.mockReturnValue({
+      variation: 'inline',
+      isControl: false,
+      isHero: false,
+      isInline: true,
+    });
+
+    const { result } = renderHook(() =>
+      useReadingReminderFeedHero({
+        itemCount: 6,
+        itemsPerRow: 1,
+        firstSlotOffset: 1,
+      }),
+    );
+
+    act(() => {
+      window.scrollY = 350;
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    expect(result.current.adjustedHeroInsertIndex).toBe(5);
+    expect(result.current.shouldShowInFeedHero).toBe(true);
+  });
+
   it('should not show either variation off the homepage', () => {
     mockUseRouter.mockReturnValue({ pathname: '/bookmarks' });
 
