@@ -48,7 +48,8 @@ describe('useShowFollowAction', () => {
       },
       {
         initialProps: {
-          status: ContentPreferenceStatus.Follow as ContentPreferenceStatus | null,
+          status:
+            ContentPreferenceStatus.Follow as ContentPreferenceStatus | null,
         },
       },
     );

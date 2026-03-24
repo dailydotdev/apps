@@ -46,7 +46,9 @@ describe('SquadActionButton cache helpers', () => {
       }),
     );
 
-    expect(updatedData.pages[0].sources.edges[0].node.currentMember).toBeUndefined();
+    expect(
+      updatedData.pages[0].sources.edges[0].node.currentMember,
+    ).toBeUndefined();
     expect(updatedData.pages[0].sources.edges[0].node.membersCount).toBe(
       squad.membersCount - 1,
     );
