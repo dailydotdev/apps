@@ -28,6 +28,13 @@ const svgrOptions = {
   },
 };
 
+type NextSvgFileLoaderRule = {
+  test?: { test?: (value: string) => boolean };
+  issuer?: unknown;
+  resourceQuery?: { not?: RegExp[] };
+  exclude?: RegExp;
+};
+
 const crossFetchShim = resolve(__dirname, 'crossFetchShim.ts');
 const crossFetchShimImport = './crossFetchShim.ts';
 
@@ -78,9 +85,13 @@ const nextConfig: NextConfig = {
       },
       webpack: (config) => {
         // Grab the existing rule that handles SVG imports
-        const fileLoaderRule = config.module.rules.find((rule) =>
-          rule.test?.test?.('.svg'),
+        const fileLoaderRule = config.module.rules.find(
+          (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
         );
+
+        if (!fileLoaderRule?.issuer || !fileLoaderRule.resourceQuery?.not) {
+          throw new Error('Expected Next.js SVG file loader rule to exist');
+        }
 
         config.module.rules.push(
           // Convert all other *.svg imports to React components

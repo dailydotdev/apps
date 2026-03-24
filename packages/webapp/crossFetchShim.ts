@@ -1,7 +1,7 @@
-const fetchFn = globalThis.fetch?.bind(globalThis);
+const { fetch: globalFetch, Headers, Request, Response } = globalThis;
+
+const fetchFn = globalFetch?.bind(globalThis);
 
 export default fetchFn;
 export const fetch = fetchFn;
-export const Headers = globalThis.Headers;
-export const Request = globalThis.Request;
-export const Response = globalThis.Response;
+export { Headers, Request, Response };
