@@ -499,8 +499,8 @@ importers:
         specifier: ^8.0.7
         version: 8.0.7(@types/react@18.3.12)(react@18.3.1)
       react-onesignal:
-        specifier: ^3.0.1
-        version: 3.0.1(react@18.3.1)
+        specifier: ^3.5.1
+        version: 3.5.1
       react-syntax-highlighter:
         specifier: ^15.5.0
         version: 15.6.1(react@18.3.1)
@@ -1850,6 +1850,10 @@ packages:
 
   '@babel/runtime@7.28.6':
     resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.29.2':
+    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -6207,7 +6211,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global-dirs@2.1.0:
     resolution: {integrity: sha512-MG6kdOUh/xBnyo9cJFeIKkLEc1AyFq42QTU4XiX51i2NEdxLxLWXIjEjmqKeSuKR7pAZjTqUVoT2b2huxVLgYQ==}
@@ -8563,11 +8567,9 @@ packages:
       react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18 || ^19
 
-  react-onesignal@3.0.1:
-    resolution: {integrity: sha512-AfAtGdXRcuMhVf+9OXehGcQeiJIYl1ihAByvfVNa3RCA1Vnn19tBha4XQB+o3ukUh2IQn0yiflRO4vXgI9nOng==}
-    engines: {node: '>=8', npm: '>=5'}
-    peerDependencies:
-      react: '>= 16.8'
+  react-onesignal@3.5.1:
+    resolution: {integrity: sha512-Pd3V/4yOfaD20o2aglJ+ernr9VO7FKNs20LJCmT81pkpkYNn+eCAAdLgLcaGocElLmM8sc9GiM2CCh2FzgYuaw==}
+    engines: {node: '>=14', npm: '>=6'}
 
   react-parallax-tilt@1.7.320:
     resolution: {integrity: sha512-odtUM1aUI3mQ2k+i5qDz/DfqzVAb/J0zJCUu5ofOMvOmNik0kMqWajAqV9LHJay0s6Mm7QBxvjrlU1dZCt4Ekg==}
@@ -11128,6 +11130,8 @@ snapshots:
 
   '@babel/runtime@7.28.6': {}
 
+  '@babel/runtime@7.29.2': {}
+
   '@babel/template@7.27.2':
     dependencies:
       '@babel/code-frame': 7.27.1
@@ -12756,7 +12760,7 @@ snapshots:
   '@testing-library/dom@10.4.0':
     dependencies:
       '@babel/code-frame': 7.29.0
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       chalk: 4.1.2
@@ -18781,9 +18785,7 @@ snapshots:
       react-lifecycles-compat: 3.0.4
       warning: 4.0.3
 
-  react-onesignal@3.0.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
+  react-onesignal@3.5.1: {}
 
   react-parallax-tilt@1.7.320(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
