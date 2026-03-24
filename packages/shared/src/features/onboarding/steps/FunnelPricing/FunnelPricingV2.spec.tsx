@@ -1,6 +1,12 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import type { WritableAtom } from 'jotai';
 import { Provider } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
@@ -234,6 +240,30 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
 describe('FunnelPricingV2', () => {
   let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
+  const getProceedButton = (): HTMLElement => {
+    const proceedButton = screen
+      .getAllByText('Get my plan')
+      .filter((button) => button.tagName === 'BUTTON')
+      .at(0);
+
+    if (!proceedButton) {
+      throw new Error('Expected pricing CTA button');
+    }
+
+    return proceedButton;
+  };
+
+  const getMonthlyPlanRadio = (): HTMLElement => {
+    const monthlyPlan = screen
+      .getAllByRole('radio')
+      .find((input) => input.getAttribute('value') === 'monthly');
+
+    if (!monthlyPlan) {
+      throw new Error('Expected monthly plan radio');
+    }
+
+    return monthlyPlan;
+  };
 
   beforeEach(() => {
     dateMock = setupDateMock(initialDate);
@@ -263,12 +293,7 @@ describe('FunnelPricingV2', () => {
   it('should call onTransition with the selected plan when clicking the CTA button', () => {
     renderComponent();
 
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     expect(mockOnTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
@@ -279,21 +304,9 @@ describe('FunnelPricingV2', () => {
   it('should switch plans when clicking on a different plan', () => {
     renderComponent({}, { selectedPlan: 'annual' });
 
-    // Get the monthly plan radio button
-    const monthlyPlan = screen
-      .getAllByRole('radio')
-      .find((input) => input.getAttribute('value') === 'monthly');
+    fireEvent.click(getMonthlyPlanRadio());
 
-    // Click on the monthly plan
-    fireEvent.click(monthlyPlan);
-
-    // Then click the CTA
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     expect(mockOnTransition).toHaveBeenCalledWith({
       type: FunnelStepTransitionType.Complete,
@@ -301,7 +314,7 @@ describe('FunnelPricingV2', () => {
     });
   });
 
-  it('should set applyDiscount to false when the timer expires', () => {
+  it('should set applyDiscount to false when the timer expires', async () => {
     renderComponent();
 
     // Simulate timer expiration by calling the onTimerEnd function
@@ -310,14 +323,15 @@ describe('FunnelPricingV2', () => {
 
     // Simulate timer expiration
     dateMock.advanceTimeByMinutes(16);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    await waitFor(() =>
+      expect(screen.queryAllByTestId('mini-discount-timer')).toHaveLength(0),
+    );
 
     // Click the CTA button
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      // skip the first link which is not the CTA
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-    fireEvent.click(proceedButton);
+    fireEvent.click(getProceedButton());
 
     // Check if mockOnTransition was called with applyDiscount: false
     expect(mockOnTransition).toHaveBeenCalledWith({

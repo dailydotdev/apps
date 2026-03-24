@@ -10,7 +10,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 
@@ -29,6 +28,7 @@ import {
   completeActionMock,
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
+import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
 import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
@@ -43,7 +43,7 @@ import {
 } from '../graphql/users';
 import type { SubscriptionCallbacks } from '../hooks/useSubscription';
 import type { SettingsContextData } from '../contexts/SettingsContext';
-import SettingsContext, { ThemeMode } from '../contexts/SettingsContext';
+import SettingsContext from '../contexts/SettingsContext';
 import { waitForNock } from '../../__tests__/helpers/utilities';
 import type {
   AllTagCategoriesData,
@@ -72,7 +72,7 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
-mocked(useRouter).mockImplementation(
+jest.mocked(useRouter).mockImplementation(
   () =>
     ({
       pathname: '/',
@@ -81,7 +81,7 @@ mocked(useRouter).mockImplementation(
 );
 
 const showLogin = jest.fn();
-let nextCallback: (value: PostsEngaged) => unknown = null;
+let nextCallback: ((value: PostsEngaged) => unknown) | undefined;
 
 jest.mock('../hooks', () => {
   const originalModule = jest.requireActual('../hooks');
@@ -99,7 +99,9 @@ jest.mock('../hooks', () => {
             request: () => null,
             { next }: SubscriptionCallbacks<PostsEngaged>,
           ): void => {
-            nextCallback = next;
+            if (next) {
+              nextCallback = next;
+            }
           },
         ),
     },
@@ -115,12 +117,14 @@ jest.mock('../hooks/useSubscription', () => ({
         request: () => null,
         { next }: SubscriptionCallbacks<PostsEngaged>,
       ): void => {
-        nextCallback = next;
+        if (next) {
+          nextCallback = next;
+        }
       },
     ),
 }));
 
-let variables: unknown;
+let variables: Record<string, unknown>;
 const defaultVariables = {
   first: 7,
   loggedIn: true,
@@ -135,6 +139,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
   variables = defaultVariables;
+  nextCallback = undefined;
 });
 
 const originalScrollTo = window.scrollTo;
@@ -167,7 +172,7 @@ const createTagsSettingsMock = (
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = ANONYMOUS_FEED_QUERY,
-  params: unknown = variables,
+  params: Record<string, unknown> = variables,
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
     query,
@@ -180,31 +185,24 @@ const createFeedMock = (
   },
 });
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
+  user?: LoggedUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
-): RenderResult => {
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
+
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
+    ...baseSettingsContext,
     setTheme: jest.fn(),
-    themeMode: ThemeMode.Dark,
     setSpaciness: jest.fn(),
     toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
     toggleInsaneMode: jest.fn(),
-    showTopSites: true,
     toggleShowTopSites: jest.fn(),
     toggleSortingEnabled: jest.fn(),
-    sortingEnabled: false,
     toggleOptOutReadingStreak: jest.fn(),
-    optOutReadingStreak: true,
-    sidebarExpanded: true,
-    autoDismissNotifications: true,
     toggleAutoDismissNotifications: jest.fn(),
     updateCustomLinks: jest.fn(),
     toggleSidebarExpanded: jest.fn(),
@@ -213,8 +211,8 @@ const renderComponent = (
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider
         value={{
-          user,
-          isLoggedIn: !!user,
+          user: resolvedUser,
+          isLoggedIn: !!resolvedUser,
           shouldShowLogin: false,
           showLogin,
           logout: jest.fn(),
@@ -222,8 +220,8 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           closeLogin: jest.fn(),
-          trackingId: user?.id,
-          loginState: null,
+          trackingId: resolvedUser?.id,
+          loginState: undefined,
           isAuthReady: true,
         }}
       >
@@ -240,7 +238,27 @@ const renderComponent = (
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
+}
+
+const getRequiredValue = <T,>(
+  value: T | null | undefined,
+  message: string,
+): T => {
+  if (value == null) {
+    throw new Error(message);
+  }
+
+  return value;
 };
+
+const getPostTitle = (post: Pick<Post, 'title'>, label: string): string =>
+  getRequiredValue(post.title, `Expected ${label} post title`);
+
+const getPostCreatedAt = (
+  post: Pick<Post, 'createdAt'>,
+  label: string,
+): string =>
+  getRequiredValue(post.createdAt, `Expected ${label} post createdAt`);
 
 describe('Feed logged in', () => {
   it('should add one placeholder when loading', async () => {
@@ -281,18 +299,35 @@ describe('Feed logged in', () => {
     expect(elements.length).toBeGreaterThan(0);
     const [latest, old] = elements;
     // eslint-disable-next-line testing-library/no-node-access
-    const latestTitle = latest.querySelector('a').getAttribute('title');
-    const latestPost = defaultFeedPage.edges.find(
-      (edge) => edge.node.title === latestTitle,
-    ).node;
-    // eslint-disable-next-line testing-library/no-node-access
-    const oldTitle = old.querySelector('a').getAttribute('title');
-    const oldPost = defaultFeedPage.edges.find(
-      (edge) => edge.node.title === oldTitle,
-    ).node;
-    expect(new Date(latestPost.createdAt).getTime()).toBeGreaterThan(
-      new Date(oldPost.createdAt).getTime(),
+    const latestLink = getRequiredValue(
+      latest.querySelector('a'),
+      'Expected latest post link',
     );
+    const latestTitle = getRequiredValue(
+      latestLink.getAttribute('title'),
+      'Expected latest post title',
+    );
+    const latestPost = getRequiredValue(
+      defaultFeedPage.edges.find((edge) => edge.node.title === latestTitle)
+        ?.node,
+      'Expected latest post in default feed',
+    );
+    // eslint-disable-next-line testing-library/no-node-access
+    const oldLink = getRequiredValue(
+      old.querySelector('a'),
+      'Expected old post link',
+    );
+    const oldTitle = getRequiredValue(
+      oldLink.getAttribute('title'),
+      'Expected old post title',
+    );
+    const oldPost = getRequiredValue(
+      defaultFeedPage.edges.find((edge) => edge.node.title === oldTitle)?.node,
+      'Expected old post in default feed',
+    );
+    expect(
+      new Date(getPostCreatedAt(latestPost, 'latest')).getTime(),
+    ).toBeGreaterThan(new Date(getPostCreatedAt(oldPost, 'old')).getTime());
   });
 
   it('should send upvote mutation', async () => {
@@ -434,10 +469,17 @@ describe('Feed logged in', () => {
     ]);
     await waitFor(async () => {
       const [el] = await screen.findAllByLabelText('More like this');
+      const parent = getRequiredValue(
+        el.parentElement,
+        'Expected upvote button parent element',
+      );
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      expect(await findByText(el.parentElement, '5')).toBeInTheDocument();
+      expect(await findByText(parent, '5')).toBeInTheDocument();
     });
-    nextCallback({
+    getRequiredValue(
+      nextCallback,
+      'Expected feed subscription callback',
+    )({
       postsEngaged: {
         id: defaultFeedPage.edges[0].node.id,
         numUpvotes: 6,
@@ -446,8 +488,12 @@ describe('Feed logged in', () => {
     });
     await waitFor(async () => {
       const [el] = await screen.findAllByLabelText('More like this');
+      const parent = getRequiredValue(
+        el.parentElement,
+        'Expected upvote button parent element after subscription',
+      );
       // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
-      expect(await findByText(el.parentElement, '6')).toBeInTheDocument();
+      expect(await findByText(parent, '6')).toBeInTheDocument();
     });
   });
 
@@ -754,7 +800,7 @@ describe('Feed logged in', () => {
   });
 
   it('should open a modal to view post details', async () => {
-    mocked(useRouter).mockImplementation(() => ({
+    jest.mocked(useRouter).mockImplementation(() => ({
       route: '/',
       pathname: '/',
       query: {
@@ -818,6 +864,8 @@ describe('Feed logged in', () => {
             permalink: 's',
             image:
               'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/tds',
+            type: SourceType.Machine,
+            public: true,
           },
           upvoted: false,
           commented: false,
@@ -833,7 +881,7 @@ describe('Feed logged in', () => {
   });
 
   it('should be able to navigate through posts', async () => {
-    mocked(useRouter).mockImplementation(() => {
+    jest.mocked(useRouter).mockImplementation(() => {
       const [id, setId] = useState('4f354bb73009e4adfa5dbcbf9b3c4ebf');
 
       return {
@@ -892,7 +940,7 @@ describe('Feed logged in', () => {
 
     await screen.findByRole('dialog');
     const title = await screen.findByTestId('post-modal-title');
-    expect(title).toHaveTextContent(firstPost.node.title);
+    expect(title).toHaveTextContent(getPostTitle(firstPost.node, 'first'));
 
     await screen.findAllByRole('navigation');
     const next = await screen.findByLabelText('Next');
@@ -900,14 +948,16 @@ describe('Feed logged in', () => {
     mockGraphQL(createPostMock(params));
     fireEvent.click(next);
     const secondTitle = await screen.findByTestId('post-modal-title');
-    expect(secondTitle).toHaveTextContent(secondPost.node.title);
+    expect(secondTitle).toHaveTextContent(
+      getPostTitle(secondPost.node, 'second'),
+    );
 
     await screen.findAllByRole('navigation');
     const previous = await screen.findByLabelText('Previous');
     mockGraphQL(createPostMock({ id: firstPost.node.id }));
     fireEvent.click(previous);
     const firstTitle = await screen.findByTestId('post-modal-title');
-    expect(firstTitle).toHaveTextContent(firstPost.node.title);
+    expect(firstTitle).toHaveTextContent(getPostTitle(firstPost.node, 'first'));
   });
 
   it('should report irrelevant tags', async () => {
@@ -954,7 +1004,9 @@ describe('Feed logged in', () => {
     const javascriptBtn = javascriptElements.find(
       (item) => item.tagName === 'BUTTON',
     );
-    fireEvent.click(javascriptBtn);
+    fireEvent.click(
+      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
+    );
     expect(submitBtn).toBeEnabled();
     fireEvent.click(submitBtn);
 
@@ -990,7 +1042,9 @@ describe('Feed logged in', () => {
     const javascriptBtn = javascriptElements.find(
       (item) => item.tagName === 'BUTTON',
     );
-    fireEvent.click(javascriptBtn);
+    fireEvent.click(
+      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
+    );
     expect(submitBtn).toBeEnabled();
 
     const brokenLinkBtn = await screen.findByText('Broken link');
@@ -1009,20 +1063,32 @@ describe('Feed logged in', () => {
     beforeEach(() => {
       /* eslint-disable @typescript-eslint/no-var-requires,global-require */
       mockedQuery[acquisitionKey] = 'true';
-      mocked(useRouter).mockImplementation(() => ({
-        route: '/',
-        pathname: '',
-        query: mockedQuery,
-        asPath: '',
-        push: jest.fn(),
-        events: {
-          on: jest.fn(),
-          off: jest.fn(),
-        },
-        replace: replaceRouter,
-        beforePopState: jest.fn(() => null),
-        prefetch: jest.fn(() => null),
-      }));
+      jest.mocked(useRouter).mockImplementation(
+        () =>
+          ({
+            route: '/',
+            pathname: '',
+            query: mockedQuery,
+            asPath: '',
+            push: jest.fn(),
+            replace: replaceRouter,
+            prefetch: jest.fn(() => Promise.resolve()),
+            beforePopState: jest.fn(),
+            basePath: '',
+            isLocaleDomain: false,
+            reload: jest.fn(),
+            back: jest.fn(),
+            forward: jest.fn(),
+            isFallback: false,
+            isReady: true,
+            isPreview: false,
+            events: {
+              on: jest.fn(),
+              off: jest.fn(),
+              emit: jest.fn(),
+            },
+          } as unknown as NextRouter),
+      );
 
       Object.defineProperty(window, 'location', {
         value: url,
@@ -1119,6 +1185,12 @@ describe('Feed logged in', () => {
 
 describe('Feed annonymous', () => {
   it('should open login modal on anonymous upvote', async () => {
+    variables = {
+      first: 7,
+      loggedIn: false,
+      after: '',
+    };
+
     renderComponent(
       [
         createFeedMock(
@@ -1134,7 +1206,7 @@ describe('Feed annonymous', () => {
           },
         ),
       ],
-      null,
+      undefined,
     );
     const [el] = await screen.findAllByLabelText('More like this');
     el.click();
@@ -1142,6 +1214,12 @@ describe('Feed annonymous', () => {
   });
 
   it('should open login modal on anonymous bookmark', async () => {
+    variables = {
+      first: 7,
+      loggedIn: false,
+      after: '',
+    };
+
     renderComponent(
       [
         createFeedMock(
@@ -1157,7 +1235,7 @@ describe('Feed annonymous', () => {
           },
         ),
       ],
-      null,
+      undefined,
     );
     const [el] = await screen.findAllByLabelText('Bookmark');
     el.click();

@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mocked } from 'ts-jest/utils';
 import SquadMemberItemOptionsButton from './SquadMemberItemOptionsButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -71,13 +70,13 @@ describe('SquadMemberItemOptionsButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mocked(useAuthContext).mockReturnValue({
+    jest.mocked(useAuthContext).mockReturnValue({
       user: { id: 'user-1' },
     } as ReturnType<typeof useAuthContext>);
-    mocked(usePrompt).mockReturnValue({
+    jest.mocked(usePrompt).mockReturnValue({
       showPrompt,
     } as unknown as ReturnType<typeof usePrompt>);
-    mocked(useToastNotification).mockReturnValue({
+    jest.mocked(useToastNotification).mockReturnValue({
       displayToast,
     } as unknown as ReturnType<typeof useToastNotification>);
   });

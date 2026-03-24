@@ -20,8 +20,6 @@ import {
   NotificationIconType,
   NotificationType,
 } from '@dailydotdev/shared/src/components/notifications/utils';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
-import { mocked } from 'ts-jest/utils';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import NotificationsPage from '../pages/notifications';
@@ -33,7 +31,7 @@ jest.mock('next/router', () => ({
 beforeEach(() => {
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,
@@ -51,6 +49,7 @@ const sampleNotification: Notification = {
   icon: NotificationIconType.Bell,
   title: 'Sample title',
   type: NotificationType.System,
+  referenceId: 'sample-notification',
   avatars: [],
   attachments: [],
   targetUrl: 'post url',
@@ -86,6 +85,7 @@ const renderComponent = (
       <AuthContext.Provider
         value={{
           user: loggedUser,
+          isLoggedIn: true,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -93,12 +93,10 @@ const renderComponent = (
           tokenRefreshed: true,
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
+          isAuthReady: true,
         }}
       >
-        <NotificationsContextProvider
-          unreadCount={unreadCount}
-          app={BootApp.Webapp}
-        >
+        <NotificationsContextProvider unreadCount={unreadCount}>
           <NotificationsPage />
         </NotificationsContextProvider>
       </AuthContext.Provider>
@@ -141,7 +139,7 @@ it('should get all notifications and send a mutation to read all unread notifica
   let mutationCalled = false;
   const unreadCount = 2;
   const testData: NotificationsData = { ...sampleNotificationData };
-  testData.notifications.edges[0].node.readAt = null;
+  testData.notifications.edges[0].node.readAt = undefined;
   renderComponent(
     [
       fetchNotificationsMock(testData),

@@ -4,7 +4,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import { CollectionGrid } from './CollectionGrid';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
@@ -38,7 +37,7 @@ jest.mock('../../../hooks', () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         isFallback: false,

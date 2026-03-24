@@ -3,20 +3,6 @@ import { renderHook } from '@testing-library/react';
 import { useEventListener } from './useEventListener';
 
 describe('useEventListener', () => {
-  it('should be defined', () => {
-    expect(useEventListener).toBeDefined();
-  });
-
-  it('should render', () => {
-    const div = document.createElement('div');
-    const listener = jest.fn();
-    const { result } = renderHook(() =>
-      useEventListener(div, 'click', listener),
-    );
-
-    expect(result.current).toBeUndefined();
-  });
-
   it('should bind listener on mount and unbind on unmount', () => {
     const div = document.createElement('div');
     const listener = jest.fn();

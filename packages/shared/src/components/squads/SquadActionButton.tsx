@@ -1,6 +1,7 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
+import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
@@ -19,6 +20,7 @@ import { generateQueryKey, RequestKey } from '../../lib/query';
 import { AuthTriggers } from '../../lib/auth';
 import useShowFollowAction from '../../hooks/useShowFollowAction';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
+import type { SourcesQueryData } from '../../hooks/source/useSources';
 
 interface ClassName {
   button?: string;
@@ -41,6 +43,65 @@ interface SquadActionButtonProps extends Pick<ButtonProps<'button'>, 'size'> {
   buttonVariants?: ButtonVariant[];
   alwaysShow?: boolean;
 }
+
+type SquadDirectoryData = InfiniteData<SourcesQueryData<Squad>>;
+
+export const updateSquadMembershipInListData = (
+  data: SquadDirectoryData,
+  squadId: string,
+  updateSquad: (currentSquad: Squad) => Squad,
+): SquadDirectoryData => ({
+  ...data,
+  pages: data.pages.map((page) => ({
+    ...page,
+    sources: {
+      ...page.sources,
+      edges: page.sources.edges.map((edge) => {
+        if (edge.node.id !== squadId) {
+          return edge;
+        }
+
+        return {
+          ...edge,
+          node: updateSquad(edge.node),
+        };
+      }),
+    },
+  })),
+});
+
+export const updateSquadDirectoryCache = ({
+  queryClient,
+  squadId,
+  categoryId,
+  featured,
+  updateSquad,
+}: {
+  queryClient: ReturnType<typeof useQueryClient>;
+  squadId: string;
+  categoryId?: string;
+  featured?: boolean;
+  updateSquad: (currentSquad: Squad) => Squad;
+}) => {
+  queryClient.setQueriesData<SquadDirectoryData>(
+    {
+      queryKey: generateQueryKey(
+        RequestKey.Sources,
+        undefined,
+        featured,
+        true,
+        categoryId,
+      ),
+    },
+    (currentData) => {
+      if (!currentData) {
+        return currentData;
+      }
+
+      return updateSquadMembershipInListData(currentData, squadId, updateSquad);
+    },
+  );
+};
 
 export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   className,
@@ -103,7 +164,7 @@ export const SquadActionButton = ({
   buttonVariants = [ButtonVariant.Primary, ButtonVariant.Secondary],
   alwaysShow = false,
   ...rest
-}: SquadActionButtonProps): ReactElement => {
+}: SquadActionButtonProps): ReactElement | null => {
   const { showActionBtn } = useShowFollowAction({
     entityId: squad?.id,
     entityType: ContentPreferenceType.Source,
@@ -120,45 +181,14 @@ export const SquadActionButton = ({
   const isMemberBlocked =
     squad?.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
-
-  const fuzzyQueryKey = generateQueryKey(
-    RequestKey.Sources,
-    null,
-    undefined,
-    true,
-    squad?.category?.id,
-  );
-  const fuzzyQueryMatch = queryClient.getQueriesData({
-    queryKey: fuzzyQueryKey,
-  });
-  const fuzzyFeaturedQueryMatch = queryClient.getQueriesData({
-    queryKey: generateQueryKey(RequestKey.Sources, null, true, true),
-  });
-  const categoryQueryKey = fuzzyQueryMatch?.[0]?.[0];
-  const featuredQueryKey = fuzzyFeaturedQueryMatch?.[0]?.[0];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const joinSquadMutation = (data: any) => ({
-    ...data,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pages: data?.pages?.map((edge: any) => ({
-      ...edge,
-      sources: {
-        ...edge.sources,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        edges: edge.sources.edges.map((subEdge: any) => {
-          const { node } = subEdge;
-          return {
-            ...subEdge,
-            node: {
-              ...subEdge.node,
-              ...(node.id === squad?.id && { currentMember: user }),
-            },
-          };
-        }),
-      },
-    })),
-  });
+  const currentMember = user
+    ? ({
+        role: SourceMemberRole.Member,
+        referralToken: '',
+        user,
+        source: squad,
+      } as Squad['currentMember'])
+    : null;
 
   const { mutateAsync: joinSquad, isPending: isJoiningSquad } = useMutation({
     mutationFn: useJoinSquad({ squad }),
@@ -166,21 +196,25 @@ export const SquadActionButton = ({
       displayToast(labels.error.generic);
     },
     onMutate: () => {
-      const currentCategoryData = queryClient.getQueryData(categoryQueryKey);
-      if (currentCategoryData) {
-        queryClient.setQueryData(
-          categoryQueryKey,
-          joinSquadMutation(currentCategoryData),
-        );
-      }
-
-      const currentFeaturedData = queryClient.getQueryData(featuredQueryKey);
-      if (currentFeaturedData) {
-        queryClient.setQueryData(
-          featuredQueryKey,
-          joinSquadMutation(currentFeaturedData),
-        );
-      }
+      const updateJoinedSquad = (currentSquad: Squad): Squad => ({
+        ...currentSquad,
+        currentMember: currentMember ?? undefined,
+        membersCount: currentSquad.currentMember
+          ? currentSquad.membersCount
+          : currentSquad.membersCount + 1,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id!,
+        categoryId: squad.category?.id,
+        updateSquad: updateJoinedSquad,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id!,
+        featured: true,
+        updateSquad: updateJoinedSquad,
+      });
     },
     onSuccess,
   });
@@ -200,10 +234,29 @@ export const SquadActionButton = ({
       if (currenSquad) {
         queryClient.setQueryData(queryKey, {
           ...currenSquad,
-          currentMember: null,
+          currentMember: undefined,
           membersCount: currenSquad.membersCount - 1,
         });
       }
+      const updateLeftSquad = (currentSquad: Squad): Squad => ({
+        ...currentSquad,
+        currentMember: undefined,
+        membersCount: currentSquad.currentMember
+          ? currentSquad.membersCount - 1
+          : currentSquad.membersCount,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id!,
+        categoryId: squad.category?.id,
+        updateSquad: updateLeftSquad,
+      });
+      updateSquadDirectoryCache({
+        queryClient,
+        squadId: squad.id!,
+        featured: true,
+        updateSquad: updateLeftSquad,
+      });
       queryClient.invalidateQueries({
         queryKey: ['squadMembersInitial', squad.handle],
       });

@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { Post } from '../../../../graphql/posts';
 import { PostType } from '../../../../graphql/posts';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
@@ -39,7 +38,7 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',

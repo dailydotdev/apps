@@ -14,6 +14,26 @@ const withBundleAnalyzer = withBundleAnalyzerInit({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const svgrOptions = {
+  icon: true,
+  svgo: true,
+  replaceAttrValues: {
+    '#fff': 'currentcolor',
+    '#FFF': 'currentcolor',
+    '#FFFFFF': 'currentcolor',
+  },
+  svgProps: {
+    className: 'icon',
+  },
+};
+
+type NextSvgFileLoaderRule = {
+  test?: { test?: (value: string) => boolean };
+  issuer?: unknown;
+  resourceQuery?: { not?: RegExp[] };
+  exclude?: RegExp;
+};
+
 const securityHeaders = [
   {
     key: 'X-Frame-Options',
@@ -34,6 +54,19 @@ const withSerwist = withSerwistInit({
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: [
+          {
+            loader: '@svgr/webpack',
+            options: svgrOptions,
+          },
+        ],
+        as: '*.js',
+      },
+    },
+  },
   ...withSerwist({
     ...withBundleAnalyzer({
       i18n: {
@@ -45,17 +78,15 @@ const nextConfig: NextConfig = {
       },
       webpack: (config) => {
         // Grab the existing rule that handles SVG imports
-        const fileLoaderRule = config.module.rules.find((rule) =>
-          rule.test?.test?.('.svg'),
+        const fileLoaderRule = config.module.rules.find(
+          (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
         );
 
+        if (!fileLoaderRule?.issuer || !fileLoaderRule.resourceQuery?.not) {
+          throw new Error('Expected Next.js SVG file loader rule to exist');
+        }
+
         config.module.rules.push(
-          // Reapply the existing rule, but only for svg imports ending in ?url
-          {
-            ...fileLoaderRule,
-            test: /\.svg$/i,
-            resourceQuery: /url/, // *.svg?url
-          },
           // Convert all other *.svg imports to React components
           {
             test: /\.svg$/i,
@@ -66,18 +97,7 @@ const nextConfig: NextConfig = {
             use: [
               {
                 loader: '@svgr/webpack',
-                options: {
-                  icon: true,
-                  svgo: true,
-                  replaceAttrValues: {
-                    '#fff': 'currentcolor',
-                    '#FFF': 'currentcolor',
-                    '#FFFFFF': 'currentcolor',
-                  },
-                  svgProps: {
-                    className: 'icon',
-                  },
-                },
+                options: svgrOptions,
               },
             ],
           },

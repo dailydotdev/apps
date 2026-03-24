@@ -14,6 +14,7 @@ import AuthContext from '../../contexts/AuthContext';
 import user from '../../../__tests__/fixture/loggedUser';
 import { getLabel } from '../../lib/dateFormat.spec';
 import post from '../../../__tests__/fixture/post';
+import { SourceType } from '../../graphql/sources';
 
 beforeEach(() => {
   nock.cleanAll();
@@ -64,8 +65,12 @@ describe('ReadingHistoryList component', () => {
             user,
             shouldShowLogin: false,
             showLogin: jest.fn(),
+            isLoggedIn: true,
+            closeLogin: jest.fn(),
+            logout: jest.fn(),
             updateUser: jest.fn(),
             tokenRefreshed: true,
+            getRedirectUri: jest.fn(),
             isAuthReady: true,
           }}
         >
@@ -122,6 +127,7 @@ describe('PostItemCard component', () => {
   const onHide = jest.fn();
 
   const createdAt = new Date('202-10-22T07:15:51.247Z');
+  const postTitle = post.title ?? '';
   const defaultHistory = {
     timestamp: createdAt,
     timestampDb: createdAt,
@@ -152,18 +158,44 @@ describe('PostItemCard component', () => {
 
   it('should show view history post title', async () => {
     renderCard();
-    await screen.findByText(defaultHistory.post.title);
+    await screen.findByText(postTitle);
   });
 
   it('should show view history post image', async () => {
     renderCard();
-    await screen.findByAltText(defaultHistory.post.title);
+    await screen.findByAltText(postTitle);
   });
 
   it('should show view history post source image', async () => {
     renderCard();
     await screen.findByAltText(
       `source of ${defaultHistory.post.title}'s profile`,
+    );
+  });
+
+  it('should fall back to the source image when a user-source author is missing', async () => {
+    renderCard({
+      postItem: {
+        ...defaultHistory,
+        post: {
+          ...defaultHistory.post,
+          author: undefined,
+          source: {
+            ...(defaultHistory.post.source as NonNullable<
+              typeof defaultHistory.post.source
+            >),
+            type: SourceType.User,
+          },
+        },
+      },
+    });
+
+    const sourceImage = await screen.findByAltText(
+      `source of ${postTitle}'s profile`,
+    );
+    expect(sourceImage).toHaveAttribute(
+      'src',
+      defaultHistory.post.source?.image,
     );
   });
 

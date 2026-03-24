@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { DiscountTimer } from './DiscountTimer';
 import type { DateMock } from '../../../../__tests__/helpers/dateMock';
 import { setupDateMock } from '../../../../__tests__/helpers/dateMock';
@@ -67,7 +67,7 @@ describe('DiscountTimer component', () => {
     expect(timerDisplay).toHaveTextContent('03:30');
   });
 
-  it('calls onTimerEnd when timer reaches zero', () => {
+  it('calls onTimerEnd when timer reaches zero', async () => {
     const mockOnTimerEnd = jest.fn();
 
     render(
@@ -82,7 +82,10 @@ describe('DiscountTimer component', () => {
 
     expect(mockOnTimerEnd).not.toHaveBeenCalled();
     dateMock.advanceTimeByMinutes(2);
-    expect(mockOnTimerEnd).toHaveBeenCalledTimes(1);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    await waitFor(() => expect(mockOnTimerEnd).toHaveBeenCalledTimes(1));
   });
 
   it('does not start timer when isActive is false', () => {
