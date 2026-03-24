@@ -70,16 +70,9 @@ export const BriefListItem = ({
   };
 
   const onPostCardClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (isSpecialKeyPressed({ event })) {
-      trackBriefClick();
-      return;
+    if (!isSpecialKeyPressed({ event })) {
+      onClick?.(post, event);
     }
-
-    onClick?.(post, event);
-    trackBriefClick();
-  };
-
-  const onPostCardAuxClick = () => {
     trackBriefClick();
   };
 
@@ -154,7 +147,7 @@ export const BriefListItem = ({
           title={post.title}
           rel={anchorDefaultRel}
           onClick={onPostCardClick}
-          onAuxClick={(event) => event.button === 1 && onPostCardAuxClick()}
+          onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
     </article>

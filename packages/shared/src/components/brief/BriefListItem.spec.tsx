@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { BriefListItem } from './BriefListItem';
+import type { Post } from '../../graphql/posts';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 
 const mockOnPostClick = jest.fn();
@@ -25,12 +26,12 @@ const post = {
   title: 'Presidential briefing',
   createdAt: '2025-01-01T10:00:00.000Z',
   read: false,
-} as const;
+} as Post;
 
 const renderComponent = (onClick = jest.fn()) =>
   render(
     <BriefListItem
-      post={post as never}
+      post={post}
       title={post.title}
       onClick={onClick}
       origin={Origin.BriefPage}
