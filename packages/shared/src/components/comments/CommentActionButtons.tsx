@@ -107,6 +107,13 @@ export default function CommentActionButtons({
     };
   });
   const { follow, unfollow, block, unblock } = useContentPreference();
+  const { author } = comment;
+  const authorName =
+    author?.name || (author?.username ? `@${author.username}` : 'this user');
+  const authorBlockLabel = author?.username
+    ? `@${author.username}`
+    : authorName;
+  const numUpvotes = voteState.numUpvotes ?? 0;
 
   useEffect(() => {
     setVoteState({
@@ -149,7 +156,7 @@ export default function CommentActionButtons({
       };
     },
   });
-  const isAuthor = user?.id === comment.author.id;
+  const isAuthor = user?.id === author?.id;
   const canModifyComment =
     isAuthor ||
     user?.roles?.includes(Roles.Moderator) ||
@@ -200,15 +207,15 @@ export default function CommentActionButtons({
     });
   }
 
-  if (user && user.id !== comment.author.id) {
+  if (user && author && user.id !== author.id) {
     commentOptions.push({
       icon: <BlockIcon />,
-      label: `Block ${comment.author.username}`,
+      label: `Block ${authorBlockLabel}`,
       action: async () => {
         const params = {
-          id: comment.author.id,
+          id: author.id,
           entity: ContentPreferenceType.User,
-          entityName: comment.author.username,
+          entityName: authorName,
           feedId: user.id,
           opts: {
             hideToast: true,
@@ -222,7 +229,7 @@ export default function CommentActionButtons({
           queryKey: commentQueryKey,
         });
 
-        displayToast(`🚫 ${comment.author.name} has been blocked`, {
+        displayToast(`🚫 ${authorName} has been blocked`, {
           action: {
             copy: 'Undo',
             onClick: () => {
@@ -238,16 +245,13 @@ export default function CommentActionButtons({
   }
 
   const shouldShowFollow =
-    !useIsSpecialUser({ userId: comment?.author?.id }) &&
+    !useIsSpecialUser({ userId: author?.id ?? '' }) &&
     isLoggedIn &&
-    comment?.author &&
+    !!author &&
     !isCompanion;
 
   if (shouldShowFollow) {
-    const authorName = comment.author.name || `@${comment.author.username}`;
-    const isFollowingUser = isFollowingContent(
-      comment.author?.contentPreference,
-    );
+    const isFollowingUser = isFollowingContent(author?.contentPreference);
 
     commentOptions.push({
       icon: <AddUserIcon />,
@@ -262,14 +266,14 @@ export default function CommentActionButtons({
 
         if (!isFollowingUser) {
           follow({
-            id: comment.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
           });
         } else {
           unfollow({
-            id: comment.author.id,
+            id: author.id,
             entity: ContentPreferenceType.User,
             entityName: authorName,
             opts,
@@ -287,11 +291,7 @@ export default function CommentActionButtons({
     });
   }
 
-  if (
-    isPlusAvailable &&
-    comment.author.id !== user?.id &&
-    !comment.author.isPlus
-  ) {
+  if (isPlusAvailable && author && author.id !== user?.id && !author.isPlus) {
     commentOptions.push({
       label: 'Gift daily.dev Plus',
       action: () => {
@@ -302,7 +302,7 @@ export default function CommentActionButtons({
         openModal({
           type: LazyModal.GiftPlus,
           props: {
-            preselected: comment.author as UserShortProfile,
+            preselected: author as UserShortProfile,
           },
         });
       },
@@ -314,7 +314,7 @@ export default function CommentActionButtons({
     <div
       className={classNames(
         'flex flex-row items-center',
-        threadRepliesControl && 'relative',
+        { relative: !!threadRepliesControl },
         className,
       )}
     >
@@ -419,14 +419,14 @@ export default function CommentActionButtons({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-      {voteState.numUpvotes > 0 && (
+      {numUpvotes > 0 && (
         <Tooltip content="See who upvoted">
           <ClickableText
             className={classNames('ml-auto !block', truncateTextClassNames)}
-            onClick={() => onShowUpvotes(comment.id, voteState.numUpvotes)}
+            onClick={() => onShowUpvotes(comment.id, numUpvotes)}
           >
-            {largeNumberFormat(voteState.numUpvotes)} upvote
-            {voteState.numUpvotes === 1 ? '' : 's'}
+            {largeNumberFormat(numUpvotes)} upvote
+            {numUpvotes === 1 ? '' : 's'}
           </ClickableText>
         </Tooltip>
       )}
