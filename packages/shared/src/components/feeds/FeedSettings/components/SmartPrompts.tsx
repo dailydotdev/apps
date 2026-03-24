@@ -24,7 +24,7 @@ export const SmartPrompts = (): ReactElement => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { flags, updatePromptFlag } = useSettingsContext();
-  const { prompt: promptFlags } = flags;
+  const promptFlags = flags?.prompt;
   const { data: prompts, isLoading } = usePromptsQuery();
 
   return (

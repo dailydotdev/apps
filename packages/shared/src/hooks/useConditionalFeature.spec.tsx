@@ -5,6 +5,7 @@ import { useConditionalFeature } from './useConditionalFeature';
 import { Feature } from '../lib/featureManagement';
 import loggedUser from '../../__tests__/fixture/loggedUser';
 import { AuthContextProvider } from '../contexts/AuthContext';
+import type { FeaturesReadyContextValue } from '../components/GrowthBookProvider';
 import {
   FeaturesReadyContext,
   GrowthBookProvider,
@@ -29,7 +30,9 @@ const createWrapper = ({ value = testFeature.defaultValue }) => {
         loadedUserFromCache
         squads={[]}
       >
-        <FeaturesReadyContext.Provider value={{ ready: !!value }}>
+        <FeaturesReadyContext.Provider
+          value={{ ready: !!value } as FeaturesReadyContextValue}
+        >
           <GrowthBookProvider
             app={BootApp.Test}
             user={loggedUser}

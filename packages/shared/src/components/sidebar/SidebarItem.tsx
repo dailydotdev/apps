@@ -44,7 +44,7 @@ export const SidebarItem = ({
         showLogin={
           item.requiresLogin && !user
             ? () => showLogin({ trigger: item.title as AuthTriggersType })
-            : null
+            : undefined
         }
         isButton={isItemsButton && !item?.isForcedLink}
       >

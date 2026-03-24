@@ -70,7 +70,7 @@ const BookmarkFolderModal = ({
     if (shouldUpgrade) {
       return;
     }
-    onSubmit?.({ ...folder, name, icon });
+    onSubmit?.({ ...folder, name, icon } as BookmarkFolder);
   };
 
   return (

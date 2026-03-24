@@ -26,7 +26,7 @@ export const useUserCompaniesQuery = (): UseUserCompaniesQuery => {
   });
 
   return {
-    userCompanies: data,
+    userCompanies: data ?? [],
     isVerified: !isPending && !!data?.[0]?.company,
     isLoading: isPending,
   };

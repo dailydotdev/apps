@@ -31,7 +31,10 @@ const BrowserExtension = ({
   const { logEvent } = useLogContext();
   const { browserName } = useOnboardingExtension();
   const isEdge = browserName === BrowserName.Edge;
-  const imageUrls = cloudinaryOnboardingExtension[browserName];
+  const imageUrls =
+    cloudinaryOnboardingExtension[
+      browserName as keyof typeof cloudinaryOnboardingExtension
+    ];
 
   return (
     <div className="mt-10 flex flex-1 flex-col laptop:justify-between">

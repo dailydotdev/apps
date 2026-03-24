@@ -34,8 +34,14 @@ export function ClickableNavItem({
   );
 
   if (!isButton && (!item.action || item.path)) {
+    const itemPath = item.path;
+
+    if (!itemPath) {
+      throw new Error('ClickableNavItem link items require a path');
+    }
+
     return (
-      <Link href={item.path} passHref prefetch={false}>
+      <Link href={itemPath} passHref prefetch={false}>
         <a
           {...props}
           {...combinedClicks(onClick)}

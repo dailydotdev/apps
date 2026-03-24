@@ -22,6 +22,7 @@ export function useUserExperiencesByType(
     queryKey,
     queryFn: () => getUserExperiencesByType(userId, type),
     staleTime: StaleTime.Default,
+    enabled: !!userId,
   });
 
   const experiences: UserExperience[] | undefined = useMemo(

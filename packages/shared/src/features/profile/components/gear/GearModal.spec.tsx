@@ -25,7 +25,7 @@ describe('GearModal', () => {
     mockUseGearSearch.mockReturnValue({
       results: [],
       isSearching: false,
-    } as ReturnType<typeof useGearSearch>);
+    } as unknown as ReturnType<typeof useGearSearch>);
     mockUseViewSize.mockReturnValue(false);
   });
 
@@ -50,7 +50,7 @@ describe('GearModal', () => {
     });
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onRequestClose).toHaveBeenCalledTimes(1);
-    expect(onRequestClose).toHaveBeenCalledWith(null);
+    expect(onRequestClose).toHaveBeenCalledWith(undefined);
   });
 
   it('should submit and close when clicking add gear button', async () => {
@@ -75,6 +75,6 @@ describe('GearModal', () => {
     });
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onRequestClose).toHaveBeenCalledTimes(1);
-    expect(onRequestClose).toHaveBeenCalledWith(null);
+    expect(onRequestClose).toHaveBeenCalledWith(undefined);
   });
 });

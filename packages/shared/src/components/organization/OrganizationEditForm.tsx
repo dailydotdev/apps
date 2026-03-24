@@ -164,7 +164,7 @@ export const OrganizationEditForm = ({
         onImageChange={handleImageChange}
         locationOptions={
           locationOptions?.map((loc) => ({
-            label: locationToString(loc),
+            label: locationToString(loc) ?? '',
             value: loc.id,
           })) || []
         }

@@ -28,7 +28,7 @@ export function PostShortInfo({
   className,
   showImage = true,
   showLinkIcon = true,
-}: PostShortInfoProps): ReactElement {
+}: PostShortInfoProps): ReactElement | null {
   const postLink = useMemo(() => {
     if (!post) {
       return undefined;

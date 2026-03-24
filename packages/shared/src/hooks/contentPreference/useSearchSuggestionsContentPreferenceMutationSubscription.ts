@@ -40,24 +40,24 @@ export const useUseSearchSuggestionsContentPreferenceMutationSubscription = ({
       const { id: entityId } =
         mutationVariables as Parameters<ContentPreferenceMutation>[0];
 
-      mutationQueryClient.setQueryData<SearchSuggestionResult | undefined>(
+      mutationQueryClient.setQueryData(
         queryKey,
-        (data) => {
+        (data: SearchSuggestionResult | undefined) => {
           if (!data) {
             return data;
           }
 
-          const newData = {
+          const newData: SearchSuggestionResult = {
             ...data,
             hits: data.hits?.map((hit) => {
               if (hit.id === entityId) {
                 return {
                   ...hit,
                   contentPreference: nextStatus
-                    ? {
+                    ? ({
                         ...hit.contentPreference,
                         status: nextStatus,
-                      }
+                      } as typeof hit.contentPreference)
                     : undefined,
                 };
               }

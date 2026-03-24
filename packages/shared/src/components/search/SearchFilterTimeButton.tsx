@@ -23,7 +23,7 @@ const SearchFilterTimeButton = () => {
             size={ButtonSize.Small}
             aria-label="Open time filter menu"
           >
-            {SearchTime[time]}
+            {SearchTime[time as keyof typeof SearchTime]}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

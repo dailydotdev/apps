@@ -5,7 +5,7 @@ export type FeedSettingsFormData = {
   name: string;
   icon?: string;
 } & Pick<
-  Feed['flags'],
+  NonNullable<Feed['flags']>,
   | 'orderBy'
   | 'minDayRange'
   | 'minUpvotes'

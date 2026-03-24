@@ -59,7 +59,7 @@ function CommentBox({
             post={post}
             comment={comment}
             origin={origin}
-            parentId={parentId}
+            parentId={parentId ?? null}
             onShare={onShare}
             onComment={onComment}
             onDelete={onDelete}

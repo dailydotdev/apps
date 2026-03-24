@@ -18,7 +18,7 @@ export function useProfileAchievements(
 ): UseProfileAchievementsResult {
   const queryKey = generateQueryKey(
     RequestKey.UserAchievements,
-    user,
+    user ?? undefined,
     'profile',
   );
 

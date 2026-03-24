@@ -38,7 +38,7 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
     }, [hasCheckedPermission, topSites?.length]);
 
     useEffect(() => {
-      if (customLinks?.length > 0 && !isManual) {
+      if ((customLinks?.length ?? 0) > 0 && !isManual) {
         setIsManual(true);
       }
     }, [customLinks, isManual]);

@@ -1,7 +1,10 @@
 import type { ReactElement, ChangeEvent, DragEvent } from 'react';
 import React, { useState, useRef, useCallback } from 'react';
 import classNames from 'classnames';
-import type { ModalProps } from '../../../../components/modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
@@ -20,7 +23,11 @@ import {
 } from '../../../../graphql/posts';
 import type { AddUserWorkspacePhotoInput } from '../../../../graphql/user/userWorkspacePhoto';
 
-type WorkspacePhotoUploadModalProps = Omit<ModalProps, 'children'> & {
+type WorkspacePhotoUploadModalProps = Omit<
+  ModalProps,
+  'children' | 'onRequestClose'
+> & {
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
   onSubmit: (input: AddUserWorkspacePhotoInput) => Promise<void>;
 };
 
@@ -102,7 +109,7 @@ export function WorkspacePhotoUploadModal({
     try {
       const imageUrl = await uploadContentImage(selectedFile);
       await onSubmit({ image: imageUrl });
-      rest.onRequestClose?.(null);
+      rest.onRequestClose?.(undefined);
     } catch (err) {
       setError('Failed to upload image. Please try again.');
     } finally {

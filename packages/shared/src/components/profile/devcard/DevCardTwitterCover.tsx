@@ -10,7 +10,7 @@ import type { UseDevCard } from '../../../hooks/profile/useDevCard';
 export function DevCardTwitterCover({
   devcard,
   coverImage,
-}: Pick<UseDevCard, 'devcard' | 'coverImage'>): ReactElement {
+}: Pick<UseDevCard, 'devcard' | 'coverImage'>): ReactElement | null {
   if (!devcard) {
     return null;
   }

@@ -17,7 +17,7 @@ export default function useMedia<T>(
 
   const [value, setValue] = useState<T>(() => {
     if (afterHydration) {
-      return undefined;
+      return undefined as T;
     }
 
     return typeof window !== 'undefined' ? getValue(getMedia()) : ssrValue;

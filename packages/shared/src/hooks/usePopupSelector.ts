@@ -3,6 +3,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { generateStorageKey, StorageTopic } from '../lib/storage';
 
 const POPUP_SELECTOR_KEY = [generateStorageKey(StorageTopic.Popup, 'selector')];
+const getDefaultParentSelector = (): HTMLElement => {
+  if (typeof document === 'undefined') {
+    throw new Error('Popup parent selector is unavailable on the server');
+  }
+
+  return document.body;
+};
 
 type AppendFn = () => HTMLElement;
 
@@ -35,7 +42,7 @@ export const usePopupSelector = ({
 
   return {
     parentSelector: useMemo(
-      () => parentSelector ?? propSelector,
+      () => parentSelector ?? propSelector ?? getDefaultParentSelector,
       [parentSelector, propSelector],
     ),
     onAppendTooltipTo: useCallback(

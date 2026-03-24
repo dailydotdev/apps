@@ -28,7 +28,7 @@ export const Sidebar = ({
   onNavTabClick,
   onLogoClick,
   activePage,
-}: SidebarProps): ReactElement => {
+}: SidebarProps): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const featureTheme = useFeatureTheme();

@@ -22,7 +22,11 @@ export function useGear(user: PublicProfile | null) {
   const { logEvent } = useLogContext();
   const isOwner = loggedUser?.id === user?.id;
 
-  const queryKey = generateQueryKey(RequestKey.Gear, user, 'profile');
+  const queryKey = generateQueryKey(
+    RequestKey.Gear,
+    user ?? undefined,
+    'profile',
+  );
 
   const query = useQuery({
     queryKey,

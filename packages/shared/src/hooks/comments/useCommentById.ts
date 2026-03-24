@@ -30,6 +30,11 @@ const useCommentById = ({
   const { user } = useAuthContext();
   const { requestMethod } = useRequestProtocol();
   const client = useQueryClient();
+
+  if (!requestMethod) {
+    throw new Error('Request method is required in useCommentById');
+  }
+
   const {
     data: commentById,
     isError,

@@ -170,7 +170,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
             />
           </Tooltip>
         ))}
-        {globalThis?.navigator?.share && (
+        {!!globalThis?.navigator?.share && (
           <Tooltip content="Share via...">
             <Button
               variant={ButtonVariant.Tertiary}

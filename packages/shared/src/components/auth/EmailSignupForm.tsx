@@ -18,7 +18,7 @@ function EmailSignupForm({
   isReady,
   showDisclaimer = true,
 }: EmailSignupFormProps): ReactElement {
-  const [email, setEmail] = useState(null);
+  const [email, setEmail] = useState<string | null>(null);
   const inputId = useId();
   const isSubmitDisabled = !email || !isReady;
 

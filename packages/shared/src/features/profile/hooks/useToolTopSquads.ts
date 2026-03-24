@@ -25,7 +25,7 @@ export const useToolTopSquads = ({
   const query = useQuery({
     queryKey: generateQueryKey(
       RequestKey.UserTools,
-      null,
+      undefined,
       'top-squads-by-tool',
       toolId,
       TOP_TOOL_SQUADS_LIMIT,

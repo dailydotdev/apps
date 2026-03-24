@@ -146,7 +146,7 @@ const renderComponent = (
   if (recommendedSquads.length > 0) {
     const sourcesKey = generateQueryKey(
       RequestKey.Sources,
-      null,
+      undefined,
       undefined, // featured
       true, // isPublic
       undefined, // categoryId

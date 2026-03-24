@@ -6,7 +6,7 @@ import { LogEvent } from '../../../../lib/log';
 import { OtherFeedPage } from '../../../../lib/query';
 import { useLogContext } from '../../../../contexts/LogContext';
 
-export const useSquadsDirectoryLogging = (ad: Ad) => {
+export const useSquadsDirectoryLogging = (ad?: Ad) => {
   const { ref, inView } = useInView({
     triggerOnce: true,
   });
@@ -16,6 +16,10 @@ export const useSquadsDirectoryLogging = (ad: Ad) => {
 
   const onLogAdEvent = useCallback(
     (action: LogEvent.Impression | LogEvent.Click) => {
+      if (!ad) {
+        throw new Error('Missing ad for squads directory logging');
+      }
+
       logEvent(adLogEvent(action, ad, feedLogExtra(OtherFeedPage.Squad)));
     },
     [ad, logEvent],

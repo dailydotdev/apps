@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import Link from '../../utilities/Link';
-import ConditionalWrapper from '../../ConditionalWrapper';
 import type { ButtonProps, ButtonSize } from '../../buttons/Button';
 import { Button, ButtonVariant } from '../../buttons/Button';
 
@@ -23,6 +22,22 @@ export function SquadDirectoryNavbarItem({
   onClick,
   elementProps = {},
 }: SquadNavbarItemProps): ReactElement {
+  const button = (
+    <Button
+      aria-current={isActive ? 'page' : undefined}
+      aria-label={`Navigate to ${label}'s directory page`}
+      className="capitalize"
+      href={path}
+      onClick={onClick}
+      size={buttonSize}
+      tag={path ? 'a' : 'button'}
+      pressed={isActive}
+      variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
+    >
+      {label}
+    </Button>
+  );
+
   return (
     <li
       {...elementProps}
@@ -33,29 +48,14 @@ export function SquadDirectoryNavbarItem({
         elementProps?.className,
       )}
     >
-      <ConditionalWrapper
-        condition={!!path}
-        wrapper={(component) => (
-          // TODO: WT-2239 - Remove legacyBehavior prop once all SquadDirectoryNavbarItem components are updated
-          <Link href={path} legacyBehavior>
-            {component}
-          </Link>
-        )}
-      >
-        <Button
-          aria-current={isActive ? 'page' : undefined}
-          aria-label={`Navigate to ${label}'s directory page`}
-          className="capitalize"
-          href={path}
-          onClick={onClick}
-          size={buttonSize}
-          tag={path ? 'a' : 'button'}
-          pressed={isActive}
-          variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
-        >
-          {label}
-        </Button>
-      </ConditionalWrapper>
+      {path ? (
+        // TODO: WT-2239 - Remove legacyBehavior prop once all SquadDirectoryNavbarItem components are updated
+        <Link href={path} legacyBehavior>
+          {button}
+        </Link>
+      ) : (
+        button
+      )}
     </li>
   );
 }

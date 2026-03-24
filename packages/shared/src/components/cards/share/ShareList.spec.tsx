@@ -32,7 +32,7 @@ const sharedTweetPost = {
     type: PostType.SocialTwitter,
     title: 'Referenced tweet body',
     source: {
-      ...sharePost.sharedPost.source,
+      ...(sharePost.sharedPost?.source ?? {}),
       handle: 'typescript',
       name: 'Typescript',
     },

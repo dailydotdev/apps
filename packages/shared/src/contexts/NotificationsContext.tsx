@@ -8,8 +8,9 @@ export interface NotificationsContextData {
   incrementUnreadCount: () => void;
 }
 
-const NotificationsContext =
-  React.createContext<NotificationsContextData>(null);
+const NotificationsContext = React.createContext<NotificationsContextData>(
+  null as unknown as NotificationsContextData,
+);
 
 export default NotificationsContext;
 

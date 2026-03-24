@@ -3,7 +3,7 @@ import { disabledRefetch } from '../lib/func';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
-export const hostKey = generateQueryKey(RequestKey.Host, null);
+export const hostKey = generateQueryKey(RequestKey.Host, undefined);
 
 export type UseHostStatus = {
   hostGranted: boolean;
