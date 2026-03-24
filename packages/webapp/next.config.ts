@@ -71,7 +71,9 @@ const nextConfig: NextConfig = {
       },
     },
     resolveAlias: {
-      'cross-fetch': crossFetchShimImport,
+      'cross-fetch': {
+        browser: crossFetchShimImport,
+      },
     },
   },
   ...withSerwist({
@@ -83,7 +85,7 @@ const nextConfig: NextConfig = {
       compiler: {
         reactRemoveProperties: { properties: ['^data-testid$'] },
       },
-      webpack: (config) => {
+      webpack: (config, { isServer }) => {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find(
           (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
@@ -119,11 +121,12 @@ const nextConfig: NextConfig = {
           },
         });
 
-        // we don't need cross-fetch in our bundle since we are using the native fetch
-        // cross-fetch is here due to graphql-request dependency.
-        // Use a small shim so webpack and Turbopack resolve it the same way.
-        // eslint-disable-next-line no-param-reassign
-        config.resolve.alias['cross-fetch'] = crossFetchShim;
+        // Keep cross-fetch out of the browser bundle; the server build can keep
+        // the package resolution as-is.
+        if (!isServer) {
+          // eslint-disable-next-line no-param-reassign
+          config.resolve.alias['cross-fetch'] = crossFetchShim;
+        }
 
         return config;
       },
