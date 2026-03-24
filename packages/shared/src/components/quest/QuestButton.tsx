@@ -45,7 +45,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { plusUrl } from '../../lib/constants';
+import { plusUrl, webappUrl } from '../../lib/constants';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -172,6 +172,11 @@ type QuestRewardFlight = QuestRewardSource & {
   dx: number;
   dy: number;
   delayMs: number;
+};
+
+type QuestRewardFlightLayerState = {
+  claimRotationId: string;
+  flights: QuestRewardFlight[];
 };
 
 type QuestLevelFireworkParticle = {
@@ -574,7 +579,7 @@ const QuestSection = ({
   onDestinationClick,
   showLevelSystem,
   claimingQuestId,
-  animatingClaimRotationId,
+  animatingClaimRotationIds,
   claimedStampRotationIds,
   animatingClaimedStampRotationIds,
   deferredClaimedStampRotationIds,
@@ -592,7 +597,7 @@ const QuestSection = ({
   onDestinationClick: (destination: QuestDestination) => void;
   showLevelSystem: boolean;
   claimingQuestId?: string;
-  animatingClaimRotationId?: string;
+  animatingClaimRotationIds: Set<string>;
   claimedStampRotationIds: Set<string>;
   animatingClaimedStampRotationIds: Set<string>;
   deferredClaimedStampRotationIds: Set<string>;
@@ -619,7 +624,7 @@ const QuestSection = ({
           onDestinationClick={onDestinationClick}
           showLevelSystem={showLevelSystem}
           isClaiming={claimingQuestId === quest.userQuestId}
-          isClaimAnimating={animatingClaimRotationId === quest.rotationId}
+          isClaimAnimating={animatingClaimRotationIds.has(quest.rotationId)}
           showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
           animateClaimedStamp={animatingClaimedStampRotationIds.has(
             quest.rotationId,
@@ -998,7 +1003,7 @@ interface QuestDropdownPanelProps {
   isPending: boolean;
   isError: boolean;
   claimingQuestId?: string;
-  animatingClaimRotationId?: string;
+  animatingClaimRotationIds: Set<string>;
   claimedStampRotationIds: Set<string>;
   animatingClaimedStampRotationIds: Set<string>;
   deferredClaimedStampRotationIds: Set<string>;
@@ -1019,7 +1024,7 @@ const QuestDropdownPanel = ({
   isPending,
   isError,
   claimingQuestId,
-  animatingClaimRotationId,
+  animatingClaimRotationIds,
   claimedStampRotationIds,
   animatingClaimedStampRotationIds,
   deferredClaimedStampRotationIds,
@@ -1071,7 +1076,7 @@ const QuestDropdownPanel = ({
               showLevelSystem={showLevelSystem}
               onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
-              animatingClaimRotationId={animatingClaimRotationId}
+              animatingClaimRotationIds={animatingClaimRotationIds}
               claimedStampRotationIds={claimedStampRotationIds}
               animatingClaimedStampRotationIds={
                 animatingClaimedStampRotationIds
@@ -1085,7 +1090,7 @@ const QuestDropdownPanel = ({
               showLevelSystem={showLevelSystem}
               onDestinationClick={onDestinationClick}
               claimingQuestId={claimingQuestId}
-              animatingClaimRotationId={animatingClaimRotationId}
+              animatingClaimRotationIds={animatingClaimRotationIds}
               claimedStampRotationIds={claimedStampRotationIds}
               animatingClaimedStampRotationIds={
                 animatingClaimedStampRotationIds
@@ -1102,7 +1107,7 @@ const QuestDropdownPanel = ({
                   showLevelSystem={showLevelSystem}
                   onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
-                  animatingClaimRotationId={animatingClaimRotationId}
+                  animatingClaimRotationIds={animatingClaimRotationIds}
                   claimedStampRotationIds={claimedStampRotationIds}
                   animatingClaimedStampRotationIds={
                     animatingClaimedStampRotationIds
@@ -1119,7 +1124,7 @@ const QuestDropdownPanel = ({
                   showLevelSystem={showLevelSystem}
                   onDestinationClick={onDestinationClick}
                   claimingQuestId={claimingQuestId}
-                  animatingClaimRotationId={animatingClaimRotationId}
+                  animatingClaimRotationIds={animatingClaimRotationIds}
                   claimedStampRotationIds={claimedStampRotationIds}
                   animatingClaimedStampRotationIds={
                     animatingClaimedStampRotationIds
@@ -1199,7 +1204,9 @@ export const QuestButton = ({
     ].filter((quest) => quest.claimable).length;
   }, [data]);
   const claimingQuestId = isClaimPending ? variables?.userQuestId : undefined;
-  const [rewardFlights, setRewardFlights] = useState<QuestRewardFlight[]>([]);
+  const [rewardFlightLayers, setRewardFlightLayers] = useState<
+    QuestRewardFlightLayerState[]
+  >([]);
   const [levelFireworkParticles, setLevelFireworkParticles] = useState<
     QuestLevelFireworkParticle[]
   >([]);
@@ -1207,9 +1214,9 @@ export const QuestButton = ({
   const [animatedLevelProgress, setAnimatedLevelProgress] = useState<
     number | null
   >(null);
-  const [animatingClaimRotationId, setAnimatingClaimRotationId] = useState<
-    string | null
-  >(null);
+  const [animatingClaimRotationIds, setAnimatingClaimRotationIds] = useState<
+    string[]
+  >([]);
   const [claimedStampRotationIds, setClaimedStampRotationIds] = useState<
     string[]
   >([]);
@@ -1221,9 +1228,7 @@ export const QuestButton = ({
     useState<string[]>([]);
   const progressTimersRef = useRef<number[]>([]);
   const claimedStampTimersRef = useRef<number[]>([]);
-  const claimProgressSnapshotRef = useRef<number | null>(null);
-  const claimLevelSnapshotRef = useRef<number | null>(null);
-  const claimAnimationRotationIdRef = useRef<string | null>(null);
+  const currentProgressAnimationRotationIdRef = useRef<string | null>(null);
   const renderedLevel = animatedLevel ?? level;
   const renderedLevelProgress = animatedLevelProgress ?? levelProgress;
   const triggerTooltipContent = data?.level
@@ -1243,6 +1248,10 @@ export const QuestButton = ({
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
+  );
+  const animatingClaimRotationIdSet = useMemo(
+    () => new Set(animatingClaimRotationIds),
+    [animatingClaimRotationIds],
   );
   const animatingClaimedStampRotationIdSet = useMemo(
     () => new Set(animatingClaimedStampRotationIds),
@@ -1303,24 +1312,26 @@ export const QuestButton = ({
 
     claimedStampTimersRef.current.push(revealTimerId);
   }, []);
-  const clearRewardFlights = useCallback(() => {
-    const completedClaimRotationId = claimAnimationRotationIdRef.current;
+  const handleRewardFlightLayerDone = useCallback(
+    (claimRotationId: string) => {
+      setRewardFlightLayers((current) =>
+        current.filter((layer) => layer.claimRotationId !== claimRotationId),
+      );
+      setAnimatingClaimRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
+      );
 
-    clearProgressTimers();
-    setRewardFlights([]);
-    setAnimatedLevel(null);
-    setAnimatedLevelProgress(null);
-    setAnimatingClaimRotationId(null);
-    claimProgressSnapshotRef.current = null;
-    claimLevelSnapshotRef.current = null;
-    claimAnimationRotationIdRef.current = null;
+      if (currentProgressAnimationRotationIdRef.current === claimRotationId) {
+        clearProgressTimers();
+        setAnimatedLevel(null);
+        setAnimatedLevelProgress(null);
+        currentProgressAnimationRotationIdRef.current = null;
+      }
 
-    if (!completedClaimRotationId) {
-      return;
-    }
-
-    scheduleClaimedStampReveal(completedClaimRotationId);
-  }, [clearProgressTimers, scheduleClaimedStampReveal]);
+      scheduleClaimedStampReveal(claimRotationId);
+    },
+    [clearProgressTimers, scheduleClaimedStampReveal],
+  );
   const clearLevelFireworkParticles = useCallback(() => {
     setLevelFireworkParticles([]);
   }, []);
@@ -1499,8 +1510,14 @@ export const QuestButton = ({
     const startProgress = animatedLevelProgress ?? levelProgress;
     const startLevel = animatedLevel ?? level;
 
-    setAnimatingClaimRotationId(claimRotationId);
-    claimAnimationRotationIdRef.current = claimRotationId;
+    setAnimatingClaimRotationIds((current) => {
+      if (current.includes(claimRotationId)) {
+        return current;
+      }
+
+      return [...current, claimRotationId];
+    });
+    currentProgressAnimationRotationIdRef.current = claimRotationId;
     setClaimedStampRotationIds((current) =>
       current.filter((id) => id !== claimRotationId),
     );
@@ -1514,8 +1531,6 @@ export const QuestButton = ({
 
       return [...current, claimRotationId];
     });
-    claimProgressSnapshotRef.current = startProgress;
-    claimLevelSnapshotRef.current = startLevel;
     setAnimatedLevel(startLevel);
     setAnimatedLevelProgress(startProgress);
 
@@ -1527,49 +1542,62 @@ export const QuestButton = ({
           const nextFlights = buildQuestRewardFlights(rewardSources);
 
           if (!nextFlights.length) {
-            setAnimatedLevel(null);
-            setAnimatedLevelProgress(null);
-            setAnimatingClaimRotationId(null);
-            claimProgressSnapshotRef.current = null;
-            claimLevelSnapshotRef.current = null;
-            claimAnimationRotationIdRef.current = null;
+            if (
+              currentProgressAnimationRotationIdRef.current === claimRotationId
+            ) {
+              setAnimatedLevel(null);
+              setAnimatedLevelProgress(null);
+              currentProgressAnimationRotationIdRef.current = null;
+            }
+            setAnimatingClaimRotationIds((current) =>
+              current.filter((id) => id !== claimRotationId),
+            );
             scheduleClaimedStampReveal(claimRotationId);
             return;
           }
 
-          setRewardFlights(nextFlights);
-          const initialProgress =
-            claimProgressSnapshotRef.current ?? levelProgress;
-          const initialLevel = claimLevelSnapshotRef.current ?? level;
+          setRewardFlightLayers((current) => [
+            ...current.filter(
+              (layer) => layer.claimRotationId !== claimRotationId,
+            ),
+            { claimRotationId, flights: nextFlights },
+          ]);
           const finalProgress = getLevelProgress(claimedDashboard.level);
           const finalLevel = claimedDashboard.level.level;
 
           scheduleLevelProgressByHits({
             flights: nextFlights,
             finalProgress,
-            startProgress: initialProgress,
+            startProgress,
             finalLevel,
-            startLevel: initialLevel,
+            startLevel,
           });
           scheduleRewardCounterByHits({
             claimId,
             flights: nextFlights,
             rewardSources,
           });
-          claimProgressSnapshotRef.current = null;
-          claimLevelSnapshotRef.current = null;
         },
         onError: () => {
-          claimProgressSnapshotRef.current = null;
-          claimLevelSnapshotRef.current = null;
-          claimAnimationRotationIdRef.current = null;
           setDeferredClaimedStampRotationIds((current) =>
             current.filter((id) => id !== claimRotationId),
           );
-          clearProgressTimers();
-          setAnimatedLevel(null);
-          setAnimatedLevelProgress(null);
-          setAnimatingClaimRotationId(null);
+          setRewardFlightLayers((current) =>
+            current.filter(
+              (layer) => layer.claimRotationId !== claimRotationId,
+            ),
+          );
+          setAnimatingClaimRotationIds((current) =>
+            current.filter((id) => id !== claimRotationId),
+          );
+          if (
+            currentProgressAnimationRotationIdRef.current === claimRotationId
+          ) {
+            clearProgressTimers();
+            setAnimatedLevel(null);
+            setAnimatedLevelProgress(null);
+            currentProgressAnimationRotationIdRef.current = null;
+          }
         },
       },
     );
@@ -1578,7 +1606,7 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
-      await router.push(destination.path);
+      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [router],
   );
@@ -1645,7 +1673,7 @@ export const QuestButton = ({
                         triggerProgressCircumference *
                         (1 - renderedLevelProgress / 100)
                       }
-                      className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                      className="stroke-accent-avocado-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                     />
                   </svg>
                   <span
@@ -1703,7 +1731,7 @@ export const QuestButton = ({
               isPending={isPending}
               isError={isError}
               claimingQuestId={claimingQuestId}
-              animatingClaimRotationId={animatingClaimRotationId ?? undefined}
+              animatingClaimRotationIds={animatingClaimRotationIdSet}
               claimedStampRotationIds={claimedStampRotationIdSet}
               animatingClaimedStampRotationIds={
                 animatingClaimedStampRotationIdSet
@@ -1717,12 +1745,13 @@ export const QuestButton = ({
           </div>
         </PopoverContent>
       </Popover>
-      {rewardFlights.length > 0 && (
+      {rewardFlightLayers.map((layer) => (
         <QuestRewardFlightLayer
-          flights={rewardFlights}
-          onDone={clearRewardFlights}
+          key={layer.claimRotationId}
+          flights={layer.flights}
+          onDone={() => handleRewardFlightLayerDone(layer.claimRotationId)}
         />
-      )}
+      ))}
       {levelFireworkParticles.length > 0 && (
         <QuestLevelFireworkLayer
           particles={levelFireworkParticles}

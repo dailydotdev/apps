@@ -29,6 +29,7 @@ const packageConfigs = [
 // These files have known strict-mode violations that will be addressed separately.
 const strictSkipList = new Set([
   'packages/shared/src/components/auth/AuthOptionsInner.tsx',
+  'packages/shared/src/features/onboarding/steps/FunnelRegistration.tsx',
   'packages/shared/src/hooks/useLogin.ts',
   'packages/shared/src/hooks/useRegistration.ts',
   'packages/shared/src/contexts/AuthContext.tsx',

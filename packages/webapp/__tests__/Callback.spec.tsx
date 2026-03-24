@@ -53,6 +53,7 @@ describe('CallbackPage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
 
     // Store original window
     originalWindow = { ...window };
@@ -97,6 +98,8 @@ describe('CallbackPage', () => {
       value: originalWindow.opener,
     });
 
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -158,6 +161,10 @@ describe('CallbackPage', () => {
       token: '456',
       eventKey: AuthEvent.SocialRegistration,
     });
+    expect(mockClose).toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+
     expect(mockReplace).toHaveBeenCalledWith('/onboarding');
   });
 
@@ -230,7 +237,10 @@ describe('CallbackPage', () => {
       token: 'insta',
       eventKey: AuthEvent.Login,
     });
-    // No window.opener in Instagram webview, so redirect instead of close
+    expect(mockClose).toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1000);
+
     expect(mockReplace).toHaveBeenCalledWith('/onboarding');
 
     // Restore user agent

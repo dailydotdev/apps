@@ -190,6 +190,8 @@ pnpm --filter webapp build        # Build webapp
 pnpm --filter extension build:chrome # Build Chrome extension
 ```
 
+**IMPORTANT**: When running Jest manually with `pnpm exec jest` or a direct file path, set `NODE_ENV=test` so React and Testing Library do not run under a production build.
+
 **IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
 
 ## Where Should I Put This Code?
@@ -405,6 +407,8 @@ const handleClick = useCallback((key: string) => {
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
+
+Use conventional commit messages for all commits, for example `fix: ...`, `feat: ...`, or `chore: ...`.
 
 Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
 

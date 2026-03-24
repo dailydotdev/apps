@@ -76,7 +76,7 @@ export const QuestLevelProgressCircle = ({
           strokeDashoffset={
             QUEST_LEVEL_PROGRESS_CIRCUMFERENCE * (1 - safeProgress / 100)
           }
-          className="stroke-accent-cabbage-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+          className="stroke-accent-avocado-default transition-[stroke-dashoffset] duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
         />
       </svg>
       <span

@@ -15,7 +15,43 @@ export type BetterAuthResponse = {
 type BetterAuthResult<T = Record<string, unknown>> = T &
   Pick<BetterAuthResponse, 'error' | 'code' | 'message' | 'status'>;
 
+export type BetterAuthSocialRedirectResponse = BetterAuthResult<{
+  url?: string;
+  redirect?: boolean;
+}>;
+
 const betterAuthStateSuffix = '_ba';
+
+export const getBetterAuthErrorMessage = (
+  error: unknown,
+  fallbackError = 'Request failed',
+): string => {
+  if (typeof error === 'string' && error) {
+    return error;
+  }
+
+  if (error && typeof error === 'object') {
+    if ('message' in error && typeof error.message === 'string') {
+      return error.message;
+    }
+
+    if ('error' in error && typeof error.error === 'string') {
+      return error.error;
+    }
+
+    if ('code' in error && typeof error.code === 'string') {
+      return error.code;
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return fallbackError;
+    }
+  }
+
+  return fallbackError;
+};
 
 const markBetterAuthSocialUrl = (url?: string): string | undefined => {
   if (!url) {
@@ -39,26 +75,32 @@ const betterAuthPost = async <T = Record<string, unknown>>(
   fallbackError = 'Request failed',
   headers?: Record<string, string>,
 ): Promise<BetterAuthResult<T>> => {
-  const res = await fetch(`${apiUrl}/auth/${path}`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...headers },
-    ...(body && { body: JSON.stringify(body) }),
-  });
+  try {
+    const res = await fetch(`${apiUrl}/auth/${path}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      ...(body && { body: JSON.stringify(body) }),
+    });
 
-  if (!res.ok) {
-    try {
-      const data = (await res.json()) as BetterAuthResult<T>;
-      return {
-        ...data,
-        error: data?.message || data?.error || data?.code || fallbackError,
-      } as BetterAuthResult<T>;
-    } catch {
-      return { error: fallbackError } as BetterAuthResult<T>;
+    if (!res.ok) {
+      try {
+        const data = (await res.json()) as BetterAuthResult<T>;
+        return {
+          ...data,
+          error: data?.message || data?.error || data?.code || fallbackError,
+        } as BetterAuthResult<T>;
+      } catch {
+        return { error: fallbackError } as BetterAuthResult<T>;
+      }
     }
-  }
 
-  return res.json();
+    return res.json();
+  } catch (error) {
+    return {
+      error: getBetterAuthErrorMessage(error, fallbackError),
+    } as BetterAuthResult<T>;
+  }
 };
 
 export const betterAuthSignIn = async ({
@@ -116,11 +158,11 @@ export const betterAuthSignUp = async ({
   );
 };
 
-const getBetterAuthSocialRedirectUrl = async (
+const getBetterAuthSocialRedirect = async (
   path: string,
   provider: string,
   callbackURL: string,
-): Promise<string | undefined> => {
+): Promise<BetterAuthSocialRedirectResponse> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
     : `${window.location.origin}${
@@ -140,14 +182,23 @@ const getBetterAuthSocialRedirectUrl = async (
     'Failed to get social auth URL',
   );
 
-  return markBetterAuthSocialUrl(response.url);
+  return {
+    ...response,
+    url: markBetterAuthSocialUrl(response.url),
+  };
 };
+
+export const getBetterAuthSocialRedirectData = (
+  provider: string,
+  callbackURL: string,
+): Promise<BetterAuthSocialRedirectResponse> =>
+  getBetterAuthSocialRedirect('sign-in/social', provider, callbackURL);
 
 export const getBetterAuthSocialUrl = (
   provider: string,
   callbackURL: string,
 ): Promise<string | undefined> =>
-  getBetterAuthSocialRedirectUrl('sign-in/social', provider, callbackURL);
+  getBetterAuthSocialRedirectData(provider, callbackURL).then(({ url }) => url);
 
 export const betterAuthSignInWithIdToken = async ({
   provider,
@@ -175,7 +226,9 @@ export const getBetterAuthLinkSocialUrl = (
   provider: string,
   callbackURL: string,
 ): Promise<string | undefined> =>
-  getBetterAuthSocialRedirectUrl('link-social', provider, callbackURL);
+  getBetterAuthSocialRedirect('link-social', provider, callbackURL).then(
+    ({ url }) => url,
+  );
 
 export const getBetterAuthProviders = async (): Promise<{
   ok: boolean;

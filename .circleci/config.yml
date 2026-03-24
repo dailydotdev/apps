@@ -11,13 +11,13 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v8-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-v9-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -35,8 +35,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -56,8 +56,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -77,8 +77,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
@@ -91,8 +91,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Fetch base branch
           command: git fetch origin main
@@ -107,8 +107,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -130,8 +130,8 @@ jobs:
           command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
       - restore_cache:
           keys:
-            - deps-v8-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v8-{{ .Branch }}
+            - deps-v9-{{ checksum "pnpm-lock.yaml" }}
+            - deps-v9-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install

@@ -23,9 +23,11 @@ export function SquadPostWidgets({
   className,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
-  const isUserSource = isSourceUserSource(post.source);
-  const isSquadSource = post.source.type === SourceType.Squad;
-  const canShare = !isSquadSource || isSourcePublicSquad(post.source as Squad);
+  const { source } = post;
+  const isUserSource = source ? isSourceUserSource(source) : false;
+  const isSquadSource = source?.type === SourceType.Squad;
+  const canShare =
+    !isSquadSource || (source ? isSourcePublicSquad(source as Squad) : false);
 
   const cardClasses = 'w-full bg-transparent';
 
@@ -37,15 +39,16 @@ export function SquadPostWidgets({
             className={{
               container: cardClasses,
             }}
-            handle={post.source.handle}
+            handle={source.handle}
             origin={origin}
+            showNotificationCtaOnJoin
           />
         ) : (
           <SourceEntityCard
             className={{
               container: cardClasses,
             }}
-            source={post.source as SourceTooltip}
+            source={source as SourceTooltip}
           />
         ))}
       {!!post.author && (
@@ -54,6 +57,7 @@ export function SquadPostWidgets({
             container: cardClasses,
           }}
           user={post.author as UserShortProfile}
+          showNotificationCtaOnFollow
         />
       )}
       <PostSidebarAdWidget
