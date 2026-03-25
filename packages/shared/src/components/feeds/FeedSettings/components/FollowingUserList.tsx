@@ -11,6 +11,7 @@ import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { FollowButton } from '../../../contentPreference/FollowButton';
 import type { LoggedUser } from '../../../../lib/user';
+import { ButtonVariant } from '../../../buttons/Button';
 
 export const FollowingUserList = (): ReactElement => {
   const { user } = useAuthContext();
@@ -52,6 +53,7 @@ export const FollowingUserList = (): ReactElement => {
           origin={Origin.FollowFilter}
           showSubscribe={false}
           copyType={CopyType.Custom}
+          variant={ButtonVariant.Primary}
         />
       )}
       scrollingProps={{
