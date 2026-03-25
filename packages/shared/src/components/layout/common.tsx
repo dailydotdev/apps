@@ -36,7 +36,6 @@ import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
-import { AgentsLeaderboardEntrypointButton } from '../filters/AgentsLeaderboardEntrypointButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -194,12 +193,6 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    hasFeedActions && (
-      <AgentsLeaderboardEntrypointButton
-        key="agents-arena-entrypoint"
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-      />
-    ),
     isLaptop && installExtensionButton,
   ];
   const actions = actionButtons.filter((button) => !!button);

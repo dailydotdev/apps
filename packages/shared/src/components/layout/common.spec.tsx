@@ -71,13 +71,6 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
   },
 }));
 
-jest.mock('../filters/AgentsLeaderboardEntrypointButton', () => ({
-  AgentsLeaderboardEntrypointButton:
-    function MockAgentsLeaderboardEntrypointButton() {
-      return <div data-testid="agents-arena-entrypoint" />;
-    },
-}));
-
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
@@ -169,17 +162,5 @@ describe('SearchControlHeader', () => {
     expect(
       screen.getByRole('link', { name: 'Get it for Chrome' }),
     ).toBeInTheDocument();
-  });
-
-  it('renders the agents arena entrypoint on feed pages without a feature flag', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: false,
-    });
-
-    renderComponent();
-
-    expect(screen.getByTestId('agents-arena-entrypoint')).toBeInTheDocument();
   });
 });
