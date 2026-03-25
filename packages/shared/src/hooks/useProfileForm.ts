@@ -38,19 +38,23 @@ interface UseProfileFormProps {
 type Handles = Pick<UserProfile, 'username'>;
 const minUsernameLength = 3;
 const maxUsernameLength = 39;
+const normalizeUsername = (username: string): string =>
+  username.replace('@', '').trim();
 
 export const onValidateHandles = (
   before: Partial<Handles>,
   after: Partial<Handles>,
 ): Partial<Record<keyof Handles, string>> => {
   if (after.username && after.username !== before.username) {
+    const normalizedUsername = normalizeUsername(after.username);
+
     if (
-      after.username.length < minUsernameLength ||
-      after.username.length > maxUsernameLength
+      normalizedUsername.length < minUsernameLength ||
+      normalizedUsername.length > maxUsernameLength
     ) {
       return { username: errorMessage.profile.usernameLength };
     }
-    const isValid = handleRegex.test(after.username);
+    const isValid = handleRegex.test(normalizedUsername);
 
     if (!isValid) {
       return { username: errorMessage.profile.invalidUsername };

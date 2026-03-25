@@ -72,6 +72,15 @@ describe('onValidateHandles', () => {
     expect(result.username).toBe('Username must be between 3-39 characters');
   });
 
+  it('should reject usernames that are too short after trimming spaces and @', () => {
+    const before = { username: 'oldname' };
+    const after = { username: ' @ab ' };
+
+    const result = onValidateHandles(before, after);
+
+    expect(result.username).toBe('Username must be between 3-39 characters');
+  });
+
   it('should reject empty usernames', () => {
     const before = { username: 'oldname' };
     const after = { username: '' };
