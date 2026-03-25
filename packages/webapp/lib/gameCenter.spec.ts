@@ -15,6 +15,7 @@ import {
   getAchievementSummary,
   getAwardSummary,
   getBadgeSummary,
+  getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
 } from './gameCenter';
@@ -115,6 +116,21 @@ describe('game center helpers', () => {
         ],
         plus: [],
       },
+      milestone: [
+        createQuest({
+          questId: 'milestone-progress',
+          name: 'Milestone quest',
+          progress: 7,
+          quest: {
+            id: 'milestone-progress',
+            name: 'Milestone quest',
+            description: 'Milestone quest description',
+            type: QuestType.Milestone,
+            eventType: 'read_post',
+            targetCount: 10,
+          },
+        }),
+      ],
     };
 
     const summary = getQuestSummary(dashboard);
@@ -126,6 +142,54 @@ describe('game center helpers', () => {
     expect(summary.daily.completionRate).toBe(67);
     expect(summary.weekly.completionRate).toBe(100);
     expect(summary.highlightedQuest?.quest.id).toBe('daily-claimable');
+  });
+
+  it('picks the most progressed active quest while skipping claimed ones', () => {
+    const mostProgressedQuest = getMostProgressedQuest([
+      createQuest({
+        questId: 'claimed-milestone',
+        name: 'Claimed milestone',
+        progress: 10,
+        status: QuestStatus.Claimed,
+        claimedAt: new Date('2025-02-01T00:00:00.000Z'),
+        quest: {
+          id: 'claimed-milestone',
+          name: 'Claimed milestone',
+          description: 'Claimed milestone description',
+          type: QuestType.Milestone,
+          eventType: 'read_post',
+          targetCount: 10,
+        },
+      }),
+      createQuest({
+        questId: 'ratio-winner',
+        name: 'Ratio winner',
+        progress: 7,
+        quest: {
+          id: 'ratio-winner',
+          name: 'Ratio winner',
+          description: 'Ratio winner description',
+          type: QuestType.Milestone,
+          eventType: 'read_post',
+          targetCount: 8,
+        },
+      }),
+      createQuest({
+        questId: 'progress-loser',
+        name: 'Progress loser',
+        progress: 9,
+        quest: {
+          id: 'progress-loser',
+          name: 'Progress loser',
+          description: 'Progress loser description',
+          type: QuestType.Milestone,
+          eventType: 'read_post',
+          targetCount: 12,
+        },
+      }),
+    ]);
+
+    expect(mostProgressedQuest?.quest.id).toBe('ratio-winner');
   });
 
   it('builds achievement summaries with deduped featured cards', () => {

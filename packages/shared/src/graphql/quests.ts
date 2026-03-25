@@ -4,6 +4,7 @@ import { gqlClient } from './common';
 export enum QuestType {
   Daily = 'daily',
   Weekly = 'weekly',
+  Milestone = 'milestone',
 }
 
 export enum QuestStatus {
@@ -63,6 +64,7 @@ export interface QuestDashboard {
   longestStreak: number;
   daily: QuestBucket;
   weekly: QuestBucket;
+  milestone: UserQuest[];
 }
 
 export interface QuestDashboardData {
@@ -70,7 +72,10 @@ export interface QuestDashboardData {
 }
 
 export interface ClaimQuestRewardData {
-  claimQuestReward: Pick<QuestDashboard, 'level' | 'daily' | 'weekly'>;
+  claimQuestReward: Pick<
+    QuestDashboard,
+    'level' | 'daily' | 'weekly' | 'milestone'
+  >;
 }
 
 export interface QuestUpdate {
@@ -203,6 +208,28 @@ export const QUEST_DASHBOARD_QUERY = gql`
           }
         }
       }
+      milestone {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
+        }
+      }
     }
   }
 `;
@@ -306,6 +333,28 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
             type
             amount
           }
+        }
+      }
+      milestone {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
         }
       }
     }

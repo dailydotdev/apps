@@ -98,6 +98,40 @@ const getHighlightedQuest = (quests: UserQuest[]): UserQuest | null => {
   })[0];
 };
 
+export const getMostProgressedQuest = (
+  quests?: UserQuest[],
+): UserQuest | null => {
+  const activeQuests =
+    quests?.filter((quest) => quest.status !== QuestStatus.Claimed) ?? [];
+
+  if (activeQuests.length === 0) {
+    return null;
+  }
+
+  return [...activeQuests].sort((left, right) => {
+    if (left.locked !== right.locked) {
+      return left.locked ? 1 : -1;
+    }
+
+    const ratioDifference =
+      getQuestProgressRatio(right) - getQuestProgressRatio(left);
+
+    if (ratioDifference !== 0) {
+      return ratioDifference;
+    }
+
+    if (left.progress !== right.progress) {
+      return right.progress - left.progress;
+    }
+
+    if (left.claimable !== right.claimable) {
+      return left.claimable ? -1 : 1;
+    }
+
+    return getQuestRewardTotal(right) - getQuestRewardTotal(left);
+  })[0];
+};
+
 export const getQuestSummary = (
   dashboard?: QuestDashboard,
 ): GameCenterQuestSummary => {

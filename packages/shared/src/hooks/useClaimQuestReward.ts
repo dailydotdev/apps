@@ -63,6 +63,7 @@ export const useClaimQuestReward = () => {
             level: claimResult.level,
             daily: claimResult.daily,
             weekly: claimResult.weekly,
+            milestone: claimResult.milestone,
           };
         },
       );
