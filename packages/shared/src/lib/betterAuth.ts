@@ -1,4 +1,6 @@
 import { apiUrl } from './config';
+import { gqlClient } from '../graphql/common';
+import { SET_PASSWORD_MUTATION } from '../graphql/users';
 
 export type BetterAuthResponse = {
   error?: string;
@@ -279,11 +281,14 @@ export const unlinkBetterAuthAccount = async (
 export const betterAuthSetPassword = async (
   newPassword: string,
 ): Promise<{ status?: boolean; error?: string; code?: string }> => {
-  return betterAuthPost(
-    'set-password',
-    { newPassword },
-    'Failed to set password',
-  );
+  try {
+    await gqlClient.request(SET_PASSWORD_MUTATION, { newPassword });
+    return { status: true };
+  } catch (error) {
+    return {
+      error: getBetterAuthErrorMessage(error, 'Failed to set password'),
+    };
+  }
 };
 
 export const betterAuthChangeEmail = async (
