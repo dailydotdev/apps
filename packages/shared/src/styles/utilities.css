@@ -110,18 +110,6 @@
   animation: slide-down 0.3s ease-out;
 }
 
-@keyframes notification-bubble-enter {
-  0% {
-    opacity: 0;
-    transform: translateY(0.5rem) scale(0.98);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 @keyframes crown-icon-pop {
   0% {
     transform: scale(1) rotate(0deg);
@@ -671,18 +659,6 @@
     animation: none;
     background-position: 0% 50%;
   }
-}
-
-.feed-highlights-menu-content {
-  min-width: 12rem;
-  padding-top: 0.125rem;
-  padding-bottom: 0.125rem;
-}
-
-.feed-highlights-menu-content .DropdownMenuItem {
-  height: 1.5rem;
-  padding-right: 0.375rem;
-  padding-left: 0.375rem;
 }
 
 @keyframes feed-highlights-new-item-border-shift {
