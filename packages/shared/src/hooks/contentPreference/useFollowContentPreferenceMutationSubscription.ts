@@ -84,7 +84,7 @@ export const useFollowContentPreferenceMutationSubscription = ({
                     } as ContentPreference;
                   }
 
-                  if (node.referenceId === entityId) {
+                  if (node.referenceId === entityId && nextStatus != null) {
                     node.status = nextStatus;
                   }
 
