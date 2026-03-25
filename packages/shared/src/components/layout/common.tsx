@@ -25,12 +25,8 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
-import {
-  useActions,
-  useConditionalFeature,
-  useViewSize,
-  ViewSize,
-} from '../../hooks';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
@@ -40,7 +36,6 @@ import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
-import { AgentsLeaderboardEntrypointButton } from '../filters/AgentsLeaderboardEntrypointButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -48,11 +43,7 @@ import {
   getCurrentBrowserName,
   isNullOrUndefined,
 } from '../../lib/func';
-import {
-  agentsLeaderboardEntrypointFeature,
-  installExtensionPromptFeature,
-} from '../../lib/featureManagement';
-import type { AgentsLeaderboardEntrypointFeature } from '../../lib/featureManagement';
+import { installExtensionPromptFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -113,11 +104,6 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
   const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
-  const { value: leaderboardEntrypointConfig } =
-    useConditionalFeature<AgentsLeaderboardEntrypointFeature>({
-      feature: agentsLeaderboardEntrypointFeature,
-      shouldEvaluate: hasFeedActions,
-    });
 
   if (isMobile) {
     return null;
@@ -207,14 +193,6 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    hasFeedActions && leaderboardEntrypointConfig?.groupId && (
-      <AgentsLeaderboardEntrypointButton
-        key="agents-arena-entrypoint"
-        groupId={leaderboardEntrypointConfig.groupId}
-        showLabel={!!leaderboardEntrypointConfig.showLabel}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
-      />
-    ),
     isLaptop && installExtensionButton,
   ];
   const actions = actionButtons.filter((button) => !!button);

@@ -264,6 +264,8 @@ const { value: isEnabled } = useConditionalFeature({
 const showComponent = shouldEvaluate && isEnabled;
 ```
 
+When removing a feature flag, do not assume the gated UI should become always-on. Match the product request explicitly: either delete the gated behavior entirely or keep it permanently, and remove dead code/tests for the discarded path.
+
 ## Key Configuration Files
 
 - `pnpm-workspace.yaml` - Monorepo workspace packages
