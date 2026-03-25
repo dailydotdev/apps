@@ -65,11 +65,11 @@ describe('onValidateHandles', () => {
 
   it('should reject usernames that are too short', () => {
     const before = { username: 'oldname' };
-    const after = { username: 'í' }; // Single character
+    const after = { username: 'ab' };
 
     const result = onValidateHandles(before, after);
 
-    expect(result.username).toBeDefined();
+    expect(result.username).toBe('Username must be between 3-39 characters');
   });
 
   it('should reject empty usernames', () => {
