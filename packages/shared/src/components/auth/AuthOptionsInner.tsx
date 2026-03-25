@@ -22,7 +22,14 @@ import {
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
-import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
+import {
+  isDevelopment,
+  webappUrl,
+  broadcastChannel,
+  isTesting,
+} from '../../lib/constants';
+import { setCookie } from '../../lib/cookie';
+import { getUserDefaultTimezone } from '../../lib/timezones';
 import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
@@ -494,6 +501,13 @@ function AuthOptionsInner({
     setIsSocialAuthLoading(true);
 
     if (isBetterAuth) {
+      setCookie('tz', getUserDefaultTimezone(), {
+        path: '/',
+        domain: process.env.NEXT_PUBLIC_DOMAIN,
+        sameSite: 'lax',
+        secure: !isDevelopment,
+      });
+
       if (isNativeAuthSupported(provider)) {
         const res = await iosNativeAuth(provider);
         if (!res) {
