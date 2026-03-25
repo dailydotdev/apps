@@ -323,6 +323,8 @@ const useRegistration = ({
 
   const onSocialRegistration = async (provider: string) => {
     if (isBetterAuth) {
+      const additionalData = { timezone };
+
       if (isNativeAuthSupported(provider)) {
         const res = await iosNativeAuth(provider);
         if (!res) {
@@ -332,6 +334,7 @@ const useRegistration = ({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
+          additionalData,
         });
         if (result.error) {
           logEvent({
@@ -376,6 +379,7 @@ const useRegistration = ({
       const { url, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
+        additionalData,
       );
       if (onRedirect && url) {
         onRedirect(url);

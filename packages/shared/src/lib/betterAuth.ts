@@ -158,10 +158,13 @@ export const betterAuthSignUp = async ({
   );
 };
 
+type SocialAdditionalData = Record<string, unknown>;
+
 const getBetterAuthSocialRedirect = async (
   path: string,
   provider: string,
   callbackURL: string,
+  additionalData?: SocialAdditionalData,
 ): Promise<BetterAuthSocialRedirectResponse> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
@@ -178,6 +181,7 @@ const getBetterAuthSocialRedirect = async (
       provider,
       callbackURL: absoluteCallbackURL,
       disableRedirect: true,
+      ...(additionalData && { additionalData }),
     },
     'Failed to get social auth URL',
   );
@@ -191,8 +195,14 @@ const getBetterAuthSocialRedirect = async (
 export const getBetterAuthSocialRedirectData = (
   provider: string,
   callbackURL: string,
+  additionalData?: SocialAdditionalData,
 ): Promise<BetterAuthSocialRedirectResponse> =>
-  getBetterAuthSocialRedirect('sign-in/social', provider, callbackURL);
+  getBetterAuthSocialRedirect(
+    'sign-in/social',
+    provider,
+    callbackURL,
+    additionalData,
+  );
 
 export const getBetterAuthSocialUrl = (
   provider: string,
@@ -204,10 +214,12 @@ export const betterAuthSignInWithIdToken = async ({
   provider,
   token,
   nonce,
+  additionalData,
 }: {
   provider: string;
   token: string;
   nonce?: string;
+  additionalData?: SocialAdditionalData;
 }): Promise<BetterAuthResponse> => {
   return betterAuthPost(
     'sign-in/social',
@@ -217,6 +229,7 @@ export const betterAuthSignInWithIdToken = async ({
         token,
         ...(nonce && { nonce }),
       },
+      ...(additionalData && { additionalData }),
     },
     'Native sign in failed',
   );
