@@ -282,7 +282,10 @@ function GameCenterPage({
   );
   const hasCoresAccess = useHasAccessToCores();
   const showLevelSystem = !optOutLevelSystem;
-  const milestoneQuests = questDashboard?.milestone ?? [];
+  const milestoneQuests = useMemo(
+    () => questDashboard?.milestone ?? [],
+    [questDashboard?.milestone],
+  );
   const claimingMilestoneQuestId = isClaimQuestPending
     ? claimQuestVariables?.userQuestId
     : undefined;

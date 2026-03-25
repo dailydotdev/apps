@@ -327,7 +327,9 @@ describe('FunnelPricingV2', () => {
       jest.advanceTimersByTime(1000);
     });
     await waitFor(() =>
-      expect(screen.queryAllByTestId('mini-discount-timer')).toHaveLength(0),
+      expect(
+        screen.queryByTestId('mini-discount-timer'),
+      ).not.toBeInTheDocument(),
     );
 
     // Click the CTA button

@@ -25,7 +25,7 @@ jest.mock('../../hooks', () => {
 });
 
 const date = new Date(2024, 6, 6, 12, 30, 30);
-const commentAuthor = comment.author!;
+const commentAuthor = comment.author ?? loggedUser;
 
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(date);

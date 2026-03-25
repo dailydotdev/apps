@@ -610,7 +610,7 @@ describe('game center client gating', () => {
 
     const milestoneGrid = screen.getByText('Milestones').nextElementSibling;
 
-    expect(milestoneGrid).not.toBeNull();
+    expect(milestoneGrid).toBeInTheDocument();
     expect(screen.getByText('Milestone quest 4')).toBeInTheDocument();
     expect(
       within(milestoneGrid as HTMLElement).queryByText('Milestone quest 5'),

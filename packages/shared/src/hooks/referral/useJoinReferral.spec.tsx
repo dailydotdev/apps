@@ -5,10 +5,8 @@ import { useRouter } from 'next/router';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useJoinReferral } from './useJoinReferral';
-import {
-  AuthContextProvider,
-  type AuthContextProviderProps,
-} from '../../contexts/AuthContext';
+import { AuthContextProvider } from '../../contexts/AuthContext';
+import type { AuthContextProviderProps } from '../../contexts/AuthContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
 import defaultUser from '../../../__tests__/fixture/loggedUser';

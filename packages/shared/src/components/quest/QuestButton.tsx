@@ -635,7 +635,9 @@ export const QuestSection = ({
 
       <div
         className={classNames(
-          layout === 'grid' ? 'grid gap-4 tablet:grid-cols-2' : 'flex flex-col gap-2',
+          layout === 'grid'
+            ? 'grid gap-4 tablet:grid-cols-2'
+            : 'flex flex-col gap-2',
         )}
       >
         {visibleQuests.map((quest) => (
