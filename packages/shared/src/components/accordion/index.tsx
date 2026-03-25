@@ -1,6 +1,5 @@
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React, { useId, useState } from 'react';
-import './style.css';
 import classNames from 'classnames';
 import {
   Accordion as AccordionRoot,
@@ -9,6 +8,7 @@ import {
   AccordionContent,
   AccordionHeader,
 } from '@radix-ui/react-accordion';
+import styles from './style.module.css';
 import { Button } from '../buttons/Button';
 import { ArrowIcon } from '../icons';
 
@@ -27,10 +27,10 @@ interface AccordionProps {
 
 const RadixAccordionHeader = ({ children }: { children: ReactNode }) => {
   return (
-    <AccordionHeader className="AccordionHeader">
-      <AccordionTrigger className="AccordionTrigger">
+    <AccordionHeader className={styles.AccordionHeader}>
+      <AccordionTrigger className={styles.AccordionTrigger}>
         {children}
-        <ArrowIcon className="AccordionChevron" />
+        <ArrowIcon className={styles.AccordionChevron} />
       </AccordionTrigger>
     </AccordionHeader>
   );
@@ -48,20 +48,20 @@ export const RadixAccordion = ({
 }: RadixAccordionProps) => {
   return (
     <AccordionRoot
-      className={classNames('AccordionRoot', className)}
+      className={classNames(styles.AccordionRoot, className)}
       type="single"
       collapsible
       onValueChange={onValueChange}
     >
       {items?.map((item) => (
         <AccordionItem
-          className="AccordionItem"
+          className={styles.AccordionItem}
           value={item.title}
           key={item.title}
         >
           <RadixAccordionHeader>{item.title}</RadixAccordionHeader>
-          <AccordionContent className="AccordionContent">
-            <div className="AccordionContentText">{item.description}</div>
+          <AccordionContent className={styles.AccordionContent}>
+            <div className={styles.AccordionContentText}>{item.description}</div>
           </AccordionContent>
         </AccordionItem>
       ))}

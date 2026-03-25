@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import React, { isValidElement, useState } from 'react';
 import classNames from 'classnames';
-import './style.css';
 import type {
   DropdownMenuContentProps as RadixDropdownMenuContentProps,
   DropdownMenuProps,
@@ -14,6 +13,7 @@ import {
   DropdownMenuTrigger as DropdownMenuTriggerRoot,
   DropdownMenuItem as DropdownMenuItemRoot,
 } from '@radix-ui/react-dropdown-menu';
+import styles from './style.module.css';
 import classed from '../../lib/classed';
 import { useEventListener } from '../../hooks/useEventListener';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -27,7 +27,7 @@ import { useScrollFade } from '../../hooks/useScrollFade';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
-  'DropdownMenuItem',
+  styles.DropdownMenuItem,
 );
 
 interface DropdownMenuContentProps
@@ -129,10 +129,11 @@ export const DropdownMenuContent = React.forwardRef<
           {...props}
           ref={forwardedRef}
           className={classNames(
-            'DropdownMenuContent overflow-hidden',
+            styles.DropdownMenuContent,
+            'overflow-hidden',
             variant === 'field'
-              ? 'DropdownMenuContentField'
-              : 'DropdownMenuContentAction',
+              ? styles.DropdownMenuContentField
+              : styles.DropdownMenuContentAction,
             className,
           )}
           align={align}
@@ -142,7 +143,8 @@ export const DropdownMenuContent = React.forwardRef<
           <div
             ref={scrollFadeRef}
             className={classNames(
-              'DropdownMenuScrollable overflow-y-auto bg-inherit',
+              styles.DropdownMenuScrollable,
+              'overflow-y-auto bg-inherit',
               scrollableClassName ??
                 'max-h-[var(--radix-dropdown-menu-content-available-height)]',
             )}
