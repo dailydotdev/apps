@@ -9,6 +9,8 @@ import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { FollowButton } from '../../../contentPreference/FollowButton';
+import type { LoggedUser } from '../../../../lib/user';
 
 export const FollowingUserList = (): ReactElement => {
   const { user } = useAuthContext();
@@ -39,18 +41,25 @@ export const FollowingUserList = (): ReactElement => {
     <UserList
       users={users}
       emptyPlaceholder={<p>Can&#39;t find any users</p>}
+      additionalContent={(listedUser) => (
+        <FollowButton
+          alwaysShow
+          feedId={feed.id}
+          entityId={listedUser.id}
+          type={ContentPreferenceType.User}
+          status={(listedUser as LoggedUser).contentPreference?.status}
+          entityName={`@${listedUser.username}`}
+          origin={Origin.FollowFilter}
+          showSubscribe={false}
+          copyType={CopyType.Custom}
+        />
+      )}
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
       userInfoProps={{
-        origin: Origin.FollowFilter,
-        showFollow: true,
-        alwaysShowFollow: true,
-        showSubscribe: false,
-        copyType: CopyType.Custom,
-        feedId: feed.id,
         rel: anchorDefaultRel,
         target: '_blank',
       }}
