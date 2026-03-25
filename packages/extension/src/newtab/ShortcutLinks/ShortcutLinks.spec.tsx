@@ -71,6 +71,8 @@ jest.mock('webextension-polyfill', () => {
   };
 });
 
+const mockGetBootData = getBootData as jest.MockedFunction<typeof getBootData>;
+
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
@@ -136,7 +138,7 @@ jest.spyOn(libFuncs, 'checkIsExtension').mockReturnValue(true);
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
-  jest.mocked(getBootData).mockResolvedValue(getBootMock(bootData));
+  mockGetBootData.mockResolvedValue(getBootMock(bootData));
   return render(
     <div id="__next">
       <QueryClientProvider client={queryClient}>
