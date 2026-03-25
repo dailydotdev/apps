@@ -19,7 +19,12 @@ export enum ContentPreferenceStatus {
   Blocked = 'blocked',
 }
 
-type ContentPreferenceUser = UserShortProfile;
+type ContentPreferenceUser = Pick<
+  UserShortProfile,
+  'id' | 'name' | 'image' | 'username'
+> & {
+  contentPreference?: Pick<ContentPreference, 'status'>;
+};
 
 export type ContentPreference = {
   referenceId: string;

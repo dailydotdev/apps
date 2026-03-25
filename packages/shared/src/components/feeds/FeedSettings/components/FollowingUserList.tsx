@@ -31,7 +31,7 @@ export const FollowingUserList = (): ReactElement | null => {
       data?.pages.reduce<UserShortProfile[]>((acc, p) => {
         p?.edges.forEach(({ node }) => {
           if (node.referenceUser) {
-            acc.push(node.referenceUser);
+            acc.push(node.referenceUser as unknown as UserShortProfile);
           }
         });
 
