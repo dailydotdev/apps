@@ -36,16 +36,25 @@ interface UseProfileFormProps {
 }
 
 type Handles = Pick<UserProfile, 'username'>;
+const minUsernameLength = 3;
+const maxUsernameLength = 39;
+const normalizeUsername = (username: string): string =>
+  username.replace('@', '').trim();
 
 export const onValidateHandles = (
   before: Partial<Handles>,
   after: Partial<Handles>,
 ): Partial<Record<keyof Handles, string>> => {
   if (after.username && after.username !== before.username) {
-    if (after.username.length > 38) {
+    const normalizedUsername = normalizeUsername(after.username);
+
+    if (
+      normalizedUsername.length < minUsernameLength ||
+      normalizedUsername.length > maxUsernameLength
+    ) {
       return { username: errorMessage.profile.usernameLength };
     }
-    const isValid = handleRegex.test(after.username);
+    const isValid = handleRegex.test(normalizedUsername);
 
     if (!isValid) {
       return { username: errorMessage.profile.invalidUsername };
@@ -78,9 +87,16 @@ const useProfileForm = ({
         coverUpload,
       }),
 
-    onSuccess: async (_, { onUpdateSuccess, ...vars }) => {
+    onSuccess: async (
+      _,
+      { onUpdateSuccess, upload, coverUpload, ...userUpdates },
+    ) => {
       setHint({});
-      await updateUser({ ...user, ...vars });
+
+      if (user) {
+        await updateUser({ ...user, ...userUpdates });
+      }
+
       onUpdateSuccess?.();
       onSuccess?.();
     },
@@ -91,7 +107,12 @@ const useProfileForm = ({
         return;
       }
 
-      const data: ProfileFormHint = JSON.parse(err.response.errors[0].message);
+      const firstError = err.response.errors[0];
+      if (!firstError?.message) {
+        return;
+      }
+
+      const data: ProfileFormHint = JSON.parse(firstError.message);
       setHint(data);
     },
   });
