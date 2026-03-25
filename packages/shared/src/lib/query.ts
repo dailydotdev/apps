@@ -26,6 +26,7 @@ import type {
 } from '../graphql/comments';
 import { SortCommentsBy } from '../graphql/comments';
 import type {
+  ContentPreference,
   ContentPreferenceStatus,
   ContentPreferenceType,
 } from '../graphql/contentPreference';
@@ -459,7 +460,7 @@ export const updateAuthorContentPreference = ({
       image: newData.image,
       username: newData.username,
     },
-  };
+  } as ContentPreference;
 
   return newData;
 };
