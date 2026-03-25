@@ -55,6 +55,7 @@ export interface UserShortInfoProps<
   transformUsername?(user: UserShortProfile): ReactNode;
   onClick?: () => void;
   showFollow?: boolean;
+  alwaysShowFollow?: boolean;
   showSubscribe?: boolean;
   copyType?: CopyType;
   origin?: Origin;
@@ -81,6 +82,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
     showDescription = true,
     transformUsername,
     showFollow,
+    alwaysShowFollow,
     showSubscribe,
     copyType,
     origin,
@@ -161,6 +163,7 @@ const UserShortInfoComponent = <Tag extends React.ElementType>(
           origin={origin}
           copyType={copyType}
           feedId={feedId}
+          alwaysShow={alwaysShowFollow}
           variant={ButtonVariant.Primary}
         />
       )}

@@ -47,6 +47,7 @@ export const FollowingUserList = (): ReactElement => {
       userInfoProps={{
         origin: Origin.FollowFilter,
         showFollow: true,
+        alwaysShowFollow: true,
         showSubscribe: false,
         copyType: CopyType.Custom,
         feedId: feed.id,

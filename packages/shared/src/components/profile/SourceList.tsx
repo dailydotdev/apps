@@ -135,6 +135,7 @@ export const SourceList = ({
                 entityName={`@${source.handle}`}
                 showSubscribe={false}
                 copyType={CopyType.Custom}
+                alwaysShow
                 className="relative z-1"
               />
             )}
