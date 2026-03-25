@@ -22,13 +22,7 @@ import {
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
 import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
-import {
-  isDevelopment,
-  webappUrl,
-  broadcastChannel,
-  isTesting,
-} from '../../lib/constants';
-import { setCookie } from '../../lib/cookie';
+import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
@@ -501,12 +495,7 @@ function AuthOptionsInner({
     setIsSocialAuthLoading(true);
 
     if (isBetterAuth) {
-      setCookie('tz', getUserDefaultTimezone(), {
-        path: '/',
-        domain: process.env.NEXT_PUBLIC_DOMAIN,
-        sameSite: 'lax',
-        secure: !isDevelopment,
-      });
+      const additionalData = { timezone: getUserDefaultTimezone() };
 
       if (isNativeAuthSupported(provider)) {
         const res = await iosNativeAuth(provider);
@@ -518,6 +507,7 @@ function AuthOptionsInner({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
+          additionalData,
         });
         if (result.error) {
           logEvent({
@@ -544,6 +534,7 @@ function AuthOptionsInner({
       const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
+        additionalData,
       );
       if (!socialUrl) {
         logEvent({

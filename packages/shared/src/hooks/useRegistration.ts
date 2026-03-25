@@ -42,8 +42,7 @@ import { Origin } from '../lib/log';
 import { LogoutReason } from '../lib/user';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { disabledRefetch } from '../lib/func';
-import { isDevelopment, webappUrl } from '../lib/constants';
-import { setCookie } from '../lib/cookie';
+import { webappUrl } from '../lib/constants';
 
 type ParamKeys = keyof RegistrationParameters;
 
@@ -324,12 +323,7 @@ const useRegistration = ({
 
   const onSocialRegistration = async (provider: string) => {
     if (isBetterAuth) {
-      setCookie('tz', timezone, {
-        path: '/',
-        domain: process.env.NEXT_PUBLIC_DOMAIN,
-        sameSite: 'lax',
-        secure: !isDevelopment,
-      });
+      const additionalData = { timezone };
 
       if (isNativeAuthSupported(provider)) {
         const res = await iosNativeAuth(provider);
@@ -340,6 +334,7 @@ const useRegistration = ({
           provider: provider.toLowerCase(),
           token: res.token,
           nonce: res.nonce,
+          additionalData,
         });
         if (result.error) {
           logEvent({
@@ -384,6 +379,7 @@ const useRegistration = ({
       const { url, error } = await getBetterAuthSocialRedirectData(
         provider.toLowerCase(),
         callbackURL,
+        additionalData,
       );
       if (onRedirect && url) {
         onRedirect(url);
