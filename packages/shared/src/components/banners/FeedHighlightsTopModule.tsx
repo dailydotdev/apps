@@ -35,8 +35,9 @@ const FEED_HIGHLIGHTS_MINIMIZED_UNTIL_KEY = 'feed-highlights:minimized-until';
 const FEED_HIGHLIGHTS_MINIMIZE_DURATION_MS = 24 * 60 * 60 * 1000;
 const FEED_HIGHLIGHTS_FORCE_NEW_ON_REFRESH_KEY =
   'feed-highlights:force-new-on-refresh';
+const FEED_HIGHLIGHTS_LATEST_SEEN_SIGNATURE_KEY =
+  'feed-highlights:latest-seen-signature';
 const isFeedHighlightsUi2Enabled = false;
-const FRESH_NEWS_SKELETON_DURATION_MS = 1000;
 const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
 
 const getMinimizedUntil = (): number => {
@@ -53,8 +54,8 @@ const isMinimizeCooldownActive = (): boolean =>
 
 const HighlightRowSkeleton = (): ReactElement => (
   <div className="flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2">
-    <div className="h-4 flex-1 animate-pulse rounded-8 bg-surface-hover" />
-    <div className="h-3 w-10 shrink-0 animate-pulse rounded-8 bg-surface-hover" />
+    <div className="h-4 flex-1 rounded-8 bg-surface-hover" />
+    <div className="h-3 w-10 shrink-0 rounded-8 bg-surface-hover" />
   </div>
 );
 
@@ -63,31 +64,68 @@ const HighlightRow = ({
   index,
   onHighlightClick,
   highlightAsNew,
+  isViewed,
+  isRead,
+  isPressed,
+  onViewed,
+  onPressedChange,
+  onRead,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
   highlightAsNew?: boolean;
-}): ReactElement => (
-  <Link href={highlight.post.commentsPermalink} passHref>
-    <a
-      href={highlight.post.commentsPermalink}
-      className={`group motion-safe:[animation:notification-bubble-enter_420ms_cubic-bezier(0.22,1,0.36,1)] motion-safe:[animation-fill-mode:both] flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2 text-primary transition-all visited:text-secondary hover:-translate-y-px hover:bg-surface-hover ${
-        highlightAsNew ? 'feed-highlights-new-item-border' : ''
-      }`}
-      style={{ animationDelay: `${index * 70}ms` }}
-      onClick={() => onHighlightClick?.(highlight, index + 1)}
-    >
-      <span className="line-clamp-2 flex-1 text-inherit transition-colors group-active:text-secondary typo-callout">
-        {highlight.headline}
-      </span>
-      <RelativeTime
-        dateTime={highlight.highlightedAt}
-        className="shrink-0 text-text-tertiary typo-caption2"
-      />
-    </a>
-  </Link>
-);
+  isViewed: boolean;
+  isRead: boolean;
+  isPressed: boolean;
+  onViewed: () => void;
+  onPressedChange: (isPressed: boolean) => void;
+  onRead: () => void;
+}): ReactElement => {
+  const isInteracted = isViewed || isRead || isPressed;
+  const rowTextColorClass = isInteracted
+    ? 'text-secondary visited:text-secondary'
+    : 'text-primary visited:text-secondary';
+  const headlineTextColorClass = isInteracted
+    ? 'text-text-secondary'
+    : 'text-inherit';
+
+  return (
+    <Link href={highlight.post.commentsPermalink} passHref>
+      <a
+        href={highlight.post.commentsPermalink}
+        className={`group flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+          isViewed && !isPressed ? 'bg-surface-hover/30' : ''
+        } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
+        onMouseEnter={onViewed}
+        onMouseDown={() => onPressedChange(true)}
+        onMouseUp={() => onPressedChange(false)}
+        onMouseLeave={() => onPressedChange(false)}
+        onBlur={() => onPressedChange(false)}
+        onClick={() => {
+          onRead();
+          onHighlightClick?.(highlight, index + 1);
+        }}
+      >
+        <span
+          className={`line-clamp-2 flex-1 transition-colors group-active:text-text-secondary typo-callout ${headlineTextColorClass}`}
+        >
+          {highlight.headline}
+        </span>
+        {highlightAsNew ? (
+          <span className="feed-highlights-title-gradient shrink-0 typo-caption2">
+            Now
+          </span>
+        ) : (
+          <RelativeTime
+            dateTime={highlight.highlightedAt}
+            className="shrink-0 text-text-tertiary typo-caption2"
+          />
+        )}
+      </a>
+    </Link>
+  );
+};
 
 export const FeedHighlightsTopModule = ({
   highlights,
@@ -109,11 +147,18 @@ export const FeedHighlightsTopModule = ({
   const [isPopoverOpen, setIsPopoverOpen] = useState(true);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isHiddenLocally, setIsHiddenLocally] = useState(false);
-  const [isFreshNewsSkeletonVisible, setIsFreshNewsSkeletonVisible] =
-    useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [shouldAnimateLatestHighlight, setShouldAnimateLatestHighlight] =
+  const [isLatestHighlightNewForSession, setIsLatestHighlightNewForSession] =
     useState(false);
+  const [viewedHighlightIds, setViewedHighlightIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [readHighlightIds, setReadHighlightIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [pressedHighlightId, setPressedHighlightId] = useState<string | null>(
+    null,
+  );
   const previousLatestHighlightSignatureRef = useRef<string | null>(null);
   const latestHighlightSignature = `${highlights[0]?.post.id ?? 'none'}-${highlights[0]?.highlightedAt ?? 'none'}`;
 
@@ -159,8 +204,6 @@ export const FeedHighlightsTopModule = ({
       return;
     }
 
-    setShouldAnimateLatestHighlight(true);
-
     if (!isFeedHighlightsUi2Enabled) {
       return;
     }
@@ -171,13 +214,42 @@ export const FeedHighlightsTopModule = ({
   }, [latestHighlightSignature, highlights.length]);
 
   useEffect(() => {
+    if (!highlights.length || typeof window === 'undefined') {
+      return;
+    }
+
+    const seenLatestHighlightSignature = window.sessionStorage.getItem(
+      FEED_HIGHLIGHTS_LATEST_SEEN_SIGNATURE_KEY,
+    );
+
+    if (!seenLatestHighlightSignature) {
+      window.sessionStorage.setItem(
+        FEED_HIGHLIGHTS_LATEST_SEEN_SIGNATURE_KEY,
+        latestHighlightSignature,
+      );
+      setIsLatestHighlightNewForSession(true);
+      return;
+    }
+
+    if (seenLatestHighlightSignature === latestHighlightSignature) {
+      setIsLatestHighlightNewForSession(false);
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      FEED_HIGHLIGHTS_LATEST_SEEN_SIGNATURE_KEY,
+      latestHighlightSignature,
+    );
+    setIsLatestHighlightNewForSession(true);
+  }, [latestHighlightSignature, highlights.length]);
+
+  useEffect(() => {
     if (!isFeedHighlightsUi2Enabled) {
       return;
     }
 
     const handleSimulatedNewMessage = (): void => {
       setUnreadCount((currentCount) => currentCount + 1);
-      setShouldAnimateLatestHighlight(true);
       setIsDismissed(false);
       setIsPopoverOpen(!isMinimizeCooldownActive());
     };
@@ -227,29 +299,6 @@ export const FeedHighlightsTopModule = ({
     setUnreadCount(0);
   }, [isPopoverOpen, unreadCount]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(
-      () => setIsFreshNewsSkeletonVisible(false),
-      FRESH_NEWS_SKELETON_DURATION_MS,
-    );
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!shouldAnimateLatestHighlight) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setShouldAnimateLatestHighlight(false), 1000);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [shouldAnimateLatestHighlight]);
-
   const options = useMemo<MenuItemProps[]>(
     () => {
       const isFollowStatePending =
@@ -294,7 +343,7 @@ export const FeedHighlightsTopModule = ({
   }
 
   const topHighlights = highlights.slice(0, 4);
-  const shouldShowSkeleton = loading || isFreshNewsSkeletonVisible;
+  const shouldShowSkeleton = loading;
   const shouldShowCollapsedButton = isFeedHighlightsUi2Enabled && !isDismissed;
   const moduleBackgroundClass = shouldUseListFeedLayout
     ? 'bg-gradient-to-b from-surface-float to-transparent'
@@ -302,6 +351,28 @@ export const FeedHighlightsTopModule = ({
   const moduleBorderClass = shouldUseListFeedLayout
     ? 'border-0 border-t border-border-subtlest-tertiary'
     : 'border border-border-subtlest-tertiary';
+  const markHighlightViewed = (highlightId: string): void => {
+    setViewedHighlightIds((currentIds) => {
+      if (currentIds.has(highlightId)) {
+        return currentIds;
+      }
+
+      const nextIds = new Set(currentIds);
+      nextIds.add(highlightId);
+      return nextIds;
+    });
+  };
+  const markHighlightRead = (highlightId: string): void => {
+    setReadHighlightIds((currentIds) => {
+      if (currentIds.has(highlightId)) {
+        return currentIds;
+      }
+
+      const nextIds = new Set(currentIds);
+      nextIds.add(highlightId);
+      return nextIds;
+    });
+  };
 
   return (
     <>
@@ -329,7 +400,7 @@ export const FeedHighlightsTopModule = ({
           </span>
         </header>
 
-        <div className="flex flex-col gap-1.5 px-2.5 py-2.5">
+        <div className="flex flex-col gap-1.5 px-2.5 pb-2.5 pt-0">
           {shouldShowSkeleton
             ? HIGHLIGHT_SKELETON_KEYS.slice(0, 4).map((key) => (
                 <HighlightRowSkeleton key={key} />
@@ -339,7 +410,15 @@ export const FeedHighlightsTopModule = ({
                   key={`${highlight.channel}-${highlight.post.id}`}
                   highlight={highlight}
                   index={index}
-                  highlightAsNew={index === 0 && shouldAnimateLatestHighlight}
+                  highlightAsNew={index === 0}
+                  isViewed={viewedHighlightIds.has(highlight.post.id)}
+                  isRead={readHighlightIds.has(highlight.post.id)}
+                  isPressed={pressedHighlightId === highlight.post.id}
+                  onViewed={() => markHighlightViewed(highlight.post.id)}
+                  onPressedChange={(isPressed) =>
+                    setPressedHighlightId(isPressed ? highlight.post.id : null)
+                  }
+                  onRead={() => markHighlightRead(highlight.post.id)}
                   onHighlightClick={onHighlightClick}
                 />
               ))}
@@ -352,8 +431,7 @@ export const FeedHighlightsTopModule = ({
                 onClick={onAgentsLinkClick}
               >
                 <span className="typo-callout">
-                  <span className="text-primary">more at daily.dev/</span>
-                  <span className="feed-highlights-title-gradient">agents</span>
+                  <span className="feed-highlights-title-gradient">Show more</span>
                 </span>
                 <span
                   aria-hidden
@@ -419,7 +497,14 @@ export const FeedHighlightsTopModule = ({
                       key={`${highlight.channel}-${highlight.post.id}`}
                       highlight={highlight}
                       index={index}
-                      highlightAsNew={index === 0 && shouldAnimateLatestHighlight}
+                      isViewed={viewedHighlightIds.has(highlight.post.id)}
+                      isRead={readHighlightIds.has(highlight.post.id)}
+                      isPressed={pressedHighlightId === highlight.post.id}
+                      onViewed={() => markHighlightViewed(highlight.post.id)}
+                      onPressedChange={(isPressed) =>
+                        setPressedHighlightId(isPressed ? highlight.post.id : null)
+                      }
+                      onRead={() => markHighlightRead(highlight.post.id)}
                       onHighlightClick={onHighlightClick}
                     />
                   ))}
@@ -432,8 +517,9 @@ export const FeedHighlightsTopModule = ({
                     onClick={onAgentsLinkClick}
                   >
                     <span className="typo-callout">
-                      <span className="text-primary">more at daily.dev/</span>
-                      <span className="feed-highlights-title-gradient">agents</span>
+                      <span className="feed-highlights-title-gradient">
+                        Show more
+                      </span>
                     </span>
                     <span
                       aria-hidden
