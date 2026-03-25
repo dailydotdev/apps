@@ -197,7 +197,12 @@ export const getBetterAuthSocialRedirectData = (
   callbackURL: string,
   additionalData?: SocialAdditionalData,
 ): Promise<BetterAuthSocialRedirectResponse> =>
-  getBetterAuthSocialRedirect('sign-in/social', provider, callbackURL, additionalData);
+  getBetterAuthSocialRedirect(
+    'sign-in/social',
+    provider,
+    callbackURL,
+    additionalData,
+  );
 
 export const getBetterAuthSocialUrl = (
   provider: string,
