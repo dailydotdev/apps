@@ -9,8 +9,9 @@ interface ClassName {
   content?: string;
 }
 
-export interface RadioItemProps<T extends string = string>
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
+export interface RadioItemProps<
+  T extends string | undefined = string | undefined,
+> extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
   value?: T;
   label?: ReactNode;
   className?: ClassName;
@@ -18,7 +19,7 @@ export interface RadioItemProps<T extends string = string>
   reverse?: boolean;
 }
 
-export function RadioItem<T extends string>({
+export function RadioItem<T extends string | undefined>({
   children,
   className = {},
   checked,

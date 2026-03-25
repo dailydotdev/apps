@@ -64,9 +64,9 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
         <Radio
           name="feedminDayRange"
           options={feedRangeFilters}
-          value={data.minDayRange?.toString() || null}
+          value={data.minDayRange?.toString() || undefined}
           onChange={(value) => {
-            setData({ minDayRange: +value || null });
+            setData({ minDayRange: value ? +value : null });
           }}
         />
       </div>
