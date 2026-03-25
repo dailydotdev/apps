@@ -12,7 +12,7 @@ export interface ClassName {
 
 export type { RadioItemProps };
 
-export interface RadioProps<T extends string | undefined = string | undefined> {
+export interface RadioProps<T extends string = string> {
   name: string;
   options: RadioItemProps<T>[];
   value?: T;
@@ -23,7 +23,7 @@ export interface RadioProps<T extends string | undefined = string | undefined> {
   valid?: boolean;
 }
 
-export function Radio<T extends string | undefined = string | undefined>({
+export function Radio<T extends string = string>({
   name,
   options,
   value,
@@ -43,13 +43,13 @@ export function Radio<T extends string | undefined = string | undefined>({
       {options.map((option) => (
         <RadioItem
           {...option}
-          key={option.id ?? option.value ?? String(option.label)}
+          key={option.value}
           name={name}
-          id={`${name}-${option.id ?? option.value ?? String(option.label)}`}
+          id={`${name}-${option.id || option.value}`}
           value={option.value}
           disabled={option.disabled || disabled}
           checked={value === option.value}
-          onChange={() => onChange(option.value)}
+          onChange={() => option.value !== undefined && onChange(option.value)}
           className={{
             content: classNames(
               'truncate',
