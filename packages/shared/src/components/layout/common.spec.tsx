@@ -9,10 +9,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import {
-  agentsLeaderboardEntrypointFeature,
-  installExtensionPromptFeature,
-} from '../../lib/featureManagement';
+import { installExtensionPromptFeature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -115,10 +112,6 @@ describe('SearchControlHeader', () => {
     mockUseConditionalFeature.mockImplementation(({ feature }) => {
       if (feature === installExtensionPromptFeature) {
         return { value: isInstallExtensionPromptEnabled };
-      }
-
-      if (feature === agentsLeaderboardEntrypointFeature) {
-        return { value: null };
       }
 
       return { value: null };
