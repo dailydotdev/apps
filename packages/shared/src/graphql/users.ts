@@ -794,11 +794,6 @@ export const TOP_READER_BADGE_BY_ID = gql`
   query TopReaderBadgeById($id: ID!) {
     topReaderBadgeById(id: $id) {
       ...TopReader
-      user {
-        name
-        username
-        image
-      }
     }
   }
 

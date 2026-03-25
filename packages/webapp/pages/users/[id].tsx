@@ -11,6 +11,7 @@ import {
   LeaderboardType,
   leaderboardQueries,
   leaderboardTypeToTitle,
+  MOST_QUESTS_COMPLETED_LIMIT,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
@@ -37,6 +38,11 @@ interface PageProps extends DynamicSeoProps {
   userItems?: UserLeaderboard[];
   companyItems?: CompanyLeaderboard[];
 }
+
+const getLeaderboardLimit = (leaderboardType: LeaderboardType): number =>
+  leaderboardType === LeaderboardType.MostQuestsCompleted
+    ? MOST_QUESTS_COMPLETED_LIMIT
+    : 100;
 
 const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
   return (
@@ -156,6 +162,7 @@ export async function getStaticProps({
   const leaderboardType = id as LeaderboardType;
   const title = leaderboardTypeToTitle[leaderboardType];
   const isCompany = isCompanyLeaderboard(leaderboardType);
+  const leaderboardLimit = getLeaderboardLimit(leaderboardType);
 
   const getSeoProps = () => {
     const seoTitles = getPageSeoTitles(`${title} - Developer leaderboard`);
@@ -163,7 +170,7 @@ export async function getStaticProps({
     return {
       title: seoTitles.title,
       openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
-      description: `Check out the top 100 ${
+      description: `Check out the top ${leaderboardLimit} ${
         isCompany ? 'companies' : 'developers'
       } for ${title.toLowerCase()} on daily.dev.`,
     };
@@ -173,7 +180,7 @@ export async function getStaticProps({
     const query = leaderboardQueries[leaderboardType];
     const res = await gqlClient.request<{
       [key: string]: UserLeaderboard[] | CompanyLeaderboard[];
-    }>(query, { limit: 100 });
+    }>(query, { limit: leaderboardLimit });
 
     const items = res[leaderboardType] || [];
 

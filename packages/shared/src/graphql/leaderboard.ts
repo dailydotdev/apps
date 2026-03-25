@@ -56,8 +56,24 @@ export enum LeaderboardType {
   MostReadingDays = 'mostReadingDays',
   MostVerifiedUsers = 'mostVerifiedUsers',
   MostAchievementPoints = 'mostAchievementPoints',
+  MostQuestsCompleted = 'mostQuestsCompleted',
   HighestLevel = 'highestLevel',
 }
+
+export const MOST_QUESTS_COMPLETED_LIMIT = 10;
+
+export type QuestCompletionLeader = {
+  questId: string;
+  questName: string;
+  questDescription: string;
+  count: number;
+};
+
+export type QuestCompletionStats = {
+  totalCount: number;
+  allTimeLeader: QuestCompletionLeader | null;
+  weeklyLeader: QuestCompletionLeader | null;
+};
 
 export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
   [LeaderboardType.HighestReputation]: 'Highest reputation',
@@ -68,6 +84,7 @@ export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
   [LeaderboardType.MostReadingDays]: 'Most reading days',
   [LeaderboardType.MostVerifiedUsers]: 'Most verified employees',
   [LeaderboardType.MostAchievementPoints]: 'Most achievement points',
+  [LeaderboardType.MostQuestsCompleted]: 'Most quests completed',
   [LeaderboardType.HighestLevel]: 'Highest level',
 };
 
@@ -137,6 +154,35 @@ export const MOST_ACHIEVEMENT_POINTS_QUERY = gql`
   ${LEADERBOARD_FRAGMENT}
 `;
 
+export const MOST_QUESTS_COMPLETED_QUERY = gql`
+  query MostQuestsCompleted($limit: Int = ${MOST_QUESTS_COMPLETED_LIMIT}) {
+    mostQuestsCompleted(limit: $limit) {
+      ...LeaderboardFragment
+    }
+  }
+  ${LEADERBOARD_FRAGMENT}
+`;
+
+export const QUEST_COMPLETION_STATS_QUERY = gql`
+  query QuestCompletionStats {
+    questCompletionStats {
+      totalCount
+      allTimeLeader {
+        questId
+        questName
+        questDescription
+        count
+      }
+      weeklyLeader {
+        questId
+        questName
+        questDescription
+        count
+      }
+    }
+  }
+`;
+
 export const HIGHEST_LEVEL_QUERY = gql`
   query HighestLevel($limit: Int = 100) {
     highestLevel(limit: $limit) {
@@ -172,6 +218,7 @@ export const leaderboardQueries: Record<LeaderboardType, string> = {
   [LeaderboardType.MostReferrals]: MOST_REFERRALS_QUERY,
   [LeaderboardType.MostReadingDays]: MOST_READING_DAYS_QUERY,
   [LeaderboardType.MostAchievementPoints]: MOST_ACHIEVEMENT_POINTS_QUERY,
+  [LeaderboardType.MostQuestsCompleted]: MOST_QUESTS_COMPLETED_QUERY,
   [LeaderboardType.HighestLevel]: HIGHEST_LEVEL_QUERY,
   [LeaderboardType.MostVerifiedUsers]: MOST_VERIFIED_USERS_QUERY,
 };

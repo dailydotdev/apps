@@ -188,6 +188,8 @@ const questDashboard = {
     xpInLevel: 250,
     xpToNextLevel: 150,
   },
+  currentStreak: 0,
+  longestStreak: 0,
   daily: {
     regular: [
       {
