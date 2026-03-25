@@ -10,31 +10,37 @@ import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { FollowButton } from '../../../contentPreference/FollowButton';
-import type { LoggedUser } from '../../../../lib/user';
+import type { UserShortProfile } from '../../../../lib/user';
 import { ButtonVariant } from '../../../buttons/Button';
 
-export const FollowingUserList = (): ReactElement => {
+export const FollowingUserList = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { feed } = useFeedSettingsEditContext();
+  const userId = user?.id;
+  const feedId = feed?.id;
 
   const queryResult = useFollowingQuery({
-    id: user.id,
+    id: userId ?? '',
     entity: ContentPreferenceType.User,
-    feedId: feed.id,
+    feedId,
   });
 
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
-  const users = useMemo(() => {
-    return data?.pages.reduce((acc, p) => {
-      p?.edges.forEach(({ node }) => {
-        acc.push(node.referenceUser);
-      });
+  const users = useMemo<UserShortProfile[]>(() => {
+    return (
+      data?.pages.reduce<UserShortProfile[]>((acc, p) => {
+        p?.edges.forEach(({ node }) => {
+          if (node.referenceUser) {
+            acc.push(node.referenceUser);
+          }
+        });
 
-      return acc;
-    }, []);
+        return acc;
+      }, []) ?? []
+    );
   }, [data]);
 
-  if (queryResult.isPending) {
+  if (!userId || !feedId || queryResult.isPending) {
     return null;
   }
 
@@ -45,10 +51,10 @@ export const FollowingUserList = (): ReactElement => {
       additionalContent={(listedUser) => (
         <FollowButton
           alwaysShow
-          feedId={feed.id}
+          feedId={feedId}
           entityId={listedUser.id}
           type={ContentPreferenceType.User}
-          status={(listedUser as LoggedUser).contentPreference?.status}
+          status={listedUser.contentPreference?.status}
           entityName={`@${listedUser.username}`}
           origin={Origin.FollowFilter}
           showSubscribe={false}

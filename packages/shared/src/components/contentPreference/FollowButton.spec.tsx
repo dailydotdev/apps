@@ -7,6 +7,7 @@ import {
   ContentPreferenceType,
 } from '../../graphql/contentPreference';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import type { UseContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import useShowFollowAction from '../../hooks/useShowFollowAction';
 import { useIsSpecialUser } from '../../hooks/auth/useIsSpecialUser';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
@@ -36,21 +37,28 @@ const mockUseIsSpecialUser = useIsSpecialUser as jest.MockedFunction<
   typeof useIsSpecialUser
 >;
 
+const createMutationResult = (): ReturnType<typeof useMutation> =>
+  ({
+    mutate: jest.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useMutation>);
+
+const createContentPreferenceMocks = (): UseContentPreference => ({
+  follow: jest.fn(),
+  unfollow: jest.fn(),
+  subscribe: jest.fn(),
+  unsubscribe: jest.fn(),
+  block: jest.fn(),
+  unblock: jest.fn(),
+});
+
 describe('FollowButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUseMutation.mockReturnValue({
-      mutate: jest.fn(),
-      isPending: false,
-    } as ReturnType<typeof useMutation>);
+    mockUseMutation.mockReturnValue(createMutationResult());
 
-    mockUseContentPreference.mockReturnValue({
-      follow: jest.fn(),
-      unfollow: jest.fn(),
-      subscribe: jest.fn(),
-      unsubscribe: jest.fn(),
-    } as ReturnType<typeof useContentPreference>);
+    mockUseContentPreference.mockReturnValue(createContentPreferenceMocks());
 
     mockUseShowFollowAction.mockReturnValue({
       showActionBtn: false,
