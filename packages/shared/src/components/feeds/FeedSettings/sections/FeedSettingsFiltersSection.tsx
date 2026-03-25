@@ -36,7 +36,9 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             container: 'w-full tablet:max-w-70',
           }}
           selectedIndex={Math.max(
-            Object.values(FeedOrder).indexOf(data.orderBy),
+            Object.values(FeedOrder).indexOf(
+              data.orderBy ?? FeedOrder.Recommended,
+            ),
             0,
           )}
           options={Object.keys(FeedOrder)}
@@ -44,7 +46,8 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
             const newOrderBy = Object.values(FeedOrder)[index];
 
             setData({
-              orderBy: newOrderBy === FeedOrder.Recommended ? null : newOrderBy,
+              orderBy:
+                newOrderBy === FeedOrder.Recommended ? undefined : newOrderBy,
             });
           }}
         />
@@ -66,7 +69,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           options={feedRangeFilters}
           value={data.minDayRange?.toString() ?? 'all'}
           onChange={(value) => {
-            setData({ minDayRange: value === 'all' ? null : +value });
+            setData({ minDayRange: value === 'all' ? undefined : +value });
           }}
         />
       </div>
@@ -87,7 +90,8 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           <TextField
             hintIcon={<FlagIcon secondary size={IconSize.Size16} />}
             hint={
-              data?.minUpvotes < 0 || data?.minUpvotes > 1000
+              data.minUpvotes !== undefined &&
+              (data.minUpvotes < 0 || data.minUpvotes > 1000)
                 ? 'Min upvotes must be between 0 and 1000'
                 : ''
             }
@@ -95,7 +99,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
               container: 'w-full tablet:max-w-70',
             }}
             leftIcon={<UpvoteIcon />}
-            defaultValue={feed.flags?.minUpvotes}
+            defaultValue={feed?.flags?.minUpvotes}
             name="feedMinUpvotes"
             type="number"
             inputId="feedMinUpvotes"
@@ -109,7 +113,8 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
           <TextField
             hintIcon={<FlagIcon secondary size={IconSize.Size16} />}
             hint={
-              data?.minViews < 0 || data?.minViews > 1000
+              data.minViews !== undefined &&
+              (data.minViews < 0 || data.minViews > 1000)
                 ? 'Min views must be between 0 and 1000'
                 : ''
             }
@@ -117,7 +122,7 @@ export const FeedSettingsFiltersSection = (): ReactElement => {
               container: 'w-full tablet:max-w-70',
             }}
             leftIcon={<EyeIcon />}
-            defaultValue={feed.flags?.minViews}
+            defaultValue={feed?.flags?.minViews}
             name="feedMinViews"
             type="number"
             inputId="feedMinViews"

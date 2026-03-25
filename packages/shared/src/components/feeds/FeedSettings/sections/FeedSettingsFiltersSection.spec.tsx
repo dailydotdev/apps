@@ -14,10 +14,10 @@ const renderComponent = (
     feed: { flags: {} } as FeedSettingsEditContextValue['feed'],
     data: {
       name: 'My feed',
-      orderBy: null,
+      orderBy: undefined,
       minDayRange: 7,
-      minUpvotes: null,
-      minViews: null,
+      minUpvotes: undefined,
+      minViews: undefined,
       disableEngagementFilter: false,
     },
     setData: jest.fn(),
@@ -54,17 +54,19 @@ describe('FeedSettingsFiltersSection', () => {
 
     await userEvent.click(screen.getByRole('radio', { name: 'All time' }));
 
-    expect(contextValue.setData).toHaveBeenCalledWith({ minDayRange: null });
+    expect(contextValue.setData).toHaveBeenCalledWith({
+      minDayRange: undefined,
+    });
   });
 
   it('should select all time when no min day range is set', () => {
     renderComponent({
       data: {
         name: 'My feed',
-        orderBy: null,
-        minDayRange: null,
-        minUpvotes: null,
-        minViews: null,
+        orderBy: undefined,
+        minDayRange: undefined,
+        minUpvotes: undefined,
+        minViews: undefined,
         disableEngagementFilter: false,
       },
     });
