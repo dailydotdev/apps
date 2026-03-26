@@ -137,9 +137,9 @@ jobs:
           command: pnpm install
       - run:
           name: Build Extension
-          command: pnpm --filter extension build
+          command: pnpm --filter extension build || (dmesg -T | tail -20; exit 1)
           environment:
-            NODE_OPTIONS: --max-old-space-size=8192
+            NODE_OPTIONS: --max-old-space-size=4096
 workflows:
   build:
     jobs:
@@ -162,6 +162,3 @@ workflows:
       - build_extension:
           requires:
             - install_deps
-          filters:
-            branches:
-              only: main
