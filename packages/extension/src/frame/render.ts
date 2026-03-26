@@ -8,7 +8,7 @@ const createCardContainer = (): HTMLDivElement => {
 const createCard = (): HTMLDivElement => {
   const card = document.createElement('div');
   card.style.cssText =
-    'max-width:640px;border:1px solid rgba(148,163,184,0.35);border-radius:16px;padding:24px;background:rgba(15,23,42,0.92);box-shadow:0 20px 45px rgba(15,23,42,0.35)';
+    'max-width:640px;border:1px solid rgba(148,163,184,0.35);border-radius:16px;padding:24px;background:rgba(15,23,42,0.92);box-shadow:0 20px 45px rgba(15,23,42,0.35);color:#e2e8f0';
   return card;
 };
 
