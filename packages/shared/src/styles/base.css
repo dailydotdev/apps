@@ -7,13 +7,27 @@ html, #daily-companion-wrapper {
 body {
   min-width: 20rem;
   overflow-y: scroll;
-  scrollbar-gutter: stable;
   min-height: 100vh;
   /* mobile viewport bug fix */
   min-height: stretch;
 
-  &.ReactModal__Body--open {
+  &.ReactModal__Body--open,
+  &.hidden-scrollbar {
     overflow: hidden;
+    padding-right: var(--scrollbar-width, 0px);
+
+    & .fixed[class*="w-full"]:not(.ReactModal__Overlay) {
+      border-right: var(--scrollbar-width, 0px) solid transparent;
+    }
+
+    & .fixed:not(.ReactModal__Overlay):not([class*="w-full"]) {
+      margin-right: var(--scrollbar-width, 0px);
+    }
+  }
+
+  &.ReactModal__Body--open .ReactModal__Overlay {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
 
   &.ReactModal__Body--open .ReactModal__Content,
@@ -23,10 +37,6 @@ body {
 
   &.companion {
     min-width: auto;
-    overflow: hidden;
-  }
-
-  &.hidden-scrollbar {
     overflow: hidden;
   }
 
