@@ -75,7 +75,7 @@ export const AgentsLeaderboardSection = ({
                   variant={
                     tab === 'llms' ? ButtonVariant.Float : ButtonVariant.Tertiary
                   }
-                  size={ButtonSize.Small}
+                  size={ButtonSize.XSmall}
                   onClick={() => onTabChange('llms')}
                 >
                   LLMs
@@ -87,7 +87,7 @@ export const AgentsLeaderboardSection = ({
                       ? ButtonVariant.Float
                       : ButtonVariant.Tertiary
                   }
-                  size={ButtonSize.Small}
+                  size={ButtonSize.XSmall}
                   onClick={() => onTabChange('coding-agents')}
                 >
                   Agents
@@ -108,7 +108,7 @@ export const AgentsLeaderboardSection = ({
       />
     ) : (
       <div className="flex flex-col gap-4 laptop:grid laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-8">
-        <section className="min-w-0">
+        <section className="min-w-0 overflow-x-auto">
           <ArenaRankings
             tools={tools}
             tab={tab}

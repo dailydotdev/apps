@@ -128,7 +128,7 @@ const HighlightCard = ({
 
   return (
     <div
-      className="flex cursor-pointer gap-3 px-4 py-3 transition-colors hover:bg-surface-hover"
+      className="flex cursor-pointer gap-3 px-4 py-3 transition-colors"
       onClick={handleCardClick}
       role="link"
       tabIndex={0}
@@ -276,7 +276,7 @@ export const ArenaHighlightsFeed = ({
   }
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary">
       <div className="flex items-center border-b border-border-subtlest-tertiary px-4 py-2.5">
         <span className="font-bold text-text-primary typo-callout">
           Live Highlights

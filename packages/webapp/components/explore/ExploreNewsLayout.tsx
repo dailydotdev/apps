@@ -18,6 +18,8 @@ type ExploreStory = Pick<
   Post,
   | 'id'
   | 'title'
+  | 'summary'
+  | 'sharedPost'
   | 'commentsPermalink'
   | 'createdAt'
   | 'image'
@@ -48,17 +50,26 @@ interface ExploreNewsLayoutProps {
   arenaHighlightsItems: SentimentHighlightItem[];
 }
 
-const getStoryHeadline = (title?: string | null): string =>
-  title?.trim() || 'Untitled story';
+const getStoryHeadline = (story: ExploreStory): string =>
+  story.title?.trim() ||
+  story.sharedPost?.title?.trim() ||
+  story.summary?.trim() ||
+  'Untitled story';
 
 const TOPIC_TABS = [
   { id: 'explore', label: 'Explore' },
-  { id: 'happening-now', label: 'Happening Now' },
-  { id: 'top-news', label: 'Top News' },
-  { id: 'latest', label: 'Latest' },
-  { id: 'popular', label: 'Popular' },
-  { id: 'upvoted', label: 'Most Upvoted' },
-  { id: 'discussed', label: 'Best Discussions' },
+  { id: 'videos', label: 'Videos' },
+  { id: 'agentic', label: 'Agentic' },
+  { id: 'webdev', label: 'Webdev' },
+  { id: 'backend', label: 'Backend' },
+  { id: 'databases', label: 'Databases' },
+  { id: 'career', label: 'Career' },
+  { id: 'golang', label: 'Golang' },
+  { id: 'rust', label: 'Rust' },
+  { id: 'opensource', label: 'Opensource' },
+  { id: 'testing', label: 'Testing' },
+  { id: 'php', label: 'PHP' },
+  { id: 'java', label: 'Java' },
 ];
 
 const SourceMeta = ({
@@ -91,9 +102,11 @@ const SourceMeta = ({
 const StoryRow = ({
   story,
   sourceLabelOverride,
+  showEngagement = true,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
+  showEngagement?: boolean;
 }): ReactElement => {
   const hasSourceMeta = Boolean(sourceLabelOverride || story.source?.name);
 
@@ -104,14 +117,14 @@ const StoryRow = ({
           {!!story.image && (
             <img
               src={story.image}
-              alt={getStoryHeadline(story.title)}
+              alt={getStoryHeadline(story)}
               className="h-full w-full object-cover"
             />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-text-primary transition-colors typo-callout">
-            {getStoryHeadline(story.title)}
+            {getStoryHeadline(story)}
           </p>
           <div className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption2">
             {sourceLabelOverride ? (
@@ -121,13 +134,13 @@ const StoryRow = ({
             )}
             {hasSourceMeta && !!story.createdAt && <span aria-hidden>•</span>}
             {!!story.createdAt && <RelativeTime dateTime={story.createdAt} />}
-            {!!story.numUpvotes && (
+            {showEngagement && !!story.numUpvotes && (
               <>
                 <span aria-hidden>•</span>
                 <span>{story.numUpvotes} upvotes</span>
               </>
             )}
-            {!!story.numComments && (
+            {showEngagement && !!story.numComments && (
               <>
                 <span aria-hidden>•</span>
                 <span>{story.numComments} comments</span>
@@ -162,6 +175,7 @@ const StorySectionBlock = ({
       ? ''
       : 'border border-border-subtlest-tertiary';
   const sourceLabelOverride = isPopularSection ? 'Top stories' : undefined;
+  const showEngagement = !isPopularSection;
 
   return (
     <section
@@ -183,6 +197,7 @@ const StorySectionBlock = ({
             key={story.id}
             story={story}
             sourceLabelOverride={sourceLabelOverride}
+            showEngagement={showEngagement}
           />
         ))
       ) : (
@@ -217,13 +232,13 @@ const CompactSectionBlock = ({
           <Link key={story.id} href={story.commentsPermalink}>
             <a className="flex items-start gap-3 border-b border-border-subtlest-tertiary py-2 last:border-0">
               {shouldShowRanking && (
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center self-start rounded-full border border-accent-cabbage-default font-bold leading-none text-brand-default typo-caption2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center self-start rounded-full border border-accent-cabbage-default font-bold leading-none text-accent-cabbage-default typo-caption2">
                   {index + 1}
                 </span>
               )}
               <div className="min-w-0 flex-1">
                 <p className="text-text-primary typo-callout">
-                  {getStoryHeadline(story.title)}
+                  {getStoryHeadline(story)}
                 </p>
                 <div className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption2">
                   <SourceMeta source={story.source} />
@@ -330,19 +345,35 @@ export const ExploreNewsLayout = ({
       >
         <div className="no-scrollbar flex items-center gap-7 overflow-x-auto py-2">
           {TOPIC_TABS.map((tab) => (
-            <a
-              key={tab.id}
-              href={`#${tab.id}`}
-              onClick={() => setActiveTabId(tab.id)}
-              aria-current={tab.id === activeTabId ? 'true' : undefined}
-              className={
-                tab.id === activeTabId
-                  ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
-                  : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
-              }
-            >
-              {tab.label}
-            </a>
+            tab.id === 'explore' ? (
+              <a
+                key={tab.id}
+                href="#explore"
+                onClick={() => setActiveTabId(tab.id)}
+                aria-current={tab.id === activeTabId ? 'true' : undefined}
+                className={
+                  tab.id === activeTabId
+                    ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
+                    : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
+                }
+              >
+                {tab.label}
+              </a>
+            ) : (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTabId(tab.id)}
+                aria-current={tab.id === activeTabId ? 'true' : undefined}
+                className={
+                  tab.id === activeTabId
+                    ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
+                    : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
+                }
+              >
+                {tab.label}
+              </button>
+            )
           ))}
         </div>
       </section>
@@ -358,14 +389,14 @@ export const ExploreNewsLayout = ({
                 <a className="group relative block overflow-hidden rounded-16 border border-border-subtlest-tertiary">
                   {!!leadStory.image && (
                     <img
-                      src="/assets/explore-top-news-hero.png"
-                      alt={getStoryHeadline(leadStory.title)}
+                      src={leadStory.image}
+                      alt={getStoryHeadline(leadStory)}
                       className="h-[24rem] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   )}
                   <div className="shadow-2xl pointer-events-none absolute bottom-3 left-3 flex w-[18rem] flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 backdrop-blur-sm laptop:bottom-4 laptop:left-4 laptop:w-[22rem] laptop:p-4">
                     <p className="line-clamp-5 font-bold text-text-primary typo-title3">
-                      {getStoryHeadline(leadStory.title)}
+                      {getStoryHeadline(leadStory)}
                     </p>
                     <div>
                       <div className="mt-2 flex items-center gap-2 text-text-secondary typo-caption1">
@@ -425,7 +456,7 @@ export const ExploreNewsLayout = ({
       </section>
 
       <section className="px-8 pb-4 laptop:px-8">
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <StorySectionBlock section={latestSection} />
             <CompactSectionBlock section={upvotedSection} />
@@ -441,7 +472,7 @@ export const ExploreNewsLayout = ({
           </div>
         </div>
       </section>
-      <section className="px-3 pb-4 laptop:px-4">
+      <section className="px-8 pb-4 laptop:px-8">
         <ExploreSocialStrips showTopSquads showProgress={false} />
       </section>
       <section id="arena" className="px-8 pb-4 laptop:px-8">
@@ -452,6 +483,13 @@ export const ExploreNewsLayout = ({
           onTabChange={onArenaTabChange}
           compact={false}
           highlightsItems={arenaHighlightsItems}
+        />
+      </section>
+      <section className="px-8 pb-4 laptop:px-8">
+        <ExploreSocialStrips
+          showTopSquads={false}
+          showTopTags
+          showProgress={false}
         />
       </section>
     </main>
