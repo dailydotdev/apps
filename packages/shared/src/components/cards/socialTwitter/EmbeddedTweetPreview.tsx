@@ -35,17 +35,39 @@ export function EmbeddedTweetPreview({
   showImage = false,
 }: EmbeddedTweetPreviewProps): ReactElement {
   const resolvedBodyClassName = bodyClassName ?? 'typo-callout';
-  const tweetLanguage = post.sharedPost?.language || post.language;
+
+  // When the post has its own commentary (title differs from referenced tweet),
+  // show the top tweet data; otherwise fall back to the referenced/shared tweet
+  const hasOwnCommentary = !!(post.titleHtml?.trim() || post.title?.trim());
+  const useMainPostData = hasOwnCommentary;
+
+  const tweetLanguage = useMainPostData
+    ? post.language
+    : post.sharedPost?.language || post.language;
   const tweetTextDirectionProps = getSocialTextDirectionProps(tweetLanguage);
-  const tweetBody = post.sharedPost?.title || post.title;
-  const tweetBodyHtml =
-    post.sharedPost?.titleHtml || post.sharedPost?.title || post.titleHtml;
-  const tweetImage = post.sharedPost?.image || post.image;
+  const tweetBody = useMainPostData
+    ? post.title
+    : post.sharedPost?.title || post.title;
+  const tweetBodyHtml = useMainPostData
+    ? post.titleHtml
+    : post.sharedPost?.titleHtml || post.sharedPost?.title || post.titleHtml;
+  const tweetImage = useMainPostData
+    ? post.image
+    : post.sharedPost?.image || post.image;
   const shouldRenderTweetImage =
     showImage && !!tweetImage && !isPlaceholderImage(tweetImage);
 
-  const { embeddedTweetIdentity, embeddedTweetAvatarUser } =
-    getSocialTwitterMetadata(post);
+  const {
+    embeddedTweetIdentity,
+    embeddedTweetAvatarUser,
+    mainPostIdentity,
+    mainPostAvatarUser,
+  } = getSocialTwitterMetadata(post);
+
+  const identity = useMainPostData ? mainPostIdentity : embeddedTweetIdentity;
+  const avatarUser = useMainPostData
+    ? mainPostAvatarUser
+    : embeddedTweetAvatarUser;
 
   const tweetBodyClassName = classNames(
     'min-h-0 whitespace-pre-line break-words',
@@ -65,14 +87,14 @@ export function EmbeddedTweetPreview({
       <div className="flex min-w-0 shrink-0 items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1">
           <ProfilePicture
-            user={embeddedTweetAvatarUser}
+            user={avatarUser}
             size={ProfileImageSize.Size16}
             rounded="full"
             className="shrink-0"
             nativeLazyLoading
           />
           <div className="min-w-0 flex-1">
-            {!!embeddedTweetIdentity && (
+            {!!identity && (
               <p
                 dir="ltr"
                 suppressHydrationWarning
@@ -81,7 +103,7 @@ export function EmbeddedTweetPreview({
                   post.read ? 'text-text-tertiary' : 'text-text-primary',
                 )}
               >
-                {embeddedTweetIdentity}
+                {identity}
               </p>
             )}
           </div>
