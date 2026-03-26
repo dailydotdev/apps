@@ -10,6 +10,8 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
+import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 
 const ACHIEVEMENTS_LIMIT = 5;
 const DAILY_QUESTS_LIMIT = 4;
@@ -91,6 +93,7 @@ const TOP_ACTIVE_TAGS_30D: TopTagStripItem[] = [
   { name: 'Next.js', slug: 'nextjs' },
   { name: 'React', slug: 'react' },
 ];
+const SPONSORED_TAG_TOOLTIP_CONTENT = 'Sponsored by GitHub';
 
 const TopSquadStories = ({
   squads,
@@ -163,7 +166,11 @@ const TopSquadStories = ({
           onClick={handleScrollRight}
           className="absolute right-1 top-1/2 z-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-text-primary text-white shadow-2 transition-colors hover:bg-text-secondary"
         >
-          <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden>
+          <svg
+            viewBox="0 0 16 16"
+            className="h-4 w-4 text-background-default"
+            aria-hidden
+          >
             <path
               d="M6 3l5 5-5 5"
               fill="none"
@@ -185,11 +192,22 @@ const TopTagStories = ({ tags }: { tags: TopTagStripItem[] }): ReactElement => (
       <a
         key={tag.slug}
         href={`/tags/${tag.slug}`}
-        className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
+        className="focus-visible-outline flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
       >
-        <div className="flex size-12 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-surface-float font-bold text-text-secondary typo-callout">
-          {index + 1}
-        </div>
+        {index === 0 ? (
+          <Tooltip content={SPONSORED_TAG_TOOLTIP_CONTENT}>
+            <div className="feed-highlights-sponsor-gradient-bg flex size-12 items-center justify-center rounded-full border border-border-subtlest-tertiary font-bold typo-callout">
+              <GitHubIcon
+                size={IconSize.Medium}
+                className="[&_path]:fill-background-default"
+              />
+            </div>
+          </Tooltip>
+        ) : (
+          <div className="flex size-12 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-surface-float font-bold text-text-secondary typo-callout">
+            {`#${index + 1}`}
+          </div>
+        )}
         <span className="line-clamp-2 text-text-secondary typo-caption2">
           {tag.name}
         </span>

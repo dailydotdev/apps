@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import type {
   ArenaTab,
   RankedTool,
@@ -10,16 +10,23 @@ import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
+import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
+import { TargetId } from '@dailydotdev/shared/src/lib/log';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
+import type { ExploreCategoryId } from './exploreCategories';
+import { EXPLORE_CATEGORIES } from './exploreCategories';
 
 type ExploreStory = Pick<
   Post,
   | 'id'
   | 'title'
   | 'summary'
+  | 'type'
+  | 'flags'
   | 'sharedPost'
+  | 'author'
   | 'commentsPermalink'
   | 'createdAt'
   | 'image'
@@ -33,9 +40,11 @@ interface StorySection {
   title: string;
   href: string;
   stories: ExploreStory[];
+  totalStoriesCount: number;
 }
 
 interface ExploreNewsLayoutProps {
+  activeTabId: ExploreCategoryId;
   highlightsLoading: boolean;
   highlights: PostHighlight[];
   digestSource?: Source | null;
@@ -43,6 +52,10 @@ interface ExploreNewsLayoutProps {
   popularStories: ExploreStory[];
   upvotedStories: ExploreStory[];
   discussedStories: ExploreStory[];
+  videoLatestStories: ExploreStory[];
+  videoPopularStories: ExploreStory[];
+  videoUpvotedStories: ExploreStory[];
+  videoDiscussedStories: ExploreStory[];
   arenaTools: RankedTool[];
   arenaLoading: boolean;
   arenaTab: ArenaTab;
@@ -55,22 +68,6 @@ const getStoryHeadline = (story: ExploreStory): string =>
   story.sharedPost?.title?.trim() ||
   story.summary?.trim() ||
   'Untitled story';
-
-const TOPIC_TABS = [
-  { id: 'explore', label: 'Explore' },
-  { id: 'videos', label: 'Videos' },
-  { id: 'agentic', label: 'Agentic' },
-  { id: 'webdev', label: 'Webdev' },
-  { id: 'backend', label: 'Backend' },
-  { id: 'databases', label: 'Databases' },
-  { id: 'career', label: 'Career' },
-  { id: 'golang', label: 'Golang' },
-  { id: 'rust', label: 'Rust' },
-  { id: 'opensource', label: 'Opensource' },
-  { id: 'testing', label: 'Testing' },
-  { id: 'php', label: 'PHP' },
-  { id: 'java', label: 'Java' },
-];
 
 const SourceMeta = ({
   source,
@@ -99,16 +96,40 @@ const SourceMeta = ({
   );
 };
 
+const StoryOriginMeta = ({
+  story,
+  sourceLabelOverride,
+}: {
+  story: ExploreStory;
+  sourceLabelOverride?: string;
+}): ReactElement | null => {
+  if (sourceLabelOverride) {
+    return <span>{sourceLabelOverride}</span>;
+  }
+
+  if (story.source?.name === 'Community Picks' && story.author?.name) {
+    return <span>{story.author.name}</span>;
+  }
+
+  return <SourceMeta source={story.source} />;
+};
+
 const StoryRow = ({
   story,
   sourceLabelOverride,
   showEngagement = true,
+  isSponsored = false,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
   showEngagement?: boolean;
+  isSponsored?: boolean;
 }): ReactElement => {
-  const hasSourceMeta = Boolean(sourceLabelOverride || story.source?.name);
+  const hasSourceMeta = Boolean(
+    sourceLabelOverride ||
+      story.source?.name ||
+      (story.source?.name === 'Community Picks' && story.author?.name),
+  );
 
   return (
     <Link href={story.commentsPermalink}>
@@ -126,24 +147,36 @@ const StoryRow = ({
           <p className="text-text-primary transition-colors typo-callout">
             {getStoryHeadline(story)}
           </p>
-          <div className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption2">
-            {sourceLabelOverride ? (
-              <span>{sourceLabelOverride}</span>
-            ) : (
-              <SourceMeta source={story.source} />
-            )}
-            {hasSourceMeta && !!story.createdAt && <span aria-hidden>•</span>}
-            {!!story.createdAt && <RelativeTime dateTime={story.createdAt} />}
-            {showEngagement && !!story.numUpvotes && (
+          <div className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2">
+            {isSponsored ? (
               <>
+                <StoryOriginMeta
+                  story={story}
+                  sourceLabelOverride={sourceLabelOverride}
+                />
                 <span aria-hidden>•</span>
-                <span>{story.numUpvotes} upvotes</span>
+                <span>Sponsored</span>
               </>
-            )}
-            {showEngagement && !!story.numComments && (
+            ) : (
               <>
-                <span aria-hidden>•</span>
-                <span>{story.numComments} comments</span>
+                <StoryOriginMeta
+                  story={story}
+                  sourceLabelOverride={sourceLabelOverride}
+                />
+                {hasSourceMeta && !!story.createdAt && <span aria-hidden>•</span>}
+                {!!story.createdAt && <RelativeTime dateTime={story.createdAt} />}
+                {showEngagement && !!story.numUpvotes && (
+                  <>
+                    <span aria-hidden>•</span>
+                    <span>{story.numUpvotes} upvotes</span>
+                  </>
+                )}
+                {showEngagement && !!story.numComments && (
+                  <>
+                    <span aria-hidden>•</span>
+                    <span>{story.numComments} comments</span>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -155,11 +188,14 @@ const StoryRow = ({
 
 const StorySectionBlock = ({
   section,
+  sponsoredStory,
 }: {
   section: StorySection;
+  sponsoredStory?: ExploreStory | null;
 }): ReactElement => {
   const isLatestSection = section.id === 'latest';
   const isPopularSection = section.id === 'popular';
+  const isSponsoredSlotSection = isLatestSection || isPopularSection;
 
   let sectionPaddingClass = 'p-3 laptop:p-4';
   if (isLatestSection) {
@@ -175,7 +211,25 @@ const StorySectionBlock = ({
       ? ''
       : 'border border-border-subtlest-tertiary';
   const sourceLabelOverride = isPopularSection ? 'Top stories' : undefined;
-  const showEngagement = !isPopularSection;
+  const showEngagement = !isPopularSection && !isLatestSection;
+  const storiesWithSponsoredSlot = useMemo(() => {
+    if (!isSponsoredSlotSection || !sponsoredStory) {
+      return section.stories;
+    }
+
+    const nonSponsoredStories = section.stories.filter(
+      (story) => story.id !== sponsoredStory.id,
+    );
+
+    return [
+      nonSponsoredStories[0],
+      sponsoredStory,
+      ...nonSponsoredStories.slice(1, 5),
+    ].filter(Boolean) as ExploreStory[];
+  }, [isSponsoredSlotSection, section.stories, sponsoredStory]);
+  const storiesToRender = isSponsoredSlotSection
+    ? storiesWithSponsoredSlot
+    : section.stories;
 
   return (
     <section
@@ -191,13 +245,14 @@ const StorySectionBlock = ({
           </Link>
         </header>
       )}
-      {section.stories.length > 0 ? (
-        section.stories.map((story) => (
+      {storiesToRender.length > 0 ? (
+        storiesToRender.map((story) => (
           <StoryRow
             key={story.id}
             story={story}
             sourceLabelOverride={sourceLabelOverride}
             showEngagement={showEngagement}
+            isSponsored={isSponsoredSlotSection && sponsoredStory?.id === story.id}
           />
         ))
       ) : (
@@ -214,6 +269,7 @@ const CompactSectionBlock = ({
 }): ReactElement => {
   const shouldShowRanking =
     section.id === 'upvoted' || section.id === 'discussed';
+  const hasMoreStories = section.totalStoriesCount > section.stories.length;
 
   return (
     <section
@@ -230,9 +286,21 @@ const CompactSectionBlock = ({
       {section.stories.length > 0 ? (
         section.stories.map((story, index) => (
           <Link key={story.id} href={story.commentsPermalink}>
-            <a className="flex items-start gap-3 border-b border-border-subtlest-tertiary py-2 last:border-0">
+            <a
+              className={`flex items-start gap-3 py-2 ${
+                index === section.stories.length - 1
+                  ? 'border-0'
+                  : 'border-b border-border-subtlest-tertiary'
+              }`}
+            >
               {shouldShowRanking && (
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center self-start rounded-full border border-accent-cabbage-default font-bold leading-none text-accent-cabbage-default typo-caption2">
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center self-start rounded-full border font-bold leading-none typo-caption2 ${
+                    section.id === 'discussed'
+                      ? 'border-accent-avocado-default text-accent-avocado-default'
+                      : 'border-accent-cabbage-default text-accent-cabbage-default'
+                  }`}
+                >
                   {index + 1}
                 </span>
               )}
@@ -240,13 +308,25 @@ const CompactSectionBlock = ({
                 <p className="text-text-primary typo-callout">
                   {getStoryHeadline(story)}
                 </p>
-                <div className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption2">
-                  <SourceMeta source={story.source} />
+                <div className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2">
+                  <StoryOriginMeta story={story} />
                   {!!story.source?.name && !!story.createdAt && (
                     <span aria-hidden>•</span>
                   )}
                   {!!story.createdAt && (
                     <RelativeTime dateTime={story.createdAt} />
+                  )}
+                  {section.id === 'upvoted' && !!story.numUpvotes && (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span>{story.numUpvotes} upvotes</span>
+                    </>
+                  )}
+                  {section.id === 'discussed' && !!story.numComments && (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span>{story.numComments} comments</span>
+                    </>
                   )}
                 </div>
               </div>
@@ -256,11 +336,71 @@ const CompactSectionBlock = ({
       ) : (
         <p className="py-2 text-text-tertiary typo-callout">No stories yet.</p>
       )}
+      {hasMoreStories && (
+        <Link href={section.href}>
+          <a className="active:opacity-80 -mb-3 -mx-3 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptop:-mb-4 laptop:-mx-4 laptopL:hidden">
+            Show all
+          </a>
+        </Link>
+      )}
+    </section>
+  );
+};
+
+const MoreStoriesStrip = ({
+  stories,
+}: {
+  stories: ExploreStory[];
+}): ReactElement | null => {
+  if (!stories.length) {
+    return null;
+  }
+
+  return (
+    <section id="more-stories-strip">
+      <header className="mb-2">
+        <h2 className="font-bold text-text-primary typo-title3">More stories</h2>
+      </header>
+      <div className="rounded-16 pb-3 pl-0 pr-3 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-4 laptop:pt-0">
+        {stories.map((story) => (
+          <StoryRow key={story.id} story={story} showEngagement={false} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const ReadingBriefStrip = (): ReactElement => {
+  return (
+    <section
+      id="reading-brief-strip"
+      className="h-full rounded-16 border border-border-subtlest-tertiary p-3 laptop:p-4"
+    >
+      <header className="mb-2">
+        <h2 className="font-bold text-text-primary typo-title3">Reading brief</h2>
+      </header>
+      <p className="text-text-tertiary typo-callout">
+        A quick, high-signal recap tailored for you.
+      </p>
+      <div className="mt-3">
+        <BriefCardFeed
+          targetId={TargetId.List}
+          className={{
+            container: '!p-0',
+          }}
+        />
+      </div>
+      <Link href="/briefing">
+        <a className="active:opacity-80 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptopL:hidden">
+          Open reading brief
+        </a>
+      </Link>
     </section>
   );
 };
 
 export const ExploreNewsLayout = ({
+  activeTabId,
   highlightsLoading,
   highlights,
   digestSource,
@@ -268,74 +408,184 @@ export const ExploreNewsLayout = ({
   popularStories,
   upvotedStories,
   discussedStories,
+  videoLatestStories,
+  videoPopularStories,
+  videoUpvotedStories,
+  videoDiscussedStories,
   arenaTools,
   arenaLoading,
   arenaTab,
   onArenaTabChange,
   arenaHighlightsItems,
 }: ExploreNewsLayoutProps): ReactElement => {
-  const [activeTabId, setActiveTabId] = useState<string>('explore');
-  const leadStory = useMemo(
-    () => latestStories[0] ?? popularStories[0] ?? null,
-    [latestStories, popularStories],
+  const isVideosMode = activeTabId === 'videos';
+
+  const latestStoriesForView = useMemo(
+    () => (isVideosMode ? videoLatestStories : latestStories),
+    [isVideosMode, latestStories, videoLatestStories],
+  );
+  const popularStoriesForView = useMemo(
+    () => (isVideosMode ? videoPopularStories : popularStories),
+    [isVideosMode, popularStories, videoPopularStories],
+  );
+  const upvotedStoriesForView = useMemo(
+    () => (isVideosMode ? videoUpvotedStories : upvotedStories),
+    [isVideosMode, upvotedStories, videoUpvotedStories],
+  );
+  const discussedStoriesForView = useMemo(
+    () => (isVideosMode ? videoDiscussedStories : discussedStories),
+    [isVideosMode, discussedStories, videoDiscussedStories],
   );
 
-  useEffect(() => {
-    const updateActiveTabFromHash = (): void => {
-      const hashId = window.location.hash.replace('#', '');
-      const activeId = TOPIC_TABS.some((tab) => tab.id === hashId)
-        ? hashId
-        : 'explore';
-      setActiveTabId(activeId);
-    };
+  const videoHighlights = useMemo<PostHighlight[]>(() => {
+    if (!isVideosMode) {
+      return [];
+    }
 
-    updateActiveTabFromHash();
-    window.addEventListener('hashchange', updateActiveTabFromHash);
+    const merged = [
+      ...latestStoriesForView,
+      ...popularStoriesForView,
+      ...upvotedStoriesForView,
+      ...discussedStoriesForView,
+    ];
+    const uniqueStories = Array.from(
+      new Map(merged.map((story) => [story.id, story])).values(),
+    );
 
-    return () =>
-      window.removeEventListener('hashchange', updateActiveTabFromHash);
-  }, []);
+    return uniqueStories.slice(0, 10).map((story) => ({
+      channel: 'videos',
+      headline: getStoryHeadline(story),
+      highlightedAt: story.createdAt ?? new Date(0).toISOString(),
+      post: {
+        id: story.id,
+        commentsPermalink: story.commentsPermalink,
+      },
+    }));
+  }, [
+    isVideosMode,
+    latestStoriesForView,
+    popularStoriesForView,
+    upvotedStoriesForView,
+    discussedStoriesForView,
+  ]);
+
+  const leadStory = useMemo(
+    () => latestStoriesForView[0] ?? popularStoriesForView[0] ?? null,
+    [latestStoriesForView, popularStoriesForView],
+  );
 
   const latestSection = useMemo<StorySection>(
     () => ({
       id: 'latest',
       title: 'Latest',
       href: '/posts/latest',
-      stories: latestStories
+      stories: latestStoriesForView
         .filter((story) => story.id !== leadStory?.id)
         .slice(0, 6),
+      totalStoriesCount: latestStoriesForView.length,
     }),
-    [latestStories, leadStory?.id],
+    [latestStoriesForView, leadStory?.id],
   );
   const popularSection = useMemo<StorySection>(
     () => ({
       id: 'popular',
       title: 'Top stories',
       href: '/',
-      stories: popularStories
+      stories: popularStoriesForView
         .filter((story) => story.id !== leadStory?.id)
         .slice(0, 6),
+      totalStoriesCount: popularStoriesForView.length,
     }),
-    [popularStories, leadStory?.id],
+    [popularStoriesForView, leadStory?.id],
   );
   const upvotedSection = useMemo<StorySection>(
     () => ({
       id: 'upvoted',
       title: 'Most Upvoted',
       href: '/upvoted',
-      stories: upvotedStories.slice(0, 6),
+      stories: upvotedStoriesForView.slice(0, 6),
+      totalStoriesCount: upvotedStoriesForView.length,
     }),
-    [upvotedStories],
+    [upvotedStoriesForView],
   );
   const discussedSection = useMemo<StorySection>(
     () => ({
       id: 'discussed',
       title: 'Best Discussions',
       href: '/discussed',
-      stories: discussedStories.slice(0, 6),
+      stories: discussedStoriesForView.slice(0, 6),
+      totalStoriesCount: discussedStoriesForView.length,
     }),
-    [discussedStories],
+    [discussedStoriesForView],
   );
+  const sponsoredStory = useMemo<ExploreStory | null>(() => {
+    const candidates = [
+      ...latestStoriesForView,
+      ...popularStoriesForView,
+      ...upvotedStoriesForView,
+      ...discussedStoriesForView,
+    ];
+    const sponsoredCandidate = candidates.find((story) => !!story.flags?.ad);
+
+    if (sponsoredCandidate) {
+      return sponsoredCandidate;
+    }
+
+    return candidates.find((story) => story.id !== leadStory?.id) ?? null;
+  }, [
+    leadStory?.id,
+    latestStoriesForView,
+    popularStoriesForView,
+    upvotedStoriesForView,
+    discussedStoriesForView,
+  ]);
+  const sponsoredPopularStory = useMemo<ExploreStory | null>(() => {
+    const sponsoredCandidate = popularStoriesForView.find(
+      (story) => !!story.flags?.ad,
+    );
+
+    if (sponsoredCandidate) {
+      return sponsoredCandidate;
+    }
+
+    return popularStoriesForView.find((story) => story.id !== leadStory?.id) ?? null;
+  }, [leadStory?.id, popularStoriesForView]);
+  const moreStories = useMemo<ExploreStory[]>(() => {
+    const displayedIds = new Set<string>([
+      leadStory?.id ?? '',
+      sponsoredStory?.id ?? '',
+      sponsoredPopularStory?.id ?? '',
+      ...latestSection.stories.map((story) => story.id),
+      ...popularSection.stories.map((story) => story.id),
+      ...upvotedSection.stories.map((story) => story.id),
+      ...discussedSection.stories.map((story) => story.id),
+    ]);
+    const merged = [
+      ...latestStoriesForView,
+      ...popularStoriesForView,
+      ...upvotedStoriesForView,
+      ...discussedStoriesForView,
+    ];
+    const uniqueStories = Array.from(
+      new Map(merged.map((story) => [story.id, story])).values(),
+    );
+
+    return uniqueStories
+      .filter((story) => !displayedIds.has(story.id))
+      .slice(0, 12);
+  }, [
+    leadStory?.id,
+    latestSection.stories,
+    popularSection.stories,
+    upvotedSection.stories,
+    discussedSection.stories,
+    sponsoredStory?.id,
+    sponsoredPopularStory?.id,
+    latestStoriesForView,
+    popularStoriesForView,
+    upvotedStoriesForView,
+    discussedStoriesForView,
+  ]);
 
   return (
     <main className="mx-auto flex w-full max-w-[72rem] flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
@@ -344,12 +594,9 @@ export const ExploreNewsLayout = ({
         className="sticky top-16 z-header bg-background-default px-3 laptop:px-8"
       >
         <div className="no-scrollbar flex items-center gap-7 overflow-x-auto py-2">
-          {TOPIC_TABS.map((tab) => (
-            tab.id === 'explore' ? (
+          {EXPLORE_CATEGORIES.map((tab) => (
+            <Link key={tab.id} href={tab.path}>
               <a
-                key={tab.id}
-                href="#explore"
-                onClick={() => setActiveTabId(tab.id)}
                 aria-current={tab.id === activeTabId ? 'true' : undefined}
                 className={
                   tab.id === activeTabId
@@ -359,26 +606,12 @@ export const ExploreNewsLayout = ({
               >
                 {tab.label}
               </a>
-            ) : (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTabId(tab.id)}
-                aria-current={tab.id === activeTabId ? 'true' : undefined}
-                className={
-                  tab.id === activeTabId
-                    ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
-                    : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
-                }
-              >
-                {tab.label}
-              </button>
-            )
+            </Link>
           ))}
         </div>
       </section>
 
-      <section id="top-news" className="px-8 py-4 laptop:px-8">
+      <section id="top-news" className="px-8 py-6 laptop:px-8">
         <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="space-y-3">
             <h2 className="font-bold text-text-primary typo-title3">
@@ -447,50 +680,68 @@ export const ExploreNewsLayout = ({
           </div>
           <div id="happening-now" className="laptop:h-[24rem]">
             <AgentsHighlightsSection
-              highlights={highlights}
-              loading={highlightsLoading}
+              highlights={isVideosMode ? videoHighlights : highlights}
+              loading={isVideosMode ? false : highlightsLoading}
               digestSource={digestSource}
             />
           </div>
         </div>
       </section>
 
-      <section className="px-8 pb-4 laptop:px-8">
+      <section className="px-8 pb-6 laptop:px-8">
         <div className="space-y-8">
           <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <StorySectionBlock section={latestSection} />
+            <StorySectionBlock
+              section={latestSection}
+              sponsoredStory={sponsoredStory}
+            />
             <CompactSectionBlock section={upvotedSection} />
           </div>
-          <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <div className="laptop:col-span-2">
-              <ExploreSocialStrips showTopSquads={false} showProgress />
+          {!isVideosMode && (
+            <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+              <div className="laptop:col-span-2">
+                <ExploreSocialStrips showTopSquads={false} showProgress />
+              </div>
             </div>
-          </div>
+          )}
           <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <StorySectionBlock section={popularSection} />
+            <StorySectionBlock
+              section={popularSection}
+              sponsoredStory={sponsoredPopularStory}
+            />
             <CompactSectionBlock section={discussedSection} />
           </div>
         </div>
       </section>
-      <section className="px-8 pb-4 laptop:px-8">
-        <ExploreSocialStrips showTopSquads showProgress={false} />
-      </section>
-      <section id="arena" className="px-8 pb-4 laptop:px-8">
-        <AgentsLeaderboardSection
-          tools={arenaTools}
-          loading={arenaLoading}
-          tab={arenaTab}
-          onTabChange={onArenaTabChange}
-          compact={false}
-          highlightsItems={arenaHighlightsItems}
-        />
-      </section>
-      <section className="px-8 pb-4 laptop:px-8">
-        <ExploreSocialStrips
-          showTopSquads={false}
-          showTopTags
-          showProgress={false}
-        />
+      {!isVideosMode && (
+        <>
+          <section className="px-8 pb-6 laptop:px-8">
+            <ExploreSocialStrips showTopSquads showProgress={false} />
+          </section>
+          <section id="arena" className="px-8 pb-6 laptop:px-8">
+            <AgentsLeaderboardSection
+              tools={arenaTools}
+              loading={arenaLoading}
+              tab={arenaTab}
+              onTabChange={onArenaTabChange}
+              compact={false}
+              highlightsItems={arenaHighlightsItems}
+            />
+          </section>
+          <section className="px-8 pb-6 laptop:px-8">
+            <ExploreSocialStrips
+              showTopSquads={false}
+              showTopTags
+              showProgress={false}
+            />
+          </section>
+        </>
+      )}
+      <section className="px-8 pb-6 laptop:px-8">
+        <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <MoreStoriesStrip stories={moreStories} />
+          <ReadingBriefStrip />
+        </div>
       </section>
     </main>
   );
