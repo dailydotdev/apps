@@ -33,6 +33,7 @@ export interface FeedbackItem {
   id: string;
   category: FeedbackCategory;
   description: string;
+  linearIssueUrl?: string | null;
   status: FeedbackStatus;
   screenshotUrl?: string | null;
   createdAt: string;
@@ -117,6 +118,7 @@ export const USER_FEEDBACK_BY_USER_ID_QUERY = gql`
           id
           category
           description
+          linearIssueUrl
           status
           screenshotUrl
           createdAt
@@ -164,6 +166,7 @@ export const FEEDBACK_LIST_QUERY = gql`
           id
           category
           description
+          linearIssueUrl
           status
           screenshotUrl
           createdAt
