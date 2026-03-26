@@ -12,6 +12,8 @@ import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/us
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import type { ExploreCategoryId } from './exploreCategories';
+import { getExploreCategoryById } from './exploreCategories';
 
 const ACHIEVEMENTS_LIMIT = 5;
 const DAILY_QUESTS_LIMIT = 4;
@@ -39,6 +41,50 @@ const TOP_ACTIVE_SQUADS_30D = [
   { name: 'AI', handle: 'ai' },
   { name: 'Platform & AI', handle: 'platformai' },
 ] as const;
+const CATEGORY_RELEVANT_SQUADS: Partial<
+  Record<
+    ExploreCategoryId,
+    readonly {
+      name: string;
+      handle: string;
+    }[]
+  >
+> = {
+  videos: [
+    { name: 'Build With GenAI', handle: 'buildwithgenai' },
+    { name: 'AI', handle: 'ai' },
+    { name: 'Platform & AI', handle: 'platformai' },
+  ],
+  agentic: [
+    { name: 'Build With GenAI', handle: 'buildwithgenai' },
+    { name: 'AI', handle: 'ai' },
+    { name: 'Platform & AI', handle: 'platformai' },
+  ],
+  webdev: [
+    { name: 'Zero To Mastery', handle: 'zerotomastery' },
+    { name: 'Dev World', handle: 'dev_world' },
+    { name: 'Smarter Articles', handle: 'smarterarticles' },
+  ],
+  backend: [
+    { name: 'DevOps Daily', handle: 'devopsdaily' },
+    { name: 'Data Engineering', handle: 'sspdata' },
+    { name: 'World of Technology', handle: 'thejvmbender' },
+  ],
+  databases: [{ name: 'Data Engineering', handle: 'sspdata' }],
+  career: [
+    { name: 'Devs Together Strong', handle: 'devstogetherstrong' },
+    { name: 'Lonely Programmer', handle: 'lonely_programmer' },
+  ],
+  golang: [{ name: 'DevOps Daily', handle: 'devopsdaily' }],
+  rust: [{ name: 'Daily Open Source Tools', handle: 'dailyopensourcetools' }],
+  opensource: [{ name: 'Daily Open Source Tools', handle: 'dailyopensourcetools' }],
+  testing: [{ name: 'Smarter Articles', handle: 'smarterarticles' }],
+  php: [{ name: 'PHP Dev', handle: 'phpdev' }],
+  java: [
+    { name: 'Just Java', handle: 'justjava' },
+    { name: 'World of Technology', handle: 'thejvmbender' },
+  ],
+};
 const TOP_SQUAD_SKELETON_KEYS = [
   'top-squad-skeleton-1',
   'top-squad-skeleton-2',
@@ -292,17 +338,24 @@ interface ExploreSocialStripsProps {
   showTopSquads?: boolean;
   showTopTags?: boolean;
   showProgress?: boolean;
+  activeCategoryId?: ExploreCategoryId;
 }
 
 export const ExploreSocialStrips = ({
   showTopSquads = true,
   showTopTags = false,
   showProgress = true,
+  activeCategoryId = 'explore',
 }: ExploreSocialStripsProps): ReactElement | null => {
   const { isLoggedIn, user } = useAuthContext();
+  const squadSeeds =
+    activeCategoryId === 'explore'
+      ? TOP_ACTIVE_SQUADS_30D
+      : CATEGORY_RELEVANT_SQUADS[activeCategoryId] ?? [];
+  const activeCategoryLabel = getExploreCategoryById(activeCategoryId)?.label;
 
   const topSquadQueries = useQueries({
-    queries: TOP_ACTIVE_SQUADS_30D.map(({ handle }) => ({
+    queries: squadSeeds.map(({ handle }) => ({
       queryKey: ['explore', 'top-active-squad', handle],
       queryFn: () => getSquadStaticFields(handle),
       enabled: showTopSquads,
@@ -313,7 +366,7 @@ export const ExploreSocialStrips = ({
 
   const topSquads = useMemo(
     () =>
-      TOP_ACTIVE_SQUADS_30D.map(({ name, handle }, index) => {
+      squadSeeds.map(({ name, handle }, index) => {
         const squadData = topSquadQueries[index]?.data as Squad | undefined;
 
         return {
@@ -324,8 +377,12 @@ export const ExploreSocialStrips = ({
           image: squadData?.image ?? TOP_SQUAD_PLACEHOLDER_IMAGE,
         };
       }),
-    [topSquadQueries],
+    [squadSeeds, topSquadQueries],
   );
+  const shouldRenderTopSquads =
+    showTopSquads && (isTopSquadsPending || topSquads.length > 0);
+  const shouldRenderTopTags = showTopTags;
+  const shouldRenderProgress = showProgress;
 
   const { achievements, isPending: isAchievementsPending } =
     useProfileAchievements(user, isLoggedIn);
@@ -376,26 +433,24 @@ export const ExploreSocialStrips = ({
       .slice(0, DAILY_QUESTS_LIMIT);
   }, [questDashboard]);
 
-  if (
-    !showTopSquads &&
-    !showProgress &&
-    !isTopSquadsPending &&
-    !topSquads.length &&
-    !isLoggedIn
-  ) {
+  if (!shouldRenderTopSquads && !shouldRenderTopTags && !shouldRenderProgress) {
     return null;
   }
 
   return (
     <>
-      {showTopSquads && (
+      {shouldRenderTopSquads && (
         <section id="top-squads-strip">
           <header className="mb-2">
             <h2 className="font-bold text-text-primary typo-title3">
-              Top active squads
+              {activeCategoryId === 'explore' ? 'Top active squads' : 'Relevant squads'}
             </h2>
             <p className="mt-1 text-text-tertiary typo-footnote">
-              20 most active public squads over the last 30 day
+              {activeCategoryId === 'explore'
+                ? '20 most active public squads over the last 30 day'
+                : `${squadSeeds.length} relevant public squads for ${
+                    activeCategoryLabel ?? 'this category'
+                  }`}
             </p>
           </header>
           {isTopSquadsPending ? (
@@ -406,21 +461,21 @@ export const ExploreSocialStrips = ({
         </section>
       )}
 
-      {showTopTags && (
+      {shouldRenderTopTags && (
         <section id="top-tags-strip">
           <header className="mb-2">
             <h2 className="font-bold text-text-primary typo-title3">
-              Top active tags
+              Popular tags
             </h2>
             <p className="mt-1 text-text-tertiary typo-footnote">
-              20 most active tags over the last 30 days
+              Popular tags across daily.dev
             </p>
           </header>
           <TopTagStories tags={TOP_ACTIVE_TAGS_30D} />
         </section>
       )}
 
-      {showProgress && (
+      {shouldRenderProgress && (
         <section id="progress-strip">
           <header className="mb-2">
             <h2 className="font-bold text-text-primary typo-title3">

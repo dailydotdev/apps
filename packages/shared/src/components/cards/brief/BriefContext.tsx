@@ -15,9 +15,10 @@ type BriefContext = {
 const [BriefContextProvider, useBriefContext] = createContextProvider(
   (): BriefContext => {
     const { user } = useAuthContext();
+    const persistentBriefKey = `brief_card_${user?.id ?? 'anonymous'}_v3`;
 
     const [brief, setBrief] = usePersistentState<BriefContext['brief']>(
-      `brief_card_${user.id}_v3`,
+      persistentBriefKey,
       undefined,
     );
 

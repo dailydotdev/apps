@@ -338,7 +338,7 @@ const CompactSectionBlock = ({
       )}
       {hasMoreStories && (
         <Link href={section.href}>
-          <a className="active:opacity-80 -mb-3 -mx-3 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptop:-mb-4 laptop:-mx-4 laptopL:hidden">
+          <a className="active:opacity-80 -mb-3 -mx-3 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-secondary typo-callout laptop:-mb-4 laptop:-mx-4 laptopL:hidden">
             Show all
           </a>
         </Link>
@@ -391,7 +391,7 @@ const ReadingBriefStrip = (): ReactElement => {
         />
       </div>
       <Link href="/briefing">
-        <a className="active:opacity-80 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-link typo-callout laptopL:hidden">
+        <a className="active:opacity-80 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-secondary typo-callout laptopL:hidden">
           Open reading brief
         </a>
       </Link>
@@ -419,6 +419,8 @@ export const ExploreNewsLayout = ({
   arenaHighlightsItems,
 }: ExploreNewsLayoutProps): ReactElement => {
   const isVideosMode = activeTabId === 'videos';
+  const isExplorePage = activeTabId === 'explore';
+  const showExploreOnlySections = isExplorePage && !isVideosMode;
 
   const latestStoriesForView = useMemo(
     () => (isVideosMode ? videoLatestStories : latestStories),
@@ -697,10 +699,14 @@ export const ExploreNewsLayout = ({
             />
             <CompactSectionBlock section={upvotedSection} />
           </div>
-          {!isVideosMode && (
+          {showExploreOnlySections && (
             <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
               <div className="laptop:col-span-2">
-                <ExploreSocialStrips showTopSquads={false} showProgress />
+                <ExploreSocialStrips
+                  activeCategoryId={activeTabId}
+                  showTopSquads={false}
+                  showProgress
+                />
               </div>
             </div>
           )}
@@ -713,11 +719,15 @@ export const ExploreNewsLayout = ({
           </div>
         </div>
       </section>
-      {!isVideosMode && (
+      <section className="px-8 pb-6 laptop:px-8">
+        <ExploreSocialStrips
+          activeCategoryId={activeTabId}
+          showTopSquads
+          showProgress={false}
+        />
+      </section>
+      {showExploreOnlySections && (
         <>
-          <section className="px-8 pb-6 laptop:px-8">
-            <ExploreSocialStrips showTopSquads showProgress={false} />
-          </section>
           <section id="arena" className="px-8 pb-6 laptop:px-8">
             <AgentsLeaderboardSection
               tools={arenaTools}
@@ -730,6 +740,7 @@ export const ExploreNewsLayout = ({
           </section>
           <section className="px-8 pb-6 laptop:px-8">
             <ExploreSocialStrips
+              activeCategoryId={activeTabId}
               showTopSquads={false}
               showTopTags
               showProgress={false}
@@ -737,12 +748,14 @@ export const ExploreNewsLayout = ({
           </section>
         </>
       )}
-      <section className="px-8 pb-6 laptop:px-8">
-        <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <MoreStoriesStrip stories={moreStories} />
-          <ReadingBriefStrip />
-        </div>
-      </section>
+      {isExplorePage && (
+        <section className="px-8 pb-6 laptop:px-8">
+          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <MoreStoriesStrip stories={moreStories} />
+            <ReadingBriefStrip />
+          </div>
+        </section>
+      )}
     </main>
   );
 };
