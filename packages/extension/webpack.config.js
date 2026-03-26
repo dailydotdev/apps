@@ -31,7 +31,8 @@ const getExtensionFileType = (browser) => {
 
 const baseConfig = {
   devtool: false, // https://github.com/webpack/webpack/issues/1194#issuecomment-560382342
-
+  // Disable in-memory cache for production to reduce memory usage on CI (multi-compiler setup)
+  cache: nodeEnv === 'production' ? false : { type: 'memory' },
   stats: {
     all: false,
     builtAt: true,

@@ -137,7 +137,7 @@ jobs:
           command: pnpm install
       - run:
           name: Build Extension
-          command: cd packages/extension && npx --no-install cross-env NODE_OPTIONS="--max-old-space-size=8192" cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome npx --no-install webpack --stats verbose
+          command: pnpm --filter extension build
           environment:
             NODE_OPTIONS: --max-old-space-size=8192
 workflows:
