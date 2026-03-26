@@ -81,7 +81,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
     }
     const [open, setOpen] = useState(false);
 
-    useEventListener(globalThis, 'scroll', () => {
+    useEventListener(globalThis.window, 'scroll', () => {
       props.onOpenChange?.(false);
       setOpen(false);
     });
@@ -181,7 +181,10 @@ export const DropdownMenuOptions = ({
             <ConditionalWrapper
               key={label}
               condition={!!Wrapper}
-              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+              wrapper={(children) => {
+                const WrapperComponent = Wrapper!;
+                return <WrapperComponent>{children}</WrapperComponent>;
+              }}
             >
               <DropdownMenuItem
                 onClick={action}
@@ -189,7 +192,7 @@ export const DropdownMenuOptions = ({
                 disabled={disabled}
                 aria-label={ariaLabel}
               >
-                {anchorProps ? (
+                {anchorProps?.href ? (
                   <Link
                     href={anchorProps.href}
                     passHref
