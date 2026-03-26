@@ -219,6 +219,7 @@ const questDashboard = {
     regular: [],
     plus: [],
   },
+  milestone: [],
 };
 
 const renderComponent = (

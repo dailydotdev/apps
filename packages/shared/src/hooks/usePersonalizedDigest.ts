@@ -12,12 +12,8 @@ import {
 } from '../graphql/users';
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
-import {
-  ApiError,
-  type ApiErrorResult,
-  getApiError,
-  gqlClient,
-} from '../graphql/common';
+import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
 
 export enum SendType {
   Weekly = 'weekly',
