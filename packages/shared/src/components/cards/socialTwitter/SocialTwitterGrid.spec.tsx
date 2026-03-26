@@ -131,7 +131,7 @@ it('should not render media for thread cards even when image exists', async () =
   expect(screen.queryByAltText('Tweet media')).not.toBeInTheDocument();
 });
 
-it('should render quote/repost detail from shared post', async () => {
+it('should render quote tweet using top tweet identity and content', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -149,25 +149,24 @@ it('should render quote/repost detail from shared post', async () => {
   });
 
   expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
-  expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
-    0,
-  );
   expect(
-    await screen.findByText(/DevRel Weekly @devrelweekly/i),
+    await screen.findByText(/Avengers @avengers/i),
   ).toBeInTheDocument();
   expect(
-    await screen.findByAltText("devrelweekly's profile"),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Referenced tweet content'),
+    await screen.findByText('Root tweet'),
   ).toBeInTheDocument();
 });
 
-it('should use creatorTwitter when shared source is unknown', async () => {
+it('should use creatorTwitter for top tweet when source is unknown', async () => {
   renderComponent({
     post: {
       ...basePost,
       subType: 'quote',
+      source: {
+        ...rootSource,
+        id: 'unknown',
+        handle: 'unknown',
+      },
       creatorTwitter: 'root_creator',
       sharedPost: {
         ...referencedPost,
@@ -179,18 +178,14 @@ it('should use creatorTwitter when shared source is unknown', async () => {
           name: 'Referenced post',
           handle: 'unknown',
         },
-        author: {
-          ...referencedAuthor,
-          username: 'creator_twitter',
-        },
       },
     },
   });
 
   expect(
-    (await screen.findAllByText(/@shared_creator/)).length,
+    (await screen.findAllByText(/@root_creator/)).length,
   ).toBeGreaterThan(0);
-  expect(screen.queryByText('@creator_twitter')).not.toBeInTheDocument();
+  expect(screen.queryByText('@shared_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
@@ -207,7 +202,9 @@ it('should use creator identity when source id is unknown', async () => {
     },
   });
 
-  expect(await screen.findByText('root_creator')).toBeInTheDocument();
+  expect(
+    await screen.findByAltText("root_creator's profile"),
+  ).toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
@@ -233,22 +230,12 @@ it('should hide headline and tags for repost cards without repost text', async (
     },
   });
 
-  expect(
-    screen.queryByText(
-      '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-    ),
-  ).not.toBeInTheDocument();
+  // No headline/tags above tweet box — content only in the tweet box itself
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
   expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
-  expect(
-    await screen.findByText(/Y Combinator @ycombinator/i),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Referenced tweet content'),
-  ).toBeInTheDocument();
 });
 
-it('should keep headline and tags for repost cards with repost text', async () => {
+it('should hide headline and tags for repost cards even with repost text', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -263,10 +250,9 @@ it('should keep headline and tags for repost cards with repost text', async () =
     },
   });
 
-  expect(
-    await screen.findByText('@bcherny: RT @ycombinator: Repost with context'),
-  ).toBeInTheDocument();
-  expect(await screen.findByTestId('post-tags')).toBeInTheDocument();
+  // No tags above the tweet box — title appears only inside the tweet box
+  expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
 });
 
 it('should keep actions visible when there is no media and no shared post detail', async () => {
