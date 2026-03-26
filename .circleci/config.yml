@@ -137,9 +137,9 @@ jobs:
           command: pnpm install
       - run:
           name: Build Extension
-          command: pnpm --filter extension build || (dmesg -T | tail -20; exit 1)
+          command: pnpm --filter extension build --stats verbose
           environment:
-            NODE_OPTIONS: --max-old-space-size=4096
+            NODE_OPTIONS: --max-old-space-size=8192
 workflows:
   build:
     jobs:
