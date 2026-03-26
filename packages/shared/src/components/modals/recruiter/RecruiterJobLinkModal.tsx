@@ -210,7 +210,7 @@ export const RecruiterJobLinkModal = ({
             ctaLabelMobile="Browse files"
           />
 
-          {parseError && (
+          {!!parseError && (
             <Alert type={AlertType.Error} title={parseError}>
               <span className="mt-2 flex flex-row flex-wrap gap-1 typo-callout">
                 Still stuck?{' '}
