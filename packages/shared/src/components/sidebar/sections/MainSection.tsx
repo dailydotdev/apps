@@ -65,7 +65,7 @@ export const MainSection = ({
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
           icon: () => (
-            <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
+            <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
           ),
         }
       : {
@@ -158,7 +158,7 @@ export const MainSection = ({
       gameCenter,
       yearInReview,
       plusButton,
-    ].filter(Boolean);
+    ].filter((item): item is SidebarMenuItem => !!item);
   }, [
     ctaCopy,
     isCustomDefaultFeed,

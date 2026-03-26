@@ -444,7 +444,7 @@ export const InnerProfileSettingsMenu = ({
           <ProfileSection
             key={key}
             withSeparator={!lastItem}
-            title={menuItem.title}
+            title={menuItem.title ?? undefined}
             items={Object.entries(menuItem.items)
               .filter(([itemKey, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
@@ -504,7 +504,7 @@ export function ProfileSettingsMenuMobile({
       shouldKeepOpen={shouldKeepOpen}
       drawerProps={{
         isOpen,
-        onClose,
+        onClose: onClose ?? (() => {}),
       }}
     >
       <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
@@ -512,7 +512,7 @@ export function ProfileSettingsMenuMobile({
   );
 }
 
-export function ProfileSettingsMenuDesktop(): ReactElement {
+export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
 
