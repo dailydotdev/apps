@@ -15,13 +15,15 @@ import {
 } from './SettingsContext';
 import { storageWrapper as storage } from '../lib/storageWrapper';
 import { useRefreshToken } from '../hooks/useRefreshToken';
+import useDebounceFn from '../hooks/useDebounceFn';
 import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
 import { checkIsExtension, isIOSNative } from '../lib/func';
 import type { Feed, FeedList } from '../graphql/feed';
-import { gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
+import { ApiError, getApiError, gqlClient } from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
@@ -195,6 +197,33 @@ export const BootDataProvider = ({
     cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
+
+  const [debouncedRefetch] = useDebounceFn(refetch, 200, 1000 * 60);
+
+  useEffect(() => {
+    // subscribe to forbidden errors and in case token expired at the
+    // time of error refetch boot to get the new one
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event.type !== 'updated' || event.action.type !== 'error') {
+        return;
+      }
+
+      const err = event.action.error as unknown as ApiErrorResult;
+
+      if (!getApiError(err, ApiError.Forbidden)) {
+        return;
+      }
+
+      const expiresIn = remoteData?.accessToken?.expiresIn;
+
+      if (expiresIn && new Date(expiresIn) < new Date()) {
+        debouncedRefetch();
+      }
+    });
+
+    return unsubscribe;
+  }, [queryClient, remoteData?.accessToken?.expiresIn, debouncedRefetch]);
+
   const updatedAtActive = user ? dataUpdatedAt : null;
   const updateBootData = useCallback(
     (updatedBootData: Partial<BootCacheData>, update = true) => {
@@ -267,6 +296,26 @@ export const BootDataProvider = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteData]);
+
+  // invalidate forbidden queries when token refreshes to recover from
+  // any auth errors due to token being expired after inactivity
+  useEffect(() => {
+    if (!remoteData?.accessToken?.token) {
+      return;
+    }
+
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        if (query.state.status !== 'error') {
+          return false;
+        }
+
+        const err = query.state.error as unknown as ApiErrorResult;
+
+        return !!getApiError(err, ApiError.Forbidden);
+      },
+    });
+  }, [remoteData?.accessToken?.token, queryClient, updatedAtActive]);
 
   useEffect(() => {
     if (
