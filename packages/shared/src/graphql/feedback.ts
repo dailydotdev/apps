@@ -89,7 +89,6 @@ export const USER_FEEDBACK_QUERY = gql`
           id
           category
           description
-          linearIssueUrl
           status
           screenshotUrl
           createdAt
@@ -167,6 +166,7 @@ export const FEEDBACK_LIST_QUERY = gql`
           id
           category
           description
+          linearIssueUrl
           status
           screenshotUrl
           createdAt
