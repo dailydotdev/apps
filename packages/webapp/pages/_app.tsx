@@ -37,6 +37,7 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
@@ -380,6 +381,7 @@ export default function App(
   const deviceId = useDeviceId();
   useError();
   useManualScrollRestoration();
+  useScrollbarWidth();
 
   const {
     pageProps: { dehydratedState },
