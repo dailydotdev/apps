@@ -34,6 +34,7 @@ import {
   TourIcon,
   FeatherIcon,
   GiftIcon,
+  JoystickIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -187,6 +188,11 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 logEvent({ event_name: LogEvent.OpenHotAndCold });
                 onClose?.();
               },
+            },
+            gameCenter: {
+              title: 'Game Center',
+              icon: JoystickIcon,
+              href: `${webappUrl}game-center`,
             },
             trackAchievement: {
               title: 'Track achievement',
@@ -454,6 +460,13 @@ export const InnerProfileSettingsMenu = ({
 
                 if (
                   itemKey === 'gamification' &&
+                  isQuestsFeatureEnabled !== true
+                ) {
+                  return false;
+                }
+
+                if (
+                  itemKey === 'gameCenter' &&
                   isQuestsFeatureEnabled !== true
                 ) {
                   return false;

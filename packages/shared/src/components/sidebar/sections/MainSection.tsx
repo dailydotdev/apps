@@ -8,6 +8,7 @@ import {
   EyeIcon,
   HomeIcon,
   HotIcon,
+  JoystickIcon,
   SquadIcon,
   TerminalIcon,
   YearInReviewIcon,
@@ -24,6 +25,7 @@ import { useConditionalFeature } from '../../../hooks';
 import {
   featurePlusCtaCopy,
   featureYearInReview,
+  questsFeature,
 } from '../../../lib/featureManagement';
 
 export const MainSection = ({
@@ -40,6 +42,10 @@ export const MainSection = ({
   });
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
+    shouldEvaluate: isLoggedIn,
+  });
+  const { value: showGameCenter } = useConditionalFeature({
+    feature: questsFeature,
     shouldEvaluate: isLoggedIn,
   });
 
@@ -84,6 +90,18 @@ export const MainSection = ({
           itemClassName:
             'bg-action-upvote-float/50 hover:bg-action-upvote-float',
           disableDefaultBackground: true,
+        }
+      : undefined;
+
+    const gameCenter = showGameCenter
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
+          ),
+          title: 'Game Center',
+          path: `${webappUrl}game-center`,
+          isForcedLink: true,
+          requiresLogin: true,
         }
       : undefined;
 
@@ -137,6 +155,7 @@ export const MainSection = ({
         isForcedLink: true,
         requiresLogin: true,
       },
+      gameCenter,
       yearInReview,
       plusButton,
     ].filter(Boolean);
@@ -146,6 +165,7 @@ export const MainSection = ({
     isLoggedIn,
     isPlus,
     onNavTabClick,
+    showGameCenter,
     showYearInReview,
     user,
   ]);
