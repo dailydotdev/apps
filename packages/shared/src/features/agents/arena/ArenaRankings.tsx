@@ -470,7 +470,7 @@ export const ArenaRankings = ({
         'overflow-hidden',
         compact
           ? 'bg-background-default'
-          : 'rounded-16 border border-border-subtlest-tertiary bg-background-subtle',
+          : 'min-w-[42rem] rounded-16 border border-border-subtlest-tertiary',
       )}
     >
       {/* Header */}

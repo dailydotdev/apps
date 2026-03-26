@@ -36,6 +36,8 @@ const DigestSubscribeButton = ({
     return (
       <SourceActionsNotify
         haveNotificationsOn={haveNotificationsOn}
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Tertiary}
         onClick={async (event: MouseEvent) => {
           event.preventDefault();
           event.stopPropagation();
@@ -69,9 +71,9 @@ interface AgentsHighlightsSectionProps {
 }
 
 const HighlightSkeleton = (): ReactElement => (
-  <div className="flex flex-col gap-1 px-3 py-2.5 laptop:px-4">
-    <div className="h-4 w-3/4 animate-pulse rounded-8 bg-surface-float" />
-    <div className="h-3 w-20 animate-pulse rounded-8 bg-surface-float" />
+  <div className="flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2">
+    <div className="h-4 flex-1 animate-pulse rounded-8 bg-surface-hover" />
+    <div className="h-3 w-10 shrink-0 animate-pulse rounded-8 bg-surface-hover" />
   </div>
 );
 
@@ -80,46 +82,52 @@ export const AgentsHighlightsSection = ({
   loading,
   digestSource,
 }: AgentsHighlightsSectionProps): ReactElement | null => {
+  const visibleHighlights = highlights.slice(0, 5);
+
   if (!loading && highlights.length === 0) {
     return null;
   }
 
   return (
-    <section className="w-full border-b border-border-subtlest-tertiary pb-2 pt-4">
-      <header className="mb-1.5 flex items-center gap-2 px-3 laptop:px-4">
-        <h2 className="font-bold text-text-primary typo-title3">
+    <section className="relative flex h-full w-full flex-col overflow-hidden">
+      <header className="flex items-center gap-2 px-0 pb-2 pt-0">
+        <h2 className="feed-highlights-title-gradient self-center font-bold leading-tight typo-title3">
           Happening Now
         </h2>
         {!!digestSource?.id && (
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center">
             <DigestSubscribeButton source={digestSource} />
           </div>
         )}
       </header>
-      {loading ? (
-        <>
-          <HighlightSkeleton />
-          <HighlightSkeleton />
-          <HighlightSkeleton />
-        </>
-      ) : (
-        highlights.map((highlight) => (
-          <Link
-            key={`${highlight.channel}-${highlight.post.id}`}
-            href={highlight.post.commentsPermalink}
-          >
-            <a className="flex items-start gap-2 px-3 py-1.5 transition-colors hover:bg-surface-hover laptop:px-4">
-              <span className="flex-1 break-words text-text-primary typo-callout">
-                {highlight.headline}
-              </span>
-              <RelativeTime
-                dateTime={highlight.highlightedAt}
-                className="ml-auto shrink-0 text-text-tertiary typo-caption2"
-              />
-            </a>
-          </Link>
-        ))
-      )}
+      <div className="flex min-h-0 grow flex-col overflow-y-auto px-0 pb-2.5 pt-0">
+        {loading ? (
+          <>
+            <HighlightSkeleton />
+            <HighlightSkeleton />
+            <HighlightSkeleton />
+          </>
+        ) : (
+          <div className="divide-y divide-border-subtlest-tertiary">
+            {visibleHighlights.map((highlight) => (
+              <Link
+                key={`${highlight.channel}-${highlight.post.id}`}
+                href={highlight.post.commentsPermalink}
+              >
+                <a className="group flex items-start gap-2 py-3 transition-colors">
+                  <span className="line-clamp-2 flex-1 break-words text-text-primary transition-colors typo-callout">
+                    {highlight.headline}
+                  </span>
+                  <RelativeTime
+                    dateTime={highlight.highlightedAt}
+                    className="shrink-0 text-text-tertiary typo-caption2"
+                  />
+                </a>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 };
