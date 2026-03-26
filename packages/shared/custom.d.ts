@@ -1,5 +1,10 @@
 declare module '*.css';
 
+declare module '*.module.css' {
+  const classes: Record<string, string>;
+  export default classes;
+}
+
 type SvgrComponent = React.FC<React.SVGAttributes<SVGElement>>;
 
 declare module 'react-syntax-highlighter/dist/esm/languages/hljs' {

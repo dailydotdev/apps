@@ -5,10 +5,7 @@ import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
 import type { Post } from '../../graphql/posts';
-import {
-  isSocialTwitterPost,
-  isSocialTwitterShareLike,
-} from '../../graphql/posts';
+import { isSocialTwitterPost } from '../../graphql/posts';
 import { SquadPostWidgets } from './SquadPostWidgets';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PostContentProps, PostNavigationProps } from './common';
@@ -97,10 +94,9 @@ function SocialTwitterPostContentRaw({
   }, [post.id, onSendViewPost, user?.id]);
 
   const { title } = useSmartTitle(post);
-  const isQuoteLike = isSocialTwitterShareLike(post);
   const isThread = post.subType === 'thread';
   const shouldRenderPrimaryTweetPreview =
-    isSocialTwitterPost(post) && !isQuoteLike && !isThread;
+    isSocialTwitterPost(post) && !isThread;
   const shouldHideRepostHeadlineAndTags =
     post.subType === 'repost' &&
     !post.contentHtml?.trim() &&
@@ -219,8 +215,7 @@ function SocialTwitterPostContentRaw({
           {isThread && !!post.contentHtml && (
             <Markdown content={post.contentHtml} className="mb-5 break-words" />
           )}
-          {(shouldRenderPrimaryTweetPreview ||
-            (isQuoteLike && !!post.sharedPost)) && (
+          {shouldRenderPrimaryTweetPreview && (
             <EmbeddedTweetPreview
               post={post}
               className="mb-5 w-full"

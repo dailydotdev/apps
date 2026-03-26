@@ -1,0 +1,5 @@
+/* Global overrides for Radix UI portaled elements */
+[data-radix-popper-content-wrapper] {
+  z-index: 1000 !important;
+  min-width: auto !important;
+}

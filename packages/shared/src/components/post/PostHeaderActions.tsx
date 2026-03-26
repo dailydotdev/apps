@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
+  getPostReadTarget,
   getReadPostButtonText,
   isInternalReadType,
   isPostOrSharedPostTwitter,
@@ -41,6 +42,8 @@ export function PostHeaderActions({
   const isTwitter = isPostOrSharedPostTwitter(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const isPoll = post?.type === PostType.Poll;
+  const { target: readTarget } = getPostReadTarget(post);
+  const readHref = readTarget?.permalink ?? post.permalink;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -57,7 +60,7 @@ export function PostHeaderActions({
                 : ButtonVariant.Secondary
             }
             tag="a"
-            href={post.sharedPost?.permalink ?? post.permalink}
+            href={readHref}
             target={openNewTab ? '_blank' : '_self'}
             icon={getReadPostButtonIcon(post)}
             iconPosition={

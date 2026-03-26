@@ -124,6 +124,31 @@ export const getSocialTwitterMetadata = (post: Post) => {
     name: embeddedTweetDisplayName,
   };
 
+  const mainPostDisplayName = resolveBySource(
+    post.source?.id,
+    post.source?.name,
+    post.author?.name || post.creatorTwitterName,
+  );
+
+  const mainPostIdentity = [mainPostDisplayName, sourceHandle]
+    .filter(Boolean)
+    .map((value, index) => (index === 1 ? `@${value}` : value))
+    .join(' ');
+
+  const mainPostAvatarImage =
+    post.creatorTwitterImage ||
+    post.author?.image ||
+    post.source?.image ||
+    fallbackImages.avatar;
+
+  const mainPostAvatarUser = {
+    id:
+      post.author?.id || post.source?.id || sourceHandle || 'main-post-avatar',
+    image: mainPostAvatarImage,
+    username: sourceHandle,
+    name: mainPostDisplayName,
+  };
+
   return {
     sourceHandle,
     sharedPostHandle,
@@ -132,6 +157,8 @@ export const getSocialTwitterMetadata = (post: Post) => {
     embeddedTweetDisplayName,
     embeddedTweetIdentity,
     embeddedTweetAvatarUser,
+    mainPostIdentity,
+    mainPostAvatarUser,
   };
 };
 
@@ -204,9 +231,9 @@ export const useSocialTwitterCardData = (post: Post): SocialTwitterCardData => {
     !!sharedTitle &&
     !sharedTitle.startsWith(rawTitle);
 
-  const hasDailyDevMarkdown =
-    (post.subType === 'thread' && !!normalizedContent) ||
-    (!!post.sharedPost && (!!normalizedContent || hasTitleCommentary));
+  // For social:twitter with a sharedPost (quote/repost), the tweet box handles
+  // all rendering — no separate title or content above it
+  const hasDailyDevMarkdown = post.subType === 'thread' && !!normalizedContent;
 
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
