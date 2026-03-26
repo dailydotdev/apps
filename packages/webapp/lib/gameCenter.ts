@@ -8,6 +8,10 @@ import type {
 import { QuestStatus } from '@dailydotdev/shared/src/graphql/quests';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
+import {
+  getAchievementRewardTotal,
+  getAchievementRewardValue,
+} from '@dailydotdev/shared/src/lib/achievements';
 
 const getDateValue = (value?: string | Date | null): number => {
   if (!value) {
@@ -187,7 +191,7 @@ const dedupeAchievements = (
 export type GameCenterAchievementSummary = {
   unlockedCount: number;
   totalCount: number;
-  totalPoints: number;
+  totalRewardValue: number;
   latestUnlocked: UserAchievement | null;
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
@@ -197,6 +201,7 @@ export type GameCenterAchievementSummary = {
 export const getAchievementSummary = (
   achievements?: UserAchievement[],
   trackedAchievement?: UserAchievement | null,
+  showAchievementXp = false,
 ): GameCenterAchievementSummary => {
   const allAchievements = achievements ?? [];
   const unlocked = allAchievements.filter(
@@ -237,7 +242,10 @@ export const getAchievementSummary = (
         return right.progress - left.progress;
       }
 
-      return right.achievement.points - left.achievement.points;
+      return (
+        getAchievementRewardValue(right.achievement, showAchievementXp) -
+        getAchievementRewardValue(left.achievement, showAchievementXp)
+      );
     })[0] ?? null;
 
   const featuredAchievements = dedupeAchievements([
@@ -250,10 +258,7 @@ export const getAchievementSummary = (
   return {
     unlockedCount: unlocked.length,
     totalCount: allAchievements.length,
-    totalPoints: unlocked.reduce(
-      (total, achievement) => total + (achievement.achievement.points ?? 0),
-      0,
-    ),
+    totalRewardValue: getAchievementRewardTotal(unlocked, showAchievementXp),
     latestUnlocked,
     rarestUnlocked,
     nextToUnlock,

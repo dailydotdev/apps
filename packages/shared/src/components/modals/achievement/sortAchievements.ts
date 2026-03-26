@@ -1,5 +1,6 @@
 import type { UserAchievement } from '../../../graphql/user/achievements';
 import { getTargetCount } from '../../../graphql/user/achievements';
+import { getAchievementRewardValue } from '../../../lib/achievements';
 
 const getProgressRatio = (achievement: UserAchievement): number => {
   const targetCount = getTargetCount(achievement.achievement);
@@ -13,6 +14,7 @@ const getProgressRatio = (achievement: UserAchievement): number => {
 
 export const sortLockedAchievements = (
   achievements: UserAchievement[],
+  showAchievementXp = false,
 ): UserAchievement[] => {
   return achievements
     .filter((achievement) => !achievement.unlockedAt)
@@ -26,6 +28,9 @@ export const sortLockedAchievements = (
         return b.progress - a.progress;
       }
 
-      return b.achievement.points - a.achievement.points;
+      return (
+        getAchievementRewardValue(b.achievement, showAchievementXp) -
+        getAchievementRewardValue(a.achievement, showAchievementXp)
+      );
     });
 };

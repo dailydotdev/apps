@@ -16,7 +16,9 @@ import type { UserAchievement } from '../../graphql/user/achievements';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
 import { useLogContext } from '../../contexts/LogContext';
+import { formatAchievementReward } from '../../lib/achievements';
 import { LogEvent, TargetType } from '../../lib/log';
+import { useAchievementRewardDisplay } from '../../hooks/useAchievementRewardDisplay';
 
 export interface AchievementPickerModalProps extends ModalProps {
   achievements: UserAchievement[];
@@ -36,10 +38,11 @@ export const AchievementPickerModal = ({
   const [isTracking, setIsTracking] = useState(false);
   const [isUntracking, setIsUntracking] = useState(false);
   const { logEvent } = useLogContext();
+  const { showAchievementXp } = useAchievementRewardDisplay();
 
   const lockedAchievements = useMemo(() => {
-    return sortLockedAchievements(achievements);
-  }, [achievements]);
+    return sortLockedAchievements(achievements, showAchievementXp);
+  }, [achievements, showAchievementXp]);
 
   const handleTrack = async (achievementId: string) => {
     setIsTracking(true);
@@ -165,7 +168,10 @@ export const AchievementPickerModal = ({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {userAchievement.achievement.points} pts
+                      {formatAchievementReward(userAchievement.achievement, {
+                        showAchievementXp,
+                        short: !showAchievementXp,
+                      })}
                     </Typography>
                   </div>
                   <ProgressBar

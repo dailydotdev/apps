@@ -3,11 +3,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
+import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchievements';
 import { useActions } from '../../../../hooks';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
 import type { AchievementSyncResult } from '../../../../graphql/user/achievements';
+import { getAchievementRewardTotal } from '../../../../lib/achievements';
 import { AchievementSyncModal } from './AchievementSyncModal';
 import { ACHIEVEMENTS_LAUNCH_DATE } from '../achievements/constants';
 
@@ -24,6 +26,10 @@ export function AchievementSyncPromptCheck({
     isOwner && new Date(user.createdAt) < ACHIEVEMENTS_LAUNCH_DATE;
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
+  const {
+    achievements,
+    showAchievementXp,
+  } = useProfileAchievements(user, isOwner);
   const { isActionsFetched, checkHasCompleted } = useActions();
   const { openModal } = useLazyModal();
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
@@ -81,6 +87,11 @@ export function AchievementSyncPromptCheck({
       isOpen={isSyncModalOpen}
       onRequestClose={() => setIsSyncModalOpen(false)}
       result={syncResult}
+      baseRewardValue={getAchievementRewardTotal(
+        achievements?.filter((achievement) => achievement.unlockedAt !== null) ??
+          [],
+        showAchievementXp,
+      )}
       isPending={isSyncing}
     />
   );

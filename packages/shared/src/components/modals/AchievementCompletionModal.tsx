@@ -22,6 +22,8 @@ import {
 } from '../typography/Typography';
 import { Checkbox } from '../fields/Checkbox';
 import { getTargetCount } from '../../graphql/user/achievements';
+import { formatAchievementReward } from '../../lib/achievements';
+import { useAchievementRewardDisplay } from '../../hooks/useAchievementRewardDisplay';
 import { sortLockedAchievements } from './achievement/sortAchievements';
 
 const SPARKLE_DURATION_MS = 4500;
@@ -54,6 +56,7 @@ export const AchievementCompletionModal = ({
   const { trackedAchievement, trackAchievement } = useTrackedAchievement(
     user?.id,
   );
+  const { showAchievementXp } = useAchievementRewardDisplay();
 
   const isOptedOut = checkHasCompleted(ActionType.DisableAchievementCompletion);
 
@@ -80,8 +83,10 @@ export const AchievementCompletionModal = ({
   );
 
   const lockedAchievements = useMemo(() => {
-    return achievements ? sortLockedAchievements(achievements) : [];
-  }, [achievements]);
+    return achievements
+      ? sortLockedAchievements(achievements, showAchievementXp)
+      : [];
+  }, [achievements, showAchievementXp]);
 
   useEffect(() => {
     if (!showSparkles) {
@@ -209,7 +214,10 @@ export const AchievementCompletionModal = ({
                     {unlockedAchievement.achievement.description}
                   </Typography>
                   <div className="text-text-invert rounded-14 bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
-                    +{unlockedAchievement.achievement.points} points
+                    {formatAchievementReward(unlockedAchievement.achievement, {
+                      showAchievementXp,
+                      signed: true,
+                    })}
                   </div>
                 </div>
 
@@ -353,7 +361,13 @@ export const AchievementCompletionModal = ({
                           type={TypographyType.Footnote}
                           color={TypographyColor.Tertiary}
                         >
-                          {userAchievement.achievement.points} pts
+                          {formatAchievementReward(
+                            userAchievement.achievement,
+                            {
+                              showAchievementXp,
+                              short: !showAchievementXp,
+                            },
+                          )}
                         </Typography>
                       </div>
                       <div className="rounded-sm mt-1 h-1.5 w-full overflow-hidden bg-accent-pepper-subtler">

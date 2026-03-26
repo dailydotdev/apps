@@ -21,8 +21,10 @@ import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import HoverCard from '../../../../components/cards/common/HoverCard';
+import { getAchievementRewardValue } from '../../../../lib/achievements';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { PinIcon } from '../../../../components/icons';
+import { useAchievementRewardDisplay } from '../../../../hooks/useAchievementRewardDisplay';
 import {
   AchievementRarityTier,
   getAchievementRarityTier,
@@ -38,6 +40,7 @@ interface AchievementCardProps {
   onTrack?: (achievementId: string) => Promise<void>;
   onUntrack?: () => Promise<void>;
   isUntrackPending?: boolean;
+  showXpValue?: boolean;
 }
 
 export function AchievementCard({
@@ -48,13 +51,19 @@ export function AchievementCard({
   onTrack,
   onUntrack,
   isUntrackPending = false,
+  showXpValue,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
+  const { showAchievementXp } = useAchievementRewardDisplay();
   const targetCount = getTargetCount(achievement);
   const isUnlocked = unlockedAt !== null;
   const progressPercentage = Math.min((progress / targetCount) * 100, 100);
   const showProgress =
     achievement.type === AchievementType.Milestone && !isUnlocked;
+  const shouldShowXpValue = showXpValue ?? showAchievementXp;
+  const shouldShowXpLabel =
+    shouldShowXpValue && achievement.xp != null;
+  const rewardValue = getAchievementRewardValue(achievement, shouldShowXpValue);
   const rarityTier = isUnlocked
     ? getAchievementRarityTier(achievement.rarity)
     : null;
@@ -129,7 +138,15 @@ export function AchievementCard({
             }
             bold
           >
-            {achievement.points}
+            {rewardValue}
+            {shouldShowXpLabel && (
+              <>
+                {' '}
+                <span className="font-inherit uppercase text-accent-avocado-default">
+                  XP
+                </span>
+              </>
+            )}
           </Typography>
         </div>
       </div>

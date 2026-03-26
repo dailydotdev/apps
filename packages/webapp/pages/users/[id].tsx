@@ -5,8 +5,10 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import { NextSeo } from 'next-seo';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
+  getLeaderboardTitle,
   isCompanyLeaderboard,
   LeaderboardType,
   leaderboardQueries,
@@ -70,6 +72,19 @@ const LeaderboardDetailPage = ({
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
+  const leaderboardLimit = getLeaderboardLimit(leaderboardType);
+  const displayTitle = getLeaderboardTitle(
+    leaderboardType,
+    isQuestsFeatureEnabled === true,
+  );
+  const seoTitles = getPageSeoTitles(`${displayTitle} - Developer leaderboard`);
+  const pageSeo = {
+    title: seoTitles.title,
+    openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
+    description: `Check out the top ${leaderboardLimit} ${
+      isCompany ? 'companies' : 'developers'
+    } for ${displayTitle.toLowerCase()} on daily.dev.`,
+  };
 
   useEffect(() => {
     if (
@@ -90,7 +105,7 @@ const LeaderboardDetailPage = ({
 
   if (
     isLoading ||
-    !title ||
+    !displayTitle ||
     (isLevelLeaderboard &&
       (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true))
   ) {
@@ -99,6 +114,7 @@ const LeaderboardDetailPage = ({
 
   return (
     <PageWrapperLayout>
+      {displayTitle !== title && <NextSeo {...pageSeo} />}
       <div className="mb-6 hidden justify-between laptop:flex">
         <BreadCrumbs>
           <SquadIcon size={IconSize.XSmall} secondary />
@@ -106,19 +122,19 @@ const LeaderboardDetailPage = ({
             <a className="hover:underline">Leaderboard</a>
           </Link>
           <span className="px-1">/</span>
-          {title}
+          {displayTitle}
         </BreadCrumbs>
       </div>
       <div className="mx-auto w-full max-w-screen-laptop">
         {isCompany ? (
           <CompanyTopList
-            containerProps={{ title }}
+            containerProps={{ title: displayTitle }}
             items={companyItems || []}
             isLoading={isLoading}
           />
         ) : (
           <UserTopList
-            containerProps={{ title }}
+            containerProps={{ title: displayTitle }}
             items={userItems || []}
             isLoading={isLoading}
             concatScore={concatScore}

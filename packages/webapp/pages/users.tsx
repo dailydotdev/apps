@@ -4,6 +4,7 @@ import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
+  getLeaderboardTitle,
   HIGHEST_LEVEL_QUERY,
   LEADERBOARD_QUERY,
   LeaderboardType,
@@ -151,7 +152,10 @@ const LeaderboardPage = ({
         />
         <UserTopList
           containerProps={{
-            title: 'Most achievement points',
+            title: getLeaderboardTitle(
+              LeaderboardType.MostAchievementPoints,
+              isQuestsFeatureEnabled === true,
+            ),
             titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
           }}
           items={mostAchievementPoints}

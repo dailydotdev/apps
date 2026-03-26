@@ -72,7 +72,6 @@ export function ProfileAchievements({
     achievements,
     unlockedCount,
     totalCount,
-    totalPoints,
     isPending,
     isError,
   } = useProfileAchievements(user);
@@ -148,14 +147,14 @@ export function ProfileAchievements({
               color={TypographyColor.Primary}
               bold
             >
-              {totalPoints.toLocaleString()}
+              {unlockedCount}/{totalCount}
             </Typography>
           </div>
           <Typography
             type={TypographyType.Body}
             color={TypographyColor.Tertiary}
           >
-            ({unlockedCount}/{totalCount})
+            unlocked
           </Typography>
         </div>
         {loggedUser && !isOwner && (

@@ -88,6 +88,17 @@ export const leaderboardTypeToTitle: Record<LeaderboardType, string> = {
   [LeaderboardType.HighestLevel]: 'Highest level',
 };
 
+export const getLeaderboardTitle = (
+  type: LeaderboardType,
+  showAchievementXp = false,
+): string => {
+  if (type === LeaderboardType.MostAchievementPoints && showAchievementXp) {
+    return 'Most achievement XP';
+  }
+
+  return leaderboardTypeToTitle[type];
+};
+
 export const isCompanyLeaderboard = (type: LeaderboardType): boolean =>
   type === LeaderboardType.MostVerifiedUsers;
 
