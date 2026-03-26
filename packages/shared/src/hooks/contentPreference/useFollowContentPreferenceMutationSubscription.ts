@@ -60,8 +60,8 @@ export const useFollowContentPreferenceMutationSubscription = ({
                 if (edge.node.type === entity) {
                   const newContentPreferenceEdge = structuredClone(edge);
                   const { node } = newContentPreferenceEdge;
-                  const contentPreference = { status: nextStatus };
-
+                  const contentPreference =
+                    nextStatus != null ? { status: nextStatus } : undefined;
                   const followingKeys = [
                     RequestKey.UserFollowing,
                     RequestKey.UserBlocked,
@@ -80,7 +80,7 @@ export const useFollowContentPreferenceMutationSubscription = ({
                     node.user.contentPreference = contentPreference;
                   }
 
-                  if (node.referenceId === entityId) {
+                  if (node.referenceId === entityId && nextStatus != null) {
                     node.status = nextStatus;
                   }
 

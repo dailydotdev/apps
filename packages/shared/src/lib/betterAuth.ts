@@ -1,4 +1,6 @@
 import { apiUrl } from './config';
+import { gqlClient } from '../graphql/common';
+import { SET_PASSWORD_MUTATION } from '../graphql/users';
 
 export type BetterAuthResponse = {
   error?: string;
@@ -158,10 +160,13 @@ export const betterAuthSignUp = async ({
   );
 };
 
+type SocialAdditionalData = Record<string, unknown>;
+
 const getBetterAuthSocialRedirect = async (
   path: string,
   provider: string,
   callbackURL: string,
+  additionalData?: SocialAdditionalData,
 ): Promise<BetterAuthSocialRedirectResponse> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
@@ -178,6 +183,7 @@ const getBetterAuthSocialRedirect = async (
       provider,
       callbackURL: absoluteCallbackURL,
       disableRedirect: true,
+      ...(additionalData && { additionalData }),
     },
     'Failed to get social auth URL',
   );
@@ -191,8 +197,14 @@ const getBetterAuthSocialRedirect = async (
 export const getBetterAuthSocialRedirectData = (
   provider: string,
   callbackURL: string,
+  additionalData?: SocialAdditionalData,
 ): Promise<BetterAuthSocialRedirectResponse> =>
-  getBetterAuthSocialRedirect('sign-in/social', provider, callbackURL);
+  getBetterAuthSocialRedirect(
+    'sign-in/social',
+    provider,
+    callbackURL,
+    additionalData,
+  );
 
 export const getBetterAuthSocialUrl = (
   provider: string,
@@ -204,10 +216,12 @@ export const betterAuthSignInWithIdToken = async ({
   provider,
   token,
   nonce,
+  additionalData,
 }: {
   provider: string;
   token: string;
   nonce?: string;
+  additionalData?: SocialAdditionalData;
 }): Promise<BetterAuthResponse> => {
   return betterAuthPost(
     'sign-in/social',
@@ -217,6 +231,7 @@ export const betterAuthSignInWithIdToken = async ({
         token,
         ...(nonce && { nonce }),
       },
+      ...(additionalData && { additionalData }),
     },
     'Native sign in failed',
   );
@@ -266,11 +281,14 @@ export const unlinkBetterAuthAccount = async (
 export const betterAuthSetPassword = async (
   newPassword: string,
 ): Promise<{ status?: boolean; error?: string; code?: string }> => {
-  return betterAuthPost(
-    'set-password',
-    { newPassword },
-    'Failed to set password',
-  );
+  try {
+    await gqlClient.request(SET_PASSWORD_MUTATION, { newPassword });
+    return { status: true };
+  } catch (error) {
+    return {
+      error: getBetterAuthErrorMessage(error, 'Failed to set password'),
+    };
+  }
 };
 
 export const betterAuthChangeEmail = async (

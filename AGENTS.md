@@ -194,6 +194,8 @@ pnpm --filter extension build:chrome # Build Chrome extension
 
 **IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
 
+**IMPORTANT**: For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` or the package's strict `tsc` command before finishing. Do not add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
+
 ## Where Should I Put This Code?
 
 ```
@@ -263,6 +265,8 @@ const { value: isEnabled } = useConditionalFeature({
 });
 const showComponent = shouldEvaluate && isEnabled;
 ```
+
+When removing a feature flag, do not assume the gated UI should become always-on. Match the product request explicitly: either delete the gated behavior entirely or keep it permanently, and remove dead code/tests for the discarded path.
 
 ## Key Configuration Files
 

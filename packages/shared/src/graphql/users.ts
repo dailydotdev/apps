@@ -292,6 +292,14 @@ export const HIDE_READING_HISTORY_MUTATION = gql`
   }
 `;
 
+export const SET_PASSWORD_MUTATION = gql`
+  mutation SetPassword($newPassword: String!) {
+    setPassword(newPassword: $newPassword) {
+      _
+    }
+  }
+`;
+
 export const UPDATE_USER_PROFILE_MUTATION = gql`
   mutation UpdateUserProfile($data: UpdateUserInput, $upload: Upload) {
     updateUserProfile(data: $data, upload: $upload) {
@@ -794,11 +802,6 @@ export const TOP_READER_BADGE_BY_ID = gql`
   query TopReaderBadgeById($id: ID!) {
     topReaderBadgeById(id: $id) {
       ...TopReader
-      user {
-        name
-        username
-        image
-      }
     }
   }
 

@@ -9,10 +9,11 @@ import { formatDataTileValue } from '../lib/numberFormat';
 
 interface DataTileProps {
   label: string;
-  value: number;
+  value: number | ReactNode;
   info?: string;
   icon?: ReactNode;
   subtitle?: ReactNode;
+  valueClassName?: string;
   className?: {
     container?: string;
   };
@@ -24,6 +25,7 @@ export const DataTile: React.FC<DataTileProps> = ({
   info,
   icon,
   subtitle,
+  valueClassName,
   className,
 }) => {
   return (
@@ -41,10 +43,14 @@ export const DataTile: React.FC<DataTileProps> = ({
           </span>
         </Tooltip>
       </span>
-      <span className="flex flex-row items-center gap-1">
+      <span className="flex min-w-0 flex-row items-center gap-1">
         {icon}
-        <Typography type={TypographyType.Title2} bold>
-          {formatDataTileValue(value)}
+        <Typography
+          type={TypographyType.Title2}
+          bold
+          className={classNames('min-w-0', valueClassName)}
+        >
+          {typeof value === 'number' ? formatDataTileValue(value) : value}
         </Typography>
       </span>
       {subtitle}
