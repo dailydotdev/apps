@@ -216,7 +216,10 @@ export const RecruiterJobLinkModal = ({
                 Still stuck?{' '}
                 {hasIntercom && (
                   <>
-                    <ClickableText onClick={() => window.Intercom?.('show')}>
+                    <ClickableText
+                      className="!text-text-link"
+                      onClick={() => window.Intercom?.('show')}
+                    >
                       Chat with our team
                     </ClickableText>
                     {' or '}
@@ -224,6 +227,7 @@ export const RecruiterJobLinkModal = ({
                 )}
                 <ClickableText
                   tag="a"
+                  className="!text-text-link"
                   href={recruiterScheduleUrl}
                   target="_blank"
                   rel={anchorDefaultRel}
