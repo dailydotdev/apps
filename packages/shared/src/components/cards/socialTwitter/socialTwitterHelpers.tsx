@@ -233,8 +233,7 @@ export const useSocialTwitterCardData = (post: Post): SocialTwitterCardData => {
 
   // For social:twitter with a sharedPost (quote/repost), the tweet box handles
   // all rendering — no separate title or content above it
-  const hasDailyDevMarkdown =
-    post.subType === 'thread' && !!normalizedContent;
+  const hasDailyDevMarkdown = post.subType === 'thread' && !!normalizedContent;
 
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
 
