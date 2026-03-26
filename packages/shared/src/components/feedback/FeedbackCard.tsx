@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { OpenLinkIcon } from '../icons';
 import {
   Typography,
   TypographyColor,
@@ -68,6 +69,20 @@ export const FeedbackCard = ({
           onClick={onToggleExpand}
         >
           {isExpanded ? 'Show less' : 'Show more'}
+        </Button>
+      )}
+
+      {item.linearIssueUrl && (
+        <Button
+          className="mt-3 w-fit"
+          variant={ButtonVariant.Tertiary}
+          tag="a"
+          href={item.linearIssueUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          icon={<OpenLinkIcon />}
+        >
+          Open in Linear
         </Button>
       )}
 
