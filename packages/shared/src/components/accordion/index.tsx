@@ -61,7 +61,9 @@ export const RadixAccordion = ({
         >
           <RadixAccordionHeader>{item.title}</RadixAccordionHeader>
           <AccordionContent className={styles.AccordionContent}>
-            <div className={styles.AccordionContentText}>{item.description}</div>
+            <div className={styles.AccordionContentText}>
+              {item.description}
+            </div>
           </AccordionContent>
         </AccordionItem>
       ))}
