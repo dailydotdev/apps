@@ -64,7 +64,6 @@ if (!rootSource) {
 }
 
 const referencedSource = referencedPost.source;
-const referencedAuthor = referencedPost.author;
 
 const defaultProps: PostCardProps = {
   post: basePost,
@@ -149,12 +148,8 @@ it('should render quote tweet using top tweet identity and content', async () =>
   });
 
   expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
-  expect(
-    await screen.findByText(/Avengers @avengers/i),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Root tweet'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/Avengers @avengers/i)).toBeInTheDocument();
+  expect(await screen.findByText('Root tweet')).toBeInTheDocument();
 });
 
 it('should use creatorTwitter for top tweet when source is unknown', async () => {
@@ -182,9 +177,9 @@ it('should use creatorTwitter for top tweet when source is unknown', async () =>
     },
   });
 
-  expect(
-    (await screen.findAllByText(/@root_creator/)).length,
-  ).toBeGreaterThan(0);
+  expect((await screen.findAllByText(/@root_creator/)).length).toBeGreaterThan(
+    0,
+  );
   expect(screen.queryByText('@shared_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
