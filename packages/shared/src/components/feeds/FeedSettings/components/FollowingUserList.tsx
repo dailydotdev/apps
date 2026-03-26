@@ -9,29 +9,38 @@ import { checkFetchMore } from '../../../containers/InfiniteScrolling';
 import { Origin } from '../../../../lib/log';
 import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { FollowButton } from '../../../contentPreference/FollowButton';
+import type { UserShortProfile } from '../../../../lib/user';
+import { ButtonVariant } from '../../../buttons/Button';
 
-export const FollowingUserList = (): ReactElement => {
+export const FollowingUserList = (): ReactElement | null => {
   const { user } = useAuthContext();
   const { feed } = useFeedSettingsEditContext();
+  const userId = user?.id;
+  const feedId = feed?.id;
 
   const queryResult = useFollowingQuery({
-    id: user.id,
+    id: userId ?? '',
     entity: ContentPreferenceType.User,
-    feedId: feed.id,
+    feedId,
   });
 
   const { data, isFetchingNextPage, fetchNextPage } = queryResult;
-  const users = useMemo(() => {
-    return data?.pages.reduce((acc, p) => {
-      p?.edges.forEach(({ node }) => {
-        acc.push(node.referenceUser);
-      });
+  const users = useMemo<UserShortProfile[]>(() => {
+    return (
+      data?.pages.reduce<UserShortProfile[]>((acc, p) => {
+        p?.edges.forEach(({ node }) => {
+          if (node.referenceUser) {
+            acc.push(node.referenceUser as unknown as UserShortProfile);
+          }
+        });
 
-      return acc;
-    }, []);
+        return acc;
+      }, []) ?? []
+    );
   }, [data]);
 
-  if (queryResult.isPending) {
+  if (!userId || !feedId || queryResult.isPending) {
     return null;
   }
 
@@ -39,17 +48,26 @@ export const FollowingUserList = (): ReactElement => {
     <UserList
       users={users}
       emptyPlaceholder={<p>Can&#39;t find any users</p>}
+      additionalContent={(listedUser) => (
+        <FollowButton
+          alwaysShow
+          feedId={feedId}
+          entityId={listedUser.id}
+          type={ContentPreferenceType.User}
+          status={listedUser.contentPreference?.status}
+          entityName={`@${listedUser.username}`}
+          origin={Origin.FollowFilter}
+          showSubscribe={false}
+          copyType={CopyType.Custom}
+          variant={ButtonVariant.Primary}
+        />
+      )}
       scrollingProps={{
         isFetchingNextPage,
         canFetchMore: checkFetchMore(queryResult),
         fetchNextPage,
       }}
       userInfoProps={{
-        origin: Origin.FollowFilter,
-        showFollow: true,
-        showSubscribe: false,
-        copyType: CopyType.Custom,
-        feedId: feed.id,
         rel: anchorDefaultRel,
         target: '_blank',
       }}
