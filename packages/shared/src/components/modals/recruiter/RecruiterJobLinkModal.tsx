@@ -22,8 +22,11 @@ import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
 } from '../../../features/opportunity/mutations';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { ApiErrorResult } from '../../../graphql/common';
+import Alert, { AlertType } from '../../widgets/Alert';
+import { ClickableText } from '../../buttons/ClickableText';
+import { recruiterScheduleUrl } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
@@ -56,7 +59,8 @@ export const RecruiterJobLinkModal = ({
   const [file, setFile] = useState<File | null>(null);
   const hasAutoSubmitted = useRef(false);
 
-  const { displayToast } = useToastNotification();
+  const [parseError, setParseError] = useState<string>('');
+
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(
     PersistentContextKeys.PendingOpportunityId,
     null,
@@ -65,7 +69,7 @@ export const RecruiterJobLinkModal = ({
   const { mutateAsync: parseOpportunity, isPending } = useMutation({
     ...parseOpportunityMutationOptions(),
     onError: (err: ApiErrorResult) => {
-      displayToast(getParseOpportunityMutationErrorMessage(err));
+      setParseError(getParseOpportunityMutationErrorMessage(err));
     },
   });
 
@@ -90,6 +94,7 @@ export const RecruiterJobLinkModal = ({
       const { value } = e.target;
       setJobLink(value);
       validateJobLink(value);
+      setParseError('');
       if (value.trim()) {
         setFile(null);
       }
@@ -101,9 +106,11 @@ export const RecruiterJobLinkModal = ({
     setFile(files[0]);
     setJobLink('');
     setError('');
+    setParseError('');
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    setParseError('');
     const payload: { url?: string; file?: File } = {};
 
     if (jobLink) {
@@ -197,6 +204,27 @@ export const RecruiterJobLinkModal = ({
             ctaLabelDesktop="Browse files"
             ctaLabelMobile="Browse files"
           />
+
+          {parseError && (
+            <Alert type={AlertType.Error} title={parseError}>
+              <span className="mt-2 flex flex-row flex-wrap gap-1 typo-callout">
+                Still stuck?{' '}
+                <ClickableText onClick={() => window.Intercom?.('show')}>
+                  Chat with our team
+                </ClickableText>
+                {' or '}
+                <ClickableText
+                  tag="a"
+                  href={recruiterScheduleUrl}
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                >
+                  schedule a meeting
+                </ClickableText>{' '}
+                with us.
+              </span>
+            </Alert>
+          )}
 
           <Button
             variant={ButtonVariant.Primary}
