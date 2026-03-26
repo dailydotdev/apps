@@ -165,6 +165,13 @@ const baseConfig = {
       hash: true,
       filename: 'companion.html',
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(viewsPath, 'frame.html'),
+      inject: 'body',
+      chunks: ['frame'],
+      hash: true,
+      filename: 'frame.html',
+    }),
     // write css file(s) to build folder
     new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
     // copy static assets
@@ -190,6 +197,7 @@ const mainConfig = {
     manifest: path.join(sourcePath, 'manifest.json'),
     content: path.join(sourcePath, 'content'),
     companion: path.join(sourcePath, 'companion', 'index.tsx'),
+    frame: path.join(sourcePath, 'frame', 'index.ts'),
     newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
   },
   plugins: [

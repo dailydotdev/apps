@@ -25,9 +25,14 @@
     "https://*.dailynow.co/"
   ],
   "__dev__permissions": ["storage", "scripting"],
-  "__dev__host_permissions": ["http://localhost/", "https://*.local.fylla.dev/"],
+  "__dev__host_permissions": [
+    "http://localhost/",
+    "https://*.local.fylla.dev/",
+    "https://staging.daily.dev/",
+    "https://*.staging.daily.dev/"
+  ],
   "__firefox|dev__permissions": ["storage", "http://localhost/", "https://*.local.fylla.dev/"],
-  "optional_permissions": ["topSites"],
+  "optional_permissions": ["topSites", "declarativeNetRequestWithHostAccess"],
   "__firefox__optional_permissions": ["topSites", "*://*/*"],
   "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
   "content_security_policy": {
@@ -57,14 +62,22 @@
     {
       "resources": ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
       "matches": ["*://*/*"]
+    },
+    {
+      "resources": ["frame.html", "js/frame.bundle.js"],
+      "matches": [
+        "https://daily.dev/*",
+        "https://*.daily.dev/*",
+        "https://staging.daily.dev/*",
+        "https://*.staging.daily.dev/*"
+      ],
+      "__dev__matches": [
+        "https://staging.daily.dev/*",
+        "https://*.staging.daily.dev/*",
+        "https://*.local.fylla.dev/*"
+      ]
     }
   ],
-  "__firefox__web_accessible_resources":  ["index.html", "companion.html", "js/companion.bundle.js", "css/companion.css"],
-  "__firefox__browser_specific_settings": {
-    "gecko": {
-      "strict_min_version": "58.0"
-    }
-  },
 
   "__chrome__offline_enabled": true
 }

@@ -4,6 +4,8 @@ export enum ExtensionMessageType {
   FetchRequest = 'FETCH_REQUEST',
   DisableCompanion = 'DISABLE_COMPANION',
   RequestUpdate = 'REQUEST_UPDATE',
+  EnableFrameEmbeddingForTab = 'ENABLE_FRAME_EMBEDDING_FOR_TAB',
+  DisableFrameEmbeddingForTab = 'DISABLE_FRAME_EMBEDDING_FOR_TAB',
 }
 
 export const getCompanionWrapper = (): HTMLElement | null =>
