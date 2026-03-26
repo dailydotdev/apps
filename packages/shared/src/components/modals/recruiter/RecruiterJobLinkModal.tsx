@@ -60,11 +60,16 @@ export const RecruiterJobLinkModal = ({
   const hasAutoSubmitted = useRef(false);
 
   const [parseError, setParseError] = useState<string>('');
+  const [hasIntercom, setHasIntercom] = useState(false);
 
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(
     PersistentContextKeys.PendingOpportunityId,
     null,
   );
+
+  useEffect(() => {
+    setHasIntercom(typeof window !== 'undefined' && !!window.Intercom);
+  }, []);
 
   const { mutateAsync: parseOpportunity, isPending } = useMutation({
     ...parseOpportunityMutationOptions(),
@@ -209,10 +214,14 @@ export const RecruiterJobLinkModal = ({
             <Alert type={AlertType.Error} title={parseError}>
               <span className="mt-2 flex flex-row flex-wrap gap-1 typo-callout">
                 Still stuck?{' '}
-                <ClickableText onClick={() => window.Intercom?.('show')}>
-                  Chat with our team
-                </ClickableText>
-                {' or '}
+                {hasIntercom && (
+                  <>
+                    <ClickableText onClick={() => window.Intercom?.('show')}>
+                      Chat with our team
+                    </ClickableText>
+                    {' or '}
+                  </>
+                )}
                 <ClickableText
                   tag="a"
                   href={recruiterScheduleUrl}
