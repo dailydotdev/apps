@@ -122,7 +122,7 @@ jobs:
   build_extension:
     docker:
       - image: cimg/node:24.14
-    resource_class: xlarge
+    resource_class: medium
     steps:
       - checkout
       - run:
@@ -138,8 +138,6 @@ jobs:
       - run:
           name: Build Extension
           command: pnpm --filter extension build
-          environment:
-            NODE_OPTIONS: --max-old-space-size=8192
 workflows:
   build:
     jobs:
@@ -162,6 +160,3 @@ workflows:
       - build_extension:
           requires:
             - install_deps
-          filters:
-            branches:
-              only: main
