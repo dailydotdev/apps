@@ -102,9 +102,9 @@ import type { AnalyticsNumberList } from '../../../../../shared/src/components/a
 
 const ImpressionsChart = dynamic(
   () =>
-    import(
-      '../../../../../shared/src/components/analytics/ImpressionsChart'
-    ).then((mod) => mod.ImpressionsChart),
+    import('../../../../../shared/src/components/analytics/ImpressionsChart').then(
+      (mod) => mod.ImpressionsChart,
+    ),
   {
     loading: () => <div className="h-40 w-full" />,
   },

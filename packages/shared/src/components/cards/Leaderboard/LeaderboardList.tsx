@@ -5,8 +5,9 @@ import type { LeaderboardListContainerProps } from './common';
 import classed from '../../../lib/classed';
 import { ElementPlaceholder } from '../../ElementPlaceholder';
 
-export interface CommonLeaderboardProps<T extends Iterable<unknown>>
-  extends Omit<LeaderboardListProps, 'children'> {
+export interface CommonLeaderboardProps<
+  T extends Iterable<unknown>,
+> extends Omit<LeaderboardListProps, 'children'> {
   items: T;
 }
 

@@ -41,8 +41,8 @@ it('should show label when input is set', () => {
 
 it('should mark field as invalid', async () => {
   renderComponent({ required: true });
-  userEvent.tab();
-  userEvent.tab();
+  await userEvent.tab();
+  await userEvent.tab();
   await waitFor(() =>
     expect(screen.getByTestId('field')).toHaveClass('invalid'),
   );
@@ -50,8 +50,8 @@ it('should mark field as invalid', async () => {
 
 it('should set hint role as alert when invalid', async () => {
   renderComponent({ required: true, hint: 'Hint' });
-  userEvent.tab();
-  userEvent.tab();
+  await userEvent.tab();
+  await userEvent.tab();
   const el = screen.getByText('Hint');
   await waitFor(() => expect(el).toHaveStyle({ color: 'var(--status-error)' }));
   await waitFor(() => expect(el).toHaveAttribute('role', 'alert'));

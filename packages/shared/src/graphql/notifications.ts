@@ -203,8 +203,10 @@ export interface NotificationPreference {
   type: NotificationPreferenceType;
 }
 
-export interface NotificationPreferenceParams
-  extends Pick<NotificationPreference, 'referenceId'> {
+export interface NotificationPreferenceParams extends Pick<
+  NotificationPreference,
+  'referenceId'
+> {
   type: NotificationType;
 }
 

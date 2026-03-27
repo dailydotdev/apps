@@ -294,7 +294,8 @@ interface UpdateInfiniteCacheProps<
 export const updateInfiniteCache = <
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
-  TData extends TEntity[TKey]['edges'][0]['node'] = TEntity[TKey]['edges'][0]['node'],
+  TData extends TEntity[TKey]['edges'][0]['node'] =
+    TEntity[TKey]['edges'][0]['node'],
   TReturn extends InfiniteData<TEntity> = InfiniteData<TEntity>,
 >({
   client,

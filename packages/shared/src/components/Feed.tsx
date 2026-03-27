@@ -79,7 +79,8 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+  extends
+    Pick<UseFeedOptionalParams<T>, 'options'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: QueryKey;

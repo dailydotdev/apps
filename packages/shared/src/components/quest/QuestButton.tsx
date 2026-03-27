@@ -1505,8 +1505,8 @@ export const QuestButton = ({
 
         const baseValue =
           rewardType === QuestRewardType.Cores
-            ? user?.balance?.amount ?? 0
-            : user?.reputation ?? 0;
+            ? (user?.balance?.amount ?? 0)
+            : (user?.reputation ?? 0);
         const latestHitAt = hitSchedule.reduce(
           (maxHitAt, hit) => Math.max(maxHitAt, hit.hitAt),
           0,

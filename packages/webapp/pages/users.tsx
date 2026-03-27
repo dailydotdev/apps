@@ -192,9 +192,10 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
-      LEADERBOARD_QUERY,
-    );
+    const res =
+      await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
+        LEADERBOARD_QUERY,
+      );
 
     let highestLevel: UserLeaderboard[] = [];
     let isHighestLevelSupported = false;

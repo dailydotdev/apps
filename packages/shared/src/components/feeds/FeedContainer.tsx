@@ -94,7 +94,9 @@ const cardClass = ({
   if (isHorizontal) {
     return 'auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*+1)/var(--num-cards))] tablet:auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*-1)/var(--num-cards))]';
   }
-  return isList ? 'grid-cols-1' : cardListClass[numberOfCards] ?? 'grid-cols-1';
+  return isList
+    ? 'grid-cols-1'
+    : (cardListClass[numberOfCards] ?? 'grid-cols-1');
 };
 
 const feedNameToHeading: Record<

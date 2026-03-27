@@ -38,7 +38,7 @@ const buildPost = (overrides: Partial<Post> = {}): Post =>
       companies: [],
     },
     ...overrides,
-  } as unknown as Post);
+  }) as unknown as Post;
 
 const buildComment = (overrides: Partial<Comment> = {}): Comment =>
   ({
@@ -57,7 +57,7 @@ const buildComment = (overrides: Partial<Comment> = {}): Comment =>
     },
     children: { edges: [] },
     ...overrides,
-  } as unknown as Comment);
+  }) as unknown as Comment;
 
 describe('PostSEOSchema JSON-LD helpers', () => {
   it('returns parseable JSON-LD for article posts', () => {

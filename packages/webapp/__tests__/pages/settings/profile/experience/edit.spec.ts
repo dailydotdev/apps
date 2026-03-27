@@ -32,7 +32,7 @@ const createMockContext = (
       },
     },
     res: {},
-  } as unknown as GetServerSidePropsContext);
+  }) as unknown as GetServerSidePropsContext;
 
 const mockExperience = {
   id: 'exp-123',
