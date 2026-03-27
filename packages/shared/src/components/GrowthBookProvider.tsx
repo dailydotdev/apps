@@ -34,7 +34,7 @@ const ServerError = dynamic(
 );
 type GetFeatureValue = <T extends JSONValue>(
   feature: Feature<T>,
-) => WidenPrimitives<T>;
+) => WidenPrimitives<T> | undefined;
 
 export type FeaturesReadyContextValue = {
   ready: boolean;
@@ -53,7 +53,7 @@ export const useFeaturesReadyContext = (): FeaturesReadyContextValue =>
 
 export type GrowthBookProviderProps = {
   app: BootApp;
-  user: BootCacheData['user'];
+  user?: BootCacheData['user'];
   deviceId: string;
   version?: string;
   experimentation?: BootCacheData['exp'];
@@ -78,7 +78,7 @@ export const GrowthBookProvider = ({
         method: 'POST',
         body: JSON.stringify({
           event_timestamp: new Date(),
-          user_id: user.id,
+          user_id: user?.id,
           device_id: deviceId,
           experiment_id: data.experimentId,
           variation_id: data.variationId,
@@ -126,6 +126,9 @@ export const GrowthBookProvider = ({
         variationId,
       });
       updateExperimentation?.({
+        // default values in case of experimentation missing
+        f: '{}',
+        a: [],
         ...experimentation,
         e: [...(experimentation?.e ?? []), key],
       });
