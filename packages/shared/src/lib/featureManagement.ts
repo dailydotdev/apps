@@ -8,9 +8,9 @@ import { BriefingType } from '../graphql/posts';
 export class Feature<T extends JSONValue> {
   readonly id: string;
 
-  readonly defaultValue?: T;
+  readonly defaultValue: T;
 
-  constructor(id: string, defaultValue?: T) {
+  constructor(id: string, defaultValue: T) {
     this.id = id;
     this.defaultValue = defaultValue;
   }
@@ -33,6 +33,7 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 
+// @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
   description: string;
