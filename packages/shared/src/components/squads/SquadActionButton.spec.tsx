@@ -29,6 +29,7 @@ const createDirectoryData = (
 describe('SquadActionButton cache helpers', () => {
   it('should update the matching squad without mutating unrelated nodes', () => {
     const squad = generateTestSquad();
+    const squadId = squad.id ?? 'test-squad';
     const otherSquad = generateTestSquad({
       id: 'other-squad',
       handle: 'other-squad',
@@ -38,7 +39,7 @@ describe('SquadActionButton cache helpers', () => {
 
     const updatedData = updateSquadMembershipInListData(
       data,
-      squad.id!,
+      squadId,
       (currentSquad) => ({
         ...currentSquad,
         currentMember: undefined,
@@ -61,6 +62,7 @@ describe('SquadActionButton cache helpers', () => {
   it('should update every matching directory query, not just the first one', () => {
     const queryClient = new QueryClient();
     const squad = generateTestSquad();
+    const squadId = squad.id ?? 'test-squad';
     const firstCategoryKey = generateQueryKey(
       RequestKey.Sources,
       undefined,
@@ -83,7 +85,7 @@ describe('SquadActionButton cache helpers', () => {
 
     updateSquadDirectoryCache({
       queryClient,
-      squadId: squad.id!,
+      squadId,
       categoryId: squad.category?.id,
       updateSquad: (currentSquad): Squad => ({
         ...currentSquad,

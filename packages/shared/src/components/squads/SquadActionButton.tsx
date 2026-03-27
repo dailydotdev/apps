@@ -181,6 +181,7 @@ export const SquadActionButton = ({
   const isMemberBlocked =
     squad?.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
+  const squadId = squad.id;
   const currentMember = user
     ? ({
         role: SourceMemberRole.Member,
@@ -196,6 +197,10 @@ export const SquadActionButton = ({
       displayToast(labels.error.generic);
     },
     onMutate: () => {
+      if (!squadId) {
+        return;
+      }
+
       const updateJoinedSquad = (currentSquad: Squad): Squad => ({
         ...currentSquad,
         currentMember: currentMember ?? undefined,
@@ -205,13 +210,13 @@ export const SquadActionButton = ({
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id!,
+        squadId,
         categoryId: squad.category?.id,
         updateSquad: updateJoinedSquad,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id!,
+        squadId,
         featured: true,
         updateSquad: updateJoinedSquad,
       });
@@ -223,6 +228,10 @@ export const SquadActionButton = ({
     mutationFn: useLeaveSquad({ squad }),
     onSuccess: (left) => {
       if (!left) {
+        return;
+      }
+
+      if (!squadId) {
         return;
       }
 
@@ -247,13 +256,13 @@ export const SquadActionButton = ({
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id!,
+        squadId,
         categoryId: squad.category?.id,
         updateSquad: updateLeftSquad,
       });
       updateSquadDirectoryCache({
         queryClient,
-        squadId: squad.id!,
+        squadId,
         featured: true,
         updateSquad: updateLeftSquad,
       });

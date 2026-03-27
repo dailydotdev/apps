@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
+import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -16,10 +17,13 @@ import {
   ProductType,
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
+import type { QuestType } from '@dailydotdev/shared/src/graphql/quests';
 import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '@dailydotdev/shared/src/hooks/profile/useTrackedAchievement';
+import { useClaimQuestReward } from '@dailydotdev/shared/src/hooks/useClaimQuestReward';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
@@ -70,6 +74,8 @@ import {
   QuestLevelProgressCircle,
   getQuestLevelProgress,
 } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
+import { QuestSection } from '@dailydotdev/shared/src/components/quest/QuestButton';
+import type { QuestDestination } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -89,7 +95,7 @@ import {
   getAchievementSummary,
   getAwardSummary,
   getBadgeSummary,
-  getQuestSummary,
+  getMostProgressedQuest,
   getTopReaderTopicLabel,
 } from '../../lib/gameCenter';
 
@@ -232,7 +238,9 @@ function GameCenterPage({
   mostQuestsCompleted,
   questCompletionStats,
 }: GameCenterPageProps): ReactElement {
+  const router = useRouter();
   const { user } = useAuthContext();
+  const { optOutLevelSystem } = useSettingsContext();
   const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
     useConditionalFeature({
       feature: questsFeature,
@@ -244,10 +252,11 @@ function GameCenterPage({
   });
   const { data: questDashboard, isPending: isQuestPending } =
     useQuestDashboard();
-  const questSummary = useMemo(
-    () => getQuestSummary(questDashboard),
-    [questDashboard],
-  );
+  const {
+    mutate: claimQuestReward,
+    isPending: isClaimQuestPending,
+    variables: claimQuestVariables,
+  } = useClaimQuestReward();
   const {
     achievements,
     unlockedCount,
@@ -272,6 +281,15 @@ function GameCenterPage({
     [achievements, trackedAchievementState.trackedAchievement],
   );
   const hasCoresAccess = useHasAccessToCores();
+  const showLevelSystem = !optOutLevelSystem;
+  const milestoneQuests = useMemo(
+    () => questDashboard?.milestone ?? [],
+    [questDashboard?.milestone],
+  );
+  const claimingMilestoneQuestId = isClaimQuestPending
+    ? claimQuestVariables?.userQuestId
+    : undefined;
+  const emptyQuestAnimationState = useMemo(() => new Set<string>(), []);
 
   const topReaderQueryKey = generateQueryKey(
     RequestKey.TopReaderBadge,
@@ -321,7 +339,10 @@ function GameCenterPage({
   const firstName = user?.name ? getFirstName(user.name) : 'there';
   const { featuredAchievements } = achievementSummary;
   const [featuredAchievement] = featuredAchievements;
-  const { highlightedQuest } = questSummary;
+  const upcomingMilestoneQuest = useMemo(
+    () => getMostProgressedQuest(milestoneQuests),
+    [milestoneQuests],
+  );
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   let mostEarnedBadgeSubtitle =
@@ -361,6 +382,59 @@ function GameCenterPage({
       featuredAchievement.achievement.id,
     );
   };
+  const handleMilestoneDestinationClick = useCallback(
+    async (destination: QuestDestination) => {
+      await router.push(destination.path);
+    },
+    [router],
+  );
+  const handleMilestoneClaim = useCallback(
+    (userQuestId: string, questId: string, questType: QuestType) => {
+      claimQuestReward({
+        userQuestId,
+        questId,
+        questType,
+      });
+    },
+    [claimQuestReward],
+  );
+
+  let milestoneQuestContent: ReactElement;
+
+  if (isQuestPending) {
+    milestoneQuestContent = (
+      <EmptyStateCard
+        title="Loading milestone quests"
+        description="Your longer-running quest progress is on the way."
+      />
+    );
+  } else if (milestoneQuests.length > 0) {
+    milestoneQuestContent = (
+      <QuestSection
+        title="Milestones"
+        quests={milestoneQuests}
+        layout="grid"
+        initialVisibleCount={4}
+        showMoreLabel="Show more"
+        showLessLabel="Show less"
+        showLevelSystem={showLevelSystem}
+        onDestinationClick={handleMilestoneDestinationClick}
+        claimingQuestId={claimingMilestoneQuestId}
+        animatingClaimRotationIds={emptyQuestAnimationState}
+        claimedStampRotationIds={emptyQuestAnimationState}
+        animatingClaimedStampRotationIds={emptyQuestAnimationState}
+        deferredClaimedStampRotationIds={emptyQuestAnimationState}
+        onClaim={handleMilestoneClaim}
+      />
+    );
+  } else {
+    milestoneQuestContent = (
+      <EmptyStateCard
+        title="No milestone quests yet"
+        description="When milestone quests are available, they will appear here with progress and claim actions."
+      />
+    );
+  }
 
   let achievementShelfContent: ReactElement;
 
@@ -708,27 +782,29 @@ function GameCenterPage({
                       color={TypographyColor.Tertiary}
                       bold
                     >
-                      Best next quest
+                      Upcoming milestone
                     </Typography>
                     <Typography
                       type={TypographyType.Callout}
                       bold
                       className="mt-1"
                     >
-                      {highlightedQuest?.quest.name ??
-                        'No active quest selected'}
+                      {upcomingMilestoneQuest?.quest.name ??
+                        'No upcoming milestone yet'}
                     </Typography>
                     <Typography
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                       className="mt-1"
                     >
-                      {highlightedQuest
+                      {upcomingMilestoneQuest
                         ? `${Math.min(
-                            highlightedQuest.progress,
-                            highlightedQuest.quest.targetCount,
-                          )}/${highlightedQuest.quest.targetCount} progress`
-                        : 'Your next rotation will show up here.'}
+                            upcomingMilestoneQuest.progress,
+                            upcomingMilestoneQuest.quest.targetCount,
+                          )}/${
+                            upcomingMilestoneQuest.quest.targetCount
+                          } progress`
+                        : 'Your next milestone will show up here.'}
                     </Typography>
                   </div>
 
@@ -874,6 +950,17 @@ function GameCenterPage({
                 )}
               </div>
             </div>
+          </section>
+
+          <Divider className={dividerClassName} />
+
+          <section className="flex flex-col gap-4">
+            <SectionHeader
+              title="Milestone quests"
+              description="Longer-running quest goals that track your progress until they are ready to claim."
+            />
+
+            {milestoneQuestContent}
           </section>
 
           <Divider className={dividerClassName} />

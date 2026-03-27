@@ -160,7 +160,7 @@ const getQuestRewardHitAt = (delayMs: number): number =>
   delayMs +
   Math.round(QUEST_REWARD_FLY_DURATION_MS * QUEST_REWARD_HIT_PROGRESS);
 
-type QuestRewardSource = {
+export type QuestRewardSource = {
   id: string;
   type: QuestRewardType;
   amount: number;
@@ -260,7 +260,7 @@ const QuestRewardChip = ({
   );
 };
 
-type QuestDestination = {
+export type QuestDestination = {
   label: string;
   path: string;
 };
@@ -572,7 +572,7 @@ const QuestItem = ({
   );
 };
 
-const QuestSection = ({
+export const QuestSection = ({
   title,
   quests,
   onClaim,
@@ -584,6 +584,10 @@ const QuestSection = ({
   animatingClaimedStampRotationIds,
   deferredClaimedStampRotationIds,
   emptyLabel = 'No active quests yet.',
+  layout = 'stack',
+  initialVisibleCount,
+  showMoreLabel = 'Show more',
+  showLessLabel = 'Show less',
 }: {
   title: string;
   quests: UserQuest[];
@@ -602,7 +606,20 @@ const QuestSection = ({
   animatingClaimedStampRotationIds: Set<string>;
   deferredClaimedStampRotationIds: Set<string>;
   emptyLabel?: string;
+  layout?: 'stack' | 'grid';
+  initialVisibleCount?: number;
+  showMoreLabel?: string;
+  showLessLabel?: string;
 }): ReactElement => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const canToggleExpanded =
+    typeof initialVisibleCount === 'number' &&
+    quests.length > initialVisibleCount;
+  const visibleQuests =
+    canToggleExpanded && !isExpanded
+      ? quests.slice(0, initialVisibleCount)
+      : quests;
+
   if (!quests.length) {
     return (
       <section className="flex flex-col gap-2">
@@ -616,24 +633,44 @@ const QuestSection = ({
     <section className="flex flex-col gap-2">
       <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
 
-      {quests.map((quest) => (
-        <QuestItem
-          key={quest.rotationId}
-          quest={quest}
-          onClaim={onClaim}
-          onDestinationClick={onDestinationClick}
-          showLevelSystem={showLevelSystem}
-          isClaiming={claimingQuestId === quest.userQuestId}
-          isClaimAnimating={animatingClaimRotationIds.has(quest.rotationId)}
-          showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
-          animateClaimedStamp={animatingClaimedStampRotationIds.has(
-            quest.rotationId,
-          )}
-          suppressPersistedClaimedStamp={deferredClaimedStampRotationIds.has(
-            quest.rotationId,
-          )}
-        />
-      ))}
+      <div
+        className={classNames(
+          layout === 'grid'
+            ? 'grid gap-4 tablet:grid-cols-2'
+            : 'flex flex-col gap-2',
+        )}
+      >
+        {visibleQuests.map((quest) => (
+          <QuestItem
+            key={quest.rotationId}
+            quest={quest}
+            onClaim={onClaim}
+            onDestinationClick={onDestinationClick}
+            showLevelSystem={showLevelSystem}
+            isClaiming={claimingQuestId === quest.userQuestId}
+            isClaimAnimating={animatingClaimRotationIds.has(quest.rotationId)}
+            showClaimedStamp={claimedStampRotationIds.has(quest.rotationId)}
+            animateClaimedStamp={animatingClaimedStampRotationIds.has(
+              quest.rotationId,
+            )}
+            suppressPersistedClaimedStamp={deferredClaimedStampRotationIds.has(
+              quest.rotationId,
+            )}
+          />
+        ))}
+      </div>
+
+      {canToggleExpanded && (
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          onClick={() => setIsExpanded((current) => !current)}
+          className="w-fit"
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? showLessLabel : showMoreLabel}
+        </Button>
+      )}
     </section>
   );
 };
