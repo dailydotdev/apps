@@ -158,6 +158,9 @@ const baseConfig = {
           }).parsed || {},
         ).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
       ),
+      // Stub process.env so undefined vars resolve to undefined instead of
+      // crashing with "process is not defined" (same as dotenv-webpack)
+      'process.env': '"MISSING_ENV_VAR"',
     }),
     new rspack.HtmlRspackPlugin({
       template: path.join(viewsPath, 'newtab.html'),
