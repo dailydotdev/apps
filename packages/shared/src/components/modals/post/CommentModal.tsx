@@ -55,6 +55,13 @@ interface GetCommentFromCacheProps {
   commentId?: string;
 }
 
+interface GetCommentInputMinHeightProps {
+  viewportHeight?: number;
+  headerHeight: number;
+  replyHeight: number;
+  footerHeight: number;
+}
+
 const getCommentFromCache = ({
   client,
   postId,
@@ -78,6 +85,22 @@ const getCommentFromCache = ({
   }
 
   return undefined;
+};
+
+export const getCommentInputMinHeight = ({
+  viewportHeight = 0,
+  headerHeight,
+  replyHeight,
+  footerHeight,
+}: GetCommentInputMinHeightProps): number | undefined => {
+  const availableHeight =
+    viewportHeight - headerHeight - replyHeight - footerHeight;
+
+  if (availableHeight <= 0) {
+    return undefined;
+  }
+
+  return availableHeight;
 };
 
 export interface CommentModalProps
@@ -170,15 +193,29 @@ export default function CommentModal({
   const replyHeight = replyRef.current?.clientHeight ?? 0;
   const footerHeight = switchRef.current?.clientHeight ?? 0;
   const headerHeight = headerRef.current?.offsetHeight ?? 0;
-  const totalHeight = height - headerHeight - replyHeight - footerHeight;
-  const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
+  const inputMinHeight = getCommentInputMinHeight({
+    viewportHeight: height,
+    headerHeight,
+    replyHeight,
+    footerHeight,
+  });
 
-  if (
-    inputRef.current &&
-    inputRef.current.style?.height !== `${inputHeight}px`
-  ) {
-    inputRef.current.style.height = `${inputHeight}px`;
-  }
+  useLayoutEffect(() => {
+    const inputNode = inputRef.current;
+
+    if (!inputNode) {
+      return;
+    }
+
+    if (!inputMinHeight) {
+      inputNode.style.removeProperty('height');
+      inputNode.style.removeProperty('min-height');
+      return;
+    }
+
+    inputNode.style.height = 'auto';
+    inputNode.style.minHeight = `${inputMinHeight}px`;
+  }, [inputMinHeight]);
 
   const { submitCopy, initialContent } = useMemo(() => {
     if (isEdit) {
@@ -217,7 +254,7 @@ export default function CommentModal({
       className="!border-none"
       overlayClassName="!touch-none"
     >
-      <Modal.Body className="!p-0" ref={refCallback}>
+      <Modal.Body className="bg-background-default !p-0" ref={refCallback}>
         <WriteCommentContext.Provider
           value={{ mutateComment: mutateCommentResult }}
         >
@@ -235,7 +272,8 @@ export default function CommentModal({
               disabled: isSuccess,
             }}
             className={{
-              container: 'flex-1 first:!border-none',
+              container:
+                'min-h-full flex-1 bg-background-default first:!border-none',
               header: 'sticky top-0 z-2 w-full bg-background-default',
             }}
             headerRef={headerRef}
@@ -270,9 +308,9 @@ export default function CommentModal({
               editCommentId={isEdit && editCommentId}
               initialContent={initialContent}
               className={{
-                markdownContainer: 'flex-1',
+                markdownContainer: 'min-h-0 flex-1',
                 container: classNames(
-                  'flex flex-col',
+                  'flex min-h-0 flex-col',
                   isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
                 ),
                 tab: 'flex-1',
