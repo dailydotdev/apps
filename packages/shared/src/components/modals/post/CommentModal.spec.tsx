@@ -1,14 +1,13 @@
 import React, { type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
-import CommentModal, { getCommentInputMinHeight } from './CommentModal';
+import CommentModal from './CommentModal';
 import Post from '../../../../__tests__/fixture/post';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import useCommentById from '../../../hooks/comments/useCommentById';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
-import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
 
 jest.mock('../common/Modal', () => {
   const mockReact = jest.requireActual('react') as typeof React;
@@ -110,10 +109,6 @@ jest.mock('../../../hooks/post/useMutateComment', () => ({
   useMutateComment: jest.fn(),
 }));
 
-jest.mock('../../../hooks/utils/useVisualViewport', () => ({
-  useVisualViewport: jest.fn(),
-}));
-
 jest.mock('../../../hooks/notifications', () => ({
   useNotificationToggle: jest.fn(),
 }));
@@ -125,7 +120,6 @@ jest.mock('../../../hooks/comments/useCommentById', () => ({
 
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseMutateComment = useMutateComment as jest.Mock;
-const mockUseVisualViewport = useVisualViewport as jest.Mock;
 const mockUseNotificationToggle = useNotificationToggle as jest.Mock;
 const mockUseCommentById = useCommentById as jest.Mock;
 
@@ -154,7 +148,6 @@ describe('CommentModal', () => {
       isLoading: false,
       isSuccess: false,
     });
-    mockUseVisualViewport.mockReturnValue({ height: 220 });
     mockUseNotificationToggle.mockReturnValue({
       shouldShowCta: true,
       isEnabled: true,
@@ -172,57 +165,17 @@ describe('CommentModal', () => {
     );
   });
 
-  it('should size the comment form to the available viewport height without forcing 300px', () => {
-    const { rerender } = renderComponent();
-    const header = screen.getByRole('button', { name: 'Cancel' }).parentElement;
-    const notificationSwitch = screen.getByTestId('notification-switch');
+  it('should keep the editor and notification switch in the normal flex flow', () => {
+    renderComponent();
 
-    if (!header) {
-      throw new Error('Expected comment modal header to be rendered');
-    }
+    const commentForm = screen.getByTestId('comment-form');
 
-    Object.defineProperty(header, 'offsetHeight', {
-      configurable: true,
-      value: 48,
-    });
-    Object.defineProperty(notificationSwitch, 'clientHeight', {
-      configurable: true,
-      value: 40,
-    });
-
-    rerender(
-      <QueryClientProvider client={new QueryClient()}>
-        <CommentModal {...defaultProps} />
-      </QueryClientProvider>,
+    expect(commentForm).toHaveClass('flex', 'min-h-0');
+    expect(screen.getByTestId('markdown-container')).toHaveClass(
+      'min-h-0',
+      'flex-1',
     );
-
-    expect(screen.getByTestId('comment-form')).toHaveStyle({
-      height: 'auto',
-      minHeight: '132px',
-    });
-  });
-});
-
-describe('getCommentInputMinHeight', () => {
-  it('should return the remaining viewport height', () => {
-    expect(
-      getCommentInputMinHeight({
-        viewportHeight: 640,
-        headerHeight: 48,
-        replyHeight: 24,
-        footerHeight: 40,
-      }),
-    ).toBe(528);
-  });
-
-  it('should return undefined when the viewport is fully consumed', () => {
-    expect(
-      getCommentInputMinHeight({
-        viewportHeight: 100,
-        headerHeight: 60,
-        replyHeight: 20,
-        footerHeight: 20,
-      }),
-    ).toBeUndefined();
+    expect(screen.getByTestId('notification-switch')).toBeInTheDocument();
+    expect(commentForm).not.toHaveAttribute('style');
   });
 });
