@@ -13,8 +13,6 @@ import {
   briefCardBorder,
 } from '../../../../styles/custom';
 import type { BriefCardProps } from './BriefCard';
-import { BriefGradientIcon } from '../../../icons';
-import { IconSize } from '../../../Icon';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import {
   BriefingType,
@@ -33,7 +31,6 @@ import { LogEvent, TargetType } from '../../../../lib/log';
 export type BriefCardDefaultProps = BriefCardProps;
 
 const rootStyle = {
-  border: briefCardBorder,
   background: briefCardBg,
 };
 
@@ -41,6 +38,8 @@ export const BriefCardDefault = ({
   className,
   title,
   children,
+  showCloseButton = true,
+  showBorder = true,
 }: BriefCardDefaultProps): ReactElement => {
   const briefContext = useBriefContext();
   const { displayToast } = useToastNotification();
@@ -98,21 +97,30 @@ export const BriefCardDefault = ({
 
   return (
     <div
-      style={rootStyle}
+      style={{
+        ...rootStyle,
+        ...(showBorder ? { border: briefCardBorder } : {}),
+      }}
       className={classNames(
         'relative flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
         'backdrop-blur-3xl',
         className?.card,
       )}
     >
-      <CloseButton
-        className="absolute right-2 top-2"
-        size={ButtonSize.XSmall}
-        onClick={handleDismiss}
+      {showCloseButton && (
+        <CloseButton
+          className="absolute right-2 top-2"
+          size={ButtonSize.XSmall}
+          onClick={handleDismiss}
+        />
+      )}
+      <img
+        src="/assets/brief-card-magic.png"
+        alt=""
+        className="h-fit w-full object-contain"
       />
-      <BriefGradientIcon secondary size={IconSize.Size48} />
       <Typography
-        type={TypographyType.Title2}
+        type={TypographyType.Title3}
         color={TypographyColor.Primary}
         bold
       >

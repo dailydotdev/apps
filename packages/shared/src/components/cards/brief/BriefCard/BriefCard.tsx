@@ -29,6 +29,8 @@ export type BriefCardProps = {
     container: string;
     card: string;
   }>;
+  showCloseButton?: boolean;
+  showBorder?: boolean;
   animationSrc?: string;
   progressPercentage?: number;
   headnote?: ReactNode;

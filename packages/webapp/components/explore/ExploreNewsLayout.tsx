@@ -11,10 +11,20 @@ import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
+import {
+  DiscussIcon,
+  UpvoteIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import {
+  BriefContextProvider,
+  useBriefContext,
+} from '@dailydotdev/shared/src/components/cards/brief/BriefContext';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
+import AgenticTopicClusterSection from './AgenticTopicClusterSection';
 import type { ExploreCategoryId } from './exploreCategories';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
 
@@ -119,11 +129,13 @@ const StoryRow = ({
   sourceLabelOverride,
   showEngagement = true,
   isSponsored = false,
+  imageOnRight = false,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
   showEngagement?: boolean;
   isSponsored?: boolean;
+  imageOnRight?: boolean;
 }): ReactElement => {
   const hasSourceMeta = Boolean(
     sourceLabelOverride ||
@@ -134,7 +146,11 @@ const StoryRow = ({
   return (
     <Link href={story.commentsPermalink}>
       <a className="group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+        <div
+          className={`h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float ${
+            imageOnRight ? 'order-2' : ''
+          }`}
+        >
           {!!story.image && (
             <img
               src={story.image}
@@ -144,10 +160,16 @@ const StoryRow = ({
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-text-primary transition-colors typo-callout">
+          <p
+            className="text-text-primary transition-colors typo-callout"
+            style={{ fontSize: '17px' }}
+          >
             {getStoryHeadline(story)}
           </p>
-          <div className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2">
+          <div
+            className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
+            style={{ fontSize: '15px' }}
+          >
             {isSponsored ? (
               <>
                 <StoryOriginMeta
@@ -163,8 +185,12 @@ const StoryRow = ({
                   story={story}
                   sourceLabelOverride={sourceLabelOverride}
                 />
-                {hasSourceMeta && !!story.createdAt && <span aria-hidden>•</span>}
-                {!!story.createdAt && <RelativeTime dateTime={story.createdAt} />}
+                {hasSourceMeta && !!story.createdAt && (
+                  <span aria-hidden>•</span>
+                )}
+                {!!story.createdAt && (
+                  <RelativeTime dateTime={story.createdAt} />
+                )}
                 {showEngagement && !!story.numUpvotes && (
                   <>
                     <span aria-hidden>•</span>
@@ -200,10 +226,10 @@ const StorySectionBlock = ({
   let sectionPaddingClass = 'p-3 laptop:p-4';
   if (isLatestSection) {
     sectionPaddingClass =
-      'pb-3 pl-0 pr-3 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-4 laptop:pt-0';
+      'pb-3 pl-0 pr-0 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-0 laptop:pt-0';
   } else if (isPopularSection) {
     sectionPaddingClass =
-      'pb-3 pl-0 pr-3 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-4 laptop:pt-0';
+      'pb-3 pl-0 pr-0 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-0 laptop:pt-0';
   }
 
   const sectionBorderClass =
@@ -236,11 +262,18 @@ const StorySectionBlock = ({
       id={section.id}
       className={`h-full rounded-16 ${sectionPaddingClass} ${sectionBorderClass}`}
     >
+      {isLatestSection && (
+        <header className="mb-2 flex items-center justify-between gap-3">
+          <h2 className="font-bold text-text-primary typo-title3">
+            Top stories
+          </h2>
+        </header>
+      )}
       {section.id !== 'latest' && (
         <header className="mb-2 flex items-center justify-between gap-3">
           <Link href={section.href}>
             <a className="text-text-primary transition-colors">
-              <h3 className="font-bold typo-title3">{section.title}</h3>
+              <h2 className="font-bold typo-title3">{section.title}</h2>
             </a>
           </Link>
         </header>
@@ -252,7 +285,10 @@ const StorySectionBlock = ({
             story={story}
             sourceLabelOverride={sourceLabelOverride}
             showEngagement={showEngagement}
-            isSponsored={isSponsoredSlotSection && sponsoredStory?.id === story.id}
+            isSponsored={
+              isSponsoredSlotSection && sponsoredStory?.id === story.id
+            }
+            imageOnRight={isLatestSection || isPopularSection}
           />
         ))
       ) : (
@@ -267,19 +303,24 @@ const CompactSectionBlock = ({
 }: {
   section: StorySection;
 }): ReactElement => {
-  const shouldShowRanking =
-    section.id === 'upvoted' || section.id === 'discussed';
+  const isUpvotedSection = section.id === 'upvoted';
+  const isDiscussedSection = section.id === 'discussed';
+  const isHighlightedCompactSection = isUpvotedSection || isDiscussedSection;
   const hasMoreStories = section.totalStoriesCount > section.stories.length;
 
   return (
     <section
       id={section.id}
-      className="h-full rounded-16 border border-border-subtlest-tertiary p-3 laptop:p-4"
+      className={`h-full rounded-16 p-3 laptop:p-4 ${
+        isHighlightedCompactSection ? '' : 'border border-border-subtlest-tertiary'
+      } ${
+        isHighlightedCompactSection ? 'bg-surface-float' : ''
+      }`}
     >
       <header className="mb-2 flex items-center justify-between gap-3">
         <Link href={section.href}>
           <a className="text-text-primary transition-colors">
-            <h3 className="font-bold typo-title3">{section.title}</h3>
+            <h2 className="font-bold typo-title3">{section.title}</h2>
           </a>
         </Link>
       </header>
@@ -290,43 +331,42 @@ const CompactSectionBlock = ({
               className={`flex items-start gap-3 py-2 ${
                 index === section.stories.length - 1
                   ? 'border-0'
-                  : 'border-b border-border-subtlest-tertiary'
+                  : 'mb-2 border-b border-border-subtlest-tertiary'
               }`}
             >
-              {shouldShowRanking && (
-                <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center self-start rounded-full border font-bold leading-none typo-caption2 ${
-                    section.id === 'discussed'
-                      ? 'border-accent-avocado-default text-accent-avocado-default'
-                      : 'border-accent-cabbage-default text-accent-cabbage-default'
-                  }`}
-                >
-                  {index + 1}
+              {isUpvotedSection && (
+                <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-avocado-default">
+                  <UpvoteIcon size={IconSize.Small} />
+                  <span className="text-[1rem] font-bold leading-none typo-caption2">
+                    {story.numUpvotes ?? 0}
+                  </span>
+                </span>
+              )}
+              {isDiscussedSection && (
+                <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-blueCheese-default">
+                  <DiscussIcon size={IconSize.Small} />
+                  <span className="text-[1rem] font-bold leading-none typo-caption2">
+                    {story.numComments ?? 0}
+                  </span>
                 </span>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-text-primary typo-callout">
+                <p
+                  className="text-text-primary typo-callout"
+                  style={{ fontSize: '17px' }}
+                >
                   {getStoryHeadline(story)}
                 </p>
-                <div className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2">
+                <div
+                  className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
+                  style={{ fontSize: '15px' }}
+                >
                   <StoryOriginMeta story={story} />
                   {!!story.source?.name && !!story.createdAt && (
                     <span aria-hidden>•</span>
                   )}
                   {!!story.createdAt && (
                     <RelativeTime dateTime={story.createdAt} />
-                  )}
-                  {section.id === 'upvoted' && !!story.numUpvotes && (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span>{story.numUpvotes} upvotes</span>
-                    </>
-                  )}
-                  {section.id === 'discussed' && !!story.numComments && (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span>{story.numComments} comments</span>
-                    </>
                   )}
                 </div>
               </div>
@@ -338,7 +378,7 @@ const CompactSectionBlock = ({
       )}
       {hasMoreStories && (
         <Link href={section.href}>
-          <a className="active:opacity-80 -mb-3 -mx-3 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-secondary typo-callout laptop:-mb-4 laptop:-mx-4 laptopL:hidden">
+          <a className="active:opacity-80 -mx-3 -mb-3 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-secondary typo-callout laptop:-mx-4 laptop:-mb-4 laptopL:hidden">
             Show all
           </a>
         </Link>
@@ -359,35 +399,65 @@ const MoreStoriesStrip = ({
   return (
     <section id="more-stories-strip">
       <header className="mb-2">
-        <h2 className="font-bold text-text-primary typo-title3">More stories</h2>
+        <h2 className="font-bold text-text-primary typo-title3">
+          More stories
+        </h2>
       </header>
-      <div className="rounded-16 pb-3 pl-0 pr-3 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-4 laptop:pt-0">
+      <div className="rounded-16 pb-3 pl-0 pr-0 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-0 laptop:pt-0">
         {stories.map((story) => (
-          <StoryRow key={story.id} story={story} showEngagement={false} />
+          <StoryRow
+            key={story.id}
+            story={story}
+            showEngagement={false}
+            imageOnRight
+          />
         ))}
       </div>
     </section>
   );
 };
 
-const ReadingBriefStrip = (): ReactElement => {
+const ReadingBriefStripInner = (): ReactElement => {
+  const { brief } = useBriefContext();
+
+  if (!brief) {
+    return (
+      <section id="reading-brief-strip" className="flex h-full flex-col">
+        <BriefCardFeed
+          targetId={TargetId.List}
+          className={{
+            container: '!h-full !p-0',
+            card: 'h-full',
+          }}
+          showCloseButton={false}
+          showBorder
+        />
+      </section>
+    );
+  }
+
   return (
     <section
       id="reading-brief-strip"
-      className="h-full rounded-16 border border-border-subtlest-tertiary p-3 laptop:p-4"
+      className="flex h-full flex-col rounded-16 border border-border-subtlest-tertiary p-3 laptop:p-4"
     >
       <header className="mb-2">
-        <h2 className="font-bold text-text-primary typo-title3">Reading brief</h2>
+        <h2 className="font-bold text-text-primary typo-title3">
+          Reading brief
+        </h2>
       </header>
       <p className="text-text-tertiary typo-callout">
         A quick, high-signal recap tailored for you.
       </p>
-      <div className="mt-3">
+      <div className="mt-3 flex min-h-0 grow">
         <BriefCardFeed
           targetId={TargetId.List}
           className={{
-            container: '!p-0',
+            container: '!h-full !p-0',
+            card: 'h-full',
           }}
+          showCloseButton={false}
+          showBorder={false}
         />
       </div>
       <Link href="/briefing">
@@ -396,6 +466,14 @@ const ReadingBriefStrip = (): ReactElement => {
         </a>
       </Link>
     </section>
+  );
+};
+
+const ReadingBriefStrip = (): ReactElement => {
+  return (
+    <BriefContextProvider>
+      <ReadingBriefStripInner />
+    </BriefContextProvider>
   );
 };
 
@@ -491,7 +569,7 @@ export const ExploreNewsLayout = ({
   const popularSection = useMemo<StorySection>(
     () => ({
       id: 'popular',
-      title: 'Top stories',
+      title: 'More top stories',
       href: '/',
       stories: popularStoriesForView
         .filter((story) => story.id !== leadStory?.id)
@@ -550,7 +628,9 @@ export const ExploreNewsLayout = ({
       return sponsoredCandidate;
     }
 
-    return popularStoriesForView.find((story) => story.id !== leadStory?.id) ?? null;
+    return (
+      popularStoriesForView.find((story) => story.id !== leadStory?.id) ?? null
+    );
   }, [leadStory?.id, popularStoriesForView]);
   const moreStories = useMemo<ExploreStory[]>(() => {
     const displayedIds = new Set<string>([
@@ -590,7 +670,7 @@ export const ExploreNewsLayout = ({
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-[72rem] flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
+    <main className="mx-auto flex w-full max-w-[72rem] flex-col pt-4 pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
       <section
         id="explore"
         className="sticky top-16 z-header bg-background-default px-3 laptop:px-8"
@@ -615,10 +695,7 @@ export const ExploreNewsLayout = ({
 
       <section id="top-news" className="px-8 py-6 laptop:px-8">
         <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="space-y-3">
-            <h2 className="font-bold text-text-primary typo-title3">
-              Top stories
-            </h2>
+          <div>
             {leadStory ? (
               <Link href={leadStory.commentsPermalink}>
                 <a className="group relative block overflow-hidden rounded-16 border border-border-subtlest-tertiary">
@@ -626,15 +703,18 @@ export const ExploreNewsLayout = ({
                     <img
                       src={leadStory.image}
                       alt={getStoryHeadline(leadStory)}
-                      className="h-[24rem] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      className="h-[30rem] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   )}
                   <div className="shadow-2xl pointer-events-none absolute bottom-3 left-3 flex w-[18rem] flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 backdrop-blur-sm laptop:bottom-4 laptop:left-4 laptop:w-[22rem] laptop:p-4">
-                    <p className="line-clamp-5 font-bold text-text-primary typo-title3">
+                    <p className="line-clamp-5 font-bold text-text-primary typo-title2">
                       {getStoryHeadline(leadStory)}
                     </p>
                     <div>
-                      <div className="mt-2 flex items-center gap-2 text-text-secondary typo-caption1">
+                      <div
+                        className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption1"
+                        style={{ fontSize: '15px' }}
+                      >
                         {!!leadStory.source?.name && (
                           <span className="flex items-center gap-1.5">
                             {leadStory.source?.image ? (
@@ -660,14 +740,13 @@ export const ExploreNewsLayout = ({
                           </>
                         )}
                       </div>
-                      <div className="mt-1 flex items-center gap-3 text-text-secondary typo-caption2">
-                        {!!leadStory.numUpvotes && (
-                          <span>{leadStory.numUpvotes} upvotes</span>
-                        )}
-                        {!!leadStory.numComments && (
-                          <span>{leadStory.numComments} comments</span>
-                        )}
-                      </div>
+                      {!!leadStory.numComments && (
+                        <div className="mt-1 flex items-center gap-3 text-text-secondary typo-caption2">
+                          {!!leadStory.numComments && (
+                            <span>{leadStory.numComments} comments</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </a>
@@ -680,7 +759,7 @@ export const ExploreNewsLayout = ({
               </div>
             )}
           </div>
-          <div id="happening-now" className="laptop:h-[24rem]">
+          <div id="happening-now" className="h-full">
             <AgentsHighlightsSection
               highlights={isVideosMode ? videoHighlights : highlights}
               loading={isVideosMode ? false : highlightsLoading}
@@ -692,7 +771,7 @@ export const ExploreNewsLayout = ({
 
       <section className="px-8 pb-6 laptop:px-8">
         <div className="space-y-8">
-          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid items-stretch gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <StorySectionBlock
               section={latestSection}
               sponsoredStory={sponsoredStory}
@@ -710,7 +789,7 @@ export const ExploreNewsLayout = ({
               </div>
             </div>
           )}
-          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-6">
             <StorySectionBlock
               section={popularSection}
               sponsoredStory={sponsoredPopularStory}
@@ -750,10 +829,15 @@ export const ExploreNewsLayout = ({
       )}
       {isExplorePage && (
         <section className="px-8 pb-6 laptop:px-8">
-          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid items-stretch gap-4 gap-x-8 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <MoreStoriesStrip stories={moreStories} />
             <ReadingBriefStrip />
           </div>
+        </section>
+      )}
+      {showExploreOnlySections && (
+        <section className="px-8 pb-6 laptop:px-8">
+          <AgenticTopicClusterSection />
         </section>
       )}
     </main>

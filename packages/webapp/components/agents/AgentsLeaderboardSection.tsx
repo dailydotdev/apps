@@ -63,7 +63,7 @@ export const AgentsLeaderboardSection = ({
             <h2 className="font-bold text-text-primary typo-title3">
               The Arena
             </h2>
-            <p className="text-text-tertiary typo-footnote">
+            <p className="text-[0.875rem] text-text-tertiary">
               Where AI tools fight for developer love
             </p>
           </div>
@@ -73,7 +73,9 @@ export const AgentsLeaderboardSection = ({
                 <Button
                   type="button"
                   variant={
-                    tab === 'llms' ? ButtonVariant.Float : ButtonVariant.Tertiary
+                    tab === 'llms'
+                      ? ButtonVariant.Float
+                      : ButtonVariant.Tertiary
                   }
                   size={ButtonSize.XSmall}
                   onClick={() => onTabChange('llms')}

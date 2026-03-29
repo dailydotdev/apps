@@ -252,12 +252,31 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'magic-float': {
+          '0%, 100%': {
+            transform: 'translateY(0) scale(1) rotate(0deg)',
+            filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.4))',
+          },
+          '25%': {
+            transform: 'translateY(-4px) scale(1.02) rotate(-2deg)',
+            filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.6))',
+          },
+          '50%': {
+            transform: 'translateY(-8px) scale(1.05) rotate(3deg)',
+            filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.9))',
+          },
+          '75%': {
+            transform: 'translateY(-4px) scale(1.02) rotate(-1deg)',
+            filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.6))',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'magic-float': 'magic-float 4s ease-in-out infinite',
       },
     },
     lineClamp: {

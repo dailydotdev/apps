@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
 import type { ArenaTab } from '@dailydotdev/shared/src/features/agents/arena/types';
@@ -45,9 +46,12 @@ const getFeedQueryKey = (
 ) => ['explore', categoryId, section] as const;
 
 const getHighlightsQuery = () =>
-  gqlClient.request<{ postHighlights: PostHighlight[] }>(POST_HIGHLIGHTS_QUERY, {
-    channel: HIGHLIGHTS_CHANNEL,
-  });
+  gqlClient.request<{ postHighlights: PostHighlight[] }>(
+    POST_HIGHLIGHTS_QUERY,
+    {
+      channel: HIGHLIGHTS_CHANNEL,
+    },
+  );
 
 const getLatestStoriesQuery = ({
   tag,
@@ -99,33 +103,25 @@ const getPopularStoriesQuery = ({
     });
 };
 
-const getUpvotedStoriesQuery = ({
-  tag,
-  supportedTypes,
-}: {
-  tag?: string;
-  supportedTypes?: PostType[];
-}) => () =>
-  gqlClient.request<FeedData>(MOST_UPVOTED_FEED_QUERY, {
-    first: STORIES_PER_SECTION,
-    period: UPVOTED_AND_DISCUSSED_PERIOD,
-    tag,
-    supportedTypes,
-  });
+const getUpvotedStoriesQuery =
+  ({ tag, supportedTypes }: { tag?: string; supportedTypes?: PostType[] }) =>
+  () =>
+    gqlClient.request<FeedData>(MOST_UPVOTED_FEED_QUERY, {
+      first: STORIES_PER_SECTION,
+      period: UPVOTED_AND_DISCUSSED_PERIOD,
+      tag,
+      supportedTypes,
+    });
 
-const getDiscussedStoriesQuery = ({
-  tag,
-  supportedTypes,
-}: {
-  tag?: string;
-  supportedTypes?: PostType[];
-}) => () =>
-  gqlClient.request<FeedData>(MOST_DISCUSSED_FEED_QUERY, {
-    first: STORIES_PER_SECTION,
-    period: UPVOTED_AND_DISCUSSED_PERIOD,
-    tag,
-    supportedTypes,
-  });
+const getDiscussedStoriesQuery =
+  ({ tag, supportedTypes }: { tag?: string; supportedTypes?: PostType[] }) =>
+  () =>
+    gqlClient.request<FeedData>(MOST_DISCUSSED_FEED_QUERY, {
+      first: STORIES_PER_SECTION,
+      period: UPVOTED_AND_DISCUSSED_PERIOD,
+      tag,
+      supportedTypes,
+    });
 
 const getFeedQueriesForCategory = (categoryId: ExploreCategoryId) => {
   const category = getExploreCategoryById(categoryId);
@@ -155,8 +151,12 @@ export const prefetchExplorePageData = async ({
       queryKey: HIGHLIGHTS_QUERY_KEY,
       queryFn: getHighlightsQuery,
     }),
-    queryClient.prefetchQuery(sourceQueryOptions({ sourceId: 'agents_digest' })),
-    queryClient.prefetchQuery(arenaOptions({ groupId: DEFAULT_EXPLORE_ARENA_TAB })),
+    queryClient.prefetchQuery(
+      sourceQueryOptions({ sourceId: 'agents_digest' }),
+    ),
+    queryClient.prefetchQuery(
+      arenaOptions({ groupId: DEFAULT_EXPLORE_ARENA_TAB }),
+    ),
     queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
     queryClient.prefetchQuery({
       queryKey: getFeedQueryKey(categoryId, 'latest'),
@@ -236,7 +236,8 @@ export const ExplorePageContent = ({
     staleTime: StaleTime.Default,
   });
 
-  const latestStories = latestStoriesData?.page?.edges?.map((edge) => edge.node) ?? [];
+  const latestStories =
+    latestStoriesData?.page?.edges?.map((edge) => edge.node) ?? [];
   const popularStories =
     popularStoriesData?.page?.edges?.map((edge) => edge.node) ?? [];
   const upvotedStories =

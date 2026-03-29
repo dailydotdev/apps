@@ -90,7 +90,7 @@ export const AgentsHighlightsSection = ({
 
   return (
     <section className="relative flex h-full w-full flex-col overflow-hidden">
-      <header className="flex items-center gap-2 px-0 pb-2 pt-0">
+      <header className="flex items-end justify-start gap-2 px-0 pb-2 pt-0">
         <h2 className="feed-highlights-title-gradient self-center font-bold leading-tight typo-title3">
           Happening Now
         </h2>
@@ -114,13 +114,16 @@ export const AgentsHighlightsSection = ({
                 key={`${highlight.channel}-${highlight.post.id}`}
                 href={highlight.post.commentsPermalink}
               >
-                <a className="group flex items-start gap-2 py-3 transition-colors">
-                  <span className="line-clamp-2 flex-1 break-words text-text-primary transition-colors typo-callout">
+                <a className="group flex flex-col gap-1 py-3 transition-colors">
+                  <span
+                    className="line-clamp-2 break-words text-text-primary transition-colors typo-callout"
+                    style={{ fontSize: '17px' }}
+                  >
                     {highlight.headline}
                   </span>
                   <RelativeTime
                     dateTime={highlight.highlightedAt}
-                    className="shrink-0 text-text-tertiary typo-caption2"
+                    className="text-text-tertiary"
                   />
                 </a>
               </Link>
