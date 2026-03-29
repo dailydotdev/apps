@@ -250,6 +250,7 @@ export const BriefCardInternal = (
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
+        center
       >
         We sent an AI agent to read the entire internet. Every release, every
         hot take, and every unreadable blog post from the past week. It&apos;s

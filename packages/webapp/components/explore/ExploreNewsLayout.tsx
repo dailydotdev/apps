@@ -28,7 +28,7 @@ import AgenticTopicClusterSection from './AgenticTopicClusterSection';
 import type { ExploreCategoryId } from './exploreCategories';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
 
-type ExploreStory = Pick<
+export type ExploreStory = Pick<
   Post,
   | 'id'
   | 'title'
@@ -39,6 +39,10 @@ type ExploreStory = Pick<
   | 'author'
   | 'commentsPermalink'
   | 'createdAt'
+  | 'creatorTwitter'
+  | 'creatorTwitterImage'
+  | 'creatorTwitterName'
+  | 'readTime'
   | 'image'
   | 'source'
   | 'numComments'
@@ -71,6 +75,7 @@ interface ExploreNewsLayoutProps {
   arenaTab: ArenaTab;
   onArenaTabChange?: (tab: ArenaTab) => void;
   arenaHighlightsItems: SentimentHighlightItem[];
+  categoryClusterStories?: Partial<Record<ExploreCategoryId, ExploreStory[]>>;
 }
 
 const getStoryHeadline = (story: ExploreStory): string =>
@@ -106,6 +111,30 @@ const SourceMeta = ({
   );
 };
 
+const getCommunityAuthorMeta = (
+  story: ExploreStory,
+): { name: string; image?: string | null } | null => {
+  const name =
+    story.author?.name ||
+    story.sharedPost?.author?.name ||
+    story.creatorTwitterName ||
+    story.creatorTwitter ||
+    null;
+
+  if (!name) {
+    return null;
+  }
+
+  return {
+    name,
+    image:
+      story.author?.image ||
+      story.sharedPost?.author?.image ||
+      story.creatorTwitterImage ||
+      null,
+  };
+};
+
 const StoryOriginMeta = ({
   story,
   sourceLabelOverride,
@@ -117,8 +146,29 @@ const StoryOriginMeta = ({
     return <span>{sourceLabelOverride}</span>;
   }
 
-  if (story.source?.name === 'Community Picks' && story.author?.name) {
-    return <span>{story.author.name}</span>;
+  if (story.source?.name === 'Community Picks') {
+    const communityAuthorMeta = getCommunityAuthorMeta(story);
+
+    if (!communityAuthorMeta) {
+      return <SourceMeta source={story.source} />;
+    }
+
+    return (
+      <span className="flex items-center gap-1.5">
+        {communityAuthorMeta.image ? (
+          <img
+            src={communityAuthorMeta.image}
+            alt={communityAuthorMeta.name}
+            className="h-4 w-4 rounded-full object-cover"
+          />
+        ) : (
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
+            {communityAuthorMeta.name.charAt(0)}
+          </span>
+        )}
+        <span>{communityAuthorMeta.name}</span>
+      </span>
+    );
   }
 
   return <SourceMeta source={story.source} />;
@@ -137,10 +187,11 @@ const StoryRow = ({
   isSponsored?: boolean;
   imageOnRight?: boolean;
 }): ReactElement => {
+  const hasCommunityAuthorMeta = Boolean(getCommunityAuthorMeta(story));
   const hasSourceMeta = Boolean(
     sourceLabelOverride ||
       story.source?.name ||
-      (story.source?.name === 'Community Picks' && story.author?.name),
+      (story.source?.name === 'Community Picks' && hasCommunityAuthorMeta),
   );
 
   return (
@@ -236,7 +287,7 @@ const StorySectionBlock = ({
     isLatestSection || isPopularSection
       ? ''
       : 'border border-border-subtlest-tertiary';
-  const sourceLabelOverride = isPopularSection ? 'Top stories' : undefined;
+  const sourceLabelOverride = undefined;
   const showEngagement = !isPopularSection && !isLatestSection;
   const storiesWithSponsoredSlot = useMemo(() => {
     if (!isSponsoredSlotSection || !sponsoredStory) {
@@ -260,7 +311,7 @@ const StorySectionBlock = ({
   return (
     <section
       id={section.id}
-      className={`h-full rounded-16 ${sectionPaddingClass} ${sectionBorderClass}`}
+      className={`my-4 h-full rounded-16 ${sectionPaddingClass} ${sectionBorderClass}`}
     >
       {isLatestSection && (
         <header className="mb-2 flex items-center justify-between gap-3">
@@ -288,7 +339,6 @@ const StorySectionBlock = ({
             isSponsored={
               isSponsoredSlotSection && sponsoredStory?.id === story.id
             }
-            imageOnRight={isLatestSection || isPopularSection}
           />
         ))
       ) : (
@@ -397,7 +447,7 @@ const MoreStoriesStrip = ({
   }
 
   return (
-    <section id="more-stories-strip">
+    <section id="more-stories-strip" className="my-4">
       <header className="mb-2">
         <h2 className="font-bold text-text-primary typo-title3">
           More stories
@@ -409,7 +459,6 @@ const MoreStoriesStrip = ({
             key={story.id}
             story={story}
             showEngagement={false}
-            imageOnRight
           />
         ))}
       </div>
@@ -422,12 +471,12 @@ const ReadingBriefStripInner = (): ReactElement => {
 
   if (!brief) {
     return (
-      <section id="reading-brief-strip" className="flex h-full flex-col">
+      <section id="reading-brief-strip" className="flex self-start flex-col">
         <BriefCardFeed
           targetId={TargetId.List}
           className={{
-            container: '!h-full !p-0',
-            card: 'h-full',
+            container: '!p-0',
+            card: '',
           }}
           showCloseButton={false}
           showBorder
@@ -495,6 +544,7 @@ export const ExploreNewsLayout = ({
   arenaTab,
   onArenaTabChange,
   arenaHighlightsItems,
+  categoryClusterStories,
 }: ExploreNewsLayoutProps): ReactElement => {
   const isVideosMode = activeTabId === 'videos';
   const isExplorePage = activeTabId === 'explore';
@@ -654,7 +704,7 @@ export const ExploreNewsLayout = ({
 
     return uniqueStories
       .filter((story) => !displayedIds.has(story.id))
-      .slice(0, 12);
+      .slice(0, 6);
   }, [
     leadStory?.id,
     latestSection.stories,
@@ -670,7 +720,7 @@ export const ExploreNewsLayout = ({
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-[72rem] flex-col pt-4 pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
+    <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pt-4 pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
       <section
         id="explore"
         className="sticky top-16 z-header bg-background-default px-3 laptop:px-8"
@@ -694,7 +744,7 @@ export const ExploreNewsLayout = ({
       </section>
 
       <section id="top-news" className="px-8 py-6 laptop:px-8">
-        <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="grid gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div>
             {leadStory ? (
               <Link href={leadStory.commentsPermalink}>
@@ -703,7 +753,7 @@ export const ExploreNewsLayout = ({
                     <img
                       src={leadStory.image}
                       alt={getStoryHeadline(leadStory)}
-                      className="h-[30rem] w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      className="explore-hero-slow-zoom h-[30rem] w-full object-cover"
                     />
                   )}
                   <div className="shadow-2xl pointer-events-none absolute bottom-3 left-3 flex w-[18rem] flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 backdrop-blur-sm laptop:bottom-4 laptop:left-4 laptop:w-[22rem] laptop:p-4">
@@ -715,25 +765,53 @@ export const ExploreNewsLayout = ({
                         className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption1"
                         style={{ fontSize: '15px' }}
                       >
-                        {!!leadStory.source?.name && (
+                        {!!(
+                          (leadStory.source?.name === 'Community Picks' &&
+                            leadStory.author?.name) ||
+                          leadStory.source?.name
+                        ) && (
                           <span className="flex items-center gap-1.5">
-                            {leadStory.source?.image ? (
+                            {((leadStory.source?.name === 'Community Picks'
+                              ? leadStory.author?.image
+                              : leadStory.source?.image) && (
                               <img
-                                src={leadStory.source.image}
-                                alt={leadStory.source.name}
+                                src={
+                                  leadStory.source?.name === 'Community Picks'
+                                    ? leadStory.author?.image
+                                    : leadStory.source?.image
+                                }
+                                alt={
+                                  (leadStory.source?.name === 'Community Picks' &&
+                                    leadStory.author?.name) ||
+                                  leadStory.source?.name ||
+                                  ''
+                                }
                                 className="h-4 w-4 rounded-full object-cover"
                               />
-                            ) : (
+                            )) || (
                               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
-                                {leadStory.source.name.charAt(0)}
+                                {(
+                                  (leadStory.source?.name === 'Community Picks' &&
+                                    leadStory.author?.name) ||
+                                  leadStory.source?.name ||
+                                  'C'
+                                ).charAt(0)}
                               </span>
                             )}
-                            <span>{leadStory.source.name}</span>
+                            <span>
+                              {(leadStory.source?.name === 'Community Picks' &&
+                                leadStory.author?.name) ||
+                                leadStory.source?.name}
+                            </span>
                           </span>
                         )}
                         {!!leadStory.createdAt && (
                           <>
-                            {!!leadStory.source?.name && (
+                            {!!(
+                              (leadStory.source?.name === 'Community Picks' &&
+                                leadStory.author?.name) ||
+                              leadStory.source?.name
+                            ) && (
                               <span aria-hidden>•</span>
                             )}
                             <RelativeTime dateTime={leadStory.createdAt} />
@@ -770,32 +848,34 @@ export const ExploreNewsLayout = ({
       </section>
 
       <section className="px-8 pb-6 laptop:px-8">
-        <div className="space-y-8">
-          <div className="grid items-stretch gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <StorySectionBlock
-              section={latestSection}
-              sponsoredStory={sponsoredStory}
-            />
-            <CompactSectionBlock section={upvotedSection} />
-          </div>
-          {showExploreOnlySections && (
-            <div className="grid gap-x-8 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-              <div className="laptop:col-span-2">
-                <ExploreSocialStrips
-                  activeCategoryId={activeTabId}
-                  showTopSquads={false}
-                  showProgress
-                />
-              </div>
+        <div className="grid items-stretch gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <StorySectionBlock
+            section={latestSection}
+            sponsoredStory={sponsoredStory}
+          />
+          <CompactSectionBlock section={upvotedSection} />
+        </div>
+      </section>
+      {showExploreOnlySections && (
+        <section className="px-8 pb-6 laptop:px-8">
+          <div className="grid gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="laptop:col-span-2">
+              <ExploreSocialStrips
+                activeCategoryId={activeTabId}
+                showTopSquads={false}
+                showProgress
+              />
             </div>
-          )}
-          <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-6">
-            <StorySectionBlock
-              section={popularSection}
-              sponsoredStory={sponsoredPopularStory}
-            />
-            <CompactSectionBlock section={discussedSection} />
           </div>
+        </section>
+      )}
+      <section className="px-8 pb-6 laptop:px-8">
+        <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-10">
+          <StorySectionBlock
+            section={popularSection}
+            sponsoredStory={sponsoredPopularStory}
+          />
+          <CompactSectionBlock section={discussedSection} />
         </div>
       </section>
       <section className="px-8 pb-6 laptop:px-8">
@@ -817,7 +897,7 @@ export const ExploreNewsLayout = ({
               highlightsItems={arenaHighlightsItems}
             />
           </section>
-          <section className="px-8 pb-6 laptop:px-8">
+          <section className="px-8 pb-8 laptop:px-8">
             <ExploreSocialStrips
               activeCategoryId={activeTabId}
               showTopSquads={false}
@@ -829,15 +909,15 @@ export const ExploreNewsLayout = ({
       )}
       {isExplorePage && (
         <section className="px-8 pb-6 laptop:px-8">
-          <div className="grid items-stretch gap-4 gap-x-8 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid items-stretch gap-4 gap-x-10 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <MoreStoriesStrip stories={moreStories} />
             <ReadingBriefStrip />
           </div>
         </section>
       )}
       {showExploreOnlySections && (
-        <section className="px-8 pb-6 laptop:px-8">
-          <AgenticTopicClusterSection />
+        <section className="flex justify-center px-8 pb-6 laptop:px-8">
+          <AgenticTopicClusterSection storiesByCategory={categoryClusterStories} />
         </section>
       )}
     </main>

@@ -9,8 +9,6 @@ import {
 } from '../../../typography/Typography';
 import {
   briefButtonBg,
-  briefCardBg,
-  briefCardBorder,
 } from '../../../../styles/custom';
 import type { BriefCardProps } from './BriefCard';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
@@ -29,10 +27,6 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
 
 export type BriefCardDefaultProps = BriefCardProps;
-
-const rootStyle = {
-  background: briefCardBg,
-};
 
 export const BriefCardDefault = ({
   className,
@@ -97,13 +91,12 @@ export const BriefCardDefault = ({
 
   return (
     <div
-      style={{
-        ...rootStyle,
-        ...(showBorder ? { border: briefCardBorder } : {}),
-      }}
       className={classNames(
-        'relative flex flex-1 flex-col gap-4 rounded-16 px-6 py-4',
+        'relative flex flex-1 flex-col gap-4 rounded-16 bg-surface-float px-6 py-4',
         'backdrop-blur-3xl',
+        {
+          'border border-border-subtlest-tertiary': showBorder,
+        },
         className?.card,
       )}
     >
@@ -117,12 +110,13 @@ export const BriefCardDefault = ({
       <img
         src="/assets/brief-card-magic.png"
         alt=""
-        className="h-fit w-full object-contain"
+        className="brief-card-magic-float h-fit w-full object-contain"
       />
       <Typography
         type={TypographyType.Title3}
         color={TypographyColor.Primary}
         bold
+        center
       >
         {title}
       </Typography>
@@ -131,7 +125,7 @@ export const BriefCardDefault = ({
         style={{
           background: briefButtonBg,
         }}
-        className="mt-auto w-full text-black"
+        className="brief-card-cta-gradient mt-auto w-full text-black"
         tag="a"
         type="button"
         variant={ButtonVariant.Primary}

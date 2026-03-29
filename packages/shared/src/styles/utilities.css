@@ -110,6 +110,21 @@
   animation: slide-down 0.3s ease-out;
 }
 
+@keyframes explore-hero-slow-zoom {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+.explore-hero-slow-zoom {
+  transform-origin: center;
+  animation: explore-hero-slow-zoom 20s linear infinite alternate;
+}
+
 @keyframes crown-icon-pop {
   0% {
     transform: scale(1) rotate(0deg);
@@ -665,6 +680,114 @@
   animation: feed-highlights-title-gradient-shift 6s ease-in-out infinite;
 }
 
+@keyframes brief-card-border-tail-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes brief-card-border-tail-opacity {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.brief-card-animated-border {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--theme-border-subtlest-tertiary);
+}
+
+.brief-card-animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 292deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 12%, transparent)
+      312deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 52%, transparent)
+      328deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 100%, transparent)
+      340deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 45%, transparent)
+      350deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transform-origin: center;
+  will-change: transform;
+  filter: drop-shadow(
+    0 0 0.45rem
+      color-mix(in srgb, var(--theme-accent-blueCheese-default) 42%, transparent)
+  );
+  animation:
+    brief-card-border-tail-spin 2.4s linear infinite,
+    brief-card-border-tail-opacity 2.4s ease-in-out infinite;
+}
+
+.brief-card-animated-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 180deg,
+    transparent 0deg 318deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 60%, transparent)
+      336deg,
+    color-mix(in srgb, var(--theme-accent-blueCheese-default) 18%, transparent)
+      352deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transform-origin: center;
+  filter: blur(0.2rem);
+  opacity: 0.8;
+  animation: brief-card-border-tail-spin 3.6s linear infinite reverse;
+}
+
+.brief-card-cta-gradient {
+  background-size: 200% 200%;
+  animation: feed-highlights-title-gradient-shift 6s ease-in-out infinite;
+}
+
+@keyframes brief-card-magic-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-0.375rem);
+  }
+}
+
+.brief-card-magic-float {
+  animation: brief-card-magic-float 4.8s cubic-bezier(0.42, 0, 0.58, 1)
+    infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feed-highlights-title-gradient {
     animation: none;
@@ -674,5 +797,24 @@
   .feed-highlights-sponsor-gradient-bg {
     animation: none;
     background-position: 0% 50%;
+  }
+
+  .brief-card-animated-border {
+    &::before {
+      animation: none;
+    }
+
+    &::after {
+      animation: none;
+    }
+  }
+
+  .brief-card-cta-gradient {
+    animation: none;
+    background-position: 0% 50%;
+  }
+
+  .brief-card-magic-float {
+    animation: none;
   }
 }

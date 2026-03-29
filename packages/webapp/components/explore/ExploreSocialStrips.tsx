@@ -143,6 +143,7 @@ const TopSquadStories = ({
   squads: TopSquadStripItem[];
 }): ReactElement => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
 
   useEffect(() => {
@@ -154,6 +155,8 @@ const TopSquadStories = ({
 
       const canScroll =
         element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+      const canScrollLeft = element.scrollLeft > 1;
+      setShowScrollLeft(canScrollLeft);
       setShowScrollRight(canScroll);
     };
 
@@ -172,6 +175,12 @@ const TopSquadStories = ({
   const handleScrollRight = (): void => {
     scrollRef.current?.scrollBy({
       left: 220,
+      behavior: 'smooth',
+    });
+  };
+  const handleScrollLeft = (): void => {
+    scrollRef.current?.scrollBy({
+      left: -220,
       behavior: 'smooth',
     });
   };
@@ -207,6 +216,29 @@ const TopSquadStories = ({
           </a>
         ))}
       </div>
+      {showScrollLeft && (
+        <button
+          type="button"
+          aria-label="Scroll squads left"
+          onClick={handleScrollLeft}
+          className="absolute left-1 top-1/2 z-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-text-primary text-white shadow-2 transition-colors hover:bg-text-secondary"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            className="h-4 w-4 text-background-default"
+            aria-hidden
+          >
+            <path
+              d="M10 3L5 8l5 5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
       {showScrollRight && (
         <button
           type="button"
@@ -236,6 +268,7 @@ const TopSquadStories = ({
 
 const TopTagStories = ({ tags }: { tags: TopTagStripItem[] }): ReactElement => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
 
   useEffect(() => {
@@ -247,6 +280,8 @@ const TopTagStories = ({ tags }: { tags: TopTagStripItem[] }): ReactElement => {
 
       const canScroll =
         element.scrollLeft + element.clientWidth < element.scrollWidth - 1;
+      const canScrollLeft = element.scrollLeft > 1;
+      setShowScrollLeft(canScrollLeft);
       setShowScrollRight(canScroll);
     };
 
@@ -265,6 +300,12 @@ const TopTagStories = ({ tags }: { tags: TopTagStripItem[] }): ReactElement => {
   const handleScrollRight = (): void => {
     scrollRef.current?.scrollBy({
       left: 220,
+      behavior: 'smooth',
+    });
+  };
+  const handleScrollLeft = (): void => {
+    scrollRef.current?.scrollBy({
+      left: -220,
       behavior: 'smooth',
     });
   };
@@ -304,6 +345,29 @@ const TopTagStories = ({ tags }: { tags: TopTagStripItem[] }): ReactElement => {
           </a>
         ))}
       </div>
+      {showScrollLeft && (
+        <button
+          type="button"
+          aria-label="Scroll tags left"
+          onClick={handleScrollLeft}
+          className="absolute left-1 top-1/2 z-1 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-text-primary text-white shadow-2 transition-colors hover:bg-text-secondary"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            className="h-4 w-4 text-background-default"
+            aria-hidden
+          >
+            <path
+              d="M10 3L5 8l5 5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
       {showScrollRight && (
         <button
           type="button"

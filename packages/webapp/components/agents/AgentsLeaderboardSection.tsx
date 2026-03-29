@@ -39,7 +39,7 @@ export const AgentsLeaderboardSection = ({
   compact = true,
   highlightsItems = [],
 }: AgentsLeaderboardSectionProps): ReactElement => (
-  <section className="w-full pt-4">
+  <section className="w-full pt-0">
     {compact ? (
       <header className="mb-1.5 flex items-center gap-2 px-3 laptop:px-4">
         <h2 className="font-bold text-text-primary typo-title3">Arena</h2>
