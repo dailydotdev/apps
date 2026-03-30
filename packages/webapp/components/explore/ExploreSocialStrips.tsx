@@ -9,8 +9,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
-import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
+import { CoreIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { ExploreCategoryId } from './exploreCategories';
 import { getExploreCategoryById } from './exploreCategories';
@@ -549,8 +548,7 @@ export const ExploreSocialStrips = ({
       isPlus: true,
     }));
 
-    return [...regularQuests, ...plusQuests]
-      .slice(0, DAILY_QUESTS_LIMIT);
+    return [...regularQuests, ...plusQuests].slice(0, DAILY_QUESTS_LIMIT);
   }, [questDashboard]);
 
   if (!shouldRenderTopSquads && !shouldRenderTopTags && !shouldRenderProgress) {

@@ -26,7 +26,10 @@ import {
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { ExploreNewsLayout } from './ExploreNewsLayout';
 import type { ExploreCategoryId } from './exploreCategories';
-import { EXPLORE_CATEGORIES, getExploreCategoryById } from './exploreCategories';
+import {
+  EXPLORE_CATEGORIES,
+  getExploreCategoryById,
+} from './exploreCategories';
 
 const TOPIC_CLUSTER_CATEGORY_IDS = (() => {
   const agenticIndex = EXPLORE_CATEGORIES.findIndex(

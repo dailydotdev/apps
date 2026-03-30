@@ -138,9 +138,11 @@ const getCommunityAuthorMeta = (
 const StoryOriginMeta = ({
   story,
   sourceLabelOverride,
+  sourceFallbackLabel,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
+  sourceFallbackLabel?: string;
 }): ReactElement | null => {
   if (sourceLabelOverride) {
     return <span>{sourceLabelOverride}</span>;
@@ -150,7 +152,7 @@ const StoryOriginMeta = ({
     const communityAuthorMeta = getCommunityAuthorMeta(story);
 
     if (!communityAuthorMeta) {
-      return <SourceMeta source={story.source} />;
+      return null;
     }
 
     return (
@@ -171,6 +173,10 @@ const StoryOriginMeta = ({
     );
   }
 
+  if (sourceFallbackLabel) {
+    return <span>{sourceFallbackLabel}</span>;
+  }
+
   return <SourceMeta source={story.source} />;
 };
 
@@ -180,18 +186,24 @@ const StoryRow = ({
   showEngagement = true,
   isSponsored = false,
   imageOnRight = false,
+  showEngagementIcons = false,
+  sourceFallbackLabel,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
   showEngagement?: boolean;
   isSponsored?: boolean;
   imageOnRight?: boolean;
+  showEngagementIcons?: boolean;
+  sourceFallbackLabel?: string;
 }): ReactElement => {
   const hasCommunityAuthorMeta = Boolean(getCommunityAuthorMeta(story));
   const hasSourceMeta = Boolean(
     sourceLabelOverride ||
-      story.source?.name ||
-      (story.source?.name === 'Community Picks' && hasCommunityAuthorMeta),
+      (story.source?.name === 'Community Picks'
+        ? hasCommunityAuthorMeta
+        : story.source?.name),
+    sourceFallbackLabel,
   );
 
   return (
@@ -218,7 +230,7 @@ const StoryRow = ({
             {getStoryHeadline(story)}
           </p>
           <div
-            className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
+            className="mt-2 flex flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
             style={{ fontSize: '15px' }}
           >
             {isSponsored ? (
@@ -226,34 +238,64 @@ const StoryRow = ({
                 <StoryOriginMeta
                   story={story}
                   sourceLabelOverride={sourceLabelOverride}
+                  sourceFallbackLabel={sourceFallbackLabel}
                 />
                 <span aria-hidden>•</span>
                 <span>Sponsored</span>
               </>
             ) : (
               <>
-                <StoryOriginMeta
-                  story={story}
-                  sourceLabelOverride={sourceLabelOverride}
-                />
-                {hasSourceMeta && !!story.createdAt && (
-                  <span aria-hidden>•</span>
-                )}
-                {!!story.createdAt && (
-                  <RelativeTime dateTime={story.createdAt} />
-                )}
-                {showEngagement && !!story.numUpvotes && (
-                  <>
+                <span className="flex items-center gap-1">
+                  <StoryOriginMeta
+                    story={story}
+                    sourceLabelOverride={sourceLabelOverride}
+                    sourceFallbackLabel={sourceFallbackLabel}
+                  />
+                  {hasSourceMeta && !!story.createdAt && (
                     <span aria-hidden>•</span>
-                    <span>{story.numUpvotes} upvotes</span>
-                  </>
-                )}
-                {showEngagement && !!story.numComments && (
-                  <>
-                    <span aria-hidden>•</span>
-                    <span>{story.numComments} comments</span>
-                  </>
-                )}
+                  )}
+                  {!!story.createdAt && (
+                    <RelativeTime dateTime={story.createdAt} />
+                  )}
+                </span>
+                {showEngagementIcons &&
+                  showEngagement &&
+                  !!story.numUpvotes && (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-1.5 py-0.5 text-text-quaternary">
+                        <UpvoteIcon size={IconSize.XXSmall} />
+                        <span>{story.numUpvotes}</span>
+                      </span>
+                    </>
+                  )}
+                {showEngagementIcons &&
+                  showEngagement &&
+                  !!story.numComments && (
+                    <>
+                      {!story.numUpvotes && <span aria-hidden>•</span>}
+                      <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-1.5 py-0.5 text-text-quaternary">
+                        <DiscussIcon size={IconSize.XXSmall} />
+                        <span>{story.numComments}</span>
+                      </span>
+                    </>
+                  )}
+                {!showEngagementIcons &&
+                  showEngagement &&
+                  !!story.numUpvotes && (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span>{story.numUpvotes} upvotes</span>
+                    </>
+                  )}
+                {!showEngagementIcons &&
+                  showEngagement &&
+                  !!story.numComments && (
+                    <>
+                      <span aria-hidden>•</span>
+                      <span>{story.numComments} comments</span>
+                    </>
+                  )}
               </>
             )}
           </div>
@@ -288,7 +330,8 @@ const StorySectionBlock = ({
       ? ''
       : 'border border-border-subtlest-tertiary';
   const sourceLabelOverride = undefined;
-  const showEngagement = !isPopularSection && !isLatestSection;
+  const sourceFallbackLabel = isPopularSection ? 'Top stories' : undefined;
+  const showEngagement = true;
   const storiesWithSponsoredSlot = useMemo(() => {
     if (!isSponsoredSlotSection || !sponsoredStory) {
       return section.stories;
@@ -335,7 +378,9 @@ const StorySectionBlock = ({
             key={story.id}
             story={story}
             sourceLabelOverride={sourceLabelOverride}
+            sourceFallbackLabel={sourceFallbackLabel}
             showEngagement={showEngagement}
+            showEngagementIcons
             isSponsored={
               isSponsoredSlotSection && sponsoredStory?.id === story.id
             }
@@ -355,17 +400,18 @@ const CompactSectionBlock = ({
 }): ReactElement => {
   const isUpvotedSection = section.id === 'upvoted';
   const isDiscussedSection = section.id === 'discussed';
-  const isHighlightedCompactSection = isUpvotedSection || isDiscussedSection;
+  const isHighlightedCompactSection =
+    section.id === 'upvoted' || section.id === 'discussed';
   const hasMoreStories = section.totalStoriesCount > section.stories.length;
 
   return (
     <section
       id={section.id}
       className={`h-full rounded-16 p-3 laptop:p-4 ${
-        isHighlightedCompactSection ? '' : 'border border-border-subtlest-tertiary'
-      } ${
-        isHighlightedCompactSection ? 'bg-surface-float' : ''
-      }`}
+        isHighlightedCompactSection
+          ? ''
+          : 'border border-border-subtlest-tertiary'
+      } ${isHighlightedCompactSection ? 'bg-surface-float' : ''}`}
     >
       <header className="mb-2 flex items-center justify-between gap-3">
         <Link href={section.href}>
@@ -376,52 +422,59 @@ const CompactSectionBlock = ({
       </header>
       {section.stories.length > 0 ? (
         section.stories.map((story, index) => (
-          <Link key={story.id} href={story.commentsPermalink}>
-            <a
-              className={`flex items-start gap-3 py-2 ${
-                index === section.stories.length - 1
-                  ? 'border-0'
-                  : 'mb-2 border-b border-border-subtlest-tertiary'
-              }`}
-            >
-              {isUpvotedSection && (
-                <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-avocado-default">
-                  <UpvoteIcon size={IconSize.Small} />
-                  <span className="text-[1rem] font-bold leading-none typo-caption2">
-                    {story.numUpvotes ?? 0}
-                  </span>
-                </span>
-              )}
-              {isDiscussedSection && (
-                <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-blueCheese-default">
-                  <DiscussIcon size={IconSize.Small} />
-                  <span className="text-[1rem] font-bold leading-none typo-caption2">
-                    {story.numComments ?? 0}
-                  </span>
-                </span>
-              )}
-              <div className="min-w-0 flex-1">
-                <p
-                  className="text-text-primary typo-callout"
-                  style={{ fontSize: '17px' }}
-                >
-                  {getStoryHeadline(story)}
-                </p>
-                <div
-                  className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
-                  style={{ fontSize: '15px' }}
-                >
-                  <StoryOriginMeta story={story} />
-                  {!!story.source?.name && !!story.createdAt && (
-                    <span aria-hidden>•</span>
+          <div
+            key={story.id}
+            className={
+              index === section.stories.length - 1
+                ? ''
+                : 'mb-2 border-b border-border-subtlest-tertiary'
+            }
+          >
+            {isUpvotedSection || isDiscussedSection ? (
+              <Link href={story.commentsPermalink}>
+                <a className="flex items-start gap-3 py-2">
+                  {isUpvotedSection && (
+                    <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-avocado-default">
+                      <UpvoteIcon size={IconSize.Small} />
+                      <span className="text-[1rem] font-bold leading-none typo-caption2">
+                        {story.numUpvotes ?? 0}
+                      </span>
+                    </span>
                   )}
-                  {!!story.createdAt && (
-                    <RelativeTime dateTime={story.createdAt} />
+                  {isDiscussedSection && (
+                    <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-blueCheese-default">
+                      <DiscussIcon size={IconSize.Small} />
+                      <span className="text-[1rem] font-bold leading-none typo-caption2">
+                        {story.numComments ?? 0}
+                      </span>
+                    </span>
                   )}
-                </div>
-              </div>
-            </a>
-          </Link>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="text-text-primary transition-colors typo-callout"
+                      style={{ fontSize: '17px' }}
+                    >
+                      {getStoryHeadline(story)}
+                    </p>
+                    <div
+                      className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
+                      style={{ fontSize: '15px' }}
+                    >
+                      <StoryOriginMeta story={story} />
+                      {!!story.source?.name && !!story.createdAt && (
+                        <span aria-hidden>•</span>
+                      )}
+                      {!!story.createdAt && (
+                        <RelativeTime dateTime={story.createdAt} />
+                      )}
+                    </div>
+                  </div>
+                </a>
+              </Link>
+            ) : (
+              <StoryRow story={story} showEngagement showEngagementIcons />
+            )}
+          </div>
         ))
       ) : (
         <p className="py-2 text-text-tertiary typo-callout">No stories yet.</p>
@@ -458,7 +511,9 @@ const MoreStoriesStrip = ({
           <StoryRow
             key={story.id}
             story={story}
-            showEngagement={false}
+            sourceFallbackLabel="More stories"
+            showEngagement
+            showEngagementIcons
           />
         ))}
       </div>
@@ -471,7 +526,7 @@ const ReadingBriefStripInner = (): ReactElement => {
 
   if (!brief) {
     return (
-      <section id="reading-brief-strip" className="flex self-start flex-col">
+      <section id="reading-brief-strip" className="flex flex-col self-start">
         <BriefCardFeed
           targetId={TargetId.List}
           className={{
@@ -603,6 +658,17 @@ export const ExploreNewsLayout = ({
     () => latestStoriesForView[0] ?? popularStoriesForView[0] ?? null,
     [latestStoriesForView, popularStoriesForView],
   );
+  const leadStoryCommunityAuthorMeta = leadStory
+    ? getCommunityAuthorMeta(leadStory)
+    : null;
+  const leadStoryOriginName =
+    leadStory?.source?.name === 'Community Picks'
+      ? leadStoryCommunityAuthorMeta?.name
+      : leadStory?.source?.name;
+  const leadStoryOriginImage =
+    leadStory?.source?.name === 'Community Picks'
+      ? leadStoryCommunityAuthorMeta?.image
+      : leadStory?.source?.image;
 
   const latestSection = useMemo<StorySection>(
     () => ({
@@ -720,7 +786,7 @@ export const ExploreNewsLayout = ({
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pt-4 pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
+    <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pb-8 pt-4 laptop:border-x laptop:border-border-subtlest-tertiary">
       <section
         id="explore"
         className="sticky top-16 z-header bg-background-default px-3 laptop:px-8"
@@ -765,53 +831,25 @@ export const ExploreNewsLayout = ({
                         className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption1"
                         style={{ fontSize: '15px' }}
                       >
-                        {!!(
-                          (leadStory.source?.name === 'Community Picks' &&
-                            leadStory.author?.name) ||
-                          leadStory.source?.name
-                        ) && (
+                        {!!leadStoryOriginName && (
                           <span className="flex items-center gap-1.5">
-                            {((leadStory.source?.name === 'Community Picks'
-                              ? leadStory.author?.image
-                              : leadStory.source?.image) && (
+                            {(leadStoryOriginImage && (
                               <img
-                                src={
-                                  leadStory.source?.name === 'Community Picks'
-                                    ? leadStory.author?.image
-                                    : leadStory.source?.image
-                                }
-                                alt={
-                                  (leadStory.source?.name === 'Community Picks' &&
-                                    leadStory.author?.name) ||
-                                  leadStory.source?.name ||
-                                  ''
-                                }
+                                src={leadStoryOriginImage}
+                                alt={leadStoryOriginName}
                                 className="h-4 w-4 rounded-full object-cover"
                               />
                             )) || (
                               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
-                                {(
-                                  (leadStory.source?.name === 'Community Picks' &&
-                                    leadStory.author?.name) ||
-                                  leadStory.source?.name ||
-                                  'C'
-                                ).charAt(0)}
+                                {(leadStoryOriginName || 'C').charAt(0)}
                               </span>
                             )}
-                            <span>
-                              {(leadStory.source?.name === 'Community Picks' &&
-                                leadStory.author?.name) ||
-                                leadStory.source?.name}
-                            </span>
+                            <span>{leadStoryOriginName}</span>
                           </span>
                         )}
                         {!!leadStory.createdAt && (
                           <>
-                            {!!(
-                              (leadStory.source?.name === 'Community Picks' &&
-                                leadStory.author?.name) ||
-                              leadStory.source?.name
-                            ) && (
+                            {!!leadStoryOriginName && (
                               <span aria-hidden>•</span>
                             )}
                             <RelativeTime dateTime={leadStory.createdAt} />
@@ -917,7 +955,9 @@ export const ExploreNewsLayout = ({
       )}
       {showExploreOnlySections && (
         <section className="flex justify-center px-8 pb-6 laptop:px-8">
-          <AgenticTopicClusterSection storiesByCategory={categoryClusterStories} />
+          <AgenticTopicClusterSection
+            storiesByCategory={categoryClusterStories}
+          />
         </section>
       )}
     </main>
