@@ -68,7 +68,10 @@ export function CompanionEngagements({
           {upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      {!showCount && !!belowThresholdLabel && <span>{belowThresholdLabel}</span>}
+      {!showCount &&
+        !!belowThresholdLabel && (
+          <span>{belowThresholdLabel}</span>
+        )}
       {comments > 0 && (
         <span>
           {largeNumberFormat(comments)}
