@@ -1,14 +1,10 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-var-requires, import/no-extraneous-dependencies */
 const path = require('path');
-const webpack = require('webpack');
+const rspack = require('@rspack/core');
 const FilemanagerPlugin = require('filemanager-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WextManifestWebpackPlugin = require('wext-manifest-webpack-plugin');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const Dotenv = require('dotenv-webpack');
+const dotenv = require('dotenv');
+const fs = require('fs');
 const { version } = require('./package.json');
 
 const viewsPath = path.join(__dirname, 'views');
@@ -30,7 +26,7 @@ const getExtensionFileType = (browser) => {
 };
 
 const baseConfig = {
-  devtool: false, // https://github.com/webpack/webpack/issues/1194#issuecomment-560382342
+  devtool: false,
 
   stats: {
     all: false,
@@ -85,30 +81,41 @@ const baseConfig = {
         ],
       },
       {
-        type: 'javascript/auto', // prevent webpack handling json with its own loaders,
+        type: 'javascript/auto',
         test: /manifest\.json$/,
         use: {
           loader: 'wext-manifest-loader',
           options: {
-            usePackageJSONVersion: true, // set to false to not use package.json version for manifest
+            usePackageJSONVersion: true,
           },
         },
         exclude: /node_modules/,
       },
       {
         test: /\.(js|ts)x?$/,
-        loader: 'babel-loader',
         exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
+        loader: 'builtin:swc-loader',
+        options: {
+          jsc: {
+            parser: {
+              syntax: 'typescript',
+              tsx: true,
+            },
+            transform: {
+              react: {
+                runtime: 'automatic',
+              },
+            },
+          },
+        },
       },
       {
         test: /\.(sa|sc|c)ss$/,
         exclude: /node_modules(\/|\\)(?!@dailydotdev)/,
         use: [
+          rspack.CssExtractRspackPlugin.loader,
           {
-            loader: MiniCssExtractPlugin.loader, // It creates a CSS file per JS file which contains CSS
-          },
-          {
-            loader: 'css-loader', // Takes the CSS files and returns the CSS with imports and url(...) for Webpack
+            loader: 'css-loader',
             options: {
               sourceMap: true,
             },
@@ -116,66 +123,68 @@ const baseConfig = {
           {
             loader: 'postcss-loader',
           },
-          'resolve-url-loader', // Rewrites relative paths in url() statements
+          'resolve-url-loader',
         ],
       },
     ],
   },
 
   plugins: [
-    // Plugin to not generate js bundle for manifest entry
     new WextManifestWebpackPlugin(),
-    // Generate sourcemaps (disabled in production due to very large bundle sizes)
+    // Fallback: delete manifest JS bundle if the plugin didn't catch it under rspack
+    {
+      apply(compiler) {
+        compiler.hooks.afterEmit.tap('CleanManifestJs', () => {
+          const file = path.join(compiler.outputPath, 'js/manifest.bundle.js');
+          if (fs.existsSync(file)) {
+            fs.unlinkSync(file);
+          }
+        });
+      },
+    },
     ...(process.env.NODE_ENV === 'production'
       ? []
-      : [new webpack.SourceMapDevToolPlugin({ filename: false })]),
-    new ForkTsCheckerWebpackPlugin(),
-    // environmental variables
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'TARGET_BROWSER']),
-    new Dotenv({
-      path:
-        process.env.NODE_ENV === 'production' ? './.env.production' : './.env',
-    }),
-    new webpack.DefinePlugin({
+      : [new rspack.SourceMapDevToolPlugin({ filename: false })]),
+    new rspack.EnvironmentPlugin(['NODE_ENV', 'TARGET_BROWSER']),
+    new rspack.DefinePlugin({
       'process.env.CURRENT_VERSION': `'${version}'`,
+      ...Object.fromEntries(
+        Object.entries(
+          dotenv.config({
+            path:
+              process.env.NODE_ENV === 'production'
+                ? './.env.production'
+                : './.env',
+          }).parsed || {},
+        ).map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+      ),
+      // Stub process.env so undefined vars resolve to undefined instead of
+      // crashing with "process is not defined" (same as dotenv-webpack)
+      'process.env': '"MISSING_ENV_VAR"',
     }),
-    // delete previous build files
-    new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: [
-        path.join(destPath, targetBrowser),
-        path.join(
-          destPath,
-          `${targetBrowser}.${getExtensionFileType(targetBrowser)}`,
-        ),
-      ],
-      cleanStaleWebpackAssets: false,
-      verbose: true,
-    }),
-    new HtmlWebpackPlugin({
+    new rspack.HtmlRspackPlugin({
       template: path.join(viewsPath, 'newtab.html'),
       inject: 'body',
       chunks: ['newtab'],
       hash: true,
       filename: 'index.html',
     }),
-    new HtmlWebpackPlugin({
+    new rspack.HtmlRspackPlugin({
       template: path.join(viewsPath, 'companion.html'),
       inject: 'body',
       chunks: ['companion'],
       hash: true,
       filename: 'companion.html',
     }),
-    new HtmlWebpackPlugin({
+    new rspack.HtmlRspackPlugin({
       template: path.join(viewsPath, 'frame.html'),
       inject: 'body',
       chunks: ['frame'],
       hash: true,
       filename: 'frame.html',
     }),
-    // write css file(s) to build folder
-    new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
-    // copy static assets
-    new CopyWebpackPlugin({
+    new rspack.CssExtractRspackPlugin({ filename: 'css/[name].css' }),
+    new rspack.CopyRspackPlugin({
       patterns: [{ from: 'public', to: '.' }],
     }),
   ],
@@ -186,6 +195,10 @@ const baseConfig = {
 const backgroundConfig = {
   ...baseConfig,
   target: 'webworker',
+  output: {
+    ...baseConfig.output,
+    clean: true,
+  },
   entry: {
     background: path.join(sourcePath, 'background', 'index.ts'),
   },
@@ -194,15 +207,26 @@ const backgroundConfig = {
 const mainConfig = {
   ...baseConfig,
   entry: {
-    manifest: path.join(sourcePath, 'manifest.json'),
-    content: path.join(sourcePath, 'content'),
-    companion: path.join(sourcePath, 'companion', 'index.tsx'),
-    frame: path.join(sourcePath, 'frame', 'index.ts'),
-    newtab: path.join(sourcePath, 'newtab', 'index.tsx'),
+    manifest: {
+      import: path.join(sourcePath, 'manifest.json'),
+      runtime: false,
+    },
+    content: { import: path.join(sourcePath, 'content'), runtime: false },
+    companion: {
+      import: path.join(sourcePath, 'companion', 'index.tsx'),
+      runtime: false,
+    },
+    frame: {
+      import: path.join(sourcePath, 'frame', 'index.ts'),
+      runtime: false,
+    },
+    newtab: {
+      import: path.join(sourcePath, 'newtab', 'index.tsx'),
+      runtime: 'runtime',
+    },
   },
   plugins: [
     ...baseConfig.plugins,
-    // Add FilemanagerPlugin only to mainConfig (last config) to create archive after all builds complete
     ...(process.env.NODE_ENV === 'production'
       ? [
           new FilemanagerPlugin({
@@ -227,18 +251,11 @@ const mainConfig = {
   ],
   optimization: {
     ...baseConfig.optimization,
-    // Only extract runtime for newtab; content scripts must stay self-contained
-    runtimeChunk: {
-      name(entrypoint) {
-        return entrypoint.name === 'newtab' ? 'runtime' : false;
-      },
-    },
-    // Only split newtab chunks; content scripts must remain single bundles
     splitChunks: {
       chunks(chunk) {
         return !['content', 'companion', 'manifest'].includes(chunk.name);
       },
-      maxSize: 244000, // ~238KB max chunk size to avoid V8 limits
+      maxSize: 244000,
       cacheGroups: {
         defaultVendors: {
           test: /[\\/]node_modules[\\/]/,
