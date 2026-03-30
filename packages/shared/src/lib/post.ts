@@ -9,11 +9,15 @@ export function getUpvoteCountDisplay(
   belowThresholdLabel: string,
   userHasUpvoted: boolean,
 ): UpvoteCountDisplay {
+  if (userHasUpvoted) {
+    return { showCount: true, belowThresholdLabel: '' };
+  }
+
   if (numUpvotes <= 0) {
     return { showCount: false, belowThresholdLabel: '' };
   }
 
-  if (threshold <= 0 || userHasUpvoted || numUpvotes >= threshold) {
+  if (threshold <= 0 || numUpvotes >= threshold) {
     return { showCount: true, belowThresholdLabel: '' };
   }
 

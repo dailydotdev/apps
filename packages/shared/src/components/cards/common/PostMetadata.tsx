@@ -38,6 +38,8 @@ export default function PostMetadata({
   pollMetadata,
   userHasUpvoted = false,
 }: PostMetadataProps): ReactElement {
+  const upvoteCount = numUpvotes ?? 0;
+  const readTimeValue = readTime ?? 0;
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
@@ -49,7 +51,7 @@ export default function PostMetadata({
     showCount: showUpvoteCount,
     belowThresholdLabel: upvoteLabel,
   } = getUpvoteCountDisplay(
-    numUpvotes ?? 0,
+    upvoteCount,
     upvoteThresholdConfig.threshold,
     upvoteThresholdConfig.belowThresholdLabel,
     userHasUpvoted,
@@ -57,7 +59,7 @@ export default function PostMetadata({
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+    boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
   );
 
   const items: { key: string; node: ReactNode }[] = [
@@ -83,20 +85,19 @@ export default function PostMetadata({
       key: 'readTime',
       node: (
         <span data-testid="readTime">
-          {formatReadTime(readTime)} {timeActionContent} time
+          {formatReadTime(readTimeValue)} {timeActionContent} time
         </span>
       ),
     },
     !!showReadTime && domain && { key: 'domain', node: domain },
-    showUpvoteCount &&
-      numUpvotes && {
-        key: 'upvotes',
-        node: (
-          <span data-testid="numUpvotes">
-            {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
-          </span>
-        ),
-      },
+    showUpvoteCount && {
+      key: 'upvotes',
+      node: (
+        <span data-testid="numUpvotes">
+          {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
+        </span>
+      ),
+    },
     !showUpvoteCount &&
       upvoteLabel && {
         key: 'upvotes',

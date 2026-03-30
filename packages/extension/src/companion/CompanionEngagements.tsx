@@ -18,7 +18,7 @@ interface CompanionEngagementsProps {
 export function CompanionEngagements({
   post,
   onUpvotesClick,
-}: CompanionEngagementsProps): ReactElement {
+}: CompanionEngagementsProps): ReactElement | null {
   if (!post) {
     return null;
   }
@@ -46,6 +46,7 @@ export function CompanionEngagements({
     feature: featureUpvoteCountThreshold,
   });
   const upvotes = post.numUpvotes ?? 0;
+  const comments = post.numComments ?? 0;
   const userHasUpvoted = post.userState?.vote === UserVote.Up;
   const { showCount, belowThresholdLabel } = getUpvoteCountDisplay(
     upvotes,
@@ -69,10 +70,10 @@ export function CompanionEngagements({
       {!showCount && belowThresholdLabel && (
         <span>{belowThresholdLabel}</span>
       )}
-      {post.numComments > 0 && (
+      {comments > 0 && (
         <span>
-          {largeNumberFormat(post.numComments)}
-          {` Comment${post.numComments === 1 ? '' : 's'}`}
+          {largeNumberFormat(comments)}
+          {` Comment${comments === 1 ? '' : 's'}`}
         </span>
       )}
     </div>

@@ -60,8 +60,8 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
       {...combinedClicks(onLinkClick)}
     />
     <LazyImage
-      imgSrc={post.source.image}
-      imgAlt={post.source.name}
+      imgSrc={post.source?.image ?? ''}
+      imgAlt={post.source?.name ?? ''}
       className={imageClassName}
     />
     <div className={textContainerClassName}>
@@ -80,8 +80,8 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
         </div>
       ) : (
         <PostEngagementCounts
-          upvotes={post.numUpvotes}
-          comments={post.numComments}
+          upvotes={post.numUpvotes ?? 0}
+          comments={post.numComments ?? 0}
           userHasUpvoted={post.userState?.vote === UserVote.Up}
           className="text-text-tertiary"
         />
@@ -115,8 +115,9 @@ export default function SimilarPosts({
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
   const moreButtonHref =
-    moreButtonProps?.href || process.env.NEXT_PUBLIC_WEBAPP_URL;
+    moreButtonProps?.href ?? process.env.NEXT_PUBLIC_WEBAPP_URL ?? '/';
   const moreButtonText = moreButtonProps?.text || 'View all';
+  const displayPosts = posts ?? [];
 
   const onLinkClick = async (post: Post): Promise<void> => {
     logEvent(
@@ -140,7 +141,7 @@ export default function SimilarPosts({
         </>
       ) : (
         <>
-          {posts.map((post) => (
+          {displayPosts.map((post) => (
             <ListItem
               key={post.id}
               post={post}
