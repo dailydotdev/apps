@@ -3,6 +3,7 @@ import React from 'react';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
@@ -19,15 +20,9 @@ export function CompanionEngagements({
   post,
   onUpvotesClick,
 }: CompanionEngagementsProps): ReactElement | null {
-  if (!post) {
-    return null;
-  }
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
   const client = useQueryClient();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useRawBackgroundRequest(({ res, key }) => {
     if (!Array.isArray(key)) {
       return;
@@ -40,11 +35,9 @@ export function CompanionEngagements({
     client.setQueryData(key, res);
   });
 
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
-    shouldEvaluate: !!post.userState,
+    shouldEvaluate: isLoggedIn,
   });
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
