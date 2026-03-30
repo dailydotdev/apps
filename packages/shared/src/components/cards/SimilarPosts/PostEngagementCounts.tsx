@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { separatorCharacter } from '../common/common';
 import { largeNumberFormat } from '../../../lib';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
 import { getUpvoteCountDisplay } from '../../../lib/post';
@@ -13,6 +12,7 @@ interface PostEngagementCountsProps {
   comments: number;
   className?: string;
   userHasUpvoted?: boolean;
+  shouldEvaluateFeature?: boolean;
 }
 
 export function PostEngagementCounts({
@@ -20,12 +20,11 @@ export function PostEngagementCounts({
   comments,
   className,
   userHasUpvoted = false,
+  shouldEvaluateFeature = false,
 }: PostEngagementCountsProps): ReactElement {
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
+    shouldEvaluate: shouldEvaluateFeature,
   });
   const { showCount, belowThresholdLabel } = getUpvoteCountDisplay(
     upvotes,
