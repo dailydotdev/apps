@@ -8,6 +8,7 @@ import type { Post } from '../../graphql/posts';
 import { isSourceUserSource } from '../../graphql/sources';
 import { DiscussIcon, LockIcon, UpvoteIcon } from '../icons';
 import { largeNumberFormat } from '../../lib/numberFormat';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureUpvoteCountThreshold } from '../../lib/featureManagement';
 import { getUpvoteCountDisplay } from '../../lib/post';
@@ -25,8 +26,11 @@ export function RepostListItem({
   scrollingContainer,
   appendTooltipTo,
 }: RepostListItemProps): ReactElement {
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
   });
   const { source } = post;
   const isUserSource = source ? isSourceUserSource(source) : false;

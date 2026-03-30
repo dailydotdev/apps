@@ -44,6 +44,7 @@ export function CompanionEngagements({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
+    shouldEvaluate: !!post.userState,
   });
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
@@ -67,7 +68,7 @@ export function CompanionEngagements({
           {upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      {!showCount && belowThresholdLabel && <span>{belowThresholdLabel}</span>}
+      {!showCount && !!belowThresholdLabel && <span>{belowThresholdLabel}</span>}
       {comments > 0 && (
         <span>
           {largeNumberFormat(comments)}

@@ -6,6 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
 import { getUpvoteCountDisplay } from '../../../lib/post';
@@ -43,9 +44,12 @@ export default function PostMetadata({
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
 
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
   });
   const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
     getUpvoteCountDisplay(
@@ -97,7 +101,7 @@ export default function PostMetadata({
       ),
     },
     !showUpvoteCount &&
-      upvoteLabel && {
+      !!upvoteLabel && {
         key: 'upvotes',
         node: <span data-testid="numUpvotes">{upvoteLabel}</span>,
       },

@@ -34,8 +34,10 @@ export function PostUpvotesCommentsCount({
 }: PostUpvotesCommentsCountProps): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
+  const isLoggedIn = !!user;
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
   });
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
@@ -82,7 +84,7 @@ export function PostUpvotesCommentsCount({
           {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      {!showUpvotes && upvoteLabel && <span>{upvoteLabel}</span>}
+      {!showUpvotes && !!upvoteLabel && <span>{upvoteLabel}</span>}
       {comments > 0 && (
         <span>
           {largeNumberFormat(comments)}

@@ -22,6 +22,7 @@ import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
@@ -78,6 +79,8 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
 
   const {
     isUpvoteActive,
@@ -98,6 +101,7 @@ const ActionButtons = ({
 
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
   });
 
   if (isFeedPreview) {
@@ -203,7 +207,7 @@ const ActionButtons = ({
                 value={upvoteCount}
               />
             ) : (
-              upvoteLabel && (
+              !!upvoteLabel && (
                 <span
                   className={classNames(
                     'tabular-nums',
