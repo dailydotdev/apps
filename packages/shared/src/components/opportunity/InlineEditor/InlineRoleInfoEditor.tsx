@@ -83,7 +83,8 @@ export const InlineRoleInfoEditor = ({
   });
 
   const methods = useForm({
-    resolver: zodResolver(opportunityEditInfoSchema),
+    resolver: zodResolver(opportunityEditInfoSchema    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) as any,
     defaultValues: async () => {
       const opportunityData = await promise;
       return opportunityData;

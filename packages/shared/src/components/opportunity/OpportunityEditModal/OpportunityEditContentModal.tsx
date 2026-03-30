@@ -22,12 +22,13 @@ import MarkdownInput from '../../fields/MarkdownInput';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
+import type { ContentSection } from '../../../features/opportunity/types';
 import { opportunityEditDiscardPrompt } from './common';
 
 export type OpportunityEditContentModalProps = {
   id: string;
   contentTitle: string;
-  contentName: string;
+  contentName: ContentSection;
 };
 
 export const OpportunityEditContentModal = ({
@@ -60,13 +61,16 @@ export const OpportunityEditContentModal = ({
     setError,
     setValue,
   } = useForm({
+    // Dynamic .pick() with a runtime key produces an index signature that
+    // react-hook-form's Resolver type can't reconcile statically.
     resolver: zodResolver(
       opportunityEditContentSchema.extend({
         content: opportunityEditContentSchema.shape.content.pick({
           [contentName]: true,
         }),
       }),
-    ),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) as any,
     defaultValues: async () => {
       const opportunityData = await promise;
 

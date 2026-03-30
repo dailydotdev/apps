@@ -126,7 +126,8 @@ const useUserExperienceForm = ({
   const methods = useForm<UserExperience>({
     defaultValues,
     reValidateMode: 'onSubmit',
-    resolver: zodResolver(userExperienceInputBaseSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(userExperienceInputBaseSchema) as any,
   });
   const { id, type } = defaultValues;
   const isNewExperience = !id;

@@ -74,13 +74,16 @@ export const InlineContentEditor = ({
     setValue,
     reset,
   } = useForm({
+    // Dynamic .pick() with a runtime key produces an index signature that
+    // react-hook-form's Resolver type can't reconcile statically.
     resolver: zodResolver(
       opportunityEditContentSchema.extend({
         content: opportunityEditContentSchema.shape.content.pick({
           [section]: true,
         }),
       }),
-    ),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) as any,
     defaultValues: async () => {
       const opportunityData = await promise;
       // Use HTML for rich text editor

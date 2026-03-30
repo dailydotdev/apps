@@ -289,7 +289,8 @@ export function useOpportunityEditForm({
   const defaultValues = draftData || opportunityFormData;
 
   const form = useForm<OpportunitySideBySideEditFormData>({
-    resolver: zodResolver(opportunitySideBySideEditSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(opportunitySideBySideEditSchema) as any,
     defaultValues,
     mode: 'onChange',
   });
