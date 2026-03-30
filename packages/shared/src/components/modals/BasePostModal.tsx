@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
@@ -25,6 +25,7 @@ interface BasePostModalProps extends ModalProps {
   postPosition?: PostPosition;
   onPreviousPost?: () => void;
   onNextPost?: () => void;
+  navigationLeadingContent?: ReactNode;
   post: Post;
 }
 
@@ -38,6 +39,7 @@ function BasePostModal({
   postPosition,
   onPreviousPost,
   onNextPost,
+  navigationLeadingContent,
   post,
   onRequestClose,
   ...props
@@ -109,6 +111,7 @@ function BasePostModal({
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
                 onNextPost={onNextPost}
+                leadingContent={navigationLeadingContent}
                 onClose={onRequestClose}
                 post={post}
               />

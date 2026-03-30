@@ -41,7 +41,7 @@ const HIGHLIGHT_SKELETON_KEYS = [
 const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
 
 const HighlightRowSkeleton = (): ReactElement => (
-  <div className="flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2">
+  <div className="flex flex-1 items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2">
     <div className="h-4 flex-1 rounded-8 bg-surface-hover" />
     <div className="h-3 w-10 shrink-0 rounded-8 bg-surface-hover" />
   </div>
@@ -86,7 +86,7 @@ const HighlightRow = ({
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-col rounded-8 border border-border-subtlest-tertiary px-2.5 py-1.5 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+        className={`group flex flex-1 flex-col rounded-8 border border-border-subtlest-tertiary px-2.5 py-1 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
           isViewed && !isPressed ? 'bg-surface-hover/30' : ''
         } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
         onMouseEnter={onViewed}
@@ -237,7 +237,7 @@ export const FeedHighlightsTopModule = ({
         </span>
       </header>
 
-      <div className="flex flex-col gap-1.5 px-2.5 pb-0 pt-0">
+      <div className="flex flex-1 flex-col gap-1.5 px-2.5 pb-1 pt-0">
         {shouldShowSkeleton
           ? HIGHLIGHT_SKELETON_KEYS.slice(0, 4).map((key) => (
               <HighlightRowSkeleton key={key} />
@@ -261,11 +261,11 @@ export const FeedHighlightsTopModule = ({
             ))}
       </div>
       {!shouldShowSkeleton && (
-        <div>
+        <div className="px-1 pb-1">
           <Link href={`${webappUrl}agents`} passHref>
             <a
               href={`${webappUrl}agents`}
-              className="mx-4 mt-1 bg-surface-float/70 flex items-center rounded-12 backdrop-blur-xl"
+              className="bg-surface-float/70 flex h-8 items-center rounded-10 px-3 backdrop-blur-xl"
               onClick={onAgentsLinkClick}
             >
               <span className="typo-callout">

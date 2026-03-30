@@ -15,6 +15,7 @@ function PostNavigation({
   postPosition,
   onPreviousPost,
   onNextPost,
+  leadingContent,
   className = {},
   contextMenuId = 'post-navigation-context',
   post,
@@ -34,6 +35,7 @@ function PostNavigation({
       )}
       role="navigation"
     >
+      {leadingContent && <div className="min-w-0 flex-1">{leadingContent}</div>}
       {onPreviousPost && (
         <Tooltip content="Previous">
           <Button
