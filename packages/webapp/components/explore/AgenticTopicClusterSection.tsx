@@ -100,12 +100,12 @@ const TopicClusterCard = ({ cluster }: { cluster: TopicCluster }): ReactElement 
     <section
       id={`${cluster.id}-topic-cluster`}
       aria-labelledby={`${cluster.id}-topic-cluster-heading`}
-      className="max-w-[52.5rem] border-b border-border-subtlest-tertiary p-3"
+      className="w-full border-b border-border-subtlest-tertiary p-3"
     >
       <header className="mb-4">
         <a
           href={cluster.topicHref}
-          className="focus-visible-outline inline-flex items-center gap-2 rounded-8 text-text-primary transition-colors hover:text-text-link"
+          className="focus-visible-outline inline-flex items-center gap-2 rounded-8 text-text-primary transition-colors"
         >
           <h2
             id={`${cluster.id}-topic-cluster-heading`}
@@ -115,7 +115,7 @@ const TopicClusterCard = ({ cluster }: { cluster: TopicCluster }): ReactElement 
           </h2>
         </a>
       </header>
-      <div className="grid gap-4 laptop:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] laptop:gap-x-8">
+      <div className="grid gap-4 laptop:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] laptop:gap-x-8">
         <article className="rounded-12 p-0">
           <a
             href={cluster.featured.href}
@@ -154,7 +154,7 @@ const TopicClusterCard = ({ cluster }: { cluster: TopicCluster }): ReactElement 
                 className="focus-visible-outline group block rounded-8"
               >
                 <h3
-                  className="mt-1 text-text-primary transition-colors typo-callout group-hover:text-text-link"
+                  className="mt-1 text-text-primary transition-colors typo-callout"
                   style={{ fontSize: '17px' }}
                 >
                   {story.title}
@@ -167,21 +167,19 @@ const TopicClusterCard = ({ cluster }: { cluster: TopicCluster }): ReactElement 
               </a>
             </article>
           ))}
+          <Button
+            tag="a"
+            variant={ButtonVariant.Float}
+            href={cluster.topicHref}
+            className="w-full"
+          >
+            <span className="inline-flex items-center gap-2">
+              {`More ${cluster.topic} posts`}
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </span>
+          </Button>
         </div>
       </div>
-      <footer className="mt-4">
-        <Button
-          tag="a"
-          variant={ButtonVariant.Float}
-          href={cluster.topicHref}
-          className="w-full"
-        >
-          <span className="inline-flex items-center gap-2">
-            {`More ${cluster.topic} posts`}
-            <ChevronRight className="h-4 w-4" aria-hidden />
-          </span>
-        </Button>
-      </footer>
     </section>
   );
 };
@@ -216,7 +214,7 @@ const AgenticTopicClusterSection = ({
   });
 
   return (
-    <div className="flex w-full max-w-[52.5rem] flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       {topicClusters.map((cluster) => (
         <TopicClusterCard key={cluster.id} cluster={cluster} />
       ))}
