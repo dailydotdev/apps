@@ -133,8 +133,7 @@ interface ApiResponseErrorExtension {
   code: ApiError;
 }
 
-export interface ApiUserTransactionErrorExtension
-  extends ApiResponseErrorExtension {
+export interface ApiUserTransactionErrorExtension extends ApiResponseErrorExtension {
   status: UserTransactionStatus;
   balance?: {
     amount: number;

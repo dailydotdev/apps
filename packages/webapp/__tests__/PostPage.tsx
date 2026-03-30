@@ -92,7 +92,7 @@ beforeEach(() => {
         pathname: '/posts',
         isReady: true,
         query: {},
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
 });
 
@@ -209,9 +209,9 @@ const mockVoteMutation = ({
       }) =>
         Boolean(
           body.query?.includes('mutation Vote(') &&
-            body.variables?.id === defaultPost.id &&
-            body.variables?.vote === vote &&
-            body.variables?.entity === UserVoteEntity.Post,
+          body.variables?.id === defaultPost.id &&
+          body.variables?.vote === vote &&
+          body.variables?.entity === UserVoteEntity.Post,
         ),
     )
     .reply(200, () => {
@@ -227,7 +227,7 @@ const mockCompleteActionMutation = (action: ActionType): void => {
       (body: { query?: string; variables?: { type?: ActionType } }) =>
         Boolean(
           body.query?.includes('mutation CompleteAction(') &&
-            body.variables?.type === action,
+          body.variables?.type === action,
         ),
     )
     .reply(200, { data: { _: true } });
@@ -574,7 +574,7 @@ it('should show author onboarding when the query param is set', async () => {
       ({
         isFallback: false,
         query: { author: 'true' },
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   );
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');

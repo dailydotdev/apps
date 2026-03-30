@@ -90,7 +90,7 @@ export const FreeformList = forwardRef(function SharePostCard(
     return {
       topLabel: enableSourceHeader ? post.source.name : authorName,
       bottomLabel: enableSourceHeader
-        ? post.author?.name ?? `@${post.source.handle ?? 'unknown'}`
+        ? (post.author?.name ?? `@${post.source.handle ?? 'unknown'}`)
         : `@${
             post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
           }`,

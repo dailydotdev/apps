@@ -9,8 +9,6 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import classNames from 'classnames';
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
 import React, { useState } from 'react';
-import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
-import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 import useTimer from '@dailydotdev/shared/src/hooks/useTimer';
 import { AuthEventNames } from '@dailydotdev/shared/src/lib/auth';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -38,24 +36,16 @@ function EmailForm({
   setHint,
   emailProps = {},
   passwordProps,
-  verificationId,
 }: EmailFormProps): ReactElement {
   const { logEvent } = useLogContext();
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [codeHint, setCodeHint] = useState<string>();
-  const { timer, setTimer, runTimer } = useTimer(null, 0);
-  const { verifyCode } = useAccountEmailFlow({
-    flow: AuthFlow.Verification,
-    flowId: verificationId,
-    onError: setCodeHint,
-    onVerifyCodeSuccess: () => {
-      logEvent({
-        event_name: AuthEventNames.VerifiedSuccessfully,
-      });
-      onVerifySuccess();
-    },
-  });
+  const { timer: nextTimer, setTimer, runTimer } = useTimer(
+    () => undefined,
+    0,
+  );
+  const timer = nextTimer ?? 0;
 
   const onCodeVerification = async () => {
     logEvent({
@@ -64,15 +54,22 @@ function EmailForm({
     });
     setCodeHint('');
     if (onVerifyCode) {
+      if (!code) {
+        setCodeHint('Enter the 6-digit code');
+        return;
+      }
+
       try {
         await onVerifyCode(code);
+        logEvent({
+          event_name: AuthEventNames.VerifiedSuccessfully,
+        });
+        await onVerifySuccess();
       } catch (error) {
         setCodeHint(
           error instanceof Error ? error.message : 'Verification failed',
         );
       }
-    } else {
-      await verifyCode({ code, altFlowId: verificationId });
     }
   };
 
@@ -81,14 +78,20 @@ function EmailForm({
       event_name: LogEvent.Click,
       target_type: TargetType.ResendVerificationCode,
     });
+    if (!email) {
+      return;
+    }
+
     onSubmit(email);
     setTimer(60);
     runTimer();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const submitType = e.nativeEvent.submitter?.name;
+    const submitType = (
+      e.nativeEvent as SubmitEvent
+    ).submitter?.getAttribute('name');
     if (submitType === 'getCode') {
       onSubmitEmail();
     } else {
@@ -110,7 +113,7 @@ function EmailForm({
         label={emailProps?.label || 'Email'}
         value={email}
         valueChanged={setEmail}
-        onChange={() => setHint(null)}
+        onChange={() => setHint?.(undefined)}
       />
       {passwordProps && (
         <PasswordField

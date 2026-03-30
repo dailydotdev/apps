@@ -50,8 +50,10 @@ export const PaginationActions = ({
   );
 };
 
-export interface InfinitePaginationActionsProps
-  extends Pick<UsePagination, 'onPrevious' | 'onNext'> {
+export interface InfinitePaginationActionsProps extends Pick<
+  UsePagination,
+  'onPrevious' | 'onNext'
+> {
   hasNext: boolean;
   hasPrevious: boolean;
 }

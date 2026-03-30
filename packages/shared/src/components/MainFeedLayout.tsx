@@ -158,8 +158,10 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   },
 };
 
-export interface MainFeedLayoutProps
-  extends Pick<FeedContainerProps, 'shortcuts'> {
+export interface MainFeedLayoutProps extends Pick<
+  FeedContainerProps,
+  'shortcuts'
+> {
   feedName: string;
   isSearchOn: boolean;
   searchQuery?: string;

@@ -81,8 +81,7 @@ const getCommentFromCache = ({
 };
 
 export interface CommentModalProps
-  extends LazyModalCommonProps,
-    CommentMarkdownInputProps {
+  extends LazyModalCommonProps, CommentMarkdownInputProps {
   replyToCommentId?: string;
 }
 
@@ -141,7 +140,9 @@ export default function CommentModal({
       getCommentFromCache({
         client,
         postId: post?.id,
-        commentId: isEdit ? editCommentId : replyToCommentId ?? parentCommentId,
+        commentId: isEdit
+          ? editCommentId
+          : (replyToCommentId ?? parentCommentId),
       }),
     [
       client,

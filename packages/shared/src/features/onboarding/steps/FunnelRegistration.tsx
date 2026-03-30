@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -16,16 +16,9 @@ import {
   useViewSize,
   ViewSize,
 } from '../../../hooks';
-import {
-  AuthEvent,
-  AuthFlow,
-  getKratosFlow,
-  KRATOS_ERROR,
-} from '../../../lib/kratos';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { labels } from '../../../lib';
-import { AuthEventNames, isNativeAuthSupported } from '../../../lib/auth';
-import { useLogContext } from '../../../contexts/LogContext';
+import { AuthEvent, isNativeAuthSupported } from '../../../lib/auth';
 import { broadcastChannel } from '../../../lib/constants';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import type { LoggedUser } from '../../../lib/user';
@@ -43,45 +36,12 @@ import Alert, { AlertType } from '../../../components/widgets/Alert';
 
 const supportedEvents = [AuthEvent.SocialRegistration, AuthEvent.Login];
 
-const invalidErrors = [
-  KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
-  KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
-  KRATOS_ERROR.EXISTING_USER,
-];
-
 const useRegistrationListeners = (
   onTransition: FunnelStepSignup['onTransition'],
 ) => {
   const { displayToast } = useToastNotification();
   const { refetchBoot } = useAuthContext();
-  const { logEvent } = useLogContext();
   const router = useRouter();
-
-  const handleExistingFlow = useCallback(
-    async (flow: string) => {
-      const connected = await getKratosFlow(AuthFlow.Registration, flow);
-
-      logEvent({
-        event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify({
-          error: {
-            flowId: connected?.id,
-            messages: connected?.ui?.messages,
-          },
-          origin: 'window registration flow error',
-        }),
-      });
-
-      const code = connected?.ui?.messages?.[0]?.id;
-
-      if (invalidErrors.includes(code)) {
-        return displayToast(`${labels.auth.error.existingEmail} Code: ${code}`);
-      }
-
-      return displayToast(`${labels.auth.error.generic} Code: ${code}`);
-    },
-    [displayToast, logEvent],
-  );
 
   const onProviderMessage = async (e: MessageEvent) => {
     const isEventSupported = supportedEvents.includes(e.data?.eventKey);
@@ -91,7 +51,7 @@ const useRegistrationListeners = (
     }
 
     if (e.data?.flow) {
-      return handleExistingFlow(e.data.flow);
+      return displayToast(labels.auth.error.generic);
     }
 
     const bootResponse = await refetchBoot();
@@ -115,23 +75,6 @@ const useRegistrationListeners = (
   useEventListener(broadcastChannel, 'message', onProviderMessage);
 
   useEventListener(globalThis, 'message', onProviderMessage);
-
-  useEffect(() => {
-    if (!router?.isReady || !router?.query?.flow) {
-      return;
-    }
-
-    const flowFn = async () => {
-      await handleExistingFlow(router.query.flow as string);
-      const url = new URL(window.location.href);
-      const fullPath = url.origin + url.pathname;
-      const { flow, ...rest } = router.query;
-      const params = new URLSearchParams(rest as Record<string, string>);
-      router.replace(`${fullPath}?${params}`);
-    };
-
-    flowFn();
-  }, [handleExistingFlow, router]);
 };
 
 function InnerFunnelRegistration({

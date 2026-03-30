@@ -114,19 +114,18 @@ export interface UserProfile {
   externalLocationId?: string;
 }
 
-export interface UserShortProfile
-  extends Pick<
-    PublicProfile,
-    | 'id'
-    | 'name'
-    | 'image'
-    | 'bio'
-    | 'createdAt'
-    | 'reputation'
-    | 'companies'
-    | 'isPlus'
-    | 'plusMemberSince'
-  > {
+export interface UserShortProfile extends Pick<
+  PublicProfile,
+  | 'id'
+  | 'name'
+  | 'image'
+  | 'bio'
+  | 'createdAt'
+  | 'reputation'
+  | 'companies'
+  | 'isPlus'
+  | 'plusMemberSince'
+> {
   username: string;
   permalink: string;
   contentPreference?: ContentPreference;
@@ -280,7 +279,6 @@ export enum ReferralOriginKey {
 export enum LogoutReason {
   IncomleteOnboarding = 'incomplete onboarding',
   ManualLogout = 'manual logout',
-  KratosSessionAlreadyAvailable = `kratos session already available`,
 }
 
 export const isSpecialUser = ({

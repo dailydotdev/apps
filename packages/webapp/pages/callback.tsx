@@ -3,7 +3,7 @@ import {
   postWindowMessage,
   isPWA,
 } from '@dailydotdev/shared/src/lib/func';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';

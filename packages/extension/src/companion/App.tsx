@@ -11,7 +11,7 @@ import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertCont
 import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import {
   ExtensionMessageType,

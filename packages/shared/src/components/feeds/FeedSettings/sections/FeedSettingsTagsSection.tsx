@@ -68,15 +68,18 @@ export const FeedSettingsTagsSection = (): ReactElement => {
       return [];
     }
 
-    const tagsPerLetter = tagsToGroup.reduce((acc, tagItem) => {
-      const tag = typeof tagItem === 'string' ? { name: tagItem } : tagItem;
+    const tagsPerLetter = tagsToGroup.reduce(
+      (acc, tagItem) => {
+        const tag = typeof tagItem === 'string' ? { name: tagItem } : tagItem;
 
-      const firstLetter = tag.name[0].toUpperCase();
-      acc[firstLetter] = acc[firstLetter] || [];
-      acc[firstLetter].push(tag);
+        const firstLetter = tag.name[0].toUpperCase();
+        acc[firstLetter] = acc[firstLetter] || [];
+        acc[firstLetter].push(tag);
 
-      return acc;
-    }, {} as Record<string, TagsData['tags']>);
+        return acc;
+      },
+      {} as Record<string, TagsData['tags']>,
+    );
 
     const sortedTagsPerLetter = Object.entries(tagsPerLetter).sort(([a], [b]) =>
       a.localeCompare(b),

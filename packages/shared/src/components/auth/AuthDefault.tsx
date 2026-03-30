@@ -1,9 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
-import { checkKratosEmail } from '../../lib/kratos';
-import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import type { AuthFormProps, Provider } from './common';
 import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
@@ -15,7 +12,6 @@ import { AuthEventNames } from '../../lib/auth';
 import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { useToastNotification } from '../../hooks/useToastNotification';
 import OrDivider from './OrDivider';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
@@ -65,17 +61,12 @@ const AuthDefault = ({
   simplified,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
-  const isBetterAuth = useIsBetterAuth();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
-  const { displayToast } = useToastNotification();
   const [registerEmail, setRegisterEmail] = useState<string | null>(null);
   const fallbackLoginHint = useState<string | null>(null);
   const resolvedLoginHint = loginHint ?? fallbackLoginHint;
   const socialLoginListRef = useRef<HTMLDivElement>(null);
-  const { mutateAsync: checkEmail } = useMutation({
-    mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
-  });
 
   const focusFirstSocialLink = () => {
     if (!socialLoginListRef.current) {
@@ -116,27 +107,9 @@ const AuthDefault = ({
       return null;
     }
 
-    if (isBetterAuth) {
-      if (!onSignup) {
-        return null;
-      }
-      return onSignup(email);
-    }
-
-    const res = await checkEmail(email);
-
-    if (res?.result) {
-      setRegisterEmail(email);
-      displayToast(
-        "There's already an account for the same credentials. Can you please try logging in instead?",
-      );
-      return setShouldLogin(true);
-    }
-
     if (!onSignup) {
       return null;
     }
-
     return onSignup(email);
   };
 

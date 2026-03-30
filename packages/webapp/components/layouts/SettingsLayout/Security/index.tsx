@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { FormEvent, MutableRefObject, ReactElement } from 'react';
-import { useIsBetterAuth } from '@dailydotdev/shared/src/hooks/useIsBetterAuth';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
   Button,
@@ -11,25 +10,12 @@ import {
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import type {
-  AuthSession,
-  KratosProviderData,
-} from '@dailydotdev/shared/src/lib/kratos';
-import {
-  AuthEvent,
-  AuthFlow,
-  getKratosSettingsFlow,
-  KRATOS_ERROR,
-} from '@dailydotdev/shared/src/lib/kratos';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { formToJson } from '@dailydotdev/shared/src/lib/form';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  useEventListener,
-  useToastNotification,
-} from '@dailydotdev/shared/src/hooks';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks';
 import { capitalize } from '@dailydotdev/shared/src/lib/strings';
 import { BOOT_LOCAL_KEY } from '@dailydotdev/shared/src/contexts/common';
 import { DEFAULT_ERROR } from '@dailydotdev/shared/src/graphql/common';
@@ -39,7 +25,6 @@ import AccountContentSection from '../AccountContentSection';
 import { AccountPageContainer } from '../AccountPageContainer';
 import type { ManageSocialProvidersProps } from '../common';
 import { AccountSecurityDisplay as Display, AccountTextField } from '../common';
-import EmailSentSection from '../EmailSentSection';
 import AccountLoginSection from './AccountLoginSection';
 
 const providers = Object.values(providerMap);
@@ -79,19 +64,14 @@ const removeProviderList = Object.values({
 
 interface AccountSecurityDefaultProps {
   email?: string;
-  session: AuthSession;
   isEmailSent?: boolean;
-  userProviders?: KratosProviderData;
+  userProviders?: { ok: boolean; result: string[] };
   updatePasswordRef: MutableRefObject<HTMLFormElement>;
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
   onUpdateProviders: (params: UpdateProvidersParams) => void;
 }
 
-const alreadyLinkedProviderOptions: PromptOptions = {
-  title: 'Already linked to another account',
-  okButton: null,
-};
 const unlinkProviderPromptOptions: PromptOptions = {
   title: 'Remove provider?',
   description: "You won't be able to log in with this account anymore",
@@ -112,7 +92,6 @@ const deleteAccountPromptOptions: PromptOptions = {
 
 function AccountSecurityDefault({
   email,
-  session,
   userProviders,
   updatePasswordRef,
   onSwitchDisplay,
@@ -122,8 +101,6 @@ function AccountSecurityDefault({
   const { deleteAccount } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { onUpdateSignBack } = useSignBack();
-  const isBetterAuth = useIsBetterAuth();
-  const [linkProvider, setLinkProvider] = useState(null);
   const hasPassword = userProviders?.result?.includes('password');
   const { showPrompt } = usePrompt();
 
@@ -131,14 +108,7 @@ function AccountSecurityDefault({
     type,
     provider,
   }: ManageSocialProvidersProps) => {
-    setLinkProvider(provider);
     onUpdateProviders({ [type]: provider });
-  };
-  const alreadyLinkedProvider = async (provider: string) => {
-    await showPrompt({
-      ...alreadyLinkedProviderOptions,
-      description: `This ${provider} account is already linked to a different daily.dev account.`,
-    });
   };
   const unlinkProvider = async (provider: string) => {
     if (
@@ -171,35 +141,11 @@ function AccountSecurityDefault({
     },
   });
 
-  useEventListener(globalThis, 'message', async (e) => {
-    if (isBetterAuth) {
-      return;
-    }
-    if (e.data?.eventKey !== AuthEvent.SocialRegistration) {
-      return;
-    }
-
-    if (e.data?.flow) {
-      const flow = await getKratosSettingsFlow(AuthFlow.Settings, e.data.flow);
-      const { ui } = flow;
-      const error = ui.messages[0]?.id;
-      if (error === KRATOS_ERROR.EXISTING_USER) {
-        alreadyLinkedProvider(linkProvider);
-      }
-    }
-  });
-
   const onChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = formToJson<{ password: string }>(e.currentTarget);
     onUpdatePassword(form);
   };
-
-  const verifiable =
-    email &&
-    session?.identity?.verifiable_addresses?.find(
-      (address) => address.value === email,
-    );
 
   return (
     <AccountPageContainer title="Account access">
@@ -228,9 +174,6 @@ function AccountSecurityDefault({
             isLocked
           />
         </Tooltip>
-        {hasPassword && email && verifiable && !verifiable.verified && (
-          <EmailSentSection email={email} className="max-w-sm" />
-        )}
         {hasPassword && (
           <Button
             size={ButtonSize.Small}

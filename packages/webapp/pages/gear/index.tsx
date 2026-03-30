@@ -127,9 +127,8 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<GearPageProps>
 > {
   try {
-    const res = await gqlClient.request<GearDirectoryData>(
-      GEAR_DIRECTORY_QUERY,
-    );
+    const res =
+      await gqlClient.request<GearDirectoryData>(GEAR_DIRECTORY_QUERY);
 
     const gearByCategory = Object.fromEntries(
       DISPLAY_CATEGORIES.map((category) => [category, res[category] ?? []]),

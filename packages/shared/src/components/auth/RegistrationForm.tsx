@@ -46,7 +46,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   hints?: RegistrationError;
   onUpdateHints?: (errors: RegistrationError) => void;
   onSignup?: (params: RegistrationFormValues) => void;
-  token: string;
+  token?: string;
   trigger: AuthTriggersType;
   onExistingEmailLoginClick?: () => void;
   onBackToIntro?: () => void;
@@ -57,6 +57,7 @@ export type RegistrationFormValues = Omit<
   RegistrationParameters,
   'method' | 'provider'
 > & {
+  'cf-turnstile-response'?: string;
   headers?: Record<string, string>;
 };
 
@@ -64,11 +65,11 @@ const RegistrationForm = ({
   formRef,
   onBackToIntro,
   onExistingEmailLoginClick,
-  onSignup,
+  onSignup = () => undefined,
   token,
-  hints,
+  hints = {},
   trigger,
-  onUpdateHints,
+  onUpdateHints = () => undefined,
   simplified,
   targetId,
 }: RegistrationFormProps): ReactElement => {
@@ -88,7 +89,7 @@ const RegistrationForm = ({
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef(logEvent);
   logRef.current = logEvent;
 
   useEffect(() => {
@@ -160,7 +161,7 @@ const RegistrationForm = ({
     const { optOutMarketing, ...values } = formToJson<RegistrationFormValues>(
       formRef?.current ?? form,
     );
-    delete values?.['cf-turnstile-response'];
+    delete values['cf-turnstile-response'];
 
     const requiresExperienceLevel = !isRecruiterOnboarding;
     if (
@@ -216,6 +217,12 @@ const RegistrationForm = ({
       return;
     }
 
+    const turnstileResponse = turnstileRef.current?.getResponse();
+    let headers: Record<string, string> | undefined;
+    if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
+      headers = { 'True-Client-Ip': turnstileResponse };
+    }
+
     onSignup({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
@@ -223,12 +230,7 @@ const RegistrationForm = ({
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
-      headers: {
-        'True-Client-Ip':
-          isDevelopment && !isProductionAPI
-            ? undefined
-            : turnstileRef?.current?.getResponse(),
-      },
+      ...(headers && { headers }),
     });
   };
 
@@ -254,8 +256,10 @@ const RegistrationForm = ({
       return <VIcon className="text-accent-avocado-default" />;
     }
 
-    return null;
+    return undefined;
   })();
+
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
     <>
@@ -288,7 +292,7 @@ const RegistrationForm = ({
         onSubmit={handleFormSubmit}
         ref={formRef}
       >
-        <TokenInput token={token} />
+        {token && <TokenInput token={token} />}
         <TextField
           autoFocus
           autoComplete="email"
@@ -350,13 +354,13 @@ const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
           rightIcon={
-            isNameValid && (
+            isNameValid ? (
               <VIcon
                 aria-hidden
                 role="presentation"
                 className="text-accent-avocado-default"
               />
-            )
+            ) : undefined
           }
         />
         <PasswordField
@@ -421,7 +425,7 @@ const RegistrationForm = ({
         >
           <Turnstile
             ref={turnstileRef}
-            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
+            siteKey={turnstileSiteKey}
             options={{
               theme: 'dark',
             }}

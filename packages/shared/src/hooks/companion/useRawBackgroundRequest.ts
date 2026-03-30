@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Browser } from 'webextension-polyfill';
-import type { EmptyObjectLiteral } from '../../lib/kratos';
+import type { EmptyObjectLiteral } from '../../lib/func';
 import { useRequestProtocol } from '../useRequestProtocol';
 
 export const useRawBackgroundRequest = (

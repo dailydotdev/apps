@@ -54,7 +54,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {
@@ -73,7 +73,7 @@ describe('useJoinReferral hook', () => {
       () =>
         ({
           query: {},
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {
@@ -91,7 +91,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     mockGraphQL({
@@ -126,7 +126,7 @@ describe('useJoinReferral hook', () => {
             cid: 'squad',
             userid: '1',
           },
-        } as unknown as NextRouter),
+        }) as unknown as NextRouter,
     );
 
     renderHook(() => useJoinReferral(), {

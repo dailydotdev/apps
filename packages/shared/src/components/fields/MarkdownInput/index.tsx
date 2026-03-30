@@ -61,8 +61,10 @@ interface ClassName {
   profile?: string;
 }
 
-interface MarkdownInputProps
-  extends Omit<UseMarkdownInputProps, 'textareaRef'> {
+interface MarkdownInputProps extends Omit<
+  UseMarkdownInputProps,
+  'textareaRef'
+> {
   className?: ClassName;
   footer?: ReactNode;
   textareaProps?: Omit<
@@ -88,8 +90,10 @@ enum CommentTab {
   Preview = 'Preview',
 }
 
-export interface MarkdownRef
-  extends Pick<UseMarkdownInput, 'onMentionCommand' | 'clearDraft'> {
+export interface MarkdownRef extends Pick<
+  UseMarkdownInput,
+  'onMentionCommand' | 'clearDraft'
+> {
   textareaRef: MutableRefObject<HTMLTextAreaElement>;
   setInput: UseMarkdownInput['setInput'];
 }

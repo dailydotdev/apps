@@ -27,8 +27,9 @@ export interface WriteForm {
   duration?: number;
 }
 
-export interface MergedWriteObject
-  extends Partial<Pick<WriteForm, 'title' | 'content' | 'image'>> {
+export interface MergedWriteObject extends Partial<
+  Pick<WriteForm, 'title' | 'content' | 'image'>
+> {
   id?: string;
   type?: string;
   sharedPost?: SharedPost;

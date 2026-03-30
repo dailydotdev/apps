@@ -9,7 +9,7 @@ import type { ClientError } from 'graphql-request';
 
 import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
-import type { EmptyObjectLiteral } from './kratos';
+import type { EmptyObjectLiteral } from './func';
 import type { LoggedUser } from './user';
 import type {
   FeedData,
@@ -294,7 +294,8 @@ interface UpdateInfiniteCacheProps<
 export const updateInfiniteCache = <
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
-  TData extends TEntity[TKey]['edges'][0]['node'] = TEntity[TKey]['edges'][0]['node'],
+  TData extends TEntity[TKey]['edges'][0]['node'] =
+    TEntity[TKey]['edges'][0]['node'],
   TReturn extends InfiniteData<TEntity> = InfiniteData<TEntity>,
 >({
   client,

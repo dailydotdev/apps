@@ -44,7 +44,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         // eslint-disable-next-line no-return-assign
         replace: (path: string) => (replaced = path),
-      } as unknown as NextRouter),
+      }) as unknown as NextRouter,
   ),
 }));
 

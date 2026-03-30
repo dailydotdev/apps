@@ -289,8 +289,7 @@ export const briefFeatureList: Array<PlusItem> = [
 ];
 
 interface PlusListProps
-  extends Omit<PlusListItemProps, 'item'>,
-    WithClassNameProps {
+  extends Omit<PlusListItemProps, 'item'>, WithClassNameProps {
   items?: PlusItem[];
 }
 

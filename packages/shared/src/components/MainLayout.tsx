@@ -8,8 +8,6 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
-import { useAuthErrors } from '../hooks/useAuthErrors';
-import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
 import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
@@ -51,7 +49,8 @@ const Sidebar = dynamic(() =>
 );
 
 export interface MainLayoutProps
-  extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
+  extends
+    Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;
@@ -94,8 +93,6 @@ function MainLayoutComponent({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  useAuthErrors();
-  useAuthVerificationRecovery();
   useNotificationParams();
 
   useEffect(() => {
