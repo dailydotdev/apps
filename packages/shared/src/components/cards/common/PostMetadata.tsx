@@ -47,15 +47,13 @@ export default function PostMetadata({
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
   });
-  const {
-    showCount: showUpvoteCount,
-    belowThresholdLabel: upvoteLabel,
-  } = getUpvoteCountDisplay(
-    upvoteCount,
-    upvoteThresholdConfig.threshold,
-    upvoteThresholdConfig.belowThresholdLabel,
-    userHasUpvoted,
-  );
+  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
+    getUpvoteCountDisplay(
+      upvoteCount,
+      upvoteThresholdConfig.threshold,
+      upvoteThresholdConfig.belowThresholdLabel,
+      userHasUpvoted,
+    );
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(

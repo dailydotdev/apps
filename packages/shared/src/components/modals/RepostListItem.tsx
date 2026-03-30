@@ -28,7 +28,7 @@ export function RepostListItem({
   const { value: upvoteThresholdConfig } = useConditionalFeature({
     feature: featureUpvoteCountThreshold,
   });
-  const source = post.source;
+  const { source } = post;
   const isUserSource = source ? isSourceUserSource(source) : false;
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;

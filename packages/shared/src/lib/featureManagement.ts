@@ -160,10 +160,7 @@ export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
-}>(
-  'upvote_count_threshold',
-  {
-    threshold: 0,
-    belowThresholdLabel: '',
-  },
-);
+}>('upvote_count_threshold', {
+  threshold: 0,
+  belowThresholdLabel: '',
+});
