@@ -1,8 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { UserVote } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureUpvoteCountThreshold } from '../../lib/featureManagement';
+import { getUpvoteCountDisplay } from '../../lib/post';
 import { Image } from '../image/Image';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -28,11 +32,22 @@ export function PostUpvotesCommentsCount({
 }: PostUpvotesCommentsCountProps): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();
+  const { value: upvoteThresholdConfig } = useConditionalFeature({
+    feature: featureUpvoteCountThreshold,
+  });
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
   const reposts = post.numReposts || 0;
   const hasAccessToCores = useHasAccessToCores();
+  const userHasUpvoted = post.userState?.vote === UserVote.Up;
+  const { showCount: showUpvotes, belowThresholdLabel: upvoteLabel } =
+    getUpvoteCountDisplay(
+      upvotes,
+      upvoteThresholdConfig.threshold,
+      upvoteThresholdConfig.belowThresholdLabel,
+      userHasUpvoted,
+    );
   const onRepostsClick = () =>
     openModal({
       type: LazyModal.RepostsPopup,
@@ -60,11 +75,12 @@ export function PostUpvotesCommentsCount({
           {post.analytics.impressions > 1 ? 's' : ''}
         </span>
       )}
-      {upvotes > 0 && (
+      {showUpvotes && (
         <ClickableText onClick={() => onUpvotesClick?.(upvotes)}>
           {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
+      {!showUpvotes && upvoteLabel && <span>{upvoteLabel}</span>}
       {comments > 0 && (
         <span>
           {largeNumberFormat(comments)}

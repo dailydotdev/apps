@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
+import { UserVote } from '../../graphql/posts';
 import type { Post } from '../../graphql/posts';
 import styles from '../cards/common/Card.module.css';
 import { LazyImage } from '../LazyImage';
@@ -81,6 +82,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
         <PostEngagementCounts
           upvotes={post.numUpvotes}
           comments={post.numComments}
+          userHasUpvoted={post.userState?.vote === UserVote.Up}
           className="text-text-tertiary"
         />
       )}

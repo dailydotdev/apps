@@ -156,3 +156,11 @@ export const installExtensionPromptFeature = new Feature(
 );
 
 export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
+
+export const featureUpvoteCountThreshold = new Feature(
+  'upvote_count_threshold',
+  {
+    threshold: 0,
+    belowThresholdLabel: '',
+  },
+);
