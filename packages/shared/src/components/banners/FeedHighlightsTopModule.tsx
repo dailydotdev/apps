@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { MenuItemProps } from '../dropdown/common';
@@ -18,17 +18,26 @@ import { webappUrl } from '../../lib/constants';
 import { EyeIcon, MenuIcon, PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
-import { useFeedLayout } from '../../hooks';
 import { useSourceActions } from '../../hooks/source/useSourceActions';
 
 interface FeedHighlightsTopModuleProps {
   highlights: PostHighlight[];
   loading: boolean;
-  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  onHighlightClick?: (
+    highlight: PostHighlight,
+    position: number,
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => void;
   onAgentsLinkClick?: () => void;
 }
 
-const HIGHLIGHT_SKELETON_KEYS = ['one', 'two', 'three', 'four', 'five'] as const;
+const HIGHLIGHT_SKELETON_KEYS = [
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+] as const;
 const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
 
 const HighlightRowSkeleton = (): ReactElement => (
@@ -52,7 +61,11 @@ const HighlightRow = ({
 }: {
   highlight: PostHighlight;
   index: number;
-  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  onHighlightClick?: (
+    highlight: PostHighlight,
+    position: number,
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => void;
   highlightAsNew?: boolean;
   isViewed: boolean;
   isRead: boolean;
@@ -73,7 +86,7 @@ const HighlightRow = ({
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+        className={`group flex flex-col rounded-8 border border-border-subtlest-tertiary px-2.5 py-1.5 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
           isViewed && !isPressed ? 'bg-surface-hover/30' : ''
         } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
         onMouseEnter={onViewed}
@@ -81,26 +94,28 @@ const HighlightRow = ({
         onMouseUp={() => onPressedChange(false)}
         onMouseLeave={() => onPressedChange(false)}
         onBlur={() => onPressedChange(false)}
-        onClick={() => {
+        onClick={(event) => {
           onRead();
-          onHighlightClick?.(highlight, index + 1);
+          onHighlightClick?.(highlight, index + 1, event);
         }}
       >
+        <div className="mt-0 leading-none">
+          {highlightAsNew ? (
+            <span className="feed-highlights-title-gradient typo-caption2">
+              Now
+            </span>
+          ) : (
+            <RelativeTime
+              dateTime={highlight.highlightedAt}
+              className="text-text-tertiary typo-caption2"
+            />
+          )}
+        </div>
         <span
-          className={`line-clamp-2 flex-1 transition-colors group-active:text-text-secondary typo-callout ${headlineTextColorClass}`}
+          className={`line-clamp-2 transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
         >
           {highlight.headline}
         </span>
-        {highlightAsNew ? (
-          <span className="feed-highlights-title-gradient shrink-0 typo-caption2">
-            Now
-          </span>
-        ) : (
-          <RelativeTime
-            dateTime={highlight.highlightedAt}
-            className="shrink-0 text-text-tertiary typo-caption2"
-          />
-        )}
       </a>
     </Link>
   );
@@ -112,7 +127,6 @@ export const FeedHighlightsTopModule = ({
   onHighlightClick,
   onAgentsLinkClick,
 }: FeedHighlightsTopModuleProps): ReactElement | null => {
-  const { shouldUseListFeedLayout } = useFeedLayout();
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { data: digestSource } = useQuery(
     sourceQueryOptions({ sourceId: AGENTS_DIGEST_SOURCE_ID }),
@@ -133,40 +147,37 @@ export const FeedHighlightsTopModule = ({
   const [pressedHighlightId, setPressedHighlightId] = useState<string | null>(
     null,
   );
-  const options = useMemo<MenuItemProps[]>(
-    () => {
-      const isFollowStatePending =
-        !isAuthReady || (isLoggedIn && (isFeedSettingsLoading || !feedSettings));
-      const shouldShowSubscribeOption =
-        !!digestSource?.id && !isFollowStatePending && !isFollowing;
+  const options = useMemo<MenuItemProps[]>(() => {
+    const isFollowStatePending =
+      !isAuthReady || (isLoggedIn && (isFeedSettingsLoading || !feedSettings));
+    const shouldShowSubscribeOption =
+      !!digestSource?.id && !isFollowStatePending && !isFollowing;
 
-      return [
-        ...(shouldShowSubscribeOption
-          ? [
-              {
-                label: 'Subscribe',
-                icon: <PlusIcon />,
-                action: async () => toggleFollow(),
-              },
-            ]
-          : []),
-        {
-          label: 'Hide',
-          icon: <EyeIcon />,
-          action: () => setIsHiddenLocally(true),
-        },
-      ];
-    },
-    [
-      digestSource?.id,
-      feedSettings,
-      isAuthReady,
-      isFeedSettingsLoading,
-      isFollowing,
-      isLoggedIn,
-      toggleFollow,
-    ],
-  );
+    return [
+      ...(shouldShowSubscribeOption
+        ? [
+            {
+              label: 'Subscribe',
+              icon: <PlusIcon />,
+              action: async () => toggleFollow(),
+            },
+          ]
+        : []),
+      {
+        label: 'Hide',
+        icon: <EyeIcon />,
+        action: () => setIsHiddenLocally(true),
+      },
+    ];
+  }, [
+    digestSource?.id,
+    feedSettings,
+    isAuthReady,
+    isFeedSettingsLoading,
+    isFollowing,
+    isLoggedIn,
+    toggleFollow,
+  ]);
 
   if (isHiddenLocally) {
     return null;
@@ -178,12 +189,6 @@ export const FeedHighlightsTopModule = ({
 
   const topHighlights = highlights.slice(0, 4);
   const shouldShowSkeleton = loading;
-  const moduleBackgroundClass = shouldUseListFeedLayout
-    ? 'bg-gradient-to-b from-surface-float to-transparent'
-    : 'bg-surface-float';
-  const moduleBorderClass = shouldUseListFeedLayout
-    ? 'border-0 border-t border-border-subtlest-tertiary'
-    : 'border border-border-subtlest-tertiary';
   const markHighlightViewed = (highlightId: string): void => {
     setViewedHighlightIds((currentIds) => {
       if (currentIds.has(highlightId)) {
@@ -209,7 +214,7 @@ export const FeedHighlightsTopModule = ({
 
   return (
     <section
-      className={`group relative mb-4 flex h-full w-full flex-col overflow-hidden rounded-16 ${moduleBorderClass} ${moduleBackgroundClass}`}
+      className="group relative mb-0 flex h-full w-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
     >
       <header className="relative flex items-center px-4 py-4">
         <h2 className="feed-highlights-title-gradient font-bold typo-title3">
@@ -232,7 +237,7 @@ export const FeedHighlightsTopModule = ({
         </span>
       </header>
 
-      <div className="flex flex-col gap-1.5 px-2.5 pb-2.5 pt-0">
+      <div className="flex flex-col gap-1.5 px-2.5 pb-0 pt-0">
         {shouldShowSkeleton
           ? HIGHLIGHT_SKELETON_KEYS.slice(0, 4).map((key) => (
               <HighlightRowSkeleton key={key} />
@@ -254,12 +259,13 @@ export const FeedHighlightsTopModule = ({
                 onHighlightClick={onHighlightClick}
               />
             ))}
-
-        {!shouldShowSkeleton && (
+      </div>
+      {!shouldShowSkeleton && (
+        <div>
           <Link href={`${webappUrl}agents`} passHref>
             <a
               href={`${webappUrl}agents`}
-              className="flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float/70 px-4 py-2.5 backdrop-blur-xl transition-all hover:-translate-y-px hover:bg-surface-hover"
+              className="mx-4 mt-1 bg-surface-float/70 flex items-center rounded-12 backdrop-blur-xl"
               onClick={onAgentsLinkClick}
             >
               <span className="typo-callout">
@@ -273,8 +279,8 @@ export const FeedHighlightsTopModule = ({
               </span>
             </a>
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

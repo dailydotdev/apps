@@ -1,4 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import type {
+  MouseEvent as ReactMouseEvent,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import React, {
   useRef,
   useEffect,
@@ -147,6 +151,11 @@ const SocialTwitterPostModal = dynamic(
       /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
     ),
 );
+const HappeningNowPostModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "happeningNowPostModal" */ './modals/HappeningNowPostModal'
+  ).then((mod) => mod.HappeningNowPostModal),
+);
 
 const BriefCardFeed = dynamic(
   () =>
@@ -167,6 +176,7 @@ const calculateRow = (index: number, numCards: number): number =>
 const calculateColumn = (index: number, numCards: number): number =>
   index % numCards;
 const FEED_HIGHLIGHTS_CHANNEL = 'vibes';
+const FEED_HIGHLIGHTS_REFRESH_MS = 5 * 60 * 1000;
 
 export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
   [PostType.Article]: ArticlePostModal,
@@ -311,6 +321,9 @@ export default function Feed<T>({
   const [postModalIndex, setPostModalIndex] = useState<PostLocation | null>(
     null,
   );
+  const [selectedHighlightPostId, setSelectedHighlightPostId] = useState<
+    string | null
+  >(null);
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
@@ -350,6 +363,11 @@ export default function Feed<T>({
           { channel: FEED_HIGHLIGHTS_CHANNEL },
         ),
       enabled: shouldShowFeedHighlights,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      refetchInterval: FEED_HIGHLIGHTS_REFRESH_MS,
+      refetchIntervalInBackground: false,
     });
   const feedHighlights = feedHighlightsData?.postHighlights ?? [];
   const shouldRenderFeedHighlights =
@@ -506,11 +524,13 @@ export default function Feed<T>({
     };
   }, []);
 
+  const isAnyPostModalOpen = !!selectedPost || !!selectedHighlightPostId;
+
   useEffect(() => {
-    if (!selectedPost) {
+    if (!isAnyPostModalOpen) {
       document.body.classList.remove('hidden-scrollbar');
     }
-  }, [selectedPost]);
+  }, [isAnyPostModalOpen]);
 
   const onShareClick = useCallback(
     (post: Post, row?: number, column?: number) =>
@@ -541,7 +561,11 @@ export default function Feed<T>({
   }, [feedHighlights.length, logEvent, shouldRenderFeedHighlights]);
 
   const onFeedHighlightClick = useCallback(
-    (highlight: PostHighlight, position: number) => {
+    (
+      highlight: PostHighlight,
+      position: number,
+      event: ReactMouseEvent<HTMLAnchorElement>,
+    ) => {
       logEvent({
         event_name: LogEvent.Click,
         target_id: TargetId.FeedHighlightsModule,
@@ -552,8 +576,16 @@ export default function Feed<T>({
           post_id: highlight.post.id,
         }),
       });
+
+      if (shouldUseListFeedLayout || event.metaKey || event.ctrlKey) {
+        return;
+      }
+
+      event.preventDefault();
+      document.body.classList.add('hidden-scrollbar');
+      setSelectedHighlightPostId(highlight.post.id);
     },
-    [logEvent],
+    [logEvent, shouldUseListFeedLayout],
   );
 
   const onFeedHighlightsAgentsLinkClick = useCallback(() => {
@@ -590,6 +622,10 @@ export default function Feed<T>({
   const onPostModalClose = () => {
     setPostModalIndex(null);
     onCloseModal(false);
+  };
+
+  const onHappeningNowPostModalClose = (): void => {
+    setSelectedHighlightPostId(null);
   };
 
   const onPostCardClick: PostClick = async (
@@ -795,6 +831,15 @@ export default function Feed<T>({
                 onNextPost={onNext}
                 postPosition={postPosition}
                 post={selectedPost}
+              />
+            )}
+            {!!selectedHighlightPostId && (
+              <HappeningNowPostModal
+                isOpen
+                selectedPostId={selectedHighlightPostId}
+                highlights={feedHighlights}
+                onRequestClose={onHappeningNowPostModalClose}
+                onSelectPost={setSelectedHighlightPostId}
               />
             )}
           </>
