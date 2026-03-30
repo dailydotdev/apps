@@ -69,7 +69,7 @@ export const NetworkSection = ({
         isForcedLink: true,
       },
       ...squadItems,
-    ].filter(Boolean);
+    ].filter(Boolean) as SidebarMenuItem[];
   }, [squads, isModeratorInAnySquad, count]);
 
   return (

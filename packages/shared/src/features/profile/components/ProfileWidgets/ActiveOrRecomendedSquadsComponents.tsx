@@ -75,13 +75,13 @@ export const SquadListItem = ({
       {showJoinButton && !hasSquadsInList && (
         <SquadActionButton
           alwaysShow
-          copy={{ join: 'Join', leave: 'Leave' }}
+          copy={{ join: 'Join' }}
           onSuccess={() => {
             displayToast(`🙌 You joined the Squad ${squad.name}`);
           }}
           origin={Origin.Profile}
           size={ButtonSize.Small}
-          squad={{ ...squad, currentMember: null }}
+          squad={{ ...squad, currentMember: undefined }}
         />
       )}
     </li>

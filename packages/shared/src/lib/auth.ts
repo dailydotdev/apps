@@ -217,10 +217,10 @@ export type NativeAuthResponse = {
 export const iosNativeAuth = async (
   provider: string,
 ): Promise<NativeAuthResponse | undefined> => {
-  const promise = promisifyEventListener(
-    'native-auth',
-    (event) => event.detail,
-  );
+  const promise = promisifyEventListener<
+    NativeAuthResponse | undefined,
+    NativeAuthResponse | undefined
+  >('native-auth', (event) => event.detail);
   postWebKitMessage(WebKitMessageHandlers.NativeAuth, provider);
   return promise;
 };

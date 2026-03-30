@@ -40,7 +40,7 @@ const ControlledAvatarUpload = ({
     >
       <div className="relative size-full overflow-hidden rounded-26">
         <img
-          src={displayImage}
+          src={displayImage ?? undefined}
           alt="Profile avatar"
           className="size-full object-cover"
           data-testid="image_avatar_file"

@@ -9,7 +9,6 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { mocked } from 'ts-jest/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
@@ -72,12 +71,14 @@ jest.mock('webextension-polyfill', () => {
   };
 });
 
+const mockGetBootData = getBootData as jest.MockedFunction<typeof getBootData>;
+
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
 });
 
-const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
+const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
 
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
@@ -89,6 +90,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   optOutCompanion: true,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
@@ -135,7 +138,7 @@ jest.spyOn(libFuncs, 'checkIsExtension').mockReturnValue(true);
 const renderComponent = (bootData = defaultBootData): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
-  mocked(getBootData).mockResolvedValue(getBootMock(bootData));
+  mockGetBootData.mockResolvedValue(getBootMock(bootData));
   return render(
     <div id="__next">
       <QueryClientProvider client={queryClient}>
@@ -179,7 +182,7 @@ describe('shortcut links component', () => {
   it('should display add shortcuts if settings is enabled and no customLinks added', async () => {
     renderComponent({
       ...defaultBootData,
-      settings: { ...defaultSettings, customLinks: null },
+      settings: { ...defaultSettings, customLinks: undefined },
     });
 
     const addShortcuts = await screen.findByText('Add shortcuts');
@@ -201,7 +204,7 @@ describe('shortcut links component', () => {
         ...defaultBootData,
         settings: {
           ...defaultBootData.settings,
-          customLinks: null,
+          customLinks: undefined,
         },
       });
     });
@@ -272,7 +275,7 @@ describe('shortcut links component', () => {
 
   it('should allow user to customize shortcut links', async () => {
     const additional = 'http://custom6.com';
-    const expected = [...defaultSettings.customLinks, additional];
+    const expected = [...(defaultSettings.customLinks ?? []), additional];
 
     let mutationCalled = false;
     mockGraphQL({
@@ -411,7 +414,11 @@ describe('shortcut links component', () => {
         ...loggedUser,
         createdAt: '2024-06-16T00:00:00.000Z',
       },
-      settings: { ...defaultSettings, customLinks: null, showTopSites: true },
+      settings: {
+        ...defaultSettings,
+        customLinks: undefined,
+        showTopSites: true,
+      },
     });
 
     expect(

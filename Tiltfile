@@ -1,4 +1,4 @@
-update_settings(k8s_upsert_timeout_secs=600)
+update_settings(k8s_upsert_timeout_secs=900)
 
 def include_if_exists(path):
   if os.path.exists(path):

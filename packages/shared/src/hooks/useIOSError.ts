@@ -27,7 +27,11 @@ export const useIOSError = (): void => {
     );
 
     return () => {
-      globalThis?.eventControllers?.[eventName]?.abort();
+      (
+        globalThis as typeof globalThis & {
+          eventControllers?: Partial<Record<string, AbortController>>;
+        }
+      ).eventControllers?.[eventName]?.abort();
     };
   }, [displayToast]);
 };

@@ -14,6 +14,7 @@ import {
   SEARCH_BOOKMARKS_QUERY,
   supportedTypesForPrivateSources,
 } from '../graphql/feed';
+import { ClientQuestEventType } from '../graphql/quests';
 import AuthContext from '../contexts/AuthContext';
 import { CustomFeedHeader, FeedPageHeader } from './utilities';
 import SearchEmptyScreen from './SearchEmptyScreen';
@@ -38,6 +39,7 @@ import { BookmarkFolderContextMenu } from './bookmark/BookmarkFolderContextMenu'
 import { TargetType } from '../lib/log';
 import usePlusEntry from '../hooks/usePlusEntry';
 import usePersistentContext from '../hooks/usePersistentContext';
+import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { Dropdown } from './fields/Dropdown';
 import { IconSize } from './Icon';
 
@@ -106,6 +108,10 @@ export default function BookmarkFeedLayout({
   const listId = folder?.id;
   const selectedSortValue =
     bookmarkSortOptions[selectedSort]?.value ?? BookmarkSort.TimeDesc;
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitReadItLaterPage,
+    enabled: !!isReminderOnly && !isSearchResults,
+  });
   const feedQueryKey = useMemo(
     () =>
       generateQueryKey(RequestKey.Bookmarks, user, {

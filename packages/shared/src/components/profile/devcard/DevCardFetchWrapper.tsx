@@ -11,7 +11,7 @@ interface DevCardFetchWrapperProps extends Omit<DevCardProps, 'data'> {
 export function DevCardFetchWrapper({
   userId,
   ...props
-}: DevCardFetchWrapperProps): ReactElement {
+}: DevCardFetchWrapperProps): ReactElement | null {
   const data = useDevCard(userId);
 
   if (!data) {

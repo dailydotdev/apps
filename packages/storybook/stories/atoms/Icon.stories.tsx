@@ -7,7 +7,9 @@ import Icon, {
 import { StoryObj } from '@storybook/react-vite';
 
 const iconMap = {...icons};
-type CustomProps = ComponentProps<typeof Icon> & { renderIcon: React.ReactElement };
+type CustomProps = ComponentProps<typeof Icon> & {
+  renderIcon: keyof typeof iconMap;
+};
 
 const meta: Meta<CustomProps> = {
   title: 'Atoms/Icon',
@@ -33,11 +35,8 @@ type Story = StoryObj<CustomProps>;
 
 export const Individual: Story = {
   render: (props) => {
-    // @ts-ignore
     const IconComponent = iconMap[props.renderIcon];
-    return <IconComponent
-      {...props}
-    />
+    return <IconComponent {...props} />;
   },
   parameters: {
     design: {
@@ -45,7 +44,7 @@ export const Individual: Story = {
       url: "https://www.figma.com/file/C7n8EiXBwV1sYIEHkQHS8R/daily.dev---Design-System?type=design&node-id=0-1&mode=design&t=G2RMnPc48y6jEo5a-0",
     },
   }
-}
+};
 
 export const AllIcons: Story = {
   render: () => {

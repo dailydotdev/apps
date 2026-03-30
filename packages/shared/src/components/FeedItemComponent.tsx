@@ -6,7 +6,7 @@ import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
 import { PlaceholderList } from './cards/placeholder/PlaceholderList';
 import { SignalPlaceholderList } from './cards/placeholder/SignalPlaceholderList';
 import type { Ad, Post, PostItem } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
@@ -20,6 +20,7 @@ import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
+import type { AdCardProps } from './cards/ad/common/common';
 import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
 import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
@@ -134,6 +135,10 @@ const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
 const getPostTypeForCard = (post?: Post): PostType => {
   if (!post) {
     return PostType.Article;
+  }
+
+  if (isSocialTwitterPost(post)) {
+    return PostType.SocialTwitter;
   }
 
   return post.type;
@@ -390,9 +395,12 @@ function FeedItemComponent({
   }
 
   switch (item.type) {
-    case FeedItemType.Ad:
+    case FeedItemType.Ad: {
+      const AdComponent = AdTag as React.ForwardRefExoticComponent<
+        AdCardProps & React.RefAttributes<Element>
+      >;
       return (
-        <AdTag
+        <AdComponent
           ref={inViewRef}
           ad={item.ad}
           index={item.index}
@@ -405,6 +413,7 @@ function FeedItemComponent({
           }
         />
       );
+    }
     case FeedItemType.UserAcquisition:
       return <AcquisitionFormTag key="user-acquisition-card" />;
     case FeedItemType.MarketingCta:

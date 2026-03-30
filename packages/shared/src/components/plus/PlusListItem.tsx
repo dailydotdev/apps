@@ -1,4 +1,4 @@
-import type { FC, ReactElement } from 'react';
+import type { FC, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -56,7 +56,7 @@ export const PlusListItem = ({
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
-      wrapper={(component: ReactElement) => (
+      wrapper={(component: ReactNode) => (
         <Tooltip
           className="!tablet:max-w-72 !max-w-full text-center"
           content={item.tooltip}

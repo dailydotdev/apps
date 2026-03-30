@@ -1,4 +1,4 @@
-import type { UseFormSetError } from 'react-hook-form';
+import type { FieldValues, Path, UseFormSetError } from 'react-hook-form';
 import type { GraphQLError } from './errors';
 import type { ApiResponseError, ApiZodErrorExtension } from '../graphql/common';
 import { ApiError } from '../graphql/common';
@@ -71,13 +71,12 @@ export function formToJson<T extends Record<string, unknown>>(
   return values as unknown as T;
 }
 
-export const applyZodErrorsToForm = ({
+export const applyZodErrorsToForm = <TFieldValues extends FieldValues>({
   error: originalError,
   setError,
 }: {
   error: GraphQLError;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setError: UseFormSetError<any>;
+  setError: UseFormSetError<TFieldValues>;
 }) => {
   if (
     originalError.response?.errors?.[0]?.extensions?.code ===
@@ -88,7 +87,7 @@ export const applyZodErrorsToForm = ({
 
     apiError.extensions.issues.forEach((issue) => {
       if (issue.path?.length) {
-        setError(issue.path.join('.'), {
+        setError(issue.path.join('.') as Path<TFieldValues>, {
           type: issue.code,
           message: issue.message,
         });

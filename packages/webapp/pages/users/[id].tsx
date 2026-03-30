@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -11,12 +11,15 @@ import {
   LeaderboardType,
   leaderboardQueries,
   leaderboardTypeToTitle,
+  MOST_QUESTS_COMPLETED_LIMIT,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -36,18 +39,61 @@ interface PageProps extends DynamicSeoProps {
   companyItems?: CompanyLeaderboard[];
 }
 
+const getLeaderboardLimit = (leaderboardType: LeaderboardType): number =>
+  leaderboardType === LeaderboardType.MostQuestsCompleted
+    ? MOST_QUESTS_COMPLETED_LIMIT
+    : 100;
+
+const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(
+      ({ message }) =>
+        message?.includes('Cannot query field "highestLevel"') ||
+        message?.includes('Cannot query field "level" on type "Leaderboard"'),
+    ) ?? false
+  );
+};
+
 const LeaderboardDetailPage = ({
   leaderboardType,
   title,
   userItems,
   companyItems,
 }: PageProps): ReactElement => {
-  const { isFallback: isLoading } = useRouter();
+  const router = useRouter();
+  const { isFallback: isLoading } = router;
+  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
+    useConditionalFeature({
+      feature: questsFeature,
+    });
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
+  const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
 
-  if (isLoading || !title) {
+  useEffect(() => {
+    if (
+      !isLevelLeaderboard ||
+      isQuestsFeatureLoading ||
+      isQuestsFeatureEnabled === true
+    ) {
+      return;
+    }
+
+    router.replace('/users');
+  }, [
+    isLevelLeaderboard,
+    isQuestsFeatureEnabled,
+    isQuestsFeatureLoading,
+    router,
+  ]);
+
+  if (
+    isLoading ||
+    !title ||
+    (isLevelLeaderboard &&
+      (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true))
+  ) {
     return <></>;
   }
 
@@ -76,6 +122,7 @@ const LeaderboardDetailPage = ({
             items={userItems || []}
             isLoading={isLoading}
             concatScore={concatScore}
+            showLevel={isLevelLeaderboard}
           />
         )}
       </div>
@@ -115,6 +162,7 @@ export async function getStaticProps({
   const leaderboardType = id as LeaderboardType;
   const title = leaderboardTypeToTitle[leaderboardType];
   const isCompany = isCompanyLeaderboard(leaderboardType);
+  const leaderboardLimit = getLeaderboardLimit(leaderboardType);
 
   const getSeoProps = () => {
     const seoTitles = getPageSeoTitles(`${title} - Developer leaderboard`);
@@ -122,7 +170,7 @@ export async function getStaticProps({
     return {
       title: seoTitles.title,
       openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
-      description: `Check out the top 100 ${
+      description: `Check out the top ${leaderboardLimit} ${
         isCompany ? 'companies' : 'developers'
       } for ${title.toLowerCase()} on daily.dev.`,
     };
@@ -132,7 +180,7 @@ export async function getStaticProps({
     const query = leaderboardQueries[leaderboardType];
     const res = await gqlClient.request<{
       [key: string]: UserLeaderboard[] | CompanyLeaderboard[];
-    }>(query, { limit: 100 });
+    }>(query, { limit: leaderboardLimit });
 
     const items = res[leaderboardType] || [];
 
@@ -149,6 +197,16 @@ export async function getStaticProps({
     };
   } catch (err: unknown) {
     const error = err as GraphQLError;
+    if (
+      leaderboardType === LeaderboardType.HighestLevel &&
+      isHighestLevelSchemaMissing(error)
+    ) {
+      return {
+        notFound: true,
+        revalidate: 60,
+      };
+    }
+
     if (
       [ApiError.NotFound, ApiError.Forbidden].includes(
         error?.response?.errors?.[0]?.extensions?.code,

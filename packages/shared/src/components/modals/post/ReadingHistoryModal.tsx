@@ -33,7 +33,7 @@ export function ReadingHistoryModal({
   const onClick = (e: React.MouseEvent, post: PostItem) => {
     onArticleSelected(post);
     if (!keepOpenAfterSelecting) {
-      onRequestClose(e);
+      onRequestClose?.(e);
     }
   };
 

@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Post, PostsEngaged, SharedPost } from '../graphql/posts';
-import { isShareLikePost, POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
+import {
+  getPostReadTarget,
+  isShareLikePost,
+  POSTS_ENGAGED_SUBSCRIPTION,
+} from '../graphql/posts';
 import { useLogContext } from '../contexts/LogContext';
 import { useActiveFeedContext } from '../contexts';
 import { postLogEvent } from '../lib/feed';
@@ -38,14 +42,14 @@ export const useReadArticle = ({
 }: UseReadArticle): EmptyPromise => {
   const onPostClick = useOnPostClick({ origin });
 
-  return useCallback(
-    () =>
-      onPostClick({
-        post: post?.sharedPost || post,
-        optional: { parent_id: post.sharedPost && post.id },
-      }),
-    [onPostClick, post],
-  );
+  return useCallback(() => {
+    const { target, parentId } = getPostReadTarget(post);
+
+    return onPostClick({
+      post: target || post,
+      optional: { parent_id: parentId },
+    });
+  }, [onPostClick, post]);
 };
 
 const usePostContent = ({
@@ -95,7 +99,7 @@ const usePostContent = ({
     },
   );
 
-  const loggedPostEvent = useRef(null);
+  const loggedPostEvent = useRef<string | null>(null);
 
   useEffect(() => {
     if (!post) {

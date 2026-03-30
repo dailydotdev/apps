@@ -229,8 +229,7 @@ export const broadcastMessage = (
   channel.close();
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const promisifyEventListener = <T, E = any>(
+export const promisifyEventListener = <T, E = unknown>(
   type: string,
   listener: (event: CustomEvent<E>) => T | Promise<T>,
   options?: { once?: boolean },

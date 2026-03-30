@@ -1,5 +1,5 @@
 import type { FormEventHandler, ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import type {
   ExternalLinkPreview,
@@ -33,6 +33,10 @@ export function SubmitExternalLink({
 }: SubmitExternalLinkProps): ReactElement {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
   const [url, setUrl] = useState<string | undefined>(() => {
     if (initialUrl && isValidHttpUrl(initialUrl)) {
       getLinkPreview(initialUrl);
@@ -55,6 +59,10 @@ export function SubmitExternalLink({
   const link = url ?? preview?.permalink ?? preview?.url;
 
   if (isLoadingPreview) {
+    return <WritePreviewSkeleton link={link} />;
+  }
+
+  if (preview && !isHydrated) {
     return <WritePreviewSkeleton link={link} />;
   }
 

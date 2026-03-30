@@ -14,6 +14,7 @@ import { useBookmarkProvider } from '../../../hooks';
 import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { isSourceUserSource } from '../../../graphql/sources';
+import type { SourceTooltip } from '../../../graphql/sources';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -48,7 +49,7 @@ export const SquadPostCardHeader = ({
         <div className="relative flex w-full flex-row gap-2">
           {!isUserSource && (
             <SourceButton
-              source={source}
+              source={source as SourceTooltip}
               className={classNames(
                 'z-0',
                 !enableSourceHeader && 'absolute -bottom-2 -right-2',

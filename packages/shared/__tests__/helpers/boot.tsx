@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { QueryClient } from '@tanstack/react-query';
@@ -44,6 +42,8 @@ export const settingsContext: SettingsContextData = {
   openNewTab: true,
   optOutCompanion: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   setSettings: jest.fn(),
   setSpaciness: jest.fn(),
   setTheme: jest.fn(),
@@ -60,6 +60,8 @@ export const settingsContext: SettingsContextData = {
   toggleOpenNewTab: jest.fn(),
   toggleOptOutCompanion: jest.fn(),
   toggleOptOutReadingStreak: jest.fn(),
+  toggleOptOutLevelSystem: jest.fn(),
+  toggleOptOutQuestSystem: jest.fn(),
   toggleShowTopSites: jest.fn(),
   toggleShowFeedbackButton: jest.fn(),
   toggleSidebarExpanded: jest.fn(),

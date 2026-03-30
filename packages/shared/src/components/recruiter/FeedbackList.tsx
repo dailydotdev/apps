@@ -128,7 +128,8 @@ interface FeedbackCardProps {
 const FeedbackCard = ({ feedback }: FeedbackCardProps): ReactElement => {
   const showSentiment = feedback.sentiment !== FeedbackSentiment.Unspecified;
   const showUrgency = feedback.urgency !== FeedbackUrgency.Unspecified;
-  const hasUserContext = feedback.userContext;
+  const { userContext } = feedback;
+  const hasUserContext = !!userContext;
 
   return (
     <div
@@ -171,8 +172,8 @@ const FeedbackCard = ({ feedback }: FeedbackCardProps): ReactElement => {
       )}
 
       {/* User context - seniority and location */}
-      {hasUserContext && (
-        <UserContextDisplay userContext={feedback.userContext} />
+      {hasUserContext && userContext && (
+        <UserContextDisplay userContext={userContext} />
       )}
     </div>
   );

@@ -68,8 +68,8 @@ function Alert({
         <span
           className={classNames(
             'flex flex-1 typo-callout',
-            children && 'font-bold',
-            children && fontColor[type],
+            !!children && 'font-bold',
+            !!children && fontColor[type],
           )}
         >
           {title}

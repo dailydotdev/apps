@@ -2,18 +2,24 @@ import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import nock from 'nock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useJoinReferral } from './useJoinReferral';
 import { AuthContextProvider } from '../../contexts/AuthContext';
+import type { AuthContextProviderProps } from '../../contexts/AuthContext';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { GET_REFERRING_USER_QUERY } from '../../graphql/users';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 
 describe('useJoinReferral hook', () => {
-  const createWrapper = ({ user = null, client = new QueryClient() }) => {
-    const Wrapper = ({ children }) => (
+  const createWrapper = ({
+    user,
+    client = new QueryClient(),
+  }: {
+    user?: AuthContextProviderProps['user'];
+    client?: QueryClient;
+  }) => {
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
       <QueryClientProvider client={client}>
         <AuthContextProvider
           user={user}
@@ -41,7 +47,7 @@ describe('useJoinReferral hook', () => {
   });
 
   it('should set referral cookie', () => {
-    mocked(useRouter).mockImplementation(
+    jest.mocked(useRouter).mockImplementation(
       () =>
         ({
           query: {
@@ -63,7 +69,7 @@ describe('useJoinReferral hook', () => {
   });
 
   it('should not set referral cookie if params missing', () => {
-    mocked(useRouter).mockImplementation(
+    jest.mocked(useRouter).mockImplementation(
       () =>
         ({
           query: {},
@@ -78,7 +84,7 @@ describe('useJoinReferral hook', () => {
   });
 
   it('should expire cookie if referring user id can not be found', async () => {
-    mocked(useRouter).mockImplementation(
+    jest.mocked(useRouter).mockImplementation(
       () =>
         ({
           query: {
@@ -113,7 +119,7 @@ describe('useJoinReferral hook', () => {
   });
 
   it('should not set cookie if logger user id is the same as referred user id', async () => {
-    mocked(useRouter).mockImplementation(
+    jest.mocked(useRouter).mockImplementation(
       () =>
         ({
           query: {

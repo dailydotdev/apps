@@ -228,9 +228,6 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     numUpvotes
     numComments
     numAwards
-    analytics {
-      bookmarks
-    }
     summary
     yggdrasilId
     creatorTwitter
@@ -331,7 +328,6 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     bookmarked
     analytics {
       impressions
-      bookmarks
     }
     numUpvotes
     numComments
@@ -523,6 +519,11 @@ export const TOP_READER_BADGE_FRAGMENT = gql`
     issuedAt
     image
     total
+    user {
+      name
+      username
+      image
+    }
     keyword {
       value
       flags {

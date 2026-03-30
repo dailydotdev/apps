@@ -39,14 +39,14 @@ export function PostReminderOptions({
     onInteract(previousInteraction);
   };
   return (
-    <span className={classNames('flex flex-row gap-3', className)}>
+    <span className={classNames('flex flex-row flex-wrap gap-3', className)}>
       <Button
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
-          runBookmarkReminder(ReminderPreference.OneHour),
+          runBookmarkReminder(ReminderPreference.LaterToday),
         )}
       >
-        1h
+        Later today
       </Button>
       <Button
         {...buttonProps}
@@ -54,7 +54,7 @@ export function PostReminderOptions({
           runBookmarkReminder(ReminderPreference.Tomorrow),
         )}
       >
-        24h
+        Tomorrow
       </Button>
       <Button
         {...buttonProps}

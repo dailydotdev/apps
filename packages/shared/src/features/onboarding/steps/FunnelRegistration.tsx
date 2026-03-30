@@ -37,6 +37,7 @@ import {
 } from '../shared';
 import type { FunnelStepSignup } from '../types/funnel';
 import { useConsentCookie } from '../../../hooks/useCookieConsent';
+import { isIOSNative } from '../../../lib/func';
 import { GdprConsentKey } from '../../../hooks/useCookieBanner';
 import Alert, { AlertType } from '../../../components/widgets/Alert';
 
@@ -156,8 +157,15 @@ function InnerFunnelRegistration({
       if (shouldRedirect) {
         window.sessionStorage.setItem(AUTH_REDIRECT_KEY, window.location.href);
         window.location.href = redirect;
-      } else {
+        return;
+      }
+
+      if (isIOSNative()) {
+        window.location.href = redirect;
+      } else if (windowPopup.current) {
         windowPopup.current.location.href = redirect;
+      } else {
+        window.location.href = redirect;
       }
     },
     keepSession: true,
@@ -166,7 +174,10 @@ function InnerFunnelRegistration({
   const subscriberEmail = router?.query?.subscribed;
 
   const onRegister = (provider: SocialProvider) => {
-    if (!isNativeAuthSupported(provider) && !shouldRedirect) {
+    const shouldUsePopup =
+      !shouldRedirect && !isNativeAuthSupported(provider) && !isIOSNative();
+
+    if (shouldUsePopup) {
       windowPopup.current = window.open();
     }
     onSocialRegistration(provider);

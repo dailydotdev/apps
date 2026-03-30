@@ -8,16 +8,11 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import {
-  PlusList,
-  plusFeatureListTreatment,
-  plusOrganizationFeatureList,
-} from './PlusList';
+import { PlusList, plusOrganizationFeatureList } from './PlusList';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { usePlusSubscription } from '../../hooks';
-import { usePlusPositioning } from '../../hooks/usePlusPositioning';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -63,42 +58,6 @@ interface PageCopy {
   subtitle: string;
 }
 
-const plusFeaturePillars = [
-  {
-    title: 'For your agents',
-    featureIds: [
-      'daily-dev-skill',
-      'daily-dev-agentic-skill',
-      'public-api',
-      'custom feeds',
-    ],
-  },
-  {
-    title: 'For you',
-    featureIds: [
-      'presidential-briefing',
-      'smart prompts',
-      'clean titles',
-      'ad-free',
-    ],
-  },
-] as const;
-
-const getPlusFeaturesByIds = (featureIds: string[]) => {
-  const featureMap = new Map(
-    plusFeatureListTreatment.map((feature) => [feature.id, feature]),
-  );
-
-  return featureIds.map((featureId) => {
-    const feature = featureMap.get(featureId);
-    if (!feature) {
-      throw new Error(`Missing Plus feature for id "${featureId}"`);
-    }
-
-    return feature;
-  });
-};
-
 export const defaultPlusInfoCopyControl: Record<PlusType, PageCopy> = {
   [PlusType.Self]: {
     title: 'Fast-track your growth',
@@ -116,27 +75,6 @@ export const defaultPlusInfoCopyControl: Record<PlusType, PageCopy> = {
     title: 'Gift daily.dev Plus 🎁',
     description:
       'Gifting daily.dev Plus to a friend is the ultimate way to say, ‘I’ve got your back.’ It unlocks an ad-free experience, advanced content filtering and customizations, plus AI superpowers to supercharge their daily.dev journey.',
-    subtitle: "Who's it for?",
-  },
-};
-
-export const defaultPlusInfoCopyTreatment: Record<PlusType, PageCopy> = {
-  [PlusType.Self]: {
-    title: 'Keep your agents up to date',
-    description:
-      'Free keeps you up to date. Plus helps your agents and LLMs stay current too with public API access, daily.dev skills, and AI tools built for high-signal developer workflows.',
-    subtitle: 'Billing cycle',
-  },
-  [PlusType.Organization]: {
-    title: 'Give your team and their agents an unfair advantage',
-    description:
-      'Equip every engineer with agent-ready dev intelligence, API access, and AI workflows that scale across your organization. All the benefits of daily.dev Plus, now built for teams.',
-    subtitle: 'Billing cycle',
-  },
-  [PlusType.Gift]: {
-    title: 'Gift daily.dev Plus',
-    description:
-      'Give someone the edge: API access for agents and LLMs, plus AI-powered tools and premium features to help them stay sharper every day.',
     subtitle: "Who's it for?",
   },
 };
@@ -176,20 +114,6 @@ const getPlusType = ({
   return PlusType.Self;
 };
 
-const getCopy = (
-  plusType: PlusType,
-  copy: Record<PlusType, PageCopy>,
-  { title, description, subtitle },
-) => {
-  const fallback = copy[plusType];
-
-  return {
-    titleCopy: title || fallback.title,
-    descriptionCopy: description || fallback.description,
-    subtitleCopy: subtitle || fallback.subtitle,
-  };
-};
-
 export const PlusInfo = ({
   productOptions,
   selectedOption,
@@ -211,7 +135,6 @@ export const PlusInfo = ({
     usePaymentContext();
   const { openModal } = useLazyModal();
   const { logSubscriptionEvent } = usePlusSubscription();
-  const { isAgentPositioning } = usePlusPositioning();
   const { giftToUser } = useGiftUserContext();
 
   const [itemQuantity, setItemQuantity] = useState<number>(1);
@@ -220,46 +143,19 @@ export const PlusInfo = ({
     isGift: !!giftToUser,
     isOrganization,
   });
-
-  const copy = isAgentPositioning
-    ? defaultPlusInfoCopyTreatment
-    : defaultPlusInfoCopyControl;
-  const { titleCopy, descriptionCopy, subtitleCopy } = getCopy(plusType, copy, {
-    title,
-    description,
-    subtitle,
-  });
+  const defaultCopy = defaultPlusInfoCopyControl[plusType];
+  const titleCopy = title || defaultCopy.title;
+  const descriptionCopy = description || defaultCopy.description;
+  const subtitleCopy = subtitle || defaultCopy.subtitle;
 
   const isOnboarding = router.pathname.startsWith('/onboarding');
   const showBuyAsAGiftButton =
     !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
-  let plusListContent = <PlusList />;
-
-  if (isOrganization) {
-    plusListContent = <PlusList items={plusOrganizationFeatureList} />;
-  } else if (isAgentPositioning) {
-    plusListContent = (
-      <div className="flex flex-col gap-4 py-6">
-        {plusFeaturePillars.map((pillar) => (
-          <section key={pillar.title}>
-            <Typography
-              tag={TypographyTag.H3}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="mb-1 uppercase"
-              bold
-            >
-              {pillar.title}
-            </Typography>
-            <PlusList
-              className="!py-0"
-              items={getPlusFeaturesByIds([...pillar.featureIds])}
-            />
-          </section>
-        ))}
-      </div>
-    );
-  }
+  const plusListContent = isOrganization ? (
+    <PlusList items={plusOrganizationFeatureList} />
+  ) : (
+    <PlusList />
+  );
 
   return (
     <>

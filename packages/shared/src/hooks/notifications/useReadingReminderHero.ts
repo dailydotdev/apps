@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { UserPersonalizedDigestType } from '../../graphql/users';
-import { useConditionalFeature } from '../useConditionalFeature';
 import { SendType, usePersonalizedDigest } from '../usePersonalizedDigest';
 import usePersistentContext, {
   PersistentContextKeys,
@@ -11,18 +10,19 @@ import usePersistentContext, {
 import { useViewSize, ViewSize } from '../useViewSize';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
-import {
-  featureReadingReminderHeroCopy,
-  featureReadingReminderHeroDismiss,
-} from '../../lib/featureManagement';
+import { featureReadingReminderHeroCopy } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../useConditionalFeature';
 
 interface UseReadingReminderHero {
   shouldShow: boolean;
   title: string;
   subtitle: string;
-  shouldShowDismiss: boolean;
   onEnable: () => Promise<void>;
   onDismiss: () => Promise<void>;
+}
+
+interface UseReadingReminderHeroProps {
+  requireMobile?: boolean;
 }
 
 const DEFAULT_READING_REMINDER_HOUR = 9;
@@ -57,7 +57,9 @@ const getIsRegisteredToday = (createdAt?: string | Date): boolean => {
   return isToday(parsedDate);
 };
 
-export const useReadingReminderHero = (): UseReadingReminderHero => {
+export const useReadingReminderHero = ({
+  requireMobile = true,
+}: UseReadingReminderHeroProps = {}): UseReadingReminderHero => {
   const { isLoggedIn, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { onEnablePush } = usePushNotificationMutation();
@@ -79,17 +81,14 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
   const isDismissed = isDismissedValue(lastSeen);
 
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isEligibleViewSize = !requireMobile || isMobile;
   const shouldEvaluate =
-    isMobile &&
+    isEligibleViewSize &&
     isLoggedIn &&
     !isDigestLoading &&
     !isSubscribedToReadingReminder &&
     !isRegisteredToday &&
     !isDismissed;
-  const { value: shouldShowDismiss } = useConditionalFeature({
-    feature: featureReadingReminderHeroDismiss,
-    shouldEvaluate,
-  });
   const { value: copy } = useConditionalFeature({
     feature: featureReadingReminderHeroCopy,
     shouldEvaluate,
@@ -143,7 +142,6 @@ export const useReadingReminderHero = (): UseReadingReminderHero => {
     shouldShow,
     title: copy.title,
     subtitle: copy.subtitle,
-    shouldShowDismiss,
     onEnable,
     onDismiss,
   };

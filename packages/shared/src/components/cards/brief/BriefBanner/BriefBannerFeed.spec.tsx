@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import { subDays } from 'date-fns';
 import { useInView } from 'react-intersection-observer';
 
@@ -52,10 +51,10 @@ jest.mock('react-intersection-observer', () => ({
   })),
 }));
 
-const mockUseAuthContext = mocked(useAuthContext);
-const mockUsePersistentState = mocked(usePersistentState);
+const mockUseAuthContext = jest.mocked(useAuthContext);
+const mockUsePersistentState = jest.mocked(usePersistentState);
 const mockUseInView = useInView as jest.MockedFunction<typeof useInView>;
-const mockUseActions = mocked(useActions);
+const mockUseActions = jest.mocked(useActions);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockUseInViewReturn = any;

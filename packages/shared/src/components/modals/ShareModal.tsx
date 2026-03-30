@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import type { SwipeEventData } from 'react-swipeable';
 import { SocialShare } from '../widgets/SocialShare';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
@@ -52,12 +53,17 @@ export default function ShareModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSwipedDown = (e: any) => {
-    const { scrollTop } = e.event.currentTarget;
+  const onSwipedDown = (e: SwipeEventData) => {
+    const currentTarget = e.event.currentTarget as HTMLElement | null;
+
+    if (!currentTarget) {
+      return;
+    }
+
+    const { scrollTop } = currentTarget;
 
     if (scrollTop === 0) {
-      onRequestClose(e);
+      onRequestClose(e.event as React.MouseEvent);
     }
   };
 

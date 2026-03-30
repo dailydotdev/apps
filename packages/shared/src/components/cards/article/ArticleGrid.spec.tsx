@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import post from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { visibleOnGroupHover } from '../common/common';
@@ -18,7 +17,7 @@ jest.mock('next/router', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',
@@ -102,7 +101,7 @@ it('should call on share click on copy link button click', async () => {
 it('should not display publication date createdAt is empty', async () => {
   renderComponent({
     ...defaultProps,
-    post: { ...post, createdAt: null },
+    post: { ...post, createdAt: undefined },
   });
   const el = screen.queryByText('Jun 13, 2018');
   expect(el).not.toBeInTheDocument();

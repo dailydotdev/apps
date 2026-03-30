@@ -107,8 +107,10 @@ export enum LogEvent {
   ClickNotificationIcon = 'click notification icon',
   OpenNotificationList = 'open notification list',
   ClickNotification = 'click notification',
+  ClickNotificationCta = 'click notification cta',
   ClickEnableNotification = 'click enable notification',
   ClickNotificationDismiss = 'click notification dismiss',
+  ImpressionNotificationCta = 'impression notification cta',
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
@@ -394,6 +396,9 @@ export enum LogEvent {
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
+  // Quests
+  ClaimQuest = 'claim quest',
+  Dismiss = 'dismiss',
 }
 
 export enum TargetType {
@@ -431,6 +436,7 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Quest = 'quest',
   // Settings
   Layout = 'layout',
   Theme = 'theme',
@@ -507,10 +513,12 @@ export enum TargetId {
   ProfileSettingsMenu = 'profile settings menu',
   Fullscreen = 'fullscreen',
   Popover = 'popover',
+  QuestDropdown = 'quest dropdown',
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
   AskPage = 'ask page',
+  AskUpsellSearch = 'ask upsell search',
 }
 
 export enum NotificationChannel {
@@ -532,6 +540,24 @@ export enum NotificationTarget {
   Header = 'header',
   Footer = 'footer',
   Icon = 'notifications icon',
+}
+
+export enum NotificationCtaPlacement {
+  TopHero = 'top-hero',
+  InFeedHero = 'in-feed-hero',
+  CommentInline = 'comment-inline',
+  UserCard = 'user-card',
+  SourceCard = 'source-card',
+  SquadCard = 'squad-card',
+  PostActions = 'post-actions',
+  SquadShareToast = 'squad-share-toast',
+}
+
+export enum NotificationCtaKind {
+  PushCta = 'push_cta',
+  ReadingReminder = 'reading_reminder',
+  FollowUpCta = 'followup_cta',
+  ToastCta = 'toast_cta',
 }
 
 export enum NotificationPromptSource {

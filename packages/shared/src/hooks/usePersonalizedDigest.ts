@@ -13,6 +13,7 @@ import {
 import { RequestKey, StaleTime, generateQueryKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';
 import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import type { ApiErrorResult } from '../graphql/common';
 
 export enum SendType {
   Weekly = 'weekly',
@@ -35,12 +36,27 @@ export type UsePersonalizedDigest = {
   }) => Promise<null>;
 };
 
+type PersonalizedDigestData = UserPersonalizedDigest[] | null;
+type SubscribePersonalizedDigestParams =
+  | {
+      hour?: number;
+      type?: UserPersonalizedDigestType;
+      sendType?: SendType;
+      flags?: Pick<UserPersonalizedDigest['flags'], 'sendType'>;
+    }
+  | undefined;
+type UnsubscribePersonalizedDigestParams =
+  | {
+      type?: UserPersonalizedDigestType;
+    }
+  | undefined;
+
 export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   const { isLoggedIn, user } = useAuthContext();
   const queryClient = useQueryClient();
   const queryKey = generateQueryKey(RequestKey.PersonalizedDigest, user);
 
-  const { data, isPending } = useQuery({
+  const { data = null, isPending } = useQuery<PersonalizedDigestData>({
     queryKey,
     queryFn: async () => {
       try {
@@ -48,9 +64,12 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
           personalizedDigest: UserPersonalizedDigest[];
         }>(GET_PERSONALIZED_DIGEST_SETTINGS, {});
 
-        return result.personalizedDigest;
+        return result.personalizedDigest ?? null;
       } catch (error) {
-        const notFoundError = getApiError(error, ApiError.NotFound);
+        const notFoundError = getApiError(
+          error as ApiErrorResult,
+          ApiError.NotFound,
+        );
 
         if (
           notFoundError?.message === 'Not subscribed to personalized digest'
@@ -71,18 +90,18 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         return null;
       }
 
-      return data.find((item) => item.type === type);
+      return data.find((item) => item.type === type) ?? null;
     },
     [data],
   );
 
-  const { mutateAsync: subscribePersonalizedDigest } = useMutation({
-    mutationFn: async (params: {
-      hour?: number;
-      type?: UserPersonalizedDigestType;
-      sendType?: SendType;
-      flags?: Pick<UserPersonalizedDigest['flags'], 'sendType'>;
-    }) => {
+  const { mutateAsync: subscribePersonalizedDigest } = useMutation<
+    UserPersonalizedDigest,
+    Error,
+    SubscribePersonalizedDigestParams,
+    () => void
+  >({
+    mutationFn: async (params) => {
       const {
         hour = 8,
         type = UserPersonalizedDigestType.Digest,
@@ -110,8 +129,9 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
         sendType,
         flags,
       } = params || {};
+      const currentData = data ?? [];
       await queryClient.cancelQueries({ queryKey });
-      const existingData = data?.find((item) => item.type === type);
+      const existingData = currentData.find((item) => item.type === type);
       const newValues = {
         ...existingData,
         ...(hour && { preferredHour: hour }),
@@ -122,12 +142,10 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
           ...(sendType && { sendType }),
         },
       };
-      queryClient.setQueryData(
-        queryKey,
-        data?.length >= 0
-          ? [...data.filter((item) => item.type !== type), newValues]
-          : [newValues],
-      );
+      queryClient.setQueryData(queryKey, [
+        ...currentData.filter((item) => item.type !== type),
+        newValues,
+      ]);
 
       return () => {
         queryClient.setQueryData(queryKey, null);
@@ -139,8 +157,13 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
     },
   });
 
-  const { mutateAsync: unsubscribePersonalizedDigest } = useMutation({
-    mutationFn: async (params: { type?: UserPersonalizedDigestType }) => {
+  const { mutateAsync: unsubscribePersonalizedDigest } = useMutation<
+    null,
+    Error,
+    UnsubscribePersonalizedDigestParams,
+    () => void
+  >({
+    mutationFn: async (params) => {
       const { type = UserPersonalizedDigestType.Digest } = params || {};
       await gqlClient.request(UNSUBSCRIBE_PERSONALIZED_DIGEST_MUTATION, {
         type,
@@ -154,7 +177,7 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
       const { type = UserPersonalizedDigestType.Digest } = params || {};
       queryClient.setQueryData(
         queryKey,
-        data?.filter((item) => item.type !== type),
+        data?.filter((item) => item.type !== type) ?? null,
       );
 
       return () => {
@@ -170,7 +193,9 @@ export const usePersonalizedDigest = (): UsePersonalizedDigest => {
   return {
     getPersonalizedDigest,
     isLoading: isPending,
-    subscribePersonalizedDigest,
-    unsubscribePersonalizedDigest,
+    subscribePersonalizedDigest: (params) =>
+      subscribePersonalizedDigest(params),
+    unsubscribePersonalizedDigest: (params) =>
+      unsubscribePersonalizedDigest(params),
   };
 };

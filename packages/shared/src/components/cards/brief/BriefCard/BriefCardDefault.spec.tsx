@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import { BriefCardDefault } from './BriefCardDefault';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useActions, useToastNotification } from '../../../../hooks';
@@ -40,10 +39,10 @@ jest.mock('next/router', () => ({
   }),
 }));
 
-const mockUseAuthContext = mocked(useAuthContext);
-const mockUseActions = mocked(useActions);
-const mockUseBriefContext = mocked(useBriefContext);
-const mockUseToastNotification = mocked(useToastNotification);
+const mockUseAuthContext = jest.mocked(useAuthContext);
+const mockUseActions = jest.mocked(useActions);
+const mockUseBriefContext = jest.mocked(useBriefContext);
+const mockUseToastNotification = jest.mocked(useToastNotification);
 
 let client: QueryClient;
 

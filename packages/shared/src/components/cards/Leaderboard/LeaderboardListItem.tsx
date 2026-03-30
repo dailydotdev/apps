@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { largeNumberFormat } from '../../../lib';
-import ConditionalWrapper from '../../ConditionalWrapper';
 import Link from '../../utilities/Link';
 import { Tooltip } from '../../tooltip/Tooltip';
 
@@ -26,26 +25,28 @@ export function LeaderboardListItem({
   const shouldShowTooltip =
     concatScore && typeof index === 'number' && index >= 1000;
   const actualNumber = index.toLocaleString();
+  const content = (
+    <>
+      <Tooltip content={actualNumber} visible={shouldShowTooltip}>
+        <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
+          {formattedNumber}
+        </span>
+      </Tooltip>
+      {children}
+    </>
+  );
 
   return (
     <li className={className} onMouseEnter={onMouseEnter}>
-      <ConditionalWrapper
-        condition={!!href}
-        wrapper={(child) => (
-          <Link href={href} passHref key={href} prefetch={false}>
-            <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
-              {child}
-            </a>
-          </Link>
-        )}
-      >
-        <Tooltip content={actualNumber} visible={shouldShowTooltip}>
-          <span className="inline-flex w-14 shrink-0 justify-center tabular-nums text-text-quaternary">
-            {formattedNumber}
-          </span>
-        </Tooltip>
-        {children}
-      </ConditionalWrapper>
+      {href ? (
+        <Link href={href} prefetch={false}>
+          <a className="flex w-full flex-row items-center rounded-8 px-2 hover:bg-accent-pepper-subtler">
+            {content}
+          </a>
+        </Link>
+      ) : (
+        content
+      )}
     </li>
   );
 }

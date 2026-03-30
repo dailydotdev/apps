@@ -56,7 +56,7 @@ function SidebarList({
           size={ButtonSize.Small}
           className="flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}
-          onClick={onRequestClose}
+          onClick={onRequestClose ?? undefined}
         />
         <span className="ml-2 font-bold typo-title3">{title}</span>
       </span>

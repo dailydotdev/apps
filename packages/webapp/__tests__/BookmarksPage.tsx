@@ -12,7 +12,6 @@ import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -32,7 +31,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   nock.cleanAll();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/bookmarks',
@@ -46,7 +45,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = BOOKMARKS_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -67,17 +66,18 @@ const createFeedMock = (
 
 let client: QueryClient;
 
-const renderComponent = (
+function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
-  user: LoggedUser = defaultUser,
-): RenderResult => {
+  user?: LoggedUser,
+): RenderResult {
+  const resolvedUser = arguments.length < 2 ? defaultUser : user;
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
 
   return render(
-    <TestBootProvider client={client} auth={{ user }}>
+    <TestBootProvider client={client} auth={{ user: resolvedUser }}>
       {BookmarksPage.getLayout(
         <BookmarksPage />,
         {},
@@ -85,7 +85,7 @@ const renderComponent = (
       )}
     </TestBootProvider>,
   );
-};
+}
 it('should request bookmarks feed', async () => {
   renderComponent();
   await waitForNock();
@@ -96,7 +96,7 @@ it('should request bookmarks feed', async () => {
 });
 
 it('should redirect to home page when logged-out', async () => {
-  renderComponent([], null);
+  renderComponent([], undefined);
   await waitFor(() => expect(routerReplace).toBeCalledWith('/'));
 });
 

@@ -80,7 +80,7 @@ export const PlusAdjustQuantity = ({
 
       <div className="flex gap-1">
         <TextField
-          label={null}
+          label=""
           inputId="team-size"
           value={itemQuantity}
           type="number"

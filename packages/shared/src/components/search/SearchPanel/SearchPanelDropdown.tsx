@@ -59,7 +59,11 @@ const SearchPanelDropdown = ({ query = '', anchor }: Props): ReactElement => {
 
     event.preventDefault();
 
-    const indexModifier = keyToIndexModifier[pressedKey];
+    const indexModifier = keyToIndexModifier[pressedKey as ArrowKeyEnum];
+
+    if (indexModifier === undefined) {
+      return;
+    }
 
     const nextElement = navigableElements[activeElementIndex + indexModifier];
 

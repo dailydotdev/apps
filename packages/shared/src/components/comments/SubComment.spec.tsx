@@ -25,16 +25,17 @@ jest.mock('../../hooks', () => {
 });
 
 const date = new Date(2024, 6, 6, 12, 30, 30);
+const commentAuthor = comment.author ?? loggedUser;
 
 beforeEach(() => {
-  jest.useFakeTimers('modern').setSystemTime(date);
+  jest.useFakeTimers().setSystemTime(date);
   jest.clearAllMocks();
   mockUseViewSize.mockImplementation(() => true);
 });
 
 const renderLayout = (
   props: Partial<SubCommentProps> = {},
-  user: LoggedUser = null,
+  user: LoggedUser | null = null,
 ): RenderResult => {
   const defaultProps: SubCommentProps = {
     comment,
@@ -55,7 +56,7 @@ const renderLayout = (
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user,
+          user: user ?? undefined,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           isLoggedIn: !!user,
@@ -77,13 +78,13 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`${comment.author.username}'s profile`);
-  expect(el).toHaveAttribute('src', comment.author.image);
+  const el = await screen.findByAltText(`${commentAuthor.username}'s profile`);
+  expect(el).toHaveAttribute('src', commentAuthor.image);
 });
 
 it('should show author name', async () => {
   renderLayout();
-  await screen.findByText(comment.author.name);
+  await screen.findByText(commentAuthor.name);
 });
 
 it('should show formatted comment date', async () => {
@@ -110,6 +111,26 @@ it('should render the comment box', async () => {
   renderLayout({}, loggedUser);
   const el = await screen.findByLabelText('Reply');
   await el.click();
+  const [commentBox] = await screen.findAllByRole('textbox');
+  expect(commentBox).toBeInTheDocument();
+});
+
+it('should handle replies from comments with no author', async () => {
+  renderLayout(
+    {
+      comment: {
+        ...comment,
+        author: undefined,
+      },
+    },
+    loggedUser,
+  );
+
+  await screen.findByText('Deleted user');
+
+  const el = await screen.findByLabelText('Reply');
+  await el.click();
+
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
 });

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import React, { isValidElement, useState } from 'react';
 import classNames from 'classnames';
-import './style.css';
 import type {
   DropdownMenuContentProps as RadixDropdownMenuContentProps,
   DropdownMenuProps,
@@ -14,6 +13,7 @@ import {
   DropdownMenuTrigger as DropdownMenuTriggerRoot,
   DropdownMenuItem as DropdownMenuItemRoot,
 } from '@radix-ui/react-dropdown-menu';
+import styles from './style.module.css';
 import classed from '../../lib/classed';
 import { useEventListener } from '../../hooks/useEventListener';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -27,13 +27,14 @@ import { useScrollFade } from '../../hooks/useScrollFade';
 
 export const DropdownMenuItem = classed(
   DropdownMenuItemRoot,
-  'DropdownMenuItem',
+  styles.DropdownMenuItem,
 );
 
 interface DropdownMenuContentProps
   extends Omit<RadixDropdownMenuContentProps, 'className'> {
   children: ReactNode;
   className?: string;
+  scrollableClassName?: string;
   align?: 'start' | 'center' | 'end';
   variant?: 'action' | 'field';
 }
@@ -80,7 +81,7 @@ export const DropdownMenu = React.forwardRef<HTMLDivElement, DropdownMenuProps>(
     }
     const [open, setOpen] = useState(false);
 
-    useEventListener(globalThis, 'scroll', () => {
+    useEventListener(globalThis.window, 'scroll', () => {
       props.onOpenChange?.(false);
       setOpen(false);
     });
@@ -110,6 +111,7 @@ export const DropdownMenuContent = React.forwardRef<
     {
       children,
       className,
+      scrollableClassName,
       align = 'end',
       collisionPadding,
       sideOffset,
@@ -127,10 +129,11 @@ export const DropdownMenuContent = React.forwardRef<
           {...props}
           ref={forwardedRef}
           className={classNames(
-            'DropdownMenuContent overflow-hidden',
+            styles.DropdownMenuContent,
+            'overflow-hidden',
             variant === 'field'
-              ? 'DropdownMenuContentField'
-              : 'DropdownMenuContentAction',
+              ? styles.DropdownMenuContentField
+              : styles.DropdownMenuContentAction,
             className,
           )}
           align={align}
@@ -139,7 +142,12 @@ export const DropdownMenuContent = React.forwardRef<
         >
           <div
             ref={scrollFadeRef}
-            className="DropdownMenuScrollable max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto bg-inherit"
+            className={classNames(
+              styles.DropdownMenuScrollable,
+              'overflow-y-auto bg-inherit',
+              scrollableClassName ??
+                'max-h-[var(--radix-dropdown-menu-content-available-height)]',
+            )}
           >
             {children}
           </div>
@@ -173,7 +181,10 @@ export const DropdownMenuOptions = ({
             <ConditionalWrapper
               key={label}
               condition={!!Wrapper}
-              wrapper={(children) => <Wrapper>{children}</Wrapper>}
+              wrapper={(children) => {
+                const WrapperComponent = Wrapper!;
+                return <WrapperComponent>{children}</WrapperComponent>;
+              }}
             >
               <DropdownMenuItem
                 onClick={action}
@@ -181,7 +192,7 @@ export const DropdownMenuOptions = ({
                 disabled={disabled}
                 aria-label={ariaLabel}
               >
-                {anchorProps ? (
+                {anchorProps?.href ? (
                   <Link
                     href={anchorProps.href}
                     passHref

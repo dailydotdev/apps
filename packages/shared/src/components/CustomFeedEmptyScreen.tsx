@@ -23,11 +23,9 @@ import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 import { featurePlusCtaCopy } from '../lib/featureManagement';
 import Link from './utilities/Link';
-import { usePlusPositioning } from '../hooks/usePlusPositioning';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
-  const { isAgentPositioning } = usePlusPositioning();
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
@@ -78,19 +76,13 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                 color={TypographyColor.Primary}
                 bold
               >
-                {isAgentPositioning
-                  ? 'Build feeds for both you and your agents'
-                  : 'Custom feeds got a massive upgrade!'}
+                Custom feeds got a massive upgrade!
               </Typography>
               <Typography
                 type={TypographyType.Callout}
                 color={TypographyColor.Tertiary}
               >
-                {isAgentPositioning
-                  ? `Create laser-focused feeds with advanced filters and full
-                control, then use them in your own workflow or through the
-                daily.dev API. Upgrade to Plus to unlock the full setup.`
-                  : `Custom Feeds is now more powerful than ever before, with
+                {`Custom Feeds is now more powerful than ever before, with
                 advanced filters, extensive customization options, and complete
                 feed control. Upgrade to Plus to unlock this ultimate tool for
                 tailoring your content.`}

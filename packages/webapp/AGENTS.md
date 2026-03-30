@@ -131,6 +131,12 @@ pnpm --filter webapp test
 pnpm --filter webapp lint
 ```
 
+## Changed File Verification
+
+- When a webapp change touches TypeScript files, run the changed-file strict guard from the repo root with `node scripts/typecheck-strict-changed.js` before considering the work done.
+- Package-wide strict typecheck currently contains unrelated backlog; use the changed-file guard to catch branch regressions, then run file-scoped lint on the touched webapp files.
+- Be explicit with nullable component return types and callback event types in changed files, because the strict guard will fail on implicit `any` and `null` returned from components typed as `ReactElement`.
+
 ## Webapp vs Shared
 
 **Put in webapp when:**

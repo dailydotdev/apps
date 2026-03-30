@@ -6,7 +6,7 @@ import { CardHeader } from './Card';
 import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
 import { isSourceUserSource } from '../../../graphql/sources';
-import { ReadArticleButton } from './ReadArticleButton';
+import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import type { Post } from '../../../graphql/posts';
@@ -117,9 +117,10 @@ export const PostCardHeader = ({
                   content={getReadPostButtonText(post)}
                   className="mr-2"
                   variant={ButtonVariant.Primary}
-                  href={articleLink}
+                  href={articleLink ?? ''}
                   onClick={onReadArticleClick}
                   openNewTab={openNewTab}
+                  icon={getReadPostButtonIcon(post)}
                 />
               )}
               <PostOptionButton post={post} />

@@ -45,19 +45,16 @@ describe('ReadingReminderHero', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Enable reminder' }));
 
     expect(onEnable).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole('button', { name: 'Close' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
   });
 
-  it('should handle dismiss action when enabled', () => {
+  it('should handle dismiss action', () => {
     const onDismiss = jest.fn();
 
     render(
       <ReadingReminderHero
         title="Reminder title"
         subtitle="Reminder subtitle"
-        shouldShowDismiss
         onEnable={jest.fn()}
         onDismiss={onDismiss}
       />,

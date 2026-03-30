@@ -20,6 +20,10 @@ We're a startup. We move fast, iterate quickly, and embrace change. When impleme
 - Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
 - Fail fast with a clear thrown error message when an internal invariant is violated
 
+**Drag-and-drop UI:**
+- Do not render owner-visible empty drag containers or empty categories unless the product requirement explicitly asks for visible empty drop targets
+- Any drag overlay or tooltip that reads async query data must defensively handle `undefined`/empty arrays without crashing
+
 ## Project Architecture
 
 This is a pnpm monorepo containing the daily.dev application suite:
@@ -36,7 +40,7 @@ This is a pnpm monorepo containing the daily.dev application suite:
 
 ## Technology Stack
 
-- **Node.js v22.22** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
+- **Node.js v24.14** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
 - **pnpm 9.14.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
 - **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
@@ -186,7 +190,11 @@ pnpm --filter webapp build        # Build webapp
 pnpm --filter extension build:chrome # Build Chrome extension
 ```
 
+**IMPORTANT**: When running Jest manually with `pnpm exec jest` or a direct file path, set `NODE_ENV=test` so React and Testing Library do not run under a production build.
+
 **IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
+
+**IMPORTANT**: For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` or the package's strict `tsc` command before finishing. Do not add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
 
 ## Where Should I Put This Code?
 
@@ -240,15 +248,25 @@ We write tests to validate functionality, not to achieve coverage metrics:
 
 ## Feature Flags & Experiments
 
-GrowthBook is integrated for A/B testing:
+GrowthBook is integrated for A/B testing. Define features in `packages/shared/src/lib/featureManagement.ts`:
+```typescript
+export const featureMyFlag = new Feature('my_flag', false);
+```
+
+Use `useConditionalFeature` with `shouldEvaluate` to gate evaluation — only evaluate the flag when the component would otherwise render (e.g., user is authenticated and Plus). This avoids unnecessary GrowthBook evaluations:
 ```typescript
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { featureMyFlag } from '../../lib/featureManagement';
 
-const { value, isLoading } = useConditionalFeature({
-  feature: 'feature_name',
-  shouldEvaluate: true,
+const shouldEvaluate = isAuthReady && isPlus;
+const { value: isEnabled } = useConditionalFeature({
+  feature: featureMyFlag,
+  shouldEvaluate,
 });
+const showComponent = shouldEvaluate && isEnabled;
 ```
+
+When removing a feature flag, do not assume the gated UI should become always-on. Match the product request explicitly: either delete the gated behavior entirely or keep it permanently, and remove dead code/tests for the discarded path.
 
 ## Key Configuration Files
 
@@ -394,6 +412,8 @@ const handleClick = useCallback((key: string) => {
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
 
+Use conventional commit messages for all commits, for example `fix: ...`, `feat: ...`, or `chore: ...`.
+
 Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
 
 ## Code Review Guidelines
@@ -411,6 +431,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Place feed promos in content flow unless explicitly sticky** - If a promo belongs between feed navigation and the feed list, render it in the feed/content layout so it pushes content down. Do not attach it to sticky nav with absolute positioning unless the requirement explicitly asks for overlay behavior.
+- **Use `searchChildren` prop for content above feed results on search pages** - In `MainFeedLayout`, page `children` render AFTER the `<Feed>` component. To place banners/promos above feed results, pass them via the `searchChildren` prop (through `layoutProps` on the page component). Do NOT render them as page children — they will appear below all posts. Prefer reusing existing props over introducing new ones.
 - **Preserve spacing intent across breakpoints** - When fixing missing padding/margins, do not re-disable them at larger breakpoints with classes like `laptop:mx-0` unless the requirement explicitly asks for desktop edge-to-edge layout. Verify mobile and desktop behavior before shipping.
 - **Fix spacing consistently across sibling sections** - On page layout bugs, audit all adjacent sections (headers, modules, horizontal feeds, list feeds) and keep spacing rules consistent unless explicitly specified otherwise.
 - **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.

@@ -1,11 +1,10 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import { PageWidgets } from '../../utilities';
 import type { SearchSuggestion } from '../../../graphql/search';
 import { SearchProviderEnum } from '../../../graphql/search';
-import type { Spaciness } from '../../../graphql/settings';
 import { useSearchResultsLayout } from '../../../hooks/search/useSearchResultsLayout';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -13,13 +12,12 @@ import { webappUrl } from '../../../lib/constants';
 import { SearchResultsTags } from './SearchResultsTags';
 import { SearchResultsSources } from './SearchResultsSources';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
-import SettingsContext from '../../../contexts/SettingsContext';
 import { gapClass } from '../../feeds/FeedContainer';
-import { useConditionalFeature, useFeedLayout } from '../../../hooks';
+import { useFeedLayout } from '../../../hooks';
 import { SearchResultsUsers } from './SearchResultsUsers';
 import SearchFilterTimeButton from '../SearchFilterTimeButton';
 import SearchFilterPostTypeButton from '../SearchFilterPostTypeButton';
-import { featureFeedLayoutV2 } from '../../../lib/featureManagement';
+import { AskSearchBanner } from '../../notifications/AskSearchBanner';
 
 type SearchResultsLayoutProps = PropsWithChildren;
 
@@ -28,12 +26,6 @@ export const SearchResultsLayout = (
 ): ReactElement => {
   const { children } = props;
   const { isListMode } = useFeedLayout();
-  const { spaciness } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2 ? 'eco' : spaciness;
-  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
   const {
@@ -48,7 +40,7 @@ export const SearchResultsLayout = (
       provider: SearchProviderEnum.Tags,
       limit: 10,
     });
-  const tags = suggestedTags?.hits?.map(({ id }) => id) ?? [];
+  const tags = suggestedTags?.hits.flatMap(({ id }) => (id ? [id] : [])) ?? [];
 
   const { isLoading: isSourcesLoading, suggestions: suggestedSources } =
     useSearchProviderSuggestions({
@@ -110,8 +102,6 @@ export const SearchResultsLayout = (
               gapClass({
                 isList: true,
                 isFeedLayoutList: false,
-                space: effectiveSpaciness,
-                defaultGridGap: v2GridGap,
               }),
               isListMode
                 ? `flex flex-col`
@@ -122,6 +112,7 @@ export const SearchResultsLayout = (
           </div>
         </div>
         <PageWidgets className="py-5">
+          <AskSearchBanner />
           <SearchResultsTags
             isLoading={isTagsLoading}
             items={tags}

@@ -33,6 +33,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
+import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
@@ -70,6 +71,7 @@ function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
   useError();
   useWebVitals();
+  useScrollbarWidth();
   const { setCurrentPage, currentPage } = useExtensionContext();
   const { unreadCount } = useNotificationContext();
   const { contentScriptGranted } = useContentScriptStatus();

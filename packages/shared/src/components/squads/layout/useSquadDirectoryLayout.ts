@@ -19,7 +19,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
   const { data: categories, isFetched } = useSquadCategories();
 
   const tabs = useMemo(() => {
-    const path = { ...squadCategoriesPaths };
+    const path: Partial<Record<string, string>> = { ...squadCategoriesPaths };
 
     if (!isFetched) {
       return {};
@@ -44,7 +44,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
   return {
     hasSquad,
     squads,
-    categoryPaths: tabs,
+    categoryPaths: tabs as Record<string, string>,
     isMobileLayout: !isLaptop,
   };
 };

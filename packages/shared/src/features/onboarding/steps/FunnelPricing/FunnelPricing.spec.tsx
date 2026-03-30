@@ -9,6 +9,7 @@ import {
   FunnelPricingType,
 } from '../../types/funnel';
 import { PricingPlanVariation } from '../../shared/PricingPlan';
+import type { DateMock } from '../../../../../__tests__/helpers/dateMock';
 import { setupDateMock } from '../../../../../__tests__/helpers/dateMock';
 import { applyDiscountAtom, selectedPlanAtom } from '../../store/funnel.store';
 import { PaymentContext } from '../../../../contexts/payment/context';
@@ -192,7 +193,7 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
 };
 
 describe('FunnelPricing', () => {
-  let dateMock;
+  let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {
@@ -241,6 +242,10 @@ describe('FunnelPricing', () => {
     );
 
     // Click on the monthly plan
+    if (!monthlyPlan) {
+      throw new Error('Missing monthly plan radio button');
+    }
+
     fireEvent.click(monthlyPlan);
 
     // Then click the CTA

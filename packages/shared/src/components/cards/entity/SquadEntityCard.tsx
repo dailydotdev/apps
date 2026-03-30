@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from '../../utilities/Link';
 import {
   Typography,
@@ -7,6 +7,11 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import type { Origin } from '../../../lib/log';
+import {
+  NotificationCtaPlacement,
+  NotificationPromptSource,
+  TargetType,
+} from '../../../lib/log';
 import { largeNumberFormat } from '../../../lib';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
@@ -19,10 +24,14 @@ import EntityDescription from './EntityDescription';
 import EntityCard from './EntityCard';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
+import EnableNotificationsCta from './EnableNotificationsCta';
+import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
+import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type SquadEntityCardProps = {
   handle: string;
   origin: Origin;
+  showNotificationCtaOnJoin?: boolean;
   className?: {
     container?: string;
   };
@@ -31,15 +40,51 @@ type SquadEntityCardProps = {
 const SquadEntityCard = ({
   handle,
   origin,
+  showNotificationCtaOnJoin = false,
   className,
 }: SquadEntityCardProps) => {
   const { squad } = useSquad({ handle });
+  const [showNotificationCta, setShowNotificationCta] = useState(false);
+  const { isEnabled: isNotificationCtaExperimentEnabled } =
+    useNotificationCtaExperiment({
+      shouldEvaluate: showNotificationCta,
+    });
+  const wasSquadMemberRef = useRef(!!squad?.currentMember);
   const { isLoading } = useShowFollowAction({
-    entityId: squad?.id,
+    entityId: squad?.id ?? '',
     entityType: ContentPreferenceType.Source,
   });
+  const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
+    source: squad,
+  });
 
-  if (!squad) {
+  const isSquadMember = !!squad?.currentMember;
+  const shouldRenderNotificationCta =
+    isNotificationCtaExperimentEnabled &&
+    showNotificationCta &&
+    !haveNotificationsOn;
+
+  useEffect(() => {
+    if (
+      showNotificationCtaOnJoin &&
+      isSquadMember &&
+      !wasSquadMemberRef.current &&
+      !haveNotificationsOn
+    ) {
+      setShowNotificationCta(true);
+    } else if (!isSquadMember) {
+      setShowNotificationCta(false);
+    }
+
+    wasSquadMemberRef.current = isSquadMember;
+  }, [haveNotificationsOn, isSquadMember, showNotificationCtaOnJoin]);
+
+  const handleEnableNotifications = async () => {
+    await onNotify();
+    setShowNotificationCta(false);
+  };
+
+  if (!squad?.id || !squad.name || !squad.image || !squad.permalink) {
     return null;
   }
 
@@ -65,7 +110,6 @@ const SquadEntityCard = ({
               size={ButtonSize.Small}
               copy={{
                 join: 'Join',
-                leave: 'Leave',
               }}
               squad={squad}
               origin={origin}
@@ -108,16 +152,27 @@ const SquadEntityCard = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(membersCount)} Members
+            {largeNumberFormat(membersCount ?? 0)} Members
           </Typography>
           <Separator />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {largeNumberFormat(flags?.totalUpvotes)} Upvotes
+            {largeNumberFormat(flags?.totalUpvotes ?? 0)} Upvotes
           </Typography>
         </div>
+        {shouldRenderNotificationCta && (
+          <EnableNotificationsCta
+            onEnable={handleEnableNotifications}
+            analytics={{
+              placement: NotificationCtaPlacement.SquadCard,
+              targetType: TargetType.Source,
+              targetId: squad.id,
+              source: NotificationPromptSource.SourceSubscribe,
+            }}
+          />
+        )}
       </div>
     </EntityCard>
   );

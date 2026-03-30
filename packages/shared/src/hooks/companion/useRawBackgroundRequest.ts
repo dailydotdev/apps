@@ -22,7 +22,10 @@ export const useRawBackgroundRequest = (
       return undefined;
     }
 
-    const handler = ({ key, ...args }) => {
+    const handler = ({
+      key,
+      ...args
+    }: EmptyObjectLiteral & { key?: string }) => {
       if (!key) {
         return;
       }

@@ -3,7 +3,7 @@ import { createContext } from 'react';
 import { SearchProviderEnum } from '../../../graphql/search';
 
 export type SearchPanelContextValue = {
-  provider: SearchProviderEnum;
+  provider?: SearchProviderEnum;
   providerText?: string;
   providerIcon?: ReactElement;
   query: string;
@@ -13,7 +13,7 @@ export type SearchPanelContextValue = {
     text,
     icon,
   }: {
-    provider: SearchProviderEnum;
+    provider?: SearchProviderEnum;
     text?: string;
     icon?: ReactElement;
   }) => void;

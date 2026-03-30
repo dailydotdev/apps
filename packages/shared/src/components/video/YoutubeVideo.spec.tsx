@@ -25,10 +25,6 @@ const renderComponent = (): RenderResult => {
 };
 
 describe('YoutubeVideo', () => {
-  it('should render successfully', () => {
-    const { baseElement } = renderComponent();
-    expect(baseElement).toBeTruthy();
-  });
   it('should add the right title attribute', () => {
     renderComponent();
 

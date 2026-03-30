@@ -74,10 +74,12 @@ export default function FooterWrapper({
         </div>
       )}
       {showNav && (
-        <>
-          {showPlusButton && <FooterPlusButton />}
+        <div className="relative">
+          {showPlusButton && (
+            <FooterPlusButton className="absolute bottom-full right-2 z-1 mb-2" />
+          )}
           <MobileFooterNavbar />
-        </>
+        </div>
       )}
     </div>
   );

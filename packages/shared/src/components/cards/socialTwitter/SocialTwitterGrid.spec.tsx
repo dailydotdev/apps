@@ -3,7 +3,6 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
@@ -40,10 +39,31 @@ const basePost: Post = {
   title: 'Root tweet',
   permalink: 'https://x.com/dailydotdev/status/12345',
   commentsPermalink: 'https://app.daily.dev/posts/12345',
-  image: null,
+  image: '',
   content: 'Root tweet\n\nThread tweet 2',
   sharedPost: undefined,
 };
+
+const referencedPost = sharePost.sharedPost;
+const rootSource = basePost.source;
+
+if (!referencedPost?.source) {
+  throw new Error(
+    'Expected referenced source fixture for SocialTwitterGrid tests',
+  );
+}
+
+if (!referencedPost.author) {
+  throw new Error(
+    'Expected referenced author fixture for SocialTwitterGrid tests',
+  );
+}
+
+if (!rootSource) {
+  throw new Error('Expected root source fixture for SocialTwitterGrid tests');
+}
+
+const referencedSource = referencedPost.source;
 
 const defaultProps: PostCardProps = {
   post: basePost,
@@ -59,7 +79,7 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',
@@ -81,10 +101,10 @@ it('should render top action link using post comments permalink', async () => {
   expect(link).toHaveAttribute('href', basePost.permalink);
 });
 
-it('should render source name next to metadata date for regular tweets', async () => {
+it('should render "From x.com" next to metadata date for regular tweets', async () => {
   renderComponent();
 
-  expect(await screen.findByText(/Avengers/i)).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(screen.queryByText(/Avengers reposted/i)).not.toBeInTheDocument();
 });
 
@@ -110,16 +130,16 @@ it('should not render media for thread cards even when image exists', async () =
   expect(screen.queryByAltText('Tweet media')).not.toBeInTheDocument();
 });
 
-it('should render quote/repost detail from shared post', async () => {
+it('should render quote tweet using top tweet identity and content', async () => {
   renderComponent({
     post: {
       ...basePost,
       subType: 'quote',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'DevRel Weekly',
           handle: 'devrelweekly',
         },
@@ -127,58 +147,49 @@ it('should render quote/repost detail from shared post', async () => {
     },
   });
 
-  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
-  expect((await screen.findAllByText(/@devrelweekly/)).length).toBeGreaterThan(
-    0,
-  );
-  expect(
-    await screen.findByText(/DevRel Weekly @devrelweekly/i),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByAltText("devrelweekly's profile"),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Referenced tweet content'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Avengers @avengers/i)).toBeInTheDocument();
+  expect(await screen.findByText('Root tweet')).toBeInTheDocument();
 });
 
-it('should use creatorTwitter when shared source is unknown', async () => {
+it('should use creatorTwitter for top tweet when source is unknown', async () => {
   renderComponent({
     post: {
       ...basePost,
       subType: 'quote',
+      source: {
+        ...rootSource,
+        id: 'unknown',
+        handle: 'unknown',
+      },
       creatorTwitter: 'root_creator',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
         creatorTwitter: 'shared_creator',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           id: 'unknown',
           name: 'Referenced post',
           handle: 'unknown',
-        },
-        author: {
-          ...(sharePost.sharedPost.author || { id: 'author-id' }),
-          username: 'creator_twitter',
         },
       },
     },
   });
 
-  expect(
-    (await screen.findAllByText(/@shared_creator/)).length,
-  ).toBeGreaterThan(0);
-  expect(screen.queryByText('@creator_twitter')).not.toBeInTheDocument();
+  expect((await screen.findAllByText(/@root_creator/)).length).toBeGreaterThan(
+    0,
+  );
+  expect(screen.queryByText('@shared_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
-it('should prefer source name when source id is unknown', async () => {
+it('should use creator identity when source id is unknown', async () => {
   renderComponent({
     post: {
       ...basePost,
       source: {
-        ...basePost.source,
+        ...rootSource,
         id: 'unknown',
         handle: 'unknown',
       },
@@ -187,9 +198,8 @@ it('should prefer source name when source id is unknown', async () => {
   });
 
   expect(
-    await screen.findByText('Lee Hansel Solevilla Jr'),
+    await screen.findByAltText("root_creator's profile"),
   ).toBeInTheDocument();
-  expect(screen.queryByText('@root_creator')).not.toBeInTheDocument();
   expect(screen.queryByText('@unknown')).not.toBeInTheDocument();
 });
 
@@ -200,13 +210,13 @@ it('should hide headline and tags for repost cards without repost text', async (
       subType: 'repost',
       title:
         '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-      content: null,
-      contentHtml: null,
+      content: undefined,
+      contentHtml: undefined,
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Y Combinator',
           handle: 'ycombinator',
         },
@@ -215,22 +225,12 @@ it('should hide headline and tags for repost cards without repost text', async (
     },
   });
 
-  expect(
-    screen.queryByText(
-      '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-    ),
-  ).not.toBeInTheDocument();
+  // No headline/tags above tweet box — content only in the tweet box itself
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(await screen.findByText(/Avengers reposted/i)).toBeInTheDocument();
-  expect(
-    await screen.findByText(/Y Combinator @ycombinator/i),
-  ).toBeInTheDocument();
-  expect(
-    await screen.findByText('Referenced tweet content'),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
 });
 
-it('should keep headline and tags for repost cards with repost text', async () => {
+it('should hide headline and tags for repost cards even with repost text', async () => {
   renderComponent({
     post: {
       ...basePost,
@@ -239,16 +239,15 @@ it('should keep headline and tags for repost cards with repost text', async () =
       content: 'My thoughts on this',
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         title: 'Referenced tweet content',
       },
     },
   });
 
-  expect(
-    await screen.findByText('@bcherny: RT @ycombinator: Repost with context'),
-  ).toBeInTheDocument();
-  expect(await screen.findByTestId('post-tags')).toBeInTheDocument();
+  // No tags above the tweet box — title appears only inside the tweet box
+  expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
 });
 
 it('should keep actions visible when there is no media and no shared post detail', async () => {
@@ -256,8 +255,8 @@ it('should keep actions visible when there is no media and no shared post detail
     post: {
       ...basePost,
       subType: 'tweet',
-      content: null,
-      image: null,
+      content: undefined,
+      image: '',
     },
   });
 

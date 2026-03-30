@@ -1,6 +1,8 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import {
   Typography,
@@ -12,7 +14,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { EditIcon, PlusIcon, TrashIcon } from '../../../../components/icons';
+import {
+  EditIcon,
+  MenuIcon,
+  PlusIcon,
+  TrashIcon,
+} from '../../../../components/icons';
 import { formatMonthYearOnly } from '../../../../lib/dateFormat';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useToolTopSquads } from '../../hooks/useToolTopSquads';
@@ -25,12 +32,19 @@ interface UserStackItemProps {
   onDelete?: (item: UserStack) => void;
 }
 
-export function UserStackItem({
+interface UserStackItemBodyProps extends UserStackItemProps {
+  className?: string;
+  dragHandle?: ReactNode;
+}
+
+function UserStackItemBody({
   item,
   isOwner,
   onEdit,
   onDelete,
-}: UserStackItemProps): ReactElement {
+  className,
+  dragHandle,
+}: UserStackItemBodyProps): ReactElement {
   const [shouldFetchTooltipData, setShouldFetchTooltipData] = useState(false);
   const { tool, startedAt } = item;
   const title = item.title ?? tool.title;
@@ -64,11 +78,13 @@ export function UserStackItem({
         className={classNames(
           'group relative flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 pb-2.5 pt-2',
           'hover:border-border-subtlest-secondary',
+          className,
         )}
         onMouseEnter={() => setShouldFetchTooltipData(true)}
         onFocusCapture={() => setShouldFetchTooltipData(true)}
       >
         <div className="flex items-center gap-2">
+          {dragHandle}
           {tool.faviconUrl ? (
             <img
               src={tool.faviconUrl}
@@ -106,7 +122,10 @@ export function UserStackItem({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
-                onClick={() => onEdit(item)}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
                 aria-label="Edit stack item"
               />
             )}
@@ -115,7 +134,10 @@ export function UserStackItem({
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<TrashIcon />}
-                onClick={() => onDelete(item)}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onDelete(item);
+                }}
                 aria-label="Delete stack item"
               />
             )}
@@ -123,5 +145,73 @@ export function UserStackItem({
         )}
       </div>
     </Tooltip>
+  );
+}
+
+export function UserStackItem(props: UserStackItemProps): ReactElement {
+  return <UserStackItemBody {...props} />;
+}
+
+interface SortableUserStackItemProps extends UserStackItemProps {
+  isDraggable?: boolean;
+}
+
+export function SortableUserStackItem({
+  item,
+  isDraggable = true,
+  ...props
+}: SortableUserStackItemProps): ReactElement {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: item.id,
+    disabled: !isDraggable,
+    data: {
+      type: 'stack-item',
+      section: item.section,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  const title = item.title ?? item.tool.title;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={classNames(
+        'relative touch-none',
+        isDragging && 'z-10 opacity-70',
+      )}
+    >
+      <UserStackItemBody
+        item={item}
+        {...props}
+        className="touch-none"
+        dragHandle={
+          props.isOwner && isDraggable ? (
+            <Button
+              ref={setActivatorNodeRef}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.XSmall}
+              icon={<MenuIcon className="rotate-90 text-text-tertiary" />}
+              aria-label={`Drag ${title}`}
+              className="cursor-grab opacity-0 active:cursor-grabbing group-hover:opacity-100"
+              {...attributes}
+              {...listeners}
+            />
+          ) : null
+        }
+      />
+    </div>
   );
 }

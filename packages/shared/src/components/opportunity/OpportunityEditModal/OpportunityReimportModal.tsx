@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import z from 'zod';
-import type { ModalProps } from '../../modals/common/Modal';
+import type {
+  LazyModalCommonProps,
+  ModalProps,
+} from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import {
   Typography,
@@ -19,8 +22,10 @@ import { getOpportunityByIdKey } from '../../../features/opportunity/queries';
 
 const jobLinkSchema = z.url({ message: 'Please enter a valid URL' });
 
-export interface OpportunityReimportModalProps extends ModalProps {
+export interface OpportunityReimportModalProps
+  extends Omit<ModalProps, 'onRequestClose'> {
   opportunityId: string;
+  onRequestClose?: LazyModalCommonProps['onRequestClose'];
 }
 
 const fileValidation = {
@@ -47,7 +52,7 @@ export const OpportunityReimportModal = ({
     onSuccess: (data) => {
       // Immediately update the cache with the returned data
       queryClient.setQueryData(getOpportunityByIdKey(opportunityId), data);
-      onRequestClose?.(null);
+      onRequestClose?.(undefined);
     },
     onError: (err) => {
       setError(err?.message || 'Failed to reimport. Please try again.');

@@ -1,0 +1,1176 @@
+import React from 'react';
+import { useRouter } from 'next/router';
+import { QueryClient } from '@tanstack/react-query';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { ReactElement, ReactNode } from 'react';
+import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import {
+  QuestRewardType,
+  QuestStatus,
+  QuestType,
+  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+  QUEST_UPDATE_SUBSCRIPTION,
+} from '../../graphql/quests';
+import { QuestButton } from './QuestButton';
+import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import useSubscription from '../../hooks/useSubscription';
+import { LogEvent, TargetId, TargetType } from '../../lib/log';
+import { generateQueryKey, RequestKey } from '../../lib/query';
+
+function mockReactModule() {
+  return React;
+}
+
+type MockDropdownTriggerChildProps = {
+  onClick?: (...args: unknown[]) => void;
+  'data-tooltip-content'?: string;
+};
+
+jest.mock('../../hooks/useQuestDashboard', () => ({
+  useQuestDashboard: jest.fn(),
+}));
+
+jest.mock('../../hooks/useClaimQuestReward', () => ({
+  useClaimQuestReward: jest.fn(),
+}));
+
+jest.mock('../icons', () => {
+  const actual = jest.requireActual('../icons');
+
+  return {
+    ...actual,
+    TourIcon: (props: Record<string, unknown>): ReactNode => (
+      <svg data-testid="tour-icon" {...props} />
+    ),
+  };
+});
+
+jest.mock('../../hooks/useSubscription', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+jest.mock('../../hooks/usePlusSubscription', () => ({
+  usePlusSubscription: jest.fn(),
+}));
+
+jest.mock('../../lib/constants', () => {
+  const actual = jest.requireActual('../../lib/constants');
+
+  return {
+    ...actual,
+    plusUrl: 'https://app.daily.dev/plus',
+    webappUrl: 'https://app.daily.dev/',
+  };
+});
+
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+jest.mock('@radix-ui/react-popover', () => {
+  const { cloneElement, createContext, isValidElement, useContext } =
+    mockReactModule();
+  const PopoverContext = createContext<{
+    open: boolean;
+    setOpen: (value: boolean) => void;
+    onOpenChange?: (value: boolean) => void;
+  }>({
+    open: false,
+    setOpen: () => {},
+  });
+
+  return {
+    Popover: ({
+      children,
+      open: controlledOpen,
+      onOpenChange,
+    }: {
+      children: ReactNode;
+      open?: boolean;
+      onOpenChange?: (value: boolean) => void;
+    }) => {
+      const { useState } = mockReactModule();
+      const [internalOpen, setInternalOpen] = useState(false);
+      const open = controlledOpen ?? internalOpen;
+      const setOpen = (value: boolean) => {
+        onOpenChange?.(value);
+        if (controlledOpen === undefined) {
+          setInternalOpen(value);
+        }
+      };
+
+      return (
+        <PopoverContext.Provider value={{ open, setOpen, onOpenChange }}>
+          <div>{children}</div>
+        </PopoverContext.Provider>
+      );
+    },
+    PopoverTrigger: ({
+      children,
+      asChild: _asChild,
+      ...props
+    }: {
+      children: ReactNode;
+      asChild?: boolean;
+      [key: string]: unknown;
+    }) => {
+      const { open, setOpen } = useContext(PopoverContext);
+
+      if (!isValidElement(children)) {
+        return <>{children}</>;
+      }
+
+      const triggerChild =
+        children as ReactElement<MockDropdownTriggerChildProps>;
+      const originalOnClick = triggerChild.props.onClick as
+        | ((...args: unknown[]) => void)
+        | undefined;
+
+      return cloneElement(children, {
+        ...props,
+        onClick: (...args: unknown[]) => {
+          originalOnClick?.(...args);
+          setOpen(!open);
+        },
+      } as Record<string, unknown>);
+    },
+    PopoverPortal: ({ children }: { children: ReactNode }) => <>{children}</>,
+    PopoverContent: ({ children }: { children: ReactNode }) => {
+      const { open } = useContext(PopoverContext);
+
+      if (!open) {
+        return null;
+      }
+
+      return <div>{children}</div>;
+    },
+  };
+});
+
+jest.mock('../tooltip/Tooltip', () => {
+  const { cloneElement, isValidElement } = mockReactModule();
+
+  return {
+    Tooltip: ({
+      children,
+      content,
+    }: {
+      children: ReactNode;
+      content?: string;
+    }) => {
+      if (!isValidElement<{ 'data-tooltip-content'?: string }>(children)) {
+        return <>{children}</>;
+      }
+
+      return cloneElement(children, {
+        'data-tooltip-content':
+          typeof content === 'string' ? content : undefined,
+      });
+    },
+  };
+});
+
+const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
+const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
+const mockUseSubscription = useSubscription as jest.Mock;
+const mockUsePlusSubscription = usePlusSubscription as jest.Mock;
+const mockLogSubscriptionEvent = jest.fn();
+const mockPush = jest.fn();
+
+const questDashboard = {
+  level: {
+    level: 7,
+    totalXp: 650,
+    xpInLevel: 250,
+    xpToNextLevel: 150,
+  },
+  currentStreak: 0,
+  longestStreak: 0,
+  daily: {
+    regular: [
+      {
+        rotationId: 'daily-quest-1',
+        userQuestId: null,
+        progress: 1,
+        status: QuestStatus.InProgress,
+        locked: false,
+        claimable: false,
+        quest: {
+          id: 'quest-1',
+          name: 'Read posts',
+          description: 'Read 3 posts today',
+          type: QuestType.Daily,
+          eventType: 'read_post',
+          targetCount: 3,
+        },
+        rewards: [
+          { type: QuestRewardType.Xp, amount: 150 },
+          { type: QuestRewardType.Reputation, amount: 20 },
+        ],
+      },
+    ],
+    plus: [],
+  },
+  weekly: {
+    regular: [],
+    plus: [],
+  },
+  milestone: [],
+};
+
+const renderComponent = (
+  optOutLevelSystem = false,
+  client: QueryClient = new QueryClient(),
+  compact = false,
+  log = {},
+) =>
+  render(
+    <TestBootProvider
+      client={client}
+      settings={{ optOutLevelSystem }}
+      log={log}
+    >
+      <QuestButton compact={compact} />
+    </TestBootProvider>,
+  );
+
+beforeEach(() => {
+  mockPush.mockReset();
+  (useRouter as jest.Mock).mockReturnValue({
+    push: mockPush,
+  });
+  mockUseQuestDashboard.mockReturnValue({
+    data: questDashboard,
+    isPending: false,
+    isError: false,
+  });
+  mockUseClaimQuestReward.mockReturnValue({
+    mutate: jest.fn(),
+    isPending: false,
+    variables: undefined,
+  });
+  mockUseSubscription.mockReset();
+  mockLogSubscriptionEvent.mockReset();
+  mockUsePlusSubscription.mockReturnValue({
+    isPlus: false,
+    logSubscriptionEvent: mockLogSubscriptionEvent,
+  });
+});
+
+describe('QuestButton', () => {
+  it('should show level progress and xp rewards when levels are enabled', async () => {
+    renderComponent(false);
+
+    const button = screen.getByRole('button', {
+      name: /Quests, level 7, 63% progress/i,
+    });
+
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveClass('h-10');
+
+    await userEvent.click(button);
+
+    expect(await screen.findByText('Level 7')).toBeInTheDocument();
+    expect(screen.getByText('250/400 XP')).toBeInTheDocument();
+    expect(screen.getByText('+150 XP')).toBeInTheDocument();
+    expect(screen.getByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should render a smaller trigger when compact', () => {
+    renderComponent(false, new QueryClient(), true);
+
+    const button = screen.getByRole('button', {
+      name: /Quests, level 7, 63% progress/i,
+    });
+
+    expect(button).toHaveClass('h-8');
+    expect(button).not.toHaveClass('h-10');
+  });
+
+  it('should show total xp in the quest trigger tooltip', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        level: {
+          ...questDashboard.level,
+          totalXp: 123456,
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    expect(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    ).toHaveAttribute('data-tooltip-content', 'Total XP: 123.456');
+  });
+
+  it('should hide level progress and xp rewards when levels are disabled', async () => {
+    renderComponent(true);
+
+    const button = screen.getByRole('button', { name: 'Quests' });
+
+    expect(button).toBeInTheDocument();
+    expect(screen.getByTestId('tour-icon')).toBeInTheDocument();
+
+    await userEvent.click(button);
+
+    expect(screen.queryByText('Level 7')).not.toBeInTheDocument();
+    expect(screen.queryByText('250/400 XP')).not.toBeInTheDocument();
+    expect(screen.queryByText('+150 XP')).not.toBeInTheDocument();
+    expect(await screen.findByText('+20 Reputation')).toBeInTheDocument();
+  });
+
+  it('should route feed-based quests back to the main feed', async () => {
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    const destinationButton = await screen.findByRole('button', {
+      name: 'Go to Feed',
+    });
+
+    expect(destinationButton).toHaveAttribute(
+      'data-tooltip-content',
+      'Go to Feed',
+    );
+
+    await userEvent.click(destinationButton);
+
+    expect(mockPush).toHaveBeenCalledWith('https://app.daily.dev/');
+  });
+
+  it('should route hot take quests to the hot takes modal path', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-hot-takes',
+              userQuestId: null,
+              progress: 1,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-hot-takes',
+                name: 'Turn up the heat',
+                description: 'Create a hot take',
+                type: QuestType.Daily,
+                eventType: 'hot_take_create',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Hot takes' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith(
+      'https://app.daily.dev/?openModal=hottakes',
+    );
+  });
+
+  it('should route share-post quests back to the feed', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-share-post',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-share-post',
+                name: 'Hey, Check This Out...',
+                description: 'Share 1 post',
+                type: QuestType.Daily,
+                eventType: 'post_share',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 25 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Feed' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith('https://app.daily.dev/');
+  });
+
+  it('should label user follow quests as leaderboards', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-follow-user',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-follow-user',
+                name: "Don't Mind Me...",
+                description: 'Follow 1 user',
+                type: QuestType.Daily,
+                eventType: 'user_follow',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Go to Leaderboards' }),
+    ).toHaveAttribute('data-tooltip-content', 'Go to Leaderboards');
+  });
+
+  it('should label arena quests as the Arena', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-visit-arena',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-visit-arena',
+                name: 'Arena ready',
+                description: 'Visit the Arena',
+                type: QuestType.Daily,
+                eventType: 'visit_arena',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 20 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Go to the Arena' }),
+    ).toHaveAttribute('data-tooltip-content', 'Go to the Arena');
+  });
+
+  it('should route link post quests to the squads create page', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-link-post',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-link-post',
+                name: 'Link drop',
+                description: 'Create a shared link post',
+                type: QuestType.Daily,
+                eventType: 'post_share',
+                targetCount: 1,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 25 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Go to Create post' }),
+    );
+
+    expect(mockPush).toHaveBeenCalledWith(
+      'https://app.daily.dev/squads/create',
+    );
+  });
+
+  it('should log when opening the quest dropdown', async () => {
+    const logEvent = jest.fn();
+
+    renderComponent(false, new QueryClient(), false, { logEvent });
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.Quest,
+    });
+  });
+
+  it('should stay open when the page scrolls', async () => {
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText('Level 7')).toBeInTheDocument();
+
+    act(() => {
+      globalThis.dispatchEvent(new Event('scroll'));
+    });
+
+    expect(screen.getByText('Level 7')).toBeInTheDocument();
+  });
+
+  it('should keep accent progress fill on locked quests', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus-locked',
+              userQuestId: null,
+              progress: 2,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus-locked',
+                name: 'Locked plus quest',
+                description: 'Vote on 8 hot takes',
+                type: QuestType.Daily,
+                eventType: 'hot_take_vote',
+                targetCount: 8,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 15 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    const lockedQuestTitle = await screen.findByText('Locked plus quest');
+    /* eslint-disable testing-library/no-node-access */
+    const questCard = lockedQuestTitle.closest('article');
+    const headerBlock = questCard?.querySelector('header')
+      ?.parentElement as HTMLElement | null;
+    const progressBar = questCard?.querySelector('meter');
+    const progressWrapper = progressBar?.parentElement
+      ?.parentElement as HTMLElement | null;
+    /* eslint-enable testing-library/no-node-access */
+
+    expect(questCard).toBeInTheDocument();
+    expect(headerBlock).toHaveClass('opacity-50');
+    expect(headerBlock).toHaveClass('grayscale');
+    expect(progressWrapper).toHaveClass('opacity-50');
+    expect(progressWrapper).not.toHaveClass('grayscale');
+    expect(progressBar).toBeInTheDocument();
+    expect(progressBar).toHaveClass('bg-accent-cabbage-bolder');
+    expect(progressBar).not.toHaveClass('bg-border-subtler');
+  });
+
+  it('should show the claimed stamp for persisted claimed quests after reload', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-quest-claimed',
+              userQuestId: 'user-quest-claimed',
+              progress: 3,
+              status: QuestStatus.Claimed,
+              completedAt: new Date('2026-03-18T12:00:00.000Z'),
+              claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-claimed',
+                name: 'Claimed quest',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 150 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText('Claimed quest')).toBeInTheDocument();
+    expect(screen.getByText('Claimed')).toBeInTheDocument();
+    /* eslint-disable testing-library/no-node-access */
+    const claimedStamp = screen.getByText('CLAIMED').closest('svg');
+    /* eslint-enable testing-library/no-node-access */
+
+    expect(claimedStamp).toBeInTheDocument();
+    expect(claimedStamp).not.toHaveClass('quest-claimed-stamp');
+  });
+
+  it('should keep the claimed stamp static after the initial reveal animation', async () => {
+    jest.useFakeTimers();
+
+    try {
+      const claimedQuestDashboard = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              rotationId: 'daily-quest-ready-to-claim',
+              userQuestId: 'user-quest-ready-to-claim',
+              progress: 3,
+              status: QuestStatus.Claimed,
+              completedAt: new Date('2026-03-18T12:00:00.000Z'),
+              claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-ready-to-claim',
+                name: 'Ready quest',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [],
+            },
+          ],
+        },
+      };
+
+      mockUseQuestDashboard.mockReturnValue({
+        data: {
+          ...questDashboard,
+          daily: {
+            ...questDashboard.daily,
+            regular: [
+              {
+                rotationId: 'daily-quest-ready-to-claim',
+                userQuestId: 'user-quest-ready-to-claim',
+                progress: 3,
+                status: QuestStatus.Completed,
+                completedAt: new Date('2026-03-18T12:00:00.000Z'),
+                claimedAt: null,
+                locked: false,
+                claimable: true,
+                quest: {
+                  id: 'quest-ready-to-claim',
+                  name: 'Ready quest',
+                  description: 'Read 3 posts today',
+                  type: QuestType.Daily,
+                  eventType: 'read_post',
+                  targetCount: 3,
+                },
+                rewards: [],
+              },
+            ],
+          },
+        },
+        isPending: false,
+        isError: false,
+      });
+      mockUseClaimQuestReward.mockReturnValue({
+        mutate: jest.fn((_variables, callbacks) => {
+          mockUseQuestDashboard.mockReturnValue({
+            data: claimedQuestDashboard,
+            isPending: false,
+            isError: false,
+          });
+          callbacks.onSuccess?.(claimedQuestDashboard);
+        }),
+        isPending: false,
+        variables: undefined,
+      });
+
+      renderComponent(false);
+
+      act(() => {
+        screen
+          .getByRole('button', {
+            name: /Quests, level 7, 63% progress/i,
+          })
+          .click();
+      });
+
+      act(() => {
+        screen.getByRole('button', { name: 'Claim' }).click();
+      });
+
+      expect(screen.queryByText('CLAIMED')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(250);
+      });
+
+      /* eslint-disable testing-library/no-node-access */
+      const animatedStamp = screen.getByText('CLAIMED').closest('svg');
+      /* eslint-enable testing-library/no-node-access */
+
+      expect(animatedStamp).toBeInTheDocument();
+      expect(animatedStamp).toHaveClass('quest-claimed-stamp');
+
+      act(() => {
+        jest.advanceTimersByTime(400);
+      });
+
+      /* eslint-disable testing-library/no-node-access */
+      expect(screen.getByText('CLAIMED').closest('svg')).not.toHaveClass(
+        'quest-claimed-stamp',
+      );
+      /* eslint-enable testing-library/no-node-access */
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('should reveal claimed stamps for quests claimed back-to-back', async () => {
+    jest.useFakeTimers();
+
+    try {
+      const readyQuestOne = {
+        rotationId: 'daily-quest-ready-one',
+        userQuestId: 'user-quest-ready-one',
+        progress: 3,
+        status: QuestStatus.Completed,
+        completedAt: new Date('2026-03-18T12:00:00.000Z'),
+        claimedAt: null,
+        locked: false,
+        claimable: true,
+        quest: {
+          id: 'quest-ready-one',
+          name: 'Ready quest one',
+          description: 'Read 3 posts today',
+          type: QuestType.Daily,
+          eventType: 'read_post',
+          targetCount: 3,
+        },
+        rewards: [{ type: QuestRewardType.Xp, amount: 50 }],
+      };
+      const readyQuestTwo = {
+        rotationId: 'daily-quest-ready-two',
+        userQuestId: 'user-quest-ready-two',
+        progress: 3,
+        status: QuestStatus.Completed,
+        completedAt: new Date('2026-03-18T12:10:00.000Z'),
+        claimedAt: null,
+        locked: false,
+        claimable: true,
+        quest: {
+          id: 'quest-ready-two',
+          name: 'Ready quest two',
+          description: 'Read 3 more posts today',
+          type: QuestType.Daily,
+          eventType: 'read_post',
+          targetCount: 3,
+        },
+        rewards: [{ type: QuestRewardType.Xp, amount: 75 }],
+      };
+      const claimedQuestOne = {
+        ...readyQuestOne,
+        status: QuestStatus.Claimed,
+        claimable: false,
+        claimedAt: new Date('2026-03-18T12:05:00.000Z'),
+      };
+      const claimedQuestTwo = {
+        ...readyQuestTwo,
+        status: QuestStatus.Claimed,
+        claimable: false,
+        claimedAt: new Date('2026-03-18T12:15:00.000Z'),
+      };
+      const dashboardAfterFirstClaim = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [claimedQuestOne, readyQuestTwo],
+        },
+      };
+      const dashboardAfterSecondClaim = {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [claimedQuestOne, claimedQuestTwo],
+        },
+      };
+      let claimCount = 0;
+
+      mockUseQuestDashboard.mockReturnValue({
+        data: {
+          ...questDashboard,
+          daily: {
+            ...questDashboard.daily,
+            regular: [readyQuestOne, readyQuestTwo],
+          },
+        },
+        isPending: false,
+        isError: false,
+      });
+      mockUseClaimQuestReward.mockReturnValue({
+        mutate: jest.fn((_variables, callbacks) => {
+          claimCount += 1;
+
+          const claimedDashboard =
+            claimCount === 1
+              ? dashboardAfterFirstClaim
+              : dashboardAfterSecondClaim;
+
+          mockUseQuestDashboard.mockReturnValue({
+            data: claimedDashboard,
+            isPending: false,
+            isError: false,
+          });
+          callbacks.onSuccess?.(claimedDashboard);
+        }),
+        isPending: false,
+        variables: undefined,
+      });
+
+      renderComponent(false);
+
+      act(() => {
+        screen
+          .getByRole('button', {
+            name: /Quests, level 7, 63% progress/i,
+          })
+          .click();
+      });
+
+      act(() => {
+        /* eslint-disable testing-library/no-node-access */
+        within(
+          screen.getByText('Ready quest one').closest('article') as HTMLElement,
+        )
+          .getByRole('button', { name: 'Claim' })
+          .click();
+        /* eslint-enable testing-library/no-node-access */
+      });
+
+      act(() => {
+        /* eslint-disable testing-library/no-node-access */
+        within(
+          screen.getByText('Ready quest two').closest('article') as HTMLElement,
+        )
+          .getByRole('button', { name: 'Claim' })
+          .click();
+        /* eslint-enable testing-library/no-node-access */
+      });
+
+      expect(screen.queryByText('CLAIMED')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(3200);
+      });
+
+      expect(screen.getAllByText('CLAIMED')).toHaveLength(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('should explain plus quests are additional slots', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      await screen.findByText('Plus users have two additional quest slots'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Unlock' })).toBeInTheDocument();
+    expect(screen.queryByText('Plus quests')).not.toBeInTheDocument();
+  });
+
+  it('should hide the plus explainer and unlock button for subscribed users', async () => {
+    mockUsePlusSubscription.mockReturnValue({
+      isPlus: true,
+      logSubscriptionEvent: mockLogSubscriptionEvent,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: false,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(
+      screen.queryByText('Plus users have two additional quest slots'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Unlock' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should log the plus unlock click with the quest dropdown target', async () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-quest-plus',
+              userQuestId: null,
+              progress: 0,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'quest-plus',
+                name: 'Plus quest',
+                description: 'Read 2 briefs',
+                type: QuestType.Daily,
+                eventType: 'brief_read',
+                targetCount: 2,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 10 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    renderComponent(false);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    await userEvent.click(screen.getByRole('link', { name: 'Unlock' }));
+
+    expect(mockLogSubscriptionEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.UpgradeSubscription,
+      target_id: TargetId.QuestDropdown,
+    });
+  });
+
+  it('should invalidate the quest dashboard on quest progress and rollover updates', () => {
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    const client = new QueryClient();
+    const invalidateQueries = jest
+      .spyOn(client, 'invalidateQueries')
+      .mockResolvedValue(undefined);
+
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    renderComponent(false, client);
+
+    expect(subscriptions.map((subscription) => subscription.query)).toEqual([
+      QUEST_UPDATE_SUBSCRIPTION,
+      QUEST_ROTATION_UPDATE_SUBSCRIPTION,
+    ]);
+
+    subscriptions.forEach((subscription) => {
+      subscription.next?.();
+    });
+
+    expect(invalidateQueries).toHaveBeenCalledTimes(2);
+    expect(invalidateQueries).toHaveBeenNthCalledWith(1, {
+      queryKey: generateQueryKey(RequestKey.QuestDashboard),
+      exact: true,
+    });
+    expect(invalidateQueries).toHaveBeenNthCalledWith(2, {
+      queryKey: generateQueryKey(RequestKey.QuestDashboard),
+      exact: true,
+    });
+  });
+});

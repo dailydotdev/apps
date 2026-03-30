@@ -4,6 +4,7 @@ import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
+  HIGHEST_LEVEL_QUERY,
   LEADERBOARD_QUERY,
   LeaderboardType,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -11,7 +12,9 @@ import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -40,9 +43,21 @@ interface PageProps {
   mostReferrals: UserLeaderboard[];
   mostReadingDays: UserLeaderboard[];
   mostAchievementPoints: UserLeaderboard[];
+  highestLevel: UserLeaderboard[];
+  isHighestLevelSupported: boolean;
   mostVerifiedUsers: CompanyLeaderboard[];
   popularHotTakes: PopularHotTakes[];
 }
+
+const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
+  return (
+    error?.response?.errors?.some(
+      ({ message }) =>
+        message?.includes('Cannot query field "highestLevel"') ||
+        message?.includes('Cannot query field "level" on type "Leaderboard"'),
+    ) ?? false
+  );
+};
 
 const LeaderboardPage = ({
   highestReputation,
@@ -52,10 +67,15 @@ const LeaderboardPage = ({
   mostReferrals,
   mostReadingDays,
   mostAchievementPoints,
+  highestLevel,
+  isHighestLevelSupported,
   mostVerifiedUsers,
   popularHotTakes,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
+  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
+    feature: questsFeature,
+  });
 
   if (isLoading) {
     return <></>;
@@ -69,6 +89,17 @@ const LeaderboardPage = ({
         </BreadCrumbs>
       </div>
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
+        {isQuestsFeatureEnabled === true && isHighestLevelSupported && (
+          <UserTopList
+            containerProps={{
+              title: 'Highest level',
+              titleHref: `/users/${LeaderboardType.HighestLevel}`,
+            }}
+            items={highestLevel}
+            isLoading={isLoading}
+            showLevel
+          />
+        )}
         <UserTopList
           containerProps={{
             title: 'Highest reputation',
@@ -161,7 +192,26 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<PageProps>(LEADERBOARD_QUERY);
+    const res = await gqlClient.request<Omit<PageProps, 'highestLevel'>>(
+      LEADERBOARD_QUERY,
+    );
+
+    let highestLevel: UserLeaderboard[] = [];
+    let isHighestLevelSupported = false;
+    try {
+      const levelRes = await gqlClient.request<{
+        highestLevel: UserLeaderboard[];
+      }>(HIGHEST_LEVEL_QUERY);
+      highestLevel = levelRes.highestLevel ?? [];
+      isHighestLevelSupported = true;
+    } catch (levelError: unknown) {
+      const error = levelError as GraphQLError;
+
+      if (!isHighestLevelSchemaMissing(error)) {
+        throw levelError;
+      }
+    }
+
     return {
       props: {
         highestReputation: res.highestReputation,
@@ -171,6 +221,8 @@ export async function getStaticProps(): Promise<
         mostReferrals: res.mostReferrals,
         mostReadingDays: res.mostReadingDays,
         mostAchievementPoints: res.mostAchievementPoints,
+        highestLevel,
+        isHighestLevelSupported,
         mostVerifiedUsers: res.mostVerifiedUsers,
         popularHotTakes: res.popularHotTakes,
       },
@@ -193,6 +245,8 @@ export async function getStaticProps(): Promise<
           mostReferrals: [],
           mostReadingDays: [],
           mostAchievementPoints: [],
+          highestLevel: [],
+          isHighestLevelSupported: false,
           mostVerifiedUsers: [],
           popularHotTakes: [],
         },

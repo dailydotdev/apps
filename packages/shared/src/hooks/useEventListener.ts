@@ -61,8 +61,7 @@ export type DOMEventMapDefinitions = [
 ];
 
 type MapDefinitionToEventMap<D, T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in keyof D]: D[K] extends [any, any]
+  [K in keyof D]: D[K] extends [unknown, unknown]
     ? T extends D[K][0]
       ? D[K][1]
       : never
@@ -94,6 +93,17 @@ export interface MessageEventData {
   eventKey?: string;
 }
 
+type DOMEvent<
+  T,
+  K extends string,
+  M extends GetDOMEventMaps<T>,
+> = MapEventMapsToEvent<M, K>[number];
+
+const isRefObject = <T>(
+  value: RefObject<T> | T | null | undefined,
+): value is RefObject<T> =>
+  typeof value === 'object' && value !== null && 'current' in value;
+
 const useEventListener = <
   T extends EventTarget,
   K extends MapEventMapsToKeys<M>[number] & string,
@@ -101,47 +111,46 @@ const useEventListener = <
 >(
   target: RefObject<T> | T | null | undefined,
   eventType: K,
-  listener: GenericEventListener<MapEventMapsToEvent<M, K>[number]>,
+  listener: GenericEventListener<DOMEvent<T, K, M>>,
   options?: TUseEventListenerOptions,
 ): void => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handlerRef = useRef<any>(listener);
+  const handlerRef = useRef(listener);
   handlerRef.current = listener;
 
   const { once, passive, signal }: AddEventListenerOptions =
     typeof options === 'object' ? options : {};
 
-  let eventOptions: boolean | AddEventListenerOptions | undefined =
-    useMemo(() => {
-      const computedOptions: AddEventListenerOptions = {};
+  const booleanOptions = typeof options === 'boolean' ? options : undefined;
 
-      if (once !== undefined) {
-        computedOptions.once = once;
-      }
+  const eventOptions = useMemo<TUseEventListenerOptions>(() => {
+    if (booleanOptions !== undefined) {
+      return booleanOptions;
+    }
 
-      if (passive !== undefined) {
-        computedOptions.passive = passive;
-      }
+    const computedOptions: AddEventListenerOptions = {};
 
-      if (signal !== undefined) {
-        computedOptions.signal = signal;
-      }
+    if (once !== undefined) {
+      computedOptions.once = once;
+    }
 
-      return Object.keys(computedOptions).length > 0
-        ? computedOptions
-        : undefined;
-    }, [once, passive, signal]);
+    if (passive !== undefined) {
+      computedOptions.passive = passive;
+    }
 
-  if (typeof options === 'boolean') {
-    eventOptions = options;
-  }
+    if (signal !== undefined) {
+      computedOptions.signal = signal;
+    }
+
+    return Object.keys(computedOptions).length > 0
+      ? computedOptions
+      : undefined;
+  }, [booleanOptions, once, passive, signal]);
 
   useEffect(() => {
-    const eventListener = (...args) => {
-      return handlerRef.current(...args);
+    const eventListener: EventListener = (event) => {
+      handlerRef.current(event as DOMEvent<T, K, M>);
     };
-    const targetElement =
-      target && 'current' in target ? target.current : (target as T);
+    const targetElement = isRefObject(target) ? target.current : target;
 
     if (targetElement && eventType && eventListener) {
       targetElement.addEventListener(eventType, eventListener, eventOptions);

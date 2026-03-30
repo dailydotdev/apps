@@ -109,7 +109,7 @@ type TabOptions = {
 
 export const FeedSettingsEdit = (
   props: FeedSettingsEditProps,
-): ReactElement => {
+): ReactElement | null => {
   const router = useRouter();
   const feedSettingsEditContext = useFeedSettingsEdit(props);
   const { feed, onBackToFeed, onDiscard } = feedSettingsEditContext;

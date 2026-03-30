@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { checkKratosEmail } from '../../lib/kratos';
+import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import type { AuthFormProps, Provider } from './common';
 import { getFormEmail } from './common';
 import EmailSignupForm from './EmailSignupForm';
-import type { LoginFormParams } from './LoginForm';
 import LoginForm from './LoginForm';
+import type { LoginFormParams, LoginHintState } from './LoginForm';
 import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
@@ -24,7 +25,7 @@ const AuthModalFooter = dynamic(
 
 interface AuthDefaultProps extends AuthFormProps {
   children?: ReactNode;
-  loginHint?: ReturnType<typeof useState>;
+  loginHint?: LoginHintState;
   onPasswordLogin?: (params: LoginFormParams) => void;
   onSignup?: (email: string) => unknown;
   onProviderClick?: (provider: string, login?: boolean) => unknown;
@@ -38,6 +39,7 @@ interface AuthDefaultProps extends AuthFormProps {
   disableRegistration?: boolean;
   disablePassword?: boolean;
   isLoading?: boolean;
+  isSocialAuthLoading?: boolean;
   isReady: boolean;
   loginButton?: string;
 }
@@ -54,6 +56,7 @@ const AuthDefault = ({
   disableRegistration,
   disablePassword,
   isLoading,
+  isSocialAuthLoading,
   isReady,
   trigger,
   signUpTitle = 'Sign up',
@@ -62,10 +65,13 @@ const AuthDefault = ({
   simplified,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const isBetterAuth = useIsBetterAuth();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
   const title = shouldLogin ? logInTitle : signUpTitle;
   const { displayToast } = useToastNotification();
-  const [registerEmail, setRegisterEmail] = useState<string>(null);
+  const [registerEmail, setRegisterEmail] = useState<string | null>(null);
+  const fallbackLoginHint = useState<string | null>(null);
+  const resolvedLoginHint = loginHint ?? fallbackLoginHint;
   const socialLoginListRef = useRef<HTMLDivElement>(null);
   const { mutateAsync: checkEmail } = useMutation({
     mutationFn: (emailParam: string) => checkKratosEmail(emailParam),
@@ -110,6 +116,13 @@ const AuthDefault = ({
       return null;
     }
 
+    if (isBetterAuth) {
+      if (!onSignup) {
+        return null;
+      }
+      return onSignup(email);
+    }
+
     const res = await checkEmail(email);
 
     if (res?.result) {
@@ -118,6 +131,10 @@ const AuthDefault = ({
         "There's already an account for the same credentials. Can you please try logging in instead?",
       );
       return setShouldLogin(true);
+    }
+
+    if (!onSignup) {
+      return null;
     }
 
     return onSignup(email);
@@ -137,9 +154,9 @@ const AuthDefault = ({
         <LoginForm
           isReady={isReady}
           isLoading={isLoading}
-          email={registerEmail}
+          email={registerEmail ?? undefined}
           loginButton={loginButton}
-          loginHint={loginHint}
+          loginHint={resolvedLoginHint}
           onPasswordLogin={onPasswordLogin}
           onForgotPassword={onForgotPassword}
           onSignup={() => setShouldLogin(false)}
@@ -160,7 +177,7 @@ const AuthDefault = ({
           Once you sign up, your personal feed will be ready to explore.
         </p>
       )}
-      <AuthContainer className={disableRegistration && 'mb-6'}>
+      <AuthContainer className={disableRegistration ? 'mb-6' : undefined}>
         <div
           aria-label="Social login buttons"
           className="flex flex-col gap-4"
@@ -171,11 +188,13 @@ const AuthDefault = ({
             <Button
               aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
               autoFocus={index === 0}
+              disabled={!isReady || isSocialAuthLoading}
               icon={icon}
               key={label}
-              loading={!isReady}
+              loading={!isReady || isSocialAuthLoading}
               onClick={() => onSocialClick(value)}
               size={ButtonSize.Large}
+              type="button"
               variant={ButtonVariant.Primary}
             >
               {label}

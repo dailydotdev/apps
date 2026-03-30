@@ -87,13 +87,41 @@ export const isShareLikePost = (
   post: Pick<Post, 'type' | 'subType' | 'sharedPost'> | undefined | null,
 ): boolean => post?.type === PostType.Share || isSocialTwitterShareLike(post);
 
+export const isPostOrSharedPostTwitter = (
+  post: Pick<Post, 'type' | 'sharedPost'> | undefined | null,
+): boolean =>
+  isSocialTwitterPost(post) || isSocialTwitterPost(post?.sharedPost as Post);
+
+/**
+ * For social:twitter quote posts, resolve to the top tweet (the post itself)
+ * rather than the referenced/shared tweet. For all other post types, fall back
+ * to the shared post when available.
+ */
+export const getPostReadTarget = <
+  T extends Pick<Post, 'type' | 'subType' | 'sharedPost'> &
+    Partial<Pick<Post, 'id'>>,
+>(
+  post: T,
+): { target: T | Post['sharedPost']; parentId?: string } => {
+  const isSocialQuote = isSocialTwitterPost(post) && !!post.sharedPost;
+
+  if (isSocialQuote) {
+    return { target: post };
+  }
+
+  return {
+    target: post.sharedPost || post,
+    parentId: post.sharedPost ? post.id : undefined,
+  };
+};
+
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
     return 'Watch video';
   }
 
-  if (isSocialTwitterPost(post)) {
-    return 'View on X';
+  if (isPostOrSharedPostTwitter(post)) {
+    return 'Read on';
   }
 
   return 'Read post';

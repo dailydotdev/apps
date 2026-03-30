@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as RadixPrimitive from '@radix-ui/react-tooltip';
-import './styles.css';
 import type { ReactNode } from 'react';
 import type {
   TooltipContentProps,
@@ -9,6 +8,7 @@ import type {
 } from '@radix-ui/react-tooltip';
 import classNames from 'classnames';
 import { useState } from 'react';
+import styles from './styles.module.css';
 import { useRequestProtocol } from '../../hooks/useRequestProtocol';
 import { getCompanionWrapper } from '../../lib/extension';
 import { isNullOrUndefined } from '../../lib/func';
@@ -47,9 +47,11 @@ export function Tooltip({
         onOpenChange={setOpen}
       >
         <RadixPrimitive.Trigger
-          aria-label={showAriaLabel && content.toString()}
+          aria-label={showAriaLabel ? content.toString() : undefined}
           asChild
-          onMouseUp={(e) => e.currentTarget.blur()}
+          onMouseUp={(e: React.MouseEvent) =>
+            (e.currentTarget as HTMLElement).blur()
+          }
           {...(enableMobileClick && { onClick: () => setOpen(true) })}
         >
           {children}
@@ -59,7 +61,8 @@ export function Tooltip({
         >
           <RadixPrimitive.Content
             className={classNames(
-              'TooltipContent z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead',
+              styles.TooltipContent,
+              'z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead',
               className,
             )}
             sideOffset={5}

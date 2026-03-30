@@ -15,6 +15,7 @@ import { webappUrl } from '../../lib/constants';
 import { Button } from '../buttons/Button';
 import { SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
+import { QuestHeaderButton } from '../header/QuestHeaderButton';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -45,6 +46,7 @@ export function MobileFeedActions(): ReactElement {
             iconPosition={ButtonIconPosition.Right}
           />
         )}
+        <QuestHeaderButton compact />
         <Divider className="bg-border-subtlest-tertiary" vertical />
         {user && (
           <>

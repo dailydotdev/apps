@@ -42,6 +42,8 @@ export type RemoteSettings = {
   companionExpanded: boolean;
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
+  optOutLevelSystem: boolean;
+  optOutQuestSystem: boolean;
   optOutCompanion: boolean;
   autoDismissNotifications: boolean;
   sortCommentsBy: SortCommentsBy;

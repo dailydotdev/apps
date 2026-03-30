@@ -20,6 +20,10 @@ const PlusExtension = (): ReactElement => {
   const { productOptions } = usePaymentContext();
 
   const handleClick = () => {
+    if (!marketingCta?.campaignId) {
+      throw new Error('PlusExtension requires a marketing CTA campaign id');
+    }
+
     logEvent({
       event_name: LogEvent.UpgradeSubscription,
       target_type: TargetType.MarketingCtaPlus,

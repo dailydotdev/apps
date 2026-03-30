@@ -21,6 +21,8 @@ export interface ToastNotification {
   message: ReactNode;
   timer: number;
   subject?: ToastSubject;
+  persistent?: boolean;
+  onClose?: AnyFunction;
   action?: {
     onClick: AnyFunction;
     buttonProps?: ButtonProps<'button'>;
@@ -31,14 +33,20 @@ export interface ToastNotification {
 export const TOAST_NOTIF_KEY = ['toast_notif'];
 
 export type NotifyOptionalProps = Partial<
-  Pick<ToastNotification, 'timer' | 'subject' | 'action'>
+  Pick<
+    ToastNotification,
+    'timer' | 'subject' | 'persistent' | 'onClose' | 'action'
+  >
 >;
 
 export const useToastNotification = (): UseToastNotification => {
   const client = useQueryClient();
-  const { data: toast } = useQuery<ToastNotification | undefined>({
+  const { data: toast } = useQuery<ToastNotification | null>({
     queryKey: TOAST_NOTIF_KEY,
-    queryFn: () => client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY),
+    queryFn: () =>
+      client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY) ?? null,
+    initialData: () =>
+      client.getQueryData<ToastNotification | null>(TOAST_NOTIF_KEY) ?? null,
   });
   const setToastNotification = (data: ToastNotification) =>
     client.setQueryData(TOAST_NOTIF_KEY, data);

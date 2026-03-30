@@ -1,26 +1,16 @@
 import type { GetStaticPropsResult } from 'next';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { DehydratedState } from '@tanstack/react-query';
-import {
-  dehydrate,
-  QueryClient,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
 import { computeRankings } from '@dailydotdev/shared/src/features/agents/arena/arenaMetrics';
 import type { ArenaTab } from '@dailydotdev/shared/src/features/agents/arena/types';
-import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
-import {
-  baseFeedSupportedTypes,
-  RankingAlgorithm,
-  SOURCE_FEED_QUERY,
-} from '@dailydotdev/shared/src/graphql/feed';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { useSharePost } from '@dailydotdev/shared/src/hooks/useSharePost';
+import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
+import { POST_HIGHLIGHTS_QUERY } from '@dailydotdev/shared/src/graphql/highlights';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
-import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
@@ -32,10 +22,11 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
+import { KeyIcon, ShareIcon } from '@dailydotdev/shared/src/components/icons';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { AgentsHighlightsSection } from '../../components/agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../../components/agents/AgentsLeaderboardSection';
-import { AgentsDigestCard } from '../../components/agents/AgentsDigestCard';
 import { AgentsDoomScrollingSection } from '../../components/agents/AgentsDoomScrollingSection';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -44,29 +35,26 @@ const AGENTS_TITLE = 'Agentic Hub | daily.dev';
 const AGENTS_DESCRIPTION =
   'Stay on top of AI coding with live rankings, momentum shifts, developer sentiment, and the latest news and content to make smarter tool decisions.';
 const HUB_ARENA_TAB: ArenaTab = 'llms';
-const AGENTS_DIGEST_QUERY_KEY = generateQueryKey(
-  RequestKey.SourceFeed,
+const HIGHLIGHTS_CHANNEL = 'vibes';
+const HIGHLIGHTS_QUERY_KEY = generateQueryKey(
+  RequestKey.PostHighlights,
   undefined,
-  'agents_digest_latest_post',
+  HIGHLIGHTS_CHANNEL,
 );
-
 interface AgentsHomePageProps {
   dehydratedState: DehydratedState;
 }
-
-const digestFeedVariables = {
-  source: 'agents_digest',
-  ranking: RankingAlgorithm.Time,
-  first: 1,
-  supportedTypes: baseFeedSupportedTypes,
-};
 
 const AgentsHomePage = (): ReactElement => {
   useScrollRestoration();
 
   const { user, tokenRefreshed } = useAuthContext();
-  const queryClient = useQueryClient();
-  const { copyLink } = useSharePost(Origin.Feed);
+  const { displayToast } = useToastNotification();
+
+  const onSharePage = useCallback(async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    displayToast('Link copied to clipboard');
+  }, [displayToast]);
 
   const { data: arenaData, isFetching: isFetchingArena } = useQuery(
     arenaOptions({ groupId: HUB_ARENA_TAB }),
@@ -87,24 +75,21 @@ const AgentsHomePage = (): ReactElement => {
   const topFiveRankings = useMemo(() => rankings.slice(0, 5), [rankings]);
   const isArenaLoading = isFetchingArena && !arenaData;
 
-  const { data: digestFeed } = useQuery({
-    queryKey: AGENTS_DIGEST_QUERY_KEY,
+  const { data: highlightsData, isFetching: isFetchingHighlights } = useQuery({
+    queryKey: HIGHLIGHTS_QUERY_KEY,
     queryFn: () =>
-      gqlClient.request<FeedData>(SOURCE_FEED_QUERY, digestFeedVariables),
+      gqlClient.request<{ postHighlights: PostHighlight[] }>(
+        POST_HIGHLIGHTS_QUERY,
+        { channel: HIGHLIGHTS_CHANNEL },
+      ),
   });
 
-  const digestPost = digestFeed?.page?.edges?.[0]?.node;
+  const highlights = highlightsData?.postHighlights ?? [];
+  const isHighlightsLoading = isFetchingHighlights && !highlightsData;
+
   const { data: digestSource } = useQuery(
     sourceQueryOptions({ sourceId: 'agents_digest' }),
   );
-
-  useEffect(() => {
-    if (!user?.id) {
-      return;
-    }
-
-    queryClient.invalidateQueries({ queryKey: AGENTS_DIGEST_QUERY_KEY });
-  }, [queryClient, user?.id]);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:border-x laptop:border-border-subtlest-tertiary">
@@ -119,7 +104,7 @@ const AgentsHomePage = (): ReactElement => {
               developer sentiment, and the latest news and content.
             </p>
           </div>
-          <div className="flex shrink-0 items-center">
+          <div className="flex shrink-0 items-center gap-1.5">
             <Button
               tag="a"
               href="/settings/api"
@@ -141,24 +126,28 @@ const AgentsHomePage = (): ReactElement => {
             >
               Connect
             </Button>
+            <Tooltip content="Share">
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                aria-label="Share"
+                icon={<ShareIcon size={IconSize.Small} />}
+                onClick={onSharePage}
+              />
+            </Tooltip>
           </div>
         </div>
       </header>
+      <AgentsHighlightsSection
+        highlights={highlights}
+        loading={isHighlightsLoading}
+        digestSource={digestSource}
+      />
       <AgentsLeaderboardSection
         tools={topFiveRankings}
         loading={isArenaLoading}
         tab={HUB_ARENA_TAB}
-      />
-      <AgentsDigestCard
-        post={digestPost}
-        source={digestSource}
-        onCopyLink={() => {
-          if (!digestPost) {
-            return;
-          }
-
-          copyLink({ post: digestPost });
-        }}
       />
       <AgentsDoomScrollingSection
         userId={user?.id}
@@ -200,12 +189,15 @@ export async function getStaticProps(): Promise<
   const queryClient = new QueryClient();
 
   await Promise.all([
-    queryClient.prefetchQuery(arenaOptions({ groupId: HUB_ARENA_TAB })),
     queryClient.prefetchQuery({
-      queryKey: AGENTS_DIGEST_QUERY_KEY,
+      queryKey: HIGHLIGHTS_QUERY_KEY,
       queryFn: () =>
-        gqlClient.request<FeedData>(SOURCE_FEED_QUERY, digestFeedVariables),
+        gqlClient.request<{ postHighlights: PostHighlight[] }>(
+          POST_HIGHLIGHTS_QUERY,
+          { channel: HIGHLIGHTS_CHANNEL },
+        ),
     }),
+    queryClient.prefetchQuery(arenaOptions({ groupId: HUB_ARENA_TAB })),
     queryClient.prefetchQuery(
       sourceQueryOptions({ sourceId: 'agents_digest' }),
     ),

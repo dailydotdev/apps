@@ -3,13 +3,13 @@ import { QueryClient } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
-import { mocked } from 'ts-jest/utils';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { sharePost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
 import { SocialTwitterList } from './SocialTwitterList';
+import { EmbeddedTweetPreview } from './EmbeddedTweetPreview';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -22,6 +22,22 @@ jest.mock('../common/PostTags', () => ({
   ),
 }));
 
+jest.mock('./EmbeddedTweetPreview', () => ({
+  __esModule: true,
+  EmbeddedTweetPreview: jest.fn(({ post }) => {
+    const handle = post.sharedPost?.source?.handle || post.source?.handle;
+    const name = post.sharedPost?.source?.name || post.source?.name;
+
+    return (
+      <div>
+        {handle && <img alt={`${handle}'s profile`} />}
+        {name && handle && <div>{`${name} @${handle}`}</div>}
+        <div>{post.sharedPost?.title || post.title}</div>
+      </div>
+    );
+  }),
+}));
+
 const basePost: Post = {
   ...sharePost,
   type: PostType.SocialTwitter,
@@ -31,6 +47,16 @@ const basePost: Post = {
   image: 'https://pbs.twimg.com/media/tweet.jpg',
   sharedPost: undefined,
 };
+
+const referencedPost = sharePost.sharedPost;
+
+if (!referencedPost?.source) {
+  throw new Error(
+    'Expected referenced source fixture for SocialTwitterList tests',
+  );
+}
+
+const referencedSource = referencedPost.source;
 
 const defaultProps: PostCardProps = {
   post: basePost,
@@ -45,13 +71,15 @@ const defaultProps: PostCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mocked(useRouter).mockImplementation(
+  jest.mocked(useRouter).mockImplementation(
     () =>
       ({
         pathname: '/',
       } as unknown as NextRouter),
   );
 });
+
+const mockedEmbeddedTweetPreview = jest.mocked(EmbeddedTweetPreview);
 
 const renderComponent = (props: Partial<PostCardProps> = {}) =>
   render(
@@ -60,17 +88,17 @@ const renderComponent = (props: Partial<PostCardProps> = {}) =>
     </TestBootProvider>,
   );
 
-it('should hide image and show referenced tweet block for shared social tweets', async () => {
+it('should show referenced tweet block for shared social tweets', async () => {
   renderComponent({
     post: {
       ...basePost,
       subType: 'quote',
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         type: PostType.SocialTwitter,
         title: 'Referenced tweet body',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Referenced post',
           handle: 'devrelweekly',
         },
@@ -88,31 +116,16 @@ it('should hide image and show referenced tweet block for shared social tweets',
   expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
 
-it('should render image for non-shared social tweets', async () => {
+it('should render embedded tweet preview for non-shared social tweets', async () => {
   renderComponent();
 
   expect(
     await screen.findByRole('link', { name: 'Read on' }),
   ).toBeInTheDocument();
-  expect(await screen.findByAltText('Post cover image')).toBeInTheDocument();
-});
-
-it('should not render source handle in metadata bottom label', async () => {
-  renderComponent({
-    post: {
-      ...basePost,
-      title: 'Root tweet title without handle',
-      source: {
-        ...basePost.source,
-        handle: 'uniquesourcehandle',
-      },
-    },
-  });
-
   expect(
-    await screen.findByRole('link', { name: 'Read on' }),
+    await screen.findByText('@dailydotdev: Root tweet'),
   ).toBeInTheDocument();
-  expect(screen.queryByText('@uniquesourcehandle')).not.toBeInTheDocument();
+  expect(screen.queryByAltText('Post cover image')).not.toBeInTheDocument();
 });
 
 it('should hide headline and tags for repost cards without repost text', async () => {
@@ -122,15 +135,15 @@ it('should hide headline and tags for repost cards without repost text', async (
       subType: 'repost',
       title:
         '@bcherny: RT @ycombinator: Today, startups are not winning by hiring faster',
-      content: null,
-      contentHtml: null,
+      content: undefined,
+      contentHtml: undefined,
       tags: ['tagaa', 'tagbb'],
       sharedPost: {
-        ...sharePost.sharedPost,
+        ...referencedPost,
         type: PostType.SocialTwitter,
         title: 'Referenced tweet body',
         source: {
-          ...sharePost.sharedPost.source,
+          ...referencedSource,
           name: 'Y Combinator',
           handle: 'ycombinator',
         },
@@ -144,12 +157,15 @@ it('should hide headline and tags for repost cards without repost text', async (
     ),
   ).not.toBeInTheDocument();
   expect(screen.queryByTestId('post-tags')).not.toBeInTheDocument();
-  expect(
-    await screen.findByTitle(
-      /Avengers reposted on X\. @bcherny: RT @ycombinator:/i,
-    ),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(/From x\.com/i)).toBeInTheDocument();
   expect(
     await screen.findByText(/Y Combinator @ycombinator/i),
   ).toBeInTheDocument();
+  expect(mockedEmbeddedTweetPreview).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      className: 'w-full',
+      textClampClass: 'line-clamp-10',
+    }),
+    {},
+  );
 });

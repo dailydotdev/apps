@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, SetStateAction } from 'react';
 import React, {
   useCallback,
   useContext,
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
+import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -58,6 +59,7 @@ import type { FeedContainerProps } from './feeds';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
+import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
@@ -67,6 +69,8 @@ import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
+import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
+import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -103,10 +107,13 @@ type FeedQueryProps = {
   query: string;
   queryIfLogged?: string;
   variables?: Record<string, unknown>;
-  requestKey?: string;
+  requestKey?: RequestKey | SharedFeedPage | OtherFeedPage;
+  emptyScreen?: ReactNode;
 };
 
-const propsByFeed: Record<SharedFeedPage & OtherFeedPage, FeedQueryProps> = {
+type FeedConfigPage = SharedFeedPage | OtherFeedPage;
+
+const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
     queryIfLogged: FEED_QUERY,
@@ -220,10 +227,15 @@ export default function MainFeedLayout({
     shouldShow: shouldShowReadingReminder,
     title: readingReminderTitle,
     subtitle: readingReminderSubtitle,
-    shouldShowDismiss: shouldShowReadingReminderDismiss,
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
+  const isHomePage = router.pathname === webappUrl;
+  const shouldEvaluateReminderPlacement =
+    isHomePage && shouldShowReadingReminder;
+  const { isControl: isControlVariation } = useReadingReminderVariation({
+    shouldEvaluate: shouldEvaluateReminderPlacement,
+  });
   const {
     isUpvoted,
     isPopular,
@@ -234,6 +246,14 @@ export default function MainFeedLayout({
     isSearch: isSearchPage,
   } = useFeedName({
     feedName,
+  });
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitExplorePage,
+    enabled: feedName === OtherFeedPage.Explore,
+  });
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitDiscussionsPage,
+    enabled: feedName === OtherFeedPage.Discussed,
   });
   const {
     shouldUseListFeedLayout,
@@ -298,9 +318,7 @@ export default function MainFeedLayout({
     /**
      * Various feeds can have different feed versions based on feature flag
      */
-    const dynamicFeedVersionByFeed: Partial<
-      Record<SharedFeedPage & OtherFeedPage, number>
-    > = {
+    const dynamicFeedVersionByFeed: Partial<Record<FeedConfigPage, number>> = {
       [SharedFeedPage.MyFeed]: myFeedV,
       [OtherFeedPage.Following]: followingFeedV,
       [OtherFeedPage.Explore]: exploreFeedV,
@@ -310,25 +328,30 @@ export default function MainFeedLayout({
       [SharedFeedPage.Custom]: customFeedV,
     };
 
+    const feedConfig = propsByFeed[feedName];
+    const dynamicFeedConfig =
+      feedName in dynamicPropsByFeed
+        ? dynamicPropsByFeed[feedName as SharedFeedPage]
+        : undefined;
+
     // do not show feed in background on new page
-    if (router.pathname === '/feeds/new') {
+    if (router.pathname === '/feeds/new' || !feedConfig) {
       return {
         query: null,
       };
     }
 
     return {
-      requestKey: propsByFeed[feedName].requestKey,
+      requestKey: feedConfig.requestKey,
       query: getQueryBasedOnLogin(
         tokenRefreshed,
-        user,
-        dynamicPropsByFeed[feedName]?.query || propsByFeed[feedName].query,
-        dynamicPropsByFeed[feedName]?.queryIfLogged ||
-          propsByFeed[feedName].queryIfLogged,
+        user ?? null,
+        dynamicFeedConfig?.query || feedConfig.query,
+        dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
       ),
       variables: {
-        ...propsByFeed[feedName].variables,
-        ...dynamicPropsByFeed[feedName]?.variables,
+        ...feedConfig.variables,
+        ...dynamicFeedConfig?.variables,
         version:
           isDevelopment && !isProductionAPI
             ? 1
@@ -363,17 +386,30 @@ export default function MainFeedLayout({
     defaultValue: 0,
   });
 
+  const hasSearchContent = !!navChildren || (isSearchOn && !!searchChildren);
   const search = useMemo(
-    () => (
-      <LayoutHeader className={isSearchPage && 'mt-16 laptop:mt-0'}>
-        {navChildren}
-        {isSearchOn && searchChildren ? searchChildren : undefined}
-      </LayoutHeader>
-    ),
-    [isSearchOn, isSearchPage, navChildren, searchChildren],
+    () =>
+      hasSearchContent ? (
+        <LayoutHeader
+          className={isSearchPage ? 'mt-16 laptop:mt-0' : undefined}
+        >
+          {navChildren}
+          {isSearchOn && searchChildren ? searchChildren : undefined}
+        </LayoutHeader>
+      ) : null,
+    [hasSearchContent, isSearchOn, isSearchPage, navChildren, searchChildren],
   );
 
-  const feedProps = useMemo<FeedProps<unknown>>(() => {
+  const handleSelectedAlgoChange = useCallback(
+    (value: SetStateAction<number>) => {
+      const nextValue =
+        typeof value === 'function' ? value(selectedAlgo) : value;
+      setSelectedAlgo(nextValue).catch(() => undefined);
+    },
+    [selectedAlgo, setSelectedAlgo],
+  );
+
+  const feedProps = useMemo<FeedProps<unknown> | null>(() => {
     const feedWithActions =
       isUpvoted || isPopular || isSortableFeed || isCustomFeed;
     // in list search by default we do not show any results but empty state
@@ -389,6 +425,10 @@ export default function MainFeedLayout({
     }
 
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
+      if (!defaultFeedId) {
+        return null;
+      }
+
       return {
         feedName: SharedFeedPage.Custom,
         feedQueryKey: generateQueryKey(
@@ -398,13 +438,13 @@ export default function MainFeedLayout({
         ),
         query: CUSTOM_FEED_QUERY,
         variables: {
-          feedId: user.defaultFeedId,
+          feedId: defaultFeedId,
           feedName: SharedFeedPage.Custom,
         },
-        emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
+        emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
         actionButtons: feedWithActions && (
           <SearchControlHeader
-            algoState={[selectedAlgo, setSelectedAlgo]}
+            algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
           />
         ),
@@ -480,10 +520,10 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: propsByFeed[feedName].emptyScreen || <FeedEmptyScreen />,
+      emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
       actionButtons: feedWithActions && (
         <SearchControlHeader
-          algoState={[selectedAlgo, setSelectedAlgo]}
+          algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
         />
       ),
@@ -503,7 +543,7 @@ export default function MainFeedLayout({
     feedName,
     user,
     selectedAlgo,
-    setSelectedAlgo,
+    handleSelectedAlgoChange,
     defaultFeedId,
     getFeatureValue,
     contentCurationFilter,
@@ -528,7 +568,7 @@ export default function MainFeedLayout({
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
   const shouldShowReadingReminderOnHomepage =
-    router.pathname === webappUrl && shouldShowReadingReminder;
+    shouldEvaluateReminderPlacement && isControlVariation;
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
@@ -574,12 +614,14 @@ export default function MainFeedLayout({
     >
       {isAnyExplore && <FeedExploreComponent />}
       {isSearchOn && !isSearchPageLaptop && search}
+      {isSearchOn && isFinder && !isSearchPageLaptop && (
+        <AskSearchBanner className="mx-4 mb-4" />
+      )}
       {shouldShowReadingReminderOnHomepage && (
         <ReadingReminderHero
           className="px-4 pb-2"
           title={readingReminderTitle}
           subtitle={readingReminderSubtitle}
-          shouldShowDismiss={shouldShowReadingReminderDismiss}
           onEnable={onEnable}
           onDismiss={onDismiss}
         />
@@ -587,7 +629,7 @@ export default function MainFeedLayout({
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
-          feedQueryKey={generateQueryKey(RequestKey.CommentFeed, null)}
+          feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
           query={COMMENT_FEED_QUERY}
           logOrigin={Origin.CommentFeed}
           emptyScreen={

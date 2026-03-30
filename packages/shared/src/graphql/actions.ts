@@ -61,6 +61,7 @@ export enum ActionType {
   DismissInstallExtension = 'dismiss_install_extension',
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
+  AskUpsellSearch = 'ask_upsell_search',
 }
 
 export const cvActions = [

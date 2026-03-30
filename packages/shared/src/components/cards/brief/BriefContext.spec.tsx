@@ -1,7 +1,6 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 
 import { BriefContextProvider, useBriefContext } from './BriefContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -17,8 +16,8 @@ import defaultUser from '../../../../__tests__/fixture/loggedUser';
 jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../hooks');
 
-const mockUseAuthContext = mocked(useAuthContext);
-const mockUsePersistentState = mocked(usePersistentState);
+const mockUseAuthContext = jest.mocked(useAuthContext);
+const mockUsePersistentState = jest.mocked(usePersistentState);
 
 const mockSetBrief = jest.fn();
 
@@ -93,7 +92,7 @@ describe('BriefContext', () => {
       });
 
       expect(mockUsePersistentState).toHaveBeenCalledWith(
-        `brief_card_${defaultUser.id}_v3`,
+        `brief_card_${defaultUser.id}_v4`,
         undefined,
       );
     });

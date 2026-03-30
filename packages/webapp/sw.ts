@@ -20,7 +20,8 @@ const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
-  navigationPreload: true,
+  // Safari can fail the first navigation when preload is enabled.
+  navigationPreload: false,
   runtimeCaching: defaultCache,
   precacheOptions: {
     concurrency: 3,

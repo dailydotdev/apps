@@ -1,7 +1,3 @@
-[data-radix-popper-content-wrapper] {
-  z-index: 1000!important;
-}
-
 .DropdownMenuContent,
 .DropdownMenuSubContent {
   user-select: none;
@@ -11,23 +7,28 @@
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
+
 .DropdownMenuItem:focus-visible {
-  outline: none!important;
+  outline: none !important;
 }
-.DropdownMenuContent[data-side="top"],
-.DropdownMenuSubContent[data-side="top"] {
+
+.DropdownMenuContent[data-side='top'],
+.DropdownMenuSubContent[data-side='top'] {
   animation-name: slideDownAndFade;
 }
-.DropdownMenuContent[data-side="right"],
-.DropdownMenuSubContent[data-side="right"] {
+
+.DropdownMenuContent[data-side='right'],
+.DropdownMenuSubContent[data-side='right'] {
   animation-name: slideLeftAndFade;
 }
-.DropdownMenuContent[data-side="bottom"],
-.DropdownMenuSubContent[data-side="bottom"] {
+
+.DropdownMenuContent[data-side='bottom'],
+.DropdownMenuSubContent[data-side='bottom'] {
   animation-name: slideUpAndFade;
 }
-.DropdownMenuContent[data-side="left"],
-.DropdownMenuSubContent[data-side="left"] {
+
+.DropdownMenuContent[data-side='left'],
+.DropdownMenuSubContent[data-side='left'] {
   animation-name: slideRightAndFade;
 }
 
@@ -72,12 +73,14 @@
   @apply text-text-tertiary;
   @apply flex items-center typo-footnote h-7 px-2 py-0 truncate;
 }
+
 .DropdownMenuItem[data-disabled],
 .DropdownMenuCheckboxItem[data-disabled],
 .DropdownMenuRadioItem[data-disabled],
 .DropdownMenuSubTrigger[data-disabled] {
   pointer-events: none;
 }
+
 .DropdownMenuItem[data-highlighted],
 .DropdownMenuCheckboxItem[data-highlighted],
 .DropdownMenuRadioItem[data-highlighted],

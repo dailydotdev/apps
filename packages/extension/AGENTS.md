@@ -20,7 +20,7 @@ extension/
 │   ├── contexts/        # Extension-specific contexts
 │   ├── lib/             # Extension utilities
 │   └── manifest.json    # Extension manifest
-└── webpack.config.js    # Build configuration
+└── rspack.config.js     # Build configuration (Rspack)
 ```
 
 ## Extension Architecture

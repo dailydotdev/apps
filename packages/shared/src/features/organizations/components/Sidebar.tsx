@@ -23,7 +23,7 @@ import { InnerProfileSettingsMenu } from '../../../components/profile/ProfileSet
 type MenuItems = Record<
   string,
   {
-    title: string | null;
+    title: string | undefined;
     items: Record<string, ProfileSectionItemProps>;
   }
 >;
@@ -32,7 +32,7 @@ const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 const menuItems = defineMenuItems({
   main: {
-    title: null,
+    title: undefined,
     items: {
       general: {
         title: 'General',

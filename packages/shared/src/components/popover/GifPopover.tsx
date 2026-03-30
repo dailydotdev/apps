@@ -161,7 +161,7 @@ const GifPopover = ({
     0, 0,
   ]);
   const [debounceQuery] = useDebounceFn<string>(
-    (value) => setQuery(value),
+    (value) => setQuery(value ?? ''),
     500,
   );
   const {

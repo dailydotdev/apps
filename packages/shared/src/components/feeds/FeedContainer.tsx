@@ -2,13 +2,11 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import type { Spaciness } from '../../graphql/settings';
 import SettingsContext from '../../contexts/SettingsContext';
 import FeedContext from '../../contexts/FeedContext';
 import styles from '../Feed.module.css';
 import type { FeedPagesWithMobileLayoutType } from '../../hooks';
 import {
-  useConditionalFeature,
   useFeedLayout,
   ToastSubject,
   useToastNotification,
@@ -17,7 +15,6 @@ import {
   useFeeds,
   useBoot,
 } from '../../hooks';
-import { featureFeedLayoutV2 } from '../../lib/featureManagement';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useActiveFeedNameContext } from '../../contexts';
 import { SharedFeedPage } from '../utilities';
@@ -36,6 +33,7 @@ import { TargetId } from '../../lib/log';
 
 export interface FeedContainerProps {
   children: ReactNode;
+  topContent?: ReactNode;
   header?: ReactNode;
   footer?: ReactNode;
   className?: string;
@@ -47,20 +45,16 @@ export interface FeedContainerProps {
   feedContainerRef?: React.Ref<HTMLDivElement>;
   showBriefCard?: boolean;
   disableListFrame?: boolean;
-  disableListWidthConstraint?: boolean;
 }
 
-const listGaps = {
-  cozy: 'gap-5',
-  roomy: 'gap-3',
+const listGapClass = 'gap-2';
+const gridGapClass = 'gap-8';
+const feedGapPx = {
+  [listGapClass]: 8,
+  [gridGapClass]: 32,
 };
 
-const gridGaps = {
-  cozy: 'gap-14',
-  roomy: 'gap-12',
-};
-
-const cardListClass = {
+const cardListClass: Partial<Record<number, string>> = {
   1: 'grid-cols-1',
   2: 'grid-cols-2',
   3: 'grid-cols-3',
@@ -70,38 +64,22 @@ const cardListClass = {
   7: 'grid-cols-7',
 };
 
-export const getFeedGapPx = {
-  'gap-2': 8,
-  'gap-3': 12,
-  'gap-4': 16,
-  'gap-5': 20,
-  'gap-8': 32,
-  'gap-12': 48,
-  'gap-14': 56,
-};
+type FeedGapClass = keyof typeof feedGapPx;
 
 /**
- * Returns the appropriate gap class based on layout mode and spaciness.
- * @param defaultGridGap - Optional override for grid gap (used by feature flags like feed_layout_v2)
+ * Returns the appropriate gap class based on layout mode.
  */
 export const gapClass = ({
   isList,
   isFeedLayoutList,
-  space,
-  defaultGridGap,
 }: {
   isList: boolean;
   isFeedLayoutList: boolean;
-  space: Spaciness;
-  defaultGridGap?: string;
 }): string => {
   if (isFeedLayoutList) {
     return '';
   }
-  if (defaultGridGap) {
-    return defaultGridGap;
-  }
-  return isList ? listGaps[space] ?? 'gap-2' : gridGaps[space] ?? 'gap-8';
+  return isList ? listGapClass : gridGapClass;
 };
 
 const cardClass = ({
@@ -116,16 +94,7 @@ const cardClass = ({
   if (isHorizontal) {
     return 'auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*+1)/var(--num-cards))] tablet:auto-cols-[calc((100%/var(--num-cards))-var(--feed-gap)-calc(var(--feed-gap)*-1)/var(--num-cards))]';
   }
-  return isList ? 'grid-cols-1' : cardListClass[numberOfCards];
-};
-
-const getStyle = (isList: boolean, space: Spaciness): CSSProperties => {
-  if (isList && space !== 'eco') {
-    return space === 'cozy'
-      ? { maxWidth: '48.75rem' }
-      : { maxWidth: '63.75rem' };
-  }
-  return {};
+  return isList ? 'grid-cols-1' : cardListClass[numberOfCards] ?? 'grid-cols-1';
 };
 
 const feedNameToHeading: Record<
@@ -150,6 +119,7 @@ const feedNameToHeading: Record<
 
 export const FeedContainer = ({
   children,
+  topContent,
   header,
   footer,
   className,
@@ -161,53 +131,39 @@ export const FeedContainer = ({
   feedContainerRef,
   showBriefCard,
   disableListFrame = false,
-  disableListWidthConstraint = false,
 }: FeedContainerProps): ReactElement => {
   const currentSettings = useContext(FeedContext);
   const { subject } = useToastNotification();
-  const { spaciness, loadedSettings } = useContext(SettingsContext);
-  const { value: isFeedLayoutV2 } = useConditionalFeature({
-    feature: featureFeedLayoutV2,
-  });
+  const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
+  const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
-    feedName,
+    feedName: activeFeedName,
   });
   const router = useRouter();
-  const effectiveSpaciness: Spaciness = isFeedLayoutV2
-    ? 'eco'
-    : spaciness ?? 'eco';
-  const numCards = currentSettings.numCards[effectiveSpaciness];
+  const numCards = currentSettings.numCards.eco;
   const isList =
     (isHorizontal || isListMode) && !shouldUseListFeedLayout
       ? false
       : (isListMode && numCards > 1) || shouldUseListFeedLayout;
-  const v2GridGap = isFeedLayoutV2 ? 'gap-4' : undefined;
-  const feedGapPx =
-    getFeedGapPx[
-      gapClass({
-        isList,
-        isFeedLayoutList: shouldUseListFeedLayout,
-        space: effectiveSpaciness,
-        defaultGridGap: v2GridGap,
-      })
-    ];
+  const feedGapClass = gapClass({
+    isList,
+    isFeedLayoutList: shouldUseListFeedLayout,
+  }) as FeedGapClass;
+  const gapSizePx = feedGapPx[feedGapClass];
   const style = {
     '--num-cards': isHorizontal && isListMode && numCards >= 2 ? 2 : numCards,
-    '--feed-gap': `${feedGapPx / 16}rem`,
+    '--feed-gap': `${gapSizePx / 16}rem`,
   } as CSSProperties;
-  const cardContainerStyle = disableListWidthConstraint
-    ? {}
-    : { ...getStyle(isList, effectiveSpaciness) };
   const isFinder = router.pathname === '/search/posts';
   const isSearch = showSearch && !isFinder;
 
   const { feeds } = useFeeds();
 
   const feedHeading = useMemo(() => {
-    if (feedName === SharedFeedPage.Custom) {
+    if (activeFeedName === SharedFeedPage.Custom) {
       const customFeed = feeds?.edges.find(
         ({ node: feed }) =>
           feed.id === router.query.slugOrId ||
@@ -219,16 +175,26 @@ export const FeedContainer = ({
       }
     }
 
-    return feedNameToHeading[feedName] ?? '';
-  }, [feeds, feedName, router.query.slugOrId]);
+    if (activeFeedName in feedNameToHeading) {
+      return feedNameToHeading[
+        activeFeedName as keyof typeof feedNameToHeading
+      ];
+    }
+
+    return '';
+  }, [activeFeedName, feeds, router.query.slugOrId]);
 
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
   const { onUpload, status, shouldShow } = useUploadCv({
-    onUploadSuccess: () => clearMarketingCta(marketingCta.campaignId),
+    onUploadSuccess: () => {
+      if (marketingCta) {
+        clearMarketingCta(marketingCta.campaignId);
+      }
+    },
   });
   const shouldShowBanner =
-    !!marketingCta && shouldShow && feedName === SharedFeedPage.MyFeed;
+    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
@@ -248,7 +214,7 @@ export const FeedContainer = ({
     <div
       className={classNames(
         'relative flex w-full flex-col laptopL:mx-auto',
-        isFeedLayoutV2 ? styles.containerV2 : styles.container,
+        styles.container,
         className,
       )}
     >
@@ -265,21 +231,28 @@ export const FeedContainer = ({
                 'mb-0': isList,
                 'mt-0 tablet:mt-4': !showBriefCard,
               }),
-              image:
-                isList && 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]',
+              image: isList
+                ? 'laptop:bottom-0 laptop:right-0 laptop:top-[unset]'
+                : undefined,
             }}
             status={status}
             onUpload={onUpload}
-            onClose={() => clearMarketingCta(marketingCta.campaignId)}
-            banner={{
-              title: marketingCta?.flags?.title,
-              description: marketingCta?.flags?.description,
-              cover: {
-                laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
-                tablet: uploadCvBgTablet,
-                base: uploadCvBgMobile,
-              },
-            }}
+            onClose={() =>
+              marketingCta && clearMarketingCta(marketingCta.campaignId)
+            }
+            banner={
+              marketingCta?.flags?.title && marketingCta?.flags?.description
+                ? {
+                    title: marketingCta.flags.title,
+                    description: marketingCta.flags.description,
+                    cover: {
+                      laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
+                      tablet: uploadCvBgTablet,
+                      base: uploadCvBgMobile,
+                    },
+                  }
+                : undefined
+            }
             targetId={TargetId.Feed}
           />
         </div>
@@ -290,13 +263,13 @@ export const FeedContainer = ({
           className={classNames(
             'relative mx-auto w-full',
             styles.feed,
-            !isList && (isFeedLayoutV2 ? styles.cardsV2 : styles.cards),
+            !isList && styles.cards,
           )}
-          style={cardContainerStyle}
           aria-live={subject === ToastSubject.Feed ? 'assertive' : 'off'}
           data-testid="posts-feed"
         >
           {inlineHeader && header}
+          {topContent}
           {isSearch && !shouldUseListFeedLayout && (
             <span
               className={classNames(
@@ -325,7 +298,7 @@ export const FeedContainer = ({
                 )}
               >
                 <ConditionalWrapper
-                  condition={isLaptop && (feedHeading || actionButtons)}
+                  condition={isLaptop && !!(feedHeading || actionButtons)}
                   wrapper={(component) => (
                     <span className="flex w-full flex-row items-center justify-between px-6 py-4">
                       <strong className="typo-title3">{feedHeading}</strong>
@@ -350,8 +323,6 @@ export const FeedContainer = ({
                 gapClass({
                   isList,
                   isFeedLayoutList: shouldUseListFeedLayout,
-                  space: effectiveSpaciness,
-                  defaultGridGap: v2GridGap,
                 }),
                 cardClass({
                   isList,

@@ -4,7 +4,6 @@ import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mocked } from 'ts-jest/utils';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
@@ -53,7 +52,7 @@ beforeEach(() => {
   localStorage.clear();
 });
 
-const defaultAlerts: Alerts = { filter: true, rankLastSeen: null };
+const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
 
 const defaultSettings: RemoteSettings = {
   theme: 'bright',
@@ -65,6 +64,8 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutLevelSystem: false,
+  optOutQuestSystem: false,
   autoDismissNotifications: true,
   optOutCompanion: false,
   sortCommentsBy: SortCommentsBy.NewestFirst,
@@ -93,7 +94,7 @@ const renderComponent = (
 ): RenderResult => {
   const queryClient = new QueryClient();
   const app = BootApp.Extension;
-  mocked(getBootData).mockResolvedValue(getBootMock(bootData));
+  jest.mocked(getBootData).mockResolvedValue(getBootMock(bootData));
   return render(
     <QueryClientProvider client={queryClient}>
       <BootDataProvider
@@ -148,6 +149,10 @@ const SettingsMock = ({
     sortingEnabled,
     optOutReadingStreak,
     toggleOptOutReadingStreak,
+    optOutLevelSystem,
+    toggleOptOutLevelSystem,
+    optOutQuestSystem,
+    toggleOptOutQuestSystem,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
   } = useContext(SettingsContext);
@@ -162,7 +167,11 @@ const SettingsMock = ({
         Sidebar
       </button>
       <button
-        onClick={() => setTheme(toTheme)}
+        onClick={() => {
+          if (toTheme) {
+            setTheme(toTheme);
+          }
+        }}
         type="button"
         data-test-value={themeMode}
       >
@@ -176,14 +185,36 @@ const SettingsMock = ({
         Show Weekly Goal widget
       </button>
       <button
-        onClick={() => setSpaciness(toSpaciness)}
+        onClick={toggleOptOutLevelSystem}
+        type="button"
+        data-test-value={optOutLevelSystem}
+      >
+        Show Level System
+      </button>
+      <button
+        onClick={toggleOptOutQuestSystem}
+        type="button"
+        data-test-value={optOutQuestSystem}
+      >
+        Show Quest System
+      </button>
+      <button
+        onClick={() => {
+          if (toSpaciness) {
+            setSpaciness(toSpaciness);
+          }
+        }}
         type="button"
         data-test-value={spaciness}
       >
         Spaciness
       </button>
       <button
-        onClick={() => toggleInsaneMode(toInsaneMode)}
+        onClick={() => {
+          if (typeof toInsaneMode === 'boolean') {
+            toggleInsaneMode(toInsaneMode);
+          }
+        }}
         type="button"
         data-test-value={insaneMode}
       >
@@ -338,7 +369,7 @@ const AlertsMock = (params: Partial<Alerts>) => {
 
   return (
     <button
-      onClick={() => updateAlerts(params)}
+      onClick={() => updateAlerts?.(params)}
       type="button"
       data-test-value={JSON.stringify(alerts)}
     >
@@ -391,7 +422,11 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
   return (
     <>
       <button
-        onClick={() => updateUser(updatedUser)}
+        onClick={() => {
+          if (updatedUser) {
+            updateUser(updatedUser);
+          }
+        }}
         type="button"
         data-test-value={user?.name || 'anonymous'}
       >
@@ -404,7 +439,11 @@ const AuthMock = ({ updatedUser, loginTrigger }: AuthMockProps) => {
         Logout
       </button>
       <button
-        onClick={() => showLogin({ trigger: loginTrigger })}
+        onClick={() => {
+          if (loginTrigger) {
+            showLogin({ trigger: loginTrigger });
+          }
+        }}
         type="button"
         data-test-value={JSON.stringify(loginState)}
       >

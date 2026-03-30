@@ -5,6 +5,8 @@ import { useRouter } from 'next/router';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient, useQuery } from '@tanstack/react-query';
 import { ArenaPage } from '@dailydotdev/shared/src/features/agents/arena/ArenaPage';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import { getArenaLastUpdatedIso } from '@dailydotdev/shared/src/features/agents/arena/timestamps';
 import type {
   ArenaQueryResponse,
@@ -118,6 +120,9 @@ const getArenaBreadcrumbJsonLd = (): string =>
 
 const ArenaPageRoute = ({ initialTab }: ArenaPageRouteProps): ReactElement => {
   const router = useRouter();
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitArena,
+  });
 
   const activeTab = resolveArenaTab(router.query.tab, initialTab);
 

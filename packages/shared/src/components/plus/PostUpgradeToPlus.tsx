@@ -31,7 +31,7 @@ export const PostUpgradeToPlus = ({
   children,
   className,
   onClose,
-}: PostUpgradeToPlusProps & PropsWithChildren): ReactElement => {
+}: PostUpgradeToPlusProps & PropsWithChildren): ReactElement | null => {
   const [show, setShow] = useState(true);
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const {

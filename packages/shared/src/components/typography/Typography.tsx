@@ -94,7 +94,7 @@ function BaseTypography<TagName extends AllowedTags>(
     className,
     type,
     { 'font-bold': bold, 'text-center': center },
-    color ?? tagToColor[tag],
+    color ?? (tagToColor as Record<string, TypographyColor | undefined>)[tag],
     truncate && truncateTextClassNames,
   );
   const Tag = classed(tag, classes);

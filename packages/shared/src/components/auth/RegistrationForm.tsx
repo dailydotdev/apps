@@ -308,6 +308,13 @@ const RegistrationForm = ({
             />
           }
         />
+        {hints?.['traits.email'] && !alreadyExists && (
+          <Alert
+            className="-mt-4 mb-3 min-w-full"
+            type={AlertType.Error}
+            title={hints['traits.email']}
+          />
+        )}
         {alreadyExists && (
           <Alert
             className="-mt-4 mb-3 min-w-full"

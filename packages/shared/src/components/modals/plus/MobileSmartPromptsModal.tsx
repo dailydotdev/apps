@@ -42,7 +42,7 @@ export const MobileSmartPromptsModal = ({
             size={ButtonSize.Medium}
             variant={ButtonVariant.Option}
             key={id}
-            flags={flags}
+            flags={flags ?? {}}
             onClick={(event) => onClick(event, id)}
           >
             {label}

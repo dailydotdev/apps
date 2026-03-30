@@ -21,6 +21,7 @@
 	},
 	"include": [
     "custom.d.ts",
+    "../shared/custom.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx"
 	]

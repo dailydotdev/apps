@@ -30,7 +30,7 @@ const Container = classed(
 
 let timeoutId: ReturnType<typeof setTimeout> | 0 = 0;
 
-export function InAppNotificationElement(): ReactElement {
+export function InAppNotificationElement(): ReactElement | null {
   const router = useRouter();
   const client = useQueryClient();
   const { logEvent } = useLogContext();
@@ -52,9 +52,14 @@ export function InAppNotificationElement(): ReactElement {
     },
     [closeNotification],
   );
-  const { data: payload } = useQuery<InAppNotification>({
+  const { data: payload } = useQuery<InAppNotification | null>({
     queryKey: IN_APP_NOTIFICATION_KEY,
-    queryFn: () => client.getQueryData(IN_APP_NOTIFICATION_KEY),
+    queryFn: () =>
+      client.getQueryData<InAppNotification | null>(IN_APP_NOTIFICATION_KEY) ??
+      null,
+    initialData: () =>
+      client.getQueryData<InAppNotification | null>(IN_APP_NOTIFICATION_KEY) ??
+      null,
   });
 
   useEffect(() => {

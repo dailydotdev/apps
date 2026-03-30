@@ -9,7 +9,7 @@ import { usePrevious } from '../hooks';
 
 type ReferredPost = {
   id: Post['id'];
-  author?: Pick<Post['author'], 'id'>;
+  author?: Pick<NonNullable<Post['author']>, 'id'>;
   origin?: Origin;
 };
 

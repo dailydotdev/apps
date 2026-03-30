@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
-import { formatReadTime, TruncateText, DateFormat } from '../../utilities';
+import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -42,6 +42,44 @@ export default function PostMetadata({
     boostedBy ? `Promoted by @${boostedBy.username}` : null,
   );
 
+  const items: { key: string; node: ReactNode }[] = [
+    boostedBy && {
+      key: 'promoted',
+      node: (
+        <Tooltip content={promotedByTooltip}>
+          <strong>{promotedText}</strong>
+        </Tooltip>
+      ),
+    },
+    !!description && { key: 'description', node: description },
+    pollMetadata && {
+      key: 'poll',
+      node: <PollMetadata {...pollMetadata} />,
+    },
+    !!createdAt &&
+      !boostedBy && {
+        key: 'date',
+        node: <DateFormat date={createdAt} type={TimeFormatType.Post} />,
+      },
+    showReadTime && {
+      key: 'readTime',
+      node: (
+        <span data-testid="readTime">
+          {formatReadTime(readTime)} {timeActionContent} time
+        </span>
+      ),
+    },
+    !!showReadTime && domain && { key: 'domain', node: domain },
+    !!numUpvotes && {
+      key: 'upvotes',
+      node: (
+        <span data-testid="numUpvotes">
+          {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
+        </span>
+      ),
+    },
+  ].filter(Boolean) as { key: string; node: ReactNode }[];
+
   return (
     <div
       className={classNames(
@@ -49,40 +87,13 @@ export default function PostMetadata({
         className,
       )}
     >
-      <TruncateText>
-        {boostedBy && (
-          <Tooltip content={promotedByTooltip}>
-            <strong>{promotedText}</strong>
-          </Tooltip>
-        )}
-        {boostedBy && (!!description || !!createdAt || showReadTime) && (
-          <Separator />
-        )}
-        {!!description && description}
-        {pollMetadata && <PollMetadata {...pollMetadata} />}
-        {!!createdAt && !!description && !boostedBy && <Separator />}
-        {!!createdAt && !boostedBy && (
-          <DateFormat date={createdAt} type={TimeFormatType.Post} />
-        )}
-        {!boostedBy && !!createdAt && showReadTime && <Separator />}
-        {showReadTime && (
-          <span data-testid="readTime">
-            {formatReadTime(readTime)} {timeActionContent} time
-          </span>
-        )}
-        {!!showReadTime && domain && (
-          <>
-            <Separator /> {domain}
-          </>
-        )}
-        {(!!createdAt || showReadTime) && !!numUpvotes && <Separator />}
-        {!!numUpvotes && (
-          <span data-testid="numUpvotes">
-            {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
-          </span>
-        )}
-        {children}
-      </TruncateText>
+      {items.map(({ key, node }, i) => (
+        <React.Fragment key={key}>
+          {i > 0 && <Separator />}
+          {node}
+        </React.Fragment>
+      ))}
+      {children}
     </div>
   );
 }

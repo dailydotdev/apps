@@ -48,8 +48,8 @@ interface Params {
 }
 
 const getParams = (tags: BlockTagSelection): Params => {
-  const blocks = [];
-  const unblocks = [];
+  const blocks: string[] = [];
+  const unblocks: string[] = [];
 
   if (tags) {
     Object.entries(tags).forEach(([tag, shouldBlock]) => {

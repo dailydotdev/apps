@@ -53,10 +53,10 @@ export const useSourceContentPreferenceMutationSubscription = ({
 
         if (followedMember?.user) {
           followedMember.user.contentPreference = nextStatus
-            ? {
+            ? ({
                 ...followedMember.user.contentPreference,
                 status: nextStatus,
-              }
+              } as typeof followedMember.user.contentPreference)
             : undefined;
         }
 

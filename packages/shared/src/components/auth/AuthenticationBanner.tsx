@@ -50,7 +50,7 @@ export function AuthenticationBanner({
         <Section className="w-[23.25rem]">
           <AuthOptions
             ignoreMessages
-            formRef={null}
+            formRef={null as unknown as React.MutableRefObject<HTMLFormElement>}
             trigger={AuthTriggers.Onboarding}
             simplified
             defaultDisplay={AuthDisplay.OnboardingSignup}

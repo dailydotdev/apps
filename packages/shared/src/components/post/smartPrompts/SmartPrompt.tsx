@@ -91,7 +91,7 @@ export const SmartPrompt = ({
         <Tab label={PromptDisplay.TLDR}>
           <ShowMoreContent
             className={{ wrapper: 'overflow-hidden' }}
-            content={post.summary}
+            content={post.summary ?? ''}
             charactersLimit={330}
             threshold={50}
           />

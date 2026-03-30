@@ -1,14 +1,16 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
-import { OpenLinkIcon } from '../icons';
 import {
+  getPostReadTarget,
   getReadPostButtonText,
   isInternalReadType,
+  isPostOrSharedPostTwitter,
   PostType,
 } from '../../graphql/posts';
+import { getReadPostButtonIcon } from '../cards/common/ReadArticleButton';
 import classed from '../../lib/classed';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -37,8 +39,11 @@ export function PostHeaderActions({
   const readButtonText = getReadPostButtonText(post);
   const isCollection = post?.type === PostType.Collection;
   const isInternalReadTyped = isInternalReadType(post);
+  const isTwitter = isPostOrSharedPostTwitter(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const isPoll = post?.type === PostType.Poll;
+  const { target: readTarget } = getPostReadTarget(post);
+  const readHref = readTarget?.permalink ?? post.permalink;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -55,14 +60,17 @@ export function PostHeaderActions({
                 : ButtonVariant.Secondary
             }
             tag="a"
-            href={post.sharedPost?.permalink ?? post.permalink}
+            href={readHref}
             target={openNewTab ? '_blank' : '_self'}
-            icon={<OpenLinkIcon />}
+            icon={getReadPostButtonIcon(post)}
+            iconPosition={
+              isTwitter ? ButtonIconPosition.Right : (undefined as never)
+            }
             onClick={onReadArticle}
             data-testid="postActionsRead"
             size={buttonSize}
           >
-            {!inlineActions ? readButtonText : null}
+            {!inlineActions ? readButtonText : undefined}
           </Button>
         </Tooltip>
       )}

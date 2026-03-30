@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { MutableRefObject, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { forwardRef, useContext } from 'react';
 import { ModalKind, ModalPropsContext, ModalSize } from './types';
 
@@ -13,7 +13,7 @@ const bigModals = [ModalSize.Large, ModalSize.XLarge];
 
 function ModalBodyComponent(
   { children, className, view, ...props }: ModalBodyProps,
-  ref: MutableRefObject<HTMLElement>,
+  ref: React.Ref<HTMLElement>,
 ): ReactElement | null {
   const { activeView, kind, size, isDrawer } = useContext(ModalPropsContext);
   const sectionClassName = classNames(

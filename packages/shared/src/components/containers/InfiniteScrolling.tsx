@@ -22,15 +22,13 @@ export type InfiniteScrollingQueryProps = Pick<
   'canFetchMore' | 'isFetchingNextPage' | 'fetchNextPage' | 'placeholder'
 >;
 
-export const checkFetchMore = (
-  // (Specific since we don't know inferred type)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  queryResult: UseInfiniteQueryResult<InfiniteData<any>>,
+export const checkFetchMore = <TPage,>(
+  queryResult: UseInfiniteQueryResult<InfiniteData<TPage>>,
 ): boolean =>
   !queryResult.isLoading &&
   !queryResult.isFetchingNextPage &&
   queryResult.hasNextPage &&
-  queryResult.data?.pages.length > 0;
+  (queryResult.data?.pages.length ?? 0) > 0;
 
 function InfiniteScrolling({
   children,
