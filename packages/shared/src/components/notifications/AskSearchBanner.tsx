@@ -14,8 +14,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
-import { useConditionalFeature } from '../../hooks';
-import { featureAskUpsellSearch } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 
 interface AskSearchBannerProps {
@@ -31,14 +29,7 @@ export function AskSearchBanner({
   const dismissed = checkHasCompleted(ActionType.AskUpsellSearch);
   const impressionLogged = useRef(false);
 
-  const shouldEvaluate = isAuthReady && !dismissed && isActionsFetched;
-
-  const { value: isFeatureEnabled } = useConditionalFeature({
-    feature: featureAskUpsellSearch,
-    shouldEvaluate,
-  });
-
-  const showBanner = shouldEvaluate && isFeatureEnabled;
+  const showBanner = isAuthReady && !dismissed && isActionsFetched;
 
   useEffect(() => {
     if (showBanner && !impressionLogged.current) {
