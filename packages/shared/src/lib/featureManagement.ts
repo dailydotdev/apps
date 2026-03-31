@@ -150,11 +150,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const installExtensionPromptFeature = new Feature(
-  'install_extension_prompt',
-  false,
-);
-
 export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
 
 export const featureUpvoteCountThreshold = new Feature<{
