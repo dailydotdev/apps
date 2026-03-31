@@ -144,6 +144,10 @@ const nextConfig: NextConfig = {
       return {
         beforeFiles: [
           {
+            source: '/search',
+            destination: '/search/posts',
+          },
+          {
             source: '/.well-known/security.txt',
             destination: '/api/files/security',
           },
@@ -162,7 +166,7 @@ const nextConfig: NextConfig = {
           ...getMarkdownRewrites(),
         ],
         // regular rewrites
-        afterFiles: rewrites,
+        afterFiles: rewrites.filter(({ source }) => source !== '/search'),
         fallback: [],
       };
     },
