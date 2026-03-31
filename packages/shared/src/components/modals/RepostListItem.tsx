@@ -141,10 +141,15 @@ export function RepostListItem({
 
       {/* Upvotes and comments */}
       <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
-        <span className="flex items-center gap-1.5">
-          <UpvoteIcon className="size-4" />
-          {showUpvotes ? largeNumberFormat(upvotes) : ''}
-        </span>
+        {showUpvotes && (
+          <span
+            className="flex items-center gap-1.5"
+            data-testid="repost-upvotes"
+          >
+            <UpvoteIcon className="size-4" />
+            {largeNumberFormat(upvotes)}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <DiscussIcon className="size-4" />
           {largeNumberFormat(comments)}

@@ -43,5 +43,6 @@ describe('RepostListItem', () => {
     render(<RepostListItem post={post} />);
 
     expect(screen.queryByText('New')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('repost-upvotes')).not.toBeInTheDocument();
   });
 });
