@@ -4,12 +4,11 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks/useActions';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import { installExtensionPromptFeature } from '../../lib/featureManagement';
+import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -23,10 +22,6 @@ jest.mock('../../contexts/LogContext', () => ({
 
 jest.mock('../../hooks/useActions', () => ({
   useActions: jest.fn(),
-}));
-
-jest.mock('../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
 }));
 
 jest.mock('../../hooks/useViewSize', () => ({
@@ -52,6 +47,12 @@ jest.mock('../../hooks/utils/useQueryState', () => ({
   useQueryState: jest.fn(),
 }));
 
+jest.mock('../../lib/func', () => ({
+  ...jest.requireActual('../../lib/func'),
+  checkIsExtension: jest.fn(),
+  getCurrentBrowserName: jest.fn(),
+}));
+
 jest.mock('../filters/MyFeedHeading', () => ({
   __esModule: true,
   default: function MockMyFeedHeading() {
@@ -74,13 +75,12 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
-const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
-
-let isInstallExtensionPromptEnabled = true;
+const mockCheckIsExtension = checkIsExtension as jest.Mock;
+const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 
 const renderComponent = () =>
   render(
@@ -94,8 +94,6 @@ const renderComponent = () =>
 
 describe('SearchControlHeader', () => {
   beforeEach(() => {
-    isInstallExtensionPromptEnabled = true;
-
     mockUseAuthContext.mockReturnValue({ user: { flags: {} } });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
@@ -109,13 +107,8 @@ describe('SearchControlHeader', () => {
       isSortableFeed: false,
     });
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
-    mockUseConditionalFeature.mockImplementation(({ feature }) => {
-      if (feature === installExtensionPromptFeature) {
-        return { value: isInstallExtensionPromptEnabled };
-      }
-
-      return { value: null };
-    });
+    mockCheckIsExtension.mockReturnValue(false);
+    mockGetCurrentBrowserName.mockReturnValue('Chrome');
   });
 
   afterEach(() => {
@@ -141,6 +134,38 @@ describe('SearchControlHeader', () => {
       checkHasCompleted: jest.fn().mockReturnValue(true),
       completeAction: jest.fn(),
       isActionsFetched: true,
+    });
+
+    renderComponent();
+
+    expect(
+      screen.queryByRole('link', { name: 'Get it for Chrome' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render the install extension prompt for extension users', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn().mockReturnValue(false),
+      completeAction: jest.fn(),
+      isActionsFetched: true,
+    });
+    mockCheckIsExtension.mockReturnValue(true);
+
+    renderComponent();
+
+    expect(
+      screen.queryByRole('link', { name: 'Get it for Chrome' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render the install extension prompt after extension usage is recorded', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn().mockReturnValue(false),
+      completeAction: jest.fn(),
+      isActionsFetched: true,
+    });
+    mockUseAuthContext.mockReturnValue({
+      user: { flags: { lastExtensionUse: '2025-01-01T00:00:00.000Z' } },
     });
 
     renderComponent();
