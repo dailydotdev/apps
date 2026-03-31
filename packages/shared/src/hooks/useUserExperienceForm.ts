@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
@@ -107,6 +108,36 @@ type BaseUserExperience = Omit<
   id?: string;
 };
 
+type UserExperienceFormValues = z.infer<typeof userExperienceInputBaseSchema>;
+
+const mapExperienceToFormValues = (
+  defaultValues: BaseUserExperience,
+): UserExperienceFormValues => ({
+  type: defaultValues.type,
+  title: defaultValues.title,
+  description: defaultValues.description ?? undefined,
+  subtitle: defaultValues.subtitle ?? undefined,
+  startedAt: defaultValues.startedAt
+    ? new Date(defaultValues.startedAt)
+    : new Date(),
+  endedAt: defaultValues.endedAt ? new Date(defaultValues.endedAt) : undefined,
+  current: !defaultValues.endedAt,
+  companyId: null,
+  customCompanyName: null,
+  customDomain: defaultValues.customDomain ?? null,
+  url: defaultValues.url ?? null,
+  repository: defaultValues.repository
+    ? {
+        id: defaultValues.repository.id ?? null,
+        owner: defaultValues.repository.owner ?? null,
+        name: defaultValues.repository.name,
+        url: defaultValues.repository.url,
+        image: defaultValues.repository.image ?? null,
+      }
+    : null,
+  repositorySearch: undefined,
+});
+
 const useUserExperienceForm = ({
   defaultValues,
 }: {
@@ -123,10 +154,13 @@ const useUserExperienceForm = ({
   const dirtyFormRef = useRef<ReturnType<typeof useDirtyForm> | null>(null);
   const router = useRouter();
   const { displayToast } = useToastNotification();
-  const methods = useForm<UserExperience>({
-    defaultValues,
+  const formDefaultValues = mapExperienceToFormValues(defaultValues);
+  const methods = useForm<UserExperienceFormValues>({
+    defaultValues: formDefaultValues,
     reValidateMode: 'onSubmit',
-    resolver: zodResolver(userExperienceInputBaseSchema),
+    resolver: zodResolver(
+      userExperienceInputBaseSchema,
+    ) as Resolver<UserExperienceFormValues>,
   });
   const { id, type } = defaultValues;
   const isNewExperience = !id;
@@ -140,8 +174,11 @@ const useUserExperienceForm = ({
   );
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: UserExperience | UserExperienceWork) => {
-      const input = { ...data, type } as UserExperience | UserExperienceWork;
+    mutationFn: (data: UserExperienceFormValues) => {
+      const input = {
+        ...data,
+        type,
+      } as unknown as UserExperience | UserExperienceWork;
 
       return type === UserExperienceType.Work
         ? upsertUserWorkExperience(input as UserExperienceWork, id)

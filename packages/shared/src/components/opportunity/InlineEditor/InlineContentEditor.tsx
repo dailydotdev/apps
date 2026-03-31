@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useRef, useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type z from 'zod';
 import classNames from 'classnames';
@@ -19,6 +20,10 @@ import { labels } from '../../../lib';
 import { InlineEditor } from './InlineEditor';
 import type { ContentSection } from '../../../features/opportunity/types';
 import { Loader } from '../../Loader';
+
+type OpportunityEditContentFormValues = {
+  content: Partial<Record<ContentSection, { content?: string }>>;
+};
 
 const RichTextEditor = dynamic(
   () =>
@@ -44,6 +49,11 @@ export const InlineContentEditor = ({
   title,
   isRequired = false,
 }: InlineContentEditorProps): ReactElement => {
+  const formSchema = opportunityEditContentSchema.extend({
+    content: opportunityEditContentSchema.shape.content.pick({
+      [section]: true,
+    }),
+  });
   const { displayToast } = useToastNotification();
   const richTextRef = useRef<RichTextRef>(
     null,
@@ -73,14 +83,10 @@ export const InlineContentEditor = ({
     setError,
     setValue,
     reset,
-  } = useForm({
+  } = useForm<OpportunityEditContentFormValues>({
     resolver: zodResolver(
-      opportunityEditContentSchema.extend({
-        content: opportunityEditContentSchema.shape.content.pick({
-          [section]: true,
-        }),
-      }),
-    ),
+      formSchema,
+    ) as Resolver<OpportunityEditContentFormValues>,
     defaultValues: async () => {
       const opportunityData = await promise;
       // Use HTML for rich text editor

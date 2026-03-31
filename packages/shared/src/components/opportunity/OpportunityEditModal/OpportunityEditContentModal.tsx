@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type z from 'zod';
 import classNames from 'classnames';
@@ -22,12 +23,17 @@ import MarkdownInput from '../../fields/MarkdownInput';
 import { applyZodErrorsToForm } from '../../../lib/form';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import { usePrompt } from '../../../hooks/usePrompt';
+import type { ContentSection } from '../../../features/opportunity/types';
 import { opportunityEditDiscardPrompt } from './common';
+
+type OpportunityEditContentFormValues = {
+  content: Partial<Record<ContentSection, { content?: string }>>;
+};
 
 export type OpportunityEditContentModalProps = {
   id: string;
   contentTitle: string;
-  contentName: string;
+  contentName: ContentSection;
 };
 
 export const OpportunityEditContentModal = ({
@@ -36,6 +42,14 @@ export const OpportunityEditContentModal = ({
   contentName,
   ...rest
 }: OpportunityEditContentModalProps & ModalProps) => {
+  const formSchema = opportunityEditContentSchema.extend({
+    content: opportunityEditContentSchema.shape.content.pick({
+      [contentName]: true,
+    }),
+  });
+  const closeModal = () => {
+    rest.onRequestClose?.({} as React.MouseEvent<Element, MouseEvent>);
+  };
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
     ...opportunityByIdOptions({ id }),
@@ -49,7 +63,7 @@ export const OpportunityEditContentModal = ({
     onSuccess: (result) => {
       updateOpportunity(result);
 
-      rest.onRequestClose?.(null);
+      closeModal();
     },
   });
 
@@ -59,14 +73,10 @@ export const OpportunityEditContentModal = ({
     formState: { isSubmitting, isDirty, errors },
     setError,
     setValue,
-  } = useForm({
+  } = useForm<OpportunityEditContentFormValues>({
     resolver: zodResolver(
-      opportunityEditContentSchema.extend({
-        content: opportunityEditContentSchema.shape.content.pick({
-          [contentName]: true,
-        }),
-      }),
-    ),
+      formSchema,
+    ) as Resolver<OpportunityEditContentFormValues>,
     defaultValues: async () => {
       const opportunityData = await promise;
 
@@ -135,7 +145,7 @@ export const OpportunityEditContentModal = ({
     rest.onRequestClose?.(event);
   };
 
-  const markdownRef = useRef<MarkdownRef>();
+  const markdownRef = useRef<MarkdownRef | null>(null);
 
   if (!opportunity) {
     return <Loader />;
@@ -223,7 +233,7 @@ export const OpportunityEditContentModal = ({
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
             onClick={() => {
-              markdownRef.current.setInput('');
+              markdownRef.current?.setInput('');
               setValue(`content.${contentName}.content`, '');
 
               onSubmit();

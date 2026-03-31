@@ -35,15 +35,13 @@ const userWithReputation = {
   reputation: 250,
 };
 
-const createSourceRequestAvailabilityMock = (userUpdate: {
-  reputation?: number;
-}) => ({
+const createSourceRequestAvailabilityMock = (reputation?: number) => ({
   request: { query: SOURCE_REQUEST_AVAILABILITY_QUERY },
   result: () => {
     return {
       data: {
         sourceRequestAvailability: {
-          hasAccess: userUpdate?.reputation >= 250,
+          hasAccess: (reputation ?? 0) >= 250,
         },
       },
     };
@@ -53,7 +51,9 @@ const createSourceRequestAvailabilityMock = (userUpdate: {
 const renderComponent = (
   userUpdate: LoggedUser | AnonymousUser = userWithReputation,
   mocks: MockedGraphQLResponse[] = [
-    createSourceRequestAvailabilityMock(userUpdate as unknown),
+    createSourceRequestAvailabilityMock(
+      'reputation' in userUpdate ? userUpdate.reputation : undefined,
+    ),
   ],
 ): RenderResult => {
   const client = new QueryClient();
@@ -79,14 +79,15 @@ const renderComponent = (
 
 it('should show a message that no rss found', async () => {
   renderComponent();
+  const testUser = userEvent.setup();
   nock('http://localhost:3000')
     .get('/scrape/source')
     .query({ url: 'https://daily.dev' })
     .reply(200, { type: 'website', rss: [] });
   const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
+  await testUser.type(input, 'https://daily.dev');
   const btn = await screen.findByText('Check link');
-  btn.click();
+  await testUser.click(btn);
   expect(
     await screen.findByText('Could not find RSS feed'),
   ).toBeInTheDocument();
@@ -94,14 +95,15 @@ it('should show a message that no rss found', async () => {
 
 it('should show a contact button on an unexpected error', async () => {
   renderComponent();
+  const testUser = userEvent.setup();
   nock('http://localhost:3000')
     .get('/scrape/source')
     .query({ url: 'https://daily.dev' })
     .reply(200, { type: 'unavailable' });
   const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
+  await testUser.type(input, 'https://daily.dev');
   const btn = await screen.findByText('Check link');
-  btn.click();
+  await testUser.click(btn);
   expect(await screen.findByText('Contact')).toBeInTheDocument();
 });
 
@@ -113,6 +115,7 @@ it('should show error alert for anonymous users', async () => {
 
 it('should show if the source already exists in the system', async () => {
   renderComponent();
+  const testUser = userEvent.setup();
   nock('http://localhost:3000')
     .get('/scrape/source')
     .query({ url: 'https://daily.dev' })
@@ -124,11 +127,11 @@ it('should show if the source already exists in the system', async () => {
       ],
     });
   const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
-  userEvent.click(await screen.findByText('Check link'));
+  await testUser.type(input, 'https://daily.dev');
+  await testUser.click(await screen.findByText('Check link'));
   expect(await screen.findByText('RSS')).toBeInTheDocument();
   expect(await screen.findByText('Ido RSS')).toBeInTheDocument();
-  userEvent.click(await screen.findByText('RSS'));
+  await testUser.click(await screen.findByText('RSS'));
   const source = {
     id: 'daily',
     name: 'daily.dev',
@@ -148,13 +151,14 @@ it('should show if the source already exists in the system', async () => {
     },
   });
 
-  userEvent.click(await screen.findByText('Submit for review'));
+  await testUser.click(await screen.findByText('Submit for review'));
   expect(await screen.findByText('already exist')).toBeInTheDocument();
   expect(await screen.findByText(source.name)).toBeInTheDocument();
 });
 
 it('should send source request', async () => {
   renderComponent();
+  const testUser = userEvent.setup();
   nock('http://localhost:3000')
     .get('/scrape/source')
     .query({ url: 'https://daily.dev' })
@@ -166,11 +170,11 @@ it('should send source request', async () => {
       ],
     });
   const input = await screen.findByRole('textbox');
-  userEvent.type(input, 'https://daily.dev');
-  userEvent.click(await screen.findByText('Check link'));
+  await testUser.type(input, 'https://daily.dev');
+  await testUser.click(await screen.findByText('Check link'));
   expect(await screen.findByText('RSS')).toBeInTheDocument();
   expect(await screen.findByText('Ido RSS')).toBeInTheDocument();
-  userEvent.click(await screen.findByText('RSS'));
+  await testUser.click(await screen.findByText('RSS'));
 
   mockGraphQL({
     request: {
@@ -198,7 +202,7 @@ it('should send source request', async () => {
     },
   });
 
-  userEvent.click(await screen.findByText('Submit for review'));
+  await testUser.click(await screen.findByText('Submit for review'));
   await waitFor(() => expect(onRequestClose).toBeCalledTimes(1));
 });
 
