@@ -39,6 +39,11 @@ export function CompanionEngagements({
     feature: featureUpvoteCountThreshold,
     shouldEvaluate: isLoggedIn,
   });
+
+  if (!post) {
+    return null;
+  }
+
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
   const userHasUpvoted = post.userState?.vote === UserVote.Up;
