@@ -99,13 +99,13 @@ export default function PostMetadata({
     !!showReadTime && domain && { key: 'domain', node: domain },
     hasUpvoteCount &&
       showUpvoteCount && {
-      key: 'upvotes',
-      node: (
-        <span data-testid="numUpvotes">
-          {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
-        </span>
-      ),
-    },
+        key: 'upvotes',
+        node: (
+          <span data-testid="numUpvotes">
+            {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
+          </span>
+        ),
+      },
     hasUpvoteCount &&
       !showUpvoteCount &&
       !!upvoteLabel &&
