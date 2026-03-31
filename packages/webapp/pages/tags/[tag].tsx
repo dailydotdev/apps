@@ -57,11 +57,11 @@ import {
   useFeedLayout,
 } from '@dailydotdev/shared/src/hooks';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
+import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import type { Source } from '@dailydotdev/shared/src/graphql/sources';
 import { SOURCES_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/sources';
 import type { Connection } from '@dailydotdev/shared/src/graphql/common';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
@@ -73,6 +73,8 @@ import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
+import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -87,6 +89,7 @@ interface TagPageProps extends DynamicSeoProps {
   initialData: Keyword | null;
   topPosts: TopPost[];
   recommendedTags: TagsData['tags'];
+  topContributors: UserShortProfile[];
 }
 
 interface TagRecommendedTagsProps {
@@ -147,10 +150,57 @@ const TagTopSources = ({ tag }: { tag: string }) => {
   }
 
   return (
-    <RelatedSources
+    <RelatedEntities
       isLoading={isPending}
-      sources={sources}
+      items={sources.map((source) => ({
+        id: source.id,
+        image: source.image,
+        imageAlt: `${source.name} logo`,
+        name: source.name,
+        permalink: source.permalink,
+      }))}
       title="🔔 Top sources covering it"
+      className="mx-4"
+    />
+  );
+};
+
+const TagTopContributors = ({
+  tag,
+  initialUsers = [],
+}: {
+  tag: string;
+  initialUsers?: UserShortProfile[];
+}): ReactElement | null => {
+  const { data: topContributors, isPending } = useQuery({
+    queryKey: [RequestKey.TopCreatorsByTag, null, tag],
+
+    queryFn: async () =>
+      await gqlClient.request<{ topCreatorsByTag: UserShortProfile[] }>(
+        TOP_CREATORS_BY_TAG_QUERY,
+        {
+          tag,
+          limit: 6,
+        },
+      ),
+
+    enabled: !!tag,
+    staleTime: StaleTime.OneHour,
+  });
+
+  const users = topContributors?.topCreatorsByTag ?? initialUsers;
+
+  return (
+    <RelatedEntities
+      isLoading={isPending && initialUsers.length === 0}
+      items={users.map((user) => ({
+        id: user.id,
+        image: user.image,
+        imageAlt: `${user.name} avatar`,
+        name: user.name,
+        permalink: user.permalink,
+      }))}
+      title="👥 Top contributors"
       className="mx-4"
     />
   );
@@ -229,6 +279,7 @@ const TagPage = ({
   initialData,
   topPosts,
   recommendedTags,
+  topContributors,
 }: TagPageProps): ReactElement => {
   const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
@@ -281,17 +332,12 @@ const TagPage = ({
     if (!feedSettings) {
       return 'unfollowed';
     }
-    if (
-      feedSettings.blockedTags?.findIndex((blockedTag) => tag === blockedTag) >
-      -1
-    ) {
+    const blockedTags = feedSettings.blockedTags ?? [];
+    if (blockedTags.includes(tag)) {
       return 'blocked';
     }
-    if (
-      feedSettings.includeTags?.findIndex(
-        (includedTag) => tag === includedTag,
-      ) > -1
-    ) {
+    const includedTags = feedSettings.includeTags ?? [];
+    if (includedTags.includes(tag)) {
       return 'followed';
     }
     return 'unfollowed';
@@ -428,6 +474,19 @@ const TagPage = ({
               ))}
           </div>
         )}
+        {topContributors.length > 0 && (
+          <div className="sr-only">
+            {topContributors.map((contributor) => (
+              <Link
+                key={contributor.id}
+                href={contributor.permalink}
+                prefetch={false}
+              >
+                <a>Posts by {contributor.name}</a>
+              </Link>
+            ))}
+          </div>
+        )}
         {tag && (
           <TagRecommendedTags
             tag={tag}
@@ -465,6 +524,7 @@ const TagPage = ({
         )}
       </PageInfoHeader>
       <TagTopSources tag={tag} />
+      <TagTopContributors tag={tag} initialUsers={topContributors} />
       <ActiveFeedNameContext.Provider
         value={{ feedName: OtherFeedPage.TagsTopPosts }}
       >
@@ -592,29 +652,43 @@ export async function getStaticProps({
       initialData: null,
       topPosts: [],
       recommendedTags: [],
+      topContributors: [],
       seo: getSeoData(tag),
     },
   };
 
   try {
-    const [keywordResult, topPostsResult, recommendedTagsResult] =
-      await Promise.all([
-        gqlClient.request<{ keyword: Keyword }>(KEYWORD_QUERY, {
-          value: tag,
-        }),
-        gqlClient
-          .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
+    const [
+      keywordResult,
+      topPostsResult,
+      recommendedTagsResult,
+      topContributorsResult,
+    ] = await Promise.all([
+      gqlClient.request<{ keyword: Keyword }>(KEYWORD_QUERY, {
+        value: tag,
+      }),
+      gqlClient
+        .request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
+          tag,
+          first: 10,
+        })
+        .catch(() => null),
+      gqlClient
+        .request<{ recommendedTags: TagsData }>(GET_RECOMMENDED_TAGS_QUERY, {
+          tags: [tag],
+          excludedTags: [],
+        })
+        .catch(() => null),
+      gqlClient
+        .request<{ topCreatorsByTag: UserShortProfile[] }>(
+          TOP_CREATORS_BY_TAG_QUERY,
+          {
             tag,
-            first: 10,
-          })
-          .catch(() => null),
-        gqlClient
-          .request<{ recommendedTags: TagsData }>(GET_RECOMMENDED_TAGS_QUERY, {
-            tags: [tag],
-            excludedTags: [],
-          })
-          .catch(() => null),
-      ]);
+            limit: 6,
+          },
+        )
+        .catch(() => null),
+    ]);
 
     if (!keywordResult?.keyword) {
       return notFoundResponse;
@@ -626,6 +700,7 @@ export async function getStaticProps({
         ?.map((edge) => edge.node)
         .filter((post) => !!post.title) ?? [];
     const recommendedTags = recommendedTagsResult?.recommendedTags?.tags ?? [];
+    const topContributors = topContributorsResult?.topCreatorsByTag ?? [];
     const seo = getSeoData(
       initialData.flags?.title || tag,
       initialData.flags?.description,
@@ -638,6 +713,7 @@ export async function getStaticProps({
         tag,
         topPosts,
         recommendedTags,
+        topContributors,
       },
       revalidate: 3600,
     };
