@@ -20,16 +20,17 @@ function isTodayPost(
     return false;
   }
 
+  const nowMs = Date.now();
   const createdAtDate = new Date(createdAtMs);
-  const now = new Date();
-  if (!isSameDay(createdAtDate, now)) {
+  const nowDate = new Date(nowMs);
+  if (!isSameDay(createdAtDate, nowDate)) {
     return false;
   }
 
   const windowMs = Math.max(0, newWindowHours) * 60 * 60 * 1000;
   // Inclusive boundary is intentional: content exactly at the window limit
   // is still considered within the "Today" window.
-  return now.getTime() - createdAtMs <= windowMs;
+  return nowMs - createdAtMs <= windowMs;
 }
 
 export function getUpvoteCountDisplay(
