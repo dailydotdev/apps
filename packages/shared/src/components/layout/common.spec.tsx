@@ -4,12 +4,10 @@ import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks/useActions';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import { installExtensionPromptFeature } from '../../lib/featureManagement';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -23,10 +21,6 @@ jest.mock('../../contexts/LogContext', () => ({
 
 jest.mock('../../hooks/useActions', () => ({
   useActions: jest.fn(),
-}));
-
-jest.mock('../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
 }));
 
 jest.mock('../../hooks/useViewSize', () => ({
@@ -74,13 +68,10 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
-const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
-
-let isInstallExtensionPromptEnabled = true;
 
 const renderComponent = () =>
   render(
@@ -94,8 +85,6 @@ const renderComponent = () =>
 
 describe('SearchControlHeader', () => {
   beforeEach(() => {
-    isInstallExtensionPromptEnabled = true;
-
     mockUseAuthContext.mockReturnValue({ user: { flags: {} } });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
@@ -109,13 +98,6 @@ describe('SearchControlHeader', () => {
       isSortableFeed: false,
     });
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
-    mockUseConditionalFeature.mockImplementation(({ feature }) => {
-      if (feature === installExtensionPromptFeature) {
-        return { value: isInstallExtensionPromptEnabled };
-      }
-
-      return { value: null };
-    });
   });
 
   afterEach(() => {

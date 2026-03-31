@@ -26,7 +26,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useActions, useViewSize, ViewSize } from '../../hooks';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
 import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
@@ -43,7 +42,6 @@ import {
   getCurrentBrowserName,
   isNullOrUndefined,
 } from '../../lib/func';
-import { installExtensionPromptFeature } from '../../lib/featureManagement';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -93,11 +91,6 @@ export const SearchControlHeader = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
-  const { value: isInstallExtensionPrompt } = useConditionalFeature({
-    feature: installExtensionPromptFeature,
-    shouldEvaluate:
-      !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse),
-  });
   const feedsWithActions = [
     SharedFeedPage.MyFeed,
     SharedFeedPage.Custom,
@@ -128,7 +121,8 @@ export const SearchControlHeader = ({
   const shouldShowInstallExtensionButton =
     hasFeedActions &&
     isActionsFetched &&
-    isInstallExtensionPrompt &&
+    !checkIsExtension() &&
+    isNullOrUndefined(user?.flags?.lastExtensionUse) &&
     !hasDismissedInstallExtension;
   const installExtensionButton = shouldShowInstallExtensionButton && (
     <React.Fragment key="install-extension">
