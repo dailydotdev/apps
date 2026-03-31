@@ -283,7 +283,7 @@ it('should render top contributors section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
   expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Ido' })).toHaveAttribute(
+  expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
   );
