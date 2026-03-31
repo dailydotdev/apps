@@ -140,6 +140,8 @@ export interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
+const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
+
 export const seoTitle = (post: Post): string | undefined => {
   if (post?.title) {
     return post.title;
@@ -153,6 +155,20 @@ export const seoTitle = (post: Post): string | undefined => {
     ? `by ${post?.author?.username}`
     : `at ${post?.source?.name}`;
   return `Shared post ${sourceName}`;
+};
+
+export const shouldNoindexPost = (post: Post): boolean => {
+  const hasLowReputationAuthor =
+    typeof post?.author?.reputation === 'number' &&
+    post.author.reputation <= 10;
+
+  if (hasLowReputationAuthor) {
+    return true;
+  }
+
+  return (
+    THIN_NOINDEX_POST_TYPES.includes(post.type) && (post.numUpvotes ?? 0) < 5
+  );
 };
 
 export const PostPage = ({
@@ -310,16 +326,11 @@ export async function getStaticProps({
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
-    const isThinLowEngagementPost =
-      [PostType.Brief, PostType.SocialTwitter].includes(post?.type) &&
-      (post.numUpvotes ?? 0) < 5;
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
-      noindex:
-        (post?.author ? (post.author.reputation ?? 0) <= 10 : false) ||
-        isThinLowEngagementPost,
+      noindex: shouldNoindexPost(post),
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [

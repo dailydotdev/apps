@@ -1,6 +1,7 @@
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { getStaticProps } from '../pages/posts/[id]/index';
+import { getStaticProps, shouldNoindexPost } from '../pages/posts/[id]/index';
 
 jest.mock('@dailydotdev/shared/src/graphql/common', () => {
   const actual = jest.requireActual('@dailydotdev/shared/src/graphql/common');
@@ -27,7 +28,7 @@ type TestPost = {
   tags: string[];
   image?: string;
   author?: {
-    reputation: number;
+    reputation?: number;
     permalink?: string;
   };
 };
@@ -128,5 +129,20 @@ describe('post static props seo', () => {
         },
       },
     });
+  });
+
+  it('should preserve indexed status when the author reputation is missing', () => {
+    expect(
+      shouldNoindexPost({
+        ...createPost({ type: PostType.Article, upvotes: 10 }),
+        author: {
+          id: 'author-1',
+          image: 'https://example.com/author.png',
+          name: 'Author',
+          permalink: 'https://example.com/@author',
+          username: 'author',
+        },
+      } as Post),
+    ).toBe(false);
   });
 });
