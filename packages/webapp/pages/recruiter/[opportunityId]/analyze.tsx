@@ -28,8 +28,8 @@ import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/A
 import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
-  setParseOpportunityError,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
+import { setParseOpportunityError } from '@dailydotdev/shared/src/features/opportunity/parseError';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';

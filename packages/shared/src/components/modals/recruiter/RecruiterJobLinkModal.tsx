@@ -21,8 +21,8 @@ import usePersistentContext, {
 import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
-  consumeParseOpportunityError,
 } from '../../../features/opportunity/mutations';
+import { consumeParseOpportunityError } from '../../../features/opportunity/parseError';
 import type { ApiErrorResult } from '../../../graphql/common';
 import Alert, { AlertType } from '../../widgets/Alert';
 import { ClickableText } from '../../buttons/ClickableText';
