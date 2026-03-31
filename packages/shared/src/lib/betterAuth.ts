@@ -170,7 +170,11 @@ const getBetterAuthSocialRedirect = async (
     'Failed to get social auth URL',
   );
 
-  return response;
+  return {
+    url: response.url,
+    redirect: response.redirect,
+    ...response,
+  };
 };
 
 export const getBetterAuthSocialRedirectData = (

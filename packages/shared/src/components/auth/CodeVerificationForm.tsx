@@ -6,9 +6,7 @@ import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
 
 interface CodeVerificationFormProps extends AuthFormProps {
-  initialFlow: string;
   onBack?: CloseModalFunc;
-  onSubmit?: () => void;
 }
 
 /**

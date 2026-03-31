@@ -167,7 +167,6 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
@@ -554,12 +553,6 @@ function AuthOptionsInner({
     onAuthStateUpdate?.({ isLoading: true });
   };
 
-  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
-    setEmail(inputEmail);
-    setFlow(inputFlow);
-    onSetActiveDisplay(AuthDisplay.CodeVerification);
-  };
-
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {
       return handleLoginMessage(e);
@@ -761,15 +754,12 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
             onBack={onForgotPasswordBack}
-            onSubmit={onForgotPasswordSubmit}
             simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
           <CodeVerificationForm
-            initialFlow={flow}
             onBack={onForgotPasswordBack}
-            onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
             simplified={simplified}
           />
         </Tab>
