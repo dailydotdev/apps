@@ -47,7 +47,7 @@ export function CompanionEngagements({
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
   const userHasUpvoted = post.userState?.vote === UserVote.Up;
-  const { showCount, belowThresholdLabel } = getUpvoteCountDisplay(
+  const { showCount } = getUpvoteCountDisplay(
     upvotes,
     upvoteThresholdConfig.threshold,
     upvoteThresholdConfig.belowThresholdLabel,
@@ -67,9 +67,6 @@ export function CompanionEngagements({
           {largeNumberFormat(upvotes)} Upvote
           {upvotes > 1 ? 's' : ''}
         </ClickableText>
-      )}
-      {!showCount && !!belowThresholdLabel && (
-        <span>{belowThresholdLabel}</span>
       )}
       {comments > 0 && (
         <span>
