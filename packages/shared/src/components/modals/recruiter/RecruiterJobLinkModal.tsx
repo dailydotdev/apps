@@ -35,6 +35,7 @@ export interface RecruiterJobLinkModalProps extends ModalProps {
   closeable?: boolean;
   initialUrl?: string;
   autoSubmit?: boolean;
+  initialParseError?: string;
 }
 
 const fileValidation = {
@@ -52,6 +53,7 @@ export const RecruiterJobLinkModal = ({
   closeable = false,
   initialUrl,
   autoSubmit = false,
+  initialParseError,
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState(initialUrl || '');
@@ -59,7 +61,7 @@ export const RecruiterJobLinkModal = ({
   const [file, setFile] = useState<File | null>(null);
   const hasAutoSubmitted = useRef(false);
 
-  const [parseError, setParseError] = useState<string>('');
+  const [parseError, setParseError] = useState<string>(initialParseError || '');
   const [hasIntercom, setHasIntercom] = useState(false);
 
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(
