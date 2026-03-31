@@ -198,6 +198,7 @@ export function PostContentRaw({
             createdAt={post.createdAt}
             readTime={post.readTime}
             isVideoType={isVideoType}
+            showBelowThresholdLabel={false}
             className={metadataClassName}
             domain={
               !isVideoType &&
