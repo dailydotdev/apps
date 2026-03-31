@@ -21,6 +21,7 @@ import usePersistentContext, {
 import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
+  consumeParseOpportunityError,
 } from '../../../features/opportunity/mutations';
 import type { ApiErrorResult } from '../../../graphql/common';
 import Alert, { AlertType } from '../../widgets/Alert';
@@ -35,7 +36,6 @@ export interface RecruiterJobLinkModalProps extends ModalProps {
   closeable?: boolean;
   initialUrl?: string;
   autoSubmit?: boolean;
-  initialParseError?: string;
 }
 
 const fileValidation = {
@@ -53,7 +53,6 @@ export const RecruiterJobLinkModal = ({
   closeable = false,
   initialUrl,
   autoSubmit = false,
-  initialParseError,
   ...modalProps
 }: RecruiterJobLinkModalProps): ReactElement => {
   const [jobLink, setJobLink] = useState(initialUrl || '');
@@ -61,7 +60,9 @@ export const RecruiterJobLinkModal = ({
   const [file, setFile] = useState<File | null>(null);
   const hasAutoSubmitted = useRef(false);
 
-  const [parseError, setParseError] = useState<string>(initialParseError || '');
+  const [parseError, setParseError] = useState<string>(
+    consumeParseOpportunityError,
+  );
   const [hasIntercom, setHasIntercom] = useState(false);
 
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(

@@ -28,11 +28,12 @@ import { AnalyzeStatusBar } from '@dailydotdev/shared/src/components/recruiter/A
 import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
+  setParseOpportunityError,
 } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import { OpportunityPreviewStatus } from '@dailydotdev/shared/src/features/opportunity/types';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib/links';
+
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
   getLayout,
@@ -64,12 +65,8 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     onError: (error: ApiErrorResult) => {
       setParsingComplete(true);
       clearPendingSubmission();
-      const parseError = getParseOpportunityMutationErrorMessage(error);
-      const params = new URLSearchParams({ openModal: 'joblink' });
-      if (parseError) {
-        params.set('parseError', parseError);
-      }
-      router.push(getPathnameWithQuery('/recruiter', params));
+      setParseOpportunityError(getParseOpportunityMutationErrorMessage(error));
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
     },
   });
 
@@ -117,15 +114,11 @@ const RecruiterPageContent = () => {
   // Redirect to modal with error when background parsing fails
   useEffect(() => {
     if (isParseError) {
-      const parseError =
+      setParseOpportunityError(
         opportunity?.flags?.parseErrorUserMessage ||
-        getParseOpportunityMutationErrorMessage();
-
-      const params = new URLSearchParams({ openModal: 'joblink' });
-      if (parseError) {
-        params.set('parseError', parseError);
-      }
-      router.push(getPathnameWithQuery(`${webappUrl}recruiter`, params));
+          getParseOpportunityMutationErrorMessage(),
+      );
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
     }
   }, [isParseError, router, opportunity?.flags?.parseErrorUserMessage]);
 

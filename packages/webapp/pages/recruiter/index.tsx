@@ -89,12 +89,10 @@ function RecruiterPage(): ReactElement {
       closeable = false,
       initialUrl,
       autoSubmit = false,
-      initialParseError,
     }: {
       closeable?: boolean;
       initialUrl?: string;
       autoSubmit?: boolean;
-      initialParseError?: string;
     } = {}) => {
       openModal({
         type: LazyModal.RecruiterJobLink,
@@ -102,7 +100,6 @@ function RecruiterPage(): ReactElement {
           closeable,
           initialUrl,
           autoSubmit,
-          initialParseError,
           onSubmit: (submission: PendingSubmission) =>
             handleJobSubmitRef.current?.(submission),
         },
@@ -115,12 +112,7 @@ function RecruiterPage(): ReactElement {
 
   // Open the onboarding modal flow for new users (no opportunities)
   useEffect(() => {
-    const {
-      openModal: openModalParam,
-      closeable,
-      url,
-      parseError: parseErrorParam,
-    } = router.query;
+    const { openModal: openModalParam, closeable, url } = router.query;
 
     // If url query param is present, open modal with pre-filled URL and auto-submit
     if (url && typeof url === 'string') {
@@ -130,11 +122,7 @@ function RecruiterPage(): ReactElement {
 
     // If openModal=joblink query param is present, skip intro/trust modals
     if (openModalParam === 'joblink') {
-      openJobLinkModal({
-        closeable: closeable === '1',
-        initialParseError:
-          typeof parseErrorParam === 'string' ? parseErrorParam : undefined,
-      });
+      openJobLinkModal({ closeable: closeable === '1' });
       return;
     }
 
