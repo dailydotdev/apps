@@ -16,6 +16,7 @@ function PostNavigation({
   onPreviousPost,
   onNextPost,
   leadingContent,
+  customActions,
   className = {},
   contextMenuId = 'post-navigation-context',
   post,
@@ -65,15 +66,19 @@ function PostNavigation({
         </Tooltip>
       )}
       <div className="ml-auto flex items-center gap-1">
-        {shouldShowUpgrade && <BriefPlusUpgradeCTA />}
-        {post && (
-          <PostHeaderActions
-            {...props}
-            className={classNames('flex', className?.actions)}
-            notificationClassName="ml-4"
-            contextMenuId={contextMenuId}
-            post={post}
-          />
+        {customActions ?? (
+          <>
+            {shouldShowUpgrade && <BriefPlusUpgradeCTA />}
+            {post && (
+              <PostHeaderActions
+                {...props}
+                className={classNames('flex', className?.actions)}
+                notificationClassName="ml-4"
+                contextMenuId={contextMenuId}
+                post={post}
+              />
+            )}
+          </>
         )}
         {props?.onClose && (
           <Tooltip side="bottom" content="Close">

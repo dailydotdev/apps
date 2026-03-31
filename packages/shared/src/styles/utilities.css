@@ -654,8 +654,17 @@
   animation: feed-highlights-title-gradient-shift 6s ease-in-out infinite;
 }
 
+.feed-highlights-title-gradient-card-animation {
+  animation: feed-highlights-new-item-border-shift 1s linear 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feed-highlights-title-gradient {
+    animation: none;
+    background-position: 0% 50%;
+  }
+
+  .feed-highlights-title-gradient-card-animation {
     animation: none;
     background-position: 0% 50%;
   }

@@ -1,14 +1,28 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { ModalProps } from './common/Modal';
 import BasePostModal from './BasePostModal';
 import { PostContent } from '../post/PostContent';
+import type { MenuItemProps } from '../dropdown/common';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Origin } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PostHighlight } from '../../graphql/highlights';
 import { RelativeTime } from '../utilities/RelativeTime';
-import { ArrowIcon } from '../icons';
+import type { Source } from '../../graphql/sources';
+import { sourceQueryOptions } from '../../graphql/sources';
+import { ArrowIcon, EyeIcon, MenuIcon, PlusIcon } from '../icons';
+import { useAuthContext } from '../../contexts/AuthContext';
+import useFeedSettings from '../../hooks/useFeedSettings';
+import { useSourceActions } from '../../hooks/source/useSourceActions';
 import { usePostById } from '../../hooks/usePostById';
 import usePostNavigationPosition from '../../hooks/usePostNavigationPosition';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -41,6 +55,8 @@ const getPostPosition = (
   return PostPosition.Middle;
 };
 
+const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
+
 export function HappeningNowPostModal({
   selectedPostId,
   highlights,
@@ -50,6 +66,16 @@ export function HappeningNowPostModal({
 }: HappeningNowPostModalProps): ReactElement | null {
   const [lastLoadedPost, setLastLoadedPost] = useState<Post | null>(null);
   const highlightsScrollRef = useRef<HTMLDivElement>(null);
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { data: digestSource } = useQuery(
+    sourceQueryOptions({ sourceId: AGENTS_DIGEST_SOURCE_ID }),
+  );
+  const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
+    enabled: isLoggedIn && !!digestSource?.id,
+  });
+  const { isFollowing, toggleFollow } = useSourceActions({
+    source: digestSource as Source,
+  });
   const selectedHighlightIndex = useMemo(
     () =>
       highlights.findIndex((highlight) => highlight.post.id === selectedPostId),
@@ -74,7 +100,27 @@ export function HappeningNowPostModal({
 
     setLastLoadedPost(post);
   }, [post]);
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
 
+    const container = highlightsScrollRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const activeButton = container.querySelector<HTMLElement>(
+      `[data-highlight-index="${activeIndex}"]`,
+    );
+
+    activeButton?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [activeIndex, isOpen]);
   const resolvedPost = post ?? lastLoadedPost;
   const isLoadingNextPost = post?.id !== activePostId;
   const canNavigatePrevious = activeIndex > 0;
@@ -95,17 +141,38 @@ export function HappeningNowPostModal({
 
     onSelectPost(highlights[activeIndex + 1].post.id);
   }, [activeIndex, canNavigateNext, highlights, onSelectPost]);
-  const scrollHighlights = useCallback((direction: 'left' | 'right'): void => {
-    const scrollElement = highlightsScrollRef.current;
+  const compactOptions = useMemo<MenuItemProps[]>(() => {
+    const isFollowStatePending =
+      !isAuthReady || (isLoggedIn && (isFeedSettingsLoading || !feedSettings));
+    const shouldShowSubscribeOption =
+      !!digestSource?.id && !isFollowStatePending && !isFollowing;
 
-    if (!scrollElement) {
-      return;
-    }
-
-    const offset = Math.max(220, Math.round(scrollElement.clientWidth * 0.75));
-    const left = direction === 'right' ? offset : -offset;
-    scrollElement.scrollBy({ left, behavior: 'smooth' });
-  }, []);
+    return [
+      ...(shouldShowSubscribeOption
+        ? [
+            {
+              label: 'Subscribe',
+              icon: <PlusIcon />,
+              action: async () => toggleFollow(),
+            },
+          ]
+        : []),
+      {
+        label: 'Hide',
+        icon: <EyeIcon />,
+        action: () => onRequestClose?.(),
+      },
+    ];
+  }, [
+    digestSource?.id,
+    feedSettings,
+    isAuthReady,
+    isFeedSettingsLoading,
+    isFollowing,
+    isLoggedIn,
+    onRequestClose,
+    toggleFollow,
+  ]);
   const handleKeyDown = useCallback(
     (event: KeyboardEvent): void => {
       if (!isOpen || isSpecialKeyPressed({ event })) {
@@ -161,38 +228,67 @@ export function HappeningNowPostModal({
       onRequestClose={onRequestClose}
       loadingClassName="!pb-2 tablet:pb-0"
       navigationLeadingContent={
-        <h2 className="feed-highlights-title-gradient font-bold typo-title3">
+        <h2 className="feed-highlights-title-gradient feed-highlights-title-gradient-card-animation font-bold typo-title3">
           Happening Now
         </h2>
       }
+      navigationCustomActions={
+        <DropdownMenu>
+          <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MenuIcon />}
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="!py-0.5">
+            {compactOptions.map(({ label, icon, action, disabled }) => (
+              <DropdownMenuItem
+                key={label}
+                onClick={action}
+                disabled={disabled}
+                className="!h-6 !px-1.5"
+              >
+                <button
+                  type="button"
+                  className="inline-flex flex-1 items-center gap-1.5"
+                  role="menuitem"
+                >
+                  {icon} {label}
+                </button>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      }
     >
       <div className="flex min-h-0 max-w-full flex-col laptop:h-full">
-        <section className="w-full max-w-full shrink-0 border-b border-border-subtlest-tertiary">
-          <div className="flex items-center gap-1 px-2 py-2">
+        <section className="relative w-full max-w-full shrink-0 border-b border-border-subtlest-tertiary">
+          <div className="flex items-center gap-2 px-3 py-3">
             <button
               type="button"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-text-primary transition-colors hover:bg-surface-hover"
-              aria-label="Scroll highlights left"
-              onClick={() => scrollHighlights('left')}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-background-default transition-colors enabled:hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Previous article"
+              onClick={onPreviousPost}
+              disabled={!canNavigatePrevious}
             >
-              <ArrowIcon className="-rotate-90" />
+              <ArrowIcon className="-rotate-90 [&_path]:fill-background-default" />
             </button>
-            <div
-              ref={highlightsScrollRef}
-              className="w-full max-w-full min-w-0 overflow-x-auto"
-            >
+            <div ref={highlightsScrollRef} className="min-w-0 flex-1 overflow-x-auto">
               <div className="flex min-w-max gap-1 pr-2">
                 {highlights.map((highlight, index) => {
                   const isActive = index === activeIndex;
 
                   return (
                     <button
+                      data-highlight-index={index}
                       key={`${highlight.channel}-${highlight.post.id}`}
                       type="button"
                       className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
                         isActive
-                          ? 'border-b-2 border-b-accent-cheese-default bg-surface-hover'
-                          : 'border-b-2 border-b-transparent hover:bg-surface-hover'
+                          ? 'feed-highlights-new-item-border bg-surface-hover'
+                          : 'border border-transparent hover:bg-surface-hover'
                       }`}
                       onClick={() => onSelectPost(highlight.post.id)}
                     >
@@ -214,11 +310,12 @@ export function HappeningNowPostModal({
             </div>
             <button
               type="button"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-text-primary transition-colors hover:bg-surface-hover"
-              aria-label="Scroll highlights right"
-              onClick={() => scrollHighlights('right')}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-background-default transition-colors enabled:hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Next article"
+              onClick={onNextPost}
+              disabled={!canNavigateNext}
             >
-              <ArrowIcon className="rotate-90" />
+              <ArrowIcon className="rotate-90 [&_path]:fill-background-default" />
             </button>
           </div>
         </section>
@@ -240,6 +337,10 @@ export function HappeningNowPostModal({
                 container: 'min-w-0',
                 onboarding: 'mt-8',
                 navigation: { actions: 'ml-auto tablet:hidden' },
+                fixedNavigation: {
+                  container:
+                    '!left-1/2 !-translate-x-1/2 !w-[min(calc(100vw-2rem),69.25rem)] !max-w-[min(calc(100vw-2rem),69.25rem)]',
+                },
               }}
               onClose={onRequestClose}
               origin={Origin.ArticleModal}

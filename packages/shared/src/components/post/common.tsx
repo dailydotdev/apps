@@ -39,6 +39,7 @@ export interface PostNavigationProps extends Omit<PostActions, 'post'> {
   onPreviousPost?: () => unknown;
   onNextPost?: () => unknown;
   leadingContent?: ReactNode;
+  customActions?: ReactNode;
   className?: PostNavigationClassName;
   isBannerVisible?: boolean;
   contextMenuId?: string;
