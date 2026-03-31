@@ -66,8 +66,10 @@ describe('post static props seo', () => {
   it.each([
     [PostType.Brief, 4],
     [PostType.SocialTwitter, 4],
+    [PostType.Brief, 99],
+    [PostType.SocialTwitter, 42],
   ])(
-    'should noindex %s posts with fewer than 5 upvotes',
+    'should noindex %s posts regardless of upvotes',
     async (type: PostType, upvotes: number) => {
       mockRequest
         .mockResolvedValueOnce({ post: createPost({ type, upvotes }) })
@@ -81,30 +83,6 @@ describe('post static props seo', () => {
         props: {
           seo: {
             noindex: true,
-          },
-        },
-      });
-    },
-  );
-
-  it.each([
-    [PostType.Brief, 5],
-    [PostType.SocialTwitter, 8],
-  ])(
-    'should keep %s posts indexable with sufficient engagement',
-    async (type: PostType, upvotes: number) => {
-      mockRequest
-        .mockResolvedValueOnce({ post: createPost({ type, upvotes }) })
-        .mockResolvedValueOnce({ topComments: [] });
-
-      const result = await getStaticProps({
-        params: { id: 'post-id' },
-      } as never);
-
-      expect(result).toMatchObject({
-        props: {
-          seo: {
-            noindex: false,
           },
         },
       });

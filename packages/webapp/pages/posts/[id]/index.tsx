@@ -166,9 +166,7 @@ export const shouldNoindexPost = (post: Post): boolean => {
     return true;
   }
 
-  return (
-    THIN_NOINDEX_POST_TYPES.includes(post.type) && (post.numUpvotes ?? 0) < 5
-  );
+  return THIN_NOINDEX_POST_TYPES.includes(post.type);
 };
 
 export const PostPage = ({
