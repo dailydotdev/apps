@@ -118,13 +118,14 @@ export const SearchControlHeader = ({
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
-  const shouldShowInstallExtensionButton =
+  const canInstallExtension =
+    !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
+  const shouldShowInstallExtensionPrompt =
     hasFeedActions &&
     isActionsFetched &&
-    !checkIsExtension() &&
-    isNullOrUndefined(user?.flags?.lastExtensionUse) &&
+    canInstallExtension &&
     !hasDismissedInstallExtension;
-  const installExtensionButton = shouldShowInstallExtensionButton && (
+  const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
       <div className="flex flex-1" />
       <Button
