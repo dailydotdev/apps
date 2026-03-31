@@ -140,6 +140,7 @@ export const OPPORTUNITY_FRAGMENT = gql`
       plan
       showSlack
       showFeedback
+      parseErrorUserMessage
     }
   }
   ${ORGANIZATION_SHORT_FRAGMENT}

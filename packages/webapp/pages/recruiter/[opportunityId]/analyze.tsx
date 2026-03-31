@@ -114,11 +114,19 @@ const RecruiterPageContent = () => {
   // Show toast and redirect when background parsing fails
   useEffect(() => {
     if (isParseError) {
-      displayToast(getParseOpportunityMutationErrorMessage());
+      displayToast(
+        opportunity?.flags?.parseErrorUserMessage ||
+          getParseOpportunityMutationErrorMessage(),
+      );
 
       router.push(`${webappUrl}recruiter?openModal=joblink`);
     }
-  }, [isParseError, displayToast, router]);
+  }, [
+    isParseError,
+    displayToast,
+    router,
+    opportunity?.flags?.parseErrorUserMessage,
+  ]);
 
   // Consider parsing in progress if mutation is pending OR background parsing is happening
   const isParsing = isMutationParsing || isBackgroundParsing;
