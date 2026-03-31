@@ -117,6 +117,8 @@ const ActionButtons = ({
       upvoteThresholdConfig.threshold,
       upvoteThresholdConfig.belowThresholdLabel,
       isUpvoteActive,
+      post.createdAt,
+      upvoteThresholdConfig.newWindowHours,
     );
 
   const commentButton = config.useCommentLink ? (

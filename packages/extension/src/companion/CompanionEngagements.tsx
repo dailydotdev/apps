@@ -52,6 +52,8 @@ export function CompanionEngagements({
     upvoteThresholdConfig.threshold,
     upvoteThresholdConfig.belowThresholdLabel,
     userHasUpvoted,
+    post.createdAt,
+    upvoteThresholdConfig.newWindowHours,
   );
 
   return (
