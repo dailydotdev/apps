@@ -150,8 +150,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
-
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
