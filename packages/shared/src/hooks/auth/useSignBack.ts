@@ -3,7 +3,6 @@ import usePersistentContext from '../usePersistentContext';
 import { generateStorageKey, RequestKey } from '../../lib/query';
 import type { SocialProvider } from '../../components/auth/common';
 import type { LoggedUser } from '../../lib/user';
-import { isNullOrUndefined } from '../../lib/func';
 
 export const SIGNIN_METHOD_KEY = 'signin_method';
 
