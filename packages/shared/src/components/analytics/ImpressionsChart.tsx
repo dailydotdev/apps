@@ -54,28 +54,25 @@ export const ImpressionsChart = ({
           return [];
         }
 
-        const impressionsMap = data?.edges?.reduce(
-          (acc, { node: item }) => {
-            const date = dateFormatInTimezone(
-              new Date(item.date),
-              'yyyy-MM-dd',
-              userTimezone,
-            );
+        const impressionsMap = data?.edges?.reduce((acc, { node: item }) => {
+          const date = dateFormatInTimezone(
+            new Date(item.date),
+            'yyyy-MM-dd',
+            userTimezone,
+          );
 
-            acc[date] = {
-              name: new Date(item.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-              }),
-              value: item.impressions,
-              // if any boost was active on this date
-              isBoosted: item.impressionsAds > 0,
-            };
+          acc[date] = {
+            name: new Date(item.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+            }),
+            value: item.impressions,
+            // if any boost was active on this date
+            isBoosted: item.impressionsAds > 0,
+          };
 
-            return acc;
-          },
-          {} as Record<string, ImpressionNode>,
-        );
+          return acc;
+        }, {} as Record<string, ImpressionNode>);
 
         const historyCutOffDate = subDays(
           new Date(),

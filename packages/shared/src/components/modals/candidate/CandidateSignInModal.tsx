@@ -50,7 +50,7 @@ export const CandidateSignInModal = ({
 
   const authDisplay = authState.isLoginFlow
     ? AuthDisplay.Default
-    : (authState.defaultDisplay ?? AuthDisplay.OnboardingSignup);
+    : authState.defaultDisplay ?? AuthDisplay.OnboardingSignup;
 
   const showHeader = authDisplay === AuthDisplay.OnboardingSignup;
 

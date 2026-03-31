@@ -43,7 +43,7 @@ jest.mock('next/router', () => ({
         isFallback: false,
         pathname: '/',
         query: {},
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   ),
 }));
 

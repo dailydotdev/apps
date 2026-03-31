@@ -64,7 +64,7 @@ export async function getStaticProps({
 }: GetStaticPropsContext): Promise<GetStaticPropsResult<AgentEntityPageProps>> {
   const rawEntityId = params?.entityId;
   const entityId = Array.isArray(rawEntityId)
-    ? (rawEntityId[0]?.trim() ?? '')
+    ? rawEntityId[0]?.trim() ?? ''
     : String(rawEntityId ?? '').trim();
 
   if (!entityId) {

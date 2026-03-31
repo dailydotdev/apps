@@ -77,7 +77,7 @@ jest.mocked(useRouter).mockImplementation(
     ({
       pathname: '/',
       query: {},
-    }) as unknown as NextRouter,
+    } as unknown as NextRouter),
 );
 
 const showLogin = jest.fn();
@@ -1087,7 +1087,7 @@ describe('Feed logged in', () => {
               off: jest.fn(),
               emit: jest.fn(),
             },
-          }) as unknown as NextRouter,
+          } as unknown as NextRouter),
       );
 
       Object.defineProperty(window, 'location', {

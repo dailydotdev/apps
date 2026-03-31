@@ -56,7 +56,7 @@ describe('useSearchProvider hook', () => {
           replace: jest.fn(),
           push: routerPush,
           isReady: true,
-        }) as unknown as NextRouter,
+        } as unknown as NextRouter),
     );
   });
 

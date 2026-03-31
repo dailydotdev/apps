@@ -115,7 +115,7 @@ export function Modal({
   const isDrawerOpen = isDrawerOnMobile && isMobile;
   const isForm = formProps && isMobile;
   const [activeView, setView] = useState<string | undefined>(
-    isMobile && tabs ? defaultView : (defaultView ?? stepTitle ?? tabTitle),
+    isMobile && tabs ? defaultView : defaultView ?? stepTitle ?? tabTitle,
   );
   const setActiveView = (view?: string) => {
     if (onViewChange && view) {

@@ -30,20 +30,17 @@ function SidebarList({
 }: SidebarListProps): ReactElement {
   const { onRequestClose } = useModalContext();
 
-  const sidebarGroups = items.reduce(
-    (acc, item) => {
-      const group = item.group ?? defaultGroup;
+  const sidebarGroups = items.reduce((acc, item) => {
+    const group = item.group ?? defaultGroup;
 
-      if (!acc[group]) {
-        acc[group] = [];
-      }
+    if (!acc[group]) {
+      acc[group] = [];
+    }
 
-      acc[group].push(item);
+    acc[group].push(item);
 
-      return acc;
-    },
-    {} as Record<string, SidebarListItemProps[]>,
-  );
+    return acc;
+  }, {} as Record<string, SidebarListItemProps[]>);
 
   return (
     <div

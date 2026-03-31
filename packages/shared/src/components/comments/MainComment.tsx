@@ -39,10 +39,8 @@ type ClassName = {
   commentBox?: CommentBoxProps['className'];
 };
 
-export interface MainCommentProps extends Omit<
-  CommentBoxProps,
-  'onEdit' | 'onComment' | 'className'
-> {
+export interface MainCommentProps
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment' | 'className'> {
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
   onCommented: CommentMarkdownInputProps['onCommented'];

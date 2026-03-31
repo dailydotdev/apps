@@ -208,12 +208,9 @@ const restartRocket = (card: HTMLElement, glowColor: string): void => {
   svg.style.transformOrigin = '15% 75%';
   svg.style.animation = `crown-arrow-extend ${duration}s cubic-bezier(0.22, 1, 0.36, 1)`;
 
-  setTimeout(
-    () => {
-      iconWrapper.querySelectorAll('.crown-ghost').forEach((el) => el.remove());
-    },
-    duration * 1000 + 50,
-  );
+  setTimeout(() => {
+    iconWrapper.querySelectorAll('.crown-ghost').forEach((el) => el.remove());
+  }, duration * 1000 + 50);
 };
 
 const restartSoundPulse = (card: HTMLElement): void => {

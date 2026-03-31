@@ -19,10 +19,11 @@ import type {
 } from '../contexts/payment/context';
 import { PlusPlanType, PurchaseType } from '../graphql/paddle';
 
-interface UsePaddlePaymentProps extends Pick<
-  PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
-  'successCallback' | 'disabledEvents'
-> {
+interface UsePaddlePaymentProps
+  extends Pick<
+    PaymentContextProviderProps<PaddleEventData, CheckoutEventNames>,
+    'successCallback' | 'disabledEvents'
+  > {
   priceType: PurchaseType;
   getProductQuantity?: (event: PaddleEventData) => number;
 }

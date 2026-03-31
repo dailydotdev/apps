@@ -2,10 +2,8 @@ import { gql } from 'graphql-request';
 import type { DevCardData } from '@dailydotdev/shared/src/hooks/profile/useDevCard';
 import type { DevCardType } from '@dailydotdev/shared/src/components/profile/devcard';
 
-export interface GenerateDevCardParams extends Pick<
-  DevCardData,
-  'isProfileCover' | 'showBorder' | 'theme'
-> {
+export interface GenerateDevCardParams
+  extends Pick<DevCardData, 'isProfileCover' | 'showBorder' | 'theme'> {
   type: DevCardType;
 }
 

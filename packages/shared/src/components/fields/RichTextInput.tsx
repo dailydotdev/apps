@@ -626,7 +626,7 @@ function RichTextInput(
       ? maxLength -
         (isMarkdownMode
           ? input.length
-          : (editor?.storage.characterCount?.characters?.() ?? input.length))
+          : editor?.storage.characterCount?.characters?.() ?? input.length)
       : null;
 
   const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;

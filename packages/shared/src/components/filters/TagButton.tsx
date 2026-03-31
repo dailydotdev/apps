@@ -4,10 +4,8 @@ import classNames from 'classnames';
 import type { ButtonVariant } from '../buttons/Button';
 import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
 
-interface GenericTagButtonProps extends Omit<
-  HTMLAttributes<HTMLButtonElement>,
-  'color'
-> {
+interface GenericTagButtonProps
+  extends Omit<HTMLAttributes<HTMLButtonElement>, 'color'> {
   tagItem: string;
   className?: string;
   icon?: ReactElement;

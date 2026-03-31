@@ -38,8 +38,9 @@ export const useEnableNotification = ({
   const { logClick, logDismiss } = useNotificationCtaAnalytics();
   const { isInitialized, isPushSupported, isSubscribed, shouldOpenPopup } =
     usePushNotificationContext();
-  const [hasCompletedEnableAction, setHasCompletedEnableAction] =
-    useState(!onEnableAction);
+  const [hasCompletedEnableAction, setHasCompletedEnableAction] = useState(
+    !onEnableAction,
+  );
   const runEnableAction = useCallback(async (): Promise<boolean> => {
     if (!onEnableAction) {
       setHasCompletedEnableAction(true);

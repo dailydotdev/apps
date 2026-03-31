@@ -26,10 +26,8 @@ type ProfileImageRoundSize = ProfileImageSize | 'full';
 export type UserImageProps = Pick<PublicProfile, 'image'> &
   Partial<Pick<PublicProfile, 'id' | 'username' | 'name'>>;
 
-export interface ProfilePictureProps extends Omit<
-  LazyImageProps,
-  'imgSrc' | 'imgAlt'
-> {
+export interface ProfilePictureProps
+  extends Omit<LazyImageProps, 'imgSrc' | 'imgAlt'> {
   user: UserImageProps;
   size?: ProfileImageSize;
   rounded?: ProfileImageRoundSize;

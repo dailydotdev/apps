@@ -9,10 +9,8 @@ interface ClassName {
   barColor?: string;
 }
 
-interface ProgressBarProps extends Omit<
-  MeterHTMLAttributes<HTMLMeterElement>,
-  'className'
-> {
+interface ProgressBarProps
+  extends Omit<MeterHTMLAttributes<HTMLMeterElement>, 'className'> {
   percentage: number;
   className?: ClassName;
   shouldShowBg?: boolean;

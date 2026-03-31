@@ -109,10 +109,11 @@ export interface FunnelStepLandingPage extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepLoading extends FunnelStepCommon<{
-  headline: string;
-  explainer: string;
-}> {
+export interface FunnelStepLoading
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
   type: FunnelStepType.Loading;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -135,7 +136,8 @@ export interface FunnelStepFactParameters {
   layout?: 'default' | 'reversed' | 'centered';
 }
 
-export interface FunnelStepFact extends FunnelStepCommon<FunnelStepFactParameters> {
+export interface FunnelStepFact
+  extends FunnelStepCommon<FunnelStepFactParameters> {
   type: FunnelStepType.Fact;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -171,26 +173,29 @@ export type FunnelQuestionRating = FunnelQuestionCommon & {
 
 export type FunnelQuestion = FunnelQuestionCheckbox | FunnelQuestionRating;
 
-export interface FunnelStepQuiz extends FunnelStepCommon<{
-  question: FunnelQuestion;
-  explainer?: string;
-}> {
+export interface FunnelStepQuiz
+  extends FunnelStepCommon<{
+    question: FunnelQuestion;
+    explainer?: string;
+  }> {
   type: FunnelStepType.Quiz;
   onTransition: FunnelStepTransitionCallback<Record<string, string | string[]>>;
 }
 
-export interface FunnelStepSignup extends FunnelStepCommon<{
-  headline: string;
-  image: string;
-  imageMobile: string;
-}> {
+export interface FunnelStepSignup
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
   type: FunnelStepType.Signup;
   onTransition: FunnelStepTransitionCallback;
 }
 
 export * from './steps/pricing';
 
-export interface FunnelStepPricingV1 extends FunnelStepCommon<FunnelStepPricingParameters> {
+export interface FunnelStepPricingV1
+  extends FunnelStepCommon<FunnelStepPricingParameters> {
   type: FunnelStepType.Pricing;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
@@ -199,7 +204,8 @@ export interface FunnelStepPricingV1 extends FunnelStepCommon<FunnelStepPricingP
   discountStartDate: Date;
 }
 
-export interface FunnelStepPricingV2 extends FunnelStepCommon<FunnelStepPricingV2Parameters> {
+export interface FunnelStepPricingV2
+  extends FunnelStepCommon<FunnelStepPricingV2Parameters> {
   type: FunnelStepType.Pricing;
   onTransition: FunnelStepTransitionCallback<{
     plan: string;
@@ -215,7 +221,8 @@ export interface FunnelStepCheckoutParameters {
   shouldShowHeader?: boolean;
 }
 
-export interface FunnelStepCheckout extends FunnelStepCommon<FunnelStepCheckoutParameters> {
+export interface FunnelStepCheckout
+  extends FunnelStepCommon<FunnelStepCheckoutParameters> {
   type: FunnelStepType.Checkout;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -225,9 +232,8 @@ export interface FunnelStepTagSelection extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepReadingReminder extends FunnelStepCommon<{
-  headline: string;
-}> {
+export interface FunnelStepReadingReminder
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.ReadingReminder;
   onTransition: FunnelStepTransitionCallback;
 }
@@ -237,68 +243,71 @@ export interface FunnelStepAppPromotion extends FunnelStepCommon {
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepSocialProof extends FunnelStepCommon<{
-  imageUrl: string;
-  imageUrlLightMode?: string;
-  rating: string;
-  reviews: Review[];
-  reviewSubtitle: string;
-  cta?: string;
-}> {
+export interface FunnelStepSocialProof
+  extends FunnelStepCommon<{
+    imageUrl: string;
+    imageUrlLightMode?: string;
+    rating: string;
+    reviews: Review[];
+    reviewSubtitle: string;
+    cta?: string;
+  }> {
   type: FunnelStepType.SocialProof;
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPaymentSuccessful extends FunnelStepCommon<
-  Partial<{
-    headline: string;
-    explainer: string;
-    imageUrl: string;
-  }>
-> {
+export interface FunnelStepPaymentSuccessful
+  extends FunnelStepCommon<
+    Partial<{
+      headline: string;
+      explainer: string;
+      imageUrl: string;
+    }>
+  > {
   type: FunnelStepType.PaymentSuccessful;
   onTransition: FunnelStepTransitionCallback<void>;
 }
 
-export interface FunnelStepProfileForm extends FunnelStepCommon<{
-  headline: string;
-  image: string;
-  imageMobile: string;
-}> {
+export interface FunnelStepProfileForm
+  extends FunnelStepCommon<{
+    headline: string;
+    image: string;
+    imageMobile: string;
+  }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepEditTags extends FunnelStepCommon<{
-  headline: string;
-  minimumRequirement: number;
-}> {
+export interface FunnelStepEditTags
+  extends FunnelStepCommon<{
+    headline: string;
+    minimumRequirement: number;
+  }> {
   type: FunnelStepType.EditTags;
   onTransition: FunnelStepTransitionCallback<{
     tags: string[];
   }>;
 }
 
-export interface FunnelStepContentTypes extends FunnelStepCommon<{
-  headline: string;
-}> {
+export interface FunnelStepContentTypes
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.ContentTypes;
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepInstallPwa extends FunnelStepCommon<{
-  headline: string;
-}> {
+export interface FunnelStepInstallPwa
+  extends FunnelStepCommon<{ headline: string }> {
   type: FunnelStepType.InstallPwa;
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepOrganicSignup extends FunnelStepCommon<{
-  headline: string;
-  explainer: string;
-  image: string;
-  imageMobile: string;
-}> {
+export interface FunnelStepOrganicSignup
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+    image: string;
+    imageMobile: string;
+  }> {
   type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{
     user: LoggedUser | AnonymousUser;
@@ -316,42 +325,45 @@ export interface PlanCard {
   note?: string;
 }
 
-export interface FunnelStepPlusCards extends FunnelStepCommon<{
-  headline?: string;
-  explainer?: string;
-  free?: Partial<PlanCard>;
-  plus?: Partial<PlanCard>;
-}> {
+export interface FunnelStepPlusCards
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    free?: Partial<PlanCard>;
+    plus?: Partial<PlanCard>;
+  }> {
   type: FunnelStepType.PlusCards;
   onTransition: FunnelStepTransitionCallback<{
     skip: boolean;
   }>;
 }
 
-export interface FunnelStepBrowserExtension extends FunnelStepCommon<{
-  headline: string;
-  explainer: string;
-}> {
+export interface FunnelStepBrowserExtension
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
   type: FunnelStepType.BrowserExtension;
   onTransition: FunnelStepTransitionCallback<{
     browserName: BrowserName;
   }>;
 }
 
-export interface FunnelStepUploadCv extends FunnelStepCommon<{
-  headline: string;
-  description: string;
-  dragDropDescription: string;
-  ctaDesktop: string;
-  ctaMobile: string;
-  linkedin: {
-    cta: string;
-    image: string;
+export interface FunnelStepUploadCv
+  extends FunnelStepCommon<{
     headline: string;
-    explainer: string;
-    steps: string[];
-  };
-}> {
+    description: string;
+    dragDropDescription: string;
+    ctaDesktop: string;
+    ctaMobile: string;
+    linkedin: {
+      cta: string;
+      image: string;
+      headline: string;
+      explainer: string;
+      steps: string[];
+    };
+  }> {
   type: FunnelStepType.UploadCv;
   onTransition: FunnelStepTransitionCallback;
 }

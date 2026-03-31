@@ -11,10 +11,8 @@ import { Image } from '../image/Image';
 
 type AutocompleteOption = { value: string; label: string; image?: string };
 
-interface AutocompleteProps extends Omit<
-  TextFieldProps,
-  'inputId' | 'onChange' | 'onSelect' | 'onBlur'
-> {
+interface AutocompleteProps
+  extends Omit<TextFieldProps, 'inputId' | 'onChange' | 'onSelect' | 'onBlur'> {
   name: string;
   onChange: (value: string) => void;
   onSelect: (value: string) => void;

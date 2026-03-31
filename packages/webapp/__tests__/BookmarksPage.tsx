@@ -38,7 +38,7 @@ beforeEach(() => {
         query: {},
         replace: routerReplace,
         push: jest.fn(),
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   );
 });
 

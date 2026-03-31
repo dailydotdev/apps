@@ -11,7 +11,8 @@ import { postLogEvent } from '../../lib/feed';
 import { useLogContext } from '../../contexts/LogContext';
 
 export interface CommentBoxProps
-  extends Omit<CommentContainerProps, 'actions'>, CommentActionProps {
+  extends Omit<CommentContainerProps, 'actions'>,
+    CommentActionProps {
   origin: Origin;
   parentId?: string;
   isModalThread?: boolean;

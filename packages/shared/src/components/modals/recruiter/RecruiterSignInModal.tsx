@@ -86,7 +86,7 @@ export const RecruiterSignInModal = ({
   // Derive the display from auth state - login flow should show default display
   const authDisplay = authState.isLoginFlow
     ? AuthDisplay.Default
-    : (authState.defaultDisplay ?? AuthDisplay.OnboardingSignup);
+    : authState.defaultDisplay ?? AuthDisplay.OnboardingSignup;
 
   // Show header content only on the initial signup screen
   const showHeader = authDisplay === AuthDisplay.OnboardingSignup;

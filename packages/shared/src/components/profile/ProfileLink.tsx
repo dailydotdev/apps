@@ -3,7 +3,8 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
 
-export interface ProfileLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface ProfileLinkProps
+  extends AnchorHTMLAttributes<HTMLAnchorElement> {
   ref?: Ref<HTMLAnchorElement>;
 }
 

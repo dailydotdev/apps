@@ -326,9 +326,9 @@ export const BootDataProvider = ({
       !logged?.subscriptionFlags?.appAccountToken
     ) {
       gqlClient
-        .request<{
-          requestAppAccountToken: string;
-        }>(REQUEST_APP_ACCOUNT_TOKEN_MUTATION)
+        .request<{ requestAppAccountToken: string }>(
+          REQUEST_APP_ACCOUNT_TOKEN_MUTATION,
+        )
         .then((result) => {
           updateBootData({
             user: {

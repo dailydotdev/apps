@@ -76,8 +76,8 @@ type MapEventMapsToEvent<D, T extends PropertyKey> = {
   [K in keyof D]: D[K] extends never
     ? never
     : T extends keyof D[K]
-      ? D[K][T]
-      : never;
+    ? D[K][T]
+    : never;
 };
 
 interface GenericEventListener<T> {

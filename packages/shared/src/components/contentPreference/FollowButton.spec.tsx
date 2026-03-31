@@ -41,7 +41,7 @@ const createMutationResult = (): ReturnType<typeof useMutation> =>
   ({
     mutate: jest.fn(),
     isPending: false,
-  }) as unknown as ReturnType<typeof useMutation>;
+  } as unknown as ReturnType<typeof useMutation>);
 
 const createContentPreferenceMocks = (): UseContentPreference => ({
   follow: jest.fn(),

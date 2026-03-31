@@ -11,10 +11,8 @@ export interface ClassName {
 
 export type { RadioItemProps };
 
-export interface ToggleRadioProps<T extends string = string> extends Omit<
-  RadioProps<T>,
-  'options' | 'value' | 'onChange'
-> {
+export interface ToggleRadioProps<T extends string = string>
+  extends Omit<RadioProps<T>, 'options' | 'value' | 'onChange'> {
   onLabel: string;
   offLabel: string;
   value: boolean;

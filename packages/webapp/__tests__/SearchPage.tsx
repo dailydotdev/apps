@@ -21,7 +21,7 @@ beforeEach(() => {
         query: {},
         push: jest.fn(),
         isReady: true,
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   );
 });
 

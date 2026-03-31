@@ -110,7 +110,7 @@ export const voteMutationHandlers: Record<
     numUpvotes:
       payload?.userState?.vote === UserVote.Up
         ? (payload.numUpvotes ?? 0) - 1
-        : (payload.numUpvotes ?? 0),
+        : payload.numUpvotes ?? 0,
     userState: {
       ...payload?.userState,
       vote: UserVote.Down,
@@ -120,7 +120,7 @@ export const voteMutationHandlers: Record<
     numUpvotes:
       payload.userState?.vote === UserVote.Up
         ? (payload.numUpvotes ?? 0) - 1
-        : (payload.numUpvotes ?? 0),
+        : payload.numUpvotes ?? 0,
     userState: {
       ...payload?.userState,
       vote: UserVote.None,

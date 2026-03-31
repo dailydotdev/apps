@@ -34,17 +34,18 @@ import { DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
 import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
 
-export interface NotificationItemProps extends Pick<
-  Notification,
-  | 'type'
-  | 'icon'
-  | 'title'
-  | 'description'
-  | 'avatars'
-  | 'attachments'
-  | 'numTotalAvatars'
-  | 'referenceId'
-> {
+export interface NotificationItemProps
+  extends Pick<
+    Notification,
+    | 'type'
+    | 'icon'
+    | 'title'
+    | 'description'
+    | 'avatars'
+    | 'attachments'
+    | 'numTotalAvatars'
+    | 'referenceId'
+  > {
   isUnread?: boolean;
   targetUrl: string;
   createdAt?: Date;
@@ -193,7 +194,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
       ))}
     </ProfilePictureGroup>
   ) : (
-    (filteredAvatars
+    filteredAvatars
       .map((avatar) => (
         <NotificationItemAvatar
           key={avatar.referenceId}
@@ -201,7 +202,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           {...avatar}
         />
       ))
-      .filter((avatar) => avatar) ?? [])
+      .filter((avatar) => avatar) ?? []
   );
   const hasAvatar = filteredAvatars.length > 0;
   const renderLink = onClick && isClickable;

@@ -7,10 +7,8 @@ import type {
 } from '@tanstack/react-query';
 import useFeedInfiniteScroll from '../../hooks/feed/useFeedInfiniteScroll';
 
-export interface InfiniteScrollingProps extends Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'placeholder'
-> {
+export interface InfiniteScrollingProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'placeholder'> {
   children: ReactNode;
   placeholder?: ReactNode;
   className?: string;

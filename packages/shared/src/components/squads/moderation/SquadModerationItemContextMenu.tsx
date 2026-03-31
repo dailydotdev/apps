@@ -14,10 +14,8 @@ import {
 import { Button } from '../../buttons/Button';
 import type { MenuItemProps } from '../../dropdown/common';
 
-interface SquadModerationItemContextMenuProps extends Pick<
-  SourcePostModeration,
-  'id'
-> {
+interface SquadModerationItemContextMenuProps
+  extends Pick<SourcePostModeration, 'id'> {
   onDelete: (id: string) => void;
   canEdit?: boolean;
 }

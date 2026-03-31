@@ -4,9 +4,8 @@ import React from 'react';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 
-export interface SidebarListItemProps extends HTMLAttributes<
-  HTMLButtonElement | HTMLAnchorElement
-> {
+export interface SidebarListItemProps
+  extends HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
   title: string;
   icon?: ReactNode;
   href?: string;

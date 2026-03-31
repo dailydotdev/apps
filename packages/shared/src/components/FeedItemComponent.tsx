@@ -167,8 +167,8 @@ const getTags = ({
 
   return {
     PostTag: useListCards
-      ? (listPostTag ?? ArticleList)
-      : (PostTypeToTagCard[postType] ?? ArticleGrid),
+      ? listPostTag ?? ArticleList
+      : PostTypeToTagCard[postType] ?? ArticleGrid,
     AdTag: useListCards ? listAdTag : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,

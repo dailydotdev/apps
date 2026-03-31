@@ -17,28 +17,29 @@ const DEFAULT_DURATION = 200;
 export const getShouldLoadTooltip = (): boolean =>
   !isTouchDevice() && !isTesting;
 
-export interface TooltipProps extends Pick<
-  BaseTooltipProps,
-  | 'appendTo'
-  | 'content'
-  | 'children'
-  | 'placement'
-  | 'delay'
-  | 'interactive'
-  | 'onTrigger'
-  | 'onShow'
-  | 'onHide'
-  | 'duration'
-  | 'visible'
-  | 'offset'
-  | 'trigger'
-  | 'disabled'
-  | 'showArrow'
-  | 'sticky'
-  | 'plugins'
-  | 'zIndex'
-  | 'onClickOutside'
-> {
+export interface TooltipProps
+  extends Pick<
+    BaseTooltipProps,
+    | 'appendTo'
+    | 'content'
+    | 'children'
+    | 'placement'
+    | 'delay'
+    | 'interactive'
+    | 'onTrigger'
+    | 'onShow'
+    | 'onHide'
+    | 'duration'
+    | 'visible'
+    | 'offset'
+    | 'trigger'
+    | 'disabled'
+    | 'showArrow'
+    | 'sticky'
+    | 'plugins'
+    | 'zIndex'
+    | 'onClickOutside'
+  > {
   container?: Omit<
     BaseTooltipContainerProps,
     'placement' | 'children' | 'showArrow'

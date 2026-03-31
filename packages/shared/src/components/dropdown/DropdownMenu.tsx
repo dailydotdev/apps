@@ -30,10 +30,8 @@ export const DropdownMenuItem = classed(
   styles.DropdownMenuItem,
 );
 
-interface DropdownMenuContentProps extends Omit<
-  RadixDropdownMenuContentProps,
-  'className'
-> {
+interface DropdownMenuContentProps
+  extends Omit<RadixDropdownMenuContentProps, 'className'> {
   children: ReactNode;
   className?: string;
   scrollableClassName?: string;

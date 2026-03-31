@@ -37,10 +37,8 @@ import usePersistentContext, {
 } from '../../../hooks/usePersistentContext';
 import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
-export interface StreakRecoverModalProps extends Pick<
-  ModalProps,
-  'isOpen' | 'onAfterClose'
-> {
+export interface StreakRecoverModalProps
+  extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
   onRequestClose: () => void;
   user: LoggedUser;
 }

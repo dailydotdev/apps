@@ -12,10 +12,8 @@ import type { PollMetadataProps } from './PollMetadata';
 import PollMetadata from './PollMetadata';
 import { useScrambler } from '../../../hooks/useScrambler';
 
-interface PostMetadataProps extends Pick<
-  Post,
-  'createdAt' | 'readTime' | 'numUpvotes'
-> {
+interface PostMetadataProps
+  extends Pick<Post, 'createdAt' | 'readTime' | 'numUpvotes'> {
   className?: string;
   description?: string;
   children?: ReactNode;

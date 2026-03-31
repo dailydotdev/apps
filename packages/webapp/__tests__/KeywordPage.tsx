@@ -33,7 +33,7 @@ beforeEach(() => {
     () =>
       ({
         replace: routerReplace,
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   );
 });
 

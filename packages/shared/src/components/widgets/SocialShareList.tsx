@@ -50,7 +50,7 @@ export function SocialShareList({
     const shareLink = getShareLink({
       provider,
       link: shortLink,
-      text: isEmailShare ? (emailTitle ?? description) : description,
+      text: isEmailShare ? emailTitle ?? description : description,
       emailSummary,
     });
     window.open(shareLink, '_blank');

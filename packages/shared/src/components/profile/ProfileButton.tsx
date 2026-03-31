@@ -54,7 +54,7 @@ export default function ProfileButton({
   const displayedBalance =
     typeof animatedCores === 'number'
       ? animatedCores
-      : (user?.balance?.amount ?? 0);
+      : user?.balance?.amount ?? 0;
   const displayedReputation =
     typeof animatedReputation === 'number'
       ? animatedReputation
@@ -152,7 +152,7 @@ export default function ProfileButton({
       if (rewardType === QuestRewardType.Reputation) {
         setAnimatedReputation((current) => {
           const base =
-            typeof current === 'number' ? current : (user?.reputation ?? 0);
+            typeof current === 'number' ? current : user?.reputation ?? 0;
 
           return base + delta;
         });
@@ -163,7 +163,7 @@ export default function ProfileButton({
 
       setAnimatedCores((current) => {
         const base =
-          typeof current === 'number' ? current : (user?.balance?.amount ?? 0);
+          typeof current === 'number' ? current : user?.balance?.amount ?? 0;
 
         return base + delta;
       });

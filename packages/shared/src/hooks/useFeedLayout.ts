@@ -82,10 +82,11 @@ export const PostFeedPages = new Set([
   OtherFeedPage.AgentsVibes,
 ]);
 
-interface GetFeedPageLayoutComponentProps extends Pick<
-  UseFeedLayoutReturn,
-  'shouldUseCommentFeedLayout' | 'shouldUseListMode'
-> {
+interface GetFeedPageLayoutComponentProps
+  extends Pick<
+    UseFeedLayoutReturn,
+    'shouldUseCommentFeedLayout' | 'shouldUseListMode'
+  > {
   shouldUseListFeedLayoutOnMobileTablet: boolean;
   isSearchPageLaptop: boolean;
 }

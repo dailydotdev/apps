@@ -16,10 +16,8 @@ const CommentInputOrModal = dynamic(
     ),
 );
 
-export interface SubCommentProps extends Omit<
-  CommentBoxProps,
-  'onEdit' | 'onComment'
-> {
+export interface SubCommentProps
+  extends Omit<CommentBoxProps, 'onEdit' | 'onComment'> {
   parentComment: Comment;
   onCommented: CommentMarkdownInputProps['onCommented'];
   isModalThread?: boolean;

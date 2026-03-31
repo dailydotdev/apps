@@ -98,23 +98,20 @@ const groupListByCompany = <T extends UserExperience>(
     return [];
   }
 
-  const grouped = experiences.reduce(
-    (acc, node) => {
-      // For open source, group by repository owner (org name)
-      const name =
-        node.customCompanyName ||
-        node.company?.name ||
-        node.repository?.owner ||
-        node.title;
+  const grouped = experiences.reduce((acc, node) => {
+    // For open source, group by repository owner (org name)
+    const name =
+      node.customCompanyName ||
+      node.company?.name ||
+      node.repository?.owner ||
+      node.title;
 
-      if (!acc[name]) {
-        acc[name] = [];
-      }
-      acc[name].push(node);
-      return acc;
-    },
-    {} as Record<string, T[]>,
-  );
+    if (!acc[name]) {
+      acc[name] = [];
+    }
+    acc[name].push(node);
+    return acc;
+  }, {} as Record<string, T[]>);
 
   return Object.entries(grouped);
 };

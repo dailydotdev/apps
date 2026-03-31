@@ -32,7 +32,7 @@ jest.mock('next/router', () => ({
           on: jest.fn(),
           off: jest.fn(),
         },
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   ),
 }));
 

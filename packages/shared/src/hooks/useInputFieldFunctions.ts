@@ -11,9 +11,8 @@ export interface InputFieldFunctionsProps {
   valueChanged?: (value: string) => void;
 }
 
-interface UseInputFieldFunctions<
-  T extends ValidInputElement = HTMLInputElement,
-> extends UseInputField<T> {
+interface UseInputFieldFunctions<T extends ValidInputElement = HTMLInputElement>
+  extends UseInputField<T> {
   inputLength: number | undefined;
   validInput?: boolean;
 }

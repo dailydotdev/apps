@@ -37,8 +37,7 @@ interface ClassName {
 }
 
 export interface DrawerProps
-  extends
-    Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'>,
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'title'>,
     Pick<ReactModal.Props, 'onAfterOpen' | 'onAfterClose'> {
   children: ReactNode;
   className?: ClassName;

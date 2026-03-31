@@ -36,7 +36,7 @@ beforeEach(() => {
         query: { q: DEFAULT_QUERY, provider: 'posts' },
         push: jest.fn(),
         isReady: true,
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   );
 });
 

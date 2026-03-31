@@ -87,7 +87,7 @@ beforeEach(() => {
         isReady: true,
         query: { id: 'test-jobs-id' },
         push: jest.fn(),
-      }) as unknown as NextRouter,
+      } as unknown as NextRouter),
   );
 });
 

@@ -13,10 +13,8 @@ export enum PricingPlanVariation {
   BEST_VALUE = 'best_value',
 }
 
-export interface PricingPlanProps<T extends string = string> extends Omit<
-  RadioItemProps<T>,
-  'label' | 'className'
-> {
+export interface PricingPlanProps<T extends string = string>
+  extends Omit<RadioItemProps<T>, 'label' | 'className'> {
   label: string;
   variation?: PricingPlanVariation;
   badge?: {

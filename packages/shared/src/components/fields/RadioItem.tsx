@@ -9,10 +9,8 @@ interface ClassName {
   content?: string;
 }
 
-export interface RadioItemProps<T extends string = string> extends Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'className'
-> {
+export interface RadioItemProps<T extends string = string>
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'className'> {
   value?: T;
   label?: ReactNode;
   className?: ClassName;

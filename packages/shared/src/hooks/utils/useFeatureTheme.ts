@@ -9,7 +9,8 @@ import type {
 } from '../../lib/featureValues';
 
 interface UseFeatureThemeResult
-  extends Pick<FeatureTheme, 'version' | 'cursor'>, FeatureThemeVariant {}
+  extends Pick<FeatureTheme, 'version' | 'cursor'>,
+    FeatureThemeVariant {}
 
 export const useFeatureTheme = (): UseFeatureThemeResult | undefined => {
   const { themeMode } = useSettingsContext();

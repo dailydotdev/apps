@@ -64,8 +64,7 @@ export interface PostHeaderActionsProps {
 }
 
 export interface PostContentProps
-  extends
-    Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
+  extends Pick<PostHeaderActionsProps, 'onClose' | 'inlineActions'>,
     PassedPostNavigationProps {
   post?: Post;
   isFallback?: boolean;

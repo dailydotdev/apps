@@ -23,10 +23,8 @@ interface FeedItemContainerProps {
   bookmarked?: boolean;
 }
 
-interface FlagProps extends Omit<
-  Pick<Post, 'pinnedAt' | 'trending' | 'type'>,
-  'type'
-> {
+interface FlagProps
+  extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
   type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
 }

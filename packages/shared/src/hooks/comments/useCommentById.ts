@@ -16,10 +16,8 @@ interface UseCommentByIdProps {
   options?: Partial<QueryObserverOptions<CommentOnData>>;
 }
 
-interface UseCommentByIdResult extends Pick<
-  UseQueryResult,
-  'isError' | 'isLoading'
-> {
+interface UseCommentByIdResult
+  extends Pick<UseQueryResult, 'isError' | 'isLoading'> {
   comment: Comment;
   onEdit: () => void;
 }

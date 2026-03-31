@@ -12,10 +12,8 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSourceContentPreferenceMutationSubscription } from '../../../hooks/contentPreference/useSourceContentPreferenceMutationSubscription';
 
-export interface PrivilegedMembersModalProps extends Omit<
-  ModalProps,
-  'children'
-> {
+export interface PrivilegedMembersModalProps
+  extends Omit<ModalProps, 'children'> {
   source: Pick<Source, 'handle'>;
 }
 

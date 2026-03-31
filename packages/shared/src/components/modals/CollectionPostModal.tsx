@@ -11,7 +11,8 @@ import type { PassedPostNavigationProps } from '../post/common';
 import { CollectionPostContent } from '../post/collection';
 
 interface CollectionPostModalProps
-  extends ModalProps, PassedPostNavigationProps {
+  extends ModalProps,
+    PassedPostNavigationProps {
   id: string;
   post: Post;
 }

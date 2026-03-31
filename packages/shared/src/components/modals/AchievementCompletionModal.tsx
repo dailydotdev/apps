@@ -35,10 +35,8 @@ const sparkles = Array.from({ length: 60 }, (_, i) => ({
   size: 3 + ((i * 7) % 5),
 }));
 
-interface AchievementCompletionModalProps extends Omit<
-  ModalProps,
-  'onRequestClose'
-> {
+interface AchievementCompletionModalProps
+  extends Omit<ModalProps, 'onRequestClose'> {
   achievementId: string;
   onAfterClose?: () => void;
   onRequestClose?: LazyModalCommonProps['onRequestClose'];
