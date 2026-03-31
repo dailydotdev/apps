@@ -118,10 +118,6 @@ const nextConfig: NextConfig = {
           destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
         },
         {
-          source: '/search',
-          destination: '/search/posts',
-        },
-        {
           source: '/posts/:id',
           destination: '/posts/:id/share',
           has: [
@@ -166,7 +162,7 @@ const nextConfig: NextConfig = {
           ...getMarkdownRewrites(),
         ],
         // regular rewrites
-        afterFiles: rewrites.filter(({ source }) => source !== '/search'),
+        afterFiles: rewrites,
         fallback: [],
       };
     },
