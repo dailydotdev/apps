@@ -11,6 +11,9 @@ import {
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
+import { getUpvoteCountDisplay } from '../../../lib/post';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -19,6 +22,7 @@ import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
@@ -75,6 +79,8 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
 
   const {
     isUpvoteActive,
@@ -93,12 +99,25 @@ const ActionButtons = ({
     closeTagsPanelOnUpvote: variant === 'list',
   });
 
+  const { value: upvoteThresholdConfig } = useConditionalFeature({
+    feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
+  });
+
   if (isFeedPreview) {
     return null;
   }
 
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
+
+  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
+    getUpvoteCountDisplay(
+      upvoteCount,
+      upvoteThresholdConfig.threshold,
+      upvoteThresholdConfig.belowThresholdLabel,
+      isUpvoteActive,
+    );
 
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
@@ -179,15 +198,25 @@ const ActionButtons = ({
               />
             }
           >
-            {upvoteCount > 0 && (
+            {showUpvoteCount ? (
               <InteractionCounter
                 className={classNames(
                   'tabular-nums',
                   variant === 'grid' && 'typo-footnote',
-                  !upvoteCount && 'invisible',
                 )}
                 value={upvoteCount}
               />
+            ) : (
+              !!upvoteLabel && (
+                <span
+                  className={classNames(
+                    'tabular-nums',
+                    variant === 'grid' && 'typo-footnote',
+                  )}
+                >
+                  {upvoteLabel}
+                </span>
+              )
             )}
           </QuaternaryButton>
         </Tooltip>

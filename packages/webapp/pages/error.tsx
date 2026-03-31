@@ -1,9 +1,9 @@
 import { postWindowMessage, isPWA } from '@dailydotdev/shared/src/lib/func';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 
-function ErrorPage(): ReactElement {
+function ErrorPage(): ReactElement | null {
   useEffect(() => {
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());

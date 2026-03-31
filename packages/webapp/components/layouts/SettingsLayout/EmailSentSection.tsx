@@ -7,8 +7,6 @@ import {
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import useAccountEmailFlow from '@dailydotdev/shared/src/hooks/useAccountEmailFlow';
-import { AuthFlow } from '@dailydotdev/shared/src/lib/kratos';
 
 interface EmailSentSectionProps {
   onCancel?: (e: React.MouseEvent) => void;
@@ -18,13 +16,8 @@ interface EmailSentSectionProps {
 
 function EmailSentSection({
   onCancel,
-  email,
   className,
 }: EmailSentSectionProps): ReactElement {
-  const { sendEmail, resendTimer, isLoading } = useAccountEmailFlow({
-    flow: AuthFlow.Verification,
-  });
-
   return (
     <AlertBanner
       className={{
@@ -36,17 +29,8 @@ function EmailSentSection({
         We sent an email to verify your account. Please check your spam folder
         if you {`don't`} see the email.
       </p>
-      <span className="mt-4 flex flex-row gap-4">
-        <Button
-          onClick={() => sendEmail(email)}
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Primary}
-          className="w-fit"
-          disabled={isLoading || resendTimer > 0}
-        >
-          {resendTimer === 0 ? 'Resend' : `${resendTimer}s`}
-        </Button>
-        {onCancel && (
+      {onCancel && (
+        <span className="mt-4 flex flex-row gap-4">
           <Button
             onClick={onCancel}
             size={ButtonSize.XSmall}
@@ -55,8 +39,8 @@ function EmailSentSection({
           >
             Cancel Request
           </Button>
-        )}
-      </span>
+        </span>
+      )}
     </AlertBanner>
   );
 }

@@ -1,13 +1,3 @@
-import type {
-  AuthenticationType,
-  AuthPostParams,
-  InitializationData,
-  InitializationNode,
-  KratosFormParams,
-  KratosMessage,
-  KratosMethod,
-} from './kratos';
-import { MessageType } from './kratos';
 import type { Origin } from './log';
 import { promisifyEventListener } from './func';
 import {
@@ -15,6 +5,12 @@ import {
   postWebKitMessage,
   WebKitMessageHandlers,
 } from './ios';
+
+export enum AuthEvent {
+  Login = 'login',
+  Error = 'error',
+  SocialRegistration = 'social_registration',
+}
 
 export enum AuthEventNames {
   OpenSignup = 'open signup',
@@ -93,28 +89,37 @@ export type AuthTriggersType =
       | Origin.TagPage
     >;
 
-export interface LoginPasswordParameters extends AuthPostParams {
-  password: string;
+export interface LoginPasswordParameters {
   identifier: string;
-  method: AuthenticationType;
+  password: string;
+  method?: 'password';
+  csrf_token?: string;
 }
 
-export interface LoginSocialParameters extends AuthPostParams {
-  provider: string;
-  method: AuthenticationType;
+export interface RegistrationParameters {
+  csrf_token?: string;
+  provider?: string;
+  method?: 'password' | 'oidc';
+  password?: string;
+  'traits.email'?: string;
+  'traits.userId'?: string;
+  'traits.referral'?: string;
+  'traits.referralOrigin'?: string;
+  'traits.timezone'?: string;
+  'traits.name'?: string;
+  'traits.username'?: string;
+  'traits.image'?: string;
+  'traits.acceptedMarketing'?: boolean;
+  'traits.experienceLevel'?: string;
+  'traits.language'?: string;
+  optOutMarketing?: boolean;
   id_token?: string;
   id_token_nonce?: string;
+  'traits.region'?: string;
 }
 
-export interface AccountRecoveryParameters extends AuthPostParams {
-  email: string;
-  method: KratosMethod;
-}
-
-export interface ResetPasswordParameters extends AuthPostParams {
-  password: string;
-  method: KratosMethod;
-}
+export type ErrorMessages<T extends string | number> = { [key in T]?: string };
+export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 
 export interface SocialRegistrationParameters {
   name?: string;
@@ -125,83 +130,6 @@ export interface SocialRegistrationParameters {
   experienceLevel?: string;
   language?: string;
 }
-
-export interface RegistrationParameters {
-  csrf_token: string;
-  provider?: string;
-  method: AuthenticationType | KratosMethod;
-  password?: string;
-  'traits.email': string;
-  'traits.userId'?: string;
-  'traits.referral'?: string;
-  'traits.referralOrigin'?: string;
-  'traits.timezone'?: string;
-  'traits.name'?: string;
-  'traits.username': string;
-  'traits.image': string;
-  'traits.acceptedMarketing'?: boolean;
-  'traits.experienceLevel'?: string;
-  'traits.language'?: string;
-  optOutMarketing?: boolean;
-  id_token?: string;
-  id_token_nonce?: string;
-  'traits.region'?: string;
-}
-
-export interface SettingsParameters extends AuthPostParams {
-  link?: string;
-  unlink?: string;
-}
-
-interface VerifyEmailParameters extends AuthPostParams {
-  code: string;
-  method: string;
-}
-
-export type ErrorMessages<T extends string | number> = { [key in T]?: string };
-export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
-export type ValidateRegistrationParams =
-  KratosFormParams<RegistrationParameters>;
-export type ValidateLoginParams = KratosFormParams<
-  LoginPasswordParameters | LoginSocialParameters
->;
-export type SettingsParams = KratosFormParams<SettingsParameters>;
-export type ValidateResetPassword = KratosFormParams<ResetPasswordParameters>;
-export type ValidateChangeEmail = KratosFormParams<RegistrationParameters>;
-export type VerifyEmail = KratosFormParams<VerifyEmailParameters>;
-
-export const errorsToJson = <T extends string>(
-  data: InitializationData,
-): Record<T, string> =>
-  Object.values(data.ui.nodes).reduce(
-    (result, node) => ({
-      ...result,
-      [node.attributes.name]: node.messages[0]?.text ?? '',
-    }),
-    {} as Record<T, string>,
-  );
-
-export const getErrorMessage = (errors: KratosMessage[]): string => {
-  if (!errors?.length) {
-    return '';
-  }
-
-  const error = errors.find(({ type }) => type === MessageType.Error);
-
-  return error?.text || errors?.[0]?.text || '';
-};
-
-export const getNodeByKey = (
-  key: string,
-  nodes: InitializationNode[],
-): InitializationNode | undefined =>
-  nodes?.find(({ attributes }) => attributes.name === key);
-
-export const getNodeValue = (
-  key: string,
-  nodes: InitializationNode[],
-): string | undefined =>
-  nodes?.find(({ attributes }) => attributes.name === key)?.attributes?.value;
 
 export const isNativeAuthSupported = (provider: string): boolean =>
   messageHandlerExists(WebKitMessageHandlers.NativeAuth) &&

@@ -46,7 +46,7 @@ describe('betterAuth', () => {
     );
   });
 
-  it('should suffix Better Auth social state exactly once', async () => {
+  it('should preserve Better Auth social state as returned by the API', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: jest.fn().mockResolvedValue({
@@ -61,7 +61,7 @@ describe('betterAuth', () => {
       ),
     ).resolves.toEqual(
       expect.objectContaining({
-        url: 'https://auth.example.com/oauth?state=abc123_ba',
+        url: 'https://auth.example.com/oauth?state=abc123',
       }),
     );
   });

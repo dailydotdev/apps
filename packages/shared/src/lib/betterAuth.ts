@@ -22,8 +22,6 @@ export type BetterAuthSocialRedirectResponse = BetterAuthResult<{
   redirect?: boolean;
 }>;
 
-const betterAuthStateSuffix = '_ba';
-
 export const getBetterAuthErrorMessage = (
   error: unknown,
   fallbackError = 'Request failed',
@@ -53,22 +51,6 @@ export const getBetterAuthErrorMessage = (
   }
 
   return fallbackError;
-};
-
-const markBetterAuthSocialUrl = (url?: string): string | undefined => {
-  if (!url) {
-    return undefined;
-  }
-
-  const authUrl = new URL(url);
-  const state = authUrl.searchParams.get('state');
-
-  if (!state || state.endsWith(betterAuthStateSuffix)) {
-    return authUrl.toString();
-  }
-
-  authUrl.searchParams.set('state', `${state}${betterAuthStateSuffix}`);
-  return authUrl.toString();
 };
 
 const betterAuthPost = async <T = Record<string, unknown>>(
@@ -189,8 +171,9 @@ const getBetterAuthSocialRedirect = async (
   );
 
   return {
+    url: response.url,
+    redirect: response.redirect,
     ...response,
-    url: markBetterAuthSocialUrl(response.url),
   };
 };
 

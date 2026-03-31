@@ -13,8 +13,11 @@ import {
   useToastNotification,
   useViewSize,
 } from '../../../hooks';
-import { AuthEvent, getKratosFlow } from '../../../lib/kratos';
-import { isNativeAuthSupported, AuthEventNames } from '../../../lib/auth';
+import {
+  AuthEvent,
+  isNativeAuthSupported,
+  AuthEventNames,
+} from '../../../lib/auth';
 import { SocialProvider } from '../../../components/auth/common';
 import { labels } from '../../../lib';
 import { isWebView } from '../../../components/auth/OnboardingRegistrationForm';
@@ -28,7 +31,6 @@ jest.mock('../../../hooks/useRegistration');
 jest.mock('../../../contexts/AuthContext');
 jest.mock('../../../contexts/LogContext');
 jest.mock('../../../hooks');
-jest.mock('../../../lib/kratos');
 jest.mock('../../../lib/auth');
 jest.mock('../../../components/auth/OnboardingRegistrationForm');
 jest.mock('../../../lib/func');
@@ -99,11 +101,6 @@ describe('FunnelRegistration', () => {
     });
 
     (useEventListener as jest.Mock).mockImplementation(mockUseEventListener);
-
-    (getKratosFlow as jest.Mock).mockResolvedValue({
-      id: 'test-flow-id',
-      ui: { messages: [] },
-    });
 
     // Default to non-native auth
     (isNativeAuthSupported as jest.Mock).mockImplementation((provider) => {
@@ -220,7 +217,11 @@ describe('FunnelRegistration', () => {
       writable: true,
     });
 
-    let registrationHook;
+    let registrationHook:
+      | {
+          onRedirect: (redirect: string) => void;
+        }
+      | undefined;
     (useRegistration as jest.Mock).mockImplementation((props) => {
       registrationHook = props;
       return {
@@ -231,6 +232,9 @@ describe('FunnelRegistration', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const redirectUrl = 'https://example.com/auth';
+    if (!registrationHook) {
+      throw new Error('Expected registration hook to be initialized');
+    }
     registrationHook.onRedirect(redirectUrl);
 
     expect(mockLocation.href).toBe(redirectUrl);
@@ -393,14 +397,7 @@ describe('FunnelRegistration', () => {
     });
   });
 
-  it('handles registration error with existing email', async () => {
-    (getKratosFlow as jest.Mock).mockResolvedValueOnce({
-      id: 'test-flow-id',
-      ui: {
-        messages: [{ id: 4010003 }], // KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP
-      },
-    });
-
+  it('handles registration error with flow by showing generic error', async () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const messageHandler = mockUseEventListener.mock.calls[0][2];
@@ -412,54 +409,7 @@ describe('FunnelRegistration', () => {
     });
 
     await waitFor(() => {
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        'Email linked to different sign-in method. Please try another provider. Code: 4010003',
-      );
-      expect(mockLogEvent).toHaveBeenCalledWith({
-        event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify({
-          error: {
-            flowId: 'test-flow-id',
-            messages: [{ id: 4010003 }],
-          },
-          origin: 'window registration flow error',
-        }),
-      });
-    });
-  });
-
-  it('handles registration error with generic error code', async () => {
-    (getKratosFlow as jest.Mock).mockResolvedValueOnce({
-      id: 'test-flow-id',
-      ui: {
-        messages: [{ id: 4060004 }], // KRATOS_ERROR.INVALID_TOKEN
-      },
-    });
-
-    render(<FunnelRegistration {...defaultProps} />);
-
-    const messageHandler = mockUseEventListener.mock.calls[0][2];
-    messageHandler({
-      data: {
-        eventKey: AuthEvent.SocialRegistration,
-        flow: 'test-flow',
-      },
-    });
-
-    await waitFor(() => {
-      expect(mockDisplayToast).toHaveBeenCalledWith(
-        '❌ We got some unexpected error from our side, nothing to worry about. Please try again. Code: 4060004',
-      );
-      expect(mockLogEvent).toHaveBeenCalledWith({
-        event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify({
-          error: {
-            flowId: 'test-flow-id',
-            messages: [{ id: 4060004 }],
-          },
-          origin: 'window registration flow error',
-        }),
-      });
+      expect(mockDisplayToast).toHaveBeenCalledWith(labels.auth.error.generic);
     });
   });
 
@@ -573,7 +523,11 @@ describe('FunnelRegistration', () => {
       writable: true,
     });
 
-    let registrationHook;
+    let registrationHook:
+      | {
+          onRedirect: (redirect: string) => void;
+        }
+      | undefined;
     (useRegistration as jest.Mock).mockImplementation((props) => {
       registrationHook = props;
       return {
@@ -584,6 +538,9 @@ describe('FunnelRegistration', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const redirectUrl = 'https://example.com/auth';
+    if (!registrationHook) {
+      throw new Error('Expected registration hook to be initialized');
+    }
     registrationHook.onRedirect(redirectUrl);
 
     expect(mockLocation.href).toBe(redirectUrl);

@@ -32,8 +32,6 @@ tasks:
       NEXT_PUBLIC_SUBS_URL: ws://localhost:5000/graphql
       NEXT_PUBLIC_DOMAIN: localhost
       NEXT_PUBLIC_WEBAPP_URL: /
-      NEXT_PUBLIC_AUTH_URL: http://localhost
-      NEXT_PUBLIC_HEIMDALL_URL: http://localhost
     before: |
       nvm install
       nvm use

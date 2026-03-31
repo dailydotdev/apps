@@ -9,7 +9,6 @@ const mockLogEvent = jest.fn();
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockUseAuthContext = jest.fn();
-const mockUseConditionalFeature = jest.fn();
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -25,10 +24,6 @@ jest.mock('../../hooks/useActions', () => ({
     completeAction: mockCompleteAction,
     isActionsFetched: true,
   }),
-}));
-
-jest.mock('../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: (args: unknown) => mockUseConditionalFeature(args),
 }));
 
 jest.mock('../../lib/constants', () => ({
@@ -49,10 +44,6 @@ describe('AskSearchBanner', () => {
     jest.clearAllMocks();
     mockUseAuthContext.mockReturnValue({ isAuthReady: true });
     mockCheckHasCompleted.mockReturnValue(false);
-    mockUseConditionalFeature.mockReturnValue({
-      value: true,
-      isLoading: false,
-    });
   });
 
   it('should render banner when feature enabled', () => {
@@ -60,19 +51,6 @@ describe('AskSearchBanner', () => {
 
     expect(screen.getByText('WebSearch for Developers')).toBeInTheDocument();
     expect(screen.getByText('Try /daily-dev-ask')).toBeInTheDocument();
-  });
-
-  it('should not render when feature flag is disabled', () => {
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
-
-    renderComponent();
-
-    expect(
-      screen.queryByText('WebSearch for Developers'),
-    ).not.toBeInTheDocument();
   });
 
   it('should not render when dismissed via action', () => {
@@ -93,24 +71,6 @@ describe('AskSearchBanner', () => {
     expect(
       screen.queryByText('WebSearch for Developers'),
     ).not.toBeInTheDocument();
-  });
-
-  it('should evaluate feature only when user is authenticated', () => {
-    renderComponent();
-
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: true }),
-    );
-  });
-
-  it('should not evaluate feature while auth is loading', () => {
-    mockUseAuthContext.mockReturnValue({ isAuthReady: false });
-
-    renderComponent();
-
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
   });
 
   it('should log impression on render', () => {

@@ -11,7 +11,7 @@ import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertCont
 import { LogContextProvider } from '@dailydotdev/shared/src/contexts/LogContext';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import { useError } from '@dailydotdev/shared/src/hooks/useError';
 import {
   ExtensionMessageType,
@@ -59,11 +59,11 @@ export default function App({
   accessToken,
   squads,
   exp,
-}: CompanionData): ReactElement {
+}: CompanionData): ReactElement | null {
   useError();
   const [token, setToken] = useState(accessToken);
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
-    settings?.optOutCompanion,
+    settings?.optOutCompanion ?? false,
   );
 
   const refetchData = async () => {
@@ -78,14 +78,14 @@ export default function App({
 
   useRefreshToken(token, refetchData);
 
-  useEventListener(globalThis, 'message', async (e) => {
+  useEventListener(globalThis as unknown as Window, 'message', async (e) => {
     if (e.data?.eventKey === AuthEvent.Login) {
       await refetchData();
     }
   });
 
-  if (isOptOutCompanion) {
-    return <></>;
+  if (isOptOutCompanion || !postData) {
+    return null;
   }
 
   return (
@@ -106,7 +106,7 @@ export default function App({
               visit={visit}
               tokenRefreshed
               getRedirectUri={() => browser.runtime.getURL('index.html')}
-              updateUser={() => null}
+              updateUser={async () => undefined}
               squads={squads}
             >
               <SettingsContextProvider settings={settings}>
@@ -125,13 +125,17 @@ export default function App({
                     >
                       <Companion
                         postData={postData}
-                        companionHelper={alerts?.companionHelper}
-                        companionExpanded={settings?.companionExpanded}
+                        companionHelper={alerts?.companionHelper ?? false}
+                        companionExpanded={settings?.companionExpanded ?? false}
                         onOptOut={() => setIsOptOutCompanion(true)}
                         onUpdateToken={setToken}
                       />
                     </NotificationsContextProvider>
-                    <PromptElement parentSelector={getCompanionWrapper} />
+                    <PromptElement
+                      parentSelector={() =>
+                        getCompanionWrapper() ?? document.body
+                      }
+                    />
                     <Toast
                       autoDismissNotifications={
                         settings?.autoDismissNotifications

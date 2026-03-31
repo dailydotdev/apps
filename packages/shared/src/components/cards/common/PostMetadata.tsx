@@ -6,6 +6,10 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
+import { getUpvoteCountDisplay } from '../../../lib/post';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
@@ -20,6 +24,7 @@ interface PostMetadataProps
   isVideoType?: boolean;
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
+  userHasUpvoted?: boolean;
 }
 
 export default function PostMetadata({
@@ -32,14 +37,31 @@ export default function PostMetadata({
   isVideoType,
   domain,
   pollMetadata,
+  userHasUpvoted = false,
 }: PostMetadataProps): ReactElement {
+  const upvoteCount = numUpvotes ?? 0;
+  const readTimeValue = readTime ?? 0;
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
+  const { user } = useAuthContext();
+  const isLoggedIn = !!user;
+
+  const { value: upvoteThresholdConfig } = useConditionalFeature({
+    feature: featureUpvoteCountThreshold,
+    shouldEvaluate: isLoggedIn,
+  });
+  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
+    getUpvoteCountDisplay(
+      upvoteCount,
+      upvoteThresholdConfig.threshold,
+      upvoteThresholdConfig.belowThresholdLabel,
+      userHasUpvoted,
+    );
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+    boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
   );
 
   const items: { key: string; node: ReactNode }[] = [
@@ -65,19 +87,24 @@ export default function PostMetadata({
       key: 'readTime',
       node: (
         <span data-testid="readTime">
-          {formatReadTime(readTime)} {timeActionContent} time
+          {formatReadTime(readTimeValue)} {timeActionContent} time
         </span>
       ),
     },
     !!showReadTime && domain && { key: 'domain', node: domain },
-    !!numUpvotes && {
+    showUpvoteCount && {
       key: 'upvotes',
       node: (
         <span data-testid="numUpvotes">
-          {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
+          {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
         </span>
       ),
     },
+    !showUpvoteCount &&
+      !!upvoteLabel && {
+        key: 'upvotes',
+        node: <span data-testid="numUpvotes">{upvoteLabel}</span>,
+      },
   ].filter(Boolean) as { key: string; node: ReactNode }[];
 
   return (

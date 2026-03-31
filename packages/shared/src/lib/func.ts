@@ -1,8 +1,9 @@
 import type { MouseEvent } from 'react';
 import type ReactModal from 'react-modal';
-import type { EmptyObjectLiteral } from './kratos';
 import { BROADCAST_CHANNEL_NAME, isBrave, isTesting } from './constants';
 import type { LogEvent } from '../hooks/log/useLogQueue';
+
+export type EmptyObjectLiteral = Record<string, never | string>;
 
 export type EmptyPromise = () => Promise<void>;
 type RuntimeWindow = Window & {

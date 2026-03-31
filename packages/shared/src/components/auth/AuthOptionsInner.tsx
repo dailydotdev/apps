@@ -12,7 +12,7 @@ import {
   isNativeAuthSupported,
   AuthEventNames,
   AuthTriggers,
-  getNodeValue,
+  AuthEvent,
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
@@ -21,20 +21,12 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
-import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
 import { isIOSNative } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
-import {
-  AuthEvent,
-  AuthFlow,
-  KRATOS_ERROR,
-  getKratosFlow,
-  getKratosProviders,
-} from '../../lib/kratos';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import type { AuthOptionsProps } from './common';
 import { AuthDisplay, providers } from './common';
@@ -167,7 +159,6 @@ function AuthOptionsInner({
   const { syncSettings } = useSettingsContext();
   const { trackSignup } = usePixelsContext();
   const { logEvent } = useLogContext();
-  const isBetterAuth = useIsBetterAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
@@ -176,7 +167,6 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const [flow, setFlow] = useState('');
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
@@ -235,31 +225,26 @@ function AuthOptionsInner({
   };
 
   const { onUpdateSignBack: onSignBackLogin } = useSignBack();
-  const {
-    isReady: isRegistrationReady,
-    registration,
-    verificationFlowId,
-    validateRegistration,
-    onSocialRegistration,
-  } = useRegistration({
-    key: ['registration_form'],
-    onInitializeVerification: () => {
-      onSetActiveDisplay(AuthDisplay.EmailVerification);
-    },
-    onInvalidRegistration: setRegistrationHints,
-    onRedirectFail: () => {
-      windowPopup.current?.close();
-      windowPopup.current = null;
-    },
-    onRedirect: (redirect) => {
-      if (windowPopup.current) {
-        windowPopup.current.location.href = redirect;
-      } else {
-        window.location.href = redirect;
-      }
-    },
-    keepSession: isOnboardingOrFunnel,
-  });
+  const { isReady: isRegistrationReady, validateRegistration } =
+    useRegistration({
+      key: ['registration_form'],
+      onInitializeVerification: () => {
+        onSetActiveDisplay(AuthDisplay.EmailVerification);
+      },
+      onInvalidRegistration: setRegistrationHints,
+      onRedirectFail: () => {
+        windowPopup.current?.close();
+        windowPopup.current = null;
+      },
+      onRedirect: (redirect) => {
+        if (windowPopup.current) {
+          windowPopup.current.location.href = redirect;
+        } else {
+          window.location.href = redirect;
+        }
+      },
+      keepSession: isOnboardingOrFunnel,
+    });
 
   const onProfileSuccess = async (
     options: { redirect?: string; setSignBack?: boolean } = {},
@@ -382,12 +367,8 @@ function AuthOptionsInner({
     isPasswordLoginLoading,
   } = useLogin({
     onSuccessfulLogin: onLoginCheck,
-    ...(!isTesting && { queryEnabled: !user && isRegistrationReady }),
     trigger,
     provider: chosenProvider,
-    onLoginError: () => {
-      return displayToast(labels.auth.error.generic);
-    },
   });
 
   const isReady = isTesting ? true : isLoginReady && isRegistrationReady;
@@ -494,99 +475,82 @@ function AuthOptionsInner({
     socialErrorEventName.current = authErrorEventName;
     setIsSocialAuthLoading(true);
 
-    if (isBetterAuth) {
-      const additionalData = { timezone: getUserDefaultTimezone() };
+    const additionalData = { timezone: getUserDefaultTimezone() };
 
-      if (isNativeAuthSupported(provider)) {
-        const res = await iosNativeAuth(provider);
-        if (!res) {
-          setIsSocialAuthLoading(false);
-          return;
-        }
-        const result = await betterAuthSignInWithIdToken({
-          provider: provider.toLowerCase(),
-          token: res.token,
-          nonce: res.nonce,
-          additionalData,
-        });
-        if (result.error) {
-          logEvent({
-            event_name: authErrorEventName,
-            extra: JSON.stringify({
-              error: result.error,
-              origin: 'betterauth native id token',
-            }),
-          });
-          setIsSocialAuthLoading(false);
-          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-          return;
-        }
-        await setChosenProvider(provider);
-        await handleLoginMessage();
+    if (isNativeAuthSupported(provider)) {
+      const res = await iosNativeAuth(provider);
+      if (!res) {
+        setIsSocialAuthLoading(false);
         return;
       }
-      const isIOSApp = isIOSNative();
-      onAuthStateUpdate?.({ isLoading: true });
-      if (!isIOSApp) {
-        windowPopup.current = window.open();
-      }
-      const callbackURL = `${webappUrl}callback?login=true`;
-      const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
-        provider.toLowerCase(),
-        callbackURL,
+      const result = await betterAuthSignInWithIdToken({
+        provider: provider.toLowerCase(),
+        token: res.token,
+        nonce: res.nonce,
         additionalData,
-      );
-      if (!socialUrl) {
+      });
+      if (result.error) {
         logEvent({
           event_name: authErrorEventName,
           extra: JSON.stringify({
-            error: error || 'Failed to get social login URL',
-            origin: 'betterauth social url',
-          }),
-        });
-        windowPopup.current?.close();
-        windowPopup.current = null;
-        setIsSocialAuthLoading(false);
-        displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-        onAuthStateUpdate?.({ isLoading: false });
-        return;
-      }
-      if (isIOSApp) {
-        window.location.href = socialUrl;
-        return;
-      }
-      if (!windowPopup.current) {
-        logEvent({
-          event_name: authErrorEventName,
-          extra: JSON.stringify({
-            error: 'Failed to open social login window',
-            origin: 'betterauth social popup',
+            error: result.error,
+            origin: 'betterauth native id token',
           }),
         });
         setIsSocialAuthLoading(false);
         displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-        onAuthStateUpdate?.({ isLoading: false });
         return;
       }
-      windowPopup.current.location.href = socialUrl;
       await setChosenProvider(provider);
-      onAuthStateUpdate?.({ isLoading: true });
+      await handleLoginMessage();
       return;
     }
-
-    // Only web auth requires a popup
-    if (!isNativeAuthSupported(provider)) {
+    const isIOSApp = isIOSNative();
+    onAuthStateUpdate?.({ isLoading: true });
+    if (!isIOSApp) {
       windowPopup.current = window.open();
     }
+    const callbackURL = `${webappUrl}callback?login=true`;
+    const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
+      provider.toLowerCase(),
+      callbackURL,
+      additionalData,
+    );
+    if (!socialUrl) {
+      logEvent({
+        event_name: authErrorEventName,
+        extra: JSON.stringify({
+          error: error || 'Failed to get social login URL',
+          origin: 'betterauth social url',
+        }),
+      });
+      windowPopup.current?.close();
+      windowPopup.current = null;
+      setIsSocialAuthLoading(false);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onAuthStateUpdate?.({ isLoading: false });
+      return;
+    }
+    if (isIOSApp) {
+      window.location.href = socialUrl;
+      return;
+    }
+    if (!windowPopup.current) {
+      logEvent({
+        event_name: authErrorEventName,
+        extra: JSON.stringify({
+          error: 'Failed to open social login window',
+          origin: 'betterauth social popup',
+        }),
+      });
+      setIsSocialAuthLoading(false);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      onAuthStateUpdate?.({ isLoading: false });
+      return;
+    }
+    windowPopup.current.location.href = socialUrl;
     await setChosenProvider(provider);
-    await onSocialRegistration(provider);
     onAuthStateUpdate?.({ isLoading: true });
-  };
-
-  const onForgotPasswordSubmit = (inputEmail: string, inputFlow: string) => {
-    setEmail(inputEmail);
-    setFlow(inputFlow);
-    onSetActiveDisplay(AuthDisplay.CodeVerification);
   };
 
   const onProviderMessage = async (e: MessageEvent) => {
@@ -596,49 +560,6 @@ function AuthOptionsInner({
 
     if (e.data?.eventKey !== AuthEvent.SocialRegistration || ignoreMessages) {
       return undefined;
-    }
-
-    if (e.data?.flow) {
-      const connected = await getKratosFlow(AuthFlow.Registration, e.data.flow);
-
-      logEvent({
-        event_name: AuthEventNames.RegistrationError,
-        extra: JSON.stringify({
-          error: {
-            flowId: connected?.id,
-            messages: connected?.ui?.messages,
-          },
-          origin: 'window registration flow error',
-        }),
-      });
-
-      if (
-        [
-          KRATOS_ERROR.NO_STRATEGY_TO_LOGIN,
-          KRATOS_ERROR.NO_STRATEGY_TO_SIGNUP,
-          KRATOS_ERROR.EXISTING_USER,
-        ].includes(connected?.ui?.messages?.[0]?.id)
-      ) {
-        const registerUser = {
-          name: getNodeValue('traits.name', connected.ui.nodes),
-          email: getNodeValue('traits.email', connected.ui.nodes),
-          image: getNodeValue('traits.image', connected.ui.nodes),
-        };
-        // Native auth doesn't return traits, so we must validate that it exists
-        if (registerUser.email) {
-          const { result } = await getKratosProviders(connected.id);
-          setIsConnected(true);
-          setIsSocialAuthLoading(false);
-          await onSignBackLogin(registerUser, result[0] as SignBackProvider);
-          return onSetActiveDisplay(AuthDisplay.SignBack);
-        }
-        setIsSocialAuthLoading(false);
-        onSetActiveDisplay(AuthDisplay.SignBack);
-        return displayToast(labels.auth.error.existingEmail);
-      }
-
-      setIsSocialAuthLoading(false);
-      return displayToast(labels.auth.error.generic);
     }
 
     return handleLoginMessage(e);
@@ -664,9 +585,6 @@ function AuthOptionsInner({
       ...params,
       method: 'password',
     });
-    if (!isBetterAuth) {
-      await onProfileSuccess({ setSignBack: false });
-    }
   };
 
   const onForgotPassword = (withEmail?: string) => {
@@ -764,10 +682,7 @@ function AuthOptionsInner({
             }}
             onUpdateHints={setRegistrationHints}
             trigger={trigger}
-            token={
-              registration &&
-              getNodeValue('csrf_token', registration?.ui?.nodes)
-            }
+            token={undefined}
             targetId={targetId}
           />
         </Tab>
@@ -839,15 +754,12 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.ForgotPassword}>
           <ForgotPasswordForm
             onBack={onForgotPasswordBack}
-            onSubmit={onForgotPasswordSubmit}
             simplified={simplified}
           />
         </Tab>
         <Tab label={AuthDisplay.CodeVerification}>
           <CodeVerificationForm
-            initialFlow={flow}
             onBack={onForgotPasswordBack}
-            onSubmit={() => setActiveDisplay(AuthDisplay.ChangePassword)}
             simplified={simplified}
           />
         </Tab>
@@ -861,25 +773,16 @@ function AuthOptionsInner({
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           <AuthHeader simplified={simplified} title="Verify your email" />
           <EmailCodeVerification
-            flowId={verificationFlowId}
             onSubmit={onProfileSuccess}
-            onVerifyCode={
-              isBetterAuth
-                ? async (code) => {
-                    const res = await betterAuthVerifyEmailOTP(email, code);
-                    if (res.error) {
-                      throw new Error(res.error);
-                    }
-                  }
-                : undefined
-            }
-            onResendCode={
-              isBetterAuth
-                ? async () => {
-                    await betterAuthSendVerificationOTP(email);
-                  }
-                : undefined
-            }
+            onVerifyCode={async (code) => {
+              const res = await betterAuthVerifyEmailOTP(email, code);
+              if (res.error) {
+                throw new Error(res.error);
+              }
+            }}
+            onResendCode={async () => {
+              await betterAuthSendVerificationOTP(email);
+            }}
           />
         </Tab>
       </TabContainer>
