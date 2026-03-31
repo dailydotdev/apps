@@ -76,7 +76,7 @@ const useNewOpportunityParser = (): UseNewOpportunityParserResult => {
     }
 
     if (!pendingSubmission) {
-      router.push(`/recruiter?openModal=joblink`);
+      router.push(`${webappUrl}recruiter?openModal=joblink`);
       return;
     }
 
