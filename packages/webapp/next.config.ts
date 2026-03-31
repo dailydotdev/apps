@@ -58,10 +58,6 @@ const nextConfig: NextConfig = {
     },
   },
   ...withBundleAnalyzer({
-    i18n: {
-      locales: ['en'],
-      defaultLocale: 'en',
-    },
     compiler: {
       reactRemoveProperties: { properties: ['^data-testid$'] },
     },
