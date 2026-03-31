@@ -121,16 +121,18 @@ export interface Props extends DynamicSeoProps {
   error?: ApiError;
 }
 
+type PostContentComponent = ComponentType<PostContentProps>;
+
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
-  article: PostContent,
+  article: PostContent as PostContentComponent,
   share: SquadPostContent,
   welcome: SquadPostContent,
   freeform: SquadPostContent,
-  [PostType.VideoYouTube]: PostContent,
+  [PostType.VideoYouTube]: PostContent as PostContentComponent,
   collection: CollectionPostContent,
-  [PostType.Brief]: BriefPostContent,
+  [PostType.Brief]: BriefPostContent as PostContentComponent,
   [PostType.Poll]: PollPostContent,
-  [PostType.SocialTwitter]: SocialTwitterPostContent,
+  [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
 };
 
@@ -209,7 +211,9 @@ export const PostPage = ({
 
   const privateSourceJoin = usePrivateSourceJoin({ postId: id });
 
-  const { usePostReferrer } = usePostReferrerContext();
+  const { usePostReferrer } = usePostReferrerContext() as {
+    usePostReferrer: (props: { post?: Post }) => void;
+  };
 
   usePostReferrer({ post });
 
@@ -286,6 +290,13 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 export async function getStaticProps({
   params,
 }: GetStaticPropsContext<PostParams>): Promise<GetStaticPropsResult<Props>> {
+  if (!params?.id) {
+    return {
+      notFound: true,
+      revalidate: 60,
+    };
+  }
+
   const { id } = params;
   try {
     // Fetch post data and top comments in parallel
@@ -298,12 +309,17 @@ export async function getStaticProps({
 
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
-    const pageSeoTitles = getPageSeoTitles(seoTitle(post));
+    const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    const isThinLowEngagementPost =
+      [PostType.Brief, PostType.SocialTwitter].includes(post?.type) &&
+      (post.numUpvotes ?? 0) < 5;
     const seo: NextSeoProps = {
       canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
-      noindex: post?.author ? post.author.reputation <= 10 : false,
+      noindex:
+        (post?.author ? (post.author.reputation ?? 0) <= 10 : false) ||
+        isThinLowEngagementPost,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
@@ -341,7 +357,8 @@ export async function getStaticProps({
     };
   } catch (err) {
     const clientError = err as ClientError;
-    const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
+    const responseErrors = clientError?.response?.errors;
+    const errorCode = responseErrors?.[0]?.extensions?.code;
     const errors = Object.values(ApiError);
     if (errors.includes(errorCode)) {
       // Return proper 404 for not found posts (better for SEO/crawl budget)
@@ -351,7 +368,7 @@ export async function getStaticProps({
         };
       }
 
-      const { postId } = clientError.response.errors[0].extensions;
+      const { postId } = responseErrors?.[0]?.extensions ?? {};
 
       return {
         props: { id: postId || id, error: errorCode },
