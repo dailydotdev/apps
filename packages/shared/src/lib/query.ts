@@ -272,9 +272,8 @@ export type HasConnection<
   TReturn = unknown,
 > = Partial<Record<TKey, Connection<TReturn>>>;
 
-type ConnectionNode<TConnection> = TConnection extends Connection<infer TNode>
-  ? TNode
-  : never;
+type ConnectionNode<TConnection> =
+  TConnection extends Connection<infer TNode> ? TNode : never;
 
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,

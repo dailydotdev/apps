@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+import type { Resolver } from 'react-hook-form';
 import type z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import classNames from 'classnames';
@@ -39,10 +40,15 @@ export type OpportunityEditInfoModalProps = {
   id: string;
 };
 
+type OpportunityEditInfoFormValues = z.infer<typeof opportunityEditInfoSchema>;
+
 export const OpportunityEditInfoModal = ({
   id,
   ...rest
 }: OpportunityEditInfoModalProps & ModalProps) => {
+  const closeModal = () => {
+    rest.onRequestClose?.({} as React.MouseEvent<Element, MouseEvent>);
+  };
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { data: opportunity, promise } = useQuery({
@@ -62,16 +68,47 @@ export const OpportunityEditInfoModal = ({
         queryKey: [RequestKey.Opportunities],
       });
 
-      rest.onRequestClose?.(null);
+      closeModal();
     },
   });
 
-  const methods = useForm({
-    resolver: zodResolver(opportunityEditInfoSchema),
+  const methods = useForm<OpportunityEditInfoFormValues>({
+    resolver: zodResolver(
+      opportunityEditInfoSchema,
+    ) as Resolver<OpportunityEditInfoFormValues>,
     defaultValues: async () => {
       const opportunityData = await promise;
 
-      return opportunityData;
+      return {
+        title: opportunityData.title || '',
+        tldr: opportunityData.tldr || '',
+        keywords: opportunityData.keywords || [],
+        locationType: opportunityData.locations?.[0]?.type,
+        locations:
+          opportunityData.locations?.map((loc) => ({
+            locationId: loc.locationId || undefined,
+            externalLocationId: undefined,
+            locationData: loc.location
+              ? {
+                  id: '',
+                  city: loc.location.city,
+                  country: loc.location.country || '',
+                  subdivision: loc.location.subdivision,
+                }
+              : undefined,
+          })) || [],
+        meta: {
+          employmentType: opportunityData.meta?.employmentType ?? 0,
+          teamSize: opportunityData.meta?.teamSize ?? 1,
+          salary: {
+            min: opportunityData.meta?.salary?.min,
+            max: opportunityData.meta?.salary?.max,
+            period: opportunityData.meta?.salary?.period ?? 0,
+          },
+          seniorityLevel: opportunityData.meta?.seniorityLevel ?? 0,
+          roleType: opportunityData.meta?.roleType ?? 0.5,
+        },
+      };
     },
   });
   const {
@@ -349,7 +386,11 @@ export const OpportunityEditInfoModal = ({
                         container: 'flex-1',
                         menu: 'w-[--radix-dropdown-menu-trigger-width]',
                       }}
-                      selectedIndex={field.value ? field.value - 1 : undefined}
+                      selectedIndex={
+                        typeof field.value === 'number'
+                          ? field.value - 1
+                          : undefined
+                      }
                       options={options}
                       onChange={(value) => {
                         const valueIndex = options.indexOf(value);
@@ -390,7 +431,11 @@ export const OpportunityEditInfoModal = ({
                       container: 'flex-1',
                       menu: 'w-[--radix-dropdown-menu-trigger-width]',
                     }}
-                    selectedIndex={field.value ? field.value - 1 : undefined}
+                    selectedIndex={
+                      typeof field.value === 'number'
+                        ? field.value - 1
+                        : undefined
+                    }
                     options={options}
                     onChange={(value) => {
                       const valueIndex = options.indexOf(value);

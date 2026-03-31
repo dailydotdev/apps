@@ -49,7 +49,8 @@ const Sidebar = dynamic(() =>
 );
 
 export interface MainLayoutProps
-  extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
+  extends
+    Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;

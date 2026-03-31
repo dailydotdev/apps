@@ -19,11 +19,10 @@ interface PricingPlansV2Props {
   value?: string;
 }
 
-interface PricingPlanProps
-  extends Pick<
-    FunnelStepPricingPlan,
-    'priceId' | 'label' | 'badge' | 'oldPrice' | 'variation'
-  > {
+interface PricingPlanProps extends Pick<
+  FunnelStepPricingPlan,
+  'priceId' | 'label' | 'badge' | 'oldPrice' | 'variation'
+> {
   isActive?: boolean;
   onChange?: (planId: string) => void;
   price?: ProductPricingPreview;

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import type { UseFormReturn } from 'react-hook-form';
+import type { Resolver, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type {
@@ -289,7 +289,9 @@ export function useOpportunityEditForm({
   const defaultValues = draftData || opportunityFormData;
 
   const form = useForm<OpportunitySideBySideEditFormData>({
-    resolver: zodResolver(opportunitySideBySideEditSchema),
+    resolver: zodResolver(
+      opportunitySideBySideEditSchema,
+    ) as Resolver<OpportunitySideBySideEditFormData>,
     defaultValues,
     mode: 'onChange',
   });

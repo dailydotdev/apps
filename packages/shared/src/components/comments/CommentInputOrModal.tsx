@@ -9,7 +9,8 @@ import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 import { useMutateComment } from '../../hooks/post/useMutateComment';
 
 interface CommentInputOrModalProps
-  extends Partial<LazyModalCommonProps>,
+  extends
+    Partial<LazyModalCommonProps>,
     Omit<CommentMarkdownInputProps, 'className'> {
   onClose?: () => void;
   className?: {

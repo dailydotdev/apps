@@ -114,19 +114,18 @@ export interface UserProfile {
   externalLocationId?: string;
 }
 
-export interface UserShortProfile
-  extends Pick<
-    PublicProfile,
-    | 'id'
-    | 'name'
-    | 'image'
-    | 'bio'
-    | 'createdAt'
-    | 'reputation'
-    | 'companies'
-    | 'isPlus'
-    | 'plusMemberSince'
-  > {
+export interface UserShortProfile extends Pick<
+  PublicProfile,
+  | 'id'
+  | 'name'
+  | 'image'
+  | 'bio'
+  | 'createdAt'
+  | 'reputation'
+  | 'companies'
+  | 'isPlus'
+  | 'plusMemberSince'
+> {
   username: string;
   permalink: string;
   contentPreference?: ContentPreference;

@@ -11,8 +11,10 @@ import { isNullOrUndefined } from '../../lib/func';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import Link from '../utilities/Link';
 
-export interface SectionCommonProps
-  extends Pick<ItemInnerProps, 'shouldShowLabel'> {
+export interface SectionCommonProps extends Pick<
+  ItemInnerProps,
+  'shouldShowLabel'
+> {
   sidebarExpanded: boolean;
   activePage: string;
   className?: string;
