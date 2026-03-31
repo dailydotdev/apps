@@ -217,7 +217,11 @@ describe('FunnelRegistration', () => {
       writable: true,
     });
 
-    let registrationHook;
+    let registrationHook:
+      | {
+          onRedirect: (redirect: string) => void;
+        }
+      | undefined;
     (useRegistration as jest.Mock).mockImplementation((props) => {
       registrationHook = props;
       return {
@@ -228,6 +232,9 @@ describe('FunnelRegistration', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const redirectUrl = 'https://example.com/auth';
+    if (!registrationHook) {
+      throw new Error('Expected registration hook to be initialized');
+    }
     registrationHook.onRedirect(redirectUrl);
 
     expect(mockLocation.href).toBe(redirectUrl);
@@ -516,7 +523,11 @@ describe('FunnelRegistration', () => {
       writable: true,
     });
 
-    let registrationHook;
+    let registrationHook:
+      | {
+          onRedirect: (redirect: string) => void;
+        }
+      | undefined;
     (useRegistration as jest.Mock).mockImplementation((props) => {
       registrationHook = props;
       return {
@@ -527,6 +538,9 @@ describe('FunnelRegistration', () => {
     render(<FunnelRegistration {...defaultProps} />);
 
     const redirectUrl = 'https://example.com/auth';
+    if (!registrationHook) {
+      throw new Error('Expected registration hook to be initialized');
+    }
     registrationHook.onRedirect(redirectUrl);
 
     expect(mockLocation.href).toBe(redirectUrl);

@@ -20,8 +20,8 @@ interface UseSignBack {
   signBack?: SignedInUser;
   provider?: SignBackProvider;
   onUpdateSignBack: (
-    user: SignedInUser,
-    provider: SignBackProvider,
+    user?: SignedInUser | null,
+    provider?: SignBackProvider | null,
   ) => Promise<void>;
 }
 
@@ -31,7 +31,7 @@ export const useSignBack = (): UseSignBack => {
 
   const onUpdateSignBack: UseSignBack['onUpdateSignBack'] = useCallback(
     (user, provider) => {
-      if (isNullOrUndefined(provider)) {
+      if (provider == null) {
         globalThis?.localStorage.removeItem(SIGNIN_METHOD_KEY);
       } else {
         globalThis?.localStorage.setItem(
@@ -40,7 +40,7 @@ export const useSignBack = (): UseSignBack => {
         );
       }
 
-      if (isNullOrUndefined(user)) {
+      if (user == null) {
         return setSignBack(undefined as unknown as SignedInUser);
       }
 

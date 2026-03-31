@@ -66,7 +66,7 @@ interface AccountSecurityDefaultProps {
   email?: string;
   isEmailSent?: boolean;
   userProviders?: { ok: boolean; result: string[] };
-  updatePasswordRef: MutableRefObject<HTMLFormElement>;
+  updatePasswordRef: MutableRefObject<HTMLFormElement | null>;
   onSwitchDisplay: (display: Display) => void;
   onUpdatePassword: (form: ChangePasswordParams) => void;
   onUpdateProviders: (params: UpdateProvidersParams) => void;
@@ -127,6 +127,9 @@ function AccountSecurityDefault({
   const { mutate: deleteAccountPrompt, isPending: isDeleting } = useMutation({
     mutationKey: ['deleteAccount'],
     mutationFn: async () => {
+      if (!deleteAccount) {
+        throw new Error('Missing deleteAccount handler');
+      }
       if (await showPrompt(deleteAccountPromptOptions)) {
         await deleteAccount();
       }

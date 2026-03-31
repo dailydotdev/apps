@@ -44,7 +44,7 @@ const BETTER_AUTH_CHANGE_EMAIL_MESSAGE =
   'If that email is available, we sent a verification code.';
 
 const AccountSecurityPage = (): ReactElement => {
-  const updatePasswordRef = useRef<HTMLFormElement>();
+  const updatePasswordRef = useRef<HTMLFormElement | null>(null);
   const { user, refetchBoot } = useAuthContext();
   const { displayToast } = useToastNotification();
   const [activeDisplay, setActiveDisplay] = useState(Display.Default);
@@ -123,7 +123,9 @@ const AccountSecurityPage = (): ReactElement => {
           const validProvider = userProviders?.result?.find(
             (userProvider) => userProvider !== postData.unlink,
           );
-          onUpdateSignBack(signBack, validProvider as SignBackProvider);
+          if (signBack && validProvider) {
+            await onUpdateSignBack(signBack, validProvider as SignBackProvider);
+          }
         }
       } else {
         displayToast('You must have at least one provider');
@@ -138,8 +140,16 @@ const AccountSecurityPage = (): ReactElement => {
     await client.invalidateQueries({ queryKey: providersKey });
   };
 
-  useEventListener(globalThis, 'message', onLinkProviderMessage);
-  useEventListener(broadcastChannel, 'message', onLinkProviderMessage);
+  useEventListener(
+    globalThis as unknown as Window,
+    'message',
+    onLinkProviderMessage,
+  );
+  useEventListener(
+    broadcastChannel as BroadcastChannel,
+    'message',
+    onLinkProviderMessage,
+  );
 
   return (
     <TabContainer showHeader={false} controlledActive={activeDisplay}>

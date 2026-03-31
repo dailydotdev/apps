@@ -272,6 +272,10 @@ export type HasConnection<
   TReturn = unknown,
 > = Partial<Record<TKey, Connection<TReturn>>>;
 
+type ConnectionNode<TConnection> = TConnection extends Connection<infer TNode>
+  ? TNode
+  : never;
+
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
@@ -283,8 +287,10 @@ interface InfiniteCacheProps<
 
 interface UpdateInfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,
-  TData extends TEntity[TKey]['edges'][0]['node'],
   TKey extends keyof TEntity = keyof TEntity,
+  TData extends ConnectionNode<NonNullable<TEntity[TKey]>> = ConnectionNode<
+    NonNullable<TEntity[TKey]>
+  >,
 > extends InfiniteCacheProps<TEntity, TKey> {
   page: number;
   edge: number;
@@ -294,8 +300,9 @@ interface UpdateInfiniteCacheProps<
 export const updateInfiniteCache = <
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
-  TData extends TEntity[TKey]['edges'][0]['node'] =
-    TEntity[TKey]['edges'][0]['node'],
+  TData extends ConnectionNode<NonNullable<TEntity[TKey]>> = ConnectionNode<
+    NonNullable<TEntity[TKey]>
+  >,
   TReturn extends InfiniteData<TEntity> = InfiniteData<TEntity>,
 >({
   client,
@@ -304,16 +311,23 @@ export const updateInfiniteCache = <
   page,
   edge,
   entity,
-}: UpdateInfiniteCacheProps<TEntity, TData>): TReturn => {
+}: UpdateInfiniteCacheProps<TEntity, TKey, TData>): TReturn | undefined => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
     if (!data) {
-      return null;
+      return data;
     }
 
-    const updated = { ...data };
-    const item = updated.pages[page][prop].edges[edge]
-      .node as EmptyObjectLiteral;
-    updated.pages[page][prop].edges[edge].node = { ...item, ...entity };
+    const updated = structuredClone(data);
+    const pageData = updated.pages[page];
+    const connection = pageData?.[prop] as Connection<TData> | undefined;
+    const targetEdge = connection?.edges?.[edge];
+
+    if (!pageData || !connection || !targetEdge) {
+      return data;
+    }
+
+    const item = targetEdge.node as EmptyObjectLiteral;
+    targetEdge.node = { ...item, ...entity } as TData;
 
     return updated;
   });
@@ -326,7 +340,7 @@ export const mutationSuccessSubscribers: Map<
 
 export const globalMutationCache = new MutationCache({
   onSuccess: (...args) => {
-    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
+    mutationSuccessSubscribers.forEach((subscriber) => subscriber?.(...args));
   },
 });
 
@@ -357,8 +371,17 @@ export const updateCachedPage = (
   queryClient.setQueryData<InfiniteData<FeedData>>(
     feedQueryKey,
     (currentData) => {
+      if (!currentData) {
+        return currentData;
+      }
+
+      const currentPageData = currentData.pages[pageIndex];
+      if (!currentPageData) {
+        return currentData;
+      }
+
       const { pages } = currentData;
-      const currentPage = structuredClone(pages[pageIndex]);
+      const currentPage = structuredClone(currentPageData);
       currentPage.page = manipulate(currentPage.page);
       const newPages = [
         ...pages.slice(0, pageIndex),
@@ -403,14 +426,23 @@ export const updateReadingHistoryListPost = ({
   manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
   queryClient: QueryClient;
 }): (() => void) => {
-  const oldData = !!queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
+  const oldData = queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
 
   if (!oldData) {
     return () => undefined;
   }
 
   queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    const updatedPage = structuredClone(currentData.pages[pageIndex]);
+    if (!currentData) {
+      return currentData;
+    }
+
+    const currentPage = currentData.pages[pageIndex];
+    if (!currentPage) {
+      return currentData;
+    }
+
+    const updatedPage = structuredClone(currentPage);
     const currentPostNode = updatedPage.readHistory.edges[index].node;
 
     currentPostNode.post = {
@@ -542,7 +574,7 @@ export const generateCommentsQueryKey = ({
 }: GenerateCommentsQueryKeyProps): QueryKeyReturnType =>
   generateQueryKey(
     RequestKey.PostComments,
-    null,
+    undefined,
     // Filter out undefined to ensure key matches after JSON serialization
     Object.fromEntries(
       Object.entries({ postId, sortBy }).filter(([, v]) => v !== undefined),
@@ -572,7 +604,7 @@ export const findIndexOfPostInData = (
       if (
         findBySharedPost &&
         item.node.type === PostType.Share &&
-        item.node.sharedPost.id === id
+        item.node.sharedPost?.id === id
       ) {
         return { pageIndex, index };
       }
@@ -587,27 +619,34 @@ export const updatePostCache = (
   postUpdate:
     | Partial<Omit<Post, 'id'>>
     | ((current: Post) => Partial<Omit<Post, 'id'>>),
-): PostData => {
+): PostData | undefined => {
   const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
 
   if (!currentPost?.post) {
     return currentPost;
   }
 
-  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
-    const update =
-      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
-    const updatedPost = { ...node.post, ...update } as Post;
-    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
+  return client.setQueryData<PostData>(
+    getPostByIdKey(id),
+    (node): PostData | undefined => {
+      if (!node?.post) {
+        return node;
+      }
 
-    return {
-      post: {
-        ...updatedPost,
-        id: node.post.id,
-        bookmark: !updatedPost.bookmarked ? null : bookmark,
-      },
-    };
-  });
+      const update =
+        typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
+      const updatedPost = { ...node.post, ...update } as Post;
+      const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
+
+      return {
+        post: {
+          ...updatedPost,
+          id: node.post.id,
+          bookmark: !updatedPost.bookmarked ? undefined : bookmark,
+        },
+      };
+    },
+  ) as PostData | undefined;
 };
 
 export const updateAdPostInCache = (

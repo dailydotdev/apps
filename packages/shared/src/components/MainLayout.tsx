@@ -49,8 +49,7 @@ const Sidebar = dynamic(() =>
 );
 
 export interface MainLayoutProps
-  extends
-    Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
+  extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
     HTMLAttributes<HTMLDivElement> {
   mainPage?: boolean;
   activePage?: string;
@@ -77,7 +76,7 @@ function MainLayoutComponent({
   onLogoClick,
   onNavTabClick,
   canGoBack,
-}: MainLayoutProps): ReactElement {
+}: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { user, isAuthReady, showLogin } = useAuthContext();
@@ -88,7 +87,9 @@ function MainLayoutComponent({
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
-  const { isCustomFeed } = useFeedName({ feedName });
+  const page = router?.route?.substring(1).trim() as SharedFeedPage;
+  const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
+  const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
@@ -110,7 +111,6 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
@@ -210,7 +210,7 @@ function MainLayoutComponent({
             isNavButtons={isNavItemsButton}
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
-            activePage={activePage}
+            activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
         {children}

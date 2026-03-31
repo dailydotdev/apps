@@ -41,10 +41,7 @@ function EmailForm({
   const [code, setCode] = useState<string>();
   const [email, setEmail] = useState<string>();
   const [codeHint, setCodeHint] = useState<string>();
-  const { timer: nextTimer, setTimer, runTimer } = useTimer(
-    () => undefined,
-    0,
-  );
+  const { timer: nextTimer, setTimer, runTimer } = useTimer(() => undefined, 0);
   const timer = nextTimer ?? 0;
 
   const onCodeVerification = async () => {
@@ -89,9 +86,9 @@ function EmailForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const submitType = (
-      e.nativeEvent as SubmitEvent
-    ).submitter?.getAttribute('name');
+    const submitType = (e.nativeEvent as SubmitEvent).submitter?.getAttribute(
+      'name',
+    );
     if (submitType === 'getCode') {
       onSubmitEmail();
     } else {
