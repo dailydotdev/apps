@@ -63,6 +63,19 @@ describe('getUpvoteCountDisplay', () => {
     expect(result).toEqual({ showCount: false, belowThresholdLabel: '' });
   });
 
+  it('hides label for yesterday posts even within 24-hour window', () => {
+    const result = getUpvoteCountDisplay(
+      1,
+      3,
+      'New',
+      false,
+      '2026-03-29T23:30:00.000Z',
+      24,
+    );
+
+    expect(result).toEqual({ showCount: false, belowThresholdLabel: '' });
+  });
+
   it('hides label when createdAt is undefined', () => {
     const result = getUpvoteCountDisplay(1, 3, 'New', false, undefined, 24);
 

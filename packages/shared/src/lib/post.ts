@@ -1,9 +1,11 @@
+import { isSameDay } from 'date-fns';
+
 export interface UpvoteCountDisplay {
   showCount: boolean;
   belowThresholdLabel: string;
 }
 
-function isRecentPost(
+function isTodayPost(
   createdAt: string | Date | undefined,
   newWindowHours: number,
 ): boolean {
@@ -18,10 +20,16 @@ function isRecentPost(
     return false;
   }
 
+  const createdAtDate = new Date(createdAtMs);
+  const now = new Date();
+  if (!isSameDay(createdAtDate, now)) {
+    return false;
+  }
+
   const windowMs = Math.max(0, newWindowHours) * 60 * 60 * 1000;
   // Inclusive boundary is intentional: content exactly at the window limit
-  // is still considered recent.
-  return Date.now() - createdAtMs <= windowMs;
+  // is still considered within the "Today" window.
+  return now.getTime() - createdAtMs <= windowMs;
 }
 
 export function getUpvoteCountDisplay(
@@ -48,7 +56,7 @@ export function getUpvoteCountDisplay(
     return { showCount: true, belowThresholdLabel: '' };
   }
 
-  if (!isRecentPost(createdAt, newWindowHours)) {
+  if (!isTodayPost(createdAt, newWindowHours)) {
     return { showCount: false, belowThresholdLabel: '' };
   }
 
