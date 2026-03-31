@@ -10,14 +10,10 @@ import type { CloseModalFunc } from '../modals/common';
 import AuthHeader from './AuthHeader';
 import type { AuthFormProps } from './common';
 import { AuthModalText } from './common';
-import TokenInput from './TokenField';
-import { AuthFlow } from '../../lib/kratos';
-import useAccountEmailFlow from '../../hooks/useAccountEmailFlow';
 import { AuthEventNames } from '../../lib/auth';
 import { useLogContext } from '../../contexts/LogContext';
 import AuthForm from './AuthForm';
 import { useAuthData } from '../../contexts/AuthDataContext';
-import { useIsBetterAuth } from '../../hooks/useIsBetterAuth';
 import { betterAuthForgetPassword } from '../../lib/betterAuth';
 import { webappUrl } from '../../lib/constants';
 
@@ -27,25 +23,17 @@ const AuthModalFooter = dynamic(
 
 interface ForgotPasswordFormProps extends AuthFormProps {
   onBack?: CloseModalFunc;
-  onSubmit?: (email: string, flow: string) => void;
 }
 
 function ForgotPasswordForm({
   onBack,
-  onSubmit,
   simplified,
 }: ForgotPasswordFormProps): ReactElement {
   const { email: initialEmail, setEmail } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
   const [emailSent, setEmailSent] = useState(false);
-  const [isBALoading, setIsBALoading] = useState(false);
-  const isBetterAuth = useIsBetterAuth();
-  const { sendEmail, isLoading, token } = useAccountEmailFlow({
-    flow: AuthFlow.Recovery,
-    onError: setHint,
-    onSuccess: onSubmit,
-  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSendEmail = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,26 +43,21 @@ function ForgotPasswordForm({
     const { email } = formToJson<{ email: string }>(e.currentTarget);
     setEmail(email);
 
-    if (isBetterAuth) {
-      setIsBALoading(true);
-      setHint('');
-      const redirectTo = `${webappUrl}reset-password`;
-      const res = await betterAuthForgetPassword(email, redirectTo);
-      setIsBALoading(false);
+    setIsLoading(true);
+    setHint('');
+    const redirectTo = `${webappUrl}reset-password`;
+    const res = await betterAuthForgetPassword(email, redirectTo);
+    setIsLoading(false);
 
-      if (res.error) {
-        setHint(res.error);
-        return;
-      }
-
-      setEmailSent(true);
+    if (res.error) {
+      setHint(res.error);
       return;
     }
 
-    await sendEmail(email);
+    setEmailSent(true);
   };
 
-  if (isBetterAuth && emailSent) {
+  if (emailSent) {
     return (
       <>
         <AuthHeader
@@ -122,11 +105,9 @@ function ForgotPasswordForm({
         onSubmit={onSendEmail}
         data-testid="recovery_form"
       >
-        {!isBetterAuth && token && <TokenInput token={token} />}
         <AuthModalText className="text-center">
-          {isBetterAuth
-            ? 'Enter the email address you registered with and we will send you a password reset link.'
-            : 'Enter the email address you registered with and we will send you a verification code.'}
+          Enter the email address you registered with and we will send you a
+          password reset link.
         </AuthModalText>
         <TextField
           className={{ container: 'mt-6 w-full' }}
@@ -145,9 +126,9 @@ function ForgotPasswordForm({
           className="mt-6"
           variant={ButtonVariant.Primary}
           type="submit"
-          disabled={isBetterAuth ? isBALoading : isLoading}
+          disabled={isLoading}
         >
-          {isBetterAuth ? 'Send reset link' : 'Send verification code'}
+          Send reset link
         </Button>
       </AuthForm>
       {simplified && onBack && (

@@ -65,12 +65,6 @@ export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
-export const authUrl =
-  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
-export const heimdallUrl = isDevelopment
-  ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
-  : authUrl;
-
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const topReaderBadgeDocs = 'https://r.daily.dev/top-reader-badge';
 export const plusOrganizationInfo = 'https://r.daily.dev/organizations';

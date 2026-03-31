@@ -7,7 +7,7 @@ import type { RenderResult } from '@testing-library/react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as func from '@dailydotdev/shared/src/lib/func';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import CallbackPage from '../pages/callback';
 
