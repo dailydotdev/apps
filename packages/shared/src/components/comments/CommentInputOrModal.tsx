@@ -35,7 +35,13 @@ export default function CommentInputOrModal({
   });
 
   if (isModal) {
-    return <CommentModal {...props} isOpen onRequestClose={onClose} />;
+    return (
+      <CommentModal
+        {...props}
+        isOpen
+        onRequestClose={onClose ?? (() => undefined)}
+      />
+    );
   }
 
   return (
@@ -44,7 +50,7 @@ export default function CommentInputOrModal({
     >
       <CommentMarkdownInput
         {...props}
-        className={className.input}
+        className={className?.input}
         onClose={onClose}
       />
     </WriteCommentContext.Provider>

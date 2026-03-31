@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   FormEventHandler,
-  MutableRefObject,
   ReactElement,
   ReactNode,
   TextareaHTMLAttributes,
@@ -176,7 +176,7 @@ function RichTextInput(
     editCommentId,
     parentCommentId,
   }: RichTextInputProps,
-  ref: MutableRefObject<RichTextInputRef>,
+  ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
@@ -634,14 +634,30 @@ function RichTextInput(
   const toolbarActions = (
     <>
       {isUploadEnabled && (
-        <Button
-          size={headerActionSize}
-          variant={ButtonVariant.Tertiary}
-          color={upload.queueCount ? ButtonColor.Cabbage : undefined}
-          icon={actionIcon}
-          onClick={() => upload.uploadRef?.current?.click()}
-          type="button"
-        />
+        <>
+          {upload.queueCount ? (
+            <Button
+              size={headerActionSize}
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cabbage}
+              icon={actionIcon}
+              onClick={() => {
+                upload.uploadRef.current?.click();
+              }}
+              type="button"
+            />
+          ) : (
+            <Button
+              size={headerActionSize}
+              variant={ButtonVariant.Tertiary}
+              icon={actionIcon}
+              onClick={() => {
+                upload.uploadRef.current?.click();
+              }}
+              type="button"
+            />
+          )}
+        </>
       )}
       {isMentionEnabled && (
         <Button
@@ -811,7 +827,7 @@ function RichTextInput(
                 />
               )}
               <div className="flex w-full flex-row">
-                {showUserAvatar && (
+                {showUserAvatar && user && (
                   <ProfilePicture
                     size={ProfileImageSize.Large}
                     className={classNames('ml-3 mt-3', className?.profile)}

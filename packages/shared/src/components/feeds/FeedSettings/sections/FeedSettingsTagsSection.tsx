@@ -38,6 +38,7 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   const [activeViewState, setActiveView] = useState<string>(
     () => FeedSettingsTagsSectionTabs.Suggested,
   );
+  const feedType = feed?.type ?? FeedType.Main;
   const { feedSettings } = useFeedSettings({ feedId: feed?.id });
   const { onUnfollowTags } = useTagAndSource({
     origin: Origin.CustomFeed,
@@ -47,7 +48,13 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [onSearch] = useDebounceFn(setSearchQuery, 200);
+  const [onSearch] = useDebounceFn<string | ((prevState: string) => string)>(
+    (value) =>
+      setSearchQuery((currentValue) =>
+        typeof value === 'function' ? value(currentValue) : (value ?? ''),
+      ),
+    200,
+  );
 
   const { data: searchResult } = useTagSearch({
     value: searchQuery,
@@ -71,10 +78,15 @@ export const FeedSettingsTagsSection = (): ReactElement => {
     const tagsPerLetter = tagsToGroup.reduce(
       (acc, tagItem) => {
         const tag = typeof tagItem === 'string' ? { name: tagItem } : tagItem;
+        const tagName = tag.name;
 
-        const firstLetter = tag.name[0].toUpperCase();
+        if (!tagName) {
+          return acc;
+        }
+
+        const firstLetter = tagName[0].toUpperCase();
         acc[firstLetter] = acc[firstLetter] || [];
-        acc[firstLetter].push(tag);
+        acc[firstLetter].push({ ...tag, name: tagName });
 
         return acc;
       },
@@ -101,7 +113,8 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         value={{
           tabs,
           activeView,
-          setActiveView,
+          setActiveView: (view) =>
+            setActiveView(view ?? FeedSettingsTagsSectionTabs.Suggested),
           onRequestClose: noop,
           kind: ModalKind.FlexibleCenter,
           size: ModalSize.Medium,
@@ -121,12 +134,12 @@ export const FeedSettingsTagsSection = (): ReactElement => {
               shouldUpdateAlerts={false}
               feedId={feed?.id}
               origin={
-                feed.type === FeedType.Main
+                feedType === FeedType.Main
                   ? Origin.TagsFilter
                   : Origin.CustomFeed
               }
               searchOrigin={
-                feed.type === FeedType.Main
+                feedType === FeedType.Main
                   ? Origin.ManageTag
                   : Origin.CustomFeed
               }
@@ -153,18 +166,24 @@ export const FeedSettingsTagsSection = (): ReactElement => {
                         {letter}
                       </Typography>
                       <div className="flex flex-1 flex-wrap gap-2">
-                        {tags.map((tag) => (
-                          <TagElement
-                            key={tag.name}
-                            isSelected
-                            tag={tag}
-                            onClick={() => {
-                              editFeedSettings(() =>
-                                onUnfollowTags({ tags: [tag.name] }),
-                              );
-                            }}
-                          />
-                        ))}
+                        {tags.map((tag) => {
+                          if (!tag.name) {
+                            return null;
+                          }
+
+                          return (
+                            <TagElement
+                              key={tag.name}
+                              isSelected
+                              tag={tag}
+                              onClick={() => {
+                                editFeedSettings(() =>
+                                  onUnfollowTags({ tags: [tag.name] }),
+                                );
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   </section>

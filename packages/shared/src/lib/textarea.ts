@@ -130,13 +130,17 @@ export const getTemporaryUploadString = (filename: string): string =>
   `![${filename}]()`;
 
 export class TextareaCommand {
-  private textareaRef: MutableRefObject<HTMLTextAreaElement>;
+  private textareaRef: MutableRefObject<HTMLTextAreaElement | null>;
 
-  constructor(textareaRef: MutableRefObject<HTMLTextAreaElement>) {
+  constructor(textareaRef: MutableRefObject<HTMLTextAreaElement | null>) {
     this.textareaRef = textareaRef;
   }
 
   get textarea(): HTMLTextAreaElement {
+    if (!this.textareaRef.current) {
+      throw new Error('Textarea reference is not initialized');
+    }
+
     return this.textareaRef.current;
   }
 

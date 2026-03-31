@@ -41,7 +41,9 @@ const Autocomplete = ({
   const [input, setInput] = useState(defaultValue || '');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedOption, setSelectedOption] = useState(undefined);
+  const [selectedOption, setSelectedOption] = useState<
+    AutocompleteOption | undefined
+  >(undefined);
 
   /* 
    To prevent flickering of the selected option image as the user types.
@@ -93,7 +95,7 @@ const Autocomplete = ({
                 <Image
                   className="size-6 rounded-full"
                   src={selectedOption.image}
-                  alt={selectedValue}
+                  alt={selectedOption.label}
                 />
               ) : undefined
             }

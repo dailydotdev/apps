@@ -41,8 +41,9 @@ export default function PostMetadata({
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+    boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
   );
+  const readTimeValue = typeof readTime === 'number' ? readTime : undefined;
 
   const items: { key: string; node: ReactNode }[] = [
     boostedBy && {
@@ -63,11 +64,11 @@ export default function PostMetadata({
         key: 'date',
         node: <DateFormat date={createdAt} type={TimeFormatType.Post} />,
       },
-    showReadTime && {
+    showReadTime && readTimeValue !== undefined && {
       key: 'readTime',
       node: (
         <span data-testid="readTime">
-          {formatReadTime(readTime)} {timeActionContent} time
+          {formatReadTime(readTimeValue)} {timeActionContent} time
         </span>
       ),
     },

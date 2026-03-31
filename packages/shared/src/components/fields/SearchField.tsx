@@ -91,7 +91,7 @@ export const SearchField = forwardRef(function SearchField(
 
   const onClearClick = (event: MouseEvent): void => {
     event.stopPropagation();
-    setInput(null);
+    setInput('');
   };
 
   const isPrimary = fieldType === 'primary';

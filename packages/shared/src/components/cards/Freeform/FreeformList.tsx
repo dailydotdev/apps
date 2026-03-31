@@ -47,8 +47,8 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { interaction } = usePostActions({ post });
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
-  const containerRef = useRef<HTMLDivElement>();
+  const onPostCardClick = () => onPostClick?.(post);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
@@ -58,7 +58,13 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
   const socialShare = interaction === 'copy' && post.type === PostType.Freeform;
   const { title: truncatedTitle } = useTruncatedSummary(title, content);
-  const isUserSource = isSourceUserSource(post.source);
+  const source = post.source;
+
+  if (!source) {
+    throw new Error('FreeformList requires post.source');
+  }
+
+  const isUserSource = isSourceUserSource(source);
 
   const actionButtons = (
     <Container ref={containerRef} className="pointer-events-none">
@@ -79,7 +85,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? source.name;
 
     if (isUserSource) {
       return {
@@ -88,20 +94,18 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source.name : authorName,
+      topLabel: enableSourceHeader ? source.name : authorName,
       bottomLabel: enableSourceHeader
-        ? (post.author?.name ?? `@${post.source.handle ?? 'unknown'}`)
-        : `@${
-            post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
-          }`,
+        ? (post.author?.name ?? `@${source.handle ?? 'unknown'}`)
+        : `@${source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'}`,
     };
   }, [
     enableSourceHeader,
     isUserSource,
     post?.author?.name,
     post?.sharedPost?.source?.handle,
-    post?.source?.handle,
-    post?.source?.name,
+    source.handle,
+    source.name,
   ]);
 
   return (
@@ -113,11 +117,13 @@ export const FreeformList = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
       linkProps={
-        !isFeedPreview && {
+        !isFeedPreview
+          ? {
           title: post.title,
           onClick: onPostCardClick,
           href: post.commentsPermalink,
-        }
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
@@ -125,7 +131,7 @@ export const FreeformList = forwardRef(function SharePostCard(
         <PostCardHeader post={post} metadata={metadata}>
           {!isUserSource && (
             <SquadHeaderPicture
-              source={post.source}
+              source={source}
               reverse={!enableSourceHeader}
             />
           )}

@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 import React, { useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
@@ -13,7 +13,7 @@ const RecommendedEmojiTooltip = ({
   offset = [0, 0],
   onClickOutside,
 }: {
-  elementRef: MutableRefObject<HTMLElement>;
+  elementRef: RefObject<HTMLElement | null>;
   offset?: number[];
   search?: string;
   emojiData?: Array<{ name: string; emoji: string }>;

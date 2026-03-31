@@ -1,5 +1,6 @@
 import type {
   ChangeEventHandler,
+  ForwardedRef,
   MouseEventHandler,
   MutableRefObject,
   ReactElement,
@@ -94,7 +95,7 @@ export interface MarkdownRef extends Pick<
   UseMarkdownInput,
   'onMentionCommand' | 'clearDraft'
 > {
-  textareaRef: MutableRefObject<HTMLTextAreaElement>;
+  textareaRef: MutableRefObject<HTMLTextAreaElement | null>;
   setInput: UseMarkdownInput['setInput'];
 }
 
@@ -122,14 +123,14 @@ function MarkdownInput(
     editCommentId,
     parentCommentId,
   }: MarkdownInputProps,
-  ref: MutableRefObject<MarkdownRef>,
+  ref: ForwardedRef<MarkdownRef>,
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
   const { parentSelector } = usePopupSelector();
   const { sidebarRendered } = useSidebarRendered();
-  const textareaRef = useRef<HTMLTextAreaElement>();
-  const uploadRef = useRef<HTMLInputElement>();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const uploadRef = useRef<HTMLInputElement | null>(null);
   const [active, setActive] = useState(CommentTab.Write);
   const {
     input,
@@ -174,8 +175,15 @@ function MarkdownInput(
     clearDraft,
   }));
 
-  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) =>
-    onUploadCommand(e.currentTarget.files);
+  const onUpload: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.currentTarget.files;
+
+    if (!files || !onUploadCommand) {
+      return;
+    }
+
+    onUploadCommand(files);
+  };
 
   const actionButtonSizes = shouldShowSubmit
     ? ButtonSize.Small
@@ -201,9 +209,9 @@ function MarkdownInput(
   };
 
   useEffect(() => {
-    const content = textareaRef?.current?.value;
+    const content = textareaRef.current?.value;
 
-    if (!content) {
+    if (!content || !textareaRef.current) {
       return;
     }
 
@@ -247,7 +255,7 @@ function MarkdownInput(
             <Tab label={CommentTab.Preview} className="min-h-[11.125rem] p-4">
               <MarkdownPreview
                 input={input}
-                sourceId={sourceId}
+                sourceId={sourceId ?? ''}
                 parentSelector={parentSelector}
                 enabled={allowPreview && CommentTab.Preview === active}
               />
@@ -267,13 +275,13 @@ function MarkdownInput(
           )}
         >
           <ConditionalWrapper
-            condition={showUserAvatar ?? false}
+            condition={(showUserAvatar ?? false) && !!user}
             wrapper={(component) => (
               <span className="flex w-full flex-row">
                 <ProfilePicture
                   size={ProfileImageSize.Large}
                   className={classNames('ml-3 mt-3', className?.profile)}
-                  user={user}
+                  user={user!}
                   nativeLazyLoading
                   fetchPriority="low"
                 />
@@ -323,31 +331,54 @@ function MarkdownInput(
         emojiData={emojiData}
         offset={offset}
         selected={selectedEmoji}
-        onSelect={onApplyEmoji}
+        onSelect={(emoji) => {
+          void onApplyEmoji?.(emoji);
+        }}
         onClickOutside={onCloseEmoji}
       />
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
-            <Button
-              size={actionButtonSizes}
-              variant={ButtonVariant.Tertiary}
-              color={uploadingCount ? ButtonColor.Cabbage : undefined}
-              className={classNames(
-                'font-normal',
-                uploadingCount && 'mr-auto text-brand-default',
+            <>
+              {uploadingCount ? (
+                <Button
+                  size={actionButtonSizes}
+                  variant={ButtonVariant.Tertiary}
+                  color={ButtonColor.Cabbage}
+                  className="mr-auto font-normal text-brand-default"
+                  icon={icon}
+                  onClick={() => {
+                    uploadRef.current?.click();
+                  }}
+                  type="button"
+                >
+                  {!sidebarRendered || shouldShowSubmit ? null : (
+                    <MarkdownUploadLabel
+                      uploadingCount={uploadingCount}
+                      uploadedCount={uploadedCount}
+                    />
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  size={actionButtonSizes}
+                  variant={ButtonVariant.Tertiary}
+                  className="font-normal"
+                  icon={icon}
+                  onClick={() => {
+                    uploadRef.current?.click();
+                  }}
+                  type="button"
+                >
+                  {!sidebarRendered || shouldShowSubmit ? null : (
+                    <MarkdownUploadLabel
+                      uploadingCount={uploadingCount}
+                      uploadedCount={uploadedCount}
+                    />
+                  )}
+                </Button>
               )}
-              icon={icon}
-              onClick={() => uploadRef?.current?.click()}
-              type="button"
-            >
-              {!sidebarRendered || shouldShowSubmit ? null : (
-                <MarkdownUploadLabel
-                  uploadingCount={uploadingCount}
-                  uploadedCount={uploadedCount}
-                />
-              )}
-            </Button>
+            </>
           )}
           <input
             type="file"
@@ -374,8 +405,8 @@ function MarkdownInput(
               <Button
                 variant={ButtonVariant.Tertiary}
                 size={actionButtonSizes}
-                icon={<LinkIcon secondary />}
-                onClick={onLinkCommand}
+              icon={<LinkIcon secondary />}
+                onClick={() => onLinkCommand?.()}
                 type="button"
               />
             )}
@@ -384,7 +415,7 @@ function MarkdownInput(
                 variant={ButtonVariant.Tertiary}
                 size={actionButtonSizes}
                 icon={<AtIcon />}
-                onClick={onMentionCommand}
+                onClick={() => onMentionCommand?.()}
                 type="button"
               />
             )}

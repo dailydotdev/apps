@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   HTMLAttributes,
-  MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
@@ -87,7 +87,7 @@ function BaseDrawer({
   instantOpen = false,
   ...props
 }: DrawerProps): ReactElement {
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement | null>(null);
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
@@ -197,20 +197,23 @@ export interface DrawerRef {
 
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
-  ref: MutableRefObject<DrawerRef>,
+  ref: ForwardedRef<DrawerRef>,
 ): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
+  const [debounceClosing] = useDebounceFn((event?: PopupEventType) => {
     setIsClosing(false);
-    onClose?.(e);
+
+    if (event) {
+      onClose(event);
+    }
   }, ANIMATION_MS);
 
-  const onClosing = () => {
+  const onClosing = (event?: PopupEventType) => {
     setIsClosing(true);
-    debounceClosing();
+    debounceClosing(event ?? new MessageEvent('drawer-close'));
   };
 
-  useImperativeHandle(ref, () => ({ onClose: onClosing }));
+  useImperativeHandle(ref, () => ({ onClose: () => onClosing() }));
 
   if (!isOpen) {
     return null;
@@ -226,4 +229,6 @@ function AnimatedDrawer(
   );
 }
 
-export const Drawer = React.forwardRef(AnimatedDrawer);
+export const Drawer = React.forwardRef<DrawerRef, DrawerWrapperProps>(
+  AnimatedDrawer,
+);

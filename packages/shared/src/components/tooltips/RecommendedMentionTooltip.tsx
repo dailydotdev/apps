@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 import React from 'react';
 import { BaseTooltip } from './BaseTooltip';
 import { RecommendedMention } from '../RecommendedMention';
@@ -13,7 +13,7 @@ interface RecommendedMentionTooltipProps {
   onMentionClick?: (user: UserShortProfile) => unknown;
   onClickOutside?: () => void;
   appendTo?: () => HTMLElement;
-  elementRef: MutableRefObject<HTMLElement>;
+  elementRef: RefObject<HTMLElement | null>;
 }
 
 const EXTRA_SPACES = 26;
@@ -56,7 +56,7 @@ export function RecommendedMentionTooltip({
         roundedClassName: 'rounded-16',
         bgClassName: 'bg-accent-pepper-subtlest',
       }}
-      reference={elementRef}
+      reference={elementRef as React.RefObject<Element>}
       showArrow={false}
       placement="top-start"
       visible={typeof query !== 'undefined'}

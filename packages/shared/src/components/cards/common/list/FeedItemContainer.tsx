@@ -45,16 +45,19 @@ function FeedItemContainer(
     bookmarked: bookmarked ?? false,
   });
   const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
+  const typeLabel = adAttribution ?? type;
   const raisedLabelType = pinnedAt
     ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
   const description =
-    [RaisedLabelType.Hot].includes(raisedLabelType) && trending > 0
+    raisedLabelType === RaisedLabelType.Hot &&
+    typeof trending === 'number' &&
+    trending > 0
       ? `${trending} devs read it last hour`
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
   const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
-  const showTypeLabel = !!adAttribution || !!type;
+  const showTypeLabel = typeLabel !== undefined;
   const [focus, setFocus] = useState(false);
 
   return (
@@ -72,7 +75,7 @@ function FeedItemContainer(
         ...(highlightBookmarkedPost && { background: bookmarkProviderListBg }),
       }}
     >
-      {linkProps && (
+      {linkProps?.href && (
         <Link href={linkProps.href}>
           <CardLink
             {...linkProps}
@@ -86,7 +89,7 @@ function FeedItemContainer(
           {showTypeLabel && (
             <TypeLabel
               focus={focus}
-              type={adAttribution ?? type}
+              type={typeLabel}
               className="absolute left-3"
             />
           )}

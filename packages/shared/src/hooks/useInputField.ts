@@ -6,7 +6,7 @@ export type ValidInputElement = HTMLInputElement | HTMLTextAreaElement;
 export interface UseInputField<T extends ValidInputElement = HTMLInputElement> {
   focused: boolean;
   hasInput: boolean;
-  inputRef: MutableRefObject<T>;
+  inputRef: MutableRefObject<T | null>;
   onFocus: () => void;
   onBlur: () => void;
   onInput: (event: SyntheticEvent<T, InputEvent>) => void;
@@ -15,7 +15,7 @@ export interface UseInputField<T extends ValidInputElement = HTMLInputElement> {
 }
 
 export function useInputField<T extends ValidInputElement = HTMLInputElement>(
-  value: string | ReadonlyArray<string> | number,
+  value?: string | ReadonlyArray<string> | number,
   valueChanged?: (value: string) => void,
 ): UseInputField<T> {
   const inputRef = useRef<T>(null);
@@ -23,6 +23,10 @@ export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   const [hasInput, setHasInput] = useState<boolean>(false);
 
   const setInput = (newValue: string): void => {
+    if (!inputRef.current) {
+      return;
+    }
+
     inputRef.current.value = newValue;
     inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
   };
@@ -50,7 +54,7 @@ export function useInputField<T extends ValidInputElement = HTMLInputElement>(
   };
 
   const focusInput = () => {
-    inputRef.current.focus();
+    inputRef.current?.focus();
   };
 
   return {

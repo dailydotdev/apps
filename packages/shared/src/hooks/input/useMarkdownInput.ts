@@ -63,7 +63,7 @@ export interface UseMarkdownInputProps extends Pick<
   HTMLAttributes<HTMLTextAreaElement>,
   'onSubmit'
 > {
-  textareaRef: MutableRefObject<HTMLTextAreaElement>;
+  textareaRef: MutableRefObject<HTMLTextAreaElement | null>;
   postId?: string;
   sourceId?: string;
   initialContent?: string;
