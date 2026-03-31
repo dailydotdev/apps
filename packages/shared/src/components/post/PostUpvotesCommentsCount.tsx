@@ -51,6 +51,8 @@ export function PostUpvotesCommentsCount({
       upvoteThresholdConfig.threshold,
       upvoteThresholdConfig.belowThresholdLabel,
       userHasUpvoted,
+      post.createdAt,
+      upvoteThresholdConfig.newWindowHours,
     );
   const onRepostsClick = () =>
     openModal({

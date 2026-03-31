@@ -82,6 +82,7 @@ const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
         <PostEngagementCounts
           upvotes={post.numUpvotes ?? 0}
           comments={post.numComments ?? 0}
+          createdAt={post.createdAt}
           userHasUpvoted={post.userState?.vote === UserVote.Up}
           shouldEvaluateFeature={!!post.userState}
           className="text-text-tertiary"
