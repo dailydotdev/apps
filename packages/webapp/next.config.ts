@@ -1,4 +1,4 @@
-import withSerwistInit from '@serwist/next';
+import { withSerwist } from '@serwist/turbopack';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
@@ -41,16 +41,6 @@ const securityHeaders = [
   },
 ];
 
-const withSerwist = withSerwistInit({
-  swSrc: './sw.ts',
-  swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development',
-  exclude: [/syntax/i],
-  register: false,
-  maximumFileSizeToCacheInBytes: 1024 * 1024,
-  reloadOnOnline: false,
-});
-
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
@@ -67,283 +57,281 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  ...withSerwist({
-    ...withBundleAnalyzer({
-      i18n: {
-        locales: ['en'],
-        defaultLocale: 'en',
-      },
-      compiler: {
-        reactRemoveProperties: { properties: ['^data-testid$'] },
-      },
-      webpack: (config) => {
-        // Grab the existing rule that handles SVG imports
-        const fileLoaderRule = config.module.rules.find(
-          (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
-        );
+  ...withBundleAnalyzer({
+    i18n: {
+      locales: ['en'],
+      defaultLocale: 'en',
+    },
+    compiler: {
+      reactRemoveProperties: { properties: ['^data-testid$'] },
+    },
+    webpack: (config) => {
+      // Grab the existing rule that handles SVG imports
+      const fileLoaderRule = config.module.rules.find(
+        (rule: NextSvgFileLoaderRule) => rule.test?.test?.('.svg'),
+      );
 
-        if (!fileLoaderRule?.issuer || !fileLoaderRule.resourceQuery?.not) {
-          throw new Error('Expected Next.js SVG file loader rule to exist');
-        }
+      if (!fileLoaderRule?.issuer || !fileLoaderRule.resourceQuery?.not) {
+        throw new Error('Expected Next.js SVG file loader rule to exist');
+      }
 
-        config.module.rules.push(
-          // Convert all other *.svg imports to React components
-          {
-            test: /\.svg$/i,
-            issuer: fileLoaderRule.issuer,
-            resourceQuery: {
-              not: [...fileLoaderRule.resourceQuery.not, /url/],
-            }, // exclude if *.svg?url
-            use: [
-              {
-                loader: '@svgr/webpack',
-                options: svgrOptions,
-              },
-            ],
-          },
-        );
-
-        // Modify the file loader rule to ignore *.svg, since we have it handled now.
-        fileLoaderRule.exclude = /\.svg$/i;
-        config.module.rules.push({
-          test: /\.m?js/,
-          resolve: {
-            fullySpecified: false,
-          },
-        });
-
-        // we don't need cross-fetch in our bundle since we are using the native fetch
-        // cross-fetch is here due to graphql-request dependency
-        // it was removedi n graphql-request@7.x but due to a lot of breaking changes
-        // for now we apply https://github.com/graffle-js/graffle/pull/296
-        // as patch graphql-request manually through pnpm
-        // eslint-disable-next-line no-param-reassign
-        config.resolve.alias['cross-fetch'] = false;
-
-        return config;
-      },
-      env: {
-        CURRENT_VERSION: version,
-      },
-      assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
-      rewrites: async () => {
-        const rewrites: Rewrite[] = [
-          {
-            source: '/api/sitemaps/:path*',
-            destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
-          },
-          {
-            source: '/search',
-            destination: '/search/posts',
-          },
-          {
-            source: '/posts/:id',
-            destination: '/posts/:id/share',
-            has: [
-              {
-                type: 'query',
-                key: 'userid',
-              },
-            ],
-          },
-        ];
-
-        // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
-        if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
-          rewrites.unshift({
-            source: '/api/:path*',
-            destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-          });
-        }
-
-        return {
-          beforeFiles: [
+      config.module.rules.push(
+        // Convert all other *.svg imports to React components
+        {
+          test: /\.svg$/i,
+          issuer: fileLoaderRule.issuer,
+          resourceQuery: {
+            not: [...fileLoaderRule.resourceQuery.not, /url/],
+          }, // exclude if *.svg?url
+          use: [
             {
-              source: '/.well-known/security.txt',
-              destination: '/api/files/security',
+              loader: '@svgr/webpack',
+              options: svgrOptions,
             },
-            {
-              source: '/plus',
-              destination: '/plus/gift',
-              has: [
-                {
-                  type: 'query',
-                  key: 'gift',
-                },
-              ],
-            },
-            // Markdown versions of pages for AI agents (llms.txt spec)
-            // These enable direct URL access (e.g., /sources.md).
-            ...getMarkdownRewrites(),
           ],
-          // regular rewrites
-          afterFiles: rewrites,
-          fallback: [],
-        };
-      },
-      redirects: async () => {
-        const oldPublicAssets = [
-          'dailydev.svg',
-          'google.svg',
-          'maskable_icon.png',
-          'mstile-150x150.png',
-        ];
+        },
+      );
 
-        return [
+      // Modify the file loader rule to ignore *.svg, since we have it handled now.
+      fileLoaderRule.exclude = /\.svg$/i;
+      config.module.rules.push({
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      });
+
+      // we don't need cross-fetch in our bundle since we are using the native fetch
+      // cross-fetch is here due to graphql-request dependency
+      // it was removedi n graphql-request@7.x but due to a lot of breaking changes
+      // for now we apply https://github.com/graffle-js/graffle/pull/296
+      // as patch graphql-request manually through pnpm
+      // eslint-disable-next-line no-param-reassign
+      config.resolve.alias['cross-fetch'] = false;
+
+      return config;
+    },
+    env: {
+      CURRENT_VERSION: version,
+    },
+    assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
+    rewrites: async () => {
+      const rewrites: Rewrite[] = [
+        {
+          source: '/api/sitemaps/:path*',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/sitemaps/:path*`,
+        },
+        {
+          source: '/search',
+          destination: '/search/posts',
+        },
+        {
+          source: '/posts/:id',
+          destination: '/posts/:id/share',
+          has: [
+            {
+              type: 'query',
+              key: 'userid',
+            },
+          ],
+        },
+      ];
+
+      // to support GitPod environment and avoid CORS issues, we need to proxy the API requests
+      if (process.env.NEXT_PUBLIC_DOMAIN === 'localhost') {
+        rewrites.unshift({
+          source: '/api/:path*',
+          destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+        });
+      }
+
+      return {
+        beforeFiles: [
           {
-            source: '/mobile',
-            destination: '/',
-            permanent: true,
+            source: '/.well-known/security.txt',
+            destination: '/api/files/security',
           },
           {
-            source: '/brand',
-            destination: '/',
-            permanent: true,
-          },
-          {
-            source: '/about',
-            destination: '/',
-            permanent: true,
-          },
-          {
-            source: '/premium',
-            destination: '/plus',
-            permanent: true,
-          },
-          {
-            source: '/monthly-prize',
-            destination: '/',
-            permanent: true,
-          },
-          {
-            source: '/submit-a-guest-post',
-            destination: '/',
-            permanent: true,
-          },
-          {
-            source: '/giveaway',
-            destination: '/',
-            permanent: true,
-          },
-          {
-            source: '/topic/:path*',
-            destination: '/tags/:path*',
-            permanent: true,
-          },
-          ...oldPublicAssets.map((asset) => ({
-            source: `/${asset}`,
-            destination: `${
-              process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
-            }/assets/${asset}`,
-            permanent: true,
-          })),
-          {
-            source: '/posts/finder',
-            destination: '/search?provider=posts',
-            permanent: false,
-          },
-          {
-            source: '/signup',
-            destination: '/onboarding',
-            permanent: false,
-          },
-          // so we can't access /share route directly
-          {
-            source: '/posts/:id/share',
-            destination: '/posts/:id',
-            permanent: false,
-          },
-          // so we can't access /plus/gift route directly
-          {
-            source: '/plus/gift',
-            destination: '/plus',
-            permanent: false,
-          },
-          // well-known redirect for change password
-          {
-            source: '/.well-known/change-password',
-            destination: '/settings/security',
-            permanent: false,
-          },
-          {
-            source: '/devcard',
-            destination: '/settings/customization/devcard',
-            permanent: true,
-          },
-          {
-            source: '/account/notifications',
-            destination: '/settings/customization/streaks',
-            permanent: true,
+            source: '/plus',
+            destination: '/plus/gift',
             has: [
               {
                 type: 'query',
-                key: 's',
-                value: 'timezone',
+                key: 'gift',
               },
             ],
           },
-          {
-            source: '/account/:path*',
-            destination: '/settings/:path*',
-            permanent: true,
-          },
-          {
-            source: '/sources/briefing',
-            destination: '/briefing',
-            permanent: false,
-          },
-          {
-            source: '/opportunity/:path*',
-            destination: '/jobs/:path*',
-            permanent: true,
-          },
-          {
-            source: '/jobs/welcome',
-            destination: '/jobs',
-            permanent: true,
-          },
-        ];
-      },
-      headers: async () => {
-        return [
-          {
-            source: '/:path*',
-            headers: [
-              ...securityHeaders,
-              {
-                key: 'X-Recruiting',
-                value:
-                  'We are hiring! Check https://daily.dev/careers for more info!',
-              },
-              // AI agent discovery headers (llms.txt spec)
-              { key: 'Link', value: '</llms.txt>; rel="llms-txt"' },
-              { key: 'X-Llms-Txt', value: '/llms.txt' },
-            ],
-          },
-          {
-            source: '/.well-known/apple-app-site-association',
-            headers: [
-              { key: 'Content-Type', value: 'application/json' },
-              { key: 'Cache-Control', value: 'no-cache' },
-            ],
-          },
-          {
-            source: '/llms.txt',
-            headers: [
-              { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
-              {
-                key: 'Cache-Control',
-                value: 'public, max-age=86400, stale-while-revalidate=604800',
-              },
-            ],
-          },
-        ];
-      },
-      poweredByHeader: false,
-      reactStrictMode: false,
-      productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
-    }),
+          // Markdown versions of pages for AI agents (llms.txt spec)
+          // These enable direct URL access (e.g., /sources.md).
+          ...getMarkdownRewrites(),
+        ],
+        // regular rewrites
+        afterFiles: rewrites,
+        fallback: [],
+      };
+    },
+    redirects: async () => {
+      const oldPublicAssets = [
+        'dailydev.svg',
+        'google.svg',
+        'maskable_icon.png',
+        'mstile-150x150.png',
+      ];
+
+      return [
+        {
+          source: '/mobile',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/brand',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/about',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/premium',
+          destination: '/plus',
+          permanent: true,
+        },
+        {
+          source: '/monthly-prize',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/submit-a-guest-post',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/giveaway',
+          destination: '/',
+          permanent: true,
+        },
+        {
+          source: '/topic/:path*',
+          destination: '/tags/:path*',
+          permanent: true,
+        },
+        ...oldPublicAssets.map((asset) => ({
+          source: `/${asset}`,
+          destination: `${
+            process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
+          }/assets/${asset}`,
+          permanent: true,
+        })),
+        {
+          source: '/posts/finder',
+          destination: '/search?provider=posts',
+          permanent: false,
+        },
+        {
+          source: '/signup',
+          destination: '/onboarding',
+          permanent: false,
+        },
+        // so we can't access /share route directly
+        {
+          source: '/posts/:id/share',
+          destination: '/posts/:id',
+          permanent: false,
+        },
+        // so we can't access /plus/gift route directly
+        {
+          source: '/plus/gift',
+          destination: '/plus',
+          permanent: false,
+        },
+        // well-known redirect for change password
+        {
+          source: '/.well-known/change-password',
+          destination: '/settings/security',
+          permanent: false,
+        },
+        {
+          source: '/devcard',
+          destination: '/settings/customization/devcard',
+          permanent: true,
+        },
+        {
+          source: '/account/notifications',
+          destination: '/settings/customization/streaks',
+          permanent: true,
+          has: [
+            {
+              type: 'query',
+              key: 's',
+              value: 'timezone',
+            },
+          ],
+        },
+        {
+          source: '/account/:path*',
+          destination: '/settings/:path*',
+          permanent: true,
+        },
+        {
+          source: '/sources/briefing',
+          destination: '/briefing',
+          permanent: false,
+        },
+        {
+          source: '/opportunity/:path*',
+          destination: '/jobs/:path*',
+          permanent: true,
+        },
+        {
+          source: '/jobs/welcome',
+          destination: '/jobs',
+          permanent: true,
+        },
+      ];
+    },
+    headers: async () => {
+      return [
+        {
+          source: '/:path*',
+          headers: [
+            ...securityHeaders,
+            {
+              key: 'X-Recruiting',
+              value:
+                'We are hiring! Check https://daily.dev/careers for more info!',
+            },
+            // AI agent discovery headers (llms.txt spec)
+            { key: 'Link', value: '</llms.txt>; rel="llms-txt"' },
+            { key: 'X-Llms-Txt', value: '/llms.txt' },
+          ],
+        },
+        {
+          source: '/.well-known/apple-app-site-association',
+          headers: [
+            { key: 'Content-Type', value: 'application/json' },
+            { key: 'Cache-Control', value: 'no-cache' },
+          ],
+        },
+        {
+          source: '/llms.txt',
+          headers: [
+            { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
+            {
+              key: 'Cache-Control',
+              value: 'public, max-age=86400, stale-while-revalidate=604800',
+            },
+          ],
+        },
+      ];
+    },
+    poweredByHeader: false,
+    reactStrictMode: false,
+    productionBrowserSourceMaps: process.env.SOURCE_MAPS === 'true',
   }),
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

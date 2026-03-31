@@ -39,6 +39,7 @@ import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/Lazy
 import { useManualScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { useScrollbarWidth } from '@dailydotdev/shared/src/hooks/useScrollbarWidth';
 import { PushNotificationContextProvider } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
+import { SerwistProvider } from '@serwist/turbopack/react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
@@ -135,7 +136,6 @@ const GLOBAL_SEO_JSON_LD = JSON.stringify({
 function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
-  const didRegisterSwRef = useRef(false);
   const openedHotAndColdFromQueryRef = useRef(false);
 
   const { unreadCount } = useNotificationContext();
@@ -204,18 +204,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [isFunnel, isOnboardingActionsReady, router, isOnboardingComplete]);
 
   useEffect(() => {
-    if (
-      user &&
-      !didRegisterSwRef.current &&
-      'serviceWorker' in globalThis?.navigator &&
-      window.serwist !== undefined
-    ) {
-      didRegisterSwRef.current = true;
-      window.serwist.register();
-    }
-  }, [user]);
-
-  useEffect(() => {
     const id = user?.id || trackingId;
     if (id && messageHandlerExists(WebKitMessageHandlers.UpdateUserId)) {
       postWebKitMessage(WebKitMessageHandlers.UpdateUserId, id);
@@ -264,110 +252,117 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const canonical = canonicalFromRouter(router);
 
   return (
-    <>
-      <Head>
-        <meta
-          name="viewport"
-          content="initial-scale=1.0, width=device-width, viewport-fit=cover"
-        />
-        <meta name="theme-color" content={themeColor} />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content={themeColor}
-        />
+    <SerwistProvider
+      swUrl="/serwist/sw.js"
+      disable={!user}
+      register={!!user}
+      reloadOnOnline={false}
+    >
+      <>
+        <Head>
+          <meta
+            name="viewport"
+            content="initial-scale=1.0, width=device-width, viewport-fit=cover"
+          />
+          <meta name="theme-color" content={themeColor} />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content={themeColor}
+          />
 
-        <meta name="application-name" content="daily.dev" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="daily.dev" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="slack-app-id" content="A07AM7XC529" />
-        {showAppStoreBanner && (
-          <meta name="apple-itunes-app" content="app-id=6740634400" />
-        )}
-        <meta
-          name="facebook-domain-verification"
-          content="78sk2yqe8k6z8uznxwj6q82gklhy42"
-        />
+          <meta name="application-name" content="daily.dev" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-title" content="daily.dev" />
+          <meta name="format-detection" content="telephone=no" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="slack-app-id" content="A07AM7XC529" />
+          {showAppStoreBanner && (
+            <meta name="apple-itunes-app" content="app-id=6740634400" />
+          )}
+          <meta
+            name="facebook-domain-verification"
+            content="78sk2yqe8k6z8uznxwj6q82gklhy42"
+          />
 
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href={fromCDN('/apple-touch-icon.png')}
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href={fromCDN('/favicon-32x32.png')}
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href={fromCDN('/favicon-16x16.png')}
-        />
-        <link rel="manifest" href="/manifest.json" />
-        <link
-          rel="sitemap"
-          type="application/xml"
-          title="Sitemap"
-          href="/sitemap.xml"
-        />
-        <link
-          rel="alternate"
-          type="text/plain"
-          href="/llms.txt"
-          title="LLM-friendly site directory"
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: GLOBAL_SEO_JSON_LD }}
-        />
+          <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href={fromCDN('/apple-touch-icon.png')}
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href={fromCDN('/favicon-32x32.png')}
+          />
+          <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href={fromCDN('/favicon-16x16.png')}
+          />
+          <link rel="manifest" href="/manifest.json" />
+          <link
+            rel="sitemap"
+            type="application/xml"
+            title="Sitemap"
+            href="/sitemap.xml"
+          />
+          <link
+            rel="alternate"
+            type="text/plain"
+            href="/llms.txt"
+            title="LLM-friendly site directory"
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: GLOBAL_SEO_JSON_LD }}
+          />
 
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.addEventListener('load', () => { window.windowLoaded = true; }, {
       once: true,
     });`,
-          }}
-        />
+            }}
+          />
 
-        <link rel="preconnect" href="https://api.daily.dev" />
-        <link rel="preconnect" href="https://sso.daily.dev" />
-        <link rel="preconnect" href="https://media.daily.dev" />
-      </Head>
-      <DefaultSeo
-        {...Seo}
-        {...defaultSeo}
-        title={defaultSeoTitle}
-        canonical={canonical}
-        openGraph={{
-          ...Seo.openGraph,
-          url: canonical,
-        }}
-        titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
-      />
-      {!!seo && <NextSeo {...seo} />}
-      <LazyModalElement />
-      <DndContextProvider>
-        {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
-      </DndContextProvider>
-      {showBanner && !isFunnel && !isImageGenerator && (
-        <CookieBanner
-          onAccepted={onAcceptCookies}
-          onHideBanner={onHideBanner}
-          onModalClose={() => {
-            const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
-
-            if (!interacted) {
-              onOpenBanner();
-            }
+          <link rel="preconnect" href="https://api.daily.dev" />
+          <link rel="preconnect" href="https://sso.daily.dev" />
+          <link rel="preconnect" href="https://media.daily.dev" />
+        </Head>
+        <DefaultSeo
+          {...Seo}
+          {...defaultSeo}
+          title={defaultSeoTitle}
+          canonical={canonical}
+          openGraph={{
+            ...Seo.openGraph,
+            url: canonical,
           }}
+          titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
         />
-      )}
-      <div className="award-easter-egg-container" />
-    </>
+        {!!seo && <NextSeo {...seo} />}
+        <LazyModalElement />
+        <DndContextProvider>
+          {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
+        </DndContextProvider>
+        {showBanner && !isFunnel && !isImageGenerator && (
+          <CookieBanner
+            onAccepted={onAcceptCookies}
+            onHideBanner={onHideBanner}
+            onModalClose={() => {
+              const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
+
+              if (!interacted) {
+                onOpenBanner();
+              }
+            }}
+          />
+        )}
+        <div className="award-easter-egg-container" />
+      </>
+    </SerwistProvider>
   );
 }
 
