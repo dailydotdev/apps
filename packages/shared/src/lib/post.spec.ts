@@ -63,6 +63,12 @@ describe('getUpvoteCountDisplay', () => {
     expect(result).toEqual({ showCount: false, belowThresholdLabel: '' });
   });
 
+  it('hides label when createdAt is undefined', () => {
+    const result = getUpvoteCountDisplay(1, 3, 'New', false, undefined, 24);
+
+    expect(result).toEqual({ showCount: false, belowThresholdLabel: '' });
+  });
+
   it('shows numeric count at or above threshold', () => {
     const result = getUpvoteCountDisplay(
       3,
@@ -70,6 +76,19 @@ describe('getUpvoteCountDisplay', () => {
       'New',
       false,
       '2026-03-30T11:00:00.000Z',
+      24,
+    );
+
+    expect(result).toEqual({ showCount: true, belowThresholdLabel: '' });
+  });
+
+  it('shows numeric count for old posts at threshold', () => {
+    const result = getUpvoteCountDisplay(
+      3,
+      3,
+      'New',
+      false,
+      '2026-03-28T11:00:00.000Z',
       24,
     );
 
@@ -100,5 +119,18 @@ describe('getUpvoteCountDisplay', () => {
     );
 
     expect(result).toEqual({ showCount: true, belowThresholdLabel: '' });
+  });
+
+  it('hides count for zero upvotes when threshold is disabled', () => {
+    const result = getUpvoteCountDisplay(
+      0,
+      0,
+      'New',
+      false,
+      '2026-03-30T11:00:00.000Z',
+      24,
+    );
+
+    expect(result).toEqual({ showCount: false, belowThresholdLabel: '' });
   });
 });
