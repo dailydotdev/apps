@@ -57,6 +57,8 @@ export default function PostMetadata({
       upvoteThresholdConfig.threshold,
       upvoteThresholdConfig.belowThresholdLabel,
       userHasUpvoted,
+      createdAt,
+      upvoteThresholdConfig.newWindowHours,
     );
 
   const promotedText = useScrambler('Promoted');

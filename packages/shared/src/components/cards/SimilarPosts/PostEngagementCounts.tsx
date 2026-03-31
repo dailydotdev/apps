@@ -10,6 +10,7 @@ import { getUpvoteCountDisplay } from '../../../lib/post';
 interface PostEngagementCountsProps {
   upvotes: number;
   comments: number;
+  createdAt?: string;
   className?: string;
   userHasUpvoted?: boolean;
   shouldEvaluateFeature?: boolean;
@@ -18,6 +19,7 @@ interface PostEngagementCountsProps {
 export function PostEngagementCounts({
   upvotes,
   comments,
+  createdAt,
   className,
   userHasUpvoted = false,
   shouldEvaluateFeature = false,
@@ -31,6 +33,8 @@ export function PostEngagementCounts({
     upvoteThresholdConfig.threshold,
     upvoteThresholdConfig.belowThresholdLabel,
     userHasUpvoted,
+    createdAt,
+    upvoteThresholdConfig.newWindowHours,
   );
 
   const upvoteText = showCount

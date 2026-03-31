@@ -43,6 +43,8 @@ export function RepostListItem({
       upvoteThresholdConfig.threshold,
       upvoteThresholdConfig.belowThresholdLabel,
       userHasUpvoted,
+      post.createdAt,
+      upvoteThresholdConfig.newWindowHours,
     );
   const { author } = post;
   const showSquadPreview = !isUserSource && !!source;
