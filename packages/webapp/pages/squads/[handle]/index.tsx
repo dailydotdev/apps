@@ -457,7 +457,7 @@ export async function getServerSideProps({
         seo,
         handle,
         initialData: squad as Squad,
-        referringUser: referringUser ?? undefined,
+        ...(referringUser && { referringUser }),
         ...(squad.public && {
           jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
         }),
