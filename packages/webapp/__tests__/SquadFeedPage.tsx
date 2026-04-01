@@ -40,6 +40,7 @@ import {
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   TOP_MEMBERS_BY_SQUAD_QUERY,
+  getTopMembersBySquadSince,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   type SourceMember,
@@ -48,7 +49,6 @@ import {
   SourcePermissions,
 } from '@dailydotdev/shared/src/graphql/sources';
 import { MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP } from '@dailydotdev/shared/src/lib/config';
-import { subDays } from 'date-fns';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
@@ -81,6 +81,7 @@ jest.mock('next/router', () => ({
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
+  jest.useRealTimers();
   nock.cleanAll();
   requestedSquad = {};
 });
@@ -183,7 +184,7 @@ const createTopMembersBySquadMock = (
   },
   variables: GraphQLRequest['variables'] = {
     sourceId: defaultSquad.id,
-    since: subDays(new Date(), 30).toISOString(),
+    since: getTopMembersBySquadSince(),
     limit: MAX_TOP_MEMBERS_BY_SQUAD,
   },
 ): MockedGraphQLResponse<TopMembersBySquadData> => ({
@@ -277,8 +278,6 @@ describe('squad page header', () => {
   });
 
   it('should show top members below moderated by for public squads', async () => {
-    jest.useFakeTimers().setSystemTime(new Date('2026-04-01T12:00:00.000Z'));
-
     renderComponent(defaultSquad.handle, [
       createSourceMock(defaultSquad.handle, { public: true }),
       createFeedMock(),
@@ -288,13 +287,9 @@ describe('squad page header', () => {
 
     expect(await screen.findByText('Top members')).toBeInTheDocument();
     expect(screen.getByText('Top Member')).toBeInTheDocument();
-
-    jest.useRealTimers();
   });
 
   it('should show top members overflow in a modal', async () => {
-    jest.useFakeTimers().setSystemTime(new Date('2026-04-01T12:00:00.000Z'));
-
     renderComponent(defaultSquad.handle, [
       createSourceMock(defaultSquad.handle, { public: true }),
       createFeedMock(),
@@ -320,8 +315,6 @@ describe('squad page header', () => {
     );
 
     expect(await screen.findByText('Top Member 4')).toBeInTheDocument();
-
-    jest.useRealTimers();
   });
 });
 

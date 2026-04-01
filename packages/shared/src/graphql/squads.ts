@@ -306,8 +306,12 @@ export interface TopMembersBySquadData {
 
 export const MAX_TOP_MEMBERS_BY_SQUAD = 10;
 
-const getTopMembersBySquadSince = (): string =>
-  subDays(new Date(), 30).toISOString();
+export const getTopMembersBySquadSince = (): string => {
+  const since = subDays(new Date(), 30);
+  since.setSeconds(0, 0);
+
+  return since.toISOString();
+};
 
 export async function getTopMembersBySquad(
   sourceId: string,
