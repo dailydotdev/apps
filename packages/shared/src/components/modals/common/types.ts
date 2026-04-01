@@ -46,6 +46,7 @@ export enum LazyModal {
   MarketingCta = 'marketingCta',
   Share = 'share',
   PrivilegedMembers = 'privilegedMembers',
+  TopMembers = 'topMembers',
   BookmarkReminder = 'bookmarkReminder',
   SlackIntegration = 'slackIntegration',
   ReportSource = 'reportSource',

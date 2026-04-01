@@ -32,6 +32,45 @@ const Actions = ({ className }: HTMLAttributes<HTMLDivElement>) => (
   </FlexRow>
 );
 
+const MemberCard = ({
+  className,
+  showBadge = true,
+}: HTMLAttributes<HTMLDivElement> & { showBadge?: boolean }) => (
+  <FlexRow
+    className={classNames(
+      'items-center gap-2 rounded-10 border border-border-subtlest-tertiary p-2',
+      className,
+    )}
+  >
+    <PlaceholderElement className="h-10 w-10 rounded-full" />
+    <FlexCol className="gap-1">
+      <RectangleElement className="h-4 w-20" />
+      {showBadge && <RectangleElement className="h-4 w-14" />}
+    </FlexCol>
+  </FlexRow>
+);
+
+const MemberRow = ({
+  titleWidthClassName,
+  className,
+  showOverflow = false,
+  showBadge = true,
+}: HTMLAttributes<HTMLDivElement> & {
+  titleWidthClassName: string;
+  showOverflow?: boolean;
+  showBadge?: boolean;
+}) => (
+  <FlexCol className={classNames('w-full items-start', className)}>
+    <RectangleElement className={classNames('h-4', titleWidthClassName)} />
+    <FlexRow className="mt-2 w-full items-center gap-3 overflow-hidden">
+      <MemberCard showBadge={showBadge} />
+      <MemberCard showBadge={showBadge} />
+      <MemberCard showBadge={showBadge} />
+      {showOverflow && <RectangleElement className="h-12 w-12 rounded-12" />}
+    </FlexRow>
+  </FlexCol>
+);
+
 function SquadLoading({
   squad,
   sidebarRendered,
@@ -59,6 +98,19 @@ function SquadLoading({
           <RectangleElement className="h-12 w-12 tablet:w-32" />
           <RectangleElement className="hidden h-12 w-32 tablet:flex" />
         </FlexRow>
+        <MemberRow
+          titleWidthClassName="mt-6 w-24"
+          className="max-w-[38.5rem]"
+          showOverflow
+        />
+        {squad?.public && (
+          <MemberRow
+            titleWidthClassName="mt-4 w-24"
+            className="max-w-[38.5rem]"
+            showOverflow
+            showBadge={false}
+          />
+        )}
         <RectangleElement className="relative bottom-0 mt-8 flex h-16 w-full max-w-[30.25rem] flex-col  pt-8 tablet:absolute tablet:translate-y-1/2 tablet:flex-row tablet:p-0 laptop:mt-6 laptop:max-w-[38.25rem] laptopL:px-0" />
       </FlexCol>
       <ColumnContainer className="relative max-h-page w-full overflow-hidden px-16 pt-7">

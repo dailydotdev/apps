@@ -798,6 +798,16 @@ export const TOP_READER_BADGE = gql`
   ${TOP_READER_BADGE_FRAGMENT}
 `;
 
+export const TOP_CREATORS_BY_TAG_QUERY = gql`
+  query TopCreatorsByTag($tag: String!, $limit: Int) {
+    topCreatorsByTag(tag: $tag, limit: $limit) {
+      ...UserShortInfo
+    }
+  }
+
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
 export const TOP_READER_BADGE_BY_ID = gql`
   query TopReaderBadgeById($id: ID!) {
     topReaderBadgeById(id: $id) {

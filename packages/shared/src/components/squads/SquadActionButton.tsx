@@ -181,7 +181,7 @@ export const SquadActionButton = ({
   const isMemberBlocked =
     squad?.currentMember?.role === SourceMemberRole.Blocked;
   const isCurrentMember = !!squad?.currentMember && !isMemberBlocked;
-  const squadId = squad.id;
+  const squadId = squad?.id;
   const currentMember = user
     ? ({
         role: SourceMemberRole.Member,

@@ -54,7 +54,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import type { TagsData } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { RecommendedTags } from '@dailydotdev/shared/src/components/RecommendedTags';
-import { RelatedSources } from '@dailydotdev/shared/src/components/RelatedSources';
+import { RelatedEntities } from '@dailydotdev/shared/src/components/RelatedEntities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { AuthenticationBanner } from '@dailydotdev/shared/src/components/auth';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -134,9 +134,15 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
   );
 
   return (
-    <RelatedSources
+    <RelatedEntities
       isLoading={isPending}
-      sources={sources}
+      items={sources?.map((source) => ({
+        id: source.id,
+        image: source.image,
+        imageAlt: `${source.name} logo`,
+        name: source.name,
+        permalink: source.permalink,
+      }))}
       title="Similar sources"
       className={pageSectionClassName}
     />
@@ -145,6 +151,10 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
 
 const getSourcePageJsonLd = (source: Source): string => {
   const sourceHandle = source.handle || source.id;
+  if (!sourceHandle) {
+    throw new Error('Source page JSON-LD requires a source handle or id');
+  }
+
   const sourcePageUrl = `${appOrigin}/sources/${encodeURIComponent(
     sourceHandle,
   )}`;
