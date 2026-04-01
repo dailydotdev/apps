@@ -20,7 +20,6 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   FEED_QUERY,
-  FEED_QUERY_WITH_NO_AI,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
@@ -118,7 +117,7 @@ type FeedConfigPage = SharedFeedPage | OtherFeedPage;
 const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY_WITH_NO_AI,
+    queryIfLogged: FEED_QUERY,
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
@@ -303,9 +302,6 @@ export default function MainFeedLayout({
   });
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
-  const myFeedLoggedInQuery = isNoAiAvailable
-    ? FEED_QUERY_WITH_NO_AI
-    : FEED_QUERY;
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -316,7 +312,7 @@ export default function MainFeedLayout({
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
       [SharedFeedPage.MyFeed]: {
-        queryIfLogged: myFeedLoggedInQuery,
+        queryIfLogged: FEED_QUERY,
       },
       [SharedFeedPage.Custom]: {
         variables: {
@@ -393,7 +389,6 @@ export default function MainFeedLayout({
     feedVersion,
     isNoAi,
     shouldEvaluateNoAi,
-    myFeedLoggedInQuery,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(

@@ -31,9 +31,13 @@ import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
-import { Typography } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
-import { LogEvent, Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { ActionType } from '../../graphql/actions';
 import {
@@ -45,6 +49,9 @@ import {
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { LazyImage } from '../LazyImage';
+import { Switch } from '../fields/Switch';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -77,6 +84,8 @@ export const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
+const noAiToggleTooltip =
+  'Filters out posts about AI tools, model launches, and AI discourse from My Feed. It is intentionally aggressive, so it may hide some adjacent posts too.';
 
 export const SearchControlHeader = ({
   feedName,
@@ -133,7 +142,6 @@ export const SearchControlHeader = ({
     !hasDismissedInstallExtension;
   const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
-      <div className="flex flex-1" />
       <Button
         key="install-extension"
         tag="a"
@@ -162,14 +170,24 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
-  let noAiButtonVariant = isLaptop
-    ? ButtonVariant.Float
-    : ButtonVariant.Tertiary;
-  if (noAiState?.isEnabled) {
-    noAiButtonVariant = ButtonVariant.Primary;
-  }
+  const handleNoAiToggle = async () => {
+    if (!noAiState) {
+      return;
+    }
 
-  const actionButtons = [
+    const isEnabled = !noAiState.isEnabled;
+    await noAiState.onToggle();
+    logEvent({
+      event_name: LogEvent.ToggleNoAiFeed,
+      target_id: isEnabled ? TargetId.On : TargetId.Off,
+      extra: JSON.stringify({
+        origin:
+          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed,
+      }),
+    });
+  };
+
+  const primaryActions = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
       <Dropdown
@@ -192,21 +210,6 @@ export const SearchControlHeader = ({
         drawerProps={{ displayCloseButton: true }}
       />
     ),
-    noAiState?.isAvailable && (
-      <Button
-        key="no-ai"
-        type="button"
-        size={ButtonSize.Medium}
-        variant={noAiButtonVariant}
-        pressed={noAiState.isEnabled}
-        className="shrink-0"
-        onClick={async () => {
-          await noAiState.onToggle();
-        }}
-      >
-        No AI
-      </Button>
-    ),
     hasFeedActions && (
       <ToggleClickbaitShield
         origin={
@@ -216,9 +219,59 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    isLaptop && installExtensionButton,
   ];
-  const actions = actionButtons.filter((button) => !!button);
+  const secondaryActions = [
+    isLaptop && installExtensionButton,
+    noAiState?.isAvailable && (
+      <Tooltip
+        key="no-ai"
+        content={noAiToggleTooltip}
+        side="bottom"
+        className="max-w-80 text-center"
+      >
+        <div
+          className={`shadow-1 ml-auto flex shrink-0 items-center gap-3 rounded-16 border px-3 py-2 transition-colors ${
+            noAiState.isEnabled
+              ? 'border-accent-ketchup-default bg-action-downvote-float'
+              : 'border-border-subtlest-tertiary bg-surface-float'
+          }`}
+        >
+          <LazyImage
+            imgSrc="/assets/no-ai-feed-toggle.png"
+            imgAlt="No AI mode"
+            className="size-10 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-default"
+          />
+          <div className="min-w-0">
+            <Typography
+              type={TypographyType.Callout}
+              className={
+                noAiState.isEnabled ? 'text-accent-ketchup-default' : undefined
+              }
+            >
+              No AI mode
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              className="hidden max-w-52 laptop:block"
+            >
+              Hide AI tools, launches, and hot takes.
+            </Typography>
+          </div>
+          <Switch
+            checked={noAiState.isEnabled}
+            inputId="no-ai-feed-switch"
+            name="no-ai-feed-switch"
+            aria-label="Toggle No AI mode"
+            className="ml-auto shrink-0"
+            onToggle={handleNoAiToggle}
+          />
+        </div>
+      </Tooltip>
+    ),
+  ];
+  const actions = primaryActions.filter(Boolean);
+  const sideActions = secondaryActions.filter(Boolean);
 
   return (
     <ConditionalWrapper
@@ -241,7 +294,12 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">{actions}</div>
+      <div className="flex w-full items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">{actions}</div>
+        {sideActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
+        )}
+      </div>
     </ConditionalWrapper>
   );
 };

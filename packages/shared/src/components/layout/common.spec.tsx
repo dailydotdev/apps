@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -9,6 +9,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
 import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -72,6 +73,16 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
   },
 }));
 
+jest.mock('../tooltip/Tooltip', () => ({
+  Tooltip: function MockTooltip({
+    children,
+  }: {
+    children: React.ReactElement;
+  }) {
+    return children;
+  },
+}));
+
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseActions = useActions as jest.Mock;
@@ -82,12 +93,21 @@ const mockUseQueryState = useQueryState as jest.Mock;
 const mockCheckIsExtension = checkIsExtension as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 
-const renderComponent = () =>
+const renderComponent = ({
+  noAiState,
+}: {
+  noAiState?: {
+    isAvailable: boolean;
+    isEnabled: boolean;
+    onToggle: () => Promise<void>;
+  };
+} = {}) =>
   render(
     <SettingsContext.Provider value={{ sortingEnabled: false } as never}>
       <SearchControlHeader
         feedName={SharedFeedPage.MyFeed}
         algoState={[0, jest.fn()]}
+        noAiState={noAiState}
       />
     </SettingsContext.Provider>,
   );
@@ -187,5 +207,41 @@ describe('SearchControlHeader', () => {
     expect(
       screen.getByRole('link', { name: 'Get it for Chrome' }),
     ).toBeInTheDocument();
+  });
+
+  it('renders a No AI switch and logs when toggled', async () => {
+    const onToggle = jest.fn().mockResolvedValue(undefined);
+    const logEvent = jest.fn();
+    mockUseLogContext.mockReturnValue({ logEvent });
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn().mockReturnValue(true),
+      completeAction: jest.fn(),
+      isActionsFetched: true,
+    });
+
+    renderComponent({
+      noAiState: {
+        isAvailable: true,
+        isEnabled: false,
+        onToggle,
+      },
+    });
+
+    expect(screen.getByText('No AI mode')).toBeInTheDocument();
+    const switchInput = screen.getByRole('checkbox', {
+      name: 'Toggle No AI mode',
+    });
+    fireEvent.click(switchInput);
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.ToggleNoAiFeed,
+        target_id: TargetId.On,
+        extra: JSON.stringify({
+          origin: Origin.Feed,
+        }),
+      });
+    });
   });
 });
