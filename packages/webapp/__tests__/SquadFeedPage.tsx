@@ -13,6 +13,7 @@ import type { NextRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
+import * as sharedHooks from '@dailydotdev/shared/src/hooks';
 import type {
   GraphQLRequest,
   GraphQLResult,
@@ -191,6 +192,19 @@ const createTopMembersBySquadMock = (
   result: { data: result },
 });
 
+const createTopMembers = (
+  count = 1,
+): TopMembersBySquadData['topMembersBySquad'] =>
+  Array.from({ length: count }, (_, index) => ({
+    id: `u${index + 2}`,
+    name: count === 1 ? 'Top Member' : `Top Member ${index + 1}`,
+    image: `https://daily.dev/top-member-${index + 1}.png`,
+    username: `topmember${index + 1}`,
+    permalink: `/topmember${index + 1}`,
+    createdAt: new Date().toISOString(),
+    reputation: 42 + index,
+  }));
+
 let client: QueryClient;
 
 const renderComponent = (
@@ -199,7 +213,6 @@ const renderComponent = (
     createSourceMock(handle),
     createFeedMock(),
     createBasicSourceMembersMock(),
-    createTopMembersBySquadMock(),
   ],
   user: LoggedUser = defaultUser,
   squads = [defaultSquad],
@@ -277,11 +290,19 @@ describe('squad page header', () => {
   });
 
   it('should show top members below moderated by for public squads', async () => {
+    jest.spyOn(sharedHooks, 'useSquad').mockReturnValue({
+      squad: {
+        ...generateTestSquad({ public: true }),
+        topMembers: createTopMembers(),
+      },
+      isLoading: false,
+      isFetched: true,
+      isForbidden: false,
+    });
+
     renderComponent(defaultSquad.handle, [
-      createSourceMock(defaultSquad.handle, { public: true }),
       createFeedMock(),
       createBasicSourceMembersMock(),
-      createTopMembersBySquadMock(),
     ]);
 
     expect(await screen.findByText('Top members')).toBeInTheDocument();
@@ -289,21 +310,19 @@ describe('squad page header', () => {
   });
 
   it('should show top members overflow in a modal', async () => {
+    jest.spyOn(sharedHooks, 'useSquad').mockReturnValue({
+      squad: {
+        ...generateTestSquad({ public: true }),
+        topMembers: createTopMembers(4),
+      },
+      isLoading: false,
+      isFetched: true,
+      isForbidden: false,
+    });
+
     renderComponent(defaultSquad.handle, [
-      createSourceMock(defaultSquad.handle, { public: true }),
       createFeedMock(),
       createBasicSourceMembersMock(),
-      createTopMembersBySquadMock({
-        topMembersBySquad: Array.from({ length: 4 }, (_, index) => ({
-          id: `u${index + 2}`,
-          name: `Top Member ${index + 1}`,
-          image: `https://daily.dev/top-member-${index + 1}.png`,
-          username: `topmember${index + 1}`,
-          permalink: `/topmember${index + 1}`,
-          createdAt: new Date().toISOString(),
-          reputation: 42 + index,
-        })),
-      }),
     ]);
 
     expect(await screen.findByText('Top Member 1')).toBeInTheDocument();
