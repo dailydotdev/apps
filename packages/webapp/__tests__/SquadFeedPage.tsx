@@ -13,7 +13,6 @@ import type { NextRouter } from 'next/router';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
-import * as sharedHooks from '@dailydotdev/shared/src/hooks';
 import type {
   GraphQLRequest,
   GraphQLResult,
@@ -58,6 +57,7 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import SquadPage from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {
@@ -66,6 +66,21 @@ const defaultSquad: Squad = {
 };
 const defaultCurrentMember = defaultSquad.currentMember as SourceMember;
 let requestedSquad: Partial<Squad> = {};
+const actualUseSquad = jest.requireActual(
+  '@dailydotdev/shared/src/hooks/squads/useSquad',
+).useSquad as typeof useSquad;
+const mockUseSquad = jest.mocked(useSquad);
+
+jest.mock('@dailydotdev/shared/src/hooks/squads/useSquad', () => {
+  const actual = jest.requireActual(
+    '@dailydotdev/shared/src/hooks/squads/useSquad',
+  );
+
+  return {
+    ...actual,
+    useSquad: jest.fn(actual.useSquad),
+  };
+});
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(
@@ -82,6 +97,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
   jest.useRealTimers();
+  mockUseSquad.mockImplementation(actualUseSquad);
   nock.cleanAll();
   requestedSquad = {};
 });
@@ -290,7 +306,7 @@ describe('squad page header', () => {
   });
 
   it('should show top members below moderated by for public squads', async () => {
-    jest.spyOn(sharedHooks, 'useSquad').mockReturnValue({
+    mockUseSquad.mockReturnValue({
       squad: {
         ...generateTestSquad({ public: true }),
         topMembers: createTopMembers(),
@@ -310,7 +326,7 @@ describe('squad page header', () => {
   });
 
   it('should show top members overflow in a modal', async () => {
-    jest.spyOn(sharedHooks, 'useSquad').mockReturnValue({
+    mockUseSquad.mockReturnValue({
       squad: {
         ...generateTestSquad({ public: true }),
         topMembers: createTopMembers(4),
