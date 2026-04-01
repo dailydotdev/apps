@@ -7,6 +7,10 @@ export interface PostHighlight {
   post: {
     id: string;
     commentsPermalink: string;
+    source?: {
+      name: string;
+      image: string;
+    };
   };
 }
 
@@ -19,6 +23,10 @@ export const POST_HIGHLIGHTS_QUERY = gql`
       post {
         id
         commentsPermalink
+        source {
+          name
+          image
+        }
       }
     }
   }

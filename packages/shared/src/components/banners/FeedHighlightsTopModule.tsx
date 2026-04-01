@@ -11,6 +11,7 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { PostHighlight } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
@@ -40,15 +41,17 @@ const HIGHLIGHT_SKELETON_KEYS = [
   'five',
 ] as const;
 const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
+const FEED_HIGHLIGHTS_CARD_VERSION = 'v2' as const;
+const FEED_HIGHLIGHTS_VISIBLE_COUNT = 3;
 
 const HighlightRowSkeleton = (): ReactElement => (
-  <div className="flex flex-1 items-start gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2">
+  <div className="flex flex-1 items-start gap-2 border-b border-border-subtlest-tertiary px-2.5 py-2">
     <div className="h-4 flex-1 rounded-8 bg-surface-hover" />
     <div className="h-3 w-10 shrink-0 rounded-8 bg-surface-hover" />
   </div>
 );
 
-const HighlightRow = ({
+const HighlightRowV1 = ({
   highlight,
   index,
   onHighlightClick,
@@ -87,7 +90,7 @@ const HighlightRow = ({
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col rounded-8 border border-border-subtlest-tertiary px-2.5 py-1 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+        className={`group flex flex-1 flex-col gap-2 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
           isViewed && !isPressed ? 'bg-surface-hover/30' : ''
         } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
         onMouseEnter={onViewed}
@@ -117,6 +120,87 @@ const HighlightRow = ({
         >
           {highlight.headline}
         </span>
+      </a>
+    </Link>
+  );
+};
+
+const HighlightRowV2 = ({
+  highlight,
+  index,
+  onHighlightClick,
+  isViewed,
+  isRead,
+  isPressed,
+  onViewed,
+  onPressedChange,
+  onRead,
+}: {
+  highlight: PostHighlight;
+  index: number;
+  onHighlightClick?: (
+    highlight: PostHighlight,
+    position: number,
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => void;
+  highlightAsNew?: boolean;
+  isViewed: boolean;
+  isRead: boolean;
+  isPressed: boolean;
+  onViewed: () => void;
+  onPressedChange: (isPressed: boolean) => void;
+  onRead: () => void;
+}): ReactElement => {
+  const isInteracted = isViewed || isRead || isPressed;
+  const rowTextColorClass = isInteracted
+    ? 'text-secondary visited:text-secondary'
+    : 'text-primary visited:text-secondary';
+  const headlineTextColorClass = isInteracted
+    ? 'text-text-secondary'
+    : 'text-inherit';
+  const sourceName = highlight.post.source?.name ?? 'Source';
+  const sourceImage = highlight.post.source?.image ?? '';
+
+  return (
+    <Link href={highlight.post.commentsPermalink} passHref>
+      <a
+        href={highlight.post.commentsPermalink}
+        className={`group flex flex-1 flex-col gap-2 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+          isViewed && !isPressed ? 'bg-surface-hover/30' : ''
+        } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
+        onMouseEnter={onViewed}
+        onMouseDown={() => onPressedChange(true)}
+        onMouseUp={() => onPressedChange(false)}
+        onMouseLeave={() => onPressedChange(false)}
+        onBlur={() => onPressedChange(false)}
+        onClick={(event) => {
+          onRead();
+          onHighlightClick?.(highlight, index + 1, event);
+        }}
+      >
+        <span
+          className={`line-clamp-2 transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
+        >
+          {highlight.headline}
+        </span>
+        <div className="flex items-center text-text-tertiary typo-footnote">
+          <ProfilePicture
+            size={ProfileImageSize.XSmall}
+            className="mr-1.5"
+            rounded="full"
+            user={{ image: sourceImage, username: `${sourceName} source` }}
+          />
+          <span className="max-w-[9rem] truncate text-text-tertiary">
+            {sourceName}
+          </span>
+          <span aria-hidden className="mx-1 text-text-tertiary">
+            ·
+          </span>
+          <RelativeTime
+            dateTime={highlight.highlightedAt}
+            className="shrink-0 text-text-tertiary typo-footnote"
+          />
+        </div>
       </a>
     </Link>
   );
@@ -190,7 +274,9 @@ export const FeedHighlightsTopModule = ({
     return null;
   }
 
-  const topHighlights = highlights.slice(0, 4);
+  const topHighlights = highlights.slice(0, FEED_HIGHLIGHTS_VISIBLE_COUNT);
+  const HighlightRowComponent =
+    FEED_HIGHLIGHTS_CARD_VERSION === 'v2' ? HighlightRowV2 : HighlightRowV1;
   const shouldShowSkeleton = loading;
   const shouldUseMobileListStyles = shouldUseListFeedLayout && !isLaptop;
   const sectionClassName = shouldUseMobileListStyles
@@ -200,8 +286,8 @@ export const FeedHighlightsTopModule = ({
     ? 'relative flex items-center pb-4'
     : 'relative flex items-center px-4 py-4';
   const contentClassName = shouldUseMobileListStyles
-    ? 'flex flex-1 flex-col gap-1.5'
-    : 'flex flex-1 flex-col gap-1.5 px-2.5 pb-1 pt-0';
+    ? 'flex flex-1 flex-col gap-2'
+    : 'flex flex-1 flex-col gap-2 px-2.5 pb-1 pt-0';
   const footerClassName = shouldUseMobileListStyles ? 'pt-1.5' : 'px-1 pb-1';
   const markHighlightViewed = (highlightId: string): void => {
     setViewedHighlightIds((currentIds) => {
@@ -253,11 +339,11 @@ export const FeedHighlightsTopModule = ({
 
       <div className={contentClassName}>
         {shouldShowSkeleton
-          ? HIGHLIGHT_SKELETON_KEYS.slice(0, 4).map((key) => (
+          ? HIGHLIGHT_SKELETON_KEYS.slice(0, FEED_HIGHLIGHTS_VISIBLE_COUNT).map((key) => (
               <HighlightRowSkeleton key={key} />
             ))
           : topHighlights.map((highlight, index) => (
-              <HighlightRow
+              <HighlightRowComponent
                 key={`${highlight.channel}-${highlight.post.id}`}
                 highlight={highlight}
                 index={index}
