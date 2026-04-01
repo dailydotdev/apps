@@ -24,6 +24,7 @@ import { RequestKey, StaleTime } from '../lib/query';
 import { PrivacyOption } from '../components/squads/settings/SquadPrivacySection';
 import type { Author } from './comments';
 import { OrganizationMemberRole } from '../features/organizations/types';
+import type { UserShortProfile } from '../lib/user';
 
 type BaseSquadForm = Pick<
   Squad,
@@ -288,6 +289,19 @@ export const SQUAD_ANALYTICS_HISTORY_QUERY = gql`
     }
   }
 `;
+
+export const TOP_MEMBERS_BY_SQUAD_QUERY = gql`
+  query TopMembersBySquad($sourceId: ID!, $since: DateTime!, $limit: Int) {
+    topMembersBySquad(sourceId: $sourceId, since: $since, limit: $limit) {
+      ...UserShortInfo
+    }
+  }
+  ${USER_SHORT_INFO_FRAGMENT}
+`;
+
+export interface TopMembersBySquadData {
+  topMembersBySquad: UserShortProfile[];
+}
 
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {

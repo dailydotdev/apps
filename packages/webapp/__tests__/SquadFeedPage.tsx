@@ -14,6 +14,7 @@ import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
 import type {
+  GraphQLRequest,
   GraphQLResult,
   MockedGraphQLResponse,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -31,18 +32,22 @@ import type {
   BasicSourceMembersData,
   SquadData,
   SquadEdgesData,
+  TopMembersBySquadData,
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   BASIC_SQUAD_MEMBERS_QUERY,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
+  TOP_MEMBERS_BY_SQUAD_QUERY,
 } from '@dailydotdev/shared/src/graphql/squads';
-import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import {
+  type SourceMember,
+  type Squad,
   SourceMemberRole,
   SourcePermissions,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { BootApp } from '@dailydotdev/shared/src/lib/boot';
+import { MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP } from '@dailydotdev/shared/src/lib/config';
+import { subDays } from 'date-fns';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
@@ -58,6 +63,7 @@ const defaultSquad: Squad = {
   ...generateTestSquad(),
   public: false,
 };
+const defaultCurrentMember = defaultSquad.currentMember as SourceMember;
 let requestedSquad: Partial<Squad> = {};
 
 jest.mock('next/router', () => ({
@@ -81,7 +87,7 @@ beforeEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = SOURCE_FEED_QUERY,
-  variables: unknown = {
+  variables: GraphQLRequest['variables'] = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -131,7 +137,7 @@ Object.assign(navigator, {
 
 const createSourceMembersMock = (
   result = generateMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
+  variables: GraphQLRequest['variables'] = { id: defaultSquad.id, first: 5 },
 ): MockedGraphQLResponse<SquadEdgesData> => ({
   request: { query: SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
@@ -139,14 +145,14 @@ const createSourceMembersMock = (
 
 const createBasicSourceMembersMock = (
   result = generateBasicMembersResult(),
-  variables: unknown = { id: defaultSquad.id, first: 5 },
+  variables: GraphQLRequest['variables'] = { id: defaultSquad.id, first: 5 },
 ): MockedGraphQLResponse<BasicSourceMembersData> => ({
   request: { query: BASIC_SQUAD_MEMBERS_QUERY, variables },
   result: { data: result },
 });
 
 const createContentPreferenceStatusMock = (
-  id: string = defaultSquad.id,
+  id = defaultSquad.id ?? '',
   entity: ContentPreferenceType = ContentPreferenceType.Source,
 ): MockedGraphQLResponse => ({
   request: {
@@ -158,6 +164,30 @@ const createContentPreferenceStatusMock = (
       contentPreferenceStatus: null,
     },
   },
+});
+
+const createTopMembersBySquadMock = (
+  result: TopMembersBySquadData = {
+    topMembersBySquad: [
+      {
+        id: 'u2',
+        name: 'Top Member',
+        image: 'https://daily.dev/top-member.png',
+        username: 'topmember',
+        permalink: '/topmember',
+        createdAt: new Date().toISOString(),
+        reputation: 42,
+      },
+    ],
+  },
+  variables: GraphQLRequest['variables'] = {
+    sourceId: defaultSquad.id,
+    since: subDays(new Date(), 30).toISOString(),
+    limit: MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
+  },
+): MockedGraphQLResponse<TopMembersBySquadData> => ({
+  request: { query: TOP_MEMBERS_BY_SQUAD_QUERY, variables },
+  result: { data: result },
 });
 
 let client: QueryClient;
@@ -182,7 +212,6 @@ const renderComponent = (
       client={client}
       auth={{ user, squads }}
       notification={{
-        app: BootApp.Webapp,
         isNotificationsReady: true,
         unreadCount: 0,
       }}
@@ -190,7 +219,9 @@ const renderComponent = (
       {SquadPage.getLayout(
         <SquadPage handle={handle} />,
         {},
-        SquadPage.layoutProps,
+        SquadPage.layoutProps as unknown as Parameters<
+          typeof SquadPage.getLayout
+        >[2],
       )}
     </TestBootProvider>,
   );
@@ -241,6 +272,22 @@ describe('squad page header', () => {
     renderComponent();
     const alt = `${defaultSquad.handle}'s logo`;
     await screen.findByAltText(alt);
+  });
+
+  it('should show top members below moderated by for public squads', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-01T12:00:00.000Z'));
+
+    renderComponent(defaultSquad.handle, [
+      createSourceMock(defaultSquad.handle, { public: true }),
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+      createTopMembersBySquadMock(),
+    ]);
+
+    expect(await screen.findByText('Top members')).toBeInTheDocument();
+    expect(screen.getByText('Top Member')).toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 });
 
@@ -323,7 +370,7 @@ describe('squad header bar', () => {
   it('should copy invitation link', async () => {
     requestedSquad.public = false;
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
@@ -348,7 +395,7 @@ describe('squad header bar', () => {
   it('should copy invitation link for public squad', async () => {
     requestedSquad.public = true;
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
@@ -372,7 +419,7 @@ describe('squad header bar', () => {
 
   it('should not copy invitation link when member does not have invite permission', async () => {
     requestedSquad.currentMember = {
-      ...defaultSquad.currentMember,
+      ...defaultCurrentMember,
       permissions: [],
     };
     renderComponent();
@@ -460,6 +507,7 @@ describe('squad members modal', () => {
 
   it('should show all blocked members of the squad when privileged', async () => {
     requestedSquad.currentMember = {
+      ...defaultCurrentMember,
       role: SourceMemberRole.Admin,
       permissions: [SourcePermissions.ViewBlockedMembers],
     };

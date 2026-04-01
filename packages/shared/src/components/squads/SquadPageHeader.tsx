@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { subDays } from 'date-fns';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
-import { SourcePermissions } from '../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import { FlexCentered, FlexCol } from '../utilities';
+import { FlexCentered, FlexCol, getRoleName } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
@@ -32,6 +34,12 @@ import {
 } from '../typography/Typography';
 import { ClickableText } from '../buttons/ClickableText';
 import { SquadStack } from './stack/SquadStack';
+import { gqlClient } from '../../graphql/common';
+import {
+  TOP_MEMBERS_BY_SQUAD_QUERY,
+  type TopMembersBySquadData,
+} from '../../graphql/squads';
+import { RequestKey, StaleTime } from '../../lib/query';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -61,6 +69,22 @@ export function SquadPageHeader({
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
+  const topMembersSince = useMemo(
+    () => subDays(new Date(), 30).toISOString(),
+    [],
+  );
+  const { data: topMembersData } = useQuery<TopMembersBySquadData>({
+    queryKey: [RequestKey.TopMembersBySquad, squadId, topMembersSince, listMax],
+    queryFn: async () =>
+      gqlClient.request<TopMembersBySquadData>(TOP_MEMBERS_BY_SQUAD_QUERY, {
+        sourceId: squadId,
+        since: topMembersSince,
+        limit: listMax,
+      }),
+    enabled: !!squadId && !!squad.public,
+    staleTime: StaleTime.OneHour,
+  });
+  const topMembers = topMembersData?.topMembersBySquad ?? [];
 
   return (
     <FlexCol
@@ -164,7 +188,12 @@ export function SquadPageHeader({
       </Typography>
       <div className="mt-2 flex flex-row items-center gap-3">
         {squad.privilegedMembers?.slice(0, listMax).map((member) => (
-          <PrivilegedMemberItem key={member.user.id} member={member} />
+          <PrivilegedMemberItem
+            key={member.user.id}
+            user={member.user}
+            role={member.role}
+            badge={getRoleName(member.role)}
+          />
         ))}
         {privilegedLength > listMax && (
           <Button
@@ -181,6 +210,29 @@ export function SquadPageHeader({
           </Button>
         )}
       </div>
+      {topMembers.length > 0 && (
+        <>
+          <Typography
+            bold
+            className="mt-4"
+            color={TypographyColor.Tertiary}
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+          >
+            Top members
+          </Typography>
+          <div className="mt-2 flex flex-row items-center gap-3">
+            {topMembers.map((member) => (
+              <PrivilegedMemberItem
+                key={member.id}
+                user={member}
+                role={SourceMemberRole.Member}
+                badge="Top member"
+              />
+            ))}
+          </div>
+        </>
+      )}
       <div className={classNames('w-full', MAX_WIDTH)}>
         <SquadStack squad={squad} />
       </div>

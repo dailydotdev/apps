@@ -1,18 +1,22 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
-import type { SourceMember } from '../../../graphql/sources';
-import { ProfileTooltip } from '../../profile/ProfileTooltip';
+import type { SourceMember, SourceMemberRole } from '../../../graphql/sources';
+import { SourceMemberRole as SourceMemberRoleEnum } from '../../../graphql/sources';
 import { ProfileLink } from '../../profile/ProfileLink';
+import { ProfileTooltip } from '../../profile/ProfileTooltip';
 import UserBadge from '../../UserBadge';
-import { getRoleName } from '../../utilities';
 
 interface PrivilegedMemberItemProps {
-  member: SourceMember;
+  user: SourceMember['user'];
+  badge: string;
+  role?: SourceMemberRole;
 }
 
 export function PrivilegedMemberItem({
-  member: { user, role },
+  user,
+  badge,
+  role = SourceMemberRoleEnum.Member,
 }: PrivilegedMemberItemProps): ReactElement {
   return (
     <ProfileTooltip userId={user.id} tooltip={{ placement: 'bottom' }}>
@@ -26,7 +30,7 @@ export function PrivilegedMemberItem({
             {user.name}
           </span>
           <UserBadge className="w-fit" role={role}>
-            {getRoleName(role)}
+            {badge}
           </UserBadge>
         </div>
       </ProfileLink>
