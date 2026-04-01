@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
-import { SourcePermissions } from '../../graphql/sources';
+import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
 import { SquadHeaderBar } from './SquadHeaderBar';
 import { SquadImage } from './SquadImage';
-import { FlexCentered, FlexCol } from '../utilities';
+import { FlexCentered, FlexCol, getRoleName } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
 import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
@@ -57,6 +57,8 @@ export function SquadPageHeader({
     ? formatMonthYearOnly(squad.createdAt)
     : null;
   const privilegedLength = squad.privilegedMembers?.length || 0;
+  const topMembers = squad.topMembers ?? [];
+  const topMembersLength = topMembers.length;
   const isMobile = useViewSize(ViewSize.MobileL);
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
@@ -164,7 +166,12 @@ export function SquadPageHeader({
       </Typography>
       <div className="mt-2 flex flex-row items-center gap-3">
         {squad.privilegedMembers?.slice(0, listMax).map((member) => (
-          <PrivilegedMemberItem key={member.user.id} member={member} />
+          <PrivilegedMemberItem
+            key={member.user.id}
+            user={member.user}
+            role={member.role}
+            badge={getRoleName(member.role)}
+          />
         ))}
         {privilegedLength > listMax && (
           <Button
@@ -181,6 +188,42 @@ export function SquadPageHeader({
           </Button>
         )}
       </div>
+      {topMembers.length > 0 && (
+        <>
+          <Typography
+            bold
+            className="mt-4"
+            color={TypographyColor.Tertiary}
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+          >
+            Top members
+          </Typography>
+          <div className="mt-2 flex flex-row items-center gap-3">
+            {topMembers.slice(0, listMax).map((member) => (
+              <PrivilegedMemberItem
+                key={member.id}
+                user={member}
+                role={SourceMemberRole.Member}
+              />
+            ))}
+            {topMembersLength > listMax && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                className="aspect-square border border-border-subtlest-tertiary"
+                onClick={() =>
+                  openModal({
+                    type: LazyModal.TopMembers,
+                    props: { source: squad },
+                  })
+                }
+              >
+                +{topMembersLength - listMax}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
       <div className={classNames('w-full', MAX_WIDTH)}>
         <SquadStack squad={squad} />
       </div>
