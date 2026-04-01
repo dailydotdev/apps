@@ -125,6 +125,7 @@ export const FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
+    $noAi: Boolean
     ${SUPPORTED_TYPES}
   ) {
     page: feed(
@@ -132,6 +133,31 @@ export const FEED_QUERY = gql`
       after: $after
       ranking: $ranking
       version: $version
+      noAi: $noAi
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const FEED_QUERY_WITH_NO_AI = gql`
+  query FeedWithNoAi(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    $noAi: Boolean
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feed(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      noAi: $noAi
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection

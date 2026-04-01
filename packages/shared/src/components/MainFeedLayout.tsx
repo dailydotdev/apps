@@ -20,6 +20,7 @@ import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
   FEED_QUERY,
+  FEED_QUERY_WITH_NO_AI,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
@@ -71,6 +72,7 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
+import { useNoAiFeed } from '../hooks/useNoAiFeed';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -116,7 +118,7 @@ type FeedConfigPage = SharedFeedPage | OtherFeedPage;
 const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
+    queryIfLogged: FEED_QUERY_WITH_NO_AI,
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
@@ -220,6 +222,8 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const shouldEvaluateNoAi =
+    feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
@@ -289,8 +293,19 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
+  const {
+    isNoAi,
+    isNoAiAvailable,
+    isLoaded: isNoAiLoaded,
+    toggleNoAi,
+  } = useNoAiFeed({
+    shouldEvaluate: shouldEvaluateNoAi,
+  });
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
+  const myFeedLoggedInQuery = isNoAiAvailable
+    ? FEED_QUERY_WITH_NO_AI
+    : FEED_QUERY;
 
   const config = useMemo(() => {
     if (!feedName) {
@@ -300,6 +315,9 @@ export default function MainFeedLayout({
     const dynamicPropsByFeed: Partial<
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
+      [SharedFeedPage.MyFeed]: {
+        queryIfLogged: myFeedLoggedInQuery,
+      },
       [SharedFeedPage.Custom]: {
         variables: {
           feedId: router.query?.slugOrId as string,
@@ -352,6 +370,7 @@ export default function MainFeedLayout({
       variables: {
         ...feedConfig.variables,
         ...dynamicFeedConfig?.variables,
+        ...(shouldEvaluateNoAi && isNoAi ? { noAi: true } : {}),
         version:
           isDevelopment && !isProductionAPI
             ? 1
@@ -372,6 +391,9 @@ export default function MainFeedLayout({
     customFeedV,
     tokenRefreshed,
     feedVersion,
+    isNoAi,
+    shouldEvaluateNoAi,
+    myFeedLoggedInQuery,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
@@ -424,6 +446,10 @@ export default function MainFeedLayout({
       return null;
     }
 
+    if (shouldEvaluateNoAi && !isNoAiLoaded) {
+      return null;
+    }
+
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
         return null;
@@ -446,6 +472,15 @@ export default function MainFeedLayout({
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
+            noAiState={
+              shouldEvaluateNoAi
+                ? {
+                    isAvailable: isNoAiAvailable,
+                    isEnabled: isNoAi,
+                    onToggle: toggleNoAi,
+                  }
+                : undefined
+            }
           />
         ),
       };
@@ -525,6 +560,15 @@ export default function MainFeedLayout({
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
+          noAiState={
+            shouldEvaluateNoAi
+              ? {
+                  isAvailable: isNoAiAvailable,
+                  isEnabled: isNoAi,
+                  onToggle: toggleNoAi,
+                }
+              : undefined
+          }
         />
       ),
     };
@@ -556,6 +600,11 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
+    shouldEvaluateNoAi,
+    isNoAiLoaded,
+    isNoAiAvailable,
+    isNoAi,
+    toggleNoAi,
   ]);
 
   useEffect(() => {

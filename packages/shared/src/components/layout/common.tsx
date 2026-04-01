@@ -51,6 +51,11 @@ type State<T> = [T, Dispatch<SetStateAction<T>>];
 export interface SearchControlHeaderProps {
   feedName: AllFeedPages;
   algoState: State<number>;
+  noAiState?: {
+    isAvailable: boolean;
+    isEnabled: boolean;
+    onToggle: () => void | Promise<void>;
+  };
 }
 
 export const LayoutHeader = classed(
@@ -76,6 +81,7 @@ export const DEFAULT_ALGORITHM_INDEX = 0;
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
+  noAiState,
 }: SearchControlHeaderProps): ReactElement | null => {
   const [selectedPeriod, setSelectedPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
@@ -156,6 +162,13 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
+  let noAiButtonVariant = isLaptop
+    ? ButtonVariant.Float
+    : ButtonVariant.Tertiary;
+  if (noAiState?.isEnabled) {
+    noAiButtonVariant = ButtonVariant.Primary;
+  }
+
   const actionButtons = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
@@ -178,6 +191,21 @@ export const SearchControlHeader = ({
         onChange={(_, index) => setSelectedAlgo(index)}
         drawerProps={{ displayCloseButton: true }}
       />
+    ),
+    noAiState?.isAvailable && (
+      <Button
+        key="no-ai"
+        type="button"
+        size={ButtonSize.Medium}
+        variant={noAiButtonVariant}
+        pressed={noAiState.isEnabled}
+        className="shrink-0"
+        onClick={async () => {
+          await noAiState.onToggle();
+        }}
+      >
+        No AI
+      </Button>
     ),
     hasFeedActions && (
       <ToggleClickbaitShield
