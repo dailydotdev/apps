@@ -27,6 +27,7 @@ interface BasePostModalProps extends ModalProps {
   onNextPost?: () => void;
   navigationLeadingContent?: ReactNode;
   navigationCustomActions?: ReactNode;
+  navigationContainerClassName?: string;
   post: Post;
 }
 
@@ -42,6 +43,7 @@ function BasePostModal({
   onNextPost,
   navigationLeadingContent,
   navigationCustomActions,
+  navigationContainerClassName,
   post,
   onRequestClose,
   ...props
@@ -108,7 +110,7 @@ function BasePostModal({
             <>
               <PostNavigation
                 className={{
-                  container: 'px-4',
+                  container: classNames('px-4', navigationContainerClassName),
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}

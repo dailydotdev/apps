@@ -155,6 +155,7 @@ const HappeningNowPostModal = dynamic(() =>
   import(
     /* webpackChunkName: "happeningNowPostModal" */ './modals/HappeningNowPostModal'
   ).then((mod) => mod.HappeningNowPostModal),
+  { ssr: false },
 );
 
 const BriefCardFeed = dynamic(
@@ -577,7 +578,7 @@ export default function Feed<T>({
         }),
       });
 
-      if (shouldUseListFeedLayout || event.metaKey || event.ctrlKey) {
+      if (event.metaKey || event.ctrlKey) {
         return;
       }
 
@@ -585,18 +586,28 @@ export default function Feed<T>({
       document.body.classList.add('hidden-scrollbar');
       setSelectedHighlightPostId(highlight.post.id);
     },
-    [logEvent, shouldUseListFeedLayout],
+    [logEvent],
   );
 
-  const onFeedHighlightsAgentsLinkClick = useCallback(() => {
+  const onFeedHighlightsReadAllClick = useCallback(() => {
+    const firstHighlightPostId = feedHighlights[0]?.post.id;
+
+    if (!firstHighlightPostId) {
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.Click,
       target_id: TargetId.FeedHighlightsModule,
       extra: JSON.stringify({
-        action: 'agents_link_click',
+        action: 'read_all_click',
+        post_id: firstHighlightPostId,
       }),
     });
-  }, [logEvent]);
+
+    document.body.classList.add('hidden-scrollbar');
+    setSelectedHighlightPostId(firstHighlightPostId);
+  }, [feedHighlights, logEvent]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -761,7 +772,7 @@ export default function Feed<T>({
                     highlights={feedHighlights}
                     loading={isFetchingFeedHighlights && !feedHighlightsData}
                     onHighlightClick={onFeedHighlightClick}
-                    onAgentsLinkClick={onFeedHighlightsAgentsLinkClick}
+                    onReadAllClick={onFeedHighlightsReadAllClick}
                   />
                 )}
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (

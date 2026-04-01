@@ -14,11 +14,12 @@ import { RelativeTime } from '../utilities/RelativeTime';
 import type { PostHighlight } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
-import { webappUrl } from '../../lib/constants';
 import { EyeIcon, MenuIcon, PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useSourceActions } from '../../hooks/source/useSourceActions';
+import { useFeedLayout } from '../../hooks/useFeedLayout';
+import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 
 interface FeedHighlightsTopModuleProps {
   highlights: PostHighlight[];
@@ -28,7 +29,7 @@ interface FeedHighlightsTopModuleProps {
     position: number,
     event: MouseEvent<HTMLAnchorElement>,
   ) => void;
-  onAgentsLinkClick?: () => void;
+  onReadAllClick?: () => void;
 }
 
 const HIGHLIGHT_SKELETON_KEYS = [
@@ -125,8 +126,10 @@ export const FeedHighlightsTopModule = ({
   highlights,
   loading,
   onHighlightClick,
-  onAgentsLinkClick,
+  onReadAllClick,
 }: FeedHighlightsTopModuleProps): ReactElement | null => {
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { shouldUseListFeedLayout } = useFeedLayout();
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { data: digestSource } = useQuery(
     sourceQueryOptions({ sourceId: AGENTS_DIGEST_SOURCE_ID }),
@@ -189,6 +192,17 @@ export const FeedHighlightsTopModule = ({
 
   const topHighlights = highlights.slice(0, 4);
   const shouldShowSkeleton = loading;
+  const shouldUseMobileListStyles = shouldUseListFeedLayout && !isLaptop;
+  const sectionClassName = shouldUseMobileListStyles
+    ? 'rounded-16 border-t border-border-subtlest-tertiary bg-gradient-to-b from-surface-float to-background-default px-4 py-6'
+    : 'rounded-16 border border-border-subtlest-tertiary bg-surface-float';
+  const headerClassName = shouldUseMobileListStyles
+    ? 'relative flex items-center pb-4'
+    : 'relative flex items-center px-4 py-4';
+  const contentClassName = shouldUseMobileListStyles
+    ? 'flex flex-1 flex-col gap-1.5'
+    : 'flex flex-1 flex-col gap-1.5 px-2.5 pb-1 pt-0';
+  const footerClassName = shouldUseMobileListStyles ? 'pt-1.5' : 'px-1 pb-1';
   const markHighlightViewed = (highlightId: string): void => {
     setViewedHighlightIds((currentIds) => {
       if (currentIds.has(highlightId)) {
@@ -214,9 +228,9 @@ export const FeedHighlightsTopModule = ({
 
   return (
     <section
-      className="group relative mb-0 flex h-full w-full flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
+      className={`group relative mb-0 flex h-full w-full flex-col overflow-hidden ${sectionClassName}`}
     >
-      <header className="relative flex items-center px-4 py-4">
+      <header className={headerClassName}>
         <h2 className="feed-highlights-title-gradient font-bold typo-title3">
           Happening Now
         </h2>
@@ -237,7 +251,7 @@ export const FeedHighlightsTopModule = ({
         </span>
       </header>
 
-      <div className="flex flex-1 flex-col gap-1.5 px-2.5 pb-1 pt-0">
+      <div className={contentClassName}>
         {shouldShowSkeleton
           ? HIGHLIGHT_SKELETON_KEYS.slice(0, 4).map((key) => (
               <HighlightRowSkeleton key={key} />
@@ -261,24 +275,22 @@ export const FeedHighlightsTopModule = ({
             ))}
       </div>
       {!shouldShowSkeleton && (
-        <div className="px-1 pb-1">
-          <Link href={`${webappUrl}agents`} passHref>
-            <a
-              href={`${webappUrl}agents`}
-              className="bg-surface-float/70 flex h-8 items-center rounded-10 px-3 backdrop-blur-xl"
-              onClick={onAgentsLinkClick}
+        <div className={footerClassName}>
+          <button
+            type="button"
+            className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+            onClick={onReadAllClick}
+          >
+            <span className="typo-callout">
+              <span className="feed-highlights-title-gradient">Read all</span>
+            </span>
+            <span
+              aria-hidden
+              className="feed-highlights-title-gradient ml-auto select-none leading-none typo-title3"
             >
-              <span className="typo-callout">
-                <span className="feed-highlights-title-gradient">Show more</span>
-              </span>
-              <span
-                aria-hidden
-                className="feed-highlights-title-gradient ml-auto select-none leading-none typo-title3"
-              >
-                →
-              </span>
-            </a>
-          </Link>
+              →
+            </span>
+          </button>
         </div>
       )}
     </section>
