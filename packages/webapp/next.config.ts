@@ -215,6 +215,11 @@ const nextConfig: NextConfig = {
           destination: '/tags/:path*',
           permanent: true,
         },
+        {
+          source: '/posts/release-notes-updates-live-jp5x9el1t',
+          destination: '/posts/release-notes-updates-live--jp5x9el1t',
+          permanent: true,
+        },
         ...oldPublicAssets.map((asset) => ({
           source: `/${asset}`,
           destination: `${
