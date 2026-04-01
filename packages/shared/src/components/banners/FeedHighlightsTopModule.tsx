@@ -11,7 +11,6 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import type { PostHighlight } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
@@ -42,7 +41,7 @@ const HIGHLIGHT_SKELETON_KEYS = [
 ] as const;
 const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
 const FEED_HIGHLIGHTS_CARD_VERSION = 'v2' as const;
-const FEED_HIGHLIGHTS_VISIBLE_COUNT = 3;
+const FEED_HIGHLIGHTS_VISIBLE_COUNT = 4;
 
 const HighlightRowSkeleton = (): ReactElement => (
   <div className="flex flex-1 items-start gap-2 border-b border-border-subtlest-tertiary px-2.5 py-2">
@@ -82,15 +81,13 @@ const HighlightRowV1 = ({
   const rowTextColorClass = isInteracted
     ? 'text-secondary visited:text-secondary'
     : 'text-primary visited:text-secondary';
-  const headlineTextColorClass = isInteracted
-    ? 'text-text-secondary'
-    : 'text-inherit';
+  const headlineTextColorClass = 'text-primary';
 
   return (
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col gap-2 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+        className={`group flex flex-1 flex-col gap-0 rounded-16 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
           isViewed && !isPressed ? 'bg-surface-hover/30' : ''
         } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
         onMouseEnter={onViewed}
@@ -116,7 +113,7 @@ const HighlightRowV1 = ({
           )}
         </div>
         <span
-          className={`line-clamp-2 transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
+          className={`line-clamp-2 font-bold transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
         >
           {highlight.headline}
         </span>
@@ -155,17 +152,13 @@ const HighlightRowV2 = ({
   const rowTextColorClass = isInteracted
     ? 'text-secondary visited:text-secondary'
     : 'text-primary visited:text-secondary';
-  const headlineTextColorClass = isInteracted
-    ? 'text-text-secondary'
-    : 'text-inherit';
-  const sourceName = highlight.post.source?.name ?? 'Source';
-  const sourceImage = highlight.post.source?.image ?? '';
+  const headlineTextColorClass = 'text-primary';
 
   return (
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col gap-2 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
+        className={`group flex flex-1 flex-col gap-0 rounded-16 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
           isViewed && !isPressed ? 'bg-surface-hover/30' : ''
         } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
         onMouseEnter={onViewed}
@@ -179,26 +172,14 @@ const HighlightRowV2 = ({
         }}
       >
         <span
-          className={`line-clamp-2 transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
+          className={`line-clamp-2 font-bold transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
         >
           {highlight.headline}
         </span>
-        <div className="flex items-center text-text-tertiary typo-footnote">
-          <ProfilePicture
-            size={ProfileImageSize.XSmall}
-            className="mr-1.5"
-            rounded="full"
-            user={{ image: sourceImage, username: `${sourceName} source` }}
-          />
-          <span className="max-w-[9rem] truncate text-text-tertiary">
-            {sourceName}
-          </span>
-          <span aria-hidden className="mx-1 text-text-tertiary">
-            ·
-          </span>
+        <div className="text-text-tertiary typo-footnote">
           <RelativeTime
             dateTime={highlight.highlightedAt}
-            className="shrink-0 text-text-tertiary typo-footnote"
+            className="text-text-tertiary typo-footnote"
           />
         </div>
       </a>
@@ -287,7 +268,7 @@ export const FeedHighlightsTopModule = ({
     : 'relative flex items-center px-4 py-4';
   const contentClassName = shouldUseMobileListStyles
     ? 'flex flex-1 flex-col gap-2'
-    : 'flex flex-1 flex-col gap-2 px-2.5 pb-1 pt-0';
+    : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
   const footerClassName = shouldUseMobileListStyles ? 'pt-1.5' : 'px-1 pb-1';
   const markHighlightViewed = (highlightId: string): void => {
     setViewedHighlightIds((currentIds) => {
