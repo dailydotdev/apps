@@ -36,6 +36,7 @@ import type {
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   BASIC_SQUAD_MEMBERS_QUERY,
+  MAX_TOP_MEMBERS_BY_SQUAD,
   SQUAD_MEMBERS_QUERY,
   SQUAD_QUERY,
   TOP_MEMBERS_BY_SQUAD_QUERY,
@@ -183,7 +184,7 @@ const createTopMembersBySquadMock = (
   variables: GraphQLRequest['variables'] = {
     sourceId: defaultSquad.id,
     since: subDays(new Date(), 30).toISOString(),
-    limit: MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP,
+    limit: MAX_TOP_MEMBERS_BY_SQUAD,
   },
 ): MockedGraphQLResponse<TopMembersBySquadData> => ({
   request: { query: TOP_MEMBERS_BY_SQUAD_QUERY, variables },
@@ -198,6 +199,7 @@ const renderComponent = (
     createSourceMock(handle),
     createFeedMock(),
     createBasicSourceMembersMock(),
+    createTopMembersBySquadMock(),
   ],
   user: LoggedUser = defaultUser,
   squads = [defaultSquad],
@@ -286,6 +288,38 @@ describe('squad page header', () => {
 
     expect(await screen.findByText('Top members')).toBeInTheDocument();
     expect(screen.getByText('Top Member')).toBeInTheDocument();
+
+    jest.useRealTimers();
+  });
+
+  it('should show top members overflow in a modal', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-01T12:00:00.000Z'));
+
+    renderComponent(defaultSquad.handle, [
+      createSourceMock(defaultSquad.handle, { public: true }),
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+      createTopMembersBySquadMock({
+        topMembersBySquad: Array.from({ length: 4 }, (_, index) => ({
+          id: `u${index + 2}`,
+          name: `Top Member ${index + 1}`,
+          image: `https://daily.dev/top-member-${index + 1}.png`,
+          username: `topmember${index + 1}`,
+          permalink: `/topmember${index + 1}`,
+          createdAt: new Date().toISOString(),
+          reputation: 42 + index,
+        })),
+      }),
+    ]);
+
+    expect(await screen.findByText('Top Member 1')).toBeInTheDocument();
+    expect(screen.queryByText('Top Member 4')).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByText(`+${4 - MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP}`),
+    );
+
+    expect(await screen.findByText('Top Member 4')).toBeInTheDocument();
 
     jest.useRealTimers();
   });
@@ -398,7 +432,12 @@ describe('squad header bar', () => {
       ...defaultCurrentMember,
       permissions: [SourcePermissions.Invite],
     };
-    renderComponent();
+    renderComponent(defaultSquad.handle, [
+      createSourceMock(),
+      createFeedMock(),
+      createBasicSourceMembersMock(),
+      createTopMembersBySquadMock(),
+    ]);
     const invite = await screen.findByText('Invitation link');
 
     mockGraphQL({
@@ -437,6 +476,7 @@ describe('squad header bar', () => {
       createSourceMock(defaultSquad.handle),
       createFeedMock(),
       createBasicSourceMembersMock(),
+      createTopMembersBySquadMock(),
       createContentPreferenceStatusMock(
         defaultSquad.id,
         ContentPreferenceType.Source,

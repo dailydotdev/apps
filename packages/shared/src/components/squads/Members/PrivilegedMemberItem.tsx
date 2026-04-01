@@ -9,7 +9,7 @@ import UserBadge from '../../UserBadge';
 
 interface PrivilegedMemberItemProps {
   user: SourceMember['user'];
-  badge: string;
+  badge?: string;
   role?: SourceMemberRole;
 }
 
@@ -29,9 +29,11 @@ export function PrivilegedMemberItem({
           <span className="flex truncate text-text-tertiary typo-subhead">
             {user.name}
           </span>
-          <UserBadge className="w-fit" role={role}>
-            {badge}
-          </UserBadge>
+          {badge && (
+            <UserBadge className="w-fit" role={role}>
+              {badge}
+            </UserBadge>
+          )}
         </div>
       </ProfileLink>
     </ProfileTooltip>

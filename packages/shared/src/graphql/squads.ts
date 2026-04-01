@@ -1,4 +1,5 @@
 import { gql } from 'graphql-request';
+import { subDays } from 'date-fns';
 import {
   SHARED_POST_INFO_FRAGMENT,
   SOURCE_BASE_FRAGMENT,
@@ -303,6 +304,27 @@ export interface TopMembersBySquadData {
   topMembersBySquad: UserShortProfile[];
 }
 
+export const MAX_TOP_MEMBERS_BY_SQUAD = 10;
+
+const getTopMembersBySquadSince = (): string =>
+  subDays(new Date(), 30).toISOString();
+
+export async function getTopMembersBySquad(
+  sourceId: string,
+  limit = MAX_TOP_MEMBERS_BY_SQUAD,
+): Promise<UserShortProfile[]> {
+  const res = await gqlClient.request<TopMembersBySquadData>(
+    TOP_MEMBERS_BY_SQUAD_QUERY,
+    {
+      sourceId,
+      since: getTopMembersBySquadSince(),
+      limit,
+    },
+  );
+
+  return res.topMembersBySquad;
+}
+
 export const SQUAD_STATIC_FIELDS_QUERY = gql`
   query Source($handle: ID!) {
     source(id: $handle) {
@@ -500,7 +522,18 @@ export async function getSquad(handle: string): Promise<Squad> {
   const res = await gqlClient.request<SquadData>(SQUAD_QUERY, {
     handle: handle.toLowerCase(),
   });
-  return res.source;
+  const squad = res.source;
+
+  if (!squad.public || !squad.id) {
+    return squad;
+  }
+
+  const topMembers = await getTopMembersBySquad(squad.id);
+
+  return {
+    ...squad,
+    topMembers,
+  };
 }
 
 export const squadAnalyticsQueryOptions = ({

@@ -1,7 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { subDays } from 'date-fns';
+import React from 'react';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
@@ -34,12 +32,6 @@ import {
 } from '../typography/Typography';
 import { ClickableText } from '../buttons/ClickableText';
 import { SquadStack } from './stack/SquadStack';
-import { gqlClient } from '../../graphql/common';
-import {
-  TOP_MEMBERS_BY_SQUAD_QUERY,
-  type TopMembersBySquadData,
-} from '../../graphql/squads';
-import { RequestKey, StaleTime } from '../../lib/query';
 
 interface SquadPageHeaderProps {
   squad: Squad;
@@ -65,26 +57,12 @@ export function SquadPageHeader({
     ? formatMonthYearOnly(squad.createdAt)
     : null;
   const privilegedLength = squad.privilegedMembers?.length || 0;
+  const topMembers = squad.topMembers ?? [];
+  const topMembersLength = topMembers.length;
   const isMobile = useViewSize(ViewSize.MobileL);
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
-  const topMembersSince = useMemo(
-    () => subDays(new Date(), 30).toISOString(),
-    [],
-  );
-  const { data: topMembersData } = useQuery<TopMembersBySquadData>({
-    queryKey: [RequestKey.TopMembersBySquad, squadId, topMembersSince, listMax],
-    queryFn: async () =>
-      gqlClient.request<TopMembersBySquadData>(TOP_MEMBERS_BY_SQUAD_QUERY, {
-        sourceId: squadId,
-        since: topMembersSince,
-        limit: listMax,
-      }),
-    enabled: !!squadId && !!squad.public,
-    staleTime: StaleTime.OneHour,
-  });
-  const topMembers = topMembersData?.topMembersBySquad ?? [];
 
   return (
     <FlexCol
@@ -222,14 +200,27 @@ export function SquadPageHeader({
             Top members
           </Typography>
           <div className="mt-2 flex flex-row items-center gap-3">
-            {topMembers.map((member) => (
+            {topMembers.slice(0, listMax).map((member) => (
               <PrivilegedMemberItem
                 key={member.id}
                 user={member}
                 role={SourceMemberRole.Member}
-                badge="Top member"
               />
             ))}
+            {topMembersLength > listMax && (
+              <Button
+                variant={ButtonVariant.Tertiary}
+                className="aspect-square border border-border-subtlest-tertiary"
+                onClick={() =>
+                  openModal({
+                    type: LazyModal.TopMembers,
+                    props: { source: squad },
+                  })
+                }
+              >
+                +{topMembersLength - listMax}
+              </Button>
+            )}
           </div>
         </>
       )}
