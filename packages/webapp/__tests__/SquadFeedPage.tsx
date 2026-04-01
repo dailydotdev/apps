@@ -48,7 +48,6 @@ import {
   SourceMemberRole,
   SourcePermissions,
 } from '@dailydotdev/shared/src/graphql/sources';
-import { MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP } from '@dailydotdev/shared/src/lib/config';
 import {
   ActionType,
   COMPLETE_ACTION_MUTATION,
@@ -310,9 +309,7 @@ describe('squad page header', () => {
     expect(await screen.findByText('Top Member 1')).toBeInTheDocument();
     expect(screen.queryByText('Top Member 4')).not.toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByText(`+${4 - MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP}`),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /\+\d+/ }));
 
     expect(await screen.findByText('Top Member 4')).toBeInTheDocument();
   });
@@ -426,7 +423,7 @@ describe('squad header bar', () => {
       permissions: [SourcePermissions.Invite],
     };
     renderComponent(defaultSquad.handle, [
-      createSourceMock(),
+      createSourceMock(defaultSquad.handle),
       createFeedMock(),
       createBasicSourceMembersMock(),
       createTopMembersBySquadMock(),
