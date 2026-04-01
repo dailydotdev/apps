@@ -37,15 +37,14 @@ export function RepostListItem({
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
   const userHasUpvoted = post.userState?.vote === UserVote.Up;
-  const { showCount: showUpvotes, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvotes,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      userHasUpvoted,
-      post.createdAt,
-      upvoteThresholdConfig.newWindowHours,
-    );
+  const { showCount: showUpvotes } = getUpvoteCountDisplay(
+    upvotes,
+    upvoteThresholdConfig.threshold,
+    upvoteThresholdConfig.belowThresholdLabel,
+    userHasUpvoted,
+    post.createdAt,
+    upvoteThresholdConfig.newWindowHours,
+  );
   const { author } = post;
   const showSquadPreview = !isUserSource && !!source;
   const isPrivateSquad = !!source && !source.public;
@@ -142,10 +141,15 @@ export function RepostListItem({
 
       {/* Upvotes and comments */}
       <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
-        <span className="flex items-center gap-1.5">
-          <UpvoteIcon className="size-4" />
-          {showUpvotes ? largeNumberFormat(upvotes) : upvoteLabel}
-        </span>
+        {showUpvotes && (
+          <span
+            className="flex items-center gap-1.5"
+            data-testid="repost-upvotes"
+          >
+            <UpvoteIcon className="size-4" />
+            {largeNumberFormat(upvotes)}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <DiscussIcon className="size-4" />
           {largeNumberFormat(comments)}

@@ -25,6 +25,7 @@ interface PostMetadataProps
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
   userHasUpvoted?: boolean;
+  showBelowThresholdLabel?: boolean;
 }
 
 export default function PostMetadata({
@@ -38,7 +39,9 @@ export default function PostMetadata({
   domain,
   pollMetadata,
   userHasUpvoted = false,
+  showBelowThresholdLabel = true,
 }: PostMetadataProps): ReactElement {
+  const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
   const readTimeValue = readTime ?? 0;
   const timeActionContent = isVideoType ? 'watch' : 'read';
@@ -94,16 +97,19 @@ export default function PostMetadata({
       ),
     },
     !!showReadTime && domain && { key: 'domain', node: domain },
-    showUpvoteCount && {
-      key: 'upvotes',
-      node: (
-        <span data-testid="numUpvotes">
-          {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
-        </span>
-      ),
-    },
-    !showUpvoteCount &&
-      !!upvoteLabel && {
+    hasUpvoteCount &&
+      showUpvoteCount && {
+        key: 'upvotes',
+        node: (
+          <span data-testid="numUpvotes">
+            {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
+          </span>
+        ),
+      },
+    hasUpvoteCount &&
+      !showUpvoteCount &&
+      !!upvoteLabel &&
+      showBelowThresholdLabel && {
         key: 'upvotes',
         node: <span data-testid="numUpvotes">{upvoteLabel}</span>,
       },
