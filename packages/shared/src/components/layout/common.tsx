@@ -47,8 +47,10 @@ import {
   isNullOrUndefined,
 } from '../../lib/func';
 import { downloadBrowserExtension } from '../../lib/constants';
+import { cloudinaryNoAiFeedToggle } from '../../lib/image';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { LazyImage } from '../LazyImage';
 import { Switch } from '../fields/Switch';
 import { Tooltip } from '../tooltip/Tooltip';
 
@@ -234,6 +236,11 @@ export const SearchControlHeader = ({
               className="max-w-64 text-center"
             >
               <div className="shadow-1 flex h-10 shrink-0 items-center gap-3 rounded-12 bg-surface-float px-3">
+                <LazyImage
+                  imgSrc={cloudinaryNoAiFeedToggle}
+                  imgAlt="No AI mode"
+                  className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
+                />
                 <div className="min-w-0">
                   <Typography
                     type={TypographyType.Callout}
