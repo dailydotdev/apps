@@ -202,8 +202,8 @@ const StoryRow = ({
     sourceLabelOverride ||
       (story.source?.name === 'Community Picks'
         ? hasCommunityAuthorMeta
-        : story.source?.name),
-    sourceFallbackLabel,
+        : story.source?.name) ||
+      sourceFallbackLabel,
   );
 
   return (
@@ -224,7 +224,7 @@ const StoryRow = ({
         </div>
         <div className="min-w-0 flex-1">
           <p
-            className="text-text-primary transition-colors typo-callout"
+            className="line-clamp-3 text-text-primary transition-colors typo-callout"
             style={{ fontSize: '17px' }}
           >
             {getStoryHeadline(story)}
@@ -451,7 +451,7 @@ const CompactSectionBlock = ({
                   )}
                   <div className="min-w-0 flex-1">
                     <p
-                      className="text-text-primary transition-colors typo-callout"
+                      className="line-clamp-3 text-text-primary transition-colors typo-callout"
                       style={{ fontSize: '17px' }}
                     >
                       {getStoryHeadline(story)}

@@ -200,7 +200,7 @@ const TopicClusterCard = ({
                 )}
                 <div className="min-w-0 flex-1">
                   <h3
-                    className="mt-1 text-text-primary transition-colors typo-callout"
+                    className="line-clamp-2 mt-1 text-text-primary transition-colors typo-callout"
                     style={{ fontSize: '17px' }}
                   >
                     {story.title}
