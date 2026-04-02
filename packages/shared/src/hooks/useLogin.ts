@@ -73,15 +73,20 @@ const useLogin = ({
     },
     onSuccess: async (res) => {
       if (res.error) {
+        const isSocialOnly = res.code === 'SOCIAL_ACCOUNT_ONLY';
+        const displayedError = isSocialOnly
+          ? labels.auth.error.socialAccountOnly
+          : labels.auth.error.invalidEmailOrPassword;
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
             error: res.error,
-            displayedError: labels.auth.error.invalidEmailOrPassword,
+            code: res.code,
+            displayedError,
             origin: 'betterauth email login',
           }),
         });
-        setHint(labels.auth.error.invalidEmailOrPassword);
+        setHint(displayedError);
         return;
       }
 

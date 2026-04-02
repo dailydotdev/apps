@@ -143,6 +143,14 @@ function LoginForm({
           </AlertParagraph>
         </Alert>
       )}
+      {hint && hint === labels.auth.error.socialAccountOnly && (
+        <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">
+          <AlertParagraph className="!mt-0 flex-1">
+            It looks like you signed up with a different method. Try signing in
+            with your social provider instead.
+          </AlertParagraph>
+        </Alert>
+      )}
     </AuthForm>
   );
 }

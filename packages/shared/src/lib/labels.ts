@@ -26,6 +26,8 @@ export const labels = {
         '❌ We got some unexpected error from our side, nothing to worry about. Please try again.',
       existingEmail:
         'Email linked to different sign-in method. Please try another provider.',
+      socialAccountOnly:
+        'It looks like you signed up with a different method. Try signing in with your social provider instead.',
     },
   },
   referral: {
