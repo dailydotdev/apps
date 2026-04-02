@@ -311,9 +311,6 @@ export default function MainFeedLayout({
     const dynamicPropsByFeed: Partial<
       Record<SharedFeedPage, Partial<FeedQueryProps>>
     > = {
-      [SharedFeedPage.MyFeed]: {
-        queryIfLogged: FEED_QUERY,
-      },
       [SharedFeedPage.Custom]: {
         variables: {
           feedId: router.query?.slugOrId as string,

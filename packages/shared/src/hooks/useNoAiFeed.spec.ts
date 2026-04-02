@@ -2,12 +2,13 @@ import { act, renderHook } from '@testing-library/react';
 import { useNoAiFeed } from './useNoAiFeed';
 import { useConditionalFeature } from './useConditionalFeature';
 import { useSettingsContext } from '../contexts/SettingsContext';
-import { useToastNotification } from './useToastNotification';
-import { usePrompt } from './usePrompt';
+import { ToastSubject, useToastNotification } from './useToastNotification';
 import { useLogContext } from '../contexts/LogContext';
 import { SidebarSettingsFlags } from '../graphql/settings';
 import { labels } from '../lib/labels';
 import { LogEvent, Origin, TargetId } from '../lib/log';
+import { useActions } from './useActions';
+import { ActionType } from '../graphql/actions';
 
 jest.mock('./useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -18,29 +19,30 @@ jest.mock('../contexts/SettingsContext', () => ({
 }));
 
 jest.mock('./useToastNotification', () => ({
+  ...jest.requireActual('./useToastNotification'),
   useToastNotification: jest.fn(),
-}));
-
-jest.mock('./usePrompt', () => ({
-  usePrompt: jest.fn(),
 }));
 
 jest.mock('../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
 }));
 
+jest.mock('./useActions', () => ({
+  useActions: jest.fn(),
+}));
+
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseToastNotification = useToastNotification as jest.Mock;
-const mockUsePrompt = usePrompt as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
+const mockUseActions = useActions as jest.Mock;
 
 describe('useNoAiFeed', () => {
   const updateFlag = jest.fn().mockResolvedValue(undefined);
   const updatePromptFlag = jest.fn().mockResolvedValue(undefined);
   const displayToast = jest.fn();
-  const showPrompt = jest.fn().mockResolvedValue(true);
   const logEvent = jest.fn();
+  const completeAction = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -59,8 +61,8 @@ describe('useNoAiFeed', () => {
       updatePromptFlag,
     });
     mockUseToastNotification.mockReturnValue({ displayToast });
-    mockUsePrompt.mockReturnValue({ showPrompt });
     mockUseLogContext.mockReturnValue({ logEvent });
+    mockUseActions.mockReturnValue({ completeAction });
   });
 
   it('reads the saved no ai preference', () => {
@@ -81,31 +83,37 @@ describe('useNoAiFeed', () => {
     expect(result.current.isLoaded).toBe(true);
   });
 
-  it('enables no ai mode locally, prompts to save it, and logs the decision', async () => {
+  it('enables no ai mode locally and shows a save nudge toast', async () => {
     const { result } = renderHook(() => useNoAiFeed());
 
     await act(async () => {
       await result.current.toggleNoAi();
     });
 
-    expect(displayToast).toHaveBeenCalledWith(labels.feed.noAi.hidden);
-    expect(showPrompt).toHaveBeenCalledWith({
-      title: labels.feed.noAi.prompt.title,
-      description: labels.feed.noAi.prompt.description,
-      okButton: {
-        title: labels.feed.noAi.prompt.okButton,
-      },
-      cancelButton: {
-        title: labels.feed.noAi.prompt.cancelButton,
-      },
+    expect(displayToast).toHaveBeenCalledWith(labels.feed.noAi.nudge.message, {
+      persistent: true,
+      subject: ToastSubject.Feed,
+      action: expect.objectContaining({
+        copy: labels.feed.noAi.nudge.action,
+      }),
     });
     expect(updatePromptFlag).toHaveBeenCalledWith(
       'no_ai_feed_preference_prompt',
       true,
     );
+
+    const toastAction = displayToast.mock.calls[0][1].action.onClick;
+
+    await act(async () => {
+      await toastAction();
+    });
+
     expect(updateFlag).toHaveBeenCalledWith(
       SidebarSettingsFlags.NoAiFeedEnabled,
       true,
+    );
+    expect(completeAction).toHaveBeenCalledWith(
+      ActionType.DismissNoAiFeedToggle,
     );
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.SaveNoAiFeedPreference,
@@ -138,6 +146,5 @@ describe('useNoAiFeed', () => {
       false,
     );
     expect(displayToast).toHaveBeenCalledWith(labels.feed.noAi.visible);
-    expect(showPrompt).not.toHaveBeenCalled();
   });
 });

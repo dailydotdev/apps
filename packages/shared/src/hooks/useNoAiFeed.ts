@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { featureNoAiFeed } from '../lib/featureManagement';
-import { useConditionalFeature } from './useConditionalFeature';
 import { useSettingsContext } from '../contexts/SettingsContext';
-import { useToastNotification } from './useToastNotification';
-import { usePrompt } from './usePrompt';
+import { useConditionalFeature } from './useConditionalFeature';
+import { ToastSubject, useToastNotification } from './useToastNotification';
 import { labels } from '../lib/labels';
 import { SidebarSettingsFlags } from '../graphql/settings';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent, Origin, TargetId } from '../lib/log';
+import { useActions } from './useActions';
+import { ActionType } from '../graphql/actions';
 
 type UseNoAiFeedProps = {
   shouldEvaluate?: boolean;
@@ -33,8 +34,8 @@ export const useNoAiFeed = ({
   const { flags, loadedSettings, updateFlag, updatePromptFlag } =
     useSettingsContext();
   const { displayToast } = useToastNotification();
-  const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
+  const { completeAction } = useActions();
   const [sessionNoAi, setSessionNoAi] = useState(false);
 
   const savedNoAi = flags?.noAiFeedEnabled ?? false;
@@ -56,42 +57,41 @@ export const useNoAiFeed = ({
     [updateFlag],
   );
 
-  const maybePromptToSavePreference = useCallback(async () => {
+  const maybeShowSavePreferenceNudge = useCallback(async () => {
     if (savedNoAi || hasSeenPrompt) {
+      displayToast(labels.feed.noAi.hidden, {
+        subject: ToastSubject.Feed,
+      });
+
       return;
     }
 
-    const promptResult = await showPrompt({
-      title: labels.feed.noAi.prompt.title,
-      description: labels.feed.noAi.prompt.description,
-      okButton: {
-        title: labels.feed.noAi.prompt.okButton,
-      },
-      cancelButton: {
-        title: labels.feed.noAi.prompt.cancelButton,
+    displayToast(labels.feed.noAi.nudge.message, {
+      persistent: true,
+      subject: ToastSubject.Feed,
+      action: {
+        copy: labels.feed.noAi.nudge.action,
+        onClick: async () => {
+          await persistNoAiPreference(true);
+          await completeAction(ActionType.DismissNoAiFeedToggle);
+          logEvent({
+            event_name: LogEvent.SaveNoAiFeedPreference,
+            target_id: TargetId.On,
+            extra: JSON.stringify({
+              origin: Origin.Feed,
+            }),
+          });
+        },
       },
     });
-
     await updatePromptFlag(NO_AI_FEED_PROMPT_FLAG, true);
-    logEvent({
-      event_name: LogEvent.SaveNoAiFeedPreference,
-      target_id: promptResult ? TargetId.On : TargetId.Off,
-      extra: JSON.stringify({
-        origin: Origin.Feed,
-      }),
-    });
-
-    if (!promptResult) {
-      return;
-    }
-
-    await persistNoAiPreference(true);
   }, [
+    completeAction,
+    displayToast,
     hasSeenPrompt,
     logEvent,
     persistNoAiPreference,
     savedNoAi,
-    showPrompt,
     updatePromptFlag,
   ]);
 
@@ -103,8 +103,7 @@ export const useNoAiFeed = ({
 
     if (nextIsNoAi) {
       setSessionNoAi(true);
-      displayToast(labels.feed.noAi.hidden);
-      await maybePromptToSavePreference();
+      await maybeShowSavePreferenceNudge();
 
       return;
     }
@@ -121,7 +120,7 @@ export const useNoAiFeed = ({
   }, [
     displayToast,
     isNoAi,
-    maybePromptToSavePreference,
+    maybeShowSavePreferenceNudge,
     persistNoAiPreference,
     savedNoAi,
   ]);

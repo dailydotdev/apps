@@ -92,14 +92,11 @@ export const labels = {
       },
     },
     noAi: {
-      hidden: 'AI content hidden.',
-      visible: 'AI content visible again.',
-      prompt: {
-        title: 'Keep No AI mode handy?',
-        description:
-          'Want to keep AI topics filtered out? You can save this in Content preferences.',
-        okButton: 'Save preference',
-        cancelButton: 'Not now',
+      hidden: 'AI chatter hidden.',
+      visible: 'AI chatter is back.',
+      nudge: {
+        message: 'AI chatter hidden. Keep it and hide this toggle?',
+        action: 'Apply & hide',
       },
     },
   },

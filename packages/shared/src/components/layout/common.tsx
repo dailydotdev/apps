@@ -49,7 +49,6 @@ import {
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
-import { LazyImage } from '../LazyImage';
 import { Switch } from '../fields/Switch';
 import { Tooltip } from '../tooltip/Tooltip';
 
@@ -234,12 +233,7 @@ export const SearchControlHeader = ({
               side="bottom"
               className="max-w-64 text-center"
             >
-              <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
-                <LazyImage
-                  imgSrc="/assets/no-ai-feed-toggle.png"
-                  imgAlt="No AI mode"
-                  className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
-                />
+              <div className="shadow-1 flex h-10 shrink-0 items-center gap-3 rounded-12 bg-surface-float px-3">
                 <div className="min-w-0">
                   <Typography
                     type={TypographyType.Callout}
