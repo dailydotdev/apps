@@ -45,15 +45,14 @@ export function PostUpvotesCommentsCount({
   const reposts = post.numReposts || 0;
   const hasAccessToCores = useHasAccessToCores();
   const userHasUpvoted = post.userState?.vote === UserVote.Up;
-  const { showCount: showUpvotes, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvotes,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      userHasUpvoted,
-      post.createdAt,
-      upvoteThresholdConfig.newWindowHours,
-    );
+  const { showCount: showUpvotes } = getUpvoteCountDisplay(
+    upvotes,
+    upvoteThresholdConfig.threshold,
+    upvoteThresholdConfig.belowThresholdLabel,
+    userHasUpvoted,
+    post.createdAt,
+    upvoteThresholdConfig.newWindowHours,
+  );
   const onRepostsClick = () =>
     openModal({
       type: LazyModal.RepostsPopup,
@@ -86,7 +85,6 @@ export function PostUpvotesCommentsCount({
           {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      {!showUpvotes && !!upvoteLabel && <span>{upvoteLabel}</span>}
       {comments > 0 && (
         <span>
           {largeNumberFormat(comments)}

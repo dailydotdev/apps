@@ -120,6 +120,12 @@ const PrivilegedMemberModal = dynamic(
       /* webpackChunkName: "privilegedMembersModal" */ './squads/PrivilegedMembersModal'
     ),
 );
+const TopMembersModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "topMembersModal" */ './squads/TopMembersModal'
+    ),
+);
 
 const BookmarkReminderModal = dynamic(
   () =>
@@ -481,6 +487,7 @@ export const modals = {
   [LazyModal.MarketingCta]: MarketingCtaModal,
   [LazyModal.Share]: ShareModal,
   [LazyModal.PrivilegedMembers]: PrivilegedMemberModal,
+  [LazyModal.TopMembers]: TopMembersModal,
   [LazyModal.BookmarkReminder]: BookmarkReminderModal,
   [LazyModal.RecoverStreak]: StreakRecoverModal,
   [LazyModal.SlackIntegration]: SlackIntegrationModal,
