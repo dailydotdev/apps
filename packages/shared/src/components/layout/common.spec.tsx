@@ -9,6 +9,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
 import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
+import { ActionType } from '../../graphql/actions';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
@@ -93,6 +94,32 @@ const mockUseQueryState = useQueryState as jest.Mock;
 const mockCheckIsExtension = checkIsExtension as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 
+const createActionsState = ({
+  dismissedInstallExtension = false,
+  dismissedNoAiToggle = false,
+  isActionsFetched = true,
+  completeAction = jest.fn(),
+}: {
+  dismissedInstallExtension?: boolean;
+  dismissedNoAiToggle?: boolean;
+  isActionsFetched?: boolean;
+  completeAction?: jest.Mock;
+} = {}) => ({
+  checkHasCompleted: jest.fn((type: ActionType) => {
+    if (type === ActionType.DismissInstallExtension) {
+      return dismissedInstallExtension;
+    }
+
+    if (type === ActionType.DismissNoAiFeedToggle) {
+      return dismissedNoAiToggle;
+    }
+
+    return false;
+  }),
+  completeAction,
+  isActionsFetched,
+});
+
 const renderComponent = ({
   noAiState,
 }: {
@@ -136,11 +163,9 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt before actions are fetched', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: false,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ isActionsFetched: false }),
+    );
 
     renderComponent();
 
@@ -150,11 +175,9 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt after dismissal', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(true),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ dismissedInstallExtension: true }),
+    );
 
     renderComponent();
 
@@ -164,11 +187,7 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt for extension users', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
     mockCheckIsExtension.mockReturnValue(true);
 
     renderComponent();
@@ -179,11 +198,7 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the install extension prompt after extension usage is recorded', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
     mockUseAuthContext.mockReturnValue({
       user: { flags: { lastExtensionUse: '2025-01-01T00:00:00.000Z' } },
     });
@@ -196,11 +211,7 @@ describe('SearchControlHeader', () => {
   });
 
   it('renders the install extension prompt when actions are fetched and not dismissed', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(false),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(createActionsState());
 
     renderComponent();
 
@@ -210,11 +221,9 @@ describe('SearchControlHeader', () => {
   });
 
   it('does not render the No AI switch when unavailable', () => {
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(true),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ dismissedInstallExtension: true }),
+    );
 
     renderComponent({
       noAiState: {
@@ -234,11 +243,9 @@ describe('SearchControlHeader', () => {
     const onToggle = jest.fn().mockResolvedValue(undefined);
     const logEvent = jest.fn();
     mockUseLogContext.mockReturnValue({ logEvent });
-    mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn().mockReturnValue(true),
-      completeAction: jest.fn(),
-      isActionsFetched: true,
-    });
+    mockUseActions.mockReturnValue(
+      createActionsState({ dismissedInstallExtension: true }),
+    );
 
     renderComponent({
       noAiState: {
@@ -264,5 +271,51 @@ describe('SearchControlHeader', () => {
         }),
       });
     });
+  });
+
+  it('does not render the No AI switch after dismissal', () => {
+    mockUseActions.mockReturnValue(
+      createActionsState({
+        dismissedInstallExtension: true,
+        dismissedNoAiToggle: true,
+      }),
+    );
+
+    renderComponent({
+      noAiState: {
+        isAvailable: true,
+        isEnabled: false,
+        onToggle: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    expect(screen.queryByText('No AI mode')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('checkbox', { name: 'Toggle No AI mode' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('dismisses the No AI header card', () => {
+    const completeAction = jest.fn();
+    mockUseActions.mockReturnValue(
+      createActionsState({
+        dismissedInstallExtension: true,
+        completeAction,
+      }),
+    );
+
+    renderComponent({
+      noAiState: {
+        isAvailable: true,
+        isEnabled: false,
+        onToggle: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss No AI mode' }));
+
+    expect(completeAction).toHaveBeenCalledWith(
+      ActionType.DismissNoAiFeedToggle,
+    );
   });
 });

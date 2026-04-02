@@ -91,6 +91,17 @@ export const labels = {
         smartPrompt: 'Smart Prompt setting has been applied for all feeds',
       },
     },
+    noAi: {
+      hidden: 'AI content hidden.',
+      visible: 'AI content visible again.',
+      prompt: {
+        title: 'Keep No AI mode handy?',
+        description:
+          'Want to keep AI topics filtered out? You can save this in Content preferences.',
+        okButton: 'Save preference',
+        cancelButton: 'Not now',
+      },
+    },
   },
   integrations: {
     prompt: {

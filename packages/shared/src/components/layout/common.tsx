@@ -138,6 +138,9 @@ export const SearchControlHeader = ({
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
+  const hasDismissedNoAiFeedToggle = checkHasCompleted(
+    ActionType.DismissNoAiFeedToggle,
+  );
   const canInstallExtension =
     !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldShowInstallExtensionPrompt =
@@ -208,7 +211,9 @@ export const SearchControlHeader = ({
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
-  const noAiControl = noAiState?.isAvailable
+  const shouldShowNoAiControl =
+    noAiState?.isAvailable && isActionsFetched && !hasDismissedNoAiFeedToggle;
+  const noAiControl = shouldShowNoAiControl
     ? (() => {
         const handleNoAiToggle = async () => {
           const isEnabled = !noAiState.isEnabled;
@@ -223,37 +228,45 @@ export const SearchControlHeader = ({
         };
 
         return (
-          <Tooltip
-            key="no-ai"
-            content={noAiToggleTooltip}
-            side="bottom"
-            className="max-w-64 text-center"
-          >
-            <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
-              <LazyImage
-                imgSrc="/assets/no-ai-feed-toggle.png"
-                imgAlt="No AI mode"
-                className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
-              />
-              <div className="min-w-0">
-                <Typography
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Tertiary}
-                  bold
-                >
-                  No AI mode
-                </Typography>
+          <React.Fragment key="no-ai">
+            <Tooltip
+              content={noAiToggleTooltip}
+              side="bottom"
+              className="max-w-64 text-center"
+            >
+              <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
+                <LazyImage
+                  imgSrc="/assets/no-ai-feed-toggle.png"
+                  imgAlt="No AI mode"
+                  className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
+                />
+                <div className="min-w-0">
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                    bold
+                  >
+                    No AI mode
+                  </Typography>
+                </div>
+                <Switch
+                  checked={noAiState.isEnabled}
+                  inputId="no-ai-feed-switch"
+                  name="no-ai-feed-switch"
+                  aria-label="Toggle No AI mode"
+                  className="ml-auto shrink-0"
+                  onToggle={handleNoAiToggle}
+                />
               </div>
-              <Switch
-                checked={noAiState.isEnabled}
-                inputId="no-ai-feed-switch"
-                name="no-ai-feed-switch"
-                aria-label="Toggle No AI mode"
-                className="ml-auto shrink-0"
-                onToggle={handleNoAiToggle}
-              />
-            </div>
-          </Tooltip>
+            </Tooltip>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ClearIcon secondary />}
+              aria-label="Dismiss No AI mode"
+              onClick={() => completeAction(ActionType.DismissNoAiFeedToggle)}
+            />
+          </React.Fragment>
         );
       })()
     : null;
