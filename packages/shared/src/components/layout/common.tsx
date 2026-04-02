@@ -242,7 +242,7 @@ export const SearchControlHeader = ({
           <div className="min-w-0">
             <Typography
               type={TypographyType.Callout}
-              color={TypographyColor.Secondary}
+              color={TypographyColor.Tertiary}
               bold
             >
               No AI mode
