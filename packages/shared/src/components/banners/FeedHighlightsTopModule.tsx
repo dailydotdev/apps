@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { MenuItemProps } from '../dropdown/common';
 import {
@@ -15,7 +15,6 @@ import {
   AGENTS_DIGEST_SOURCE_ID,
   type PostHighlight,
 } from '../../graphql/highlights';
-import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
 import { EyeIcon, MenuIcon, PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -123,7 +122,7 @@ export const FeedHighlightsTopModule = ({
     enabled: isLoggedIn && !!digestSource?.id,
   });
   const { isFollowing, toggleFollow } = useSourceActions({
-    source: digestSource as Source,
+    source: digestSource,
   });
   const [isHiddenLocally, setIsHiddenLocally] = useState(false);
   const [viewedHighlightIds, setViewedHighlightIds] = useState<Set<string>>(
@@ -185,7 +184,7 @@ export const FeedHighlightsTopModule = ({
     ? 'flex flex-1 flex-col gap-2'
     : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
   const footerClassName = shouldUseMobileListStyles ? 'pt-1.5' : 'px-1 pb-1';
-  const markHighlightViewed = (highlightId: string): void => {
+  const markHighlightViewed = useCallback((highlightId: string): void => {
     setViewedHighlightIds((currentIds) => {
       if (currentIds.has(highlightId)) {
         return currentIds;
@@ -195,8 +194,8 @@ export const FeedHighlightsTopModule = ({
       nextIds.add(highlightId);
       return nextIds;
     });
-  };
-  const markHighlightRead = (highlightId: string): void => {
+  }, []);
+  const markHighlightRead = useCallback((highlightId: string): void => {
     setReadHighlightIds((currentIds) => {
       if (currentIds.has(highlightId)) {
         return currentIds;
@@ -206,7 +205,7 @@ export const FeedHighlightsTopModule = ({
       nextIds.add(highlightId);
       return nextIds;
     });
-  };
+  }, []);
 
   return (
     <section

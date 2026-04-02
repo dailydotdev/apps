@@ -6,7 +6,7 @@ import type { Source } from '../../graphql/sources';
 import { useToastNotification } from '../useToastNotification';
 
 interface UseSourceActionsBlockProps {
-  source: Source;
+  source?: Source | null;
 }
 
 interface UseSourceActionsBlockReturn {
@@ -35,6 +35,10 @@ export function useSourceActionsBlock(
   });
 
   const toggleBlock = useCallback(async () => {
+    if (!source) {
+      return;
+    }
+
     if (isBlocked) {
       const { successful } = await onUnblockSource({
         source,

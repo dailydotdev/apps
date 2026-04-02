@@ -630,14 +630,14 @@ export default function Feed<T>({
     onOpenModal(index);
   };
 
-  const onPostModalClose = () => {
+  const onPostModalClose = useCallback((): void => {
     setPostModalIndex(null);
     onCloseModal(false);
-  };
+  }, [onCloseModal]);
 
-  const onHappeningNowPostModalClose = (): void => {
+  const onHappeningNowPostModalClose = useCallback((): void => {
     setSelectedHighlightPostId(null);
-  };
+  }, []);
 
   const onPostCardClick: PostClick = async (
     post,

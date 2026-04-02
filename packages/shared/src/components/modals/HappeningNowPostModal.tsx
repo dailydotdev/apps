@@ -22,7 +22,6 @@ import {
   type PostHighlight,
 } from '../../graphql/highlights';
 import { RelativeTime } from '../utilities/RelativeTime';
-import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
 import { ArrowIcon, EyeIcon, MenuIcon, PlusIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -63,6 +62,52 @@ const getPostPosition = (
 const SWIPE_COMMIT_DURATION_MS = 220;
 const DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS = 900;
 
+interface HighlightTabsProps {
+  highlights: PostHighlight[];
+  activeIndex: number;
+  onSelectPost: (postId: string) => void;
+}
+
+const HighlightTabs = ({
+  highlights,
+  activeIndex,
+  onSelectPost,
+}: HighlightTabsProps): ReactElement => {
+  return (
+    <>
+      {highlights.map((highlight, index) => {
+        const isActive = index === activeIndex;
+
+        return (
+          <button
+            data-highlight-index={index}
+            key={`${highlight.channel}-${highlight.post.id}`}
+            type="button"
+            className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
+              isActive
+                ? 'border border-transparent feed-highlights-new-item-border-bottom'
+                : 'border border-transparent hover:bg-surface-hover'
+            }`}
+            onClick={() => onSelectPost(highlight.post.id)}
+          >
+            <RelativeTime
+              dateTime={highlight.highlightedAt}
+              className="text-text-tertiary typo-caption2"
+            />
+            <span
+              className={`line-clamp-2 flex-1 typo-callout ${
+                isActive ? 'text-text-primary' : 'text-text-secondary'
+              }`}
+            >
+              {highlight.headline}
+            </span>
+          </button>
+        );
+      })}
+    </>
+  );
+};
+
 export function HappeningNowPostModal({
   selectedPostId,
   highlights,
@@ -99,7 +144,7 @@ export function HappeningNowPostModal({
     enabled: isLoggedIn && !!digestSource?.id,
   });
   const { isFollowing, toggleFollow } = useSourceActions({
-    source: digestSource as Source,
+    source: digestSource,
   });
   const selectedHighlightIndex = useMemo(
     () =>
@@ -670,35 +715,11 @@ export function HappeningNowPostModal({
                 onWheel={markDesktopHighlightsScrolling}
               >
                 <div className="flex min-w-max gap-1 pr-10">
-                  {highlights.map((highlight, index) => {
-                    const isActive = index === activeIndex;
-
-                    return (
-                      <button
-                        data-highlight-index={index}
-                        key={`${highlight.channel}-${highlight.post.id}`}
-                        type="button"
-                        className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
-                          isActive
-                            ? 'border border-transparent feed-highlights-new-item-border-bottom'
-                            : 'border border-transparent hover:bg-surface-hover'
-                        }`}
-                        onClick={() => onSelectPost(highlight.post.id)}
-                      >
-                        <RelativeTime
-                          dateTime={highlight.highlightedAt}
-                          className="text-text-tertiary typo-caption2"
-                        />
-                        <span
-                          className={`line-clamp-2 flex-1 typo-callout ${
-                            isActive ? 'text-text-primary' : 'text-text-secondary'
-                          }`}
-                        >
-                          {highlight.headline}
-                        </span>
-                      </button>
-                    );
-                  })}
+                  <HighlightTabs
+                    highlights={highlights}
+                    activeIndex={activeIndex}
+                    onSelectPost={onSelectPost}
+                  />
                 </div>
               </div>
               {canNavigateNext ? (
@@ -725,35 +746,11 @@ export function HappeningNowPostModal({
                   onScroll={updateHighlightsRightGlow}
                 >
                   <div className="flex min-w-max gap-1 pr-2">
-                    {highlights.map((highlight, index) => {
-                      const isActive = index === activeIndex;
-
-                      return (
-                        <button
-                          data-highlight-index={index}
-                          key={`${highlight.channel}-${highlight.post.id}`}
-                          type="button"
-                          className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
-                            isActive
-                              ? 'border border-transparent feed-highlights-new-item-border-bottom'
-                              : 'border border-transparent hover:bg-surface-hover'
-                          }`}
-                          onClick={() => onSelectPost(highlight.post.id)}
-                        >
-                          <RelativeTime
-                            dateTime={highlight.highlightedAt}
-                            className="text-text-tertiary typo-caption2"
-                          />
-                          <span
-                            className={`line-clamp-2 flex-1 typo-callout ${
-                              isActive ? 'text-text-primary' : 'text-text-secondary'
-                            }`}
-                          >
-                            {highlight.headline}
-                          </span>
-                        </button>
-                      );
-                    })}
+                    <HighlightTabs
+                      highlights={highlights}
+                      activeIndex={activeIndex}
+                      onSelectPost={onSelectPost}
+                    />
                   </div>
                 </div>
                 <div

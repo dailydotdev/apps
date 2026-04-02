@@ -7,7 +7,7 @@ import useFeedSettings from '../useFeedSettings';
 import { useSourceActionsNotify } from './useSourceActionsNotify';
 
 export type UseSourceActionsFollowProps = {
-  source: Source;
+  source?: Source | null;
 };
 
 export interface UseSourceActionsFollow {
@@ -34,6 +34,10 @@ export function useSourceActionsFollow({
   });
 
   const addFollow = useCallback(async () => {
+    if (!source) {
+      return;
+    }
+
     const { successful } = await onFollowSource({ source, requireLogin: true });
     if (successful) {
       displayToast(`✅ You are now following ${source.name}`);
@@ -41,6 +45,10 @@ export function useSourceActionsFollow({
   }, [source, displayToast, onFollowSource]);
 
   const removeFollow = useCallback(async () => {
+    if (!source) {
+      return;
+    }
+
     if (haveNotificationsOn && isReady) {
       await onNotify();
     }

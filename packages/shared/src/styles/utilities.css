@@ -680,24 +680,6 @@
   }
 }
 
-.feed-highlights-new-item-border {
-  border: 0.0625rem solid transparent;
-  background-image: linear-gradient(
-      var(--theme-background-default),
-      var(--theme-background-default)
-    ),
-    linear-gradient(
-      120deg,
-      var(--theme-accent-blueCheese-default),
-      var(--theme-accent-cheese-default),
-      var(--theme-accent-avocado-default)
-    );
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  background-size: auto, 200% 200%;
-  animation: feed-highlights-new-item-border-shift 1s linear 1;
-}
-
 .feed-highlights-new-item-border-bottom {
   border-style: solid;
   border-width: 0 0 0.0625rem;
