@@ -31,11 +31,7 @@ import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
@@ -84,8 +80,7 @@ export const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
-const noAiToggleTooltip =
-  'Filters out posts about AI tools, model launches, and AI discourse from My Feed. It is intentionally aggressive, so it may hide some adjacent posts too.';
+const noAiToggleTooltip = 'Hide most AI posts from My Feed.';
 
 export const SearchControlHeader = ({
   feedName,
@@ -227,35 +222,23 @@ export const SearchControlHeader = ({
         key="no-ai"
         content={noAiToggleTooltip}
         side="bottom"
-        className="max-w-80 text-center"
+        className="max-w-56 text-center"
       >
         <div
-          className={`shadow-1 ml-auto flex shrink-0 items-center gap-3 rounded-16 border px-3 py-2 transition-colors ${
-            noAiState.isEnabled
-              ? 'border-accent-ketchup-default bg-action-downvote-float'
-              : 'border-border-subtlest-tertiary bg-surface-float'
+          className={`shadow-1 ml-auto flex shrink-0 items-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-all duration-300 ease-out ${
+            noAiState.isEnabled ? 'gap-2 px-2.5 py-1.5' : 'gap-3 px-3 py-2'
           }`}
         >
           <LazyImage
             imgSrc="/assets/no-ai-feed-toggle.png"
             imgAlt="No AI mode"
-            className="size-10 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-default"
+            className={`shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-out ${
+              noAiState.isEnabled ? 'size-8' : 'size-10'
+            }`}
           />
-          <div className="min-w-0">
-            <Typography
-              type={TypographyType.Callout}
-              className={
-                noAiState.isEnabled ? 'text-accent-ketchup-default' : undefined
-              }
-            >
+          <div className="min-w-0 transition-all duration-300 ease-out">
+            <Typography type={TypographyType.Callout} bold>
               No AI mode
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              className="hidden max-w-52 laptop:block"
-            >
-              Hide AI tools, launches, and hot takes.
             </Typography>
           </div>
           <Switch
