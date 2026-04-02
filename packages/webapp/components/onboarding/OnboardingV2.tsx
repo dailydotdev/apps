@@ -31,6 +31,10 @@ import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chr
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
+import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
+import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
+import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
+import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
@@ -1128,7 +1132,65 @@ export const OnboardingV2 = (): ReactElement => {
   }, [githubImportBodyPhase]);
 
   return (
-    <div ref={pageRef} className="onb-page relative" role="presentation">
+    <div
+      ref={pageRef}
+      className="onb-page relative tablet:pt-16 laptop:pl-11"
+      role="presentation"
+    >
+      {/* ── Dummy Header (desktop/tablet only) ── */}
+      <header className="fixed left-0 top-0 z-3 hidden h-16 w-full items-center border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:flex">
+        <Logo
+          position={LogoPosition.Relative}
+          className="!left-0 !top-0 !mt-0 !translate-x-0"
+        />
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openLogin}
+            className="rounded-12 px-3 py-1.5 font-bold text-text-secondary transition-colors duration-200 typo-callout hover:bg-surface-hover"
+          >
+            Log in
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowSignupChooser(true)}
+            className="hover:opacity-90 rounded-12 bg-accent-cabbage-default px-5 py-1.5 font-bold text-white transition-opacity duration-200 typo-callout"
+          >
+            Sign up
+          </button>
+        </div>
+      </header>
+
+      {/* ── Dummy Sidebar (laptop only) ── */}
+      <aside className="pointer-events-none fixed left-0 top-16 z-2 hidden h-[calc(100vh-theme(space.16))] w-11 select-none flex-col border-r border-border-subtlest-tertiary bg-background-default laptop:flex">
+        <nav className="flex flex-col items-center gap-0.5 pt-3">
+          <div className="flex h-9 w-full items-center justify-center">
+            <HomeIcon
+              className="h-5 w-5 text-text-disabled"
+              secondary={false}
+            />
+          </div>
+          <div className="flex h-9 w-full items-center justify-center">
+            <SquadIcon
+              className="h-5 w-5 text-text-disabled"
+              secondary={false}
+            />
+          </div>
+          <div className="flex h-9 w-full items-center justify-center">
+            <HotIcon className="h-5 w-5 text-text-disabled" secondary={false} />
+          </div>
+          <div className="flex h-9 w-full items-center justify-center">
+            <EyeIcon className="h-5 w-5 text-text-disabled" secondary={false} />
+          </div>
+          <div className="flex h-9 w-full items-center justify-center">
+            <TerminalIcon
+              className="h-5 w-5 text-text-disabled"
+              secondary={false}
+            />
+          </div>
+        </nav>
+      </aside>
+
       {/* ── Hero ── */}
       <section
         ref={heroRef}
