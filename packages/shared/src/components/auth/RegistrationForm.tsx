@@ -10,6 +10,8 @@ import type {
   RegistrationParameters,
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -33,7 +35,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
@@ -82,6 +83,11 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
+  const { value: isOnboardingV2 } = useConditionalFeature({
+    feature: featureOnboardingV2,
+    shouldEvaluate: trigger === AuthTriggers.Onboarding,
+  });
+  const hideExperienceLevel = isRecruiterOnboarding || isOnboardingV2;
   const {
     username,
     setUsername,
@@ -163,7 +169,7 @@ const RegistrationForm = ({
     );
     delete values['cf-turnstile-response'];
 
-    const requiresExperienceLevel = !isRecruiterOnboarding;
+    const requiresExperienceLevel = !hideExperienceLevel;
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
@@ -275,9 +281,10 @@ const RegistrationForm = ({
             variant={ButtonVariant.Secondary}
           />
           <Typography
-            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            className="mt-0.5 flex-1 text-text-primary"
             tag={TypographyTag.H2}
-            type={TypographyType.Title1}
+            type={TypographyType.Title2}
+            bold
           >
             Join daily.dev
           </Typography>
@@ -396,7 +403,7 @@ const RegistrationForm = ({
           }
           rightIcon={usernameIcon}
         />
-        {!isRecruiterOnboarding && (
+        {!hideExperienceLevel && (
           <ExperienceLevelDropdown
             className={{ container: 'w-full' }}
             name="traits.experienceLevel"
