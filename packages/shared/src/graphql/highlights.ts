@@ -1,5 +1,7 @@
 import { gql } from 'graphql-request';
 
+export const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
+
 export interface PostHighlight {
   channel: string;
   headline: string;
@@ -7,10 +9,6 @@ export interface PostHighlight {
   post: {
     id: string;
     commentsPermalink: string;
-    source?: {
-      name: string;
-      image: string;
-    };
   };
 }
 
@@ -23,10 +21,6 @@ export const POST_HIGHLIGHTS_QUERY = gql`
       post {
         id
         commentsPermalink
-        source {
-          name
-          image
-        }
       }
     }
   }

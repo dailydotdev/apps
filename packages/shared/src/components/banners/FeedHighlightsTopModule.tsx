@@ -11,7 +11,10 @@ import {
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
-import type { PostHighlight } from '../../graphql/highlights';
+import {
+  AGENTS_DIGEST_SOURCE_ID,
+  type PostHighlight,
+} from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
 import { EyeIcon, MenuIcon, PlusIcon } from '../icons';
@@ -39,8 +42,6 @@ const HIGHLIGHT_SKELETON_KEYS = [
   'four',
   'five',
 ] as const;
-const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
-const FEED_HIGHLIGHTS_CARD_VERSION = 'v2' as const;
 const FEED_HIGHLIGHTS_VISIBLE_COUNT = 4;
 
 const HighlightRowSkeleton = (): ReactElement => (
@@ -49,70 +50,6 @@ const HighlightRowSkeleton = (): ReactElement => (
     <div className="h-3 w-10 shrink-0 rounded-8 bg-surface-hover" />
   </div>
 );
-
-const HighlightRowV1 = ({
-  highlight,
-  index,
-  onHighlightClick,
-  highlightAsNew,
-  isViewed,
-  isRead,
-  onViewed,
-  onRead,
-}: {
-  highlight: PostHighlight;
-  index: number;
-  onHighlightClick?: (
-    highlight: PostHighlight,
-    position: number,
-    event: MouseEvent<HTMLAnchorElement>,
-  ) => void;
-  highlightAsNew?: boolean;
-  isViewed: boolean;
-  isRead: boolean;
-  onViewed: () => void;
-  onRead: () => void;
-}): ReactElement => {
-  const isInteracted = isViewed || isRead;
-  const rowTextColorClass = isInteracted
-    ? 'text-secondary visited:text-secondary'
-    : 'text-primary visited:text-secondary';
-  const headlineTextColorClass = 'text-primary';
-
-  return (
-    <Link href={highlight.post.commentsPermalink} passHref>
-      <a
-        href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col gap-0 border-b border-border-subtlest-tertiary px-3 py-2 transition-all ${rowTextColorClass} ${
-          isViewed ? 'bg-surface-hover/30' : ''
-        }`}
-        onMouseEnter={onViewed}
-        onClick={(event) => {
-          onRead();
-          onHighlightClick?.(highlight, index + 1, event);
-        }}
-      >
-        <div className="mt-0 leading-none">
-          {highlightAsNew ? (
-            <span className="feed-highlights-title-gradient typo-caption2">
-              Now
-            </span>
-          ) : (
-            <RelativeTime
-              dateTime={highlight.highlightedAt}
-              className="text-text-tertiary typo-caption2"
-            />
-          )}
-        </div>
-        <span
-          className={`line-clamp-2 font-bold transition-colors typo-callout ${headlineTextColorClass}`}
-        >
-          {highlight.headline}
-        </span>
-      </a>
-    </Link>
-  );
-};
 
 const HighlightRowV2 = ({
   highlight,
@@ -130,7 +67,6 @@ const HighlightRowV2 = ({
     position: number,
     event: MouseEvent<HTMLAnchorElement>,
   ) => void;
-  highlightAsNew?: boolean;
   isViewed: boolean;
   isRead: boolean;
   onViewed: () => void;
@@ -237,8 +173,6 @@ export const FeedHighlightsTopModule = ({
   }
 
   const topHighlights = highlights.slice(0, FEED_HIGHLIGHTS_VISIBLE_COUNT);
-  const HighlightRowComponent =
-    FEED_HIGHLIGHTS_CARD_VERSION === 'v2' ? HighlightRowV2 : HighlightRowV1;
   const shouldShowSkeleton = loading;
   const shouldUseMobileListStyles = shouldUseListFeedLayout && !isLaptop;
   const sectionClassName = shouldUseMobileListStyles
@@ -305,11 +239,10 @@ export const FeedHighlightsTopModule = ({
               <HighlightRowSkeleton key={key} />
             ))
           : topHighlights.map((highlight, index) => (
-              <HighlightRowComponent
+              <HighlightRowV2
                 key={`${highlight.channel}-${highlight.post.id}`}
                 highlight={highlight}
                 index={index}
-                highlightAsNew={index === 0}
                 isViewed={viewedHighlightIds.has(highlight.post.id)}
                 isRead={readHighlightIds.has(highlight.post.id)}
                 onViewed={() => markHighlightViewed(highlight.post.id)}

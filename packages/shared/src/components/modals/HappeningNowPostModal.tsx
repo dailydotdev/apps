@@ -17,7 +17,10 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Origin } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
-import type { PostHighlight } from '../../graphql/highlights';
+import {
+  AGENTS_DIGEST_SOURCE_ID,
+  type PostHighlight,
+} from '../../graphql/highlights';
 import { RelativeTime } from '../utilities/RelativeTime';
 import type { Source } from '../../graphql/sources';
 import { sourceQueryOptions } from '../../graphql/sources';
@@ -57,8 +60,8 @@ const getPostPosition = (
 
   return PostPosition.Middle;
 };
-
-const AGENTS_DIGEST_SOURCE_ID = 'agents_digest';
+const SWIPE_COMMIT_DURATION_MS = 220;
+const DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS = 900;
 
 export function HappeningNowPostModal({
   selectedPostId,
@@ -67,8 +70,6 @@ export function HappeningNowPostModal({
   onRequestClose,
   onSelectPost,
 }: HappeningNowPostModalProps): ReactElement | null {
-  const SWIPE_COMMIT_DURATION_MS = 220;
-  const DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS = 900;
   const [lastLoadedPost, setLastLoadedPost] = useState<Post | null>(null);
   const [isDrawerMinimized, setIsDrawerMinimized] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -251,7 +252,6 @@ export function HappeningNowPostModal({
       scrollActiveHighlightIntoView();
     }, DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS);
   }, [
-    DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS,
     clearDesktopHighlightsRestoreTimeout,
     scrollActiveHighlightIntoView,
     shouldUseMobileLayout,
@@ -434,7 +434,6 @@ export function HappeningNowPostModal({
       }, SWIPE_COMMIT_DURATION_MS);
     },
     [
-      SWIPE_COMMIT_DURATION_MS,
       clearSwipeTransitionTimeout,
       getSwipeViewportWidth,
       isSwipeTransitioning,
