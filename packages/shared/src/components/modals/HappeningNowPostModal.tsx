@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { Drawer } from '../drawers/Drawer';
 import { Origin } from '../../lib/log';
 import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
@@ -69,6 +68,7 @@ export function HappeningNowPostModal({
   onSelectPost,
 }: HappeningNowPostModalProps): ReactElement | null {
   const SWIPE_COMMIT_DURATION_MS = 220;
+  const DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS = 900;
   const [lastLoadedPost, setLastLoadedPost] = useState<Post | null>(null);
   const [isDrawerMinimized, setIsDrawerMinimized] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
@@ -76,10 +76,18 @@ export function HappeningNowPostModal({
   const [isSwipeDragging, setIsSwipeDragging] = useState(false);
   const [isSwipeTransitioning, setIsSwipeTransitioning] = useState(false);
   const [showRightScrollGlow, setShowRightScrollGlow] = useState(false);
+  const [isDesktopHighlightsHovered, setIsDesktopHighlightsHovered] =
+    useState(false);
+  const [isDesktopHighlightsScrolling, setIsDesktopHighlightsScrolling] =
+    useState(false);
   const highlightsScrollRef = useRef<HTMLDivElement>(null);
   const drawerContainerRef = useRef<HTMLDivElement>(null);
   const articleViewportRef = useRef<HTMLDivElement>(null);
+  const lastArticleScrollTopRef = useRef(0);
   const swipeTransitionTimeoutRef = useRef<number | null>(null);
+  const desktopHighlightsScrollTimeoutRef = useRef<number | null>(null);
+  const desktopHighlightsRestoreTimeoutRef = useRef<number | null>(null);
+  const isDesktopHighlightsHoveredRef = useRef(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const shouldUseMobileLayout = hasHydrated && !isLaptop;
   const { isAuthReady, isLoggedIn } = useAuthContext();
@@ -126,6 +134,55 @@ export function HappeningNowPostModal({
 
     setIsDrawerMinimized(false);
   }, [isOpen, shouldUseMobileLayout]);
+  useEffect(() => {
+    if (!isOpen || !shouldUseMobileLayout) {
+      return;
+    }
+
+    const viewport = articleViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    lastArticleScrollTopRef.current = viewport.scrollTop;
+
+    const onScroll = (): void => {
+      const currentScrollTop = viewport.scrollTop;
+      const scrollDelta = currentScrollTop - lastArticleScrollTopRef.current;
+
+      if (Math.abs(scrollDelta) < 2) {
+        return;
+      }
+
+      lastArticleScrollTopRef.current = currentScrollTop;
+      if (scrollDelta > 0) {
+        setIsDrawerMinimized((currentValue) => (currentValue ? currentValue : true));
+        return;
+      }
+
+      setIsDrawerMinimized((currentValue) => (currentValue ? false : currentValue));
+    };
+
+    const onWheel = (event: WheelEvent): void => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) {
+        return;
+      }
+
+      if (Math.abs(event.deltaX) < 4) {
+        return;
+      }
+
+      setIsDrawerMinimized((currentValue) => (currentValue ? false : currentValue));
+    };
+
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+    viewport.addEventListener('wheel', onWheel, { passive: true });
+
+    return () => {
+      viewport.removeEventListener('scroll', onScroll);
+      viewport.removeEventListener('wheel', onWheel);
+    };
+  }, [isOpen, shouldUseMobileLayout]);
   const updateHighlightsRightGlow = useCallback((): void => {
     const scrollContainer = highlightsScrollRef.current;
 
@@ -139,20 +196,8 @@ export function HappeningNowPostModal({
       scrollContainer.scrollWidth - 1;
     setShowRightScrollGlow(hasScrollableRight);
   }, []);
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    if (shouldUseMobileLayout && isDrawerMinimized) {
-      return;
-    }
-
-    let rafId: number | null = null;
-    let delayedRafId: number | null = null;
-    let delayedTimeoutId: number | null = null;
-
-    const scrollActiveIntoView = (): boolean => {
+  const scrollActiveHighlightIntoView = useCallback(
+    (behavior: ScrollBehavior = 'smooth'): boolean => {
       const container = highlightsScrollRef.current;
       if (!container) {
         return false;
@@ -166,16 +211,96 @@ export function HappeningNowPostModal({
       }
 
       activeButton.scrollIntoView({
-        behavior: 'smooth',
+        behavior,
         block: 'nearest',
         inline: 'center',
       });
       updateHighlightsRightGlow();
       return true;
+    },
+    [activeIndex, updateHighlightsRightGlow],
+  );
+  const clearDesktopHighlightsScrollTimeout = useCallback((): void => {
+    if (desktopHighlightsScrollTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(desktopHighlightsScrollTimeoutRef.current);
+    desktopHighlightsScrollTimeoutRef.current = null;
+  }, []);
+  const clearDesktopHighlightsRestoreTimeout = useCallback((): void => {
+    if (desktopHighlightsRestoreTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(desktopHighlightsRestoreTimeoutRef.current);
+    desktopHighlightsRestoreTimeoutRef.current = null;
+  }, []);
+  const scheduleDesktopHighlightsRestore = useCallback((): void => {
+    if (shouldUseMobileLayout) {
+      return;
+    }
+
+    clearDesktopHighlightsRestoreTimeout();
+    desktopHighlightsRestoreTimeoutRef.current = window.setTimeout(() => {
+      desktopHighlightsRestoreTimeoutRef.current = null;
+      if (isDesktopHighlightsHoveredRef.current) {
+        return;
+      }
+
+      scrollActiveHighlightIntoView();
+    }, DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS);
+  }, [
+    DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS,
+    clearDesktopHighlightsRestoreTimeout,
+    scrollActiveHighlightIntoView,
+    shouldUseMobileLayout,
+  ]);
+  const markDesktopHighlightsScrolling = useCallback((): void => {
+    if (shouldUseMobileLayout) {
+      return;
+    }
+
+    setIsDesktopHighlightsScrolling(true);
+    clearDesktopHighlightsScrollTimeout();
+    clearDesktopHighlightsRestoreTimeout();
+    desktopHighlightsScrollTimeoutRef.current = window.setTimeout(() => {
+      setIsDesktopHighlightsScrolling(false);
+      desktopHighlightsScrollTimeoutRef.current = null;
+      if (!isDesktopHighlightsHoveredRef.current) {
+        scheduleDesktopHighlightsRestore();
+      }
+    }, 180);
+  }, [
+    clearDesktopHighlightsRestoreTimeout,
+    clearDesktopHighlightsScrollTimeout,
+    scheduleDesktopHighlightsRestore,
+    shouldUseMobileLayout,
+  ]);
+  useEffect(() => {
+    return () => {
+      clearDesktopHighlightsScrollTimeout();
+      clearDesktopHighlightsRestoreTimeout();
     };
+  }, [clearDesktopHighlightsRestoreTimeout, clearDesktopHighlightsScrollTimeout]);
+  useEffect(() => {
+    isDesktopHighlightsHoveredRef.current = isDesktopHighlightsHovered;
+  }, [isDesktopHighlightsHovered]);
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    if (shouldUseMobileLayout && isDrawerMinimized) {
+      return;
+    }
+
+    let rafId: number | null = null;
+    let delayedRafId: number | null = null;
+    let delayedTimeoutId: number | null = null;
 
     const attemptScroll = (attempt = 0): void => {
-      const hasScrolled = scrollActiveIntoView();
+      const hasScrolled = scrollActiveHighlightIntoView();
       if (hasScrolled || attempt >= 6) {
         return;
       }
@@ -214,8 +339,8 @@ export function HappeningNowPostModal({
     activeIndex,
     isOpen,
     isDrawerMinimized,
+    scrollActiveHighlightIntoView,
     shouldUseMobileLayout,
-    updateHighlightsRightGlow,
   ]);
   useEffect(() => {
     if (!isOpen || !shouldUseMobileLayout || isDrawerMinimized) {
@@ -515,21 +640,37 @@ export function HappeningNowPostModal({
       <div className="relative flex min-h-0 max-w-full flex-col laptop:h-full">
         {!shouldUseMobileLayout && (
           <section className="relative w-full max-w-full shrink-0 border-b border-border-subtlest-tertiary">
-            <div className="flex items-center gap-2 px-3 py-3">
-              <button
-                type="button"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-background-default transition-colors enabled:hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Previous article"
-                onClick={onPreviousPost}
-                disabled={!canNavigatePrevious}
-              >
-                <ArrowIcon className="-rotate-90 [&_path]:fill-background-default" />
-              </button>
+            <div
+              className="relative px-3 py-3"
+              onMouseEnter={() => {
+                setIsDesktopHighlightsHovered(true);
+                clearDesktopHighlightsRestoreTimeout();
+              }}
+              onMouseLeave={() => {
+                setIsDesktopHighlightsHovered(false);
+                if (!isDesktopHighlightsScrolling) {
+                  scheduleDesktopHighlightsRestore();
+                }
+              }}
+            >
+              {canNavigatePrevious ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  className="absolute left-3 top-1/2 z-10 -translate-y-1/2"
+                  aria-label="Previous article"
+                  onClick={onPreviousPost}
+                  icon={<ArrowIcon className="-rotate-90" />}
+                />
+              ) : null}
               <div
                 ref={highlightsScrollRef}
-                className="min-w-0 flex-1 overflow-x-auto"
+                className="min-w-0 overflow-x-auto"
+                onScroll={markDesktopHighlightsScrolling}
+                onWheel={markDesktopHighlightsScrolling}
               >
-                <div className="flex min-w-max gap-1 pr-2">
+                <div className="flex min-w-max gap-1 pr-10">
                   {highlights.map((highlight, index) => {
                     const isActive = index === activeIndex;
 
@@ -540,7 +681,7 @@ export function HappeningNowPostModal({
                         type="button"
                         className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
                           isActive
-                            ? 'feed-highlights-new-item-border bg-surface-hover'
+                            ? 'border border-transparent feed-highlights-new-item-border-bottom'
                             : 'border border-transparent hover:bg-surface-hover'
                         }`}
                         onClick={() => onSelectPost(highlight.post.id)}
@@ -561,23 +702,73 @@ export function HappeningNowPostModal({
                   })}
                 </div>
               </div>
-              <button
-                type="button"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-white text-background-default transition-colors enabled:hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Next article"
-                onClick={onNextPost}
-                disabled={!canNavigateNext}
-              >
-                <ArrowIcon className="rotate-90 [&_path]:fill-background-default" />
-              </button>
+              {canNavigateNext ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  className="absolute right-3 top-1/2 z-10 -translate-y-1/2"
+                  aria-label="Next article"
+                  onClick={onNextPost}
+                  icon={<ArrowIcon className="rotate-90" />}
+                />
+              ) : null}
+            </div>
+          </section>
+        )}
+        {shouldUseMobileLayout && !isDrawerMinimized && (
+          <section className="my-2 w-full border-b border-border-subtlest-tertiary bg-background-default">
+            <div ref={drawerContainerRef} className="flex items-center">
+              <div className="relative min-w-0 flex-1">
+                <div
+                  ref={highlightsScrollRef}
+                  className="min-w-0 flex-1 overflow-x-auto"
+                  onScroll={updateHighlightsRightGlow}
+                >
+                  <div className="flex min-w-max gap-1 pr-2">
+                    {highlights.map((highlight, index) => {
+                      const isActive = index === activeIndex;
+
+                      return (
+                        <button
+                          data-highlight-index={index}
+                          key={`${highlight.channel}-${highlight.post.id}`}
+                          type="button"
+                          className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
+                            isActive
+                              ? 'border border-transparent feed-highlights-new-item-border-bottom'
+                              : 'border border-transparent hover:bg-surface-hover'
+                          }`}
+                          onClick={() => onSelectPost(highlight.post.id)}
+                        >
+                          <RelativeTime
+                            dateTime={highlight.highlightedAt}
+                            className="text-text-tertiary typo-caption2"
+                          />
+                          <span
+                            className={`line-clamp-2 flex-1 typo-callout ${
+                              isActive ? 'text-text-primary' : 'text-text-secondary'
+                            }`}
+                          >
+                            {highlight.headline}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div
+                  className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-12 bg-gradient-to-l from-background-default to-transparent transition-opacity duration-200 ${
+                    showRightScrollGlow ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              </div>
             </div>
           </section>
         )}
         <div
           ref={articleViewportRef}
-          className={`min-h-0 min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] ${
-            shouldUseMobileLayout && !isDrawerMinimized ? 'pt-16' : ''
-          }`}
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]"
           {...swipeHandlers}
         >
           <div className="relative overflow-hidden">
@@ -626,67 +817,6 @@ export function HappeningNowPostModal({
               </button>
             </div>
           </div>
-        )}
-        {shouldUseMobileLayout && (
-          <Drawer
-            isOpen={!isDrawerMinimized}
-            onClose={() => setIsDrawerMinimized(true)}
-            closeOnOutsideClick={false}
-            isFullScreen
-            className={{
-              overlay: '!bg-transparent !pointer-events-none',
-              wrapper:
-                '!inset-auto !left-0 !right-0 !top-12 !bottom-auto !max-h-[calc(100%-8rem)] !rounded-b-16 !rounded-t-none !pointer-events-auto !pr-0',
-              drawer: 'p-0',
-            }}
-          >
-            <div ref={drawerContainerRef} className="flex items-center px-2 py-2">
-              <div className="relative min-w-0 flex-1">
-                <div
-                  ref={highlightsScrollRef}
-                  className="min-w-0 flex-1 overflow-x-auto"
-                  onScroll={updateHighlightsRightGlow}
-                >
-                  <div className="flex min-w-max gap-1 pr-2">
-                    {highlights.map((highlight, index) => {
-                      const isActive = index === activeIndex;
-
-                      return (
-                        <button
-                          data-highlight-index={index}
-                          key={`${highlight.channel}-${highlight.post.id}`}
-                          type="button"
-                          className={`flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 px-2.5 py-2 text-left transition-colors ${
-                            isActive
-                              ? 'feed-highlights-new-item-border bg-surface-hover'
-                              : 'border border-transparent hover:bg-surface-hover'
-                          }`}
-                          onClick={() => onSelectPost(highlight.post.id)}
-                        >
-                          <RelativeTime
-                            dateTime={highlight.highlightedAt}
-                            className="text-text-tertiary typo-caption2"
-                          />
-                          <span
-                            className={`line-clamp-2 flex-1 typo-callout ${
-                              isActive ? 'text-text-primary' : 'text-text-secondary'
-                            }`}
-                          >
-                            {highlight.headline}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div
-                  className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-12 bg-gradient-to-l from-background-default to-transparent transition-opacity duration-200 ${
-                    showRightScrollGlow ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
-              </div>
-            </div>
-          </Drawer>
         )}
       </div>
     </BasePostModal>

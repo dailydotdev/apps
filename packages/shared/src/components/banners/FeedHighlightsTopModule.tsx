@@ -57,9 +57,7 @@ const HighlightRowV1 = ({
   highlightAsNew,
   isViewed,
   isRead,
-  isPressed,
   onViewed,
-  onPressedChange,
   onRead,
 }: {
   highlight: PostHighlight;
@@ -72,12 +70,10 @@ const HighlightRowV1 = ({
   highlightAsNew?: boolean;
   isViewed: boolean;
   isRead: boolean;
-  isPressed: boolean;
   onViewed: () => void;
-  onPressedChange: (isPressed: boolean) => void;
   onRead: () => void;
 }): ReactElement => {
-  const isInteracted = isViewed || isRead || isPressed;
+  const isInteracted = isViewed || isRead;
   const rowTextColorClass = isInteracted
     ? 'text-secondary visited:text-secondary'
     : 'text-primary visited:text-secondary';
@@ -87,14 +83,10 @@ const HighlightRowV1 = ({
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col gap-0 rounded-16 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
-          isViewed && !isPressed ? 'bg-surface-hover/30' : ''
-        } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
+        className={`group flex flex-1 flex-col gap-0 border-b border-border-subtlest-tertiary px-3 py-2 transition-all ${rowTextColorClass} ${
+          isViewed ? 'bg-surface-hover/30' : ''
+        }`}
         onMouseEnter={onViewed}
-        onMouseDown={() => onPressedChange(true)}
-        onMouseUp={() => onPressedChange(false)}
-        onMouseLeave={() => onPressedChange(false)}
-        onBlur={() => onPressedChange(false)}
         onClick={(event) => {
           onRead();
           onHighlightClick?.(highlight, index + 1, event);
@@ -113,7 +105,7 @@ const HighlightRowV1 = ({
           )}
         </div>
         <span
-          className={`line-clamp-2 font-bold transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
+          className={`line-clamp-2 font-bold transition-colors typo-callout ${headlineTextColorClass}`}
         >
           {highlight.headline}
         </span>
@@ -128,9 +120,7 @@ const HighlightRowV2 = ({
   onHighlightClick,
   isViewed,
   isRead,
-  isPressed,
   onViewed,
-  onPressedChange,
   onRead,
 }: {
   highlight: PostHighlight;
@@ -143,12 +133,10 @@ const HighlightRowV2 = ({
   highlightAsNew?: boolean;
   isViewed: boolean;
   isRead: boolean;
-  isPressed: boolean;
   onViewed: () => void;
-  onPressedChange: (isPressed: boolean) => void;
   onRead: () => void;
 }): ReactElement => {
-  const isInteracted = isViewed || isRead || isPressed;
+  const isInteracted = isViewed || isRead;
   const rowTextColorClass = isInteracted
     ? 'text-secondary visited:text-secondary'
     : 'text-primary visited:text-secondary';
@@ -158,21 +146,17 @@ const HighlightRowV2 = ({
     <Link href={highlight.post.commentsPermalink} passHref>
       <a
         href={highlight.post.commentsPermalink}
-        className={`group flex flex-1 flex-col gap-0 rounded-16 border-b border-border-subtlest-tertiary px-3 py-2 transition-all hover:-translate-y-px hover:bg-surface-hover ${rowTextColorClass} ${
-          isViewed && !isPressed ? 'bg-surface-hover/30' : ''
-        } ${isPressed ? 'translate-y-0 bg-surface-hover' : ''}`}
+        className={`group flex flex-1 flex-col gap-0 border-b border-border-subtlest-tertiary px-3 py-2 transition-all ${rowTextColorClass} ${
+          isViewed ? 'bg-surface-hover/30' : ''
+        }`}
         onMouseEnter={onViewed}
-        onMouseDown={() => onPressedChange(true)}
-        onMouseUp={() => onPressedChange(false)}
-        onMouseLeave={() => onPressedChange(false)}
-        onBlur={() => onPressedChange(false)}
         onClick={(event) => {
           onRead();
           onHighlightClick?.(highlight, index + 1, event);
         }}
       >
         <span
-          className={`line-clamp-2 font-bold transition-colors typo-callout group-active:text-text-secondary ${headlineTextColorClass}`}
+          className={`line-clamp-2 font-bold transition-colors typo-callout ${headlineTextColorClass}`}
         >
           {highlight.headline}
         </span>
@@ -211,9 +195,6 @@ export const FeedHighlightsTopModule = ({
   );
   const [readHighlightIds, setReadHighlightIds] = useState<Set<string>>(
     () => new Set(),
-  );
-  const [pressedHighlightId, setPressedHighlightId] = useState<string | null>(
-    null,
   );
   const options = useMemo<MenuItemProps[]>(() => {
     const isFollowStatePending =
@@ -331,11 +312,7 @@ export const FeedHighlightsTopModule = ({
                 highlightAsNew={index === 0}
                 isViewed={viewedHighlightIds.has(highlight.post.id)}
                 isRead={readHighlightIds.has(highlight.post.id)}
-                isPressed={pressedHighlightId === highlight.post.id}
                 onViewed={() => markHighlightViewed(highlight.post.id)}
-                onPressedChange={(isPressed) =>
-                  setPressedHighlightId(isPressed ? highlight.post.id : null)
-                }
                 onRead={() => markHighlightRead(highlight.post.id)}
                 onHighlightClick={onHighlightClick}
               />
