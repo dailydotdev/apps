@@ -1143,18 +1143,21 @@ export const OnboardingV2 = (): ReactElement => {
           position={LogoPosition.Relative}
           className="!left-0 !top-0 !mt-0 !translate-x-0"
         />
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-4">
           <button
             type="button"
-            onClick={openLogin}
-            className="rounded-12 px-3 py-1.5 font-bold text-text-secondary transition-colors duration-200 typo-callout hover:bg-surface-hover"
+            onClick={() => {
+              setAuthDisplay(AuthDisplay.Default);
+              setShowAuthSignup(true);
+            }}
+            className="h-10 rounded-14 border border-border-subtlest-tertiary px-5 font-bold text-text-primary transition-colors duration-200 typo-callout hover:bg-surface-hover"
           >
             Log in
           </button>
           <button
             type="button"
             onClick={() => setShowSignupChooser(true)}
-            className="hover:opacity-90 rounded-12 bg-accent-cabbage-default px-5 py-1.5 font-bold text-white transition-opacity duration-200 typo-callout"
+            className="h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout hover:opacity-90"
           >
             Sign up
           </button>
