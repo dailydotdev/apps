@@ -31,7 +31,11 @@ import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
@@ -80,7 +84,13 @@ export const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
-const noAiToggleTooltip = 'Hide most AI posts from My Feed.';
+const noAiToggleTooltip = (
+  <>
+    For when you are tired of AI launches, hot takes,
+    <br />
+    and vibe-coding discourse taking over your feed.
+  </>
+);
 
 export const SearchControlHeader = ({
   feedName,
@@ -221,16 +231,20 @@ export const SearchControlHeader = ({
         key="no-ai"
         content={noAiToggleTooltip}
         side="bottom"
-        className="max-w-56 text-center"
+        className="max-w-64 text-center"
       >
-        <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3">
+        <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
           <LazyImage
             imgSrc="/assets/no-ai-feed-toggle.png"
             imgAlt="No AI mode"
             className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
           />
           <div className="min-w-0">
-            <Typography type={TypographyType.Callout} bold>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+              bold
+            >
               No AI mode
             </Typography>
           </div>
