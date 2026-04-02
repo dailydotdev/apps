@@ -209,6 +209,27 @@ describe('SearchControlHeader', () => {
     ).toBeInTheDocument();
   });
 
+  it('does not render the No AI switch when unavailable', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn().mockReturnValue(true),
+      completeAction: jest.fn(),
+      isActionsFetched: true,
+    });
+
+    renderComponent({
+      noAiState: {
+        isAvailable: false,
+        isEnabled: false,
+        onToggle: jest.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    expect(screen.queryByText('No AI mode')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('checkbox', { name: 'Toggle No AI mode' }),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders a No AI switch and logs when toggled', async () => {
     const onToggle = jest.fn().mockResolvedValue(undefined);
     const logEvent = jest.fn();

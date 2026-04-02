@@ -175,23 +175,6 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
-  const handleNoAiToggle = async () => {
-    if (!noAiState) {
-      return;
-    }
-
-    const isEnabled = !noAiState.isEnabled;
-    await noAiState.onToggle();
-    logEvent({
-      event_name: LogEvent.ToggleNoAiFeed,
-      target_id: isEnabled ? TargetId.On : TargetId.Off,
-      extra: JSON.stringify({
-        origin:
-          feedName === SharedFeedPage.Custom ? Origin.CustomFeed : Origin.Feed,
-      }),
-    });
-  };
-
   const primaryActions = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
@@ -225,42 +208,56 @@ export const SearchControlHeader = ({
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
-  const secondaryActions = [
-    noAiState?.isAvailable && (
-      <Tooltip
-        key="no-ai"
-        content={noAiToggleTooltip}
-        side="bottom"
-        className="max-w-64 text-center"
-      >
-        <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
-          <LazyImage
-            imgSrc="/assets/no-ai-feed-toggle.png"
-            imgAlt="No AI mode"
-            className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
-          />
-          <div className="min-w-0">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-              bold
-            >
-              No AI mode
-            </Typography>
-          </div>
-          <Switch
-            checked={noAiState.isEnabled}
-            inputId="no-ai-feed-switch"
-            name="no-ai-feed-switch"
-            aria-label="Toggle No AI mode"
-            className="ml-auto shrink-0"
-            onToggle={handleNoAiToggle}
-          />
-        </div>
-      </Tooltip>
-    ),
-    isLaptop && installExtensionButton,
-  ];
+  const noAiControl = noAiState?.isAvailable
+    ? (() => {
+        const handleNoAiToggle = async () => {
+          const isEnabled = !noAiState.isEnabled;
+          await noAiState.onToggle();
+          logEvent({
+            event_name: LogEvent.ToggleNoAiFeed,
+            target_id: isEnabled ? TargetId.On : TargetId.Off,
+            extra: JSON.stringify({
+              origin: Origin.Feed,
+            }),
+          });
+        };
+
+        return (
+          <Tooltip
+            key="no-ai"
+            content={noAiToggleTooltip}
+            side="bottom"
+            className="max-w-64 text-center"
+          >
+            <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 bg-surface-float px-3">
+              <LazyImage
+                imgSrc="/assets/no-ai-feed-toggle.png"
+                imgAlt="No AI mode"
+                className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
+              />
+              <div className="min-w-0">
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                  bold
+                >
+                  No AI mode
+                </Typography>
+              </div>
+              <Switch
+                checked={noAiState.isEnabled}
+                inputId="no-ai-feed-switch"
+                name="no-ai-feed-switch"
+                aria-label="Toggle No AI mode"
+                className="ml-auto shrink-0"
+                onToggle={handleNoAiToggle}
+              />
+            </div>
+          </Tooltip>
+        );
+      })()
+    : null;
+  const secondaryActions = [noAiControl, isLaptop && installExtensionButton];
   const actions = primaryActions.filter(Boolean);
   const sideActions = secondaryActions.filter(Boolean);
 
