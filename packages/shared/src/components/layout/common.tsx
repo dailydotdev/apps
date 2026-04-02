@@ -216,7 +216,6 @@ export const SearchControlHeader = ({
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
   const secondaryActions = [
-    isLaptop && installExtensionButton,
     noAiState?.isAvailable && (
       <Tooltip
         key="no-ai"
@@ -224,19 +223,13 @@ export const SearchControlHeader = ({
         side="bottom"
         className="max-w-56 text-center"
       >
-        <div
-          className={`shadow-1 ml-auto flex shrink-0 items-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-all duration-300 ease-out ${
-            noAiState.isEnabled ? 'gap-2 px-2.5 py-1.5' : 'gap-3 px-3 py-2'
-          }`}
-        >
+        <div className="shadow-1 flex h-10 shrink-0 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3">
           <LazyImage
             imgSrc="/assets/no-ai-feed-toggle.png"
             imgAlt="No AI mode"
-            className={`shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-out ${
-              noAiState.isEnabled ? 'size-8' : 'size-10'
-            }`}
+            className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
           />
-          <div className="min-w-0 transition-all duration-300 ease-out">
+          <div className="min-w-0">
             <Typography type={TypographyType.Callout} bold>
               No AI mode
             </Typography>
@@ -252,6 +245,7 @@ export const SearchControlHeader = ({
         </div>
       </Tooltip>
     ),
+    isLaptop && installExtensionButton,
   ];
   const actions = primaryActions.filter(Boolean);
   const sideActions = secondaryActions.filter(Boolean);
