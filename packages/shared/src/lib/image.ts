@@ -208,7 +208,7 @@ export const cloudinaryAuthBannerBackground1440w =
   'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
 export const cloudinaryNoAiFeedToggle =
-  'https://daily-now-res.cloudinary.com/image/upload/v1775165440/public/ChatGPT_Image_Mar_31_2026_11_00_27_PM.png';
+  'https://daily-now-res.cloudinary.com/image/upload/f_auto,q_auto/v1775165440/public/ChatGPT_Image_Mar_31_2026_11_00_27_PM.png';
 
 export const cloudinaryPWA =
   'https://media.daily.dev/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
