@@ -19,7 +19,7 @@ import { SharedFeedPage } from './utilities';
 import {
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
-  FEED_QUERY,
+  FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
@@ -117,7 +117,7 @@ type FeedConfigPage = SharedFeedPage | OtherFeedPage;
 const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
+    queryIfLogged: FEED_V2_QUERY,
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
@@ -127,7 +127,7 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   },
   search: {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
+    queryIfLogged: FEED_V2_QUERY,
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
@@ -319,7 +319,9 @@ export default function MainFeedLayout({
       [SharedFeedPage.CustomForm]: {
         // when editing main feed load feed query
         queryIfLogged:
-          router.query?.slugOrId === user?.id ? FEED_QUERY : CUSTOM_FEED_QUERY,
+          router.query?.slugOrId === user?.id
+            ? FEED_V2_QUERY
+            : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
         },

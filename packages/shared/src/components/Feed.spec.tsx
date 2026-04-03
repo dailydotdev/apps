@@ -29,7 +29,7 @@ import {
   mockGraphQL,
 } from '../../__tests__/helpers/graphql';
 import { settingsContext as baseSettingsContext } from '../../__tests__/helpers/boot';
-import { ANONYMOUS_FEED_QUERY } from '../graphql/feed';
+import { ANONYMOUS_FEED_QUERY, FEED_V2_QUERY } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import Feed from './Feed';
 import defaultFeedPage from '../../__tests__/fixture/feed';
@@ -189,6 +189,7 @@ function renderComponent(
   mocks: MockedGraphQLResponse[] = [createFeedMock()],
   user?: LoggedUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
+  query = ANONYMOUS_FEED_QUERY,
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
 
@@ -231,7 +232,7 @@ function renderComponent(
           <Feed
             feedQueryKey={['feed']}
             feedName={feedName}
-            query={ANONYMOUS_FEED_QUERY}
+            query={query}
             variables={variables}
           />
         </SettingsContext.Provider>
@@ -328,6 +329,39 @@ describe('Feed logged in', () => {
     expect(
       new Date(getPostCreatedAt(latestPost, 'latest')).getTime(),
     ).toBeGreaterThan(new Date(getPostCreatedAt(oldPost, 'old')).getTime());
+  });
+
+  it('should render posts from feedV2 post items', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: defaultFeedPage.edges.map((edge) => ({
+                  node: {
+                    __typename: 'FeedPostItem',
+                    post: edge.node,
+                    feedMeta: edge.node.feedMeta ?? null,
+                  },
+                })),
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+    expect(await screen.findAllByTestId('postItem')).not.toHaveLength(0);
   });
 
   it('should send upvote mutation', async () => {

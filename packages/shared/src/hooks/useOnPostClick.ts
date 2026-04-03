@@ -13,11 +13,16 @@ import {
 } from '../lib/feed';
 import type { Post } from '../graphql/posts';
 import { PostType } from '../graphql/posts';
+import { getFeedApiItemPost } from '../graphql/feed';
 import type { Origin } from '../lib/log';
 import { ActiveFeedContext } from '../contexts';
-import { updateCachedPagePost, updateFeedAndAdsCache } from '../lib/query';
+import {
+  findIndexOfPostInData,
+  updateCachedPagePost,
+  updateFeedAndAdsCache,
+} from '../lib/query';
 import { FeedLayoutMobileFeedPages, useFeedLayout } from './useFeedLayout';
-import type { FeedData } from '../graphql/feed';
+import type { FeedData, FeedItemData } from '../graphql/feed';
 import { useReadingStreak } from './streaks';
 import { isBoostedPostAd } from './useFeed';
 
@@ -42,7 +47,7 @@ const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
   return client
     .getQueryCache()
     .findAll()
-    .reduce((queryKeys, query) => {
+    .reduce<QueryKey[]>((queryKeys, query) => {
       const key = query.queryKey;
       // filter only query keys for supported feed layout list feeds
       if (
@@ -57,25 +62,20 @@ const getFeedQueryKeys = (client: QueryClient): QueryKey[] => {
 };
 
 interface PostItem {
-  post: Post;
+  post?: Post;
   page: number;
   index: number;
 }
 
-const findPost = (data: InfiniteData<FeedData>, id: string): PostItem => {
-  let index = -1;
-  const pageIndex = data.pages.findIndex(({ page }) => {
-    index = page.edges.findIndex(({ node }) => node.id === id);
-    return index > -1;
-  });
-
+const findPost = (data: InfiniteData<FeedData | FeedItemData>, id: string): PostItem => {
+  const { pageIndex, index } = findIndexOfPostInData(data, id);
   const post =
     pageIndex > -1 && index > -1
-      ? data.pages[pageIndex].page.edges[index].node
+      ? getFeedApiItemPost(data.pages[pageIndex].page.edges[index].node)
       : undefined;
 
   return {
-    post,
+    post: post ?? undefined,
     page: pageIndex,
     index,
   };
@@ -114,11 +114,11 @@ export default function useOnPostClick({
             row,
             extra: {
               ...feedLogExtra(
-                feedName,
+                feedName ?? '',
                 ranking,
-                null,
+                undefined,
                 origin,
-                null,
+                undefined,
                 optional?.parent_id,
               ).extra,
               feedback: post.type === PostType.Article ? true : undefined,

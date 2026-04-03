@@ -18,6 +18,11 @@ import type {
   ReadHistoryPost,
   Ad,
 } from '../graphql/posts';
+import type {
+  FeedApiItem,
+  FeedItemData,
+} from '../graphql/feed';
+import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
@@ -88,6 +93,10 @@ export enum StaleTime {
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
+
+type AnyFeedData = FeedData | FeedItemData;
+type AnyFeedNode = Post | FeedApiItem;
+type AnyFeedConnection = Connection<AnyFeedNode>;
 
 export const getNextPageParam = (pageInfo: PageInfo): null | string => {
   if (!pageInfo?.hasNextPage || !pageInfo?.endCursor) {
@@ -367,9 +376,9 @@ export const updateCachedPage = (
   feedQueryKey: QueryKey,
   queryClient: QueryClient,
   pageIndex: number,
-  manipulate: (page: Connection<Post>) => Connection<Post>,
+  manipulate: (page: AnyFeedConnection) => AnyFeedConnection,
 ): void => {
-  queryClient.setQueryData<InfiniteData<FeedData>>(
+  queryClient.setQueryData<InfiniteData<AnyFeedData>>(
     feedQueryKey,
     (currentData) => {
       if (!currentData) {
@@ -383,7 +392,9 @@ export const updateCachedPage = (
 
       const { pages } = currentData;
       const currentPage = structuredClone(currentPageData);
-      currentPage.page = manipulate(currentPage.page);
+      currentPage.page = manipulate(
+        currentPage.page as AnyFeedConnection,
+      ) as typeof currentPage.page;
       const newPages = [
         ...pages.slice(0, pageIndex),
         currentPage,
@@ -398,8 +409,26 @@ export const updateCachedPagePost =
   (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number, post: Post): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      const edge = page.edges[index];
+
+      if (!edge) {
+        throw new Error(
+          `Missing feed edge at page ${pageIndex} index ${index} for post update`,
+        );
+      }
+
+      if (isFeedApiPostItem(edge.node)) {
+        // eslint-disable-next-line no-param-reassign
+        edge.node = {
+          ...edge.node,
+          post,
+        };
+
+        return page;
+      }
+
       // eslint-disable-next-line no-param-reassign
-      page.edges[index].node = post;
+      edge.node = post;
       return page;
     });
   };
@@ -591,7 +620,7 @@ export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
 };
 
 export const findIndexOfPostInData = (
-  data: InfiniteData<FeedData>,
+  data: InfiniteData<AnyFeedData>,
   id: string,
   findBySharedPost = false,
 ): { pageIndex: number; index: number } => {
@@ -599,13 +628,19 @@ export const findIndexOfPostInData = (
     const page = data.pages[pageIndex];
     for (let index = 0; index < page.page.edges.length; index += 1) {
       const item = page.page.edges[index];
-      if (item.node.id === id) {
+      const post = getFeedApiItemPost(item.node);
+
+      if (!post) {
+        continue;
+      }
+
+      if (post.id === id) {
         return { pageIndex, index };
       }
       if (
         findBySharedPost &&
-        item.node.type === PostType.Share &&
-        item.node.sharedPost?.id === id
+        post.type === PostType.Share &&
+        post.sharedPost?.id === id
       ) {
         return { pageIndex, index };
       }
@@ -717,12 +752,21 @@ export const updateFeedAndAdsCache = (
   // Update the main feed cache
   const updateFeedPost = updateCachedPagePost(feedQueryKey, queryClient);
   const feedData =
-    queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey);
+    queryClient.getQueryData<InfiniteData<AnyFeedData>>(feedQueryKey);
 
   if (feedData) {
     const { pageIndex, index } = findIndexOfPostInData(feedData, postId, true);
     if (index > -1) {
-      const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+      const currentPost = getFeedApiItemPost(
+        feedData.pages[pageIndex].page.edges[index].node,
+      );
+
+      if (!currentPost) {
+        throw new Error(
+          `Missing post-backed feed item at page ${pageIndex} index ${index}`,
+        );
+      }
+
       updateFeedPost(pageIndex, index, {
         ...currentPost,
         ...update,
