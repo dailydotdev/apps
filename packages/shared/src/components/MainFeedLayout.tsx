@@ -71,6 +71,7 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
+import { useNoAiFeed } from '../hooks/useNoAiFeed';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -220,6 +221,8 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const shouldEvaluateNoAi =
+    feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
@@ -289,6 +292,14 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
+  const {
+    isNoAi,
+    isNoAiAvailable,
+    isLoaded: isNoAiLoaded,
+    toggleNoAi,
+  } = useNoAiFeed({
+    shouldEvaluate: shouldEvaluateNoAi,
+  });
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -352,6 +363,7 @@ export default function MainFeedLayout({
       variables: {
         ...feedConfig.variables,
         ...dynamicFeedConfig?.variables,
+        ...(shouldEvaluateNoAi && isNoAi ? { noAi: true } : {}),
         version:
           isDevelopment && !isProductionAPI
             ? 1
@@ -372,6 +384,8 @@ export default function MainFeedLayout({
     customFeedV,
     tokenRefreshed,
     feedVersion,
+    isNoAi,
+    shouldEvaluateNoAi,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
@@ -424,6 +438,10 @@ export default function MainFeedLayout({
       return null;
     }
 
+    if (shouldEvaluateNoAi && !isNoAiLoaded) {
+      return null;
+    }
+
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
         return null;
@@ -446,6 +464,15 @@ export default function MainFeedLayout({
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
+            noAiState={
+              shouldEvaluateNoAi
+                ? {
+                    isAvailable: isNoAiAvailable,
+                    isEnabled: isNoAi,
+                    onToggle: toggleNoAi,
+                  }
+                : undefined
+            }
           />
         ),
       };
@@ -525,6 +552,15 @@ export default function MainFeedLayout({
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
+          noAiState={
+            shouldEvaluateNoAi
+              ? {
+                  isAvailable: isNoAiAvailable,
+                  isEnabled: isNoAi,
+                  onToggle: toggleNoAi,
+                }
+              : undefined
+          }
         />
       ),
     };
@@ -556,6 +592,11 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
+    shouldEvaluateNoAi,
+    isNoAiLoaded,
+    isNoAiAvailable,
+    isNoAi,
+    toggleNoAi,
   ]);
 
   useEffect(() => {

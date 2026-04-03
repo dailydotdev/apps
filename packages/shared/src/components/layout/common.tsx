@@ -31,9 +31,13 @@ import { useReadingStreak } from '../../hooks/streaks';
 import type { AllFeedPages } from '../../lib/query';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import type { AllowedTags, TypographyProps } from '../typography/Typography';
-import { Typography } from '../typography/Typography';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
-import { LogEvent, Origin } from '../../lib/log';
+import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
 import { ActionType } from '../../graphql/actions';
 import {
@@ -43,14 +47,23 @@ import {
   isNullOrUndefined,
 } from '../../lib/func';
 import { downloadBrowserExtension } from '../../lib/constants';
+import { cloudinaryNoAiFeedToggle } from '../../lib/image';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { LazyImage } from '../LazyImage';
+import { Switch } from '../fields/Switch';
+import { Tooltip } from '../tooltip/Tooltip';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
 export interface SearchControlHeaderProps {
   feedName: AllFeedPages;
   algoState: State<number>;
+  noAiState?: {
+    isAvailable: boolean;
+    isEnabled: boolean;
+    onToggle: () => void | Promise<void>;
+  };
 }
 
 export const LayoutHeader = classed(
@@ -72,10 +85,18 @@ export const periodTexts = periods.map((period) => period.text);
 
 export const DEFAULT_ALGORITHM_KEY = 'feed:algorithm';
 export const DEFAULT_ALGORITHM_INDEX = 0;
+const noAiToggleTooltip = (
+  <>
+    For when you are tired of AI launches, hot takes,
+    <br />
+    and vibe-coding discourse taking over your feed.
+  </>
+);
 
 export const SearchControlHeader = ({
   feedName,
   algoState: [selectedAlgo, setSelectedAlgo],
+  noAiState,
 }: SearchControlHeaderProps): ReactElement | null => {
   const [selectedPeriod, setSelectedPeriod] = useQueryState({
     key: [QueryStateKeys.FeedPeriod],
@@ -118,6 +139,9 @@ export const SearchControlHeader = ({
   const hasDismissedInstallExtension = checkHasCompleted(
     ActionType.DismissInstallExtension,
   );
+  const hasDismissedNoAiFeedToggle = checkHasCompleted(
+    ActionType.DismissNoAiFeedToggle,
+  );
   const canInstallExtension =
     !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldShowInstallExtensionPrompt =
@@ -127,7 +151,6 @@ export const SearchControlHeader = ({
     !hasDismissedInstallExtension;
   const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
-      <div className="flex flex-1" />
       <Button
         key="install-extension"
         tag="a"
@@ -156,7 +179,7 @@ export const SearchControlHeader = ({
     </React.Fragment>
   );
 
-  const actionButtons = [
+  const primaryActions = [
     hasFeedActions && <MyFeedHeading key="my-feed" />,
     isUpvoted ? (
       <Dropdown
@@ -188,9 +211,69 @@ export const SearchControlHeader = ({
       />
     ),
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
-    isLaptop && installExtensionButton,
   ];
-  const actions = actionButtons.filter((button) => !!button);
+  const shouldShowNoAiControl =
+    noAiState?.isAvailable && isActionsFetched && !hasDismissedNoAiFeedToggle;
+  const noAiControl = shouldShowNoAiControl
+    ? (() => {
+        const handleNoAiToggle = async () => {
+          const isEnabled = !noAiState.isEnabled;
+          await noAiState.onToggle();
+          logEvent({
+            event_name: LogEvent.ToggleNoAiFeed,
+            target_id: isEnabled ? TargetId.On : TargetId.Off,
+            extra: JSON.stringify({
+              origin: Origin.Feed,
+            }),
+          });
+        };
+
+        return (
+          <React.Fragment key="no-ai">
+            <Tooltip
+              content={noAiToggleTooltip}
+              side="bottom"
+              className="max-w-64 text-center"
+            >
+              <div className="shadow-1 flex h-10 shrink-0 items-center gap-3 rounded-12 bg-surface-float px-3">
+                <LazyImage
+                  imgSrc={cloudinaryNoAiFeedToggle}
+                  imgAlt="No AI mode"
+                  className="size-7 shrink-0 rounded-8 border border-border-subtlest-tertiary bg-background-default"
+                />
+                <div className="min-w-0">
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                    bold
+                  >
+                    No AI mode
+                  </Typography>
+                </div>
+                <Switch
+                  checked={noAiState.isEnabled}
+                  inputId="no-ai-feed-switch"
+                  name="no-ai-feed-switch"
+                  aria-label="Toggle No AI mode"
+                  className="ml-auto shrink-0"
+                  onToggle={handleNoAiToggle}
+                />
+              </div>
+            </Tooltip>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ClearIcon secondary />}
+              aria-label="Dismiss No AI mode"
+              onClick={() => completeAction(ActionType.DismissNoAiFeedToggle)}
+            />
+          </React.Fragment>
+        );
+      })()
+    : null;
+  const secondaryActions = [noAiControl, isLaptop && installExtensionButton];
+  const actions = primaryActions.filter(Boolean);
+  const sideActions = secondaryActions.filter(Boolean);
 
   return (
     <ConditionalWrapper
@@ -213,7 +296,12 @@ export const SearchControlHeader = ({
         );
       }}
     >
-      <div className="flex w-full items-center gap-2">{actions}</div>
+      <div className="flex w-full items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">{actions}</div>
+        {sideActions.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">{sideActions}</div>
+        )}
+      </div>
     </ConditionalWrapper>
   );
 };

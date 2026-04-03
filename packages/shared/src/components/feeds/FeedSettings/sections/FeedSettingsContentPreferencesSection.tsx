@@ -3,6 +3,9 @@ import React, { useContext, useMemo } from 'react';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
 import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { useAdvancedSettings } from '../../../../hooks/feed/useAdvancedSettings';
+import { useConditionalFeature, useToastNotification } from '../../../../hooks';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import {
   getAdvancedContentTypes,
   getContentCurationList,
@@ -14,7 +17,12 @@ import {
   TypographyType,
 } from '../../../typography/Typography';
 import { FilterCheckbox } from '../../../fields/FilterCheckbox';
+import { Switch } from '../../../fields/Switch';
 import { FeedType } from '../../../../graphql/feed';
+import { featureNoAiFeed } from '../../../../lib/featureManagement';
+import { SidebarSettingsFlags } from '../../../../graphql/settings';
+import { labels } from '../../../../lib/labels';
+import { LogEvent, Origin, TargetId } from '../../../../lib/log';
 
 export const TOGGLEABLE_TYPES = ['Videos', 'Polls', 'Social'];
 const CUSTOM_FEEDS_ONLY = ['Article'];
@@ -22,6 +30,9 @@ const ADVANCED_SETTINGS_KEY = 'advancedSettings';
 
 export const FeedSettingsContentPreferencesSection = (): ReactElement => {
   const { feed, editFeedSettings } = useContext(FeedSettingsEditContext);
+  const { flags, updateFlag } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const { advancedSettings } = useFeedSettings({ feedId: feed?.id });
   const {
     selectedSettings,
@@ -29,6 +40,10 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
     checkSourceBlocked,
     onToggleSource,
   } = useAdvancedSettings({ feedId: feed?.id });
+  const { value: isNoAiFeatureEnabled } = useConditionalFeature({
+    feature: featureNoAiFeed,
+    shouldEvaluate: feed?.type === FeedType.Main,
+  });
   const toggleableTypes = useMemo(
     () =>
       getAdvancedContentTypes(
@@ -63,7 +78,12 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
           </Typography>
         </div>
         <div className="flex flex-col">
-          {toggleableTypes.map(({ id, title, defaultEnabledState }) => {
+          {toggleableTypes.map((setting) => {
+            if (!setting) {
+              return null;
+            }
+
+            const { id, title, defaultEnabledState } = setting;
             const isDisabled =
               CUSTOM_FEEDS_ONLY.includes(title) &&
               feed?.type !== FeedType.Custom;
@@ -93,6 +113,47 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
           })}
         </div>
       </div>
+      {feed?.type === FeedType.Main && isNoAiFeatureEnabled && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Body}>
+              No AI mode
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Keep AI topics filtered out across My Feed. You can hide the
+              homepage toggle once this is set.
+            </Typography>
+          </div>
+          <Switch
+            inputId="no-ai-feed-preference-switch"
+            name="no_ai_feed_preference"
+            compact={false}
+            checked={flags?.noAiFeedEnabled ?? false}
+            onClick={() => {
+              const newState = !(flags?.noAiFeedEnabled ?? false);
+
+              editFeedSettings(() =>
+                updateFlag(SidebarSettingsFlags.NoAiFeedEnabled, newState),
+              );
+              displayToast(
+                newState ? labels.feed.noAi.hidden : labels.feed.noAi.visible,
+              );
+              logEvent({
+                event_name: LogEvent.ToggleNoAiFeed,
+                target_id: newState ? TargetId.On : TargetId.Off,
+                extra: JSON.stringify({
+                  origin: Origin.Settings,
+                }),
+              });
+            }}
+          >
+            Keep AI topics filtered out
+          </Switch>
+        </div>
+      )}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
@@ -105,20 +166,28 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
             Pick the categories of content you&apos;d like to see in your feed.
           </Typography>
         </div>
-        {contentSourceList?.map(({ id, title, description, options }) => (
-          <FilterCheckbox
-            key={id}
-            name={`${ADVANCED_SETTINGS_KEY}-${id}`}
-            checked={!checkSourceBlocked(options.source)}
-            description={description}
-            onToggleCallback={() =>
-              editFeedSettings(() => onToggleSource(options.source))
-            }
-            descriptionClassName="text-text-tertiary"
-          >
-            <Typography bold>{title}</Typography>
-          </FilterCheckbox>
-        ))}
+        {contentSourceList?.map(({ id, title, description, options }) => {
+          if (!options?.source) {
+            return null;
+          }
+
+          const { source } = options;
+
+          return (
+            <FilterCheckbox
+              key={id}
+              name={`${ADVANCED_SETTINGS_KEY}-${id}`}
+              checked={!checkSourceBlocked(source)}
+              description={description}
+              onToggleCallback={() =>
+                editFeedSettings(() => onToggleSource(source))
+              }
+              descriptionClassName="text-text-tertiary"
+            >
+              <Typography bold>{title}</Typography>
+            </FilterCheckbox>
+          );
+        })}
         {contentCurationList?.map(
           ({ id, title, description, defaultEnabledState }) => (
             <FilterCheckbox
