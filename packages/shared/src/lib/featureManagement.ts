@@ -151,7 +151,7 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingV2 = new Feature('onboarding_v2', true);
+export const featureOnboardingV2 = new Feature('onboarding_v2', isDevelopment);
 
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
