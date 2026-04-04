@@ -531,7 +531,7 @@ function AuthOptionsInner({
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
-    if (isIOSApp) {
+    if (isIOSApp || router?.query?.brave) {
       window.location.href = socialUrl;
       return;
     }
