@@ -1157,7 +1157,7 @@ export const OnboardingV2 = (): ReactElement => {
           <button
             type="button"
             onClick={() => setShowSignupChooser(true)}
-            className="h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout hover:opacity-90"
+            className="hover:opacity-90 h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout"
           >
             Sign up
           </button>
