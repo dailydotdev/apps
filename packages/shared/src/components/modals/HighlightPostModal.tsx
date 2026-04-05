@@ -32,6 +32,11 @@ interface HighlightPostModalProps extends Pick<ModalProps, 'isOpen'> {
   selectedHighlightId: string | null;
   highlights: PostHighlight[];
   onRequestClose: ModalProps['onRequestClose'];
+  onHighlightClick?: (
+    highlight: PostHighlight,
+    position: number,
+    highlights: PostHighlight[],
+  ) => void;
   onSelectHighlight: (
     highlight: PostHighlight,
     position: number,
@@ -178,6 +183,7 @@ export function HighlightPostModal({
   highlights: initialHighlights,
   isOpen,
   onRequestClose,
+  onHighlightClick,
   onSelectHighlight,
 }: HighlightPostModalProps): ReactElement | null {
   const { logEvent } = useLogContext();
@@ -262,7 +268,7 @@ export function HighlightPostModal({
     if (resolvedPost) {
       logEvent(
         postLogEvent(LogEvent.NavigatePrevious, resolvedPost, {
-          extra: { origin: Origin.ArticleModal },
+          extra: { origin: Origin.ArticleModal, from_highlights: true },
         }),
       );
     }
@@ -285,7 +291,7 @@ export function HighlightPostModal({
     if (resolvedPost) {
       logEvent(
         postLogEvent(LogEvent.NavigateNext, resolvedPost, {
-          extra: { origin: Origin.ArticleModal },
+          extra: { origin: Origin.ArticleModal, from_highlights: true },
         }),
       );
     }
@@ -370,7 +376,10 @@ export function HighlightPostModal({
       <HighlightTabsSection
         highlights={highlights}
         activeIndex={activeIndex}
-        onSelectHighlight={onSelectHighlight}
+        onSelectHighlight={(highlight, highlightPosition, modalHighlights) => {
+          onHighlightClick?.(highlight, highlightPosition, modalHighlights);
+          onSelectHighlight(highlight, highlightPosition, modalHighlights);
+        }}
         scrollRef={tabsScrollRef}
         isReady={isNavigationReady}
       />

@@ -356,7 +356,7 @@ function FeedItemComponent({
           selectedHighlightId={selectedHighlightId}
           highlights={item.highlights}
           onRequestClose={() => setSelectedHighlightId(null)}
-          onSelectHighlight={(highlight, position, modalHighlights) => {
+          onHighlightClick={(highlight, position, modalHighlights) => {
             logEvent(
               feedHighlightsLogEvent(LogEvent.Click, {
                 columns: virtualizedNumCards,
@@ -372,6 +372,8 @@ function FeedItemComponent({
                 feedMeta: item.feedMeta,
               }),
             );
+          }}
+          onSelectHighlight={(highlight) => {
             setSelectedHighlightId(highlight.id);
           }}
         />

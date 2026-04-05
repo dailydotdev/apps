@@ -4,7 +4,7 @@ import type { PostHighlight } from '../graphql/highlights';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
-import { Origin, TargetId, TargetType } from './log';
+import { Origin, TargetType } from './log';
 import { SharedFeedPage } from '../components/utilities';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
@@ -35,8 +35,8 @@ interface FeedItemLogEvent extends LogEvent {
   feed_item_image?: string;
   feed_item_target_url?: string;
   feed_item_title?: string;
-  target_id: string;
-  target_type: string;
+  target_id?: string;
+  target_type?: string;
 }
 
 interface PostItemLogEvent extends FeedItemLogEvent {
@@ -206,7 +206,6 @@ export function feedHighlightsLogEvent(
     feed_item_meta: feedMeta ?? undefined,
     feed_item_target_url: clickedHighlight?.post.commentsPermalink,
     feed_item_title: clickedHighlight?.headline,
-    target_id: TargetId.HighlightsCard,
     target_type: TargetType.HighlightsCard,
     extra: JSON.stringify({
       ...feedLogExtra(feedName, ranking).extra,
