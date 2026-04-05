@@ -23,7 +23,7 @@ describe('normalizeFeedPage', () => {
         pageInfo: defaultFeedPage.pageInfo,
         edges: defaultFeedPage.edges.map((edge) => ({
           node: {
-            __typename: 'FeedPostItem',
+            __typename: 'FeedPostItem' as const,
             post: edge.node,
             feedMeta: 'feed-meta',
           },
@@ -52,14 +52,14 @@ describe('normalizeFeedPage', () => {
         edges: [
           {
             node: {
-              __typename: 'FeedHighlightsItem',
+              __typename: 'FeedHighlightsItem' as const,
               highlights: [],
               feedMeta: null,
             },
           },
           {
             node: {
-              __typename: 'FeedPostItem',
+              __typename: 'FeedPostItem' as const,
               post: defaultFeedPage.edges[0].node,
               feedMeta: 'feed-meta',
             },
@@ -89,7 +89,7 @@ describe('normalizeFeedPage', () => {
         edges: [
           {
             node: {
-              itemType: 'post',
+              itemType: 'post' as const,
               feedMeta: null,
               post: defaultFeedPage.edges[0].node,
             },
