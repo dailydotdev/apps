@@ -31,6 +31,7 @@ interface SourceInfoProps {
   onClose?: MouseEventHandler | KeyboardEventHandler;
   onReadArticle?: () => void;
   showActions?: boolean;
+  hideSubscribeAction?: boolean;
 }
 
 function PostSourceInfo({
@@ -40,26 +41,31 @@ function PostSourceInfo({
   onClose,
   onReadArticle,
   showActions = true,
+  hideSubscribeAction,
 }: SourceInfoProps): ReactElement {
   const { source } = post;
+  const sourceId = source?.id ?? '';
+  const sourceHandle = source?.handle ?? '';
+  const sourceName = source?.name ?? '';
+  const sourcePermalink = source?.permalink ?? '';
   const { showActionBtn } = useShowFollowAction({
-    entityId: source?.id,
+    entityId: sourceId,
     entityType: ContentPreferenceType.Source,
   });
-  const isUnknown = source?.id === 'unknown';
+  const isUnknown = sourceId === 'unknown';
   const { squad, isLoading: isLoadingSquad } = useSquad({
-    handle: source?.handle,
+    handle: sourceHandle,
   });
   const { data } = useContentPreferenceStatusQuery({
-    id: source?.id,
+    id: sourceId,
     entity: ContentPreferenceType.Source,
   });
   const isUserSource = isSourceUserSource(post?.source);
+  const contentPreferenceStatus = data?.status;
 
-  const isFollowing = [
-    ContentPreferenceStatus.Follow,
-    ContentPreferenceStatus.Subscribed,
-  ].includes(data?.status);
+  const isFollowing =
+    contentPreferenceStatus === ContentPreferenceStatus.Follow ||
+    contentPreferenceStatus === ContentPreferenceStatus.Subscribed;
 
   return (
     <span
@@ -72,9 +78,9 @@ function PostSourceInfo({
         <>
           <div className="flex flex-row items-center">
             {!isUserSource && (
-              <Link href={source?.permalink}>
+              <Link href={sourcePermalink}>
                 <a className="text-text-secondary typo-callout">
-                  {source?.handle}
+                  {sourceHandle}
                 </a>
               </Link>
             )}
@@ -89,30 +95,32 @@ function PostSourceInfo({
                       'flex min-w-min !px-0 tablet:hidden',
                       !isFollowing && 'text-text-link',
                     )}
-                    entityId={source?.id}
-                    status={data?.status}
+                    entityId={sourceId}
+                    status={contentPreferenceStatus}
                     type={ContentPreferenceType.Source}
-                    entityName={source?.name}
+                    entityName={sourceName}
                     showSubscribe={false}
                   />
                 )}
-                {source?.type === SourceType.Squad && !isLoadingSquad && (
-                  <SquadActionButton
-                    buttonVariants={[ButtonVariant.Tertiary]}
-                    size={ButtonSize.XSmall}
-                    className={{
-                      button: classNames(
-                        'flex min-w-min !px-0 tablet:hidden',
-                        !squad?.currentMember && 'text-text-link',
-                      ),
-                    }}
-                    squad={squad}
-                    copy={{
-                      join: 'Join',
-                    }}
-                    origin={Origin.PostContent}
-                  />
-                )}
+                {source?.type === SourceType.Squad &&
+                  !isLoadingSquad &&
+                  squad && (
+                    <SquadActionButton
+                      buttonVariants={[ButtonVariant.Tertiary]}
+                      size={ButtonSize.XSmall}
+                      className={{
+                        button: classNames(
+                          'flex min-w-min !px-0 tablet:hidden',
+                          !squad?.currentMember && 'text-text-link',
+                        ),
+                      }}
+                      squad={squad}
+                      copy={{
+                        join: 'Join',
+                      }}
+                      origin={Origin.PostContent}
+                    />
+                  )}
               </>
             )}
           </div>
@@ -121,6 +129,7 @@ function PostSourceInfo({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
               className="ml-auto hidden laptop:flex"
               contextMenuId="post-widgets-context"
               buttonSize={ButtonSize.Small}

@@ -23,6 +23,11 @@ import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
+import type { Post } from '../../../graphql/posts';
+
+type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
+  post: Post;
+};
 
 const CollectionPostContentRaw = ({
   post,
@@ -31,6 +36,7 @@ const CollectionPostContentRaw = ({
   origin,
   position,
   inlineActions,
+  hideSubscribeAction,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -40,7 +46,7 @@ const CollectionPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement => {
+}: CollectionPostContentRawProps): ReactElement => {
   const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -94,7 +100,7 @@ const CollectionPostContentRaw = ({
                 ),
               },
             }
-          : null
+          : undefined
       }
     >
       <PostContainer
@@ -135,6 +141,7 @@ const CollectionPostContentRaw = ({
               <CollectionPostHeaderActions
                 post={post}
                 onClose={onClose}
+                hideSubscribeAction={hideSubscribeAction}
                 className="ml-auto hidden laptop:flex"
                 contextMenuId="post-widgets-context"
               />
@@ -164,7 +171,7 @@ const CollectionPostContentRaw = ({
                 />
               </div>
             )}
-            <Markdown content={contentHtml} />
+            <Markdown content={contentHtml ?? ''} />
           </div>
         </BasePostContent>
       </PostContainer>

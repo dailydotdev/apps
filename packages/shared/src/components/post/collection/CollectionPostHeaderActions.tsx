@@ -16,18 +16,21 @@ export const CollectionPostHeaderActions = ({
   inlineActions,
   className,
   notificationClassName,
+  hideSubscribeAction,
   ...props
 }: PostHeaderActionsProps): ReactElement => {
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      <CollectionSubscribeButton
-        post={post}
-        buttonVariant={
-          props?.isFixedNavigation
-            ? ButtonVariant.Tertiary
-            : ButtonVariant.Secondary
-        }
-      />
+      {!hideSubscribeAction && (
+        <CollectionSubscribeButton
+          post={post}
+          buttonVariant={
+            props?.isFixedNavigation
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Secondary
+          }
+        />
+      )}
       <PostMenuOptions post={post} origin={Origin.CollectionModal} />
     </Container>
   );
