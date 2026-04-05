@@ -67,6 +67,14 @@ export interface FeedV2Data {
   page: Connection<FeedV2Item>;
 }
 
+const getGraphqlTypename = (
+  item: FeedV2Item | Post,
+): FeedV2Item['__typename'] | Post['__typename'] => {
+  const { __typename: typename } = item;
+
+  return typename;
+};
+
 const isFeedV2Typename = (
   typename: FeedV2Item['__typename'] | Post['__typename'],
 ): typename is FeedV2Item['__typename'] =>
@@ -78,24 +86,23 @@ export const isFeedApiItem = (
 
 export const isFeedApiPostItem = (
   item: FeedApiItem | FeedV2Item | Post,
-): item is FeedPostItem =>
-  isFeedApiItem(item) && item.itemType === 'post';
+): item is FeedPostItem => isFeedApiItem(item) && item.itemType === 'post';
 
 export const isFeedV2Item = (
   item: FeedApiItem | FeedV2Item | Post,
 ): item is FeedV2Item =>
-  '__typename' in item && isFeedV2Typename(item.__typename);
+  '__typename' in item && isFeedV2Typename(getGraphqlTypename(item));
 
 export const isFeedV2PostItem = (
   item: FeedV2Item | Post,
 ): item is FeedV2PostItem =>
-  isFeedV2Item(item) && item.__typename === 'FeedPostItem';
+  isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedPostItem';
 
 export const isLegacyFeedPost = (
   item: FeedApiItem | FeedV2Item | Post,
 ): item is Post =>
   !isFeedApiItem(item) &&
-  (!('__typename' in item) || item.__typename === 'Post');
+  (!('__typename' in item) || getGraphqlTypename(item) === 'Post');
 
 export const getFeedApiItemPost = (
   item: FeedApiItem | FeedV2Item | Post,
@@ -148,7 +155,7 @@ const normalizeFeedV2Edge = (
   }
 
   throw new Error(
-    `Unsupported feed item type: ${node.__typename ?? 'unknown'}`,
+    `Unsupported feed item type: ${getGraphqlTypename(node) ?? 'unknown'}`,
   );
 };
 

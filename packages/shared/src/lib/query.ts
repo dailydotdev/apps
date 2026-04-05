@@ -18,10 +18,7 @@ import type {
   ReadHistoryPost,
   Ad,
 } from '../graphql/posts';
-import type {
-  FeedApiItem,
-  FeedItemData,
-} from '../graphql/feed';
+import type { FeedApiItem, FeedItemData } from '../graphql/feed';
 import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
@@ -630,14 +627,11 @@ export const findIndexOfPostInData = (
       const item = page.page.edges[index];
       const post = getFeedApiItemPost(item.node);
 
-      if (!post) {
-        continue;
-      }
-
-      if (post.id === id) {
+      if (post?.id === id) {
         return { pageIndex, index };
       }
       if (
+        post &&
         findBySharedPost &&
         post.type === PostType.Share &&
         post.sharedPost?.id === id

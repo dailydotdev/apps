@@ -67,7 +67,10 @@ interface PostItem {
   index: number;
 }
 
-const findPost = (data: InfiniteData<FeedData | FeedItemData>, id: string): PostItem => {
+const findPost = (
+  data: InfiniteData<FeedData | FeedItemData>,
+  id: string,
+): PostItem => {
   const { pageIndex, index } = findIndexOfPostInData(data, id);
   const post =
     pageIndex > -1 && index > -1

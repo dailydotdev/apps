@@ -9,11 +9,7 @@ import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
 import type { Ad, Post, PostsEngaged } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
-import type {
-  FeedData,
-  FeedItemData,
-  FeedV2Data,
-} from '../graphql/feed';
+import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
@@ -193,11 +189,11 @@ export default function useFeed<T>(
       const rawResult = await gqlClient.request<
         FeedData | FeedItemData | FeedV2Data
       >(query, {
-          ...variables,
-          first: pageSize,
-          after: pageParam,
-          loggedIn: !!user,
-        });
+        ...variables,
+        first: pageSize,
+        after: pageParam,
+        loggedIn: !!user,
+      });
       const res = normalizeFeedPage(rawResult);
 
       const isEmpty =
@@ -263,12 +259,12 @@ export default function useFeed<T>(
 
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
-    query &&
-    tokenRefreshed &&
-    !isFeedPreview &&
-    (!adPostLength ||
-      (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
-    !settings?.disableAds,
+      query &&
+      tokenRefreshed &&
+      !isFeedPreview &&
+      (!adPostLength ||
+        (feedQuery.data?.pages[0]?.page.edges.length ?? 0) > adPostLength) &&
+      !settings?.disableAds,
   );
 
   const { fetchAd } = useFetchAd();
@@ -313,11 +309,7 @@ export default function useFeed<T>(
   } = adsQuery;
 
   const getAd = useCallback(
-    ({
-      index,
-    }: {
-      index: number;
-    }): AdItem | PlaceholderItem | undefined => {
+    ({ index }: { index: number }): AdItem | PlaceholderItem | undefined => {
       if (!isAdsQueryEnabled) {
         return undefined;
       }
