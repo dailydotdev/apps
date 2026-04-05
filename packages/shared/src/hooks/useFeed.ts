@@ -99,14 +99,19 @@ export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
 
-const getPostFeedItemOrThrow = (
+const getPostFeedItemOrWarn = (
   item: FeedItemData['page']['edges'][number]['node'],
-): Post => {
+): Post | null => {
   if (item.itemType === 'post') {
     return item.post;
   }
 
-  throw new Error(`Unsupported feed item type in useFeed: ${item.itemType}`);
+  // eslint-disable-next-line no-console
+  console.warn(
+    `Skipping unsupported normalized feed item type: ${item.itemType}`,
+  );
+
+  return null;
 };
 
 export type FeedReturnType = {
@@ -385,7 +390,11 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.reduce<FeedItem[]>(
         (acc, { page }, pageIndex) => {
           page.edges.forEach(({ node }, index: number) => {
-            const post = getPostFeedItemOrThrow(node);
+            const post = getPostFeedItemOrWarn(node);
+
+            if (!post) {
+              return;
+            }
 
             if (seenPostIds.has(post.id)) {
               return;

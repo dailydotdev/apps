@@ -1,10 +1,5 @@
 import defaultFeedPage from '../../__tests__/fixture/feed';
-import {
-  FEED_V2_QUERY,
-  normalizeFeedPage,
-  type FeedItemData,
-  type FeedV2Data,
-} from './feed';
+import { FEED_V2_QUERY, normalizeFeedPage } from './feed';
 
 describe('normalizeFeedPage', () => {
   it('should keep feedV2 query parity for post HTML content', () => {
@@ -34,7 +29,7 @@ describe('normalizeFeedPage', () => {
           },
         })),
       },
-    } as FeedV2Data);
+    });
 
     expect(result.page.edges[0].node).toMatchObject({
       itemType: 'post',
@@ -46,28 +41,49 @@ describe('normalizeFeedPage', () => {
     });
   });
 
-  it('should throw when feedV2 returns unsupported item types', () => {
-    const run = () =>
-      normalizeFeedPage({
-        page: {
-          pageInfo: defaultFeedPage.pageInfo,
-          edges: [
-            {
-              node: {
-                __typename: 'FeedHighlightsItem',
-                highlights: [],
-                feedMeta: null,
-              },
-            },
-          ],
-        } as FeedV2Data['page'],
-      } as FeedV2Data);
+  it('should warn and skip unsupported feedV2 item types', () => {
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
 
-    expect(run).toThrow('Unsupported feed item type: FeedHighlightsItem');
+    const result = normalizeFeedPage({
+      page: {
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [
+          {
+            node: {
+              __typename: 'FeedHighlightsItem',
+              highlights: [],
+              feedMeta: null,
+            },
+          },
+          {
+            node: {
+              __typename: 'FeedPostItem',
+              post: defaultFeedPage.edges[0].node,
+              feedMeta: 'feed-meta',
+            },
+          },
+        ],
+      },
+    });
+
+    expect(warn).toHaveBeenCalledWith(
+      'Skipping unsupported feed item type: FeedHighlightsItem',
+    );
+    expect(result.page.edges).toHaveLength(1);
+    expect(result.page.edges[0].node).toMatchObject({
+      itemType: 'post',
+      feedMeta: 'feed-meta',
+      post: {
+        ...defaultFeedPage.edges[0].node,
+        feedMeta: 'feed-meta',
+      },
+    });
   });
 
   it('should keep normalized feed item data unchanged', () => {
-    const data: FeedItemData = {
+    const data = {
       page: {
         pageInfo: defaultFeedPage.pageInfo,
         edges: [

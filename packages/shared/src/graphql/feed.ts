@@ -75,6 +75,11 @@ const getGraphqlTypename = (
   return typename;
 };
 
+const warnUnsupportedFeedItem = (itemType: string): void => {
+  // eslint-disable-next-line no-console
+  console.warn(`Skipping unsupported feed item type: ${itemType}`);
+};
+
 const isFeedV2Typename = (
   typename: FeedV2Item['__typename'] | Post['__typename'],
 ): typename is FeedV2Item['__typename'] =>
@@ -131,7 +136,7 @@ const normalizeLegacyFeedEdge = (
 
 const normalizeFeedV2Edge = (
   edge: Connection<FeedV2Item>['edges'][number],
-): Connection<FeedApiItem>['edges'][number] => {
+): Connection<FeedApiItem>['edges'][number] | null => {
   const { node } = edge;
 
   if (isFeedV2PostItem(node)) {
@@ -154,9 +159,9 @@ const normalizeFeedV2Edge = (
     };
   }
 
-  throw new Error(
-    `Unsupported feed item type: ${getGraphqlTypename(node) ?? 'unknown'}`,
-  );
+  warnUnsupportedFeedItem(getGraphqlTypename(node) ?? 'unknown');
+
+  return null;
 };
 
 export const normalizeFeedPage = (
@@ -181,7 +186,17 @@ export const normalizeFeedPage = (
     return {
       page: {
         ...data.page,
-        edges: (data as FeedV2Data).page.edges.map(normalizeFeedV2Edge),
+        edges: (data as FeedV2Data).page.edges.reduce<
+          Connection<FeedApiItem>['edges']
+        >((normalizedEdges, edge) => {
+          const normalizedEdge = normalizeFeedV2Edge(edge);
+
+          if (normalizedEdge) {
+            normalizedEdges.push(normalizedEdge);
+          }
+
+          return normalizedEdges;
+        }, []),
       },
     };
   }
