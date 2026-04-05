@@ -1,9 +1,7 @@
-import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
-import { ArrowIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import { RelativeTime } from '../../utilities/RelativeTime';
 
 export interface HighlightCardProps {
@@ -13,46 +11,51 @@ export interface HighlightCardProps {
 }
 
 const titleGradientClassName =
-  'bg-gradient-to-r from-accent-blueCheese-default via-accent-cheese-default to-accent-avocado-default bg-clip-text text-transparent';
+  'feed-highlights-title-gradient';
+
+export const getHighlightCardContainerHandlers = (
+  onReadAllClick?: () => void,
+): {
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
+  onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
+} => {
+  if (!onReadAllClick) {
+    return {};
+  }
+
+  return {
+    onClick: () => onReadAllClick(),
+    onKeyDown: (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      onReadAllClick();
+    },
+  };
+};
 
 const HighlightRow = ({
   highlight,
   index,
-  isRead,
-  isViewed,
   onHighlightClick,
-  onRead,
-  onViewed,
 }: {
   highlight: PostHighlight;
   index: number;
-  isRead: boolean;
-  isViewed: boolean;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
-  onRead: () => void;
-  onViewed: () => void;
 }): ReactElement => {
-  const isInteracted = isRead || isViewed;
-
   return (
     <button
       type="button"
-      className={classNames(
-        'hover:bg-surface-hover/50 flex w-full flex-col gap-1 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors',
-        isViewed && 'bg-surface-hover/30',
-      )}
-      onMouseEnter={onViewed}
-      onFocus={onViewed}
-      onClick={() => {
-        onRead();
+      className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+      onClick={(event) => {
+        event.stopPropagation();
         onHighlightClick?.(highlight, index + 1);
       }}
     >
       <span
-        className={classNames(
-          'line-clamp-2 font-bold text-text-primary typo-callout',
-          isInteracted && 'text-text-secondary',
-        )}
+        className="line-clamp-2 font-bold text-text-primary typo-callout"
       >
         {highlight.headline}
       </span>
@@ -70,13 +73,6 @@ export const HighlightCardContent = ({
   onReadAllClick,
   variant,
 }: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
-  const [viewedHighlightIds, setViewedHighlightIds] = useState<Set<string>>(
-    () => new Set(),
-  );
-  const [readHighlightIds, setReadHighlightIds] = useState<Set<string>>(
-    () => new Set(),
-  );
-
   const headerClassName =
     variant === 'list'
       ? 'flex items-center pb-4'
@@ -84,32 +80,8 @@ export const HighlightCardContent = ({
   const contentClassName =
     variant === 'list'
       ? 'flex flex-col gap-2'
-      : 'flex flex-1 flex-col px-2.5 pb-1';
+      : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
-
-  const markHighlightViewed = (highlightId: string): void => {
-    setViewedHighlightIds((currentIds) => {
-      if (currentIds.has(highlightId)) {
-        return currentIds;
-      }
-
-      const nextIds = new Set(currentIds);
-      nextIds.add(highlightId);
-      return nextIds;
-    });
-  };
-
-  const markHighlightRead = (highlightId: string): void => {
-    setReadHighlightIds((currentIds) => {
-      if (currentIds.has(highlightId)) {
-        return currentIds;
-      }
-
-      const nextIds = new Set(currentIds);
-      nextIds.add(highlightId);
-      return nextIds;
-    });
-  };
 
   return (
     <>
@@ -129,10 +101,6 @@ export const HighlightCardContent = ({
             key={highlight.id}
             highlight={highlight}
             index={index}
-            isRead={readHighlightIds.has(highlight.id)}
-            isViewed={viewedHighlightIds.has(highlight.id)}
-            onViewed={() => markHighlightViewed(highlight.id)}
-            onRead={() => markHighlightRead(highlight.id)}
             onHighlightClick={onHighlightClick}
           />
         ))}
@@ -141,17 +109,24 @@ export const HighlightCardContent = ({
         <button
           type="button"
           aria-label="Read all highlights"
-          className="bg-background-default/60 flex h-8 w-full items-center rounded-10 px-3 transition-colors hover:bg-surface-hover"
-          onClick={onReadAllClick}
+          className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+          onClick={(event) => {
+            event.stopPropagation();
+            onReadAllClick?.();
+          }}
         >
-          <span className={classNames(titleGradientClassName, 'typo-callout')}>
-            Read all
+          <span className="typo-callout">
+            <span className={titleGradientClassName}>Read all</span>
           </span>
-          <ArrowIcon
+          <span
             aria-hidden
-            size={IconSize.Size16}
-            className={classNames(titleGradientClassName, 'ml-auto rotate-90')}
-          />
+            className={classNames(
+              titleGradientClassName,
+              'ml-auto select-none leading-none typo-title3',
+            )}
+          >
+            →
+          </span>
         </button>
       </div>
     </>

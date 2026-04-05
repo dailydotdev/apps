@@ -3,7 +3,10 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { Card } from '../common/Card';
 import type { HighlightCardProps } from './common';
-import { HighlightCardContent } from './common';
+import {
+  getHighlightCardContainerHandlers,
+  HighlightCardContent,
+} from './common';
 
 export const HighlightGrid = forwardRef(function HighlightGrid(
   { highlights, onHighlightClick, onReadAllClick }: HighlightCardProps,
@@ -13,8 +16,13 @@ export const HighlightGrid = forwardRef(function HighlightGrid(
     <Card
       ref={ref}
       data-testid="highlightItem"
+      role={onReadAllClick ? 'button' : undefined}
+      tabIndex={onReadAllClick ? 0 : undefined}
+      aria-label={onReadAllClick ? 'Open highlights card' : undefined}
+      {...getHighlightCardContainerHandlers(onReadAllClick)}
       className={classNames(
-        'group flex h-full flex-col overflow-hidden !bg-surface-float transition-all hover:!bg-surface-hover hover:shadow-2',
+        'group flex h-full flex-col overflow-hidden !bg-surface-float hover:!bg-surface-float',
+        onReadAllClick && 'cursor-pointer',
       )}
     >
       <HighlightCardContent
