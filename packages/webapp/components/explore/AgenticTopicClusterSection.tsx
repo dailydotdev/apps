@@ -86,8 +86,8 @@ const StoryMeta = ({
   'publisher' | 'publisherImage' | 'publishedAt' | 'upvotes' | 'comments'
 >): ReactElement => (
   <p
-    className="mt-2 flex flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
-    style={{ fontSize: '15px' }}
+    className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
+    style={{ fontSize: '13px' }}
   >
     {publisherImage ? (
       <img
@@ -100,7 +100,7 @@ const StoryMeta = ({
         {publisher.charAt(0)}
       </span>
     )}
-    <span>{publisher}</span>
+    <span className="max-w-[10rem] truncate laptop:max-w-[12rem]">{publisher}</span>
     {publishedAt && (
       <>
         <span aria-hidden>•</span>

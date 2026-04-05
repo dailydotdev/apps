@@ -11,6 +11,7 @@ import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
+import { TopHero } from '@dailydotdev/shared/src/components/banners/HeroBottomBanner';
 import {
   DiscussIcon,
   UpvoteIcon,
@@ -21,10 +22,12 @@ import {
   BriefContextProvider,
   useBriefContext,
 } from '@dailydotdev/shared/src/components/cards/brief/BriefContext';
+import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
 import AgenticTopicClusterSection from './AgenticTopicClusterSection';
+import { ExploreQuickActionsSection } from './ExploreQuickActionsSection';
 import type { ExploreCategoryId } from './exploreCategories';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
 
@@ -94,7 +97,7 @@ const SourceMeta = ({
   }
 
   return (
-    <span className="flex items-center gap-1.5">
+    <span className="flex min-w-0 max-w-[12rem] items-center gap-1.5 laptop:max-w-[14rem]">
       {source.image ? (
         <img
           src={source.image}
@@ -106,7 +109,7 @@ const SourceMeta = ({
           {source.name.charAt(0)}
         </span>
       )}
-      <span>{source.name}</span>
+      <span className="min-w-0 flex-1 truncate">{source.name}</span>
     </span>
   );
 };
@@ -145,7 +148,11 @@ const StoryOriginMeta = ({
   sourceFallbackLabel?: string;
 }): ReactElement | null => {
   if (sourceLabelOverride) {
-    return <span>{sourceLabelOverride}</span>;
+    return (
+      <span className="block min-w-0 max-w-[12rem] truncate laptop:max-w-[14rem]">
+        {sourceLabelOverride}
+      </span>
+    );
   }
 
   if (story.source?.name === 'Community Picks') {
@@ -156,7 +163,7 @@ const StoryOriginMeta = ({
     }
 
     return (
-      <span className="flex items-center gap-1.5">
+      <span className="flex min-w-0 max-w-[12rem] items-center gap-1.5 laptop:max-w-[14rem]">
         {communityAuthorMeta.image ? (
           <img
             src={communityAuthorMeta.image}
@@ -168,13 +175,17 @@ const StoryOriginMeta = ({
             {communityAuthorMeta.name.charAt(0)}
           </span>
         )}
-        <span>{communityAuthorMeta.name}</span>
+        <span className="min-w-0 flex-1 truncate">{communityAuthorMeta.name}</span>
       </span>
     );
   }
 
   if (sourceFallbackLabel) {
-    return <span>{sourceFallbackLabel}</span>;
+    return (
+      <span className="block min-w-0 max-w-[12rem] truncate laptop:max-w-[14rem]">
+        {sourceFallbackLabel}
+      </span>
+    );
   }
 
   return <SourceMeta source={story.source} />;
@@ -230,8 +241,8 @@ const StoryRow = ({
             {getStoryHeadline(story)}
           </p>
           <div
-            className="mt-2 flex flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
-            style={{ fontSize: '15px' }}
+            className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
+            style={{ fontSize: '13px' }}
           >
             {isSponsored ? (
               <>
@@ -245,7 +256,7 @@ const StoryRow = ({
               </>
             ) : (
               <>
-                <span className="flex items-center gap-1">
+                <span className="flex min-w-0 max-w-full items-center gap-1">
                   <StoryOriginMeta
                     story={story}
                     sourceLabelOverride={sourceLabelOverride}
@@ -344,7 +355,7 @@ const StorySectionBlock = ({
     return [
       nonSponsoredStories[0],
       sponsoredStory,
-      ...nonSponsoredStories.slice(1, 5),
+      ...nonSponsoredStories.slice(1, 6),
     ].filter(Boolean) as ExploreStory[];
   }, [isSponsoredSlotSection, section.stories, sponsoredStory]);
   const storiesToRender = isSponsoredSlotSection
@@ -407,7 +418,7 @@ const CompactSectionBlock = ({
   return (
     <section
       id={section.id}
-      className={`h-full rounded-16 p-3 laptop:p-4 ${
+      className={`rounded-16 p-3 laptop:p-4 ${
         isHighlightedCompactSection
           ? ''
           : 'border border-border-subtlest-tertiary'
@@ -458,7 +469,7 @@ const CompactSectionBlock = ({
                     </p>
                     <div
                       className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
-                      style={{ fontSize: '15px' }}
+                      style={{ fontSize: '13px' }}
                     >
                       <StoryOriginMeta story={story} />
                       {!!story.source?.name && !!story.createdAt && (
@@ -604,6 +615,14 @@ export const ExploreNewsLayout = ({
   const isVideosMode = activeTabId === 'videos';
   const isExplorePage = activeTabId === 'explore';
   const showExploreOnlySections = isExplorePage && !isVideosMode;
+  const forceShowReadingReminderHero = true;
+  const {
+    shouldShow: shouldShowReadingReminderHero,
+    title: readingReminderTitle,
+    subtitle: readingReminderSubtitle,
+    onEnable: onEnableReadingReminder,
+    onDismiss: onDismissReadingReminder,
+  } = useReadingReminderHero({ requireMobile: false });
 
   const latestStoriesForView = useMemo(
     () => (isVideosMode ? videoLatestStories : latestStories),
@@ -677,7 +696,7 @@ export const ExploreNewsLayout = ({
       href: '/posts/latest',
       stories: latestStoriesForView
         .filter((story) => story.id !== leadStory?.id)
-        .slice(0, 6),
+        .slice(0, 7),
       totalStoriesCount: latestStoriesForView.length,
     }),
     [latestStoriesForView, leadStory?.id],
@@ -689,7 +708,7 @@ export const ExploreNewsLayout = ({
       href: '/',
       stories: popularStoriesForView
         .filter((story) => story.id !== leadStory?.id)
-        .slice(0, 6),
+        .slice(0, 7),
       totalStoriesCount: popularStoriesForView.length,
     }),
     [popularStoriesForView, leadStory?.id],
@@ -770,7 +789,7 @@ export const ExploreNewsLayout = ({
 
     return uniqueStories
       .filter((story) => !displayedIds.has(story.id))
-      .slice(0, 6);
+      .slice(0, 7);
   }, [
     leadStory?.id,
     latestSection.stories,
@@ -809,7 +828,7 @@ export const ExploreNewsLayout = ({
         </div>
       </section>
 
-      <section id="top-news" className="px-8 py-6 laptop:px-8">
+      <section id="top-news" className="px-8 pb-6 pt-0 laptop:px-8">
         <div className="grid gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div>
             {leadStory ? (
@@ -829,10 +848,10 @@ export const ExploreNewsLayout = ({
                     <div>
                       <div
                         className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption1"
-                        style={{ fontSize: '15px' }}
+                        style={{ fontSize: '13px' }}
                       >
                         {!!leadStoryOriginName && (
-                          <span className="flex items-center gap-1.5">
+                          <span className="flex min-w-0 max-w-full items-center gap-1.5">
                             {(leadStoryOriginImage && (
                               <img
                                 src={leadStoryOriginImage}
@@ -844,7 +863,9 @@ export const ExploreNewsLayout = ({
                                 {(leadStoryOriginName || 'C').charAt(0)}
                               </span>
                             )}
-                            <span>{leadStoryOriginName}</span>
+                            <span className="max-w-[10rem] truncate laptop:max-w-[14rem]">
+                              {leadStoryOriginName}
+                            </span>
                           </span>
                         )}
                         {!!leadStory.createdAt && (
@@ -886,7 +907,7 @@ export const ExploreNewsLayout = ({
       </section>
 
       <section className="px-8 pb-6 laptop:px-8">
-        <div className="grid items-stretch gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="grid items-start gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <StorySectionBlock
             section={latestSection}
             sponsoredStory={sponsoredStory}
@@ -908,7 +929,7 @@ export const ExploreNewsLayout = ({
         </section>
       )}
       <section className="px-8 pb-6 laptop:px-8">
-        <div className="grid items-stretch gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-10">
+        <div className="grid items-start gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-10">
           <StorySectionBlock
             section={popularSection}
             sponsoredStory={sponsoredPopularStory}
@@ -953,10 +974,27 @@ export const ExploreNewsLayout = ({
           </div>
         </section>
       )}
+      {isExplorePage && <ExploreQuickActionsSection />}
       {showExploreOnlySections && (
         <section className="flex justify-center px-8 pb-6 laptop:px-8">
           <AgenticTopicClusterSection
             storiesByCategory={categoryClusterStories}
+          />
+        </section>
+      )}
+      {isExplorePage &&
+        (shouldShowReadingReminderHero || forceShowReadingReminderHero) && (
+        <section className="px-8 pb-6 laptop:px-8">
+          <TopHero
+            className="mb-0 pt-0"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            onCtaClick={() => {
+              void onEnableReadingReminder();
+            }}
+            onClose={() => {
+              void onDismissReadingReminder();
+            }}
           />
         </section>
       )}

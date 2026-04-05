@@ -115,15 +115,15 @@ export const AgentsHighlightsSection = ({
                 href={highlight.post.commentsPermalink}
               >
                 <a className="group flex flex-col gap-1 py-3 transition-colors">
-                  <span
-                    className="line-clamp-2 break-words text-text-primary transition-colors typo-callout"
+                  <p
+                    className="line-clamp-2 text-text-primary transition-colors typo-callout"
                     style={{ fontSize: '17px' }}
                   >
                     {highlight.headline}
-                  </span>
+                  </p>
                   <RelativeTime
                     dateTime={highlight.highlightedAt}
-                    className="text-text-tertiary"
+                    className="truncate !text-[13px] text-text-tertiary typo-caption2"
                   />
                 </a>
               </Link>

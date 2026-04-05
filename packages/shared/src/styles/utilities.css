@@ -788,6 +788,11 @@
     infinite alternate;
 }
 
+/* Explore page quick actions — static card outline */
+.explore-quick-action-border {
+  border: 1px solid var(--theme-border-subtlest-tertiary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feed-highlights-title-gradient {
     animation: none;

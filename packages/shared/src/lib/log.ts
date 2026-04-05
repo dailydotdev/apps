@@ -82,6 +82,7 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
+  ExplorePage = 'explore page',
 }
 
 export enum LogEvent {
@@ -551,6 +552,7 @@ export enum NotificationCtaPlacement {
   SquadCard = 'squad-card',
   PostActions = 'post-actions',
   SquadShareToast = 'squad-share-toast',
+  ExploreQuickActions = 'explore-quick-actions',
 }
 
 export enum NotificationCtaKind {
@@ -572,6 +574,7 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  ExplorePage = 'explore page',
 }
 
 export enum ShortcutsSourceType {
