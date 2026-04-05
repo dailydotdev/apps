@@ -103,6 +103,15 @@ const getPostFeedItemOrWarn = (
   item: FeedItemData['page']['edges'][number]['node'],
 ): Post | null => {
   if (item.itemType === 'post') {
+    if (!item.post) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Skipping malformed normalized feed item type: ${item.itemType}`,
+      );
+
+      return null;
+    }
+
     return item.post;
   }
 

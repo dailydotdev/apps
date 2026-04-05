@@ -403,7 +403,7 @@ describe('Feed logged in', () => {
     await waitForNock();
     expect(await screen.findAllByTestId('postItem')).toHaveLength(1);
     expect(warn).toHaveBeenCalledWith(
-      'Skipping malformed feed item type: post',
+      'Skipping malformed normalized feed item type: post',
     );
   });
 
