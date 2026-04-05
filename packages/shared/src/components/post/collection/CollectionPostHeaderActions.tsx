@@ -16,6 +16,7 @@ export const CollectionPostHeaderActions = ({
   inlineActions,
   className,
   notificationClassName,
+  contextMenuId: _contextMenuId,
   hideSubscribeAction,
   ...props
 }: PostHeaderActionsProps): ReactElement => {

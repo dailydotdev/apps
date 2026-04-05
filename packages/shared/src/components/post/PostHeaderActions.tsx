@@ -30,6 +30,7 @@ export function PostHeaderActions({
   inlineActions,
   className,
   notificationClassName,
+  contextMenuId: _contextMenuId,
   isFixedNavigation,
   buttonSize,
   hideSubscribeAction,

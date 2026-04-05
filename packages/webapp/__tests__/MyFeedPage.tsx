@@ -1,16 +1,14 @@
 import {
   ANONYMOUS_FEED_QUERY,
-  FEED_V2_HIGHLIGHTS_LIMIT,
   FEED_V2_QUERY,
   RankingAlgorithm,
   type FeedData,
   type FeedV2Data,
-  getFeedV2SupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -111,20 +109,52 @@ function renderComponent(
 }
 
 it('should request user feed', async () => {
-  renderComponent([
-    createFeedMock(defaultFeedPage, FEED_V2_QUERY, {
-      first: 7,
-      after: '',
-      loggedIn: true,
-      supportedTypes: getFeedV2SupportedTypes(true),
-      highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
-      version: 15,
-      ranking: RankingAlgorithm.Popularity,
-    }),
-  ]);
-  await waitForNock();
+  const graphQLRequests: Array<{
+    query: string;
+    variables?: Record<string, unknown>;
+  }> = [];
+
+  nock('http://localhost:3000')
+    .post('/graphql', (body) => {
+      const request = body as (typeof graphQLRequests)[number];
+
+      if (request.query !== FEED_V2_QUERY) {
+        return false;
+      }
+
+      graphQLRequests.push(request);
+      return true;
+    })
+    .reply(200, {
+      data: {
+        page: {
+          pageInfo: defaultFeedPage.pageInfo,
+          edges: defaultFeedPage.edges.map((edge) => ({
+            node: {
+              __typename: 'FeedPostItem',
+              post: edge.node,
+              feedMeta: edge.node.feedMeta ?? null,
+            },
+          })),
+        },
+      } satisfies FeedV2Data,
+    });
+
+  renderComponent([]);
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
+  await waitFor(() => {
+    expect(graphQLRequests).toHaveLength(1);
+    expect(graphQLRequests[0].variables).toEqual(
+      expect.objectContaining({
+        first: 7,
+        after: '',
+        loggedIn: true,
+        version: 15,
+        ranking: RankingAlgorithm.Popularity,
+      }),
+    );
+  });
 });
 
 it('should request anonymous my feed', async () => {
