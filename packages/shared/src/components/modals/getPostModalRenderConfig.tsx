@@ -27,27 +27,44 @@ type GetPostModalRenderConfigProps = PassedPostNavigationProps & {
   hideSubscribeAction?: boolean;
 };
 
-const getModalPostType = (post: Post): PostType => {
-  switch (post.type) {
-    case PostType.Share:
-    case PostType.Welcome:
-    case PostType.Freeform:
-      return PostType.Share;
-    case PostType.Collection:
-      return PostType.Collection;
-    case PostType.Brief:
-      return PostType.Brief;
-    case PostType.Poll:
-      return PostType.Poll;
-    case PostType.SocialTwitter:
-      return PostType.SocialTwitter;
-    case PostType.Article:
-    case PostType.VideoYouTube:
-    case PostType.Digest:
-    default:
-      return PostType.Article;
-  }
+const modalPostTypeByPostType: Partial<Record<PostType, PostType>> = {
+  [PostType.Share]: PostType.Share,
+  [PostType.Welcome]: PostType.Share,
+  [PostType.Freeform]: PostType.Share,
+  [PostType.Collection]: PostType.Collection,
+  [PostType.Brief]: PostType.Brief,
+  [PostType.Poll]: PostType.Poll,
+  [PostType.SocialTwitter]: PostType.SocialTwitter,
 };
+
+const getModalPostType = (post: Post): PostType => {
+  return modalPostTypeByPostType[post.type] ?? PostType.Article;
+};
+
+const articleLikeNavigationClassName = {
+  container: '!w-[inherit]',
+  actions: 'ml-auto',
+};
+
+const getArticleLikeClassName = (content?: string) => ({
+  container: 'min-w-0',
+  ...(content ? { content } : {}),
+  fixedNavigation: articleLikeNavigationClassName,
+  navigation: { actions: 'ml-auto tablet:hidden' },
+  onboarding: 'mb-0 mt-8',
+});
+
+const getWideModalClassName = (
+  size: NonNullable<ModalProps['size']>,
+  hideBreakpoint: string,
+) => ({
+  onboarding: 'mt-8',
+  navigation: { actions: `ml-auto ${hideBreakpoint}:hidden` },
+  fixedNavigation: {
+    container: modalSizeToClassName[size],
+    actions: 'ml-auto',
+  },
+});
 
 export const getPostModalRenderConfig = ({
   onPreviousPost,
@@ -59,6 +76,16 @@ export const getPostModalRenderConfig = ({
   hideSubscribeAction,
 }: GetPostModalRenderConfigProps): PostModalRenderConfig => {
   const modalPostType = getModalPostType(post);
+  const commonProps = {
+    position,
+    post,
+    postPosition,
+    onPreviousPost,
+    onNextPost,
+    inlineActions: true,
+    hideSubscribeAction,
+    onClose: onRequestClose,
+  };
 
   switch (modalPostType) {
     case PostType.Share:
@@ -67,25 +94,9 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 tablet:pb-0',
         content: (
           <SquadPostContent
-            position={position}
-            post={post}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            postPosition={postPosition}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
-            onClose={onRequestClose}
+            {...commonProps}
             origin={Origin.ArticleModal}
-            className={{
-              container: 'min-w-0',
-              content: 'pt-2',
-              fixedNavigation: {
-                container: '!w-[inherit]',
-                actions: 'ml-auto',
-              },
-              navigation: { actions: 'ml-auto tablet:hidden' },
-              onboarding: 'mb-0 mt-8',
-            }}
+            className={getArticleLikeClassName('pt-2')}
           />
         ),
       };
@@ -95,24 +106,9 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 tablet:pb-0',
         content: (
           <PollPostContent
-            position={position}
-            post={post}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            postPosition={postPosition}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
-            onClose={onRequestClose}
+            {...commonProps}
             origin={Origin.ArticleModal}
-            className={{
-              container: 'min-w-0',
-              fixedNavigation: {
-                container: '!w-[inherit]',
-                actions: 'ml-auto',
-              },
-              navigation: { actions: 'ml-auto tablet:hidden' },
-              onboarding: 'mb-0 mt-8',
-            }}
+            className={getArticleLikeClassName()}
           />
         ),
       };
@@ -122,22 +118,8 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 laptop:pb-0',
         content: (
           <CollectionPostContent
-            position={position}
-            post={post}
-            postPosition={postPosition}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
-            className={{
-              onboarding: 'mt-8',
-              navigation: { actions: 'ml-auto laptop:hidden' },
-              fixedNavigation: {
-                container: modalSizeToClassName[Modal.Size.XLarge],
-                actions: 'ml-auto',
-              },
-            }}
-            onClose={onRequestClose}
+            {...commonProps}
+            className={getWideModalClassName(Modal.Size.XLarge, 'laptop')}
             origin={Origin.CollectionModal}
           />
         ),
@@ -149,22 +131,8 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 laptop:pb-0',
         content: (
           <BriefPostContent
-            position={position}
-            post={post}
-            postPosition={postPosition}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
-            className={{
-              onboarding: 'mt-8',
-              navigation: { actions: 'ml-auto laptop:hidden' },
-              fixedNavigation: {
-                container: modalSizeToClassName[Modal.Size.Large],
-                actions: 'ml-auto',
-              },
-            }}
-            onClose={onRequestClose}
+            {...commonProps}
+            className={getWideModalClassName(Modal.Size.Large, 'laptop')}
             origin={Origin.BriefModal}
           />
         ),
@@ -175,24 +143,9 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 tablet:pb-0',
         content: (
           <SocialTwitterPostContent
-            position={position}
-            post={post}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            postPosition={postPosition}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
-            onClose={onRequestClose}
+            {...commonProps}
             origin={Origin.ArticleModal}
-            className={{
-              container: 'min-w-0',
-              fixedNavigation: {
-                container: '!w-[inherit]',
-                actions: 'ml-auto',
-              },
-              navigation: { actions: 'ml-auto tablet:hidden' },
-              onboarding: 'mb-0 mt-8',
-            }}
+            className={getArticleLikeClassName()}
           />
         ),
       };
@@ -203,13 +156,7 @@ export const getPostModalRenderConfig = ({
         loadingClassName: '!pb-2 tablet:pb-0',
         content: (
           <PostContent
-            position={position}
-            post={post}
-            postPosition={postPosition}
-            onPreviousPost={onPreviousPost}
-            onNextPost={onNextPost}
-            inlineActions
-            hideSubscribeAction={hideSubscribeAction}
+            {...commonProps}
             className={{
               container: 'min-w-0',
               onboarding: 'mt-8',
@@ -219,7 +166,6 @@ export const getPostModalRenderConfig = ({
                 actions: 'ml-auto',
               },
             }}
-            onClose={onRequestClose}
             origin={Origin.ArticleModal}
           />
         ),
