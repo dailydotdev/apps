@@ -771,7 +771,7 @@ export function HighlightPostModal({
     };
   }, [clearSwipeTransitionTimeout]);
 
-  const renderPostPane = useCallback(
+  const buildPostPane = useCallback(
     (
       paneConfig: ReturnType<typeof getPostModalRenderConfig> | null,
       panePostType: PostType,
@@ -825,6 +825,25 @@ export function HighlightPostModal({
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
   } as const;
+  const currentContent = resolvedPost ? (
+    <div className="w-full">{postModalConfig.content}</div>
+  ) : (
+    <div className="w-full">
+      <PostLoadingSkeleton
+        hasNavigation
+        type={postModalConfig.postType}
+        className={postModalConfig.loadingClassName}
+      />
+    </div>
+  );
+  const previousPaneContent = buildPostPane(
+    previousPostModalConfig,
+    previousPostModalConfig?.postType ?? PostType.Article,
+  );
+  const nextPaneContent = buildPostPane(
+    nextPostModalConfig,
+    nextPostModalConfig?.postType ?? PostType.Article,
+  );
 
   return (
     <BasePostModal
@@ -923,10 +942,7 @@ export function HighlightPostModal({
                   style={mobilePaneStyle}
                 >
                   {previousHighlight ? (
-                    renderPostPane(
-                      previousPostModalConfig,
-                      previousPostModalConfig?.postType ?? PostType.Article,
-                    )
+                    previousPaneContent
                   ) : (
                     <div className="w-full" />
                   )}
@@ -936,31 +952,14 @@ export function HighlightPostModal({
                   className="w-1/3 shrink-0"
                   style={mobilePaneStyle}
                 >
-                  {resolvedPost ? (
-                    <div className="w-full">{postModalConfig.content}</div>
-                  ) : (
-                    <div className="w-full">
-                      <PostLoadingSkeleton
-                        hasNavigation
-                        type={postModalConfig.postType}
-                        className={postModalConfig.loadingClassName}
-                      />
-                    </div>
-                  )}
+                  {currentContent}
                 </div>
                 <div
                   key={nextHighlight?.id ?? 'next-empty'}
                   className="w-1/3 shrink-0"
                   style={mobilePaneStyle}
                 >
-                  {nextHighlight ? (
-                    renderPostPane(
-                      nextPostModalConfig,
-                      nextPostModalConfig?.postType ?? PostType.Article,
-                    )
-                  ) : (
-                    <div className="w-full" />
-                  )}
+                  {nextHighlight ? nextPaneContent : <div className="w-full" />}
                 </div>
               </div>
             ) : (
