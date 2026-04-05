@@ -80,6 +80,11 @@ const warnUnsupportedFeedItem = (itemType: string): void => {
   console.warn(`Skipping unsupported feed item type: ${itemType}`);
 };
 
+const warnMalformedFeedItem = (itemType: string): void => {
+  // eslint-disable-next-line no-console
+  console.warn(`Skipping malformed feed item type: ${itemType}`);
+};
+
 const isFeedV2Typename = (
   typename: FeedV2Item['__typename'] | Post['__typename'],
 ): typename is FeedV2Item['__typename'] =>
@@ -113,7 +118,7 @@ export const getFeedApiItemPost = (
   item: FeedApiItem | FeedV2Item | Post,
 ): Post | null => {
   if (isFeedApiPostItem(item)) {
-    return item.post;
+    return item.post ?? null;
   }
 
   if (isFeedV2PostItem(item)) {
@@ -164,6 +169,26 @@ const normalizeFeedV2Edge = (
   return null;
 };
 
+const normalizeFeedApiEdge = (
+  edge: Connection<FeedApiItem>['edges'][number],
+): Connection<FeedApiItem>['edges'][number] | null => {
+  const { node } = edge;
+
+  if (node.itemType !== 'post') {
+    warnUnsupportedFeedItem(node.itemType);
+
+    return null;
+  }
+
+  if (!node.post) {
+    warnMalformedFeedItem(node.itemType);
+
+    return null;
+  }
+
+  return edge;
+};
+
 export const normalizeFeedPage = (
   data: FeedData | FeedItemData | FeedV2Data,
 ): FeedItemData => {
@@ -179,7 +204,22 @@ export const normalizeFeedPage = (
   }
 
   if (isFeedApiItem(firstNode)) {
-    return data as FeedItemData;
+    return {
+      page: {
+        ...data.page,
+        edges: (data as FeedItemData).page.edges.reduce<
+          Connection<FeedApiItem>['edges']
+        >((normalizedEdges, edge) => {
+          const normalizedEdge = normalizeFeedApiEdge(edge);
+
+          if (normalizedEdge) {
+            normalizedEdges.push(normalizedEdge);
+          }
+
+          return normalizedEdges;
+        }, []),
+      },
+    };
   }
 
   if (isFeedV2Item(firstNode)) {

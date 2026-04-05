@@ -364,6 +364,49 @@ describe('Feed logged in', () => {
     expect(await screen.findAllByTestId('postItem')).not.toHaveLength(0);
   });
 
+  it('should skip malformed normalized post items without crashing', async () => {
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+
+    renderComponent([
+      {
+        request: {
+          query: ANONYMOUS_FEED_QUERY,
+          variables,
+        },
+        result: {
+          data: {
+            page: {
+              pageInfo: defaultFeedPage.pageInfo,
+              edges: [
+                {
+                  node: {
+                    itemType: 'post',
+                    feedMeta: null,
+                  },
+                },
+                {
+                  node: {
+                    itemType: 'post',
+                    feedMeta: null,
+                    post: defaultFeedPage.edges[0].node,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    ]);
+
+    await waitForNock();
+    expect(await screen.findAllByTestId('postItem')).toHaveLength(1);
+    expect(warn).toHaveBeenCalledWith(
+      'Skipping malformed feed item type: post',
+    );
+  });
+
   it('should send upvote mutation', async () => {
     let mutationCalled = false;
     renderComponent([

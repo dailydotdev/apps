@@ -100,4 +100,41 @@ describe('normalizeFeedPage', () => {
 
     expect(normalizeFeedPage(data)).toEqual(data);
   });
+
+  it('should warn and skip malformed normalized feed items', () => {
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const malformedData = {
+      page: {
+        pageInfo: defaultFeedPage.pageInfo,
+        edges: [
+          {
+            node: {
+              itemType: 'post' as const,
+              feedMeta: null,
+            },
+          },
+          {
+            node: {
+              itemType: 'post' as const,
+              feedMeta: null,
+              post: defaultFeedPage.edges[0].node,
+            },
+          },
+        ],
+      },
+    } as Parameters<typeof normalizeFeedPage>[0];
+
+    const result = normalizeFeedPage(malformedData);
+
+    expect(warn).toHaveBeenCalledWith(
+      'Skipping malformed feed item type: post',
+    );
+    expect(result.page.edges).toHaveLength(1);
+    expect(result.page.edges[0].node).toMatchObject({
+      itemType: 'post',
+      post: defaultFeedPage.edges[0].node,
+    });
+  });
 });
