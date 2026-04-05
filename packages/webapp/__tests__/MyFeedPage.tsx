@@ -1,8 +1,9 @@
-import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import {
   ANONYMOUS_FEED_QUERY,
-  FEED_QUERY,
+  FEED_V2_QUERY,
   RankingAlgorithm,
+  type FeedData,
+  type FeedV2Data,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
@@ -52,15 +53,27 @@ const createFeedMock = (
     after: '',
     loggedIn: true,
   },
-): MockedGraphQLResponse<FeedData> => ({
+): MockedGraphQLResponse<FeedData | FeedV2Data> => ({
   request: {
     query,
     variables,
   },
   result: {
-    data: {
-      page,
-    },
+    data:
+      query === FEED_V2_QUERY
+        ? ({
+            page: {
+              pageInfo: page.pageInfo,
+              edges: page.edges.map((edge) => ({
+                node: {
+                  __typename: 'FeedPostItem',
+                  post: edge.node,
+                  feedMeta: edge.node.feedMeta ?? null,
+                },
+              })),
+            },
+          } as FeedV2Data)
+        : ({ page } as FeedData),
   },
 });
 let client: QueryClient;
@@ -87,7 +100,7 @@ function renderComponent(
 
 it('should request user feed', async () => {
   renderComponent([
-    createFeedMock(defaultFeedPage, FEED_QUERY, {
+    createFeedMock(defaultFeedPage, FEED_V2_QUERY, {
       first: 7,
       after: '',
       loggedIn: true,
