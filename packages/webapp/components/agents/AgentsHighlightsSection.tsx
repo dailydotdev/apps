@@ -114,6 +114,7 @@ export const AgentsHighlightsSection = ({
               </span>
               <RelativeTime
                 dateTime={highlight.highlightedAt}
+                maxHoursAgo={72}
                 className="ml-auto shrink-0 text-text-tertiary typo-caption2"
               />
             </a>

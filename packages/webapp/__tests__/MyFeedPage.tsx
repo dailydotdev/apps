@@ -1,9 +1,11 @@
 import {
   ANONYMOUS_FEED_QUERY,
+  FEED_V2_HIGHLIGHTS_LIMIT,
   FEED_V2_QUERY,
   RankingAlgorithm,
   type FeedData,
   type FeedV2Data,
+  getFeedV2SupportedTypes,
 } from '@dailydotdev/shared/src/graphql/feed';
 import nock from 'nock';
 import React from 'react';
@@ -20,6 +22,7 @@ import type { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import MyFeed from '../pages/my-feed';
 
 jest.mock('next/router', () => ({
@@ -28,6 +31,15 @@ jest.mock('next/router', () => ({
 
 let defaultAlerts: Alerts = { filter: true };
 const updateAlerts = jest.fn();
+const originalScrollTo = window.scrollTo;
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
+
+afterAll(() => {
+  window.scrollTo = originalScrollTo;
+});
 
 beforeEach(() => {
   defaultAlerts = { filter: true };
@@ -86,7 +98,7 @@ function renderComponent(
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   return render(
     <TestBootProvider
       client={client}
@@ -104,10 +116,13 @@ it('should request user feed', async () => {
       first: 7,
       after: '',
       loggedIn: true,
+      supportedTypes: getFeedV2SupportedTypes(true),
+      highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
       version: 15,
       ranking: RankingAlgorithm.Popularity,
     }),
   ]);
+  await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
 });
@@ -125,6 +140,7 @@ it('should request anonymous my feed', async () => {
     ],
     undefined,
   );
+  await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
 });

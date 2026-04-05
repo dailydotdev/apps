@@ -10,8 +10,7 @@ export interface HighlightCardProps {
   onReadAllClick?: () => void;
 }
 
-const titleGradientClassName =
-  'feed-highlights-title-gradient';
+const titleGradientClassName = 'feed-highlights-title-gradient';
 
 export const getHighlightCardContainerHandlers = (
   onReadAllClick?: () => void,
@@ -54,13 +53,12 @@ const HighlightRow = ({
         onHighlightClick?.(highlight, index + 1);
       }}
     >
-      <span
-        className="line-clamp-2 font-bold text-text-primary typo-callout"
-      >
+      <span className="line-clamp-2 font-bold text-text-primary typo-callout">
         {highlight.headline}
       </span>
       <RelativeTime
         dateTime={highlight.highlightedAt}
+        maxHoursAgo={72}
         className="text-text-tertiary typo-footnote"
       />
     </button>

@@ -244,6 +244,18 @@
   }
 }
 
+.feed-highlights-new-item-border-bottom {
+  border-style: solid;
+  border-width: 0 0 0.0625rem;
+  border-image: linear-gradient(
+      120deg,
+      var(--theme-accent-blueCheese-default),
+      var(--theme-accent-cheese-default),
+      var(--theme-accent-avocado-default)
+    )
+    1;
+}
+
 @keyframes crown-icon-bloom-pulse {
   0%,
   60%,

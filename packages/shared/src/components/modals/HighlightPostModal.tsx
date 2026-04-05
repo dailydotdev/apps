@@ -69,6 +69,7 @@ const useIsomorphicLayoutEffect =
 const SWIPE_COMMIT_DURATION_MS = 220;
 const SWIPE_LOCK_DISTANCE_PX = 24;
 const SWIPE_AXIS_RATIO = 1.35;
+const DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS = 900;
 
 const getPostPosition = (
   activeIndex: number,
@@ -106,13 +107,14 @@ const HighlightTabs = ({
             type="button"
             className={
               isActive
-                ? 'flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 border border-border-subtlest-tertiary bg-background-default px-2.5 py-2 text-left transition-colors'
-                : 'flex w-56 min-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 border border-transparent px-2.5 py-2 text-left transition-colors hover:bg-surface-hover'
+                ? 'feed-highlights-new-item-border-bottom flex w-fit max-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 border border-transparent px-2.5 py-2 text-left transition-colors'
+                : 'flex w-fit max-w-56 shrink-0 flex-col items-start gap-0.5 rounded-8 border border-transparent px-2.5 py-2 text-left transition-colors hover:bg-surface-hover'
             }
             onClick={() => onSelectHighlight(highlight, index + 1, highlights)}
           >
             <RelativeTime
               dateTime={highlight.highlightedAt}
+              maxHoursAgo={72}
               className="text-text-tertiary typo-caption2"
             />
             <span
@@ -128,60 +130,6 @@ const HighlightTabs = ({
         );
       })}
     </>
-  );
-};
-
-const HighlightTabsSection = ({
-  highlights,
-  activeIndex,
-  onSelectHighlight,
-  scrollRef,
-  isReady = true,
-}: HighlightTabsProps): ReactElement => {
-  const shouldShowSkeleton = !highlights.length || !isReady;
-
-  return (
-    <section className="relative w-full max-w-full shrink-0 overflow-hidden border-b border-border-subtlest-tertiary">
-      <div className="px-3 py-3">
-        <div
-          ref={scrollRef}
-          className="w-full max-w-full overflow-x-auto overflow-y-hidden"
-        >
-          <div
-            className={
-              shouldShowSkeleton
-                ? 'invisible flex min-w-max gap-1'
-                : 'flex min-w-max gap-1'
-            }
-          >
-            {highlights.length ? (
-              <HighlightTabs
-                highlights={highlights}
-                activeIndex={activeIndex}
-                onSelectHighlight={onSelectHighlight}
-              />
-            ) : null}
-          </div>
-        </div>
-        {shouldShowSkeleton && (
-          <div className="pointer-events-none absolute inset-x-3 top-3">
-            <div className="flex min-w-max gap-1 overflow-hidden">
-              {highlightTabsSkeletonItems.map((item) => (
-                <div
-                  key={item}
-                  aria-hidden
-                  className="flex h-[4.125rem] w-56 min-w-56 shrink-0 animate-pulse flex-col gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2"
-                >
-                  <div className="h-3 w-16 rounded-full bg-surface-hover" />
-                  <div className="h-4 w-full rounded-full bg-surface-hover" />
-                  <div className="h-4 w-4/5 rounded-full bg-surface-hover" />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
   );
 };
 
@@ -204,11 +152,18 @@ export function HighlightPostModal({
   const [isSwipeDragging, setIsSwipeDragging] = useState(false);
   const [isSwipeTransitioning, setIsSwipeTransitioning] = useState(false);
   const [showRightScrollGlow, setShowRightScrollGlow] = useState(false);
+  const [isDesktopHighlightsHovered, setIsDesktopHighlightsHovered] =
+    useState(false);
+  const [isDesktopHighlightsScrolling, setIsDesktopHighlightsScrolling] =
+    useState(false);
   const tabsScrollRef = useRef<HTMLDivElement>(null);
   const drawerContainerRef = useRef<HTMLDivElement>(null);
   const articleViewportRef = useRef<HTMLDivElement | null>(null);
   const lastArticleScrollTopRef = useRef(0);
   const swipeTransitionTimeoutRef = useRef<number | null>(null);
+  const desktopHighlightsScrollTimeoutRef = useRef<number | null>(null);
+  const desktopHighlightsRestoreTimeoutRef = useRef<number | null>(null);
+  const isDesktopHighlightsHoveredRef = useRef(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const shouldUseMobileLayout = hasHydrated && !isLaptop;
   const { data } = useQuery({
@@ -384,6 +339,82 @@ export function HighlightPostModal({
     },
     [activeHighlight?.id, updateHighlightsRightGlow],
   );
+
+  const clearDesktopHighlightsScrollTimeout = useCallback((): void => {
+    if (desktopHighlightsScrollTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(desktopHighlightsScrollTimeoutRef.current);
+    desktopHighlightsScrollTimeoutRef.current = null;
+  }, []);
+
+  const clearDesktopHighlightsRestoreTimeout = useCallback((): void => {
+    if (desktopHighlightsRestoreTimeoutRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(desktopHighlightsRestoreTimeoutRef.current);
+    desktopHighlightsRestoreTimeoutRef.current = null;
+  }, []);
+
+  const scheduleDesktopHighlightsRestore = useCallback((): void => {
+    if (shouldUseMobileLayout) {
+      return;
+    }
+
+    clearDesktopHighlightsRestoreTimeout();
+    desktopHighlightsRestoreTimeoutRef.current = window.setTimeout(() => {
+      desktopHighlightsRestoreTimeoutRef.current = null;
+
+      if (isDesktopHighlightsHoveredRef.current) {
+        return;
+      }
+
+      scrollActiveHighlightIntoView('smooth');
+    }, DESKTOP_HIGHLIGHTS_RESTORE_IDLE_MS);
+  }, [
+    clearDesktopHighlightsRestoreTimeout,
+    scrollActiveHighlightIntoView,
+    shouldUseMobileLayout,
+  ]);
+
+  const markDesktopHighlightsScrolling = useCallback((): void => {
+    if (shouldUseMobileLayout) {
+      return;
+    }
+
+    setIsDesktopHighlightsScrolling(true);
+    clearDesktopHighlightsScrollTimeout();
+    clearDesktopHighlightsRestoreTimeout();
+    desktopHighlightsScrollTimeoutRef.current = window.setTimeout(() => {
+      setIsDesktopHighlightsScrolling(false);
+      desktopHighlightsScrollTimeoutRef.current = null;
+
+      if (!isDesktopHighlightsHoveredRef.current) {
+        scheduleDesktopHighlightsRestore();
+      }
+    }, 180);
+  }, [
+    clearDesktopHighlightsRestoreTimeout,
+    clearDesktopHighlightsScrollTimeout,
+    scheduleDesktopHighlightsRestore,
+    shouldUseMobileLayout,
+  ]);
+
+  useEffect(() => {
+    isDesktopHighlightsHoveredRef.current = isDesktopHighlightsHovered;
+  }, [isDesktopHighlightsHovered]);
+
+  useEffect(() => {
+    return () => {
+      clearDesktopHighlightsScrollTimeout();
+      clearDesktopHighlightsRestoreTimeout();
+    };
+  }, [
+    clearDesktopHighlightsRestoreTimeout,
+    clearDesktopHighlightsScrollTimeout,
+  ]);
 
   useIsomorphicLayoutEffect(() => {
     if (!isOpen || !highlights.length) {
@@ -858,6 +889,7 @@ export function HighlightPostModal({
       onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       loadingClassName={postModalConfig.loadingClassName}
+      navigationContainerClassName="!py-2"
       navigationHideSubscribeAction
       navigationLeadingContent={
         <h2 className="bg-gradient-to-r from-accent-blueCheese-default via-accent-cheese-default to-accent-avocado-default bg-clip-text font-bold text-transparent typo-title3">
@@ -867,13 +899,62 @@ export function HighlightPostModal({
     >
       <div className="relative flex min-h-0 max-w-full flex-col laptop:h-full">
         {!shouldUseMobileLayout && (
-          <HighlightTabsSection
-            highlights={highlights}
-            activeIndex={activeIndex}
-            onSelectHighlight={selectHighlightFromRail}
-            scrollRef={tabsScrollRef}
-            isReady={isNavigationReady}
-          />
+          <section className="relative w-full max-w-full shrink-0 overflow-hidden border-b border-border-subtlest-tertiary">
+            <div
+              className="px-3 py-3"
+              onMouseEnter={() => {
+                setIsDesktopHighlightsHovered(true);
+                clearDesktopHighlightsRestoreTimeout();
+              }}
+              onMouseLeave={() => {
+                setIsDesktopHighlightsHovered(false);
+
+                if (!isDesktopHighlightsScrolling) {
+                  scheduleDesktopHighlightsRestore();
+                }
+              }}
+            >
+              <div
+                ref={tabsScrollRef}
+                className="w-full max-w-full overflow-x-auto overflow-y-hidden"
+                onScroll={markDesktopHighlightsScrolling}
+                onWheel={markDesktopHighlightsScrolling}
+              >
+                <div
+                  className={
+                    !isNavigationReady
+                      ? 'invisible flex min-w-max gap-1'
+                      : 'flex min-w-max gap-1'
+                  }
+                >
+                  {highlights.length ? (
+                    <HighlightTabs
+                      highlights={highlights}
+                      activeIndex={activeIndex}
+                      onSelectHighlight={selectHighlightFromRail}
+                    />
+                  ) : null}
+                </div>
+              </div>
+              {!isNavigationReady && (
+                <div className="pointer-events-none absolute inset-x-3 top-3">
+                  <div className="flex min-w-max gap-1 overflow-hidden">
+                    {highlightTabsSkeletonItems.map((item) => (
+                      <div
+                        key={item}
+                        aria-hidden
+                        className="flex h-[4.125rem] w-56 min-w-56 shrink-0 animate-pulse flex-col gap-2 rounded-8 border border-border-subtlest-tertiary px-2.5 py-2"
+                      >
+                        <div className="h-3 w-16 rounded-full bg-surface-hover" />
+                        <div className="h-4 w-full rounded-full bg-surface-hover" />
+                        <div className="h-4 w-4/5 rounded-full bg-surface-hover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
         )}
         {shouldUseMobileLayout && !isDrawerMinimized && (
           <section className="my-2 w-full border-b border-border-subtlest-tertiary bg-background-default">
