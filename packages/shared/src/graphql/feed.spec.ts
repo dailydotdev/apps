@@ -1,9 +1,31 @@
 import defaultFeedPage from '../../__tests__/fixture/feed';
-import { FEED_V2_QUERY, normalizeFeedPage } from './feed';
+import {
+  baseFeedSupportedTypes,
+  FEED_V2_HIGHLIGHTS_LIMIT,
+  FEED_V2_QUERY,
+  getFeedV2SupportedTypes,
+  normalizeFeedPage,
+} from './feed';
 
 describe('normalizeFeedPage', () => {
   it('should keep feedV2 query parity for post HTML content', () => {
     expect(FEED_V2_QUERY).toContain('contentHtml');
+  });
+
+  it('should request feedV2 highlights when enabled', () => {
+    expect(FEED_V2_QUERY).toContain('$highlightsLimit: Int');
+    expect(FEED_V2_QUERY).toContain('highlightsLimit: $highlightsLimit');
+    expect(FEED_V2_QUERY).toContain('... on FeedHighlightsItem');
+    expect(FEED_V2_QUERY).toContain('...PostHighlightCard');
+    expect(FEED_V2_HIGHLIGHTS_LIMIT).toBe(4);
+  });
+
+  it('should add highlight to feedV2 supported types only when enabled', () => {
+    expect(getFeedV2SupportedTypes(false)).toEqual(baseFeedSupportedTypes);
+    expect(getFeedV2SupportedTypes(true)).toEqual([
+      ...baseFeedSupportedTypes,
+      'highlight',
+    ]);
   });
 
   it('should normalize legacy post connections into post feed items', () => {
@@ -41,7 +63,7 @@ describe('normalizeFeedPage', () => {
     });
   });
 
-  it('should warn and skip unsupported feedV2 item types', () => {
+  it('should normalize feedV2 highlight items into highlight feed items', () => {
     const warn = jest
       .spyOn(console, 'warn')
       .mockImplementation(() => undefined);
@@ -53,7 +75,19 @@ describe('normalizeFeedPage', () => {
           {
             node: {
               __typename: 'FeedHighlightsItem' as const,
-              highlights: [],
+              highlights: [
+                {
+                  id: 'highlight-1',
+                  channel: 'agents',
+                  headline: 'The first highlight',
+                  highlightedAt: '2026-04-05T09:00:00.000Z',
+                  post: {
+                    id: defaultFeedPage.edges[0].node.id,
+                    commentsPermalink:
+                      defaultFeedPage.edges[0].node.commentsPermalink,
+                  },
+                },
+              ],
               feedMeta: null,
             },
           },
@@ -68,11 +102,25 @@ describe('normalizeFeedPage', () => {
       },
     });
 
-    expect(warn).toHaveBeenCalledWith(
-      'Skipping unsupported feed item type: FeedHighlightsItem',
-    );
-    expect(result.page.edges).toHaveLength(1);
+    expect(warn).not.toHaveBeenCalled();
+    expect(result.page.edges).toHaveLength(2);
     expect(result.page.edges[0].node).toMatchObject({
+      itemType: 'highlight',
+      feedMeta: null,
+      highlights: [
+        {
+          id: 'highlight-1',
+          channel: 'agents',
+          headline: 'The first highlight',
+          highlightedAt: '2026-04-05T09:00:00.000Z',
+          post: {
+            id: defaultFeedPage.edges[0].node.id,
+            commentsPermalink: defaultFeedPage.edges[0].node.commentsPermalink,
+          },
+        },
+      ],
+    });
+    expect(result.page.edges[1].node).toMatchObject({
       itemType: 'post',
       feedMeta: 'feed-meta',
       post: {

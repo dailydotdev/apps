@@ -364,6 +364,146 @@ describe('Feed logged in', () => {
     expect(await screen.findAllByTestId('postItem')).not.toHaveLength(0);
   });
 
+  it('should render feedV2 highlight items as cards', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                        {
+                          id: 'highlight-2',
+                          channel: 'agents',
+                          headline: 'The second highlight',
+                          highlightedAt: '2026-04-05T08:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[1].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[1].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+    expect(await screen.findByText('Happening Now')).toBeInTheDocument();
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.getByLabelText('Read all highlights')).toBeInTheDocument();
+  });
+
+  it('should keep feedV2 highlights in the response order', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[1].node,
+                      feedMeta: defaultFeedPage.edges[1].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[2].node,
+                      feedMeta: defaultFeedPage.edges[2].node.feedMeta ?? null,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+    );
+
+    await waitForNock();
+
+    const orderedItems = await screen.findAllByTestId(/postItem|highlightItem/);
+
+    expect(
+      orderedItems.map((item) => item.getAttribute('data-testid')),
+    ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
+  });
+
   it('should send upvote mutation', async () => {
     let mutationCalled = false;
     renderComponent([

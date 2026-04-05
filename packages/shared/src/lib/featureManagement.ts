@@ -33,6 +33,7 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featureNoAiFeed = new Feature('no_ai_feed', false);
+export const featureFeedV2Highlights = new Feature('feed_v2_highlights', true);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{

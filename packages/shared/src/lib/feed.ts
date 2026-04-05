@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import type { FeedItem, PostItem } from '../hooks/useFeed';
+import type { PostHighlight } from '../graphql/highlights';
 import type { Ad, Post, ReadHistoryPost } from '../graphql/posts';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { PostBootData } from './boot';
-import { Origin } from './log';
+import { Origin, TargetId, TargetType } from './log';
 import { SharedFeedPage } from '../components/utilities';
 import type { AllFeedPages } from './query';
 import { OtherFeedPage } from './query';
@@ -167,6 +168,59 @@ export function adLogEvent(
     target_id: ad.source,
     target_type: 'ad',
     extra: opts?.extra ? JSON.stringify(opts.extra) : undefined,
+  };
+}
+
+interface FeedHighlightsLogEventOptions extends FeedItemPosition {
+  feedName: string;
+  ranking?: string;
+  action?: string;
+  count?: number;
+  clickedHighlight?: PostHighlight;
+  highlightIds?: string[];
+  feedMeta?: string | null;
+  position?: number;
+}
+
+export function feedHighlightsLogEvent(
+  eventName: string,
+  {
+    action,
+    columns,
+    column,
+    row,
+    feedName,
+    ranking,
+    count,
+    clickedHighlight,
+    highlightIds,
+    feedMeta,
+    position,
+  }: FeedHighlightsLogEventOptions,
+): FeedItemLogEvent {
+  return {
+    event_name: eventName,
+    feed_grid_columns: columns,
+    feed_item_grid_column: column,
+    feed_item_grid_row: row,
+    feed_item_meta: feedMeta ?? undefined,
+    feed_item_target_url: clickedHighlight?.post.commentsPermalink,
+    feed_item_title: clickedHighlight?.headline,
+    target_id: TargetId.HighlightsCard,
+    target_type: TargetType.HighlightsCard,
+    extra: JSON.stringify({
+      ...feedLogExtra(feedName, ranking).extra,
+      ...(action ? { action } : {}),
+      ...(typeof count === 'number' ? { count } : {}),
+      ...(typeof position === 'number' ? { position } : {}),
+      ...(highlightIds?.length ? { highlight_ids: highlightIds } : {}),
+      ...(clickedHighlight
+        ? {
+            clicked_highlight_id: clickedHighlight.id,
+            post_id: clickedHighlight.post.id,
+          }
+        : {}),
+    }),
   };
 }
 

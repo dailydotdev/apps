@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
+import { POST_HIGHLIGHT_FRAGMENT, type PostHighlight } from './highlights';
 import type { Post } from './posts';
 import { PostType } from '../types';
 import type { Connection } from './common';
@@ -32,6 +33,14 @@ export const supportedTypesForPrivateSources = [
 
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
+export const FEED_V2_HIGHLIGHTS_LIMIT = 4;
+
+export const getFeedV2SupportedTypes = (
+  shouldSupportHighlights: boolean,
+): string[] =>
+  shouldSupportHighlights
+    ? [...baseFeedSupportedTypes, 'highlight']
+    : [...baseFeedSupportedTypes];
 
 export interface FeedData {
   page: Connection<Post>;
@@ -43,7 +52,13 @@ export type FeedPostItem = {
   feedMeta: string | null;
 };
 
-export type FeedApiItem = FeedPostItem;
+export type FeedHighlightsItem = {
+  itemType: 'highlight';
+  highlights: PostHighlight[];
+  feedMeta: string | null;
+};
+
+export type FeedApiItem = FeedPostItem | FeedHighlightsItem;
 
 export interface FeedItemData {
   page: Connection<FeedApiItem>;
@@ -58,7 +73,7 @@ type FeedV2PostItem = {
 type FeedV2HighlightsItem = {
   __typename?: 'FeedHighlightsItem';
   feedMeta?: string | null;
-  highlights?: Array<{ id: string }>;
+  highlights?: PostHighlight[];
 };
 
 export type FeedV2Item = FeedV2PostItem | FeedV2HighlightsItem;
@@ -93,6 +108,11 @@ export const isFeedApiPostItem = (
   item: FeedApiItem | FeedV2Item | Post,
 ): item is FeedPostItem => isFeedApiItem(item) && item.itemType === 'post';
 
+export const isFeedApiHighlightItem = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is FeedHighlightsItem =>
+  isFeedApiItem(item) && item.itemType === 'highlight';
+
 export const isFeedV2Item = (
   item: FeedApiItem | FeedV2Item | Post,
 ): item is FeedV2Item =>
@@ -102,6 +122,11 @@ export const isFeedV2PostItem = (
   item: FeedV2Item | Post,
 ): item is FeedV2PostItem =>
   isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedPostItem';
+
+export const isFeedV2HighlightsItem = (
+  item: FeedV2Item | Post,
+): item is FeedV2HighlightsItem =>
+  isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedHighlightsItem';
 
 export const isLegacyFeedPost = (
   item: FeedApiItem | FeedV2Item | Post,
@@ -155,6 +180,21 @@ const normalizeFeedV2Edge = (
           ...node.post,
           ...(feedMeta ? { feedMeta } : {}),
         },
+      },
+    };
+  }
+
+  if (isFeedV2HighlightsItem(node)) {
+    if (!node.highlights?.length) {
+      return null;
+    }
+
+    return {
+      ...edge,
+      node: {
+        itemType: 'highlight',
+        feedMeta: node.feedMeta ?? null,
+        highlights: node.highlights,
       },
     };
   }
@@ -326,6 +366,7 @@ export const FEED_V2_QUERY = gql`
     $ranking: Ranking
     $version: Int
     $noAi: Boolean
+    $highlightsLimit: Int
     ${SUPPORTED_TYPES}
   ) {
     page: feedV2(
@@ -334,6 +375,7 @@ export const FEED_V2_QUERY = gql`
       ranking: $ranking
       version: $version
       noAi: $noAi
+      highlightsLimit: $highlightsLimit
       supportedTypes: $supportedTypes
     ) {
       pageInfo {
@@ -352,12 +394,19 @@ export const FEED_V2_QUERY = gql`
               ...UserPost @include(if: $loggedIn)
             }
           }
+          ... on FeedHighlightsItem {
+            feedMeta
+            highlights {
+              ...PostHighlightCard
+            }
+          }
         }
       }
     }
   }
   ${FEED_POST_FRAGMENT}
   ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`

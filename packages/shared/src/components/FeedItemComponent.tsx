@@ -10,7 +10,7 @@ import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { Origin, TargetType } from '../lib/log';
+import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
@@ -41,7 +41,7 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
-import { adLogEvent, feedLogExtra } from '../lib/feed';
+import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
@@ -53,6 +53,9 @@ import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
+import { HighlightGrid } from './cards/highlight/HighlightGrid';
+import { HighlightList } from './cards/highlight/HighlightList';
+import { getHighlightIdsKey, getHighlightIds } from '../graphql/highlights';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -97,6 +100,8 @@ export function getFeedItemKey(item: FeedItem, index: number): string {
   switch (item.type) {
     case 'post':
       return item.post.id;
+    case 'highlight':
+      return getHighlightIdsKey(item.highlights) || `highlight-${index}`;
     case 'ad':
       return `ad-${index}`;
     default:
@@ -271,6 +276,54 @@ function FeedItemComponent({
 
   const { shouldUseListFeedLayout, shouldUseListMode } = useFeedLayout();
   const { boostedBy } = useFeedCardContext();
+
+  if (item.type === FeedItemType.Highlight) {
+    const HighlightTag =
+      shouldUseListFeedLayout || shouldUseListMode
+        ? HighlightList
+        : HighlightGrid;
+    const highlightIds = getHighlightIds(item.highlights);
+
+    return (
+      <HighlightTag
+        ref={inViewRef}
+        highlights={item.highlights}
+        onReadAllClick={() =>
+          logEvent(
+            feedHighlightsLogEvent(LogEvent.Click, {
+              columns: virtualizedNumCards,
+              column,
+              row,
+              feedName,
+              ranking,
+              action: 'read_all_click',
+              count: item.highlights.length,
+              highlightIds,
+              feedMeta: item.feedMeta,
+            }),
+          )
+        }
+        onHighlightClick={(highlight, position) =>
+          logEvent(
+            feedHighlightsLogEvent(LogEvent.Click, {
+              columns: virtualizedNumCards,
+              column,
+              row,
+              feedName,
+              ranking,
+              action: 'highlight_click',
+              position,
+              count: item.highlights.length,
+              clickedHighlight: highlight,
+              highlightIds,
+              feedMeta: item.feedMeta,
+            }),
+          )
+        }
+      />
+    );
+  }
+
   const {
     PostTag,
     AdTag,
