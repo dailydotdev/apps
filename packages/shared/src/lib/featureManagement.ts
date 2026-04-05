@@ -151,6 +151,8 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
+export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;

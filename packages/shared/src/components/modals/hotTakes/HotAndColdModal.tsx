@@ -1,5 +1,11 @@
-import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSwipeable } from 'react-swipeable';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
@@ -35,6 +41,7 @@ const SKIP_DISMISS_FLY_DISTANCE = 600;
 const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
 const COLD_ACCENT_COLOR = '#123a88';
 const HOT_TAKE_CARD_HEIGHT = '28rem';
+const ONBOARDING_CARD_HEIGHT = '24rem';
 
 const getElasticDelta = (delta: number): number => {
   const absoluteDelta = Math.abs(delta);
@@ -794,6 +801,146 @@ const HotTakeCard = ({
   );
 };
 
+const OnboardingPostCard = ({
+  card,
+  isTop,
+  offset,
+  swipeDelta,
+  skipDeltaY = 0,
+  isDismissAnimating,
+  isDragging,
+  dismissDurationMs,
+}: {
+  card: OnboardingSwipeCard;
+  isTop: boolean;
+  offset: number;
+  swipeDelta: number;
+  skipDeltaY?: number;
+  isDismissAnimating: boolean;
+  isDragging: boolean;
+  dismissDurationMs: number;
+}): ReactElement => {
+  const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
+  let swipeDirection: 'left' | 'right' | null = null;
+  if (isTop && Math.abs(swipeDelta) > 20) {
+    swipeDirection = swipeDelta > 0 ? 'right' : 'left';
+  }
+  const swipeIntensity = isTop
+    ? Math.min(Math.abs(swipeDelta) / SWIPE_THRESHOLD, 1)
+    : 0;
+  const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
+  const translateX = isTop ? swipeDelta : 0;
+  const stackScale = isTop ? 1 : 1 - offset * 0.05;
+  const translateY = isTop ? 0 : offset * 8;
+  const dismissDistance = isSkipAnimating
+    ? SKIP_DISMISS_FLY_DISTANCE
+    : DISMISS_FLY_DISTANCE;
+  const dismissProgress =
+    isTop && isDismissAnimating
+      ? Math.min(
+          Math.abs(isSkipAnimating ? skipDeltaY : swipeDelta) / dismissDistance,
+          1,
+        )
+      : 0;
+  const scale = isTop ? 1 - dismissProgress * 0.06 : stackScale;
+  const dismissLift = isTop ? dismissProgress * -22 : 0;
+  const translateYWithOutro =
+    translateY + dismissLift + (isTop ? skipDeltaY : 0);
+
+  let transition =
+    'transform 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease';
+  if (isTop) {
+    if (isDismissAnimating) {
+      transition = `transform ${dismissDurationMs}ms cubic-bezier(0.16, 0.86, 0.22, 1), opacity ${dismissDurationMs}ms ease-out, filter ${dismissDurationMs}ms ease-out`;
+    } else if (isDragging) {
+      transition = 'none';
+    } else {
+      transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+  }
+
+  return (
+    <div
+      className={classNames(
+        'absolute inset-0 flex select-none flex-col overflow-hidden rounded-16',
+        isTop
+          ? 'border border-border-subtlest-tertiary bg-background-popover'
+          : 'bg-background-default',
+        isTop && 'cursor-grab active:cursor-grabbing',
+        !isTop && 'pointer-events-none',
+      )}
+      onDragStart={(event) => event.preventDefault()}
+      style={{
+        transform: `translateX(${translateX}px) translateY(${translateYWithOutro}px) rotate(${rotation}deg) scale(${scale})`,
+        zIndex: 10 - offset,
+        transition,
+        opacity: isTop ? 1 - dismissProgress * 0.75 : 1,
+        filter:
+          isTop && isDismissAnimating
+            ? `blur(${dismissProgress * 1.8}px)`
+            : undefined,
+        boxShadow: isTop
+          ? '0 1.25rem 2.75rem -0.75rem rgba(0, 0, 0, 0.45)'
+          : '0 0.75rem 1.75rem -0.75rem rgba(0, 0, 0, 0.32)',
+      }}
+    >
+      {swipeDirection && (
+        <div
+          className={classNames(
+            'z-20 absolute left-1/2 top-3 -translate-x-1/2 rounded-10 px-3 py-1 font-bold text-white typo-callout',
+            swipeDirection === 'right'
+              ? 'bg-accent-cabbage-default'
+              : 'bg-accent-bacon-default',
+          )}
+          style={{ opacity: swipeIntensity }}
+        >
+          {swipeDirection === 'right' ? 'INTERESTING' : 'NOT INTERESTING'}
+        </div>
+      )}
+      {card.image ? (
+        <img
+          alt={card.title ?? 'Popular post'}
+          className="h-[14rem] w-full object-cover"
+          draggable={false}
+          src={card.image}
+        />
+      ) : (
+        <div className="h-[14rem] w-full bg-surface-hover" />
+      )}
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="flex items-center gap-2">
+          {card.source?.image ? (
+            <img
+              alt={card.source.name ?? 'Source'}
+              className="size-6 rounded-full object-cover"
+              draggable={false}
+              src={card.source.image}
+            />
+          ) : (
+            <div className="size-6 rounded-full bg-surface-hover" />
+          )}
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+            className="truncate"
+            bold
+          >
+            {card.source?.name || 'daily.dev'}
+          </Typography>
+        </div>
+        <Typography
+          type={TypographyType.Title3}
+          color={TypographyColor.Primary}
+          className="line-clamp-4 text-balance"
+          bold
+        >
+          {card.title || 'Popular developer story'}
+        </Typography>
+      </div>
+    </div>
+  );
+};
+
 const EmptyState = ({
   onClose,
   username,
@@ -834,10 +981,45 @@ const EmptyState = ({
   </div>
 );
 
+type SwipeActionDirection = 'left' | 'right' | 'skip';
+
+export interface OnboardingSwipeCard {
+  id: string;
+  title?: string;
+  image?: string | null;
+  source?: {
+    name?: string | null;
+    image?: string | null;
+  } | null;
+}
+
+interface HotAndColdModalProps extends ModalProps {
+  title?: string;
+  headerSlot?: ReactNode;
+  topSlot?: ReactNode;
+  bottomSlot?: ReactNode;
+  showHeader?: boolean;
+  showDefaultActions?: boolean;
+  showAddHotTakeButton?: boolean;
+  onSwipeAction?: (direction: SwipeActionDirection) => void;
+  onboardingCards?: OnboardingSwipeCard[];
+  onboardingCardsLoading?: boolean;
+}
+
 const HotAndColdModal = ({
   onRequestClose,
+  title = 'Hot Takes',
+  headerSlot,
+  topSlot,
+  bottomSlot,
+  showHeader = true,
+  showDefaultActions = true,
+  showAddHotTakeButton = true,
+  onSwipeAction,
+  onboardingCards,
+  onboardingCardsLoading = false,
   ...props
-}: ModalProps): ReactElement => {
+}: HotAndColdModalProps): ReactElement => {
   const { currentTake, nextTake, isEmpty, isLoading, dismissCurrent } =
     useDiscoverHotTakes();
   const { toggleUpvote, toggleDownvote, cancelHotTakeVote } = useVoteHotTake();
@@ -855,6 +1037,25 @@ const HotAndColdModal = ({
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [skipDelta, setSkipDelta] = useState(0);
   const swipeDeltaYRef = useRef(0);
+  const [dismissedCardIds, setDismissedCardIds] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
+
+  const isOnboardingMode = !!onboardingCards;
+  const availableOnboardingCards = useMemo(
+    () =>
+      (onboardingCards ?? []).filter((card) => !dismissedCardIds.has(card.id)),
+    [dismissedCardIds, onboardingCards],
+  );
+  const currentOnboardingCard = availableOnboardingCards[0];
+  const nextOnboardingCard = availableOnboardingCards[1];
+  const isModalLoading = isOnboardingMode ? onboardingCardsLoading : isLoading;
+  const isModalEmpty = isOnboardingMode
+    ? !isModalLoading && !currentOnboardingCard
+    : isEmpty;
+  const cardHeight = isOnboardingMode
+    ? ONBOARDING_CARD_HEIGHT
+    : HOT_TAKE_CARD_HEIGHT;
 
   useEffect(() => {
     animatingTakeIdRef.current = animatingTakeId;
@@ -926,17 +1127,29 @@ const HotAndColdModal = ({
         swipeDeltaYRef.current = 0;
         animatingTakeIdRef.current = null;
         setAnimatingTakeId(null);
-        dismissCurrent();
+        if (isOnboardingMode && currentOnboardingCard) {
+          setDismissedCardIds((prev) => {
+            const next = new Set(prev);
+            next.add(currentOnboardingCard.id);
+            return next;
+          });
+        } else {
+          dismissCurrent();
+        }
         setIsAnimating(false);
         dismissTimerRef.current = null;
       }, durationMs);
     },
-    [dismissCurrent],
+    [currentOnboardingCard, dismissCurrent, isOnboardingMode],
   );
 
   const handleDismiss = useCallback(
     (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      if (!currentTake || isAnimating) {
+      const currentItemId = isOnboardingMode
+        ? currentOnboardingCard?.id
+        : currentTake?.id;
+
+      if (!currentItemId || isAnimating) {
         return;
       }
 
@@ -948,21 +1161,24 @@ const HotAndColdModal = ({
 
       logEvent({
         event_name: LogEvent.VoteHotAndCold,
-        target_id: currentTake.id,
-        extra: JSON.stringify({ vote, direction, hotTakeId: currentTake.id }),
+        target_id: currentItemId,
+        extra: JSON.stringify({ vote, direction, hotTakeId: currentItemId }),
       });
 
-      if (direction === 'right') {
-        toggleUpvote({
-          payload: currentTake,
-          origin: Origin.HotAndCold,
-        });
-      } else {
-        toggleDownvote({
-          payload: currentTake,
-          origin: Origin.HotAndCold,
-        });
+      if (!isOnboardingMode && currentTake) {
+        if (direction === 'right') {
+          toggleUpvote({
+            payload: currentTake,
+            origin: Origin.HotAndCold,
+          });
+        } else {
+          toggleDownvote({
+            payload: currentTake,
+            origin: Origin.HotAndCold,
+          });
+        }
       }
+      onSwipeAction?.(direction);
 
       let initialPush: number;
       let flyDistance: number;
@@ -986,7 +1202,7 @@ const HotAndColdModal = ({
       setSwipeDelta(initialPush);
 
       startDismissAnimation({
-        takeId: currentTake.id,
+        takeId: currentItemId,
         durationMs,
         flyDelayMs: isButtonSource ? BUTTON_FLY_KICK_DELAY_MS : 0,
         onFly: () => setSwipeDelta(flyDistance),
@@ -994,30 +1210,40 @@ const HotAndColdModal = ({
     },
     [
       currentTake,
+      currentOnboardingCard,
+      isOnboardingMode,
       isAnimating,
       startDismissAnimation,
       toggleDownvote,
       toggleUpvote,
       logEvent,
+      onSwipeAction,
       swipeDelta,
     ],
   );
 
   const handleSkip = useCallback(
     (source: 'swipe' | 'button' = 'button') => {
-      if (!currentTake || isAnimating) {
+      const currentItemId = isOnboardingMode
+        ? currentOnboardingCard?.id
+        : currentTake?.id;
+
+      if (!currentItemId || isAnimating) {
         return;
       }
 
       logEvent({
         event_name: LogEvent.SkipHotTake,
-        target_id: currentTake.id,
+        target_id: currentItemId,
       });
 
-      cancelHotTakeVote({ id: currentTake.id });
+      if (!isOnboardingMode && currentTake) {
+        cancelHotTakeVote({ id: currentTake.id });
+      }
+      onSwipeAction?.('skip');
 
       startDismissAnimation({
-        takeId: currentTake.id,
+        takeId: currentItemId,
         durationMs: SKIP_DISMISS_ANIMATION_MS,
         flyDelayMs: source === 'button' ? BUTTON_FLY_KICK_DELAY_MS : 0,
         onFly: () => setSkipDelta(-SKIP_DISMISS_FLY_DISTANCE),
@@ -1026,14 +1252,20 @@ const HotAndColdModal = ({
     [
       cancelHotTakeVote,
       currentTake,
+      currentOnboardingCard,
+      isOnboardingMode,
       isAnimating,
       startDismissAnimation,
       logEvent,
+      onSwipeAction,
     ],
   );
 
+  const currentCardId = isOnboardingMode
+    ? currentOnboardingCard?.id
+    : currentTake?.id;
   const isCurrentTakeAnimating =
-    !!currentTake && isAnimating && animatingTakeId === currentTake.id;
+    !!currentCardId && isAnimating && animatingTakeId === currentCardId;
   const cardSwipeDelta =
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
   const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
@@ -1089,9 +1321,10 @@ const HotAndColdModal = ({
 
   return (
     <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
-      <Modal.Header title="Hot Takes" />
+      {showHeader && <Modal.Header title={title} />}
       <Modal.Body className="overflow-hidden !p-0">
-        {isLoading && (
+        {headerSlot}
+        {isModalLoading && (
           <div className="flex flex-1 items-center justify-center p-6">
             <Typography
               type={TypographyType.Body}
@@ -1102,85 +1335,129 @@ const HotAndColdModal = ({
           </div>
         )}
 
-        {!isLoading && isEmpty && (
+        {!isModalLoading && isModalEmpty && (
           <EmptyState onClose={onRequestClose} username={user?.username} />
         )}
 
-        {!isLoading && !isEmpty && currentTake && (
+        {!isModalLoading && !isModalEmpty && currentCardId && (
           <>
+            {topSlot}
             <div
               {...handlers}
-              className="relative mx-4 mt-2 select-none"
-              style={{ height: HOT_TAKE_CARD_HEIGHT }}
-            >
-              {nextTake && (
-                <HotTakeCard
-                  key={nextTake.id}
-                  hotTake={nextTake}
-                  isTop={false}
-                  offset={1}
-                  swipeDelta={0}
-                  isDismissAnimating={false}
-                  isDragging={false}
-                  dismissDurationMs={DISMISS_ANIMATION_MS}
-                />
+              className={classNames(
+                'relative mx-4 mt-2 select-none self-center',
+                isOnboardingMode
+                  ? 'w-[calc(100%-5rem)] max-w-[17.5rem]'
+                  : 'w-[calc(100%-2rem)]',
               )}
-              <HotTakeCard
-                key={currentTake.id}
-                hotTake={currentTake}
-                isTop
-                offset={0}
-                swipeDelta={cardSwipeDelta}
-                skipDeltaY={cardSkipDelta}
-                isDismissAnimating={isCurrentTakeAnimating}
-                isDragging={isDragging}
-                dismissDurationMs={dismissDurationMs}
-              />
+              style={{ height: cardHeight }}
+            >
+              {isOnboardingMode ? (
+                <>
+                  {nextOnboardingCard && (
+                    <OnboardingPostCard
+                      key={nextOnboardingCard.id}
+                      card={nextOnboardingCard}
+                      isTop={false}
+                      offset={1}
+                      swipeDelta={0}
+                      isDismissAnimating={false}
+                      isDragging={false}
+                      dismissDurationMs={DISMISS_ANIMATION_MS}
+                    />
+                  )}
+                  {currentOnboardingCard && (
+                    <OnboardingPostCard
+                      key={currentOnboardingCard.id}
+                      card={currentOnboardingCard}
+                      isTop
+                      offset={0}
+                      swipeDelta={cardSwipeDelta}
+                      skipDeltaY={cardSkipDelta}
+                      isDismissAnimating={isCurrentTakeAnimating}
+                      isDragging={isDragging}
+                      dismissDurationMs={dismissDurationMs}
+                    />
+                  )}
+                </>
+              ) : (
+                <>
+                  {nextTake && (
+                    <HotTakeCard
+                      key={nextTake.id}
+                      hotTake={nextTake}
+                      isTop={false}
+                      offset={1}
+                      swipeDelta={0}
+                      isDismissAnimating={false}
+                      isDragging={false}
+                      dismissDurationMs={DISMISS_ANIMATION_MS}
+                    />
+                  )}
+                  {currentTake && (
+                    <HotTakeCard
+                      key={currentTake.id}
+                      hotTake={currentTake}
+                      isTop
+                      offset={0}
+                      swipeDelta={cardSwipeDelta}
+                      skipDeltaY={cardSkipDelta}
+                      isDismissAnimating={isCurrentTakeAnimating}
+                      isDragging={isDragging}
+                      dismissDurationMs={dismissDurationMs}
+                    />
+                  )}
+                </>
+              )}
             </div>
 
-            <div className="flex items-center justify-center gap-4 p-4 pt-3">
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    ❄️
-                  </span>
-                }
-                onClick={() => handleDismiss('left', 'button')}
-                disabled={isAnimating}
-                className="!size-14 rounded-full"
-                aria-label="Cold take - downvote"
-              />
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    😐
-                  </span>
-                }
-                onClick={() => handleSkip('button')}
-                disabled={isAnimating}
-                className="!size-12 rounded-full"
-                aria-label="Skip hot take"
-              />
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    🔥
-                  </span>
-                }
-                onClick={() => handleDismiss('right', 'button')}
-                disabled={isAnimating}
-                className="!size-14 rounded-full"
-                aria-label="Hot take - upvote"
-              />
-            </div>
+            {showDefaultActions && (
+              <div className="flex items-center justify-center gap-4 p-4 pt-3">
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Large}
+                  icon={
+                    <span className="text-[1.375rem] leading-none" aria-hidden>
+                      ❄️
+                    </span>
+                  }
+                  onClick={() => handleDismiss('left', 'button')}
+                  disabled={isAnimating}
+                  className="!size-14 rounded-full"
+                  aria-label="Cold take - downvote"
+                />
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Large}
+                  icon={
+                    <span className="text-[1.375rem] leading-none" aria-hidden>
+                      😐
+                    </span>
+                  }
+                  onClick={() => handleSkip('button')}
+                  disabled={isAnimating}
+                  className="!size-12 rounded-full"
+                  aria-label="Skip hot take"
+                />
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Large}
+                  icon={
+                    <span className="text-[1.375rem] leading-none" aria-hidden>
+                      🔥
+                    </span>
+                  }
+                  onClick={() => handleDismiss('right', 'button')}
+                  disabled={isAnimating}
+                  className="!size-14 rounded-full"
+                  aria-label="Hot take - upvote"
+                />
+              </div>
+            )}
 
-            {user?.username && (
+            {bottomSlot}
+
+            {showAddHotTakeButton && user?.username && (
               <div className="px-4 pb-4">
                 <Button
                   variant={ButtonVariant.Tertiary}
