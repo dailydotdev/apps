@@ -8,7 +8,7 @@ import {
 import nock from 'nock';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -20,6 +20,7 @@ import type { Alerts } from '@dailydotdev/shared/src/graphql/alerts';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
+import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import MyFeed from '../pages/my-feed';
 
 jest.mock('next/router', () => ({
@@ -28,6 +29,15 @@ jest.mock('next/router', () => ({
 
 let defaultAlerts: Alerts = { filter: true };
 const updateAlerts = jest.fn();
+const originalScrollTo = window.scrollTo;
+
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
+
+afterAll(() => {
+  window.scrollTo = originalScrollTo;
+});
 
 beforeEach(() => {
   defaultAlerts = { filter: true };
@@ -86,7 +96,7 @@ function renderComponent(
   client = new QueryClient();
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   return render(
     <TestBootProvider
       client={client}
@@ -99,17 +109,52 @@ function renderComponent(
 }
 
 it('should request user feed', async () => {
-  renderComponent([
-    createFeedMock(defaultFeedPage, FEED_V2_QUERY, {
-      first: 7,
-      after: '',
-      loggedIn: true,
-      version: 15,
-      ranking: RankingAlgorithm.Popularity,
-    }),
-  ]);
+  const graphQLRequests: Array<{
+    query: string;
+    variables?: Record<string, unknown>;
+  }> = [];
+
+  nock('http://localhost:3000')
+    .post('/graphql', (body) => {
+      const request = body as (typeof graphQLRequests)[number];
+
+      if (request.query !== FEED_V2_QUERY) {
+        return false;
+      }
+
+      graphQLRequests.push(request);
+      return true;
+    })
+    .reply(200, {
+      data: {
+        page: {
+          pageInfo: defaultFeedPage.pageInfo,
+          edges: defaultFeedPage.edges.map((edge) => ({
+            node: {
+              __typename: 'FeedPostItem',
+              post: edge.node,
+              feedMeta: edge.node.feedMeta ?? null,
+            },
+          })),
+        },
+      } satisfies FeedV2Data,
+    });
+
+  renderComponent([]);
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
+  await waitFor(() => {
+    expect(graphQLRequests).toHaveLength(1);
+    expect(graphQLRequests[0].variables).toEqual(
+      expect.objectContaining({
+        first: 7,
+        after: '',
+        loggedIn: true,
+        version: 15,
+        ranking: RankingAlgorithm.Popularity,
+      }),
+    );
+  });
 });
 
 it('should request anonymous my feed', async () => {
@@ -125,6 +170,7 @@ it('should request anonymous my feed', async () => {
     ],
     undefined,
   );
+  await waitForNock();
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
 });

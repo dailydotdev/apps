@@ -464,6 +464,7 @@ export enum TargetType {
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
+  HighlightsCard = 'highlights card',
 }
 
 export enum TargetId {
@@ -519,6 +520,7 @@ export enum TargetId {
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
+  HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
 }

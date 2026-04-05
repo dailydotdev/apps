@@ -11,6 +11,7 @@ import type { Ad, Post, PostsEngaged } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
+import type { PostHighlight } from '../graphql/highlights';
 import AuthContext from '../contexts/AuthContext';
 import useSubscription from './useSubscription';
 import {
@@ -69,6 +70,12 @@ export interface PostItem extends FeedItemBase<FeedItemType.Post> {
   index: number;
 }
 
+export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
+  highlights: PostHighlight[];
+  feedMeta: string | null;
+  impressionStatus?: number;
+}
+
 interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
   plusEntry: MarketingCta;
 }
@@ -84,6 +91,7 @@ const createPlaceholderItem = (index?: number): PlaceholderItem => ({
 
 export type FeedItem =
   | PostItem
+  | HighlightItem
   | AdItem
   | AdSquadItem
   | MarketingCtaItem
@@ -98,21 +106,6 @@ export const isBoostedSquadAd = (item: FeedItem): item is AdSquadItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.source;
 
 export type UpdateFeedPost = (page: number, index: number, post: Post) => void;
-
-const getPostFeedItemOrWarn = (
-  item: FeedItemData['page']['edges'][number]['node'],
-): Post | null => {
-  if (item.itemType === 'post') {
-    return item.post;
-  }
-
-  // eslint-disable-next-line no-console
-  console.warn(
-    `Skipping unsupported normalized feed item type: ${item.itemType}`,
-  );
-
-  return null;
-};
 
 export type FeedReturnType = {
   items: FeedItem[];
@@ -390,11 +383,22 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.reduce<FeedItem[]>(
         (acc, { page }, pageIndex) => {
           page.edges.forEach(({ node }, index: number) => {
-            const post = getPostFeedItemOrWarn(node);
+            if (node.itemType === 'highlight') {
+              if (!node.highlights.length) {
+                return;
+              }
 
-            if (!post) {
+              acc.push({
+                type: FeedItemType.Highlight,
+                highlights: node.highlights,
+                feedMeta: node.feedMeta ?? null,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+
               return;
             }
+
+            const { post } = node;
 
             if (seenPostIds.has(post.id)) {
               return;

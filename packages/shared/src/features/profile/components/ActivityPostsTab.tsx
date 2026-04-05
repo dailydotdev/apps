@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import type { FeedProps } from '../../../components/Feed';
 import Link from '../../../components/utilities/Link';
 import { ButtonSize } from '../../../components/buttons/common';
-import type { FeedData } from './Activity.helpers';
 import {
   ActivityTabIndex,
   activityTabs,
@@ -15,6 +13,7 @@ import {
   getItemCount,
   getUserPath,
   renderEmptyScreen,
+  useActivityCachedFeedData,
 } from './Activity.helpers';
 import { OtherFeedPage } from '../../../lib/query';
 import { AUTHOR_FEED_QUERY } from '../../../graphql/feed';
@@ -58,10 +57,9 @@ export const ActivityPostsTab = ({
     [userId, isSameUser, userName],
   );
 
-  const { data: postsData } = useQuery<FeedData>({
-    queryKey: ACTIVITY_QUERY_KEYS.posts(userId),
-    enabled: false,
-  });
+  const { data: postsData } = useActivityCachedFeedData(
+    ACTIVITY_QUERY_KEYS.posts(userId),
+  );
 
   const shouldShowMoreButton = useMemo(() => {
     const itemCount = getItemCount(postsData, ActivityTabIndex.Posts);

@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../lib/user';
 import { Button, ButtonVariant } from '../../../components/buttons/Button';
 import type { FeedProps } from '../../../components/Feed';
 import Link from '../../../components/utilities/Link';
 import { ButtonSize } from '../../../components/buttons/common';
-import type { FeedData } from './Activity.helpers';
 import {
   ActivityTabIndex,
   activityTabs,
@@ -15,6 +13,7 @@ import {
   getItemCount,
   getUserPath,
   renderEmptyScreen,
+  useActivityCachedFeedData,
 } from './Activity.helpers';
 import { OtherFeedPage } from '../../../lib/query';
 import { USER_UPVOTED_FEED_QUERY } from '../../../graphql/feed';
@@ -58,10 +57,9 @@ export const ActivityUpvotedTab = ({
     [userId, isSameUser, userName],
   );
 
-  const { data: upvotedData } = useQuery<FeedData>({
-    queryKey: ACTIVITY_QUERY_KEYS.upvoted(userId),
-    enabled: false,
-  });
+  const { data: upvotedData } = useActivityCachedFeedData(
+    ACTIVITY_QUERY_KEYS.upvoted(userId),
+  );
 
   const shouldShowMoreButton = useMemo(() => {
     const itemCount = getItemCount(upvotedData, ActivityTabIndex.Upvoted);
