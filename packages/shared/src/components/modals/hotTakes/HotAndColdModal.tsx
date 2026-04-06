@@ -474,17 +474,17 @@ const OnboardingSwipeHintIcons = ({
   const rightSwipeEmphasized = rightVisualStrength > 0;
 
   return (
-    <div className="flex items-center justify-center gap-5 px-1">
+    <div className="flex items-center justify-center gap-6 px-1">
       <button
         type="button"
         aria-label="Not interesting"
         disabled={disabled}
         className={classNames(
-          'shadow-1 flex size-12 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
           'disabled:cursor-not-allowed disabled:opacity-40',
           leftSwipeEmphasized
             ? 'opacity-100'
-            : 'border-border-subtlest-tertiary text-text-tertiary opacity-40 enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:hover:opacity-100 enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:focus-visible:opacity-100 enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default enabled:active:opacity-100',
+            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default',
         )}
         style={{
           transform: `scale(${1 + leftVisualStrength * 0.1})`,
@@ -505,18 +505,18 @@ const OnboardingSwipeHintIcons = ({
         }}
         onClick={onNotInteresting}
       >
-        <MiniCloseIcon size={IconSize.Medium} />
+        <MiniCloseIcon size={IconSize.Large} />
       </button>
       <button
         type="button"
         aria-label="Interesting"
         disabled={disabled}
         className={classNames(
-          'shadow-1 flex size-12 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
           'disabled:cursor-not-allowed disabled:opacity-40',
           rightSwipeEmphasized
             ? 'opacity-100'
-            : 'border-border-subtlest-tertiary text-text-tertiary opacity-40 enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:hover:opacity-100 enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:focus-visible:opacity-100 enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default enabled:active:opacity-100',
+            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default',
         )}
         style={{
           transform: `scale(${1 + rightVisualStrength * 0.1})`,
@@ -537,7 +537,7 @@ const OnboardingSwipeHintIcons = ({
         }}
         onClick={onInteresting}
       >
-        <VIcon size={IconSize.Medium} />
+        <VIcon size={IconSize.Large} />
       </button>
     </div>
   );

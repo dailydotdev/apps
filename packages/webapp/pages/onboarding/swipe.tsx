@@ -320,26 +320,21 @@ function SwipeOnboardingPage(): ReactElement {
       : swipesCount >= MIN_SWIPES_TO_CONTINUE ||
         selectedTagCount >= MIN_SWIPES_TO_CONTINUE;
 
-  /** Placeholder uses `h-10` to match `ButtonSize.Medium` so the footer height stays fixed. */
-  const bottomContinueSlot = (
+  const bottomContinueSlot = canContinue ? (
     <div className="w-full min-w-0 self-stretch px-4">
-      {canContinue ? (
-        <Button
-          className="w-full min-w-0"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Primary}
-          type="button"
-          onClick={() => {
-            onComplete().catch(() => null);
-          }}
-        >
-          Go to my feed
-        </Button>
-      ) : (
-        <div aria-hidden className="pointer-events-none h-10 w-full shrink-0" />
-      )}
+      <Button
+        className="w-full min-w-0"
+        size={ButtonSize.Medium}
+        variant={ButtonVariant.Primary}
+        type="button"
+        onClick={() => {
+          onComplete().catch(() => null);
+        }}
+      >
+        Go to my feed
+      </Button>
     </div>
-  );
+  ) : null;
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-end bg-background-default px-4 pb-6 pt-2">
@@ -447,9 +442,11 @@ function SwipeOnboardingPage(): ReactElement {
                   />
                 )}
               </div>
-              <div className="relative z-10 shrink-0 border-t border-border-subtlest-tertiary bg-overlay-quaternary-onion pb-safe-or-2 pt-3 shadow-2">
-                {bottomContinueSlot}
-              </div>
+              {canContinue ? (
+                <div className="relative z-10 shrink-0 border-t border-border-subtlest-tertiary bg-overlay-quaternary-onion pb-safe-or-2 pt-3 shadow-2">
+                  {bottomContinueSlot}
+                </div>
+              ) : null}
             </div>
           </Modal.Body>
         </Modal>
