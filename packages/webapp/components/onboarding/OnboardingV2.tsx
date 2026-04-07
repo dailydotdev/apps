@@ -50,8 +50,10 @@ import {
   requestOnboardingProfileTags,
 } from '@dailydotdev/shared/src/graphql/onboardingProfileTags';
 import { useActions } from '@dailydotdev/shared/src/hooks';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 
 type RisingTag = {
   label: string;
@@ -121,32 +123,6 @@ const RISING_TAGS_MOBILE: RisingTag[] = [
   },
 ];
 
-const SELECTABLE_TOPICS = [
-  { label: 'React', color: 'water' as const },
-  { label: 'TypeScript', color: 'water' as const },
-  { label: 'Python', color: 'onion' as const },
-  { label: 'Node.js', color: 'avocado' as const },
-  { label: 'Next.js', color: 'water' as const },
-  { label: 'AI & ML', color: 'cheese' as const },
-  { label: 'System Design', color: 'cabbage' as const },
-  { label: 'Docker', color: 'onion' as const },
-  { label: 'AWS', color: 'cheese' as const },
-  { label: 'GraphQL', color: 'cabbage' as const },
-  { label: 'Rust', color: 'ketchup' as const },
-  { label: 'Go', color: 'water' as const },
-  { label: 'DevOps', color: 'onion' as const },
-  { label: 'Kubernetes', color: 'onion' as const },
-  { label: 'PostgreSQL', color: 'water' as const },
-  { label: 'Security', color: 'ketchup' as const },
-  { label: 'Testing', color: 'avocado' as const },
-  { label: 'CSS', color: 'bacon' as const },
-  { label: 'Open Source', color: 'cabbage' as const },
-  { label: 'API Design', color: 'cabbage' as const },
-];
-
-const TOPIC_SELECTED_STYLES =
-  'border-white/[0.12] bg-white/[0.10] text-text-primary';
-
 type GithubImportPhase =
   | 'idle'
   | 'running'
@@ -185,6 +161,10 @@ const getExperienceLevelOptionParts = (
     meta: match[2]?.trim() ?? null,
   };
 };
+
+const ONBOARDING_AI_PROMPT_KEY = 'onboarding:ai_prompt';
+const ONBOARDING_SIGNUP_CONTEXT_KEY = 'onboarding:signup_context';
+const ONBOARDING_EXTENSION_SEEN_KEY = 'onboarding:extension_seen';
 
 const GITHUB_IMPORT_STEPS = [
   { label: 'Connecting account', threshold: 12 },
@@ -240,19 +220,25 @@ function buildConfettiParticles(): ConfettiParticle[] {
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin } = useAuthContext();
+  const { showLogin, isLoggedIn, isAuthReady } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
   const { completeAction } = useActions();
+  const { isOnboardingComplete, isOnboardingActionsReady } =
+    useOnboardingActions();
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tagsReady, setTagsReady] = useState(false);
   const [feedVisible, setFeedVisible] = useState(false);
-  const [panelVisible, setPanelVisible] = useState(false);
-  const [panelStageProgress, setPanelStageProgress] = useState(0);
-  const [selectedTopics, setSelectedTopics] = useState<Set<string>>(new Set());
-  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiPrompt, setAiPrompt] = usePersistentContext<string>(
+    ONBOARDING_AI_PROMPT_KEY,
+    '',
+  );
   const [feedReadyState, setFeedReadyState] = useState(false);
   const [showExtensionPromo, setShowExtensionPromo] = useState(false);
+  const [extensionSeen, setExtensionSeen] = usePersistentContext<boolean>(
+    ONBOARDING_EXTENSION_SEEN_KEY,
+    false,
+  );
   const [showAuthSignup, setShowAuthSignup] = useState(false);
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [showSignupChooser, setShowSignupChooser] = useState(false);
@@ -269,15 +255,12 @@ export const OnboardingV2 = (): ReactElement => {
     number | null
   >(null);
   const [githubImportExiting, setGithubImportExiting] = useState(false);
-  const [signupContext, setSignupContext] = useState<
+  const [signupContext, setSignupContext] = usePersistentContext<
     'github' | 'ai' | 'manual' | null
-  >(null);
+  >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai', 'manual']);
   const prevBodyOverflowRef = useRef('');
   const pageRef = useRef<HTMLDivElement>(null);
-  const panelSentinelRef = useRef<HTMLDivElement>(null);
-  const panelStageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const panelBoxRef = useRef<HTMLDivElement>(null);
   const scrollY = useRef(0);
   const githubImportTimerRef = useRef<number | null>(null);
   const githubResumeTimeoutRef = useRef<number | null>(null);
@@ -292,22 +275,13 @@ export const OnboardingV2 = (): ReactElement => {
     [],
   );
 
-  const toggleTopic = useCallback((topic: string) => {
-    setSelectedTopics((prev) => {
-      const next = new Set(prev);
-      if (next.has(topic)) {
-        next.delete(topic);
-      } else {
-        next.add(topic);
-      }
-      return next;
-    });
-  }, []);
-
-  const openSignup = useCallback((context: 'github' | 'ai' | 'manual') => {
-    setSignupContext(context);
-    setShowSignupPrompt(true);
-  }, []);
+  const openSignup = useCallback(
+    (context: 'github' | 'ai' | 'manual') => {
+      setSignupContext(context);
+      setShowSignupPrompt(true);
+    },
+    [setSignupContext],
+  );
 
   const clearGithubImportTimer = useCallback(() => {
     if (githubImportTimerRef.current === null) {
@@ -351,21 +325,16 @@ export const OnboardingV2 = (): ReactElement => {
       ]);
 
       if (apiResult.status === 'fulfilled') {
-        const topicLabels = SELECTABLE_TOPICS.map((t) => t.label);
-        const matched = apiResult.value
-          .map((tag) =>
-            topicLabels.find(
-              (label) => label.toLowerCase() === tag.toLowerCase(),
-            ),
-          )
-          .filter(Boolean) as string[];
-        if (matched.length > 0) {
-          setSelectedTopics(new Set(matched));
-        }
-
+        router.replace(
+          { query: { ...router.query, step: 'complete' } },
+          undefined,
+          { shallow: true },
+        );
         completeAction(ActionType.CompletedOnboarding);
         completeAction(ActionType.EditTag);
         completeAction(ActionType.ContentTypes);
+        setAiPrompt('');
+        setSignupContext(null);
       } else {
         // API failed — continue with empty tags, user can select manually later
       }
@@ -376,9 +345,11 @@ export const OnboardingV2 = (): ReactElement => {
     [
       clearGithubImportTimer,
       clearGithubResumeTimeout,
-      setImportFlowSource,
       aiPrompt,
+      router,
       completeAction,
+      setAiPrompt,
+      setSignupContext,
     ],
   );
 
@@ -425,6 +396,42 @@ export const OnboardingV2 = (): ReactElement => {
       applyThemeMode();
     };
   }, [applyThemeMode]);
+
+  useEffect(() => {
+    if (!isAuthReady || !isOnboardingActionsReady) {
+      return;
+    }
+
+    const step = router.query.step as string | undefined;
+
+    if (step === 'complete') {
+      if (extensionSeen) {
+        setFeedReadyState(true);
+      } else {
+        setShowExtensionPromo(true);
+      }
+      return;
+    }
+
+    if (!isLoggedIn) {
+      return;
+    }
+
+    if (isOnboardingComplete) {
+      redirectToApp(router);
+    } else {
+      setShowSignupChooser(true);
+      setSignupContext('manual');
+    }
+  }, [
+    isAuthReady,
+    isLoggedIn,
+    isOnboardingActionsReady,
+    isOnboardingComplete,
+    extensionSeen,
+    router,
+    setSignupContext,
+  ]);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setMounted(true));
@@ -598,20 +605,6 @@ export const OnboardingV2 = (): ReactElement => {
   }, [clearGithubImportTimer, clearGithubResumeTimeout]);
 
   useEffect(() => {
-    if (!feedReadyState) {
-      return undefined;
-    }
-
-    const redirectTimer = window.setTimeout(() => {
-      redirectToApp(router);
-    }, 5000);
-
-    return () => {
-      window.clearTimeout(redirectTimer);
-    };
-  }, [feedReadyState, router]);
-
-  useEffect(() => {
     if (githubImportPhase !== 'finishing') {
       return undefined;
     }
@@ -625,86 +618,13 @@ export const OnboardingV2 = (): ReactElement => {
         setTimeout(() => {
           setShowGithubImportFlow(false);
           setGithubImportExiting(false);
-          if (importFlowSourceRef.current === 'ai') {
-            setAuthDisplay(AuthDisplay.OnboardingSignup);
-            setShowAuthSignup(true);
-          } else {
-            setShowExtensionPromo(true);
-          }
+          setShowExtensionPromo(true);
         }, 350);
       }, 600);
     }, FINISHING_ANIMATION_MS);
 
     return () => clearTimeout(exitTimer);
   }, [githubImportPhase]);
-
-  useEffect(() => {
-    if (!feedVisible) {
-      return undefined;
-    }
-    const node = panelSentinelRef.current;
-    if (!node) {
-      return undefined;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setPanelVisible(true);
-        }
-      },
-      { rootMargin: '0px 0px 200px 0px', threshold: 0 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [feedVisible]);
-
-  useEffect(() => {
-    const stage = panelStageRef.current;
-    if (!stage) {
-      return undefined;
-    }
-
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      setPanelStageProgress(1);
-      return undefined;
-    }
-
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const rect = stage.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const start = viewportHeight * 0.86;
-      const end = viewportHeight * 0.05;
-      const raw = (start - rect.top) / (start - end);
-      const clamped = Math.min(1, Math.max(0, raw));
-      setPanelStageProgress((prev) =>
-        Math.abs(prev - clamped) > 0.01 ? clamped : prev,
-      );
-    };
-
-    const onScrollOrResize = () => {
-      if (frame) {
-        return;
-      }
-      frame = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize);
-
-    return () => {
-      if (frame) {
-        cancelAnimationFrame(frame);
-      }
-      window.removeEventListener('scroll', onScrollOrResize);
-      window.removeEventListener('resize', onScrollOrResize);
-    };
-  }, []);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia(
@@ -734,23 +654,6 @@ export const OnboardingV2 = (): ReactElement => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Cursor-tracking glow on personalization panel
-  useEffect(() => {
-    const box = panelBoxRef.current;
-    if (!box) {
-      return undefined;
-    }
-
-    const onMove = (e: MouseEvent) => {
-      const rect = box.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      box.style.setProperty('--mouse-x', `${x}px`);
-      box.style.setProperty('--mouse-y', `${y}px`);
-    };
-    box.addEventListener('mousemove', onMove);
-    return () => box.removeEventListener('mousemove', onMove);
-  }, []);
   useEffect(() => {
     const shouldRun =
       feedVisible &&
@@ -989,34 +892,6 @@ export const OnboardingV2 = (): ReactElement => {
     githubImportExiting,
   ]);
 
-  const recommendedTopics = useMemo(() => {
-    if (!aiPrompt.trim()) {
-      return [];
-    }
-
-    const lower = aiPrompt.toLowerCase();
-
-    return SELECTABLE_TOPICS.map((topic) => {
-      const labelLower = topic.label.toLowerCase();
-      const keywords = labelLower.split(/[\s&/.+-]+/).filter(Boolean);
-      const hasDirect = lower.includes(labelLower);
-      const score = keywords.reduce(
-        (acc, kw) => {
-          if (kw.length < 3) {
-            return acc;
-          }
-          return lower.includes(kw) ? acc + kw.length : acc;
-        },
-        hasDirect ? 100 : 0,
-      );
-
-      return { ...topic, score };
-    })
-      .filter((topic) => topic.score > 0 && !selectedTopics.has(topic.label))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 6);
-  }, [aiPrompt, selectedTopics]);
-
   const confettiParticles = useMemo(
     () => (feedReadyState ? buildConfettiParticles() : []),
     [feedReadyState],
@@ -1049,9 +924,10 @@ export const OnboardingV2 = (): ReactElement => {
 
   const dismissExtensionPromo = useCallback(() => {
     setShowExtensionPromo(false);
+    setExtensionSeen(true);
     setFeedReadyState(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [setExtensionSeen]);
   const closeSignupChooser = useCallback(() => {
     setShowSignupChooser(false);
   }, []);
@@ -1072,28 +948,7 @@ export const OnboardingV2 = (): ReactElement => {
     setShowAuthSignup(true);
   }, []);
   const isAiSetupContext = signupContext === 'ai' || signupContext === 'manual';
-  const canStartAiFlow = aiPrompt.trim().length > 0 || selectedTopics.size > 0;
-  const startGithubFlowFromChooser = useCallback(() => {
-    setShowSignupChooser(false);
-    startGithubImportFlow();
-  }, [startGithubImportFlow]);
-  const startAiFlowFromChooser = useCallback(() => {
-    if (!canStartAiFlow) {
-      return;
-    }
-    setShowSignupChooser(false);
-    startAiProcessing();
-  }, [canStartAiFlow, startAiProcessing]);
-  const startAiFlowFromSignup = useCallback(() => {
-    if (!canStartAiFlow) {
-      return;
-    }
-    setShowSignupPrompt(false);
-    startAiProcessing();
-  }, [canStartAiFlow, startAiProcessing]);
-
-  const panelLift = Math.round(panelStageProgress * 60);
-  const panelRevealOffset = panelVisible ? 40 : 120;
+  const canStartAiFlow = aiPrompt?.trim().length > 0;
   const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
   const importSteps = useMemo(
     () =>
@@ -1718,456 +1573,6 @@ export const OnboardingV2 = (): ReactElement => {
           <FeedLayoutProvider>
             <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
               <MainFeedLayout feedName="popular" isSearchOn={false}>
-                {/* Scroll sentinel — triggers panel at ~50% of feed */}
-                <div
-                  ref={panelSentinelRef}
-                  className="pointer-events-none h-0"
-                />
-
-                {/* ── Personalization Panel ── */}
-                <div
-                  ref={panelStageRef}
-                  className={classNames(
-                    'z-50 relative left-1/2 h-[42vh] w-screen -translate-x-1/2',
-                    feedReadyState && 'hidden',
-                  )}
-                >
-                  <div className="sticky top-[50vh] -translate-y-1/2">
-                    {/* Dark gradient overlay — fades feed out progressively */}
-                    <div
-                      className="onb-panel-fade from-background-default/0 pointer-events-none absolute inset-x-0 -top-[18rem] h-[40rem] bg-gradient-to-b via-background-default via-[30%] to-background-default transition-opacity duration-300"
-                      style={{ opacity: panelVisible ? 1 : 0 }}
-                    />
-                    <div
-                      className="pointer-events-none absolute inset-x-0 bottom-[-12rem] h-[28rem] bg-background-default transition-opacity duration-300"
-                      style={{ opacity: panelVisible ? 1 : 0 }}
-                    />
-
-                    <div
-                      className={classNames(
-                        'relative transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]',
-                        panelVisible
-                          ? 'opacity-100'
-                          : 'onb-panel-hidden opacity-0',
-                      )}
-                      style={{
-                        transform: `translateY(${
-                          panelRevealOffset - panelLift
-                        }px)`,
-                      }}
-                    >
-                      <div
-                        ref={panelBoxRef}
-                        className="onb-cursor-glow mx-auto mb-6 max-w-[48rem] px-4 pb-10 pt-12 tablet:mb-0 tablet:px-8 tablet:pt-20"
-                      >
-                        <div className="relative">
-                          {/* Section title */}
-                          <div
-                            className={classNames(
-                              'relative z-1 transition-all duration-700 ease-out',
-                              panelVisible
-                                ? 'translate-y-0 opacity-100'
-                                : 'translate-y-6 opacity-0',
-                            )}
-                          >
-                            <p className="mb-2 text-center text-white typo-body">
-                              You just explored the global feed.
-                            </p>
-                            <h3 className="mb-10 text-center font-bold text-white typo-title1 tablet:typo-large-title">
-                              Now build a feed that is truly yours
-                            </h3>
-                          </div>
-
-                          {/* Two-path layout */}
-                          <div className="relative z-1 flex flex-col gap-4 tablet:grid tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
-                            {/* ── Path A: GitHub ── */}
-                            <div
-                              className={classNames(
-                                'onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch',
-                                panelVisible
-                                  ? 'translate-y-0 opacity-100'
-                                  : 'translate-y-10 opacity-0',
-                              )}
-                              style={{ transitionDelay: '200ms' }}
-                            >
-                              {/* Animated orb — full-width energy field */}
-                              <div
-                                className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
-                                style={{ width: 'calc(100% + 3rem)' }}
-                              >
-                                {/* Radial gradient from top center */}
-                                <div
-                                  className="pointer-events-none absolute inset-0"
-                                  style={{
-                                    background:
-                                      'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)',
-                                    opacity: 0.22,
-                                  }}
-                                />
-                                {/* Wide glow */}
-                                <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
-                                {/* Outer ring */}
-                                <svg
-                                  className="ghub-ring pointer-events-none absolute"
-                                  style={{ width: '11rem', height: '11rem' }}
-                                  viewBox="0 0 176 176"
-                                >
-                                  <circle
-                                    cx="88"
-                                    cy="88"
-                                    r="84"
-                                    fill="none"
-                                    stroke="var(--theme-accent-cabbage-default)"
-                                    strokeWidth="1.5"
-                                    strokeDasharray="6 10"
-                                    opacity="0.18"
-                                  />
-                                </svg>
-                                {/* Middle ring */}
-                                <svg
-                                  className="ghub-ring-reverse pointer-events-none absolute h-24 w-24"
-                                  viewBox="0 0 96 96"
-                                >
-                                  <circle
-                                    cx="48"
-                                    cy="48"
-                                    r="44"
-                                    fill="none"
-                                    stroke="var(--theme-accent-cabbage-default)"
-                                    strokeWidth="1.5"
-                                    strokeDasharray="4 6"
-                                    opacity="0.35"
-                                  />
-                                </svg>
-                                {/* Inner ring */}
-                                <svg
-                                  className="onb-ring-slow pointer-events-none absolute h-16 w-16"
-                                  viewBox="0 0 64 64"
-                                >
-                                  <circle
-                                    cx="32"
-                                    cy="32"
-                                    r="28"
-                                    fill="none"
-                                    stroke="var(--theme-accent-cabbage-default)"
-                                    strokeWidth="1"
-                                    strokeDasharray="3 5"
-                                    opacity="0.3"
-                                  />
-                                </svg>
-                                {/* Particles from far away */}
-                                {[
-                                  {
-                                    px: '-6rem',
-                                    py: '-3.5rem',
-                                    dur: '3.0s',
-                                    delay: '0s',
-                                    color: 'bg-accent-cheese-default',
-                                  },
-                                  {
-                                    px: '5.5rem',
-                                    py: '-4rem',
-                                    dur: '3.4s',
-                                    delay: '0.5s',
-                                    color: 'bg-accent-water-default',
-                                  },
-                                  {
-                                    px: '-5rem',
-                                    py: '3.5rem',
-                                    dur: '3.2s',
-                                    delay: '1.0s',
-                                    color: 'bg-accent-cabbage-default',
-                                  },
-                                  {
-                                    px: '6rem',
-                                    py: '3rem',
-                                    dur: '3.6s',
-                                    delay: '1.5s',
-                                    color: 'bg-accent-onion-default',
-                                  },
-                                  {
-                                    px: '0.5rem',
-                                    py: '-5rem',
-                                    dur: '2.8s',
-                                    delay: '0.7s',
-                                    color: 'bg-accent-cheese-default',
-                                  },
-                                  {
-                                    px: '-6.5rem',
-                                    py: '0.5rem',
-                                    dur: '3.1s',
-                                    delay: '1.2s',
-                                    color: 'bg-accent-water-default',
-                                  },
-                                ].map((p) => (
-                                  <span
-                                    key={`panel-ghub-${p.delay}`}
-                                    className={classNames(
-                                      'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                                      p.color,
-                                    )}
-                                    style={
-                                      {
-                                        '--px': p.px,
-                                        '--py': p.py,
-                                        '--dur': p.dur,
-                                        '--delay': p.delay,
-                                        animationDelay: p.delay,
-                                      } as React.CSSProperties
-                                    }
-                                  />
-                                ))}
-                                {/* Center icon with pulse */}
-                                <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                                  <svg
-                                    width="26"
-                                    height="26"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                    className="text-text-primary"
-                                  >
-                                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                                  </svg>
-                                </div>
-                              </div>
-
-                              <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
-                                One-click setup
-                              </h4>
-                              <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                                Connect GitHub and let our AI do the rest.
-                              </p>
-
-                              <div className="mb-5 flex w-full flex-col items-center gap-3">
-                                {[
-                                  {
-                                    text: 'We spot your stack from GitHub',
-                                    icon: 'stack',
-                                  },
-                                  {
-                                    text: 'AI matches your skills to topics',
-                                    icon: 'ai',
-                                  },
-                                  {
-                                    text: 'Your feed is ready in seconds',
-                                    icon: 'feed',
-                                  },
-                                ].map(({ text, icon }) => (
-                                  <div
-                                    key={text}
-                                    className="flex w-full max-w-[15.5rem] items-center gap-2"
-                                  >
-                                    <span
-                                      className={classNames(
-                                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
-                                        icon === 'stack' &&
-                                          'bg-accent-avocado-default/20 text-accent-avocado-default',
-                                        icon === 'ai' &&
-                                          'bg-accent-cheese-default/20 text-accent-cheese-default',
-                                        icon === 'feed' &&
-                                          'bg-accent-water-default/20 text-accent-water-default',
-                                      )}
-                                    >
-                                      {icon === 'stack' && (
-                                        <TerminalIcon
-                                          size={IconSize.Size16}
-                                          secondary
-                                        />
-                                      )}
-                                      {icon === 'ai' && (
-                                        <MagicIcon
-                                          size={IconSize.Size16}
-                                          secondary
-                                        />
-                                      )}
-                                      {icon === 'feed' && (
-                                        <NewTabIcon
-                                          size={IconSize.Size16}
-                                          secondary
-                                        />
-                                      )}
-                                    </span>
-                                    <span className="text-left text-text-primary typo-footnote">
-                                      {text}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-
-                              <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
-
-                              <div className="relative mt-auto w-full pt-4">
-                                <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                                <button
-                                  type="button"
-                                  onClick={startGithubImportFlow}
-                                  className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
-                                >
-                                  <svg
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="currentColor"
-                                  >
-                                    <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                                  </svg>
-                                  Continue with GitHub
-                                  <svg
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
-                                  >
-                                    <path
-                                      d="M5 12h14M12 5l7 7-7 7"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                </button>
-                              </div>
-                              <p className="mt-2.5 text-text-quaternary typo-caption2">
-                                Read-only access &middot; No special permissions
-                              </p>
-                            </div>
-
-                            {/* ── Path B: Manual ── */}
-                            <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
-                              {/* Static icon zone */}
-                              <div
-                                className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
-                                style={{ width: 'calc(100% + 3rem)' }}
-                              >
-                                {/* Radial gradient from top center */}
-                                <div
-                                  className="pointer-events-none absolute inset-0"
-                                  style={{
-                                    background:
-                                      'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)',
-                                    opacity: 0.22,
-                                  }}
-                                />
-                                <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                                  <MagicIcon
-                                    secondary
-                                    size={IconSize.Small}
-                                    className="text-white"
-                                  />
-                                </div>
-                              </div>
-
-                              <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
-                                Tell our AI about yourself
-                              </h4>
-                              <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                                Describe your stack and let AI build your feed.
-                              </p>
-
-                              {/* Textarea */}
-                              <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)] hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none">
-                                <textarea
-                                  value={aiPrompt}
-                                  onChange={(e) => setAiPrompt(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key !== 'Enter' || e.shiftKey) {
-                                      return;
-                                    }
-                                    e.preventDefault();
-                                    if (aiPrompt.trim()) {
-                                      startAiProcessing();
-                                    }
-                                  }}
-                                  rows={4}
-                                  placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
-                                  className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
-                                />
-                              </div>
-
-                              {/* Selected chips */}
-                              {selectedTopics.size > 0 && (
-                                <div className="mb-3 flex w-full flex-wrap gap-1.5">
-                                  {Array.from(selectedTopics).map((topic) => (
-                                    <button
-                                      key={`sel-${topic}`}
-                                      type="button"
-                                      onClick={() => toggleTopic(topic)}
-                                      className={classNames(
-                                        'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
-                                        TOPIC_SELECTED_STYLES,
-                                      )}
-                                    >
-                                      {topic}
-                                      <span className="text-text-quaternary">
-                                        &times;
-                                      </span>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-
-                              {/* Matched tags */}
-                              <div
-                                className={classNames(
-                                  'duration-400 w-full overflow-hidden transition-all ease-out',
-                                  recommendedTopics.length > 0
-                                    ? 'max-h-40 opacity-100'
-                                    : 'max-h-0 opacity-0',
-                                )}
-                              >
-                                <div className="flex flex-wrap gap-1.5">
-                                  {recommendedTopics.map(({ label }) => (
-                                    <button
-                                      key={`match-${label}`}
-                                      type="button"
-                                      onClick={() => toggleTopic(label)}
-                                      className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
-                                    >
-                                      + {label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Build feed CTA — disabled when no input */}
-                              <div className="relative mt-auto w-full pt-4">
-                                <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                                <button
-                                  type="button"
-                                  disabled={
-                                    !aiPrompt.trim() &&
-                                    selectedTopics.size === 0
-                                  }
-                                  onClick={() => startAiProcessing()}
-                                  className={classNames(
-                                    'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-                                    aiPrompt.trim() || selectedTopics.size > 0
-                                      ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
-                                      : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
-                                  )}
-                                >
-                                  <MagicIcon
-                                    secondary
-                                    size={IconSize.Size16}
-                                    className="transition-transform duration-300 group-hover:translate-x-0.5"
-                                  />
-                                  Generate my feed with AI
-                                </button>
-                              </div>
-                              <p className="mt-2.5 text-text-quaternary typo-caption2">
-                                AI-powered &middot; instant personalization
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer links for SEO — placed at the bottom of the page */}
                 {!feedReadyState && (
                   <div className="relative z-1 mx-auto mt-44 flex w-full max-w-[48rem] justify-center px-5 pb-48 mobileL:mt-48 mobileL:px-6 mobileL:pb-52 tablet:mt-14 tablet:pb-8">
                     <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
@@ -3545,7 +2950,15 @@ export const OnboardingV2 = (): ReactElement => {
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
-                      onClick={startGithubFlowFromChooser}
+                      onClick={() => {
+                        setShowSignupChooser(false);
+                        if (isLoggedIn) {
+                          startGithubImportFlow();
+                        } else {
+                          setSignupContext('github');
+                          openSignupAuth();
+                        }
+                      }}
                       className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
                     >
                       <svg
@@ -3620,55 +3033,19 @@ export const OnboardingV2 = (): ReactElement => {
                           return;
                         }
                         e.preventDefault();
-                        startAiFlowFromChooser();
+                        if (aiPrompt.trim()) {
+                          if (isLoggedIn) {
+                            setShowSignupChooser(false);
+                            startAiProcessing();
+                          } else {
+                            openSignupAuth();
+                          }
+                        }
                       }}
                       rows={4}
                       placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
                       className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
                     />
-                  </div>
-
-                  {/* Selected chips */}
-                  {selectedTopics.size > 0 && (
-                    <div className="mb-3 flex w-full flex-wrap gap-1.5">
-                      {Array.from(selectedTopics).map((topic) => (
-                        <button
-                          key={`modal-sel-${topic}`}
-                          type="button"
-                          onClick={() => toggleTopic(topic)}
-                          className={classNames(
-                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
-                            TOPIC_SELECTED_STYLES,
-                          )}
-                        >
-                          {topic}
-                          <span className="text-text-quaternary">&times;</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Matched tags */}
-                  <div
-                    className={classNames(
-                      'duration-400 w-full overflow-hidden transition-all ease-out',
-                      recommendedTopics.length > 0
-                        ? 'max-h-40 opacity-100'
-                        : 'max-h-0 opacity-0',
-                    )}
-                  >
-                    <div className="flex flex-wrap gap-1.5">
-                      {recommendedTopics.map(({ label }) => (
-                        <button
-                          key={`modal-match-${label}`}
-                          type="button"
-                          onClick={() => toggleTopic(label)}
-                          className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
-                        >
-                          + {label}
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Build feed CTA — disabled when no input */}
@@ -3677,7 +3054,14 @@ export const OnboardingV2 = (): ReactElement => {
                     <button
                       type="button"
                       disabled={!canStartAiFlow}
-                      onClick={startAiFlowFromChooser}
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          setShowSignupChooser(false);
+                          startAiProcessing();
+                        } else {
+                          openSignupAuth();
+                        }
+                      }}
                       className={classNames(
                         'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
                         canStartAiFlow
@@ -3769,11 +3153,20 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulRegistration={() => {
                   closeAuthSignup();
-                  setShowExtensionPromo(true);
+                  if (signupContext === 'github') {
+                    startGithubImportFlow();
+                  } else if (
+                    signupContext === 'ai' ||
+                    signupContext === 'manual'
+                  ) {
+                    startAiProcessing();
+                  } else {
+                    setShowExtensionPromo(true);
+                  }
                 }}
                 onSuccessfulLogin={() => {
                   closeAuthSignup();
-                  setShowExtensionPromo(true);
+                  // Logged-in redirect effect handles navigation
                 }}
               />
             </div>
@@ -4568,7 +3961,7 @@ export const OnboardingV2 = (): ReactElement => {
                         }
                         e.preventDefault();
                         if (aiPrompt.trim()) {
-                          startAiFlowFromSignup();
+                          openSignupAuth();
                         }
                       }}
                       rows={4}
@@ -4576,40 +3969,6 @@ export const OnboardingV2 = (): ReactElement => {
                       className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
                     />
                   </div>
-                  {selectedTopics.size > 0 && (
-                    <div className="mb-3 flex w-full flex-wrap gap-1.5">
-                      {Array.from(selectedTopics).map((topic) => (
-                        <button
-                          key={`signup-sel-${topic}`}
-                          type="button"
-                          onClick={() => toggleTopic(topic)}
-                          className={classNames(
-                            'onb-chip-enter inline-flex items-center gap-1.5 rounded-8 border px-2.5 py-1 font-medium shadow-[0_0_12px_rgba(255,255,255,0.04)] transition-all duration-200 typo-caption1 hover:bg-white/[0.14] hover:shadow-[0_0_16px_rgba(255,255,255,0.08)] focus-visible:outline-none active:scale-[0.96]',
-                            TOPIC_SELECTED_STYLES,
-                          )}
-                        >
-                          {topic}
-                          <span className="text-text-quaternary">×</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {recommendedTopics.length > 0 && (
-                    <div className="duration-400 mb-2 w-full overflow-hidden transition-all ease-out">
-                      <div className="flex flex-wrap gap-1.5">
-                        {recommendedTopics.map(({ label }) => (
-                          <button
-                            key={`signup-match-${label}`}
-                            type="button"
-                            onClick={() => toggleTopic(label)}
-                            className="onb-chip-enter border-border-subtlest-tertiary/40 rounded-8 border px-2.5 py-1 text-text-tertiary transition-all duration-200 typo-caption1 hover:bg-white/[0.06] hover:text-text-secondary focus-visible:outline-none active:scale-[0.97]"
-                          >
-                            + {label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
 
@@ -4625,7 +3984,14 @@ export const OnboardingV2 = (): ReactElement => {
                   <button
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
-                    onClick={openSignupAuth}
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        setShowSignupPrompt(false);
+                        startGithubImportFlow();
+                      } else {
+                        openSignupAuth();
+                      }
+                    }}
                   >
                     <svg
                       width="20"
@@ -4664,7 +4030,14 @@ export const OnboardingV2 = (): ReactElement => {
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
-                      onClick={startAiFlowFromSignup}
+                      onClick={() => {
+                        if (isLoggedIn) {
+                          setShowSignupPrompt(false);
+                          startAiProcessing();
+                        } else {
+                          openSignupAuth();
+                        }
+                      }}
                     >
                       <MagicIcon
                         secondary
