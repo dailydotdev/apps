@@ -45,6 +45,13 @@ import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
 import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
 import { useRouter } from 'next/router';
+import {
+  requestGitHubProfileTags,
+  requestOnboardingProfileTags,
+} from '@dailydotdev/shared/src/graphql/onboardingProfileTags';
+import { useActions } from '@dailydotdev/shared/src/hooks';
+import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
+import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 
 type RisingTag = {
   label: string;
@@ -187,6 +194,9 @@ const GITHUB_IMPORT_STEPS = [
   { label: 'Building your feed', threshold: 96 },
 ];
 
+const IMPORT_ANIMATION_MS = 3500;
+const FINISHING_ANIMATION_MS = 1500;
+
 const CONFETTI_COLORS = [
   'bg-accent-cabbage-default',
   'bg-accent-onion-default',
@@ -232,6 +242,7 @@ export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
   const { showLogin } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
+  const { completeAction } = useActions();
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [tagsReady, setTagsReady] = useState(false);
@@ -259,7 +270,7 @@ export const OnboardingV2 = (): ReactElement => {
   >(null);
   const [githubImportExiting, setGithubImportExiting] = useState(false);
   const [signupContext, setSignupContext] = useState<
-    'topics' | 'github' | 'ai' | 'manual' | null
+    'github' | 'ai' | 'manual' | null
   >(null);
   const prevBodyOverflowRef = useRef('');
   const pageRef = useRef<HTMLDivElement>(null);
@@ -293,13 +304,10 @@ export const OnboardingV2 = (): ReactElement => {
     });
   }, []);
 
-  const openSignup = useCallback(
-    (context: 'topics' | 'github' | 'ai' | 'manual') => {
-      setSignupContext(context);
-      setShowSignupPrompt(true);
-    },
-    [],
-  );
+  const openSignup = useCallback((context: 'github' | 'ai' | 'manual') => {
+    setSignupContext(context);
+    setShowSignupPrompt(true);
+  }, []);
 
   const clearGithubImportTimer = useCallback(() => {
     if (githubImportTimerRef.current === null) {
@@ -318,17 +326,60 @@ export const OnboardingV2 = (): ReactElement => {
   }, []);
 
   const startImportFlow = useCallback(
-    (source: ImportFlowSource) => {
+    async (source: ImportFlowSource) => {
       clearGithubImportTimer();
       clearGithubResumeTimeout();
       importFlowSourceRef.current = source;
       setImportFlowSource(source);
       setSelectedExperienceLevel(null);
-      setGithubImportProgress(10);
+      setGithubImportProgress(0);
       setGithubImportPhase('running');
       setShowGithubImportFlow(true);
+
+      const apiPromise =
+        source === 'github'
+          ? requestGitHubProfileTags()
+          : requestOnboardingProfileTags(aiPrompt);
+
+      // Animate progress bar to 65% via CSS transition
+      requestAnimationFrame(() => setGithubImportProgress(65));
+
+      // Wait for both API response AND minimum animation time
+      const [apiResult] = await Promise.allSettled([
+        apiPromise,
+        new Promise((r) => setTimeout(r, IMPORT_ANIMATION_MS)),
+      ]);
+
+      if (apiResult.status === 'fulfilled') {
+        const topicLabels = SELECTABLE_TOPICS.map((t) => t.label);
+        const matched = apiResult.value
+          .map((tag) =>
+            topicLabels.find(
+              (label) => label.toLowerCase() === tag.toLowerCase(),
+            ),
+          )
+          .filter(Boolean) as string[];
+        if (matched.length > 0) {
+          setSelectedTopics(new Set(matched));
+        }
+
+        completeAction(ActionType.CompletedOnboarding);
+        completeAction(ActionType.EditTag);
+        completeAction(ActionType.ContentTypes);
+      } else {
+        // API failed — continue with empty tags, user can select manually later
+      }
+
+      setGithubImportProgress(68);
+      setGithubImportPhase('awaitingSeniority');
     },
-    [clearGithubImportTimer, clearGithubResumeTimeout, setImportFlowSource],
+    [
+      clearGithubImportTimer,
+      clearGithubResumeTimeout,
+      setImportFlowSource,
+      aiPrompt,
+      completeAction,
+    ],
   );
 
   const startGithubImportFlow = useCallback(() => {
@@ -552,7 +603,7 @@ export const OnboardingV2 = (): ReactElement => {
     }
 
     const redirectTimer = window.setTimeout(() => {
-      router.replace('/');
+      redirectToApp(router);
     }, 5000);
 
     return () => {
@@ -561,54 +612,31 @@ export const OnboardingV2 = (): ReactElement => {
   }, [feedReadyState, router]);
 
   useEffect(() => {
-    if (!showGithubImportFlow) {
+    if (githubImportPhase !== 'finishing') {
       return undefined;
     }
 
-    if (githubImportPhase !== 'running' && githubImportPhase !== 'finishing') {
-      return undefined;
-    }
+    setGithubImportProgress(100);
 
-    clearGithubImportTimer();
+    const exitTimer = setTimeout(() => {
+      setGithubImportPhase('complete');
+      setTimeout(() => {
+        setGithubImportExiting(true);
+        setTimeout(() => {
+          setShowGithubImportFlow(false);
+          setGithubImportExiting(false);
+          if (importFlowSourceRef.current === 'ai') {
+            setAuthDisplay(AuthDisplay.OnboardingSignup);
+            setShowAuthSignup(true);
+          } else {
+            setShowExtensionPromo(true);
+          }
+        }, 350);
+      }, 600);
+    }, FINISHING_ANIMATION_MS);
 
-    githubImportTimerRef.current = window.setInterval(() => {
-      setGithubImportProgress((prev) => {
-        const increment = githubImportPhase === 'running' ? 2 : 3;
-        const next = Math.min(100, prev + increment);
-
-        if (githubImportPhase === 'running' && next >= 68) {
-          clearGithubImportTimer();
-          setGithubImportPhase('awaitingSeniority');
-          return 68;
-        }
-
-        if (githubImportPhase === 'finishing' && next >= 100) {
-          clearGithubImportTimer();
-          setGithubImportPhase('complete');
-          setTimeout(() => {
-            setGithubImportExiting(true);
-            setTimeout(() => {
-              setShowGithubImportFlow(false);
-              setGithubImportExiting(false);
-              if (importFlowSourceRef.current === 'ai') {
-                setAuthDisplay(AuthDisplay.OnboardingSignup);
-                setShowAuthSignup(true);
-              } else {
-                setShowExtensionPromo(true);
-              }
-            }, 350);
-          }, 600);
-          return 100;
-        }
-
-        return next;
-      });
-    }, 120);
-
-    return () => {
-      clearGithubImportTimer();
-    };
-  }, [clearGithubImportTimer, githubImportPhase, showGithubImportFlow]);
+    return () => clearTimeout(exitTimer);
+  }, [githubImportPhase]);
 
   useEffect(() => {
     if (!feedVisible) {
@@ -4493,33 +4521,6 @@ export const OnboardingV2 = (): ReactElement => {
                         </svg>
                         {text}
                       </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {/* ── Topics context ── */}
-              {signupContext === 'topics' && (
-                <>
-                  <h3 className="mb-2 font-bold text-text-primary typo-title3">
-                    Your feed is ready
-                  </h3>
-                  <p className="mb-4 text-text-secondary typo-callout">
-                    Sign up to save your personalized feed with{' '}
-                    <span className="font-bold text-text-primary">
-                      {selectedTopics.size} topics
-                    </span>
-                    .
-                  </p>
-                  <div className="mb-6 flex flex-wrap gap-1.5">
-                    {Array.from(selectedTopics).map((t, i) => (
-                      <span
-                        key={t}
-                        className="onb-chip-enter rounded-8 border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-text-secondary typo-caption1"
-                        style={{ animationDelay: `${100 + i * 50}ms` }}
-                      >
-                        {t}
-                      </span>
                     ))}
                   </div>
                 </>
