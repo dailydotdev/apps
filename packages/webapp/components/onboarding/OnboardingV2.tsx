@@ -20,6 +20,8 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   downloadBrowserExtension,
   mobileAppUrl,
+  webappUrl,
+  onboardingUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -54,6 +56,7 @@ import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentCon
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
+import { getBetterAuthSocialUrl } from '@dailydotdev/shared/src/lib/betterAuth';
 
 type RisingTag = {
   label: string;
@@ -325,11 +328,10 @@ export const OnboardingV2 = (): ReactElement => {
       ]);
 
       if (apiResult.status === 'fulfilled') {
-        router.replace(
-          { query: { ...router.query, step: 'complete' } },
-          undefined,
-          { shallow: true },
-        );
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: { ...router.query, step: 'complete' },
+        });
         completeAction(ActionType.CompletedOnboarding);
         completeAction(ActionType.EditTag);
         completeAction(ActionType.ContentTypes);
@@ -356,6 +358,17 @@ export const OnboardingV2 = (): ReactElement => {
   const startGithubImportFlow = useCallback(() => {
     startImportFlow('github');
   }, [startImportFlow]);
+
+  const initiateGithubAuth = useCallback(async () => {
+    setSignupContext('github');
+    const url = await getBetterAuthSocialUrl(
+      'github',
+      `${onboardingUrl}?flow=github`,
+    );
+    if (url) {
+      window.location.href = url;
+    }
+  }, [setSignupContext]);
 
   const closeGithubImportFlow = useCallback(() => {
     clearGithubImportTimer();
@@ -398,18 +411,39 @@ export const OnboardingV2 = (): ReactElement => {
   }, [applyThemeMode]);
 
   useEffect(() => {
-    if (!isAuthReady || !isOnboardingActionsReady) {
+    if (!isAuthReady) {
       return;
     }
 
     const step = router.query.step as string | undefined;
 
     if (step === 'complete') {
+      if (!isLoggedIn) {
+        router.replace(`${webappUrl}onboarding`);
+        return;
+      }
+
       if (extensionSeen) {
         setFeedReadyState(true);
       } else {
         setShowExtensionPromo(true);
       }
+
+      return;
+    }
+
+    const flow = router.query.flow as string | undefined;
+
+    if (flow === 'github') {
+      if (!isLoggedIn) {
+        router.replace(`${webappUrl}onboarding`);
+        return;
+      }
+      startGithubImportFlow();
+      return;
+    }
+
+    if (!isOnboardingActionsReady) {
       return;
     }
 
@@ -431,6 +465,7 @@ export const OnboardingV2 = (): ReactElement => {
     extensionSeen,
     router,
     setSignupContext,
+    startGithubImportFlow,
   ]);
 
   useEffect(() => {
@@ -506,14 +541,10 @@ export const OnboardingV2 = (): ReactElement => {
     setShowSignupChooser(true);
 
     const { onbSignup, ...restQuery } = router.query;
-    router.replace(
-      {
-        pathname: router.pathname,
-        query: restQuery,
-      },
-      undefined,
-      { shallow: true },
-    );
+    router.replace({
+      pathname: router.pathname,
+      query: restQuery,
+    });
   }, [router]);
 
   // Parallax scroll: shift hero layers at different speeds
@@ -1026,25 +1057,27 @@ export const OnboardingV2 = (): ReactElement => {
           position={LogoPosition.Relative}
           className="!left-0 !top-0 !mt-0 !translate-x-0"
         />
-        <div className="ml-auto flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => {
-              setAuthDisplay(AuthDisplay.Default);
-              setShowAuthSignup(true);
-            }}
-            className="h-10 rounded-14 border border-border-subtlest-tertiary px-5 font-bold text-text-primary transition-colors duration-200 typo-callout hover:bg-surface-hover"
-          >
-            Log in
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowSignupChooser(true)}
-            className="hover:opacity-90 h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout"
-          >
-            Sign up
-          </button>
-        </div>
+        {!isLoggedIn && (
+          <div className="ml-auto flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthDisplay(AuthDisplay.Default);
+                setShowAuthSignup(true);
+              }}
+              className="h-10 rounded-14 border border-border-subtlest-tertiary px-5 font-bold text-text-primary transition-colors duration-200 typo-callout hover:bg-surface-hover"
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSignupChooser(true)}
+              className="hover:opacity-90 h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout"
+            >
+              Sign up
+            </button>
+          </div>
+        )}
       </header>
 
       {/* ── Dummy Sidebar (laptop only) ── */}
@@ -1227,7 +1260,13 @@ export const OnboardingV2 = (): ReactElement => {
               <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
               <button
                 type="button"
-                onClick={startGithubImportFlow}
+                onClick={() => {
+                  if (isLoggedIn) {
+                    startGithubImportFlow();
+                  } else {
+                    initiateGithubAuth();
+                  }
+                }}
                 className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <svg
@@ -1538,7 +1577,7 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Go to feed */}
             <button
               type="button"
-              onClick={() => router.replace('/')}
+              onClick={() => router.replace(webappUrl)}
               className="onb-ready-reveal mt-6 flex items-center gap-2 rounded-12 bg-white/[0.08] px-5 py-2.5 text-text-secondary transition-all duration-200 typo-callout hover:bg-white/[0.14] hover:text-text-primary"
               style={{ animationDelay: '520ms' }}
             >
@@ -2950,13 +2989,12 @@ export const OnboardingV2 = (): ReactElement => {
                     <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         setShowSignupChooser(false);
                         if (isLoggedIn) {
                           startGithubImportFlow();
                         } else {
-                          setSignupContext('github');
-                          openSignupAuth();
+                          initiateGithubAuth();
                         }
                       }}
                       className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
@@ -3989,7 +4027,7 @@ export const OnboardingV2 = (): ReactElement => {
                         setShowSignupPrompt(false);
                         startGithubImportFlow();
                       } else {
-                        openSignupAuth();
+                        initiateGithubAuth();
                       }
                     }}
                   >
