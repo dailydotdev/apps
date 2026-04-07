@@ -17,13 +17,15 @@ import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
+  FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
   CUSTOM_FEED_QUERY,
-  FEED_QUERY,
+  FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
+  getFeedV2SupportedTypes,
 } from '../graphql/feed';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
@@ -50,6 +52,7 @@ import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
+  featureFeedV2Highlights,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -117,7 +120,7 @@ type FeedConfigPage = SharedFeedPage | OtherFeedPage;
 const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   'my-feed': {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
+    queryIfLogged: FEED_V2_QUERY,
   },
   popular: {
     query: ANONYMOUS_FEED_QUERY,
@@ -127,7 +130,7 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
   },
   search: {
     query: ANONYMOUS_FEED_QUERY,
-    queryIfLogged: FEED_QUERY,
+    queryIfLogged: FEED_V2_QUERY,
   },
   upvoted: {
     query: MOST_UPVOTED_FEED_QUERY,
@@ -292,6 +295,16 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
+  const shouldEvaluateFeedV2Highlights =
+    !!user &&
+    ((feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed) ||
+      feedName === SharedFeedPage.Search ||
+      (feedName === SharedFeedPage.CustomForm &&
+        router.query?.slugOrId === user?.id));
+  const { value: isFeedV2HighlightsEnabled } = useConditionalFeature({
+    feature: featureFeedV2Highlights,
+    shouldEvaluate: shouldEvaluateFeedV2Highlights,
+  });
   const {
     isNoAi,
     isNoAiAvailable,
@@ -319,7 +332,9 @@ export default function MainFeedLayout({
       [SharedFeedPage.CustomForm]: {
         // when editing main feed load feed query
         queryIfLogged:
-          router.query?.slugOrId === user?.id ? FEED_QUERY : CUSTOM_FEED_QUERY,
+          router.query?.slugOrId === user?.id
+            ? FEED_V2_QUERY
+            : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
         },
@@ -352,17 +367,27 @@ export default function MainFeedLayout({
       };
     }
 
+    const query = getQueryBasedOnLogin(
+      tokenRefreshed,
+      user ?? null,
+      dynamicFeedConfig?.query || feedConfig.query,
+      dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
+    );
+    const shouldRequestFeedV2Highlights =
+      query === FEED_V2_QUERY && isFeedV2HighlightsEnabled;
+
     return {
       requestKey: feedConfig.requestKey,
-      query: getQueryBasedOnLogin(
-        tokenRefreshed,
-        user ?? null,
-        dynamicFeedConfig?.query || feedConfig.query,
-        dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
-      ),
+      query,
       variables: {
         ...feedConfig.variables,
         ...dynamicFeedConfig?.variables,
+        ...(shouldRequestFeedV2Highlights
+          ? {
+              supportedTypes: getFeedV2SupportedTypes(true),
+              highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
+            }
+          : {}),
         ...(shouldEvaluateNoAi && isNoAi ? { noAi: true } : {}),
         version:
           isDevelopment && !isProductionAPI
@@ -384,6 +409,7 @@ export default function MainFeedLayout({
     customFeedV,
     tokenRefreshed,
     feedVersion,
+    isFeedV2HighlightsEnabled,
     isNoAi,
     shouldEvaluateNoAi,
   ]);

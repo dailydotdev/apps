@@ -1,5 +1,6 @@
 import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
+import { POST_HIGHLIGHT_FRAGMENT, type PostHighlight } from './highlights';
 import type { Post } from './posts';
 import { PostType } from '../types';
 import type { Connection } from './common';
@@ -32,10 +33,225 @@ export const supportedTypesForPrivateSources = [
 
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
+export const FEED_V2_HIGHLIGHTS_LIMIT = 4;
+
+export const getFeedV2SupportedTypes = (
+  shouldSupportHighlights: boolean,
+): string[] =>
+  shouldSupportHighlights
+    ? [...baseFeedSupportedTypes, 'highlight']
+    : [...baseFeedSupportedTypes];
 
 export interface FeedData {
   page: Connection<Post>;
 }
+
+export type FeedPostItem = {
+  itemType: 'post';
+  post: Post;
+  feedMeta: string | null;
+};
+
+export type FeedHighlightsItem = {
+  itemType: 'highlight';
+  highlights: PostHighlight[];
+  feedMeta: string | null;
+};
+
+export type FeedApiItem = FeedPostItem | FeedHighlightsItem;
+
+export interface FeedItemData {
+  page: Connection<FeedApiItem>;
+}
+
+type FeedV2PostItem = {
+  __typename?: 'FeedPostItem';
+  post?: Post | null;
+  feedMeta?: string | null;
+};
+
+type FeedV2HighlightsItem = {
+  __typename?: 'FeedHighlightsItem';
+  feedMeta?: string | null;
+  highlights?: PostHighlight[];
+};
+
+export type FeedV2Item = FeedV2PostItem | FeedV2HighlightsItem;
+
+export interface FeedV2Data {
+  page: Connection<FeedV2Item>;
+}
+
+const getGraphqlTypename = (
+  item: FeedV2Item | Post,
+): FeedV2Item['__typename'] | Post['__typename'] => {
+  const { __typename: typename } = item;
+
+  return typename;
+};
+
+const warnUnsupportedFeedItem = (itemType: string): void => {
+  // eslint-disable-next-line no-console
+  console.warn(`Skipping unsupported feed item type: ${itemType}`);
+};
+
+const isFeedV2Typename = (
+  typename: FeedV2Item['__typename'] | Post['__typename'],
+): typename is FeedV2Item['__typename'] =>
+  typename === 'FeedPostItem' || typename === 'FeedHighlightsItem';
+
+export const isFeedApiItem = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is FeedApiItem => 'itemType' in item;
+
+export const isFeedApiPostItem = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is FeedPostItem => isFeedApiItem(item) && item.itemType === 'post';
+
+export const isFeedApiHighlightItem = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is FeedHighlightsItem =>
+  isFeedApiItem(item) && item.itemType === 'highlight';
+
+export const isFeedV2Item = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is FeedV2Item =>
+  '__typename' in item && isFeedV2Typename(getGraphqlTypename(item));
+
+export const isFeedV2PostItem = (
+  item: FeedV2Item | Post,
+): item is FeedV2PostItem =>
+  isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedPostItem';
+
+export const isFeedV2HighlightsItem = (
+  item: FeedV2Item | Post,
+): item is FeedV2HighlightsItem =>
+  isFeedV2Item(item) && getGraphqlTypename(item) === 'FeedHighlightsItem';
+
+export const isLegacyFeedPost = (
+  item: FeedApiItem | FeedV2Item | Post,
+): item is Post =>
+  !isFeedApiItem(item) &&
+  (!('__typename' in item) || getGraphqlTypename(item) === 'Post');
+
+export const getFeedApiItemPost = (
+  item: FeedApiItem | FeedV2Item | Post,
+): Post | null => {
+  if (isFeedApiPostItem(item)) {
+    return item.post;
+  }
+
+  if (isFeedV2PostItem(item)) {
+    return item.post ?? null;
+  }
+
+  return isLegacyFeedPost(item) ? item : null;
+};
+
+const normalizeLegacyFeedEdge = (
+  edge: Connection<Post>['edges'][number],
+): Connection<FeedApiItem>['edges'][number] => ({
+  ...edge,
+  node: {
+    itemType: 'post',
+    feedMeta: edge.node.feedMeta ?? null,
+    post: edge.node,
+  },
+});
+
+const normalizeFeedV2Edge = (
+  edge: Connection<FeedV2Item>['edges'][number],
+): Connection<FeedApiItem>['edges'][number] | null => {
+  const { node } = edge;
+
+  if (isFeedV2PostItem(node)) {
+    if (!node.post) {
+      throw new Error('feedV2 post item is missing post');
+    }
+
+    const feedMeta = node.feedMeta ?? node.post.feedMeta ?? null;
+
+    return {
+      ...edge,
+      node: {
+        itemType: 'post',
+        feedMeta,
+        post: {
+          ...node.post,
+          ...(feedMeta ? { feedMeta } : {}),
+        },
+      },
+    };
+  }
+
+  if (isFeedV2HighlightsItem(node)) {
+    if (!node.highlights?.length) {
+      return null;
+    }
+
+    return {
+      ...edge,
+      node: {
+        itemType: 'highlight',
+        feedMeta: node.feedMeta ?? null,
+        highlights: node.highlights,
+      },
+    };
+  }
+
+  warnUnsupportedFeedItem(getGraphqlTypename(node) ?? 'unknown');
+
+  return null;
+};
+
+export const normalizeFeedPage = (
+  data: FeedData | FeedItemData | FeedV2Data,
+): FeedItemData => {
+  const firstNode = data.page.edges[0]?.node;
+
+  if (!firstNode) {
+    return {
+      page: {
+        ...data.page,
+        edges: [],
+      },
+    };
+  }
+
+  if (isFeedApiItem(firstNode)) {
+    return data as FeedItemData;
+  }
+
+  if (isFeedV2Item(firstNode)) {
+    return {
+      page: {
+        ...data.page,
+        edges: (data as FeedV2Data).page.edges.reduce<
+          Connection<FeedApiItem>['edges']
+        >((normalizedEdges, edge) => {
+          const normalizedEdge = normalizeFeedV2Edge(edge);
+
+          if (normalizedEdge) {
+            normalizedEdges.push(normalizedEdge);
+          }
+
+          return normalizedEdges;
+        }, []),
+      },
+    };
+  }
+
+  if (isLegacyFeedPost(firstNode)) {
+    return {
+      page: {
+        ...data.page,
+        edges: (data as FeedData).page.edges.map(normalizeLegacyFeedEdge),
+      },
+    };
+  }
+
+  throw new Error('Unsupported feed page shape');
+};
 
 export type FeedFlags = {
   name: string;
@@ -140,6 +356,57 @@ export const FEED_QUERY = gql`
     }
   }
   ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const FEED_V2_QUERY = gql`
+  query FeedV2(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    $noAi: Boolean
+    $highlightsLimit: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feedV2(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      noAi: $noAi
+      highlightsLimit: $highlightsLimit
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        staleCursor
+      }
+      edges {
+        node {
+          __typename
+          ... on FeedPostItem {
+            feedMeta
+            post {
+              ...FeedPost
+              contentHtml
+              ...UserPost @include(if: $loggedIn)
+            }
+          }
+          ... on FeedHighlightsItem {
+            feedMeta
+            highlights {
+              ...PostHighlightCard
+            }
+          }
+        }
+      }
+    }
+  }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
+  ${POST_HIGHLIGHT_FRAGMENT}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`

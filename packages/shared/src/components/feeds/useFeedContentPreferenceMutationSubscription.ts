@@ -1,5 +1,7 @@
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import type { FeedData } from '../../graphql/posts';
+import type { FeedItemData } from '../../graphql/feed';
+import { isFeedApiPostItem } from '../../graphql/feed';
 import type { ContentPreferenceMutation } from '../../hooks/contentPreference/types';
 import {
   contentPreferenceMutationMatcher,
@@ -8,7 +10,6 @@ import {
 import { useMutationSubscription } from '../../hooks/mutationSubscription/useMutationSubscription';
 import type { RequestKey } from '../../lib/query';
 import { updatePostContentPreference } from '../../lib/query';
-import type { PropsParameters } from '../../types';
 
 type UseFeedContentPreferenceMutationSubscriptionProps = {
   feedQueryKey: QueryKey;
@@ -40,19 +41,43 @@ export const useFeedContentPreferenceMutationSubscription = ({
 
       const nextStatus = mutationKeyToContentPreferenceStatusMap[requestKey];
 
-      const { id: entityId, entity } =
-        mutationVariables as PropsParameters<ContentPreferenceMutation>;
+      if (typeof nextStatus === 'undefined') {
+        return;
+      }
 
-      mutationQueryClient.setQueryData<InfiniteData<FeedData>>(
+      const { id: entityId, entity } =
+        mutationVariables as Parameters<ContentPreferenceMutation>[0];
+
+      mutationQueryClient.setQueryData<InfiniteData<FeedData | FeedItemData>>(
         feedQueryKey,
         (data) => {
-          const newFeedData = {
+          if (!data) {
+            return data;
+          }
+
+          return {
             ...data,
-            pages: data.pages?.map((feedPage) => {
+            pages: data.pages.map((feedPage) => {
               return {
+                ...feedPage,
                 page: {
                   ...feedPage.page,
-                  edges: feedPage.page.edges?.map((edge) => {
+                  edges: feedPage.page.edges.map((edge) => {
+                    if (isFeedApiPostItem(edge.node)) {
+                      return {
+                        ...edge,
+                        node: {
+                          ...edge.node,
+                          post: updatePostContentPreference({
+                            data: edge.node.post,
+                            status: nextStatus,
+                            entityId,
+                            entity,
+                          }),
+                        },
+                      };
+                    }
+
                     const newPostData = updatePostContentPreference({
                       data: edge.node,
                       status: nextStatus,
@@ -68,9 +93,7 @@ export const useFeedContentPreferenceMutationSubscription = ({
                 },
               };
             }),
-          };
-
-          return newFeedData;
+          } as InfiniteData<FeedData | FeedItemData>;
         },
       );
     },

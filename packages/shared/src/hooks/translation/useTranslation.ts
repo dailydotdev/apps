@@ -10,6 +10,7 @@ import type {
   TranslateablePostField,
 } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
+import { getFeedApiItemPost } from '../../graphql/feed';
 import {
   updateCachedPagePost,
   findIndexOfPostInData,
@@ -173,11 +174,19 @@ export const useTranslation: UseTranslation = ({
         true,
       );
       if (index > -1) {
+        const post = getFeedApiItemPost(
+          feedData.pages[pageIndex].page.edges[index].node,
+        );
+
+        if (!post) {
+          return;
+        }
+
         updatePost(
           pageIndex,
           index,
           updateTranslation({
-            post: feedData.pages[pageIndex].page.edges[index].node,
+            post,
             translation: translatedPost,
           }),
         );

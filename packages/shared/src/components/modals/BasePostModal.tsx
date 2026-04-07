@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
@@ -25,7 +25,12 @@ interface BasePostModalProps extends ModalProps {
   postPosition?: PostPosition;
   onPreviousPost?: () => void;
   onNextPost?: () => void;
-  post: Post;
+  navigationLeadingContent?: ReactNode;
+  navigationCustomActions?: ReactNode;
+  navigationContainerClassName?: string;
+  navigationHideSubscribeAction?: boolean;
+  loadingChildren?: ReactNode;
+  post?: Post;
 }
 
 function BasePostModal({
@@ -38,19 +43,26 @@ function BasePostModal({
   postPosition,
   onPreviousPost,
   onNextPost,
+  navigationLeadingContent,
+  navigationCustomActions,
+  navigationContainerClassName,
+  navigationHideSubscribeAction,
+  loadingChildren,
   post,
   onRequestClose,
+  size = Modal.Size.XLarge,
   ...props
 }: BasePostModalProps): ReactElement {
-  const { usePostReferrer } = usePostReferrerContext();
+  const usePostReferrer =
+    usePostReferrerContext()?.usePostReferrer ?? (() => {});
   const { logEvent } = useLogContext();
-  const [scrollNode, setScrollNode] = useState(null);
+  const [scrollNode, setScrollNode] = useState<HTMLDivElement | null>(null);
 
   usePostReferrer({ post });
 
   const onScroll = useCallback(
-    (event: Event) => {
-      if (!post?.id) {
+    (event?: Event) => {
+      if (!post?.id || !event) {
         return;
       }
       const targetElement = event.target as HTMLElement;
@@ -80,11 +92,11 @@ function BasePostModal({
         }}
       >
         <Modal
-          size={Modal.Size.XLarge}
+          size={size}
           kind={Modal.Kind.FlexibleTop}
           portalClassName={styles.postModal}
           id="post-modal"
-          overlayRef={setScrollNode}
+          overlayRef={(node) => setScrollNode(node)}
           onRequestClose={onRequestClose}
           {...props}
           overlayClassName="post-modal-overlay bg-overlay-quaternary-onion"
@@ -95,20 +107,26 @@ function BasePostModal({
           )}
         >
           {isLoading ? (
-            <PostLoadingSkeleton
-              hasNavigation
-              type={postType}
-              className={loadingClassName}
-            />
+            <>
+              {loadingChildren}
+              <PostLoadingSkeleton
+                hasNavigation
+                type={postType}
+                className={loadingClassName}
+              />
+            </>
           ) : (
             <>
               <PostNavigation
                 className={{
-                  container: 'px-4',
+                  container: classNames('px-4', navigationContainerClassName),
                 }}
                 postPosition={postPosition}
                 onPreviousPost={onPreviousPost}
                 onNextPost={onNextPost}
+                leadingContent={navigationLeadingContent}
+                customActions={navigationCustomActions}
+                hideSubscribeAction={navigationHideSubscribeAction}
                 onClose={onRequestClose}
                 post={post}
               />

@@ -11,7 +11,7 @@ interface OptionalParameters {
 const MODAL_SELECTOR = '.ReactModal__Overlay--after-open';
 
 export const useKeyboardNavigation = (
-  element: HTMLElement | Window,
+  element: HTMLElement | Window | null | undefined,
   events: Keypress[],
   optional: OptionalParameters = {},
 ): void => {
@@ -20,8 +20,12 @@ export const useKeyboardNavigation = (
       return;
     }
 
-    const onPress = (e: KeyboardEvent & { path: HTMLElement[] }) => {
-      const [base] = (e.composedPath?.() as HTMLElement[]) || e.path || [];
+    const onPress: EventListener = (nativeEvent) => {
+      const e = nativeEvent as KeyboardEvent & { path?: EventTarget[] };
+      const [base] =
+        (e.composedPath?.() as HTMLElement[]) ||
+        (e.path as HTMLElement[]) ||
+        [];
       const tagName =
         base?.tagName.toLowerCase() as keyof JSX.IntrinsicElements;
       if (optional?.disableOnTags?.includes(tagName)) {
@@ -44,13 +48,13 @@ export const useKeyboardNavigation = (
         return;
       }
 
-      const event = events.find(([key]) => key === e.key);
+      const matchedEvent = events.find(([key]) => key === e.key);
 
-      if (!event) {
+      if (!matchedEvent) {
         return;
       }
 
-      event[1](e);
+      matchedEvent[1](e);
     };
 
     element.addEventListener('keydown', onPress);

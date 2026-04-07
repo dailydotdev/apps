@@ -1,10 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import { formatDate, oneMinute, TimeFormatType } from '../../lib/dateFormat';
+import { getLastActivityDateFormat, oneMinute } from '../../lib/dateFormat';
 
 interface RelativeTimeProps {
   dateTime: string;
   className?: string;
+  maxHoursAgo?: number;
 }
 
 const REFRESH_INTERVAL_MS = oneMinute * 1000;
@@ -12,20 +13,19 @@ const REFRESH_INTERVAL_MS = oneMinute * 1000;
 export const RelativeTime = ({
   dateTime,
   className,
+  maxHoursAgo,
 }: RelativeTimeProps): ReactElement => {
   const [label, setLabel] = useState(() =>
-    formatDate({ value: dateTime, type: TimeFormatType.LastActivity }),
+    getLastActivityDateFormat(dateTime, { maxHoursAgo }),
   );
 
   useEffect(() => {
     const id = setInterval(() => {
-      setLabel(
-        formatDate({ value: dateTime, type: TimeFormatType.LastActivity }),
-      );
+      setLabel(getLastActivityDateFormat(dateTime, { maxHoursAgo }));
     }, REFRESH_INTERVAL_MS);
 
     return () => clearInterval(id);
-  }, [dateTime]);
+  }, [dateTime, maxHoursAgo]);
 
   return (
     <time dateTime={dateTime} className={className}>
