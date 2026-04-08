@@ -35,6 +35,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
@@ -281,10 +282,16 @@ const RegistrationForm = ({
             variant={ButtonVariant.Secondary}
           />
           <Typography
-            className="mt-0.5 flex-1 text-text-primary"
+            className={
+              isOnboardingV2
+                ? 'mt-0.5 flex-1 text-text-primary'
+                : classNames('mt-0.5 flex-1', onboardingGradientClasses)
+            }
             tag={TypographyTag.H2}
-            type={TypographyType.Title2}
-            bold
+            type={
+              isOnboardingV2 ? TypographyType.Title2 : TypographyType.Title1
+            }
+            bold={isOnboardingV2}
           >
             Join daily.dev
           </Typography>

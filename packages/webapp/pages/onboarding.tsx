@@ -370,7 +370,6 @@ function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
   const { value: isOnboardingV2 } = useConditionalFeature({
     feature: featureOnboardingV2,
-    shouldEvaluate: true,
   });
 
   if (isOnboardingV2) {
