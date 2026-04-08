@@ -16,6 +16,10 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import Upvoted from '../pages/upvoted';
 
+afterEach(() => {
+  nock.cleanAll();
+});
+
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
