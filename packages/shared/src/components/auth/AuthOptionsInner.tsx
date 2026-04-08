@@ -561,12 +561,16 @@ function AuthOptionsInner({
 
   const onProviderClickRef = useRef(onProviderClick);
   onProviderClickRef.current = onProviderClick;
+  const autoTriggerFiredProvider = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!autoTriggerProvider) {
+    if (
+      !autoTriggerProvider ||
+      autoTriggerFiredProvider.current === autoTriggerProvider
+    ) {
       return;
     }
-
+    autoTriggerFiredProvider.current = autoTriggerProvider;
     onProviderClickRef.current(autoTriggerProvider, false);
   }, [autoTriggerProvider]);
 

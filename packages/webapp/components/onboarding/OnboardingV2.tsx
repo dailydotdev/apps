@@ -54,6 +54,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
 
@@ -332,9 +333,11 @@ export const OnboardingV2 = (): ReactElement => {
       setGithubImportProgress((prev) => Math.max(prev, 72));
       setGithubImportPhase('confirmingSeniority');
 
-      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
-        data: { experienceLevel: UserExperienceLevel[level] },
-      });
+      await gqlClient
+        .request(UPDATE_USER_PROFILE_MUTATION, {
+          data: { experienceLevel: UserExperienceLevel[level] },
+        })
+        .catch(() => undefined);
 
       completeAction(ActionType.CompletedOnboarding);
       completeAction(ActionType.EditTag);
@@ -557,6 +560,7 @@ export const OnboardingV2 = (): ReactElement => {
       className="onb-page relative tablet:pt-16 laptop:pl-11"
       role="presentation"
     >
+      <OnboardingV2Styles />
       {/* ── Dummy Header (desktop/tablet only) ── */}
       <header className="fixed left-0 top-0 z-3 hidden h-16 w-full items-center border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:flex">
         <Logo
@@ -775,14 +779,7 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                </svg>
+                <GitHubIcon secondary size={IconSize.XSmall} />
                 Continue with GitHub
                 <svg
                   width="14"
@@ -1129,8 +1126,6 @@ export const OnboardingV2 = (): ReactElement => {
         </SearchProvider>
       </div>
 
-      <OnboardingV2Styles />
-
       {/* ── Header signup chooser popup ── */}
       {step === 'chooser' && (
         <div
@@ -1297,15 +1292,10 @@ export const OnboardingV2 = (): ReactElement => {
                       />
                     ))}
                     <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <svg
-                        width="26"
-                        height="26"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="text-text-primary"
-                      >
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                      </svg>
+                      <GitHubIcon
+                        secondary
+                        className="h-[26px] w-[26px] text-text-primary"
+                      />
                     </div>
                   </div>
 
@@ -1379,14 +1369,7 @@ export const OnboardingV2 = (): ReactElement => {
                       }}
                       className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
                     >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                      </svg>
+                      <GitHubIcon secondary size={IconSize.XSmall} />
                       Continue with GitHub
                       <svg
                         width="14"
@@ -1979,15 +1962,10 @@ export const OnboardingV2 = (): ReactElement => {
 
                   if (importFlowSource === 'github') {
                     return (
-                      <svg
-                        width="26"
-                        height="26"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="text-text-primary"
-                      >
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                      </svg>
+                      <GitHubIcon
+                        secondary
+                        className="h-[26px] w-[26px] text-text-primary"
+                      />
                     );
                   }
 
@@ -2271,15 +2249,10 @@ export const OnboardingV2 = (): ReactElement => {
                 <>
                   <div className="mb-4 flex items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/[0.08]">
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="text-text-primary"
-                      >
-                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                      </svg>
+                      <GitHubIcon
+                        secondary
+                        className="h-[22px] w-[22px] text-text-primary"
+                      />
                     </div>
                     <div>
                       <h3 className="font-bold text-text-primary typo-title3">
@@ -2408,14 +2381,7 @@ export const OnboardingV2 = (): ReactElement => {
                       }
                     }}
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.699-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.114 2.504.336 1.909-1.292 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-                    </svg>
+                    <GitHubIcon secondary size={IconSize.XSmall} />
                     Continue with GitHub
                     <svg
                       width="14"
