@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "version": "0.0.0",
+  "name": "daily.dev | Developer Homepage",
+  "short_name": "daily.dev",
+  "description": "Get one personalized feed for all the knowledge you need as a developer.",
+  "homepage_url": "https://daily.dev",
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "permissions": [],
+  "host_permissions": [
+    "https://daily.dev/*",
+    "https://*.daily.dev/*",
+    "https://dailynow.co/*",
+    "https://*.dailynow.co/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/action_16.png",
+      "32": "icons/action_32.png"
+    }
+  },
+  "background": {
+    "service_worker": "js/background.bundle.js"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  }
+}

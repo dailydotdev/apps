@@ -3,7 +3,10 @@
   "version": "3.42.10",
   "scripts": {
     "dev": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=chrome rspack build -c rspack.config.js --watch",
+    "dev:safari": "cross-env NODE_ENV=development cross-env TARGET_BROWSER=safari rspack build -c rspack.config.js --watch",
     "build": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=chrome rspack build -c rspack.config.js",
+    "build:safari": "cross-env NODE_ENV=production cross-env TARGET_BROWSER=safari rspack build -c rspack.config.js",
+    "safari:copy": "mkdir -p \"safari-xcode/daily.dev/daily.dev Extension/Resources\" && cp -R dist/safari/* \"safari-xcode/daily.dev/daily.dev Extension/Resources/\"",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --fix",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "typecheck": "tsc -p tsconfig.json --noEmit",

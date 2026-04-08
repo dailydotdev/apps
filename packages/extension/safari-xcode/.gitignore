@@ -1,0 +1,10 @@
+# Xcode user-specific data
+xcuserdata/
+*.xcuserstate
+
+# Build products
+build/
+DerivedData/
+
+# Extension resources (copied from dist/safari via safari:copy)
+daily.dev/daily.dev\ Extension/Resources/

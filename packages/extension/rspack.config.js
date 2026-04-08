@@ -13,6 +13,8 @@ const destPath = path.join(__dirname, 'dist');
 const nodeEnv = process.env.NODE_ENV || 'development';
 const targetBrowser = process.env.TARGET_BROWSER;
 
+const isSafari = targetBrowser === 'safari';
+
 const getExtensionFileType = (browser) => {
   if (browser === 'opera') {
     return 'crx';
@@ -104,6 +106,7 @@ const baseConfig = {
             transform: {
               react: {
                 runtime: 'automatic',
+                development: nodeEnv === 'development',
               },
             },
           },
@@ -130,18 +133,60 @@ const baseConfig = {
   },
 
   plugins: [
-    new WextManifestWebpackPlugin(),
-    // Fallback: delete manifest JS bundle if the plugin didn't catch it under rspack
-    {
-      apply(compiler) {
-        compiler.hooks.afterEmit.tap('CleanManifestJs', () => {
-          const file = path.join(compiler.outputPath, 'js/manifest.bundle.js');
-          if (fs.existsSync(file)) {
-            fs.unlinkSync(file);
-          }
-        });
-      },
-    },
+    ...(isSafari
+      ? []
+      : [
+          new WextManifestWebpackPlugin(),
+          // Fallback: delete manifest JS bundle if the plugin didn't catch it under rspack
+          {
+            apply(compiler) {
+              compiler.hooks.afterEmit.tap('CleanManifestJs', () => {
+                const file = path.join(
+                  compiler.outputPath,
+                  'js/manifest.bundle.js',
+                );
+                if (fs.existsSync(file)) {
+                  fs.unlinkSync(file);
+                }
+              });
+            },
+          },
+        ]),
+    // Safari: emit manifest.json with version and env-specific host_permissions
+    ...(isSafari
+      ? [
+          {
+            apply(compiler) {
+              compiler.hooks.afterEmit.tap('SafariManifest', () => {
+                const manifest = JSON.parse(
+                  fs.readFileSync(
+                    path.join(sourcePath, 'safari-manifest.json'),
+                    'utf-8',
+                  ),
+                );
+                manifest.version = version.replace('-beta.', '.');
+                if (nodeEnv !== 'production') {
+                  manifest.permissions = ['storage'];
+                  manifest.host_permissions = [
+                    'http://localhost/*',
+                    'https://*.local.fylla.dev/*',
+                    'https://staging.daily.dev/*',
+                    'https://*.staging.daily.dev/*',
+                  ];
+                }
+                const outDir = compiler.outputPath;
+                if (!fs.existsSync(outDir)) {
+                  fs.mkdirSync(outDir, { recursive: true });
+                }
+                fs.writeFileSync(
+                  path.join(outDir, 'manifest.json'),
+                  JSON.stringify(manifest, null, 2),
+                );
+              });
+            },
+          },
+        ]
+      : []),
     ...(process.env.NODE_ENV === 'production'
       ? []
       : [new rspack.SourceMapDevToolPlugin({ filename: false })]),
@@ -169,20 +214,24 @@ const baseConfig = {
       hash: true,
       filename: 'index.html',
     }),
-    new rspack.HtmlRspackPlugin({
-      template: path.join(viewsPath, 'companion.html'),
-      inject: 'body',
-      chunks: ['companion'],
-      hash: true,
-      filename: 'companion.html',
-    }),
-    new rspack.HtmlRspackPlugin({
-      template: path.join(viewsPath, 'frame.html'),
-      inject: 'body',
-      chunks: ['frame'],
-      hash: true,
-      filename: 'frame.html',
-    }),
+    ...(isSafari
+      ? []
+      : [
+          new rspack.HtmlRspackPlugin({
+            template: path.join(viewsPath, 'companion.html'),
+            inject: 'body',
+            chunks: ['companion'],
+            hash: true,
+            filename: 'companion.html',
+          }),
+          new rspack.HtmlRspackPlugin({
+            template: path.join(viewsPath, 'frame.html'),
+            inject: 'body',
+            chunks: ['frame'],
+            hash: true,
+            filename: 'frame.html',
+          }),
+        ]),
     new rspack.CssExtractRspackPlugin({ filename: 'css/[name].css' }),
     new rspack.CopyRspackPlugin({
       patterns: [{ from: 'public', to: '.' }],
@@ -200,28 +249,43 @@ const backgroundConfig = {
     clean: true,
   },
   entry: {
-    background: path.join(sourcePath, 'background', 'index.ts'),
+    background: path.join(
+      sourcePath,
+      'background',
+      isSafari ? 'safari.ts' : 'index.ts',
+    ),
   },
 };
 
 const mainConfig = {
   ...baseConfig,
   entry: {
-    manifest: {
-      import: path.join(sourcePath, 'manifest.json'),
-      runtime: false,
-    },
-    content: { import: path.join(sourcePath, 'content'), runtime: false },
-    companion: {
-      import: path.join(sourcePath, 'companion', 'index.tsx'),
-      runtime: false,
-    },
-    frame: {
-      import: path.join(sourcePath, 'frame', 'index.ts'),
-      runtime: false,
-    },
+    ...(isSafari
+      ? {}
+      : {
+          manifest: {
+            import: path.join(sourcePath, 'manifest.json'),
+            runtime: false,
+          },
+          content: {
+            import: path.join(sourcePath, 'content'),
+            runtime: false,
+          },
+          companion: {
+            import: path.join(sourcePath, 'companion', 'index.tsx'),
+            runtime: false,
+          },
+          frame: {
+            import: path.join(sourcePath, 'frame', 'index.ts'),
+            runtime: false,
+          },
+        }),
     newtab: {
-      import: path.join(sourcePath, 'newtab', 'index.tsx'),
+      import: path.join(
+        sourcePath,
+        'newtab',
+        isSafari ? 'safari-index.tsx' : 'index.tsx',
+      ),
       runtime: 'runtime',
     },
   },
