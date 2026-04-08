@@ -451,18 +451,25 @@ export const OnboardingV2 = (): ReactElement => {
 
     setGithubImportProgress(100);
 
-    const exitTimer = setTimeout(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const track = (fn: () => void, delay: number) => {
+      const id = setTimeout(fn, delay);
+      timers.push(id);
+      return id;
+    };
+
+    track(() => {
       setGithubImportPhase('complete');
-      setTimeout(() => {
+      track(() => {
         setGithubImportExiting(true);
-        setTimeout(() => {
+        track(() => {
           setGithubImportExiting(false);
           setStep('extension');
         }, 350);
       }, 600);
     }, FINISHING_ANIMATION_MS);
 
-    return () => clearTimeout(exitTimer);
+    return () => timers.forEach(clearTimeout);
   }, [githubImportPhase]);
 
   const dismissExtensionPromo = useCallback(() => {
