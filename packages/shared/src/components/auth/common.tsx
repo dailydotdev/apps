@@ -131,4 +131,5 @@ export interface AuthOptionsProps {
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
   autoTriggerProvider?: string;
+  socialProviderScopes?: string[];
 }

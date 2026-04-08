@@ -1554,6 +1554,11 @@ export const OnboardingV2 = (): ReactElement => {
                 forceDefaultDisplay
                 simplified
                 autoTriggerProvider={autoTriggerProvider}
+                socialProviderScopes={
+                  signupContext === 'github'
+                    ? ['user:email', 'repo']
+                    : undefined
+                }
                 className={{ container: '!min-h-0' }}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {

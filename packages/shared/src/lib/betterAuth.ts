@@ -149,6 +149,7 @@ const getBetterAuthSocialRedirect = async (
   provider: string,
   callbackURL: string,
   additionalData?: SocialAdditionalData,
+  scopes?: string[],
 ): Promise<BetterAuthSocialRedirectResponse> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
@@ -166,6 +167,7 @@ const getBetterAuthSocialRedirect = async (
       callbackURL: absoluteCallbackURL,
       disableRedirect: true,
       ...(additionalData && { additionalData }),
+      ...(scopes?.length && { scopes }),
     },
     'Failed to get social auth URL',
   );
@@ -181,12 +183,14 @@ export const getBetterAuthSocialRedirectData = (
   provider: string,
   callbackURL: string,
   additionalData?: SocialAdditionalData,
+  scopes?: string[],
 ): Promise<BetterAuthSocialRedirectResponse> =>
   getBetterAuthSocialRedirect(
     'sign-in/social',
     provider,
     callbackURL,
     additionalData,
+    scopes,
   );
 
 export const getBetterAuthSocialUrl = (

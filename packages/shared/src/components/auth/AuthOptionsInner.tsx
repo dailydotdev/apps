@@ -160,6 +160,7 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   autoTriggerProvider,
+  socialProviderScopes,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -521,6 +522,7 @@ function AuthOptionsInner({
       provider.toLowerCase(),
       callbackURL,
       additionalData,
+      socialProviderScopes,
     );
     if (!socialUrl) {
       logEvent({
