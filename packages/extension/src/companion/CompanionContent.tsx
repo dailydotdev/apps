@@ -21,8 +21,10 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { useCompanionBrowsingConsent } from '@dailydotdev/shared/src/hooks/useCompanionBrowsingConsent';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
+import { CompanionBrowsingConsentBanner } from './CompanionBrowsingConsentBanner';
 import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
@@ -35,6 +37,8 @@ export default function CompanionContent({
   post,
 }: CompanionContentProps): ReactElement {
   const { logEvent } = useLogContext();
+  const { shouldShowBanner, onAccept, onDismiss } =
+    useCompanionBrowsingConsent();
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
   const { queryKey, onShowUpvoted } = useUpvoteQuery();
@@ -83,6 +87,12 @@ export default function CompanionContent({
           />
         </Tooltip>
       </div>
+      {shouldShowBanner && (
+        <CompanionBrowsingConsentBanner
+          onAccept={onAccept}
+          onDismiss={onDismiss}
+        />
+      )}
       <p className="my-4 flex-1 break-words typo-callout">
         <TLDRText>TLDR -</TLDRText>
         <span>

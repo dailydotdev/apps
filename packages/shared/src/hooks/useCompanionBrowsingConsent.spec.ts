@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react';
 import { useCompanionBrowsingConsent } from './useCompanionBrowsingConsent';
 import { useConditionalFeature } from './useConditionalFeature';
 import { useSettingsContext } from '../contexts/SettingsContext';
-import { usePrompt } from './usePrompt';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent, Origin } from '../lib/log';
 import { SidebarSettingsFlags } from '../graphql/settings';
@@ -15,23 +14,17 @@ jest.mock('../contexts/SettingsContext', () => ({
   useSettingsContext: jest.fn(),
 }));
 
-jest.mock('./usePrompt', () => ({
-  usePrompt: jest.fn(),
-}));
-
 jest.mock('../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
 }));
 
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
-const mockUsePrompt = usePrompt as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 
 describe('useCompanionBrowsingConsent', () => {
   const updateFlag = jest.fn().mockResolvedValue(undefined);
   const updatePromptFlag = jest.fn().mockResolvedValue(undefined);
-  const showPrompt = jest.fn();
   const logEvent = jest.fn();
 
   beforeEach(() => {
@@ -50,24 +43,13 @@ describe('useCompanionBrowsingConsent', () => {
       updateFlag,
       updatePromptFlag,
     });
-    mockUsePrompt.mockReturnValue({ showPrompt });
     mockUseLogContext.mockReturnValue({ logEvent });
   });
 
-  it('shows the consent prompt when feature is enabled and user has not seen it', async () => {
-    showPrompt.mockResolvedValue(true);
+  it('shows the banner when feature is enabled and user has not seen it', () => {
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
-
-    expect(showPrompt).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Personalize your feed with browsing context?',
-        okButton: { title: 'Allow' },
-        cancelButton: { title: 'No thanks' },
-      }),
-    );
+    expect(result.current.shouldShowBanner).toBe(true);
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.BrowsingConsentPromptShow,
       extra: JSON.stringify({ origin: Origin.Companion }),
@@ -75,58 +57,56 @@ describe('useCompanionBrowsingConsent', () => {
   });
 
   it('saves browsingContextEnabled flag when user accepts', async () => {
-    showPrompt.mockResolvedValue(true);
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
     await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
+      await result.current.onAccept();
     });
 
     expect(updateFlag).toHaveBeenCalledWith(
       SidebarSettingsFlags.BrowsingContextEnabled,
       true,
     );
+    expect(updatePromptFlag).toHaveBeenCalledWith(
+      'browsing_context_consent_prompt',
+      true,
+    );
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.BrowsingConsentPromptAccept,
       extra: JSON.stringify({ origin: Origin.Companion }),
     });
+  });
+
+  it('does not save browsingContextEnabled when user dismisses', async () => {
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
+
+    await act(async () => {
+      await result.current.onDismiss();
+    });
+
+    expect(updateFlag).not.toHaveBeenCalled();
     expect(updatePromptFlag).toHaveBeenCalledWith(
       'browsing_context_consent_prompt',
       true,
     );
-  });
-
-  it('does not save browsingContextEnabled when user declines', async () => {
-    showPrompt.mockResolvedValue(false);
-
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
-
-    expect(updateFlag).not.toHaveBeenCalled();
     expect(logEvent).toHaveBeenCalledWith({
       event_name: LogEvent.BrowsingConsentPromptDecline,
       extra: JSON.stringify({ origin: Origin.Companion }),
     });
-    expect(updatePromptFlag).toHaveBeenCalledWith(
-      'browsing_context_consent_prompt',
-      true,
-    );
   });
 
-  it('does not show prompt when feature is disabled', async () => {
+  it('does not show banner when feature is disabled', () => {
     mockUseConditionalFeature.mockReturnValue({
       value: false,
       isLoading: false,
     });
 
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
-    expect(showPrompt).not.toHaveBeenCalled();
+    expect(result.current.shouldShowBanner).toBe(false);
   });
 
-  it('does not show prompt when user already consented', async () => {
+  it('does not show banner when user already consented', () => {
     mockUseSettingsContext.mockReturnValue({
       flags: {
         browsingContextEnabled: true,
@@ -137,14 +117,12 @@ describe('useCompanionBrowsingConsent', () => {
       updatePromptFlag,
     });
 
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
-    expect(showPrompt).not.toHaveBeenCalled();
+    expect(result.current.shouldShowBanner).toBe(false);
   });
 
-  it('does not show prompt when user already dismissed it', async () => {
+  it('does not show banner when user already dismissed it', () => {
     mockUseSettingsContext.mockReturnValue({
       flags: {
         browsingContextEnabled: false,
@@ -155,14 +133,12 @@ describe('useCompanionBrowsingConsent', () => {
       updatePromptFlag,
     });
 
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
-    expect(showPrompt).not.toHaveBeenCalled();
+    expect(result.current.shouldShowBanner).toBe(false);
   });
 
-  it('does not show prompt when settings are not loaded', async () => {
+  it('does not show banner when settings are not loaded', () => {
     mockUseSettingsContext.mockReturnValue({
       flags: {
         browsingContextEnabled: false,
@@ -173,10 +149,8 @@ describe('useCompanionBrowsingConsent', () => {
       updatePromptFlag,
     });
 
-    await act(async () => {
-      renderHook(() => useCompanionBrowsingConsent());
-    });
+    const { result } = renderHook(() => useCompanionBrowsingConsent());
 
-    expect(showPrompt).not.toHaveBeenCalled();
+    expect(result.current.shouldShowBanner).toBe(false);
   });
 });
