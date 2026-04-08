@@ -21,7 +21,7 @@ import { Origin } from '@dailydotdev/shared/src/lib/log';
 
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useCompanionBrowsingConsent } from '@dailydotdev/shared/src/hooks/useCompanionBrowsingConsent';
+import type { UseCompanionBrowsingConsentReturn } from '@dailydotdev/shared/src/hooks/useCompanionBrowsingConsent';
 import { CompanionEngagements } from './CompanionEngagements';
 import { CompanionDiscussion } from './CompanionDiscussion';
 import { CompanionBrowsingConsentBanner } from './CompanionBrowsingConsentBanner';
@@ -29,16 +29,17 @@ import { useBackgroundPaginatedRequest } from './useBackgroundPaginatedRequest';
 
 type CompanionContentProps = {
   post: PostBootData;
-};
+} & UseCompanionBrowsingConsentReturn;
 
 const COMPANION_TOP_OFFSET_PX = 120;
 
 export default function CompanionContent({
   post,
+  shouldShowBanner,
+  onAccept,
+  onDismiss,
 }: CompanionContentProps): ReactElement {
   const { logEvent } = useLogContext();
-  const { shouldShowBanner, onAccept, onDismiss } =
-    useCompanionBrowsingConsent();
   const [copying, copyLink] = useCopyLink(() => post.commentsPermalink);
   const [heightPx, setHeightPx] = useState('0');
   const { queryKey, onShowUpvoted } = useUpvoteQuery();

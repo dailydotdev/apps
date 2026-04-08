@@ -24,6 +24,7 @@ import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBoo
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { useEventListener } from '@dailydotdev/shared/src/hooks';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import type { RemoteSettings } from '@dailydotdev/shared/src/graphql/settings';
 import Companion from './Companion';
 import CustomRouter from '../lib/CustomRouter';
 import { companionFetch } from './companionFetch';
@@ -62,6 +63,9 @@ export default function App({
 }: CompanionData): ReactElement | null {
   useError();
   const [token, setToken] = useState(accessToken);
+  const [currentSettings, setCurrentSettings] = useState(settings);
+  const updateSettings = (newSettings: RemoteSettings) =>
+    setCurrentSettings(newSettings);
   const [isOptOutCompanion, setIsOptOutCompanion] = useState<boolean>(
     settings?.optOutCompanion ?? false,
   );
@@ -109,7 +113,11 @@ export default function App({
               updateUser={async () => undefined}
               squads={squads}
             >
-              <SettingsContextProvider settings={settings}>
+              <SettingsContextProvider
+                settings={currentSettings}
+                updateSettings={updateSettings}
+                loadedSettings={!!currentSettings}
+              >
                 <AlertContextProvider alerts={alerts}>
                   <LogContextProvider
                     app={app}
@@ -126,7 +134,9 @@ export default function App({
                       <Companion
                         postData={postData}
                         companionHelper={alerts?.companionHelper ?? false}
-                        companionExpanded={settings?.companionExpanded ?? false}
+                        companionExpanded={
+                          currentSettings?.companionExpanded ?? false
+                        }
                         onOptOut={() => setIsOptOutCompanion(true)}
                         onUpdateToken={setToken}
                       />
@@ -138,7 +148,7 @@ export default function App({
                     />
                     <Toast
                       autoDismissNotifications={
-                        settings?.autoDismissNotifications
+                        currentSettings?.autoDismissNotifications
                       }
                     />
                   </LogContextProvider>

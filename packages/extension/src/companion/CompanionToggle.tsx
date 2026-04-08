@@ -18,6 +18,7 @@ interface CompanionToggleProps {
   isAlertDisabled: boolean;
   onToggleCompanion: () => void;
   tooltipContainerClassName?: string;
+  showNotification?: boolean;
 }
 
 function CompanionToggle({
@@ -25,6 +26,7 @@ function CompanionToggle({
   isAlertDisabled,
   tooltipContainerClassName,
   onToggleCompanion,
+  showNotification,
 }: CompanionToggleProps): ReactElement {
   return (
     <AlertPointer
@@ -47,7 +49,7 @@ function CompanionToggle({
             'group-hover:btn-secondary': !companionState,
           })}
           icon={
-            <>
+            <span className="relative">
               <LogoIcon
                 className={{
                   container: classNames(
@@ -64,7 +66,10 @@ function CompanionToggle({
                     : 'hidden -rotate-90 group-hover:block',
                 )}
               />
-            </>
+              {!!showNotification && (
+                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-background-default bg-accent-cabbage-default group-hover:hidden" />
+              )}
+            </span>
           }
           onClick={onToggleCompanion}
         />

@@ -74,6 +74,7 @@ type CompanionMenuProps = {
   isDragging: boolean;
   setIsDragging: (dragging: boolean) => void;
   onOpenComments?: () => void;
+  showConsentNotification?: boolean;
 };
 
 export default function CompanionMenu({
@@ -87,6 +88,7 @@ export default function CompanionMenu({
   setVerticalPosition,
   isDragging,
   setIsDragging,
+  showConsentNotification,
 }: CompanionMenuProps): ReactElement {
   const { modal, closeModal } = useLazyModal();
   const { logEvent } = useLogContext();
@@ -355,6 +357,7 @@ export default function CompanionMenu({
           isAlertDisabled={!showCompanionHelper}
           tooltipContainerClassName={tooltipContainerClassName}
           onToggleCompanion={toggleCompanion}
+          showNotification={showConsentNotification && !companionState}
         />
         <Tooltip
           side="left"

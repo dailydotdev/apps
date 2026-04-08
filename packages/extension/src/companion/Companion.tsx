@@ -19,6 +19,7 @@ import {
   updatePostCache,
 } from '@dailydotdev/shared/src/lib/query';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import { useCompanionBrowsingConsent } from '@dailydotdev/shared/src/hooks/useCompanionBrowsingConsent';
 import CompanionMenu from './CompanionMenu';
 import CompanionContent from './CompanionContent';
 import { companionRequest } from './companionRequest';
@@ -87,6 +88,8 @@ export default function Companion({
   });
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
+  const { shouldShowBanner, onAccept, onDismiss } =
+    useCompanionBrowsingConsent();
   usePopupSelector({ parentSelector: getCompanionWrapper });
   const client = useQueryClient();
   const { data: post } = useQuery({
@@ -164,8 +167,14 @@ export default function Companion({
         setVerticalPosition={setVerticalPosition}
         isDragging={isDragging}
         setIsDragging={setIsDragging}
+        showConsentNotification={shouldShowBanner}
       />
-      <CompanionContent post={post} />
+      <CompanionContent
+        post={post}
+        shouldShowBanner={shouldShowBanner}
+        onAccept={onAccept}
+        onDismiss={onDismiss}
+      />
     </Container>
   );
 }
