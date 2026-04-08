@@ -159,6 +159,7 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  autoTriggerProvider,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -557,6 +558,17 @@ function AuthOptionsInner({
     await setChosenProvider(provider);
     onAuthStateUpdate?.({ isLoading: true });
   };
+
+  const onProviderClickRef = useRef(onProviderClick);
+  onProviderClickRef.current = onProviderClick;
+
+  useEffect(() => {
+    if (!autoTriggerProvider) {
+      return;
+    }
+
+    onProviderClickRef.current(autoTriggerProvider, false);
+  }, [autoTriggerProvider]);
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {

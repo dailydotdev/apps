@@ -21,14 +21,10 @@ import {
   downloadBrowserExtension,
   mobileAppUrl,
   webappUrl,
-  onboardingUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import {
-  BrowserName,
-  getCurrentBrowserName,
-} from '@dailydotdev/shared/src/lib/func';
+
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
@@ -39,7 +35,6 @@ import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
-import { cloudinaryOnboardingExtension } from '@dailydotdev/shared/src/lib/image';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
@@ -54,12 +49,13 @@ import {
 import { useActions } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
-import { getBetterAuthSocialUrl } from '@dailydotdev/shared/src/lib/betterAuth';
+
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
+import { useOnboardingAnimations } from './useOnboardingAnimations';
 
 type RisingTag = {
   label: string;
@@ -129,6 +125,15 @@ const RISING_TAGS_MOBILE: RisingTag[] = [
   },
 ];
 
+export type OnboardingStep =
+  | 'hero'
+  | 'prompt'
+  | 'chooser'
+  | 'auth'
+  | 'importing'
+  | 'extension'
+  | 'complete';
+
 type GithubImportPhase =
   | 'idle'
   | 'running'
@@ -183,47 +188,6 @@ const GITHUB_IMPORT_STEPS = [
 const IMPORT_ANIMATION_MS = 3500;
 const FINISHING_ANIMATION_MS = 1500;
 
-const CONFETTI_COLORS = [
-  'bg-accent-cabbage-default',
-  'bg-accent-onion-default',
-  'bg-accent-cheese-default',
-  'bg-accent-water-default',
-  'bg-accent-avocado-default',
-  'bg-accent-bacon-default',
-];
-
-type ConfettiParticle = {
-  id: string;
-  left: string;
-  delay: string;
-  color: string;
-  size: 'sm' | 'md' | 'lg' | 'xl';
-  shape: 'rect' | 'circle' | 'star';
-  drift: number;
-  speed: number;
-};
-
-function buildConfettiParticles(): ConfettiParticle[] {
-  const particles: ConfettiParticle[] = [];
-  const SIZES = ['sm', 'md', 'lg', 'xl'] as const;
-  const SHAPES = ['rect', 'circle', 'star'] as const;
-  for (let i = 0; i < 24; i += 1) {
-    const col = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
-    const opacity = 65 + Math.round(Math.random() * 30);
-    particles.push({
-      id: `cf-${i}`,
-      left: `${1 + Math.random() * 98}%`,
-      delay: `${Math.round(Math.random() * 2400)}ms`,
-      color: `${col}/${opacity}`,
-      size: SIZES[Math.floor(Math.random() * SIZES.length)],
-      shape: SHAPES[Math.floor(Math.random() * SHAPES.length)],
-      drift: -40 + Math.random() * 80,
-      speed: 3.5 + Math.random() * 2.5,
-    });
-  }
-  return particles;
-}
-
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
   const { showLogin, isLoggedIn, isAuthReady } = useAuthContext();
@@ -231,24 +195,25 @@ export const OnboardingV2 = (): ReactElement => {
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [tagsReady, setTagsReady] = useState(false);
-  const [feedVisible, setFeedVisible] = useState(false);
+  const [step, setStep] = useState<OnboardingStep>('hero');
+  const {
+    mounted,
+    tagsReady,
+    feedVisible,
+    heroRef,
+    confettiParticles,
+    isEdgeBrowser,
+    extensionImages,
+  } = useOnboardingAnimations(step);
   const [aiPrompt, setAiPrompt] = usePersistentContext<string>(
     ONBOARDING_AI_PROMPT_KEY,
     '',
   );
-  const [feedReadyState, setFeedReadyState] = useState(false);
-  const [showExtensionPromo, setShowExtensionPromo] = useState(false);
   const [extensionSeen, setExtensionSeen] = usePersistentContext<boolean>(
     ONBOARDING_EXTENSION_SEEN_KEY,
     false,
   );
-  const [showAuthSignup, setShowAuthSignup] = useState(false);
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
-  const [showSignupChooser, setShowSignupChooser] = useState(false);
-  const [showGithubImportFlow, setShowGithubImportFlow] = useState(false);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
   const [githubImportPhase, setGithubImportPhase] =
@@ -262,18 +227,14 @@ export const OnboardingV2 = (): ReactElement => {
   >(null);
   const [githubImportExiting, setGithubImportExiting] = useState(false);
   const [signupContext, setSignupContext] = usePersistentContext<
-    'github' | 'ai' | 'manual' | null
-  >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai', 'manual']);
-  const prevBodyOverflowRef = useRef('');
+    'github' | 'ai' | null
+  >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai']);
   const pageRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const scrollY = useRef(0);
   const githubResumeTimeoutRef = useRef<number | null>(null);
   const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
   const authFormRef = useRef<HTMLFormElement>(
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
-  const importFlowSourceRef = useRef<ImportFlowSource>('github');
 
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
@@ -281,9 +242,9 @@ export const OnboardingV2 = (): ReactElement => {
   );
 
   const openSignup = useCallback(
-    (context: 'github' | 'ai' | 'manual') => {
+    (context: 'github' | 'ai') => {
       setSignupContext(context);
-      setShowSignupPrompt(true);
+      setStep('prompt');
     },
     [setSignupContext],
   );
@@ -299,12 +260,12 @@ export const OnboardingV2 = (): ReactElement => {
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
       clearGithubResumeTimeout();
-      importFlowSourceRef.current = source;
+
       setImportFlowSource(source);
       setSelectedExperienceLevel(null);
       setGithubImportProgress(0);
       setGithubImportPhase('running');
-      setShowGithubImportFlow(true);
+      setStep('importing');
 
       const apiPromise =
         source === 'github'
@@ -321,50 +282,34 @@ export const OnboardingV2 = (): ReactElement => {
       ]);
 
       if (apiResult.status === 'fulfilled') {
-        router.replace({
-          pathname: `${webappUrl}onboarding`,
-          query: { ...router.query, step: 'complete' },
-        });
-        completeAction(ActionType.CompletedOnboarding);
-        completeAction(ActionType.EditTag);
-        completeAction(ActionType.ContentTypes);
         setAiPrompt('');
         setSignupContext(null);
-      } else {
-        // API failed — continue with empty tags, user can select manually later
       }
 
       setGithubImportProgress(68);
       setGithubImportPhase('awaitingSeniority');
     },
-    [
-      clearGithubResumeTimeout,
-      aiPrompt,
-      router,
-      completeAction,
-      setAiPrompt,
-      setSignupContext,
-    ],
+    [clearGithubResumeTimeout, aiPrompt, setAiPrompt, setSignupContext],
   );
 
   const startGithubImportFlow = useCallback(() => {
     startImportFlow('github');
   }, [startImportFlow]);
 
-  const initiateGithubAuth = useCallback(async () => {
+  const [autoTriggerProvider, setAutoTriggerProvider] = useState<
+    string | undefined
+  >();
+
+  const initiateGithubAuth = useCallback(() => {
     setSignupContext('github');
-    const url = await getBetterAuthSocialUrl(
-      'github',
-      `${onboardingUrl}?flow=github`,
-    );
-    if (url) {
-      window.location.href = url;
-    }
+    setAutoTriggerProvider('github');
+    setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setStep('auth');
   }, [setSignupContext]);
 
   const closeGithubImportFlow = useCallback(() => {
     clearGithubResumeTimeout();
-    setShowGithubImportFlow(false);
+    setStep('hero');
     setGithubImportExiting(false);
     setSelectedExperienceLevel(null);
     setGithubImportProgress(0);
@@ -387,15 +332,24 @@ export const OnboardingV2 = (): ReactElement => {
       setGithubImportProgress((prev) => Math.max(prev, 72));
       setGithubImportPhase('confirmingSeniority');
 
-      await gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
+      gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data: { experienceLevel: UserExperienceLevel[level] },
+      });
+
+      completeAction(ActionType.CompletedOnboarding);
+      completeAction(ActionType.EditTag);
+      completeAction(ActionType.ContentTypes);
+
+      router.replace({
+        pathname: `${webappUrl}onboarding`,
+        query: { step: 'complete' },
       });
 
       githubResumeTimeoutRef.current = window.setTimeout(() => {
         setGithubImportPhase('finishing');
       }, 420);
     },
-    [clearGithubResumeTimeout, githubImportPhase],
+    [clearGithubResumeTimeout, githubImportPhase, completeAction, router],
   );
 
   useEffect(() => {
@@ -406,22 +360,27 @@ export const OnboardingV2 = (): ReactElement => {
   }, [applyThemeMode]);
 
   useEffect(() => {
-    if (!isAuthReady || showGithubImportFlow) {
+    if (
+      !isAuthReady ||
+      (
+        ['auth', 'importing', 'extension', 'complete'] as OnboardingStep[]
+      ).includes(step)
+    ) {
       return;
     }
 
-    const step = router.query.step as string | undefined;
+    const urlStep = router.query.step as string | undefined;
 
-    if (step === 'complete') {
+    if (urlStep === 'complete') {
       if (!isLoggedIn) {
         router.replace(`${webappUrl}onboarding`);
         return;
       }
 
       if (extensionSeen) {
-        setFeedReadyState(true);
+        setStep('complete');
       } else {
-        setShowExtensionPromo(true);
+        setStep('extension');
       }
 
       return;
@@ -434,6 +393,11 @@ export const OnboardingV2 = (): ReactElement => {
         router.replace(`${webappUrl}onboarding`);
         return;
       }
+      startGithubImportFlow();
+      return;
+    }
+
+    if (isLoggedIn && signupContext === 'github') {
       startGithubImportFlow();
       return;
     }
@@ -454,8 +418,7 @@ export const OnboardingV2 = (): ReactElement => {
     if (isOnboardingComplete) {
       redirectToApp(router);
     } else {
-      setShowSignupChooser(true);
-      setSignupContext('manual');
+      setStep('chooser');
     }
   }, [
     isAuthReady,
@@ -465,172 +428,12 @@ export const OnboardingV2 = (): ReactElement => {
     extensionSeen,
     aiPrompt,
     signupContext,
-    showGithubImportFlow,
+    step,
     router,
     setSignupContext,
     startGithubImportFlow,
     startAiProcessing,
   ]);
-
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) {
-      return undefined;
-    }
-    let idleTimer: number | null = null;
-    let revealTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const revealTags = () => {
-      revealTimer = setTimeout(() => setTagsReady(true), 180);
-    };
-
-    if ('requestIdleCallback' in window) {
-      idleTimer = window.requestIdleCallback(revealTags, { timeout: 1400 });
-    } else {
-      revealTimer = setTimeout(() => setTagsReady(true), 1200);
-    }
-
-    return () => {
-      if (idleTimer !== null && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleTimer);
-      }
-      if (revealTimer !== null) {
-        window.clearTimeout(revealTimer);
-      }
-    };
-  }, [mounted]);
-
-  useEffect(() => {
-    const anyModalOpen =
-      showSignupChooser ||
-      showSignupPrompt ||
-      showGithubImportFlow ||
-      showAuthSignup ||
-      showExtensionPromo ||
-      githubImportExiting;
-
-    if (anyModalOpen) {
-      prevBodyOverflowRef.current = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = prevBodyOverflowRef.current;
-      prevBodyOverflowRef.current = '';
-    }
-    return () => {
-      document.body.style.overflow = prevBodyOverflowRef.current;
-      prevBodyOverflowRef.current = '';
-    };
-  }, [
-    showSignupChooser,
-    showSignupPrompt,
-    showGithubImportFlow,
-    showAuthSignup,
-    showExtensionPromo,
-    githubImportExiting,
-  ]);
-
-  useEffect(() => {
-    const signupQueryParam = router.query.onbSignup;
-    const shouldOpenFromHeader =
-      signupQueryParam === '1' ||
-      (Array.isArray(signupQueryParam) && signupQueryParam.includes('1'));
-    if (!shouldOpenFromHeader) {
-      return;
-    }
-
-    setShowSignupChooser(true);
-
-    const { onbSignup, ...restQuery } = router.query;
-    router.replace({
-      pathname: router.pathname,
-      query: restQuery,
-    });
-  }, [router]);
-
-  // Parallax scroll: shift hero layers at different speeds
-  useEffect(() => {
-    if (!mounted) {
-      return undefined;
-    }
-
-    // Keep intro order stable: hero settles before feed animates in.
-    const timer = window.setTimeout(() => {
-      setFeedVisible(true);
-    }, 1400);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('onb-revealed');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -40px 0px', threshold: 0.05 },
-    );
-
-    const observeFeedArticles = () => {
-      document
-        .querySelectorAll<HTMLElement>('.onb-feed-stage article')
-        .forEach((article, i) => {
-          if (!article.dataset.onbRevealDelay) {
-            article.style.setProperty(
-              '--reveal-delay',
-              `${Math.min(i * 60, 400)}ms`,
-            );
-            // eslint-disable-next-line no-param-reassign
-            article.dataset.onbRevealDelay = 'true';
-          }
-
-          if (article.classList.contains('onb-revealed')) {
-            return;
-          }
-
-          observer.observe(article);
-        });
-    };
-
-    observeFeedArticles();
-
-    const mutationObserver = new MutationObserver((mutations) => {
-      // Only re-observe when actual <article> elements (or wrappers containing
-      // them) are added. This prevents a feedback loop with the engagement
-      // animation, which appends <label>/<span> nodes inside articles —
-      // those additions are ignored because they are not articles themselves.
-      const hasNewArticles = mutations.some((mutation) =>
-        Array.from(mutation.addedNodes).some(
-          (node) =>
-            node instanceof HTMLElement &&
-            (node.tagName === 'ARTICLE' || node.querySelector('article')),
-        ),
-      );
-      if (hasNewArticles) {
-        observeFeedArticles();
-      }
-    });
-    const feedContainer =
-      document.querySelector('.onb-feed-stage') ?? document.body;
-    // subtree: true is required — feed articles are nested several levels deep
-    // inside .onb-feed-stage (inside a <main> wrapper), so childList-only
-    // observation on the container itself never fires when articles load.
-    // The callback above filters to article additions only, preventing the
-    // feedback loop that previously occurred with the engagement animation.
-    mutationObserver.observe(feedContainer, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      window.clearTimeout(timer);
-      mutationObserver.disconnect();
-      observer.disconnect();
-    };
-  }, [mounted]);
 
   useEffect(() => {
     return () => {
@@ -650,9 +453,8 @@ export const OnboardingV2 = (): ReactElement => {
       setTimeout(() => {
         setGithubImportExiting(true);
         setTimeout(() => {
-          setShowGithubImportFlow(false);
           setGithubImportExiting(false);
-          setShowExtensionPromo(true);
+          setStep('extension');
         }, 350);
       }, 600);
     }, FINISHING_ANIMATION_MS);
@@ -660,313 +462,16 @@ export const OnboardingV2 = (): ReactElement => {
     return () => clearTimeout(exitTimer);
   }, [githubImportPhase]);
 
-  useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      return undefined;
-    }
-
-    let ticking = false;
-    const onScroll = () => {
-      scrollY.current = window.scrollY;
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          const hero = heroRef.current;
-          if (hero) {
-            const y = scrollY.current;
-            hero.style.setProperty('--scroll-y', `${y}`);
-          }
-          ticking = false;
-        });
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    const shouldRun =
-      feedVisible &&
-      !feedReadyState &&
-      !showSignupChooser &&
-      !showSignupPrompt &&
-      !showGithubImportFlow &&
-      !showAuthSignup &&
-      !showExtensionPromo &&
-      !githubImportExiting;
-    if (!shouldRun) {
-      return undefined;
-    }
-
-    const prefersReduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (prefersReduced) {
-      return undefined;
-    }
-
-    const timeouts = new Set<number>();
-    const activeFloaters = new Set<HTMLElement>();
-    const addTimeout = (fn: () => void, delay: number) => {
-      const id = window.setTimeout(() => {
-        timeouts.delete(id);
-        fn();
-      }, delay);
-      timeouts.add(id);
-    };
-
-    const getVisibleArticles = () => {
-      const feedStage = document.querySelector('.onb-feed-stage > main');
-      if (!feedStage) {
-        return [];
-      }
-
-      return Array.from(
-        feedStage.querySelectorAll<HTMLElement>(
-          'article.onb-revealed:not([data-eng-active="true"])',
-        ),
-      ).filter((article) => {
-        const rect = article.getBoundingClientRect();
-        return rect.top < window.innerHeight && rect.bottom > 0;
-      });
-    };
-
-    const getButtonWrapper = (article: Element, suffix: string) => {
-      const btn = article.querySelector(`[id$="${suffix}"]`);
-      return btn ? btn.closest('.btn-quaternary') || btn.parentElement : null;
-    };
-
-    const findCounter = (wrapper: Element) => {
-      const spans = Array.from(wrapper.querySelectorAll('span'));
-      return spans.find((s) => {
-        const t = s.textContent?.trim();
-        return t && /^[\d][.\dkKmM]*$/.test(t) && !s.querySelector('span');
-      });
-    };
-
-    const ensureCounter = (wrapper: Element, seed: number) => {
-      let counter = findCounter(wrapper);
-      if (!counter) {
-        const label = document.createElement('label');
-        label.className =
-          'flex cursor-pointer items-center pl-1 font-bold typo-callout';
-        counter = document.createElement('span');
-        counter.className =
-          'flex h-5 min-w-[1ch] flex-col overflow-hidden tabular-nums typo-footnote';
-        counter.textContent = String(seed);
-        label.appendChild(counter);
-        wrapper.appendChild(label);
-      }
-      return counter;
-    };
-
-    const formatCount = (n: number) => {
-      if (n >= 1000000) {
-        return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
-      }
-      if (n >= 1000) {
-        return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
-      }
-      return String(n);
-    };
-
-    const parseCount = (text: string) => {
-      const clean = text.trim().toLowerCase();
-      if (/^\d+$/.test(clean)) {
-        return parseInt(clean, 10);
-      }
-      const m = clean.match(/^([\d.]+)([km])$/);
-      if (!m) {
-        return null;
-      }
-      const n = parseFloat(m[1]);
-      return m[2] === 'k' ? n * 1000 : n * 1000000;
-    };
-
-    const runStream = () => {
-      const articles = getVisibleArticles();
-      if (!articles.length) {
-        addTimeout(runStream, 1000);
-        return;
-      }
-
-      const article = articles[Math.floor(Math.random() * articles.length)];
-      article.setAttribute('data-eng-active', 'true');
-
-      const isUpvote = Math.random() < 0.7;
-      const suffix = isUpvote ? '-upvote-btn' : '-comment-btn';
-      const wrapper = getButtonWrapper(article, suffix);
-      const btn = article.querySelector(`[id$="${suffix}"]`);
-
-      if (!wrapper || !btn) {
-        article.removeAttribute('data-eng-active');
-        addTimeout(runStream, 500);
-        return;
-      }
-
-      const wrapperEl = wrapper as HTMLElement;
-      // Add CSS class instead of direct style mutation — the class provides
-      // position:relative via the stylesheet without forcing a style recalculation.
-      wrapperEl.classList.add('onb-eng-pos-relative');
-
-      const counter = ensureCounter(
-        wrapper,
-        isUpvote
-          ? 4 + Math.floor(Math.random() * 50)
-          : 1 + Math.floor(Math.random() * 10),
-      );
-
-      const activeClass = isUpvote
-        ? 'onb-eng-active-upvote'
-        : 'onb-eng-active-comment';
-      const color = isUpvote
-        ? 'var(--theme-actions-upvote-default)'
-        : 'var(--theme-actions-comment-default)';
-
-      wrapperEl.classList.add(activeClass);
-
-      const numIncrements = 1 + Math.floor(Math.random() * 3);
-      const increments: number[] = [];
-      for (let i = 0; i < numIncrements; i += 1) {
-        const r = Math.random();
-        if (r < 0.55) {
-          increments.push(1 + Math.floor(Math.random() * 2));
-        } else if (r < 0.85) {
-          increments.push(3 + Math.floor(Math.random() * 4));
-        } else {
-          increments.push(7 + Math.floor(Math.random() * 12));
-        }
-      }
-
-      const floaterAnchor =
-        counter.parentElement instanceof HTMLElement
-          ? counter.parentElement
-          : wrapperEl;
-      floaterAnchor.classList.add('onb-eng-floater-anchor');
-
-      let delayAcc = 0;
-      let pendingFloaters = increments.length;
-
-      const cleanupArticle = () => {
-        pendingFloaters -= 1;
-        if (pendingFloaters <= 0) {
-          wrapperEl.classList.remove(activeClass);
-          article.removeAttribute('data-eng-active');
-        }
-      };
-
-      increments.forEach((inc, idx) => {
-        addTimeout(() => {
-          btn.classList.remove('onb-eng-pulse');
-          (btn as HTMLElement).style.animationName = 'none';
-          requestAnimationFrame(() => {
-            (btn as HTMLElement).style.animationName = '';
-            btn.classList.add('onb-eng-pulse');
-          });
-
-          const currentVal = parseCount(counter.textContent || '') || 0;
-          counter.textContent = formatCount(currentVal + inc);
-
-          const laneShift = idx * 1.2;
-
-          const floater = document.createElement('span');
-          floater.className = 'onb-eng-floater';
-          floater.style.color = color;
-          floater.style.left = '0';
-          floater.style.bottom = `calc(100% + ${laneShift}rem)`;
-          floater.textContent = `+${inc}`;
-          floaterAnchor.appendChild(floater);
-          activeFloaters.add(floater);
-
-          addTimeout(() => {
-            floater.remove();
-            activeFloaters.delete(floater);
-            cleanupArticle();
-          }, 1800);
-        }, delayAcc);
-
-        delayAcc += 400 + Math.random() * 400;
-      });
-
-      addTimeout(runStream, delayAcc + 1000 + Math.random() * 1500);
-    };
-
-    addTimeout(runStream, 300);
-    addTimeout(runStream, 1200);
-
-    return () => {
-      timeouts.forEach(clearTimeout);
-      timeouts.clear();
-      activeFloaters.forEach((floater) => floater.remove());
-      activeFloaters.clear();
-      document
-        .querySelectorAll(
-          '.onb-eng-active-upvote, .onb-eng-active-comment, [data-eng-active]',
-        )
-        .forEach((el) => {
-          el.classList.remove(
-            'onb-eng-active-upvote',
-            'onb-eng-active-comment',
-          );
-          el.removeAttribute('data-eng-active');
-        });
-    };
-  }, [
-    feedVisible,
-    feedReadyState,
-    showAuthSignup,
-    showExtensionPromo,
-    showGithubImportFlow,
-    showSignupChooser,
-    showSignupPrompt,
-    githubImportExiting,
-  ]);
-
-  const confettiParticles = useMemo(
-    () => (feedReadyState ? buildConfettiParticles() : []),
-    [feedReadyState],
-  );
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        hero.classList.toggle('onb-hero-offscreen', !entry.isIntersecting);
-      },
-      { threshold: 0 },
-    );
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, []);
-
-  const [detectedBrowser, setDetectedBrowser] = useState(BrowserName.Chrome);
-  useEffect(() => {
-    setDetectedBrowser(getCurrentBrowserName());
-  }, []);
-  const isEdgeBrowser = detectedBrowser === BrowserName.Edge;
-  const extensionImages =
-    cloudinaryOnboardingExtension[
-      isEdgeBrowser ? BrowserName.Edge : BrowserName.Chrome
-    ];
-
   const dismissExtensionPromo = useCallback(() => {
-    setShowExtensionPromo(false);
     setExtensionSeen(true);
-    setFeedReadyState(true);
+    setStep('complete');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setExtensionSeen]);
   const closeSignupChooser = useCallback(() => {
-    setShowSignupChooser(false);
+    setStep('hero');
   }, []);
   const closeAuthSignup = useCallback(() => {
-    setShowAuthSignup(false);
+    setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, []);
   const openLogin = useCallback(() => {
@@ -976,12 +481,10 @@ export const OnboardingV2 = (): ReactElement => {
     });
   }, [showLogin]);
   const openSignupAuth = useCallback(() => {
-    setShowSignupPrompt(false);
-    setShowSignupChooser(false);
     setAuthDisplay(AuthDisplay.OnboardingSignup);
-    setShowAuthSignup(true);
+    setStep('auth');
   }, []);
-  const isAiSetupContext = signupContext === 'ai' || signupContext === 'manual';
+  const isAiSetupContext = signupContext === 'ai';
   const canStartAiFlow = aiPrompt?.trim().length > 0;
   const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
   const importSteps = useMemo(
@@ -1001,7 +504,7 @@ export const OnboardingV2 = (): ReactElement => {
     }
 
     const upcomingStep = importSteps.find(
-      (step) => githubImportProgress < step.threshold,
+      (s) => githubImportProgress < s.threshold,
     );
     return upcomingStep?.label ?? 'Building personalized feed';
   }, [githubImportPhase, githubImportProgress, importSteps]);
@@ -1066,7 +569,7 @@ export const OnboardingV2 = (): ReactElement => {
               type="button"
               onClick={() => {
                 setAuthDisplay(AuthDisplay.Default);
-                setShowAuthSignup(true);
+                setStep('auth');
               }}
               className="h-10 rounded-14 border border-border-subtlest-tertiary px-5 font-bold text-text-primary transition-colors duration-200 typo-callout hover:bg-surface-hover"
             >
@@ -1074,7 +577,7 @@ export const OnboardingV2 = (): ReactElement => {
             </button>
             <button
               type="button"
-              onClick={() => setShowSignupChooser(true)}
+              onClick={() => setStep('chooser')}
               className="hover:opacity-90 h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout"
             >
               Sign up
@@ -1118,7 +621,7 @@ export const OnboardingV2 = (): ReactElement => {
         ref={heroRef}
         className={classNames(
           'onb-hero relative overflow-hidden py-2 tablet:py-8',
-          feedReadyState && 'hidden',
+          step === 'complete' && 'hidden',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
       >
@@ -1138,7 +641,7 @@ export const OnboardingV2 = (): ReactElement => {
             </button>
             <button
               type="button"
-              onClick={() => setShowSignupChooser(true)}
+              onClick={() => setStep('chooser')}
               className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
             >
               Sign up
@@ -1299,7 +802,7 @@ export const OnboardingV2 = (): ReactElement => {
               </button>
               <button
                 type="button"
-                onClick={() => openSignup('manual')}
+                onClick={() => openSignup('ai')}
                 className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <MagicIcon
@@ -1351,7 +854,7 @@ export const OnboardingV2 = (): ReactElement => {
       </section>
 
       {/* ── Full-screen confetti (fixed, above everything) ── */}
-      {feedReadyState && (
+      {step === 'complete' && (
         <div className="onb-confetti-stage pointer-events-none fixed inset-0 z-[80] overflow-hidden">
           {confettiParticles.map((p) => {
             const sizeMap: Record<string, string> = {
@@ -1390,7 +893,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Feed Ready: Celebration Banner ── */}
-      {feedReadyState && (
+      {step === 'complete' && (
         <div className="onb-feed-ready-banner relative overflow-hidden pb-6 pt-8 tablet:pb-8 tablet:pt-12">
           {/* Radial burst glows — multi-layered */}
           <div className="onb-ready-burst bg-accent-cabbage-default/[0.14] pointer-events-none absolute left-1/2 top-0 h-[24rem] w-full max-w-[48rem] -translate-x-1/2 -translate-y-1/3 rounded-full blur-[120px]" />
@@ -1604,7 +1107,7 @@ export const OnboardingV2 = (): ReactElement => {
         className={classNames(
           'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
           // eslint-disable-next-line no-nested-ternary
-          feedReadyState
+          step === 'complete'
             ? 'onb-feed-unlocked translate-y-0 opacity-100'
             : feedVisible
             ? 'translate-y-0 opacity-100'
@@ -1615,7 +1118,7 @@ export const OnboardingV2 = (): ReactElement => {
           <FeedLayoutProvider>
             <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
               <MainFeedLayout feedName="popular" isSearchOn={false}>
-                {!feedReadyState && (
+                {step !== 'complete' && (
                   <div className="relative z-1 mx-auto mt-44 flex w-full max-w-[48rem] justify-center px-5 pb-48 mobileL:mt-48 mobileL:px-6 mobileL:pb-52 tablet:mt-14 tablet:pb-8">
                     <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
                   </div>
@@ -1629,7 +1132,7 @@ export const OnboardingV2 = (): ReactElement => {
       <OnboardingV2Styles />
 
       {/* ── Header signup chooser popup ── */}
-      {showSignupChooser && (
+      {step === 'chooser' && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -1867,7 +1370,7 @@ export const OnboardingV2 = (): ReactElement => {
                     <button
                       type="button"
                       onClick={async () => {
-                        setShowSignupChooser(false);
+                        setStep('hero');
                         if (isLoggedIn) {
                           startGithubImportFlow();
                         } else {
@@ -1950,7 +1453,7 @@ export const OnboardingV2 = (): ReactElement => {
                         e.preventDefault();
                         if (aiPrompt.trim()) {
                           if (isLoggedIn) {
-                            setShowSignupChooser(false);
+                            setStep('hero');
                             startAiProcessing();
                           } else {
                             openSignupAuth();
@@ -1971,7 +1474,7 @@ export const OnboardingV2 = (): ReactElement => {
                       disabled={!canStartAiFlow}
                       onClick={() => {
                         if (isLoggedIn) {
-                          setShowSignupChooser(false);
+                          setStep('hero');
                           startAiProcessing();
                         } else {
                           openSignupAuth();
@@ -2011,7 +1514,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Auth Signup Overlay (providers: Google, GitHub, email) ── */}
-      {showAuthSignup && (
+      {step === 'auth' && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -2060,6 +1563,7 @@ export const OnboardingV2 = (): ReactElement => {
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                autoTriggerProvider={autoTriggerProvider}
                 className={{ container: '!min-h-0' }}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {
@@ -2067,9 +1571,17 @@ export const OnboardingV2 = (): ReactElement => {
                   }
                 }}
                 onSuccessfulRegistration={() => {
-                  closeAuthSignup();
+                  setAutoTriggerProvider(undefined);
+                  if (signupContext === 'github') {
+                    startGithubImportFlow();
+                  } else if (signupContext === 'ai') {
+                    startAiProcessing();
+                  } else {
+                    closeAuthSignup();
+                  }
                 }}
                 onSuccessfulLogin={() => {
+                  setAutoTriggerProvider(undefined);
                   closeAuthSignup();
                 }}
               />
@@ -2079,7 +1591,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Extension Promotion Overlay ── */}
-      {showExtensionPromo && (
+      {step === 'extension' && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -2232,7 +1744,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Profile Import Overlay ── */}
-      {showGithubImportFlow && (
+      {step === 'importing' && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center"
           role="dialog"
@@ -2566,11 +2078,10 @@ export const OnboardingV2 = (): ReactElement => {
                     {/* ── Import checklist (during active import) ── */}
                     {githubImportBodyPhase === 'checklist' && (
                       <div className="flex w-full flex-col gap-2.5">
-                        {importSteps.map((step, i) => {
-                          const done = githubImportProgress >= step.threshold;
+                        {importSteps.map((s, i) => {
+                          const done = githubImportProgress >= s.threshold;
                           const active =
-                            !done &&
-                            githubImportProgress >= step.threshold - 16;
+                            !done && githubImportProgress >= s.threshold - 16;
                           // eslint-disable-next-line no-nested-ternary
                           const statusText = done
                             ? 'Done'
@@ -2580,7 +2091,7 @@ export const OnboardingV2 = (): ReactElement => {
 
                           return (
                             <div
-                              key={step.label}
+                              key={s.label}
                               className="ghub-step-reveal grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3"
                               style={{ animationDelay: `${i * 80}ms` }}
                             >
@@ -2633,7 +2144,7 @@ export const OnboardingV2 = (): ReactElement => {
                                     : 'text-text-quaternary',
                                 )}
                               >
-                                {step.label}
+                                {s.label}
                               </span>
                               <span
                                 className={classNames(
@@ -2715,13 +2226,13 @@ export const OnboardingV2 = (): ReactElement => {
               </div>
             )}
 
-            {/* Completion handled by feedReadyState banner — auto-transition */}
+            {/* Completion handled by step=complete banner — auto-transition */}
           </div>
         </div>
       )}
 
       {/* ── Contextual Signup Modal ── */}
-      {showSignupPrompt && (
+      {step === 'prompt' && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -2730,7 +2241,7 @@ export const OnboardingV2 = (): ReactElement => {
           {/* Backdrop */}
           <div
             className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
-            onClick={() => setShowSignupPrompt(false)}
+            onClick={() => setStep('hero')}
             role="presentation"
           />
 
@@ -2739,7 +2250,7 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Close */}
             <button
               type="button"
-              onClick={() => setShowSignupPrompt(false)}
+              onClick={() => setStep('hero')}
               className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
@@ -2890,7 +2401,7 @@ export const OnboardingV2 = (): ReactElement => {
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
                     onClick={() => {
                       if (isLoggedIn) {
-                        setShowSignupPrompt(false);
+                        setStep('hero');
                         startGithubImportFlow();
                       } else {
                         initiateGithubAuth();
@@ -2936,7 +2447,7 @@ export const OnboardingV2 = (): ReactElement => {
                       )}
                       onClick={() => {
                         if (isLoggedIn) {
-                          setShowSignupPrompt(false);
+                          setStep('hero');
                           startAiProcessing();
                         } else {
                           openSignupAuth();
