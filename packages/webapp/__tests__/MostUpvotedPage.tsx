@@ -60,6 +60,10 @@ function renderComponent(
 
   mocks.forEach(mockGraphQL);
   nock('http://localhost:3000').get('/v1/a').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .post('/graphql')
+    .reply(200, { data: null })
+    .persist();
 
   return render(
     <TestBootProvider client={client} auth={{ user: resolvedUser }}>
@@ -78,9 +82,8 @@ it('should request most upvoted feed when logged-in', async () => {
       version: 15,
     }),
   ]);
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
+  await waitFor(() => {
+    expect(screen.getAllByTestId('postItem').length).toBeTruthy();
   });
 });
 
@@ -97,8 +100,7 @@ it('should request most upvoted feed when not', async () => {
     ],
     undefined,
   );
-  await waitFor(async () => {
-    const elements = await screen.findAllByTestId('postItem');
-    expect(elements.length).toBeTruthy();
+  await waitFor(() => {
+    expect(screen.getAllByTestId('postItem').length).toBeTruthy();
   });
 });
