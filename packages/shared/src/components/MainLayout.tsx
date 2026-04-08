@@ -17,7 +17,7 @@ import { PromptElement } from './modals/Prompt';
 import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
-import { isTesting, onboardingUrl } from '../lib/constants';
+import { isTesting, onboardingUrl, swipeOnboardingUrl } from '../lib/constants';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -33,6 +33,8 @@ import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { swipeOnboardingFeature } from '../lib/featureManagement';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -47,6 +49,7 @@ const Sidebar = dynamic(() =>
     (mod) => mod.Sidebar,
   ),
 );
+const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
 
 export interface MainLayoutProps
   extends Omit<MainLayoutHeaderProps, 'onMobileSidebarToggle'>,
@@ -94,6 +97,20 @@ function MainLayoutComponent({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
+  const isPageReady =
+    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
+    feature: swipeOnboardingFeature,
+    shouldEvaluate: !user,
+  });
+  const swipeOnboardingPreviewQuery =
+    router.query[swipeOnboardingPreviewQueryKey];
+  const isSwipeOnboardingPreviewForced =
+    swipeOnboardingPreviewQuery === '1' ||
+    swipeOnboardingPreviewQuery === 'true' ||
+    (Array.isArray(swipeOnboardingPreviewQuery) &&
+      (swipeOnboardingPreviewQuery.includes('1') ||
+        swipeOnboardingPreviewQuery.includes('true')));
   useNotificationParams();
 
   useEffect(() => {
@@ -111,8 +128,6 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  const isPageReady =
-    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
     !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
@@ -126,7 +141,11 @@ function MainLayoutComponent({
     const entries = Object.entries(router.query);
 
     if (entries.length === 0) {
-      router.push(onboardingUrl);
+      router.push(
+        isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+          ? swipeOnboardingUrl
+          : onboardingUrl,
+      );
       return;
     }
 
@@ -136,8 +155,17 @@ function MainLayoutComponent({
       params.append(key, value as string);
     });
 
-    router.push(`${onboardingUrl}?${params.toString()}`);
-  }, [shouldRedirectOnboarding, router]);
+    const destination =
+      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+        ? swipeOnboardingUrl
+        : onboardingUrl;
+    router.push(`${destination}?${params.toString()}`);
+  }, [
+    isSwipeOnboardingEnabled,
+    isSwipeOnboardingPreviewForced,
+    shouldRedirectOnboarding,
+    router,
+  ]);
 
   const ignoredUtmMediumForLogin = ['slack'];
   const utmSource = router?.query?.utm_source;

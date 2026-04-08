@@ -46,6 +46,8 @@ import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structu
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   messageHandlerExists,
   postWebKitMessage,
@@ -89,6 +91,7 @@ const onboardingExcludedPaths = [
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
+const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
 const isOnboardingExcludedPath = (pathname: string): boolean =>
   onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
@@ -141,6 +144,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, trackingId, isFunnel } = useAuthContext();
+  const {
+    value: isSwipeOnboardingEnabled,
+    isLoading: isSwipeOnboardingLoading,
+  } = useConditionalFeature({
+    feature: swipeOnboardingFeature,
+  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -160,6 +169,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     (Array.isArray(hotAndColdModalQuery) &&
       (hotAndColdModalQuery.includes(hotAndColdModalQueryValue) ||
         hotAndColdModalQuery.includes(hotAndColdModalLegacyQueryValue)));
+  const swipeOnboardingPreviewQuery =
+    router.query[swipeOnboardingPreviewQueryKey];
+  const isSwipeOnboardingPreviewForced =
+    swipeOnboardingPreviewQuery === '1' ||
+    swipeOnboardingPreviewQuery === 'true' ||
+    (Array.isArray(swipeOnboardingPreviewQuery) &&
+      (swipeOnboardingPreviewQuery.includes('1') ||
+        swipeOnboardingPreviewQuery.includes('true')));
 
   useEffect(() => {
     if (!shouldOpenHotAndColdFromQuery) {
@@ -196,12 +213,25 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     if (
       !isFunnel &&
       isOnboardingActionsReady &&
+      (!isSwipeOnboardingLoading || isSwipeOnboardingPreviewForced) &&
       !isOnboardingComplete &&
       !isOnboardingExcludedPath(router.pathname)
     ) {
-      router.replace('/onboarding');
+      const destination =
+        isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+          ? '/onboarding/swipe'
+          : '/onboarding';
+      router.replace(destination);
     }
-  }, [isFunnel, isOnboardingActionsReady, router, isOnboardingComplete]);
+  }, [
+    isFunnel,
+    isOnboardingActionsReady,
+    isOnboardingComplete,
+    isSwipeOnboardingEnabled,
+    isSwipeOnboardingLoading,
+    isSwipeOnboardingPreviewForced,
+    router,
+  ]);
 
   useEffect(() => {
     const id = user?.id || trackingId;

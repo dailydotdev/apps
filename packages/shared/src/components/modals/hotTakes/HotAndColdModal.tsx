@@ -1,5 +1,11 @@
-import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useSwipeable } from 'react-swipeable';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
@@ -12,7 +18,9 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { IconSize } from '../../Icon';
 import { HotIcon } from '../../icons/Hot';
+import { MiniCloseIcon, VIcon } from '../../icons';
 import {
   Typography,
   TypographyType,
@@ -22,9 +30,17 @@ import { ProfilePicture, ProfileImageSize } from '../../ProfilePicture';
 import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
+import { Loader } from '../../Loader';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 
 const SWIPE_THRESHOLD = 80;
+const ONBOARDING_INTRO_INTERESTING_OFFSET = 56;
+const ONBOARDING_INTRO_NOT_OFFSET = -56;
+const ONBOARDING_INTRO_PHASE_MS = 160;
+const ONBOARDING_INTRO_PAUSE_MS = 55;
+const ONBOARDING_INTRO_START_DELAY_MS = 120;
+/** Time from the start of one intro play to the start of the next (~4s; hint loop until user interacts). */
+const ONBOARDING_INTRO_REPEAT_INTERVAL_MS = 4000;
 const DISMISS_ANIMATION_MS = 340;
 const BUTTON_DISMISS_ANIMATION_MS = 620;
 const DISMISS_FLY_DISTANCE = 760;
@@ -35,6 +51,497 @@ const SKIP_DISMISS_FLY_DISTANCE = 600;
 const SKIP_DRAG_ELASTICITY_FACTOR = 0.3;
 const COLD_ACCENT_COLOR = '#123a88';
 const HOT_TAKE_CARD_HEIGHT = '28rem';
+/** Title3 × 3 lines (typo-title3 line-height 1.625rem in tailwind/typography.ts). */
+const ONBOARDING_CARD_TITLE_MIN_HEIGHT = '4.875rem';
+/** Fixed onboarding post card (source + 3-line title + 4:3 image + padding). */
+const ONBOARDING_POST_CARD_HEIGHT = '24rem';
+/** Swipe stack area: card height plus back-card vertical offset (8px). */
+const ONBOARDING_SWIPE_AREA_HEIGHT = '24.5rem';
+
+const smoothstep01 = (t: number): number => {
+  const x = Math.min(Math.max(t, 0), 1);
+  return x * x * (3 - 2 * x);
+};
+
+const pauseMs = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    window.setTimeout(() => {
+      resolve();
+    }, ms);
+  });
+
+const runOnboardingIntroAnimation = ({
+  signal,
+  onUpdate,
+}: {
+  signal: { aborted: boolean };
+  onUpdate: (value: number) => void;
+}): Promise<void> => {
+  const segment = (from: number, to: number, durationMs: number) =>
+    new Promise<void>((resolve) => {
+      const startTime = performance.now();
+      const tick = (now: number) => {
+        if (signal.aborted) {
+          resolve();
+          return;
+        }
+        const elapsed = now - startTime;
+        const t = durationMs <= 0 ? 1 : Math.min(elapsed / durationMs, 1);
+        const eased = smoothstep01(t);
+        onUpdate(from + (to - from) * eased);
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          resolve();
+        }
+      };
+      requestAnimationFrame(tick);
+    });
+
+  return (async () => {
+    await segment(
+      0,
+      ONBOARDING_INTRO_INTERESTING_OFFSET,
+      ONBOARDING_INTRO_PHASE_MS,
+    );
+    if (signal.aborted) {
+      return;
+    }
+    await pauseMs(ONBOARDING_INTRO_PAUSE_MS);
+    if (signal.aborted) {
+      return;
+    }
+    await segment(
+      ONBOARDING_INTRO_INTERESTING_OFFSET,
+      ONBOARDING_INTRO_NOT_OFFSET,
+      ONBOARDING_INTRO_PHASE_MS,
+    );
+    if (signal.aborted) {
+      return;
+    }
+    await pauseMs(ONBOARDING_INTRO_PAUSE_MS);
+    if (signal.aborted) {
+      return;
+    }
+    await segment(ONBOARDING_INTRO_NOT_OFFSET, 0, ONBOARDING_INTRO_PHASE_MS);
+  })();
+};
+
+const ONBOARDING_BEHIND_PARTICLES_CSS = `
+  @keyframes onboardingBehindParticle {
+    0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; }
+    10% { opacity: 0.9; }
+    35% { transform: translate3d(var(--obp-tx), var(--obp-ty), 0) scale(1.08); opacity: 0.65; }
+    65% { transform: translate3d(calc(var(--obp-ex) * 0.55), 3.5rem, 0) scale(0.65); opacity: 0.3; }
+    100% { transform: translate3d(var(--obp-ex), 8rem, 0) scale(0.15); opacity: 0; }
+  }
+  @keyframes onboardingMagicSpark {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(0.75); opacity: 0.45; filter: blur(0); }
+    20% { transform: translate3d(var(--oms-x1), var(--oms-y1), 0) scale(1.35); opacity: 1; filter: blur(0); }
+    45% { transform: translate3d(var(--oms-x2), var(--oms-y2), 0) scale(1); opacity: 0.65; filter: blur(0); }
+    70% { transform: translate3d(var(--oms-x3), var(--oms-y3), 0) scale(1.2); opacity: 0.9; filter: blur(0); }
+  }
+  @keyframes onboardingAuraDrift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.35; }
+    33% { transform: translate3d(0.35rem, -0.5rem, 0) scale(1.06); opacity: 0.55; }
+    66% { transform: translate3d(-0.25rem, 0.35rem, 0) scale(0.96); opacity: 0.42; }
+  }
+`;
+
+const ONBOARDING_BEHIND_PARTICLE_SPECS: ReadonlyArray<{
+  left: string;
+  top: string;
+  size: string;
+  tx: string;
+  ty: string;
+  ex: string;
+  duration: number;
+  delay: number;
+  className: string;
+}> = [
+  {
+    left: '6%',
+    top: '72%',
+    size: '0.25rem',
+    tx: '1.5rem',
+    ty: '-2.25rem',
+    ex: '0.5rem',
+    duration: 4.6,
+    delay: 0,
+    className: 'bg-accent-avocado-default/40',
+  },
+  {
+    left: '92%',
+    top: '68%',
+    size: '0.1875rem',
+    tx: '-1.25rem',
+    ty: '-2rem',
+    ex: '-0.75rem',
+    duration: 4.1,
+    delay: 0.35,
+    className: 'bg-accent-bacon-default/35',
+  },
+  {
+    left: '18%',
+    top: '88%',
+    size: '0.3125rem',
+    tx: '0.75rem',
+    ty: '-1.25rem',
+    ex: '1rem',
+    duration: 3.7,
+    delay: 0.7,
+    className: 'bg-text-tertiary/50',
+  },
+  {
+    left: '78%',
+    top: '82%',
+    size: '0.25rem',
+    tx: '-0.5rem',
+    ty: '-1.75rem',
+    ex: '-1.25rem',
+    duration: 4.3,
+    delay: 0.2,
+    className: 'bg-accent-avocado-default/30',
+  },
+  {
+    left: '44%',
+    top: '92%',
+    size: '0.1875rem',
+    tx: '1rem',
+    ty: '-0.75rem',
+    ex: '0.25rem',
+    duration: 3.4,
+    delay: 1.1,
+    className: 'bg-text-tertiary/40',
+  },
+  {
+    left: '52%',
+    top: '78%',
+    size: '0.25rem',
+    tx: '-1.5rem',
+    ty: '-2.5rem',
+    ex: '-0.25rem',
+    duration: 4.8,
+    delay: 0.55,
+    className: 'bg-accent-bacon-default/25',
+  },
+  {
+    left: '28%',
+    top: '58%',
+    size: '0.1875rem',
+    tx: '2rem',
+    ty: '0.25rem',
+    ex: '0.75rem',
+    duration: 5.1,
+    delay: 0.9,
+    className: 'bg-accent-avocado-default/25',
+  },
+  {
+    left: '66%',
+    top: '52%',
+    size: '0.25rem',
+    tx: '-1.75rem',
+    ty: '0.5rem',
+    ex: '-1rem',
+    duration: 4.4,
+    delay: 1.4,
+    className: 'bg-text-tertiary/35',
+  },
+];
+
+const ONBOARDING_MAGIC_SPARK_SPECS: ReadonlyArray<{
+  left: string;
+  top: string;
+  size: string;
+  x1: string;
+  y1: string;
+  x2: string;
+  y2: string;
+  x3: string;
+  y3: string;
+  duration: number;
+  delay: number;
+  className: string;
+}> = [
+  {
+    left: '12%',
+    top: '38%',
+    size: '0.1875rem',
+    x1: '0.4rem',
+    y1: '-1.25rem',
+    x2: '-0.35rem',
+    y2: '-2rem',
+    x3: '0.5rem',
+    y3: '-1rem',
+    duration: 2.8,
+    delay: 0,
+    className: 'bg-accent-avocado-default/90',
+  },
+  {
+    left: '84%',
+    top: '42%',
+    size: '0.15625rem',
+    x1: '-0.45rem',
+    y1: '-1rem',
+    x2: '0.3rem',
+    y2: '-1.75rem',
+    x3: '-0.2rem',
+    y3: '-0.5rem',
+    duration: 3.2,
+    delay: 0.4,
+    className: 'bg-accent-bacon-default/85',
+  },
+  {
+    left: '48%',
+    top: '28%',
+    size: '0.125rem',
+    x1: '0.25rem',
+    y1: '-0.75rem',
+    x2: '0.5rem',
+    y2: '-1.5rem',
+    x3: '0.1rem',
+    y3: '-1.1rem',
+    duration: 2.4,
+    delay: 0.8,
+    className: 'bg-accent-cabbage-default/80',
+  },
+  {
+    left: '22%',
+    top: '48%',
+    size: '0.15625rem',
+    x1: '0.6rem',
+    y1: '0.25rem',
+    x2: '0.2rem',
+    y2: '-0.5rem',
+    x3: '0.75rem',
+    y3: '-0.25rem',
+    duration: 3.6,
+    delay: 0.15,
+    className: 'bg-accent-avocado-default/70',
+  },
+  {
+    left: '72%',
+    top: '36%',
+    size: '0.1875rem',
+    x1: '-0.5rem',
+    y1: '-0.5rem',
+    x2: '-0.75rem',
+    y2: '-1.25rem',
+    x3: '-0.35rem',
+    y3: '-1.75rem',
+    duration: 2.9,
+    delay: 1.1,
+    className: 'bg-accent-bacon-default/75',
+  },
+  {
+    left: '56%',
+    top: '44%',
+    size: '0.125rem',
+    x1: '-0.2rem',
+    y1: '-1.5rem',
+    x2: '0.4rem',
+    y2: '-2.25rem',
+    x3: '0.15rem',
+    y3: '-1.75rem',
+    duration: 3.4,
+    delay: 0.55,
+    className: 'bg-text-tertiary/80',
+  },
+  {
+    left: '36%',
+    top: '32%',
+    size: '0.15625rem',
+    x1: '0.35rem',
+    y1: '-0.35rem',
+    x2: '-0.15rem',
+    y2: '-1rem',
+    x3: '0.45rem',
+    y3: '-1.4rem',
+    duration: 2.6,
+    delay: 1.3,
+    className: 'bg-accent-avocado-default/80',
+  },
+  {
+    left: '64%',
+    top: '50%',
+    size: '0.125rem',
+    x1: '-0.3rem',
+    y1: '-1.1rem',
+    x2: '0.25rem',
+    y2: '-1.8rem',
+    x3: '-0.5rem',
+    y3: '-1.2rem',
+    duration: 3,
+    delay: 0.25,
+    className: 'bg-accent-cheese-default/75',
+  },
+];
+
+const OnboardingCardBehindParticles = (): ReactElement => (
+  <>
+    {/* eslint-disable-next-line react/no-unknown-property -- style tag for scoped keyframes */}
+    <style>{ONBOARDING_BEHIND_PARTICLES_CSS}</style>
+    <div
+      aria-hidden
+      className="opacity-70 pointer-events-none absolute inset-0 z-[21] overflow-hidden rounded-16"
+    >
+      <div
+        className="bg-accent-avocado-default/50 absolute left-[5%] top-[8%] h-[42%] w-[55%] rounded-full blur-2xl"
+        style={{
+          animation: 'onboardingAuraDrift 5.5s ease-in-out infinite',
+        }}
+      />
+      <div
+        className="bg-accent-bacon-default/45 absolute bottom-[6%] right-[4%] h-[38%] w-[52%] rounded-full blur-2xl"
+        style={{
+          animation: 'onboardingAuraDrift 6.2s ease-in-out infinite',
+          animationDelay: '1.1s',
+        }}
+      />
+      <div
+        className="bg-accent-cabbage-default/40 absolute left-[22%] top-[38%] h-[35%] w-[48%] rounded-full blur-2xl"
+        style={{
+          animation: 'onboardingAuraDrift 4.8s ease-in-out infinite',
+          animationDelay: '0.6s',
+        }}
+      />
+      {ONBOARDING_MAGIC_SPARK_SPECS.map((spark) => (
+        <span
+          key={`spark-${spark.left}-${spark.top}-${spark.delay}`}
+          className={classNames('absolute rounded-full', spark.className)}
+          style={
+            {
+              left: spark.left,
+              top: spark.top,
+              width: spark.size,
+              height: spark.size,
+              '--oms-x1': spark.x1,
+              '--oms-y1': spark.y1,
+              '--oms-x2': spark.x2,
+              '--oms-y2': spark.y2,
+              '--oms-x3': spark.x3,
+              '--oms-y3': spark.y3,
+              animation: `onboardingMagicSpark ${spark.duration}s ease-in-out infinite`,
+              animationDelay: `${spark.delay}s`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+      {ONBOARDING_BEHIND_PARTICLE_SPECS.map((particle) => (
+        <span
+          key={`${particle.left}-${particle.top}-${particle.delay}-${particle.duration}`}
+          className={classNames(
+            'absolute rounded-full blur-[0.0625rem]',
+            particle.className,
+          )}
+          style={
+            {
+              left: particle.left,
+              top: particle.top,
+              width: particle.size,
+              height: particle.size,
+              '--obp-tx': particle.tx,
+              '--obp-ty': particle.ty,
+              '--obp-ex': particle.ex,
+              animation: `onboardingBehindParticle ${particle.duration}s ease-in-out infinite`,
+              animationDelay: `${particle.delay}s`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  </>
+);
+
+const OnboardingSwipeHintIcons = ({
+  deltaX,
+  disabled,
+  onNotInteresting,
+  onInteresting,
+}: {
+  deltaX: number;
+  disabled: boolean;
+  onNotInteresting: () => void;
+  onInteresting: () => void;
+}): ReactElement => {
+  const swipeVisualIntensity = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
+  const leftVisualStrength = deltaX < 0 ? swipeVisualIntensity : 0;
+  const rightVisualStrength = deltaX > 0 ? swipeVisualIntensity : 0;
+
+  const leftAccentColor = 'var(--theme-accent-bacon-default)';
+  const rightAccentColor = 'var(--theme-accent-avocado-default)';
+  const leftSwipeEmphasized = leftVisualStrength > 0;
+  const rightSwipeEmphasized = rightVisualStrength > 0;
+
+  return (
+    <div className="flex items-center justify-center gap-6 px-1">
+      <button
+        type="button"
+        aria-label="Not interesting"
+        disabled={disabled}
+        className={classNames(
+          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+          'disabled:cursor-not-allowed disabled:opacity-40',
+          leftSwipeEmphasized
+            ? 'opacity-100'
+            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default',
+        )}
+        style={{
+          transform: `scale(${1 + leftVisualStrength * 0.1})`,
+          ...(leftSwipeEmphasized
+            ? {
+                color: leftAccentColor,
+                borderColor: leftAccentColor,
+                backgroundColor: `color-mix(in srgb, ${leftAccentColor} ${Math.round(
+                  leftVisualStrength * 16,
+                )}%, transparent)`,
+                boxShadow: `0 0 ${
+                  8 + leftVisualStrength * 10
+                }px color-mix(in srgb, ${leftAccentColor} ${Math.round(
+                  leftVisualStrength * 45,
+                )}%, transparent)`,
+              }
+            : {}),
+        }}
+        onClick={onNotInteresting}
+      >
+        <MiniCloseIcon size={IconSize.Large} />
+      </button>
+      <button
+        type="button"
+        aria-label="Interesting"
+        disabled={disabled}
+        className={classNames(
+          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+          'disabled:cursor-not-allowed disabled:opacity-40',
+          rightSwipeEmphasized
+            ? 'opacity-100'
+            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default',
+        )}
+        style={{
+          transform: `scale(${1 + rightVisualStrength * 0.1})`,
+          ...(rightSwipeEmphasized
+            ? {
+                color: rightAccentColor,
+                borderColor: rightAccentColor,
+                backgroundColor: `color-mix(in srgb, ${rightAccentColor} ${Math.round(
+                  rightVisualStrength * 16,
+                )}%, transparent)`,
+                boxShadow: `0 0 ${
+                  8 + rightVisualStrength * 10
+                }px color-mix(in srgb, ${rightAccentColor} ${Math.round(
+                  rightVisualStrength * 45,
+                )}%, transparent)`,
+              }
+            : {}),
+        }}
+        onClick={onInteresting}
+      >
+        <VIcon size={IconSize.Large} />
+      </button>
+    </div>
+  );
+};
 
 const getElasticDelta = (delta: number): number => {
   const absoluteDelta = Math.abs(delta);
@@ -794,6 +1301,195 @@ const HotTakeCard = ({
   );
 };
 
+const OnboardingPostCard = ({
+  card,
+  isTop,
+  offset,
+  swipeDelta,
+  skipDeltaY = 0,
+  isDismissAnimating,
+  isDragging,
+  dismissDurationMs,
+  useInstantSwipeTransform = false,
+}: {
+  card: OnboardingSwipeCard;
+  isTop: boolean;
+  offset: number;
+  swipeDelta: number;
+  skipDeltaY?: number;
+  isDismissAnimating: boolean;
+  isDragging: boolean;
+  dismissDurationMs: number;
+  useInstantSwipeTransform?: boolean;
+}): ReactElement => {
+  const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
+  let swipeDirection: 'left' | 'right' | null = null;
+  if (isTop && Math.abs(swipeDelta) > 20) {
+    swipeDirection = swipeDelta > 0 ? 'right' : 'left';
+  }
+  const swipeIntensity = isTop
+    ? Math.min(Math.abs(swipeDelta) / SWIPE_THRESHOLD, 1)
+    : 0;
+  const rotation = isTop ? Math.max(Math.min(swipeDelta * 0.08, 18), -18) : 0;
+  const translateX = isTop ? swipeDelta : 0;
+  const stackScale = isTop ? 1 : 1 - offset * 0.05;
+  const translateY = isTop ? 0 : offset * 8;
+  const dismissDistance = isSkipAnimating
+    ? SKIP_DISMISS_FLY_DISTANCE
+    : DISMISS_FLY_DISTANCE;
+  const dismissProgress =
+    isTop && isDismissAnimating
+      ? Math.min(
+          Math.abs(isSkipAnimating ? skipDeltaY : swipeDelta) / dismissDistance,
+          1,
+        )
+      : 0;
+  const scale = isTop ? 1 - dismissProgress * 0.06 : stackScale;
+  const dismissLift = isTop ? dismissProgress * -22 : 0;
+  const translateYWithOutro =
+    translateY + dismissLift + (isTop ? skipDeltaY : 0);
+
+  let transition =
+    'transform 0.3s ease, border-color 0.2s ease, box-shadow 0.2s ease';
+  if (isTop) {
+    if (isDismissAnimating) {
+      transition = `transform ${dismissDurationMs}ms cubic-bezier(0.16, 0.86, 0.22, 1), opacity ${dismissDurationMs}ms ease-out, filter ${dismissDurationMs}ms ease-out`;
+    } else if (isDragging || useInstantSwipeTransform) {
+      transition = 'none';
+    } else {
+      transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
+    }
+  }
+
+  return (
+    <div
+      className={classNames(
+        'flex min-h-0 w-full select-none flex-col overflow-hidden rounded-16',
+        isTop
+          ? 'relative border border-border-subtlest-tertiary bg-background-popover'
+          : 'pointer-events-none absolute left-0 right-0 top-0 bg-background-default',
+        isTop && 'cursor-grab active:cursor-grabbing',
+      )}
+      onDragStart={(event) => event.preventDefault()}
+      style={{
+        height: ONBOARDING_POST_CARD_HEIGHT,
+        transform: `translateX(${translateX}px) translateY(${translateYWithOutro}px) rotate(${rotation}deg) scale(${scale})`,
+        zIndex: 10 - offset,
+        transition,
+        opacity: isTop ? 1 - dismissProgress * 0.75 : 1,
+        filter:
+          isTop && isDismissAnimating
+            ? `blur(${dismissProgress * 1.8}px)`
+            : undefined,
+        boxShadow: isTop
+          ? '0 1.25rem 2.75rem -0.75rem rgba(0, 0, 0, 0.45)'
+          : '0 0.75rem 1.75rem -0.75rem rgba(0, 0, 0, 0.32)',
+      }}
+    >
+      {swipeDirection && (
+        <div
+          className={classNames(
+            'z-20 absolute left-1/2 top-3 -translate-x-1/2 rounded-10 px-3 py-1 font-bold text-white typo-callout',
+            swipeDirection === 'right'
+              ? 'bg-accent-avocado-default'
+              : 'bg-accent-bacon-default',
+          )}
+          style={{ opacity: swipeIntensity }}
+        >
+          {swipeDirection === 'right' ? 'INTERESTING' : 'NOT'}
+        </div>
+      )}
+      <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
+        <div className="flex shrink-0 items-center gap-2">
+          {card.source?.image ? (
+            <img
+              alt={card.source.name ?? 'Source'}
+              className="size-6 rounded-full object-cover"
+              draggable={false}
+              src={card.source.image}
+            />
+          ) : (
+            <div className="size-6 rounded-full bg-surface-hover" />
+          )}
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+            className="truncate"
+            bold
+          >
+            {card.source?.name || 'daily.dev'}
+          </Typography>
+        </div>
+        <div
+          className="shrink-0"
+          style={{ minHeight: ONBOARDING_CARD_TITLE_MIN_HEIGHT }}
+        >
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Primary}
+            className="line-clamp-3 text-balance"
+            bold
+          >
+            {card.title || 'Popular developer story'}
+          </Typography>
+        </div>
+        <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-12">
+          {card.image ? (
+            <img
+              alt={card.title ?? 'Popular post'}
+              className="size-full rounded-12 object-cover"
+              draggable={false}
+              src={card.image}
+            />
+          ) : (
+            <div className="size-full rounded-12 bg-surface-hover" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OnboardingFeedEmptyState = ({
+  onRetry,
+  isRefetching,
+}: {
+  onRetry?: () => void;
+  isRefetching: boolean;
+}): ReactElement => (
+  <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+    {isRefetching ? (
+      <Loader />
+    ) : null}
+    <Typography
+      type={TypographyType.Title3}
+      color={TypographyColor.Primary}
+      bold
+      className="text-center"
+    >
+      Couldn&apos;t load stories
+    </Typography>
+    <Typography
+      type={TypographyType.Body}
+      color={TypographyColor.Tertiary}
+      className="text-center"
+    >
+      Check your connection and try again.
+    </Typography>
+    {onRetry ? (
+      <Button
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Medium}
+        type="button"
+        disabled={isRefetching}
+        onClick={onRetry}
+      >
+        Try again
+      </Button>
+    ) : null}
+  </div>
+);
+
 const EmptyState = ({
   onClose,
   username,
@@ -834,10 +1530,65 @@ const EmptyState = ({
   </div>
 );
 
+type SwipeActionDirection = 'left' | 'right' | 'skip';
+
+export type OnboardingSwipeActionMeta = {
+  onboardingCardId?: string;
+};
+
+export interface OnboardingSwipeCard {
+  id: string;
+  title?: string;
+  image?: string | null;
+  tags?: string[];
+  source?: {
+    name?: string | null;
+    image?: string | null;
+  } | null;
+}
+
+interface HotAndColdModalProps extends ModalProps {
+  title?: string;
+  headerSlot?: ReactNode;
+  topSlot?: ReactNode;
+  bottomSlot?: ReactNode;
+  showHeader?: boolean;
+  showDefaultActions?: boolean;
+  showAddHotTakeButton?: boolean;
+  onSwipeAction?: (
+    direction: SwipeActionDirection,
+    meta?: OnboardingSwipeActionMeta,
+  ) => void;
+  onboardingCards?: OnboardingSwipeCard[];
+  onboardingCardsLoading?: boolean;
+  /** When set, dismissed onboarding cards are controlled by the parent (e.g. persist across view switches). */
+  dismissedOnboardingCardIds?: Set<string>;
+  onDismissedOnboardingCardsChange?: (next: Set<string>) => void;
+  /** Refetch popular posts when the onboarding deck failed to load. */
+  onOnboardingFeedRetry?: () => void;
+  /** True while onboarding deck query is fetching (initial or retry). */
+  onboardingFeedRefetching?: boolean;
+}
+
 const HotAndColdModal = ({
   onRequestClose,
+  title = 'Hot Takes',
+  headerSlot,
+  topSlot,
+  bottomSlot,
+  showHeader = true,
+  showDefaultActions = true,
+  showAddHotTakeButton = true,
+  onSwipeAction,
+  onboardingCards,
+  onboardingCardsLoading = false,
+  dismissedOnboardingCardIds,
+  onDismissedOnboardingCardsChange,
+  onOnboardingFeedRetry,
+  onboardingFeedRefetching = false,
+  className,
   ...props
-}: ModalProps): ReactElement => {
+}: HotAndColdModalProps): ReactElement => {
   const { currentTake, nextTake, isEmpty, isLoading, dismissCurrent } =
     useDiscoverHotTakes();
   const { toggleUpvote, toggleDownvote, cancelHotTakeVote } = useVoteHotTake();
@@ -855,6 +1606,51 @@ const HotAndColdModal = ({
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [skipDelta, setSkipDelta] = useState(0);
   const swipeDeltaYRef = useRef(0);
+  const [internalDismissedCardIds, setInternalDismissedCardIds] = useState<
+    Set<string>
+  >(() => new Set<string>());
+  const dismissedCardIds =
+    dismissedOnboardingCardIds ?? internalDismissedCardIds;
+  const updateDismissedCardIds = useCallback(
+    (updater: (prev: Set<string>) => Set<string>) => {
+      if (onDismissedOnboardingCardsChange) {
+        const base = dismissedOnboardingCardIds ?? new Set<string>();
+        onDismissedOnboardingCardsChange(updater(base));
+        return;
+      }
+      setInternalDismissedCardIds(updater);
+    },
+    [dismissedOnboardingCardIds, onDismissedOnboardingCardsChange],
+  );
+  const onboardingIntroRepeatCancelledRef = useRef(false);
+  const onboardingIntroAbortRef = useRef<{ aborted: boolean } | null>(null);
+  const [onboardingIntroDelta, setOnboardingIntroDelta] = useState(0);
+
+  const abortOnboardingIntro = useCallback(() => {
+    onboardingIntroRepeatCancelledRef.current = true;
+    const { current } = onboardingIntroAbortRef;
+    if (current) {
+      current.aborted = true;
+      onboardingIntroAbortRef.current = null;
+    }
+    setOnboardingIntroDelta(0);
+  }, []);
+
+  const isOnboardingMode = !!onboardingCards;
+  const availableOnboardingCards = useMemo(
+    () =>
+      (onboardingCards ?? []).filter((card) => !dismissedCardIds.has(card.id)),
+    [dismissedCardIds, onboardingCards],
+  );
+  const currentOnboardingCard = availableOnboardingCards[0];
+  const nextOnboardingCard = availableOnboardingCards[1];
+  const isModalLoading = isOnboardingMode ? onboardingCardsLoading : isLoading;
+  const isModalEmpty = isOnboardingMode
+    ? !isModalLoading && !currentOnboardingCard
+    : isEmpty;
+  const swipeAreaHeight = isOnboardingMode
+    ? ONBOARDING_SWIPE_AREA_HEIGHT
+    : HOT_TAKE_CARD_HEIGHT;
 
   useEffect(() => {
     animatingTakeIdRef.current = animatingTakeId;
@@ -880,6 +1676,84 @@ const HotAndColdModal = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      !isOnboardingMode ||
+      isModalLoading ||
+      !currentOnboardingCard ||
+      onboardingIntroRepeatCancelledRef.current
+    ) {
+      return undefined;
+    }
+
+    let effectCancelled = false;
+    let nextIterationTimeoutId: number | null = null;
+
+    const runOneIntroIteration = (): void => {
+      if (effectCancelled || onboardingIntroRepeatCancelledRef.current) {
+        setOnboardingIntroDelta(0);
+        return;
+      }
+      const animSignal = { aborted: false };
+      onboardingIntroAbortRef.current = animSignal;
+      const iterationStart = performance.now();
+      runOnboardingIntroAnimation({
+        signal: animSignal,
+        onUpdate: (value) => {
+          if (
+            !animSignal.aborted &&
+            !onboardingIntroRepeatCancelledRef.current
+          ) {
+            setOnboardingIntroDelta(value);
+          }
+        },
+      })
+        .then(() => {
+          if (onboardingIntroAbortRef.current === animSignal) {
+            onboardingIntroAbortRef.current = null;
+          }
+          if (
+            animSignal.aborted ||
+            effectCancelled ||
+            onboardingIntroRepeatCancelledRef.current
+          ) {
+            setOnboardingIntroDelta(0);
+            return;
+          }
+          setOnboardingIntroDelta(0);
+          const elapsed = performance.now() - iterationStart;
+          const waitMs = Math.max(
+            0,
+            ONBOARDING_INTRO_REPEAT_INTERVAL_MS - elapsed,
+          );
+          nextIterationTimeoutId = window.setTimeout(
+            runOneIntroIteration,
+            waitMs,
+          );
+        })
+        .catch(() => null);
+    };
+
+    nextIterationTimeoutId = window.setTimeout(() => {
+      nextIterationTimeoutId = null;
+      runOneIntroIteration();
+    }, ONBOARDING_INTRO_START_DELAY_MS);
+
+    return () => {
+      effectCancelled = true;
+      if (nextIterationTimeoutId !== null) {
+        window.clearTimeout(nextIterationTimeoutId);
+      }
+      const { current } = onboardingIntroAbortRef;
+      if (current) {
+        current.aborted = true;
+        onboardingIntroAbortRef.current = null;
+      }
+      setOnboardingIntroDelta(0);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on card id only, not currentOnboardingCard reference
+  }, [isOnboardingMode, isModalLoading, currentOnboardingCard?.id]);
 
   const startDismissAnimation = useCallback(
     ({
@@ -926,19 +1800,43 @@ const HotAndColdModal = ({
         swipeDeltaYRef.current = 0;
         animatingTakeIdRef.current = null;
         setAnimatingTakeId(null);
-        dismissCurrent();
+        if (isOnboardingMode && currentOnboardingCard) {
+          updateDismissedCardIds((prev) => {
+            const next = new Set(prev);
+            next.add(currentOnboardingCard.id);
+            const deck = onboardingCards ?? [];
+            if (deck.length > 0 && deck.every((c) => next.has(c.id))) {
+              return new Set<string>();
+            }
+            return next;
+          });
+        } else {
+          dismissCurrent();
+        }
         setIsAnimating(false);
         dismissTimerRef.current = null;
       }, durationMs);
     },
-    [dismissCurrent],
+    [
+      currentOnboardingCard,
+      dismissCurrent,
+      isOnboardingMode,
+      onboardingCards,
+      updateDismissedCardIds,
+    ],
   );
 
   const handleDismiss = useCallback(
     (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      if (!currentTake || isAnimating) {
+      const currentItemId = isOnboardingMode
+        ? currentOnboardingCard?.id
+        : currentTake?.id;
+
+      if (!currentItemId || isAnimating) {
         return;
       }
+
+      abortOnboardingIntro();
 
       const isButtonSource = source === 'button';
       const durationMs = isButtonSource
@@ -948,21 +1846,27 @@ const HotAndColdModal = ({
 
       logEvent({
         event_name: LogEvent.VoteHotAndCold,
-        target_id: currentTake.id,
-        extra: JSON.stringify({ vote, direction, hotTakeId: currentTake.id }),
+        target_id: currentItemId,
+        extra: JSON.stringify({ vote, direction, hotTakeId: currentItemId }),
       });
 
-      if (direction === 'right') {
-        toggleUpvote({
-          payload: currentTake,
-          origin: Origin.HotAndCold,
-        });
-      } else {
-        toggleDownvote({
-          payload: currentTake,
-          origin: Origin.HotAndCold,
-        });
+      if (!isOnboardingMode && currentTake) {
+        if (direction === 'right') {
+          toggleUpvote({
+            payload: currentTake,
+            origin: Origin.HotAndCold,
+          });
+        } else {
+          toggleDownvote({
+            payload: currentTake,
+            origin: Origin.HotAndCold,
+          });
+        }
       }
+      onSwipeAction?.(
+        direction,
+        isOnboardingMode ? { onboardingCardId: currentItemId } : undefined,
+      );
 
       let initialPush: number;
       let flyDistance: number;
@@ -986,7 +1890,7 @@ const HotAndColdModal = ({
       setSwipeDelta(initialPush);
 
       startDismissAnimation({
-        takeId: currentTake.id,
+        takeId: currentItemId,
         durationMs,
         flyDelayMs: isButtonSource ? BUTTON_FLY_KICK_DELAY_MS : 0,
         onFly: () => setSwipeDelta(flyDistance),
@@ -994,30 +1898,43 @@ const HotAndColdModal = ({
     },
     [
       currentTake,
+      currentOnboardingCard,
+      isOnboardingMode,
       isAnimating,
       startDismissAnimation,
       toggleDownvote,
       toggleUpvote,
       logEvent,
+      onSwipeAction,
       swipeDelta,
+      abortOnboardingIntro,
     ],
   );
 
   const handleSkip = useCallback(
     (source: 'swipe' | 'button' = 'button') => {
-      if (!currentTake || isAnimating) {
+      const currentItemId = isOnboardingMode
+        ? currentOnboardingCard?.id
+        : currentTake?.id;
+
+      if (!currentItemId || isAnimating) {
         return;
       }
 
+      abortOnboardingIntro();
+
       logEvent({
         event_name: LogEvent.SkipHotTake,
-        target_id: currentTake.id,
+        target_id: currentItemId,
       });
 
-      cancelHotTakeVote({ id: currentTake.id });
+      if (!isOnboardingMode && currentTake) {
+        cancelHotTakeVote({ id: currentTake.id });
+      }
+      onSwipeAction?.('skip');
 
       startDismissAnimation({
-        takeId: currentTake.id,
+        takeId: currentItemId,
         durationMs: SKIP_DISMISS_ANIMATION_MS,
         flyDelayMs: source === 'button' ? BUTTON_FLY_KICK_DELAY_MS : 0,
         onFly: () => setSkipDelta(-SKIP_DISMISS_FLY_DISTANCE),
@@ -1026,17 +1943,33 @@ const HotAndColdModal = ({
     [
       cancelHotTakeVote,
       currentTake,
+      currentOnboardingCard,
+      isOnboardingMode,
       isAnimating,
       startDismissAnimation,
       logEvent,
+      onSwipeAction,
+      abortOnboardingIntro,
     ],
   );
 
+  const currentCardId = isOnboardingMode
+    ? currentOnboardingCard?.id
+    : currentTake?.id;
   const isCurrentTakeAnimating =
-    !!currentTake && isAnimating && animatingTakeId === currentTake.id;
+    !!currentCardId && isAnimating && animatingTakeId === currentCardId;
   const cardSwipeDelta =
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
   const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
+  const combinedOnboardingSwipeX =
+    isOnboardingMode && !isDragging && !isCurrentTakeAnimating
+      ? cardSwipeDelta + onboardingIntroDelta
+      : cardSwipeDelta;
+  const onboardingIntroPlaying =
+    isOnboardingMode &&
+    !isDragging &&
+    !isCurrentTakeAnimating &&
+    onboardingIntroDelta !== 0;
 
   const handleSwiped = (direction: 'left' | 'right') => {
     setIsDragging(false);
@@ -1053,9 +1986,14 @@ const HotAndColdModal = ({
   const handlers = useSwipeable({
     onSwiping: (e) => {
       if (!isAnimating) {
+        abortOnboardingIntro();
         setIsDragging(true);
         setSwipeDelta(e.deltaX);
-        if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        if (
+          !isOnboardingMode &&
+          e.deltaY < 0 &&
+          Math.abs(e.deltaY) > Math.abs(e.deltaX)
+        ) {
           setSkipDelta(getElasticDelta(e.deltaY));
         } else {
           setSkipDelta(0);
@@ -1068,6 +2006,13 @@ const HotAndColdModal = ({
     onSwipedRight: () => handleSwiped('right'),
     onSwipedUp: () => {
       setIsDragging(false);
+      if (isOnboardingMode) {
+        setSwipeDelta(0);
+        swipeDeltaRef.current = 0;
+        setSkipDelta(0);
+        swipeDeltaYRef.current = 0;
+        return;
+      }
       if (
         swipeDeltaYRef.current < 0 &&
         Math.abs(swipeDeltaYRef.current) > SWIPE_THRESHOLD
@@ -1087,114 +2032,215 @@ const HotAndColdModal = ({
     touchEventOptions: { passive: false },
   });
 
+  const cardSwipeArea = (
+    <div
+      {...handlers}
+      className={classNames(
+        'relative mx-4 select-none self-center',
+        isOnboardingMode ? 'touch-pan-x' : 'touch-none',
+        isOnboardingMode
+          ? 'mt-2 w-[calc(100%-3rem)] max-w-[20rem]'
+          : 'mt-4 w-[calc(100%-2rem)]',
+      )}
+      style={
+        swipeAreaHeight !== undefined ? { height: swipeAreaHeight } : undefined
+      }
+    >
+      {isOnboardingMode ? (
+        <>
+          {nextOnboardingCard && (
+            <OnboardingPostCard
+              key={nextOnboardingCard.id}
+              card={nextOnboardingCard}
+              isTop={false}
+              offset={1}
+              swipeDelta={0}
+              isDismissAnimating={false}
+              isDragging={false}
+              dismissDurationMs={DISMISS_ANIMATION_MS}
+            />
+          )}
+          {currentOnboardingCard && (
+            <OnboardingPostCard
+              key={currentOnboardingCard.id}
+              card={currentOnboardingCard}
+              isTop
+              offset={0}
+              swipeDelta={combinedOnboardingSwipeX}
+              skipDeltaY={0}
+              isDismissAnimating={isCurrentTakeAnimating}
+              isDragging={isDragging}
+              dismissDurationMs={dismissDurationMs}
+              useInstantSwipeTransform={onboardingIntroPlaying}
+            />
+          )}
+          <OnboardingCardBehindParticles />
+        </>
+      ) : (
+        <>
+          {nextTake && (
+            <HotTakeCard
+              key={nextTake.id}
+              hotTake={nextTake}
+              isTop={false}
+              offset={1}
+              swipeDelta={0}
+              isDismissAnimating={false}
+              isDragging={false}
+              dismissDurationMs={DISMISS_ANIMATION_MS}
+            />
+          )}
+          {currentTake && (
+            <HotTakeCard
+              key={currentTake.id}
+              hotTake={currentTake}
+              isTop
+              offset={0}
+              swipeDelta={cardSwipeDelta}
+              skipDeltaY={cardSkipDelta}
+              isDismissAnimating={isCurrentTakeAnimating}
+              isDragging={isDragging}
+              dismissDurationMs={dismissDurationMs}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <Modal {...props} onRequestClose={onRequestClose} size={ModalSize.Small}>
-      <Modal.Header title="Hot Takes" />
-      <Modal.Body className="overflow-hidden !p-0">
-        {isLoading && (
-          <div className="flex flex-1 items-center justify-center p-6">
+    <Modal
+      {...props}
+      className={classNames(
+        isOnboardingMode && 'tablet:!max-h-[calc(100vh-2rem)]',
+        className,
+      )}
+      onRequestClose={onRequestClose}
+      size={ModalSize.Small}
+    >
+      {showHeader && <Modal.Header title={title} />}
+      <Modal.Body
+        className={classNames(
+          'bg-overlay-quaternary-onion !p-0',
+          isOnboardingMode
+            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden tablet:flex-none tablet:!overflow-x-visible tablet:!overflow-y-visible'
+            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden',
+        )}
+      >
+        {headerSlot}
+        {isModalLoading && (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6">
+            {isOnboardingMode ? <Loader /> : null}
             <Typography
               type={TypographyType.Body}
               color={TypographyColor.Tertiary}
             >
-              Loading hot takes...
+              {isOnboardingMode ? 'Loading stories…' : 'Loading hot takes...'}
             </Typography>
           </div>
         )}
 
-        {!isLoading && isEmpty && (
+        {!isModalLoading && isModalEmpty && isOnboardingMode && (
+          <OnboardingFeedEmptyState
+            isRefetching={onboardingFeedRefetching}
+            onRetry={onOnboardingFeedRetry}
+          />
+        )}
+
+        {!isModalLoading && isModalEmpty && !isOnboardingMode && (
           <EmptyState onClose={onRequestClose} username={user?.username} />
         )}
 
-        {!isLoading && !isEmpty && currentTake && (
+        {!isModalLoading && !isModalEmpty && currentCardId && (
           <>
-            <div
-              {...handlers}
-              className="relative mx-4 mt-2 select-none"
-              style={{ height: HOT_TAKE_CARD_HEIGHT }}
-            >
-              {nextTake && (
-                <HotTakeCard
-                  key={nextTake.id}
-                  hotTake={nextTake}
-                  isTop={false}
-                  offset={1}
-                  swipeDelta={0}
-                  isDismissAnimating={false}
-                  isDragging={false}
-                  dismissDurationMs={DISMISS_ANIMATION_MS}
-                />
-              )}
-              <HotTakeCard
-                key={currentTake.id}
-                hotTake={currentTake}
-                isTop
-                offset={0}
-                swipeDelta={cardSwipeDelta}
-                skipDeltaY={cardSkipDelta}
-                isDismissAnimating={isCurrentTakeAnimating}
-                isDragging={isDragging}
-                dismissDurationMs={dismissDurationMs}
-              />
-            </div>
-
-            <div className="flex items-center justify-center gap-4 p-4 pt-3">
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    ❄️
-                  </span>
-                }
-                onClick={() => handleDismiss('left', 'button')}
-                disabled={isAnimating}
-                className="!size-14 rounded-full"
-                aria-label="Cold take - downvote"
-              />
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    😐
-                  </span>
-                }
-                onClick={() => handleSkip('button')}
-                disabled={isAnimating}
-                className="!size-12 rounded-full"
-                aria-label="Skip hot take"
-              />
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Large}
-                icon={
-                  <span className="text-[1.375rem] leading-none" aria-hidden>
-                    🔥
-                  </span>
-                }
-                onClick={() => handleDismiss('right', 'button')}
-                disabled={isAnimating}
-                className="!size-14 rounded-full"
-                aria-label="Hot take - upvote"
-              />
-            </div>
-
-            {user?.username && (
-              <div className="px-4 pb-4">
-                <Button
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Medium}
-                  tag="a"
-                  href={`${webappUrl}${user.username}#hot-takes`}
-                  className="w-full"
-                  onClick={(e: React.MouseEvent) => {
-                    onRequestClose?.(e);
-                  }}
-                >
-                  Add your own hot take
-                </Button>
+            {!isOnboardingMode && topSlot}
+            {isOnboardingMode ? (
+              <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-4 px-4 pb-6 pt-6 tablet:flex-none tablet:pb-8">
+                {topSlot}
+                {cardSwipeArea}
+                <div className="px-4">
+                  <OnboardingSwipeHintIcons
+                    deltaX={combinedOnboardingSwipeX}
+                    disabled={isAnimating}
+                    onInteresting={() => handleDismiss('right', 'button')}
+                    onNotInteresting={() => handleDismiss('left', 'button')}
+                  />
+                </div>
+                {bottomSlot}
               </div>
+            ) : (
+              <>
+                {cardSwipeArea}
+                {showDefaultActions && (
+                  <div className="flex items-center justify-center gap-4 p-4 pt-3">
+                    <Button
+                      variant={ButtonVariant.Float}
+                      size={ButtonSize.Large}
+                      icon={
+                        <span
+                          className="text-[1.375rem] leading-none"
+                          aria-hidden
+                        >
+                          ❄️
+                        </span>
+                      }
+                      onClick={() => handleDismiss('left', 'button')}
+                      disabled={isAnimating}
+                      className="!size-14 rounded-full"
+                      aria-label="Cold take - downvote"
+                    />
+                    <Button
+                      variant={ButtonVariant.Float}
+                      size={ButtonSize.Large}
+                      icon={
+                        <span
+                          className="text-[1.375rem] leading-none"
+                          aria-hidden
+                        >
+                          😐
+                        </span>
+                      }
+                      onClick={() => handleSkip('button')}
+                      disabled={isAnimating}
+                      className="!size-12 rounded-full"
+                      aria-label="Skip hot take"
+                    />
+                    <Button
+                      variant={ButtonVariant.Float}
+                      size={ButtonSize.Large}
+                      icon={
+                        <span
+                          className="text-[1.375rem] leading-none"
+                          aria-hidden
+                        >
+                          🔥
+                        </span>
+                      }
+                      onClick={() => handleDismiss('right', 'button')}
+                      disabled={isAnimating}
+                      className="!size-14 rounded-full"
+                      aria-label="Hot take - upvote"
+                    />
+                  </div>
+                )}
+                {bottomSlot}
+                {showAddHotTakeButton && user?.username && (
+                  <div className="px-4 pb-4">
+                    <Button
+                      variant={ButtonVariant.Tertiary}
+                      size={ButtonSize.Medium}
+                      tag="a"
+                      href={`${webappUrl}${user.username}#hot-takes`}
+                      className="w-full"
+                      onClick={(e: React.MouseEvent) => {
+                        onRequestClose?.(e);
+                      }}
+                    >
+                      Add your own hot take
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
