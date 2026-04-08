@@ -280,6 +280,11 @@ export enum LogEvent {
   // End Clickbait Shield
   ToggleNoAiFeed = 'toggle no ai feed',
   SaveNoAiFeedPreference = 'save no ai feed preference',
+  // Browsing Context Consent
+  BrowsingConsentPromptShow = 'browsing consent prompt show',
+  BrowsingConsentPromptAccept = 'browsing consent prompt accept',
+  BrowsingConsentPromptDecline = 'browsing consent prompt decline',
+  // End Browsing Context Consent
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',

@@ -12,6 +12,7 @@ import type {
 } from '@dailydotdev/shared/src/lib/boot';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
+import { useCompanionBrowsingConsent } from '@dailydotdev/shared/src/hooks/useCompanionBrowsingConsent';
 import { usePopupSelector } from '@dailydotdev/shared/src/hooks/usePopupSelector';
 import { useBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
 import {
@@ -85,6 +86,7 @@ export default function Companion({
   useBackgroundRequest(refreshTokenKey, {
     callback: ({ res }) => onUpdateToken(res.accessToken),
   });
+  useCompanionBrowsingConsent();
   const containerRef = useRef<HTMLDivElement>();
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
   usePopupSelector({ parentSelector: getCompanionWrapper });

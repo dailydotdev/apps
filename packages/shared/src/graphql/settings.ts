@@ -18,6 +18,7 @@ export type SettingsFlags = {
   sidebarBookmarksExpanded: boolean;
   clickbaitShieldEnabled: boolean;
   noAiFeedEnabled?: boolean;
+  browsingContextEnabled?: boolean;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   lastPrompt?: string;
@@ -32,6 +33,7 @@ export enum SidebarSettingsFlags {
   BookmarksExpanded = 'sidebarBookmarksExpanded',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
   NoAiFeedEnabled = 'noAiFeedEnabled',
+  BrowsingContextEnabled = 'browsingContextEnabled',
 }
 
 export type RemoteSettings = {
