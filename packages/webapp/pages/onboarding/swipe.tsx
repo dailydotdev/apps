@@ -36,9 +36,6 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import HotAndColdModal from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
-import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
-import { useQuery } from '@tanstack/react-query';
-import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
@@ -46,7 +43,8 @@ import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManag
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SwipeOnboardingProgressHeader } from '../../components/onboarding/SwipeOnboardingProgressHeader';
-import { fetchSwipeOnboardingPopularDeck } from '../../lib/swipeOnboardingPopularDeck';
+import { useAdaptiveSwipeDeck } from '../../hooks/useAdaptiveSwipeDeck';
+import { extractTags } from '../../lib/swipingBackendApi';
 import {
   SWIPE_ONBOARDING_IMPROVE_MILESTONE,
   SWIPE_ONBOARDING_MIN_TO_UNLOCK,
@@ -89,12 +87,11 @@ function SwipeOnboardingPage(): ReactElement {
   const { completeStep } = useOnboardingActions();
   const [swipesCount, setSwipesCount] = useState(0);
   const [milestoneBurstKey, setMilestoneBurstKey] = useState(0);
-  const [onboardingUiMode, setOnboardingUiMode] = useState<'swipe' | 'tags'>(
-    'swipe',
-  );
-  const [rightSwipedPostIds, setRightSwipedPostIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [onboardingUiMode, setOnboardingUiMode] = useState<
+    'prompt' | 'swipe' | 'tags'
+  >('prompt');
+  const [promptText, setPromptText] = useState('');
+  const [promptLoading, setPromptLoading] = useState(false);
   const [dismissedOnboardingCardIds, setDismissedOnboardingCardIds] = useState<
     Set<string>
   >(() => new Set());
@@ -102,16 +99,38 @@ function SwipeOnboardingPage(): ReactElement {
   const prevSwipesForMilestoneRef = useRef<number | null>(null);
 
   const {
-    data: deckPosts = [],
-    isPending: isCardsPending,
-    refetch: refetchSwipeDeck,
-    isFetching: isSwipeDeckFetching,
-  } = useQuery<Post[]>({
-    queryKey: ['onboarding-swipe-popular-cards'],
-    queryFn: fetchSwipeOnboardingPopularDeck,
-    enabled: isLoggedIn,
-    staleTime: 1000 * 60 * 2,
-  });
+    cards: adaptiveCards,
+    isLoading: isAdaptiveLoading,
+    startDeck,
+    handleSwipe: handleAdaptiveSwipe,
+    retryFetch,
+    selectedTags: adaptiveSelectedTags,
+    rightSwipedPostIds,
+  } = useAdaptiveSwipeDeck();
+
+  const handlePromptSubmit = useCallback(async () => {
+    setPromptLoading(true);
+    try {
+      let initialTags: string[] = [];
+      if (promptText.trim()) {
+        initialTags = await extractTags(promptText.trim());
+      }
+      await startDeck({ prompt: promptText.trim(), initialTags });
+      setOnboardingUiMode('swipe');
+    } finally {
+      setPromptLoading(false);
+    }
+  }, [promptText, startDeck]);
+
+  const handleSkipPrompt = useCallback(async () => {
+    setPromptLoading(true);
+    try {
+      await startDeck();
+      setOnboardingUiMode('swipe');
+    } finally {
+      setPromptLoading(false);
+    }
+  }, [startDeck]);
   const {
     value: isSwipeOnboardingEnabled,
     isLoading: isSwipeOnboardingLoading,
@@ -184,17 +203,12 @@ function SwipeOnboardingPage(): ReactElement {
     ) => {
       if (direction === 'left' || direction === 'right') {
         setSwipesCount((value) => value + 1);
-        if (direction === 'right' && meta?.onboardingCardId) {
-          const cardId = meta.onboardingCardId;
-          setRightSwipedPostIds((prev) => {
-            const next = new Set(prev);
-            next.add(cardId);
-            return next;
-          });
+        if (meta?.onboardingCardId) {
+          handleAdaptiveSwipe(direction, meta.onboardingCardId);
         }
       }
     },
-    [],
+    [handleAdaptiveSwipe],
   );
 
   const authOptionProps: AuthOptionsProps = useMemo(
@@ -215,21 +229,6 @@ function SwipeOnboardingPage(): ReactElement {
     }),
     [],
   );
-  const onboardingCards = useMemo<OnboardingSwipeCard[]>(
-    () =>
-      deckPosts.map((node) => ({
-        id: node.id,
-        title: node.title,
-        image: node.image,
-        tags: node.tags,
-        source: {
-          name: node.source?.name,
-          image: node.source?.image,
-        },
-      })),
-    [deckPosts],
-  );
-
   useEffect(() => {
     if (onboardingUiMode !== 'tags') {
       swipeOnboardingTestTagsClearDoneForSessionRef.current = false;
@@ -250,24 +249,10 @@ function SwipeOnboardingPage(): ReactElement {
     onUnfollowTags({ tags: [...existing] }).catch(() => null);
   }, [onboardingUiMode, feedSettings?.includeTags, onUnfollowTags]);
 
-  const tagsFromRightSwipes = useMemo(() => {
-    const seen = new Set<string>();
-    const ordered: string[] = [];
-    onboardingCards
-      .filter((card) => rightSwipedPostIds.has(card.id))
-      .forEach((card) => {
-        (card.tags ?? []).forEach((tag) => {
-          if (
-            !seen.has(tag) &&
-            ordered.length < SWIPE_ONBOARDING_TAG_SEED_MAX
-          ) {
-            seen.add(tag);
-            ordered.push(tag);
-          }
-        });
-      });
-    return ordered;
-  }, [onboardingCards, rightSwipedPostIds]);
+  const tagsFromRightSwipes = useMemo(
+    () => adaptiveSelectedTags.slice(0, SWIPE_ONBOARDING_TAG_SEED_MAX),
+    [adaptiveSelectedTags],
+  );
 
   useEffect(() => {
     if (onboardingUiMode !== 'tags') {
@@ -336,6 +321,60 @@ function SwipeOnboardingPage(): ReactElement {
     </div>
   ) : null;
 
+  if (onboardingUiMode === 'prompt') {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background-default px-4 pb-6 pt-2">
+        <div className="flex w-full max-w-md flex-col items-center gap-6">
+          <h1 className="text-center font-bold typo-title1 text-text-primary">
+            What are you interested in?
+          </h1>
+          <p className="text-center typo-body text-text-tertiary">
+            Describe your interests and we&apos;ll find the best content for
+            you.
+          </p>
+          <textarea
+            className="min-h-[8rem] w-full resize-none rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 typo-body text-text-primary placeholder:text-text-quaternary focus:border-accent-cabbage-default focus:outline-none"
+            placeholder="e.g. I'm a backend engineer interested in Rust, distributed systems, and system design..."
+            value={promptText}
+            onChange={(e) => setPromptText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handlePromptSubmit();
+              }
+            }}
+          />
+          <div className="flex w-full flex-col gap-3">
+            <Button
+              className="w-full"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              type="button"
+              disabled={promptLoading}
+              onClick={() => {
+                handlePromptSubmit();
+              }}
+            >
+              {promptLoading ? 'Finding posts...' : 'Start swiping'}
+            </Button>
+            <Button
+              className="w-full"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Tertiary}
+              type="button"
+              disabled={promptLoading}
+              onClick={() => {
+                handleSkipPrompt();
+              }}
+            >
+              Skip — show me popular posts
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-dvh flex-col items-center justify-end bg-background-default px-4 pb-6 pt-2">
       {onboardingUiMode === 'swipe' ? (
@@ -346,15 +385,15 @@ function SwipeOnboardingPage(): ReactElement {
           showAddHotTakeButton={false}
           dismissedOnboardingCardIds={dismissedOnboardingCardIds}
           onDismissedOnboardingCardsChange={setDismissedOnboardingCardIds}
-          onboardingFeedRefetching={isSwipeDeckFetching}
+          onboardingFeedRefetching={isAdaptiveLoading}
           onOnboardingFeedRetry={() => {
-            refetchSwipeDeck().catch(() => null);
+            retryFetch();
           }}
           onSwipeAction={(direction, meta) => {
             handleSwipeInteraction(direction, meta);
           }}
-          onboardingCards={onboardingCards}
-          onboardingCardsLoading={isCardsPending}
+          onboardingCards={adaptiveCards}
+          onboardingCardsLoading={isAdaptiveLoading}
           headerSlot={
             <div className="pointer-events-none flex w-full select-none items-center justify-between gap-2 px-4 py-2">
               <Button
