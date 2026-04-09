@@ -13,6 +13,7 @@ import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
+import { HelpWidget } from '../help/HelpWidget';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -110,6 +111,17 @@ export const SidebarDesktop = ({
           />
         </Nav>
       </SidebarScrollWrapper>
+
+      {/* Help guide — pinned to sidebar bottom */}
+      <div
+        className={classNames(
+          'flex-shrink-0 border-t border-border-subtlest-tertiary p-2',
+          'transition-[padding] duration-300',
+          sidebarExpanded ? 'px-3' : 'px-1',
+        )}
+      >
+        <HelpWidget sidebarExpanded={sidebarExpanded} />
+      </div>
     </SidebarAside>
   );
 };

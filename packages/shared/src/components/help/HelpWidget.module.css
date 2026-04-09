@@ -2,22 +2,22 @@
 @keyframes helpCardSlideIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateX(-8px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
   }
 }
 
 @keyframes helpCardSlideOut {
   from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
   }
   to {
     opacity: 0;
-    transform: translateY(8px) scale(0.97);
+    transform: translateX(-6px) scale(0.97);
   }
 }
 
@@ -95,29 +95,27 @@
   filter: blur(8px);
 }
 
-/* ── Help "?" button ────────────────────────── */
-.helpButton {
+/* ── Inline sidebar card ────────────────────── */
+.inlineCard {
   transition:
-    transform 0.2s ease,
-    box-shadow 0.3s ease;
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.helpButtonGlow {
+.inlineAccent {
   position: absolute;
-  inset: -2px;
-  border-radius: 50%;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
   background: linear-gradient(
-    135deg,
+    90deg,
     var(--theme-accent-cabbage-default),
     var(--theme-accent-blueCheese-default)
   );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  filter: blur(6px);
-}
-
-.helpButton:hover .helpButtonGlow {
-  opacity: 0.2;
+  background-size: 200% 100%;
+  animation: helpGradientShift 4s ease-in-out infinite;
+  border-radius: 12px 12px 0 0;
 }
 
 /* ── Notification dot pulse ─────────────────── */
