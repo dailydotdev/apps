@@ -55,7 +55,7 @@ export const SidebarDesktop = ({
         featureTheme && 'bg-transparent',
       )}
     >
-      <SidebarScrollWrapper>
+      <SidebarScrollWrapper className="!h-auto min-h-0 flex-1">
         <Nav>
           <SidebarMenuIcon />
           {/* Primary Action */}
