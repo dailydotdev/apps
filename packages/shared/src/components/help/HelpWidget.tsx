@@ -150,7 +150,7 @@ export function HelpWidget(): ReactElement | null {
 
   if (widgetState === 'minimized') {
     return (
-      <div className="fixed bottom-4 left-16 z-popup">
+      <div className="fixed bottom-4 left-16 z-max">
         {popoverOpen && (
           <PopoverMenu
             ref={popoverRef}
@@ -171,7 +171,7 @@ export function HelpWidget(): ReactElement | null {
           className={classNames(
             styles.helpButton,
             'group relative flex size-10 items-center justify-center rounded-full',
-            'border border-border-subtlest-tertiary bg-surface-float shadow-2',
+            'border border-border-subtlest-tertiary bg-background-popover/[0.92] shadow-2 backdrop-blur-xl',
             'transition-all duration-300 hover:scale-105 hover:shadow-3',
           )}
           onClick={() => setPopoverOpen(!popoverOpen)}
@@ -207,7 +207,7 @@ export function HelpWidget(): ReactElement | null {
   return (
     <div
       className={classNames(
-        'fixed bottom-4 left-16 z-popup w-80',
+        'fixed bottom-4 left-16 z-max w-80',
         isExiting ? styles.cardExit : styles.cardEnter,
       )}
     >
@@ -215,7 +215,7 @@ export function HelpWidget(): ReactElement | null {
         className={classNames(
           styles.card,
           'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary',
-          'bg-surface-float/95 shadow-2 backdrop-blur-xl',
+          'bg-background-popover shadow-2',
         )}
       >
         {/* Gradient accent bar */}
@@ -357,7 +357,7 @@ const PopoverMenu = React.forwardRef<HTMLDivElement, PopoverMenuProps>(
         className={classNames(
           styles.popoverEnter,
           'mb-2 w-80 overflow-hidden rounded-16 border border-border-subtlest-tertiary',
-          'bg-surface-float/95 shadow-2 backdrop-blur-xl',
+          'bg-background-popover/[0.92] shadow-2 backdrop-blur-xl',
         )}
       >
         {/* Pending items */}
