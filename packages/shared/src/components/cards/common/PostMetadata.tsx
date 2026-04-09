@@ -6,10 +6,6 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../../lib/post';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
@@ -24,8 +20,6 @@ interface PostMetadataProps
   isVideoType?: boolean;
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
-  userHasUpvoted?: boolean;
-  showBelowThresholdLabel?: boolean;
 }
 
 export default function PostMetadata({
@@ -38,8 +32,6 @@ export default function PostMetadata({
   isVideoType,
   domain,
   pollMetadata,
-  userHasUpvoted = false,
-  showBelowThresholdLabel = true,
 }: PostMetadataProps): ReactElement {
   const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
@@ -47,22 +39,6 @@ export default function PostMetadata({
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
-
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
-  const { showCount: showUpvoteCount, belowThresholdLabel: upvoteLabel } =
-    getUpvoteCountDisplay(
-      upvoteCount,
-      upvoteThresholdConfig.threshold,
-      upvoteThresholdConfig.belowThresholdLabel,
-      userHasUpvoted,
-      createdAt,
-      upvoteThresholdConfig.newWindowHours,
-    );
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
@@ -98,20 +74,13 @@ export default function PostMetadata({
     },
     !!showReadTime && domain && { key: 'domain', node: domain },
     hasUpvoteCount &&
-      showUpvoteCount && {
+      upvoteCount > 0 && {
         key: 'upvotes',
         node: (
           <span data-testid="numUpvotes">
             {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
           </span>
         ),
-      },
-    hasUpvoteCount &&
-      !showUpvoteCount &&
-      !!upvoteLabel &&
-      showBelowThresholdLabel && {
-        key: 'upvotes',
-        node: <span data-testid="numUpvotes">{upvoteLabel}</span>,
       },
   ].filter(Boolean) as { key: string; node: ReactNode }[];
 

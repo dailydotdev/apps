@@ -151,13 +151,3 @@ export const sharedPostPreviewFeature = new Feature(
   'shared_post_preview',
   false,
 );
-
-export const featureUpvoteCountThreshold = new Feature<{
-  threshold: number;
-  belowThresholdLabel: string;
-  newWindowHours: number;
-}>('upvote_count_threshold', {
-  threshold: 0,
-  belowThresholdLabel: '',
-  newWindowHours: 24,
-});
