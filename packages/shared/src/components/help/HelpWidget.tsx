@@ -344,7 +344,7 @@ function DetailCard({
     <div
       className={classNames(
         styles.card,
-        'w-80 overflow-hidden rounded-16 border border-border-subtlest-tertiary',
+        'relative w-80 overflow-hidden rounded-16 border border-border-subtlest-tertiary',
         'bg-background-popover shadow-2',
       )}
     >
