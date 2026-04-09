@@ -33,6 +33,7 @@ import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
+import { HelpWidget } from './help/HelpWidget';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -215,6 +216,7 @@ function MainLayoutComponent({
         )}
         {children}
       </main>
+      <HelpWidget />
       <FeedbackWidget />
     </div>
   );
