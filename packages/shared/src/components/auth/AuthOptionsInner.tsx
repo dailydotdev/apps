@@ -196,6 +196,23 @@ function AuthOptionsInner({
   const [isRegistration, setIsRegistration] = useState(false);
   const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
+  const popupCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const authFlowCompletedRef = useRef(false);
+
+  const clearPopupCheck = () => {
+    if (popupCheckIntervalRef.current) {
+      clearInterval(popupCheckIntervalRef.current);
+      popupCheckIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearPopupCheck();
+    };
+  }, []);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
     onAuthStateUpdate({ isLoading: true });
@@ -383,6 +400,21 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
+    authFlowCompletedRef.current = true;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    windowPopup.current = null;
+    if (popup && !popup.closed) {
+      popup.close();
+      // Retry after a short delay — some browsers defer the close when the
+      // popup is still settling after a redirect chain.
+      setTimeout(() => {
+        if (!popup.closed) {
+          popup.close();
+        }
+      }, 300);
+    }
+
     const callbackError = getSocialAuthCallbackError(e?.data);
     if (callbackError) {
       setIsSocialAuthLoading(false);
@@ -556,6 +588,21 @@ function AuthOptionsInner({
     windowPopup.current.location.href = socialUrl;
     await setChosenProvider(provider);
     onAuthStateUpdate?.({ isLoading: true });
+
+    authFlowCompletedRef.current = false;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    popupCheckIntervalRef.current = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearPopupCheck();
+        if (!authFlowCompletedRef.current) {
+          setIsSocialAuthLoading(false);
+          onAuthStateUpdate?.({ isLoading: false });
+          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        }
+        windowPopup.current = null;
+      }
+    }, 500);
   };
 
   const onProviderMessage = async (e: MessageEvent) => {
