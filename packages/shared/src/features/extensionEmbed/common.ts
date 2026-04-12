@@ -29,6 +29,7 @@ export type ExtensionSiteEmbedFrameErrorReason =
   | 'permission-denied'
   | 'permission-request-failed'
   | 'enable-frame-embedding-failed'
+  | 'preview-unavailable'
   | 'missing-target'
   | 'invalid-target'
   | 'unsupported-target-protocol'
@@ -115,6 +116,10 @@ export const getExtensionSiteEmbedErrorMessage = ({
 
   if (reason === 'enable-frame-embedding-failed') {
     return 'The extension could not prepare this tab for embedding.';
+  }
+
+  if (reason === 'preview-unavailable') {
+    return 'Preview not available for this site.';
   }
 
   return 'The extension could not prepare the embedded site.';

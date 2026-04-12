@@ -48,7 +48,7 @@ type HandleExtensionSiteEmbedMessageOptions = {
   onEmbeddingReady: () => void;
   onReloadRequested: () => void;
   onMissingPermission: () => void;
-  onError: (message: string) => void;
+  onError: (payload: { message: string; reason?: string }) => void;
 };
 
 export const handleExtensionSiteEmbedMessage = ({
@@ -102,10 +102,11 @@ export const handleExtensionSiteEmbedMessage = ({
     return;
   }
 
-  onError(
-    getExtensionSiteEmbedErrorMessage({
+  onError({
+    message: getExtensionSiteEmbedErrorMessage({
       reason: message.reason,
       error: message.error,
     }),
-  );
+    reason: message.reason,
+  });
 };

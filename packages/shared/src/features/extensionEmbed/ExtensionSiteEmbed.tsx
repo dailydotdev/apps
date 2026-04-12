@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useExtensionSiteEmbed } from './useExtensionSiteEmbed';
 import type {
   UseExtensionSiteEmbedOptions,
@@ -11,6 +11,8 @@ interface ExtensionSiteEmbedProps extends UseExtensionSiteEmbedOptions {
   permissionFrameTitle?: string;
   targetFrameTitle?: string;
   renderState?: (state: UseExtensionSiteEmbedResult) => ReactNode;
+  onStateChange?: (state: UseExtensionSiteEmbedResult) => void;
+  onTargetFrameLoad?: () => void;
 }
 
 const hiddenPermissionFrameClassName =
@@ -22,11 +24,17 @@ export const ExtensionSiteEmbed = ({
   permissionFrameTitle = 'Extension permission frame',
   targetFrameTitle = 'Embedded site',
   renderState,
+  onStateChange,
+  onTargetFrameLoad,
   ...options
 }: ExtensionSiteEmbedProps): ReactElement | null => {
   const state = useExtensionSiteEmbed(options);
   const view = renderState?.(state);
   const hasAnyFrame = !!state.permissionFrameSrc || !!state.targetFrameSrc;
+
+  useEffect(() => {
+    onStateChange?.(state);
+  }, [onStateChange, state]);
 
   if (!hasAnyFrame && !view) {
     return null;
@@ -56,6 +64,7 @@ export const ExtensionSiteEmbed = ({
               src={state.targetFrameSrc}
               title={targetFrameTitle}
               className={className}
+              onLoad={onTargetFrameLoad}
             />
           ) : null}
         </div>
