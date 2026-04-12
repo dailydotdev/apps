@@ -443,20 +443,20 @@ it('should unblock tag', async () => {
 });
 
 it('should load title and description for tag', async () => {
-  renderComponent([createFeedMock()], defaultUser, {
-    ...initialDataObj,
-    flags: {
-      title: 'React custom title',
-      description: 'React is an amazing framework',
+  renderComponent(
+    [createFeedMock(), createTagsSettingsMock()],
+    defaultUser,
+    {
+      ...initialDataObj,
+      flags: {
+        title: 'React custom title',
+        description: 'React is an amazing framework',
+      },
     },
-  });
+  );
 
-  await waitFor(async () => {
-    const titleElement = await screen.findByText('React custom title');
-    expect(titleElement).toBeInTheDocument();
-    const descriptionElement = await screen.findByText(
-      'React is an amazing framework',
-    );
-    expect(descriptionElement).toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByRole('heading', { name: 'React custom title' })).toBeInTheDocument();
+    expect(screen.getByText('React is an amazing framework')).toBeInTheDocument();
   });
 });
