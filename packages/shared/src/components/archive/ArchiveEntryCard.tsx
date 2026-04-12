@@ -32,7 +32,7 @@ export function ArchiveEntryCard({
   className,
 }: ArchiveEntryCardProps): ReactElement | null {
   const { data } = useQuery({
-    queryKey: [RequestKey.Archive, scopeType, scopeId],
+    queryKey: [RequestKey.ArchiveIndex, scopeType, scopeId],
     queryFn: () =>
       gqlClient.request<ArchiveIndexData>(ARCHIVE_INDEX_QUERY, {
         subjectType: ArchiveSubjectType.Post,
