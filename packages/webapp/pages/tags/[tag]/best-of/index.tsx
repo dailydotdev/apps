@@ -24,6 +24,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
@@ -43,7 +44,10 @@ interface PageParams extends ParsedUrlQuery {
   tag: string;
 }
 
-const getJsonLd = ({ tag, tagTitle }: PageProps): string => {
+function getJsonLd({
+  tag,
+  tagTitle,
+}: Pick<PageProps, 'tag' | 'tagTitle'>): string {
   const encodedTag = encodeURIComponent(tag);
   const pageUrl = `${appOrigin}/tags/${encodedTag}/best-of`;
 
@@ -58,37 +62,15 @@ const getJsonLd = ({ tag, tagTitle }: PageProps): string => {
         description: `Browse the best ${tagTitle} posts by month and year, curated by the daily.dev community.`,
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: appOrigin,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Tags',
-            item: `${appOrigin}/tags`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: tagTitle,
-            item: `${appOrigin}/tags/${encodedTag}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 4,
-            name: 'Best of',
-          },
-        ],
-      },
+      buildBreadcrumbListJsonLd([
+        { name: 'Home', item: appOrigin },
+        { name: 'Tags', item: `${appOrigin}/tags` },
+        { name: tagTitle, item: `${appOrigin}/tags/${encodedTag}` },
+        { name: 'Best of' },
+      ]),
     ],
   });
-};
+}
 
 const TagArchiveIndexPage = ({
   tag,
@@ -96,7 +78,7 @@ const TagArchiveIndexPage = ({
   archives,
 }: PageProps): ReactElement => {
   const encodedTag = encodeURIComponent(tag);
-  const jsonLd = getJsonLd({ tag, tagTitle, archives, seo: {} });
+  const jsonLd = getJsonLd({ tag, tagTitle });
 
   return (
     <PageWrapperLayout>

@@ -26,6 +26,8 @@ import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/Pag
 import { ArchiveFeedPage } from '@dailydotdev/shared/src/components/archive/ArchiveFeedPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import {
+  buildArchiveItemListJsonLd,
+  buildBreadcrumbListJsonLd,
   findAdjacentArchives,
   getArchiveDescription,
   getArchiveUrlFromArchive,
@@ -53,7 +55,12 @@ interface PageParams extends ParsedUrlQuery {
   year: string;
 }
 
-const getJsonLd = ({ tag, tagTitle, year, archive }: PageProps): string => {
+function getJsonLd({
+  tag,
+  tagTitle,
+  year,
+  archive,
+}: Pick<PageProps, 'tag' | 'tagTitle' | 'year' | 'archive'>): string {
   const encodedTag = encodeURIComponent(tag);
   const pageUrl = `${appOrigin}/tags/${encodedTag}/best-of/${year}`;
 
@@ -72,58 +79,17 @@ const getJsonLd = ({ tag, tagTitle, year, archive }: PageProps): string => {
         ),
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
-      ...(archive?.items?.length
-        ? [
-            {
-              '@type': 'ItemList',
-              '@id': `${pageUrl}#items`,
-              numberOfItems: archive.items.length,
-              itemListElement: archive.items.map((item) => ({
-                '@type': 'ListItem',
-                position: item.rank,
-                url: `${appOrigin}/posts/${item.post.slug || item.post.id}`,
-                name: item.post.title || '',
-              })),
-            },
-          ]
-        : []),
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: appOrigin,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Tags',
-            item: `${appOrigin}/tags`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: tagTitle,
-            item: `${appOrigin}/tags/${encodedTag}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 4,
-            name: 'Best of',
-            item: `${appOrigin}/tags/${encodedTag}/best-of`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 5,
-            name: String(year),
-          },
-        ],
-      },
+      ...buildArchiveItemListJsonLd(pageUrl, archive?.items),
+      buildBreadcrumbListJsonLd([
+        { name: 'Home', item: appOrigin },
+        { name: 'Tags', item: `${appOrigin}/tags` },
+        { name: tagTitle, item: `${appOrigin}/tags/${encodedTag}` },
+        { name: 'Best of', item: `${appOrigin}/tags/${encodedTag}/best-of` },
+        { name: String(year) },
+      ]),
     ],
   });
-};
+}
 
 const TagYearlyArchivePage = ({
   tag,
@@ -134,15 +100,7 @@ const TagYearlyArchivePage = ({
   next,
 }: PageProps): ReactElement => {
   const encodedTag = encodeURIComponent(tag);
-  const jsonLd = getJsonLd({
-    tag,
-    tagTitle,
-    year,
-    archive,
-    prev,
-    next,
-    seo: {},
-  });
+  const jsonLd = getJsonLd({ tag, tagTitle, year, archive });
 
   return (
     <PageWrapperLayout>

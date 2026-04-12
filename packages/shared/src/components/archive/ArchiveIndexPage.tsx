@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { Archive, ArchiveScopeType } from '../../graphql/archive';
+import type { Archive } from '../../graphql/archive';
+import type { ArchiveScopeInfo, ArchivesByYear } from '../../lib/archive';
 import {
   getArchiveUrlFromArchive,
   getMonthName,
@@ -12,12 +13,9 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import type { ArchivesByYear } from '../../lib/archive';
 
-interface ArchiveIndexPageProps {
+interface ArchiveIndexPageProps extends ArchiveScopeInfo {
   archives: Archive[];
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
-  scopeId: string;
   scopeName: string;
   isLoading?: boolean;
   className?: string;
@@ -29,7 +27,7 @@ function ArchiveMonthCard({
   scopeId,
 }: {
   archive: Archive;
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
+  scopeType: ArchiveScopeInfo['scopeType'];
   scopeId: string;
 }): ReactElement {
   const { month } = parseArchivePeriod(archive.periodStart);
@@ -58,7 +56,7 @@ function ArchiveYearLink({
   scopeId,
 }: {
   archive: Archive;
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
+  scopeType: ArchiveScopeInfo['scopeType'];
   scopeId: string;
 }): ReactElement {
   const url = getArchiveUrlFromArchive({ scopeType, scopeId }, archive);
@@ -83,7 +81,7 @@ function ArchiveGrid({
   isLoading,
 }: {
   groups: ArchivesByYear[];
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
+  scopeType: ArchiveScopeInfo['scopeType'];
   scopeId: string;
   isLoading?: boolean;
 }): ReactElement {

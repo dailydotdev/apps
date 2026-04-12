@@ -1,12 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type {
-  Archive,
-  ArchiveItem,
-  ArchiveScopeType,
-} from '../../graphql/archive';
+import type { Archive, ArchiveItem } from '../../graphql/archive';
 import { ArchivePeriodType } from '../../graphql/archive';
+import type { ArchiveScopeInfo } from '../../lib/archive';
 import { getArchiveTitle, getArchiveIndexUrl } from '../../lib/archive';
 import { ArchiveNavigation } from './ArchiveNavigation';
 import { ArchivePostItem } from './ArchivePostItem';
@@ -15,10 +12,8 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-interface ArchiveFeedPageProps {
+interface ArchiveFeedPageProps extends ArchiveScopeInfo {
   archive: Archive | null;
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
-  scopeId: string;
   scopeName: string;
   periodType: ArchivePeriodType;
   year: number;

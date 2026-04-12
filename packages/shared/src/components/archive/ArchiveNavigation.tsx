@@ -4,14 +4,13 @@ import classNames from 'classnames';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
-import type { Archive, ArchiveScopeType } from '../../graphql/archive';
+import type { Archive } from '../../graphql/archive';
+import type { ArchiveScopeInfo } from '../../lib/archive';
 import { getArchiveTitle, getArchiveUrlFromArchive } from '../../lib/archive';
 
-interface ArchiveNavigationProps {
+interface ArchiveNavigationProps extends ArchiveScopeInfo {
   prev?: Archive | null;
   next?: Archive | null;
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
-  scopeId: string;
   className?: string;
 }
 

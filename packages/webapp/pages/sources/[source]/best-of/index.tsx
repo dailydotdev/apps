@@ -27,6 +27,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
 import { getLayout as getFooterNavBarLayout } from '../../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../../next-seo';
@@ -46,7 +47,10 @@ interface PageParams extends ParsedUrlQuery {
   source: string;
 }
 
-const getJsonLd = ({ sourceId, sourceName }: PageProps): string => {
+function getJsonLd({
+  sourceId,
+  sourceName,
+}: Pick<PageProps, 'sourceId' | 'sourceName'>): string {
   const encodedSource = encodeURIComponent(sourceId);
   const pageUrl = `${appOrigin}/sources/${encodedSource}/best-of`;
 
@@ -61,37 +65,15 @@ const getJsonLd = ({ sourceId, sourceName }: PageProps): string => {
         description: `Browse the best ${sourceName} posts by month and year, curated by the daily.dev community.`,
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: appOrigin,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Sources',
-            item: `${appOrigin}/sources`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: sourceName,
-            item: `${appOrigin}/sources/${encodedSource}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 4,
-            name: 'Best of',
-          },
-        ],
-      },
+      buildBreadcrumbListJsonLd([
+        { name: 'Home', item: appOrigin },
+        { name: 'Sources', item: `${appOrigin}/sources` },
+        { name: sourceName, item: `${appOrigin}/sources/${encodedSource}` },
+        { name: 'Best of' },
+      ]),
     ],
   });
-};
+}
 
 const SourceArchiveIndexPage = ({
   sourceId,
@@ -99,7 +81,7 @@ const SourceArchiveIndexPage = ({
   archives,
 }: PageProps): ReactElement => {
   const encodedSource = encodeURIComponent(sourceId);
-  const jsonLd = getJsonLd({ sourceId, sourceName, archives, seo: {} });
+  const jsonLd = getJsonLd({ sourceId, sourceName });
 
   return (
     <PageWrapperLayout>

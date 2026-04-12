@@ -26,10 +26,13 @@ import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/Pag
 import { ArchiveFeedPage } from '@dailydotdev/shared/src/components/archive/ArchiveFeedPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
 import {
+  buildArchiveItemListJsonLd,
+  buildBreadcrumbListJsonLd,
   findAdjacentArchives,
   getArchiveDescription,
   getArchiveUrlFromArchive,
   getMonthName,
+  padMonth,
 } from '@dailydotdev/shared/src/lib/archive';
 import type { SourceData } from '@dailydotdev/shared/src/graphql/sources';
 import {
@@ -61,18 +64,21 @@ interface PageParams extends ParsedUrlQuery {
   month: string;
 }
 
-const getJsonLd = ({
+function getJsonLd({
   sourceId,
   sourceName,
   year,
   month,
   archive,
-}: PageProps): string => {
+}: Pick<
+  PageProps,
+  'sourceId' | 'sourceName' | 'year' | 'month' | 'archive'
+>): string {
   const encodedSource = encodeURIComponent(sourceId);
   const monthName = getMonthName(month);
-  const pageUrl = `${appOrigin}/sources/${encodedSource}/best-of/${year}/${String(
+  const pageUrl = `${appOrigin}/sources/${encodedSource}/best-of/${year}/${padMonth(
     month,
-  ).padStart(2, '0')}`;
+  )}`;
 
   return JSON.stringify({
     '@context': 'https://schema.org',
@@ -90,58 +96,23 @@ const getJsonLd = ({
         ),
         isPartOf: { '@type': 'WebSite', url: appOrigin },
       },
-      ...(archive?.items?.length
-        ? [
-            {
-              '@type': 'ItemList',
-              '@id': `${pageUrl}#items`,
-              numberOfItems: archive.items.length,
-              itemListElement: archive.items.map((item) => ({
-                '@type': 'ListItem',
-                position: item.rank,
-                url: `${appOrigin}/posts/${item.post.slug || item.post.id}`,
-                name: item.post.title || '',
-              })),
-            },
-          ]
-        : []),
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: appOrigin,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Sources',
-            item: `${appOrigin}/sources`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: sourceName,
-            item: `${appOrigin}/sources/${encodedSource}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 4,
-            name: 'Best of',
-            item: `${appOrigin}/sources/${encodedSource}/best-of`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 5,
-            name: `${monthName} ${year}`,
-          },
-        ],
-      },
+      ...buildArchiveItemListJsonLd(pageUrl, archive?.items),
+      buildBreadcrumbListJsonLd([
+        { name: 'Home', item: appOrigin },
+        { name: 'Sources', item: `${appOrigin}/sources` },
+        {
+          name: sourceName,
+          item: `${appOrigin}/sources/${encodedSource}`,
+        },
+        {
+          name: 'Best of',
+          item: `${appOrigin}/sources/${encodedSource}/best-of`,
+        },
+        { name: `${monthName} ${year}` },
+      ]),
     ],
   });
-};
+}
 
 const SourceMonthlyArchivePage = ({
   sourceId,
@@ -154,16 +125,7 @@ const SourceMonthlyArchivePage = ({
 }: PageProps): ReactElement => {
   const encodedSource = encodeURIComponent(sourceId);
   const monthName = getMonthName(month);
-  const jsonLd = getJsonLd({
-    sourceId,
-    sourceName,
-    year,
-    month,
-    archive,
-    prev,
-    next,
-    seo: {},
-  });
+  const jsonLd = getJsonLd({ sourceId, sourceName, year, month, archive });
 
   return (
     <PageWrapperLayout>
