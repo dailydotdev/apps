@@ -355,7 +355,7 @@ export function PostContentRaw({
             </div>
             <div
               className={classNames(
-                'min-w-0 overflow-hidden transition-opacity duration-200 ease-in-out',
+                'flex min-w-0 flex-col [overflow-x:clip] transition-opacity duration-200 ease-in-out',
                 showArticlePreviewColumn ? 'opacity-100 delay-100' : 'opacity-0',
               )}
             >
