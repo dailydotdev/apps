@@ -1,49 +1,20 @@
+import { format, getMonth, getYear } from 'date-fns';
 import type { Archive } from '../graphql/archive';
 import { ArchivePeriodType, ArchiveScopeType } from '../graphql/archive';
 
-const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const MONTH_NAMES_SHORT = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
 export const getMonthName = (month: number, short = false): string =>
-  (short ? MONTH_NAMES_SHORT : MONTH_NAMES)[month - 1] ?? '';
+  format(new Date(2000, month - 1, 1), short ? 'MMM' : 'MMMM');
 
 export const padMonth = (month: number): string =>
-  String(month).padStart(2, '0');
+  format(new Date(2000, month - 1, 1), 'MM');
 
 export const parseArchivePeriod = (
   periodStart: string | Date,
 ): { year: number; month: number } => {
   const date = new Date(periodStart);
   return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
+    year: getYear(date),
+    month: getMonth(date) + 1,
   };
 };
 
@@ -58,17 +29,6 @@ export const getArchiveTitle = (archive: {
   }
 
   return `Best of ${year}`;
-};
-
-export const getArchiveScopeLabel = (
-  scopeType: ArchiveScopeType,
-  scopeName: string,
-): string => {
-  if (scopeType === ArchiveScopeType.Tag) {
-    return `#${scopeName}`;
-  }
-
-  return scopeName;
 };
 
 type ScopeInfo = {
