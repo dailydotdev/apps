@@ -105,73 +105,17 @@ function FeedNav(): ReactElement | null {
     ((sortingEnabled && isSortableFeed) ||
       activeFeedName === SharedFeedPage.Custom);
 
-  const customFeedTabs = useMemo<FeedNavTabEntry[]>(() => {
-    return sortedFeeds.map(({ node: feed }) => {
-      const isMatchingRoute =
-        router.query.slugOrId === feed.id ||
-        router.query.slugOrId === feed.slug;
-      const isEditingFeed =
-        isMatchingRoute && router.pathname.endsWith('/edit');
-      const feedLabel = getCustomFeedTabLabel(feed);
-      let feedPath = `${webappUrl}feeds/${feed.id}`;
+  const activeCustomFeedLabel = useMemo(() => {
+    const activeCustomFeed = sortedFeeds.find(({ node: feed }) => {
+      return (
+        router.query.slugOrId === feed.id || router.query.slugOrId === feed.slug
+      );
+    })?.node;
 
-      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
-        feedPath = webappUrl;
-      }
-
-      return {
-        label: feedLabel,
-        url: `${feedPath}${isEditingFeed ? '/edit' : ''}`,
-      };
-    });
-  }, [
-    sortedFeeds,
-    router.query.slugOrId,
-    router.pathname,
-    defaultFeedId,
-    isCustomDefaultFeed,
-  ]);
-
-  const urlToTab: Record<string, string> = useMemo(() => {
-    const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-    const customFeedAliases = sortedFeeds.reduce((acc, { node: feed }) => {
-      const feedLabel = getCustomFeedTabLabel(feed);
-      const isDefaultCustomFeed =
-        isCustomDefaultFeed && feed.id === defaultFeedId;
-      const canonicalPath = isDefaultCustomFeed
-        ? webappUrl
-        : `${webappUrl}feeds/${feed.id}`;
-      const slugPath =
-        feed.slug && feed.slug !== feed.id
-          ? `${webappUrl}feeds/${feed.slug}`
-          : undefined;
-
-      acc[canonicalPath] = feedLabel;
-      acc[`${canonicalPath}/edit`] = feedLabel;
-
-      if (slugPath) {
-        acc[slugPath] = feedLabel;
-        acc[`${slugPath}/edit`] = feedLabel;
-      }
-
-      return acc;
-    }, {} as Record<string, string>);
-
-    return {
-      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-      [forYouTab]: FeedNavTab.ForYou,
-      [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}agents`]: FeedNavTab.AgenticHub,
-      ...customFeedAliases,
-      [`${webappUrl}following`]: FeedNavTab.Following,
-      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
-      [`${webappUrl}tags`]: FeedNavTab.Tags,
-      [`${webappUrl}sources`]: FeedNavTab.Sources,
-      [`${webappUrl}users`]: FeedNavTab.Leaderboard,
-      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
-      [`${webappUrl}history`]: FeedNavTab.History,
-    };
-  }, [sortedFeeds, defaultFeedId, isCustomDefaultFeed]);
+    return activeCustomFeed
+      ? getCustomFeedTabLabel(activeCustomFeed)
+      : undefined;
+  }, [sortedFeeds, router.query.slugOrId]);
 
   const tabs = useMemo<FeedNavTabEntry[]>(
     () => [
@@ -182,7 +126,13 @@ function FeedNav(): ReactElement | null {
       },
       { label: FeedNavTab.Popular, url: `${webappUrl}posts` },
       { label: FeedNavTab.AgenticHub, url: `${webappUrl}agents` },
-      ...customFeedTabs,
+      ...sortedFeeds.map(({ node: feed }) => ({
+        label: getCustomFeedTabLabel(feed),
+        url:
+          isCustomDefaultFeed && feed.id === defaultFeedId
+            ? webappUrl
+            : `${webappUrl}feeds/${feed.id}`,
+      })),
       { label: FeedNavTab.Following, url: `${webappUrl}following` },
       {
         label: FeedNavTab.Discussions,
@@ -194,8 +144,31 @@ function FeedNav(): ReactElement | null {
       { label: FeedNavTab.Bookmarks, url: `${webappUrl}bookmarks` },
       { label: FeedNavTab.History, url: `${webappUrl}history` },
     ],
-    [customFeedTabs, isCustomDefaultFeed],
+    [sortedFeeds, defaultFeedId, isCustomDefaultFeed],
   );
+
+  const activeTab = useMemo(() => {
+    if (activeCustomFeedLabel) {
+      return activeCustomFeedLabel;
+    }
+
+    const staticTabs: Record<string, string> = {
+      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+      [isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl]:
+        FeedNavTab.ForYou,
+      [`${webappUrl}posts`]: FeedNavTab.Popular,
+      [`${webappUrl}agents`]: FeedNavTab.AgenticHub,
+      [`${webappUrl}following`]: FeedNavTab.Following,
+      [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
+      [`${webappUrl}tags`]: FeedNavTab.Tags,
+      [`${webappUrl}sources`]: FeedNavTab.Sources,
+      [`${webappUrl}users`]: FeedNavTab.Leaderboard,
+      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
+      [`${webappUrl}history`]: FeedNavTab.History,
+    };
+
+    return staticTabs[router.asPath] ?? '';
+  }, [activeCustomFeedLabel, isCustomDefaultFeed, router.asPath]);
 
   const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
@@ -212,7 +185,7 @@ function FeedNav(): ReactElement | null {
       {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
         <TabContainer
-          controlledActive={urlToTab[router.asPath] ?? ''}
+          controlledActive={activeTab}
           shouldMountInactive
           className={{
             header: classNames(
