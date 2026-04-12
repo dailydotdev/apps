@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useExtensionSiteEmbed } from './useExtensionSiteEmbed';
 import type {
   UseExtensionSiteEmbedOptions,
@@ -29,12 +29,14 @@ export const ExtensionSiteEmbed = ({
   ...options
 }: ExtensionSiteEmbedProps): ReactElement | null => {
   const state = useExtensionSiteEmbed(options);
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const view = renderState?.(state);
   const hasAnyFrame = !!state.permissionFrameSrc || !!state.targetFrameSrc;
 
   useEffect(() => {
-    onStateChange?.(state);
-  }, [onStateChange, state]);
+    onStateChange?.(stateRef.current);
+  }, [onStateChange, state.status, state.errorReason]);
 
   if (!hasAnyFrame && !view) {
     return null;

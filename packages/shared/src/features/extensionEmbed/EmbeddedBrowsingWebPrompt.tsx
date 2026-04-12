@@ -103,7 +103,7 @@ export function EmbeddedBrowsingWebPrompt({
           >
             {isPreviewUnavailable
               ? 'This site blocks embedded previews.'
-              : 'To load websites inside daily.dev, allow this extension to modify response headers on embedded pages.'}
+              : 'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)'}
           </Typography>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
             {primaryAction}
@@ -120,16 +120,16 @@ export function EmbeddedBrowsingWebPrompt({
               {externalPreviewUrl}
             </Typography>
           ) : null}
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-            className="!mt-0"
-          >
-            {isPreviewUnavailable
-              ? 'Open the full page in a new tab to keep reading.'
-              : 'This is optional and only applies to pages embedded by daily.dev.'}
-          </Typography>
+          {isPreviewUnavailable ? (
+            <Typography
+              tag={TypographyTag.P}
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              className="!mt-0"
+            >
+              Open the full page in a new tab to keep reading.
+            </Typography>
+          ) : null}
         </div>
       </div>
     </div>

@@ -123,27 +123,6 @@ export function PostArticlePreviewEmbed({
   }, [previewDomain]);
 
   useEffect(() => {
-    // #region agent log
-    fetch(
-      'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '8fe848',
-        },
-        body: JSON.stringify({
-          sessionId: '8fe848',
-          runId: 'initial',
-          hypothesisId: 'H2',
-          location: 'PostArticlePreviewEmbed.tsx:106',
-          message: 'embed target changed reset local preview state',
-          data: { targetUrl, extensionId },
-          timestamp: Date.now(),
-        }),
-      },
-    ).catch(() => {});
-    // #endregion
     setShowDirectWebPreview(false);
     setHasPreviewFrameLoaded(false);
     setHasTimedOutUnavailable(false);
@@ -152,56 +131,14 @@ export function PostArticlePreviewEmbed({
   }, [extensionId, targetUrl]);
 
   const onEnableDirectWebPreview = useCallback(() => {
-    // #region agent log
-    fetch(
-      'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '8fe848',
-        },
-        body: JSON.stringify({
-          sessionId: '8fe848',
-          runId: 'initial',
-          hypothesisId: 'H6',
-          location: 'PostArticlePreviewEmbed.tsx:160',
-          message: 'enable clicked in webapp prompt',
-          data: { targetUrl, extensionId },
-          timestamp: Date.now(),
-        }),
-      },
-    ).catch(() => {});
-    // #endregion
     setHasPreviewFrameLoaded(false);
     setHasTimedOutUnavailable(false);
     setShowDirectWebPreview(true);
-  }, [extensionId, targetUrl]);
+  }, []);
 
   const onExtensionPreviewFrameLoad = useCallback(() => {
-    // #region agent log
-    fetch(
-      'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '8fe848',
-        },
-        body: JSON.stringify({
-          sessionId: '8fe848',
-          runId: 'initial',
-          hypothesisId: 'H1',
-          location: 'PostArticlePreviewEmbed.tsx:141',
-          message: 'extension preview iframe onLoad fired',
-          data: { targetUrl, extensionId },
-          timestamp: Date.now(),
-        }),
-      },
-    ).catch(() => {});
-    // #endregion
     setHasPreviewFrameLoaded(true);
-  }, [extensionId, targetUrl]);
+  }, []);
 
   const onCopyPreviewUrl = useCallback(() => {
     if (!targetUrl) {
@@ -225,36 +162,43 @@ export function PostArticlePreviewEmbed({
   const shouldShowPreviewHeader =
     (showDirectPreviewFrame || !!extensionId) && !shouldShowUnavailablePrompt;
 
+  const handleEmbedStateChange = useCallback(
+    (state: UseExtensionSiteEmbedResult) => {
+      setEmbedState({
+        status: state.status,
+        errorReason: state.errorReason,
+      });
+
+      if (state.status !== 'ready') {
+        setHasPreviewFrameLoaded(false);
+      }
+    },
+    [],
+  );
+
+  const handleRenderState = useCallback(
+    (state: UseExtensionSiteEmbedResult) => {
+      if (
+        state.errorReason === 'preview-unavailable' &&
+        onPreviewUnavailable &&
+        !hasNotifiedUnavailableRef.current
+      ) {
+        hasNotifiedUnavailableRef.current = true;
+        onPreviewUnavailable();
+      }
+
+      return renderEmbedChrome({
+        extensionId,
+        state,
+      });
+    },
+    [extensionId, onPreviewUnavailable],
+  );
+
   useEffect(() => {
     const timeout =
       isExtensionPreviewAwaitingLoad || isDirectPreviewAwaitingLoad
         ? globalThis.setTimeout(() => {
-            // #region agent log
-            fetch(
-              'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-Debug-Session-Id': '8fe848',
-                },
-                body: JSON.stringify({
-                  sessionId: '8fe848',
-                  runId: 'initial',
-                  hypothesisId: 'H1',
-                  location: 'PostArticlePreviewEmbed.tsx:165',
-                  message: 'preview load timeout fired',
-                  data: {
-                    targetUrl,
-                    extensionId,
-                    isExtensionPreviewAwaitingLoad,
-                    isDirectPreviewAwaitingLoad,
-                  },
-                  timestamp: Date.now(),
-                }),
-              },
-            ).catch(() => {});
-            // #endregion
             if (hasNotifiedUnavailableRef.current) {
               return;
             }
@@ -305,56 +249,8 @@ export function PostArticlePreviewEmbed({
         permissionFrameTitle="Embedded browsing permissions"
         targetFrameTitle="Article preview"
         onTargetFrameLoad={onExtensionPreviewFrameLoad}
-        onStateChange={(state) => {
-          // #region agent log
-          fetch(
-            'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Debug-Session-Id': '8fe848',
-              },
-              body: JSON.stringify({
-                sessionId: '8fe848',
-                runId: 'initial',
-                hypothesisId: 'H2',
-                location: 'PostArticlePreviewEmbed.tsx:247',
-                message: 'extension embed state updated',
-                data: {
-                  status: state.status,
-                  errorReason: state.errorReason,
-                  hasPreviewFrameLoaded,
-                },
-                timestamp: Date.now(),
-              }),
-            },
-          ).catch(() => {});
-          // #endregion
-          setEmbedState({
-            status: state.status,
-            errorReason: state.errorReason,
-          });
-
-          if (state.status !== 'ready') {
-            setHasPreviewFrameLoaded(false);
-          }
-        }}
-        renderState={(state) => {
-          if (
-            state.errorReason === 'preview-unavailable' &&
-            onPreviewUnavailable &&
-            !hasNotifiedUnavailableRef.current
-          ) {
-            hasNotifiedUnavailableRef.current = true;
-            onPreviewUnavailable();
-          }
-
-          return renderEmbedChrome({
-            extensionId,
-            state,
-          });
-        }}
+        onStateChange={handleEmbedStateChange}
+        renderState={handleRenderState}
       />
     );
   }
@@ -362,7 +258,7 @@ export function PostArticlePreviewEmbed({
   return (
     <section
       className={classNames(
-        'relative hidden min-h-0 min-w-0 flex-1 flex-col overflow-visible bg-background-default laptop:flex',
+        'relative hidden min-h-0 min-w-0 flex-1 flex-col overflow-visible bg-background-default tablet:flex',
         className,
       )}
       aria-label="Article preview"

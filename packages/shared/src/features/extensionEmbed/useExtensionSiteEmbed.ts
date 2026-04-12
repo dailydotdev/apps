@@ -137,53 +137,11 @@ export const useExtensionSiteEmbed = ({
         expectedExtensionOrigin,
         isReconnectPending: isReconnectPendingRef.current,
         onPermissionsReady: () => {
-          // #region agent log
-          fetch(
-            'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Debug-Session-Id': '8fe848',
-              },
-              body: JSON.stringify({
-                sessionId: '8fe848',
-                runId: 'initial',
-                hypothesisId: 'H2',
-                location: 'useExtensionSiteEmbed.ts:136',
-                message: 'extension message permissions-ready',
-                data: { targetUrl: trimmedTargetUrl, extensionId: trimmedExtensionId },
-                timestamp: Date.now(),
-              }),
-            },
-          ).catch(() => {});
-          // #endregion
           setStatus('preparing-tab');
           setError(null);
           setErrorReason(null);
         },
         onEmbeddingReady: () => {
-          // #region agent log
-          fetch(
-            'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Debug-Session-Id': '8fe848',
-              },
-              body: JSON.stringify({
-                sessionId: '8fe848',
-                runId: 'initial',
-                hypothesisId: 'H2',
-                location: 'useExtensionSiteEmbed.ts:144',
-                message: 'extension message embedding-ready',
-                data: { targetUrl: trimmedTargetUrl, extensionId: trimmedExtensionId },
-                timestamp: Date.now(),
-              }),
-            },
-          ).catch(() => {});
-          // #endregion
           stopReconnectLoop();
           setFrameMode('target-embed');
           setStatus('ready');
@@ -203,27 +161,6 @@ export const useExtensionSiteEmbed = ({
           setErrorReason('missing-permission');
         },
         onError: ({ message, reason }) => {
-          // #region agent log
-          fetch(
-            'http://127.0.0.1:7456/ingest/fdbfceea-236d-410d-a991-0af0a5442e8e',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Debug-Session-Id': '8fe848',
-              },
-              body: JSON.stringify({
-                sessionId: '8fe848',
-                runId: 'initial',
-                hypothesisId: 'H3',
-                location: 'useExtensionSiteEmbed.ts:163',
-                message: 'extension embed error received',
-                data: { targetUrl: trimmedTargetUrl, reason, message },
-                timestamp: Date.now(),
-              }),
-            },
-          ).catch(() => {});
-          // #endregion
           stopReconnectLoop();
           setStatus('error');
           setError(message);

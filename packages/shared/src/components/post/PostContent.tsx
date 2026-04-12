@@ -32,6 +32,7 @@ import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EarthIcon, MiniCloseIcon } from '../icons';
+import { useViewSize, ViewSize } from '../../hooks';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -71,10 +72,12 @@ export function PostContentRaw({
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
   const isCompactModalSpacing = !isPostPage;
+  const [isPreviewHydrated, setIsPreviewHydrated] = useState(false);
   let metadataMarginClassName = 'mb-8';
   if (isVideoType) {
     metadataMarginClassName = isCompactModalSpacing ? 'mb-3' : 'mb-4';
@@ -91,7 +94,7 @@ export function PostContentRaw({
       : null;
 
   const showArticlePreviewEmbed =
-    !isPostPage &&
+    isPreviewHydrated &&
     !isVideoType &&
     post.type === PostType.Article &&
     embedArticleTargetUrl !== null;
@@ -100,6 +103,10 @@ export function PostContentRaw({
     useState(false);
   const [isArticlePreviewUnavailable, setArticlePreviewUnavailable] =
     useState(false);
+
+  useEffect(() => {
+    setIsPreviewHydrated(true);
+  }, []);
 
   useEffect(() => {
     setArticlePreviewDismissed(false);
@@ -119,7 +126,7 @@ export function PostContentRaw({
   }, []);
 
   const containerClass = classNames(
-    'laptop:flex-row laptop:pb-0',
+    'tablet:flex-row tablet:pb-0',
     className?.container,
   );
 
@@ -164,7 +171,7 @@ export function PostContentRaw({
         'relative',
         className?.content,
         showArticlePreviewColumn &&
-          'laptop:max-w-[22rem] laptop:!flex-none laptop:overflow-y-auto laptop:overscroll-y-contain',
+          'laptop:overflow-y-auto laptop:overscroll-y-contain',
       )}
       data-testid="postContainer"
     >
@@ -274,35 +281,17 @@ export function PostContentRaw({
     <PostWidgets
       onReadArticle={onReadArticle}
       post={post}
-      className="!gap-2 pb-8 pt-4 laptop:border-l laptop:border-border-subtlest-tertiary"
+      className={classNames(
+        '!gap-2 pb-8 pt-4',
+        showArticlePreviewEmbed && !isLaptop
+          ? 'border-t border-border-subtlest-tertiary'
+          : 'tablet:border-l tablet:border-border-subtlest-tertiary',
+      )}
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}
     />
   );
-
-  const articlePreviewToggleTab = showArticlePreviewEmbed ? (
-    <div className="relative hidden laptop:flex laptop:min-h-0 laptop:w-0 laptop:flex-none">
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Primary}
-        className="z-30 absolute right-0 top-4 !rounded-r-none"
-        onClick={onToggleArticlePreview}
-        icon={showArticlePreviewColumn ? <MiniCloseIcon /> : <EarthIcon />}
-        title={
-          showArticlePreviewColumn
-            ? 'Hide inline article preview'
-            : 'Show inline article preview'
-        }
-        aria-label={
-          showArticlePreviewColumn
-            ? 'Hide inline article preview'
-            : 'Show inline article preview'
-        }
-      />
-    </div>
-  ) : null;
 
   return (
     <PostContentContainer
@@ -326,19 +315,60 @@ export function PostContentRaw({
       }
     >
       {showArticlePreviewEmbed ? (
-        <div className="flex w-full min-w-0 flex-col laptop:min-h-0 laptop:flex-1 laptop:flex-row laptop:items-stretch">
-          {postMainColumn}
-          {articlePreviewToggleTab}
-          {showArticlePreviewColumn ? (
-            <PostArticlePreviewEmbed
-              targetUrl={embedArticleTargetUrl}
-              previewHost={post.domain ?? undefined}
-              onDismissArticlePreview={onToggleArticlePreview}
-              onPreviewUnavailable={onPreviewUnavailable}
-              forceUnavailable={isArticlePreviewUnavailable}
-            />
-          ) : null}
-          {postWidgetsColumn}
+        <div className="flex w-full min-h-0 flex-1">
+          <div
+            className={classNames(
+              'grid min-h-0 min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
+              showArticlePreviewColumn
+                ? isLaptop
+                  ? 'grid-cols-[22rem_0px_1fr]'
+                  : 'grid-cols-[1fr_0px_1fr]'
+                : 'grid-cols-[1fr_0px_0fr]',
+            )}
+          >
+            <div className="flex min-w-0 flex-col overflow-hidden">
+              {postMainColumn}
+              {!isLaptop && postWidgetsColumn}
+            </div>
+            <div className="relative">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                className={classNames(
+                  'z-30 absolute right-0 !rounded-r-none',
+                  isPostPage ? 'top-6' : 'top-4',
+                )}
+                onClick={onToggleArticlePreview}
+                icon={showArticlePreviewColumn ? <MiniCloseIcon /> : <EarthIcon />}
+                title={
+                  showArticlePreviewColumn
+                    ? 'Hide inline article preview'
+                    : 'Show inline article preview'
+                }
+                aria-label={
+                  showArticlePreviewColumn
+                    ? 'Hide inline article preview'
+                    : 'Show inline article preview'
+                }
+              />
+            </div>
+            <div
+              className={classNames(
+                'min-w-0 overflow-hidden transition-opacity duration-200 ease-in-out',
+                showArticlePreviewColumn ? 'opacity-100 delay-100' : 'opacity-0',
+              )}
+            >
+              <PostArticlePreviewEmbed
+                targetUrl={embedArticleTargetUrl}
+                previewHost={post.domain ?? undefined}
+                onDismissArticlePreview={onToggleArticlePreview}
+                onPreviewUnavailable={onPreviewUnavailable}
+                forceUnavailable={isArticlePreviewUnavailable}
+              />
+            </div>
+          </div>
+          {isLaptop && postWidgetsColumn}
         </div>
       ) : (
         <>
