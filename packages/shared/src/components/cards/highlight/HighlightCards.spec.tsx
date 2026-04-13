@@ -3,6 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
 
+jest.mock('../../../lib/constants', () => ({
+  webappUrl: '/',
+}));
+
 const highlights = [
   {
     id: 'highlight-1',
