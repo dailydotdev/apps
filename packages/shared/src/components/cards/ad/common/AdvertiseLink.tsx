@@ -7,7 +7,8 @@ import { useLogContext } from '../../../../contexts/LogContext';
 import { combinedClicks } from '../../../../lib/click';
 import { featureAdReferralCta } from '../../../../lib/featureManagement';
 import { businessWebsiteUrl } from '../../../../lib/constants';
-import { LogEvent, TargetId, TargetType } from '../../../../lib/log';
+import type { TargetId } from '../../../../lib/log';
+import { LogEvent, TargetType } from '../../../../lib/log';
 import { anchorDefaultRel } from '../../../../lib/strings';
 
 type AdvertiseLinkProps = {

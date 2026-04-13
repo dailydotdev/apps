@@ -44,7 +44,8 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
       }
 
       if (forwardedRef) {
-        forwardedRef.current = nextNode;
+        const forwardedRefObject = forwardedRef;
+        forwardedRefObject.current = nextNode;
       }
     },
     [forwardedRef],
@@ -78,7 +79,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
                 rel="noopener"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
-              className="z-1 typo-footnote"
+                className="z-1 typo-footnote"
                 {...combinedClicks(() => onLinkClick?.(ad))}
               >
                 {ad.callToAction}

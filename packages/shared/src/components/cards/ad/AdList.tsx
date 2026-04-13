@@ -60,7 +60,8 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
       }
 
       if (forwardedRef) {
-        forwardedRef.current = nextNode;
+        const forwardedRefObject = forwardedRef;
+        forwardedRefObject.current = nextNode;
       }
     },
     [forwardedRef],
