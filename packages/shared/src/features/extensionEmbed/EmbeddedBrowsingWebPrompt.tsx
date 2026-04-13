@@ -16,7 +16,6 @@ import styles from './EmbeddedBrowsingWebPrompt.module.css';
 import { ChromeIcon, EdgeIcon } from '../../components/icons';
 
 export type EmbeddedBrowsingWebPromptProps = {
-  onDismiss?: () => void;
   onEnablePreview?: () => void;
   isPreviewUnavailable?: boolean;
   unavailablePreviewUrl?: string;

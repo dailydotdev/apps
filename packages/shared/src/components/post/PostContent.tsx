@@ -39,18 +39,43 @@ type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
 export const SCROLL_OFFSET = 80;
 
+// Post content fixed column (matches grid-cols-[22rem_...] on laptop)
+const POST_COLUMN_REM = 22;
+// Widgets sidebar width (matches w-[21.25rem] on laptop)
+const WIDGETS_COLUMN_REM = 21.25;
+
 const PREVIEW_MIN_WIDTH = 360;
 const PREVIEW_RESTORE_WIDTH = 380;
 const FLOATING_PREVIEW_ANIMATION_MS = 300;
 const REM_IN_PX = 16;
 const PREVIEW_LAYOUT_MIN_WIDTH =
-  (22 + 21.25) * REM_IN_PX + PREVIEW_MIN_WIDTH;
+  (POST_COLUMN_REM + WIDGETS_COLUMN_REM) * REM_IN_PX + PREVIEW_MIN_WIDTH;
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ './PostCodeSnippets').then(
     (mod) => mod.PostCodeSnippets,
   ),
 );
+
+const ArticleLink = ({
+  href,
+  onClick,
+  children,
+  ...props
+}: ComponentProps<'a'> & { href?: string; onClick?: () => void }) => {
+  return (
+    <a
+      href={href}
+      title="Go to post"
+      target="_blank"
+      rel="noopener"
+      {...combinedClicks(onClick)}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
 
 export function PostContentRaw({
   post,
@@ -174,10 +199,22 @@ export function PostContentRaw({
   }, []);
 
   useEffect(() => {
+    if (floatingPreviewCloseTimeoutRef.current) {
+      globalThis.clearTimeout(floatingPreviewCloseTimeoutRef.current);
+      floatingPreviewCloseTimeoutRef.current = undefined;
+    }
+    if (floatingPreviewEnterFrameRef.current) {
+      globalThis.cancelAnimationFrame(floatingPreviewEnterFrameRef.current);
+      floatingPreviewEnterFrameRef.current = undefined;
+    }
     setArticlePreviewDismissed(false);
     setArticlePreviewUnavailable(false);
     setMobilePreviewOpen(false);
     setIsPreviewNarrow(false);
+    setFloatingPreviewVisible(false);
+    setFloatingPreviewClosing(false);
+    setFloatingPreviewActive(false);
+    setTabletPreviewToggling(false);
   }, [post.id]);
 
   const showArticlePreviewColumn =
@@ -336,21 +373,6 @@ export function PostContentRaw({
     onSendViewPost(post.id);
   }, [isVideoType, onSendViewPost, post.id, user?.id]);
 
-  const ArticleLink = ({ children, ...props }: ComponentProps<'a'>) => {
-    return (
-      <a
-        href={post.permalink}
-        title="Go to post"
-        target="_blank"
-        rel="noopener"
-        {...combinedClicks(onReadArticle)}
-        {...props}
-      >
-        {children}
-      </a>
-    );
-  };
-
   const postMainColumn = (
     <PostContainer
       className={classNames(
@@ -405,7 +427,9 @@ export function PostContentRaw({
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
           >
-            <ArticleLink>{title}</ArticleLink>
+            <ArticleLink href={post.permalink} onClick={onReadArticle}>
+              {title}
+            </ArticleLink>
           </h1>
           {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
         </div>
@@ -435,7 +459,12 @@ export function PostContentRaw({
             post.domain.length > 0 && (
               <TruncateText>
                 From{' '}
-                <ArticleLink title={post.domain} className="hover:underline">
+                <ArticleLink
+                  href={post.permalink}
+                  onClick={onReadArticle}
+                  title={post.domain}
+                  className="hover:underline"
+                >
                   {post.domain}
                 </ArticleLink>
               </TruncateText>
@@ -444,6 +473,8 @@ export function PostContentRaw({
         />
         {!isVideoType && (
           <ArticleLink
+            href={post.permalink}
+            onClick={onReadArticle}
             className={classNames(
               'block cursor-pointer overflow-hidden rounded-16',
               isCompactModalSpacing || hasToc ? 'mb-4' : 'mb-10',

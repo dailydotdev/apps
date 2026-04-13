@@ -82,7 +82,7 @@ export function PostArticlePreviewEmbed({
   onPreviewUnavailable,
   forceUnavailable = false,
 }: PostArticlePreviewEmbedProps): ReactElement {
-  const extensionId = useMemo(() => getBrowserExtensionInstallId(), []);
+  const [extensionId] = useState(() => getBrowserExtensionInstallId());
   const [hasPreviewFrameLoaded, setHasPreviewFrameLoaded] = useState(false);
   const [hasTimedOutUnavailable, setHasTimedOutUnavailable] = useState(false);
   const [embedState, setEmbedState] = useState<{
@@ -204,7 +204,6 @@ export function PostArticlePreviewEmbed({
   if (shouldShowUnavailablePrompt) {
     previewContent = (
       <EmbeddedBrowsingWebPrompt
-        onDismiss={onDismissArticlePreview}
         isPreviewUnavailable
         unavailablePreviewUrl={targetUrl}
       />
@@ -264,7 +263,6 @@ export function PostArticlePreviewEmbed({
         {previewContent}
         {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
           <EmbeddedBrowsingWebPrompt
-            onDismiss={onDismissArticlePreview}
           />
         ) : null}
       </div>
