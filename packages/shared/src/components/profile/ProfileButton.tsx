@@ -227,7 +227,7 @@ export default function ProfileButton({
             >
               <div
                 ref={coresCounterRef}
-                className="origin-center will-change-transform"
+                className="flex h-8 origin-center items-center will-change-transform"
               >
                 <Link href={walletUrl} passHref>
                   <Button
@@ -236,6 +236,7 @@ export default function ProfileButton({
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
+                    className="!typo-subhead"
                   >
                     {largeNumberFormat(displayedBalance)}
                   </Button>

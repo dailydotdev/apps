@@ -179,3 +179,18 @@ it('should increment reward counters and animate impact on each hit', async () =
     }
   }
 });
+
+it('should keep the cores counter styling aligned with the compact header indicators', () => {
+  const user = {
+    ...defaultUser,
+    coresRole: CoresRole.User,
+    balance: {
+      amount: 100,
+    },
+  };
+
+  renderComponent(user);
+
+  expect(screen.getByText('100').closest('a')).toHaveClass('!typo-subhead');
+  expect(screen.getByText('100').closest('div')).toHaveClass('h-8');
+});
