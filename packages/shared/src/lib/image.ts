@@ -128,6 +128,9 @@ export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
 
+export const cloudinaryReadingReminderCat =
+  'https://media.daily.dev/image/upload/s--r_3VGfdy--/f_auto,q_auto/v1776087908/public/reading-reminder-cat';
+
 export const cloudinaryOnboardingFullBackgroundMobile =
   'https://media.daily.dev/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w';
 

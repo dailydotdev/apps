@@ -39,6 +39,7 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
+import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -67,6 +68,31 @@ const feedErrorFallback: ReactElement = (
   </div>
 );
 
+function HijackingPage({
+  onPageChanged,
+}: {
+  onPageChanged: (page: string) => void;
+}): ReactElement {
+  const { setCurrentPage } = useExtensionContext();
+
+  useEffect(() => {
+    setCurrentPage('/hijacking');
+
+    return () => {
+      setCurrentPage('/');
+    };
+  }, [setCurrentPage]);
+
+  return (
+    <MainFeedPage
+      onPageChanged={onPageChanged}
+      initialPage="/"
+      shouldInitializeCurrentPage={false}
+      shortcuts={<HijackingLoginStrip />}
+    />
+  );
+}
+
 function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
   useError();
@@ -83,8 +109,9 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldRedirectOnboarding =
-    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
+  const shouldShowHijackingPage = isPageReady && !user && !isTesting;
+  const shouldShowExtensionOnboarding =
+    isPageReady && !!user && !isOnboardingComplete && !isTesting;
 
   useCheckLocation();
   useCheckCoresRole();
@@ -121,7 +148,17 @@ function InternalApp(): ReactElement {
     return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
 
-  if (shouldRedirectOnboarding) {
+  if (shouldShowHijackingPage) {
+    return (
+      <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
+        <DndContextProvider>
+          <HijackingPage onPageChanged={onPageChanged} />
+        </DndContextProvider>
+      </ErrorBoundary>
+    );
+  }
+
+  if (shouldShowExtensionOnboarding) {
     return <ExtensionOnboarding />;
   }
 

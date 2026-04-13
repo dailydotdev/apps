@@ -21,7 +21,11 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
+import {
+  invalidPlusRegions,
+  onboardingUrl,
+  webFunnelPrefix,
+} from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -199,10 +203,17 @@ export const AuthContextProvider = ({
               const params = new URLSearchParams(globalThis?.location.search);
 
               setLoginState({ ...options, trigger });
-              if (!params.get(AFTER_AUTH_PARAM)) {
+              if (isExtension) {
+                params.delete(AFTER_AUTH_PARAM);
+              } else if (!params.get(AFTER_AUTH_PARAM)) {
                 params.set(AFTER_AUTH_PARAM, window.location.pathname);
               }
-              router.push(`/onboarding?${params.toString()}`);
+              const onboardingPath = `${onboardingUrl}?${params.toString()}`;
+              router.push(
+                isExtension
+                  ? onboardingPath
+                  : `/onboarding?${params.toString()}`,
+              );
             }
           },
           [router],

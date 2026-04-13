@@ -1,13 +1,17 @@
-import type { ReactElement } from 'react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import AlertContext from '@dailydotdev/shared/src/contexts/AlertContext';
-import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -33,34 +37,71 @@ const DndModal = dynamic(
 
 export type MainFeedPageProps = {
   onPageChanged: (page: string) => unknown;
+  initialPage?: string;
+  shouldInitializeCurrentPage?: boolean;
+  shortcuts?: ReactNode;
+};
+
+const normalizePage = (page: string): string =>
+  page.startsWith('/') ? page : `/${page}`;
+
+const getInitialFeedName = (page?: string): string => {
+  if (!page) {
+    return 'default';
+  }
+
+  const normalizedPage = normalizePage(page);
+
+  if (normalizedPage === '/') {
+    return 'default';
+  }
+
+  return normalizedPage;
 };
 
 export default function MainFeedPage({
   onPageChanged,
+  initialPage,
+  shouldInitializeCurrentPage = true,
+  shortcuts,
 }: MainFeedPageProps): ReactElement {
-  const { alerts } = useContext(AlertContext);
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
-  const [feedName, setFeedName] = useState<string>('default');
+  const [feedName, setFeedName] = useState<string>(() =>
+    getInitialFeedName(initialPage),
+  );
   const [searchQuery, setSearchQuery] = useState<string>();
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
 
+  useLayoutEffect(() => {
+    if (!initialPage || !shouldInitializeCurrentPage) {
+      return;
+    }
+
+    onPageChanged(normalizePage(initialPage));
+  }, [initialPage, onPageChanged, shouldInitializeCurrentPage]);
+
   const onNavTabClick = useCallback(
     (tab: string): void => {
-      if (tab !== 'search') {
+      const normalizedTab = normalizePage(tab);
+
+      if (normalizedTab !== '/search') {
         setIsSearchOn(false);
       }
-      setFeedName(tab);
-      const isMyFeed = tab === '/my-feed';
+
+      setFeedName(getInitialFeedName(normalizedTab));
+      const isMyFeed = normalizedTab === '/my-feed';
+
       if (getShouldRedirect(isMyFeed, !!user)) {
-        onPageChanged(`/`);
-      } else {
-        onPageChanged(`/${tab}`);
+        onPageChanged('/');
+        return;
       }
+
+      onPageChanged(normalizedTab);
     },
     [onPageChanged, user],
   );
@@ -70,20 +111,19 @@ export default function MainFeedPage({
       return '/search';
     }
 
+    if (feedName === 'default') {
+      return '/';
+    }
+
     // default page when user selected custom default feed
     if (isCustomDefaultFeed && feedName === 'default') {
       return '/';
     }
 
-    const feed = getFeedName(feedName, {
-      hasUser: !!user,
-      hasFiltered: !alerts?.filter,
-    });
-
-    return `/${feed}`;
+    return normalizePage(feedName);
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSearchOn, feedName]);
+  }, [isSearchOn, isCustomDefaultFeed, feedName]);
 
   const onLogoClick = (e: React.MouseEvent): void => {
     e.preventDefault();
@@ -134,9 +174,11 @@ export default function MainFeedPage({
               />
             }
             shortcuts={
-              <ShortcutLinks
-                shouldUseListFeedLayout={shouldUseListFeedLayout}
-              />
+              shortcuts ?? (
+                <ShortcutLinks
+                  shouldUseListFeedLayout={shouldUseListFeedLayout}
+                />
+              )
             }
           />
         </FeedLayoutProvider>
