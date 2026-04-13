@@ -83,7 +83,6 @@ export function PostArticlePreviewEmbed({
   forceUnavailable = false,
 }: PostArticlePreviewEmbedProps): ReactElement {
   const extensionId = useMemo(() => getBrowserExtensionInstallId(), []);
-  const [showDirectWebPreview, setShowDirectWebPreview] = useState(false);
   const [hasPreviewFrameLoaded, setHasPreviewFrameLoaded] = useState(false);
   const [hasTimedOutUnavailable, setHasTimedOutUnavailable] = useState(false);
   const [embedState, setEmbedState] = useState<{
@@ -115,18 +114,11 @@ export function PostArticlePreviewEmbed({
   }, [previewDomain]);
 
   useEffect(() => {
-    setShowDirectWebPreview(false);
     setHasPreviewFrameLoaded(false);
     setHasTimedOutUnavailable(false);
     setEmbedState({ status: 'idle', errorReason: null });
     hasNotifiedUnavailableRef.current = false;
   }, [extensionId, targetUrl]);
-
-  const onEnableDirectWebPreview = useCallback(() => {
-    setHasPreviewFrameLoaded(false);
-    setHasTimedOutUnavailable(false);
-    setShowDirectWebPreview(true);
-  }, []);
 
   const onExtensionPreviewFrameLoad = useCallback(() => {
     setHasPreviewFrameLoaded(true);
@@ -145,14 +137,11 @@ export function PostArticlePreviewEmbed({
     embedState.status === 'ready' &&
     !hasPreviewFrameLoaded &&
     !forceUnavailable;
-  const showDirectPreviewFrame = !extensionId && showDirectWebPreview;
-  const isDirectPreviewAwaitingLoad =
-    showDirectPreviewFrame && !hasPreviewFrameLoaded && !forceUnavailable;
   const shouldShowUnavailablePrompt =
     forceUnavailable || hasTimedOutUnavailable;
-  const shouldShowPrompt = !extensionId && !showDirectWebPreview;
+  const shouldShowPrompt = !extensionId;
   const shouldShowPreviewHeader =
-    (showDirectPreviewFrame || !!extensionId) && !shouldShowUnavailablePrompt;
+    !!extensionId && !shouldShowUnavailablePrompt;
 
   const handleEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
@@ -189,7 +178,7 @@ export function PostArticlePreviewEmbed({
 
   useEffect(() => {
     const timeout =
-      isExtensionPreviewAwaitingLoad || isDirectPreviewAwaitingLoad
+      isExtensionPreviewAwaitingLoad
         ? globalThis.setTimeout(() => {
             if (hasNotifiedUnavailableRef.current) {
               return;
@@ -207,7 +196,6 @@ export function PostArticlePreviewEmbed({
       }
     };
   }, [
-    isDirectPreviewAwaitingLoad,
     isExtensionPreviewAwaitingLoad,
     onPreviewUnavailable,
   ]);
@@ -219,16 +207,6 @@ export function PostArticlePreviewEmbed({
         onDismiss={onDismissArticlePreview}
         isPreviewUnavailable
         unavailablePreviewUrl={targetUrl}
-      />
-    );
-  } else if (showDirectPreviewFrame) {
-    previewContent = (
-      <iframe
-        key={targetUrl}
-        src={targetUrl}
-        title="Article preview"
-        className="h-full min-h-[28rem] w-full flex-1 border-0"
-        onLoad={onExtensionPreviewFrameLoad}
       />
     );
   } else {
@@ -287,7 +265,6 @@ export function PostArticlePreviewEmbed({
         {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
           <EmbeddedBrowsingWebPrompt
             onDismiss={onDismissArticlePreview}
-            onEnablePreview={onEnableDirectWebPreview}
           />
         ) : null}
       </div>

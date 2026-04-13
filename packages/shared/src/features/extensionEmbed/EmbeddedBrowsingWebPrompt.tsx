@@ -11,8 +11,9 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { downloadBrowserExtension } from '../../lib/constants';
+import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
+import { ChromeIcon, EdgeIcon } from '../../components/icons';
 
 export type EmbeddedBrowsingWebPromptProps = {
   onDismiss?: () => void;
@@ -65,6 +66,8 @@ export function EmbeddedBrowsingWebPrompt({
       </Button>
     );
   } else {
+    const isChromeBrowser = isChrome();
+    const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
     primaryAction = (
       <Button
         tag="a"
@@ -74,8 +77,9 @@ export function EmbeddedBrowsingWebPrompt({
         href={downloadBrowserExtension}
         target="_blank"
         rel="noopener noreferrer"
+        icon={<BrowserIcon />}
       >
-        Enable
+        {isChromeBrowser ? 'Install Chrome extension' : 'Install Edge extension'}
       </Button>
     );
   }
@@ -103,7 +107,9 @@ export function EmbeddedBrowsingWebPrompt({
           >
             {isPreviewUnavailable
               ? 'This site blocks embedded previews.'
-              : 'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)'}
+              : onEnablePreview
+                ? 'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)'
+                : 'Preview and open sites directly inside daily.dev. To use this feature, install the daily.dev browser extension.'}
           </Typography>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
             {primaryAction}
