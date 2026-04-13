@@ -11,6 +11,13 @@
   overflow: visible;
 }
 
+@media (max-width: 655px) {
+  .root {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 /* Centers the card at the vertical midpoint of the user's screen */
 .stickyShell {
   position: sticky;
@@ -23,6 +30,13 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
+}
+
+@media (max-width: 655px) {
+  .stickyShell {
+    position: static;
+    transform: none;
+  }
 }
 
 .ambient {

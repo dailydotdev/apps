@@ -33,6 +33,7 @@ import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EarthIcon, MiniCloseIcon } from '../icons';
 import { useViewSize, ViewSize } from '../../hooks';
+import { Drawer } from '../drawers/Drawer';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -72,6 +73,7 @@ export function PostContentRaw({
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
+  const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -103,6 +105,7 @@ export function PostContentRaw({
     useState(false);
   const [isArticlePreviewUnavailable, setArticlePreviewUnavailable] =
     useState(false);
+  const [isMobilePreviewOpen, setMobilePreviewOpen] = useState(false);
 
   useEffect(() => {
     setIsPreviewHydrated(true);
@@ -111,18 +114,27 @@ export function PostContentRaw({
   useEffect(() => {
     setArticlePreviewDismissed(false);
     setArticlePreviewUnavailable(false);
+    setMobilePreviewOpen(false);
   }, [post.id]);
 
   const showArticlePreviewColumn =
     showArticlePreviewEmbed && !isArticlePreviewDismissed;
+  const isPreviewActive = isTablet
+    ? showArticlePreviewColumn
+    : isMobilePreviewOpen;
 
   const onToggleArticlePreview = useCallback(() => {
-    setArticlePreviewDismissed((currentState) => !currentState);
-  }, []);
+    if (isTablet) {
+      setArticlePreviewDismissed((currentState) => !currentState);
+    } else {
+      setMobilePreviewOpen((currentState) => !currentState);
+    }
+  }, [isTablet]);
 
   const onPreviewUnavailable = useCallback(() => {
     setArticlePreviewUnavailable(true);
     setArticlePreviewDismissed(true);
+    setMobilePreviewOpen(false);
   }, []);
 
   const containerClass = classNames(
@@ -194,13 +206,27 @@ export function PostContentRaw({
         post={post}
       >
         <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-          <PostSourceInfo
-            className="mb-3"
-            post={post}
-            onClose={onClose}
-            onReadArticle={onReadArticle}
-            hideSubscribeAction={hideSubscribeAction}
-          />
+          <div className="mb-3 flex items-center">
+            <PostSourceInfo
+              className="min-w-0 flex-1"
+              post={post}
+              onClose={onClose}
+              onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
+            />
+            {!isTablet && showArticlePreviewEmbed && (
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                className="ml-auto shrink-0"
+                onClick={onToggleArticlePreview}
+                icon={<EarthIcon />}
+                title="Preview article"
+                aria-label="Preview article"
+              />
+            )}
+          </div>
           <h1
             className="break-words font-bold typo-large-title"
             data-testid="post-modal-title"
@@ -319,7 +345,7 @@ export function PostContentRaw({
           <div
             className={classNames(
               'grid min-h-0 min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
-              showArticlePreviewColumn
+              showArticlePreviewColumn && isTablet
                 ? isLaptop
                   ? 'grid-cols-[22rem_0px_1fr]'
                   : 'grid-cols-[1fr_0px_1fr]'
@@ -330,24 +356,24 @@ export function PostContentRaw({
               {postMainColumn}
               {!isLaptop && postWidgetsColumn}
             </div>
-            <div className="relative">
+            <div className="relative hidden tablet:block">
               <Button
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
                 className={classNames(
                   'z-30 absolute right-0 !rounded-r-none',
-                  isPostPage ? 'top-6' : 'top-4',
+                  isPostPage ? 'top-[4.5rem] laptop:top-6' : 'top-4',
                 )}
                 onClick={onToggleArticlePreview}
-                icon={showArticlePreviewColumn ? <MiniCloseIcon /> : <EarthIcon />}
+                icon={isPreviewActive ? <MiniCloseIcon /> : <EarthIcon />}
                 title={
-                  showArticlePreviewColumn
+                  isPreviewActive
                     ? 'Hide inline article preview'
                     : 'Show inline article preview'
                 }
                 aria-label={
-                  showArticlePreviewColumn
+                  isPreviewActive
                     ? 'Hide inline article preview'
                     : 'Show inline article preview'
                 }
@@ -369,6 +395,25 @@ export function PostContentRaw({
             </div>
           </div>
           {isLaptop && postWidgetsColumn}
+          <Drawer
+            isOpen={!isTablet && isMobilePreviewOpen}
+            onClose={() => setMobilePreviewOpen(false)}
+            className={{
+              wrapper: 'h-[88vh]',
+              drawer: 'flex-1 !p-0',
+            }}
+            displayCloseButton
+            appendOnRoot
+          >
+            <PostArticlePreviewEmbed
+              targetUrl={embedArticleTargetUrl}
+              previewHost={post.domain ?? undefined}
+              onDismissArticlePreview={() => setMobilePreviewOpen(false)}
+              onPreviewUnavailable={onPreviewUnavailable}
+              forceUnavailable={isArticlePreviewUnavailable}
+              className="!flex"
+            />
+          </Drawer>
         </div>
       ) : (
         <>

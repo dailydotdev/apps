@@ -105,14 +105,6 @@ export function PostArticlePreviewEmbed({
       return targetUrl;
     }
   }, [previewHost, targetUrl]);
-  const previewUrlLabel = useMemo(() => {
-    try {
-      const parsedTarget = new URL(targetUrl);
-      return `${parsedTarget.hostname}${parsedTarget.pathname}`;
-    } catch {
-      return targetUrl;
-    }
-  }, [targetUrl]);
   const faviconSrc = useMemo(() => {
     const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
     const iconSize = Math.max(Math.round(16 * pixelRatio), 96);
@@ -286,7 +278,7 @@ export function PostArticlePreviewEmbed({
                 title="Copy preview URL"
                 aria-label="Copy preview URL"
               >
-                {previewUrlLabel}
+                {previewDomain}
               </button>
             </Typography>
           </div>
