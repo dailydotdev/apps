@@ -12,7 +12,9 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-interface ArchiveFeedPageProps extends ArchiveScopeInfo {
+interface ArchiveFeedPageProps {
+  scopeType: ArchiveScopeInfo['scopeType'];
+  scopeId?: string;
   archive: Archive | null;
   scopeName: string;
   periodType: ArchivePeriodType;
@@ -88,7 +90,10 @@ export function ArchiveFeedPage({
         ? new Date(Date.UTC(year, month - 1, 1)).toISOString()
         : new Date(Date.UTC(year, 0, 1)).toISOString(),
   });
-  const indexUrl = getArchiveIndexUrl({ scopeType, scopeId });
+  const indexUrl = getArchiveIndexUrl({
+    scopeType,
+    scopeId,
+  } as ArchiveScopeInfo);
   const items = archive?.items ?? [];
 
   return (

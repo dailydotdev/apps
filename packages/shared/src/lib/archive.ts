@@ -2,10 +2,15 @@ import { format, getMonth, getYear } from 'date-fns';
 import type { Archive, ArchiveItem } from '../graphql/archive';
 import { ArchivePeriodType, ArchiveScopeType } from '../graphql/archive';
 
-export type ArchiveScopeInfo = {
-  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
-  scopeId: string;
-};
+export type ArchiveScopeInfo =
+  | {
+      scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
+      scopeId: string;
+    }
+  | {
+      scopeType: ArchiveScopeType.Global;
+      scopeId?: undefined;
+    };
 
 export function getMonthName(month: number, short = false): string {
   return format(new Date(2000, month - 1, 1), short ? 'MMM' : 'MMMM');
@@ -40,6 +45,10 @@ export function getArchiveTitle(archive: {
 }
 
 function getScopeBasePath(scope: ArchiveScopeInfo): string {
+  if (scope.scopeType === ArchiveScopeType.Global) {
+    return '/posts/best-of';
+  }
+
   if (scope.scopeType === ArchiveScopeType.Tag) {
     return `/tags/${encodeURIComponent(scope.scopeId)}/best-of`;
   }

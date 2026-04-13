@@ -14,7 +14,9 @@ import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
-interface ArchiveIndexPageProps extends ArchiveScopeInfo {
+interface ArchiveIndexPageProps {
+  scopeType: ArchiveScopeInfo['scopeType'];
+  scopeId?: string;
   archives: Archive[];
   scopeName: string;
   isLoading?: boolean;
@@ -28,10 +30,13 @@ function ArchiveMonthCard({
 }: {
   archive: Archive;
   scopeType: ArchiveScopeInfo['scopeType'];
-  scopeId: string;
+  scopeId?: string;
 }): ReactElement {
   const { month } = parseArchivePeriod(archive.periodStart);
-  const url = getArchiveUrlFromArchive({ scopeType, scopeId }, archive);
+  const url = getArchiveUrlFromArchive(
+    { scopeType, scopeId } as ArchiveScopeInfo,
+    archive,
+  );
   const itemCount = archive.items?.length;
 
   return (
@@ -57,9 +62,12 @@ function ArchiveYearLink({
 }: {
   archive: Archive;
   scopeType: ArchiveScopeInfo['scopeType'];
-  scopeId: string;
+  scopeId?: string;
 }): ReactElement {
-  const url = getArchiveUrlFromArchive({ scopeType, scopeId }, archive);
+  const url = getArchiveUrlFromArchive(
+    { scopeType, scopeId } as ArchiveScopeInfo,
+    archive,
+  );
 
   return (
     <Link href={url} prefetch={false}>
@@ -82,7 +90,7 @@ function ArchiveGrid({
 }: {
   groups: ArchivesByYear[];
   scopeType: ArchiveScopeInfo['scopeType'];
-  scopeId: string;
+  scopeId?: string;
   isLoading?: boolean;
 }): ReactElement {
   if (isLoading) {
