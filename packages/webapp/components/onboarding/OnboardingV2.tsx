@@ -135,7 +135,7 @@ export type OnboardingStep =
   | 'extension'
   | 'complete';
 
-type GithubImportPhase =
+type ImportPhase =
   | 'idle'
   | 'running'
   | 'awaitingSeniority'
@@ -143,7 +143,7 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
-type GithubImportBodyPhase = 'checklist' | 'seniority' | 'default';
+type ImportBodyPhase = 'checklist' | 'seniority' | 'default';
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
@@ -217,22 +217,19 @@ export const OnboardingV2 = (): ReactElement => {
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
-  const [githubImportPhase, setGithubImportPhase] =
-    useState<GithubImportPhase>('idle');
-  const [githubImportProgress, setGithubImportProgress] = useState(0);
+  const [importPhase, setImportPhase] = useState<ImportPhase>('idle');
+  const [importProgress, setImportProgress] = useState(0);
   const [selectedExperienceLevel, setSelectedExperienceLevel] = useState<
     keyof typeof UserExperienceLevel | null
   >(null);
-  const [githubImportBodyHeight, setGithubImportBodyHeight] = useState<
-    number | null
-  >(null);
-  const [githubImportExiting, setGithubImportExiting] = useState(false);
+  const [importBodyHeight, setImportBodyHeight] = useState<number | null>(null);
+  const [importExiting, setImportExiting] = useState(false);
   const [signupContext, setSignupContext] = usePersistentContext<
     'github' | 'ai' | null
   >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai']);
   const pageRef = useRef<HTMLDivElement>(null);
-  const githubResumeTimeoutRef = useRef<number | null>(null);
-  const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
+  const importTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const importBodyContentRef = useRef<HTMLDivElement>(null);
   const authFormRef = useRef<HTMLFormElement>(
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
@@ -250,22 +247,25 @@ export const OnboardingV2 = (): ReactElement => {
     [setSignupContext],
   );
 
-  const clearGithubResumeTimeout = useCallback(() => {
-    if (githubResumeTimeoutRef.current === null) {
-      return;
-    }
-    window.clearTimeout(githubResumeTimeoutRef.current);
-    githubResumeTimeoutRef.current = null;
+  const clearImportTimers = useCallback(() => {
+    importTimersRef.current.forEach(clearTimeout);
+    importTimersRef.current = [];
+  }, []);
+
+  const trackTimer = useCallback((fn: () => void, delay: number) => {
+    const id = setTimeout(fn, delay);
+    importTimersRef.current.push(id);
+    return id;
   }, []);
 
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
-      clearGithubResumeTimeout();
+      clearImportTimers();
 
       setImportFlowSource(source);
       setSelectedExperienceLevel(null);
-      setGithubImportProgress(0);
-      setGithubImportPhase('running');
+      setImportProgress(0);
+      setImportPhase('running');
       setStep('importing');
 
       const apiPromise =
@@ -274,7 +274,7 @@ export const OnboardingV2 = (): ReactElement => {
           : requestOnboardingProfileTags(aiPrompt);
 
       // Animate progress bar to 65% via CSS transition
-      requestAnimationFrame(() => setGithubImportProgress(65));
+      requestAnimationFrame(() => setImportProgress(65));
 
       // Wait for both API response AND minimum animation time
       const [apiResult] = await Promise.allSettled([
@@ -287,13 +287,13 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
-      setGithubImportProgress(68);
-      setGithubImportPhase('awaitingSeniority');
+      setImportProgress(68);
+      setImportPhase('awaitingSeniority');
     },
-    [clearGithubResumeTimeout, aiPrompt, setAiPrompt, setSignupContext],
+    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext],
   );
 
-  const startGithubImportFlow = useCallback(() => {
+  const startImportFlowGithub = useCallback(() => {
     startImportFlow('github');
   }, [startImportFlow]);
 
@@ -308,15 +308,15 @@ export const OnboardingV2 = (): ReactElement => {
     setStep('auth');
   }, [setSignupContext]);
 
-  const closeGithubImportFlow = useCallback(() => {
-    clearGithubResumeTimeout();
+  const closeImportFlow = useCallback(() => {
+    clearImportTimers();
     setStep('hero');
-    setGithubImportExiting(false);
+    setImportExiting(false);
     setSelectedExperienceLevel(null);
-    setGithubImportProgress(0);
-    setGithubImportPhase('idle');
+    setImportProgress(0);
+    setImportPhase('idle');
     setImportFlowSource('github');
-  }, [clearGithubResumeTimeout]);
+  }, [clearImportTimers]);
 
   const startAiProcessing = useCallback(() => {
     startImportFlow('ai');
@@ -324,14 +324,14 @@ export const OnboardingV2 = (): ReactElement => {
 
   const handleExperienceLevelSelect = useCallback(
     async (level: keyof typeof UserExperienceLevel) => {
-      if (githubImportPhase !== 'awaitingSeniority') {
+      if (importPhase !== 'awaitingSeniority') {
         return;
       }
 
-      clearGithubResumeTimeout();
+      clearImportTimers();
       setSelectedExperienceLevel(level);
-      setGithubImportProgress((prev) => Math.max(prev, 72));
-      setGithubImportPhase('confirmingSeniority');
+      setImportProgress((prev) => Math.max(prev, 72));
+      setImportPhase('confirmingSeniority');
 
       await gqlClient
         .request(UPDATE_USER_PROFILE_MUTATION, {
@@ -348,11 +348,22 @@ export const OnboardingV2 = (): ReactElement => {
         query: { step: 'complete' },
       });
 
-      githubResumeTimeoutRef.current = window.setTimeout(() => {
-        setGithubImportPhase('finishing');
+      trackTimer(() => {
+        setImportPhase('finishing');
+        setImportProgress(100);
+        trackTimer(() => {
+          setImportPhase('complete');
+          trackTimer(() => {
+            setImportExiting(true);
+            trackTimer(() => {
+              setImportExiting(false);
+              setStep('extension');
+            }, 350);
+          }, 600);
+        }, FINISHING_ANIMATION_MS);
       }, 420);
     },
-    [clearGithubResumeTimeout, githubImportPhase, completeAction, router],
+    [clearImportTimers, trackTimer, importPhase, completeAction, router],
   );
 
   useEffect(() => {
@@ -396,12 +407,12 @@ export const OnboardingV2 = (): ReactElement => {
         router.replace(`${webappUrl}onboarding`);
         return;
       }
-      startGithubImportFlow();
+      startImportFlowGithub();
       return;
     }
 
     if (isLoggedIn && signupContext === 'github') {
-      startGithubImportFlow();
+      startImportFlowGithub();
       return;
     }
 
@@ -434,43 +445,15 @@ export const OnboardingV2 = (): ReactElement => {
     step,
     router,
     setSignupContext,
-    startGithubImportFlow,
+    startImportFlowGithub,
     startAiProcessing,
   ]);
 
   useEffect(() => {
     return () => {
-      clearGithubResumeTimeout();
+      clearImportTimers();
     };
-  }, [clearGithubResumeTimeout]);
-
-  useEffect(() => {
-    if (githubImportPhase !== 'finishing') {
-      return undefined;
-    }
-
-    setGithubImportProgress(100);
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const track = (fn: () => void, delay: number) => {
-      const id = setTimeout(fn, delay);
-      timers.push(id);
-      return id;
-    };
-
-    track(() => {
-      setGithubImportPhase('complete');
-      track(() => {
-        setGithubImportExiting(true);
-        track(() => {
-          setGithubImportExiting(false);
-          setStep('extension');
-        }, 350);
-      }, 600);
-    }, FINISHING_ANIMATION_MS);
-
-    return () => timers.forEach(clearTimeout);
-  }, [githubImportPhase]);
+  }, [clearImportTimers]);
 
   const dismissExtensionPromo = useCallback(() => {
     setExtensionSeen(true);
@@ -496,57 +479,55 @@ export const OnboardingV2 = (): ReactElement => {
   }, []);
   const isAiSetupContext = signupContext === 'ai';
   const canStartAiFlow = aiPrompt?.trim().length > 0;
-  const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
+  const isAwaitingSeniorityInput = importPhase === 'awaitingSeniority';
   const importSteps = useMemo(
     () =>
       importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS,
     [importFlowSource],
   );
   const currentImportStep = useMemo(() => {
-    if (githubImportPhase === 'awaitingSeniority') {
+    if (importPhase === 'awaitingSeniority') {
       return 'Waiting for your seniority level';
     }
-    if (githubImportPhase === 'confirmingSeniority') {
+    if (importPhase === 'confirmingSeniority') {
       return 'Applying your seniority level';
     }
-    if (githubImportPhase === 'complete') {
+    if (importPhase === 'complete') {
       return 'Your feed is ready';
     }
 
-    const upcomingStep = importSteps.find(
-      (s) => githubImportProgress < s.threshold,
-    );
+    const upcomingStep = importSteps.find((s) => importProgress < s.threshold);
     return upcomingStep?.label ?? 'Building personalized feed';
-  }, [githubImportPhase, githubImportProgress, importSteps]);
-  const githubImportBodyPhase = useMemo<GithubImportBodyPhase>(() => {
+  }, [importPhase, importProgress, importSteps]);
+  const importBodyPhase = useMemo<ImportBodyPhase>(() => {
     if (
-      githubImportPhase === 'running' ||
-      githubImportPhase === 'finishing' ||
-      githubImportPhase === 'confirmingSeniority' ||
-      githubImportPhase === 'complete'
+      importPhase === 'running' ||
+      importPhase === 'finishing' ||
+      importPhase === 'confirmingSeniority' ||
+      importPhase === 'complete'
     ) {
       return 'checklist';
     }
-    if (githubImportPhase === 'awaitingSeniority') {
+    if (importPhase === 'awaitingSeniority') {
       return 'seniority';
     }
 
     return 'default';
-  }, [githubImportPhase]);
+  }, [importPhase]);
 
   useEffect(() => {
-    if (githubImportBodyPhase === 'default') {
-      setGithubImportBodyHeight(null);
+    if (importBodyPhase === 'default') {
+      setImportBodyHeight(null);
       return undefined;
     }
 
-    const contentNode = githubImportBodyContentRef.current;
+    const contentNode = importBodyContentRef.current;
     if (!contentNode) {
       return undefined;
     }
 
     const updateHeight = () => {
-      setGithubImportBodyHeight(contentNode.getBoundingClientRect().height);
+      setImportBodyHeight(contentNode.getBoundingClientRect().height);
     };
 
     updateHeight();
@@ -559,7 +540,7 @@ export const OnboardingV2 = (): ReactElement => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [githubImportBodyPhase]);
+  }, [importBodyPhase]);
 
   return (
     <div
@@ -779,7 +760,7 @@ export const OnboardingV2 = (): ReactElement => {
                 type="button"
                 onClick={() => {
                   if (isLoggedIn) {
-                    startGithubImportFlow();
+                    startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
                   }
@@ -1369,7 +1350,7 @@ export const OnboardingV2 = (): ReactElement => {
                       onClick={async () => {
                         setStep('hero');
                         if (isLoggedIn) {
-                          startGithubImportFlow();
+                          startImportFlowGithub();
                         } else {
                           initiateGithubAuth();
                         }
@@ -1496,7 +1477,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Persistent backdrop during import→extension transition ── */}
-      {githubImportExiting && (
+      {importExiting && (
         <div
           className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
           aria-hidden
@@ -1568,7 +1549,7 @@ export const OnboardingV2 = (): ReactElement => {
                 onSuccessfulRegistration={() => {
                   setAutoTriggerProvider(undefined);
                   if (signupContext === 'github') {
-                    startGithubImportFlow();
+                    startImportFlowGithub();
                   } else if (signupContext === 'ai') {
                     startAiProcessing();
                   } else {
@@ -1754,11 +1735,9 @@ export const OnboardingV2 = (): ReactElement => {
           <div
             className={classNames(
               'bg-black/70 absolute inset-0 backdrop-blur-md',
-              githubImportExiting
-                ? 'onb-modal-backdrop-exit'
-                : 'onb-modal-backdrop',
+              importExiting ? 'onb-modal-backdrop-exit' : 'onb-modal-backdrop',
             )}
-            onClick={closeGithubImportFlow}
+            onClick={closeImportFlow}
             role="presentation"
           />
 
@@ -1766,12 +1745,12 @@ export const OnboardingV2 = (): ReactElement => {
           <div
             className={classNames(
               'relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-raw-pepper-90 px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6',
-              githubImportExiting && 'onb-modal-exit',
+              importExiting && 'onb-modal-exit',
             )}
           >
             <button
               type="button"
-              onClick={closeGithubImportFlow}
+              onClick={closeImportFlow}
               className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
@@ -1995,12 +1974,12 @@ export const OnboardingV2 = (): ReactElement => {
             {/* ── Title & progress ── */}
             <h2 className="mb-1 text-center font-bold text-text-primary typo-title3">
               {(() => {
-                if (githubImportPhase === 'complete') {
+                if (importPhase === 'complete') {
                   return 'Your feed is ready';
                 }
                 if (
-                  githubImportPhase === 'awaitingSeniority' ||
-                  githubImportPhase === 'confirmingSeniority'
+                  importPhase === 'awaitingSeniority' ||
+                  importPhase === 'confirmingSeniority'
                 ) {
                   return 'Almost there';
                 }
@@ -2012,15 +1991,15 @@ export const OnboardingV2 = (): ReactElement => {
 
             <p className="mb-4 text-center text-text-tertiary typo-footnote">
               {(() => {
-                if (githubImportPhase === 'complete') {
+                if (importPhase === 'complete') {
                   return 'We built a personalized feed just for you.';
                 }
-                if (githubImportPhase === 'awaitingSeniority') {
+                if (importPhase === 'awaitingSeniority') {
                   return importFlowSource === 'github'
                     ? 'One thing we couldn\u2019t find on your profile.'
                     : 'One last detail to finish your profile setup.';
                 }
-                if (githubImportPhase === 'confirmingSeniority') {
+                if (importPhase === 'confirmingSeniority') {
                   return 'Got it. Finishing up...';
                 }
                 return currentImportStep;
@@ -2028,22 +2007,22 @@ export const OnboardingV2 = (): ReactElement => {
             </p>
 
             {/* ── Progress track ── */}
-            {githubImportPhase !== 'idle' && (
+            {importPhase !== 'idle' && (
               <div className="mb-5 w-full">
                 <div className="relative h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.10]">
                   <div
                     className="h-full rounded-[0.125rem] bg-accent-cabbage-default transition-[width] duration-300 ease-out"
-                    style={{ width: `${Math.max(githubImportProgress, 6)}%` }}
+                    style={{ width: `${Math.max(importProgress, 6)}%` }}
                   />
                 </div>
               </div>
             )}
 
-            {githubImportBodyPhase !== 'default' && (
+            {importBodyPhase !== 'default' && (
               <div
                 className={classNames(
                   'w-full overflow-hidden',
-                  githubImportBodyPhase === 'seniority'
+                  importBodyPhase === 'seniority'
                     ? 'rounded-none border-0 bg-transparent p-0'
                     : 'rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5',
                 )}
@@ -2051,27 +2030,27 @@ export const OnboardingV2 = (): ReactElement => {
                 <div
                   className="ghub-phase-shell overflow-hidden transition-[height] duration-300 ease-out"
                   style={{
-                    height: githubImportBodyHeight
-                      ? `${githubImportBodyHeight}px`
+                    height: importBodyHeight
+                      ? `${importBodyHeight}px`
                       : undefined,
                   }}
                 >
                   <div
-                    key={githubImportBodyPhase}
-                    ref={githubImportBodyContentRef}
+                    key={importBodyPhase}
+                    ref={importBodyContentRef}
                     className={
-                      githubImportBodyPhase === 'checklist'
+                      importBodyPhase === 'checklist'
                         ? 'min-h-0'
                         : 'min-h-[12rem]'
                     }
                   >
                     {/* ── Import checklist (during active import) ── */}
-                    {githubImportBodyPhase === 'checklist' && (
+                    {importBodyPhase === 'checklist' && (
                       <div className="flex w-full flex-col gap-2.5">
                         {importSteps.map((s, i) => {
-                          const done = githubImportProgress >= s.threshold;
+                          const done = importProgress >= s.threshold;
                           const active =
-                            !done && githubImportProgress >= s.threshold - 16;
+                            !done && importProgress >= s.threshold - 16;
                           // eslint-disable-next-line no-nested-ternary
                           const statusText = done
                             ? 'Done'
@@ -2156,7 +2135,7 @@ export const OnboardingV2 = (): ReactElement => {
                     )}
 
                     {/* ── Seniority question ── */}
-                    {githubImportBodyPhase === 'seniority' && (
+                    {importBodyPhase === 'seniority' && (
                       <div>
                         <p className="mb-3 text-left font-medium text-text-primary typo-callout">
                           What is your seniority level?
@@ -2387,7 +2366,7 @@ export const OnboardingV2 = (): ReactElement => {
                     onClick={() => {
                       if (isLoggedIn) {
                         setStep('hero');
-                        startGithubImportFlow();
+                        startImportFlowGithub();
                       } else {
                         initiateGithubAuth();
                       }
