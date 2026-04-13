@@ -372,12 +372,19 @@ function Page(props: PageProps) {
     feature: featureOnboardingV2,
   });
 
-  const OnboardingComponent = isOnboardingV2 ? OnboardingV2 : Onboarding;
+  if (isOnboardingV2) {
+    return (
+      <ErrorBoundary feature="onboarding">
+        <OnboardingV2 />
+        <Toast autoDismissNotifications={autoDismissNotifications} />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <JotaiProvider>
       <ErrorBoundary feature="onboarding">
-        <OnboardingComponent {...props} />
+        <Onboarding {...props} />
       </ErrorBoundary>
       <Toast autoDismissNotifications={autoDismissNotifications} />
     </JotaiProvider>
