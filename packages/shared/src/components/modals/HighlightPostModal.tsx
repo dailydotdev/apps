@@ -688,7 +688,7 @@ export function HighlightPostModal({
         </h2>
       }
     >
-      <div className="relative flex min-h-0 min-w-0 max-w-full flex-1 flex-col overflow-hidden laptop:h-full">
+      <div className="relative flex min-h-0 max-w-full flex-col laptop:h-full">
         {!shouldUseMobileLayout && (
           <HighlightDesktopRail
             activeIndex={activeIndex}
@@ -717,7 +717,7 @@ export function HighlightPostModal({
         )}
         <div
           ref={setArticleViewportRef}
-          className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]"
           {...swipeHandlers}
         >
           <div className="relative overflow-hidden">
