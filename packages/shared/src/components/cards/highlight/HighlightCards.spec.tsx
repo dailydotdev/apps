@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
 
@@ -28,33 +27,20 @@ const highlights = [
 ];
 
 describe('Highlight cards', () => {
-  it('should render the grid card and trigger highlight actions', async () => {
-    const onHighlightClick = jest.fn();
-    const onReadAllClick = jest.fn();
-
-    render(
-      <HighlightGrid
-        highlights={highlights}
-        onHighlightClick={onHighlightClick}
-        onReadAllClick={onReadAllClick}
-      />,
-    );
+  it('should render the grid card with highlight links', () => {
+    render(<HighlightGrid highlights={highlights} />);
 
     expect(screen.getByText('Happening Now')).toBeInTheDocument();
-
-    await userEvent.click(
-      screen.getByRole('button', { name: /the first highlight/i }),
-    );
-    await userEvent.click(screen.getByLabelText('Read all highlights'));
-
-    expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
-    expect(onReadAllClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.getByText('The second highlight')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
   });
 
-  it('should render the list card', () => {
+  it('should render the list card with highlight links', () => {
     render(<HighlightList highlights={highlights} />);
 
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
-    expect(screen.getByLabelText('Read all highlights')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
   });
 });

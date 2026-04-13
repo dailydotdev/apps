@@ -1,74 +1,45 @@
-import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
+import { webappUrl } from '../../../lib/constants';
 import { RelativeTime } from '../../utilities/RelativeTime';
+import Link from '../../utilities/Link';
 
 export interface HighlightCardProps {
   highlights: PostHighlight[];
-  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
-  onReadAllClick?: () => void;
 }
 
 const titleGradientClassName = 'feed-highlights-title-gradient';
 
-export const getHighlightCardContainerHandlers = (
-  onReadAllClick?: () => void,
-): {
-  onClick?: (event: MouseEvent<HTMLElement>) => void;
-  onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
-} => {
-  if (!onReadAllClick) {
-    return {};
-  }
+const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
-  return {
-    onClick: () => onReadAllClick(),
-    onKeyDown: (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') {
-        return;
-      }
-
-      event.preventDefault();
-      onReadAllClick();
-    },
-  };
-};
+const getHighlightUrl = (highlight: PostHighlight): string =>
+  `${HIGHLIGHTS_URL}?highlight=${highlight.id}`;
 
 const HighlightRow = ({
   highlight,
-  index,
-  onHighlightClick,
 }: {
   highlight: PostHighlight;
-  index: number;
-  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
 }): ReactElement => {
   return (
-    <button
-      type="button"
-      className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
-      onClick={(event) => {
-        event.stopPropagation();
-        onHighlightClick?.(highlight, index + 1);
-      }}
-    >
-      <span className="line-clamp-2 font-bold text-text-primary typo-callout">
-        {highlight.headline}
-      </span>
-      <RelativeTime
-        dateTime={highlight.highlightedAt}
-        maxHoursAgo={72}
-        className="text-text-tertiary typo-footnote"
-      />
-    </button>
+    <Link href={getHighlightUrl(highlight)}>
+      <a className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover">
+        <span className="line-clamp-2 font-bold text-text-primary typo-callout">
+          {highlight.headline}
+        </span>
+        <RelativeTime
+          dateTime={highlight.highlightedAt}
+          maxHoursAgo={72}
+          className="text-text-tertiary typo-footnote"
+        />
+      </a>
+    </Link>
   );
 };
 
 export const HighlightCardContent = ({
   highlights,
-  onHighlightClick,
-  onReadAllClick,
   variant,
 }: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
   const headerClassName =
@@ -94,38 +65,27 @@ export const HighlightCardContent = ({
         </h3>
       </header>
       <div className={contentClassName}>
-        {highlights.map((highlight, index) => (
-          <HighlightRow
-            key={highlight.id}
-            highlight={highlight}
-            index={index}
-            onHighlightClick={onHighlightClick}
-          />
+        {highlights.map((highlight) => (
+          <HighlightRow key={highlight.id} highlight={highlight} />
         ))}
       </div>
       <div className={footerClassName}>
-        <button
-          type="button"
-          aria-label="Read all highlights"
-          className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
-          onClick={(event) => {
-            event.stopPropagation();
-            onReadAllClick?.();
-          }}
-        >
-          <span className="typo-callout">
-            <span className={titleGradientClassName}>Read all</span>
-          </span>
-          <span
-            aria-hidden
-            className={classNames(
-              titleGradientClassName,
-              'ml-auto select-none leading-none typo-title3',
-            )}
-          >
-            →
-          </span>
-        </button>
+        <Link href={HIGHLIGHTS_URL}>
+          <a className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl">
+            <span className="typo-callout">
+              <span className={titleGradientClassName}>Read all</span>
+            </span>
+            <span
+              aria-hidden
+              className={classNames(
+                titleGradientClassName,
+                'ml-auto select-none leading-none typo-title3',
+              )}
+            >
+              →
+            </span>
+          </a>
+        </Link>
       </div>
     </>
   );

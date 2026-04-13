@@ -1,7 +1,14 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React, { createElement, useRef, useState } from 'react';
+import React, {
+  createElement,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import { useSwipeable } from 'react-swipeable';
 import type { AllowedTabTags, TabListProps } from './TabList';
 import TabList from './TabList';
 import type { RenderTab } from './common';
@@ -40,7 +47,7 @@ export interface TabContainerProps<T extends string = string> {
   controlledActive?: T;
   onActiveChange?: (
     active: T,
-    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+    event?: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
   ) => boolean | void;
   renderTab?: RenderTab;
   shouldFocusTabOnChange?: boolean;
@@ -48,6 +55,8 @@ export interface TabContainerProps<T extends string = string> {
   showBorder?: boolean;
   showHeader?: boolean;
   style?: CSSProperties;
+  shallow?: boolean;
+  swipeable?: boolean;
   tabListProps?: Pick<TabListProps, 'className' | 'autoScrollActive'>;
   tabTag?: AllowedTabTags;
   extraHeaderContent?: ReactNode;
@@ -64,6 +73,8 @@ export function TabContainer<T extends string = string>({
   showBorder = true,
   showHeader = true,
   style,
+  shallow = false,
+  swipeable = false,
   tabListProps = {},
   tabTag,
   extraHeaderContent,
@@ -102,16 +113,59 @@ export function TabContainer<T extends string = string>({
       }, 0);
 
       if (child?.props?.url) {
-        router.push(child.props.url);
+        if (shallow) {
+          router.replace(child.props.url, undefined, { shallow: true });
+        } else {
+          router.push(child.props.url);
+        }
       }
     }
   };
 
+  const labels = useMemo(() => children.map((c) => c.props.label), [children]);
+
+  const navigateTab = useCallback(
+    (direction: 'next' | 'previous') => {
+      const currentIndex = labels.indexOf(currentActive);
+      const nextIndex =
+        direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+
+      if (nextIndex < 0 || nextIndex >= labels.length) {
+        return;
+      }
+
+      const nextChild = children[nextIndex];
+      const nextLabel = nextChild.props.label;
+      setActive(nextLabel);
+      onActiveChange?.(nextLabel, undefined);
+
+      if (nextChild.props.url) {
+        if (shallow) {
+          router.replace(nextChild.props.url, undefined, { shallow: true });
+        } else {
+          router.push(nextChild.props.url);
+        }
+      }
+    },
+    [children, currentActive, labels, onActiveChange, router, shallow],
+  );
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => navigateTab('next'),
+    onSwipedRight: () => navigateTab('previous'),
+    trackTouch: true,
+    delta: 10,
+  });
+
   const isTabActive = ({
     props: { url, label },
   }: ReactElement<TabProps<T>>) => {
+    if (controlledActive) {
+      return label === currentActive;
+    }
+
     if (url) {
-      return router.pathname === url;
+      return router.asPath === url;
     }
 
     return label === currentActive;
@@ -172,7 +226,7 @@ export function TabContainer<T extends string = string>({
         />
         {extraHeaderContent}
       </header>
-      {render}
+      <div {...(swipeable ? swipeHandlers : {})}>{render}</div>
     </div>
   );
 }

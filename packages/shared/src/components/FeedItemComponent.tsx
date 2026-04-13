@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import type { AdSquadItem, FeedItem } from '../hooks/useFeed';
 import { isBoostedPostAd, isBoostedSquadAd } from '../hooks/useFeed';
 import { PlaceholderGrid } from './cards/placeholder/PlaceholderGrid';
@@ -11,7 +10,7 @@ import { isSocialTwitterPost, PostType } from '../graphql/posts';
 import type { LoggedUser } from '../lib/user';
 import useLogImpression from '../hooks/feed/useLogImpression';
 import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
-import { LogEvent, Origin, TargetType } from '../lib/log';
+import { Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
@@ -42,7 +41,7 @@ import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
-import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import { adLogEvent, feedLogExtra } from '../lib/feed';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
@@ -56,13 +55,7 @@ import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
-import {
-  getHighlightIdsKey,
-  getHighlightIds,
-  MAJOR_HEADLINES_MAX_FIRST,
-  majorHeadlinesQueryOptions,
-} from '../graphql/highlights';
-import { HighlightPostModal } from './modals/HighlightPostModal';
+import { getHighlightIdsKey } from '../graphql/highlights';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -271,10 +264,6 @@ function FeedItemComponent({
   disableAdRefresh,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
-  const queryClient = useQueryClient();
-  const [selectedHighlightId, setSelectedHighlightId] = React.useState<
-    string | null
-  >(null);
   const inViewRef = useLogImpression(
     item,
     index,
@@ -293,92 +282,8 @@ function FeedItemComponent({
       shouldUseListFeedLayout || shouldUseListMode
         ? HighlightList
         : HighlightGrid;
-    const highlightIds = getHighlightIds(item.highlights);
-    const openHighlightModal = (highlightId: string): void => {
-      queryClient
-        .fetchQuery(
-          majorHeadlinesQueryOptions({ first: MAJOR_HEADLINES_MAX_FIRST }),
-        )
-        .catch(() => undefined)
-        .finally(() => setSelectedHighlightId(highlightId));
-    };
 
-    return (
-      <>
-        <HighlightTag
-          ref={inViewRef}
-          highlights={item.highlights}
-          onReadAllClick={() => {
-            const [firstHighlight] = item.highlights;
-
-            if (!firstHighlight) {
-              return;
-            }
-
-            logEvent(
-              feedHighlightsLogEvent(LogEvent.Click, {
-                columns: virtualizedNumCards,
-                column,
-                row,
-                feedName,
-                ranking,
-                action: 'read_all_click',
-                count: item.highlights.length,
-                highlightIds,
-                feedMeta: item.feedMeta,
-              }),
-            );
-
-            openHighlightModal(firstHighlight.id);
-          }}
-          onHighlightClick={(highlight, position) => {
-            logEvent(
-              feedHighlightsLogEvent(LogEvent.Click, {
-                columns: virtualizedNumCards,
-                column,
-                row,
-                feedName,
-                ranking,
-                action: 'highlight_click',
-                position,
-                count: item.highlights.length,
-                clickedHighlight: highlight,
-                highlightIds,
-                feedMeta: item.feedMeta,
-              }),
-            );
-
-            openHighlightModal(highlight.id);
-          }}
-        />
-        <HighlightPostModal
-          isOpen={!!selectedHighlightId}
-          selectedHighlightId={selectedHighlightId}
-          highlights={item.highlights}
-          onRequestClose={() => setSelectedHighlightId(null)}
-          onHighlightClick={(highlight, position, modalHighlights) => {
-            logEvent(
-              feedHighlightsLogEvent(LogEvent.Click, {
-                columns: virtualizedNumCards,
-                column,
-                row,
-                feedName,
-                ranking,
-                action: 'modal_highlight_click',
-                position,
-                count: modalHighlights.length,
-                clickedHighlight: highlight,
-                highlightIds: getHighlightIds(modalHighlights),
-                feedMeta: item.feedMeta,
-              }),
-            );
-          }}
-          onSelectHighlight={(highlight) => {
-            setSelectedHighlightId(highlight.id);
-          }}
-        />
-      </>
-    );
+    return <HighlightTag ref={inViewRef} highlights={item.highlights} />;
   }
 
   const {

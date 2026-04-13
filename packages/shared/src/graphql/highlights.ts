@@ -13,6 +13,19 @@ export interface PostHighlight {
   };
 }
 
+export interface PostHighlightFeed {
+  id: string;
+  channel: string;
+  headline: string;
+  highlightedAt: string;
+  post: {
+    id: string;
+    commentsPermalink: string;
+    summary?: string;
+    contentHtml?: string;
+  };
+}
+
 export interface MajorHeadlinesData {
   majorHeadlines: Connection<PostHighlight>;
 }
@@ -83,3 +96,62 @@ export const majorHeadlinesQueryOptions = ({
     }),
   staleTime: ONE_MINUTE,
 });
+
+export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
+  fragment PostHighlightFeedCard on PostHighlight {
+    id
+    channel
+    headline
+    highlightedAt
+    post {
+      id
+      commentsPermalink
+      summary
+      contentHtml
+    }
+  }
+`;
+
+export interface PostHighlightsFeedData {
+  postHighlights: PostHighlightFeed[];
+}
+
+export const POST_HIGHLIGHTS_FEED_QUERY = gql`
+  query PostHighlightsFeed($channel: String!) {
+    postHighlights(channel: $channel) {
+      ...PostHighlightFeedCard
+    }
+  }
+  ${POST_HIGHLIGHT_FEED_FRAGMENT}
+`;
+
+export interface ChannelConfiguration {
+  channel: string;
+  displayName: string;
+}
+
+export interface HighlightsPageData {
+  majorHeadlines: Connection<PostHighlightFeed>;
+  channelConfigurations: ChannelConfiguration[];
+}
+
+export const HIGHLIGHTS_PAGE_QUERY = gql`
+  query HighlightsPage($first: Int, $after: String) {
+    majorHeadlines(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        node {
+          ...PostHighlightFeedCard
+        }
+      }
+    }
+    channelConfigurations {
+      channel
+      displayName
+    }
+  }
+  ${POST_HIGHLIGHT_FEED_FRAGMENT}
+`;
