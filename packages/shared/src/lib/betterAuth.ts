@@ -165,6 +165,7 @@ const getBetterAuthSocialRedirect = async (
     {
       provider,
       callbackURL: absoluteCallbackURL,
+      errorCallbackURL: absoluteCallbackURL,
       disableRedirect: true,
       ...(additionalData && { additionalData }),
       ...(scopes?.length && { scopes }),

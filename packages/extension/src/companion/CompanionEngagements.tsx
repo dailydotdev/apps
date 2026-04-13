@@ -1,15 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
-import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRawBackgroundRequest } from '@dailydotdev/shared/src/hooks/companion';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
-import { featureUpvoteCountThreshold } from '@dailydotdev/shared/src/lib/featureManagement';
-import { getUpvoteCountDisplay } from '@dailydotdev/shared/src/lib/post';
 
 interface CompanionEngagementsProps {
   post: PostBootData;
@@ -20,8 +15,6 @@ export function CompanionEngagements({
   post,
   onUpvotesClick,
 }: CompanionEngagementsProps): ReactElement | null {
-  const { user } = useAuthContext();
-  const isLoggedIn = !!user;
   const client = useQueryClient();
   useRawBackgroundRequest(({ res, key }) => {
     if (!Array.isArray(key)) {
@@ -35,26 +28,12 @@ export function CompanionEngagements({
     client.setQueryData(key, res);
   });
 
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
-
   if (!post) {
     return null;
   }
 
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
-  const userHasUpvoted = post.userState?.vote === UserVote.Up;
-  const { showCount } = getUpvoteCountDisplay(
-    upvotes,
-    upvoteThresholdConfig.threshold,
-    upvoteThresholdConfig.belowThresholdLabel,
-    userHasUpvoted,
-    post.createdAt,
-    upvoteThresholdConfig.newWindowHours,
-  );
 
   return (
     <div
@@ -62,7 +41,7 @@ export function CompanionEngagements({
       data-testid="statsBar"
     >
       {upvotes <= 0 && <span>Be the first to upvote</span>}
-      {showCount && (
+      {upvotes > 0 && (
         <ClickableText onClick={onUpvotesClick}>
           {largeNumberFormat(upvotes)} Upvote
           {upvotes > 1 ? 's' : ''}

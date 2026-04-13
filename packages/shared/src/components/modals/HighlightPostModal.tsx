@@ -680,7 +680,7 @@ export function HighlightPostModal({
       onAfterOpen={onLoad}
       onRequestClose={onRequestClose}
       loadingClassName={postModalConfig.loadingClassName}
-      navigationContainerClassName="!py-2"
+      navigationContainerClassName="pb-2 pt-safe-offset-2"
       navigationHideSubscribeAction
       navigationLeadingContent={
         <h2 className="bg-gradient-to-r from-accent-blueCheese-default via-accent-cheese-default to-accent-avocado-default bg-clip-text font-bold text-transparent typo-title3">

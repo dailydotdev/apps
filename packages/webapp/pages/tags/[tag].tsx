@@ -71,6 +71,9 @@ import { cloudinarySourceRoadmap } from '@dailydotdev/shared/src/lib/image';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import CustomFeedOptionsMenu from '@dailydotdev/shared/src/components/CustomFeedOptionsMenu';
+import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
+import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
@@ -292,7 +295,7 @@ const TagPage = ({
         PostType.VideoYouTube,
         PostType.Collection,
       ],
-      period: 30,
+      period: 365,
     }),
     [tag],
   );
@@ -311,6 +314,7 @@ const TagPage = ({
   const bestDiscussedQueryVariables = useMemo(
     () => ({
       tag,
+      period: 365,
     }),
     [tag],
   );
@@ -385,6 +389,10 @@ const TagPage = ({
           />
         </Head>
       )}
+      <ArchiveBreadcrumbs
+        items={[{ label: 'Tags', href: '/tags' }, { label: title }]}
+        className="mx-4"
+      />
       <PageInfoHeader className="mx-4 !w-auto">
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
@@ -585,6 +593,12 @@ const TagPage = ({
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
+      <ArchiveEntryCard
+        scopeType={ArchiveScopeType.Tag}
+        scopeId={tag}
+        scopeName={title}
+        className="mx-4 mb-6 laptop:mx-4"
+      />
       <div className="mx-4 mb-5 flex w-auto items-center">
         <p className="flex items-center font-bold typo-body">
           All posts about {tag}
