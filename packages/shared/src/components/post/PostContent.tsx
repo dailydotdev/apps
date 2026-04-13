@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost, PostType } from '../../graphql/posts';
@@ -38,6 +38,13 @@ import { Drawer } from '../drawers/Drawer';
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
 export const SCROLL_OFFSET = 80;
+
+const PREVIEW_MIN_WIDTH = 360;
+const PREVIEW_RESTORE_WIDTH = 380;
+const FLOATING_PREVIEW_ANIMATION_MS = 300;
+const REM_IN_PX = 16;
+const PREVIEW_LAYOUT_MIN_WIDTH =
+  (22 + 21.25) * REM_IN_PX + PREVIEW_MIN_WIDTH;
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ './PostCodeSnippets').then(
@@ -106,30 +113,197 @@ export function PostContentRaw({
   const [isArticlePreviewUnavailable, setArticlePreviewUnavailable] =
     useState(false);
   const [isMobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [isPreviewNarrow, setIsPreviewNarrow] = useState(false);
+  const [isFloatingPreviewVisible, setFloatingPreviewVisible] = useState(false);
+  const [isFloatingPreviewClosing, setFloatingPreviewClosing] = useState(false);
+  const [isFloatingPreviewActive, setFloatingPreviewActive] = useState(false);
+  const [isTabletPreviewToggling, setTabletPreviewToggling] = useState(false);
+  const previewLayoutRef = useRef<HTMLDivElement>(null);
+  const previewColumnRef = useRef<HTMLDivElement>(null);
+  const ignorePreviewResizeRef = useRef(false);
+  const resizeObserverResetTimeoutRef = useRef<number>();
+  const floatingPreviewCloseTimeoutRef = useRef<number>();
+  const floatingPreviewEnterFrameRef = useRef<number>();
 
   useEffect(() => {
     setIsPreviewHydrated(true);
+  }, []);
+
+  const evaluatePreviewWidth = useCallback((width: number) => {
+    setIsPreviewNarrow((prev) => {
+      if (!prev && width < PREVIEW_MIN_WIDTH) {
+        return true;
+      }
+
+      if (prev && width >= PREVIEW_RESTORE_WIDTH) {
+        return false;
+      }
+
+      return prev;
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (!resizeObserverResetTimeoutRef.current) {
+        return;
+      }
+
+      globalThis.clearTimeout(resizeObserverResetTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (!floatingPreviewCloseTimeoutRef.current) {
+        return;
+      }
+
+      globalThis.clearTimeout(floatingPreviewCloseTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (!floatingPreviewEnterFrameRef.current) {
+        return;
+      }
+
+      globalThis.cancelAnimationFrame(floatingPreviewEnterFrameRef.current);
+    };
   }, []);
 
   useEffect(() => {
     setArticlePreviewDismissed(false);
     setArticlePreviewUnavailable(false);
     setMobilePreviewOpen(false);
+    setIsPreviewNarrow(false);
   }, [post.id]);
 
   const showArticlePreviewColumn =
     showArticlePreviewEmbed && !isArticlePreviewDismissed;
+  const isPreviewFloating =
+    isLaptop && showArticlePreviewColumn && isPreviewNarrow;
+  const shouldRenderFloatingPreview =
+    isFloatingPreviewVisible || isPreviewFloating;
   const isPreviewActive = isTablet
     ? showArticlePreviewColumn
     : isMobilePreviewOpen;
 
+  useEffect(() => {
+    if (floatingPreviewCloseTimeoutRef.current) {
+      globalThis.clearTimeout(floatingPreviewCloseTimeoutRef.current);
+      floatingPreviewCloseTimeoutRef.current = undefined;
+    }
+    if (floatingPreviewEnterFrameRef.current) {
+      globalThis.cancelAnimationFrame(floatingPreviewEnterFrameRef.current);
+      floatingPreviewEnterFrameRef.current = undefined;
+    }
+
+    if (isPreviewFloating) {
+      setFloatingPreviewVisible(true);
+      setFloatingPreviewClosing(false);
+      setFloatingPreviewActive(false);
+      floatingPreviewEnterFrameRef.current = globalThis.requestAnimationFrame(
+        () => {
+          setFloatingPreviewActive(true);
+        },
+      );
+      return;
+    }
+
+    if (!isFloatingPreviewVisible) {
+      return;
+    }
+
+    setFloatingPreviewActive(false);
+    setFloatingPreviewClosing(true);
+    floatingPreviewCloseTimeoutRef.current = globalThis.setTimeout(() => {
+      setFloatingPreviewVisible(false);
+      setFloatingPreviewClosing(false);
+      setFloatingPreviewActive(false);
+    }, FLOATING_PREVIEW_ANIMATION_MS);
+  }, [isFloatingPreviewVisible, isPreviewFloating]);
+
+  useEffect(() => {
+    const node = previewColumnRef.current;
+
+    if (!isLaptop || !showArticlePreviewColumn || !node) {
+      setIsPreviewNarrow(false);
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (ignorePreviewResizeRef.current) {
+        return;
+      }
+
+      const width = entry.contentRect.width;
+
+      if (width < 1) {
+        return;
+      }
+
+      evaluatePreviewWidth(width);
+    });
+
+    observer.observe(node);
+    if (!ignorePreviewResizeRef.current) {
+      evaluatePreviewWidth(node.getBoundingClientRect().width);
+    }
+
+    return () => observer.disconnect();
+  }, [evaluatePreviewWidth, isLaptop, showArticlePreviewColumn]);
+
   const onToggleArticlePreview = useCallback(() => {
     if (isTablet) {
+      const isOpeningPreview = isArticlePreviewDismissed;
+      let shouldForceFloatingOnOpen = false;
+      if (isOpeningPreview && isLaptop) {
+        const layoutWidth =
+          previewLayoutRef.current?.getBoundingClientRect().width;
+        if (layoutWidth && layoutWidth < PREVIEW_LAYOUT_MIN_WIDTH) {
+          setIsPreviewNarrow(true);
+          shouldForceFloatingOnOpen = true;
+        }
+      }
+
+      if (isOpeningPreview) {
+        if (floatingPreviewCloseTimeoutRef.current) {
+          globalThis.clearTimeout(floatingPreviewCloseTimeoutRef.current);
+          floatingPreviewCloseTimeoutRef.current = undefined;
+        }
+        if (floatingPreviewEnterFrameRef.current) {
+          globalThis.cancelAnimationFrame(floatingPreviewEnterFrameRef.current);
+          floatingPreviewEnterFrameRef.current = undefined;
+        }
+        setFloatingPreviewVisible(false);
+        setFloatingPreviewClosing(false);
+        setFloatingPreviewActive(false);
+      }
+      ignorePreviewResizeRef.current = true;
+      if (resizeObserverResetTimeoutRef.current) {
+        globalThis.clearTimeout(resizeObserverResetTimeoutRef.current);
+      }
+      resizeObserverResetTimeoutRef.current = globalThis.setTimeout(() => {
+        ignorePreviewResizeRef.current = false;
+        setTabletPreviewToggling(false);
+        const width = previewColumnRef.current?.getBoundingClientRect().width;
+        if (!width || width < 1) {
+          setIsPreviewNarrow(false);
+          return;
+        }
+        evaluatePreviewWidth(width);
+      }, 350);
       setArticlePreviewDismissed((currentState) => !currentState);
+      if (!shouldForceFloatingOnOpen) {
+        setIsPreviewNarrow(false);
+      }
+      setTabletPreviewToggling(true);
     } else {
       setMobilePreviewOpen((currentState) => !currentState);
     }
-  }, [isTablet]);
+  }, [evaluatePreviewWidth, isArticlePreviewDismissed, isLaptop, isTablet]);
 
   const onPreviewUnavailable = useCallback(() => {
     setArticlePreviewUnavailable(true);
@@ -341,13 +515,18 @@ export function PostContentRaw({
       }
     >
       {showArticlePreviewEmbed ? (
-        <div className="flex w-full min-h-0 flex-1">
+        <div
+          ref={previewLayoutRef}
+          className="relative flex w-full min-h-0 flex-1"
+        >
           <div
             className={classNames(
               'grid min-h-0 min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
               showArticlePreviewColumn && isTablet
                 ? isLaptop
-                  ? 'grid-cols-[22rem_0px_1fr]'
+                  ? isPreviewFloating
+                    ? 'grid-cols-[1fr_0px_0fr]'
+                    : 'grid-cols-[22rem_0px_1fr]'
                   : 'grid-cols-[1fr_0px_1fr]'
                 : 'grid-cols-[1fr_0px_0fr]',
             )}
@@ -380,9 +559,35 @@ export function PostContentRaw({
               />
             </div>
             <div
+              ref={previewColumnRef}
               className={classNames(
                 'flex min-w-0 flex-col [overflow-x:clip] transition-opacity duration-200 ease-in-out',
-                showArticlePreviewColumn ? 'opacity-100 delay-100' : 'opacity-0',
+                showArticlePreviewColumn &&
+                  !isPreviewFloating &&
+                  !isTabletPreviewToggling
+                  ? 'opacity-100 delay-100'
+                  : 'opacity-0',
+              )}
+            >
+              {!isPreviewFloating && !isTabletPreviewToggling && (
+                <PostArticlePreviewEmbed
+                  targetUrl={embedArticleTargetUrl}
+                  previewHost={post.domain ?? undefined}
+                  onDismissArticlePreview={onToggleArticlePreview}
+                  onPreviewUnavailable={onPreviewUnavailable}
+                  forceUnavailable={isArticlePreviewUnavailable}
+                />
+              )}
+            </div>
+          </div>
+          {isLaptop && postWidgetsColumn}
+          {shouldRenderFloatingPreview && (
+            <div
+              className={classNames(
+                'absolute right-0 top-0 z-3 flex h-full w-[21.25rem] flex-col border-l border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-in-out',
+                isFloatingPreviewActive && !isFloatingPreviewClosing
+                  ? 'translate-x-0 opacity-100'
+                  : 'pointer-events-none translate-x-full opacity-0',
               )}
             >
               <PostArticlePreviewEmbed
@@ -393,8 +598,7 @@ export function PostContentRaw({
                 forceUnavailable={isArticlePreviewUnavailable}
               />
             </div>
-          </div>
-          {isLaptop && postWidgetsColumn}
+          )}
           <Drawer
             isOpen={!isTablet && isMobilePreviewOpen}
             onClose={() => setMobilePreviewOpen(false)}

@@ -84,7 +84,7 @@ export function EmbeddedBrowsingWebPrompt({
     <div className={styles.root}>
       <div className={styles.ambient} aria-hidden />
       <div className={styles.stickyShell}>
-        <div className="z-10 relative flex h-fit w-full max-w-[40rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center tablet:border tablet:border-border-subtlest-tertiary tablet:bg-surface-float tablet:shadow-2">
+        <div className="z-10 relative flex h-fit w-full max-w-[40rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center">
           <Typography
             tag={TypographyTag.H2}
             type={TypographyType.Title3}
