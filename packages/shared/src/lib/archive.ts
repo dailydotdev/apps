@@ -31,17 +31,24 @@ export function parseArchivePeriod(periodStart: string | Date): {
   };
 }
 
-export function getArchiveTitle(archive: {
+export function getArchivePeriodLabel(archive: {
   periodType: ArchivePeriodType;
   periodStart: string | Date;
 }): string {
   const { year, month } = parseArchivePeriod(archive.periodStart);
 
   if (archive.periodType === ArchivePeriodType.Month) {
-    return `Best of ${getMonthName(month)} ${year}`;
+    return `${getMonthName(month)} ${year}`;
   }
 
-  return `Best of ${year}`;
+  return `${year}`;
+}
+
+export function getArchiveTitle(archive: {
+  periodType: ArchivePeriodType;
+  periodStart: string | Date;
+}): string {
+  return `Best of ${getArchivePeriodLabel(archive)}`;
 }
 
 function getScopeBasePath(scope: ArchiveScopeInfo): string {

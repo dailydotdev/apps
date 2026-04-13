@@ -14,6 +14,7 @@ import type { SourceTooltip } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { FeaturedArchives } from '../widgets/FeaturedArchives';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -102,6 +103,7 @@ export function PostWidgets({
         onCopyPostLink={onCopyPostLink}
       />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );
