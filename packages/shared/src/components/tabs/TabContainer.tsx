@@ -81,14 +81,17 @@ export function TabContainer<T extends string = string>({
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
+  const tabs = useMemo(() => children ?? [], [children]);
 
   const [active, setActive] = useState(() => {
-    const defaultLabel = children[0].props.label;
+    if (!tabs.length) {
+      return '' as T;
+    }
 
-    if (children[0].props.url) {
-      const matchingChild = children.find(
-        (c) => c.props.url === router.pathname,
-      );
+    const defaultLabel = tabs[0].props.label;
+
+    if (tabs[0].props.url) {
+      const matchingChild = tabs.find((c) => c.props.url === router.pathname);
       return matchingChild ? matchingChild.props.label : defaultLabel;
     }
 
@@ -96,10 +99,22 @@ export function TabContainer<T extends string = string>({
   });
 
   const currentActive = controlledActive ?? active;
-  const onClick: TabListProps['onClick'] = (label: T, event) => {
-    const child = children.find((c) => c.props.label === label);
-    setActive(label);
-    const shouldChange = onActiveChange?.(label, event);
+
+  const navigateToUrl = useCallback(
+    (url: string) => {
+      if (shallow) {
+        router.replace(url, undefined, { shallow: true });
+      } else {
+        router.push(url);
+      }
+    },
+    [router, shallow],
+  );
+
+  const onClick: TabListProps['onClick'] = (label, event) => {
+    const child = tabs.find((c) => c.props.label === label);
+    setActive(label as T);
+    const shouldChange = onActiveChange?.(label as T, event);
 
     // evaluate !== false due to backwards compatibility with implementations that return undefined
     if (shouldChange !== false) {
@@ -113,16 +128,12 @@ export function TabContainer<T extends string = string>({
       }, 0);
 
       if (child?.props?.url) {
-        if (shallow) {
-          router.replace(child.props.url, undefined, { shallow: true });
-        } else {
-          router.push(child.props.url);
-        }
+        navigateToUrl(child.props.url);
       }
     }
   };
 
-  const labels = useMemo(() => children.map((c) => c.props.label), [children]);
+  const labels = useMemo(() => tabs.map((c) => c.props.label), [tabs]);
 
   const navigateTab = useCallback(
     (direction: 'next' | 'previous') => {
@@ -134,20 +145,20 @@ export function TabContainer<T extends string = string>({
         return;
       }
 
-      const nextChild = children[nextIndex];
+      const nextChild = tabs[nextIndex];
+      if (!nextChild) {
+        return;
+      }
+
       const nextLabel = nextChild.props.label;
       setActive(nextLabel);
       onActiveChange?.(nextLabel, undefined);
 
       if (nextChild.props.url) {
-        if (shallow) {
-          router.replace(nextChild.props.url, undefined, { shallow: true });
-        } else {
-          router.push(nextChild.props.url);
-        }
+        navigateToUrl(nextChild.props.url);
       }
     },
-    [children, currentActive, labels, onActiveChange, router, shallow],
+    [tabs, currentActive, labels, navigateToUrl, onActiveChange],
   );
 
   const swipeHandlers = useSwipeable({
@@ -173,7 +184,11 @@ export function TabContainer<T extends string = string>({
 
   const renderSingleComponent = () => {
     if (!shouldMountInactive) {
-      const child = children.find(isTabActive);
+      const child = tabs.find(isTabActive);
+
+      if (!child) {
+        return null;
+      }
 
       return createElement(child.type, child.props);
     }
@@ -183,7 +198,7 @@ export function TabContainer<T extends string = string>({
 
   const render = !shouldMountInactive
     ? renderSingleComponent()
-    : children.map((child, i) =>
+    : tabs.map((child, i) =>
         createElement<TabProps<T>>(child.type, {
           ...child.props,
           key: child.key || child.props.label || i,
@@ -212,7 +227,7 @@ export function TabContainer<T extends string = string>({
         )}
       >
         <TabList<T>
-          items={children.map(({ props }) => ({
+          items={tabs.map(({ props }) => ({
             label: props.label,
             url: props.url,
             hint: props.hint,

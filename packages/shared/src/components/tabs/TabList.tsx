@@ -80,7 +80,9 @@ function TabList<T extends string = string>({
   useLayoutEffect(() => {
     // get the active tab's rect and offset so that we can position the indicator
     const activeTabRect = currentActiveTab.current?.getBoundingClientRect();
-    const offset = activeTabRect ? currentActiveTab?.current.offsetLeft : 0;
+    const offset = activeTabRect
+      ? currentActiveTab.current?.offsetLeft ?? 0
+      : 0;
     const indicatorOffset = activeTabRect
       ? activeTabRect.width / 2 + offset
       : 0;
@@ -145,7 +147,7 @@ function TabList<T extends string = string>({
               if (isAnchor) {
                 event.preventDefault();
               }
-              onClick(label, event);
+              onClick?.(label, event);
             }}
             {...(isAnchor
               ? {
