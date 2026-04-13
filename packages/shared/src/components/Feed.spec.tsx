@@ -428,7 +428,7 @@ describe('Feed logged in', () => {
     await waitForNock();
     expect(await screen.findByText('Happening Now')).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
-    expect(screen.getByLabelText('Read all highlights')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
   });
 
   it('should keep feedV2 highlights in the response order', async () => {
