@@ -5,6 +5,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import type { QuestDashboard } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -597,6 +598,189 @@ describe('QuestButton', () => {
       event_name: LogEvent.Impression,
       target_type: TargetType.Quest,
     });
+  });
+
+  it('should log when a quest becomes claimable after a quest update', () => {
+    const logEvent = jest.fn();
+    const client = new QueryClient();
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
+      data: questDashboard,
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 1,
+    };
+
+    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    const view = render(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    questDashboardState = {
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          regular: [
+            {
+              ...questDashboard.daily.regular[0],
+              userQuestId: 'user-quest-1',
+              status: QuestStatus.Completed,
+              claimable: true,
+              completedAt: new Date('2026-04-13T10:00:00.000Z'),
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 2,
+    };
+
+    subscriptions
+      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
+      ?.next?.();
+
+    view.rerender(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.QuestClaimable,
+      target_id: 'quest-1',
+      target_type: TargetType.Quest,
+      extra: JSON.stringify({
+        questType: QuestType.Daily,
+        userQuestId: 'user-quest-1',
+        userId: undefined,
+        rotationId: 'daily-quest-1',
+      }),
+    });
+  });
+
+  it('should not log claimable for a locked plus quest after a quest update', () => {
+    const logEvent = jest.fn();
+    const client = new QueryClient();
+    const subscriptions: Array<{
+      query: string;
+      next?: () => unknown;
+    }> = [];
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
+      data: {
+        ...questDashboard,
+        daily: {
+          ...questDashboard.daily,
+          plus: [
+            {
+              rotationId: 'daily-plus-quest-1',
+              userQuestId: null,
+              progress: 1,
+              status: QuestStatus.InProgress,
+              locked: true,
+              claimable: false,
+              quest: {
+                id: 'plus-quest-1',
+                name: 'Plus read posts',
+                description: 'Read 3 posts today',
+                type: QuestType.Daily,
+                eventType: 'read_post',
+                targetCount: 3,
+              },
+              rewards: [{ type: QuestRewardType.Xp, amount: 150 }],
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 1,
+    };
+
+    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
+    mockUseSubscription.mockImplementation(
+      (
+        request: () => { query: string },
+        callbacks: { next?: () => unknown },
+      ) => {
+        subscriptions.push({
+          query: request().query,
+          next: callbacks.next,
+        });
+      },
+    );
+
+    const view = render(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    questDashboardState = {
+      data: {
+        ...questDashboardState.data,
+        daily: {
+          ...questDashboardState.data.daily,
+          plus: [
+            {
+              ...questDashboardState.data.daily.plus[0],
+              userQuestId: 'user-plus-quest-1',
+              status: QuestStatus.Completed,
+              progress: 3,
+              completedAt: new Date('2026-04-13T10:00:00.000Z'),
+            },
+          ],
+        },
+      },
+      isPending: false,
+      isError: false,
+      dataUpdatedAt: 2,
+    };
+
+    subscriptions
+      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
+      ?.next?.();
+
+    view.rerender(
+      <TestBootProvider client={client} log={{ logEvent }}>
+        <QuestButton />
+      </TestBootProvider>,
+    );
+
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.QuestClaimable,
+        target_id: 'plus-quest-1',
+      }),
+    );
   });
 
   it('should stay open when the page scrolls', async () => {
