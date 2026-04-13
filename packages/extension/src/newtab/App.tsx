@@ -20,7 +20,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
@@ -109,9 +108,8 @@ function InternalApp(): ReactElement {
   const { growthbook } = useGrowthBookContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const shouldShowHijackingPage = isPageReady && !user && !isTesting;
-  const shouldShowExtensionOnboarding =
-    isPageReady && !!user && !isOnboardingComplete && !isTesting;
+  const shouldRedirectOnboarding =
+    isPageReady && (!user || !isOnboardingComplete) && !isTesting;
 
   useCheckLocation();
   useCheckCoresRole();
@@ -148,7 +146,7 @@ function InternalApp(): ReactElement {
     return isCheckingHostPermissions ? null : <ExtensionPermissionsPrompt />;
   }
 
-  if (shouldShowHijackingPage) {
+  if (shouldRedirectOnboarding) {
     return (
       <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
         <DndContextProvider>
@@ -156,10 +154,6 @@ function InternalApp(): ReactElement {
         </DndContextProvider>
       </ErrorBoundary>
     );
-  }
-
-  if (shouldShowExtensionOnboarding) {
-    return <ExtensionOnboarding />;
   }
 
   return (
