@@ -192,6 +192,7 @@ export enum RequestKey {
   TagsBestDiscussed = 'tagsBestDiscussed',
   Archive = 'archive',
   ArchiveIndex = 'archiveIndex',
+  FeaturedArchives = 'featuredArchives',
   UserCompanies = 'user_companies',
   PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',

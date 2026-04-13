@@ -48,6 +48,10 @@ export interface ArchiveIndexData {
   archiveIndex: Archive[];
 }
 
+export interface FeaturedArchivesData {
+  featuredArchives: Archive[];
+}
+
 export const ARCHIVE_QUERY = gql`
   query Archive(
     $subjectType: String!
@@ -116,6 +120,27 @@ export const ARCHIVE_QUERY = gql`
             permalink
           }
         }
+      }
+    }
+  }
+`;
+
+export const FEATURED_ARCHIVES_QUERY = gql`
+  query FeaturedArchives($subjectType: String!, $subjectId: String!) {
+    featuredArchives(subjectType: $subjectType, subjectId: $subjectId) {
+      id
+      scopeType
+      scopeId
+      periodType
+      periodStart
+      keyword {
+        value
+        flags {
+          title
+        }
+      }
+      source {
+        name
       }
     }
   }
