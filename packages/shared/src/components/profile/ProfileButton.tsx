@@ -227,7 +227,7 @@ export default function ProfileButton({
             >
               <div
                 ref={coresCounterRef}
-                className="flex h-8 origin-center items-center will-change-transform"
+                className="origin-center will-change-transform"
               >
                 <Link href={walletUrl} passHref>
                   <Button

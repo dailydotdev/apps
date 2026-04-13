@@ -192,5 +192,4 @@ it('should keep the cores counter styling aligned with the compact header indica
   renderComponent(user);
 
   expect(screen.getByText('100').closest('a')).toHaveClass('!typo-subhead');
-  expect(screen.getByText('100').closest('div')).toHaveClass('h-8');
 });
