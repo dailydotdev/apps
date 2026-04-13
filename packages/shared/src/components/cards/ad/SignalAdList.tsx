@@ -1,5 +1,5 @@
-import type { AnchorHTMLAttributes, ReactElement } from 'react';
-import React, { forwardRef } from 'react';
+import type { AnchorHTMLAttributes, ForwardedRef, ReactElement } from 'react';
+import React, { forwardRef, useCallback } from 'react';
 import classNames from 'classnames';
 import type { Ad } from '../../../graphql/posts';
 import { combinedClicks } from '../../../lib/click';
@@ -26,7 +26,7 @@ const getLinkProps = ({
   onLinkClick,
 }: {
   ad: Ad;
-  onLinkClick: (ad: Ad) => unknown;
+  onLinkClick?: (ad: Ad) => unknown;
 }): AnchorHTMLAttributes<HTMLAnchorElement> => {
   return {
     href: ad.link,
@@ -37,12 +37,29 @@ const getLinkProps = ({
   };
 };
 
-export const SignalAdList = forwardRef(function SignalAdList(
+export const SignalAdList = forwardRef<HTMLElement, AdCardProps>(
+  function SignalAdList(
   { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
-  inViewRef: InViewRef,
+  forwardedRef: ForwardedRef<HTMLElement>,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
-  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
+  const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
+  const matchingTags = ad.matchingTags ?? [];
+  const inViewRef = useCallback<InViewRef>(
+    (node) => {
+      const nextNode = node as HTMLElement | null;
+
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(nextNode);
+        return;
+      }
+
+      if (forwardedRef) {
+        forwardedRef.current = nextNode;
+      }
+    },
+    [forwardedRef],
+  );
   const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
 
   const sourceName = ad.company?.trim() || ad.source?.trim() || 'Promoted';
@@ -97,8 +114,8 @@ export const SignalAdList = forwardRef(function SignalAdList(
         <p className="font-bold text-text-primary typo-callout">
           {ad.description}
         </p>
-        {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-          <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+        {adImprovementsV3 && matchingTags.length > 0 ? (
+          <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
         ) : null}
         {!!ad.callToAction && (
           <div className="relative z-1 mt-2 flex items-center">
@@ -119,4 +136,5 @@ export const SignalAdList = forwardRef(function SignalAdList(
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>
   );
-});
+},
+);

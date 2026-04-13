@@ -38,7 +38,7 @@ export const RemoveAd = ({
         }}
         {...props}
       >
-        {!iconOnly ? 'Remove' : undefined}
+        {!iconOnly ? 'Go ad-free' : undefined}
       </Button>
     </Link>
   );

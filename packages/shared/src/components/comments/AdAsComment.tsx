@@ -19,11 +19,15 @@ import { MiniCloseIcon } from '../icons';
 import { useAdQuery } from '../../features/monetization/useAdQuery';
 import { ImpressionStatus } from '../../hooks/feed/useLogImpression';
 import { useScrambler } from '../../hooks/useScrambler';
+import { TargetId } from '../../lib/log';
+import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 
 interface AdAsCommentProps {
   postId: string;
 }
-export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
+export const AdAsComment = ({
+  postId,
+}: AdAsCommentProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -41,6 +45,10 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
 
   const onAdAction = useCallback(
     (action: AdActions) => {
+      if (!ad) {
+        return;
+      }
+
       logEvent(
         adLogEvent(action, ad, {
           extra: {
@@ -52,7 +60,9 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
     [logEvent, ad],
   );
 
-  const promotedText = useScrambler(!ad ? null : `Promoted by ${ad.source}`);
+  const promotedText = useScrambler(
+    ad ? `Promoted by ${ad.source}` : undefined,
+  );
 
   const onRefreshClick = useCallback(async () => {
     onAdAction(AdActions.Refresh);
@@ -117,6 +127,10 @@ export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
         <br />
         {description}
       </p>
+      <AdvertiseLink
+        targetId={TargetId.AdComment}
+        className="mt-2 w-fit whitespace-nowrap typo-caption2"
+      />
       <AdPixel pixel={pixel} />
     </div>
   );

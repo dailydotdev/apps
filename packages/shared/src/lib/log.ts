@@ -466,6 +466,7 @@ export enum TargetType {
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
+  AdvertiseHereCta = 'advertise here cta',
 }
 
 export enum TargetId {
@@ -491,6 +492,9 @@ export enum TargetId {
   Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
+  AdCard = 'ad card',
+  AdSidebar = 'ad sidebar',
+  AdComment = 'ad comment',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',

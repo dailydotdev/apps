@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import type { AnchorHTMLAttributes, ForwardedRef, ReactElement } from 'react';
 import React, { forwardRef, useCallback } from 'react';
 import {
   CardContent,
@@ -17,7 +17,6 @@ import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
-import { AdRefresh } from './common/AdRefresh';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import AdAttribution from './common/AdAttribution';
@@ -25,13 +24,15 @@ import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import { TargetId } from '../../../lib/log';
+import { AdvertiseLink } from './common/AdvertiseLink';
 
 const getLinkProps = ({
   ad,
   onLinkClick,
 }: {
   ad: Ad;
-  onLinkClick: (ad: Ad) => unknown;
+  onLinkClick?: (ad: Ad) => unknown;
 }): AnchorHTMLAttributes<HTMLAnchorElement> => {
   return {
     href: ad.link,
@@ -42,27 +43,33 @@ const getLinkProps = ({
   };
 };
 
-export const AdList = forwardRef(function AdCard(
-  { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
-  inViewRef: InViewRef,
+export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
+  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  forwardedRef: ForwardedRef<HTMLElement>,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const { ref, refetch, isRefetching } = useAutoRotatingAds(
-    ad,
-    index,
-    feedIndex,
-    inViewRef,
-  );
+  const matchingTags = ad.matchingTags ?? [];
+  const inViewRef = useCallback<InViewRef>(
+    (node) => {
+      const nextNode = node as HTMLElement | null;
 
-  const onRefreshClick = useCallback(async () => {
-    onRefresh?.(ad);
-    await refetch();
-  }, [ad, onRefresh, refetch]);
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(nextNode);
+        return;
+      }
+
+      if (forwardedRef) {
+        forwardedRef.current = nextNode;
+      }
+    },
+    [forwardedRef],
+  );
+  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
 
   return (
     <FeedItemContainer
-      domProps={domProps}
+      domProps={domProps ?? {}}
       ref={ref}
       data-testid="adItem"
       linkProps={getLinkProps({ ad, onLinkClick })}
@@ -73,8 +80,8 @@ export const AdList = forwardRef(function AdCard(
             <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
             {ad.description}
           </CardTitle>
-          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+          {adImprovementsV3 && matchingTags.length > 0 ? (
+            <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
           ) : null}
           <AdAttribution
             ad={ad}
@@ -85,24 +92,35 @@ export const AdList = forwardRef(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        {!!ad.callToAction && (
-          <Button
-            tag="a"
-            href={ad.link}
-            target="_blank"
-            rel="noopener"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            {...combinedClicks(() => onLinkClick?.(ad))}
-          >
-            {ad.callToAction}
-          </Button>
-        )}
-        <div className="ml-auto flex items-center gap-2">
-          {!!onRefresh && (
-            <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
+        <div className="flex items-center gap-2">
+          {!!ad.callToAction && (
+            <Button
+              tag="a"
+              href={ad.link}
+              target="_blank"
+              rel="noopener"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="typo-footnote"
+              {...combinedClicks(() => onLinkClick?.(ad))}
+            >
+              {ad.callToAction}
+            </Button>
           )}
-          {!isPlus && <RemoveAd />}
+          <AdvertiseLink
+            targetId={TargetId.AdCard}
+            buttonStyle
+            size={ButtonSize.Small}
+          />
+        </div>
+        <div className="ml-auto">
+          {!isPlus && (
+            <RemoveAd
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              className="!font-normal typo-footnote"
+            />
+          )}
         </div>
       </div>
       <AdPixel pixel={ad.pixel} />

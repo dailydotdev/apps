@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import EntityCard from '../cards/entity/EntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
@@ -16,12 +17,15 @@ import { AdActions, AdPlacement } from '../../lib/ads';
 import { adLogEvent } from '../../lib/feed';
 import { adImprovementsV3Feature } from '../../lib/featureManagement';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
+import { TargetId } from '../../lib/log';
+import { combinedClicks } from '../../lib/click';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 
 interface PostSidebarAdWidgetProps {
   postId: string;
@@ -37,7 +41,7 @@ export function PostSidebarAdWidget({
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
-  const adImprovementsV3 = useFeature(adImprovementsV3Feature);
+  const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
 
   const { data: ad, isPending } = useAdQuery({
     placement: AdPlacement.PostSidebar,
@@ -96,7 +100,7 @@ export function PostSidebarAdWidget({
       permalink={ad.link}
       entityName={ad.source}
       className={{
-        container: className?.container,
+        container: classNames('relative cursor-pointer', className?.container),
         image: 'size-10 rounded-full',
       }}
       actionButtons={
@@ -107,12 +111,21 @@ export function PostSidebarAdWidget({
           rel="noopener"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
+          className="relative z-1"
           onClick={() => onAdAction(AdActions.Click)}
         >
           Visit
         </Button>
       }
     >
+      <a
+        href={ad.link}
+        target="_blank"
+        rel="noopener"
+        title={ad.description}
+        className="absolute inset-0 z-0"
+        {...combinedClicks(() => onAdAction(AdActions.Click))}
+      />
       <div className="mt-3 flex w-full flex-col gap-2">
         {company && (
           <Typography
@@ -124,7 +137,7 @@ export function PostSidebarAdWidget({
             {company}
           </Typography>
         )}
-        <AdAttribution ad={ad} />
+        <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
         {hasDescription && (
           <Typography
             tag={TypographyTag.P}
@@ -137,6 +150,10 @@ export function PostSidebarAdWidget({
             {ad.description}
           </Typography>
         )}
+        <AdvertiseLink
+          targetId={TargetId.AdSidebar}
+          className="relative z-1 ml-auto whitespace-nowrap hover:underline"
+        />
       </div>
       <AdPixel pixel={ad.pixel} />
     </EntityCard>
