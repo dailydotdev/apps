@@ -2,13 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
-import type { ArchiveIndexData } from '../../graphql/archive';
+import type { ArchiveIndexData, ArchiveScopeType } from '../../graphql/archive';
 import {
   ARCHIVE_INDEX_QUERY,
   ArchiveRankingType,
   ArchiveSubjectType,
 } from '../../graphql/archive';
-import type { ArchiveScopeInfo } from '../../lib/archive';
 import {
   getArchiveIndexUrl,
   getArchiveTitle,
@@ -20,7 +19,9 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-interface ArchiveEntryCardProps extends ArchiveScopeInfo {
+interface ArchiveEntryCardProps {
+  scopeType: ArchiveScopeType.Tag | ArchiveScopeType.Source;
+  scopeId: string;
   scopeName: string;
   className?: string;
 }

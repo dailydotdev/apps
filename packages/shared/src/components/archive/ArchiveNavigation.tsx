@@ -8,7 +8,9 @@ import type { Archive } from '../../graphql/archive';
 import type { ArchiveScopeInfo } from '../../lib/archive';
 import { getArchiveTitle, getArchiveUrlFromArchive } from '../../lib/archive';
 
-interface ArchiveNavigationProps extends ArchiveScopeInfo {
+interface ArchiveNavigationProps {
+  scopeType: ArchiveScopeInfo['scopeType'];
+  scopeId?: string;
   prev?: Archive | null;
   next?: Archive | null;
   className?: string;
@@ -25,7 +27,7 @@ export function ArchiveNavigation({
     return null;
   }
 
-  const scope = { scopeType, scopeId };
+  const scope = { scopeType, scopeId } as ArchiveScopeInfo;
 
   return (
     <nav
