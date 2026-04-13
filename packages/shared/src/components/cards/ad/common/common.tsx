@@ -7,6 +7,5 @@ export interface AdCardProps {
   index: number;
   feedIndex: number;
   onLinkClick?: Callback;
-  onRefresh?: Callback;
   domProps?: HTMLAttributes<HTMLDivElement>;
 }

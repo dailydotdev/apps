@@ -11,7 +11,10 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import { ProfileImageSize } from '../../ProfilePicture';
 import AdAttribution from './common/AdAttribution';
 import { useFeature } from '../../GrowthBookProvider';
-import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import {
+  adImprovementsV3Feature,
+  featureAdReferralCta,
+} from '../../../lib/featureManagement';
 import PostTags from '../common/PostTags';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
@@ -20,6 +23,8 @@ import { AdPixel } from './common/AdPixel';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { MiniCloseIcon } from '../../icons';
 import { getAdFaviconImageLink } from './common/getAdFaviconImageLink';
+import { AdvertiseLink } from './common/AdvertiseLink';
+import { TargetId } from '../../../lib/log';
 
 const getLinkProps = ({
   ad,
@@ -44,6 +49,7 @@ export const SignalAdList = forwardRef<HTMLElement, AdCardProps>(
   ): ReactElement {
     const { isPlus } = usePlusSubscription();
     const adImprovementsV3 = Boolean(useFeature(adImprovementsV3Feature));
+    const isAdReferralCtaEnabled = useFeature(featureAdReferralCta);
     const matchingTags = ad.matchingTags ?? [];
     const inViewRef = useCallback<InViewRef>(
       (node) => {
@@ -118,19 +124,26 @@ export const SignalAdList = forwardRef<HTMLElement, AdCardProps>(
           {adImprovementsV3 && matchingTags.length > 0 ? (
             <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
           ) : null}
-          {!!ad.callToAction && (
-            <div className="relative z-1 mt-2 flex items-center">
-              <Button
-                tag="a"
-                href={ad.link}
-                target="_blank"
-                rel="noopener"
-                variant={ButtonVariant.Primary}
+          {(!!ad.callToAction || isAdReferralCtaEnabled) && (
+            <div className="relative z-1 mt-2 flex items-center gap-2">
+              {!!ad.callToAction && (
+                <Button
+                  tag="a"
+                  href={ad.link}
+                  target="_blank"
+                  rel="noopener"
+                  variant={ButtonVariant.Primary}
+                  size={ButtonSize.Small}
+                  {...combinedClicks(() => onLinkClick?.(ad))}
+                >
+                  {ad.callToAction}
+                </Button>
+              )}
+              <AdvertiseLink
+                targetId={TargetId.AdCard}
+                buttonStyle
                 size={ButtonSize.Small}
-                {...combinedClicks(() => onLinkClick?.(ad))}
-              >
-                {ad.callToAction}
-              </Button>
+              />
             </div>
           )}
         </div>
