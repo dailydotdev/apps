@@ -1281,11 +1281,10 @@ export const QuestButton = ({
     }
 
     const currentClaimableQuestSnapshots = getQuestClaimableSnapshots(data);
-    const currentQuestDashboardUpdatedAt = dataUpdatedAt ?? null;
+    const currentQuestDashboardUpdatedAt = dataUpdatedAt;
     const didReceiveFreshQuestDashboard =
-      dataUpdatedAt === undefined ||
       previousQuestDashboardUpdatedAtRef.current !==
-        currentQuestDashboardUpdatedAt;
+      currentQuestDashboardUpdatedAt;
 
     if (
       shouldLogClaimableQuestRef.current &&

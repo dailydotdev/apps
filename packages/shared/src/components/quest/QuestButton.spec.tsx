@@ -5,6 +5,7 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import type { QuestDashboard } from '../../graphql/quests';
 import {
   QuestRewardType,
   QuestStatus,
@@ -606,7 +607,12 @@ describe('QuestButton', () => {
       query: string;
       next?: () => unknown;
     }> = [];
-    let questDashboardState = {
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
       data: questDashboard,
       isPending: false,
       isError: false,
@@ -683,7 +689,12 @@ describe('QuestButton', () => {
       query: string;
       next?: () => unknown;
     }> = [];
-    let questDashboardState = {
+    let questDashboardState: {
+      data: QuestDashboard;
+      isPending: boolean;
+      isError: boolean;
+      dataUpdatedAt: number;
+    } = {
       data: {
         ...questDashboard,
         daily: {
