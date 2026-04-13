@@ -26,6 +26,9 @@ import {
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureOnboardingV2 } from '@dailydotdev/shared/src/lib/featureManagement';
+import dynamic from 'next/dynamic';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -64,6 +67,12 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+
+const OnboardingV2 = dynamic(
+  () =>
+    import('../components/onboarding/OnboardingV2').then((m) => m.OnboardingV2),
+  { ssr: false },
+);
 
 const seoTitles = getPageSeoTitles('Get started');
 const seo: NextSeoProps = {
@@ -359,10 +368,16 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
 
 function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
+  const { value: isOnboardingV2 } = useConditionalFeature({
+    feature: featureOnboardingV2,
+  });
+
+  const OnboardingComponent = isOnboardingV2 ? OnboardingV2 : Onboarding;
+
   return (
     <JotaiProvider>
       <ErrorBoundary feature="onboarding">
-        <Onboarding {...props} />
+        <OnboardingComponent {...props} />
       </ErrorBoundary>
       <Toast autoDismissNotifications={autoDismissNotifications} />
     </JotaiProvider>
