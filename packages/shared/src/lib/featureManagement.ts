@@ -152,4 +152,4 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingV2 = new Feature('onboarding_v2', isDevelopment);
+export const featureOnboardingV2 = new Feature('onboarding_v2', false);
