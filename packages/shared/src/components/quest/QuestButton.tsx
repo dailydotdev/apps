@@ -28,6 +28,7 @@ import {
   TourIcon,
 } from '../icons';
 import type {
+  QuestDashboard,
   QuestLevel,
   QuestReward,
   QuestType,
@@ -77,6 +78,44 @@ const getLevelProgress = (level: QuestLevel) => {
   }
 
   return Math.min(100, (level.xpInLevel / totalForLevel) * 100);
+};
+
+type ClaimableQuestSnapshot = {
+  rotationId: string;
+  questId: string;
+  questType: QuestType;
+  userQuestId: string | null;
+  locked: boolean;
+  claimable: boolean;
+};
+
+const getQuestClaimableSnapshots = (
+  dashboard?: QuestDashboard,
+): Map<string, ClaimableQuestSnapshot> => {
+  const snapshots = new Map<string, ClaimableQuestSnapshot>();
+
+  if (!dashboard) {
+    return snapshots;
+  }
+
+  [
+    ...dashboard.daily.regular,
+    ...dashboard.daily.plus,
+    ...dashboard.weekly.regular,
+    ...dashboard.weekly.plus,
+    ...dashboard.milestone,
+  ].forEach((quest) => {
+    snapshots.set(quest.rotationId, {
+      rotationId: quest.rotationId,
+      questId: quest.quest.id,
+      questType: quest.quest.type,
+      userQuestId: quest.userQuestId ?? null,
+      locked: quest.locked,
+      claimable: quest.claimable,
+    });
+  });
+
+  return snapshots;
 };
 
 const QUEST_LEVEL_PROGRESS_SIZE = 40;
@@ -1188,7 +1227,8 @@ export const QuestButton = ({
   const { optOutLevelSystem } = useSettingsContext();
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { data, isPending, isError } = useQuestDashboard();
+  const { logEvent } = useLogContext();
+  const { data, isPending, isError, dataUpdatedAt } = useQuestDashboard();
   const {
     mutate: claimQuestReward,
     isPending: isClaimPending,
@@ -1204,13 +1244,23 @@ export const QuestButton = ({
       exact: true,
     });
   }, [queryClient, questDashboardQueryKey]);
+  const shouldLogClaimableQuestRef = useRef(false);
+  const previousClaimableQuestSnapshotsRef = useRef<Map<
+    string,
+    ClaimableQuestSnapshot
+  > | null>(null);
+  const previousQuestDashboardUpdatedAtRef = useRef<number | null>(null);
+  const handleQuestDashboardRefresh = useCallback(() => {
+    shouldLogClaimableQuestRef.current = true;
+    invalidateQuestDashboard();
+  }, [invalidateQuestDashboard]);
 
   useSubscription(
     () => ({
       query: QUEST_UPDATE_SUBSCRIPTION,
     }),
     {
-      next: invalidateQuestDashboard,
+      next: handleQuestDashboardRefresh,
     },
     [user?.id],
   );
@@ -1220,10 +1270,54 @@ export const QuestButton = ({
       query: QUEST_ROTATION_UPDATE_SUBSCRIPTION,
     }),
     {
-      next: invalidateQuestDashboard,
+      next: handleQuestDashboardRefresh,
     },
     [user?.id],
   );
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const currentClaimableQuestSnapshots = getQuestClaimableSnapshots(data);
+    const currentQuestDashboardUpdatedAt = dataUpdatedAt ?? null;
+    const didReceiveFreshQuestDashboard =
+      dataUpdatedAt === undefined ||
+      previousQuestDashboardUpdatedAtRef.current !==
+        currentQuestDashboardUpdatedAt;
+
+    if (
+      shouldLogClaimableQuestRef.current &&
+      didReceiveFreshQuestDashboard &&
+      previousClaimableQuestSnapshotsRef.current
+    ) {
+      currentClaimableQuestSnapshots.forEach((quest) => {
+        const previousQuest = previousClaimableQuestSnapshotsRef.current?.get(
+          quest.rotationId,
+        );
+
+        if (!quest.locked && !previousQuest?.claimable && quest.claimable) {
+          logEvent({
+            event_name: LogEvent.QuestClaimable,
+            target_id: quest.questId,
+            target_type: TargetType.Quest,
+            extra: JSON.stringify({
+              questType: quest.questType,
+              userQuestId: quest.userQuestId,
+              userId: user?.id,
+              rotationId: quest.rotationId,
+            }),
+          });
+        }
+      });
+
+      shouldLogClaimableQuestRef.current = false;
+    }
+
+    previousClaimableQuestSnapshotsRef.current = currentClaimableQuestSnapshots;
+    previousQuestDashboardUpdatedAtRef.current = currentQuestDashboardUpdatedAt;
+  }, [data, dataUpdatedAt, logEvent, user?.id]);
 
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
