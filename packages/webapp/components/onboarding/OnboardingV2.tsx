@@ -18,12 +18,27 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
+  appStoreUrl,
   downloadBrowserExtension,
-  mobileAppUrl,
+  playStoreUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
+import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
+import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { PhoneIcon } from '@dailydotdev/shared/src/components/icons/Phone';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { EditTag } from '@dailydotdev/shared/src/components/onboarding/EditTag';
+import { REQUIRED_TAGS_THRESHOLD } from '@dailydotdev/shared/src/components/onboarding/common';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import {
+  useViewSize,
+  ViewSize,
+  useActions,
+} from '@dailydotdev/shared/src/hooks';
 
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
@@ -46,7 +61,6 @@ import {
   requestGitHubProfileTags,
   requestOnboardingProfileTags,
 } from '@dailydotdev/shared/src/graphql/onboardingProfileTags';
-import { useActions } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -54,6 +68,8 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications/usePushNotificationMutation';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
@@ -132,6 +148,7 @@ export type OnboardingStep =
   | 'chooser'
   | 'auth'
   | 'importing'
+  | 'tags'
   | 'extension'
   | 'complete';
 
@@ -186,17 +203,37 @@ const GITHUB_IMPORT_STEPS = [
   { label: 'Building your feed', threshold: 96 },
 ];
 
-const IMPORT_ANIMATION_MS = 3500;
+const IMPORT_ANIMATION_MS = 2000;
 const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady } = useAuthContext();
+  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp, user } =
+    useAuthContext();
   const { applyThemeMode } = useSettingsContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
   const [step, setStep] = useState<OnboardingStep>('hero');
+  const { onEnablePush } = usePushNotificationMutation();
+  const { feedSettings } = useFeedSettings();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isNativeApp = isIOSNative() || !!isAndroidApp;
+  const mobileStoreUrl = useMemo(() => {
+    if (isIOS()) {
+      return appStoreUrl;
+    }
+    if (
+      typeof navigator !== 'undefined' &&
+      /android/i.test(navigator.userAgent)
+    ) {
+      return playStoreUrl;
+    }
+    return null;
+  }, []);
+  const showExtensionCta = isLaptop && !isNativeApp;
+  const showMobileAppCta = !isNativeApp;
+  const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
     tagsReady,
@@ -287,10 +324,24 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
+      const hasNoTags =
+        apiResult.status !== 'fulfilled' || !apiResult.value?.length;
+
+      if (hasNoTags) {
+        setAiPrompt('');
+        setSignupContext(null);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: { step: 'tags' },
+        });
+        setStep('tags');
+        return;
+      }
+
       setImportProgress(68);
       setImportPhase('awaitingSeniority');
     },
-    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext],
+    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext, router],
   );
 
   const startImportFlowGithub = useCallback(() => {
@@ -357,13 +408,20 @@ export const OnboardingV2 = (): ReactElement => {
             setImportExiting(true);
             trackTimer(() => {
               setImportExiting(false);
-              setStep('extension');
+              setStep(showExtensionCta ? 'extension' : 'complete');
             }, 350);
           }, 600);
         }, FINISHING_ANIMATION_MS);
       }, 420);
     },
-    [clearImportTimers, trackTimer, importPhase, completeAction, router],
+    [
+      clearImportTimers,
+      trackTimer,
+      importPhase,
+      completeAction,
+      router,
+      showExtensionCta,
+    ],
   );
 
   useEffect(() => {
@@ -377,7 +435,13 @@ export const OnboardingV2 = (): ReactElement => {
     if (
       !isAuthReady ||
       (
-        ['auth', 'importing', 'extension', 'complete'] as OnboardingStep[]
+        [
+          'auth',
+          'importing',
+          'tags',
+          'extension',
+          'complete',
+        ] as OnboardingStep[]
       ).includes(step)
     ) {
       return;
@@ -385,13 +449,22 @@ export const OnboardingV2 = (): ReactElement => {
 
     const urlStep = router.query.step as string | undefined;
 
+    if (urlStep === 'tags') {
+      if (!isLoggedIn) {
+        router.replace(`${webappUrl}onboarding`);
+        return;
+      }
+      setStep('tags');
+      return;
+    }
+
     if (urlStep === 'complete') {
       if (!isLoggedIn) {
         router.replace(`${webappUrl}onboarding`);
         return;
       }
 
-      if (extensionSeen) {
+      if (extensionSeen || !showExtensionCta) {
         setStep('complete');
       } else {
         setStep('extension');
@@ -447,6 +520,7 @@ export const OnboardingV2 = (): ReactElement => {
     setSignupContext,
     startImportFlowGithub,
     startAiProcessing,
+    showExtensionCta,
   ]);
 
   useEffect(() => {
@@ -969,82 +1043,71 @@ export const OnboardingV2 = (): ReactElement => {
               className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center"
               style={{ animationDelay: '380ms' }}
             >
-              {/* Install extension */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  )
-                }
-                className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-cabbage-default"
+              {/* Install extension — desktop only */}
+              {showExtensionCta && (
+                <a
+                  href={downloadBrowserExtension}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                 >
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Install extension
-                </span>
-              </button>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0 text-accent-cabbage-default"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span className="text-text-primary typo-callout">
+                    Install extension
+                  </span>
+                </a>
+              )}
 
-              {/* Get mobile app */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')
-                }
-                className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-onion-default"
-                >
-                  <rect
-                    x="7"
-                    y="2"
-                    width="10"
-                    height="20"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <line
-                    x1="10"
-                    y1="19"
-                    x2="14"
-                    y2="19"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Get mobile app
-                </span>
-              </button>
+              {/* Get mobile app — hide if already in native app */}
+              {showMobileAppCta &&
+                (mobileStoreUrl ? (
+                  <a
+                    href={mobileStoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
+                  >
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
+                    />
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileAppPopup(true)}
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
+                  >
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
+                    />
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </button>
+                ))}
 
               {/* Enable notifications */}
               <button
                 type="button"
-                onClick={() => {
-                  if ('Notification' in window) {
-                    Notification.requestPermission();
-                  }
-                }}
+                onClick={() =>
+                  onEnablePush(NotificationPromptSource.NotificationsPage)
+                }
                 className="hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
                 <svg
@@ -1073,15 +1136,7 @@ export const OnboardingV2 = (): ReactElement => {
               style={{ animationDelay: '520ms' }}
             >
               Go to my feed
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M12 5l7 7-7 7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ArrowIcon size={IconSize.Size16} className="rotate-90" />
             </button>
           </div>
         </div>
@@ -1135,14 +1190,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
@@ -1506,14 +1554,7 @@ export const OnboardingV2 = (): ReactElement => {
                 className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
                 aria-label="Close"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <MiniCloseIcon size={IconSize.Size16} />
               </button>
             )}
 
@@ -1561,6 +1602,52 @@ export const OnboardingV2 = (): ReactElement => {
         </div>
       )}
 
+      {/* ── Tag Selection Fallback ── */}
+      {step === 'tags' && (
+        <div
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select your tags"
+        >
+          <div className="bg-black/70 absolute inset-0 backdrop-blur-sm" />
+          <div className="relative z-1 flex max-h-[90dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-2xl tablet:rounded-24">
+            <EditTag
+              feedSettings={feedSettings}
+              userId={user?.id || ''}
+              headline="Pick tags that are relevant to you"
+              hidePreview
+            />
+            <button
+              type="button"
+              disabled={
+                (feedSettings?.includeTags?.length || 0) <
+                REQUIRED_TAGS_THRESHOLD
+              }
+              onClick={() => {
+                completeAction(ActionType.CompletedOnboarding);
+                completeAction(ActionType.EditTag);
+                completeAction(ActionType.ContentTypes);
+                router.replace({
+                  pathname: `${webappUrl}onboarding`,
+                  query: { step: 'complete' },
+                });
+                setStep(showExtensionCta ? 'extension' : 'complete');
+              }}
+              className="mx-auto mt-6 rounded-14 bg-white px-8 py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {(feedSettings?.includeTags?.length || 0) >=
+              REQUIRED_TAGS_THRESHOLD
+                ? 'Continue'
+                : `Select ${
+                    REQUIRED_TAGS_THRESHOLD -
+                    (feedSettings?.includeTags?.length || 0)
+                  } more tags`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Extension Promotion Overlay ── */}
       {step === 'extension' && (
         <div
@@ -1582,14 +1669,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
@@ -1655,16 +1735,11 @@ export const OnboardingV2 = (): ReactElement => {
               </div>
 
               {/* CTA */}
-              <button
-                type="button"
-                onClick={() => {
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  );
-                  dismissExtensionPromo();
-                }}
+              <a
+                href={downloadBrowserExtension}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={dismissExtensionPromo}
                 className="mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22)]"
               >
                 {isEdgeBrowser ? (
@@ -1681,7 +1756,7 @@ export const OnboardingV2 = (): ReactElement => {
                   <ChromeIcon aria-hidden size={IconSize.Size16} />
                 )}
                 Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
-              </button>
+              </a>
 
               <button
                 type="button"
@@ -1709,6 +1784,65 @@ export const OnboardingV2 = (): ReactElement => {
                   year.&quot;
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile App Download Popup (desktop only) ── */}
+      {showMobileAppPopup && (
+        <div
+          className="fixed inset-0 z-modal flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Get the mobile app"
+        >
+          <div
+            className="bg-black/70 absolute inset-0 backdrop-blur-sm"
+            onClick={() => setShowMobileAppPopup(false)}
+            role="presentation"
+          />
+          <div className="relative z-1 flex w-full max-w-sm flex-col items-center rounded-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)]">
+            <button
+              type="button"
+              onClick={() => setShowMobileAppPopup(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              aria-label="Close"
+            >
+              <MiniCloseIcon size={IconSize.Size16} />
+            </button>
+
+            <PhoneIcon
+              size={IconSize.XLarge}
+              className="mb-4 text-accent-onion-default"
+            />
+
+            <h3 className="mb-2 text-center font-bold text-text-primary typo-title3">
+              Get daily.dev on mobile
+            </h3>
+            <p className="mb-6 text-center text-text-tertiary typo-callout">
+              Your personalized feed, anywhere.
+            </p>
+
+            <div className="flex w-full flex-col gap-3">
+              <a
+                href={appStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)]"
+              >
+                <AppleIcon size={IconSize.Size16} />
+                Download for iOS
+              </a>
+              <a
+                href={playStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 border border-white/[0.12] bg-white/[0.06] py-3 font-bold text-text-primary transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:bg-white/[0.10]"
+              >
+                <GoogleIcon secondary size={IconSize.Size16} />
+                Download for Android
+              </a>
             </div>
           </div>
         </div>
@@ -1749,14 +1883,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
             {/* ── Animated orb — full-width energy field ── */}
             <div
@@ -2218,14 +2345,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             {/* Content */}
