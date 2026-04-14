@@ -10,6 +10,8 @@ import type {
   RegistrationParameters,
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -46,7 +48,7 @@ export interface RegistrationFormProps extends AuthFormProps {
   hints?: RegistrationError;
   onUpdateHints?: (errors: RegistrationError) => void;
   onSignup?: (params: RegistrationFormValues) => void;
-  token: string;
+  token?: string;
   trigger: AuthTriggersType;
   onExistingEmailLoginClick?: () => void;
   onBackToIntro?: () => void;
@@ -57,6 +59,7 @@ export type RegistrationFormValues = Omit<
   RegistrationParameters,
   'method' | 'provider'
 > & {
+  'cf-turnstile-response'?: string;
   headers?: Record<string, string>;
 };
 
@@ -64,11 +67,11 @@ const RegistrationForm = ({
   formRef,
   onBackToIntro,
   onExistingEmailLoginClick,
-  onSignup,
+  onSignup = () => undefined,
   token,
-  hints,
+  hints = {},
   trigger,
-  onUpdateHints,
+  onUpdateHints = () => undefined,
   simplified,
   targetId,
 }: RegistrationFormProps): ReactElement => {
@@ -81,6 +84,11 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
+  const { value: isOnboardingV2 } = useConditionalFeature({
+    feature: featureOnboardingV2,
+    shouldEvaluate: trigger === AuthTriggers.Onboarding,
+  });
+  const hideExperienceLevel = isRecruiterOnboarding || isOnboardingV2;
   const {
     username,
     setUsername,
@@ -88,7 +96,7 @@ const RegistrationForm = ({
   } = useGenerateUsername(name);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
-  const logRef = useRef<typeof logEvent>();
+  const logRef = useRef(logEvent);
   logRef.current = logEvent;
 
   useEffect(() => {
@@ -160,9 +168,9 @@ const RegistrationForm = ({
     const { optOutMarketing, ...values } = formToJson<RegistrationFormValues>(
       formRef?.current ?? form,
     );
-    delete values?.['cf-turnstile-response'];
+    delete values['cf-turnstile-response'];
 
-    const requiresExperienceLevel = !isRecruiterOnboarding;
+    const requiresExperienceLevel = !hideExperienceLevel;
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
@@ -216,6 +224,12 @@ const RegistrationForm = ({
       return;
     }
 
+    const turnstileResponse = turnstileRef.current?.getResponse();
+    let headers: Record<string, string> | undefined;
+    if (!(isDevelopment && !isProductionAPI) && turnstileResponse) {
+      headers = { 'True-Client-Ip': turnstileResponse };
+    }
+
     onSignup({
       ...values,
       'traits.acceptedMarketing': !optOutMarketing,
@@ -223,12 +237,7 @@ const RegistrationForm = ({
       ...(isRecruiterOnboarding && {
         'traits.experienceLevel': 'NOT_ENGINEER',
       }),
-      headers: {
-        'True-Client-Ip':
-          isDevelopment && !isProductionAPI
-            ? undefined
-            : turnstileRef?.current?.getResponse(),
-      },
+      ...(headers && { headers }),
     });
   };
 
@@ -254,8 +263,10 @@ const RegistrationForm = ({
       return <VIcon className="text-accent-avocado-default" />;
     }
 
-    return null;
+    return undefined;
   })();
+
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
     <>
@@ -271,9 +282,16 @@ const RegistrationForm = ({
             variant={ButtonVariant.Secondary}
           />
           <Typography
-            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            className={
+              isOnboardingV2
+                ? 'mt-0.5 flex-1 text-text-primary'
+                : classNames('mt-0.5 flex-1', onboardingGradientClasses)
+            }
             tag={TypographyTag.H2}
-            type={TypographyType.Title1}
+            type={
+              isOnboardingV2 ? TypographyType.Title2 : TypographyType.Title1
+            }
+            bold={isOnboardingV2}
           >
             Join daily.dev
           </Typography>
@@ -288,7 +306,7 @@ const RegistrationForm = ({
         onSubmit={handleFormSubmit}
         ref={formRef}
       >
-        <TokenInput token={token} />
+        {token && <TokenInput token={token} />}
         <TextField
           autoFocus
           autoComplete="email"
@@ -350,13 +368,13 @@ const RegistrationForm = ({
             onUpdateHints({ ...hints, 'traits.name': '' })
           }
           rightIcon={
-            isNameValid && (
+            isNameValid ? (
               <VIcon
                 aria-hidden
                 role="presentation"
                 className="text-accent-avocado-default"
               />
-            )
+            ) : undefined
           }
         />
         <PasswordField
@@ -392,7 +410,7 @@ const RegistrationForm = ({
           }
           rightIcon={usernameIcon}
         />
-        {!isRecruiterOnboarding && (
+        {!hideExperienceLevel && (
           <ExperienceLevelDropdown
             className={{ container: 'w-full' }}
             name="traits.experienceLevel"
@@ -421,7 +439,7 @@ const RegistrationForm = ({
         >
           <Turnstile
             ref={turnstileRef}
-            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_KEY}
+            siteKey={turnstileSiteKey}
             options={{
               theme: 'dark',
             }}

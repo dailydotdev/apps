@@ -201,9 +201,14 @@ export const getPlusMemberDateFormat = (date: string | Date): string => {
 
 export const getLastActivityDateFormat = (
   value: Date | number | string,
+  options?: {
+    maxHoursAgo?: number;
+  },
 ): string => {
   const date = new Date(value);
   const now = new Date();
+  const maxHoursAgo = options?.maxHoursAgo ?? 24;
+  const maxHoursAgoInSeconds = maxHoursAgo * oneHour;
 
   // Calculate time delta in seconds.
   const dt = (now.getTime() - date.getTime()) / 1000;
@@ -217,7 +222,7 @@ export const getLastActivityDateFormat = (
     return `${numMinutes}m ago`;
   }
 
-  if (dt <= oneDay) {
+  if (dt <= maxHoursAgoInSeconds) {
     const numHours = Math.round(dt / oneHour);
     return `${numHours}h ago`;
   }

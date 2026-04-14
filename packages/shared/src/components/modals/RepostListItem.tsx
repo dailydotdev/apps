@@ -21,12 +21,13 @@ export function RepostListItem({
   scrollingContainer,
   appendTooltipTo,
 }: RepostListItemProps): ReactElement {
-  const isUserSource = isSourceUserSource(post.source);
+  const { source } = post;
+  const isUserSource = source ? isSourceUserSource(source) : false;
   const upvotes = post.numUpvotes ?? 0;
   const comments = post.numComments ?? 0;
   const { author } = post;
-  const showSquadPreview = !isUserSource && !!post.source;
-  const isPrivateSquad = showSquadPreview && !post.source.public;
+  const showSquadPreview = !isUserSource && !!source;
+  const isPrivateSquad = !!source && !source.public;
 
   const renderUserInfo = () => {
     if (!author) {
@@ -66,22 +67,22 @@ export function RepostListItem({
   return (
     <div className="border-b border-border-subtlest-tertiary px-6 py-5 last:border-b-0 hover:bg-surface-hover">
       {/* Squad name + lock + date */}
-      {showSquadPreview && (
+      {showSquadPreview && source && (
         <div className="mb-3 flex items-center gap-1">
           <SourceAvatar
-            source={post.source}
+            source={source}
             size={ProfileImageSize.XSmall}
             className="!mr-0"
           />
-          {post.source.permalink ? (
-            <Link href={post.source.permalink}>
+          {source.permalink ? (
+            <Link href={source.permalink}>
               <a className="truncate text-text-secondary !no-underline typo-callout hover:!no-underline">
-                {post.source.name}
+                {source.name}
               </a>
             </Link>
           ) : (
             <span className="truncate text-text-secondary typo-callout">
-              {post.source.name}
+              {source.name}
             </span>
           )}
           {isPrivateSquad && (
@@ -120,10 +121,15 @@ export function RepostListItem({
 
       {/* Upvotes and comments */}
       <div className="mt-3 flex items-center gap-4 text-text-quaternary typo-callout">
-        <span className="flex items-center gap-1.5">
-          <UpvoteIcon className="size-4" />
-          {largeNumberFormat(upvotes)}
-        </span>
+        {upvotes > 0 && (
+          <span
+            className="flex items-center gap-1.5"
+            data-testid="repost-upvotes"
+          >
+            <UpvoteIcon className="size-4" />
+            {largeNumberFormat(upvotes)}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <DiscussIcon className="size-4" />
           {largeNumberFormat(comments)}

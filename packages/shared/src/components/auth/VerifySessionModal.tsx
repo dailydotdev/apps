@@ -1,15 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { providers } from './common';
 import AuthDefault from './AuthDefault';
 import { AuthTriggers } from '../../lib/auth';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
 import useLogin from '../../hooks/useLogin';
-import type { AuthSession } from '../../lib/kratos';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { useAuthContext } from '../../contexts/AuthContext';
 
 interface VerifySessionModalProps extends ModalProps {
   userProviders?: string[];
@@ -28,14 +24,7 @@ function VerifySessionModal({
   const filteredProviders = providers.filter(
     ({ value }) => !userProviders?.indexOf(value),
   );
-  const client = useQueryClient();
-  const { user } = useAuthContext();
-  const session = client.getQueryData<AuthSession>(
-    generateQueryKey(RequestKey.CurrentSession, user),
-  );
   const { isReady, onSocialLogin, onPasswordLogin } = useLogin({
-    session,
-    queryParams: { refresh: 'true' },
     onSuccessfulLogin: () => {
       onVerified();
       onRequestClose?.(undefined as never);

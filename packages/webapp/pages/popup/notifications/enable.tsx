@@ -13,13 +13,13 @@ import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notif
 import dynamic from 'next/dynamic';
 import { isChrome } from '@dailydotdev/shared/src/lib/constants';
 
-const BrowserPermissionIcon: ComponentType<{ className: string }> = dynamic(
+const BrowserPermissionIcon: ComponentType<{ className?: string }> = dynamic(
   () =>
     import(
       /* webpackChunkName: "browserPermissionIcon" */ '@dailydotdev/shared/src/components/icons/BrowserPermission/primary.svg'
     ),
 );
-const ChromePermissionIcon: ComponentType<{ className: string }> = dynamic(
+const ChromePermissionIcon: ComponentType<{ className?: string }> = dynamic(
   () =>
     import(
       /* webpackChunkName: "browserPermissionIcon" */ '@dailydotdev/shared/src/components/icons/BrowserPermission/chrome.svg'
@@ -37,7 +37,7 @@ const iconClasses = 'flex flex-grow mt-2';
 
 const Description = classed('p', 'typo-callout text-text-tertiary');
 
-function Enable(): React.ReactElement {
+function Enable(): React.ReactElement | null {
   const router = useRouter();
   const { isSubscribed, isInitialized } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();

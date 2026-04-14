@@ -27,12 +27,13 @@ export const careers = 'https://r.daily.dev/careers';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';
 export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
-export const downloadBrowserExtension = 'https://r.daily.dev/download';
+export const downloadBrowserExtension = 'https://r.daily.dev/extension';
 export const twitter = 'https://r.daily.dev/twitter';
 export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const mobileAppUrl = 'https://api.daily.dev/mobile';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =
@@ -64,12 +65,6 @@ export const briefingUrl = `${webappUrl}briefing`;
 export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
-
-export const authUrl =
-  process.env.NEXT_PUBLIC_AUTH_URL || 'http://127.0.0.1:4433';
-export const heimdallUrl = isDevelopment
-  ? process.env.NEXT_PUBLIC_HEIMDALL_URL || 'http://127.0.0.1:3000'
-  : authUrl;
 
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';
 export const topReaderBadgeDocs = 'https://r.daily.dev/top-reader-badge';

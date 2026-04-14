@@ -4,11 +4,11 @@ import type { AccessToken } from '../lib/boot';
 import useDebounceFn from './useDebounceFn';
 
 export function useRefreshToken(
-  accessToken: AccessToken,
+  accessToken: AccessToken | undefined,
   refresh: () => Promise<unknown>,
 ): void {
   const difference = differenceInMilliseconds(
-    new Date(accessToken?.expiresIn),
+    accessToken?.expiresIn ? new Date(accessToken.expiresIn) : new Date(),
     new Date(),
   );
   const differencePlusTwoMinutes = difference - 1000 * 60 * 2;

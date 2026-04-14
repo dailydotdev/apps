@@ -1,6 +1,12 @@
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
-import { adLogEvent, feedLogExtra, usePostLogEvent } from '../../lib/feed';
+import { getHighlightIds, getHighlightIdsKey } from '../../graphql/highlights';
+import {
+  adLogEvent,
+  feedHighlightsLogEvent,
+  feedLogExtra,
+  usePostLogEvent,
+} from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
@@ -13,6 +19,7 @@ export enum ImpressionStatus {
 
 export const generateAdLogEventKey = (index: number): string => `ai-${index}`;
 export const generatePostLogEventKey = (id: string): string => `pi-${id}`;
+export const generateHighlightLogEventKey = (id: string): string => `hi-${id}`;
 
 export default function useLogImpression(
   item: FeedItem,
@@ -82,6 +89,40 @@ export default function useLogImpression(
         // eslint-disable-next-line no-param-reassign
         item.ad.impressionStatus = ImpressionStatus.LOGGED;
       }
+    } else if (item.type === 'highlight') {
+      const highlightKey = getHighlightIdsKey(item.highlights);
+
+      if (!highlightKey) {
+        return;
+      }
+
+      const eventKey = generateHighlightLogEventKey(highlightKey);
+      const highlightIds = getHighlightIds(item.highlights);
+
+      if (inView && !item.impressionStatus) {
+        logEventStart(
+          eventKey,
+          feedHighlightsLogEvent(LogEvent.Impression, {
+            columns,
+            column,
+            row,
+            feedName,
+            ranking,
+            count: item.highlights.length,
+            highlightIds,
+            feedMeta: item.feedMeta,
+          }),
+        );
+        // eslint-disable-next-line no-param-reassign
+        item.impressionStatus = ImpressionStatus.LOGGING;
+      } else if (
+        inView === false &&
+        item.impressionStatus === ImpressionStatus.LOGGING
+      ) {
+        logEventEnd(eventKey);
+        // eslint-disable-next-line no-param-reassign
+        item.impressionStatus = ImpressionStatus.LOGGED;
+      }
     }
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,6 +147,20 @@ export default function useLogImpression(
         logEventEnd(eventKey);
         // eslint-disable-next-line no-param-reassign
         item.post.impressionStatus = ImpressionStatus.LOGGED;
+      } else if (
+        item.type === 'highlight' &&
+        item.impressionStatus === ImpressionStatus.LOGGING
+      ) {
+        const highlightKey = getHighlightIdsKey(item.highlights);
+
+        if (!highlightKey) {
+          return;
+        }
+
+        const eventKey = generateHighlightLogEventKey(highlightKey);
+        logEventEnd(eventKey);
+        // eslint-disable-next-line no-param-reassign
+        item.impressionStatus = ImpressionStatus.LOGGED;
       }
     };
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM

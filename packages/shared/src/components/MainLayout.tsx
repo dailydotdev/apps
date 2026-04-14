@@ -8,8 +8,6 @@ import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
 import Toast from './notifications/Toast';
-import { useAuthErrors } from '../hooks/useAuthErrors';
-import { useAuthVerificationRecovery } from '../hooks/useAuthVerificationRecovery';
 import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
@@ -35,6 +33,7 @@ import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
+import { isExtension } from '../lib/func';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -78,7 +77,7 @@ function MainLayoutComponent({
   onLogoClick,
   onNavTabClick,
   canGoBack,
-}: MainLayoutProps): ReactElement {
+}: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { user, isAuthReady, showLogin } = useAuthContext();
@@ -89,13 +88,13 @@ function MainLayoutComponent({
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
-  const { isCustomFeed } = useFeedName({ feedName });
+  const page = router?.route?.substring(1).trim() as SharedFeedPage;
+  const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
+  const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  useAuthErrors();
-  useAuthVerificationRecovery();
   useNotificationParams();
 
   useEffect(() => {
@@ -113,13 +112,16 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
     !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
-    !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
+    !isExtension &&
+    !user &&
+    isPageReady &&
+    isPageApplicableForOnboarding &&
+    !isTesting;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
@@ -213,7 +215,7 @@ function MainLayoutComponent({
             isNavButtons={isNavItemsButton}
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
-            activePage={activePage}
+            activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
         {children}

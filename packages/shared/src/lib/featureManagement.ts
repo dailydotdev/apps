@@ -8,9 +8,9 @@ import { BriefingType } from '../graphql/posts';
 export class Feature<T extends JSONValue> {
   readonly id: string;
 
-  readonly defaultValue?: T;
+  readonly defaultValue: T;
 
-  constructor(id: string, defaultValue?: T) {
+  constructor(id: string, defaultValue: T) {
     this.id = id;
     this.defaultValue = defaultValue;
   }
@@ -32,7 +32,10 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
+export const featureNoAiFeed = new Feature('no_ai_feed', false);
+export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
 
+// @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
   description: string;
@@ -149,9 +152,4 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const installExtensionPromptFeature = new Feature(
-  'install_extension_prompt',
-  false,
-);
-
-export const featureAskUpsellSearch = new Feature('ask_upsell_search', false);
+export const featureOnboardingV2 = new Feature('onboarding_v2', true);

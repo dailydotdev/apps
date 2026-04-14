@@ -280,7 +280,6 @@ export enum ReferralOriginKey {
 export enum LogoutReason {
   IncomleteOnboarding = 'incomplete onboarding',
   ManualLogout = 'manual logout',
-  KratosSessionAlreadyAvailable = `kratos session already available`,
 }
 
 export const isSpecialUser = ({

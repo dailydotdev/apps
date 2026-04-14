@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { Post } from '../../graphql/posts';
+import { POST_REPOSTS_BY_ID_QUERY, type Post } from '../../graphql/posts';
 import { ClickableText } from '../buttons/ClickableText';
 import { largeNumberFormat } from '../../lib';
 import { Image } from '../image/Image';
@@ -13,7 +13,6 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { POST_REPOSTS_BY_ID_QUERY } from '../../graphql/posts';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 

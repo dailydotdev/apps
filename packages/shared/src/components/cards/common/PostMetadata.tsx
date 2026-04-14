@@ -33,13 +33,16 @@ export default function PostMetadata({
   domain,
   pollMetadata,
 }: PostMetadataProps): ReactElement {
+  const hasUpvoteCount = typeof numUpvotes === 'number';
+  const upvoteCount = numUpvotes ?? 0;
+  const readTimeValue = readTime ?? 0;
   const timeActionContent = isVideoType ? 'watch' : 'read';
   const showReadTime = isVideoType ? Number.isInteger(readTime) : !!readTime;
   const { boostedBy } = useFeedCardContext();
 
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    boostedBy ? `Promoted by @${boostedBy.username}` : null,
+    boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
   );
 
   const items: { key: string; node: ReactNode }[] = [
@@ -65,19 +68,20 @@ export default function PostMetadata({
       key: 'readTime',
       node: (
         <span data-testid="readTime">
-          {formatReadTime(readTime)} {timeActionContent} time
+          {formatReadTime(readTimeValue)} {timeActionContent} time
         </span>
       ),
     },
     !!showReadTime && domain && { key: 'domain', node: domain },
-    !!numUpvotes && {
-      key: 'upvotes',
-      node: (
-        <span data-testid="numUpvotes">
-          {largeNumberFormat(numUpvotes)} upvote{numUpvotes > 1 ? 's' : ''}
-        </span>
-      ),
-    },
+    hasUpvoteCount &&
+      upvoteCount > 0 && {
+        key: 'upvotes',
+        node: (
+          <span data-testid="numUpvotes">
+            {largeNumberFormat(upvoteCount)} upvote{upvoteCount > 1 ? 's' : ''}
+          </span>
+        ),
+      },
   ].filter(Boolean) as { key: string; node: ReactNode }[];
 
   return (

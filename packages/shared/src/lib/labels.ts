@@ -91,6 +91,15 @@ export const labels = {
         smartPrompt: 'Smart Prompt setting has been applied for all feeds',
       },
     },
+    noAi: {
+      hidden: 'AI chatter hidden.',
+      visible: 'AI chatter is back.',
+      nudge: {
+        message:
+          'AI chatter hidden. Want to hide this toggle too? You can change it later in Feed settings.',
+        action: 'Save & hide toggle',
+      },
+    },
   },
   integrations: {
     prompt: {

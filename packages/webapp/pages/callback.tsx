@@ -3,7 +3,7 @@ import {
   postWindowMessage,
   isPWA,
 } from '@dailydotdev/shared/src/lib/func';
-import { AuthEvent } from '@dailydotdev/shared/src/lib/kratos';
+import { AuthEvent } from '@dailydotdev/shared/src/lib/auth';
 import type { ReactElement } from 'react';
 import { useEffect } from 'react';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -75,7 +75,10 @@ function CallbackPage(): ReactElement | null {
       // while still allowing a script-opened tab to close itself. Try the
       // close first and only fall back to a redirect if we know there is no
       // opener to return to.
-      if (!window.opener) {
+      // Skip the redirect when there are error params — the opener handles
+      // closing the popup and showing the error toast.
+      const hasError = urlSearchParams.has('error');
+      if (!window.opener && !hasError) {
         setTimeout(() => {
           window.location.replace('/onboarding');
         }, 300);

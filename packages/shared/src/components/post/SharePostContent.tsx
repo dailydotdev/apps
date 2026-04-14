@@ -38,7 +38,7 @@ import { SourceType } from '../../graphql/sources';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
 
 export interface CommonSharePostContentProps {
-  sharedPost: SharedPost;
+  sharedPost?: SharedPost;
   source: Post['source'];
   onReadArticle: () => Promise<void>;
   isCompactSpacing?: boolean;
@@ -134,7 +134,7 @@ export function CommonSharePostContent({
 
   const isDeleted = sharedPost.id === DeletedPostId;
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
-  const { type } = sharedPostSource;
+  const sourceType = sharedPostSource?.type;
   const sharedContainerClassName = isCompactSpacing ? 'mb-4 mt-6' : 'mb-5 mt-8';
   const shouldRenderTweetPreview = isSocialTwitterPost(sharedPost);
 
@@ -142,7 +142,7 @@ export function CommonSharePostContent({
     return <DeletedPost isCompactSpacing={isCompactSpacing} />;
   }
 
-  if (isPrivate && type === SourceType.Squad) {
+  if (isPrivate && sourceType === SourceType.Squad) {
     return (
       <PrivatePost
         post={sharedPost}
@@ -168,17 +168,17 @@ export function CommonSharePostContent({
     <SharedLinkContainer
       post={sharedPost}
       summary={sharedPost.summary}
-      className={sharedContainerClassName}
+      className={classNames(sharedContainerClassName, 'min-w-0 max-w-full')}
     >
       <div
         className={classNames(
-          'flex max-w-full flex-col gap-2 p-4 pt-5',
+          'flex min-w-0 max-w-full flex-col gap-2 p-4 pt-5',
           sidebarExpanded ? 'laptopL:flex-row' : 'laptop:flex-row',
         )}
       >
         <div
           className={classNames(
-            'mb-5 flex max-w-full flex-1 flex-col truncate',
+            'mb-5 flex min-w-0 max-w-full flex-1 flex-col truncate',
             sidebarExpanded ? 'laptopL:mb-0' : 'laptop:mb-0',
           )}
         >
@@ -208,7 +208,7 @@ export function CommonSharePostContent({
             href={
               shouldUseInternalLink
                 ? sharedPost.commentsPermalink
-                : sharedPost.permalink
+                : sharedPost.permalink ?? sharedPost.commentsPermalink
             }
             openNewTab={shouldUseInternalLink ? false : openNewTab}
             title="Go to post"
@@ -222,7 +222,7 @@ export function CommonSharePostContent({
           source={source}
           sharedPost={sharedPost}
           onGoToLinkProps={combinedClicks(openArticle)}
-          className="mx-auto block h-fit w-70 cursor-pointer overflow-hidden rounded-16"
+          className="mx-auto block h-fit w-full max-w-70 shrink-0 cursor-pointer overflow-hidden rounded-16"
         >
           <LazyImage
             imgSrc={sharedPost.image}
@@ -249,7 +249,8 @@ const SharePostContent = ({
   onReadArticle,
   isCompactSpacing,
 }: SharePostContentProps): ReactElement => {
-  const isSharedTweet = isSocialTwitterPost(post.sharedPost);
+  const isSharedTweet =
+    !!post.sharedPost && isSocialTwitterPost(post.sharedPost);
 
   return (
     <>

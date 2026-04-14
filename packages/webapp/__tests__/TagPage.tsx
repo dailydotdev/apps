@@ -6,19 +6,26 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import type {
+  LoggedUser,
+  UserShortProfile,
+} from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
 import type {
   AllTagCategoriesData,
   FeedSettings,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { CampaignCtaPlacement } from '@dailydotdev/shared/src/graphql/settings';
 import {
   ADD_FILTERS_TO_FEED_MUTATION,
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '@dailydotdev/shared/src/graphql/feedSettings';
+import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import type { SettingsContextData } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import SettingsContext, {
+  ThemeMode,
+  type SettingsContextData,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import ad from '@dailydotdev/shared/__tests__/fixture/ad';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import defaultFeedPage from '@dailydotdev/shared/__tests__/fixture/feed';
@@ -27,6 +34,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -64,7 +72,7 @@ afterEach(() => {
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = TAG_FEED_QUERY,
-  variables: unknown = {
+  variables: Record<string, unknown> = {
     first: 7,
     after: '',
     loggedIn: true,
@@ -102,39 +110,103 @@ const initialDataObj: Keyword = {
   status: 'allow',
 };
 
+const topContributor: UserShortProfile = {
+  id: '1',
+  name: 'Ido',
+  image: 'https://daily.dev/ido.jpg',
+  username: 'idoshamun',
+  permalink: '/idoshamun',
+  createdAt: new Date().toISOString(),
+  reputation: 10,
+};
+
+const createArchiveIndexMock = (): MockedGraphQLResponse => ({
+  request: {
+    query: ARCHIVE_INDEX_QUERY,
+    variables: {
+      subjectType: 'post',
+      rankingType: 'best',
+      scopeType: 'tag',
+      scopeId: 'react',
+    },
+  },
+  result: { data: { archiveIndex: [] } },
+});
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock(), createTagsSettingsMock()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | null = defaultUser,
   initialData: Keyword = initialDataObj,
+  topContributors: UserShortProfile[] = [],
 ): RenderResult => {
   client = new QueryClient();
 
-  mocks.forEach(mockGraphQL);
+  (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
+  mockGraphQL(createArchiveIndexMock());
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: 'dark',
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
+    setTheme: jest.fn().mockResolvedValue(undefined),
+    themeMode: ThemeMode.Dark,
+    setSpaciness: jest.fn().mockResolvedValue(undefined),
+    toggleOpenNewTab: jest.fn().mockResolvedValue(undefined),
     insaneMode: false,
     loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
+    toggleInsaneMode: jest.fn().mockResolvedValue(undefined),
     showTopSites: true,
-    toggleShowTopSites: jest.fn(),
+    toggleShowTopSites: jest.fn().mockResolvedValue(undefined),
+    sidebarExpanded: false,
+    companionExpanded: false,
+    sortingEnabled: false,
+    optOutReadingStreak: false,
+    optOutLevelSystem: false,
+    optOutQuestSystem: false,
+    optOutCompanion: false,
+    autoDismissNotifications: true,
+    sortCommentsBy: SortCommentsBy.OldestFirst,
+    showFeedbackButton: true,
+    campaignCtaPlacement: CampaignCtaPlacement.Header,
+    flags: {
+      sidebarSquadExpanded: true,
+      sidebarCustomFeedsExpanded: true,
+      sidebarOtherExpanded: true,
+      sidebarResourcesExpanded: true,
+      sidebarBookmarksExpanded: true,
+      clickbaitShieldEnabled: true,
+    },
+    toggleSidebarExpanded: jest.fn().mockResolvedValue(undefined),
+    toggleSortingEnabled: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutReadingStreak: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutLevelSystem: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutQuestSystem: jest.fn().mockResolvedValue(undefined),
+    toggleOptOutCompanion: jest.fn().mockResolvedValue(undefined),
+    toggleAutoDismissNotifications: jest.fn().mockResolvedValue(undefined),
+    toggleShowFeedbackButton: jest.fn().mockResolvedValue(undefined),
+    updateCustomLinks: jest.fn().mockResolvedValue(undefined),
+    updateSortCommentsBy: jest.fn().mockResolvedValue(undefined),
+    updateFlag: jest.fn().mockResolvedValue(undefined),
+    updateFlagRemote: jest.fn().mockResolvedValue(undefined),
+    updatePromptFlag: jest.fn().mockResolvedValue(undefined),
+    syncSettings: jest.fn().mockResolvedValue(undefined),
+    onToggleHeaderPlacement: jest.fn().mockResolvedValue(undefined),
+    setSettings: jest.fn().mockResolvedValue(undefined),
+    applyThemeMode: jest.fn(),
   };
   return render(
     <QueryClientProvider client={client}>
       <AuthContext.Provider
         value={{
-          user,
+          ...(user && { user }),
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin,
-          logout: jest.fn(),
-          updateUser: jest.fn(),
+          closeLogin: jest.fn(),
+          logout: jest.fn().mockResolvedValue(undefined),
+          updateUser: jest.fn().mockResolvedValue(undefined),
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
+          isAuthReady: true,
         }}
       >
         <AlertContextProvider alerts={{}} updateAlerts={jest.fn()} loadedAlerts>
@@ -144,6 +216,7 @@ const renderComponent = (
               initialData={initialData}
               topPosts={[]}
               recommendedTags={[]}
+              topContributors={topContributors}
             />
           </SettingsContext.Provider>
         </AlertContextProvider>
@@ -219,6 +292,16 @@ it('should show login popup when logged-out on follow click', async () => {
   const followButton = await screen.findByLabelText('Follow');
   followButton.click();
   expect(showLogin).toBeCalledTimes(1);
+});
+
+it('should render top contributors section from static props', async () => {
+  renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
+
+  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
+    'href',
+    '/idoshamun',
+  );
 });
 
 it('should show login popup when logged-out on block click', async () => {
@@ -360,7 +443,7 @@ it('should unblock tag', async () => {
 });
 
 it('should load title and description for tag', async () => {
-  renderComponent([createFeedMock()], defaultUser, {
+  renderComponent([createFeedMock(), createTagsSettingsMock()], defaultUser, {
     ...initialDataObj,
     flags: {
       title: 'React custom title',
@@ -368,12 +451,12 @@ it('should load title and description for tag', async () => {
     },
   });
 
-  await waitFor(async () => {
-    const titleElement = await screen.findByText('React custom title');
-    expect(titleElement).toBeInTheDocument();
-    const descriptionElement = await screen.findByText(
-      'React is an amazing framework',
-    );
-    expect(descriptionElement).toBeInTheDocument();
+  await waitFor(() => {
+    expect(
+      screen.getByRole('heading', { name: 'React custom title' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('React is an amazing framework'),
+    ).toBeInTheDocument();
   });
 });

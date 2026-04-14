@@ -128,6 +128,9 @@ export const cloudinaryReferralCampaignGenericReferralPurpleEdgeGlowTablet =
 export const cloudinaryOnboardingGlow =
   'https://media.daily.dev/image/upload/v1694596741/Glow_o9ehvn.svg';
 
+export const cloudinaryReadingReminderCat =
+  'https://media.daily.dev/image/upload/s--r_3VGfdy--/f_auto,q_auto/v1776087908/public/reading-reminder-cat';
+
 export const cloudinaryOnboardingFullBackgroundMobile =
   'https://media.daily.dev/image/upload/s--EwsBTBt6--/f_auto/v1716969841/dailydev_where_developers_suffer_together_mobile_shkn1w';
 
@@ -206,6 +209,9 @@ export const cloudinaryAuthBannerBackground1920w =
 
 export const cloudinaryAuthBannerBackground1440w =
   'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
+
+export const cloudinaryNoAiFeedToggle =
+  'https://media.daily.dev/image/upload/s--nndE59fs--/f_auto,q_auto/v1775238401/public/ChatGPT%20Image%20Mar%2031%2C%202026%2C%2011_00_27%20PM';
 
 export const cloudinaryPWA =
   'https://media.daily.dev/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';

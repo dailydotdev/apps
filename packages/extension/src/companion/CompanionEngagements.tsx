@@ -14,16 +14,8 @@ interface CompanionEngagementsProps {
 export function CompanionEngagements({
   post,
   onUpvotesClick,
-}: CompanionEngagementsProps): ReactElement {
-  if (!post) {
-    return null;
-  }
-
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+}: CompanionEngagementsProps): ReactElement | null {
   const client = useQueryClient();
-  // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useRawBackgroundRequest(({ res, key }) => {
     if (!Array.isArray(key)) {
       return;
@@ -36,22 +28,29 @@ export function CompanionEngagements({
     client.setQueryData(key, res);
   });
 
+  if (!post) {
+    return null;
+  }
+
+  const upvotes = post.numUpvotes ?? 0;
+  const comments = post.numComments ?? 0;
+
   return (
     <div
       className="flex items-center gap-x-4 py-1 text-text-tertiary typo-callout"
       data-testid="statsBar"
     >
-      {post.numUpvotes <= 0 && <span>Be the first to upvote</span>}
-      {post.numUpvotes > 0 && (
+      {upvotes <= 0 && <span>Be the first to upvote</span>}
+      {upvotes > 0 && (
         <ClickableText onClick={onUpvotesClick}>
-          {largeNumberFormat(post.numUpvotes)} Upvote
-          {post.numUpvotes > 1 ? 's' : ''}
+          {largeNumberFormat(upvotes)} Upvote
+          {upvotes > 1 ? 's' : ''}
         </ClickableText>
       )}
-      {post.numComments > 0 && (
+      {comments > 0 && (
         <span>
-          {largeNumberFormat(post.numComments)}
-          {` Comment${post.numComments === 1 ? '' : 's'}`}
+          {largeNumberFormat(comments)}
+          {` Comment${comments === 1 ? '' : 's'}`}
         </span>
       )}
     </div>

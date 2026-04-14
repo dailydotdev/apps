@@ -184,7 +184,6 @@ const ActionButtons = ({
                 className={classNames(
                   'tabular-nums',
                   variant === 'grid' && 'typo-footnote',
-                  !upvoteCount && 'invisible',
                 )}
                 value={upvoteCount}
               />

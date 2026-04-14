@@ -1,50 +1,23 @@
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../contexts/AuthContext';
-import type {
-  RegistrationError,
-  RegistrationParameters,
-  ValidateRegistrationParams,
-} from '../lib/auth';
+import type { RegistrationError, RegistrationParameters } from '../lib/auth';
 import {
   iosNativeAuth,
   isNativeAuthSupported,
   AuthEventNames,
-  errorsToJson,
-  getNodeByKey,
-  getNodeValue,
 } from '../lib/auth';
-import type {
-  InitializationData,
-  SuccessfulRegistrationData,
-} from '../lib/kratos';
-import {
-  AuthEvent,
-  AuthFlow,
-  ContinueWithAction,
-  initializeKratosFlow,
-  KRATOS_ERROR,
-  KRATOS_ERROR_MESSAGE,
-  submitKratosFlow,
-} from '../lib/kratos';
 import {
   betterAuthSignUp,
   betterAuthSignInWithIdToken,
   getBetterAuthErrorMessage,
   getBetterAuthSocialRedirectData,
 } from '../lib/betterAuth';
-import { useIsBetterAuth } from './useIsBetterAuth';
 import { useToastNotification } from './useToastNotification';
 import { getUserDefaultTimezone } from '../lib/timezones';
 import { useLogContext } from '../contexts/LogContext';
-import { Origin } from '../lib/log';
-import { LogoutReason } from '../lib/user';
-import { AFTER_AUTH_PARAM } from '../components/auth/common';
-import { disabledRefetch } from '../lib/func';
 import { webappUrl } from '../lib/constants';
-
-type ParamKeys = keyof RegistrationParameters;
 
 interface UseRegistrationProps {
   key: QueryKey;
@@ -58,7 +31,6 @@ interface UseRegistrationProps {
 }
 
 interface UseRegistration {
-  registration: InitializationData;
   isValidationIdle: boolean;
   isLoading?: boolean;
   isReady: boolean;
@@ -69,165 +41,23 @@ interface UseRegistration {
 
 type FormParams = Omit<RegistrationParameters, 'csrf_token'>;
 
-const EMAIL_EXISTS_ERROR_ID = KRATOS_ERROR.EXISTING_USER;
 const BETTER_AUTH_SIGNUP_FALLBACK_ERROR =
   "We couldn't complete sign up. If you already have an account, try signing in instead.";
 
 const useRegistration = ({
-  key,
-  params: _params,
-  enabled = true,
   onRedirect,
-  onRedirectFail,
   onInvalidRegistration,
   onInitializeVerification,
-  keepSession = false,
 }: UseRegistrationProps): UseRegistration => {
-  const isBetterAuth = useIsBetterAuth();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const [verificationId, setVerificationId] = useState<string>();
-  const { trackingId, referral, referralOrigin, logout, geo, refetchBoot } =
+  const { referral, referralOrigin, geo, refetchBoot } =
     useContext(AuthContext);
   const timezone = getUserDefaultTimezone();
-  const {
-    data: registration,
-    isPending: isQueryLoading,
-    error: registrationError,
-  } = useQuery({
-    queryKey: key,
-    queryFn: () => initializeKratosFlow(AuthFlow.Registration, _params),
-    ...disabledRefetch,
-    enabled: enabled && !isBetterAuth,
-  });
-
-  if (registration?.error) {
-    logEvent({
-      event_name: AuthEventNames.RegistrationInitializationError,
-      extra: JSON.stringify({
-        error: JSON.stringify(registration.error),
-        origin: Origin.InitializeRegistrationFlow,
-      }),
-    });
-    const params = new URLSearchParams(window.location.search);
-    const afterAuth = params.get(AFTER_AUTH_PARAM);
-    /**
-     * In case a valid session exists on kratos, but not FE we should logout the user.
-     * We ignore it if 'after_auth' param exists, because it means we manually redirected the user here, and that will trigger this error.
-     */
-    if (
-      registration.error?.id ===
-        KRATOS_ERROR_MESSAGE.SESSION_ALREADY_AVAILABLE &&
-      !afterAuth &&
-      !keepSession
-    ) {
-      logout(LogoutReason.KratosSessionAlreadyAvailable);
-    }
-  }
-
-  useEffect(() => {
-    if (registrationError) {
-      const serializedError = JSON.stringify(
-        registrationError,
-        Object.getOwnPropertyNames(registrationError),
-      );
-      logEvent({
-        event_name: AuthEventNames.RegistrationInitializationError,
-        extra: JSON.stringify({
-          error: serializedError,
-          origin: Origin.InitializeRegistrationFlow,
-        }),
-      });
-    }
-    // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [registrationError]);
-
-  const referralTraits = useMemo(() => {
-    return {
-      'traits.referral': referral,
-      'traits.referralOrigin': referralOrigin,
-    };
-  }, [referral, referralOrigin]);
-
-  const {
-    mutateAsync: validate,
-    status,
-    isPending: isMutationLoading,
-  } = useMutation({
-    mutationFn: (params: ValidateRegistrationParams) =>
-      submitKratosFlow(params),
-
-    onSuccess: ({ data, error, redirect }, params) => {
-      const successfulData = data as SuccessfulRegistrationData;
-
-      if (successfulData?.continue_with?.length) {
-        const continueWith = successfulData.continue_with.find(
-          ({ action }) => action === ContinueWithAction.ShowVerification,
-        );
-
-        if (continueWith) {
-          setVerificationId(continueWith.flow.id);
-          return onInitializeVerification?.();
-        }
-      }
-
-      if (redirect) {
-        return onRedirect(redirect);
-      }
-
-      // If it's native auth, we can proceed by simulating the callback page
-      if (params?.params?.id_token) {
-        if (successfulData?.session?.active) {
-          return window.postMessage({
-            eventKey: AuthEvent.SocialRegistration,
-            social_registration: true,
-          });
-        }
-        return window.postMessage({
-          eventKey: AuthEvent.SocialRegistration,
-          social_registration: true,
-          flow: error?.id,
-        });
-      }
-
-      // probably csrf token issue and definitely not related to forms data
-      if (!error?.ui) {
-        logEvent({
-          event_name: AuthEventNames.RegistrationError,
-          extra: JSON.stringify({
-            error: {
-              flowId: error?.id,
-              messages: error?.ui?.messages,
-            },
-            origin: 'validate registration flow',
-          }),
-        });
-        return displayToast('An error occurred, please refresh the page.');
-      }
-
-      const turnstileError = getNodeByKey('csrf_token', error.ui.nodes);
-      const emailExists = error?.ui?.messages?.find(
-        (message) => message.id === EMAIL_EXISTS_ERROR_ID,
-      );
-      if (turnstileError?.messages?.length > 0) {
-        return onInvalidRegistration?.({
-          csrf_token: 'Turnstile error',
-        });
-      }
-      if (emailExists) {
-        return onInvalidRegistration?.({
-          'traits.email': 'Email is already taken!',
-        });
-      }
-
-      const json = errorsToJson<ParamKeys>(error);
-      return onInvalidRegistration?.(json);
-    },
-  });
 
   const {
     mutateAsync: betterAuthRegister,
+    status,
     isPending: isBetterAuthMutationLoading,
   } = useMutation({
     mutationFn: async (params: {
@@ -290,186 +120,113 @@ const useRegistration = ({
       headers?: Record<string, string>;
     },
   ) => {
-    if (isBetterAuth) {
-      const turnstileToken = values.headers?.['True-Client-Ip'];
-      await betterAuthRegister({
-        name: values['traits.name'] as string,
-        email: values['traits.email'] as string,
-        password: values.password as string,
-        turnstileToken,
-        username: values['traits.username'] as string,
-        experienceLevel: values['traits.experienceLevel'] as string,
-        referral: referral ?? undefined,
-        referralOrigin: referralOrigin ?? undefined,
-        timezone,
-        region: geo?.region,
-      });
-      return;
-    }
-
-    const { nodes, action } = registration.ui;
-    const postData: RegistrationParameters = {
-      ...values,
-      method: values.method || 'password',
-      csrf_token: getNodeValue('csrf_token', nodes),
-      'traits.userId': trackingId,
-      ...referralTraits,
-      'traits.timezone': timezone,
-      'traits.region': geo?.region,
-    };
-
-    await validate({ action, params: postData });
+    const turnstileToken = values.headers?.['True-Client-Ip'];
+    await betterAuthRegister({
+      name: values['traits.name'] as string,
+      email: values['traits.email'] as string,
+      password: values.password as string,
+      turnstileToken,
+      username: values['traits.username'] as string,
+      experienceLevel: values['traits.experienceLevel'] as string,
+      referral: referral ?? undefined,
+      referralOrigin: referralOrigin ?? undefined,
+      timezone,
+      region: geo?.region,
+    });
   };
 
   const onSocialRegistration = async (provider: string) => {
-    if (isBetterAuth) {
-      const additionalData = { timezone };
+    const additionalData = { timezone };
 
-      if (isNativeAuthSupported(provider)) {
-        const res = await iosNativeAuth(provider);
-        if (!res) {
-          return;
-        }
-        const result = await betterAuthSignInWithIdToken({
-          provider: provider.toLowerCase(),
-          token: res.token,
-          nonce: res.nonce,
-          additionalData,
+    if (isNativeAuthSupported(provider)) {
+      const res = await iosNativeAuth(provider);
+      if (!res) {
+        return;
+      }
+      const result = await betterAuthSignInWithIdToken({
+        provider: provider.toLowerCase(),
+        token: res.token,
+        nonce: res.nonce,
+        additionalData,
+      });
+      if (result.error) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: result.error,
+            origin: 'betterauth native id token registration',
+          }),
         });
-        if (result.error) {
+        return;
+      }
+      try {
+        const { data: boot } = await refetchBoot();
+        if (!boot.user) {
           logEvent({
             event_name: AuthEventNames.RegistrationError,
             extra: JSON.stringify({
-              error: result.error,
-              origin: 'betterauth native id token registration',
-            }),
-          });
-          return;
-        }
-        try {
-          const { data: boot } = await refetchBoot();
-          if (!boot.user) {
-            logEvent({
-              event_name: AuthEventNames.RegistrationError,
-              extra: JSON.stringify({
-                error: 'Missing user after Better Auth social registration',
-                origin: 'betterauth native id token registration boot',
-              }),
-            });
-            displayToast('An error occurred, please refresh the page.');
-            return;
-          }
-        } catch (error) {
-          logEvent({
-            event_name: AuthEventNames.RegistrationError,
-            extra: JSON.stringify({
-              error: getBetterAuthErrorMessage(
-                error,
-                'Failed to refresh Better Auth registration state',
-              ),
+              error: 'Missing user after Better Auth social registration',
               origin: 'betterauth native id token registration boot',
             }),
           });
           displayToast('An error occurred, please refresh the page.');
           return;
         }
+      } catch (error) {
+        logEvent({
+          event_name: AuthEventNames.RegistrationError,
+          extra: JSON.stringify({
+            error: getBetterAuthErrorMessage(
+              error,
+              'Failed to refresh Better Auth registration state',
+            ),
+            origin: 'betterauth native id token registration boot',
+          }),
+        });
+        displayToast('An error occurred, please refresh the page.');
         return;
-      }
-      const callbackURL = `${webappUrl}callback?login=true`;
-      const { url, error } = await getBetterAuthSocialRedirectData(
-        provider.toLowerCase(),
-        callbackURL,
-        additionalData,
-      );
-      if (onRedirect && url) {
-        onRedirect(url);
-      } else if (!onRedirect && url) {
-        logEvent({
-          event_name: AuthEventNames.RegistrationError,
-          extra: JSON.stringify({
-            error: 'Missing social registration redirect handler',
-            origin: 'betterauth social url registration',
-          }),
-        });
-      } else if (!url) {
-        logEvent({
-          event_name: AuthEventNames.RegistrationError,
-          extra: JSON.stringify({
-            error: error || 'Failed to get social registration URL',
-            origin: 'betterauth social url registration',
-          }),
-        });
       }
       return;
     }
-
-    if (!registration?.ui) {
+    const callbackURL = `${webappUrl}callback?login=true`;
+    const { url, error } = await getBetterAuthSocialRedirectData(
+      provider.toLowerCase(),
+      callbackURL,
+      additionalData,
+    );
+    if (onRedirect && url) {
+      onRedirect(url);
+    } else if (!onRedirect && url) {
       logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
-          error: {
-            flowId: registration?.id,
-            messages: registration?.ui?.messages,
-          },
-          origin: 'registration ui not found',
+          error: 'Missing social registration redirect handler',
+          origin: 'betterauth social url registration',
         }),
       });
-      displayToast('An error occurred, please refresh the page.');
-      onRedirectFail();
-      return;
+    } else if (!url) {
+      logEvent({
+        event_name: AuthEventNames.RegistrationError,
+        extra: JSON.stringify({
+          error: error || 'Failed to get social registration URL',
+          origin: 'betterauth social url registration',
+        }),
+      });
     }
-
-    const csrf = getNodeValue('csrf_token', registration.ui.nodes);
-    const postData: RegistrationParameters = {
-      csrf_token: csrf,
-      method: 'oidc',
-      provider: provider.toLowerCase(),
-      'traits.email': '',
-      'traits.username': '',
-      'traits.name': '',
-      'traits.image': '',
-      'traits.userId': trackingId,
-      ...referralTraits,
-      'traits.timezone': timezone,
-      'traits.acceptedMarketing': false,
-    };
-
-    // Native auth takes care of the actual OAuth process, so we need to send the proper params
-    if (isNativeAuthSupported(provider)) {
-      const res = await iosNativeAuth(provider);
-      postData.id_token = res.token;
-      postData.id_token_nonce = res.nonce;
-      if (res.name) {
-        postData['traits.name'] = res.name;
-      }
-    }
-
-    await onValidateRegistration(postData);
   };
 
   return useMemo<UseRegistration>(
     () => ({
-      isReady: isBetterAuth ? true : !!registration?.ui,
-      isLoading: isBetterAuth
-        ? isBetterAuthMutationLoading
-        : isQueryLoading || isMutationLoading,
-      registration,
+      isReady: true,
+      isLoading: isBetterAuthMutationLoading,
       onSocialRegistration,
       validateRegistration: onValidateRegistration,
       isValidationIdle: status === 'idle',
-      verificationFlowId: verificationId,
+      verificationFlowId: undefined,
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      registration,
-      status,
-      isQueryLoading,
-      isMutationLoading,
-      isBetterAuth,
-      isBetterAuthMutationLoading,
-      verificationId,
-    ],
+    [status, isBetterAuthMutationLoading],
   );
 };
 

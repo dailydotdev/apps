@@ -9,7 +9,7 @@ import type { ClientError } from 'graphql-request';
 
 import { GARMR_ERROR } from '../graphql/common';
 import type { PageInfo, Connection } from '../graphql/common';
-import type { EmptyObjectLiteral } from './kratos';
+import type { EmptyObjectLiteral } from './func';
 import type { LoggedUser } from './user';
 import type {
   FeedData,
@@ -18,6 +18,8 @@ import type {
   ReadHistoryPost,
   Ad,
 } from '../graphql/posts';
+import type { FeedApiItem, FeedItemData } from '../graphql/feed';
+import { getFeedApiItemPost, isFeedApiPostItem } from '../graphql/feed';
 import type { ReadHistoryInfiniteData } from '../hooks/useInfiniteReadingHistory';
 import type { SharedFeedPage } from '../components/utilities';
 import type {
@@ -57,6 +59,8 @@ export enum OtherFeedPage {
   TagsTopPosts = 'tags[tag]/top-posts',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
+  TagArchive = 'tags[tag]/best-of',
+  SourceArchive = 'sources[source]/best-of',
   Explore = 'posts',
   ExploreLatest = 'postslatest',
   ExploreDiscussed = 'postsdiscussed',
@@ -88,6 +92,10 @@ export enum StaleTime {
 export type AllFeedPages = SharedFeedPage | OtherFeedPage;
 
 export type MutateFunc<T> = (variables: T) => Promise<(() => void) | undefined>;
+
+type AnyFeedData = FeedData | FeedItemData;
+type AnyFeedNode = Post | FeedApiItem;
+type AnyFeedConnection = Connection<AnyFeedNode>;
 
 export const getNextPageParam = (pageInfo: PageInfo): null | string => {
   if (!pageInfo?.hasNextPage || !pageInfo?.endCursor) {
@@ -165,6 +173,7 @@ export enum RequestKey {
   SourceRelatedTags = 'source_related_tags',
   SourceByTag = 'source_by_tag',
   SimilarSources = 'similar_sources',
+  TopCreatorsByTag = 'top_creators_by_tag',
   UserExperienceLevel = 'user_experience_level',
   SquadStatus = 'squad_status',
   PublicSquadRequests = 'public_squad_requests',
@@ -181,6 +190,9 @@ export enum RequestKey {
   TagFeed = 'tagFeed',
   TagsMostUpvoted = 'tagsMostUpvoted',
   TagsBestDiscussed = 'tagsBestDiscussed',
+  Archive = 'archive',
+  ArchiveIndex = 'archiveIndex',
+  FeaturedArchives = 'featuredArchives',
   UserCompanies = 'user_companies',
   PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',
@@ -272,6 +284,10 @@ export type HasConnection<
   TReturn = unknown,
 > = Partial<Record<TKey, Connection<TReturn>>>;
 
+type ConnectionNode<TConnection> = TConnection extends Connection<infer TNode>
+  ? TNode
+  : never;
+
 interface InfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
@@ -283,8 +299,10 @@ interface InfiniteCacheProps<
 
 interface UpdateInfiniteCacheProps<
   TEntity extends HasConnection<TEntity>,
-  TData extends TEntity[TKey]['edges'][0]['node'],
   TKey extends keyof TEntity = keyof TEntity,
+  TData extends ConnectionNode<NonNullable<TEntity[TKey]>> = ConnectionNode<
+    NonNullable<TEntity[TKey]>
+  >,
 > extends InfiniteCacheProps<TEntity, TKey> {
   page: number;
   edge: number;
@@ -294,7 +312,9 @@ interface UpdateInfiniteCacheProps<
 export const updateInfiniteCache = <
   TEntity extends HasConnection<TEntity>,
   TKey extends keyof TEntity = keyof TEntity,
-  TData extends TEntity[TKey]['edges'][0]['node'] = TEntity[TKey]['edges'][0]['node'],
+  TData extends ConnectionNode<NonNullable<TEntity[TKey]>> = ConnectionNode<
+    NonNullable<TEntity[TKey]>
+  >,
   TReturn extends InfiniteData<TEntity> = InfiniteData<TEntity>,
 >({
   client,
@@ -303,16 +323,23 @@ export const updateInfiniteCache = <
   page,
   edge,
   entity,
-}: UpdateInfiniteCacheProps<TEntity, TData>): TReturn => {
+}: UpdateInfiniteCacheProps<TEntity, TKey, TData>): TReturn | undefined => {
   return client.setQueryData<TReturn>(queryKey, (data) => {
     if (!data) {
-      return null;
+      return data;
     }
 
-    const updated = { ...data };
-    const item = updated.pages[page][prop].edges[edge]
-      .node as EmptyObjectLiteral;
-    updated.pages[page][prop].edges[edge].node = { ...item, ...entity };
+    const updated = structuredClone(data);
+    const pageData = updated.pages[page];
+    const connection = pageData?.[prop] as Connection<TData> | undefined;
+    const targetEdge = connection?.edges?.[edge];
+
+    if (!pageData || !connection || !targetEdge) {
+      return data;
+    }
+
+    const item = targetEdge.node as EmptyObjectLiteral;
+    targetEdge.node = { ...item, ...entity } as TData;
 
     return updated;
   });
@@ -325,7 +352,7 @@ export const mutationSuccessSubscribers: Map<
 
 export const globalMutationCache = new MutationCache({
   onSuccess: (...args) => {
-    mutationSuccessSubscribers.forEach((subscriber) => subscriber(...args));
+    mutationSuccessSubscribers.forEach((subscriber) => subscriber?.(...args));
   },
 });
 
@@ -351,14 +378,25 @@ export const updateCachedPage = (
   feedQueryKey: QueryKey,
   queryClient: QueryClient,
   pageIndex: number,
-  manipulate: (page: Connection<Post>) => Connection<Post>,
+  manipulate: (page: AnyFeedConnection) => AnyFeedConnection,
 ): void => {
-  queryClient.setQueryData<InfiniteData<FeedData>>(
+  queryClient.setQueryData<InfiniteData<AnyFeedData>>(
     feedQueryKey,
     (currentData) => {
+      if (!currentData) {
+        return currentData;
+      }
+
+      const currentPageData = currentData.pages[pageIndex];
+      if (!currentPageData) {
+        return currentData;
+      }
+
       const { pages } = currentData;
-      const currentPage = structuredClone(pages[pageIndex]);
-      currentPage.page = manipulate(currentPage.page);
+      const currentPage = structuredClone(currentPageData);
+      currentPage.page = manipulate(
+        currentPage.page as AnyFeedConnection,
+      ) as typeof currentPage.page;
       const newPages = [
         ...pages.slice(0, pageIndex),
         currentPage,
@@ -373,8 +411,26 @@ export const updateCachedPagePost =
   (feedQueryKey: QueryKey, queryClient: QueryClient) =>
   (pageIndex: number, index: number, post: Post): void => {
     updateCachedPage(feedQueryKey, queryClient, pageIndex, (page) => {
+      const edge = page.edges[index];
+
+      if (!edge) {
+        throw new Error(
+          `Missing feed edge at page ${pageIndex} index ${index} for post update`,
+        );
+      }
+
+      if (isFeedApiPostItem(edge.node)) {
+        // eslint-disable-next-line no-param-reassign
+        edge.node = {
+          ...edge.node,
+          post,
+        };
+
+        return page;
+      }
+
       // eslint-disable-next-line no-param-reassign
-      page.edges[index].node = post;
+      edge.node = post;
       return page;
     });
   };
@@ -402,14 +458,23 @@ export const updateReadingHistoryListPost = ({
   manipulate: (post: ReadHistoryPost) => ReadHistoryPost;
   queryClient: QueryClient;
 }): (() => void) => {
-  const oldData = !!queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
+  const oldData = queryClient.getQueryData<ReadHistoryInfiniteData>(queryKey);
 
   if (!oldData) {
     return () => undefined;
   }
 
   queryClient.setQueryData<ReadHistoryInfiniteData>(queryKey, (currentData) => {
-    const updatedPage = structuredClone(currentData.pages[pageIndex]);
+    if (!currentData) {
+      return currentData;
+    }
+
+    const currentPage = currentData.pages[pageIndex];
+    if (!currentPage) {
+      return currentData;
+    }
+
+    const updatedPage = structuredClone(currentPage);
     const currentPostNode = updatedPage.readHistory.edges[index].node;
 
     currentPostNode.post = {
@@ -541,7 +606,7 @@ export const generateCommentsQueryKey = ({
 }: GenerateCommentsQueryKeyProps): QueryKeyReturnType =>
   generateQueryKey(
     RequestKey.PostComments,
-    null,
+    undefined,
     // Filter out undefined to ensure key matches after JSON serialization
     Object.fromEntries(
       Object.entries({ postId, sortBy }).filter(([, v]) => v !== undefined),
@@ -557,7 +622,7 @@ export const getAllCommentsQuery = (postId: string): QueryKeyReturnType[] => {
 };
 
 export const findIndexOfPostInData = (
-  data: InfiniteData<FeedData>,
+  data: InfiniteData<AnyFeedData>,
   id: string,
   findBySharedPost = false,
 ): { pageIndex: number; index: number } => {
@@ -565,13 +630,16 @@ export const findIndexOfPostInData = (
     const page = data.pages[pageIndex];
     for (let index = 0; index < page.page.edges.length; index += 1) {
       const item = page.page.edges[index];
-      if (item.node.id === id) {
+      const post = getFeedApiItemPost(item.node);
+
+      if (post?.id === id) {
         return { pageIndex, index };
       }
       if (
+        post &&
         findBySharedPost &&
-        item.node.type === PostType.Share &&
-        item.node.sharedPost.id === id
+        post.type === PostType.Share &&
+        post.sharedPost?.id === id
       ) {
         return { pageIndex, index };
       }
@@ -586,27 +654,34 @@ export const updatePostCache = (
   postUpdate:
     | Partial<Omit<Post, 'id'>>
     | ((current: Post) => Partial<Omit<Post, 'id'>>),
-): PostData => {
+): PostData | undefined => {
   const currentPost = client.getQueryData<PostData>(getPostByIdKey(id));
 
   if (!currentPost?.post) {
     return currentPost;
   }
 
-  return client.setQueryData<PostData>(getPostByIdKey(id), (node) => {
-    const update =
-      typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
-    const updatedPost = { ...node.post, ...update } as Post;
-    const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
+  return client.setQueryData<PostData>(
+    getPostByIdKey(id),
+    (node): PostData | undefined => {
+      if (!node?.post) {
+        return node;
+      }
 
-    return {
-      post: {
-        ...updatedPost,
-        id: node.post.id,
-        bookmark: !updatedPost.bookmarked ? null : bookmark,
-      },
-    };
-  });
+      const update =
+        typeof postUpdate === 'function' ? postUpdate(node.post) : postUpdate;
+      const updatedPost = { ...node.post, ...update } as Post;
+      const bookmark = updatedPost.bookmark ?? { createdAt: new Date() };
+
+      return {
+        post: {
+          ...updatedPost,
+          id: node.post.id,
+          bookmark: !updatedPost.bookmarked ? undefined : bookmark,
+        },
+      };
+    },
+  ) as PostData | undefined;
 };
 
 export const updateAdPostInCache = (
@@ -676,12 +751,21 @@ export const updateFeedAndAdsCache = (
   // Update the main feed cache
   const updateFeedPost = updateCachedPagePost(feedQueryKey, queryClient);
   const feedData =
-    queryClient.getQueryData<InfiniteData<FeedData>>(feedQueryKey);
+    queryClient.getQueryData<InfiniteData<AnyFeedData>>(feedQueryKey);
 
   if (feedData) {
     const { pageIndex, index } = findIndexOfPostInData(feedData, postId, true);
     if (index > -1) {
-      const currentPost = feedData.pages[pageIndex].page.edges[index].node;
+      const currentPost = getFeedApiItemPost(
+        feedData.pages[pageIndex].page.edges[index].node,
+      );
+
+      if (!currentPost) {
+        throw new Error(
+          `Missing post-backed feed item at page ${pageIndex} index ${index}`,
+        );
+      }
+
       updateFeedPost(pageIndex, index, {
         ...currentPost,
         ...update,

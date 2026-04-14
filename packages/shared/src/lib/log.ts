@@ -278,6 +278,8 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  ToggleNoAiFeed = 'toggle no ai feed',
+  SaveNoAiFeedPreference = 'save no ai feed preference',
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
@@ -397,6 +399,7 @@ export enum LogEvent {
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
   // Quests
+  QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
 }
@@ -462,6 +465,7 @@ export enum TargetType {
   AchievementTracker = 'achievement tracker',
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
+  HighlightsCard = 'highlights card',
 }
 
 export enum TargetId {
@@ -517,6 +521,7 @@ export enum TargetId {
   Navigation = 'navigation',
   DigestUpsell = 'digest upsell',
   DigestUpsellBookmarks = 'digest upsell bookmarks',
+  HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
 }

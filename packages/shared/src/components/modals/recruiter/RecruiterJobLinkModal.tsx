@@ -22,6 +22,7 @@ import {
   parseOpportunityMutationOptions,
   getParseOpportunityMutationErrorMessage,
 } from '../../../features/opportunity/mutations';
+import { consumeParseOpportunityError } from '../../../features/opportunity/parseError';
 import type { ApiErrorResult } from '../../../graphql/common';
 import Alert, { AlertType } from '../../widgets/Alert';
 import { ClickableText } from '../../buttons/ClickableText';
@@ -59,7 +60,9 @@ export const RecruiterJobLinkModal = ({
   const [file, setFile] = useState<File | null>(null);
   const hasAutoSubmitted = useRef(false);
 
-  const [parseError, setParseError] = useState<string>('');
+  const [parseError, setParseError] = useState<string>(
+    consumeParseOpportunityError,
+  );
   const [hasIntercom, setHasIntercom] = useState(false);
 
   const [, setPendingOpportunityId] = usePersistentContext<string | null>(
@@ -146,6 +149,24 @@ export const RecruiterJobLinkModal = ({
     onSubmit,
   ]);
 
+  const isSubmitDisabled = (!jobLink.trim() && !file) || !!error || isPending;
+  const isSubmitLoading = isPending;
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') {
+        return;
+      }
+
+      if (isSubmitDisabled || isSubmitLoading) {
+        return;
+      }
+
+      handleSubmit();
+    },
+    [isSubmitDisabled, isSubmitLoading, handleSubmit],
+  );
+
   // Auto-submit when initialUrl is provided and autoSubmit is true
   useEffect(() => {
     if (autoSubmit && initialUrl && !hasAutoSubmitted.current) {
@@ -187,6 +208,7 @@ export const RecruiterJobLinkModal = ({
             placeholder="https://yourcompany.com/careers/senior-engineer"
             value={jobLink}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             valid={!error && jobLink.trim().length > 0}
             hint={
               error ||
@@ -243,8 +265,8 @@ export const RecruiterJobLinkModal = ({
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={handleSubmit}
-            disabled={(!jobLink.trim() && !file) || !!error || isPending}
-            loading={isPending}
+            disabled={isSubmitDisabled}
+            loading={isSubmitLoading}
             className="w-full gap-2 tablet:w-auto"
           >
             <MagicIcon />

@@ -15,13 +15,16 @@ export function PostEngagementCounts({
   comments,
   className,
 }: PostEngagementCountsProps): ReactElement {
+  const upvoteText = upvotes > 0 ? `${largeNumberFormat(upvotes)} Upvotes` : '';
+  const hasUpvoteText = !!upvoteText;
+
   return (
     <p
       className={classNames('truncate typo-footnote', className)}
       data-testid="post-engagements-count"
     >
-      {upvotes ? `${largeNumberFormat(upvotes)} Upvotes` : ''}
-      {upvotes && comments ? <> {separatorCharacter} </> : ''}
+      {upvoteText}
+      {hasUpvoteText && comments ? <> {separatorCharacter} </> : ''}
       {comments ? `${largeNumberFormat(comments)} Comments` : ''}
     </p>
   );

@@ -46,6 +46,7 @@ export function PostContentRaw({
   origin,
   position,
   inlineActions,
+  hideSubscribeAction,
   onPreviousPost,
   onNextPost,
   onClose,
@@ -93,6 +94,7 @@ export function PostContentRaw({
     onReadArticle,
     onClose,
     inlineActions,
+    hideSubscribeAction,
   };
 
   // Only send view post if the post is a video type
@@ -171,6 +173,7 @@ export function PostContentRaw({
               post={post}
               onClose={onClose}
               onReadArticle={onReadArticle}
+              hideSubscribeAction={hideSubscribeAction}
             />
             <h1
               className="break-words font-bold typo-large-title"
