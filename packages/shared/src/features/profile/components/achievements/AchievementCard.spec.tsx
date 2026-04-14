@@ -16,6 +16,7 @@ const createLockedAchievement = (
     type: AchievementType.Milestone,
     criteria: { targetCount: 1 },
     points: 10,
+    xp: 25,
     rarity: null,
     unit: null,
   },
@@ -40,6 +41,7 @@ const renderCard = (
         isOwner
         onTrack={jest.fn()}
         onUntrack={jest.fn()}
+        showXpValue={false}
         {...props}
       />
     </QueryClientProvider>,
@@ -47,6 +49,27 @@ const renderCard = (
 };
 
 describe('AchievementCard — stop tracking', () => {
+  it('renders achievement points when quests is disabled', () => {
+    renderCard();
+
+    expect(screen.getByText('10')).toBeInTheDocument();
+    expect(screen.queryByText('XP')).not.toBeInTheDocument();
+    expect(screen.queryByText('25')).not.toBeInTheDocument();
+  });
+
+  it('renders achievement xp when quests is enabled', () => {
+    renderCard({ showXpValue: true });
+
+    const xpLabel = screen.getByText('XP');
+
+    expect(xpLabel.parentElement).toHaveTextContent('25 XP');
+    expect(xpLabel).toHaveClass(
+      'font-inherit',
+      'text-accent-avocado-default',
+    );
+    expect(screen.queryByText('10')).not.toBeInTheDocument();
+  });
+
   it('renders "Track" button when the achievement is not tracked', () => {
     renderCard({ isTracked: false });
     expect(screen.getByRole('button', { name: /track/i })).toBeInTheDocument();

@@ -48,6 +48,7 @@ const createAchievement = (
     id: string;
     name: string;
     points?: number;
+    xp?: number;
   },
 ): UserAchievement => ({
   achievement: {
@@ -58,6 +59,7 @@ const createAchievement = (
     type: AchievementType.Milestone,
     criteria: { targetCount: 10 },
     points: overrides.points ?? 100,
+    xp: overrides.xp ?? 200,
     rarity: 10,
     unit: 'posts',
   },
@@ -230,13 +232,35 @@ describe('game center helpers', () => {
 
     expect(summary.unlockedCount).toBe(2);
     expect(summary.totalCount).toBe(3);
-    expect(summary.totalPoints).toBe(320);
+    expect(summary.totalRewardValue).toBe(320);
     expect(summary.nextToUnlock?.achievement.id).toBe('tracked');
     expect(summary.latestUnlocked?.achievement.id).toBe('latest');
     expect(summary.rarestUnlocked?.achievement.id).toBe('rare');
     expect(
       summary.featuredAchievements.map((item) => item.achievement.id),
     ).toEqual(['tracked', 'latest', 'rare']);
+  });
+
+  it('uses xp values for achievement summaries when quests mode is enabled', () => {
+    const unlocked = createAchievement({
+      id: 'unlocked',
+      name: 'Unlocked',
+      points: 100,
+      xp: 250,
+      unlockedAt: '2025-03-10T00:00:00.000Z',
+    });
+    const tracked = createAchievement({
+      id: 'tracked',
+      name: 'Tracked',
+      points: 50,
+      xp: 175,
+      progress: 9,
+    });
+
+    const summary = getAchievementSummary([tracked, unlocked], tracked, true);
+
+    expect(summary.totalRewardValue).toBe(250);
+    expect(summary.nextToUnlock?.achievement.id).toBe('tracked');
   });
 
   it('builds badge summaries from recent top-reader badges', () => {

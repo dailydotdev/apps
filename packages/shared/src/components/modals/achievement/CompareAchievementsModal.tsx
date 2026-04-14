@@ -17,8 +17,13 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useProfileAchievements } from '../../../hooks/profile/useProfileAchievements';
 import type { UserAchievement } from '../../../graphql/user/achievements';
 import { getTargetCount } from '../../../graphql/user/achievements';
+import {
+  formatAchievementReward,
+  getAchievementRewardValue,
+} from '../../../lib/achievements';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import type { PublicProfile } from '../../../lib/user';
+import { useAchievementRewardDisplay } from '../../../hooks/useAchievementRewardDisplay';
 
 interface CompareAchievementsModalProps extends ModalProps {
   profileUser: PublicProfile;
@@ -28,12 +33,13 @@ interface CompareAchievementsModalProps extends ModalProps {
 /**
  * Sorts achievements by the logged user's unlock status, matching AchievementsList:
  * 1. Unlocked first
- * 2. Among unlocked: rarest first, then highest points
+ * 2. Among unlocked: rarest first, then highest reward value
  * 3. Among locked: highest progress ratio first
  */
 const sortByMyStatus = (
   achievements: UserAchievement[],
   myMap: Map<string, UserAchievement>,
+  showAchievementXp: boolean,
 ): UserAchievement[] => {
   return [...achievements].sort((a, b) => {
     const myA = myMap.get(a.achievement.id);
@@ -54,7 +60,10 @@ const sortByMyStatus = (
       if (rarityA !== rarityB) {
         return rarityA - rarityB;
       }
-      return b.achievement.points - a.achievement.points;
+      return (
+        getAchievementRewardValue(b.achievement, showAchievementXp) -
+        getAchievementRewardValue(a.achievement, showAchievementXp)
+      );
     }
 
     const targetA = getTargetCount(a.achievement);
@@ -75,6 +84,7 @@ export const CompareAchievementsModal = ({
   const { user: loggedUser } = useAuthContext();
   const { achievements: myAchievements, isPending } =
     useProfileAchievements(loggedUser);
+  const { showAchievementXp } = useAchievementRewardDisplay();
 
   const { sorted, myMap, theirMap } = useMemo(() => {
     const empty = {
@@ -106,14 +116,17 @@ export const CompareAchievementsModal = ({
     );
 
     return {
-      sorted: sortByMyStatus(allAchievements, my),
+      sorted: sortByMyStatus(allAchievements, my, showAchievementXp),
       myMap: my,
       theirMap: theirs,
     };
-  }, [myAchievements, profileAchievements]);
+  }, [myAchievements, profileAchievements, showAchievementXp]);
 
-  const handleClose = (event?: React.MouseEvent | React.KeyboardEvent): void =>
+  const handleClose = (
+    event: React.MouseEvent | React.KeyboardEvent,
+  ): void => {
     onRequestClose?.(event);
+  };
 
   return (
     <Modal
@@ -127,7 +140,10 @@ export const CompareAchievementsModal = ({
       <Modal.Body className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-2">
           <div className="flex flex-col items-center gap-1">
-            <ProfilePicture user={loggedUser} size={ProfileImageSize.Large} />
+            <ProfilePicture
+              user={loggedUser ?? { id: 'current-user', image: '' }}
+              size={ProfileImageSize.Large}
+            />
             <Typography
               type={TypographyType.Callout}
               bold
@@ -211,7 +227,10 @@ export const CompareAchievementsModal = ({
                         bold
                         className="shrink-0"
                       >
-                        {ua.achievement.points} pts
+                        {formatAchievementReward(ua.achievement, {
+                          showAchievementXp,
+                          short: !showAchievementXp,
+                        })}
                       </Typography>
                     </div>
                     <Typography

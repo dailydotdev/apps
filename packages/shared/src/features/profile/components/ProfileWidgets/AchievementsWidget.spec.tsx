@@ -129,7 +129,7 @@ describe('AchievementsWidget', () => {
       achievements,
       unlockedCount: 6,
       totalCount: achievements.length,
-      totalPoints: 220,
+      totalRewardValue: 220,
       isPending: false,
       isError: false,
     });

@@ -24,9 +24,11 @@ import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { ActionType } from '../../../../graphql/actions';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
+import { getAchievementRewardValue } from '../../../../lib/achievements';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { ACHIEVEMENTS_LAUNCH_DATE } from './constants';
+import { useAchievementRewardDisplay } from '../../../../hooks/useAchievementRewardDisplay';
 
 type FilterType = 'all' | 'unlocked' | 'locked';
 type SyncOrigin = 'achievements_list' | 'sync_prompt_modal';
@@ -78,10 +80,12 @@ export function AchievementsList({
   const { syncStatus, syncAchievements, isSyncing, isStatusPending } =
     useAchievementSync(user);
   const { logEvent } = useLogContext();
+  const { showAchievementXp } = useAchievementRewardDisplay();
   const [syncResult, setSyncResult] = useState<AchievementSyncResult | null>(
     null,
   );
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [syncBaseRewardValue, setSyncBaseRewardValue] = useState(0);
   const { isActionsFetched, checkHasCompleted } = useActions();
   const { openModal } = useLazyModal();
 
@@ -106,6 +110,19 @@ export function AchievementsList({
         extra: JSON.stringify({ origin }),
       });
 
+      setSyncBaseRewardValue(
+        achievements
+          .filter((achievement) => achievement.unlockedAt !== null)
+          .reduce(
+            (total, achievement) =>
+              total +
+              getAchievementRewardValue(
+                achievement.achievement,
+                showAchievementXp,
+              ),
+            0,
+          ),
+      );
       setSyncResult(null);
       setIsSyncModalOpen(true);
 
@@ -116,7 +133,15 @@ export function AchievementsList({
         setIsSyncModalOpen(false);
       }
     },
-    [isOwner, isSyncing, logEvent, syncAchievements, syncStatus?.canSync],
+    [
+      achievements,
+      isOwner,
+      isSyncing,
+      logEvent,
+      showAchievementXp,
+      syncAchievements,
+      syncStatus?.canSync,
+    ],
   );
 
   useEffect(() => {
@@ -180,14 +205,17 @@ export function AchievementsList({
       if (!a.unlockedAt && b.unlockedAt) {
         return 1;
       }
-      // Among unlocked, sort by rarity (rarest first), then points (highest first)
+      // Among unlocked, sort by rarity (rarest first), then reward value (highest first)
       if (a.unlockedAt && b.unlockedAt) {
         const rarityA = a.achievement.rarity ?? Infinity;
         const rarityB = b.achievement.rarity ?? Infinity;
         if (rarityA !== rarityB) {
           return rarityA - rarityB;
         }
-        return b.achievement.points - a.achievement.points;
+        return (
+          getAchievementRewardValue(b.achievement, showAchievementXp) -
+          getAchievementRewardValue(a.achievement, showAchievementXp)
+        );
       }
       // Among locked, sort by progress percentage (highest first)
       const targetA = getTargetCount(a.achievement);
@@ -204,7 +232,7 @@ export function AchievementsList({
       return sorted.filter((a) => a.unlockedAt !== null);
     }
     return sorted.filter((a) => a.unlockedAt === null);
-  }, [achievements, filter]);
+  }, [achievements, filter, showAchievementXp]);
 
   const unlockedCount = achievements.filter(
     (a) => a.unlockedAt !== null,
@@ -288,6 +316,7 @@ export function AchievementsList({
           isOpen={isSyncModalOpen}
           onRequestClose={() => setIsSyncModalOpen(false)}
           result={syncResult}
+          baseRewardValue={syncBaseRewardValue}
           isPending={isSyncing}
         />
       )}

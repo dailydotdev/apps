@@ -277,8 +277,13 @@ function GameCenterPage({
       getAchievementSummary(
         achievements,
         trackedAchievementState.trackedAchievement,
+        isQuestsFeatureEnabled === true,
       ),
-    [achievements, trackedAchievementState.trackedAchievement],
+    [
+      achievements,
+      isQuestsFeatureEnabled,
+      trackedAchievementState.trackedAchievement,
+    ],
   );
   const hasCoresAccess = useHasAccessToCores();
   const showLevelSystem = !optOutLevelSystem;

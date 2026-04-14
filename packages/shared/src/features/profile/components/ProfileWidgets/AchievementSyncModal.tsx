@@ -16,6 +16,14 @@ import type {
   AchievementSyncResult,
   UserAchievement,
 } from '../../../../graphql/user/achievements';
+import {
+  formatAchievementReward,
+  formatAchievementRewardAmount,
+  getAchievementMetricLabel,
+  getAchievementRewardTotal,
+  getAchievementRewardValue,
+} from '../../../../lib/achievements';
+import { useAchievementRewardDisplay } from '../../../../hooks/useAchievementRewardDisplay';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent } from '../../../../lib/log';
 
@@ -43,6 +51,7 @@ const sparkles = Array.from({ length: 60 }, (_, i) => ({
 
 interface AchievementSyncModalProps extends Omit<ModalProps, 'children'> {
   result: AchievementSyncResult | null;
+  baseRewardValue: number;
   isPending: boolean;
 }
 
@@ -56,10 +65,12 @@ const AchievementRevealCard = ({
   achievement,
   stackIndex,
   isExiting,
+  showAchievementXp,
 }: {
   achievement: UserAchievement;
   stackIndex: number;
   isExiting: boolean;
+  showAchievementXp: boolean;
 }): ReactElement => {
   const isTop = stackIndex === 0;
   const position =
@@ -98,7 +109,10 @@ const AchievementRevealCard = ({
         {achievement.achievement.description}
       </Typography>
       <Typography type={TypographyType.Subhead} bold>
-        +{achievement.achievement.points} points
+        {formatAchievementReward(achievement.achievement, {
+          showAchievementXp,
+          signed: true,
+        })}
       </Typography>
     </div>
   );
@@ -106,11 +120,13 @@ const AchievementRevealCard = ({
 
 export const AchievementSyncModal = ({
   result,
+  baseRewardValue,
   isPending,
   onRequestClose,
   ...rest
 }: AchievementSyncModalProps): ReactElement => {
   const { logEvent } = useLogContext();
+  const { showAchievementXp } = useAchievementRewardDisplay();
   const [contentVisible, setContentVisible] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [score, setScore] = useState(0);
@@ -141,6 +157,17 @@ export const AchievementSyncModal = ({
     );
   }, [currentIndex, result]);
 
+  const rewardValueGained = useMemo(() => {
+    if (!result) {
+      return 0;
+    }
+
+    return getAchievementRewardTotal(
+      result.newlyUnlockedAchievements,
+      showAchievementXp,
+    );
+  }, [result, showAchievementXp]);
+
   useEffect(() => {
     if (!result) {
       setScore(0);
@@ -152,15 +179,13 @@ export const AchievementSyncModal = ({
       return;
     }
 
-    const baseScore = result.totalPoints - result.pointsGained;
-
-    setScore(baseScore);
+    setScore(baseRewardValue);
     setCurrentIndex(0);
     setIsFading(false);
     setIsRevealComplete(result.newlyUnlockedAchievements.length === 0);
     setShowSparkles(false);
     setSparklesFalling(false);
-  }, [result]);
+  }, [baseRewardValue, result]);
 
   useEffect(() => {
     if (!result || isPending || !isReady || isRevealComplete) {
@@ -169,7 +194,7 @@ export const AchievementSyncModal = ({
 
     if (currentIndex >= result.newlyUnlockedAchievements.length) {
       setIsRevealComplete(true);
-      if (result.pointsGained > 0) {
+      if (rewardValueGained > 0) {
         setShowSparkles(true);
       }
       return undefined;
@@ -183,7 +208,10 @@ export const AchievementSyncModal = ({
       setScore(
         (value) =>
           value +
-          result.newlyUnlockedAchievements[currentIndex].achievement.points,
+          getAchievementRewardValue(
+            result.newlyUnlockedAchievements[currentIndex].achievement,
+            showAchievementXp,
+          ),
       );
       setIsScoreShaking(true);
       setCurrentIndex((value) => value + 1);
@@ -194,7 +222,15 @@ export const AchievementSyncModal = ({
       clearTimeout(fadeTimer);
       clearTimeout(nextTimer);
     };
-  }, [currentIndex, isPending, isReady, isRevealComplete, result]);
+  }, [
+    currentIndex,
+    isPending,
+    isReady,
+    isRevealComplete,
+    result,
+    rewardValueGained,
+    showAchievementXp,
+  ]);
 
   useEffect(() => {
     if (!isScoreShaking) {
@@ -230,11 +266,11 @@ export const AchievementSyncModal = ({
     logEvent({
       event_name: LogEvent.CompleteSyncAchievements,
       extra: JSON.stringify({
-        points_gained: result.pointsGained,
+        reward_gained: rewardValueGained,
         newly_unlocked: result.newlyUnlockedAchievements.length,
       }),
     });
-  }, [isRevealComplete, logEvent, result]);
+  }, [isRevealComplete, logEvent, result, rewardValueGained]);
 
   return (
     <Modal
@@ -285,7 +321,7 @@ export const AchievementSyncModal = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Achievement points
+            {getAchievementMetricLabel(showAchievementXp)}
           </Typography>
           <Typography
             type={TypographyType.LargeTitle}
@@ -328,6 +364,7 @@ export const AchievementSyncModal = ({
                 achievement={achievement}
                 stackIndex={index}
                 isExiting={isFading && index === 0}
+                showAchievementXp={showAchievementXp}
               />
             ))}
           </div>
@@ -340,8 +377,14 @@ export const AchievementSyncModal = ({
                 Sync complete
               </Typography>
               <Typography type={TypographyType.Title4} bold>
-                {result.pointsGained > 0
-                  ? `Congrats! +${result.pointsGained} points earned.`
+                {rewardValueGained > 0
+                  ? `Congrats! ${formatAchievementRewardAmount(
+                      rewardValueGained,
+                      {
+                        showAchievementXp,
+                        signed: true,
+                      },
+                    )} earned.`
                   : 'No new achievements unlocked this time.'}
               </Typography>
             </div>

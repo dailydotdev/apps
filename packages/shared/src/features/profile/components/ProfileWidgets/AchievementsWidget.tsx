@@ -14,6 +14,7 @@ import { useProfileAchievements } from '../../../../hooks/profile/useProfileAchi
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { MedalBadgeIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
+import { getAchievementRewardValue } from '../../../../lib/achievements';
 import {
   getAchievementRarityTier,
   rarityGlowClasses,
@@ -21,6 +22,7 @@ import {
 import { RaritySparkles } from '../achievements/RaritySparkles';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { AchievementCard } from '../achievements/AchievementCard';
+import { useAchievementRewardDisplay } from '../../../../hooks/useAchievementRewardDisplay';
 
 interface AchievementsWidgetProps {
   user: PublicProfile;
@@ -45,6 +47,7 @@ function RecentAchievements({
   user: PublicProfile;
 }): ReactElement | null {
   const { achievements, isPending } = useProfileAchievements(user);
+  const { showAchievementXp } = useAchievementRewardDisplay();
 
   const rarestUnlocked = achievements
     ?.filter((a) => a.unlockedAt !== null)
@@ -55,9 +58,11 @@ function RecentAchievements({
         return rarityA - rarityB;
       }
 
-      const pointsDelta = b.achievement.points - a.achievement.points;
-      if (pointsDelta !== 0) {
-        return pointsDelta;
+      const rewardDelta =
+        getAchievementRewardValue(b.achievement, showAchievementXp) -
+        getAchievementRewardValue(a.achievement, showAchievementXp);
+      if (rewardDelta !== 0) {
+        return rewardDelta;
       }
 
       const unlockedDateA = a.unlockedAt ? new Date(a.unlockedAt).getTime() : 0;

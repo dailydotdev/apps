@@ -17,6 +17,11 @@ import type { PublicProfile } from '../../lib/user';
 import { useShowcaseAchievements } from '../../hooks/profile/useShowcaseAchievements';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  formatAchievementReward,
+  getAchievementRewardValue,
+} from '../../lib/achievements';
+import { useAchievementRewardDisplay } from '../../hooks/useAchievementRewardDisplay';
 
 const MAX_SHOWCASE = 5;
 
@@ -33,6 +38,7 @@ export const AchievementShowcaseModal = ({
     useShowcaseAchievements(user);
   const { achievements } = useProfileAchievements(user);
   const { displayToast } = useToastNotification();
+  const { showAchievementXp } = useAchievementRewardDisplay();
 
   const initialSelectedIds = useMemo(
     () => showcaseAchievements.map((sa) => sa.achievement.id),
@@ -54,9 +60,12 @@ export const AchievementShowcaseModal = ({
       if (aSelected !== bSelected) {
         return aSelected ? -1 : 1;
       }
-      return b.achievement.points - a.achievement.points;
+      return (
+        getAchievementRewardValue(b.achievement, showAchievementXp) -
+        getAchievementRewardValue(a.achievement, showAchievementXp)
+      );
     });
-  }, [unlockedAchievements, initialSelectedIds]);
+  }, [initialSelectedIds, showAchievementXp, unlockedAchievements]);
 
   const toggleSelection = (achievementId: string) => {
     setSelectedIds((prev) => {
@@ -168,7 +177,10 @@ export const AchievementShowcaseModal = ({
                       type={TypographyType.Footnote}
                       color={TypographyColor.Tertiary}
                     >
-                      {userAchievement.achievement.points} pts
+                      {formatAchievementReward(userAchievement.achievement, {
+                        showAchievementXp,
+                        short: !showAchievementXp,
+                      })}
                     </Typography>
                     <div
                       className={classNames(
