@@ -164,7 +164,7 @@ export function TabContainer<T extends string = string>({
     onSwipedLeft: () => navigateTab('next'),
     onSwipedRight: () => navigateTab('previous'),
     trackTouch: true,
-    delta: 10,
+    delta: 40,
   });
 
   const isTabActive = ({
