@@ -31,6 +31,9 @@ import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { PhoneIcon } from '@dailydotdev/shared/src/components/icons/Phone';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { EditTag } from '@dailydotdev/shared/src/components/onboarding/EditTag';
+import { REQUIRED_TAGS_THRESHOLD } from '@dailydotdev/shared/src/components/onboarding/common';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import {
   useViewSize,
   ViewSize,
@@ -145,6 +148,7 @@ export type OnboardingStep =
   | 'chooser'
   | 'auth'
   | 'importing'
+  | 'tags'
   | 'extension'
   | 'complete';
 
@@ -204,13 +208,15 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp } = useAuthContext();
+  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp, user } =
+    useAuthContext();
   const { applyThemeMode } = useSettingsContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
   const [step, setStep] = useState<OnboardingStep>('hero');
   const { onEnablePush } = usePushNotificationMutation();
+  const { feedSettings } = useFeedSettings();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isNativeApp = isIOSNative() || !!isAndroidApp;
   const mobileStoreUrl = useMemo(() => {
@@ -318,10 +324,24 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
+      const hasNoTags =
+        apiResult.status !== 'fulfilled' || !apiResult.value?.length;
+
+      if (hasNoTags) {
+        setAiPrompt('');
+        setSignupContext(null);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: { step: 'tags' },
+        });
+        setStep('tags');
+        return;
+      }
+
       setImportProgress(68);
       setImportPhase('awaitingSeniority');
     },
-    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext],
+    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext, router],
   );
 
   const startImportFlowGithub = useCallback(() => {
@@ -415,13 +435,28 @@ export const OnboardingV2 = (): ReactElement => {
     if (
       !isAuthReady ||
       (
-        ['auth', 'importing', 'extension', 'complete'] as OnboardingStep[]
+        [
+          'auth',
+          'importing',
+          'tags',
+          'extension',
+          'complete',
+        ] as OnboardingStep[]
       ).includes(step)
     ) {
       return;
     }
 
     const urlStep = router.query.step as string | undefined;
+
+    if (urlStep === 'tags') {
+      if (!isLoggedIn) {
+        router.replace(`${webappUrl}onboarding`);
+        return;
+      }
+      setStep('tags');
+      return;
+    }
 
     if (urlStep === 'complete') {
       if (!isLoggedIn) {
@@ -1563,6 +1598,52 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tag Selection Fallback ── */}
+      {step === 'tags' && (
+        <div
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select your tags"
+        >
+          <div className="bg-black/70 absolute inset-0 backdrop-blur-sm" />
+          <div className="relative z-1 flex max-h-[90dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-2xl tablet:rounded-24">
+            <EditTag
+              feedSettings={feedSettings}
+              userId={user?.id || ''}
+              headline="Pick tags that are relevant to you"
+              hidePreview
+            />
+            <button
+              type="button"
+              disabled={
+                (feedSettings?.includeTags?.length || 0) <
+                REQUIRED_TAGS_THRESHOLD
+              }
+              onClick={() => {
+                completeAction(ActionType.CompletedOnboarding);
+                completeAction(ActionType.EditTag);
+                completeAction(ActionType.ContentTypes);
+                router.replace({
+                  pathname: `${webappUrl}onboarding`,
+                  query: { step: 'complete' },
+                });
+                setStep(showExtensionCta ? 'extension' : 'complete');
+              }}
+              className="mx-auto mt-6 rounded-14 bg-white px-8 py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {(feedSettings?.includeTags?.length || 0) >=
+              REQUIRED_TAGS_THRESHOLD
+                ? 'Continue'
+                : `Select ${
+                    REQUIRED_TAGS_THRESHOLD -
+                    (feedSettings?.includeTags?.length || 0)
+                  } more tags`}
+            </button>
           </div>
         </div>
       )}
