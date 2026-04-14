@@ -7,7 +7,6 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
 import { useSourceActionsNotify } from '../../hooks/source/useSourceActionsNotify';
-import { AuthTriggers } from '../../lib/auth';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import Link from '../utilities/Link';
 
@@ -34,7 +33,7 @@ const DigestCTAContent = ({
   displayName,
   source,
 }: DigestCTAContentProps): ReactElement => {
-  const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
+  const { isAuthReady, isLoggedIn } = useAuthContext();
   const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source,
@@ -47,29 +46,12 @@ const DigestCTAContent = ({
     !isAuthReady || (isLoggedIn && (isFeedSettingsLoading || !feedSettings));
 
   const onToggleSubscription = useCallback(async () => {
-    if (!isLoggedIn) {
-      showLogin({ trigger: AuthTriggers.SourceSubscribe });
-      return;
-    }
-
-    if (haveNotificationsOn) {
-      await onNotify();
-      return;
-    }
-
     if (!isFollowing) {
-      await toggleFollow();
+      toggleFollow();
     }
 
     await onNotify();
-  }, [
-    isLoggedIn,
-    showLogin,
-    haveNotificationsOn,
-    isFollowing,
-    toggleFollow,
-    onNotify,
-  ]);
+  }, [isFollowing, toggleFollow, onNotify]);
 
   if (isUserStateLoading) {
     return <DigestCTASkeleton />;
