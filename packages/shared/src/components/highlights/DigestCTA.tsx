@@ -35,9 +35,7 @@ const DigestCTAContent = ({
   source,
 }: DigestCTAContentProps): ReactElement => {
   const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
-  const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
-    enabled: isLoggedIn,
-  });
+  const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
     source,
   });
