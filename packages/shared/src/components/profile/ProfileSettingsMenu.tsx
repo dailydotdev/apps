@@ -34,6 +34,7 @@ import {
   TourIcon,
   FeatherIcon,
   GiftIcon,
+  JoystickIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
@@ -187,6 +188,11 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 logEvent({ event_name: LogEvent.OpenHotAndCold });
                 onClose?.();
               },
+            },
+            gameCenter: {
+              title: 'Game Center',
+              icon: JoystickIcon,
+              href: `${webappUrl}game-center`,
             },
             trackAchievement: {
               title: 'Track achievement',
@@ -438,7 +444,7 @@ export const InnerProfileSettingsMenu = ({
           <ProfileSection
             key={key}
             withSeparator={!lastItem}
-            title={menuItem.title}
+            title={menuItem.title ?? undefined}
             items={Object.entries(menuItem.items)
               .filter(([itemKey, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
@@ -454,6 +460,13 @@ export const InnerProfileSettingsMenu = ({
 
                 if (
                   itemKey === 'gamification' &&
+                  isQuestsFeatureEnabled !== true
+                ) {
+                  return false;
+                }
+
+                if (
+                  itemKey === 'gameCenter' &&
                   isQuestsFeatureEnabled !== true
                 ) {
                   return false;
@@ -491,7 +504,7 @@ export function ProfileSettingsMenuMobile({
       shouldKeepOpen={shouldKeepOpen}
       drawerProps={{
         isOpen,
-        onClose,
+        onClose: onClose ?? (() => {}),
       }}
     >
       <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
@@ -499,7 +512,7 @@ export function ProfileSettingsMenuMobile({
   );
 }
 
-export function ProfileSettingsMenuDesktop(): ReactElement {
+export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
 

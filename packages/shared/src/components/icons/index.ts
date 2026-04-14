@@ -80,6 +80,7 @@ export * from './Italic';
 export * from './JetBrains';
 export * from './Job';
 export * from './JobStatus';
+export * from './Joystick';
 export * from './Kaggle';
 export * from './Key';
 export * from './Label';
