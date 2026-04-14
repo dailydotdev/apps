@@ -125,9 +125,21 @@ export const POST_HIGHLIGHTS_FEED_QUERY = gql`
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
+export interface ChannelDigestConfiguration {
+  frequency: string;
+  source?: {
+    id: string;
+    name: string;
+    image: string;
+    handle: string;
+    permalink: string;
+  };
+}
+
 export interface ChannelConfiguration {
   channel: string;
   displayName: string;
+  digest?: ChannelDigestConfiguration | null;
 }
 
 export interface HighlightsPageData {
@@ -151,6 +163,16 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
     channelConfigurations {
       channel
       displayName
+      digest {
+        frequency
+        source {
+          id
+          name
+          image
+          handle
+          permalink
+        }
+      }
     }
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}

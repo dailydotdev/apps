@@ -15,6 +15,7 @@ import {
   POST_HIGHLIGHTS_FEED_QUERY,
 } from '../../graphql/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
+import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
@@ -111,11 +112,16 @@ const ChannelTab = ({
   const loading = isFetching && !data;
 
   return (
-    <HighlightFeedList
-      highlights={highlights}
-      loading={loading}
-      expandedId={expandedId}
-    />
+    <>
+      {channel.digest && (
+        <DigestCTA digest={channel.digest} displayName={channel.displayName} />
+      )}
+      <HighlightFeedList
+        highlights={highlights}
+        loading={loading}
+        expandedId={expandedId}
+      />
+    </>
   );
 };
 
