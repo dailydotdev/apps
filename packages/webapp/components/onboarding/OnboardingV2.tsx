@@ -213,19 +213,18 @@ export const OnboardingV2 = (): ReactElement => {
   const { onEnablePush } = usePushNotificationMutation();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isNativeApp = isIOSNative() || !!isAndroidApp;
-  const isIOSDevice = isIOS();
-  const isAndroidDevice =
-    typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
-  const getMobileStoreUrl = () => {
-    if (isIOSDevice) {
+  const mobileStoreUrl = useMemo(() => {
+    if (isIOS()) {
       return appStoreUrl;
     }
-    if (isAndroidDevice) {
+    if (
+      typeof navigator !== 'undefined' &&
+      /android/i.test(navigator.userAgent)
+    ) {
       return playStoreUrl;
     }
     return null;
-  };
-  const mobileStoreUrl = getMobileStoreUrl();
+  }, []);
   const showExtensionCta = isLaptop && !isNativeApp;
   const showMobileAppCta = !isNativeApp;
   const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
