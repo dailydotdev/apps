@@ -2,6 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 import { ProfileSection } from '../ProfileSection';
+import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 import {
   AnalyticsIcon,
   CoinIcon,
@@ -22,7 +23,7 @@ export const MainSection = (): ReactElement => {
       items={[
         {
           title: 'Your profile',
-          href: `${webappUrl}${user.username}`,
+          href: `${webappUrl}${user?.username}`,
           icon: UserIcon,
         },
         hasAccessToCores && {
@@ -32,7 +33,7 @@ export const MainSection = (): ReactElement => {
         },
         {
           title: 'Achievements',
-          href: `${webappUrl}${user.username}/achievements`,
+          href: `${webappUrl}${user?.username}/achievements`,
           icon: MedalBadgeIcon,
         },
         {
@@ -45,7 +46,7 @@ export const MainSection = (): ReactElement => {
           href: `${webappUrl}analytics`,
           icon: AnalyticsIcon,
         },
-      ].filter(Boolean)}
+      ].filter((item): item is ProfileSectionItemProps => !!item)}
     />
   );
 };
