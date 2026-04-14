@@ -193,7 +193,7 @@ const GITHUB_IMPORT_STEPS = [
   { label: 'Building your feed', threshold: 96 },
 ];
 
-const IMPORT_ANIMATION_MS = 3500;
+const IMPORT_ANIMATION_MS = 2000;
 const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
