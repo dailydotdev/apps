@@ -26,6 +26,8 @@ import {
   onboardingUrl,
   webFunnelPrefix,
 } from '../lib/constants';
+import { storageWrapper as storage } from '../lib/storageWrapper';
+import { BOOT_LOCAL_KEY } from './common';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -96,6 +98,7 @@ export const REGISTRATION_PATH = '/register';
 
 export const logout = async (reason: string): Promise<void> => {
   await dispatchLogout(reason);
+  storage.removeItem(BOOT_LOCAL_KEY);
   const params = getQueryParams();
   if (params.redirect_uri) {
     window.location.replace(params.redirect_uri);
