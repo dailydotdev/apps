@@ -5,7 +5,7 @@ import type { HighlightCardProps } from './common';
 import { HighlightCardContent } from './common';
 
 export const HighlightGrid = forwardRef(function HighlightGrid(
-  { highlights }: HighlightCardProps,
+  { highlights, onHighlightClick, onReadAllClick }: HighlightCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
@@ -14,7 +14,12 @@ export const HighlightGrid = forwardRef(function HighlightGrid(
       data-testid="highlightItem"
       className="group flex h-full flex-col overflow-hidden !bg-surface-float hover:!bg-surface-float"
     >
-      <HighlightCardContent highlights={highlights} variant="grid" />
+      <HighlightCardContent
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+        variant="grid"
+      />
     </Card>
   );
 });

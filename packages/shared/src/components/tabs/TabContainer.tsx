@@ -13,6 +13,8 @@ import type { AllowedTabTags, TabListProps } from './TabList';
 import TabList from './TabList';
 import type { RenderTab } from './common';
 
+const getRouterPathname = (path?: string): string => path?.split('?')[0] ?? '';
+
 export interface TabProps<T extends string> {
   children?: ReactNode;
   label: T;
@@ -82,6 +84,7 @@ export function TabContainer<T extends string = string>({
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const tabs = useMemo(() => children ?? [], [children]);
+  const currentPath = getRouterPathname(router.asPath || router.pathname);
 
   const [active, setActive] = useState(() => {
     if (!tabs.length) {
@@ -91,7 +94,7 @@ export function TabContainer<T extends string = string>({
     const defaultLabel = tabs[0].props.label;
 
     if (tabs[0].props.url) {
-      const matchingChild = tabs.find((c) => c.props.url === router.pathname);
+      const matchingChild = tabs.find((c) => c.props.url === currentPath);
       return matchingChild ? matchingChild.props.label : defaultLabel;
     }
 
@@ -102,11 +105,7 @@ export function TabContainer<T extends string = string>({
 
   const navigateToUrl = useCallback(
     (url: string) => {
-      if (shallow) {
-        router.replace(url, undefined, { shallow: true });
-      } else {
-        router.push(url);
-      }
+      router.push(url, undefined, { shallow });
     },
     [router, shallow],
   );
@@ -176,7 +175,7 @@ export function TabContainer<T extends string = string>({
     }
 
     if (url) {
-      return router.asPath === url;
+      return currentPath === url;
     }
 
     return label === currentActive;

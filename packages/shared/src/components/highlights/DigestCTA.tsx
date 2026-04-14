@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import type { ChannelDigestConfiguration } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
+import { SourceType } from '../../graphql/sources';
 import { useAuthContext } from '../../contexts/AuthContext';
 import useFeedSettings from '../../hooks/useFeedSettings';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
@@ -24,17 +25,21 @@ interface DigestCTAProps {
   displayName: string;
 }
 
-export const DigestCTA = ({
+interface DigestCTAContentProps extends DigestCTAProps {
+  source: Source;
+}
+
+const DigestCTAContent = ({
   digest,
   displayName,
-}: DigestCTAProps): ReactElement | null => {
-  const { source } = digest;
+  source,
+}: DigestCTAContentProps): ReactElement => {
   const { isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
-    enabled: isLoggedIn && !!source?.id,
+    enabled: isLoggedIn,
   });
   const { isFollowing, toggleFollow } = useSourceActionsFollow({
-    source: source as Source,
+    source,
   });
   const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
     source,
@@ -55,11 +60,7 @@ export const DigestCTA = ({
     }
 
     if (!isFollowing) {
-      try {
-        await toggleFollow();
-      } catch {
-        // already following, ignore
-      }
+      await toggleFollow();
     }
 
     await onNotify();
@@ -71,10 +72,6 @@ export const DigestCTA = ({
     toggleFollow,
     onNotify,
   ]);
-
-  if (!source) {
-    return null;
-  }
 
   if (isUserStateLoading) {
     return <DigestCTASkeleton />;
@@ -104,5 +101,30 @@ export const DigestCTA = ({
         />
       </span>
     </div>
+  );
+};
+
+export const DigestCTA = ({
+  digest,
+  displayName,
+}: DigestCTAProps): ReactElement | null => {
+  const source = digest.source
+    ? {
+        ...digest.source,
+        type: SourceType.Machine,
+        public: true,
+      }
+    : null;
+
+  if (!source) {
+    return null;
+  }
+
+  return (
+    <DigestCTAContent
+      digest={digest}
+      displayName={displayName}
+      source={source}
+    />
   );
 };

@@ -2,17 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { gqlClient } from '../../graphql/common';
 import type {
   ChannelConfiguration,
-  HighlightsPageData,
   PostHighlightFeed,
-  PostHighlightsFeedData,
 } from '../../graphql/highlights';
 import {
-  HIGHLIGHTS_PAGE_QUERY,
-  MAJOR_HEADLINES_MAX_FIRST,
-  POST_HIGHLIGHTS_FEED_QUERY,
+  channelHighlightsFeedQueryOptions,
+  highlightsPageQueryOptions,
 } from '../../graphql/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
@@ -22,8 +18,6 @@ const MAJOR_HEADLINES_LABEL = 'Headlines';
 const SKELETON_COUNT = 5;
 const HIGHLIGHTS_BASE_URL = '/highlights';
 
-export const HIGHLIGHTS_PAGE_QUERY_KEY = ['highlights-page'];
-
 const HighlightSkeleton = (): ReactElement => (
   <div className="flex flex-col gap-1 px-4 py-3">
     <div className="h-4 w-3/4 animate-pulse rounded-8 bg-surface-float" />
@@ -31,15 +25,20 @@ const HighlightSkeleton = (): ReactElement => (
   </div>
 );
 
-const useChannelHighlights = (channel: string | null) =>
+const getSingleQueryParam = (
+  param: string | string[] | undefined,
+): string | undefined => {
+  if (!param) {
+    return undefined;
+  }
+
+  return Array.isArray(param) ? param[0] : param;
+};
+
+const useChannelHighlights = (channel: string | undefined) =>
   useQuery({
-    queryKey: ['channel-highlights-feed', channel],
-    queryFn: () =>
-      gqlClient.request<PostHighlightsFeedData>(POST_HIGHLIGHTS_FEED_QUERY, {
-        channel,
-      }),
+    ...channelHighlightsFeedQueryOptions(channel ?? ''),
     enabled: !!channel,
-    staleTime: 60_000,
   });
 
 interface HighlightFeedListProps {
@@ -127,16 +126,9 @@ const ChannelTab = ({
 
 export const HighlightsPage = (): ReactElement => {
   const router = useRouter();
-  const channel = router.query.channel as string | undefined;
-  const expandedId = router.query.highlight as string | undefined;
-  const { data, isFetching } = useQuery({
-    queryKey: HIGHLIGHTS_PAGE_QUERY_KEY,
-    queryFn: () =>
-      gqlClient.request<HighlightsPageData>(HIGHLIGHTS_PAGE_QUERY, {
-        first: MAJOR_HEADLINES_MAX_FIRST,
-      }),
-    staleTime: 60_000,
-  });
+  const channel = getSingleQueryParam(router.query.channel);
+  const expandedId = getSingleQueryParam(router.query.highlight);
+  const { data, isFetching } = useQuery(highlightsPageQueryOptions());
 
   const channels = data?.channelConfigurations ?? [];
   const majorHeadlines = useMemo(

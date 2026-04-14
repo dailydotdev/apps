@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
 
@@ -38,6 +39,13 @@ describe('Highlight cards', () => {
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
     expect(screen.getByText('Read all')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).toHaveAttribute('href', '/highlights?highlight=highlight-1');
+    expect(screen.getByLabelText('Read all highlights')).toHaveAttribute(
+      'href',
+      '/highlights?highlight=highlight-1',
+    );
   });
 
   it('should render the list card with highlight links', () => {
@@ -46,5 +54,26 @@ describe('Highlight cards', () => {
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.getByText('The second highlight')).toBeInTheDocument();
     expect(screen.getByText('Read all')).toBeInTheDocument();
+  });
+
+  it('should trigger the highlight callbacks without blocking navigation', async () => {
+    const onHighlightClick = jest.fn();
+    const onReadAllClick = jest.fn();
+
+    render(
+      <HighlightGrid
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+      />,
+    );
+
+    await userEvent.click(
+      screen.getByRole('link', { name: /the first highlight/i }),
+    );
+    await userEvent.click(screen.getByLabelText('Read all highlights'));
+
+    expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
+    expect(onReadAllClick).toHaveBeenCalledTimes(1);
   });
 });

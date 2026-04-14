@@ -3,24 +3,16 @@ import type {
   GetStaticPropsContext,
   GetStaticPropsResult,
 } from 'next';
+import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import type {
-  HighlightsPageData,
-  PostHighlightsFeedData,
-} from '@dailydotdev/shared/src/graphql/highlights';
 import {
-  HIGHLIGHTS_PAGE_QUERY,
-  MAJOR_HEADLINES_MAX_FIRST,
-  POST_HIGHLIGHTS_FEED_QUERY,
+  channelHighlightsFeedQueryOptions,
+  highlightsPageQueryOptions,
 } from '@dailydotdev/shared/src/graphql/highlights';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import {
-  HighlightsPage,
-  HIGHLIGHTS_PAGE_QUERY_KEY,
-} from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
+import { HighlightsPage } from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -56,6 +48,10 @@ interface HighlightsChannelPageProps {
   dehydratedState: DehydratedState;
 }
 
+interface HighlightsChannelPageParams extends ParsedUrlQuery {
+  channel: string;
+}
+
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
   return {
     paths: [],
@@ -65,28 +61,34 @@ export async function getStaticPaths(): Promise<GetStaticPathsResult> {
 
 export async function getStaticProps({
   params,
-}: GetStaticPropsContext): Promise<
+}: GetStaticPropsContext<HighlightsChannelPageParams>): Promise<
   GetStaticPropsResult<HighlightsChannelPageProps>
 > {
-  const channel = params?.channel as string;
-  const queryClient = new QueryClient();
+  const channel = params?.channel;
 
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: HIGHLIGHTS_PAGE_QUERY_KEY,
-      queryFn: () =>
-        gqlClient.request<HighlightsPageData>(HIGHLIGHTS_PAGE_QUERY, {
-          first: MAJOR_HEADLINES_MAX_FIRST,
-        }),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['channel-highlights-feed', channel],
-      queryFn: () =>
-        gqlClient.request<PostHighlightsFeedData>(POST_HIGHLIGHTS_FEED_QUERY, {
-          channel,
-        }),
-    }),
-  ]);
+  if (!channel) {
+    return {
+      notFound: true,
+      revalidate: 60,
+    };
+  }
+
+  const queryClient = new QueryClient();
+  const highlightsPage = await queryClient.fetchQuery(
+    highlightsPageQueryOptions(),
+  );
+  const isKnownChannel = highlightsPage.channelConfigurations.some(
+    ({ channel: configuredChannel }) => configuredChannel === channel,
+  );
+
+  if (!isKnownChannel) {
+    return {
+      notFound: true,
+      revalidate: 60,
+    };
+  }
+
+  await queryClient.prefetchQuery(channelHighlightsFeedQueryOptions(channel));
 
   return {
     props: {

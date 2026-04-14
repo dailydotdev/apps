@@ -5,7 +5,7 @@ import type { HighlightCardProps } from './common';
 import { HighlightCardContent } from './common';
 
 export const HighlightList = forwardRef(function HighlightList(
-  { highlights }: HighlightCardProps,
+  { highlights, onHighlightClick, onReadAllClick }: HighlightCardProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
   return (
@@ -14,7 +14,12 @@ export const HighlightList = forwardRef(function HighlightList(
       data-testid="highlightItem"
       className="group overflow-hidden !border-0 !border-t !border-border-subtlest-tertiary !bg-gradient-to-b !from-surface-float !to-background-default !px-4 !py-6"
     >
-      <HighlightCardContent highlights={highlights} variant="list" />
+      <HighlightCardContent
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+        variant="list"
+      />
     </ListCard>
   );
 });

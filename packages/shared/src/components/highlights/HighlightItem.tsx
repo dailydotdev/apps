@@ -21,6 +21,12 @@ export const HighlightItem = ({
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    if (defaultExpanded) {
+      setExpanded(true);
+    }
+  }, [defaultExpanded]);
+
+  useEffect(() => {
     if (defaultExpanded && ref.current) {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

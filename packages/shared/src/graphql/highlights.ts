@@ -31,6 +31,7 @@ export interface MajorHeadlinesData {
 }
 
 const ONE_MINUTE = 60 * 1000;
+export const HIGHLIGHTS_PAGE_QUERY_KEY = ['highlights-page'];
 
 type HighlightIdentity = Pick<PostHighlight, 'id'>;
 
@@ -116,6 +117,11 @@ export interface PostHighlightsFeedData {
   postHighlights: PostHighlightFeed[];
 }
 
+export const getChannelHighlightsFeedQueryKey = (channel: string) => [
+  'channel-highlights-feed',
+  channel,
+];
+
 export const POST_HIGHLIGHTS_FEED_QUERY = gql`
   query PostHighlightsFeed($channel: String!) {
     postHighlights(channel: $channel) {
@@ -177,3 +183,28 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
   }
   ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
+
+export const highlightsPageQueryOptions = ({
+  first = MAJOR_HEADLINES_MAX_FIRST,
+  after,
+}: {
+  first?: number;
+  after?: string;
+} = {}) => ({
+  queryKey: HIGHLIGHTS_PAGE_QUERY_KEY,
+  queryFn: () =>
+    gqlClient.request<HighlightsPageData>(HIGHLIGHTS_PAGE_QUERY, {
+      first,
+      after,
+    }),
+  staleTime: ONE_MINUTE,
+});
+
+export const channelHighlightsFeedQueryOptions = (channel: string) => ({
+  queryKey: getChannelHighlightsFeedQueryKey(channel),
+  queryFn: () =>
+    gqlClient.request<PostHighlightsFeedData>(POST_HIGHLIGHTS_FEED_QUERY, {
+      channel,
+    }),
+  staleTime: ONE_MINUTE,
+});

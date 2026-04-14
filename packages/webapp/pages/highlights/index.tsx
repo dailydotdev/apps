@@ -3,16 +3,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { DehydratedState } from '@tanstack/react-query';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
-import type { HighlightsPageData } from '@dailydotdev/shared/src/graphql/highlights';
-import {
-  HIGHLIGHTS_PAGE_QUERY,
-  MAJOR_HEADLINES_MAX_FIRST,
-} from '@dailydotdev/shared/src/graphql/highlights';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import {
-  HighlightsPage,
-  HIGHLIGHTS_PAGE_QUERY_KEY,
-} from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
+import { highlightsPageQueryOptions } from '@dailydotdev/shared/src/graphql/highlights';
+import { HighlightsPage } from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
@@ -55,13 +47,7 @@ export async function getStaticProps(): Promise<
 > {
   const queryClient = new QueryClient();
 
-  await queryClient.prefetchQuery({
-    queryKey: HIGHLIGHTS_PAGE_QUERY_KEY,
-    queryFn: () =>
-      gqlClient.request<HighlightsPageData>(HIGHLIGHTS_PAGE_QUERY, {
-        first: MAJOR_HEADLINES_MAX_FIRST,
-      }),
-  });
+  await queryClient.prefetchQuery(highlightsPageQueryOptions());
 
   return {
     props: {

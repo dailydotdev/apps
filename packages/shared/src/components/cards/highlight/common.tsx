@@ -8,23 +8,36 @@ import Link from '../../utilities/Link';
 
 export interface HighlightCardProps {
   highlights: PostHighlight[];
+  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  onReadAllClick?: () => void;
 }
 
 const titleGradientClassName = 'feed-highlights-title-gradient';
 
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
+const getHighlightsUrl = (highlightId?: string): string =>
+  highlightId ? `${HIGHLIGHTS_URL}?highlight=${highlightId}` : HIGHLIGHTS_URL;
+
 const getHighlightUrl = (highlight: PostHighlight): string =>
-  `${HIGHLIGHTS_URL}?highlight=${highlight.id}`;
+  getHighlightsUrl(highlight.id);
 
 const HighlightRow = ({
   highlight,
+  index,
+  onHighlightClick,
 }: {
   highlight: PostHighlight;
+  index: number;
+  onHighlightClick?: (highlight: PostHighlight, position: number) => void;
 }): ReactElement => {
   return (
     <Link href={getHighlightUrl(highlight)}>
-      <a className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover">
+      <a
+        className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+        href={getHighlightUrl(highlight)}
+        onClick={() => onHighlightClick?.(highlight, index + 1)}
+      >
         <span className="line-clamp-2 font-bold text-text-primary typo-callout">
           {highlight.headline}
         </span>
@@ -40,6 +53,8 @@ const HighlightRow = ({
 
 export const HighlightCardContent = ({
   highlights,
+  onHighlightClick,
+  onReadAllClick,
   variant,
 }: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
   const headerClassName =
@@ -51,6 +66,7 @@ export const HighlightCardContent = ({
       ? 'flex flex-col gap-2'
       : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
+  const firstHighlight = highlights[0];
 
   return (
     <>
@@ -65,13 +81,23 @@ export const HighlightCardContent = ({
         </h3>
       </header>
       <div className={contentClassName}>
-        {highlights.map((highlight) => (
-          <HighlightRow key={highlight.id} highlight={highlight} />
+        {highlights.map((highlight, index) => (
+          <HighlightRow
+            key={highlight.id}
+            highlight={highlight}
+            index={index}
+            onHighlightClick={onHighlightClick}
+          />
         ))}
       </div>
       <div className={footerClassName}>
-        <Link href={HIGHLIGHTS_URL}>
-          <a className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl">
+        <Link href={getHighlightsUrl(firstHighlight?.id)}>
+          <a
+            aria-label="Read all highlights"
+            className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+            href={getHighlightsUrl(firstHighlight?.id)}
+            onClick={() => onReadAllClick?.()}
+          >
             <span className="typo-callout">
               <span className={titleGradientClassName}>Read all</span>
             </span>
