@@ -116,51 +116,51 @@ export const MainSection = ({
         }
       : undefined;
 
-    return ([
-      myFeed,
-      {
-        title: 'Following',
-        // this path can be opened on extension so it purposly
-        // is not using webappUrl so it gets selected
-        path: '/following',
-        action: () => onNavTabClick?.(OtherFeedPage.Following),
-        requiresLogin: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-        ),
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
-        ),
-        title: 'Explore',
-        path: '/posts',
-        action: () => onNavTabClick?.(OtherFeedPage.Explore),
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <EyeIcon secondary={active} />} />
-        ),
-        title: 'History',
-        path: `${webappUrl}history`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
-        ),
-        title: 'Agentic Hub',
-        path: `${webappUrl}agents`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-      gameCenter,
-      yearInReview,
-      plusButton,
-    ] as (SidebarMenuItem | undefined)[]).filter(
-      (item): item is SidebarMenuItem => !!item,
-    );
+    return (
+      [
+        myFeed,
+        {
+          title: 'Following',
+          // this path can be opened on extension so it purposly
+          // is not using webappUrl so it gets selected
+          path: '/following',
+          action: () => onNavTabClick?.(OtherFeedPage.Following),
+          requiresLogin: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          ),
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          ),
+          title: 'Explore',
+          path: '/posts',
+          action: () => onNavTabClick?.(OtherFeedPage.Explore),
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <EyeIcon secondary={active} />} />
+          ),
+          title: 'History',
+          path: `${webappUrl}history`,
+          isForcedLink: true,
+          requiresLogin: true,
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
+          ),
+          title: 'Agentic Hub',
+          path: `${webappUrl}agents`,
+          isForcedLink: true,
+          requiresLogin: true,
+        },
+        gameCenter,
+        yearInReview,
+        plusButton,
+      ] as (SidebarMenuItem | undefined)[]
+    ).filter((item): item is SidebarMenuItem => !!item);
   }, [
     ctaCopy,
     isCustomDefaultFeed,
