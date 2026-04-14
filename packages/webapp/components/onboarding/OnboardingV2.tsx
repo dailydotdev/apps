@@ -18,13 +18,19 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
+  appStoreUrl,
   downloadBrowserExtension,
-  mobileAppDownloadUrl,
+  playStoreUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
+import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
+import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { PhoneIcon } from '@dailydotdev/shared/src/components/icons/Phone';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import {
   useViewSize,
   ViewSize,
@@ -207,8 +213,22 @@ export const OnboardingV2 = (): ReactElement => {
   const { onEnablePush } = usePushNotificationMutation();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isNativeApp = isIOSNative() || !!isAndroidApp;
+  const isIOSDevice = isIOS();
+  const isAndroidDevice =
+    typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent);
+  const getMobileStoreUrl = () => {
+    if (isIOSDevice) {
+      return appStoreUrl;
+    }
+    if (isAndroidDevice) {
+      return playStoreUrl;
+    }
+    return null;
+  };
+  const mobileStoreUrl = getMobileStoreUrl();
   const showExtensionCta = isLaptop && !isNativeApp;
   const showMobileAppCta = !isNativeApp;
+  const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
     tagsReady,
@@ -1016,44 +1036,37 @@ export const OnboardingV2 = (): ReactElement => {
               )}
 
               {/* Get mobile app — hide if already in native app */}
-              {showMobileAppCta && (
-                <a
-                  href={mobileAppDownloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="shrink-0 text-accent-onion-default"
+              {showMobileAppCta &&
+                (mobileStoreUrl ? (
+                  <a
+                    href={mobileStoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                   >
-                    <rect
-                      x="7"
-                      y="2"
-                      width="10"
-                      height="20"
-                      rx="2"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
                     />
-                    <line
-                      x1="10"
-                      y1="19"
-                      x2="14"
-                      y2="19"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileAppPopup(true)}
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
+                  >
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
                     />
-                  </svg>
-                  <span className="text-text-primary typo-callout">
-                    Get mobile app
-                  </span>
-                </a>
-              )}
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </button>
+                ))}
 
               {/* Enable notifications */}
               <button
@@ -1089,15 +1102,7 @@ export const OnboardingV2 = (): ReactElement => {
               style={{ animationDelay: '520ms' }}
             >
               Go to my feed
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M12 5l7 7-7 7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ArrowIcon size={IconSize.Size16} className="rotate-90" />
             </button>
           </div>
         </div>
@@ -1151,14 +1156,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
@@ -1522,14 +1520,7 @@ export const OnboardingV2 = (): ReactElement => {
                 className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
                 aria-label="Close"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <MiniCloseIcon size={IconSize.Size16} />
               </button>
             )}
 
@@ -1598,14 +1589,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
@@ -1725,6 +1709,65 @@ export const OnboardingV2 = (): ReactElement => {
         </div>
       )}
 
+      {/* ── Mobile App Download Popup (desktop only) ── */}
+      {showMobileAppPopup && (
+        <div
+          className="fixed inset-0 z-modal flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Get the mobile app"
+        >
+          <div
+            className="bg-black/70 absolute inset-0 backdrop-blur-sm"
+            onClick={() => setShowMobileAppPopup(false)}
+            role="presentation"
+          />
+          <div className="relative z-1 flex w-full max-w-sm flex-col items-center rounded-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)]">
+            <button
+              type="button"
+              onClick={() => setShowMobileAppPopup(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              aria-label="Close"
+            >
+              <MiniCloseIcon size={IconSize.Size16} />
+            </button>
+
+            <PhoneIcon
+              size={IconSize.XLarge}
+              className="mb-4 text-accent-onion-default"
+            />
+
+            <h3 className="mb-2 text-center font-bold text-text-primary typo-title3">
+              Get daily.dev on mobile
+            </h3>
+            <p className="mb-6 text-center text-text-tertiary typo-callout">
+              Your personalized feed, anywhere.
+            </p>
+
+            <div className="flex w-full flex-col gap-3">
+              <a
+                href={appStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)]"
+              >
+                <AppleIcon size={IconSize.Size16} />
+                Download for iOS
+              </a>
+              <a
+                href={playStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 border border-white/[0.12] bg-white/[0.06] py-3 font-bold text-text-primary transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:bg-white/[0.10]"
+              >
+                <GoogleIcon secondary size={IconSize.Size16} />
+                Download for Android
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Profile Import Overlay ── */}
       {step === 'importing' && (
         <div
@@ -1760,14 +1803,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
             {/* ── Animated orb — full-width energy field ── */}
             <div
@@ -2229,14 +2265,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             {/* Content */}
