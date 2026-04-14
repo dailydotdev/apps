@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import type { MouseEvent, ReactElement } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   ArenaTab,
   RankedTool,
@@ -14,6 +14,7 @@ import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/Br
 import { TopHero } from '@dailydotdev/shared/src/components/banners/HeroBottomBanner';
 import {
   DiscussIcon,
+  DownvoteIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -23,6 +24,20 @@ import {
   useBriefContext,
 } from '@dailydotdev/shared/src/components/cards/brief/BriefContext';
 import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
+import {
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
+import InteractionCounter from '@dailydotdev/shared/src/components/InteractionCounter';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { UpvoteButtonIcon } from '@dailydotdev/shared/src/components/cards/common/UpvoteButtonIcon';
+import { BookmarkButton } from '@dailydotdev/shared/src/components/buttons/BookmarkButton';
+import { PostOptionButton } from '@dailydotdev/shared/src/features/posts/PostOptionButton';
+import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
+import { PostPosition } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
+import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
@@ -30,16 +45,21 @@ import AgenticTopicClusterSection from './AgenticTopicClusterSection';
 import { ExploreQuickActionsSection } from './ExploreQuickActionsSection';
 import type { ExploreCategoryId } from './exploreCategories';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
+import { useExplorePostActionCallbacks } from './useExplorePostActionCallbacks';
 
 export type ExploreStory = Pick<
   Post,
   | 'id'
+  | 'bookmarked'
+  | 'bookmark'
+  | 'commented'
   | 'title'
   | 'summary'
   | 'type'
   | 'flags'
   | 'sharedPost'
   | 'author'
+  | 'scout'
   | 'commentsPermalink'
   | 'createdAt'
   | 'creatorTwitter'
@@ -50,6 +70,7 @@ export type ExploreStory = Pick<
   | 'source'
   | 'numComments'
   | 'numUpvotes'
+  | 'userState'
 >;
 
 interface StorySection {
@@ -87,38 +108,12 @@ const getStoryHeadline = (story: ExploreStory): string =>
   story.summary?.trim() ||
   'Untitled story';
 
-const SourceMeta = ({
-  source,
-}: {
-  source: ExploreStory['source'];
-}): ReactElement | null => {
-  if (!source?.name) {
-    return null;
-  }
-
-  return (
-    <span className="flex min-w-0 max-w-[12rem] items-center gap-1.5 laptop:max-w-[14rem]">
-      {source.image ? (
-        <img
-          src={source.image}
-          alt={source.name}
-          className="h-4 w-4 rounded-full object-cover"
-        />
-      ) : (
-        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
-          {source.name.charAt(0)}
-        </span>
-      )}
-      <span className="min-w-0 flex-1 truncate">{source.name}</span>
-    </span>
-  );
-};
-
 const getCommunityAuthorMeta = (
   story: ExploreStory,
 ): { name: string; image?: string | null } | null => {
   const name =
     story.author?.name ||
+    story.scout?.name ||
     story.sharedPost?.author?.name ||
     story.creatorTwitterName ||
     story.creatorTwitter ||
@@ -132,11 +127,63 @@ const getCommunityAuthorMeta = (
     name,
     image:
       story.author?.image ||
+      story.scout?.image ||
       story.sharedPost?.author?.image ||
       story.creatorTwitterImage ||
       null,
   };
 };
+
+const PersonMeta = ({
+  name,
+  image,
+}: {
+  name: string;
+  image?: string | null;
+}): ReactElement => (
+  <span className="flex min-w-0 items-center gap-1.5">
+    {image ? (
+      <img
+        src={image}
+        alt={name}
+        className="h-4 w-4 rounded-full object-cover"
+      />
+    ) : (
+      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
+        {name.charAt(0)}
+      </span>
+    )}
+    <span className="min-w-0 flex-1 truncate">{name}</span>
+  </span>
+);
+
+const getStoryOriginInfo = (
+  story: ExploreStory,
+): { name: string; image?: string | null } | null => {
+  if (story.source?.name && story.source.name !== 'Community Picks') {
+    return { name: story.source.name, image: story.source.image };
+  }
+
+  if (story.source?.name === 'Community Picks') {
+    return getCommunityAuthorMeta(story);
+  }
+
+  const authorMeta = getCommunityAuthorMeta(story);
+  if (authorMeta) {
+    return authorMeta;
+  }
+
+  return null;
+};
+
+const hasStoryOrigin = (
+  story: ExploreStory,
+  sourceLabelOverride?: string,
+  sourceFallbackLabel?: string,
+): boolean =>
+  Boolean(
+    sourceLabelOverride || getStoryOriginInfo(story) || sourceFallbackLabel,
+  );
 
 const StoryOriginMeta = ({
   story,
@@ -149,46 +196,23 @@ const StoryOriginMeta = ({
 }): ReactElement | null => {
   if (sourceLabelOverride) {
     return (
-      <span className="block min-w-0 max-w-[12rem] truncate laptop:max-w-[14rem]">
-        {sourceLabelOverride}
-      </span>
+      <span className="block min-w-0 truncate">{sourceLabelOverride}</span>
     );
   }
 
-  if (story.source?.name === 'Community Picks') {
-    const communityAuthorMeta = getCommunityAuthorMeta(story);
+  const originInfo = getStoryOriginInfo(story);
 
-    if (!communityAuthorMeta) {
-      return null;
-    }
-
-    return (
-      <span className="flex min-w-0 max-w-[12rem] items-center gap-1.5 laptop:max-w-[14rem]">
-        {communityAuthorMeta.image ? (
-          <img
-            src={communityAuthorMeta.image}
-            alt={communityAuthorMeta.name}
-            className="h-4 w-4 rounded-full object-cover"
-          />
-        ) : (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
-            {communityAuthorMeta.name.charAt(0)}
-          </span>
-        )}
-        <span className="min-w-0 flex-1 truncate">{communityAuthorMeta.name}</span>
-      </span>
-    );
+  if (originInfo) {
+    return <PersonMeta name={originInfo.name} image={originInfo.image} />;
   }
 
   if (sourceFallbackLabel) {
     return (
-      <span className="block min-w-0 max-w-[12rem] truncate laptop:max-w-[14rem]">
-        {sourceFallbackLabel}
-      </span>
+      <span className="block min-w-0 truncate">{sourceFallbackLabel}</span>
     );
   }
 
-  return <SourceMeta source={story.source} />;
+  return null;
 };
 
 const StoryRow = ({
@@ -199,6 +223,7 @@ const StoryRow = ({
   imageOnRight = false,
   showEngagementIcons = false,
   sourceFallbackLabel,
+  onOpenPostModal,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
@@ -207,23 +232,30 @@ const StoryRow = ({
   imageOnRight?: boolean;
   showEngagementIcons?: boolean;
   sourceFallbackLabel?: string;
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement => {
-  const hasCommunityAuthorMeta = Boolean(getCommunityAuthorMeta(story));
-  const hasSourceMeta = Boolean(
-    sourceLabelOverride ||
-      (story.source?.name === 'Community Picks'
-        ? hasCommunityAuthorMeta
-        : story.source?.name) ||
-      sourceFallbackLabel,
+  const hasSourceMeta = hasStoryOrigin(
+    story,
+    sourceLabelOverride,
+    sourceFallbackLabel,
   );
+  const storyPost = story as Post;
+  const { onUpvoteClick, onDownvoteClick, onBookmarkClick } =
+    useExplorePostActionCallbacks();
+  const isUpvoteActive = story.userState?.vote === UserVote.Up;
+  const isDownvoteActive = story.userState?.vote === UserVote.Down;
+  const upvoteCount = story.numUpvotes ?? 0;
+  const commentCount = story.numComments ?? 0;
 
   return (
-    <Link href={story.commentsPermalink}>
-      <a className="group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5">
-        <div
+    <article className="group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5">
+      <Link href={story.commentsPermalink}>
+        <a
+          href={story.commentsPermalink}
           className={`h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float ${
             imageOnRight ? 'order-2' : ''
           }`}
+          onClick={(event) => onOpenPostModal?.(storyPost, event)}
         >
           {!!story.image && (
             <img
@@ -232,96 +264,306 @@ const StoryRow = ({
               className="h-full w-full object-cover"
             />
           )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p
-            className="line-clamp-3 text-text-primary transition-colors typo-callout"
-            style={{ fontSize: '17px' }}
+        </a>
+      </Link>
+      <div className="min-w-0 flex-1">
+        <Link href={story.commentsPermalink}>
+          <a
+            href={story.commentsPermalink}
+            onClick={(event) => onOpenPostModal?.(storyPost, event)}
           >
-            {getStoryHeadline(story)}
-          </p>
-          <div
-            className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
-            style={{ fontSize: '13px' }}
-          >
-            {isSponsored ? (
-              <>
+            <p
+              className="line-clamp-3 text-text-primary transition-colors typo-callout"
+              style={{ fontSize: '17px' }}
+            >
+              {getStoryHeadline(story)}
+            </p>
+          </a>
+        </Link>
+        <div
+          className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
+          style={{ fontSize: '13px' }}
+        >
+          {isSponsored ? (
+            <>
+              <StoryOriginMeta
+                story={story}
+                sourceLabelOverride={sourceLabelOverride}
+                sourceFallbackLabel={sourceFallbackLabel}
+              />
+              <span aria-hidden>•</span>
+              <span>Sponsored</span>
+            </>
+          ) : (
+            <>
+              <span className="flex min-w-0 max-w-full items-center gap-1">
                 <StoryOriginMeta
                   story={story}
                   sourceLabelOverride={sourceLabelOverride}
                   sourceFallbackLabel={sourceFallbackLabel}
                 />
-                <span aria-hidden>•</span>
-                <span>Sponsored</span>
-              </>
-            ) : (
-              <>
-                <span className="flex min-w-0 max-w-full items-center gap-1">
-                  <StoryOriginMeta
-                    story={story}
-                    sourceLabelOverride={sourceLabelOverride}
-                    sourceFallbackLabel={sourceFallbackLabel}
-                  />
-                  {hasSourceMeta && !!story.createdAt && (
-                    <span aria-hidden>•</span>
-                  )}
-                  {!!story.createdAt && (
+                {hasSourceMeta && !!story.createdAt && (
+                  <span aria-hidden>•</span>
+                )}
+                {!!story.createdAt && (
+                  <span className="shrink-0">
                     <RelativeTime dateTime={story.createdAt} />
-                  )}
-                </span>
-                {showEngagementIcons &&
-                  showEngagement &&
-                  !!story.numUpvotes && (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-1.5 py-0.5 text-text-quaternary">
-                        <UpvoteIcon size={IconSize.XXSmall} />
-                        <span>{story.numUpvotes}</span>
-                      </span>
-                    </>
-                  )}
-                {showEngagementIcons &&
-                  showEngagement &&
-                  !!story.numComments && (
-                    <>
-                      {!story.numUpvotes && <span aria-hidden>•</span>}
-                      <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-1.5 py-0.5 text-text-quaternary">
-                        <DiscussIcon size={IconSize.XXSmall} />
-                        <span>{story.numComments}</span>
-                      </span>
-                    </>
-                  )}
-                {!showEngagementIcons &&
-                  showEngagement &&
-                  !!story.numUpvotes && (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span>{story.numUpvotes} upvotes</span>
-                    </>
-                  )}
-                {!showEngagementIcons &&
-                  showEngagement &&
-                  !!story.numComments && (
-                    <>
-                      <span aria-hidden>•</span>
-                      <span>{story.numComments} comments</span>
-                    </>
-                  )}
-              </>
-            )}
-          </div>
+                  </span>
+                )}
+              </span>
+              {!showEngagementIcons && showEngagement && !!story.numUpvotes && (
+                <>
+                  <span aria-hidden>•</span>
+                  <span>{story.numUpvotes} upvotes</span>
+                </>
+              )}
+              {!showEngagementIcons &&
+                showEngagement &&
+                !!story.numComments && (
+                  <>
+                    <span aria-hidden>•</span>
+                    <span>{story.numComments} comments</span>
+                  </>
+                )}
+            </>
+          )}
         </div>
-      </a>
-    </Link>
+        {!isSponsored && (
+          <div className="mt-1 flex items-center gap-1">
+            <QuaternaryButton
+              labelClassName="!pl-0"
+              className="btn-tertiary-avocado pointer-events-auto"
+              id={`post-${story.id}-upvote-btn`}
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={() => onUpvoteClick(storyPost)}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
+            >
+              {upvoteCount > 0 && (
+                <InteractionCounter
+                  className="tabular-nums"
+                  value={upvoteCount}
+                />
+              )}
+            </QuaternaryButton>
+            <QuaternaryButton
+              className="pointer-events-auto"
+              id={`post-${story.id}-downvote-btn`}
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon
+                  secondary={isDownvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
+              pressed={isDownvoteActive}
+              onClick={() => {
+                onDownvoteClick(storyPost).catch(() => null);
+              }}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+            />
+            <QuaternaryButton
+              labelClassName="!pl-0"
+              id={`post-${story.id}-comment-btn`}
+              className="btn-tertiary-blueCheese pointer-events-auto"
+              color={ButtonColor.BlueCheese}
+              tag="a"
+              href={story.commentsPermalink}
+              onClick={(event) => onOpenPostModal?.(storyPost, event)}
+              pressed={story.commented}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={
+                <DiscussIcon
+                  secondary={story.commented}
+                  size={IconSize.XSmall}
+                />
+              }
+            >
+              {commentCount > 0 && (
+                <InteractionCounter
+                  className="tabular-nums"
+                  value={commentCount}
+                />
+              )}
+            </QuaternaryButton>
+            <BookmarkButton
+              post={storyPost}
+              buttonProps={{
+                id: `post-${story.id}-bookmark-btn`,
+                onClick: () => onBookmarkClick(storyPost),
+                size: ButtonSize.Small,
+                className: 'btn-tertiary-bun pointer-events-auto',
+                variant: ButtonVariant.Tertiary,
+              }}
+              iconSize={IconSize.XSmall}
+            />
+            <PostOptionButton
+              post={storyPost}
+              size={ButtonSize.Small}
+              triggerClassName="[&_svg]:h-5 [&_svg]:w-5"
+            />
+          </div>
+        )}
+        <PostContentReminder post={storyPost} className="mt-2" />
+      </div>
+    </article>
+  );
+};
+
+const LeadStoryCard = ({
+  story,
+  onOpenPostModal,
+}: {
+  story: ExploreStory;
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+}): ReactElement => {
+  const storyPost = story as Post;
+  const hasOriginMeta = hasStoryOrigin(story);
+  const { onUpvoteClick, onDownvoteClick, onBookmarkClick } =
+    useExplorePostActionCallbacks();
+  const isUpvoteActive = story.userState?.vote === UserVote.Up;
+  const isDownvoteActive = story.userState?.vote === UserVote.Down;
+  const upvoteCount = story.numUpvotes ?? 0;
+  const commentCount = story.numComments ?? 0;
+  return (
+    <article className="group relative block overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+      <Link href={story.commentsPermalink}>
+        <a
+          href={story.commentsPermalink}
+          onClick={(event) => onOpenPostModal?.(storyPost, event)}
+        >
+          {!!story.image && (
+            <img
+              src={story.image}
+              alt={getStoryHeadline(story)}
+              className="explore-hero-slow-zoom h-[30rem] w-full object-cover"
+            />
+          )}
+        </a>
+      </Link>
+      <div className="shadow-2xl absolute bottom-3 left-3 flex w-[18rem] flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 backdrop-blur-sm laptop:bottom-4 laptop:left-4 laptop:w-[22rem] laptop:p-4">
+        <Link href={story.commentsPermalink}>
+          <a
+            href={story.commentsPermalink}
+            onClick={(event) => onOpenPostModal?.(storyPost, event)}
+          >
+            <p className="line-clamp-5 font-bold text-text-primary typo-title2">
+              {getStoryHeadline(story)}
+            </p>
+          </a>
+        </Link>
+        <div className="mt-2 flex min-w-0 items-center gap-1 text-text-tertiary typo-caption2">
+          <StoryOriginMeta story={story} />
+          {hasOriginMeta && !!story.createdAt && <span aria-hidden>•</span>}
+          {!!story.createdAt && (
+            <span className="shrink-0">
+              <RelativeTime dateTime={story.createdAt} />
+            </span>
+          )}
+        </div>
+        <div className="mt-1 flex items-center gap-1">
+          <QuaternaryButton
+            labelClassName="!pl-0"
+            className="btn-tertiary-avocado pointer-events-auto"
+            id={`post-${story.id}-upvote-btn`}
+            color={ButtonColor.Avocado}
+            pressed={isUpvoteActive}
+            onClick={() => onUpvoteClick(storyPost)}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <UpvoteButtonIcon
+                secondary={isUpvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
+          >
+            {upvoteCount > 0 && (
+              <InteractionCounter
+                className="tabular-nums"
+                value={upvoteCount}
+              />
+            )}
+          </QuaternaryButton>
+          <QuaternaryButton
+            className="pointer-events-auto"
+            id={`post-${story.id}-downvote-btn`}
+            color={ButtonColor.Ketchup}
+            icon={
+              <DownvoteIcon
+                secondary={isDownvoteActive}
+                size={IconSize.XSmall}
+              />
+            }
+            pressed={isDownvoteActive}
+            onClick={() => {
+              onDownvoteClick(storyPost).catch(() => null);
+            }}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+          />
+          <QuaternaryButton
+            labelClassName="!pl-0"
+            id={`post-${story.id}-comment-btn`}
+            className="btn-tertiary-blueCheese pointer-events-auto"
+            color={ButtonColor.BlueCheese}
+            tag="a"
+            href={story.commentsPermalink}
+            onClick={(event) => onOpenPostModal?.(storyPost, event)}
+            pressed={story.commented}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={
+              <DiscussIcon secondary={story.commented} size={IconSize.XSmall} />
+            }
+          >
+            {commentCount > 0 && (
+              <InteractionCounter
+                className="tabular-nums"
+                value={commentCount}
+              />
+            )}
+          </QuaternaryButton>
+          <BookmarkButton
+            post={storyPost}
+            buttonProps={{
+              id: `post-${story.id}-bookmark-btn`,
+              onClick: () => onBookmarkClick(storyPost),
+              size: ButtonSize.Small,
+              className: 'btn-tertiary-bun pointer-events-auto',
+              variant: ButtonVariant.Tertiary,
+            }}
+            iconSize={IconSize.XSmall}
+          />
+          <PostOptionButton
+            post={storyPost}
+            size={ButtonSize.Small}
+            triggerClassName="[&_svg]:h-5 [&_svg]:w-5"
+          />
+        </div>
+        <PostContentReminder post={storyPost} className="mt-2" />
+      </div>
+    </article>
   );
 };
 
 const StorySectionBlock = ({
   section,
   sponsoredStory,
+  onOpenPostModal,
 }: {
   section: StorySection;
   sponsoredStory?: ExploreStory | null;
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement => {
   const isLatestSection = section.id === 'latest';
   const isPopularSection = section.id === 'popular';
@@ -395,6 +637,7 @@ const StorySectionBlock = ({
             isSponsored={
               isSponsoredSlotSection && sponsoredStory?.id === story.id
             }
+            onOpenPostModal={onOpenPostModal}
           />
         ))
       ) : (
@@ -406,8 +649,10 @@ const StorySectionBlock = ({
 
 const CompactSectionBlock = ({
   section,
+  onOpenPostModal,
 }: {
   section: StorySection;
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement => {
   const isUpvotedSection = section.id === 'upvoted';
   const isDiscussedSection = section.id === 'discussed';
@@ -443,7 +688,11 @@ const CompactSectionBlock = ({
           >
             {isUpvotedSection || isDiscussedSection ? (
               <Link href={story.commentsPermalink}>
-                <a className="flex items-start gap-3 py-2">
+                <a
+                  href={story.commentsPermalink}
+                  className="flex items-start gap-3 py-2"
+                  onClick={(event) => onOpenPostModal?.(story as Post, event)}
+                >
                   {isUpvotedSection && (
                     <span className="flex w-8 shrink-0 flex-col items-center self-start text-accent-avocado-default">
                       <UpvoteIcon size={IconSize.Small} />
@@ -463,20 +712,22 @@ const CompactSectionBlock = ({
                   <div className="min-w-0 flex-1">
                     <p
                       className="line-clamp-3 text-text-primary transition-colors typo-callout"
-                      style={{ fontSize: '17px' }}
+                      style={{ fontSize: '15px' }}
                     >
                       {getStoryHeadline(story)}
                     </p>
                     <div
-                      className="mt-2 flex items-center gap-1 text-text-tertiary typo-caption2"
+                      className="mt-2 flex min-w-0 items-center gap-1 text-text-tertiary typo-caption2"
                       style={{ fontSize: '13px' }}
                     >
                       <StoryOriginMeta story={story} />
-                      {!!story.source?.name && !!story.createdAt && (
+                      {hasStoryOrigin(story) && !!story.createdAt && (
                         <span aria-hidden>•</span>
                       )}
                       {!!story.createdAt && (
-                        <RelativeTime dateTime={story.createdAt} />
+                        <span className="shrink-0">
+                          <RelativeTime dateTime={story.createdAt} />
+                        </span>
                       )}
                     </div>
                   </div>
@@ -503,8 +754,10 @@ const CompactSectionBlock = ({
 
 const MoreStoriesStrip = ({
   stories,
+  onOpenPostModal,
 }: {
   stories: ExploreStory[];
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement | null => {
   if (!stories.length) {
     return null;
@@ -525,6 +778,7 @@ const MoreStoriesStrip = ({
             sourceFallbackLabel="More stories"
             showEngagement
             showEngagementIcons
+            onOpenPostModal={onOpenPostModal}
           />
         ))}
       </div>
@@ -677,18 +931,6 @@ export const ExploreNewsLayout = ({
     () => latestStoriesForView[0] ?? popularStoriesForView[0] ?? null,
     [latestStoriesForView, popularStoriesForView],
   );
-  const leadStoryCommunityAuthorMeta = leadStory
-    ? getCommunityAuthorMeta(leadStory)
-    : null;
-  const leadStoryOriginName =
-    leadStory?.source?.name === 'Community Picks'
-      ? leadStoryCommunityAuthorMeta?.name
-      : leadStory?.source?.name;
-  const leadStoryOriginImage =
-    leadStory?.source?.name === 'Community Picks'
-      ? leadStoryCommunityAuthorMeta?.image
-      : leadStory?.source?.image;
-
   const latestSection = useMemo<StorySection>(
     () => ({
       id: 'latest',
@@ -803,6 +1045,32 @@ export const ExploreNewsLayout = ({
     upvotedStoriesForView,
     discussedStoriesForView,
   ]);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+  const onOpenPostModal = useCallback(
+    (post: Post, event: MouseEvent<HTMLElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      document.body.classList.add('hidden-scrollbar');
+      setSelectedPost(post);
+    },
+    [],
+  );
+
+  const onClosePostModal = useCallback(() => {
+    document.body.classList.remove('hidden-scrollbar');
+    setSelectedPost(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('hidden-scrollbar');
+    };
+  }, []);
+
+  const SelectedPostModal = selectedPost
+    ? PostModalMap[selectedPost.type]
+    : null;
 
   return (
     <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pb-8 pt-4 laptop:border-x laptop:border-border-subtlest-tertiary">
@@ -832,62 +1100,10 @@ export const ExploreNewsLayout = ({
         <div className="grid gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div>
             {leadStory ? (
-              <Link href={leadStory.commentsPermalink}>
-                <a className="group relative block overflow-hidden rounded-16 border border-border-subtlest-tertiary">
-                  {!!leadStory.image && (
-                    <img
-                      src={leadStory.image}
-                      alt={getStoryHeadline(leadStory)}
-                      className="explore-hero-slow-zoom h-[30rem] w-full object-cover"
-                    />
-                  )}
-                  <div className="shadow-2xl pointer-events-none absolute bottom-3 left-3 flex w-[18rem] flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 backdrop-blur-sm laptop:bottom-4 laptop:left-4 laptop:w-[22rem] laptop:p-4">
-                    <p className="line-clamp-5 font-bold text-text-primary typo-title2">
-                      {getStoryHeadline(leadStory)}
-                    </p>
-                    <div>
-                      <div
-                        className="mt-2 flex items-center gap-2 text-text-tertiary typo-caption1"
-                        style={{ fontSize: '13px' }}
-                      >
-                        {!!leadStoryOriginName && (
-                          <span className="flex min-w-0 max-w-full items-center gap-1.5">
-                            {(leadStoryOriginImage && (
-                              <img
-                                src={leadStoryOriginImage}
-                                alt={leadStoryOriginName}
-                                className="h-4 w-4 rounded-full object-cover"
-                              />
-                            )) || (
-                              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-surface-float text-[10px] font-bold uppercase text-text-tertiary">
-                                {(leadStoryOriginName || 'C').charAt(0)}
-                              </span>
-                            )}
-                            <span className="max-w-[10rem] truncate laptop:max-w-[14rem]">
-                              {leadStoryOriginName}
-                            </span>
-                          </span>
-                        )}
-                        {!!leadStory.createdAt && (
-                          <>
-                            {!!leadStoryOriginName && (
-                              <span aria-hidden>•</span>
-                            )}
-                            <RelativeTime dateTime={leadStory.createdAt} />
-                          </>
-                        )}
-                      </div>
-                      {!!leadStory.numComments && (
-                        <div className="mt-1 flex items-center gap-3 text-text-secondary typo-caption2">
-                          {!!leadStory.numComments && (
-                            <span>{leadStory.numComments} comments</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </a>
-              </Link>
+              <LeadStoryCard
+                story={leadStory}
+                onOpenPostModal={onOpenPostModal}
+              />
             ) : (
               <div className="rounded-16 border border-border-subtlest-tertiary p-4">
                 <p className="text-text-tertiary typo-callout">
@@ -911,8 +1127,12 @@ export const ExploreNewsLayout = ({
           <StorySectionBlock
             section={latestSection}
             sponsoredStory={sponsoredStory}
+            onOpenPostModal={onOpenPostModal}
           />
-          <CompactSectionBlock section={upvotedSection} />
+          <CompactSectionBlock
+            section={upvotedSection}
+            onOpenPostModal={onOpenPostModal}
+          />
         </div>
       </section>
       {showExploreOnlySections && (
@@ -933,8 +1153,12 @@ export const ExploreNewsLayout = ({
           <StorySectionBlock
             section={popularSection}
             sponsoredStory={sponsoredPopularStory}
+            onOpenPostModal={onOpenPostModal}
           />
-          <CompactSectionBlock section={discussedSection} />
+          <CompactSectionBlock
+            section={discussedSection}
+            onOpenPostModal={onOpenPostModal}
+          />
         </div>
       </section>
       <section className="px-8 pb-6 laptop:px-8">
@@ -969,7 +1193,10 @@ export const ExploreNewsLayout = ({
       {isExplorePage && (
         <section className="px-8 pb-6 laptop:px-8">
           <div className="grid items-stretch gap-4 gap-x-10 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <MoreStoriesStrip stories={moreStories} />
+            <MoreStoriesStrip
+              stories={moreStories}
+              onOpenPostModal={onOpenPostModal}
+            />
             <ReadingBriefStrip />
           </div>
         </section>
@@ -979,24 +1206,36 @@ export const ExploreNewsLayout = ({
         <section className="flex justify-center px-8 pb-6 laptop:px-8">
           <AgenticTopicClusterSection
             storiesByCategory={categoryClusterStories}
+            onOpenPostModal={onOpenPostModal}
           />
         </section>
       )}
       {isExplorePage &&
         (shouldShowReadingReminderHero || forceShowReadingReminderHero) && (
-        <section className="px-8 pb-6 laptop:px-8">
-          <TopHero
-            className="mb-0 pt-0"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => {
-              void onEnableReadingReminder();
-            }}
-            onClose={() => {
-              void onDismissReadingReminder();
-            }}
-          />
-        </section>
+          <section className="px-8 pb-6 laptop:px-8">
+            <TopHero
+              className="mb-0 pt-0"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={() => {
+                onEnableReadingReminder().catch(() => null);
+              }}
+              onClose={() => {
+                onDismissReadingReminder().catch(() => null);
+              }}
+            />
+          </section>
+        )}
+      {selectedPost && SelectedPostModal && (
+        <SelectedPostModal
+          isOpen
+          id={selectedPost.id}
+          post={selectedPost}
+          postPosition={PostPosition.Only}
+          onPreviousPost={() => null}
+          onNextPost={async () => null}
+          onRequestClose={onClosePostModal}
+        />
       )}
     </main>
   );

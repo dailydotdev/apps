@@ -639,24 +639,38 @@ export const ExploreSocialStrips = ({
               Daily quests
             </h2>
           </header>
-          {!isLoggedIn ? (
-            <p className="text-text-tertiary typo-callout">
-              Sign in to track daily quests.
-            </p>
-          ) : (
-            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-              {dailyQuests.map((item) => (
-                <DailyQuestCard key={item.quest.rotationId} item={item} />
-              ))}
-              {isQuestsPending &&
-                QUEST_LOADING_KEYS.map((key) => (
-                  <div
-                    key={key}
-                    className="h-[4.625rem] w-56 shrink-0 animate-pulse rounded-12 bg-surface-float"
-                  />
+          {(() => {
+            if (!isLoggedIn) {
+              return (
+                <p className="text-text-tertiary typo-callout">
+                  Sign in to track daily quests.
+                </p>
+              );
+            }
+
+            if (!isQuestsPending && dailyQuests.length === 0) {
+              return (
+                <p className="text-text-tertiary typo-callout">
+                  No daily quests available right now.
+                </p>
+              );
+            }
+
+            return (
+              <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+                {dailyQuests.map((item) => (
+                  <DailyQuestCard key={item.quest.rotationId} item={item} />
                 ))}
-            </div>
-          )}
+                {isQuestsPending &&
+                  QUEST_LOADING_KEYS.map((key) => (
+                    <div
+                      key={key}
+                      className="h-[4.625rem] w-56 shrink-0 animate-pulse rounded-12 bg-surface-float"
+                    />
+                  ))}
+              </div>
+            );
+          })()}
         </section>
       )}
     </>
