@@ -116,7 +116,7 @@ export const MainSection = ({
         }
       : undefined;
 
-    return [
+    return ([
       myFeed,
       {
         title: 'Following',
@@ -158,7 +158,9 @@ export const MainSection = ({
       gameCenter,
       yearInReview,
       plusButton,
-    ].filter((item): item is SidebarMenuItem => !!item);
+    ] as (SidebarMenuItem | undefined)[]).filter(
+      (item): item is SidebarMenuItem => !!item,
+    );
   }, [
     ctaCopy,
     isCustomDefaultFeed,
