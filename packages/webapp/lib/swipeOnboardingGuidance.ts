@@ -1,11 +1,11 @@
 /** Minimum swipes before “Continue” unlocks (tier 0 ends at this minus 1). */
-export const SWIPE_ONBOARDING_MIN_TO_UNLOCK = 10;
+export const SWIPE_ONBOARDING_MIN_TO_UNLOCK = 5;
 
 /** Second staircase (refine tier starts at this count). */
-export const SWIPE_ONBOARDING_IMPROVE_MILESTONE = 20;
+export const SWIPE_ONBOARDING_IMPROVE_MILESTONE = 10;
 
 /** Swipe count at which the bar is full and “all set” copy starts. */
-export const SWIPE_ONBOARDING_REFINE_TARGET = 40;
+export const SWIPE_ONBOARDING_REFINE_TARGET = 20;
 
 /** Number of equal segments on the onboarding progress bar (25% each). */
 export const SWIPE_ONBOARDING_BAR_STAGE_COUNT = 4;
@@ -77,8 +77,8 @@ export function getSwipeOnboardingHeadline(
       line1: 'Tune your feed.',
       line2:
         variant === 'tags'
-          ? 'Pick at least 10 tags to get started.'
-          : 'Swipe on at least 10 posts to get started.',
+          ? 'Pick at least 5 tags to get started.'
+          : 'Swipe on at least 5 posts to get started.',
     };
   }
 
@@ -92,10 +92,10 @@ export function getSwipeOnboardingHeadline(
   }
 
   if (n < SWIPE_ONBOARDING_IMPROVE_MILESTONE) {
-    return { line1: 'Keep going, 10 more and it gets better.' };
+    return { line1: 'Keep going, 5 more and it gets better.' };
   }
 
-  return { line1: "You're getting there, 20 more to dial it in." };
+  return { line1: "You're getting there, 10 more to dial it in." };
 }
 
 /**
@@ -127,14 +127,14 @@ export function getSwipeOnboardingGuidanceMessage(
 
   if (variant === 'tags') {
     if (n === 0) {
-      return 'Pick 10 tags to get started.';
+      return 'Pick 5 tags to get started.';
     }
     const remaining = SWIPE_ONBOARDING_MIN_TO_UNLOCK - n;
     return `Pick ${remaining} more ${unitWord(remaining, 'tag', 'tags')} to get started.`;
   }
 
   if (n === 0) {
-    return 'Swipe 10 posts to get started.';
+    return 'Swipe 5 posts to get started.';
   }
   const remaining = SWIPE_ONBOARDING_MIN_TO_UNLOCK - n;
   return `Swipe ${remaining} more ${unitWord(remaining, 'post', 'posts')} to get started.`;

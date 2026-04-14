@@ -1433,6 +1433,18 @@ const OnboardingPostCard = ({
             {card.title || 'Popular developer story'}
           </Typography>
         </div>
+        {card.tags && card.tags.length > 0 && (
+          <div className="flex shrink-0 flex-wrap gap-1.5">
+            {card.tags.slice(0, 5).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-8 bg-surface-hover px-2 py-0.5 typo-footnote text-text-tertiary"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-12">
           {card.image ? (
             <img

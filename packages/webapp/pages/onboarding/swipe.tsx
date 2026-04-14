@@ -88,7 +88,7 @@ function SwipeOnboardingPage(): ReactElement {
   const [swipesCount, setSwipesCount] = useState(0);
   const [milestoneBurstKey, setMilestoneBurstKey] = useState(0);
   const [onboardingUiMode, setOnboardingUiMode] = useState<
-    'prompt' | 'swipe' | 'tags'
+    'prompt' | 'swipe' | 'tags' | 'results'
   >('prompt');
   const [promptText, setPromptText] = useState('');
   const [promptLoading, setPromptLoading] = useState(false);
@@ -313,13 +313,68 @@ function SwipeOnboardingPage(): ReactElement {
         variant={ButtonVariant.Primary}
         type="button"
         onClick={() => {
-          onComplete().catch(() => null);
+          setOnboardingUiMode('results');
         }}
       >
-        Go to my feed
+        See my interests
       </Button>
     </div>
   ) : null;
+
+  if (onboardingUiMode === 'results') {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background-default px-4 pb-6 pt-2">
+        <div className="flex w-full max-w-md flex-col items-center gap-6">
+          <h1 className="text-center font-bold typo-title1 text-text-primary">
+            Your interests
+          </h1>
+          <p className="text-center typo-body text-text-tertiary">
+            Based on your swipes, we selected these tags for your feed.
+          </p>
+          {adaptiveSelectedTags.length > 0 ? (
+            <div className="flex w-full flex-wrap justify-center gap-2">
+              {adaptiveSelectedTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-10 bg-accent-cabbage-default/16 px-3 py-1.5 font-bold typo-callout text-accent-cabbage-default"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="typo-body text-text-quaternary">
+              No tags selected yet. Swipe right on posts you find interesting!
+            </p>
+          )}
+          <div className="flex w-full flex-col gap-3">
+            <Button
+              className="w-full"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              type="button"
+              onClick={() => {
+                onComplete().catch(() => null);
+              }}
+            >
+              Go to my feed
+            </Button>
+            <Button
+              className="w-full"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Tertiary}
+              type="button"
+              onClick={() => {
+                setOnboardingUiMode('swipe');
+              }}
+            >
+              Keep swiping
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (onboardingUiMode === 'prompt') {
     return (
