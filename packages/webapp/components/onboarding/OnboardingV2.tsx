@@ -19,11 +19,17 @@ import {
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   downloadBrowserExtension,
-  mobileAppUrl,
+  mobileAppDownloadUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import {
+  useViewSize,
+  ViewSize,
+  useActions,
+} from '@dailydotdev/shared/src/hooks';
 
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
@@ -46,7 +52,6 @@ import {
   requestGitHubProfileTags,
   requestOnboardingProfileTags,
 } from '@dailydotdev/shared/src/graphql/onboardingProfileTags';
-import { useActions } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -54,6 +59,8 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications/usePushNotificationMutation';
+import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
@@ -191,12 +198,17 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady } = useAuthContext();
+  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
   const [step, setStep] = useState<OnboardingStep>('hero');
+  const { onEnablePush } = usePushNotificationMutation();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isNativeApp = isIOSNative() || !!isAndroidApp;
+  const showExtensionCta = isLaptop && !isNativeApp;
+  const showMobileAppCta = !isNativeApp;
   const {
     mounted,
     tagsReady,
@@ -357,13 +369,20 @@ export const OnboardingV2 = (): ReactElement => {
             setImportExiting(true);
             trackTimer(() => {
               setImportExiting(false);
-              setStep('extension');
+              setStep(showExtensionCta ? 'extension' : 'complete');
             }, 350);
           }, 600);
         }, FINISHING_ANIMATION_MS);
       }, 420);
     },
-    [clearImportTimers, trackTimer, importPhase, completeAction, router],
+    [
+      clearImportTimers,
+      trackTimer,
+      importPhase,
+      completeAction,
+      router,
+      showExtensionCta,
+    ],
   );
 
   useEffect(() => {
@@ -391,7 +410,7 @@ export const OnboardingV2 = (): ReactElement => {
         return;
       }
 
-      if (extensionSeen) {
+      if (extensionSeen || !showExtensionCta) {
         setStep('complete');
       } else {
         setStep('extension');
@@ -447,6 +466,7 @@ export const OnboardingV2 = (): ReactElement => {
     setSignupContext,
     startImportFlowGithub,
     startAiProcessing,
+    showExtensionCta,
   ]);
 
   useEffect(() => {
@@ -969,82 +989,78 @@ export const OnboardingV2 = (): ReactElement => {
               className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center"
               style={{ animationDelay: '380ms' }}
             >
-              {/* Install extension */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  )
-                }
-                className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-cabbage-default"
+              {/* Install extension — desktop only */}
+              {showExtensionCta && (
+                <a
+                  href={downloadBrowserExtension}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                 >
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Install extension
-                </span>
-              </button>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0 text-accent-cabbage-default"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span className="text-text-primary typo-callout">
+                    Install extension
+                  </span>
+                </a>
+              )}
 
-              {/* Get mobile app */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')
-                }
-                className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-onion-default"
+              {/* Get mobile app — hide if already in native app */}
+              {showMobileAppCta && (
+                <a
+                  href={mobileAppDownloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                 >
-                  <rect
-                    x="7"
-                    y="2"
-                    width="10"
-                    height="20"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <line
-                    x1="10"
-                    y1="19"
-                    x2="14"
-                    y2="19"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Get mobile app
-                </span>
-              </button>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0 text-accent-onion-default"
+                  >
+                    <rect
+                      x="7"
+                      y="2"
+                      width="10"
+                      height="20"
+                      rx="2"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                    <line
+                      x1="10"
+                      y1="19"
+                      x2="14"
+                      y2="19"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="text-text-primary typo-callout">
+                    Get mobile app
+                  </span>
+                </a>
+              )}
 
               {/* Enable notifications */}
               <button
                 type="button"
-                onClick={() => {
-                  if ('Notification' in window) {
-                    Notification.requestPermission();
-                  }
-                }}
+                onClick={() =>
+                  onEnablePush(NotificationPromptSource.NotificationsPage)
+                }
                 className="hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
                 <svg
@@ -1655,16 +1671,11 @@ export const OnboardingV2 = (): ReactElement => {
               </div>
 
               {/* CTA */}
-              <button
-                type="button"
-                onClick={() => {
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  );
-                  dismissExtensionPromo();
-                }}
+              <a
+                href={downloadBrowserExtension}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={dismissExtensionPromo}
                 className="mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22)]"
               >
                 {isEdgeBrowser ? (
@@ -1681,7 +1692,7 @@ export const OnboardingV2 = (): ReactElement => {
                   <ChromeIcon aria-hidden size={IconSize.Size16} />
                 )}
                 Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
-              </button>
+              </a>
 
               <button
                 type="button"

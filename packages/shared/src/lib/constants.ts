@@ -33,7 +33,8 @@ export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
-export const mobileAppUrl = 'https://api.daily.dev/mobile';
+// auth=0 means it will prompt download no matter the logged in state
+export const mobileAppDownloadUrl = 'https://api.daily.dev/mobile?auth=0';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =
