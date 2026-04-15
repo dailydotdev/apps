@@ -1,4 +1,4 @@
-import { gqlClient, ApiError } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { getSquadStaticFields } from '@dailydotdev/shared/src/graphql/squads';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { getStaticProps as getSourceStaticProps } from '../pages/sources/[source]';
@@ -62,17 +62,6 @@ describe('source and squad route redirects', () => {
   });
 
   it('redirects machine sources from /squads/[handle] to /sources/[handle]', async () => {
-    mockGetSquadStaticFields.mockRejectedValueOnce({
-      response: {
-        errors: [
-          {
-            extensions: {
-              code: ApiError.NotFound,
-            },
-          },
-        ],
-      },
-    });
     mockRequest.mockResolvedValueOnce({
       source: {
         id: 'daily',
@@ -99,5 +88,6 @@ describe('source and squad route redirects', () => {
         permanent: false,
       },
     });
+    expect(mockGetSquadStaticFields).not.toHaveBeenCalled();
   });
 });

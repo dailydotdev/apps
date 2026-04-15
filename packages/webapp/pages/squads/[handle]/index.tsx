@@ -502,6 +502,32 @@ export async function getServerSideProps({
   };
 
   try {
+    const sourceResult = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+      id: handle,
+    });
+
+    if (isSourceUserSource(sourceResult.source)) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/${sourceResult.source.id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (sourceResult.source?.type === SourceType.Machine) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/sources/${handle}`,
+          permanent: false,
+        },
+      };
+    }
+
     const referringUserPromise =
       userId && campaign
         ? gqlClient
@@ -560,39 +586,6 @@ export async function getServerSideProps({
     const clientError = err as ClientError;
     const errors = Object.values(ApiError);
     const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
-
-    if (errorCode === ApiError.NotFound) {
-      try {
-        const sourceResult = await gqlClient.request<SourceData>(SOURCE_QUERY, {
-          id: handle,
-        });
-
-        if (isSourceUserSource(sourceResult.source)) {
-          setCacheHeader();
-
-          return {
-            redirect: {
-              destination: `/${sourceResult.source.id}`,
-              permanent: false,
-            },
-          };
-        }
-
-        if (sourceResult.source?.type === SourceType.Machine) {
-          setCacheHeader();
-
-          return {
-            redirect: {
-              destination: `/sources/${handle}`,
-              permanent: false,
-            },
-          };
-        }
-      } catch {
-        // Fall through to the existing not found behavior when the handle
-        // doesn't resolve to a non-squad source either.
-      }
-    }
 
     if (errors.includes(errorCode)) {
       setCacheHeader();
