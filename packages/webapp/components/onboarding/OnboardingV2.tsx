@@ -1169,6 +1169,14 @@ export const OnboardingV2 = (): ReactElement => {
         </SearchProvider>
       </div>
 
+      {/* ── Persistent backdrop across prompt / chooser / auth ── */}
+      {(step === 'prompt' || step === 'chooser' || step === 'auth') && (
+        <div
+          className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
+          aria-hidden
+        />
+      )}
+
       {/* ── Header signup chooser popup ── */}
       {step === 'chooser' && (
         <div
@@ -1178,7 +1186,7 @@ export const OnboardingV2 = (): ReactElement => {
           aria-label="Choose personalization setup"
         >
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            className="absolute inset-0"
             onClick={closeSignupChooser}
             role="presentation"
           />
@@ -1541,7 +1549,7 @@ export const OnboardingV2 = (): ReactElement => {
           aria-label="Create your account"
         >
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            className="absolute inset-0"
             onClick={closeAuthSignup}
             role="presentation"
           />
@@ -1576,7 +1584,6 @@ export const OnboardingV2 = (): ReactElement => {
                 forceDefaultDisplay
                 simplified
                 autoTriggerProvider={autoTriggerProvider}
-                className={{ container: '!min-h-0' }}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
@@ -2329,9 +2336,8 @@ export const OnboardingV2 = (): ReactElement => {
           role="dialog"
           aria-modal="true"
         >
-          {/* Backdrop */}
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            className="absolute inset-0"
             onClick={() => setStep('hero')}
             role="presentation"
           />
