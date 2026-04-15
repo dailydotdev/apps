@@ -90,7 +90,7 @@ const NotificationOptionsButton = ({
     });
   };
 
-  const Icon = (): ReactElement => {
+  const Icon = (): ReactElement | null => {
     if (!notification) {
       return null;
     }
@@ -109,7 +109,7 @@ const NotificationOptionsButton = ({
 
   const label = useMemo((): string => {
     if (!notification) {
-      return null;
+      return '';
     }
 
     if (isFetching) {
@@ -119,6 +119,10 @@ const NotificationOptionsButton = ({
     const isMuted =
       preferences[0]?.status === NotificationPreferenceStatus.Muted;
     const copy = notificationMutingCopy[notification?.type];
+
+    if (!copy) {
+      return '';
+    }
 
     return isMuted ? copy.unmute : copy.mute;
   }, [notification, preferences, isFetching]);
@@ -145,7 +149,7 @@ const NotificationOptionsButton = ({
   );
 };
 
-function NotificationItem(props: NotificationItemProps): ReactElement {
+function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const {
     icon,
     type,
@@ -165,7 +169,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
     isReady,
     title: memoizedTitle,
     description: memoizedDescription,
-  } = useObjectPurify({ title, description });
+  } = useObjectPurify({ title, description: description ?? '' });
   const router = useRouter();
   const isClickable = !notificationTypeNotClickable[type];
 
