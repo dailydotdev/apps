@@ -31,3 +31,16 @@ export const getExploreCategoryById = (
   id: string | undefined,
 ): ExploreCategory | undefined =>
   EXPLORE_CATEGORIES.find((category) => category.id === id);
+
+const TOPIC_CLUSTER_START_INDEX = EXPLORE_CATEGORIES.findIndex(
+  (category) => category.id === 'agentic',
+);
+
+/** Categories rendered as agentic topic clusters (everything after Agentic in the nav). */
+export const EXPLORE_TOPIC_CLUSTER_CATEGORIES: ExploreCategory[] =
+  EXPLORE_CATEGORIES.slice(TOPIC_CLUSTER_START_INDEX + 1);
+
+export const EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS =
+  EXPLORE_TOPIC_CLUSTER_CATEGORIES.map(
+    (category) => category.id,
+  ) as ExploreCategoryId[];

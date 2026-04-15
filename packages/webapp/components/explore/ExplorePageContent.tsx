@@ -24,25 +24,16 @@ import {
   StaleTime,
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
 import { getPageSeoTitles } from '../layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { ExploreNewsLayout } from './ExploreNewsLayout';
 import type { ExploreCategoryId } from './exploreCategories';
 import {
-  EXPLORE_CATEGORIES,
+  EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS,
   getExploreCategoryById,
 } from './exploreCategories';
-
-const TOPIC_CLUSTER_CATEGORY_IDS = (() => {
-  const agenticIndex = EXPLORE_CATEGORIES.findIndex(
-    (category) => category.id === 'agentic',
-  );
-
-  return EXPLORE_CATEGORIES.slice(agenticIndex + 1).map(
-    (category) => category.id,
-  ) as ExploreCategoryId[];
-})();
 
 const HIGHLIGHTS_CHANNEL = 'vibes';
 const STORIES_PER_SECTION = 12;
@@ -257,7 +248,7 @@ export const ExplorePageContent = ({
     staleTime: StaleTime.Default,
   });
   const topicClusterStoriesQueries = useQueries({
-    queries: TOPIC_CLUSTER_CATEGORY_IDS.map((categoryId) => ({
+    queries: EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.map((categoryId) => ({
       queryKey: getFeedQueryKey(categoryId, 'latest'),
       queryFn: getFeedQueriesForCategory(categoryId).latest,
       staleTime: StaleTime.Default,
@@ -284,7 +275,7 @@ export const ExplorePageContent = ({
   );
   const topicClusterStoriesByCategory = useMemo(
     () =>
-      TOPIC_CLUSTER_CATEGORY_IDS.reduce<
+      EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.reduce<
         Partial<Record<ExploreCategoryId, typeof latestStories>>
       >((acc, categoryId, index) => {
         const categoryStories =
@@ -308,10 +299,21 @@ export const ExplorePageContent = ({
     return getPageSeoTitles(titleBase);
   }, [activeCategoryId]);
 
+  const exploreCanonicalUrl = useMemo(() => {
+    const category = getExploreCategoryById(activeCategoryId);
+    if (!category) {
+      return undefined;
+    }
+
+    const base = webappUrl.endsWith('/') ? webappUrl.slice(0, -1) : webappUrl;
+    return `${base}${category.path}`;
+  }, [activeCategoryId]);
+
   return (
     <>
       <NextSeo
         title={exploreCategorySeo.title}
+        canonical={exploreCanonicalUrl}
         openGraph={{
           ...defaultOpenGraph,
           ...exploreCategorySeo.openGraph,

@@ -91,10 +91,10 @@ export const AgentsHighlightsSection = ({
   return (
     <section className="rounded-16 bg-surface-float p-3 laptop:p-4">
       <header className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="feed-highlights-title-gradient font-bold leading-tight typo-title3">Happening Now</h2>
-        {!!digestSource?.id && (
-          <DigestSubscribeButton source={digestSource} />
-        )}
+        <h2 className="feed-highlights-title-gradient font-bold leading-tight typo-title3">
+          Happening Now
+        </h2>
+        {!!digestSource?.id && <DigestSubscribeButton source={digestSource} />}
       </header>
       {loading ? (
         <>

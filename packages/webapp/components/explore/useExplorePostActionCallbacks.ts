@@ -24,8 +24,7 @@ const getOptimisticUpvoteState = (post: Post): Partial<Post> => {
   }
 
   return {
-    numUpvotes:
-      vote === UserVote.Down ? currentUpvotes + 1 : currentUpvotes + 1,
+    numUpvotes: currentUpvotes + 1,
     userState: { ...post.userState, vote: UserVote.Up },
   };
 };
@@ -63,37 +62,34 @@ export const useExplorePostActionCallbacks = (): ExplorePostActionCallbacks => {
 
   const updatePostInExploreCache = useCallback(
     (postId: string, updater: (p: Post) => Partial<Post>) => {
-      queryClient.setQueriesData(
-        { queryKey: ['explore'] },
-        (data: unknown) => {
-          if (!data || typeof data !== 'object') {
-            return data;
+      queryClient.setQueriesData({ queryKey: ['explore'] }, (data: unknown) => {
+        if (!data || typeof data !== 'object') {
+          return data;
+        }
+
+        const feedData = data as { page?: { edges?: Array<{ node?: Post }> } };
+        const edges = feedData?.page?.edges;
+
+        if (!edges?.length) {
+          return data;
+        }
+
+        let changed = false;
+        const nextEdges = edges.map((edge) => {
+          if (!edge?.node || edge.node.id !== postId) {
+            return edge;
           }
 
-          const feedData = data as { page?: { edges?: Array<{ node?: Post }> } };
-          const edges = feedData?.page?.edges;
+          changed = true;
+          return { ...edge, node: { ...edge.node, ...updater(edge.node) } };
+        });
 
-          if (!edges?.length) {
-            return data;
-          }
+        if (!changed) {
+          return data;
+        }
 
-          let changed = false;
-          const nextEdges = edges.map((edge) => {
-            if (!edge?.node || edge.node.id !== postId) {
-              return edge;
-            }
-
-            changed = true;
-            return { ...edge, node: { ...edge.node, ...updater(edge.node) } };
-          });
-
-          if (!changed) {
-            return data;
-          }
-
-          return { ...feedData, page: { ...feedData.page, edges: nextEdges } };
-        },
-      );
+        return { ...feedData, page: { ...feedData.page, edges: nextEdges } };
+      });
     },
     [queryClient],
   );

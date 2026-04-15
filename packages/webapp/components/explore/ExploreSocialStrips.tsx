@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import type { UserQuest } from '@dailydotdev/shared/src/graphql/quests';
@@ -13,7 +19,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
-import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { CoreIcon, PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -503,10 +512,13 @@ export const ExploreSocialStrips = ({
 }: ExploreSocialStripsProps): ReactElement | null => {
   const { isLoggedIn, user } = useAuthContext();
   const queryClient = useQueryClient();
-  const squadSeeds =
-    activeCategoryId === 'explore'
-      ? TOP_ACTIVE_SQUADS_30D
-      : CATEGORY_RELEVANT_SQUADS[activeCategoryId] ?? [];
+  const squadSeeds = useMemo(
+    () =>
+      activeCategoryId === 'explore'
+        ? TOP_ACTIVE_SQUADS_30D
+        : CATEGORY_RELEVANT_SQUADS[activeCategoryId] ?? [],
+    [activeCategoryId],
+  );
   const activeCategoryLabel = getExploreCategoryById(activeCategoryId)?.label;
 
   const topSquadQueries = useQueries({
@@ -538,7 +550,10 @@ export const ExploreSocialStrips = ({
     showTopSquads && (isTopSquadsPending || topSquads.length > 0);
   const shouldRenderTopTags = showTopTags;
   const shouldRenderProgress = showProgress;
-  const questDashboardQueryKey = generateQueryKey(RequestKey.QuestDashboard, user);
+  const questDashboardQueryKey = generateQueryKey(
+    RequestKey.QuestDashboard,
+    user,
+  );
   const invalidateQuestDashboard = useCallback(() => {
     queryClient.invalidateQueries({
       queryKey: questDashboardQueryKey,

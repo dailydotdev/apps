@@ -110,21 +110,6 @@
   animation: slide-down 0.3s ease-out;
 }
 
-@keyframes explore-hero-slow-zoom {
-  0% {
-    transform: scale(1);
-  }
-
-  100% {
-    transform: scale(1.08);
-  }
-}
-
-.explore-hero-slow-zoom {
-  transform-origin: center;
-  animation: explore-hero-slow-zoom 20s linear infinite alternate;
-}
-
 @keyframes crown-icon-pop {
   0% {
     transform: scale(1) rotate(0deg);

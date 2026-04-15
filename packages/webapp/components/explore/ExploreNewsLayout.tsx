@@ -49,7 +49,7 @@ import { PostOptionButton } from '@dailydotdev/shared/src/features/posts/PostOpt
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import { PostPosition } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
-import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import { briefingUrl, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
@@ -59,38 +59,14 @@ import type { ExploreCategoryId } from './exploreCategories';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
 import { useExplorePostActionCallbacks } from './useExplorePostActionCallbacks';
 import {
-  ExploreUpvoterChip,
-  shouldShowExploreUpvoterChip,
-} from './ExploreUpvoterChip';
+  getExploreCommunityAuthorMeta,
+  getExploreStoryTitle,
+} from './exploreStoryHelpers';
+import type { ExploreStory } from './exploreTypes';
 import { ExploreTopCommentChip } from './ExploreTopCommentChip';
 import { ExploreTopNewsHeader } from './ExploreTopNewsHeader';
 
-export type ExploreStory = Pick<
-  Post,
-  | 'id'
-  | 'bookmarked'
-  | 'bookmark'
-  | 'commented'
-  | 'title'
-  | 'summary'
-  | 'type'
-  | 'flags'
-  | 'sharedPost'
-  | 'author'
-  | 'scout'
-  | 'commentsPermalink'
-  | 'createdAt'
-  | 'creatorTwitter'
-  | 'creatorTwitterImage'
-  | 'creatorTwitterName'
-  | 'readTime'
-  | 'image'
-  | 'source'
-  | 'collectionSources'
-  | 'numComments'
-  | 'numUpvotes'
-  | 'userState'
->;
+export type { ExploreStory } from './exploreTypes';
 
 interface StorySection {
   id: string;
@@ -137,9 +113,9 @@ function getStoryIdsFromMergedSection(
 }
 
 function addIdsToSet(target: Set<string>, ids: Iterable<string>): void {
-  for (const id of ids) {
+  Array.from(ids).forEach((id) => {
     target.add(id);
-  }
+  });
 }
 
 /** Must stay aligned with `getFeedQueryKey` in `ExplorePageContent.tsx`. */
@@ -168,38 +144,6 @@ interface ExploreNewsLayoutProps {
   arenaHighlightsItems: SentimentHighlightItem[];
   categoryClusterStories?: Partial<Record<ExploreCategoryId, ExploreStory[]>>;
 }
-
-const getStoryHeadline = (story: ExploreStory): string =>
-  story.title?.trim() ||
-  story.sharedPost?.title?.trim() ||
-  story.summary?.trim() ||
-  'Untitled story';
-
-const getCommunityAuthorMeta = (
-  story: ExploreStory,
-): { name: string; image?: string | null } | null => {
-  const name =
-    story.author?.name ||
-    story.scout?.name ||
-    story.sharedPost?.author?.name ||
-    story.creatorTwitterName ||
-    story.creatorTwitter ||
-    null;
-
-  if (!name) {
-    return null;
-  }
-
-  return {
-    name,
-    image:
-      story.author?.image ||
-      story.scout?.image ||
-      story.sharedPost?.author?.image ||
-      story.creatorTwitterImage ||
-      null,
-  };
-};
 
 const PersonMeta = ({
   name,
@@ -233,7 +177,7 @@ const metaFromSource = (
   }
 
   if (source.name === 'Community Picks') {
-    return getCommunityAuthorMeta(story);
+    return getExploreCommunityAuthorMeta(story);
   }
 
   return { name: source.name, image: source.image };
@@ -260,7 +204,7 @@ const getStoryOriginInfo = (
 ): { name: string; image?: string | null } | null =>
   metaFromSource(story, story.source) ??
   metaFromSource(story, story.sharedPost?.source) ??
-  getCommunityAuthorMeta(story) ??
+  getExploreCommunityAuthorMeta(story) ??
   metaFromCollectionSources(story);
 
 const hasStoryOrigin = (
@@ -316,7 +260,7 @@ const ExploreAdPostActionRow = ({
   onRefreshAd?: () => void | Promise<void>;
   isRefreshingAd?: boolean;
 }): ReactElement => {
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
   const digestAd = story.flags?.ad;
   const showAdActions = !!digestAd || !!treatAsSponsored;
 
@@ -357,7 +301,7 @@ const ExploreAdPostActionRow = ({
           loading={isRefreshingAd}
           aria-label="Refresh ad"
           onClick={() => {
-            void onRefreshAd();
+            Promise.resolve(onRefreshAd()).catch(() => null);
           }}
         />
       )}
@@ -391,7 +335,6 @@ const StoryRow = ({
   sourceFallbackLabel,
   headlineMaxLines = 3,
   compactTopNews = false,
-  showUpvoterChip = false,
   showTopCommentChip = false,
   onOpenPostModal,
   onRefreshAd,
@@ -408,8 +351,6 @@ const StoryRow = ({
   headlineMaxLines?: 2 | 3;
   /** Top-news column: no bottom border, no top padding per row */
   compactTopNews?: boolean;
-  /** Sample “user upvoted” chip (Latest section only) */
-  showUpvoterChip?: boolean;
   /** Top comment preview under actions (Popular section) */
   showTopCommentChip?: boolean;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
@@ -451,7 +392,7 @@ const StoryRow = ({
           >
             <img
               src={story.image}
-              alt={getStoryHeadline(story)}
+              alt={getExploreStoryTitle(story)}
               className="h-full w-full object-cover"
             />
           </a>
@@ -471,7 +412,7 @@ const StoryRow = ({
               }
               style={{ fontSize: '17px' }}
             >
-              {getStoryHeadline(story)}
+              {getExploreStoryTitle(story)}
             </p>
           </a>
         </Link>
@@ -615,9 +556,6 @@ const StoryRow = ({
               triggerClassName="[&_svg]:h-5 [&_svg]:w-5"
             />
           </div>
-        )}
-        {showUpvoterChip && !isAdPost && (
-          <ExploreUpvoterChip postId={story.id} />
         )}
         {showTopCommentChip && !isAdPost && (
           <ExploreTopCommentChip
@@ -822,9 +760,6 @@ const StorySectionBlock = ({
             isSponsored={
               isSponsoredSlotSection && sponsoredStory?.id === story.id
             }
-            showUpvoterChip={
-              isLatestSection && shouldShowExploreUpvoterChip(story.id)
-            }
             showTopCommentChip={isPopularSection}
             onOpenPostModal={onOpenPostModal}
             onRefreshAd={onRefreshAd}
@@ -909,7 +844,7 @@ const CompactSectionBlock = ({
                       className="line-clamp-3 text-text-primary transition-colors typo-callout"
                       style={{ fontSize: '15px' }}
                     >
-                      {getStoryHeadline(story)}
+                      {getExploreStoryTitle(story)}
                     </p>
                     <div
                       className="mt-2 flex min-w-0 items-center gap-1 text-text-tertiary typo-caption2"
@@ -1036,7 +971,7 @@ const ReadingBriefStripInner = (): ReactElement => {
           showBorder={false}
         />
       </div>
-      <Link href="/briefing">
+      <Link href={briefingUrl}>
         <a className="active:opacity-80 block border-t border-border-subtlest-tertiary px-4 py-3 text-center font-bold text-text-secondary typo-callout laptopL:hidden">
           Open reading brief
         </a>
@@ -1114,8 +1049,7 @@ export const ExploreNewsLayout = ({
 
   const isVideosMode = activeTabId === 'videos';
   const isExplorePage = activeTabId === 'explore';
-  const showExploreOnlySections = isExplorePage && !isVideosMode;
-  const forceShowReadingReminderHero = true;
+  const showExploreOnlySections = isExplorePage;
   const {
     shouldShow: shouldShowReadingReminderHero,
     title: readingReminderTitle,
@@ -1158,7 +1092,7 @@ export const ExploreNewsLayout = ({
 
     return uniqueStories.slice(0, 10).map((story) => ({
       channel: 'videos',
-      headline: getStoryHeadline(story),
+      headline: getExploreStoryTitle(story),
       highlightedAt: story.createdAt ?? new Date(0).toISOString(),
       post: {
         id: story.id,
@@ -1313,7 +1247,7 @@ export const ExploreNewsLayout = ({
     () => ({
       id: 'popular',
       title: 'More stories',
-      href: '/',
+      href: '/popular',
       stories: popularSectionPrimaryRaw,
       totalStoriesCount: popularStoriesForView.length,
     }),
@@ -1339,9 +1273,10 @@ export const ExploreNewsLayout = ({
   );
   const excludeBeforePopularSecondary = useMemo(() => {
     const next = new Set(excludeBeforeUpvoted);
-    for (const story of upvotedSection.stories) {
-      next.add(story.id);
-    }
+    addIdsToSet(
+      next,
+      upvotedSection.stories.map((story) => story.id),
+    );
 
     return next;
   }, [excludeBeforeUpvoted, upvotedSection.stories]);
@@ -1375,7 +1310,7 @@ export const ExploreNewsLayout = ({
     () => ({
       id: 'popular',
       title: 'More stories',
-      href: '/',
+      href: '/popular',
       stories: popularSectionSecondaryRaw,
       totalStoriesCount: popularStoriesForView.length,
     }),
@@ -1410,13 +1345,15 @@ export const ExploreNewsLayout = ({
     );
     addIdsToSet(displayedIds, latestRenderedIds);
     addIdsToSet(displayedIds, popularPrimaryRenderedIds);
-    for (const story of upvotedSection.stories) {
-      displayedIds.add(story.id);
-    }
+    addIdsToSet(
+      displayedIds,
+      upvotedSection.stories.map((story) => story.id),
+    );
     addIdsToSet(displayedIds, popularSecondaryRenderedIds);
-    for (const story of discussedSection.stories) {
-      displayedIds.add(story.id);
-    }
+    addIdsToSet(
+      displayedIds,
+      discussedSection.stories.map((story) => story.id),
+    );
     if (sponsoredStory?.id) {
       displayedIds.add(sponsoredStory.id);
     }
@@ -1491,7 +1428,7 @@ export const ExploreNewsLayout = ({
           {EXPLORE_CATEGORIES.map((tab) => (
             <Link key={tab.id} href={tab.path}>
               <a
-                aria-current={tab.id === activeTabId ? 'true' : undefined}
+                aria-current={tab.id === activeTabId ? 'page' : undefined}
                 className={
                   tab.id === activeTabId
                     ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
@@ -1521,7 +1458,7 @@ export const ExploreNewsLayout = ({
                   >
                     <img
                       src={leadStory.image}
-                      alt={getStoryHeadline(leadStory)}
+                      alt={getExploreStoryTitle(leadStory)}
                       className="h-52 w-full rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
                     />
                   </a>
@@ -1539,7 +1476,7 @@ export const ExploreNewsLayout = ({
                     className="mt-2 text-text-primary typo-callout"
                     style={{ fontSize: '17px' }}
                   >
-                    {getStoryHeadline(leadStory)}
+                    {getExploreStoryTitle(leadStory)}
                   </h3>
                 </a>
               </Link>
@@ -1708,22 +1645,21 @@ export const ExploreNewsLayout = ({
           />
         </section>
       )}
-      {isExplorePage &&
-        (shouldShowReadingReminderHero || forceShowReadingReminderHero) && (
-          <section className="px-8 pb-6 laptop:px-8">
-            <TopHero
-              className="mb-0 pt-0"
-              title={readingReminderTitle}
-              subtitle={readingReminderSubtitle}
-              onCtaClick={() => {
-                onEnableReadingReminder().catch(() => null);
-              }}
-              onClose={() => {
-                onDismissReadingReminder().catch(() => null);
-              }}
-            />
-          </section>
-        )}
+      {isExplorePage && shouldShowReadingReminderHero && (
+        <section className="px-8 pb-6 laptop:px-8">
+          <TopHero
+            className="mb-0 pt-0"
+            title={readingReminderTitle}
+            subtitle={readingReminderSubtitle}
+            onCtaClick={() => {
+              onEnableReadingReminder().catch(() => null);
+            }}
+            onClose={() => {
+              onDismissReadingReminder().catch(() => null);
+            }}
+          />
+        </section>
+      )}
       {selectedPost && SelectedPostModal && (
         <SelectedPostModal
           isOpen

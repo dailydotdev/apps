@@ -21,9 +21,16 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
-import { EXPLORE_CATEGORIES } from './exploreCategories';
-import type { ExploreCategoryId } from './exploreCategories';
-import type { ExploreStory } from './ExploreNewsLayout';
+import {
+  EXPLORE_TOPIC_CLUSTER_CATEGORIES,
+  type ExploreCategoryId,
+} from './exploreCategories';
+import type { ExploreStory } from './exploreTypes';
+import {
+  getExploreCommunityPickPublisher,
+  getExploreStoryImage,
+  getExploreStoryTitle,
+} from './exploreStoryHelpers';
 import { useExplorePostActionCallbacks } from './useExplorePostActionCallbacks';
 
 interface ClusterStory {
@@ -48,47 +55,10 @@ type TopicCluster = {
   related: ClusterStory[];
 };
 
-const TOPIC_CATEGORIES = (() => {
-  const agenticIndex = EXPLORE_CATEGORIES.findIndex(
-    (category) => category.id === 'agentic',
-  );
-
-  return EXPLORE_CATEGORIES.slice(agenticIndex + 1);
-})();
-
-const getStoryTitle = (story: ExploreStory): string =>
-  story.title?.trim() ||
-  story.sharedPost?.title?.trim() ||
-  story.summary?.trim() ||
-  'Untitled story';
-
-const getStoryImage = (story: ExploreStory): string | undefined =>
-  story.image || story.sharedPost?.image || undefined;
-
-const getCommunityPickPublisher = (
-  story: ExploreStory,
-): { name: string; image?: string } => {
-  const name =
-    story.author?.name ||
-    story.scout?.name ||
-    story.sharedPost?.author?.name ||
-    story.creatorTwitterName ||
-    story.creatorTwitter ||
-    'Unknown';
-  const image =
-    story.author?.image ||
-    story.scout?.image ||
-    story.sharedPost?.author?.image ||
-    story.creatorTwitterImage ||
-    undefined;
-
-  return { name, image };
-};
-
 const mapToClusterStory = (story: ExploreStory): ClusterStory => {
   const isCommunityPick = story.source?.name === 'Community Picks';
   const communityPublisher = isCommunityPick
-    ? getCommunityPickPublisher(story)
+    ? getExploreCommunityPickPublisher(story)
     : null;
 
   return {
@@ -104,13 +74,13 @@ const mapToClusterStory = (story: ExploreStory): ClusterStory => {
       story.source?.image ||
       story.author?.image ||
       undefined,
-    title: getStoryTitle(story),
+    title: getExploreStoryTitle(story),
     href: story.commentsPermalink,
     publishedAt: story.createdAt || undefined,
     readTimeMinutes: story.readTime ?? null,
     upvotes: story.numUpvotes ?? 0,
     comments: story.numComments ?? 0,
-    image: getStoryImage(story),
+    image: getExploreStoryImage(story),
   };
 };
 
@@ -405,7 +375,7 @@ const AgenticTopicClusterSection = ({
   storiesByCategory?: Partial<Record<ExploreCategoryId, ExploreStory[]>>;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement => {
-  const topicClusters = TOPIC_CATEGORIES.map((category) => {
+  const topicClusters = EXPLORE_TOPIC_CLUSTER_CATEGORIES.map((category) => {
     const categoryStories = storiesByCategory?.[category.id] ?? [];
     const mappedStories = categoryStories.map(mapToClusterStory);
     const featuredIndex = mappedStories.findIndex((story) => !!story.image);
@@ -421,9 +391,7 @@ const AgenticTopicClusterSection = ({
       upvotes: 0,
       comments: 0,
     };
-    const skipIndex = featuredStory
-      ? mappedStories.indexOf(featuredStory)
-      : -1;
+    const skipIndex = featuredStory ? mappedStories.indexOf(featuredStory) : -1;
     const related = mappedStories
       .filter((_, index) => index !== skipIndex)
       .slice(0, 4);

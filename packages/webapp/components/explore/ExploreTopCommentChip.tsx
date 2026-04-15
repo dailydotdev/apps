@@ -81,7 +81,7 @@ export const ExploreTopCommentChip = ({
       <Link href={href}>
         <a
           href={href}
-          className="flex w-[60%] max-w-full min-w-0 items-start gap-1.5 overflow-hidden rounded-6 bg-surface-float px-2 py-1.5 text-left text-text-tertiary transition-colors typo-caption2 hover:bg-surface-hover"
+          className="flex w-[60%] min-w-0 max-w-full items-start gap-1.5 overflow-hidden rounded-6 bg-surface-float px-2 py-1.5 text-left text-text-tertiary transition-colors typo-caption2 hover:bg-surface-hover"
           style={{ fontSize: '13px' }}
         >
           {author.image ? (
