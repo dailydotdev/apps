@@ -209,8 +209,7 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp, user } =
-    useAuthContext();
+  const { isLoggedIn, isAuthReady, isAndroidApp, user } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
@@ -552,12 +551,6 @@ export const OnboardingV2 = (): ReactElement => {
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, [setSignupContext]);
-  const openLogin = useCallback(() => {
-    showLogin({
-      trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
-    });
-  }, [showLogin]);
   const openSignupAuth = useCallback(() => {
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setStep('auth');
@@ -712,7 +705,11 @@ export const OnboardingV2 = (): ReactElement => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={openLogin}
+              onClick={() => {
+                setIsLoginFlow(true);
+                setAuthDisplay(AuthDisplay.Default);
+                setStep('auth');
+              }}
               className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
             >
               Log in
