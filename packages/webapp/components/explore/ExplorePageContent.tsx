@@ -45,7 +45,7 @@ const TOPIC_CLUSTER_CATEGORY_IDS = (() => {
 })();
 
 const HIGHLIGHTS_CHANNEL = 'vibes';
-const STORIES_PER_SECTION = 8;
+const STORIES_PER_SECTION = 12;
 const UPVOTED_AND_DISCUSSED_PERIOD = 7;
 const DEFAULT_EXPLORE_ARENA_TAB: ArenaTab = 'llms';
 const VIDEO_SUPPORTED_TYPES = [PostType.VideoYouTube];

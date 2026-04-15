@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type {
   ArenaTab,
   RankedTool,
@@ -15,16 +16,20 @@ import { TopHero } from '@dailydotdev/shared/src/components/banners/HeroBottomBa
 import {
   DiscussIcon,
   DownvoteIcon,
+  MenuIcon,
+  RefreshIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { TargetId } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   BriefContextProvider,
   useBriefContext,
 } from '@dailydotdev/shared/src/components/cards/brief/BriefContext';
 import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import {
+  Button,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
@@ -34,11 +39,17 @@ import InteractionCounter from '@dailydotdev/shared/src/components/InteractionCo
 import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import { UpvoteButtonIcon } from '@dailydotdev/shared/src/components/cards/common/UpvoteButtonIcon';
 import { BookmarkButton } from '@dailydotdev/shared/src/components/buttons/BookmarkButton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import { PostOptionButton } from '@dailydotdev/shared/src/features/posts/PostOptionButton';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import { PostPosition } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
-import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
+import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
@@ -88,6 +99,54 @@ interface StorySection {
   stories: ExploreStory[];
   totalStoriesCount: number;
 }
+
+/** Matches {@link StorySectionBlock} sponsored-row merge (latest vs popular tail length). */
+function mergeSponsoredIntoSectionStories(
+  sectionStories: ExploreStory[],
+  sponsoredStory: ExploreStory | null | undefined,
+  isLatestSection: boolean,
+): ExploreStory[] {
+  if (!sponsoredStory) {
+    return sectionStories;
+  }
+
+  const nonSponsoredStories = sectionStories.filter(
+    (story) => story.id !== sponsoredStory.id,
+  );
+
+  return [
+    nonSponsoredStories[0],
+    sponsoredStory,
+    ...nonSponsoredStories.slice(1, isLatestSection ? 4 : 6),
+  ].filter(Boolean) as ExploreStory[];
+}
+
+function getStoryIdsFromMergedSection(
+  sectionStories: ExploreStory[],
+  sponsoredStory: ExploreStory | null | undefined,
+  isLatestSection: boolean,
+): Set<string> {
+  const merged = mergeSponsoredIntoSectionStories(
+    sectionStories,
+    sponsoredStory,
+    isLatestSection,
+  );
+  const capped = isLatestSection ? merged.slice(0, 5) : merged;
+
+  return new Set(capped.map((story) => story.id));
+}
+
+function addIdsToSet(target: Set<string>, ids: Iterable<string>): void {
+  for (const id of ids) {
+    target.add(id);
+  }
+}
+
+/** Must stay aligned with `getFeedQueryKey` in `ExplorePageContent.tsx`. */
+const getExploreFeedQueryKey = (
+  categoryId: ExploreCategoryId,
+  section: 'latest' | 'popular' | 'upvoted' | 'discussed',
+) => ['explore', categoryId, section] as const;
 
 interface ExploreNewsLayoutProps {
   activeTabId: ExploreCategoryId;
@@ -243,12 +302,91 @@ const StoryOriginMeta = ({
   return null;
 };
 
+/** Refresh + remove — headline/thumbnail remain the tap targets for the post. */
+const ExploreAdPostActionRow = ({
+  story,
+  treatAsSponsored,
+  onRefreshAd,
+  isRefreshingAd,
+}: {
+  story: ExploreStory;
+  onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  /** Sponsored explore slot may not include `flags.ad`; still use ad-style actions. */
+  treatAsSponsored?: boolean;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
+}): ReactElement => {
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const digestAd = story.flags?.ad;
+  const showAdActions = !!digestAd || !!treatAsSponsored;
+
+  const removeAdsMenuOptions = useMemo(
+    () => [
+      {
+        label: 'Remove ads',
+        anchorProps: {
+          href: plusUrl,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          onClick: () => {
+            logSubscriptionEvent({
+              event_name: LogEvent.UpgradeSubscription,
+              target_id: TargetId.Ads,
+            });
+          },
+        },
+      },
+    ],
+    [logSubscriptionEvent],
+  );
+
+  if (!showAdActions) {
+    throw new Error('ExploreAdPostActionRow: expected ad or sponsored story');
+  }
+
+  return (
+    <div className="z-1 mt-1 flex w-full min-w-0 flex-wrap items-center justify-start gap-1">
+      {!!onRefreshAd && (
+        <QuaternaryButton
+          className="pointer-events-auto"
+          id={`post-${story.id}-refresh-ad-btn`}
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          type="button"
+          icon={<RefreshIcon size={IconSize.XSmall} />}
+          loading={isRefreshingAd}
+          aria-label="Refresh ad"
+          onClick={() => {
+            void onRefreshAd();
+          }}
+        />
+      )}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild tooltip={{ content: 'More options' }}>
+          <Button
+            id={`post-${story.id}-ad-more-btn`}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            type="button"
+            className="pointer-events-auto"
+            icon={<MenuIcon size={IconSize.XSmall} />}
+            aria-label="More options"
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuOptions options={removeAdsMenuOptions} />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
 const StoryRow = ({
   story,
   sourceLabelOverride,
   showEngagement = true,
   isSponsored = false,
-  imageOnRight = false,
+  imageOnRight = true,
   showEngagementIcons = false,
   sourceFallbackLabel,
   headlineMaxLines = 3,
@@ -256,6 +394,8 @@ const StoryRow = ({
   showUpvoterChip = false,
   showTopCommentChip = false,
   onOpenPostModal,
+  onRefreshAd,
+  isRefreshingAd,
 }: {
   story: ExploreStory;
   sourceLabelOverride?: string;
@@ -273,6 +413,8 @@ const StoryRow = ({
   /** Top comment preview under actions (Popular section) */
   showTopCommentChip?: boolean;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
 }): ReactElement => {
   const hasSourceMeta = hasStoryOrigin(
     story,
@@ -280,6 +422,9 @@ const StoryRow = ({
     sourceFallbackLabel,
   );
   const storyPost = story as Post;
+  const digestAd = story.flags?.ad;
+  const isAdPost = !!digestAd || isSponsored;
+  const hasStoryImage = !!story.image?.trim();
   const { onUpvoteClick, onDownvoteClick, onBookmarkClick } =
     useExplorePostActionCallbacks();
   const isUpvoteActive = story.userState?.vote === UserVote.Up;
@@ -295,21 +440,23 @@ const StoryRow = ({
           : 'group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5'
       }
     >
-      <Link href={story.commentsPermalink}>
-        <a
-          href={story.commentsPermalink}
-          className={`h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float ${
-            imageOnRight ? 'order-2' : ''
-          }`}
-          onClick={(event) => onOpenPostModal?.(storyPost, event)}
-        >
-          <img
-            src={story.image || cloudinaryPostImageCoverPlaceholder}
-            alt={getStoryHeadline(story)}
-            className="h-full w-full object-cover"
-          />
-        </a>
-      </Link>
+      {hasStoryImage && (
+        <Link href={story.commentsPermalink}>
+          <a
+            href={story.commentsPermalink}
+            className={`h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float ${
+              imageOnRight ? 'order-2' : ''
+            }`}
+            onClick={(event) => onOpenPostModal?.(storyPost, event)}
+          >
+            <img
+              src={story.image}
+              alt={getStoryHeadline(story)}
+              className="h-full w-full object-cover"
+            />
+          </a>
+        </Link>
+      )}
       <div className="min-w-0 flex-1">
         <Link href={story.commentsPermalink}>
           <a
@@ -341,7 +488,6 @@ const StoryRow = ({
               />
               {hasSourceMeta && <span aria-hidden>•</span>}
               <span>Sponsored</span>
-              {showUpvoterChip && <ExploreUpvoterChip postId={story.id} />}
             </span>
           ) : (
             <>
@@ -359,7 +505,6 @@ const StoryRow = ({
                     <RelativeTime dateTime={story.createdAt} />
                   </span>
                 )}
-                {showUpvoterChip && <ExploreUpvoterChip postId={story.id} />}
               </span>
               {!showEngagementIcons && showEngagement && !!story.numUpvotes && (
                 <>
@@ -378,94 +523,110 @@ const StoryRow = ({
             </>
           )}
         </div>
-        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
-          <QuaternaryButton
-            labelClassName="!pl-0"
-            className="btn-tertiary-avocado pointer-events-auto"
-            id={`post-${story.id}-upvote-btn`}
-            color={ButtonColor.Avocado}
-            pressed={isUpvoteActive}
-            onClick={() => onUpvoteClick(storyPost)}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={IconSize.XSmall}
-              />
-            }
-          >
-            {upvoteCount > 0 && (
-              <InteractionCounter
-                className="tabular-nums"
-                value={upvoteCount}
-              />
-            )}
-          </QuaternaryButton>
-          <QuaternaryButton
-            className="pointer-events-auto"
-            id={`post-${story.id}-downvote-btn`}
-            color={ButtonColor.Ketchup}
-            icon={
-              <DownvoteIcon
-                secondary={isDownvoteActive}
-                size={IconSize.XSmall}
-              />
-            }
-            pressed={isDownvoteActive}
-            onClick={() => {
-              onDownvoteClick(storyPost).catch(() => null);
-            }}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
+        {isAdPost ? (
+          <ExploreAdPostActionRow
+            story={story}
+            onOpenPostModal={onOpenPostModal}
+            treatAsSponsored={isSponsored && !digestAd}
+            onRefreshAd={onRefreshAd}
+            isRefreshingAd={isRefreshingAd}
           />
-          <QuaternaryButton
-            labelClassName="!pl-0"
-            id={`post-${story.id}-comment-btn`}
-            className="btn-tertiary-blueCheese pointer-events-auto"
-            color={ButtonColor.BlueCheese}
-            tag="a"
-            href={story.commentsPermalink}
-            onClick={(event) => onOpenPostModal?.(storyPost, event)}
-            pressed={story.commented}
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={
-              <DiscussIcon secondary={story.commented} size={IconSize.XSmall} />
-            }
-          >
-            {commentCount > 0 && (
-              <InteractionCounter
-                className="tabular-nums"
-                value={commentCount}
-              />
-            )}
-          </QuaternaryButton>
-          <BookmarkButton
-            post={storyPost}
-            buttonProps={{
-              id: `post-${story.id}-bookmark-btn`,
-              onClick: () => onBookmarkClick(storyPost),
-              size: ButtonSize.Small,
-              className: 'btn-tertiary-bun pointer-events-auto',
-              variant: ButtonVariant.Tertiary,
-            }}
-            iconSize={IconSize.XSmall}
-          />
-          <PostOptionButton
-            post={storyPost}
-            size={ButtonSize.Small}
-            triggerClassName="[&_svg]:h-5 [&_svg]:w-5"
-          />
-        </div>
-        {showTopCommentChip && (
+        ) : (
+          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
+            <QuaternaryButton
+              labelClassName="!pl-0"
+              className="btn-tertiary-avocado pointer-events-auto"
+              id={`post-${story.id}-upvote-btn`}
+              color={ButtonColor.Avocado}
+              pressed={isUpvoteActive}
+              onClick={() => onUpvoteClick(storyPost)}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={
+                <UpvoteButtonIcon
+                  secondary={isUpvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
+            >
+              {upvoteCount > 0 && (
+                <InteractionCounter
+                  className="tabular-nums"
+                  value={upvoteCount}
+                />
+              )}
+            </QuaternaryButton>
+            <QuaternaryButton
+              className="pointer-events-auto"
+              id={`post-${story.id}-downvote-btn`}
+              color={ButtonColor.Ketchup}
+              icon={
+                <DownvoteIcon
+                  secondary={isDownvoteActive}
+                  size={IconSize.XSmall}
+                />
+              }
+              pressed={isDownvoteActive}
+              onClick={() => {
+                onDownvoteClick(storyPost).catch(() => null);
+              }}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+            />
+            <QuaternaryButton
+              labelClassName="!pl-0"
+              id={`post-${story.id}-comment-btn`}
+              className="btn-tertiary-blueCheese pointer-events-auto"
+              color={ButtonColor.BlueCheese}
+              tag="a"
+              href={story.commentsPermalink}
+              onClick={(event) => onOpenPostModal?.(storyPost, event)}
+              pressed={story.commented}
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={
+                <DiscussIcon
+                  secondary={story.commented}
+                  size={IconSize.XSmall}
+                />
+              }
+            >
+              {commentCount > 0 && (
+                <InteractionCounter
+                  className="tabular-nums"
+                  value={commentCount}
+                />
+              )}
+            </QuaternaryButton>
+            <BookmarkButton
+              post={storyPost}
+              buttonProps={{
+                id: `post-${story.id}-bookmark-btn`,
+                onClick: () => onBookmarkClick(storyPost),
+                size: ButtonSize.Small,
+                className: 'btn-tertiary-bun pointer-events-auto',
+                variant: ButtonVariant.Tertiary,
+              }}
+              iconSize={IconSize.XSmall}
+            />
+            <PostOptionButton
+              post={storyPost}
+              size={ButtonSize.Small}
+              triggerClassName="[&_svg]:h-5 [&_svg]:w-5"
+            />
+          </div>
+        )}
+        {showUpvoterChip && !isAdPost && (
+          <ExploreUpvoterChip postId={story.id} />
+        )}
+        {showTopCommentChip && !isAdPost && (
           <ExploreTopCommentChip
             postId={story.id}
             commentsPermalink={story.commentsPermalink}
             numComments={commentCount}
           />
         )}
-        <PostContentReminder post={storyPost} className="mt-2" />
+        {!isAdPost && <PostContentReminder post={storyPost} className="mt-2" />}
       </div>
     </article>
   );
@@ -474,11 +635,16 @@ const StoryRow = ({
 const ExplorePostActionRow = ({
   story,
   onOpenPostModal,
+  onRefreshAd,
+  isRefreshingAd,
 }: {
   story: ExploreStory;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
 }): ReactElement => {
   const storyPost = story as Post;
+  const digestAd = story.flags?.ad;
   const { onUpvoteClick, onDownvoteClick, onBookmarkClick } =
     useExplorePostActionCallbacks();
   const isUpvoteActive = story.userState?.vote === UserVote.Up;
@@ -486,9 +652,20 @@ const ExplorePostActionRow = ({
   const upvoteCount = story.numUpvotes ?? 0;
   const commentCount = story.numComments ?? 0;
 
+  if (digestAd) {
+    return (
+      <ExploreAdPostActionRow
+        story={story}
+        onOpenPostModal={onOpenPostModal}
+        onRefreshAd={onRefreshAd}
+        isRefreshingAd={isRefreshingAd}
+      />
+    );
+  }
+
   return (
     <>
-      <div className="mt-1 flex items-center gap-1">
+      <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
         <QuaternaryButton
           labelClassName="!pl-0"
           className="btn-tertiary-avocado pointer-events-auto"
@@ -568,10 +745,17 @@ const StorySectionBlock = ({
   section,
   sponsoredStory,
   onOpenPostModal,
+  domSectionId,
+  onRefreshAd,
+  isRefreshingAd,
 }: {
   section: StorySection;
   sponsoredStory?: ExploreStory | null;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  /** Avoid duplicate `id` when the same section type is rendered twice (e.g. two “More stories” columns). */
+  domSectionId?: string;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
 }): ReactElement => {
   const isLatestSection = section.id === 'latest';
   const isPopularSection = section.id === 'popular';
@@ -592,28 +776,20 @@ const StorySectionBlock = ({
       : 'border border-border-subtlest-tertiary';
   const sourceLabelOverride = undefined;
   const showEngagement = true;
-  const storiesWithSponsoredSlot = useMemo(() => {
-    if (!isSponsoredSlotSection || !sponsoredStory) {
-      return section.stories;
-    }
-
-    const nonSponsoredStories = section.stories.filter(
-      (story) => story.id !== sponsoredStory.id,
-    );
-
-    return [
-      nonSponsoredStories[0],
-      sponsoredStory,
-      ...nonSponsoredStories.slice(1, 6),
-    ].filter(Boolean) as ExploreStory[];
-  }, [isSponsoredSlotSection, section.stories, sponsoredStory]);
-  const storiesToRender = isSponsoredSlotSection
-    ? storiesWithSponsoredSlot
+  const storiesMerged = isSponsoredSlotSection
+    ? mergeSponsoredIntoSectionStories(
+        section.stories,
+        sponsoredStory,
+        isLatestSection,
+      )
     : section.stories;
+  const storiesToRender = isLatestSection
+    ? storiesMerged.slice(0, 5)
+    : storiesMerged;
 
   return (
     <section
-      id={section.id}
+      id={domSectionId ?? section.id}
       className={`my-4 h-full rounded-16 ${sectionPaddingClass} ${sectionBorderClass}`}
     >
       {isLatestSection && (
@@ -651,6 +827,8 @@ const StorySectionBlock = ({
             }
             showTopCommentChip={isPopularSection}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshAd}
+            isRefreshingAd={isRefreshingAd}
           />
         ))
       ) : (
@@ -663,9 +841,13 @@ const StorySectionBlock = ({
 const CompactSectionBlock = ({
   section,
   onOpenPostModal,
+  onRefreshAd,
+  isRefreshingAd,
 }: {
   section: StorySection;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
 }): ReactElement => {
   const isUpvotedSection = section.id === 'upvoted';
   const isDiscussedSection = section.id === 'discussed';
@@ -747,7 +929,13 @@ const CompactSectionBlock = ({
                 </a>
               </Link>
             ) : (
-              <StoryRow story={story} showEngagement showEngagementIcons />
+              <StoryRow
+                story={story}
+                showEngagement
+                showEngagementIcons
+                onRefreshAd={onRefreshAd}
+                isRefreshingAd={isRefreshingAd}
+              />
             )}
           </div>
         ))
@@ -768,9 +956,13 @@ const CompactSectionBlock = ({
 const MoreStoriesStrip = ({
   stories,
   onOpenPostModal,
+  onRefreshAd,
+  isRefreshingAd,
 }: {
   stories: ExploreStory[];
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
+  onRefreshAd?: () => void | Promise<void>;
+  isRefreshingAd?: boolean;
 }): ReactElement | null => {
   if (!stories.length) {
     return null;
@@ -792,6 +984,8 @@ const MoreStoriesStrip = ({
             showEngagementIcons
             headlineMaxLines={2}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshAd}
+            isRefreshingAd={isRefreshingAd}
           />
         ))}
       </div>
@@ -880,6 +1074,30 @@ export const ExploreNewsLayout = ({
   categoryClusterStories,
 }: ExploreNewsLayoutProps): ReactElement => {
   const [exploreNavScrolled, setExploreNavScrolled] = useState(false);
+  const queryClient = useQueryClient();
+  const [isRefreshingExploreAds, setIsRefreshingExploreAds] = useState(false);
+
+  const onRefreshExploreAds = useCallback(async () => {
+    setIsRefreshingExploreAds(true);
+    try {
+      await Promise.all([
+        queryClient.refetchQueries({
+          queryKey: getExploreFeedQueryKey(activeTabId, 'latest'),
+        }),
+        queryClient.refetchQueries({
+          queryKey: getExploreFeedQueryKey(activeTabId, 'popular'),
+        }),
+        queryClient.refetchQueries({
+          queryKey: getExploreFeedQueryKey(activeTabId, 'upvoted'),
+        }),
+        queryClient.refetchQueries({
+          queryKey: getExploreFeedQueryKey(activeTabId, 'discussed'),
+        }),
+      ]);
+    } finally {
+      setIsRefreshingExploreAds(false);
+    }
+  }, [activeTabId, queryClient]);
 
   useEffect(() => {
     const onScroll = (): void => {
@@ -955,45 +1173,19 @@ export const ExploreNewsLayout = ({
     discussedStoriesForView,
   ]);
 
-  const leadStory = useMemo(
-    () => latestStoriesForView[0] ?? popularStoriesForView[0] ?? null,
-    [latestStoriesForView, popularStoriesForView],
-  );
+  const leadStory = useMemo(() => {
+    const hasImage = (s: ExploreStory) => !!s.image?.trim();
+    return (
+      latestStoriesForView.find(hasImage) ??
+      popularStoriesForView.find(hasImage) ??
+      latestStoriesForView[0] ??
+      popularStoriesForView[0] ??
+      null
+    );
+  }, [latestStoriesForView, popularStoriesForView]);
   const latestStoriesAfterLead = useMemo(
     () => latestStoriesForView.filter((story) => story.id !== leadStory?.id),
     [latestStoriesForView, leadStory?.id],
-  );
-  const popularSection = useMemo<StorySection>(
-    () => ({
-      id: 'popular',
-      title: 'More stories',
-      href: '/',
-      stories: popularStoriesForView
-        .filter((story) => story.id !== leadStory?.id)
-        .slice(0, 5),
-      totalStoriesCount: popularStoriesForView.length,
-    }),
-    [popularStoriesForView, leadStory?.id],
-  );
-  const upvotedSection = useMemo<StorySection>(
-    () => ({
-      id: 'upvoted',
-      title: 'Most Upvoted',
-      href: '/upvoted',
-      stories: upvotedStoriesForView.slice(0, 6),
-      totalStoriesCount: upvotedStoriesForView.length,
-    }),
-    [upvotedStoriesForView],
-  );
-  const discussedSection = useMemo<StorySection>(
-    () => ({
-      id: 'discussed',
-      title: 'Best Discussions',
-      href: '/discussed',
-      stories: discussedStoriesForView.slice(0, 6),
-      totalStoriesCount: discussedStoriesForView.length,
-    }),
-    [discussedStoriesForView],
   );
   const sponsoredStory = useMemo<ExploreStory | null>(() => {
     const candidates = [
@@ -1041,19 +1233,23 @@ export const ExploreNewsLayout = ({
       isSponsored: story.id === sponsoredStory.id,
     }));
   }, [latestStoriesAfterLead, sponsoredStory]);
-  const latestSection = useMemo<StorySection>(() => {
+  const latestSectionStoriesForList = useMemo(() => {
     const topIds = new Set(topNewsStories.map(({ story }) => story.id));
 
-    return {
+    return latestStoriesAfterLead
+      .filter((story) => !topIds.has(story.id))
+      .slice(0, 5);
+  }, [latestStoriesAfterLead, topNewsStories]);
+  const latestSection = useMemo<StorySection>(
+    () => ({
       id: 'latest',
       title: 'Latest',
       href: '/posts/latest',
-      stories: latestStoriesAfterLead
-        .filter((story) => !topIds.has(story.id))
-        .slice(0, 5),
+      stories: latestSectionStoriesForList,
       totalStoriesCount: latestStoriesForView.length,
-    };
-  }, [latestStoriesAfterLead, latestStoriesForView.length, topNewsStories]);
+    }),
+    [latestSectionStoriesForList, latestStoriesForView.length],
+  );
   const latestSectionSponsoredStory = useMemo(() => {
     if (!sponsoredStory) {
       return null;
@@ -1065,17 +1261,169 @@ export const ExploreNewsLayout = ({
 
     return sponsoredStory;
   }, [sponsoredStory, topNewsStories]);
+  const latestRenderedIds = useMemo(
+    () =>
+      getStoryIdsFromMergedSection(
+        latestSectionStoriesForList,
+        latestSectionSponsoredStory,
+        true,
+      ),
+    [latestSectionStoriesForList, latestSectionSponsoredStory],
+  );
+  const excludeBeforePopularPrimary = useMemo(() => {
+    const next = new Set<string>();
+    if (leadStory?.id) {
+      next.add(leadStory.id);
+    }
+    addIdsToSet(
+      next,
+      topNewsStories.map(({ story }) => story.id),
+    );
+    addIdsToSet(next, latestRenderedIds);
+
+    return next;
+  }, [leadStory?.id, topNewsStories, latestRenderedIds]);
+  const popularPrimarySponsored = useMemo(() => {
+    if (
+      !sponsoredPopularStory ||
+      excludeBeforePopularPrimary.has(sponsoredPopularStory.id)
+    ) {
+      return null;
+    }
+
+    return sponsoredPopularStory;
+  }, [sponsoredPopularStory, excludeBeforePopularPrimary]);
+  const popularSectionPrimaryRaw = useMemo(
+    () =>
+      popularStoriesForView
+        .filter((story) => !excludeBeforePopularPrimary.has(story.id))
+        .slice(0, 5),
+    [popularStoriesForView, excludeBeforePopularPrimary],
+  );
+  const popularPrimaryRenderedIds = useMemo(
+    () =>
+      getStoryIdsFromMergedSection(
+        popularSectionPrimaryRaw,
+        popularPrimarySponsored,
+        false,
+      ),
+    [popularSectionPrimaryRaw, popularPrimarySponsored],
+  );
+  const popularSection = useMemo<StorySection>(
+    () => ({
+      id: 'popular',
+      title: 'More stories',
+      href: '/',
+      stories: popularSectionPrimaryRaw,
+      totalStoriesCount: popularStoriesForView.length,
+    }),
+    [popularSectionPrimaryRaw, popularStoriesForView.length],
+  );
+  const excludeBeforeUpvoted = useMemo(() => {
+    const next = new Set(excludeBeforePopularPrimary);
+    addIdsToSet(next, popularPrimaryRenderedIds);
+
+    return next;
+  }, [excludeBeforePopularPrimary, popularPrimaryRenderedIds]);
+  const upvotedSection = useMemo<StorySection>(
+    () => ({
+      id: 'upvoted',
+      title: 'Most Upvoted',
+      href: '/upvoted',
+      stories: upvotedStoriesForView
+        .filter((story) => !excludeBeforeUpvoted.has(story.id))
+        .slice(0, 6),
+      totalStoriesCount: upvotedStoriesForView.length,
+    }),
+    [upvotedStoriesForView, excludeBeforeUpvoted],
+  );
+  const excludeBeforePopularSecondary = useMemo(() => {
+    const next = new Set(excludeBeforeUpvoted);
+    for (const story of upvotedSection.stories) {
+      next.add(story.id);
+    }
+
+    return next;
+  }, [excludeBeforeUpvoted, upvotedSection.stories]);
+  const popularSecondarySponsored = useMemo(() => {
+    if (
+      !sponsoredPopularStory ||
+      excludeBeforePopularSecondary.has(sponsoredPopularStory.id)
+    ) {
+      return null;
+    }
+
+    return sponsoredPopularStory;
+  }, [sponsoredPopularStory, excludeBeforePopularSecondary]);
+  const popularSectionSecondaryRaw = useMemo(
+    () =>
+      popularStoriesForView
+        .filter((story) => !excludeBeforePopularSecondary.has(story.id))
+        .slice(0, 5),
+    [popularStoriesForView, excludeBeforePopularSecondary],
+  );
+  const popularSecondaryRenderedIds = useMemo(
+    () =>
+      getStoryIdsFromMergedSection(
+        popularSectionSecondaryRaw,
+        popularSecondarySponsored,
+        false,
+      ),
+    [popularSectionSecondaryRaw, popularSecondarySponsored],
+  );
+  const popularSectionSecondary = useMemo<StorySection>(
+    () => ({
+      id: 'popular',
+      title: 'More stories',
+      href: '/',
+      stories: popularSectionSecondaryRaw,
+      totalStoriesCount: popularStoriesForView.length,
+    }),
+    [popularSectionSecondaryRaw, popularStoriesForView.length],
+  );
+  const excludeBeforeDiscussed = useMemo(() => {
+    const next = new Set(excludeBeforePopularSecondary);
+    addIdsToSet(next, popularSecondaryRenderedIds);
+
+    return next;
+  }, [excludeBeforePopularSecondary, popularSecondaryRenderedIds]);
+  const discussedSection = useMemo<StorySection>(
+    () => ({
+      id: 'discussed',
+      title: 'Best Discussions',
+      href: '/discussed',
+      stories: discussedStoriesForView
+        .filter((story) => !excludeBeforeDiscussed.has(story.id))
+        .slice(0, 6),
+      totalStoriesCount: discussedStoriesForView.length,
+    }),
+    [discussedStoriesForView, excludeBeforeDiscussed],
+  );
   const moreStories = useMemo<ExploreStory[]>(() => {
-    const displayedIds = new Set<string>([
-      leadStory?.id ?? '',
-      sponsoredStory?.id ?? '',
-      sponsoredPopularStory?.id ?? '',
-      ...topNewsStories.map(({ story }) => story.id),
-      ...latestSection.stories.map((story) => story.id),
-      ...popularSection.stories.map((story) => story.id),
-      ...upvotedSection.stories.map((story) => story.id),
-      ...discussedSection.stories.map((story) => story.id),
-    ]);
+    const displayedIds = new Set<string>();
+    if (leadStory?.id) {
+      displayedIds.add(leadStory.id);
+    }
+    addIdsToSet(
+      displayedIds,
+      topNewsStories.map(({ story }) => story.id),
+    );
+    addIdsToSet(displayedIds, latestRenderedIds);
+    addIdsToSet(displayedIds, popularPrimaryRenderedIds);
+    for (const story of upvotedSection.stories) {
+      displayedIds.add(story.id);
+    }
+    addIdsToSet(displayedIds, popularSecondaryRenderedIds);
+    for (const story of discussedSection.stories) {
+      displayedIds.add(story.id);
+    }
+    if (sponsoredStory?.id) {
+      displayedIds.add(sponsoredStory.id);
+    }
+    if (sponsoredPopularStory?.id) {
+      displayedIds.add(sponsoredPopularStory.id);
+    }
+
     const merged = [
       ...latestStoriesForView,
       ...popularStoriesForView,
@@ -1091,8 +1439,9 @@ export const ExploreNewsLayout = ({
       .slice(0, 5);
   }, [
     leadStory?.id,
-    latestSection.stories,
-    popularSection.stories,
+    latestRenderedIds,
+    popularPrimaryRenderedIds,
+    popularSecondaryRenderedIds,
     upvotedSection.stories,
     discussedSection.stories,
     sponsoredStory?.id,
@@ -1161,21 +1510,23 @@ export const ExploreNewsLayout = ({
         <div className="grid gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] laptop:gap-x-8">
           {leadStory ? (
             <article className="rounded-12 p-0">
-              <Link href={leadStory.commentsPermalink}>
-                <a
-                  href={leadStory.commentsPermalink}
-                  className="focus-visible-outline group block rounded-12"
-                  onClick={(event) =>
-                    onOpenPostModal?.(leadStory as Post, event)
-                  }
-                >
-                  <img
-                    src={leadStory.image || cloudinaryPostImageCoverPlaceholder}
-                    alt={getStoryHeadline(leadStory)}
-                    className="h-52 w-full rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-                  />
-                </a>
-              </Link>
+              {!!leadStory.image?.trim() && (
+                <Link href={leadStory.commentsPermalink}>
+                  <a
+                    href={leadStory.commentsPermalink}
+                    className="focus-visible-outline group block rounded-12"
+                    onClick={(event) =>
+                      onOpenPostModal?.(leadStory as Post, event)
+                    }
+                  >
+                    <img
+                      src={leadStory.image}
+                      alt={getStoryHeadline(leadStory)}
+                      className="h-52 w-full rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                    />
+                  </a>
+                </Link>
+              )}
               <Link href={leadStory.commentsPermalink}>
                 <a
                   href={leadStory.commentsPermalink}
@@ -1209,6 +1560,8 @@ export const ExploreNewsLayout = ({
               <ExplorePostActionRow
                 story={leadStory}
                 onOpenPostModal={onOpenPostModal}
+                onRefreshAd={onRefreshExploreAds}
+                isRefreshingAd={isRefreshingExploreAds}
               />
             </article>
           ) : (
@@ -1222,16 +1575,15 @@ export const ExploreNewsLayout = ({
             {topNewsStories.map(({ story, isSponsored }) => (
               <StoryRow
                 key={story.id}
-                story={{
-                  ...story,
-                  image: story.image || cloudinaryPostImageCoverPlaceholder,
-                }}
+                story={story}
                 showEngagement
                 showEngagementIcons
                 headlineMaxLines={2}
                 compactTopNews
                 isSponsored={isSponsored}
                 onOpenPostModal={onOpenPostModal}
+                onRefreshAd={onRefreshExploreAds}
+                isRefreshingAd={isRefreshingExploreAds}
               />
             ))}
           </div>
@@ -1244,6 +1596,8 @@ export const ExploreNewsLayout = ({
             section={latestSection}
             sponsoredStory={latestSectionSponsoredStory}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshExploreAds}
+            isRefreshingAd={isRefreshingExploreAds}
           />
           <div className="h-full">
             <AgentsHighlightsSection
@@ -1260,12 +1614,16 @@ export const ExploreNewsLayout = ({
         <div className="grid items-start gap-x-10 gap-y-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <StorySectionBlock
             section={popularSection}
-            sponsoredStory={sponsoredPopularStory}
+            sponsoredStory={popularPrimarySponsored}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshExploreAds}
+            isRefreshingAd={isRefreshingExploreAds}
           />
           <CompactSectionBlock
             section={upvotedSection}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshExploreAds}
+            isRefreshingAd={isRefreshingExploreAds}
           />
         </div>
       </section>
@@ -1285,13 +1643,18 @@ export const ExploreNewsLayout = ({
       <section className="px-8 pb-6 laptop:px-8">
         <div className="grid items-start gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] laptop:gap-x-10">
           <StorySectionBlock
-            section={popularSection}
-            sponsoredStory={sponsoredPopularStory}
+            section={popularSectionSecondary}
+            sponsoredStory={popularSecondarySponsored}
+            domSectionId="explore-popular-secondary"
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshExploreAds}
+            isRefreshingAd={isRefreshingExploreAds}
           />
           <CompactSectionBlock
             section={discussedSection}
             onOpenPostModal={onOpenPostModal}
+            onRefreshAd={onRefreshExploreAds}
+            isRefreshingAd={isRefreshingExploreAds}
           />
         </div>
       </section>
@@ -1330,6 +1693,8 @@ export const ExploreNewsLayout = ({
             <MoreStoriesStrip
               stories={moreStories}
               onOpenPostModal={onOpenPostModal}
+              onRefreshAd={onRefreshExploreAds}
+              isRefreshingAd={isRefreshingExploreAds}
             />
             <ReadingBriefStrip />
           </div>

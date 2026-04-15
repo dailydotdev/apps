@@ -77,11 +77,11 @@ export const ExploreTopCommentChip = ({
   const href = `${commentsPermalink}${getCommentHash(comment.id)}`;
 
   return (
-    <div className="mt-2 flex w-full min-w-0 justify-start">
+    <div className="mt-2 w-full min-w-0">
       <Link href={href}>
         <a
           href={href}
-          className="inline-flex min-w-0 max-w-[60%] items-start gap-1.5 overflow-hidden rounded-6 bg-surface-float px-2 py-1.5 text-left text-text-tertiary transition-colors typo-caption2 hover:bg-surface-hover"
+          className="flex w-[60%] max-w-full min-w-0 items-start gap-1.5 overflow-hidden rounded-6 bg-surface-float px-2 py-1.5 text-left text-text-tertiary transition-colors typo-caption2 hover:bg-surface-hover"
           style={{ fontSize: '13px' }}
         >
           {author.image ? (
@@ -97,7 +97,17 @@ export const ExploreTopCommentChip = ({
               {initial}
             </span>
           )}
-          <p className="m-0 min-w-0 truncate">{preview}</p>
+          <p className="m-0 flex min-w-0 flex-1 items-baseline gap-0">
+            <span aria-hidden className="shrink-0">
+              {'\u201c'}
+            </span>
+            <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+              {preview}
+            </span>
+            <span aria-hidden className="shrink-0">
+              {'\u201d'}
+            </span>
+          </p>
         </a>
       </Link>
     </div>

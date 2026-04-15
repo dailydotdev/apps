@@ -20,7 +20,6 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
-import { cloudinaryPostImageCoverPlaceholder } from '@dailydotdev/shared/src/lib/image';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
 import { EXPLORE_CATEGORIES } from './exploreCategories';
 import type { ExploreCategoryId } from './exploreCategories';
@@ -275,25 +274,25 @@ const TopicClusterCard = ({
       </header>
       <div className="grid gap-4 laptop:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] laptop:gap-x-8">
         <article className="rounded-12 p-0">
-          <a
-            href={cluster.featured.href}
-            className="focus-visible-outline group block rounded-12"
-            onClick={(event) => {
-              if (!cluster.featured.post) {
-                return;
-              }
+          {!!cluster.featured.image && (
+            <a
+              href={cluster.featured.href}
+              className="focus-visible-outline group block rounded-12"
+              onClick={(event) => {
+                if (!cluster.featured.post) {
+                  return;
+                }
 
-              onOpenPostModal?.(cluster.featured.post as Post, event);
-            }}
-          >
-            <img
-              src={
-                cluster.featured.image || cloudinaryPostImageCoverPlaceholder
-              }
-              alt={cluster.featured.title}
-              className="h-52 w-full rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-            />
-          </a>
+                onOpenPostModal?.(cluster.featured.post as Post, event);
+              }}
+            >
+              <img
+                src={cluster.featured.image}
+                alt={cluster.featured.title}
+                className="h-52 w-full rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+              />
+            </a>
+          )}
           <a
             href={cluster.featured.href}
             className="focus-visible-outline group block rounded-12"
@@ -329,23 +328,25 @@ const TopicClusterCard = ({
           {cluster.related.map((story) => (
             <article key={story.id} className="p-0">
               <div className="group flex items-start gap-3 rounded-8">
-                <a
-                  href={story.href}
-                  className="focus-visible-outline rounded-8"
-                  onClick={(event) => {
-                    if (!story.post) {
-                      return;
-                    }
+                {!!story.image && (
+                  <a
+                    href={story.href}
+                    className="focus-visible-outline order-2 shrink-0 rounded-8"
+                    onClick={(event) => {
+                      if (!story.post) {
+                        return;
+                      }
 
-                    onOpenPostModal?.(story.post as Post, event);
-                  }}
-                >
-                  <img
-                    src={story.image || cloudinaryPostImageCoverPlaceholder}
-                    alt={story.title}
-                    className="h-16 w-16 shrink-0 rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
-                  />
-                </a>
+                      onOpenPostModal?.(story.post as Post, event);
+                    }}
+                  >
+                    <img
+                      src={story.image}
+                      alt={story.title}
+                      className="h-16 w-16 shrink-0 rounded-12 object-cover transition-transform duration-300 group-hover:scale-[1.01]"
+                    />
+                  </a>
+                )}
                 <div className="min-w-0 flex-1">
                   <a
                     href={story.href}
@@ -404,44 +405,27 @@ const AgenticTopicClusterSection = ({
   storiesByCategory?: Partial<Record<ExploreCategoryId, ExploreStory[]>>;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
 }): ReactElement => {
-  const globalFallbackImage = TOPIC_CATEGORIES.reduce<string | undefined>(
-    (foundImage, category) => {
-      if (foundImage) {
-        return foundImage;
-      }
-
-      const categoryStories = storiesByCategory?.[category.id] ?? [];
-      return categoryStories.map(getStoryImage).find(Boolean);
-    },
-    undefined,
-  );
-
   const topicClusters = TOPIC_CATEGORIES.map((category) => {
     const categoryStories = storiesByCategory?.[category.id] ?? [];
     const mappedStories = categoryStories.map(mapToClusterStory);
-    const featuredIndex =
-      mappedStories.findIndex((story) => !!story.image) >= 0
-        ? mappedStories.findIndex((story) => !!story.image)
-        : 0;
-    const featuredStory = mappedStories[featuredIndex];
-    const featured = featuredStory
-      ? {
-          ...featuredStory,
-          image: featuredStory.image || globalFallbackImage,
-        }
-      : {
-          id: `${category.id}-featured-fallback`,
-          publisher: `${category.label} Digest`,
-          title: `Latest ${category.label} stories`,
-          href: category.path,
-          publishedAt: undefined,
-          readTimeMinutes: 5,
-          upvotes: 0,
-          comments: 0,
-          image: globalFallbackImage,
-        };
+    const featuredIndex = mappedStories.findIndex((story) => !!story.image);
+    const featuredStory =
+      featuredIndex >= 0 ? mappedStories[featuredIndex] : mappedStories[0];
+    const featured = featuredStory ?? {
+      id: `${category.id}-featured-fallback`,
+      publisher: `${category.label} Digest`,
+      title: `Latest ${category.label} stories`,
+      href: category.path,
+      publishedAt: undefined,
+      readTimeMinutes: 5,
+      upvotes: 0,
+      comments: 0,
+    };
+    const skipIndex = featuredStory
+      ? mappedStories.indexOf(featuredStory)
+      : -1;
     const related = mappedStories
-      .filter((_, index) => index !== featuredIndex)
+      .filter((_, index) => index !== skipIndex)
       .slice(0, 4);
 
     return {
