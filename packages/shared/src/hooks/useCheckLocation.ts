@@ -16,7 +16,7 @@ export const useCheckLocation = (): void => {
         location: Pick<LoggedUser, 'hasLocationSet'>;
       }>(CHECK_LOCATION_QUERY);
       await updateUser({
-        ...user,
+        ...user!,
         hasLocationSet: !!result,
       });
     },
