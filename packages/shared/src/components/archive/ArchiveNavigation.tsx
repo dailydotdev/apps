@@ -33,18 +33,18 @@ export function ArchiveNavigation({
     <nav
       aria-label="Archive navigation"
       className={classNames(
-        'flex items-center justify-between gap-4',
+        'flex flex-wrap items-center justify-between gap-3 tablet:gap-4',
         className,
       )}
     >
       {prev ? (
         <Link href={getArchiveUrlFromArchive(scope, prev)} prefetch={false}>
-          <a className="group flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 transition-all duration-200 hover:border-border-subtlest-secondary hover:bg-surface-hover">
+          <a className="group flex items-center gap-1.5 rounded-12 border border-border-subtlest-tertiary px-3 py-2 transition-all duration-200 hover:border-border-subtlest-secondary hover:bg-surface-hover tablet:gap-2 tablet:px-4 tablet:py-3">
             <ArrowIcon
               className="-rotate-90 text-text-tertiary transition-colors group-hover:text-text-primary"
               size={IconSize.Small}
             />
-            <span className="text-text-secondary transition-colors typo-callout group-hover:text-text-primary">
+            <span className="text-text-secondary transition-colors typo-footnote group-hover:text-text-primary tablet:typo-callout">
               {getArchiveTitle(prev)}
             </span>
           </a>
@@ -54,8 +54,8 @@ export function ArchiveNavigation({
       )}
       {next ? (
         <Link href={getArchiveUrlFromArchive(scope, next)} prefetch={false}>
-          <a className="group flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-4 py-3 transition-all duration-200 hover:border-border-subtlest-secondary hover:bg-surface-hover">
-            <span className="text-text-secondary transition-colors typo-callout group-hover:text-text-primary">
+          <a className="group flex items-center gap-1.5 rounded-12 border border-border-subtlest-tertiary px-3 py-2 transition-all duration-200 hover:border-border-subtlest-secondary hover:bg-surface-hover tablet:gap-2 tablet:px-4 tablet:py-3">
+            <span className="text-text-secondary transition-colors typo-footnote group-hover:text-text-primary tablet:typo-callout">
               {getArchiveTitle(next)}
             </span>
             <ArrowIcon
