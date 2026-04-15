@@ -30,22 +30,6 @@
   pointer-events: none;
 }
 
-/* ── Popover enter ──────────────────────────── */
-@keyframes helpPopoverSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.popoverEnter {
-  animation: helpPopoverSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
 /* ── Accent gradient bar ────────────────────── */
 .accentBar {
   position: absolute;
@@ -95,29 +79,6 @@
   filter: blur(8px);
 }
 
-/* ── Inline sidebar card ────────────────────── */
-.inlineCard {
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.inlineAccent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--theme-accent-cabbage-default),
-    var(--theme-accent-blueCheese-default)
-  );
-  background-size: 200% 100%;
-  animation: helpGradientShift 4s ease-in-out infinite;
-  border-radius: 12px 12px 0 0;
-}
-
 /* ── Notification dot pulse ─────────────────── */
 @keyframes helpDotPulse {
   0%,
@@ -131,21 +92,6 @@
 
 .notificationDot {
   animation: helpDotPulse 2s ease-in-out infinite;
-}
-
-/* ── Popover highlight gradient (subtle) ────── */
-.popoverHighlight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--theme-accent-cabbage-default) 4%, transparent),
-    transparent
-  );
-  pointer-events: none;
 }
 
 /* ── CTA button shimmer ─────────────────────── */

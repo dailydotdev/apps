@@ -269,6 +269,7 @@ export enum RequestKey {
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
+  MarketingCtas = 'marketing_ctas',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

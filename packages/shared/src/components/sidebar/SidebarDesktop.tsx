@@ -112,16 +112,8 @@ export const SidebarDesktop = ({
         </Nav>
       </SidebarScrollWrapper>
 
-      {/* Help guide — pinned to sidebar bottom */}
-      <div
-        className={classNames(
-          'flex-shrink-0 border-t border-border-subtlest-tertiary p-2',
-          'transition-[padding] duration-300',
-          sidebarExpanded ? 'px-3' : 'px-1',
-        )}
-      >
-        <HelpWidget sidebarExpanded={sidebarExpanded} />
-      </div>
+      {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
+      <HelpWidget sidebarExpanded={sidebarExpanded} />
     </SidebarAside>
   );
 };
