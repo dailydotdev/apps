@@ -535,12 +535,15 @@ export const OnboardingV2 = (): ReactElement => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setExtensionSeen]);
   const closeSignupChooser = useCallback(() => {
+    setSignupContext(null);
     setStep('hero');
-  }, []);
+  }, [setSignupContext]);
   const closeAuthSignup = useCallback(() => {
+    setAutoTriggerProvider(undefined);
+    setSignupContext(null);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
-  }, []);
+  }, [setSignupContext]);
   const openLogin = useCallback(() => {
     showLogin({
       trigger: AuthTriggers.MainButton,
@@ -2080,7 +2083,7 @@ export const OnboardingV2 = (): ReactElement => {
         >
           <div
             className="absolute inset-0"
-            onClick={() => setStep('hero')}
+            onClick={closeSignupChooser}
             role="presentation"
           />
 
@@ -2089,7 +2092,7 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Close */}
             <button
               type="button"
-              onClick={() => setStep('hero')}
+              onClick={closeSignupChooser}
               className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
