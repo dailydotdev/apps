@@ -44,6 +44,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/squads';
 import {
   type SourceMember,
+  SourceType,
   type Squad,
   SourceMemberRole,
   SourcePermissions,
@@ -57,8 +58,9 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '@dailydotdev/shared/src/graphql/contentPreference';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
-import SquadPage from '../pages/squads/[handle]';
+import SquadPage, { getServerSideProps } from '../pages/squads/[handle]';
 
 const defaultSquad: Squad = {
   ...generateTestSquad(),
@@ -259,6 +261,35 @@ const renderComponent = (
 };
 
 describe('squad page', () => {
+  it('should redirect machine sources to the canonical sources route', async () => {
+    jest.spyOn(gqlClient, 'request').mockResolvedValueOnce({
+      source: {
+        id: 'daily',
+        name: 'daily.dev',
+        image: 'https://daily.dev/daily.png',
+        handle: 'daily',
+        permalink: 'https://app.daily.dev/sources/daily',
+        type: SourceType.Machine,
+        public: true,
+      },
+    } as Awaited<ReturnType<typeof gqlClient.request>>);
+
+    const setHeader = jest.fn();
+    const result = await getServerSideProps({
+      params: { handle: 'daily' },
+      query: {},
+      res: { setHeader },
+    } as never);
+
+    expect(setHeader).toHaveBeenCalled();
+    expect(result).toEqual({
+      redirect: {
+        destination: '/sources/daily',
+        permanent: false,
+      },
+    });
+  });
+
   it('should request source feed', async () => {
     renderComponent();
     await waitForNock();
