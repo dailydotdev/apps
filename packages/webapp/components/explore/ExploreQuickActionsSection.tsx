@@ -48,10 +48,10 @@ const tileShellClass = classNames(
 );
 
 const tileInnerClass =
-  'flex min-h-[5.5rem] items-center gap-4 rounded-14 bg-surface-float px-5 py-4';
+  'flex min-h-[5.5rem] items-center gap-4 rounded-14 px-5 py-4';
 
 const iconWrapClass =
-  'flex h-14 w-14 shrink-0 items-center justify-center rounded-14 bg-surface-hover text-accent-blueCheese-default';
+  'flex h-14 w-14 shrink-0 items-center justify-center rounded-14 text-accent-blueCheese-default';
 
 interface QuickActionLinkTileProps {
   href: string;

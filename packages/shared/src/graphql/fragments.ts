@@ -256,6 +256,9 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       }
       coresRole
     }
+    scout {
+      ...UserAuthor
+    }
     type
     subType
     tags
@@ -308,6 +311,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     endsAt
   }
+  ${USER_AUTHOR_FRAGMENT}
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
 
@@ -592,7 +596,11 @@ export const FEED_POST_FRAGMENT = gql`
       }
       author {
         id
+        name
+        image
         username
+        permalink
+        reputation
       }
       slug
       clickbaitTitleDetected
@@ -606,6 +614,7 @@ export const FEED_POST_FRAGMENT = gql`
     collectionSources {
       handle
       image
+      name
     }
     numCollectionSources
     updatedAt

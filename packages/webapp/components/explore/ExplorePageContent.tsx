@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
+import { NextSeo } from 'next-seo';
 import type { QueryClient } from '@tanstack/react-query';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
@@ -24,6 +25,8 @@ import {
   generateQueryKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import { getPageSeoTitles } from '../layouts/utils';
+import { defaultOpenGraph } from '../../next-seo';
 import { ExploreNewsLayout } from './ExploreNewsLayout';
 import type { ExploreCategoryId } from './exploreCategories';
 import {
@@ -295,26 +298,45 @@ export const ExplorePageContent = ({
     [topicClusterStoriesQueries],
   );
 
+  const exploreCategorySeo = useMemo(() => {
+    const category = getExploreCategoryById(activeCategoryId);
+    const titleBase =
+      activeCategoryId === 'explore' || !category
+        ? 'Explore developer news'
+        : `${category.label} developer news`;
+
+    return getPageSeoTitles(titleBase);
+  }, [activeCategoryId]);
+
   return (
-    <ExploreNewsLayout
-      activeTabId={activeCategoryId}
-      highlights={sortedHighlights}
-      highlightsLoading={isFetchingHighlights && !highlightsData}
-      digestSource={digestSource}
-      latestStories={isVideosCategory ? [] : latestStories}
-      popularStories={isVideosCategory ? [] : popularStories}
-      upvotedStories={isVideosCategory ? [] : upvotedStories}
-      discussedStories={isVideosCategory ? [] : discussedStories}
-      videoLatestStories={isVideosCategory ? latestStories : []}
-      videoPopularStories={isVideosCategory ? popularStories : []}
-      videoUpvotedStories={isVideosCategory ? upvotedStories : []}
-      videoDiscussedStories={isVideosCategory ? discussedStories : []}
-      arenaTools={arenaRankings}
-      arenaLoading={isArenaLoading}
-      arenaTab={arenaTab}
-      onArenaTabChange={setArenaTab}
-      arenaHighlightsItems={arenaData?.sentimentHighlights?.items ?? []}
-      categoryClusterStories={topicClusterStoriesByCategory}
-    />
+    <>
+      <NextSeo
+        title={exploreCategorySeo.title}
+        openGraph={{
+          ...defaultOpenGraph,
+          ...exploreCategorySeo.openGraph,
+        }}
+      />
+      <ExploreNewsLayout
+        activeTabId={activeCategoryId}
+        highlights={sortedHighlights}
+        highlightsLoading={isFetchingHighlights && !highlightsData}
+        digestSource={digestSource}
+        latestStories={isVideosCategory ? [] : latestStories}
+        popularStories={isVideosCategory ? [] : popularStories}
+        upvotedStories={isVideosCategory ? [] : upvotedStories}
+        discussedStories={isVideosCategory ? [] : discussedStories}
+        videoLatestStories={isVideosCategory ? latestStories : []}
+        videoPopularStories={isVideosCategory ? popularStories : []}
+        videoUpvotedStories={isVideosCategory ? upvotedStories : []}
+        videoDiscussedStories={isVideosCategory ? discussedStories : []}
+        arenaTools={arenaRankings}
+        arenaLoading={isArenaLoading}
+        arenaTab={arenaTab}
+        onArenaTabChange={setArenaTab}
+        arenaHighlightsItems={arenaData?.sentimentHighlights?.items ?? []}
+        categoryClusterStories={topicClusterStoriesByCategory}
+      />
+    </>
   );
 };
