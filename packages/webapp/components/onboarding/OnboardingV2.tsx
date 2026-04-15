@@ -27,7 +27,7 @@ import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
-import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
+import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
 import { PhoneIcon } from '@dailydotdev/shared/src/components/icons/Phone';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
@@ -1840,7 +1840,7 @@ export const OnboardingV2 = (): ReactElement => {
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2.5 rounded-14 border border-white/[0.12] bg-white/[0.06] py-3 font-bold text-text-primary transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:bg-white/[0.10]"
               >
-                <GoogleIcon secondary size={IconSize.Size16} />
+                <AndroidIcon secondary size={IconSize.Size16} />
                 Download for Android
               </a>
             </div>

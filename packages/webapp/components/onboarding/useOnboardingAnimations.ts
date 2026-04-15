@@ -118,7 +118,7 @@ export function useOnboardingAnimations(step: OnboardingStep) {
 
     const timer = window.setTimeout(() => {
       setFeedVisible(true);
-    }, 1400);
+    }, 400);
 
     const observer = new IntersectionObserver(
       (entries) => {
