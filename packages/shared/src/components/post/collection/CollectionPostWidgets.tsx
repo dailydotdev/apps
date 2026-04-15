@@ -9,6 +9,7 @@ import { PostRelationType } from '../../../graphql/posts';
 import type { PostWidgetsProps } from '../PostWidgets';
 import { FooterLinks } from '../../footer';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
+import { FeaturedArchives } from '../../widgets/FeaturedArchives';
 
 export const CollectionPostWidgets = ({
   onCopyPostLink,
@@ -34,6 +35,7 @@ export const CollectionPostWidgets = ({
         onCopyPostLink={onCopyPostLink}
         link={post.commentsPermalink}
       />
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

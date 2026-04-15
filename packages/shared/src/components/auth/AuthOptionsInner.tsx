@@ -159,6 +159,8 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  autoTriggerProvider,
+  socialProviderScopes,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -552,6 +554,7 @@ function AuthOptionsInner({
       provider.toLowerCase(),
       callbackURL,
       additionalData,
+      socialProviderScopes,
     );
     if (!socialUrl) {
       logEvent({
@@ -604,6 +607,21 @@ function AuthOptionsInner({
       }
     }, 500);
   };
+
+  const onProviderClickRef = useRef(onProviderClick);
+  onProviderClickRef.current = onProviderClick;
+  const autoTriggerFiredProvider = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (
+      !autoTriggerProvider ||
+      autoTriggerFiredProvider.current === autoTriggerProvider
+    ) {
+      return;
+    }
+    autoTriggerFiredProvider.current = autoTriggerProvider;
+    onProviderClickRef.current(autoTriggerProvider, false);
+  }, [autoTriggerProvider]);
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {

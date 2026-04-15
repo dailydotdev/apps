@@ -399,6 +399,7 @@ export enum LogEvent {
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
   // Quests
+  QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
 }
