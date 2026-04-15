@@ -70,6 +70,7 @@ import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notif
 import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
 import { OnboardingChooserGrid } from './OnboardingChooserGrid';
@@ -252,6 +253,7 @@ export const OnboardingV2 = (): ReactElement => {
     false,
   );
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
+  const [acceptedMarketing, setAcceptedMarketing] = useState(true);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
   const [importPhase, setImportPhase] = useState<ImportPhase>('idle');
@@ -386,7 +388,10 @@ export const OnboardingV2 = (): ReactElement => {
 
       await gqlClient
         .request(UPDATE_USER_PROFILE_MUTATION, {
-          data: { experienceLevel: UserExperienceLevel[level] },
+          data: {
+            experienceLevel: UserExperienceLevel[level],
+            acceptedMarketing,
+          },
         })
         .catch(() => undefined);
 
@@ -415,11 +420,12 @@ export const OnboardingV2 = (): ReactElement => {
       }, 420);
     },
     [
-      clearImportTimers,
-      trackTimer,
       importPhase,
+      clearImportTimers,
+      acceptedMarketing,
       completeAction,
       router,
+      trackTimer,
       showExtensionCta,
     ],
   );
@@ -1329,6 +1335,7 @@ export const OnboardingV2 = (): ReactElement => {
                 forceDefaultDisplay
                 simplified
                 autoTriggerProvider={autoTriggerProvider}
+                acceptedMarketing={acceptedMarketing}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
@@ -1890,6 +1897,17 @@ export const OnboardingV2 = (): ReactElement => {
                   />
                 </div>
               </div>
+            )}
+
+            {importBodyPhase === 'seniority' && (
+              <Checkbox
+                name="optOutMarketing"
+                checked={!acceptedMarketing}
+                onToggleCallback={(checked) => setAcceptedMarketing(!checked)}
+                className="mb-4 self-start typo-caption2"
+              >
+                I don&apos;t want to receive updates and promotions via email
+              </Checkbox>
             )}
 
             {importBodyPhase !== 'default' && (
