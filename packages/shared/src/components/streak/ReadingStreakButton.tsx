@@ -34,6 +34,7 @@ interface CustomStreaksTooltipProps {
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
   placement: TooltipPosition;
+  zIndex: number;
 }
 
 function CustomStreaksTooltip({
@@ -42,6 +43,7 @@ function CustomStreaksTooltip({
   shouldShowStreaks,
   setShouldShowStreaks,
   placement,
+  zIndex,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -50,6 +52,7 @@ function CustomStreaksTooltip({
       placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
+      zIndex={zIndex}
       container={{
         paddingClassName: 'p-0',
         bgClassName: 'bg-accent-pepper-subtlest',
@@ -91,8 +94,6 @@ export function ReadingStreakButton({
     }
   }, [shouldShowStreaks, logEvent]);
 
-  const Tooltip = shouldShowStreaks ? CustomStreaksTooltip : SimpleTooltip;
-
   if (isLoading) {
     return <div className="h-8 w-14 rounded-12 bg-surface-float" />;
   }
@@ -101,21 +102,37 @@ export function ReadingStreakButton({
     return null;
   }
 
+  const streakTooltipZIndex = 80;
+
   return (
     <>
       <ConditionalWrapper
         condition={!isMobile}
-        wrapper={(children: ReactElement) => (
-          <Tooltip
-            content="Current streak"
-            streak={streak}
-            shouldShowStreaks={shouldShowStreaks}
-            setShouldShowStreaks={setShouldShowStreaks}
-            placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
-          >
-            {children}
-          </Tooltip>
-        )}
+        wrapper={(children: ReactElement) =>
+          shouldShowStreaks ? (
+            <CustomStreaksTooltip
+              streak={streak}
+              shouldShowStreaks={shouldShowStreaks}
+              setShouldShowStreaks={setShouldShowStreaks}
+              placement={
+                !isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'
+              }
+              zIndex={streakTooltipZIndex}
+            >
+              {children}
+            </CustomStreaksTooltip>
+          ) : (
+            <SimpleTooltip
+              content="Current streak"
+              placement={
+                !isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'
+              }
+              zIndex={streakTooltipZIndex}
+            >
+              {children}
+            </SimpleTooltip>
+          )
+        }
       >
         <Button
           id="reading-streak-header-button"

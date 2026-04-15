@@ -87,7 +87,9 @@ export function DayStreak({
           />
         )}
         {renderIcon()}
-        {dateFormatInTimezone(date, 'iiiii', user?.timezone ?? 'UTC')}
+        <span className="text-text-tertiary typo-caption2">
+          {dateFormatInTimezone(date, 'iiiii', user?.timezone ?? 'UTC')}
+        </span>
       </div>
     </Tooltip>
   );

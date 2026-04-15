@@ -89,48 +89,50 @@ export const AgentsHighlightsSection = ({
   }
 
   return (
-    <section className="relative flex h-full w-full flex-col overflow-hidden">
-      <header className="flex items-end justify-start gap-2 px-0 pb-2 pt-0">
-        <h2 className="feed-highlights-title-gradient self-center font-bold leading-tight typo-title3">
-          Happening Now
-        </h2>
+    <section className="rounded-16 bg-surface-float p-3 laptop:p-4">
+      <header className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="feed-highlights-title-gradient font-bold leading-tight typo-title3">Happening Now</h2>
         {!!digestSource?.id && (
-          <div className="ml-auto flex items-center">
-            <DigestSubscribeButton source={digestSource} />
-          </div>
+          <DigestSubscribeButton source={digestSource} />
         )}
       </header>
-      <div className="flex min-h-0 grow flex-col overflow-y-auto px-0 pb-2.5 pt-0">
-        {loading ? (
-          <>
-            <HighlightSkeleton />
-            <HighlightSkeleton />
-            <HighlightSkeleton />
-          </>
-        ) : (
-          <div className="divide-y divide-border-subtlest-tertiary">
-            {visibleHighlights.map((highlight) => (
-              <Link
-                key={`${highlight.channel}-${highlight.post.id}`}
-                href={highlight.post.commentsPermalink}
-              >
-                <a className="group flex flex-col gap-1 py-3 transition-colors">
+      {loading ? (
+        <>
+          <HighlightSkeleton />
+          <HighlightSkeleton />
+          <HighlightSkeleton />
+        </>
+      ) : (
+        visibleHighlights.map((highlight, index) => (
+          <div
+            key={`${highlight.channel}-${highlight.post.id}`}
+            className={
+              index === visibleHighlights.length - 1
+                ? ''
+                : 'mb-2 border-b border-border-subtlest-tertiary'
+            }
+          >
+            <Link href={highlight.post.commentsPermalink}>
+              <a className="flex items-start gap-3 py-2">
+                <div className="min-w-0 flex-1">
                   <p
-                    className="line-clamp-2 text-text-primary transition-colors typo-callout"
-                    style={{ fontSize: '17px' }}
+                    className="line-clamp-3 text-text-primary transition-colors typo-callout"
+                    style={{ fontSize: '15px' }}
                   >
                     {highlight.headline}
                   </p>
-                  <RelativeTime
-                    dateTime={highlight.highlightedAt}
-                    className="truncate !text-[13px] text-text-tertiary typo-caption2"
-                  />
-                </a>
-              </Link>
-            ))}
+                  <div
+                    className="mt-2 flex min-w-0 items-center gap-1 text-text-tertiary typo-caption2"
+                    style={{ fontSize: '13px' }}
+                  >
+                    <RelativeTime dateTime={highlight.highlightedAt} />
+                  </div>
+                </div>
+              </a>
+            </Link>
           </div>
-        )}
-      </div>
+        ))
+      )}
     </section>
   );
 };
