@@ -17,6 +17,7 @@ const BATCH_SIZE = 8;
 function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
   return {
     id: post.post_id,
+    summary: post.summary,
     title: post.title,
     image: null,
     tags: post.tags,

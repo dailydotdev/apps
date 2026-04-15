@@ -1438,23 +1438,50 @@ const OnboardingPostCard = ({
             {card.tags.slice(0, 5).map((tag) => (
               <span
                 key={tag}
-                className="rounded-8 bg-surface-hover px-2 py-0.5 typo-footnote text-text-tertiary"
+                className="rounded-8 bg-surface-hover px-2 py-0.5 text-text-tertiary typo-footnote"
               >
                 {tag}
               </span>
             ))}
           </div>
         )}
-        <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-12">
-          {card.image ? (
-            <img
-              alt={card.title ?? 'Popular post'}
-              className="size-full rounded-12 object-cover"
-              draggable={false}
-              src={card.image}
-            />
+        <div className="bg-surface-hover/60 flex min-h-0 flex-1 flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary p-4">
+          {card.summary ? (
+            <>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                className="shrink-0 uppercase tracking-[0.08em]"
+                bold
+              >
+                TLDR
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className="mt-2 line-clamp-6 overflow-hidden text-pretty"
+              >
+                {card.summary}
+              </Typography>
+            </>
           ) : (
-            <div className="size-full rounded-12 bg-surface-hover" />
+            <>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                className="shrink-0 uppercase tracking-[0.08em]"
+                bold
+              >
+                TLDR
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                className="mt-2"
+              >
+                No summary available for this post yet.
+              </Typography>
+            </>
           )}
         </div>
       </div>
@@ -1470,9 +1497,7 @@ const OnboardingFeedEmptyState = ({
   isRefetching: boolean;
 }): ReactElement => (
   <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-    {isRefetching ? (
-      <Loader />
-    ) : null}
+    {isRefetching ? <Loader /> : null}
     <Typography
       type={TypographyType.Title3}
       color={TypographyColor.Primary}
@@ -1551,6 +1576,7 @@ export type OnboardingSwipeActionMeta = {
 export interface OnboardingSwipeCard {
   id: string;
   title?: string;
+  summary?: string | null;
   image?: string | null;
   tags?: string[];
   source?: {
@@ -2133,10 +2159,10 @@ const HotAndColdModal = ({
       {showHeader && <Modal.Header title={title} />}
       <Modal.Body
         className={classNames(
-          'bg-overlay-quaternary-onion !p-0',
+          '!p-0',
           isOnboardingMode
-            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden tablet:flex-none tablet:!overflow-x-visible tablet:!overflow-y-visible'
-            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden',
+            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-background-default tablet:flex-none tablet:!overflow-x-visible tablet:!overflow-y-visible'
+            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-overlay-quaternary-onion',
         )}
       >
         {headerSlot}
@@ -2167,18 +2193,20 @@ const HotAndColdModal = ({
           <>
             {!isOnboardingMode && topSlot}
             {isOnboardingMode ? (
-              <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-4 px-4 pb-6 pt-6 tablet:flex-none tablet:pb-8">
-                {topSlot}
-                {cardSwipeArea}
-                <div className="px-4">
-                  <OnboardingSwipeHintIcons
-                    deltaX={combinedOnboardingSwipeX}
-                    disabled={isAnimating}
-                    onInteresting={() => handleDismiss('right', 'button')}
-                    onNotInteresting={() => handleDismiss('left', 'button')}
-                  />
+              <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
+                <div className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4">
+                  {topSlot}
+                  <div className="flex justify-center">{cardSwipeArea}</div>
+                  <div className="flex justify-center px-4">
+                    <OnboardingSwipeHintIcons
+                      deltaX={combinedOnboardingSwipeX}
+                      disabled={isAnimating}
+                      onInteresting={() => handleDismiss('right', 'button')}
+                      onNotInteresting={() => handleDismiss('left', 'button')}
+                    />
+                  </div>
+                  {bottomSlot}
                 </div>
-                {bottomSlot}
               </div>
             ) : (
               <>

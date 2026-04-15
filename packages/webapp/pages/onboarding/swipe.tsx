@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, {
   useCallback,
   useEffect,
@@ -80,6 +80,82 @@ const shouldClearPreselectedTagsForSwipeOnboardingTest =
   SWIPE_ONBOARDING_TEST_CLEAR_PRESELECTED_TAGS_TOGGLE ||
   process.env.NEXT_PUBLIC_SWIPE_ONBOARDING_TEST_CLEAR_TAGS === 'true';
 
+const swipeOnboardingPageBackdropStyle: CSSProperties = {
+  backgroundImage: `radial-gradient(circle at top, rgb(from var(--theme-accent-cabbage-default) r g b / 0.12), transparent 34%), radial-gradient(circle at bottom right, rgb(from var(--theme-accent-avocado-default) r g b / 0.1), transparent 28%), linear-gradient(180deg, rgb(from var(--theme-background-default) r g b / 1) 0%, rgb(from var(--theme-background-default) r g b / 0.98) 100%)`,
+};
+
+const swipeOnboardingModalShellClassName =
+  'tablet:!max-h-[calc(100vh-2rem)] tablet:!w-[42rem] tablet:!max-w-[calc(100vw-2rem)] tablet:!rounded-[2rem] tablet:!border-border-subtlest-secondary tablet:shadow-[0_32px_120px_-48px_rgba(0,0,0,0.58)]';
+
+const swipeOnboardingSurfaceClassName =
+  'w-full overflow-hidden rounded-[2rem] border border-border-subtlest-secondary bg-background-default shadow-[0_24px_90px_-48px_rgba(0,0,0,0.58)]';
+
+const swipeOnboardingPanelClassName =
+  'rounded-[1.5rem] border border-border-subtlest-tertiary bg-surface-float';
+
+function SwipeOnboardingViewport({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}): ReactElement {
+  return (
+    <div
+      className={classNames(
+        'relative isolate min-h-dvh overflow-hidden bg-background-default',
+        className,
+      )}
+      style={swipeOnboardingPageBackdropStyle}
+    >
+      <div className="relative z-[1] flex min-h-dvh w-full flex-col items-center px-4 pb-6 pt-4 tablet:px-6 tablet:pb-8">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SwipeOnboardingToolbar({
+  label,
+  actionLabel,
+  onAction,
+  onBack,
+}: {
+  label: string;
+  actionLabel: string;
+  onAction: () => void;
+  onBack: () => void;
+}): ReactElement {
+  return (
+    <div className="pointer-events-none flex w-full justify-center px-4 pb-1 pt-4 tablet:px-6">
+      <div className="flex w-full max-w-[32rem] items-center justify-between gap-3 px-2 py-2">
+        <Button
+          className="pointer-events-auto !rounded-full"
+          icon={<ArrowIcon className="-rotate-90" />}
+          size={ButtonSize.Small}
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          onClick={onBack}
+        />
+        <div className="min-w-0 flex-1 px-2 text-center">
+          <p className="truncate font-medium text-text-secondary typo-footnote">
+            {label}
+          </p>
+        </div>
+        <Button
+          className="pointer-events-auto shrink-0 !rounded-full"
+          size={ButtonSize.Small}
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          onClick={onAction}
+        >
+          {actionLabel}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function SwipeOnboardingPage(): ReactElement {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
@@ -105,7 +181,6 @@ function SwipeOnboardingPage(): ReactElement {
     handleSwipe: handleAdaptiveSwipe,
     retryFetch,
     selectedTags: adaptiveSelectedTags,
-    rightSwipedPostIds,
   } = useAdaptiveSwipeDeck();
 
   const handlePromptSubmit = useCallback(async () => {
@@ -289,13 +364,38 @@ function SwipeOnboardingPage(): ReactElement {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex min-h-dvh w-full flex-col items-center bg-background-default">
-        <OnboardingHeader />
-        <div className="flex w-full flex-1 items-center justify-center px-4">
-          <AuthOptions {...authOptionProps} />
+      <SwipeOnboardingViewport>
+        <div className="w-full max-w-[42rem]">
+          <OnboardingHeader />
         </div>
-        <FooterLinks className="mx-auto pb-6" />
-      </div>
+        <div className="flex w-full flex-1 items-center justify-center">
+          <div
+            className={classNames(
+              swipeOnboardingSurfaceClassName,
+              'max-w-[34rem]',
+            )}
+          >
+            <div className="flex flex-col gap-6 p-6 tablet:p-8">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
+                  Personalize your daily.dev feed
+                </span>
+                <div className="space-y-3">
+                  <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
+                    Sign in to start shaping your feed
+                  </h1>
+                  <p className="text-balance text-center text-text-tertiary typo-body">
+                    We&apos;ll turn your interests and swipes into a smarter
+                    starter feed in just a few steps.
+                  </p>
+                </div>
+              </div>
+              <AuthOptions {...authOptionProps} />
+            </div>
+          </div>
+        </div>
+        <FooterLinks className="mx-auto pt-4" />
+      </SwipeOnboardingViewport>
     );
   }
 
@@ -307,245 +407,292 @@ function SwipeOnboardingPage(): ReactElement {
 
   const bottomContinueSlot = canContinue ? (
     <div className="w-full min-w-0 self-stretch px-4">
-      <Button
-        className="w-full min-w-0"
-        size={ButtonSize.Medium}
-        variant={ButtonVariant.Primary}
-        type="button"
-        onClick={() => {
-          setOnboardingUiMode('results');
-        }}
-      >
-        See my interests
-      </Button>
+      <div className="mx-auto flex w-full max-w-[32rem] flex-col gap-3 rounded-[1.5rem] border border-border-subtlest-secondary bg-background-default p-3 shadow-[0_24px_72px_-44px_rgba(0,0,0,0.7)] tablet:flex-row tablet:items-center tablet:justify-between">
+        <div className="min-w-0 px-2">
+          <p className="font-medium text-text-secondary typo-footnote">
+            Starter feed ready
+          </p>
+          <p className="text-balance text-text-tertiary typo-caption1">
+            We have enough signal to build your first pass. You can keep
+            refining it after this.
+          </p>
+        </div>
+        <Button
+          className="w-full min-w-0 shrink-0 tablet:w-auto"
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Primary}
+          type="button"
+          onClick={() => {
+            setOnboardingUiMode('results');
+          }}
+        >
+          See my interests
+        </Button>
+      </div>
     </div>
   ) : null;
 
   if (onboardingUiMode === 'results') {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center bg-background-default px-4 pb-6 pt-2">
-        <div className="flex w-full max-w-md flex-col items-center gap-6">
-          <h1 className="text-center font-bold typo-title1 text-text-primary">
-            Your interests
-          </h1>
-          <p className="text-center typo-body text-text-tertiary">
-            Based on your swipes, we selected these tags for your feed.
-          </p>
-          {adaptiveSelectedTags.length > 0 ? (
-            <div className="flex w-full flex-wrap justify-center gap-2">
-              {adaptiveSelectedTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-10 bg-accent-cabbage-default/16 px-3 py-1.5 font-bold typo-callout text-accent-cabbage-default"
-                >
-                  {tag}
+      <SwipeOnboardingViewport>
+        <div className="flex w-full max-w-[42rem] flex-1 flex-col justify-center">
+          <div className={swipeOnboardingSurfaceClassName}>
+            <div className="flex flex-col gap-6 p-6 tablet:p-8">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
+                  Your starter feed
                 </span>
-              ))}
+                <div className="space-y-3">
+                  <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
+                    Your interests are taking shape
+                  </h1>
+                  <p className="mx-auto max-w-[32rem] text-balance text-center text-text-tertiary typo-body">
+                    Based on your swipes, we pulled together the topics most
+                    likely to improve your feed right away.
+                  </p>
+                </div>
+              </div>
+              <div
+                className={classNames(
+                  swipeOnboardingPanelClassName,
+                  'flex flex-col gap-4 p-5',
+                )}
+              >
+                {adaptiveSelectedTags.length > 0 ? (
+                  <div className="flex w-full flex-wrap justify-center gap-2">
+                    {adaptiveSelectedTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-accent-cabbage-default/16 rounded-full px-3 py-1.5 font-bold text-accent-cabbage-default typo-callout"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-text-quaternary typo-body">
+                    No tags selected yet. Swipe right on posts you find
+                    interesting to train the feed.
+                  </p>
+                )}
+                <div className="flex w-full flex-col gap-3 tablet:flex-row">
+                  <Button
+                    className="w-full"
+                    size={ButtonSize.Medium}
+                    variant={ButtonVariant.Primary}
+                    type="button"
+                    onClick={() => {
+                      onComplete().catch(() => null);
+                    }}
+                  >
+                    Go to my feed
+                  </Button>
+                  <Button
+                    className="w-full"
+                    size={ButtonSize.Medium}
+                    variant={ButtonVariant.Tertiary}
+                    type="button"
+                    onClick={() => {
+                      setOnboardingUiMode('swipe');
+                    }}
+                  >
+                    Keep swiping
+                  </Button>
+                </div>
+              </div>
             </div>
-          ) : (
-            <p className="typo-body text-text-quaternary">
-              No tags selected yet. Swipe right on posts you find interesting!
-            </p>
-          )}
-          <div className="flex w-full flex-col gap-3">
-            <Button
-              className="w-full"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Primary}
-              type="button"
-              onClick={() => {
-                onComplete().catch(() => null);
-              }}
-            >
-              Go to my feed
-            </Button>
-            <Button
-              className="w-full"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Tertiary}
-              type="button"
-              onClick={() => {
-                setOnboardingUiMode('swipe');
-              }}
-            >
-              Keep swiping
-            </Button>
           </div>
         </div>
-      </div>
+      </SwipeOnboardingViewport>
     );
   }
 
   if (onboardingUiMode === 'prompt') {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center bg-background-default px-4 pb-6 pt-2">
-        <div className="flex w-full max-w-md flex-col items-center gap-6">
-          <h1 className="text-center font-bold typo-title1 text-text-primary">
-            What are you interested in?
-          </h1>
-          <p className="text-center typo-body text-text-tertiary">
-            Describe your interests and we&apos;ll find the best content for
-            you.
-          </p>
-          <textarea
-            className="min-h-[8rem] w-full resize-none rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 typo-body text-text-primary placeholder:text-text-quaternary focus:border-accent-cabbage-default focus:outline-none"
-            placeholder="e.g. I'm a backend engineer interested in Rust, distributed systems, and system design..."
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handlePromptSubmit();
-              }
-            }}
-          />
-          <div className="flex w-full flex-col gap-3">
-            <Button
-              className="w-full"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Primary}
-              type="button"
-              disabled={promptLoading}
-              onClick={() => {
-                handlePromptSubmit();
-              }}
-            >
-              {promptLoading ? 'Finding posts...' : 'Start swiping'}
-            </Button>
-            <Button
-              className="w-full"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Tertiary}
-              type="button"
-              disabled={promptLoading}
-              onClick={() => {
-                handleSkipPrompt();
-              }}
-            >
-              Skip — show me popular posts
-            </Button>
+      <SwipeOnboardingViewport>
+        <div className="flex w-full max-w-[46rem] flex-1 flex-col justify-center">
+          <div className={swipeOnboardingSurfaceClassName}>
+            <div className="flex flex-col gap-5 p-5 tablet:gap-6 tablet:p-7">
+              <div className="flex flex-col items-center gap-3 text-center">
+                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
+                  Personalize your daily.dev feed
+                </span>
+                <div className="space-y-3">
+                  <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
+                    What do you want to read more about?
+                  </h1>
+                  <p className="mx-auto max-w-[32rem] text-balance text-center text-text-tertiary typo-body">
+                    Describe your interests and we&apos;ll turn that into a
+                    swipe deck that feels closer to a real conversation than a
+                    blank setup form.
+                  </p>
+                </div>
+              </div>
+              <div
+                className={classNames(
+                  swipeOnboardingPanelClassName,
+                  'overflow-hidden',
+                )}
+              >
+                <textarea
+                  className="min-h-[8.5rem] w-full resize-none bg-transparent px-5 py-4 text-text-primary typo-body placeholder:text-text-quaternary focus:outline-none tablet:min-h-[9rem]"
+                  placeholder="e.g. I'm a backend engineer interested in Rust, distributed systems, infrastructure, and system design..."
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handlePromptSubmit();
+                    }
+                  }}
+                />
+                <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary px-4 py-3 tablet:flex-row tablet:items-center tablet:justify-between">
+                  <Button
+                    className="w-full tablet:w-auto"
+                    size={ButtonSize.Medium}
+                    variant={ButtonVariant.Tertiary}
+                    type="button"
+                    disabled={promptLoading}
+                    onClick={() => {
+                      handleSkipPrompt();
+                    }}
+                  >
+                    Show popular posts
+                  </Button>
+                  <Button
+                    className="w-full tablet:w-auto"
+                    size={ButtonSize.Medium}
+                    variant={ButtonVariant.Primary}
+                    type="button"
+                    disabled={promptLoading}
+                    onClick={() => {
+                      handlePromptSubmit();
+                    }}
+                  >
+                    {promptLoading ? 'Finding posts...' : 'Start swiping'}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </SwipeOnboardingViewport>
+    );
+  }
+
+  if (onboardingUiMode === 'swipe') {
+    return (
+      <HotAndColdModal
+        isOpen
+        className={swipeOnboardingModalShellClassName}
+        overlayClassName="supports-[backdrop-filter]:backdrop-blur-md"
+        showHeader={false}
+        showDefaultActions={false}
+        showAddHotTakeButton={false}
+        dismissedOnboardingCardIds={dismissedOnboardingCardIds}
+        onDismissedOnboardingCardsChange={setDismissedOnboardingCardIds}
+        onboardingFeedRefetching={isAdaptiveLoading}
+        onOnboardingFeedRetry={() => {
+          retryFetch();
+        }}
+        onSwipeAction={(direction, meta) => {
+          handleSwipeInteraction(direction, meta);
+        }}
+        onboardingCards={adaptiveCards}
+        onboardingCardsLoading={isAdaptiveLoading}
+        headerSlot={
+          <SwipeOnboardingToolbar
+            label="Feed setup"
+            actionLabel="Use tags instead"
+            onAction={() => {
+              setOnboardingUiMode('tags');
+            }}
+            onBack={() => {
+              router.back();
+            }}
+          />
+        }
+        topSlot={
+          <SwipeOnboardingProgressHeader
+            milestoneBurstKey={milestoneBurstKey}
+            progressCount={onboardingProgressCount}
+          />
+        }
+        bottomSlot={bottomContinueSlot}
+        onRequestClose={() => {
+          onComplete().catch(() => null);
+        }}
+      />
     );
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-end bg-background-default px-4 pb-6 pt-2">
-      {onboardingUiMode === 'swipe' ? (
-        <HotAndColdModal
-          isOpen
-          showHeader={false}
-          showDefaultActions={false}
-          showAddHotTakeButton={false}
-          dismissedOnboardingCardIds={dismissedOnboardingCardIds}
-          onDismissedOnboardingCardsChange={setDismissedOnboardingCardIds}
-          onboardingFeedRefetching={isAdaptiveLoading}
-          onOnboardingFeedRetry={() => {
-            retryFetch();
+    <Modal
+      isOpen
+      className={swipeOnboardingModalShellClassName}
+      overlayClassName="supports-[backdrop-filter]:backdrop-blur-md"
+      onRequestClose={() => {
+        onComplete().catch(() => null);
+      }}
+      size={ModalSize.Small}
+    >
+      <Modal.Body className="flex min-h-0 w-full flex-1 flex-col overflow-hidden overflow-x-hidden bg-background-default !p-0 tablet:flex-none tablet:!overflow-x-visible">
+        <SwipeOnboardingToolbar
+          label="Manual setup"
+          actionLabel="Switch to swipe"
+          onAction={() => {
+            setOnboardingUiMode('swipe');
           }}
-          onSwipeAction={(direction, meta) => {
-            handleSwipeInteraction(direction, meta);
-          }}
-          onboardingCards={adaptiveCards}
-          onboardingCardsLoading={isAdaptiveLoading}
-          headerSlot={
-            <div className="pointer-events-none flex w-full select-none items-center justify-between gap-2 px-4 py-2">
-              <Button
-                className="pointer-events-auto"
-                icon={<ArrowIcon className="-rotate-90" />}
-                size={ButtonSize.Small}
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                onClick={() => {
-                  router.back();
-                }}
-              />
-              <Button
-                className="pointer-events-auto shrink-0"
-                size={ButtonSize.Small}
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                onClick={() => {
-                  setOnboardingUiMode('tags');
-                }}
-              >
-                Use tags instead
-              </Button>
-            </div>
-          }
-          topSlot={
-            <SwipeOnboardingProgressHeader
-              milestoneBurstKey={milestoneBurstKey}
-              progressCount={onboardingProgressCount}
-            />
-          }
-          bottomSlot={bottomContinueSlot}
-          onRequestClose={() => {
-            onComplete().catch(() => null);
+          onBack={() => {
+            router.back();
           }}
         />
-      ) : (
-        <Modal
-          isOpen
-          className="tablet:!max-h-[calc(100vh-2rem)]"
-          onRequestClose={() => {
-            onComplete().catch(() => null);
-          }}
-          size={ModalSize.Small}
-        >
-          <Modal.Body className="flex min-h-0 w-full flex-1 flex-col overflow-hidden overflow-x-hidden bg-overlay-quaternary-onion !p-0 tablet:flex-none tablet:!overflow-x-visible">
-            <div className="pointer-events-none flex w-full shrink-0 select-none items-center justify-between gap-2 px-4 py-2">
-              <Button
-                className="pointer-events-auto"
-                icon={<ArrowIcon className="-rotate-90" />}
-                size={ButtonSize.Small}
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                onClick={() => {
-                  router.back();
-                }}
-              />
-              <Button
-                className="pointer-events-auto shrink-0"
-                size={ButtonSize.Small}
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                onClick={() => {
-                  setOnboardingUiMode('swipe');
-                }}
-              >
-                Switch to swipe
-              </Button>
-            </div>
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-2 tablet:px-6 tablet:pb-6">
+          <div className="mx-auto flex min-h-0 w-full max-w-[32rem] flex-1 flex-col gap-4">
             <SwipeOnboardingProgressHeader
               copyVariant="tags"
               milestoneBurstKey={milestoneBurstKey}
               progressCount={onboardingProgressCount}
             />
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center overflow-y-auto overflow-x-hidden px-2 pb-2 pt-2 tablet:max-w-md tablet:self-center">
-                {isFeedSettingsLoading || !feedSettings ? (
-                  <div className="flex flex-1 items-center justify-center py-10">
-                    <Loader />
-                  </div>
-                ) : (
-                  <EditTag
-                    feedSettings={feedSettings}
-                    headline="Pick tags that are relevant to you"
-                  />
-                )}
+            <div
+              className={classNames(
+                swipeOnboardingSurfaceClassName,
+                'flex min-h-0 min-w-0 flex-1 flex-col rounded-[1.75rem]',
+              )}
+            >
+              <div className="border-b border-border-subtlest-tertiary px-5 py-4">
+                <h2 className="font-bold text-text-primary typo-title3">
+                  Pick the topics that matter most
+                </h2>
+                <p className="mt-1 text-balance text-text-tertiary typo-callout">
+                  Prefer a more direct setup? Choose the tags you want in your
+                  feed and we&apos;ll use them right away.
+                </p>
               </div>
-              {canContinue ? (
-                <div className="relative z-10 shrink-0 border-t border-border-subtlest-tertiary bg-overlay-quaternary-onion pb-safe-or-2 pt-3 shadow-2">
-                  {bottomContinueSlot}
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center overflow-y-auto overflow-x-hidden px-2 pb-2 pt-2">
+                  {isFeedSettingsLoading || !feedSettings ? (
+                    <div className="flex flex-1 items-center justify-center py-10">
+                      <Loader />
+                    </div>
+                  ) : (
+                    <EditTag
+                      feedSettings={feedSettings}
+                      headline="Pick tags that are relevant to you"
+                    />
+                  )}
                 </div>
-              ) : null}
+              </div>
             </div>
-          </Modal.Body>
-        </Modal>
-      )}
-    </div>
+            {canContinue ? (
+              <div className="z-10 relative shrink-0 pt-1 pb-safe-or-2">
+                {bottomContinueSlot}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </Modal.Body>
+    </Modal>
   );
 }
 
