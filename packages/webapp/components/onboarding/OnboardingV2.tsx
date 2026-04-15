@@ -253,6 +253,7 @@ export const OnboardingV2 = (): ReactElement => {
     false,
   );
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
+  const [isLoginFlow, setIsLoginFlow] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(true);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
@@ -547,6 +548,7 @@ export const OnboardingV2 = (): ReactElement => {
   const closeAuthSignup = useCallback(() => {
     setAutoTriggerProvider(undefined);
     setSignupContext(null);
+    setIsLoginFlow(false);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, [setSignupContext]);
@@ -643,6 +645,7 @@ export const OnboardingV2 = (): ReactElement => {
             <button
               type="button"
               onClick={() => {
+                setIsLoginFlow(true);
                 setAuthDisplay(AuthDisplay.Default);
                 setStep('auth');
               }}
@@ -1334,9 +1337,15 @@ export const OnboardingV2 = (): ReactElement => {
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                isLoginFlow={isLoginFlow}
                 autoTriggerProvider={autoTriggerProvider}
                 acceptedMarketing={acceptedMarketing}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
+                  if (props.isLoginFlow !== undefined) {
+                    setIsLoginFlow(props.isLoginFlow);
+                    setAuthDisplay(AuthDisplay.Default);
+                    return;
+                  }
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
                   }
