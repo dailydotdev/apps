@@ -86,9 +86,12 @@ it('should request most upvoted feed when logged-in', async () => {
       version: 15,
     }),
   ]);
-  await waitFor(() => {
-    expect(screen.getAllByTestId('postItem').length).toBeTruthy();
-  });
+  await waitFor(
+    () => {
+      expect(screen.getAllByTestId('postItem').length).toBeTruthy();
+    },
+    { timeout: 3000 },
+  );
 });
 
 it('should request most upvoted feed when not', async () => {

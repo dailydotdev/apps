@@ -20,6 +20,7 @@ export enum ExploreTabs {
   MostUpvoted = 'By upvotes',
   BestDiscussions = 'By comments',
   ByDate = 'By date',
+  BestOf = 'Best of',
 }
 
 export const tabsToFeedMap: Partial<Record<OtherFeedPage, ExploreTabs>> = {
@@ -34,6 +35,7 @@ export const urlToTab: Record<string, ExploreTabs> = {
   [`/${OtherFeedPage.Explore}/upvoted`]: ExploreTabs.MostUpvoted,
   [`/${OtherFeedPage.Explore}/discussed`]: ExploreTabs.BestDiscussions,
   [`/${OtherFeedPage.Explore}/latest`]: ExploreTabs.ByDate,
+  [`/${OtherFeedPage.Explore}/best-of`]: ExploreTabs.BestOf,
 };
 
 export const tabToUrl = Object.entries(urlToTab).reduce(

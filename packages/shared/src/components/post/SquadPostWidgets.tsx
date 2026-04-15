@@ -15,6 +15,7 @@ import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
+import { FeaturedArchives } from '../widgets/FeaturedArchives';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -76,6 +77,7 @@ export function SquadPostWidgets({
         </>
       )}
       {tokenRefreshed && <FurtherReading currentPost={post} />}
+      <FeaturedArchives postId={post.id} />
       <FooterLinks />
     </PageWidgets>
   );

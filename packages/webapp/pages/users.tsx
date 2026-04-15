@@ -201,7 +201,7 @@ export async function getStaticProps(): Promise<
     try {
       const levelRes = await gqlClient.request<{
         highestLevel: UserLeaderboard[];
-      }>(HIGHEST_LEVEL_QUERY);
+      }>(HIGHEST_LEVEL_QUERY, { limit: 10 });
       highestLevel = levelRes.highestLevel ?? [];
       isHighestLevelSupported = true;
     } catch (levelError: unknown) {

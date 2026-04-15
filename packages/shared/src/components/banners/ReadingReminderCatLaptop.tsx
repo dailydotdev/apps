@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { cloudinaryReadingReminderCat } from '../../lib/image';
 
 interface ReadingReminderCatLaptopProps {
   className?: string;
@@ -11,7 +12,7 @@ const ReadingReminderCatLaptop = ({
 }: ReadingReminderCatLaptopProps): ReactElement => {
   return (
     <img
-      src="/assets/reading-reminder-cat.png"
+      src={cloudinaryReadingReminderCat}
       alt="Sleeping cat on laptop"
       className={classNames(
         'mx-auto mb-4 w-full max-w-[20rem] rounded-12',

@@ -20,12 +20,14 @@ interface EditTagProps {
   userId: string;
   headline?: string;
   requiredTags?: number;
+  hidePreview?: boolean;
 }
 export const EditTag = ({
   feedSettings,
   userId,
   headline,
   requiredTags = REQUIRED_TAGS_THRESHOLD,
+  hidePreview,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -63,15 +65,17 @@ export const EditTag = ({
         searchQuery={searchQuery}
         searchTags={searchTags}
       />
-      <FeedPreviewControls
-        isOpen={isPreviewVisible}
-        isDisabled={!isPreviewEnabled}
-        textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
-        origin={Origin.EditTag}
-        onClick={setPreviewVisible}
-        data-funnel-track={FunnelTargetId.FeedPreview}
-      />
-      {isPreviewEnabled && isPreviewVisible && (
+      {!hidePreview && (
+        <FeedPreviewControls
+          isOpen={isPreviewVisible}
+          isDisabled={!isPreviewEnabled}
+          textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
+          origin={Origin.EditTag}
+          onClick={setPreviewVisible}
+          data-funnel-track={FunnelTargetId.FeedPreview}
+        />
+      )}
+      {!hidePreview && isPreviewEnabled && isPreviewVisible && (
         <FeedLayoutProvider>
           <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
             Change your tag selection until you&apos;re happy with your feed
