@@ -9,11 +9,7 @@ import React, {
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
-import {
-  deleteAccount,
-  logout as dispatchLogout,
-  LogoutReason,
-} from '../lib/user';
+import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -161,21 +157,6 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
-  const isRecruiterPage = router?.pathname?.startsWith('/recruiter');
-  const isAuthTransitPage =
-    router?.pathname === '/callback' || router?.pathname === '/onboarding';
-
-  if (
-    firstLoad === true &&
-    endUser &&
-    !endUser?.infoConfirmed &&
-    !isFunnelRef.current &&
-    !isRecruiterPage &&
-    !isAuthTransitPage
-  ) {
-    logout(LogoutReason.IncomleteOnboarding);
-  }
-
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
