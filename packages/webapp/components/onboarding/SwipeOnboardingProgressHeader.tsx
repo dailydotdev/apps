@@ -238,7 +238,7 @@ export function SwipeOnboardingProgressHeader({
               }
             `}</style>
       <div className="flex items-center justify-between gap-3">
-        <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-3 py-1 font-medium text-text-secondary typo-footnote">
+        <span className="font-medium text-text-secondary typo-footnote">
           {progressLabel}
         </span>
         <span className="font-medium text-text-tertiary typo-footnote">

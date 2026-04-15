@@ -377,7 +377,7 @@ function SwipeOnboardingPage(): ReactElement {
           >
             <div className="flex flex-col gap-6 p-6 tablet:p-8">
               <div className="flex flex-col items-center gap-4 text-center">
-                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
+                <span className="text-text-secondary typo-footnote">
                   Personalize your daily.dev feed
                 </span>
                 <div className="space-y-3">
@@ -514,7 +514,7 @@ function SwipeOnboardingPage(): ReactElement {
           <div className={swipeOnboardingSurfaceClassName}>
             <div className="flex flex-col gap-5 p-5 tablet:gap-6 tablet:p-7">
               <div className="flex flex-col items-center gap-3 text-center">
-                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
+                <span className="text-text-secondary typo-footnote">
                   Personalize your daily.dev feed
                 </span>
                 <div className="space-y-3">

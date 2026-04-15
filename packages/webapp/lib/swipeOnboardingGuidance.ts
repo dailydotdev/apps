@@ -54,11 +54,7 @@ export type SwipeOnboardingHeadline = {
 /** Same progress tiers as swipes; copy refers to tags instead. */
 export type SwipeOnboardingProgressCopyVariant = 'swipe' | 'tags';
 
-function unitWord(
-  count: number,
-  singular: string,
-  plural: string,
-): string {
+function unitWord(count: number, singular: string, plural: string): string {
   return count === 1 ? singular : plural;
 }
 
@@ -74,11 +70,12 @@ export function getSwipeOnboardingHeadline(
 
   if (n < SWIPE_ONBOARDING_MIN_TO_UNLOCK) {
     return {
-      line1: 'Tune your feed.',
-      line2:
+      line1:
         variant === 'tags'
-          ? 'Pick at least 5 tags to get started.'
-          : 'Swipe on at least 5 posts to get started.',
+          ? 'Tune your feed.'
+          : 'Swipe on at least 5 posts to tune your feed.',
+      line2:
+        variant === 'tags' ? 'Pick at least 5 tags to get started.' : undefined,
     };
   }
 
@@ -108,7 +105,9 @@ export function getSwipeOnboardingGuidanceMessage(
   const n = Math.max(0, progressCount);
 
   if (n >= SWIPE_ONBOARDING_REFINE_TARGET) {
-    return variant === 'tags' ? 'Add tags for fine-tune.' : 'Swipe for fine-tune.';
+    return variant === 'tags'
+      ? 'Add tags for fine-tune.'
+      : 'Swipe for fine-tune.';
   }
 
   if (n >= SWIPE_ONBOARDING_IMPROVE_MILESTONE) {
@@ -130,12 +129,15 @@ export function getSwipeOnboardingGuidanceMessage(
       return 'Pick 5 tags to get started.';
     }
     const remaining = SWIPE_ONBOARDING_MIN_TO_UNLOCK - n;
-    return `Pick ${remaining} more ${unitWord(remaining, 'tag', 'tags')} to get started.`;
+    return `Pick ${remaining} more ${unitWord(
+      remaining,
+      'tag',
+      'tags',
+    )} to get started.`;
   }
 
   if (n === 0) {
-    return 'Swipe 5 posts to get started.';
+    return 'Start swiping';
   }
-  const remaining = SWIPE_ONBOARDING_MIN_TO_UNLOCK - n;
-  return `Swipe ${remaining} more ${unitWord(remaining, 'post', 'posts')} to get started.`;
+  return 'Keep swiping!';
 }
