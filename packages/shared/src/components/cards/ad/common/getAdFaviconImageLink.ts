@@ -4,7 +4,7 @@ import { adFaviconPlaceholder } from '../../../../lib/image';
 
 interface GetAdFaviconImageLinkParams {
   ad: Ad;
-  adImprovementsV3: boolean;
+  adImprovementsV3?: boolean;
   size?: number;
 }
 
