@@ -20,9 +20,14 @@ export interface PostHighlightFeed {
   highlightedAt: string;
   post: {
     id: string;
+    type: string;
     commentsPermalink: string;
     summary?: string;
     contentHtml?: string;
+    sharedPost?: {
+      summary?: string;
+      contentHtml?: string;
+    };
   };
 }
 
@@ -106,9 +111,14 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
     highlightedAt
     post {
       id
+      type
       commentsPermalink
       summary
       contentHtml
+      sharedPost {
+        summary
+        contentHtml
+      }
     }
   }
 `;

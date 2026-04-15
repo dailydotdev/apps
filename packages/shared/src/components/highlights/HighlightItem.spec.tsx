@@ -13,6 +13,7 @@ const highlight: PostHighlightFeed = {
   highlightedAt: '2026-04-05T09:00:00.000Z',
   post: {
     id: 'post-1',
+    type: 'article',
     commentsPermalink: '/posts/post-1',
     summary,
   },

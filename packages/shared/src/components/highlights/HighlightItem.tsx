@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { stripHtmlTags } from '../../lib/strings';
+import { PostType } from '../../graphql/posts';
 import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
@@ -33,18 +34,23 @@ export const HighlightItem = ({
   }, [defaultExpanded]);
 
   const tldr = useMemo(() => {
-    const summary = highlight.post.summary?.trim();
+    const post =
+      highlight.post.type === PostType.Share && highlight.post.sharedPost
+        ? highlight.post.sharedPost
+        : highlight.post;
+
+    const summary = post.summary?.trim();
     if (summary) {
       return summary;
     }
 
-    const html = highlight.post.contentHtml?.trim();
+    const html = post.contentHtml?.trim();
     if (html) {
       return stripHtmlTags(html).slice(0, 300);
     }
 
     return '';
-  }, [highlight.post.summary, highlight.post.contentHtml]);
+  }, [highlight.post]);
 
   return (
     <article ref={ref}>
