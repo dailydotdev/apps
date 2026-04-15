@@ -281,6 +281,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement {
           <NotificationItemAttachment
             key={attachment}
             title={attachment}
+            notificationType={type}
             {...restAttachmentProps}
           />
         ))}
