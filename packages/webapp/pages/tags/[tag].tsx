@@ -389,7 +389,7 @@ const TagPage = ({
         className="mx-4"
       />
       <PageInfoHeader className="mx-4 !w-auto">
-        <SponsoredTagHero tag={tag} className="mx-4 mb-4" />
+        <SponsoredTagHero tag={tag} className="mb-4" />
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>
