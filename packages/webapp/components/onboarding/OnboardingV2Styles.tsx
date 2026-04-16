@@ -4,6 +4,13 @@ import React from 'react';
 export const OnboardingV2Styles = (): ReactElement => (
   // eslint-disable-next-line react/no-unknown-property
   <style jsx global>{`
+    /* Suppress OneSignal auto-prompt slidedown during onboarding */
+    #onesignal-slidedown-container,
+    .onesignal-slidedown-container,
+    .onesignal-slidedown-dialog {
+      display: none !important;
+    }
+
     .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(n + 19) {
       display: none !important;
     }
