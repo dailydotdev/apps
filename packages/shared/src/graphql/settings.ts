@@ -20,7 +20,6 @@ export type SettingsFlags = {
   noAiFeedEnabled?: boolean;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
-  lastPrompt?: string;
   defaultWriteTab?: WriteFormTab;
 };
 

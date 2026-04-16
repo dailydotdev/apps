@@ -212,7 +212,6 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
-  Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
   PriceMetadata = 'price_metadata',
