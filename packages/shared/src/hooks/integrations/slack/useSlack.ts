@@ -54,7 +54,7 @@ export const useSlack = (): UseSlack => {
 
       window.location.href = url.toString();
     },
-    [user?.id],
+    [user],
   );
 
   const connectSource = useCallback<UseSlack['connectSource']>(
