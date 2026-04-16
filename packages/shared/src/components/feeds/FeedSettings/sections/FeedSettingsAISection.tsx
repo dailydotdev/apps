@@ -108,7 +108,7 @@ export const FeedSettingsAISection = (): ReactElement => {
         <LanguageDropdown
           className={{ container: 'w-full max-w-60' }}
           name="language"
-          defaultValue={user.language}
+          defaultValue={user?.language}
           onChange={(value) => {
             onLanguageChange(value);
 
@@ -116,7 +116,7 @@ export const FeedSettingsAISection = (): ReactElement => {
               labels.feed.settings.globalPreferenceNotice.contentLanguage,
             );
           }}
-          icon={null}
+          icon={undefined}
           disabled={!isPlus}
         />
       </section>
