@@ -23,6 +23,7 @@ import type { SignBackProvider } from './auth/useSignBack';
 import { useSignBack } from './auth/useSignBack';
 import type { LoggedUser } from '../lib/user';
 import { labels } from '../lib';
+import { Origin } from '../lib/log';
 import { useEventListener } from './useEventListener';
 import { broadcastChannel, webappUrl } from '../lib/constants';
 import { isIOSNative } from '../lib/func';
@@ -79,7 +80,7 @@ const useLogin = ({
           extra: JSON.stringify({
             error: res.error,
             displayedError: labels.auth.error.invalidEmailOrPassword,
-            origin: 'betterauth email login',
+            origin: Origin.BetterAuthEmailLogin,
             userAgent: navigator.userAgent,
           }),
         });
@@ -95,7 +96,7 @@ const useLogin = ({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
               error: 'Missing user after Better Auth email login',
-              origin: 'betterauth email login boot',
+              origin: Origin.BetterAuthEmailLoginBoot,
             }),
           });
           setHint(labels.auth.error.generic);
@@ -115,7 +116,7 @@ const useLogin = ({
               error,
               'Failed to refresh Better Auth login state',
             ),
-            origin: 'betterauth email login boot',
+            origin: Origin.BetterAuthEmailLoginBoot,
           }),
         });
         setHint(labels.auth.error.generic);
@@ -140,7 +141,7 @@ const useLogin = ({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
               error: result.error,
-              origin: 'betterauth native id token',
+              origin: Origin.BetterAuthNativeIdToken,
             }),
           });
           return;
@@ -152,7 +153,7 @@ const useLogin = ({
               event_name: AuthEventNames.LoginError,
               extra: JSON.stringify({
                 error: 'Missing user after Better Auth social login',
-                origin: 'betterauth native id token boot',
+                origin: Origin.BetterAuthNativeIdTokenBoot,
               }),
             });
             displayToast(labels.auth.error.generic);
@@ -170,7 +171,7 @@ const useLogin = ({
                 error,
                 'Failed to refresh Better Auth social login state',
               ),
-              origin: 'betterauth native id token boot',
+              origin: Origin.BetterAuthNativeIdTokenBoot,
             }),
           });
           displayToast(labels.auth.error.generic);
@@ -189,7 +190,7 @@ const useLogin = ({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
             error: error || 'Failed to get social login URL',
-            origin: 'betterauth social url',
+            origin: Origin.BetterAuthSocialUrl,
           }),
         });
         socialPopup?.close();
@@ -208,7 +209,7 @@ const useLogin = ({
         event_name: AuthEventNames.LoginError,
         extra: JSON.stringify({
           error: 'Failed to open social login window',
-          origin: 'betterauth social popup',
+          origin: Origin.BetterAuthSocialPopup,
         }),
       });
       displayToast(labels.auth.error.generic);

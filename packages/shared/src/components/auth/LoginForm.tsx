@@ -5,6 +5,7 @@ import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { Turnstile } from '@marsidev/react-turnstile';
 import type { LoginPasswordParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
+import { Origin } from '../../lib/log';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { ClickableText } from '../buttons/ClickableText';
@@ -78,7 +79,7 @@ function LoginForm({
         event_name: AuthEventNames.LoginError,
         extra: JSON.stringify({
           error: 'Turnstile not valid',
-          origin: 'login turnstile',
+          origin: Origin.LoginTurnstile,
         }),
       });
       setTurnstileError(true);
