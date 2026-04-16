@@ -6,6 +6,12 @@ import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  LogEvent,
+  TargetType,
+  TargetId,
+} from '@dailydotdev/shared/src/lib/log';
 
 const PARTICLES = [
   {
@@ -64,6 +70,7 @@ type Props = {
   canStartAiFlow: boolean;
   onGithubClick: () => void;
   onAiSubmit: () => void;
+  origin: string;
 };
 
 export function OnboardingChooserGrid({
@@ -72,7 +79,9 @@ export function OnboardingChooserGrid({
   canStartAiFlow,
   onGithubClick,
   onAiSubmit,
+  origin,
 }: Props): ReactElement {
+  const { logEvent } = useLogContext();
   return (
     <div className="relative z-1 grid gap-4 tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
       {/* ── Path A: GitHub ── */}
@@ -210,7 +219,15 @@ export function OnboardingChooserGrid({
           <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
           <button
             type="button"
-            onClick={onGithubClick}
+            onClick={() => {
+              logEvent({
+                event_name: LogEvent.Click,
+                target_type: TargetType.SignupChooser,
+                target_id: TargetId.GitHub,
+                extra: JSON.stringify({ origin }),
+              });
+              onGithubClick();
+            }}
             className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
           >
             <GitHubIcon secondary size={IconSize.XSmall} />
@@ -273,6 +290,11 @@ export function OnboardingChooserGrid({
               }
               e.preventDefault();
               if (aiPrompt.trim()) {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.SignupChooser,
+                  target_id: TargetId.AI,
+                });
                 onAiSubmit();
               }
             }}
@@ -287,7 +309,15 @@ export function OnboardingChooserGrid({
           <button
             type="button"
             disabled={!canStartAiFlow}
-            onClick={onAiSubmit}
+            onClick={() => {
+              logEvent({
+                event_name: LogEvent.Click,
+                target_type: TargetType.SignupChooser,
+                target_id: TargetId.AI,
+                extra: JSON.stringify({ origin }),
+              });
+              onAiSubmit();
+            }}
             className={classNames(
               'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
               canStartAiFlow

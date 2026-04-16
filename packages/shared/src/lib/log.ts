@@ -82,6 +82,9 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
+  // Onboarding v2
+  OnboardingModal = 'onboarding modal',
+  OnboardingFeedEnd = 'onboarding feed end',
 }
 
 export enum LogEvent {
@@ -466,6 +469,17 @@ export enum TargetType {
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
+  // Onboarding v2
+  HeroCta = 'hero cta',
+  SignupChooser = 'signup chooser',
+  SignupPrompt = 'signup prompt',
+  ProfileImport = 'profile import',
+  ExperienceLevel = 'experience level',
+  ExtensionPromo = 'extension promo',
+  TagsFallback = 'tags fallback',
+  MarketingOptOut = 'marketing opt out',
+  OnboardingComplete = 'onboarding complete',
+  MobileAppDownload = 'mobile app download',
 }
 
 export enum TargetId {
@@ -524,6 +538,19 @@ export enum TargetId {
   HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  // Onboarding v2
+  GitHub = 'github',
+  AI = 'ai',
+  Install = 'install',
+  Dismiss = 'dismiss',
+  InstallExtension = 'install extension',
+  MobileApp = 'mobile app',
+  EnableNotifications = 'enable notifications',
+  GoToFeed = 'go to feed',
+  OptOut = 'opt_out',
+  OptIn = 'opt_in',
+  IOS = 'ios',
+  Android = 'android',
 }
 
 export enum NotificationChannel {
