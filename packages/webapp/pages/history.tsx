@@ -9,7 +9,7 @@ import ProtectedPage from '../components/ProtectedPage';
 import { getLayout } from '../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 
-const History = (): ReactElement => {
+const History = (): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
 
