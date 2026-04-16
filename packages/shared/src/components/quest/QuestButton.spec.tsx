@@ -5,6 +5,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import loggedUser from '../../../__tests__/fixture/loggedUser';
 import type { QuestDashboard } from '../../graphql/quests';
 import {
   QuestRewardType,
@@ -231,17 +232,25 @@ const questDashboard = {
   milestone: [],
 };
 
-const renderComponent = (
+const renderComponent = ({
   optOutLevelSystem = false,
-  client: QueryClient = new QueryClient(),
+  client = new QueryClient(),
   compact = false,
   log = {},
-) =>
+  auth = {},
+}: {
+  optOutLevelSystem?: boolean;
+  client?: QueryClient;
+  compact?: boolean;
+  log?: Record<string, unknown>;
+  auth?: Record<string, unknown>;
+} = {}) =>
   render(
     <TestBootProvider
       client={client}
       settings={{ optOutLevelSystem }}
       log={log}
+      auth={auth}
     >
       <QuestButton compact={compact} />
     </TestBootProvider>,
@@ -276,7 +285,7 @@ beforeEach(() => {
 
 describe('QuestButton', () => {
   it('should show level progress and xp rewards when levels are enabled', async () => {
-    renderComponent(false);
+    renderComponent();
 
     const button = screen.getByRole('button', {
       name: /Quests, level 7, 63% progress/i,
@@ -294,7 +303,7 @@ describe('QuestButton', () => {
   });
 
   it('should render a smaller trigger when compact', () => {
-    renderComponent(false, new QueryClient(), true);
+    renderComponent({ client: new QueryClient(), compact: true });
 
     const button = screen.getByRole('button', {
       name: /Quests, level 7, 63% progress/i,
@@ -317,7 +326,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     expect(
       screen.getByRole('button', {
@@ -327,7 +336,7 @@ describe('QuestButton', () => {
   });
 
   it('should hide level progress and xp rewards when levels are disabled', async () => {
-    renderComponent(true);
+    renderComponent({ optOutLevelSystem: true });
 
     const button = screen.getByRole('button', { name: 'Quests' });
 
@@ -343,7 +352,7 @@ describe('QuestButton', () => {
   });
 
   it('should route feed-based quests back to the main feed', async () => {
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -396,7 +405,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -444,7 +453,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -490,7 +499,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -534,7 +543,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -578,7 +587,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -598,7 +607,7 @@ describe('QuestButton', () => {
   it('should log when opening the quest dropdown', async () => {
     const logEvent = jest.fn();
 
-    renderComponent(false, new QueryClient(), false, { logEvent });
+    renderComponent({ log: { logEvent } });
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -613,7 +622,7 @@ describe('QuestButton', () => {
   });
 
   it('should not show a new indicator when the dashboard reports no new quest rotations', async () => {
-    renderComponent(false);
+    renderComponent();
 
     expect(
       screen.getByRole('button', {
@@ -627,6 +636,10 @@ describe('QuestButton', () => {
 
   it('should show and clear the new quest indicator after a quest rotation update', async () => {
     const client = new QueryClient();
+    const establishedUser = {
+      ...loggedUser,
+      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    };
     const subscriptions: Array<{
       query: string;
       next?: () => unknown;
@@ -666,7 +679,7 @@ describe('QuestButton', () => {
     );
 
     const view = render(
-      <TestBootProvider client={client}>
+      <TestBootProvider client={client} auth={{ user: establishedUser }}>
         <QuestButton />
       </TestBootProvider>,
     );
@@ -698,7 +711,7 @@ describe('QuestButton', () => {
       ?.next?.();
 
     view.rerender(
-      <TestBootProvider client={client}>
+      <TestBootProvider client={client} auth={{ user: establishedUser }}>
         <QuestButton />
       </TestBootProvider>,
     );
@@ -727,7 +740,7 @@ describe('QuestButton', () => {
     });
 
     view.rerender(
-      <TestBootProvider client={client}>
+      <TestBootProvider client={client} auth={{ user: establishedUser }}>
         <QuestButton />
       </TestBootProvider>,
     );
@@ -921,7 +934,7 @@ describe('QuestButton', () => {
   });
 
   it('should stay open when the page scrolls', async () => {
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -969,7 +982,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
     await userEvent.click(
       screen.getByRole('button', {
         name: /Quests, level 7, 63% progress/i,
@@ -1029,7 +1042,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1123,7 +1136,7 @@ describe('QuestButton', () => {
         variables: undefined,
       });
 
-      renderComponent(false);
+      renderComponent();
 
       act(() => {
         screen
@@ -1265,7 +1278,7 @@ describe('QuestButton', () => {
         variables: undefined,
       });
 
-      renderComponent(false);
+      renderComponent();
 
       act(() => {
         screen
@@ -1338,7 +1351,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1388,7 +1401,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1435,7 +1448,7 @@ describe('QuestButton', () => {
       isError: false,
     });
 
-    renderComponent(false);
+    renderComponent();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -1473,7 +1486,7 @@ describe('QuestButton', () => {
       },
     );
 
-    renderComponent(false, client);
+    renderComponent({ client });
 
     expect(
       Array.from(
@@ -1500,5 +1513,43 @@ describe('QuestButton', () => {
       queryKey: generateQueryKey(RequestKey.QuestDashboard),
       exact: true,
     });
+  });
+
+  it('should not show new indicator for users created less than 24 hours ago', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: { ...questDashboard, hasNewQuestRotations: true },
+      isPending: false,
+      isError: false,
+    });
+
+    const newUser = {
+      ...loggedUser,
+      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    };
+
+    renderComponent({ auth: { user: newUser } });
+
+    expect(
+      screen.queryByTestId('quest-button-new-indicator'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show new indicator for users created more than 24 hours ago', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: { ...questDashboard, hasNewQuestRotations: true },
+      isPending: false,
+      isError: false,
+    });
+
+    const establishedUser = {
+      ...loggedUser,
+      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+    };
+
+    renderComponent({ auth: { user: establishedUser } });
+
+    expect(
+      screen.getByTestId('quest-button-new-indicator'),
+    ).toBeInTheDocument();
   });
 });

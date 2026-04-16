@@ -1377,7 +1377,11 @@ export const QuestButton = ({
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
-  const hasNewQuestRotations = data?.hasNewQuestRotations ?? false;
+  const isAccountOlderThan24Hours =
+    !!user?.createdAt &&
+    Date.now() - new Date(user.createdAt).getTime() > 24 * 60 * 60 * 1000;
+  const hasNewQuestRotations =
+    (data?.hasNewQuestRotations ?? false) && isAccountOlderThan24Hours;
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
