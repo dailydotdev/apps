@@ -35,7 +35,7 @@ export default function useDebounceFn<T = unknown>(
       }
       timeoutRef.current = window.setTimeout(() => {
         lastExecutionRef.current = new Date();
-        timeoutRef.current = null;
+        timeoutRef.current = undefined;
         callbackRef.current?.(args);
       }, delay);
     },
@@ -45,7 +45,7 @@ export default function useDebounceFn<T = unknown>(
   const cancelCallback = useCallback(() => {
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+      timeoutRef.current = undefined;
     }
   }, [timeoutRef]);
 

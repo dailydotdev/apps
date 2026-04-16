@@ -45,10 +45,10 @@ export const useLeaveSquad = ({ squad }: UseLeaveSquadProps): UseLeaveSquad => {
       if (left) {
         logEvent({
           event_name: LogEvent.LeaveSquad,
-          extra: JSON.stringify({ squad: squad.id }),
+          extra: JSON.stringify({ squad: squad.id! }),
         });
-        await leaveSquad(squad.id);
-        deleteCachedSquad(squad.id);
+        await leaveSquad(squad.id!);
+        deleteCachedSquad(squad.id!);
 
         queryClient.setQueryData(
           generateQueryKey(RequestKey.ContentPreference, user, {
