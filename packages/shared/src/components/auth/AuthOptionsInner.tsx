@@ -159,6 +159,8 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  hideLoginLink,
+  compact,
   autoTriggerProvider,
   socialProviderScopes,
   acceptedMarketing,
@@ -684,7 +686,7 @@ function AuthOptionsInner({
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-accent-pepper-subtlest',
-        defaultDisplay === AuthDisplay.OnboardingSignup
+        defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,
         className?.container,
@@ -789,6 +791,8 @@ function AuthOptionsInner({
             targetId={targetId}
             className={className}
             onboardingSignupButton={onboardingSignupButton}
+            hideLoginLink={hideLoginLink}
+            compact={compact}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

@@ -16,6 +16,7 @@ import UserEntityCard from '../cards/entity/UserEntityCard';
 import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { PostSignupWidget } from './PostSignupWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -34,6 +35,7 @@ export function SquadPostWidgets({
 
   return (
     <PageWidgets className={className}>
+      <PostSignupWidget />
       {!isUserSource &&
         (isSquadSource ? (
           <SquadEntityCard
