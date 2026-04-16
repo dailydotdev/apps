@@ -39,7 +39,7 @@ const seo: NextSeoProps = {
   },
 };
 
-const Page = (): ReactElement => {
+const Page = (): ReactElement | null => {
   const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const { user, loadingUser } = useAuthContext();
   const isDevCardGenerated = checkHasCompleted(ActionType.DevCardGenerate);

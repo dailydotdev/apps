@@ -18,8 +18,12 @@ export interface FooterNavBarContainerProps {
 export const getNavPath = (
   path: FooterTab['path'],
   user: LoggedUser,
-): string => {
-  return typeof path === 'string' ? path : path(user);
+): string | undefined => {
+  if (typeof path === 'string') {
+    return path;
+  }
+
+  return path?.(user);
 };
 
 export const blurClasses = 'bg-blur-baseline backdrop-blur-[2.5rem]';

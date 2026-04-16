@@ -9,7 +9,7 @@ import { getSettingsLayout } from '.';
 export const FeedSettingsLayout = ({ children }: PropsWithChildren) => {
   const { user } = useAuthContext();
   const feedSettingsEditContext = useFeedSettingsEdit({
-    feedSlugOrId: user.id,
+    feedSlugOrId: user!.id,
   });
   return (
     <FeedSettingsEditContext.Provider value={feedSettingsEditContext}>
