@@ -69,6 +69,7 @@ const useLogin = ({
       return betterAuthSignIn({
         email: form.identifier,
         password: form.password,
+        turnstileToken: form.turnstileToken,
       });
     },
     onSuccess: async (res) => {
@@ -79,6 +80,7 @@ const useLogin = ({
             error: res.error,
             displayedError: labels.auth.error.invalidEmailOrPassword,
             origin: 'betterauth email login',
+            userAgent: navigator.userAgent,
           }),
         });
         setHint(labels.auth.error.invalidEmailOrPassword);

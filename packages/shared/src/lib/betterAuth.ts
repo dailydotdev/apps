@@ -90,11 +90,22 @@ const betterAuthPost = async <T = Record<string, unknown>>(
 export const betterAuthSignIn = async ({
   email,
   password,
+  turnstileToken,
 }: {
   email: string;
   password: string;
+  turnstileToken?: string;
 }): Promise<BetterAuthResponse> => {
-  return betterAuthPost('sign-in/email', { email, password }, 'Sign in failed');
+  const headers: Record<string, string> = {};
+  if (turnstileToken) {
+    headers['x-captcha-response'] = turnstileToken;
+  }
+  return betterAuthPost(
+    'sign-in/email',
+    { email, password },
+    'Sign in failed',
+    Object.keys(headers).length > 0 ? headers : undefined,
+  );
 };
 
 export const betterAuthSignUp = async ({
