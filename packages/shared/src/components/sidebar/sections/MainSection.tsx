@@ -27,6 +27,8 @@ import {
   featureYearInReview,
   questsFeature,
 } from '../../../lib/featureManagement';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
+import { Typography, TypographyColor } from '../../typography/Typography';
 
 export const MainSection = ({
   isItemsButton,
@@ -48,6 +50,12 @@ export const MainSection = ({
     feature: questsFeature,
     shouldEvaluate: isLoggedIn,
   });
+  const { data: questDashboard } = useQuestDashboard();
+  const claimableMilestoneCount = useMemo(
+    () =>
+      questDashboard?.milestone?.filter((quest) => quest.claimable).length ?? 0,
+    [questDashboard?.milestone],
+  );
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
@@ -102,6 +110,17 @@ export const MainSection = ({
           path: `${webappUrl}game-center`,
           isForcedLink: true,
           requiresLogin: true,
+          ...(claimableMilestoneCount > 0 && {
+            rightIcon: () => (
+              <Typography
+                color={TypographyColor.Secondary}
+                bold
+                className="rounded-6 bg-background-subtle px-1.5"
+              >
+                {claimableMilestoneCount}
+              </Typography>
+            ),
+          }),
         }
       : undefined;
 
@@ -162,6 +181,7 @@ export const MainSection = ({
       ] as (SidebarMenuItem | undefined)[]
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
+    claimableMilestoneCount,
     ctaCopy,
     isCustomDefaultFeed,
     isLoggedIn,
