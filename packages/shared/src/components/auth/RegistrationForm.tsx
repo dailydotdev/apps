@@ -10,6 +10,8 @@ import type {
   RegistrationParameters,
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
@@ -82,6 +84,11 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
+  const { value: isOnboardingV2 } = useConditionalFeature({
+    feature: featureOnboardingV2,
+    shouldEvaluate: trigger === AuthTriggers.Onboarding,
+  });
+  const hideExperienceLevel = isRecruiterOnboarding || isOnboardingV2;
   const {
     username,
     setUsername,
@@ -163,7 +170,7 @@ const RegistrationForm = ({
     );
     delete values['cf-turnstile-response'];
 
-    const requiresExperienceLevel = !isRecruiterOnboarding;
+    const requiresExperienceLevel = !hideExperienceLevel;
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
@@ -275,9 +282,16 @@ const RegistrationForm = ({
             variant={ButtonVariant.Secondary}
           />
           <Typography
-            className={classNames('mt-0.5 flex-1', onboardingGradientClasses)}
+            className={
+              isOnboardingV2
+                ? 'mt-0.5 flex-1 text-text-primary'
+                : classNames('mt-0.5 flex-1', onboardingGradientClasses)
+            }
             tag={TypographyTag.H2}
-            type={TypographyType.Title1}
+            type={
+              isOnboardingV2 ? TypographyType.Title2 : TypographyType.Title1
+            }
+            bold={isOnboardingV2}
           >
             Join daily.dev
           </Typography>
@@ -396,7 +410,7 @@ const RegistrationForm = ({
           }
           rightIcon={usernameIcon}
         />
-        {!isRecruiterOnboarding && (
+        {!hideExperienceLevel && (
           <ExperienceLevelDropdown
             className={{ container: 'w-full' }}
             name="traits.experienceLevel"
@@ -409,12 +423,16 @@ const RegistrationForm = ({
             saveHintSpace
           />
         )}
-        <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-          Your email will be used to send you product and community updates
-        </span>
-        <Checkbox name="optOutMarketing">
-          I don&apos;t want to receive updates and promotions via email
-        </Checkbox>
+        {!isOnboardingV2 && (
+          <>
+            <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
+              Your email will be used to send you product and community updates
+            </span>
+            <Checkbox name="optOutMarketing">
+              I don&apos;t want to receive updates and promotions via email
+            </Checkbox>
+          </>
+        )}
         <ConditionalWrapper
           condition={simplified ?? false}
           wrapper={(component) => (

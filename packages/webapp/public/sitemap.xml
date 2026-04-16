@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://app.daily.dev/sitemap.txt</loc>
-  </sitemap>
-  <sitemap>
-    <loc>https://app.daily.dev/api/sitemaps/index.xml</loc>
-  </sitemap>
-</sitemapindex>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://app.daily.dev/</loc></url>
+  <url><loc>https://app.daily.dev/onboarding</loc></url>
+  <url><loc>https://app.daily.dev/sources</loc></url>
+  <url><loc>https://app.daily.dev/squads</loc></url>
+  <url><loc>https://app.daily.dev/squads/discover</loc></url>
+  <url><loc>https://app.daily.dev/tags</loc></url>
+  <url><loc>https://app.daily.dev/posts</loc></url>
+  <url><loc>https://app.daily.dev/users</loc></url>
+  <url><loc>https://app.daily.dev/search</loc></url>
+  <url><loc>https://app.daily.dev/jobs</loc></url>
+  <url><loc>https://app.daily.dev/plus</loc></url>
+  <url><loc>https://app.daily.dev/agents</loc></url>
+  <url><loc>https://app.daily.dev/agents/arena</loc></url>
+  <url><loc>https://app.daily.dev/agents/ask</loc></url>
+</urlset>

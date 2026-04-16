@@ -9,11 +9,7 @@ import React, {
 import type { QueryObserverResult } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import type { AnonymousUser, LoggedUser } from '../lib/user';
-import {
-  deleteAccount,
-  logout as dispatchLogout,
-  LogoutReason,
-} from '../lib/user';
+import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
@@ -21,7 +17,11 @@ import type { Squad } from '../graphql/sources';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
-import { invalidPlusRegions, webFunnelPrefix } from '../lib/constants';
+import {
+  invalidPlusRegions,
+  onboardingUrl,
+  webFunnelPrefix,
+} from '../lib/constants';
 
 export interface LoginState {
   trigger: AuthTriggersType;
@@ -157,21 +157,6 @@ export const AuthContextProvider = ({
   const referralOrigin = user?.referralOrigin;
   const router = useRouter();
   const isFunnelRef = useRef(!!router?.pathname?.startsWith(webFunnelPrefix));
-  const isRecruiterPage = router?.pathname?.startsWith('/recruiter');
-  const isAuthTransitPage =
-    router?.pathname === '/callback' || router?.pathname === '/onboarding';
-
-  if (
-    firstLoad === true &&
-    endUser &&
-    !endUser?.infoConfirmed &&
-    !isFunnelRef.current &&
-    !isRecruiterPage &&
-    !isAuthTransitPage
-  ) {
-    logout(LogoutReason.IncomleteOnboarding);
-  }
-
   const isValidRegion = useMemo(
     () => !invalidPlusRegions.includes(geo?.region),
     [geo?.region],
@@ -199,10 +184,17 @@ export const AuthContextProvider = ({
               const params = new URLSearchParams(globalThis?.location.search);
 
               setLoginState({ ...options, trigger });
-              if (!params.get(AFTER_AUTH_PARAM)) {
+              if (isExtension) {
+                params.delete(AFTER_AUTH_PARAM);
+              } else if (!params.get(AFTER_AUTH_PARAM)) {
                 params.set(AFTER_AUTH_PARAM, window.location.pathname);
               }
-              router.push(`/onboarding?${params.toString()}`);
+              const onboardingPath = `${onboardingUrl}?${params.toString()}`;
+              router.push(
+                isExtension
+                  ? onboardingPath
+                  : `/onboarding?${params.toString()}`,
+              );
             }
           },
           [router],

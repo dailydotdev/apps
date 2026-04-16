@@ -3,7 +3,8 @@ import React from 'react';
 import type { IconProps } from '../../Icon';
 import Icon from '../../Icon';
 import WhiteIcon from './white.svg';
+import FilledIcon from './filled.svg';
 
 export const GitHubIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconPrimary={WhiteIcon} IconSecondary={WhiteIcon} />
+  <Icon {...props} IconPrimary={WhiteIcon} IconSecondary={FilledIcon} />
 );

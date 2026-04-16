@@ -159,6 +159,9 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  autoTriggerProvider,
+  socialProviderScopes,
+  acceptedMarketing,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -196,6 +199,23 @@ function AuthOptionsInner({
   const [isRegistration, setIsRegistration] = useState(false);
   const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
+  const popupCheckIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const authFlowCompletedRef = useRef(false);
+
+  const clearPopupCheck = () => {
+    if (popupCheckIntervalRef.current) {
+      clearInterval(popupCheckIntervalRef.current);
+      popupCheckIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearPopupCheck();
+    };
+  }, []);
 
   const checkForOnboardedUser = async (data: LoggedUser) => {
     onAuthStateUpdate({ isLoading: true });
@@ -289,29 +309,26 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
-  const autoCompleteProfileForRecruiter = async (
-    recruiterEmail: string,
+  const autoCompleteProfile = async (
+    userEmail: string,
     name?: string,
+    marketing = false,
   ) => {
     try {
-      // Generate name from email if not provided by OAuth
-      const displayName =
-        name || generateNameFromEmail(recruiterEmail, 'Recruiter');
+      const displayName = name || generateNameFromEmail(userEmail, 'User');
 
-      // Generate username from the display name
       const username = await generateUsername(displayName);
 
-      // Auto-complete profile
       updateUserProfile({
         name: displayName,
         username,
-        acceptedMarketing: false,
+        acceptedMarketing: marketing,
       });
     } catch (error) {
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
-          error: 'Failed to auto-complete profile for recruiter',
+          error: 'Failed to auto-complete profile',
           details: error instanceof Error ? error.message : 'Unknown error',
         }),
       });
@@ -352,8 +369,9 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
-      // For RecruiterSelfServe, auto-complete profile without showing the form
-      await autoCompleteProfileForRecruiter(user.email, user.name);
+      await autoCompleteProfile(user.email, user.name, false);
+    } else if (trigger === AuthTriggers.Onboarding) {
+      await autoCompleteProfile(user.email, user.name, acceptedMarketing);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -383,6 +401,21 @@ function AuthOptionsInner({
   };
 
   const handleLoginMessage = async (e?: MessageEvent) => {
+    authFlowCompletedRef.current = true;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    windowPopup.current = null;
+    if (popup && !popup.closed) {
+      popup.close();
+      // Retry after a short delay — some browsers defer the close when the
+      // popup is still settling after a redirect chain.
+      setTimeout(() => {
+        if (!popup.closed) {
+          popup.close();
+        }
+      }, 300);
+    }
+
     const callbackError = getSocialAuthCallbackError(e?.data);
     if (callbackError) {
       setIsSocialAuthLoading(false);
@@ -447,11 +480,15 @@ function AuthOptionsInner({
       return;
     }
 
-    // For RecruiterSelfServe, auto-complete profile without showing the form
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
+    if (
+      trigger === AuthTriggers.RecruiterSelfServe ||
+      trigger === AuthTriggers.Onboarding
+    ) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
+      const marketing =
+        trigger === AuthTriggers.Onboarding ? acceptedMarketing : false;
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, marketing);
       return;
     }
 
@@ -520,6 +557,7 @@ function AuthOptionsInner({
       provider.toLowerCase(),
       callbackURL,
       additionalData,
+      socialProviderScopes,
     );
     if (!socialUrl) {
       logEvent({
@@ -556,7 +594,37 @@ function AuthOptionsInner({
     windowPopup.current.location.href = socialUrl;
     await setChosenProvider(provider);
     onAuthStateUpdate?.({ isLoading: true });
+
+    authFlowCompletedRef.current = false;
+    clearPopupCheck();
+    const popup = windowPopup.current;
+    popupCheckIntervalRef.current = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearPopupCheck();
+        if (!authFlowCompletedRef.current) {
+          setIsSocialAuthLoading(false);
+          onAuthStateUpdate?.({ isLoading: false });
+          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+        }
+        windowPopup.current = null;
+      }
+    }, 500);
   };
+
+  const onProviderClickRef = useRef(onProviderClick);
+  onProviderClickRef.current = onProviderClick;
+  const autoTriggerFiredProvider = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (
+      !autoTriggerProvider ||
+      autoTriggerFiredProvider.current === autoTriggerProvider
+    ) {
+      return;
+    }
+    autoTriggerFiredProvider.current = autoTriggerProvider;
+    onProviderClickRef.current(autoTriggerProvider, false);
+  }, [autoTriggerProvider]);
 
   const onProviderMessage = async (e: MessageEvent) => {
     if (checkIsLoginMessage(e)) {

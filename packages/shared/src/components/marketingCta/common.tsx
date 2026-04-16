@@ -31,6 +31,7 @@ export enum MarketingCtaVariant {
   FeedBanner = 'feed_banner',
   BriefCard = 'brief_card',
   YearInReview = 'year_in_review',
+  HelpGuide = 'help_guide',
 }
 
 interface MarketingCtaTargets {

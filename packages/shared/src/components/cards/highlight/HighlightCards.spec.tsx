@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { HighlightGrid } from './HighlightGrid';
 import { HighlightList } from './HighlightList';
 
+jest.mock('../../../lib/constants', () => ({
+  webappUrl: '/',
+}));
+
 const highlights = [
   {
     id: 'highlight-1',
@@ -28,7 +32,31 @@ const highlights = [
 ];
 
 describe('Highlight cards', () => {
-  it('should render the grid card and trigger highlight actions', async () => {
+  it('should render the grid card with highlight links', () => {
+    render(<HighlightGrid highlights={highlights} />);
+
+    expect(screen.getByText('Happening Now')).toBeInTheDocument();
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.getByText('The second highlight')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /the first highlight/i }),
+    ).toHaveAttribute('href', '/highlights?highlight=highlight-1');
+    expect(screen.getByLabelText('Read all highlights')).toHaveAttribute(
+      'href',
+      '/highlights?highlight=highlight-1',
+    );
+  });
+
+  it('should render the list card with highlight links', () => {
+    render(<HighlightList highlights={highlights} />);
+
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.getByText('The second highlight')).toBeInTheDocument();
+    expect(screen.getByText('Read all')).toBeInTheDocument();
+  });
+
+  it('should trigger the highlight callbacks without blocking navigation', async () => {
     const onHighlightClick = jest.fn();
     const onReadAllClick = jest.fn();
 
@@ -40,21 +68,12 @@ describe('Highlight cards', () => {
       />,
     );
 
-    expect(screen.getByText('Happening Now')).toBeInTheDocument();
-
     await userEvent.click(
-      screen.getByRole('button', { name: /the first highlight/i }),
+      screen.getByRole('link', { name: /the first highlight/i }),
     );
     await userEvent.click(screen.getByLabelText('Read all highlights'));
 
     expect(onHighlightClick).toHaveBeenCalledWith(highlights[0], 1);
     expect(onReadAllClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render the list card', () => {
-    render(<HighlightList highlights={highlights} />);
-
-    expect(screen.getByText('The second highlight')).toBeInTheDocument();
-    expect(screen.getByLabelText('Read all highlights')).toBeInTheDocument();
   });
 });

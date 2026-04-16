@@ -108,6 +108,7 @@ export const betterAuthSignUp = async ({
   referralOrigin,
   timezone,
   region,
+  acceptedMarketing,
 }: {
   name: string;
   email: string;
@@ -119,6 +120,7 @@ export const betterAuthSignUp = async ({
   referralOrigin?: string;
   timezone?: string;
   region?: string;
+  acceptedMarketing?: boolean;
 }): Promise<BetterAuthResponse> => {
   const headers: Record<string, string> = {};
   if (turnstileToken) {
@@ -136,6 +138,7 @@ export const betterAuthSignUp = async ({
       referralOrigin,
       timezone,
       region,
+      acceptedMarketing,
     },
     'Sign up failed',
     Object.keys(headers).length > 0 ? headers : undefined,
@@ -149,6 +152,7 @@ const getBetterAuthSocialRedirect = async (
   provider: string,
   callbackURL: string,
   additionalData?: SocialAdditionalData,
+  scopes?: string[],
 ): Promise<BetterAuthSocialRedirectResponse> => {
   const absoluteCallbackURL = callbackURL.startsWith('http')
     ? callbackURL
@@ -164,8 +168,10 @@ const getBetterAuthSocialRedirect = async (
     {
       provider,
       callbackURL: absoluteCallbackURL,
+      errorCallbackURL: absoluteCallbackURL,
       disableRedirect: true,
       ...(additionalData && { additionalData }),
+      ...(scopes?.length && { scopes }),
     },
     'Failed to get social auth URL',
   );
@@ -181,12 +187,14 @@ export const getBetterAuthSocialRedirectData = (
   provider: string,
   callbackURL: string,
   additionalData?: SocialAdditionalData,
+  scopes?: string[],
 ): Promise<BetterAuthSocialRedirectResponse> =>
   getBetterAuthSocialRedirect(
     'sign-in/social',
     provider,
     callbackURL,
     additionalData,
+    scopes,
   );
 
 export const getBetterAuthSocialUrl = (

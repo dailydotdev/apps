@@ -50,7 +50,7 @@ const NewSquad = (): ReactElement => {
         await onSave({
           channelId: selectedChannel,
           integrationId,
-          sourceId: squad.id,
+          sourceId: squad.id!,
         });
       }
 

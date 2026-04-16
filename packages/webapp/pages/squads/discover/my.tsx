@@ -25,7 +25,7 @@ import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
 import { defaultSeo } from '../../../next-seo';
 
-function MySquadsPage(): ReactElement {
+function MySquadsPage(): ReactElement | null {
   const { count, isModeratorInAnySquad } = useSquadPendingPosts();
   const { squads } = useAuthContext();
   const router = useRouter();

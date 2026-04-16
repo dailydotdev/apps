@@ -132,7 +132,6 @@ export default function PostItemCard({
                 readTime={post.readTime}
                 numUpvotes={post.numUpvotes}
                 isVideoType={isVideoPost(post)}
-                userHasUpvoted={post.userState?.vote === UserVote.Up}
               />
             </div>
             <div className="ml-4 mt-1 flex tablet:ml-0 tablet:mt-1">

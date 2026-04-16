@@ -63,6 +63,9 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts/ActiveFeedNameContext';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { ArchiveEntryCard } from '@dailydotdev/shared/src/components/archive/ArchiveEntryCard';
+import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -226,13 +229,14 @@ const SourcePage = ({
         PostType.VideoYouTube,
         PostType.Collection,
       ],
-      period: 30,
+      period: 365,
     }),
     [source?.id],
   );
   const bestDiscussedQueryVariables = useMemo(
     () => ({
       source: source?.id,
+      period: 365,
     }),
     [source?.id],
   );
@@ -261,6 +265,10 @@ const SourcePage = ({
           dangerouslySetInnerHTML={{ __html: jsonLd }}
         />
       </Head>
+      <ArchiveBreadcrumbs
+        items={[{ label: 'Sources', href: '/sources' }, { label: source.name }]}
+        className={pageSectionClassName}
+      />
       <PageInfoHeader className={pageSectionAutoWidthClassName}>
         <div className="flex items-center font-bold">
           <img
@@ -344,6 +352,12 @@ const SourcePage = ({
           emptyScreen={<></>}
         />
       </ActiveFeedNameContext.Provider>
+      <ArchiveEntryCard
+        scopeType={ArchiveScopeType.Source}
+        scopeId={source.id ?? ''}
+        scopeName={source.name}
+        className={`${pageSectionClassName} mb-6`}
+      />
       <div className={`${pageSectionClassName} mb-5 flex w-auto items-center`}>
         <p className="flex items-center font-bold typo-body">
           All posts from {source.name}

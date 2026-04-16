@@ -163,7 +163,6 @@ function SocialTwitterPostContentRaw({
           <PostMetadata
             createdAt={post.createdAt}
             readTime={post.readTime}
-            showBelowThresholdLabel={false}
             className={classNames('mt-4 !typo-callout', 'mb-4')}
           >
             {!!post.createdAt && <Separator className="mx-0" />}

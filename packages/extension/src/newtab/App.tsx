@@ -20,7 +20,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { useGrowthBookContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { isTesting } from '@dailydotdev/shared/src/lib/constants';
-import ExtensionOnboarding from '@dailydotdev/shared/src/components/ExtensionOnboarding';
 import { withFeaturesBoundary } from '@dailydotdev/shared/src/components/withFeaturesBoundary';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
 import { useHostStatus } from '@dailydotdev/shared/src/hooks/useHostPermissionStatus';
@@ -39,6 +38,7 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
+import HijackingLoginStrip from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -66,6 +66,31 @@ const feedErrorFallback: ReactElement = (
     </button>
   </div>
 );
+
+function HijackingPage({
+  onPageChanged,
+}: {
+  onPageChanged: (page: string) => void;
+}): ReactElement {
+  const { setCurrentPage } = useExtensionContext();
+
+  useEffect(() => {
+    setCurrentPage('/hijacking');
+
+    return () => {
+      setCurrentPage('/');
+    };
+  }, [setCurrentPage]);
+
+  return (
+    <MainFeedPage
+      onPageChanged={onPageChanged}
+      initialPage="/"
+      shouldInitializeCurrentPage={false}
+      shortcuts={<HijackingLoginStrip />}
+    />
+  );
+}
 
 function InternalApp(): ReactElement {
   const { isOnboardingComplete } = useOnboardingActions();
@@ -122,7 +147,13 @@ function InternalApp(): ReactElement {
   }
 
   if (shouldRedirectOnboarding) {
-    return <ExtensionOnboarding />;
+    return (
+      <ErrorBoundary feature="extension-feed" fallback={feedErrorFallback}>
+        <DndContextProvider>
+          <HijackingPage onPageChanged={onPageChanged} />
+        </DndContextProvider>
+      </ErrorBoundary>
+    );
   }
 
   return (

@@ -152,12 +152,4 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureUpvoteCountThreshold = new Feature<{
-  threshold: number;
-  belowThresholdLabel: string;
-  newWindowHours: number;
-}>('upvote_count_threshold', {
-  threshold: 0,
-  belowThresholdLabel: '',
-  newWindowHours: 24,
-});
+export const featureOnboardingV2 = new Feature('onboarding_v2', false);

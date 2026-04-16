@@ -71,6 +71,7 @@ const useRegistration = ({
       referralOrigin?: string;
       timezone?: string;
       region?: string;
+      acceptedMarketing?: boolean;
     }) => {
       logEvent({
         event_name: 'click',
@@ -128,6 +129,7 @@ const useRegistration = ({
       turnstileToken,
       username: values['traits.username'] as string,
       experienceLevel: values['traits.experienceLevel'] as string,
+      acceptedMarketing: values['traits.acceptedMarketing'] as boolean,
       referral: referral ?? undefined,
       referralOrigin: referralOrigin ?? undefined,
       timezone,

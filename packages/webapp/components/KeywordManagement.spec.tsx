@@ -11,6 +11,7 @@ import {
 import type { FeedData } from '@dailydotdev/shared/src/graphql/feed';
 import { KEYWORD_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { Connection } from '@dailydotdev/shared/src/graphql/common';
 import type { MockedGraphQLResponse } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -39,6 +40,7 @@ const defaultFeedPage: Connection<Post> = {
       node: {
         id: '0e4005b2d3cf191f8c44c2718a457a1e',
         title: 'Learn SQL',
+        type: PostType.Article,
         image:
           'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/22fc3ac5cc3fedf281b6e4b46e8c0ba2',
         commentsPermalink: 'https://localhost:5002/posts/9CuRpr5NiEY5',

@@ -82,6 +82,9 @@ export enum Origin {
   HotTakeList = 'hot take list',
   HotAndCold = 'hot and cold',
   Leaderboard = 'leaderboard',
+  // Onboarding v2
+  OnboardingModal = 'onboarding modal',
+  OnboardingFeedEnd = 'onboarding feed end',
 }
 
 export enum LogEvent {
@@ -399,6 +402,7 @@ export enum LogEvent {
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
   // Quests
+  QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
 }
@@ -430,6 +434,7 @@ export enum TargetType {
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
   MarketingCtaBrief = 'promotion_briefing',
+  MarketingCtaHelpGuide = 'promotion_help_guide',
   PlusEntryCard = 'plus_entry_card',
   PlusEntryForYouTab = 'plus_entry_for_you_tab',
   PlusEntryBookmarkTab = 'plus_entry_bookmark_tab',
@@ -465,6 +470,17 @@ export enum TargetType {
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
+  // Onboarding v2
+  HeroCta = 'hero cta',
+  SignupChooser = 'signup chooser',
+  SignupPrompt = 'signup prompt',
+  ProfileImport = 'profile import',
+  ExperienceLevel = 'experience level',
+  ExtensionPromo = 'extension promo',
+  TagsFallback = 'tags fallback',
+  MarketingOptOut = 'marketing opt out',
+  OnboardingComplete = 'onboarding complete',
+  MobileAppDownload = 'mobile app download',
 }
 
 export enum TargetId {
@@ -523,6 +539,19 @@ export enum TargetId {
   HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  // Onboarding v2
+  GitHub = 'github',
+  AI = 'ai',
+  Install = 'install',
+  Dismiss = 'dismiss',
+  InstallExtension = 'install extension',
+  MobileApp = 'mobile app',
+  EnableNotifications = 'enable notifications',
+  GoToFeed = 'go to feed',
+  OptOut = 'opt_out',
+  OptIn = 'opt_in',
+  IOS = 'ios',
+  Android = 'android',
 }
 
 export enum NotificationChannel {

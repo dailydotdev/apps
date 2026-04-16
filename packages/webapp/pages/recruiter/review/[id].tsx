@@ -78,7 +78,7 @@ const ContentSection = ({
   );
 };
 
-const ReviewDetailPage = (): ReactElement => {
+const ReviewDetailPage = (): ReactElement | null => {
   const router = useRouter();
   const { id } = router.query;
   const { user, isAuthReady } = useAuthContext();

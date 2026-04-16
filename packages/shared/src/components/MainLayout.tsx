@@ -33,6 +33,7 @@ import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
+import { isExtension } from '../lib/func';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -116,7 +117,11 @@ function MainLayoutComponent({
   const isPageApplicableForOnboarding =
     !page || feeds.includes(page) || isCustomFeed;
   const shouldRedirectOnboarding =
-    !user && isPageReady && isPageApplicableForOnboarding && !isTesting;
+    !isExtension &&
+    !user &&
+    isPageReady &&
+    isPageApplicableForOnboarding &&
+    !isTesting;
 
   useEffect(() => {
     if (!shouldRedirectOnboarding) {
