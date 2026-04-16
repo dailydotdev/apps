@@ -865,9 +865,9 @@ export const OnboardingV2 = (): ReactElement => {
               className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
               style={{ lineHeight: '1.65' }}
             >
-              Millions of developers rely on daily.dev for tech news, tools,
-              and discussions that actually matter. Tailored to your stack
-              from day one.
+              Millions of developers rely on daily.dev for tech news, tools, and
+              discussions that actually matter. Tailored to your stack from day
+              one.
             </p>
           </div>
 
