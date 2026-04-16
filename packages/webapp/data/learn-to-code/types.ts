@@ -37,6 +37,7 @@ export interface Prompt {
   expectedOutput?: string;
   comprehensionPrompt?: string;
   challenge?: string;
+  subtitle?: string;
 }
 
 export interface Concept {
