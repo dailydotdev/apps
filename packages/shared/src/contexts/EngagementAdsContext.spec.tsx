@@ -23,16 +23,12 @@ const mockCreative: EngagementCreative = {
     dark: 'https://example.com/logo-dark.png',
     light: 'https://example.com/logo-light.png',
   },
-  promoted_background_img: {
-    dark: 'https://example.com/bg-dark.png',
-    light: 'https://example.com/bg-light.png',
-  },
   promoted_icon_img: {
     dark: 'https://example.com/icon-dark.png',
     light: 'https://example.com/icon-light.png',
   },
-  promoted_primary_color: { dark: '#6e40c9', light: '#5a32a3' },
-  promoted_secondary_color: { dark: '#1f6feb', light: '#0969da' },
+  promoted_gradient_start: { dark: '#6e40c9', light: '#5a32a3' },
+  promoted_gradient_end: { dark: '#1f6feb', light: '#0969da' },
   tools: ['copilot', 'vscode'],
   keywords: ['AI', 'copilot'],
   tags: ['ai', 'copilot', 'machine-learning'],

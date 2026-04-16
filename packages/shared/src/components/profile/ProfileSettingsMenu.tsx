@@ -17,7 +17,6 @@ import {
   BlockIcon,
   CoinIcon,
   CreditCardIcon,
-  GiftIcon,
   HashtagIcon,
   HotIcon,
   InviteIcon,

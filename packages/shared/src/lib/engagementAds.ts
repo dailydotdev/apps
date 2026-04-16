@@ -19,10 +19,9 @@ export interface EngagementCreative {
   promoted_cta: string;
   promoted_url: string;
   promoted_logo_img: ThemedValue;
-  promoted_background_img: ThemedValue;
   promoted_icon_img: ThemedValue;
-  promoted_primary_color: ThemedValue;
-  promoted_secondary_color: ThemedValue;
+  promoted_gradient_start: ThemedValue;
+  promoted_gradient_end: ThemedValue;
   tools: string[];
   keywords: string[];
   tags: string[];
@@ -36,7 +35,6 @@ export interface ResolvedCreative {
   cta: string;
   url: string;
   logo: string;
-  background: string;
   icon: string;
   primaryColor: string;
   secondaryColor: string;
@@ -44,6 +42,9 @@ export interface ResolvedCreative {
   keywords: string[];
   tags: string[];
 }
+
+const resolveThemed = (value: ThemedValue, isLight: boolean): string =>
+  isLight ? value.light : value.dark;
 
 /** Resolve a raw creative to the current theme */
 export const resolveCreative = (
@@ -55,21 +56,10 @@ export const resolveCreative = (
   body: creative.promoted_body,
   cta: creative.promoted_cta,
   url: creative.promoted_url,
-  logo: isLight
-    ? creative.promoted_logo_img.light
-    : creative.promoted_logo_img.dark,
-  background: isLight
-    ? creative.promoted_background_img.light
-    : creative.promoted_background_img.dark,
-  icon: isLight
-    ? creative.promoted_icon_img.light
-    : creative.promoted_icon_img.dark,
-  primaryColor: isLight
-    ? creative.promoted_primary_color.light
-    : creative.promoted_primary_color.dark,
-  secondaryColor: isLight
-    ? creative.promoted_secondary_color.light
-    : creative.promoted_secondary_color.dark,
+  logo: resolveThemed(creative.promoted_logo_img, isLight),
+  icon: resolveThemed(creative.promoted_icon_img, isLight),
+  primaryColor: resolveThemed(creative.promoted_gradient_start, isLight),
+  secondaryColor: resolveThemed(creative.promoted_gradient_end, isLight),
   tools: creative.tools,
   keywords: creative.keywords,
   tags: creative.tags,
