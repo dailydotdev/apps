@@ -844,11 +844,11 @@ export const OnboardingV2 = (): ReactElement => {
           >
             <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
               <span className="text-text-primary">
-                Stay up to date as a developer
+                Staying updated shouldn&apos;t be hard
               </span>
               <br />
               <span className="onb-gradient-text bg-clip-text text-transparent">
-                Build your feed identity.
+                Get your personalized dev feed
               </span>
             </h1>
           </div>
@@ -865,8 +865,9 @@ export const OnboardingV2 = (): ReactElement => {
               className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
               style={{ lineHeight: '1.65' }}
             >
-              Tap into live signals from the global dev community, then lock
-              your feed to your stack with GitHub import or AI setup.
+              Millions of developers rely on daily.dev for tech news, tools,
+              and discussions that actually matter. Tailored to your stack
+              from day one.
             </p>
           </div>
 
@@ -897,7 +898,7 @@ export const OnboardingV2 = (): ReactElement => {
                 className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <GitHubIcon secondary size={IconSize.XSmall} />
-                Continue with GitHub
+                One-click setup
                 <svg
                   width="14"
                   height="14"
@@ -1260,10 +1261,10 @@ export const OnboardingV2 = (): ReactElement => {
         {step === 'hero' && (
           <div className="mx-auto -mt-48 w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:-mt-64 tablet:px-8">
             <div className="mb-6 text-center tablet:mb-8">
-              <p className="mb-2 text-text-secondary typo-body">
+              <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
                 You just explored the global feed.
               </p>
-              <h3 className="font-bold text-text-primary typo-title2">
+              <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
                 Now build a feed that is truly yours
               </h3>
             </div>
@@ -1334,10 +1335,10 @@ export const OnboardingV2 = (): ReactElement => {
             <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
               <div className="mb-6 text-center tablet:mb-8">
                 <p className="mb-2 text-text-secondary typo-body">
-                  Stay up to date, level up with the community, and unlock more.
+                  Millions of developers already use daily.dev.
                 </p>
                 <h3 className="font-bold text-text-primary typo-title2">
-                  Build your developer identity
+                  Now let&apos;s set up yours.
                 </h3>
               </div>
 
@@ -1565,7 +1566,7 @@ export const OnboardingV2 = (): ReactElement => {
                   [
                     'Zero clicks to your personalized feed',
                     'Catch trending tools & discussions early',
-                    'Trusted by 1M+ developers daily',
+                    'Top-rated on Chrome Web Store',
                   ] as const
                 ).map((label) => (
                   <div

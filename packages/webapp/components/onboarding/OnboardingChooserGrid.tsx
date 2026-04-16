@@ -172,10 +172,10 @@ export function OnboardingChooserGrid({
           </div>
         </div>
 
-        <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
+        <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-title3">
           One-click setup
         </h4>
-        <p className="mb-5 text-center text-text-tertiary typo-footnote">
+        <p className="mb-5 text-center text-text-tertiary typo-callout">
           Connect GitHub and let our AI do the rest.
         </p>
 
@@ -206,7 +206,7 @@ export function OnboardingChooserGrid({
                   <NewTabIcon size={IconSize.Size16} secondary />
                 )}
               </span>
-              <span className="text-left text-text-primary typo-footnote">
+              <span className="text-left text-text-primary typo-callout">
                 {text}
               </span>
             </div>
@@ -250,7 +250,7 @@ export function OnboardingChooserGrid({
           </button>
         </div>
         <p className="mt-2.5 text-text-quaternary typo-caption2">
-          Read-only access &middot; No special permissions
+          Read-only access &middot; Public repos only
         </p>
       </div>
 
@@ -273,10 +273,10 @@ export function OnboardingChooserGrid({
           </div>
         </div>
 
-        <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
+        <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-title3">
           Tell our AI about yourself
         </h4>
-        <p className="mb-5 text-center text-text-tertiary typo-footnote">
+        <p className="mb-5 text-center text-text-tertiary typo-callout">
           Describe your stack and let AI build your feed.
         </p>
 
@@ -334,7 +334,7 @@ export function OnboardingChooserGrid({
           </button>
         </div>
         <p className="mt-2.5 text-text-quaternary typo-caption2">
-          AI-powered &middot; instant personalization
+          Describe your stack &middot; AI does the rest
         </p>
       </div>
     </div>
