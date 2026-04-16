@@ -172,9 +172,9 @@ type ImportBodyPhase = 'checklist' | 'seniority' | 'default';
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
-  { label: 'Matching interests', threshold: 30 },
-  { label: 'Mapping your stack', threshold: 46 },
-  { label: 'Inferring seniority', threshold: 68 },
+  { label: 'Matching interests', threshold: 28 },
+  { label: 'Mapping your stack', threshold: 48 },
+  { label: 'Inferring seniority', threshold: 78 },
   { label: 'Building your feed', threshold: 95 },
 ];
 
@@ -205,13 +205,13 @@ const ONBOARDING_EXTENSION_SEEN_KEY = 'onboarding:extension_seen';
 
 const GITHUB_IMPORT_STEPS = [
   { label: 'Connecting account', threshold: 12 },
-  { label: 'Scanning repositories', threshold: 30 },
-  { label: 'Matching interests', threshold: 46 },
-  { label: 'Inferring seniority', threshold: 68 },
-  { label: 'Building your feed', threshold: 96 },
+  { label: 'Scanning repositories', threshold: 28 },
+  { label: 'Matching interests', threshold: 48 },
+  { label: 'Inferring seniority', threshold: 78 },
+  { label: 'Building your feed', threshold: 95 },
 ];
 
-const IMPORT_ANIMATION_MS = 2000;
+const IMPORT_ANIMATION_MS = 4000;
 const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
@@ -325,8 +325,13 @@ export const OnboardingV2 = (): ReactElement => {
           ? requestGitHubProfileTags()
           : requestOnboardingProfileTags(aiPrompt);
 
-      // Animate progress bar to 65% via CSS transition
-      requestAnimationFrame(() => setImportProgress(65));
+      // Step progress through thresholds that complete during import
+      const steps = source === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS;
+      const preSteps = steps.filter((s) => s.threshold < 65);
+      const stepDelay = IMPORT_ANIMATION_MS / (preSteps.length + 1);
+      preSteps.forEach((s, i) => {
+        trackTimer(() => setImportProgress(s.threshold), stepDelay * (i + 1));
+      });
 
       // Wait for both API response AND minimum animation time
       const [apiResult] = await Promise.allSettled([
@@ -365,6 +370,7 @@ export const OnboardingV2 = (): ReactElement => {
       logEvent,
       clearImportTimers,
       aiPrompt,
+      trackTimer,
       setAiPrompt,
       setSignupContext,
       router,
@@ -413,7 +419,7 @@ export const OnboardingV2 = (): ReactElement => {
       });
       clearImportTimers();
       setSelectedExperienceLevel(level);
-      setImportProgress((prev) => Math.max(prev, 72));
+      setImportProgress((prev) => Math.max(prev, 80));
       setImportPhase('confirmingSeniority');
 
       await gqlClient
@@ -436,7 +442,9 @@ export const OnboardingV2 = (): ReactElement => {
 
       trackTimer(() => {
         setImportPhase('finishing');
-        setImportProgress(100);
+        trackTimer(() => {
+          setImportProgress(100);
+        }, 800);
         trackTimer(() => {
           setImportPhase('complete');
           trackTimer(() => {
