@@ -13,8 +13,7 @@ export default function PlaceholderCommentList({
   placeholderAmount,
   ...props
 }: PlaceholderCommentListProps): ReactElement {
-  const amount =
-    placeholderAmount <= MAX_DISPLAY ? placeholderAmount : MAX_DISPLAY;
+  const amount = Math.min(placeholderAmount ?? MAX_DISPLAY, MAX_DISPLAY);
 
   return (
     <>

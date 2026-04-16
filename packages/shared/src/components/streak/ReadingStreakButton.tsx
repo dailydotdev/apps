@@ -57,7 +57,7 @@ function CustomStreaksTooltip({
         className: 'border border-border-subtlest-tertiary rounded-16',
       }}
       content={<ReadingStreakPopup streak={streak} />}
-      onClickOutside={() => setShouldShowStreaks(false)}
+      onClickOutside={() => setShouldShowStreaks!(false)}
     >
       {children}
     </SimpleTooltip>
@@ -70,7 +70,7 @@ export function ReadingStreakButton({
   compact,
   iconPosition,
   className,
-}: ReadingStreakButtonProps): ReactElement {
+}: ReadingStreakButtonProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -78,7 +78,7 @@ export function ReadingStreakButton({
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
-    isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
+    isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user!.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
 
   const handleToggle = useCallback(() => {

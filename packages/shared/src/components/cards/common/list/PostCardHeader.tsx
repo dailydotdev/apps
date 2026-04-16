@@ -113,11 +113,11 @@ export const PostCardHeader = ({
             <>
               {showCTA && (
                 <ReadArticleButton
-                  content={readButtonContent ?? postButtonText}
+                  content={readButtonContent ?? postButtonText ?? ''}
                   className="mr-2"
                   variant={ButtonVariant.Tertiary}
                   icon={readButtonIcon ?? <OpenLinkIcon />}
-                  href={postLink}
+                  href={postLink ?? ''}
                   onClick={onReadArticleClick}
                   openNewTab={openNewTab}
                 />

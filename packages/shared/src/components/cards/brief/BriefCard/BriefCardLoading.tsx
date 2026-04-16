@@ -37,12 +37,12 @@ export const BriefCardLoading = ({
     >
       <LottieAnimation
         className="float-animation -mb-6 h-20 w-20"
-        src={animationSrc}
+        src={animationSrc ?? ''}
       />
       <div className="w-20">
         <ProgressBar
           shouldShowBg
-          percentage={progressPercentage}
+          percentage={progressPercentage ?? 0}
           className={{
             wrapper: 'rounded-12 bg-border-subtlest-tertiary',
             bar: 'h-1',

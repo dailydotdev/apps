@@ -21,7 +21,8 @@ const PollMetadata = ({
   isAuthor,
   numPollVotes,
 }: PollMetadataProps) => {
-  const shouldShowVotes = numPollVotes > MIN_VOTES_REQUIRED || isAuthor;
+  const votes = numPollVotes ?? 0;
+  const shouldShowVotes = votes > MIN_VOTES_REQUIRED || isAuthor;
   const pollHasEnded = endsAt && isAfter(new Date(), new Date(endsAt));
 
   return (
@@ -49,7 +50,7 @@ const PollMetadata = ({
       {shouldShowVotes && (
         <>
           <Typography tag={TypographyTag.Span} type={TypographyType.Footnote}>
-            {largeNumberFormat(numPollVotes)}{' '}
+            {largeNumberFormat(votes)}{' '}
             {pollHasEnded ? 'total votes' : 'votes'}
           </Typography>
           <Separator />

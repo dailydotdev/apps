@@ -78,7 +78,7 @@ export function SharedPostPreview({
                   <SourceAvatar
                     source={{
                       image: sourceImage,
-                      handle: isUnknownSource ? unknownSource : source.handle,
+                      handle: isUnknownSource ? unknownSource : source!.handle,
                     }}
                     size={ProfileImageSize.Size16}
                     className="shrink-0"
@@ -89,7 +89,7 @@ export function SharedPostPreview({
                     color={TypographyColor.Primary}
                     className="truncate font-bold"
                   >
-                    {isUnknownSource ? unknownSource : source.name}
+                    {isUnknownSource ? unknownSource : source!.name}
                   </Typography>
                 </div>
               )}

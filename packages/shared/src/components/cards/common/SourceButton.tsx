@@ -64,7 +64,7 @@ export default function SourceButton({
           className={className}
           picture={{ size, rounded: 'full' }}
           user={{
-            id: source.id,
+            id: source.id!,
             image: source.image,
             permalink: source.permalink,
             username: source.handle,
@@ -86,7 +86,7 @@ export default function SourceButton({
           className={className}
           picture={{ size, rounded: 'full' }}
           user={{
-            id: source.id,
+            id: source.id!,
             image: source.image,
             permalink: source.permalink,
             username: source.handle,

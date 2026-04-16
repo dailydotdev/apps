@@ -37,8 +37,8 @@ export const CollectionCardHeader = ({
             highlightBookmarkedPost && headerHiddenClassName,
           ),
         }}
-        sources={sources}
-        totalSources={totalSources}
+        sources={sources ?? []}
+        totalSources={totalSources ?? 0}
       >
         <div className="flex-1" />
         <PostOptionButton
