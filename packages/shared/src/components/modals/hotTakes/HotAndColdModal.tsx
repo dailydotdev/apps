@@ -54,9 +54,9 @@ const HOT_TAKE_CARD_HEIGHT = '28rem';
 /** Title3 × 3 lines (typo-title3 line-height 1.625rem in tailwind/typography.ts). */
 const ONBOARDING_CARD_TITLE_MIN_HEIGHT = '4.875rem';
 /** Fixed onboarding post card (source + 3-line title + 4:3 image + padding). */
-const ONBOARDING_POST_CARD_HEIGHT = '24rem';
+const ONBOARDING_POST_CARD_HEIGHT = 'clamp(19.5rem, 42dvh, 24rem)';
 /** Swipe stack area: card height plus back-card vertical offset (8px). */
-const ONBOARDING_SWIPE_AREA_HEIGHT = '24.5rem';
+const ONBOARDING_SWIPE_AREA_HEIGHT = `calc(${ONBOARDING_POST_CARD_HEIGHT} + 0.5rem)`;
 
 const smoothstep01 = (t: number): number => {
   const x = Math.min(Math.max(t, 0), 1);
@@ -2074,10 +2074,10 @@ const HotAndColdModal = ({
     <div
       {...handlers}
       className={classNames(
-        'relative mx-4 select-none self-center',
+        'relative select-none self-center',
         isOnboardingMode ? 'touch-pan-x' : 'touch-none',
         isOnboardingMode
-          ? 'mt-2 w-[calc(100%-3rem)] max-w-[20rem]'
+          ? 'mt-2 w-full max-w-[20rem]'
           : 'mt-4 w-[calc(100%-2rem)]',
       )}
       style={
@@ -2161,7 +2161,7 @@ const HotAndColdModal = ({
         className={classNames(
           '!p-0',
           isOnboardingMode
-            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-background-default tablet:flex-none tablet:!overflow-x-visible tablet:!overflow-y-visible'
+            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-background-default'
             : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-overlay-quaternary-onion',
         )}
       >
@@ -2196,7 +2196,9 @@ const HotAndColdModal = ({
               <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
                 <div className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4">
                   {topSlot}
-                  <div className="flex justify-center">{cardSwipeArea}</div>
+                  <div className="flex justify-center px-4">
+                    {cardSwipeArea}
+                  </div>
                   <div className="flex justify-center px-4">
                     <OnboardingSwipeHintIcons
                       deltaX={combinedOnboardingSwipeX}

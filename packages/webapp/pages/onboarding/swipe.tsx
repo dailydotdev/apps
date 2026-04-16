@@ -29,6 +29,7 @@ import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/u
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import {
   Button,
   ButtonSize,
@@ -84,14 +85,28 @@ const swipeOnboardingPageBackdropStyle: CSSProperties = {
   backgroundImage: `radial-gradient(circle at top, rgb(from var(--theme-accent-cabbage-default) r g b / 0.12), transparent 34%), radial-gradient(circle at bottom right, rgb(from var(--theme-accent-avocado-default) r g b / 0.1), transparent 28%), linear-gradient(180deg, rgb(from var(--theme-background-default) r g b / 1) 0%, rgb(from var(--theme-background-default) r g b / 0.98) 100%)`,
 };
 
+const swipeOnboardingToolbarActionButtonStyle = {
+  '--button-hover-background': 'transparent',
+  '--button-hover-border-color': 'transparent',
+  '--button-hover-box-shadow': 'none',
+  '--button-active-background': 'transparent',
+  '--button-active-border-color': 'transparent',
+  '--button-active-box-shadow': 'none',
+} as CSSProperties;
+
 const swipeOnboardingModalShellClassName =
-  'tablet:!max-h-[calc(100vh-2rem)] tablet:!w-[42rem] tablet:!max-w-[calc(100vw-2rem)] tablet:!rounded-[2rem] tablet:!border-border-subtlest-secondary tablet:shadow-[0_32px_120px_-48px_rgba(0,0,0,0.58)]';
+  'tablet:!h-[calc(100vh-2rem)] tablet:!max-h-[calc(100vh-2rem)] tablet:!w-[42rem] tablet:!max-w-[calc(100vw-2rem)] tablet:!overflow-hidden tablet:!rounded-[2rem] tablet:!border-border-subtlest-secondary tablet:shadow-[0_32px_120px_-48px_rgba(0,0,0,0.58)]';
 
 const swipeOnboardingSurfaceClassName =
   'w-full overflow-hidden rounded-[2rem] border border-border-subtlest-secondary bg-background-default shadow-[0_24px_90px_-48px_rgba(0,0,0,0.58)]';
 
 const swipeOnboardingPanelClassName =
   'rounded-[1.5rem] border border-border-subtlest-tertiary bg-surface-float';
+
+const isIncompleteSocialSignupUser = (user?: LoggedUser): boolean =>
+  !!user &&
+  user.infoConfirmed === false &&
+  user.providers.some((provider) => provider !== 'password');
 
 function SwipeOnboardingViewport({
   children,
@@ -116,12 +131,10 @@ function SwipeOnboardingViewport({
 }
 
 function SwipeOnboardingToolbar({
-  label,
   actionLabel,
   onAction,
   onBack,
 }: {
-  label: string;
   actionLabel: string;
   onAction: () => void;
   onBack: () => void;
@@ -137,14 +150,10 @@ function SwipeOnboardingToolbar({
           variant={ButtonVariant.Tertiary}
           onClick={onBack}
         />
-        <div className="min-w-0 flex-1 px-2 text-center">
-          <p className="truncate font-medium text-text-secondary typo-footnote">
-            {label}
-          </p>
-        </div>
         <Button
           className="pointer-events-auto shrink-0 !rounded-full"
           size={ButtonSize.Small}
+          style={swipeOnboardingToolbarActionButtonStyle}
           type="button"
           variant={ButtonVariant.Tertiary}
           onClick={onAction}
@@ -159,12 +168,15 @@ function SwipeOnboardingToolbar({
 function SwipeOnboardingPage(): ReactElement {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
-  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { isAuthReady, isLoggedIn, user } = useAuthContext();
   const { completeStep } = useOnboardingActions();
   const [swipesCount, setSwipesCount] = useState(0);
   const [milestoneBurstKey, setMilestoneBurstKey] = useState(0);
+  const [authDisplay, setAuthDisplay] = useState<AuthDisplay>(
+    AuthDisplay.OnboardingSignup,
+  );
   const [onboardingUiMode, setOnboardingUiMode] = useState<
-    'prompt' | 'swipe' | 'tags' | 'results'
+    'prompt' | 'swipe' | 'tags'
   >('prompt');
   const [promptText, setPromptText] = useState('');
   const [promptLoading, setPromptLoading] = useState(false);
@@ -212,6 +224,15 @@ function SwipeOnboardingPage(): ReactElement {
   } = useConditionalFeature({
     feature: swipeOnboardingFeature,
   });
+  const hasIncompleteSocialSignup = isIncompleteSocialSignupUser(user);
+  const shouldShowSwipeAuth = !isLoggedIn || hasIncompleteSocialSignup;
+  const shouldShowAuthIntro =
+    !hasIncompleteSocialSignup &&
+    ![
+      AuthDisplay.Registration,
+      AuthDisplay.SocialRegistration,
+      AuthDisplay.EmailVerification,
+    ].includes(authDisplay);
   const swipeOnboardingPreviewQuery =
     router.query[swipeOnboardingPreviewQueryKey];
   const isSwipeOnboardingPreviewForced =
@@ -289,10 +310,12 @@ function SwipeOnboardingPage(): ReactElement {
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
-      forceDefaultDisplay: true,
       trigger: AuthTriggers.Onboarding,
       formRef,
-      defaultDisplay: AuthDisplay.OnboardingSignup,
+      defaultDisplay: hasIncompleteSocialSignup
+        ? AuthDisplay.SocialRegistration
+        : AuthDisplay.OnboardingSignup,
+      onDisplayChange: (display) => setAuthDisplay(display as AuthDisplay),
       className: {
         container: classNames('w-full rounded-none tablet:max-w-[30rem]'),
         onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
@@ -302,7 +325,7 @@ function SwipeOnboardingPage(): ReactElement {
         variant: ButtonVariant.Primary,
       },
     }),
-    [],
+    [hasIncompleteSocialSignup],
   );
   useEffect(() => {
     if (onboardingUiMode !== 'tags') {
@@ -362,7 +385,7 @@ function SwipeOnboardingPage(): ReactElement {
     return <div className="min-h-dvh bg-background-default" />;
   }
 
-  if (!isLoggedIn) {
+  if (shouldShowSwipeAuth) {
     return (
       <SwipeOnboardingViewport>
         <div className="w-full max-w-[42rem]">
@@ -376,20 +399,22 @@ function SwipeOnboardingPage(): ReactElement {
             )}
           >
             <div className="flex flex-col gap-6 p-6 tablet:p-8">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <span className="text-text-secondary typo-footnote">
-                  Personalize your daily.dev feed
-                </span>
-                <div className="space-y-3">
-                  <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
-                    Sign in to start shaping your feed
-                  </h1>
-                  <p className="text-balance text-center text-text-tertiary typo-body">
-                    We&apos;ll turn your interests and swipes into a smarter
-                    starter feed in just a few steps.
-                  </p>
+              {shouldShowAuthIntro && (
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <span className="text-text-secondary typo-footnote">
+                    Personalize your daily.dev feed
+                  </span>
+                  <div className="space-y-3">
+                    <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
+                      Sign in to start shaping your feed
+                    </h1>
+                    <p className="text-balance text-center text-text-tertiary typo-body">
+                      We&apos;ll turn your interests and swipes into a smarter
+                      starter feed in just a few steps.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
               <AuthOptions {...authOptionProps} />
             </div>
           </div>
@@ -407,8 +432,8 @@ function SwipeOnboardingPage(): ReactElement {
 
   const bottomContinueSlot = canContinue ? (
     <div className="w-full min-w-0 self-stretch px-4">
-      <div className="mx-auto flex w-full max-w-[32rem] flex-col gap-3 rounded-[1.5rem] border border-border-subtlest-secondary bg-background-default p-3 shadow-[0_24px_72px_-44px_rgba(0,0,0,0.7)] tablet:flex-row tablet:items-center tablet:justify-between">
-        <div className="min-w-0 px-2">
+      <div className="mx-auto flex w-full min-w-0 max-w-[32rem] flex-col gap-3 rounded-[1.5rem] border border-border-subtlest-secondary bg-background-default p-3 shadow-[0_24px_72px_-44px_rgba(0,0,0,0.7)] laptop:flex-row laptop:flex-wrap laptop:items-center">
+        <div className="min-w-0 px-2 laptop:flex-1 laptop:basis-0">
           <p className="font-medium text-text-secondary typo-footnote">
             Starter feed ready
           </p>
@@ -418,94 +443,19 @@ function SwipeOnboardingPage(): ReactElement {
           </p>
         </div>
         <Button
-          className="w-full min-w-0 shrink-0 tablet:w-auto"
+          className="w-full min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap laptop:ml-auto laptop:w-auto"
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
           type="button"
           onClick={() => {
-            setOnboardingUiMode('results');
+            onComplete().catch(() => null);
           }}
         >
-          See my interests
+          Go to my feed
         </Button>
       </div>
     </div>
   ) : null;
-
-  if (onboardingUiMode === 'results') {
-    return (
-      <SwipeOnboardingViewport>
-        <div className="flex w-full max-w-[42rem] flex-1 flex-col justify-center">
-          <div className={swipeOnboardingSurfaceClassName}>
-            <div className="flex flex-col gap-6 p-6 tablet:p-8">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <span className="rounded-full border border-border-subtlest-tertiary bg-surface-float px-4 py-1 text-text-secondary typo-footnote">
-                  Your starter feed
-                </span>
-                <div className="space-y-3">
-                  <h1 className="text-balance text-center font-bold text-text-primary typo-title1">
-                    Your interests are taking shape
-                  </h1>
-                  <p className="mx-auto max-w-[32rem] text-balance text-center text-text-tertiary typo-body">
-                    Based on your swipes, we pulled together the topics most
-                    likely to improve your feed right away.
-                  </p>
-                </div>
-              </div>
-              <div
-                className={classNames(
-                  swipeOnboardingPanelClassName,
-                  'flex flex-col gap-4 p-5',
-                )}
-              >
-                {adaptiveSelectedTags.length > 0 ? (
-                  <div className="flex w-full flex-wrap justify-center gap-2">
-                    {adaptiveSelectedTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-accent-cabbage-default/16 rounded-full px-3 py-1.5 font-bold text-accent-cabbage-default typo-callout"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-text-quaternary typo-body">
-                    No tags selected yet. Swipe right on posts you find
-                    interesting to train the feed.
-                  </p>
-                )}
-                <div className="flex w-full flex-col gap-3 tablet:flex-row">
-                  <Button
-                    className="w-full"
-                    size={ButtonSize.Medium}
-                    variant={ButtonVariant.Primary}
-                    type="button"
-                    onClick={() => {
-                      onComplete().catch(() => null);
-                    }}
-                  >
-                    Go to my feed
-                  </Button>
-                  <Button
-                    className="w-full"
-                    size={ButtonSize.Medium}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    onClick={() => {
-                      setOnboardingUiMode('swipe');
-                    }}
-                  >
-                    Keep swiping
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </SwipeOnboardingViewport>
-    );
-  }
 
   if (onboardingUiMode === 'prompt') {
     return (
@@ -602,7 +552,6 @@ function SwipeOnboardingPage(): ReactElement {
         onboardingCardsLoading={isAdaptiveLoading}
         headerSlot={
           <SwipeOnboardingToolbar
-            label="Feed setup"
             actionLabel="Use tags instead"
             onAction={() => {
               setOnboardingUiMode('tags');
@@ -638,7 +587,6 @@ function SwipeOnboardingPage(): ReactElement {
     >
       <Modal.Body className="flex min-h-0 w-full flex-1 flex-col overflow-hidden overflow-x-hidden bg-background-default !p-0 tablet:flex-none tablet:!overflow-x-visible">
         <SwipeOnboardingToolbar
-          label="Manual setup"
           actionLabel="Switch to swipe"
           onAction={() => {
             setOnboardingUiMode('swipe');
