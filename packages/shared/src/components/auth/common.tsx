@@ -130,6 +130,8 @@ export interface AuthOptionsProps {
   targetId?: string;
   ignoreMessages?: boolean;
   onboardingSignupButton?: ButtonProps<'button'>;
+  hideLoginLink?: boolean;
+  compact?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
 }

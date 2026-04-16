@@ -153,3 +153,5 @@ export const sharedPostPreviewFeature = new Feature(
 );
 
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
+
+export const featurePostSignupWidget = new Feature('post_signup_widget', false);
