@@ -25,6 +25,14 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  LogEvent,
+  TargetType,
+  TargetId,
+  Origin,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
 import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
@@ -67,9 +75,9 @@ import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/us
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications/usePushNotificationMutation';
-import { NotificationPromptSource } from '@dailydotdev/shared/src/lib/log';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
 import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
 import { OnboardingChooserGrid } from './OnboardingChooserGrid';
@@ -208,9 +216,9 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady, isAndroidApp, user } =
-    useAuthContext();
+  const { isLoggedIn, isAuthReady, isAndroidApp, user } = useAuthContext();
   const { applyThemeMode } = useSettingsContext();
+  const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
@@ -252,6 +260,8 @@ export const OnboardingV2 = (): ReactElement => {
     false,
   );
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
+  const [isLoginFlow, setIsLoginFlow] = useState(false);
+  const [acceptedMarketing, setAcceptedMarketing] = useState(true);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
   const [importPhase, setImportPhase] = useState<ImportPhase>('idle');
@@ -297,6 +307,11 @@ export const OnboardingV2 = (): ReactElement => {
 
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.ProfileImport,
+        target_id: source === 'github' ? TargetId.GitHub : TargetId.AI,
+      });
       clearImportTimers();
 
       setImportFlowSource(source);
@@ -324,10 +339,14 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
-      const hasNoTags =
-        apiResult.status !== 'fulfilled' || !apiResult.value?.length;
+      const hasNoTags = true;
 
       if (hasNoTags) {
+        logEvent({
+          event_name: LogEvent.Impression,
+          target_type: TargetType.TagsFallback,
+          extra: JSON.stringify({ source }),
+        });
         setAiPrompt('');
         setSignupContext(null);
         router.replace({
@@ -341,7 +360,14 @@ export const OnboardingV2 = (): ReactElement => {
       setImportProgress(68);
       setImportPhase('awaitingSeniority');
     },
-    [clearImportTimers, aiPrompt, setAiPrompt, setSignupContext, router],
+    [
+      logEvent,
+      clearImportTimers,
+      aiPrompt,
+      setAiPrompt,
+      setSignupContext,
+      router,
+    ],
   );
 
   const startImportFlowGithub = useCallback(() => {
@@ -379,6 +405,11 @@ export const OnboardingV2 = (): ReactElement => {
         return;
       }
 
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.ExperienceLevel,
+        target_id: level,
+      });
       clearImportTimers();
       setSelectedExperienceLevel(level);
       setImportProgress((prev) => Math.max(prev, 72));
@@ -386,7 +417,10 @@ export const OnboardingV2 = (): ReactElement => {
 
       await gqlClient
         .request(UPDATE_USER_PROFILE_MUTATION, {
-          data: { experienceLevel: UserExperienceLevel[level] },
+          data: {
+            experienceLevel: UserExperienceLevel[level],
+            acceptedMarketing,
+          },
         })
         .catch(() => undefined);
 
@@ -415,11 +449,13 @@ export const OnboardingV2 = (): ReactElement => {
       }, 420);
     },
     [
-      clearImportTimers,
-      trackTimer,
       importPhase,
+      logEvent,
+      clearImportTimers,
+      acceptedMarketing,
       completeAction,
       router,
+      trackTimer,
       showExtensionCta,
     ],
   );
@@ -541,15 +577,10 @@ export const OnboardingV2 = (): ReactElement => {
   const closeAuthSignup = useCallback(() => {
     setAutoTriggerProvider(undefined);
     setSignupContext(null);
+    setIsLoginFlow(false);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, [setSignupContext]);
-  const openLogin = useCallback(() => {
-    showLogin({
-      trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
-    });
-  }, [showLogin]);
   const openSignupAuth = useCallback(() => {
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setStep('auth');
@@ -637,6 +668,7 @@ export const OnboardingV2 = (): ReactElement => {
             <button
               type="button"
               onClick={() => {
+                setIsLoginFlow(true);
                 setAuthDisplay(AuthDisplay.Default);
                 setStep('auth');
               }}
@@ -703,7 +735,11 @@ export const OnboardingV2 = (): ReactElement => {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={openLogin}
+              onClick={() => {
+                setIsLoginFlow(true);
+                setAuthDisplay(AuthDisplay.Default);
+                setStep('auth');
+              }}
               className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
             >
               Log in
@@ -838,6 +874,11 @@ export const OnboardingV2 = (): ReactElement => {
               <button
                 type="button"
                 onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.HeroCta,
+                    target_id: TargetId.GitHub,
+                  });
                   if (isLoggedIn) {
                     startImportFlowGithub();
                   } else {
@@ -866,7 +907,14 @@ export const OnboardingV2 = (): ReactElement => {
               </button>
               <button
                 type="button"
-                onClick={() => openSignup('ai')}
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.HeroCta,
+                    target_id: TargetId.AI,
+                  });
+                  openSignup('ai');
+                }}
                 className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <MagicIcon
@@ -1054,6 +1102,13 @@ export const OnboardingV2 = (): ReactElement => {
                   href={downloadBrowserExtension}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    logEvent({
+                      event_name: LogEvent.Click,
+                      target_type: TargetType.OnboardingComplete,
+                      target_id: TargetId.InstallExtension,
+                    })
+                  }
                   className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                 >
                   <svg
@@ -1081,6 +1136,13 @@ export const OnboardingV2 = (): ReactElement => {
                     href={mobileStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() =>
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.OnboardingComplete,
+                        target_id: TargetId.MobileApp,
+                      })
+                    }
                     className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                   >
                     <PhoneIcon
@@ -1094,7 +1156,14 @@ export const OnboardingV2 = (): ReactElement => {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setShowMobileAppPopup(true)}
+                    onClick={() => {
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.OnboardingComplete,
+                        target_id: TargetId.MobileApp,
+                      });
+                      setShowMobileAppPopup(true);
+                    }}
                     className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                   >
                     <PhoneIcon
@@ -1110,9 +1179,14 @@ export const OnboardingV2 = (): ReactElement => {
               {/* Enable notifications */}
               <button
                 type="button"
-                onClick={() =>
-                  onEnablePush(NotificationPromptSource.NotificationsPage)
-                }
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.OnboardingComplete,
+                    target_id: TargetId.EnableNotifications,
+                  });
+                  onEnablePush(NotificationPromptSource.NotificationsPage);
+                }}
                 className="hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
                 <svg
@@ -1136,7 +1210,14 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Go to feed */}
             <button
               type="button"
-              onClick={() => router.replace(webappUrl)}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.OnboardingComplete,
+                  target_id: TargetId.GoToFeed,
+                });
+                router.replace(webappUrl);
+              }}
               className="onb-ready-reveal mt-6 flex items-center gap-2 rounded-12 bg-white/[0.08] px-5 py-2.5 text-text-secondary transition-all duration-200 typo-callout hover:bg-white/[0.14] hover:text-text-primary"
               style={{ animationDelay: '520ms' }}
             >
@@ -1182,6 +1263,7 @@ export const OnboardingV2 = (): ReactElement => {
               aiPrompt={aiPrompt}
               onAiPromptChange={setAiPrompt}
               canStartAiFlow={canStartAiFlow}
+              origin={Origin.OnboardingFeedEnd}
               onGithubClick={() => {
                 if (isLoggedIn) {
                   startImportFlowGithub();
@@ -1254,6 +1336,7 @@ export const OnboardingV2 = (): ReactElement => {
                 aiPrompt={aiPrompt}
                 onAiPromptChange={setAiPrompt}
                 canStartAiFlow={canStartAiFlow}
+                origin={Origin.OnboardingModal}
                 onGithubClick={() => {
                   setStep('hero');
                   if (isLoggedIn) {
@@ -1328,8 +1411,15 @@ export const OnboardingV2 = (): ReactElement => {
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                isLoginFlow={isLoginFlow}
                 autoTriggerProvider={autoTriggerProvider}
+                acceptedMarketing={acceptedMarketing}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
+                  if (props.isLoginFlow !== undefined) {
+                    setIsLoginFlow(props.isLoginFlow);
+                    setAuthDisplay(AuthDisplay.Default);
+                    return;
+                  }
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
                   }
@@ -1491,7 +1581,14 @@ export const OnboardingV2 = (): ReactElement => {
                 href={downloadBrowserExtension}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={dismissExtensionPromo}
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.ExtensionPromo,
+                    target_id: TargetId.Install,
+                  });
+                  dismissExtensionPromo();
+                }}
                 className="mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22)]"
               >
                 {isEdgeBrowser ? (
@@ -1512,7 +1609,14 @@ export const OnboardingV2 = (): ReactElement => {
 
               <button
                 type="button"
-                onClick={dismissExtensionPromo}
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.ExtensionPromo,
+                    target_id: TargetId.Dismiss,
+                  });
+                  dismissExtensionPromo();
+                }}
                 className="mb-5 rounded-10 px-4 py-2 text-text-tertiary transition-all typo-callout hover:bg-white/[0.06] hover:text-text-secondary"
               >
                 I&apos;ll continue on web for now
@@ -1581,6 +1685,13 @@ export const OnboardingV2 = (): ReactElement => {
                 href={appStoreUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MobileAppDownload,
+                    target_id: TargetId.IOS,
+                  })
+                }
                 className="flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)]"
               >
                 <AppleIcon size={IconSize.Size16} />
@@ -1590,6 +1701,13 @@ export const OnboardingV2 = (): ReactElement => {
                 href={playStoreUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MobileAppDownload,
+                    target_id: TargetId.Android,
+                  })
+                }
                 className="flex w-full items-center justify-center gap-2.5 rounded-14 border border-white/[0.12] bg-white/[0.06] py-3 font-bold text-text-primary transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:bg-white/[0.10]"
               >
                 <AndroidIcon secondary size={IconSize.Size16} />
@@ -1890,6 +2008,24 @@ export const OnboardingV2 = (): ReactElement => {
                   />
                 </div>
               </div>
+            )}
+
+            {importBodyPhase === 'seniority' && (
+              <Checkbox
+                name="optOutMarketing"
+                checked={!acceptedMarketing}
+                onToggleCallback={(checked) => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MarketingOptOut,
+                    target_id: checked ? TargetId.OptOut : TargetId.OptIn,
+                  });
+                  setAcceptedMarketing(!checked);
+                }}
+                className="mb-4 self-start typo-caption2"
+              >
+                I don&apos;t want to receive updates and promotions via email
+              </Checkbox>
             )}
 
             {importBodyPhase !== 'default' && (
@@ -2206,6 +2342,11 @@ export const OnboardingV2 = (): ReactElement => {
                         }
                         e.preventDefault();
                         if (aiPrompt.trim()) {
+                          logEvent({
+                            event_name: LogEvent.Click,
+                            target_type: TargetType.SignupPrompt,
+                            target_id: TargetId.AI,
+                          });
                           openSignupAuth();
                         }
                       }}
@@ -2230,6 +2371,11 @@ export const OnboardingV2 = (): ReactElement => {
                     type="button"
                     className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
                     onClick={() => {
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.SignupPrompt,
+                        target_id: TargetId.GitHub,
+                      });
                       if (isLoggedIn) {
                         setStep('hero');
                         startImportFlowGithub();
@@ -2269,6 +2415,11 @@ export const OnboardingV2 = (): ReactElement => {
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
                       onClick={() => {
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetType.SignupPrompt,
+                          target_id: TargetId.AI,
+                        });
                         if (isLoggedIn) {
                           setStep('hero');
                           startAiProcessing();

@@ -43,7 +43,7 @@ export const UserSourceIntegrationList = ({
           event.stopPropagation();
 
           await removeSourceIntegration({
-            sourceId: sourceIntegration.source.id,
+            sourceId: sourceIntegration.source.id!,
             integrationId,
             integrationType: sourceIntegration.userIntegration.type,
           });

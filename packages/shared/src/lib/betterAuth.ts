@@ -108,6 +108,7 @@ export const betterAuthSignUp = async ({
   referralOrigin,
   timezone,
   region,
+  acceptedMarketing,
 }: {
   name: string;
   email: string;
@@ -119,6 +120,7 @@ export const betterAuthSignUp = async ({
   referralOrigin?: string;
   timezone?: string;
   region?: string;
+  acceptedMarketing?: boolean;
 }): Promise<BetterAuthResponse> => {
   const headers: Record<string, string> = {};
   if (turnstileToken) {
@@ -136,6 +138,7 @@ export const betterAuthSignUp = async ({
       referralOrigin,
       timezone,
       region,
+      acceptedMarketing,
     },
     'Sign up failed',
     Object.keys(headers).length > 0 ? headers : undefined,

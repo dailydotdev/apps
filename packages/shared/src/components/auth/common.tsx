@@ -132,4 +132,5 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
+  acceptedMarketing?: boolean;
 }
