@@ -69,8 +69,7 @@ const GamificationSettingsPage = (): ReactElement | null => {
             checked={!optOutQuestSystem}
             onToggle={toggleOptOutQuestSystem}
           >
-            Turn quest UI on or off across the product. Toggle to display or
-            hide the quest system UI.
+            Toggle to display or hide the quest system UI across the product.
           </SettingsSwitch>
         </section>
       </div>
