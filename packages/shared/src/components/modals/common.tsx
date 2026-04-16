@@ -213,18 +213,6 @@ const AddToCustomFeedModal = dynamic(
     ),
 );
 
-const SmartPromptModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "smartPromptModal" */ './plus/SmartPromptModal'
-  ).then((mod) => mod.SmartPromptModal),
-);
-
-const MobileSmartPromptsModal = dynamic(() =>
-  import(
-    /* webpackChunkName: "mobileSmartPromptsModal" */ './plus/MobileSmartPromptsModal'
-  ).then((mod) => mod.MobileSmartPromptsModal),
-);
-
 const CookieConsentModal = dynamic(
   () =>
     import(
@@ -503,8 +491,6 @@ export const modals = {
   [LazyModal.ClickbaitShield]: ClickbaitShieldModal,
   [LazyModal.MoveBookmark]: MoveBookmarkModal,
   [LazyModal.AddToCustomFeed]: AddToCustomFeedModal,
-  [LazyModal.SmartPrompt]: SmartPromptModal,
-  [LazyModal.MobileSmartPrompts]: MobileSmartPromptsModal,
   [LazyModal.CookieConsent]: CookieConsentModal,
   [LazyModal.ReportUser]: ReportUserModal,
   [LazyModal.PlusMarketing]: PlusMarketingModal,

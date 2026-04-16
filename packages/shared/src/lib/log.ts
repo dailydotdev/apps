@@ -292,10 +292,6 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   // End Share
-  // Start Smart Prompts
-  SmartPrompt = 'smart prompt',
-  ToggleSmartPrompts = 'toggle smart prompts',
-  // End Smart Prompts
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -518,7 +514,6 @@ export enum TargetId {
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
   ContextMenu = 'context',
-  SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
   NotificationSettings = 'notification settings',
