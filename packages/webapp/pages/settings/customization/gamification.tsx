@@ -7,7 +7,6 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -42,7 +41,7 @@ const GamificationSettingsPage = (): ReactElement | null => {
   }
 
   return (
-    <AccountPageContainer title="Gamification">
+    <AccountPageContainer title="Feature visibility">
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Subhead}>
@@ -61,25 +60,17 @@ const GamificationSettingsPage = (): ReactElement | null => {
         </section>
 
         <section className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <Typography bold type={TypographyType.Subhead}>
-              Show quests
-            </Typography>
-
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Turn quest UI on or off across the product.
-            </Typography>
-          </div>
+          <Typography bold type={TypographyType.Subhead}>
+            Show quests
+          </Typography>
 
           <SettingsSwitch
             name="quest-system"
             checked={!optOutQuestSystem}
             onToggle={toggleOptOutQuestSystem}
           >
-            Toggle to display or hide the quest system UI.
+            Turn quest UI on or off across the product. Toggle to display or
+            hide the quest system UI.
           </SettingsSwitch>
         </section>
       </div>
@@ -89,7 +80,7 @@ const GamificationSettingsPage = (): ReactElement | null => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Gamification'),
+  title: getTemplatedTitle('Feature visibility'),
 };
 
 GamificationSettingsPage.getLayout = getSettingsLayout;
