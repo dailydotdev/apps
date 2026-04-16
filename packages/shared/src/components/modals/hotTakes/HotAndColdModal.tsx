@@ -454,6 +454,72 @@ const OnboardingCardBehindParticles = (): ReactElement => (
   </>
 );
 
+const OnboardingSwipeHintButton = ({
+  deltaX,
+  direction,
+  disabled,
+  onClick,
+}: {
+  deltaX: number;
+  direction: 'left' | 'right';
+  disabled: boolean;
+  onClick: () => void;
+}): ReactElement => {
+  const swipeVisualIntensity = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
+  const isLeftDirection = direction === 'left';
+  let visualStrength = 0;
+  if (isLeftDirection && deltaX < 0) {
+    visualStrength = swipeVisualIntensity;
+  }
+  if (!isLeftDirection && deltaX > 0) {
+    visualStrength = swipeVisualIntensity;
+  }
+  const accentColor = isLeftDirection
+    ? 'var(--theme-accent-bacon-default)'
+    : 'var(--theme-accent-avocado-default)';
+  const isEmphasized = visualStrength > 0;
+  const restingClassName = isLeftDirection
+    ? 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default'
+    : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default';
+
+  return (
+    <button
+      type="button"
+      aria-label={isLeftDirection ? 'Not interesting' : 'Interesting'}
+      disabled={disabled}
+      className={classNames(
+        'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+        'disabled:cursor-not-allowed disabled:opacity-40',
+        isEmphasized ? 'opacity-100' : restingClassName,
+      )}
+      style={{
+        transform: `scale(${1 + visualStrength * 0.1})`,
+        ...(isEmphasized
+          ? {
+              color: accentColor,
+              borderColor: accentColor,
+              backgroundColor: `color-mix(in srgb, ${accentColor} ${Math.round(
+                visualStrength * 16,
+              )}%, transparent)`,
+              boxShadow: `0 0 ${
+                8 + visualStrength * 10
+              }px color-mix(in srgb, ${accentColor} ${Math.round(
+                visualStrength * 45,
+              )}%, transparent)`,
+            }
+          : {}),
+      }}
+      onClick={onClick}
+    >
+      {isLeftDirection ? (
+        <MiniCloseIcon size={IconSize.Large} />
+      ) : (
+        <VIcon size={IconSize.Large} />
+      )}
+    </button>
+  );
+};
+
 const OnboardingSwipeHintIcons = ({
   deltaX,
   disabled,
@@ -465,81 +531,20 @@ const OnboardingSwipeHintIcons = ({
   onNotInteresting: () => void;
   onInteresting: () => void;
 }): ReactElement => {
-  const swipeVisualIntensity = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
-  const leftVisualStrength = deltaX < 0 ? swipeVisualIntensity : 0;
-  const rightVisualStrength = deltaX > 0 ? swipeVisualIntensity : 0;
-
-  const leftAccentColor = 'var(--theme-accent-bacon-default)';
-  const rightAccentColor = 'var(--theme-accent-avocado-default)';
-  const leftSwipeEmphasized = leftVisualStrength > 0;
-  const rightSwipeEmphasized = rightVisualStrength > 0;
-
   return (
     <div className="flex items-center justify-center gap-6 px-1">
-      <button
-        type="button"
-        aria-label="Not interesting"
+      <OnboardingSwipeHintButton
+        deltaX={deltaX}
+        direction="left"
         disabled={disabled}
-        className={classNames(
-          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
-          'disabled:cursor-not-allowed disabled:opacity-40',
-          leftSwipeEmphasized
-            ? 'opacity-100'
-            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default',
-        )}
-        style={{
-          transform: `scale(${1 + leftVisualStrength * 0.1})`,
-          ...(leftSwipeEmphasized
-            ? {
-                color: leftAccentColor,
-                borderColor: leftAccentColor,
-                backgroundColor: `color-mix(in srgb, ${leftAccentColor} ${Math.round(
-                  leftVisualStrength * 16,
-                )}%, transparent)`,
-                boxShadow: `0 0 ${
-                  8 + leftVisualStrength * 10
-                }px color-mix(in srgb, ${leftAccentColor} ${Math.round(
-                  leftVisualStrength * 45,
-                )}%, transparent)`,
-              }
-            : {}),
-        }}
         onClick={onNotInteresting}
-      >
-        <MiniCloseIcon size={IconSize.Large} />
-      </button>
-      <button
-        type="button"
-        aria-label="Interesting"
+      />
+      <OnboardingSwipeHintButton
+        deltaX={deltaX}
+        direction="right"
         disabled={disabled}
-        className={classNames(
-          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
-          'disabled:cursor-not-allowed disabled:opacity-40',
-          rightSwipeEmphasized
-            ? 'opacity-100'
-            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default',
-        )}
-        style={{
-          transform: `scale(${1 + rightVisualStrength * 0.1})`,
-          ...(rightSwipeEmphasized
-            ? {
-                color: rightAccentColor,
-                borderColor: rightAccentColor,
-                backgroundColor: `color-mix(in srgb, ${rightAccentColor} ${Math.round(
-                  rightVisualStrength * 16,
-                )}%, transparent)`,
-                boxShadow: `0 0 ${
-                  8 + rightVisualStrength * 10
-                }px color-mix(in srgb, ${rightAccentColor} ${Math.round(
-                  rightVisualStrength * 45,
-                )}%, transparent)`,
-              }
-            : {}),
-        }}
         onClick={onInteresting}
-      >
-        <VIcon size={IconSize.Large} />
-      </button>
+      />
     </div>
   );
 };
@@ -1413,30 +1418,32 @@ const OnboardingPostCard = ({
           : '0 0.75rem 1.75rem -0.75rem rgba(0, 0, 0, 0.32)',
       }}
     >
-      {swipeDirection && (
-        <div
-          className={classNames(
-            'z-20 absolute left-1/2 top-3 -translate-x-1/2 rounded-10 px-3 py-1 font-bold text-white typo-callout',
-            swipeDirection === 'right'
-              ? 'bg-accent-avocado-default'
-              : 'bg-accent-bacon-default',
-          )}
-          style={{ opacity: swipeIntensity }}
-        >
-          {swipeDirection === 'right' ? 'INTERESTING' : 'NOT'}
-        </div>
-      )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-        <div className="flex shrink-0 items-center gap-2">
-          {sourceAvatar}
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-            className="truncate"
-            bold
-          >
-            {sourceName}
-          </Typography>
+        <div className="flex shrink-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            {sourceAvatar}
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              className="min-w-0 truncate"
+              bold
+            >
+              {sourceName}
+            </Typography>
+          </div>
+          {swipeDirection ? (
+            <div
+              className={classNames(
+                'shrink-0 rounded-10 px-3 py-1 font-bold text-white typo-callout',
+                swipeDirection === 'right'
+                  ? 'bg-accent-avocado-default'
+                  : 'bg-accent-bacon-default',
+              )}
+              style={{ opacity: swipeIntensity }}
+            >
+              {swipeDirection === 'right' ? 'INTERESTING' : 'UNINTERESTING'}
+            </div>
+          ) : null}
         </div>
         <div
           className="shrink-0"
@@ -1624,6 +1631,8 @@ interface HotAndColdModalProps extends ModalProps {
   onOnboardingFeedRetry?: () => void;
   /** True while onboarding deck query is fetching (initial or retry). */
   onboardingFeedRefetching?: boolean;
+  /** Renders onboarding swipe actions under the card or beside it on wider viewports. */
+  onboardingActionLayout?: 'bottom' | 'sides';
 }
 
 const HotAndColdModal = ({
@@ -1642,6 +1651,7 @@ const HotAndColdModal = ({
   onDismissedOnboardingCardsChange,
   onOnboardingFeedRetry,
   onboardingFeedRefetching = false,
+  onboardingActionLayout = 'bottom',
   className,
   ...props
 }: HotAndColdModalProps): ReactElement => {
@@ -2163,6 +2173,7 @@ const HotAndColdModal = ({
       )}
     </div>
   );
+  const showOnboardingSideActions = onboardingActionLayout === 'sides';
 
   return (
     <Modal
@@ -2214,17 +2225,55 @@ const HotAndColdModal = ({
               <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
                 <div className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4">
                   {topSlot}
-                  <div className="flex justify-center px-4">
-                    {cardSwipeArea}
-                  </div>
-                  <div className="flex justify-center px-4">
-                    <OnboardingSwipeHintIcons
-                      deltaX={combinedOnboardingSwipeX}
-                      disabled={isAnimating}
-                      onInteresting={() => handleDismiss('right', 'button')}
-                      onNotInteresting={() => handleDismiss('left', 'button')}
-                    />
-                  </div>
+                  {showOnboardingSideActions ? (
+                    <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
+                      <div className="hidden justify-end tablet:flex">
+                        <OnboardingSwipeHintButton
+                          deltaX={combinedOnboardingSwipeX}
+                          direction="left"
+                          disabled={isAnimating}
+                          onClick={() => handleDismiss('left', 'button')}
+                        />
+                      </div>
+                      <div className="flex justify-center px-4 tablet:px-0">
+                        {cardSwipeArea}
+                      </div>
+                      <div className="hidden justify-start tablet:flex">
+                        <OnboardingSwipeHintButton
+                          deltaX={combinedOnboardingSwipeX}
+                          direction="right"
+                          disabled={isAnimating}
+                          onClick={() => handleDismiss('right', 'button')}
+                        />
+                      </div>
+                      <div className="flex justify-center px-4 tablet:hidden">
+                        <OnboardingSwipeHintIcons
+                          deltaX={combinedOnboardingSwipeX}
+                          disabled={isAnimating}
+                          onInteresting={() => handleDismiss('right', 'button')}
+                          onNotInteresting={() =>
+                            handleDismiss('left', 'button')
+                          }
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex justify-center px-4">
+                        {cardSwipeArea}
+                      </div>
+                      <div className="flex justify-center px-4">
+                        <OnboardingSwipeHintIcons
+                          deltaX={combinedOnboardingSwipeX}
+                          disabled={isAnimating}
+                          onInteresting={() => handleDismiss('right', 'button')}
+                          onNotInteresting={() =>
+                            handleDismiss('left', 'button')
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
                   {bottomSlot}
                 </div>
               </div>

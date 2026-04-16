@@ -548,6 +548,7 @@ function SwipeOnboardingPage(): ReactElement {
         onSwipeAction={(direction, meta) => {
           handleSwipeInteraction(direction, meta);
         }}
+        onboardingActionLayout="sides"
         onboardingCards={adaptiveCards}
         onboardingCardsLoading={isAdaptiveLoading}
         headerSlot={
