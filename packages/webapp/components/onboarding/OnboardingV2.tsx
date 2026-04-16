@@ -339,7 +339,8 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
-      const hasNoTags = true;
+      const hasNoTags =
+        apiResult.status !== 'fulfilled' || !apiResult.value?.length;
 
       if (hasNoTags) {
         logEvent({
