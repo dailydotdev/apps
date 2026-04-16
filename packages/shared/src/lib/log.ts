@@ -85,6 +85,14 @@ export enum Origin {
   // Onboarding v2
   OnboardingModal = 'onboarding modal',
   OnboardingFeedEnd = 'onboarding feed end',
+  // Auth
+  BetterAuthEmailLogin = 'betterauth email login',
+  BetterAuthEmailLoginBoot = 'betterauth email login boot',
+  BetterAuthNativeIdToken = 'betterauth native id token',
+  BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
+  BetterAuthSocialUrl = 'betterauth social url',
+  BetterAuthSocialPopup = 'betterauth social popup',
+  LoginTurnstile = 'login turnstile',
 }
 
 export enum LogEvent {
