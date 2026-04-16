@@ -673,7 +673,7 @@ const ApiAccessPage = (): ReactElement => {
                             multiline={method.multilineCode}
                             onCopy={() =>
                               handleCopy(
-                                method.copyValue,
+                                method.copyValue!,
                                 method.copySuccessMessage,
                               )
                             }

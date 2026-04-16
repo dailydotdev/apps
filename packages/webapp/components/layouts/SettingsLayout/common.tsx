@@ -43,7 +43,7 @@ export const CommonTextField = classed(TextField, { container: 'max-w-sm' });
 export const AccountTextField = classed(CommonTextField, { container: 'mt-6' });
 
 type SettingsSwitchProps = {
-  name?: string;
+  name: string;
   children: ReactNode;
   checked: boolean;
   onToggle: () => void;

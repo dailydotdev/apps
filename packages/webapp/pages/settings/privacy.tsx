@@ -28,7 +28,7 @@ const seo: NextSeoProps = {
   ...getPageSeoTitles('Privacy'),
 };
 
-const AccountInvitePage = (): ReactElement => {
+const AccountInvitePage = (): ReactElement | null => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
   const { user, isAuthReady, isGdprCovered } = useAuthContext();

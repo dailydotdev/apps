@@ -16,7 +16,7 @@ import { defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
-const GamificationSettingsPage = (): ReactElement => {
+const GamificationSettingsPage = (): ReactElement | null => {
   const router = useRouter();
   const {
     optOutLevelSystem,

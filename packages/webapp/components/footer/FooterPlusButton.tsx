@@ -48,7 +48,7 @@ export function FooterPlusButton({
   className,
 }: FooterPlusButtonProps): ReactElement {
   const { user } = useAuthContext();
-  const drawerRef = useRef<DrawerRef>();
+  const drawerRef = useRef<DrawerRef>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const props = user
     ? { onClick: () => setIsDrawerOpen(true) }

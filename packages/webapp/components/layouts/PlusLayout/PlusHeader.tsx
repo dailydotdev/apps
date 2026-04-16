@@ -10,7 +10,7 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogoWithPlus } from '@dailydotdev/shared/src/components/Logo';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 
-export const PlusHeader = (): ReactElement => {
+export const PlusHeader = (): ReactElement | null => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { back, replace, isReady } = useRouter();
 
