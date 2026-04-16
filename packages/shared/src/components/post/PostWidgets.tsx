@@ -15,6 +15,7 @@ import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { PostSignupWidget } from './PostSignupWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -81,6 +82,7 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
+      <PostSignupWidget />
       {sourceCard}
       {creator && (
         <UserEntityCard
