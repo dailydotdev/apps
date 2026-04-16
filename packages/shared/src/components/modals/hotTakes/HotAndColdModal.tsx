@@ -31,6 +31,7 @@ import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
 import { Loader } from '../../Loader';
+import LogoIcon from '../../../svg/LogoIcon';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 
 const SWIPE_THRESHOLD = 80;
@@ -1322,6 +1323,8 @@ const OnboardingPostCard = ({
   dismissDurationMs: number;
   useInstantSwipeTransform?: boolean;
 }): ReactElement => {
+  const sourceName = card.source?.name || 'daily.dev';
+  const sourceImage = card.source?.image;
   const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
   let swipeDirection: 'left' | 'right' | null = null;
   if (isTop && Math.abs(swipeDelta) > 20) {
@@ -1359,6 +1362,30 @@ const OnboardingPostCard = ({
     } else {
       transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
     }
+  }
+
+  let sourceAvatar: ReactElement;
+  if (sourceImage) {
+    sourceAvatar = (
+      <img
+        alt={`${sourceName} source icon`}
+        className="size-6 rounded-full object-cover"
+        draggable={false}
+        src={sourceImage}
+      />
+    );
+  } else if (sourceName === 'daily.dev') {
+    sourceAvatar = (
+      <div
+        role="img"
+        aria-label="daily.dev source icon"
+        className="flex size-6 items-center justify-center rounded-full bg-surface-hover"
+      >
+        <LogoIcon className={{ container: 'h-2.5 w-auto' }} />
+      </div>
+    );
+  } else {
+    sourceAvatar = <div className="size-6 rounded-full bg-surface-hover" />;
   }
 
   return (
@@ -1401,23 +1428,14 @@ const OnboardingPostCard = ({
       )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
         <div className="flex shrink-0 items-center gap-2">
-          {card.source?.image ? (
-            <img
-              alt={card.source.name ?? 'Source'}
-              className="size-6 rounded-full object-cover"
-              draggable={false}
-              src={card.source.image}
-            />
-          ) : (
-            <div className="size-6 rounded-full bg-surface-hover" />
-          )}
+          {sourceAvatar}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Secondary}
             className="truncate"
             bold
           >
-            {card.source?.name || 'daily.dev'}
+            {sourceName}
           </Typography>
         </div>
         <div

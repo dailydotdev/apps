@@ -315,6 +315,9 @@ describe('HotAndColdModal', () => {
       screen.getByRole('button', { name: 'Not interesting' }),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: 'Interesting' })).toBeVisible();
+    expect(
+      screen.getByRole('img', { name: 'daily.dev source icon' }),
+    ).toBeVisible();
     expect(screen.getByText('Starter feed ready')).toBeVisible();
   });
 });
