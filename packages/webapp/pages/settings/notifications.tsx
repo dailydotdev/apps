@@ -16,7 +16,7 @@ import { AccountPageContent } from '../../components/layouts/SettingsLayout/comm
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Manage account notifications'),
+  ...getPageSeoTitles('Notifications'),
 };
 
 const AccountNotificationsPage = (): ReactElement => {
