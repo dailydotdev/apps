@@ -42,7 +42,7 @@ setup('seed da2 tracking cookie', async ({ context, baseURL }) => {
     {
       name: 'da2',
       value,
-      domain,
+      domain: `.${domain}`,
       path: '/',
       expires,
     },
