@@ -16,8 +16,6 @@ import {
   EditTag,
   OnboardingHeader,
 } from '@dailydotdev/shared/src/components/onboarding';
-import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
-import { ModalSize } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
   FooterLinks,
   withFeaturesBoundary,
@@ -41,6 +39,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { setHasSeenTags } from '@dailydotdev/shared/src/lib/feedSettings';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { SwipeOnboardingProgressHeader } from '../../components/onboarding/SwipeOnboardingProgressHeader';
@@ -69,6 +68,14 @@ const SWIPE_ONBOARDING_PROGRESS_MILESTONES: readonly number[] = [
 ];
 
 const SWIPE_ONBOARDING_TAG_SEED_MAX = 25;
+const SWIPE_ONBOARDING_LOADING_LABELS = [
+  'cooking',
+  'optimizing',
+  'thinking',
+  'shuffling the good stuff',
+  'bribing the feed gremlins',
+  'warming up the swipe deck',
+] as const;
 
 /**
  * Test-only: clears legacy followed tags when opening "Use tags instead" (unfollows
@@ -76,7 +83,7 @@ const SWIPE_ONBOARDING_TAG_SEED_MAX = 25;
  * also set `NEXT_PUBLIC_SWIPE_ONBOARDING_TEST_CLEAR_TAGS=true` in `.env.local` instead
  * of using the toggle.
  */
-const SWIPE_ONBOARDING_TEST_CLEAR_PRESELECTED_TAGS_TOGGLE = true;
+const SWIPE_ONBOARDING_TEST_CLEAR_PRESELECTED_TAGS_TOGGLE = false;
 const shouldClearPreselectedTagsForSwipeOnboardingTest =
   SWIPE_ONBOARDING_TEST_CLEAR_PRESELECTED_TAGS_TOGGLE ||
   process.env.NEXT_PUBLIC_SWIPE_ONBOARDING_TEST_CLEAR_TAGS === 'true';
@@ -165,6 +172,39 @@ function SwipeOnboardingToolbar({
   );
 }
 
+function useAnimatedLoadingLabel(isActive: boolean): string {
+  const [labelIndex, setLabelIndex] = useState(0);
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    if (!isActive) {
+      setLabelIndex(0);
+      setDotCount(1);
+      return undefined;
+    }
+
+    const interval = window.setInterval(() => {
+      setDotCount((currentDotCount) => {
+        if (currentDotCount === 3) {
+          setLabelIndex(
+            (currentLabelIndex) =>
+              (currentLabelIndex + 1) % SWIPE_ONBOARDING_LOADING_LABELS.length,
+          );
+          return 1;
+        }
+
+        return currentDotCount + 1;
+      });
+    }, 550);
+
+    return () => window.clearInterval(interval);
+  }, [isActive]);
+
+  return `${SWIPE_ONBOARDING_LOADING_LABELS[labelIndex]}${'.'.repeat(
+    dotCount,
+  )}`;
+}
+
 function SwipeOnboardingPage(): ReactElement {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
@@ -185,6 +225,7 @@ function SwipeOnboardingPage(): ReactElement {
   >(() => new Set());
   const swipeOnboardingTestTagsClearDoneForSessionRef = useRef(false);
   const prevSwipesForMilestoneRef = useRef<number | null>(null);
+  const animatedPromptLoadingLabel = useAnimatedLoadingLabel(promptLoading);
 
   const {
     cards: adaptiveCards,
@@ -196,6 +237,10 @@ function SwipeOnboardingPage(): ReactElement {
   } = useAdaptiveSwipeDeck();
 
   const handlePromptSubmit = useCallback(async () => {
+    if (promptLoading) {
+      return;
+    }
+
     setPromptLoading(true);
     try {
       let initialTags: string[] = [];
@@ -207,9 +252,13 @@ function SwipeOnboardingPage(): ReactElement {
     } finally {
       setPromptLoading(false);
     }
-  }, [promptText, startDeck]);
+  }, [promptLoading, promptText, startDeck]);
 
   const handleSkipPrompt = useCallback(async () => {
+    if (promptLoading) {
+      return;
+    }
+
     setPromptLoading(true);
     try {
       await startDeck();
@@ -217,7 +266,7 @@ function SwipeOnboardingPage(): ReactElement {
     } finally {
       setPromptLoading(false);
     }
-  }, [startDeck]);
+  }, [promptLoading, startDeck]);
   const {
     value: isSwipeOnboardingEnabled,
     isLoading: isSwipeOnboardingLoading,
@@ -261,11 +310,15 @@ function SwipeOnboardingPage(): ReactElement {
   ]);
 
   const onComplete = useCallback(async () => {
+    if (user?.id) {
+      setHasSeenTags(user.id, false);
+    }
+
     completeStep(ActionType.CompletedOnboarding);
     completeStep(ActionType.EditTag);
     completeStep(ActionType.ContentTypes);
     await redirectToApp(router);
-  }, [completeStep, router]);
+  }, [completeStep, router, user?.id]);
 
   const { feedSettings, isLoading: isFeedSettingsLoading } = useFeedSettings({
     enabled: isLoggedIn,
@@ -490,7 +543,7 @@ function SwipeOnboardingPage(): ReactElement {
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey && !promptLoading) {
                       e.preventDefault();
                       handlePromptSubmit();
                     }
@@ -498,11 +551,13 @@ function SwipeOnboardingPage(): ReactElement {
                 />
                 <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary px-4 py-3 tablet:flex-row tablet:items-center tablet:justify-between">
                   <Button
-                    className="w-full tablet:w-auto"
+                    aria-disabled={promptLoading}
+                    className={classNames('w-full tablet:w-auto', {
+                      readOnly: promptLoading,
+                    })}
                     size={ButtonSize.Medium}
                     variant={ButtonVariant.Tertiary}
                     type="button"
-                    disabled={promptLoading}
                     onClick={() => {
                       handleSkipPrompt();
                     }}
@@ -510,16 +565,24 @@ function SwipeOnboardingPage(): ReactElement {
                     Show popular posts
                   </Button>
                   <Button
-                    className="w-full tablet:w-auto"
+                    aria-disabled={promptLoading}
+                    className={classNames('w-full tablet:w-auto', {
+                      readOnly: promptLoading,
+                    })}
                     size={ButtonSize.Medium}
-                    variant={ButtonVariant.Primary}
+                    variant={
+                      promptLoading
+                        ? ButtonVariant.Float
+                        : ButtonVariant.Primary
+                    }
                     type="button"
-                    disabled={promptLoading}
                     onClick={() => {
                       handlePromptSubmit();
                     }}
                   >
-                    {promptLoading ? 'Finding posts...' : 'Start swiping'}
+                    {promptLoading
+                      ? animatedPromptLoadingLabel
+                      : 'Start swiping'}
                   </Button>
                 </div>
               </div>
@@ -530,118 +593,85 @@ function SwipeOnboardingPage(): ReactElement {
     );
   }
 
-  if (onboardingUiMode === 'swipe') {
-    return (
-      <HotAndColdModal
-        isOpen
-        className={swipeOnboardingModalShellClassName}
-        overlayClassName="supports-[backdrop-filter]:backdrop-blur-md"
-        showHeader={false}
-        showDefaultActions={false}
-        showAddHotTakeButton={false}
-        dismissedOnboardingCardIds={dismissedOnboardingCardIds}
-        onDismissedOnboardingCardsChange={setDismissedOnboardingCardIds}
-        onboardingFeedRefetching={isAdaptiveLoading}
-        onOnboardingFeedRetry={() => {
-          retryFetch();
-        }}
-        onSwipeAction={(direction, meta) => {
-          handleSwipeInteraction(direction, meta);
-        }}
-        onboardingActionLayout="sides"
-        onboardingCards={adaptiveCards}
-        onboardingCardsLoading={isAdaptiveLoading}
-        headerSlot={
-          <SwipeOnboardingToolbar
-            actionLabel="Use tags instead"
-            onAction={() => {
-              setOnboardingUiMode('tags');
-            }}
-            onBack={() => {
-              router.back();
-            }}
-          />
-        }
-        topSlot={
-          <SwipeOnboardingProgressHeader
-            milestoneBurstKey={milestoneBurstKey}
-            progressCount={onboardingProgressCount}
-          />
-        }
-        bottomSlot={bottomContinueSlot}
-        onRequestClose={() => {
-          onComplete().catch(() => null);
-        }}
-      />
-    );
-  }
+  const tagsOnboardingContent = (
+    <div
+      className={classNames(
+        swipeOnboardingSurfaceClassName,
+        'flex min-h-0 min-w-0 flex-1 flex-col rounded-[1.75rem]',
+      )}
+    >
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center overflow-y-auto overflow-x-hidden px-4 pb-2 pt-6">
+          {isFeedSettingsLoading || !feedSettings ? (
+            <div className="flex flex-1 items-center justify-center py-10">
+              <Loader />
+            </div>
+          ) : (
+            <EditTag
+              feedSettings={feedSettings}
+              headline="Pick tags that are relevant to you"
+              headlineClassName="text-balance text-text-primary typo-title1"
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
-    <Modal
+    <HotAndColdModal
       isOpen
       className={swipeOnboardingModalShellClassName}
       overlayClassName="supports-[backdrop-filter]:backdrop-blur-md"
-      onRequestClose={() => {
-        onComplete().catch(() => null);
+      showHeader={false}
+      showDefaultActions={false}
+      showAddHotTakeButton={false}
+      dismissedOnboardingCardIds={dismissedOnboardingCardIds}
+      onDismissedOnboardingCardsChange={setDismissedOnboardingCardIds}
+      onboardingActionLayout="sides"
+      onboardingCards={onboardingUiMode === 'swipe' ? adaptiveCards : undefined}
+      onboardingCardsLoading={
+        onboardingUiMode === 'swipe' ? isAdaptiveLoading : false
+      }
+      onboardingContent={
+        onboardingUiMode === 'tags' ? tagsOnboardingContent : undefined
+      }
+      onboardingFeedRefetching={isAdaptiveLoading}
+      onOnboardingFeedRetry={() => {
+        retryFetch();
       }}
-      size={ModalSize.Small}
-    >
-      <Modal.Body className="flex min-h-0 w-full flex-1 flex-col overflow-hidden overflow-x-hidden bg-background-default !p-0 tablet:flex-none tablet:!overflow-x-visible">
+      onSwipeAction={(direction, meta) => {
+        handleSwipeInteraction(direction, meta);
+      }}
+      headerSlot={
         <SwipeOnboardingToolbar
-          actionLabel="Switch to swipe"
+          actionLabel={
+            onboardingUiMode === 'swipe'
+              ? 'Use tags instead'
+              : 'Switch to swipe'
+          }
           onAction={() => {
-            setOnboardingUiMode('swipe');
+            setOnboardingUiMode((currentMode) =>
+              currentMode === 'swipe' ? 'tags' : 'swipe',
+            );
           }}
           onBack={() => {
             router.back();
           }}
         />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col px-4 pb-4 pt-2 tablet:px-6 tablet:pb-6">
-          <div className="mx-auto flex min-h-0 w-full max-w-[32rem] flex-1 flex-col gap-4">
-            <SwipeOnboardingProgressHeader
-              copyVariant="tags"
-              milestoneBurstKey={milestoneBurstKey}
-              progressCount={onboardingProgressCount}
-            />
-            <div
-              className={classNames(
-                swipeOnboardingSurfaceClassName,
-                'flex min-h-0 min-w-0 flex-1 flex-col rounded-[1.75rem]',
-              )}
-            >
-              <div className="border-b border-border-subtlest-tertiary px-5 py-4">
-                <h2 className="font-bold text-text-primary typo-title3">
-                  Pick the topics that matter most
-                </h2>
-                <p className="mt-1 text-balance text-text-tertiary typo-callout">
-                  Prefer a more direct setup? Choose the tags you want in your
-                  feed and we&apos;ll use them right away.
-                </p>
-              </div>
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <div className="flex min-h-0 min-w-0 flex-1 flex-col items-center overflow-y-auto overflow-x-hidden px-2 pb-2 pt-2">
-                  {isFeedSettingsLoading || !feedSettings ? (
-                    <div className="flex flex-1 items-center justify-center py-10">
-                      <Loader />
-                    </div>
-                  ) : (
-                    <EditTag
-                      feedSettings={feedSettings}
-                      headline="Pick tags that are relevant to you"
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-            {canContinue ? (
-              <div className="z-10 relative shrink-0 pt-1 pb-safe-or-2">
-                {bottomContinueSlot}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </Modal.Body>
-    </Modal>
+      }
+      topSlot={
+        <SwipeOnboardingProgressHeader
+          copyVariant={onboardingUiMode === 'tags' ? 'tags' : 'swipe'}
+          milestoneBurstKey={milestoneBurstKey}
+          progressCount={onboardingProgressCount}
+        />
+      }
+      bottomSlot={bottomContinueSlot}
+      onRequestClose={() => {
+        onComplete().catch(() => null);
+      }}
+    />
   );
 }
 

@@ -1615,6 +1615,7 @@ interface HotAndColdModalProps extends ModalProps {
   headerSlot?: ReactNode;
   topSlot?: ReactNode;
   bottomSlot?: ReactNode;
+  onboardingContent?: ReactNode;
   showHeader?: boolean;
   showDefaultActions?: boolean;
   showAddHotTakeButton?: boolean;
@@ -1641,6 +1642,7 @@ const HotAndColdModal = ({
   headerSlot,
   topSlot,
   bottomSlot,
+  onboardingContent,
   showHeader = true,
   showDefaultActions = true,
   showAddHotTakeButton = true,
@@ -1702,7 +1704,9 @@ const HotAndColdModal = ({
     setOnboardingIntroDelta(0);
   }, []);
 
-  const isOnboardingMode = !!onboardingCards;
+  const hasOnboardingCards = !!onboardingCards;
+  const hasOnboardingContent = onboardingContent !== undefined;
+  const isOnboardingMode = hasOnboardingCards || hasOnboardingContent;
   const availableOnboardingCards = useMemo(
     () =>
       (onboardingCards ?? []).filter((card) => !dismissedCardIds.has(card.id)),
@@ -1712,7 +1716,7 @@ const HotAndColdModal = ({
   const nextOnboardingCard = availableOnboardingCards[1];
   const isModalLoading = isOnboardingMode ? onboardingCardsLoading : isLoading;
   const isModalEmpty = isOnboardingMode
-    ? !isModalLoading && !currentOnboardingCard
+    ? !isModalLoading && !hasOnboardingContent && !currentOnboardingCard
     : isEmpty;
   const swipeAreaHeight = isOnboardingMode
     ? ONBOARDING_SWIPE_AREA_HEIGHT
@@ -1745,7 +1749,7 @@ const HotAndColdModal = ({
 
   useEffect(() => {
     if (
-      !isOnboardingMode ||
+      !hasOnboardingCards ||
       isModalLoading ||
       !currentOnboardingCard ||
       onboardingIntroRepeatCancelledRef.current
@@ -1819,7 +1823,34 @@ const HotAndColdModal = ({
       setOnboardingIntroDelta(0);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on card id only, not currentOnboardingCard reference
-  }, [isOnboardingMode, isModalLoading, currentOnboardingCard?.id]);
+  }, [hasOnboardingCards, isModalLoading, currentOnboardingCard?.id]);
+
+  useEffect(() => {
+    if (hasOnboardingCards) {
+      return;
+    }
+
+    abortOnboardingIntro();
+
+    if (flyTimerRef.current) {
+      clearTimeout(flyTimerRef.current);
+      flyTimerRef.current = null;
+    }
+    if (dismissTimerRef.current) {
+      clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+
+    animatingTakeIdRef.current = null;
+    setAnimatingTakeId(null);
+    setDismissDurationMs(DISMISS_ANIMATION_MS);
+    setIsAnimating(false);
+    setIsDragging(false);
+    setSwipeDelta(0);
+    swipeDeltaRef.current = 0;
+    setSkipDelta(0);
+    swipeDeltaYRef.current = 0;
+  }, [hasOnboardingCards, abortOnboardingIntro]);
 
   const startDismissAnimation = useCallback(
     ({
@@ -1866,7 +1897,7 @@ const HotAndColdModal = ({
         swipeDeltaYRef.current = 0;
         animatingTakeIdRef.current = null;
         setAnimatingTakeId(null);
-        if (isOnboardingMode && currentOnboardingCard) {
+        if (hasOnboardingCards && currentOnboardingCard) {
           updateDismissedCardIds((prev) => {
             const next = new Set(prev);
             next.add(currentOnboardingCard.id);
@@ -1886,7 +1917,7 @@ const HotAndColdModal = ({
     [
       currentOnboardingCard,
       dismissCurrent,
-      isOnboardingMode,
+      hasOnboardingCards,
       onboardingCards,
       updateDismissedCardIds,
     ],
@@ -1894,7 +1925,7 @@ const HotAndColdModal = ({
 
   const handleDismiss = useCallback(
     (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      const currentItemId = isOnboardingMode
+      const currentItemId = hasOnboardingCards
         ? currentOnboardingCard?.id
         : currentTake?.id;
 
@@ -1931,7 +1962,7 @@ const HotAndColdModal = ({
       }
       onSwipeAction?.(
         direction,
-        isOnboardingMode ? { onboardingCardId: currentItemId } : undefined,
+        hasOnboardingCards ? { onboardingCardId: currentItemId } : undefined,
       );
 
       let initialPush: number;
@@ -1965,7 +1996,7 @@ const HotAndColdModal = ({
     [
       currentTake,
       currentOnboardingCard,
-      isOnboardingMode,
+      hasOnboardingCards,
       isAnimating,
       startDismissAnimation,
       toggleDownvote,
@@ -1979,7 +2010,7 @@ const HotAndColdModal = ({
 
   const handleSkip = useCallback(
     (source: 'swipe' | 'button' = 'button') => {
-      const currentItemId = isOnboardingMode
+      const currentItemId = hasOnboardingCards
         ? currentOnboardingCard?.id
         : currentTake?.id;
 
@@ -2010,7 +2041,7 @@ const HotAndColdModal = ({
       cancelHotTakeVote,
       currentTake,
       currentOnboardingCard,
-      isOnboardingMode,
+      hasOnboardingCards,
       isAnimating,
       startDismissAnimation,
       logEvent,
@@ -2019,7 +2050,7 @@ const HotAndColdModal = ({
     ],
   );
 
-  const currentCardId = isOnboardingMode
+  const currentCardId = hasOnboardingCards
     ? currentOnboardingCard?.id
     : currentTake?.id;
   const isCurrentTakeAnimating =
@@ -2028,11 +2059,11 @@ const HotAndColdModal = ({
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
   const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
   const combinedOnboardingSwipeX =
-    isOnboardingMode && !isDragging && !isCurrentTakeAnimating
+    hasOnboardingCards && !isDragging && !isCurrentTakeAnimating
       ? cardSwipeDelta + onboardingIntroDelta
       : cardSwipeDelta;
   const onboardingIntroPlaying =
-    isOnboardingMode &&
+    hasOnboardingCards &&
     !isDragging &&
     !isCurrentTakeAnimating &&
     onboardingIntroDelta !== 0;
@@ -2218,141 +2249,145 @@ const HotAndColdModal = ({
           <EmptyState onClose={onRequestClose} username={user?.username} />
         )}
 
-        {!isModalLoading && !isModalEmpty && currentCardId && (
+        {!isModalLoading && !isModalEmpty && isOnboardingMode && (
           <>
-            {!isOnboardingMode && topSlot}
-            {isOnboardingMode ? (
-              <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
-                <div className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4">
-                  {topSlot}
-                  {showOnboardingSideActions ? (
-                    <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
-                      <div className="hidden justify-end tablet:flex">
-                        <OnboardingSwipeHintButton
-                          deltaX={combinedOnboardingSwipeX}
-                          direction="left"
-                          disabled={isAnimating}
-                          onClick={() => handleDismiss('left', 'button')}
-                        />
-                      </div>
-                      <div className="flex justify-center px-4 tablet:px-0">
-                        {cardSwipeArea}
-                      </div>
-                      <div className="hidden justify-start tablet:flex">
-                        <OnboardingSwipeHintButton
-                          deltaX={combinedOnboardingSwipeX}
-                          direction="right"
-                          disabled={isAnimating}
-                          onClick={() => handleDismiss('right', 'button')}
-                        />
-                      </div>
-                      <div className="flex justify-center px-4 tablet:hidden">
-                        <OnboardingSwipeHintIcons
-                          deltaX={combinedOnboardingSwipeX}
-                          disabled={isAnimating}
-                          onInteresting={() => handleDismiss('right', 'button')}
-                          onNotInteresting={() =>
-                            handleDismiss('left', 'button')
-                          }
-                        />
-                      </div>
+            <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
+              <div
+                key={hasOnboardingContent ? 'tags-box' : 'swipe-box'}
+                className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4"
+              >
+                {topSlot}
+                {hasOnboardingContent ? (
+                  onboardingContent
+                ) : showOnboardingSideActions ? (
+                  <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
+                    <div className="hidden justify-end tablet:flex">
+                      <OnboardingSwipeHintButton
+                        deltaX={combinedOnboardingSwipeX}
+                        direction="left"
+                        disabled={isAnimating}
+                        onClick={() => handleDismiss('left', 'button')}
+                      />
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex justify-center px-4">
-                        {cardSwipeArea}
-                      </div>
-                      <div className="flex justify-center px-4">
-                        <OnboardingSwipeHintIcons
-                          deltaX={combinedOnboardingSwipeX}
-                          disabled={isAnimating}
-                          onInteresting={() => handleDismiss('right', 'button')}
-                          onNotInteresting={() =>
-                            handleDismiss('left', 'button')
-                          }
-                        />
-                      </div>
-                    </>
-                  )}
-                  {bottomSlot}
-                </div>
-              </div>
-            ) : (
-              <>
-                {cardSwipeArea}
-                {showDefaultActions && (
-                  <div className="flex items-center justify-center gap-4 p-4 pt-3">
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          ❄️
-                        </span>
-                      }
-                      onClick={() => handleDismiss('left', 'button')}
-                      disabled={isAnimating}
-                      className="!size-14 rounded-full"
-                      aria-label="Cold take - downvote"
-                    />
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          😐
-                        </span>
-                      }
-                      onClick={() => handleSkip('button')}
-                      disabled={isAnimating}
-                      className="!size-12 rounded-full"
-                      aria-label="Skip hot take"
-                    />
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          🔥
-                        </span>
-                      }
-                      onClick={() => handleDismiss('right', 'button')}
-                      disabled={isAnimating}
-                      className="!size-14 rounded-full"
-                      aria-label="Hot take - upvote"
-                    />
+                    <div className="flex justify-center px-4 tablet:px-0">
+                      {cardSwipeArea}
+                    </div>
+                    <div className="hidden justify-start tablet:flex">
+                      <OnboardingSwipeHintButton
+                        deltaX={combinedOnboardingSwipeX}
+                        direction="right"
+                        disabled={isAnimating}
+                        onClick={() => handleDismiss('right', 'button')}
+                      />
+                    </div>
+                    <div className="flex justify-center px-4 tablet:hidden">
+                      <OnboardingSwipeHintIcons
+                        deltaX={combinedOnboardingSwipeX}
+                        disabled={isAnimating}
+                        onInteresting={() => handleDismiss('right', 'button')}
+                        onNotInteresting={() => handleDismiss('left', 'button')}
+                      />
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    <div className="flex justify-center px-4">
+                      {cardSwipeArea}
+                    </div>
+                    <div className="flex justify-center px-4">
+                      <OnboardingSwipeHintIcons
+                        deltaX={combinedOnboardingSwipeX}
+                        disabled={isAnimating}
+                        onInteresting={() => handleDismiss('right', 'button')}
+                        onNotInteresting={() => handleDismiss('left', 'button')}
+                      />
+                    </div>
+                  </>
                 )}
                 {bottomSlot}
-                {showAddHotTakeButton && user?.username && (
-                  <div className="px-4 pb-4">
-                    <Button
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Medium}
-                      tag="a"
-                      href={`${webappUrl}${user.username}#hot-takes`}
-                      className="w-full"
-                      onClick={(e: React.MouseEvent) => {
-                        onRequestClose?.(e);
-                      }}
-                    >
-                      Add your own hot take
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+              </div>
+            </div>
           </>
         )}
+
+        {!isModalLoading &&
+          !isModalEmpty &&
+          !isOnboardingMode &&
+          currentCardId && (
+            <>
+              {topSlot}
+              {cardSwipeArea}
+              {showDefaultActions && (
+                <div className="flex items-center justify-center gap-4 p-4 pt-3">
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        ❄️
+                      </span>
+                    }
+                    onClick={() => handleDismiss('left', 'button')}
+                    disabled={isAnimating}
+                    className="!size-14 rounded-full"
+                    aria-label="Cold take - downvote"
+                  />
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        😐
+                      </span>
+                    }
+                    onClick={() => handleSkip('button')}
+                    disabled={isAnimating}
+                    className="!size-12 rounded-full"
+                    aria-label="Skip hot take"
+                  />
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        🔥
+                      </span>
+                    }
+                    onClick={() => handleDismiss('right', 'button')}
+                    disabled={isAnimating}
+                    className="!size-14 rounded-full"
+                    aria-label="Hot take - upvote"
+                  />
+                </div>
+              )}
+              {bottomSlot}
+              {showAddHotTakeButton && user?.username && (
+                <div className="px-4 pb-4">
+                  <Button
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Medium}
+                    tag="a"
+                    href={`${webappUrl}${user.username}#hot-takes`}
+                    className="w-full"
+                    onClick={(e: React.MouseEvent) => {
+                      onRequestClose?.(e);
+                    }}
+                  >
+                    Add your own hot take
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
       </Modal.Body>
     </Modal>
   );

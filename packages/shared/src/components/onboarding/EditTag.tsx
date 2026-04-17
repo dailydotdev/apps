@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { Origin } from '../../lib/log';
 import type { FeedSettings } from '../../graphql/feedSettings';
 import { TagSelection } from '../tags/TagSelection';
@@ -11,10 +12,12 @@ import { SearchField } from '../fields/SearchField';
 interface EditTagProps {
   feedSettings: FeedSettings;
   headline?: string;
+  headlineClassName?: string;
 }
 export const EditTag = ({
   feedSettings,
   headline,
+  headlineClassName,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
 
@@ -31,7 +34,12 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">
+      <h2
+        className={classNames(
+          'text-center font-bold',
+          headlineClassName ?? 'typo-large-title',
+        )}
+      >
         {headline || 'Pick tags that are relevant to you'}
       </h2>
       <TagSelection
