@@ -13,12 +13,13 @@ import {
 } from '../../components/typography/Typography';
 import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
-import { ChromeIcon, EdgeIcon } from '../../components/icons';
+import { ChromeIcon, EdgeIcon, MagicIcon } from '../../components/icons';
 
 export type EmbeddedBrowsingWebPromptProps = {
   onEnablePreview?: () => void;
   isPreviewUnavailable?: boolean;
   unavailablePreviewUrl?: string;
+  onUseClassicView?: () => void;
 };
 
 /**
@@ -30,12 +31,25 @@ export function EmbeddedBrowsingWebPrompt({
   onEnablePreview,
   isPreviewUnavailable = false,
   unavailablePreviewUrl,
+  onUseClassicView,
 }: EmbeddedBrowsingWebPromptProps): ReactElement {
   const externalPreviewUrl =
     unavailablePreviewUrl && unavailablePreviewUrl.length > 0
       ? unavailablePreviewUrl
       : null;
   const showUnavailableActions = isPreviewUnavailable && !!externalPreviewUrl;
+  const title = isPreviewUnavailable
+    ? 'Preview not available'
+    : 'Enable embedded browsing';
+  let description =
+    'Preview and open sites directly inside daily.dev. To use this feature, install the daily.dev browser extension.';
+
+  if (isPreviewUnavailable) {
+    description = 'This site blocks embedded previews.';
+  } else if (onEnablePreview) {
+    description =
+      'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)';
+  }
 
   let primaryAction: ReactElement;
   if (showUnavailableActions) {
@@ -67,6 +81,9 @@ export function EmbeddedBrowsingWebPrompt({
   } else {
     const isChromeBrowser = isChrome();
     const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
+    const installButtonLabel = isChromeBrowser
+      ? 'Install Chrome extension'
+      : 'Install Edge extension';
     primaryAction = (
       <Button
         tag="a"
@@ -78,7 +95,7 @@ export function EmbeddedBrowsingWebPrompt({
         rel="noopener noreferrer"
         icon={<BrowserIcon />}
       >
-        {isChromeBrowser ? 'Install Chrome extension' : 'Install Edge extension'}
+        {installButtonLabel}
       </Button>
     );
   }
@@ -87,16 +104,14 @@ export function EmbeddedBrowsingWebPrompt({
     <div className={styles.root}>
       <div className={styles.ambient} aria-hidden />
       <div className={styles.stickyShell}>
-        <div className="z-10 relative flex h-fit w-full max-w-[40rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center">
+        <div className="z-10 pointer-events-auto relative flex h-fit w-full max-w-[40rem] shrink-0 flex-col items-center gap-3 rounded-16 p-6 text-center">
           <Typography
             tag={TypographyTag.H2}
             type={TypographyType.Title3}
             color={TypographyColor.Primary}
             bold
           >
-            {isPreviewUnavailable
-              ? 'Preview not available'
-              : 'Enable embedded browsing'}
+            {title}
           </Typography>
           <Typography
             tag={TypographyTag.P}
@@ -104,14 +119,22 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Secondary}
             className="!mt-0"
           >
-            {isPreviewUnavailable
-              ? 'This site blocks embedded previews.'
-              : onEnablePreview
-                ? 'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)'
-                : 'Preview and open sites directly inside daily.dev. To use this feature, install the daily.dev browser extension.'}
+            {description}
           </Typography>
-          <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-1 flex w-full flex-col items-center gap-2">
             {primaryAction}
+            {onUseClassicView ? (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Medium}
+                className="min-w-[8.5rem]"
+                icon={<MagicIcon />}
+                onClick={onUseClassicView}
+              >
+                Summarize
+              </Button>
+            ) : null}
           </div>
           {isPreviewUnavailable && externalPreviewUrl ? (
             <Typography

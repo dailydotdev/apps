@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { useExtensionSiteEmbed } from './useExtensionSiteEmbed';
 import type {
   UseExtensionSiteEmbedOptions,
@@ -18,6 +19,7 @@ interface ExtensionSiteEmbedProps extends UseExtensionSiteEmbedOptions {
 const hiddenPermissionFrameClassName =
   'pointer-events-none absolute h-0 w-0 opacity-0';
 const visibleFrameClassName = 'h-full w-full';
+const frameBaseLayerClassName = 'relative z-0';
 
 export const ExtensionSiteEmbed = ({
   className = visibleFrameClassName,
@@ -46,7 +48,7 @@ export const ExtensionSiteEmbed = ({
     <>
       {view}
       {hasAnyFrame ? (
-        <div className="relative">
+        <div className="relative z-0">
           {state.permissionFrameSrc ? (
             <iframe
               ref={state.permissionFrameRef}
@@ -55,7 +57,7 @@ export const ExtensionSiteEmbed = ({
               title={permissionFrameTitle}
               className={
                 state.showPermissionFrame
-                  ? className
+                  ? classNames(className, frameBaseLayerClassName)
                   : hiddenPermissionFrameClassName
               }
             />
@@ -65,7 +67,7 @@ export const ExtensionSiteEmbed = ({
               key={state.targetFrameKey}
               src={state.targetFrameSrc}
               title={targetFrameTitle}
-              className={className}
+              className={classNames(className, frameBaseLayerClassName)}
               onLoad={onTargetFrameLoad}
             />
           ) : null}

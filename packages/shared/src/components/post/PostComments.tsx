@@ -25,6 +25,7 @@ import { generateCommentsQueryKey } from '../../lib/query';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
+  Origin.ReaderModal,
   Origin.ArticlePage,
   Origin.CollectionModal,
   Origin.BriefModal,

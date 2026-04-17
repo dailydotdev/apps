@@ -161,3 +161,5 @@ export const featureUpvoteCountThreshold = new Feature<{
   belowThresholdLabel: '',
   newWindowHours: 24,
 });
+
+export const featureReaderModal = new Feature('reader_modal', false);

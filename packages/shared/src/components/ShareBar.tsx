@@ -90,7 +90,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   };
 
   return (
-    <WidgetContainer className="hidden flex-col p-3 laptop:flex">
+    <WidgetContainer className="hidden flex-col !border-0 p-3 laptop:flex">
       <h4 className="mb-4 font-bold text-text-primary typo-callout">
         Would you recommend this post?
       </h4>

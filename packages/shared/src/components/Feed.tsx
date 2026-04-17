@@ -65,10 +65,12 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featureReaderModal,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
+import { isDevelopment } from '../lib/constants';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
@@ -138,6 +140,13 @@ const SocialTwitterPostModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
+    ),
+);
+
+const ReaderPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
     ),
 );
 
@@ -317,6 +326,19 @@ export default function Feed<T>({
     feedName,
   });
   const {
+    value: readerModalFromGrowthBook,
+    isLoading: isReaderFeatureLoading,
+  } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: !shouldUseListFeedLayout,
+  });
+  const forceLegacyPostModalInDev =
+    isDevelopment && process.env.NEXT_PUBLIC_FORCE_LEGACY_POST_MODAL === 'true';
+  const isReaderModalOn = isDevelopment
+    ? !forceLegacyPostModalInDev
+    : readerModalFromGrowthBook;
+  const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
+  const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
     shouldShowInFeedHero,
@@ -491,6 +513,25 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  const PostModal = useMemo(() => {
+    if (!selectedPost) {
+      return undefined;
+    }
+    const readerEligibleTypes = new Set([
+      PostType.Article,
+      PostType.Digest,
+      PostType.VideoYouTube,
+    ]);
+    if (
+      isReaderModalFeatureReady &&
+      isReaderModalOn &&
+      readerEligibleTypes.has(selectedPost.type)
+    ) {
+      return ReaderPostModal;
+    }
+    return PostModalMap[selectedPost.type];
+  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -562,8 +603,6 @@ export default function Feed<T>({
       onPostModalOpen({ index, row, column });
     }
   };
-
-  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;

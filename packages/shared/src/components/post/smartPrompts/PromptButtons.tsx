@@ -24,6 +24,7 @@ type PromptButtonsProps = {
   setActivePrompt: (prompt: string) => void;
   width: number;
   isContainedView: boolean;
+  tldrOnly?: boolean;
 };
 
 export const PromptButtons = ({
@@ -31,6 +32,7 @@ export const PromptButtons = ({
   setActivePrompt,
   width,
   isContainedView = false,
+  tldrOnly = false,
 }: PromptButtonsProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [showAll, setShowAll] = useState(false);
@@ -92,7 +94,7 @@ export const PromptButtons = ({
     });
   }, [openModal, prompts, setActivePrompt]);
 
-  if (isLoading) {
+  if (isLoading && !tldrOnly) {
     return (
       <div className="flex flex-wrap gap-x-1 gap-y-2">
         <ElementPlaceholder className="h-6 w-20 rounded-8" />
@@ -116,7 +118,7 @@ export const PromptButtons = ({
         TLDR
       </PromptButton>
 
-      {promptList?.map(({ id, label, flags, description }) => (
+      {!tldrOnly && promptList?.map(({ id, label, flags, description }) => (
         <Tooltip
           key={id}
           content={description}
@@ -133,7 +135,7 @@ export const PromptButtons = ({
         </Tooltip>
       ))}
 
-      {!showAll && !isMobile && promptList?.length > 0 && remainingTags > 0 && (
+      {!tldrOnly && !showAll && !isMobile && promptList?.length > 0 && remainingTags > 0 && (
         <Tooltip content="See more prompts">
           <Button
             variant={ButtonVariant.Subtle}

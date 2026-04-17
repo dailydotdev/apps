@@ -146,8 +146,12 @@ export function PostContentRaw({
   const previewLayoutRef = useRef<HTMLDivElement>(null);
   const previewColumnRef = useRef<HTMLDivElement>(null);
   const ignorePreviewResizeRef = useRef(false);
-  const resizeObserverResetTimeoutRef = useRef<number>();
-  const floatingPreviewCloseTimeoutRef = useRef<number>();
+  const resizeObserverResetTimeoutRef = useRef<
+    ReturnType<typeof globalThis.setTimeout> | undefined
+  >();
+  const floatingPreviewCloseTimeoutRef = useRef<
+    ReturnType<typeof globalThis.setTimeout> | undefined
+  >();
   const floatingPreviewEnterFrameRef = useRef<number>();
 
   useEffect(() => {

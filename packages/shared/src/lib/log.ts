@@ -5,6 +5,7 @@ export enum Origin {
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
+  ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
   CommentFeed = 'comment feed',

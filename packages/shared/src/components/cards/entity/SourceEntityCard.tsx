@@ -148,10 +148,11 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
         <Link passHref href={source.permalink}>
           <Typography
             tag={TypographyTag.Link}
-            className="flex"
+            className="flex hover:underline"
             type={TypographyType.Body}
             color={TypographyColor.Primary}
             bold
+            title={source.permalink}
           >
             {source.name}
           </Typography>

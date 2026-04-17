@@ -83,6 +83,7 @@ const ClickbaitShieldModal = ({
 
         <Switch
           className="my-4"
+          labelClassName="text-left"
           inputId="clickbait-shield-switch"
           name="clickbait_shield"
           compact={false}

@@ -39,6 +39,9 @@ export function BookmarkButton({
   const { openModal } = useLazyModal();
   const { onRemoveReminder } = useBookmarkReminder({ post });
   const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
+  const buttonIconPosition = children
+    ? ButtonIconPosition.Top
+    : ButtonIconPosition.Left;
 
   const dropdownOptions = [
     {
@@ -98,7 +101,7 @@ export function BookmarkButton({
         {...buttonProps}
         type="button"
         pressed={post.bookmarked}
-        iconPosition={ButtonIconPosition.Top}
+        iconPosition={buttonIconPosition}
         onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
           buttonProps.onClick?.(e)
         }

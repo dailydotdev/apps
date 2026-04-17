@@ -20,10 +20,12 @@ export const SmartPrompt = ({
   post,
   isContainedView,
   className,
+  tldrOnly = false,
 }: {
   post: Post;
   isContainedView?: boolean;
   className?: string;
+  tldrOnly?: boolean;
 }): ReactElement => {
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
@@ -86,6 +88,7 @@ export const SmartPrompt = ({
         setActivePrompt={onSetActivePrompt}
         width={width}
         isContainedView={isContainedView ?? false}
+        tldrOnly={tldrOnly}
       />
       <TabContainer controlledActive={activeDisplay} showHeader={false}>
         <Tab label={PromptDisplay.TLDR}>
