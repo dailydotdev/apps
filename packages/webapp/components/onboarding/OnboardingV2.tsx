@@ -63,7 +63,10 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { useRouter } from 'next/router';
 import {
   requestGitHubProfileTags,
@@ -218,7 +221,11 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { isLoggedIn, isAuthReady, isAndroidApp, user } = useAuthContext();
+  const { isLoggedIn, isAuthReady, isAndroidApp, user, loginState } =
+    useAuthContext();
+  const [isAuthenticating, setIsAuthenticating] = useState(
+    !!loginState?.isLogin,
+  );
   const { applyThemeMode } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
@@ -369,7 +376,7 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
         router.replace({
           pathname: `${webappUrl}onboarding`,
-          query: { step: 'tags' },
+          query: { ...router.query, step: 'tags' },
         });
         setStep('tags');
         return;
@@ -462,7 +469,7 @@ export const OnboardingV2 = (): ReactElement => {
 
       router.replace({
         pathname: `${webappUrl}onboarding`,
-        query: { step: 'complete' },
+        query: { ...router.query, step: 'complete' },
       });
 
       trackTimer(() => {
@@ -504,6 +511,7 @@ export const OnboardingV2 = (): ReactElement => {
   useEffect(() => {
     if (
       !isAuthReady ||
+      isAuthenticating ||
       (
         [
           'auth',
@@ -521,7 +529,12 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (urlStep === 'tags') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
       setStep('tags');
@@ -530,7 +543,12 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (urlStep === 'complete') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
 
@@ -547,7 +565,12 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (flow === 'github') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
       startImportFlowGithub();
@@ -579,6 +602,7 @@ export const OnboardingV2 = (): ReactElement => {
     }
   }, [
     isAuthReady,
+    isAuthenticating,
     isLoggedIn,
     isOnboardingActionsReady,
     isOnboardingComplete,
@@ -614,6 +638,7 @@ export const OnboardingV2 = (): ReactElement => {
     setIsLoginFlow(false);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setIsAuthenticating(false);
   }, [setSignupContext]);
   const openSignupAuth = useCallback(() => {
     if (isLoggedIn) {
@@ -1263,12 +1288,14 @@ export const OnboardingV2 = (): ReactElement => {
                   target_type: TargetType.OnboardingComplete,
                   target_id: TargetId.GoToFeed,
                 });
-                router.replace(webappUrl);
+                redirectToApp(router);
               }}
               className="onb-ready-reveal mt-6 flex items-center gap-2 rounded-12 bg-white/[0.08] px-5 py-2.5 text-text-secondary transition-all duration-200 typo-callout hover:bg-white/[0.14] hover:text-text-primary"
               style={{ animationDelay: '520ms' }}
             >
-              Go to my feed
+              {router.query[AFTER_AUTH_PARAM]
+                ? 'Back where you left off'
+                : 'Go to my feed'}
               <ArrowIcon size={IconSize.Size16} className="rotate-90" />
             </button>
           </div>
@@ -1349,7 +1376,10 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Persistent backdrop across prompt / chooser / auth ── */}
-      {(step === 'prompt' || step === 'chooser' || step === 'auth') && (
+      {(step === 'prompt' ||
+        step === 'chooser' ||
+        step === 'auth' ||
+        isAuthenticating) && (
         <div
           className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
           aria-hidden
@@ -1428,7 +1458,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Auth Signup Overlay (providers: Google, GitHub, email) ── */}
-      {step === 'auth' && (
+      {(step === 'auth' || isAuthenticating) && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -1485,6 +1515,7 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulRegistration={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   if (signupContext === 'github') {
                     startImportFlowGithub();
                   } else if (signupContext === 'ai') {
@@ -1495,6 +1526,7 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulLogin={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   closeAuthSignup();
                 }}
               />
@@ -1531,7 +1563,7 @@ export const OnboardingV2 = (): ReactElement => {
                 completeAction(ActionType.ContentTypes);
                 router.replace({
                   pathname: `${webappUrl}onboarding`,
-                  query: { step: 'complete' },
+                  query: { ...router.query, step: 'complete' },
                 });
                 setStep(showExtensionCta ? 'extension' : 'complete');
               }}
