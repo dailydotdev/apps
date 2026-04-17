@@ -34,9 +34,7 @@ beforeAll(() => {
 
   window.scrollTo = jest.fn((x?: number | ScrollToOptions, y?: number) => {
     const targetScrollTop =
-      typeof x === 'object'
-        ? Number(x.top ?? 0)
-        : Number(y ?? 0);
+      typeof x === 'object' ? Number(x.top ?? 0) : Number(y ?? 0);
 
     scrollY = Math.min(targetScrollTop, maxScrollTop);
   });
