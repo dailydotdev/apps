@@ -33,6 +33,7 @@ import {
   Origin,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
+import { FunnelEventName } from '@dailydotdev/shared/src/features/onboarding/types/funnelEvents';
 import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
@@ -434,6 +435,17 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction(ActionType.CompletedOnboarding);
       completeAction(ActionType.EditTag);
       completeAction(ActionType.ContentTypes);
+
+      logEvent({
+        event_name: FunnelEventName.CompleteFunnel,
+        extra: JSON.stringify({
+          funnel_id: 'onboarding_github_ai',
+          funnel_version: 'v1',
+          session_id: 'unknown',
+          step_id: 'complete',
+          step_type: 'complete',
+        }),
+      });
 
       router.replace({
         pathname: `${webappUrl}onboarding`,
