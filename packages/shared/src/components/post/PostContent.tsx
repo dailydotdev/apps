@@ -53,20 +53,14 @@ const PostCodeSnippets = dynamic(() =>
   ),
 );
 
-const ArticleLink = ({
-  href,
-  onClick,
-  children,
-  ...props
-}: ComponentProps<'a'> & { href?: string; onClick?: () => void }) => {
+const ArticleLink = ({ onClick, children, ...props }: ComponentProps<'a'>) => {
   return (
     <a
-      href={href}
       title="Go to post"
       target="_blank"
       rel="noopener"
-      {...combinedClicks(onClick)}
       {...props}
+      {...(onClick ? combinedClicks<HTMLAnchorElement>(onClick) : {})}
     >
       {children}
     </a>
@@ -158,6 +152,12 @@ export function PostContentRaw({
   const isPreviewActive = isTablet
     ? showArticlePreviewColumn
     : isMobilePreviewOpen;
+  const previewEmbedProps = {
+    targetUrl: embedArticleTargetUrl ?? '',
+    previewHost: post.domain ?? undefined,
+    onPreviewUnavailable,
+    forceUnavailable: isArticlePreviewUnavailable,
+  };
 
   let previewGridCols = 'grid-cols-[1fr_0px_0fr]';
   if (showArticlePreviewColumn && isTablet) {
@@ -338,6 +338,23 @@ export function PostContentRaw({
     />
   );
 
+  const mobilePreviewDrawer = showArticlePreviewEmbed ? (
+    <Drawer
+      isOpen={!isTablet && isMobilePreviewOpen}
+      onClose={closeMobile}
+      className={{
+        wrapper: 'h-[88vh]',
+        drawer: 'flex-1 !p-0',
+      }}
+      displayCloseButton
+      appendOnRoot
+    >
+      {!isTablet && isMobilePreviewOpen && (
+        <PostArticlePreviewEmbed {...previewEmbedProps} className="!flex" />
+      )}
+    </Drawer>
+  ) : null;
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -359,7 +376,7 @@ export function PostContentRaw({
           : undefined
       }
     >
-      {showArticlePreviewEmbed ? (
+      {showArticlePreviewEmbed && isTablet ? (
         <div
           ref={previewLayoutRef}
           className="relative flex w-full flex-1 items-stretch"
@@ -412,12 +429,7 @@ export function PostContentRaw({
               )}
             >
               {!isPreviewFloating && !isTabletPreviewToggling && (
-                <PostArticlePreviewEmbed
-                  targetUrl={embedArticleTargetUrl}
-                  previewHost={post.domain ?? undefined}
-                  onPreviewUnavailable={onPreviewUnavailable}
-                  forceUnavailable={isArticlePreviewUnavailable}
-                />
+                <PostArticlePreviewEmbed {...previewEmbedProps} />
               )}
             </div>
           </div>
@@ -432,37 +444,15 @@ export function PostContentRaw({
                   : 'pointer-events-none translate-x-full opacity-0',
               )}
             >
-              <PostArticlePreviewEmbed
-                targetUrl={embedArticleTargetUrl}
-                previewHost={post.domain ?? undefined}
-                onPreviewUnavailable={onPreviewUnavailable}
-                forceUnavailable={isArticlePreviewUnavailable}
-              />
+              <PostArticlePreviewEmbed {...previewEmbedProps} />
             </div>
           )}
-          <Drawer
-            isOpen={!isTablet && isMobilePreviewOpen}
-            onClose={closeMobile}
-            className={{
-              wrapper: 'h-[88vh]',
-              drawer: 'flex-1 !p-0',
-            }}
-            displayCloseButton
-            appendOnRoot
-          >
-            <PostArticlePreviewEmbed
-              targetUrl={embedArticleTargetUrl}
-              previewHost={post.domain ?? undefined}
-              onPreviewUnavailable={onPreviewUnavailable}
-              forceUnavailable={isArticlePreviewUnavailable}
-              className="!flex"
-            />
-          </Drawer>
         </div>
       ) : (
         <>
           {postMainColumn}
           {postWidgetsColumn}
+          {mobilePreviewDrawer}
         </>
       )}
     </PostContentContainer>

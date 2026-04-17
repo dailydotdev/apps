@@ -93,24 +93,31 @@ export const useArticlePreviewPanel = ({
     }
   }, []);
 
+  const clearResizeResetTimeout = useCallback(() => {
+    if (resizeResetTimeoutRef.current) {
+      globalThis.clearTimeout(resizeResetTimeoutRef.current);
+      resizeResetTimeoutRef.current = undefined;
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       clearFloatingTimers();
-      if (resizeResetTimeoutRef.current) {
-        globalThis.clearTimeout(resizeResetTimeoutRef.current);
-      }
+      clearResizeResetTimeout();
     };
-  }, [clearFloatingTimers]);
+  }, [clearFloatingTimers, clearResizeResetTimeout]);
 
   useEffect(() => {
     clearFloatingTimers();
+    clearResizeResetTimeout();
+    ignoreResizeRef.current = false;
     setIsDismissed(false);
     setIsUnavailable(false);
     setIsMobileOpen(false);
     setIsPreviewNarrow(false);
     setIsTabletToggling(false);
     setFloatingPhase(FloatingPreviewPhase.Hidden);
-  }, [postId, clearFloatingTimers]);
+  }, [postId, clearFloatingTimers, clearResizeResetTimeout]);
 
   useEffect(() => {
     clearFloatingTimers();
@@ -188,11 +195,10 @@ export const useArticlePreviewPanel = ({
     }
 
     ignoreResizeRef.current = true;
-    if (resizeResetTimeoutRef.current) {
-      globalThis.clearTimeout(resizeResetTimeoutRef.current);
-    }
+    clearResizeResetTimeout();
     resizeResetTimeoutRef.current = globalThis.setTimeout(() => {
       ignoreResizeRef.current = false;
+      resizeResetTimeoutRef.current = undefined;
       setIsTabletToggling(false);
       const width = columnRef.current?.getBoundingClientRect().width;
       if (!width || width < 1) {
@@ -207,7 +213,14 @@ export const useArticlePreviewPanel = ({
       setIsPreviewNarrow(false);
     }
     setIsTabletToggling(true);
-  }, [clearFloatingTimers, evaluateWidth, isDismissed, isLaptop, isTablet]);
+  }, [
+    clearFloatingTimers,
+    clearResizeResetTimeout,
+    evaluateWidth,
+    isDismissed,
+    isLaptop,
+    isTablet,
+  ]);
 
   const markUnavailable = useCallback(() => {
     setIsUnavailable(true);

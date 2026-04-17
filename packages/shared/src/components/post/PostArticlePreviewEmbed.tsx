@@ -149,12 +149,7 @@ export function PostArticlePreviewEmbed({
       if (state.status !== ExtensionSiteEmbedStatus.Ready) {
         setHasPreviewFrameLoaded(false);
       }
-    },
-    [],
-  );
 
-  const handleRenderState = useCallback(
-    (state: UseExtensionSiteEmbedResult) => {
       if (
         state.errorReason === 'preview-unavailable' &&
         onPreviewUnavailable &&
@@ -163,10 +158,13 @@ export function PostArticlePreviewEmbed({
         hasNotifiedUnavailableRef.current = true;
         onPreviewUnavailable();
       }
-
-      return renderEmbedChrome(state);
     },
     [onPreviewUnavailable],
+  );
+
+  const handleRenderState = useCallback(
+    (state: UseExtensionSiteEmbedResult) => renderEmbedChrome(state),
+    [],
   );
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactElement } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import {
   Button,
@@ -33,6 +33,128 @@ const ambientOverlayStyle: CSSProperties = {
   backgroundSize: '220% 220%',
 };
 
+interface PromptContent {
+  title: string;
+  body: string;
+  action: ReactElement;
+  footer?: ReactNode;
+}
+
+const actionClassName = 'min-w-[8.5rem]';
+
+const getUnavailableContent = (externalUrl: string | null): PromptContent => ({
+  title: 'Preview not available',
+  body: 'This site blocks embedded previews.',
+  action: externalUrl ? (
+    <Button
+      tag="a"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      className={actionClassName}
+      href={externalUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open externally
+    </Button>
+  ) : (
+    <Button
+      type="button"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      className={actionClassName}
+      disabled
+    >
+      Open externally
+    </Button>
+  ),
+  footer: (
+    <>
+      {externalUrl ? (
+        <Typography
+          tag={TypographyTag.Link}
+          type={TypographyType.Footnote}
+          className="max-w-full break-all"
+          href={externalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {externalUrl}
+        </Typography>
+      ) : null}
+      <Typography
+        tag={TypographyTag.P}
+        type={TypographyType.Footnote}
+        color={TypographyColor.Secondary}
+        className="!mt-0"
+      >
+        Open the full page in a new tab to keep reading.
+      </Typography>
+    </>
+  ),
+});
+
+const getEnableContent = (onEnable: () => void): PromptContent => ({
+  title: 'Enable embedded browsing',
+  body: 'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)',
+  action: (
+    <Button
+      type="button"
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      className={actionClassName}
+      onClick={onEnable}
+    >
+      Enable
+    </Button>
+  ),
+});
+
+const getInstallContent = (): PromptContent => {
+  const isChromeBrowser = isChrome();
+  const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
+  const label = isChromeBrowser
+    ? 'Install Chrome extension'
+    : 'Install Edge extension';
+
+  return {
+    title: 'Enable embedded browsing',
+    body: 'Preview and open sites directly inside daily.dev. To use this feature, install the daily.dev browser extension.',
+    action: (
+      <Button
+        tag="a"
+        variant={ButtonVariant.Primary}
+        size={ButtonSize.Medium}
+        className={actionClassName}
+        href={downloadBrowserExtension}
+        target="_blank"
+        rel="noopener noreferrer"
+        icon={<BrowserIcon />}
+      >
+        {label}
+      </Button>
+    ),
+  };
+};
+
+const resolveContent = ({
+  isPreviewUnavailable,
+  externalUrl,
+  onEnablePreview,
+}: {
+  isPreviewUnavailable: boolean;
+  externalUrl: string | null;
+  onEnablePreview?: () => void;
+}): PromptContent => {
+  if (isPreviewUnavailable) {
+    return getUnavailableContent(externalUrl);
+  }
+  if (onEnablePreview) {
+    return getEnableContent(onEnablePreview);
+  }
+  return getInstallContent();
+};
+
 /**
  * Webapp fallback when the extension install id is unknown. Copy and structure
  * should stay aligned with `packages/extension/src/frame/render.ts`
@@ -43,70 +165,12 @@ export function EmbeddedBrowsingWebPrompt({
   isPreviewUnavailable = false,
   unavailablePreviewUrl,
 }: EmbeddedBrowsingWebPromptProps): ReactElement {
-  const externalPreviewUrl =
-    unavailablePreviewUrl && unavailablePreviewUrl.length > 0
-      ? unavailablePreviewUrl
-      : null;
-  const showUnavailableActions = isPreviewUnavailable && !!externalPreviewUrl;
-
-  let bodyCopy: string;
-  if (isPreviewUnavailable) {
-    bodyCopy = 'This site blocks embedded previews.';
-  } else if (onEnablePreview) {
-    bodyCopy =
-      'Let daily.dev load and preview sites inside the app. (Only affects embedded pages.)';
-  } else {
-    bodyCopy =
-      'Preview and open sites directly inside daily.dev. To use this feature, install the daily.dev browser extension.';
-  }
-
-  let primaryAction: ReactElement;
-  if (showUnavailableActions) {
-    primaryAction = (
-      <Button
-        tag="a"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className="min-w-[8.5rem]"
-        href={externalPreviewUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Open externally
-      </Button>
-    );
-  } else if (onEnablePreview) {
-    primaryAction = (
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className="min-w-[8.5rem]"
-        onClick={onEnablePreview}
-      >
-        Enable
-      </Button>
-    );
-  } else {
-    const isChromeBrowser = isChrome();
-    const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
-    primaryAction = (
-      <Button
-        tag="a"
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Medium}
-        className="min-w-[8.5rem]"
-        href={downloadBrowserExtension}
-        target="_blank"
-        rel="noopener noreferrer"
-        icon={<BrowserIcon />}
-      >
-        {isChromeBrowser
-          ? 'Install Chrome extension'
-          : 'Install Edge extension'}
-      </Button>
-    );
-  }
+  const externalUrl = unavailablePreviewUrl?.trim() || null;
+  const { title, body, action, footer } = resolveContent({
+    isPreviewUnavailable,
+    externalUrl,
+    onEnablePreview,
+  });
 
   return (
     <div className="relative flex h-full min-h-[28rem] w-full flex-1 flex-col items-center justify-center self-stretch overflow-visible tablet:items-stretch tablet:justify-start">
@@ -129,9 +193,7 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Primary}
             bold
           >
-            {isPreviewUnavailable
-              ? 'Preview not available'
-              : 'Enable embedded browsing'}
+            {title}
           </Typography>
           <Typography
             tag={TypographyTag.P}
@@ -139,33 +201,12 @@ export function EmbeddedBrowsingWebPrompt({
             color={TypographyColor.Secondary}
             className="!mt-0"
           >
-            {bodyCopy}
+            {body}
           </Typography>
           <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
-            {primaryAction}
+            {action}
           </div>
-          {isPreviewUnavailable && externalPreviewUrl ? (
-            <Typography
-              tag={TypographyTag.Link}
-              type={TypographyType.Footnote}
-              className="max-w-full break-all"
-              href={externalPreviewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {externalPreviewUrl}
-            </Typography>
-          ) : null}
-          {isPreviewUnavailable ? (
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-              className="!mt-0"
-            >
-              Open the full page in a new tab to keep reading.
-            </Typography>
-          ) : null}
+          {footer}
         </div>
       </div>
     </div>
