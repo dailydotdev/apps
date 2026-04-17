@@ -262,8 +262,7 @@ export function PostArticlePreviewEmbed({
         ) : null}
         {previewContent}
         {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
-          <EmbeddedBrowsingWebPrompt
-          />
+          <EmbeddedBrowsingWebPrompt />
         ) : null}
       </div>
     </section>

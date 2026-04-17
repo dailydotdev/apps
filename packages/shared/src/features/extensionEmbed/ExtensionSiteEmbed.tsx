@@ -46,7 +46,7 @@ export const ExtensionSiteEmbed = ({
     <>
       {view}
       {hasAnyFrame ? (
-        <div className="relative">
+        <div className="relative min-h-0 flex-1">
           {state.permissionFrameSrc ? (
             <iframe
               ref={state.permissionFrameRef}

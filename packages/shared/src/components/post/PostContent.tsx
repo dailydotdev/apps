@@ -378,8 +378,6 @@ export function PostContentRaw({
       className={classNames(
         'relative',
         className?.content,
-        showArticlePreviewColumn &&
-          'laptop:overflow-y-auto laptop:overscroll-y-contain',
       )}
       data-testid="postContainer"
     >
@@ -548,11 +546,11 @@ export function PostContentRaw({
       {showArticlePreviewEmbed ? (
         <div
           ref={previewLayoutRef}
-          className="relative flex w-full min-h-0 flex-1"
+          className="relative flex w-full flex-1 items-stretch"
         >
           <div
             className={classNames(
-              'grid min-h-0 min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
+              'grid min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
               showArticlePreviewColumn && isTablet
                 ? isLaptop
                   ? isPreviewFloating
@@ -562,7 +560,7 @@ export function PostContentRaw({
                 : 'grid-cols-[1fr_0px_0fr]',
             )}
           >
-            <div className="flex min-w-0 flex-col overflow-hidden">
+            <div className="flex min-w-0 flex-col">
               {postMainColumn}
               {!isLaptop && postWidgetsColumn}
             </div>
@@ -593,6 +591,9 @@ export function PostContentRaw({
               ref={previewColumnRef}
               className={classNames(
                 'flex min-w-0 flex-col [overflow-x:clip] transition-opacity duration-200 ease-in-out',
+                isPostPage
+                  ? 'min-h-[calc(100vh-4rem)]'
+                  : 'min-h-[calc(100vh-8rem)]',
                 showArticlePreviewColumn &&
                   !isPreviewFloating &&
                   !isTabletPreviewToggling
@@ -615,7 +616,10 @@ export function PostContentRaw({
           {shouldRenderFloatingPreview && (
             <div
               className={classNames(
-                'absolute right-0 top-0 z-3 flex h-full w-[21.25rem] flex-col border-l border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-in-out',
+                'absolute right-0 top-0 z-3 flex w-[21.25rem] flex-col border-l border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-in-out',
+                isPostPage
+                  ? 'h-[calc(100vh-4rem)]'
+                  : 'h-[calc(100vh-8rem)]',
                 isFloatingPreviewActive && !isFloatingPreviewClosing
                   ? 'translate-x-0 opacity-100'
                   : 'pointer-events-none translate-x-full opacity-0',
