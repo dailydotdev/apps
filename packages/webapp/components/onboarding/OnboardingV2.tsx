@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
@@ -306,6 +307,18 @@ export const OnboardingV2 = (): ReactElement => {
     return id;
   }, []);
 
+  const { mutateAsync: mutateGithubTags, isPending: isGithubTagsPending } =
+    useMutation({
+      mutationFn: requestGitHubProfileTags,
+    });
+  const { mutateAsync: mutateAiTags, isPending: isAiTagsPending } = useMutation(
+    {
+      mutationFn: (prompt: string) => requestOnboardingProfileTags(prompt),
+    },
+  );
+
+  const isImporting = isGithubTagsPending || isAiTagsPending;
+
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
       logEvent({
@@ -322,9 +335,7 @@ export const OnboardingV2 = (): ReactElement => {
       setStep('importing');
 
       const apiPromise =
-        source === 'github'
-          ? requestGitHubProfileTags()
-          : requestOnboardingProfileTags(aiPrompt);
+        source === 'github' ? mutateGithubTags() : mutateAiTags(aiPrompt);
 
       // Step progress through thresholds that complete during import
       const steps = source === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS;
@@ -375,6 +386,8 @@ export const OnboardingV2 = (): ReactElement => {
       setAiPrompt,
       setSignupContext,
       router,
+      mutateGithubTags,
+      mutateAiTags,
     ],
   );
 
@@ -603,9 +616,15 @@ export const OnboardingV2 = (): ReactElement => {
     setAuthDisplay(AuthDisplay.OnboardingSignup);
   }, [setSignupContext]);
   const openSignupAuth = useCallback(() => {
+    if (isLoggedIn) {
+      if (signupContext === 'ai' && aiPrompt?.trim()) {
+        startAiProcessing();
+      }
+      return;
+    }
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setStep('auth');
-  }, []);
+  }, [isLoggedIn, signupContext, aiPrompt, startAiProcessing]);
   const isAiSetupContext = signupContext === 'ai';
   const canStartAiFlow = aiPrompt?.trim().length > 0;
   const isAwaitingSeniorityInput = importPhase === 'awaitingSeniority';
@@ -753,26 +772,28 @@ export const OnboardingV2 = (): ReactElement => {
             position={LogoPosition.Relative}
             className="!left-0 !top-0 !mt-0 !translate-x-0"
           />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLoginFlow(true);
-                setAuthDisplay(AuthDisplay.Default);
-                setStep('auth');
-              }}
-              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
-            >
-              Log in
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('chooser')}
-              className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
-            >
-              Sign up
-            </button>
-          </div>
+          {!isLoggedIn && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoginFlow(true);
+                  setAuthDisplay(AuthDisplay.Default);
+                  setStep('auth');
+                }}
+                className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep('chooser')}
+                className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
+              >
+                Sign up
+              </button>
+            </div>
+          )}
         </div>
         {/* Dot grid — shifts subtly with scroll */}
         <div
@@ -895,6 +916,7 @@ export const OnboardingV2 = (): ReactElement => {
               <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
               <button
                 type="button"
+                disabled={isImporting}
                 onClick={() => {
                   logEvent({
                     event_name: LogEvent.Click,
@@ -907,7 +929,10 @@ export const OnboardingV2 = (): ReactElement => {
                     initiateGithubAuth();
                   }
                 }}
-                className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
+                className={classNames(
+                  'onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto',
+                  isImporting && 'opacity-60 cursor-not-allowed',
+                )}
               >
                 <GitHubIcon secondary size={IconSize.XSmall} />
                 One-click setup
@@ -1294,6 +1319,7 @@ export const OnboardingV2 = (): ReactElement => {
                 aiPrompt={aiPrompt}
                 onAiPromptChange={setAiPrompt}
                 canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
                 origin={Origin.OnboardingFeedEnd}
                 onGithubClick={() => {
                   if (isLoggedIn) {
@@ -1368,6 +1394,7 @@ export const OnboardingV2 = (): ReactElement => {
                 aiPrompt={aiPrompt}
                 onAiPromptChange={setAiPrompt}
                 canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
                 origin={Origin.OnboardingModal}
                 onGithubClick={() => {
                   setStep('hero');
@@ -2401,7 +2428,11 @@ export const OnboardingV2 = (): ReactElement => {
                 {signupContext === 'github' && (
                   <button
                     type="button"
-                    className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
+                    disabled={isImporting}
+                    className={classNames(
+                      'onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none',
+                      isImporting && 'opacity-60 cursor-not-allowed',
+                    )}
                     onClick={() => {
                       logEvent({
                         event_name: LogEvent.Click,
@@ -2439,10 +2470,10 @@ export const OnboardingV2 = (): ReactElement => {
                   <>
                     <button
                       type="button"
-                      disabled={!canStartAiFlow}
+                      disabled={!canStartAiFlow || isImporting}
                       className={classNames(
                         'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-                        canStartAiFlow
+                        canStartAiFlow && !isImporting
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
