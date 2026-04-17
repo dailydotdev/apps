@@ -33,6 +33,7 @@ import {
   Origin,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
+import { FunnelEventName } from '@dailydotdev/shared/src/features/onboarding/types/funnelEvents';
 import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
@@ -434,6 +435,17 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction(ActionType.CompletedOnboarding);
       completeAction(ActionType.EditTag);
       completeAction(ActionType.ContentTypes);
+
+      logEvent({
+        event_name: FunnelEventName.CompleteFunnel,
+        extra: JSON.stringify({
+          funnel_id: 'onboarding_github_ai',
+          funnel_version: 'v1',
+          session_id: 'unknown',
+          step_id: 'complete',
+          step_type: 'complete',
+        }),
+      });
 
       router.replace({
         pathname: `${webappUrl}onboarding`,
@@ -1259,37 +1271,47 @@ export const OnboardingV2 = (): ReactElement => {
         </SearchProvider>
         {/* ── Inline chooser panel at feed end ── */}
         {step === 'hero' && (
-          <div className="mx-auto -mt-48 w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:-mt-64 tablet:px-8">
-            <div className="mb-6 text-center tablet:mb-8">
-              <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
-                You just explored the global feed.
-              </p>
-              <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
-                Now build a feed that is truly yours
-              </h3>
-            </div>
-
-            <OnboardingChooserGrid
-              aiPrompt={aiPrompt}
-              onAiPromptChange={setAiPrompt}
-              canStartAiFlow={canStartAiFlow}
-              origin={Origin.OnboardingFeedEnd}
-              onGithubClick={() => {
-                if (isLoggedIn) {
-                  startImportFlowGithub();
-                } else {
-                  initiateGithubAuth();
-                }
+          <div className="relative -mt-48 tablet:-mt-64">
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-full"
+              style={{
+                background:
+                  'linear-gradient(to bottom, transparent 0%, var(--theme-background-default) 25%, var(--theme-background-default) 100%)',
               }}
-              onAiSubmit={() => {
-                if (isLoggedIn) {
-                  startAiProcessing();
-                } else {
-                  setSignupContext('ai');
-                  openSignupAuth();
-                }
-              }}
+              aria-hidden
             />
+            <div className="relative mx-auto w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:px-8">
+              <div className="mb-6 text-center tablet:mb-8">
+                <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
+                  You just explored the global feed.
+                </p>
+                <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
+                  Now build a feed that is truly yours
+                </h3>
+              </div>
+
+              <OnboardingChooserGrid
+                aiPrompt={aiPrompt}
+                onAiPromptChange={setAiPrompt}
+                canStartAiFlow={canStartAiFlow}
+                origin={Origin.OnboardingFeedEnd}
+                onGithubClick={() => {
+                  if (isLoggedIn) {
+                    startImportFlowGithub();
+                  } else {
+                    initiateGithubAuth();
+                  }
+                }}
+                onAiSubmit={() => {
+                  if (isLoggedIn) {
+                    startAiProcessing();
+                  } else {
+                    setSignupContext('ai');
+                    openSignupAuth();
+                  }
+                }}
+              />
+            </div>
           </div>
         )}
       </div>

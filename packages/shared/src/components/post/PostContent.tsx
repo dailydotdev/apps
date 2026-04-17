@@ -31,7 +31,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import { SmartPrompt } from './smartPrompts/SmartPrompt';
+import ShowMoreContent from '../cards/common/ShowMoreContent';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
@@ -256,10 +256,19 @@ export function PostContentRaw({
           />
         )}
         {post.summary && (
-          <SmartPrompt
-            post={post}
-            className={isCompactModalSpacing ? 'mb-4 gap-2' : undefined}
-          />
+          <div
+            className={classNames(
+              'mb-6 text-text-secondary',
+              isCompactModalSpacing && 'mb-4',
+            )}
+          >
+            <ShowMoreContent
+              className={{ wrapper: 'overflow-hidden' }}
+              content={post.summary}
+              charactersLimit={330}
+              threshold={50}
+            />
+          </div>
         )}
         <PostTagList post={post} />
         <PostMetadata

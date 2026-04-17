@@ -31,7 +31,7 @@ import { defaultSeo } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getOrganizationLayout } from '../../../../components/layouts/OrganizationLayout';
 
-const Page = (): ReactElement => {
+const Page = (): ReactElement | null => {
   const router = useRouter();
   const { openModal } = useLazyModal();
   const organizationId = router.query.orgId as string;
@@ -56,7 +56,7 @@ const Page = (): ReactElement => {
     setData(origData);
   }, [origData, data]);
 
-  if (isFetching || !isAuthReady) {
+  if (isFetching || !isAuthReady || !organization) {
     return null;
   }
 
@@ -68,7 +68,7 @@ const Page = (): ReactElement => {
         section: 'flex-1 gap-6',
       }}
     >
-      {data && (
+      {data && pricing && data.total && pricing.price?.monthly && (
         <>
           <section>
             <Typography bold type={TypographyType.Body} className="pb-4">
@@ -158,7 +158,7 @@ const Page = (): ReactElement => {
                   {new Intl.NumberFormat(navigator.language, {
                     style: 'currency',
                     currency: pricing.currency.code,
-                  }).format(pricing.price?.monthly?.amount)}
+                  }).format(pricing.price.monthly.amount)}
                   /seat
                 </Typography>
               </div>
@@ -200,7 +200,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Organization'),
+  ...getPageSeoTitles('Billing'),
 };
 
 Page.getLayout = getOrganizationLayout;

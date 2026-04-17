@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import { SmartPrompt } from '../smartPrompts/SmartPrompt';
+import ShowMoreContent from '../../cards/common/ShowMoreContent';
 
 interface SharedLinkContainerProps {
   children: ReactNode;
@@ -20,8 +20,13 @@ export function SharedLinkContainer({
   Wrapper,
 }: SharedLinkContainerProps): ReactElement {
   const postSummary = post?.summary ? (
-    <div className="px-4">
-      <SmartPrompt post={post} isContainedView />
+    <div className="mb-4 px-4 text-text-secondary">
+      <ShowMoreContent
+        className={{ wrapper: 'overflow-hidden' }}
+        content={post.summary}
+        charactersLimit={330}
+        threshold={50}
+      />
     </div>
   ) : null;
 

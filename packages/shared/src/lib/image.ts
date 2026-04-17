@@ -278,8 +278,6 @@ export const clickbaitShieldModalImage =
   'https://media.daily.dev/image/upload/s--GWqpMG8r--/f_auto/v1732802237/Streak_together_with_a_friend_1_1_pwoill';
 
 export const cloudinaryGiftedPlusModalImage = `https://media.daily.dev/image/upload/s--JNm5gqXz--/f_auto/v1733838699/daily-dev-plus-gift_qosjrm`;
-export const smartPromptModalImage =
-  'https://media.daily.dev/image/upload/s--JVcr0aup--/f_auto/v1736060940/Streak_together_with_a_friend_glfbco';
 export const smallPostImage = (url: string): string => {
   if (!url) {
     return cloudinaryPostImageCoverPlaceholder;
@@ -364,10 +362,6 @@ export const plusShowcaseCustomFeedsImage =
   'https://media.daily.dev/image/upload/s--OU22D-Xf--/f_auto/v1741690961/public/customfeed';
 export const plusShowcaseCustomFeedsVideo =
   'https://media.daily.dev/video/upload/v1741698572/videos/customfeeds.webm';
-export const plusShowcaseSmartPrompsImage =
-  'https://media.daily.dev/image/upload/s--3WScQpUE--/f_auto/v1741698925/public/smartprompts';
-export const plusShowcaseSmartPrompsVideo =
-  'https://media.daily.dev/video/upload/v1741698572/videos/smartprompts.webm';
 export const plusShowcaseShieldImage =
   'https://media.daily.dev/image/upload/s--UlKSWTvF--/f_auto/v1741698925/public/shield';
 export const plusShowcaseShieldVideo =

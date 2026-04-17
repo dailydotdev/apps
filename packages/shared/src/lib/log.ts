@@ -85,6 +85,14 @@ export enum Origin {
   // Onboarding v2
   OnboardingModal = 'onboarding modal',
   OnboardingFeedEnd = 'onboarding feed end',
+  // Auth
+  BetterAuthEmailLogin = 'betterauth email login',
+  BetterAuthEmailLoginBoot = 'betterauth email login boot',
+  BetterAuthNativeIdToken = 'betterauth native id token',
+  BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
+  BetterAuthSocialUrl = 'betterauth social url',
+  BetterAuthSocialPopup = 'betterauth social popup',
+  LoginTurnstile = 'login turnstile',
 }
 
 export enum LogEvent {
@@ -292,10 +300,6 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   // End Share
-  // Start Smart Prompts
-  SmartPrompt = 'smart prompt',
-  ToggleSmartPrompts = 'toggle smart prompts',
-  // End Smart Prompts
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -518,7 +522,6 @@ export enum TargetId {
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
   ContextMenu = 'context',
-  SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
   NotificationSettings = 'notification settings',
