@@ -71,6 +71,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import { checkIsExtension } from '../lib/func';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
@@ -639,6 +640,11 @@ export default function MainFeedLayout({
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
+      if (clickedTab === ExploreTabs.BestOf && checkIsExtension()) {
+        window.open(`${webappUrl}posts/best-of`, '_blank', 'noopener');
+        return;
+      }
+
       if (onNavTabClick) {
         onNavTabClick(tabToUrl[clickedTab]);
       }
