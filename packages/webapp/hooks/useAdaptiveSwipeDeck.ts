@@ -17,10 +17,14 @@ const BATCH_SIZE = 8;
 function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
   return {
     id: post.post_id,
+    summary: post.summary,
     title: post.title,
     image: null,
     tags: post.tags,
-    source: null,
+    source: {
+      name: 'daily.dev',
+      image: null,
+    },
   };
 }
 
@@ -87,7 +91,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         saturated_tags: getSaturatedTags(),
         n,
       });
-      const posts = result.posts;
+      const { posts } = result;
       for (const p of posts) {
         seenIdsRef.current.add(p.post_id);
         postLookupRef.current.set(p.post_id, p);
@@ -106,7 +110,9 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
 
   const startDeck = useCallback(
     async (options?: StartDeckOptions) => {
-      if (isFetchingRef.current) return;
+      if (isFetchingRef.current) {
+        return;
+      }
       isFetchingRef.current = true;
       setIsLoading(true);
       try {
@@ -133,7 +139,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
           saturated_tags: getSaturatedTags(),
           n: BATCH_SIZE,
         });
-        const posts = result.posts;
+        const { posts } = result;
         for (const p of posts) {
           seenIdsRef.current.add(p.post_id);
           postLookupRef.current.set(p.post_id, p);
@@ -152,7 +158,9 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   }, [startDeck]);
 
   const triggerPrefetch = useCallback(async () => {
-    if (prefetchedRef.current) return;
+    if (prefetchedRef.current) {
+      return;
+    }
     try {
       prefetchedRef.current = await doFetch();
     } catch {
@@ -179,10 +187,12 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   const handleSwipe = useCallback(
     (direction: 'left' | 'right', cardId: string) => {
       const post = postLookupRef.current.get(cardId);
-      if (!post) return;
+      if (!post) {
+        return;
+      }
 
       const delta = direction === 'right' ? LIKE_SCORE : DISLIKE_SCORE;
-      const tags = post.tags;
+      const { tags } = post;
 
       // Track liked posts
       if (direction === 'right') {
@@ -203,8 +213,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
 
       for (const tag of tags) {
         const isSelected = selectedSet.has(tag);
-        tagSeenCountRef.current[tag] =
-          (tagSeenCountRef.current[tag] || 0) + 1;
+        tagSeenCountRef.current[tag] = (tagSeenCountRef.current[tag] || 0) + 1;
 
         if (!isSelected) {
           if (tagSeenCountRef.current[tag] >= IGNORE_AFTER) {

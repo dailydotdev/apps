@@ -31,6 +31,7 @@ import { ReputationUserBadge } from '../../ReputationUserBadge';
 import { VerifiedCompanyUserBadge } from '../../VerifiedCompanyUserBadge';
 import { PlusUserBadge } from '../../PlusUserBadge';
 import { Loader } from '../../Loader';
+import LogoIcon from '../../../svg/LogoIcon';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 
 const SWIPE_THRESHOLD = 80;
@@ -54,9 +55,9 @@ const HOT_TAKE_CARD_HEIGHT = '28rem';
 /** Title3 × 3 lines (typo-title3 line-height 1.625rem in tailwind/typography.ts). */
 const ONBOARDING_CARD_TITLE_MIN_HEIGHT = '4.875rem';
 /** Fixed onboarding post card (source + 3-line title + 4:3 image + padding). */
-const ONBOARDING_POST_CARD_HEIGHT = '24rem';
+const ONBOARDING_POST_CARD_HEIGHT = 'clamp(19.5rem, 42dvh, 24rem)';
 /** Swipe stack area: card height plus back-card vertical offset (8px). */
-const ONBOARDING_SWIPE_AREA_HEIGHT = '24.5rem';
+const ONBOARDING_SWIPE_AREA_HEIGHT = `calc(${ONBOARDING_POST_CARD_HEIGHT} + 0.5rem)`;
 
 const smoothstep01 = (t: number): number => {
   const x = Math.min(Math.max(t, 0), 1);
@@ -453,6 +454,72 @@ const OnboardingCardBehindParticles = (): ReactElement => (
   </>
 );
 
+const OnboardingSwipeHintButton = ({
+  deltaX,
+  direction,
+  disabled,
+  onClick,
+}: {
+  deltaX: number;
+  direction: 'left' | 'right';
+  disabled: boolean;
+  onClick: () => void;
+}): ReactElement => {
+  const swipeVisualIntensity = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
+  const isLeftDirection = direction === 'left';
+  let visualStrength = 0;
+  if (isLeftDirection && deltaX < 0) {
+    visualStrength = swipeVisualIntensity;
+  }
+  if (!isLeftDirection && deltaX > 0) {
+    visualStrength = swipeVisualIntensity;
+  }
+  const accentColor = isLeftDirection
+    ? 'var(--theme-accent-bacon-default)'
+    : 'var(--theme-accent-avocado-default)';
+  const isEmphasized = visualStrength > 0;
+  const restingClassName = isLeftDirection
+    ? 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default'
+    : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default';
+
+  return (
+    <button
+      type="button"
+      aria-label={isLeftDirection ? 'Not interesting' : 'Interesting'}
+      disabled={disabled}
+      className={classNames(
+        'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
+        'disabled:cursor-not-allowed disabled:opacity-40',
+        isEmphasized ? 'opacity-100' : restingClassName,
+      )}
+      style={{
+        transform: `scale(${1 + visualStrength * 0.1})`,
+        ...(isEmphasized
+          ? {
+              color: accentColor,
+              borderColor: accentColor,
+              backgroundColor: `color-mix(in srgb, ${accentColor} ${Math.round(
+                visualStrength * 16,
+              )}%, transparent)`,
+              boxShadow: `0 0 ${
+                8 + visualStrength * 10
+              }px color-mix(in srgb, ${accentColor} ${Math.round(
+                visualStrength * 45,
+              )}%, transparent)`,
+            }
+          : {}),
+      }}
+      onClick={onClick}
+    >
+      {isLeftDirection ? (
+        <MiniCloseIcon size={IconSize.Large} />
+      ) : (
+        <VIcon size={IconSize.Large} />
+      )}
+    </button>
+  );
+};
+
 const OnboardingSwipeHintIcons = ({
   deltaX,
   disabled,
@@ -464,81 +531,20 @@ const OnboardingSwipeHintIcons = ({
   onNotInteresting: () => void;
   onInteresting: () => void;
 }): ReactElement => {
-  const swipeVisualIntensity = Math.min(Math.abs(deltaX) / SWIPE_THRESHOLD, 1);
-  const leftVisualStrength = deltaX < 0 ? swipeVisualIntensity : 0;
-  const rightVisualStrength = deltaX > 0 ? swipeVisualIntensity : 0;
-
-  const leftAccentColor = 'var(--theme-accent-bacon-default)';
-  const rightAccentColor = 'var(--theme-accent-avocado-default)';
-  const leftSwipeEmphasized = leftVisualStrength > 0;
-  const rightSwipeEmphasized = rightVisualStrength > 0;
-
   return (
     <div className="flex items-center justify-center gap-6 px-1">
-      <button
-        type="button"
-        aria-label="Not interesting"
+      <OnboardingSwipeHintButton
+        deltaX={deltaX}
+        direction="left"
         disabled={disabled}
-        className={classNames(
-          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
-          'disabled:cursor-not-allowed disabled:opacity-40',
-          leftSwipeEmphasized
-            ? 'opacity-100'
-            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-bacon-default enabled:hover:text-accent-bacon-default enabled:focus-visible:border-accent-bacon-default enabled:focus-visible:text-accent-bacon-default enabled:active:border-accent-bacon-default enabled:active:text-accent-bacon-default',
-        )}
-        style={{
-          transform: `scale(${1 + leftVisualStrength * 0.1})`,
-          ...(leftSwipeEmphasized
-            ? {
-                color: leftAccentColor,
-                borderColor: leftAccentColor,
-                backgroundColor: `color-mix(in srgb, ${leftAccentColor} ${Math.round(
-                  leftVisualStrength * 16,
-                )}%, transparent)`,
-                boxShadow: `0 0 ${
-                  8 + leftVisualStrength * 10
-                }px color-mix(in srgb, ${leftAccentColor} ${Math.round(
-                  leftVisualStrength * 45,
-                )}%, transparent)`,
-              }
-            : {}),
-        }}
         onClick={onNotInteresting}
-      >
-        <MiniCloseIcon size={IconSize.Large} />
-      </button>
-      <button
-        type="button"
-        aria-label="Interesting"
+      />
+      <OnboardingSwipeHintButton
+        deltaX={deltaX}
+        direction="right"
         disabled={disabled}
-        className={classNames(
-          'shadow-1 flex size-14 cursor-pointer items-center justify-center rounded-full border transition-all duration-150 ease-out',
-          'disabled:cursor-not-allowed disabled:opacity-40',
-          rightSwipeEmphasized
-            ? 'opacity-100'
-            : 'border-border-subtlest-secondary text-text-secondary enabled:hover:border-accent-avocado-default enabled:hover:text-accent-avocado-default enabled:focus-visible:border-accent-avocado-default enabled:focus-visible:text-accent-avocado-default enabled:active:border-accent-avocado-default enabled:active:text-accent-avocado-default',
-        )}
-        style={{
-          transform: `scale(${1 + rightVisualStrength * 0.1})`,
-          ...(rightSwipeEmphasized
-            ? {
-                color: rightAccentColor,
-                borderColor: rightAccentColor,
-                backgroundColor: `color-mix(in srgb, ${rightAccentColor} ${Math.round(
-                  rightVisualStrength * 16,
-                )}%, transparent)`,
-                boxShadow: `0 0 ${
-                  8 + rightVisualStrength * 10
-                }px color-mix(in srgb, ${rightAccentColor} ${Math.round(
-                  rightVisualStrength * 45,
-                )}%, transparent)`,
-              }
-            : {}),
-        }}
         onClick={onInteresting}
-      >
-        <VIcon size={IconSize.Large} />
-      </button>
+      />
     </div>
   );
 };
@@ -1322,6 +1328,8 @@ const OnboardingPostCard = ({
   dismissDurationMs: number;
   useInstantSwipeTransform?: boolean;
 }): ReactElement => {
+  const sourceName = card.source?.name || 'daily.dev';
+  const sourceImage = card.source?.image;
   const isSkipAnimating = isTop && isDismissAnimating && skipDeltaY !== 0;
   let swipeDirection: 'left' | 'right' | null = null;
   if (isTop && Math.abs(swipeDelta) > 20) {
@@ -1361,6 +1369,30 @@ const OnboardingPostCard = ({
     }
   }
 
+  let sourceAvatar: ReactElement;
+  if (sourceImage) {
+    sourceAvatar = (
+      <img
+        alt={`${sourceName} source icon`}
+        className="size-6 rounded-full object-cover"
+        draggable={false}
+        src={sourceImage}
+      />
+    );
+  } else if (sourceName === 'daily.dev') {
+    sourceAvatar = (
+      <div
+        role="img"
+        aria-label="daily.dev source icon"
+        className="flex size-6 items-center justify-center rounded-full bg-surface-hover"
+      >
+        <LogoIcon className={{ container: 'h-2.5 w-auto' }} />
+      </div>
+    );
+  } else {
+    sourceAvatar = <div className="size-6 rounded-full bg-surface-hover" />;
+  }
+
   return (
     <div
       className={classNames(
@@ -1386,39 +1418,32 @@ const OnboardingPostCard = ({
           : '0 0.75rem 1.75rem -0.75rem rgba(0, 0, 0, 0.32)',
       }}
     >
-      {swipeDirection && (
-        <div
-          className={classNames(
-            'z-20 absolute left-1/2 top-3 -translate-x-1/2 rounded-10 px-3 py-1 font-bold text-white typo-callout',
-            swipeDirection === 'right'
-              ? 'bg-accent-avocado-default'
-              : 'bg-accent-bacon-default',
-          )}
-          style={{ opacity: swipeIntensity }}
-        >
-          {swipeDirection === 'right' ? 'INTERESTING' : 'NOT'}
-        </div>
-      )}
       <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-        <div className="flex shrink-0 items-center gap-2">
-          {card.source?.image ? (
-            <img
-              alt={card.source.name ?? 'Source'}
-              className="size-6 rounded-full object-cover"
-              draggable={false}
-              src={card.source.image}
-            />
-          ) : (
-            <div className="size-6 rounded-full bg-surface-hover" />
-          )}
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-            className="truncate"
-            bold
-          >
-            {card.source?.name || 'daily.dev'}
-          </Typography>
+        <div className="flex shrink-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            {sourceAvatar}
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+              className="min-w-0 truncate"
+              bold
+            >
+              {sourceName}
+            </Typography>
+          </div>
+          {swipeDirection ? (
+            <div
+              className={classNames(
+                'shrink-0 rounded-10 px-3 py-1 font-bold text-white typo-callout',
+                swipeDirection === 'right'
+                  ? 'bg-accent-avocado-default'
+                  : 'bg-accent-bacon-default',
+              )}
+              style={{ opacity: swipeIntensity }}
+            >
+              {swipeDirection === 'right' ? 'INTERESTING' : 'UNINTERESTING'}
+            </div>
+          ) : null}
         </div>
         <div
           className="shrink-0"
@@ -1433,16 +1458,55 @@ const OnboardingPostCard = ({
             {card.title || 'Popular developer story'}
           </Typography>
         </div>
-        <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-12">
-          {card.image ? (
-            <img
-              alt={card.title ?? 'Popular post'}
-              className="size-full rounded-12 object-cover"
-              draggable={false}
-              src={card.image}
-            />
+        {card.tags && card.tags.length > 0 && (
+          <div className="flex shrink-0 flex-wrap gap-1.5">
+            {card.tags.slice(0, 5).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-8 bg-surface-hover px-2 py-0.5 text-text-tertiary typo-footnote"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="bg-surface-hover/60 flex min-h-0 flex-1 flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary p-4">
+          {card.summary ? (
+            <>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                className="shrink-0 uppercase tracking-[0.08em]"
+                bold
+              >
+                TLDR
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                className="mt-2 line-clamp-6 overflow-hidden text-pretty"
+              >
+                {card.summary}
+              </Typography>
+            </>
           ) : (
-            <div className="size-full rounded-12 bg-surface-hover" />
+            <>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Secondary}
+                className="shrink-0 uppercase tracking-[0.08em]"
+                bold
+              >
+                TLDR
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                className="mt-2"
+              >
+                No summary available for this post yet.
+              </Typography>
+            </>
           )}
         </div>
       </div>
@@ -1458,9 +1522,7 @@ const OnboardingFeedEmptyState = ({
   isRefetching: boolean;
 }): ReactElement => (
   <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-    {isRefetching ? (
-      <Loader />
-    ) : null}
+    {isRefetching ? <Loader /> : null}
     <Typography
       type={TypographyType.Title3}
       color={TypographyColor.Primary}
@@ -1539,6 +1601,7 @@ export type OnboardingSwipeActionMeta = {
 export interface OnboardingSwipeCard {
   id: string;
   title?: string;
+  summary?: string | null;
   image?: string | null;
   tags?: string[];
   source?: {
@@ -1552,6 +1615,7 @@ interface HotAndColdModalProps extends ModalProps {
   headerSlot?: ReactNode;
   topSlot?: ReactNode;
   bottomSlot?: ReactNode;
+  onboardingContent?: ReactNode;
   showHeader?: boolean;
   showDefaultActions?: boolean;
   showAddHotTakeButton?: boolean;
@@ -1568,6 +1632,8 @@ interface HotAndColdModalProps extends ModalProps {
   onOnboardingFeedRetry?: () => void;
   /** True while onboarding deck query is fetching (initial or retry). */
   onboardingFeedRefetching?: boolean;
+  /** Renders onboarding swipe actions under the card or beside it on wider viewports. */
+  onboardingActionLayout?: 'bottom' | 'sides';
 }
 
 const HotAndColdModal = ({
@@ -1576,6 +1642,7 @@ const HotAndColdModal = ({
   headerSlot,
   topSlot,
   bottomSlot,
+  onboardingContent,
   showHeader = true,
   showDefaultActions = true,
   showAddHotTakeButton = true,
@@ -1586,6 +1653,7 @@ const HotAndColdModal = ({
   onDismissedOnboardingCardsChange,
   onOnboardingFeedRetry,
   onboardingFeedRefetching = false,
+  onboardingActionLayout = 'bottom',
   className,
   ...props
 }: HotAndColdModalProps): ReactElement => {
@@ -1636,7 +1704,9 @@ const HotAndColdModal = ({
     setOnboardingIntroDelta(0);
   }, []);
 
-  const isOnboardingMode = !!onboardingCards;
+  const hasOnboardingCards = !!onboardingCards;
+  const hasOnboardingContent = onboardingContent !== undefined;
+  const isOnboardingMode = hasOnboardingCards || hasOnboardingContent;
   const availableOnboardingCards = useMemo(
     () =>
       (onboardingCards ?? []).filter((card) => !dismissedCardIds.has(card.id)),
@@ -1646,7 +1716,7 @@ const HotAndColdModal = ({
   const nextOnboardingCard = availableOnboardingCards[1];
   const isModalLoading = isOnboardingMode ? onboardingCardsLoading : isLoading;
   const isModalEmpty = isOnboardingMode
-    ? !isModalLoading && !currentOnboardingCard
+    ? !isModalLoading && !hasOnboardingContent && !currentOnboardingCard
     : isEmpty;
   const swipeAreaHeight = isOnboardingMode
     ? ONBOARDING_SWIPE_AREA_HEIGHT
@@ -1679,7 +1749,7 @@ const HotAndColdModal = ({
 
   useEffect(() => {
     if (
-      !isOnboardingMode ||
+      !hasOnboardingCards ||
       isModalLoading ||
       !currentOnboardingCard ||
       onboardingIntroRepeatCancelledRef.current
@@ -1753,7 +1823,34 @@ const HotAndColdModal = ({
       setOnboardingIntroDelta(0);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- depend on card id only, not currentOnboardingCard reference
-  }, [isOnboardingMode, isModalLoading, currentOnboardingCard?.id]);
+  }, [hasOnboardingCards, isModalLoading, currentOnboardingCard?.id]);
+
+  useEffect(() => {
+    if (hasOnboardingCards) {
+      return;
+    }
+
+    abortOnboardingIntro();
+
+    if (flyTimerRef.current) {
+      clearTimeout(flyTimerRef.current);
+      flyTimerRef.current = null;
+    }
+    if (dismissTimerRef.current) {
+      clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+
+    animatingTakeIdRef.current = null;
+    setAnimatingTakeId(null);
+    setDismissDurationMs(DISMISS_ANIMATION_MS);
+    setIsAnimating(false);
+    setIsDragging(false);
+    setSwipeDelta(0);
+    swipeDeltaRef.current = 0;
+    setSkipDelta(0);
+    swipeDeltaYRef.current = 0;
+  }, [hasOnboardingCards, abortOnboardingIntro]);
 
   const startDismissAnimation = useCallback(
     ({
@@ -1800,7 +1897,7 @@ const HotAndColdModal = ({
         swipeDeltaYRef.current = 0;
         animatingTakeIdRef.current = null;
         setAnimatingTakeId(null);
-        if (isOnboardingMode && currentOnboardingCard) {
+        if (hasOnboardingCards && currentOnboardingCard) {
           updateDismissedCardIds((prev) => {
             const next = new Set(prev);
             next.add(currentOnboardingCard.id);
@@ -1820,7 +1917,7 @@ const HotAndColdModal = ({
     [
       currentOnboardingCard,
       dismissCurrent,
-      isOnboardingMode,
+      hasOnboardingCards,
       onboardingCards,
       updateDismissedCardIds,
     ],
@@ -1828,7 +1925,7 @@ const HotAndColdModal = ({
 
   const handleDismiss = useCallback(
     (direction: 'left' | 'right', source: 'swipe' | 'button' = 'swipe') => {
-      const currentItemId = isOnboardingMode
+      const currentItemId = hasOnboardingCards
         ? currentOnboardingCard?.id
         : currentTake?.id;
 
@@ -1865,7 +1962,7 @@ const HotAndColdModal = ({
       }
       onSwipeAction?.(
         direction,
-        isOnboardingMode ? { onboardingCardId: currentItemId } : undefined,
+        hasOnboardingCards ? { onboardingCardId: currentItemId } : undefined,
       );
 
       let initialPush: number;
@@ -1899,7 +1996,7 @@ const HotAndColdModal = ({
     [
       currentTake,
       currentOnboardingCard,
-      isOnboardingMode,
+      hasOnboardingCards,
       isAnimating,
       startDismissAnimation,
       toggleDownvote,
@@ -1913,7 +2010,7 @@ const HotAndColdModal = ({
 
   const handleSkip = useCallback(
     (source: 'swipe' | 'button' = 'button') => {
-      const currentItemId = isOnboardingMode
+      const currentItemId = hasOnboardingCards
         ? currentOnboardingCard?.id
         : currentTake?.id;
 
@@ -1944,7 +2041,7 @@ const HotAndColdModal = ({
       cancelHotTakeVote,
       currentTake,
       currentOnboardingCard,
-      isOnboardingMode,
+      hasOnboardingCards,
       isAnimating,
       startDismissAnimation,
       logEvent,
@@ -1953,7 +2050,7 @@ const HotAndColdModal = ({
     ],
   );
 
-  const currentCardId = isOnboardingMode
+  const currentCardId = hasOnboardingCards
     ? currentOnboardingCard?.id
     : currentTake?.id;
   const isCurrentTakeAnimating =
@@ -1962,11 +2059,11 @@ const HotAndColdModal = ({
     isAnimating && !isCurrentTakeAnimating ? 0 : swipeDelta;
   const cardSkipDelta = isAnimating && !isCurrentTakeAnimating ? 0 : skipDelta;
   const combinedOnboardingSwipeX =
-    isOnboardingMode && !isDragging && !isCurrentTakeAnimating
+    hasOnboardingCards && !isDragging && !isCurrentTakeAnimating
       ? cardSwipeDelta + onboardingIntroDelta
       : cardSwipeDelta;
   const onboardingIntroPlaying =
-    isOnboardingMode &&
+    hasOnboardingCards &&
     !isDragging &&
     !isCurrentTakeAnimating &&
     onboardingIntroDelta !== 0;
@@ -2036,10 +2133,10 @@ const HotAndColdModal = ({
     <div
       {...handlers}
       className={classNames(
-        'relative mx-4 select-none self-center',
+        'relative select-none self-center',
         isOnboardingMode ? 'touch-pan-x' : 'touch-none',
         isOnboardingMode
-          ? 'mt-2 w-[calc(100%-3rem)] max-w-[20rem]'
+          ? 'mt-2 w-full max-w-[20rem]'
           : 'mt-4 w-[calc(100%-2rem)]',
       )}
       style={
@@ -2107,6 +2204,7 @@ const HotAndColdModal = ({
       )}
     </div>
   );
+  const showOnboardingSideActions = onboardingActionLayout === 'sides';
 
   return (
     <Modal
@@ -2121,10 +2219,10 @@ const HotAndColdModal = ({
       {showHeader && <Modal.Header title={title} />}
       <Modal.Body
         className={classNames(
-          'bg-overlay-quaternary-onion !p-0',
+          '!p-0',
           isOnboardingMode
-            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden tablet:flex-none tablet:!overflow-x-visible tablet:!overflow-y-visible'
-            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden',
+            ? 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-background-default'
+            : 'min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-overlay-quaternary-onion',
         )}
       >
         {headerSlot}
@@ -2151,99 +2249,145 @@ const HotAndColdModal = ({
           <EmptyState onClose={onRequestClose} username={user?.username} />
         )}
 
-        {!isModalLoading && !isModalEmpty && currentCardId && (
+        {!isModalLoading && !isModalEmpty && isOnboardingMode && (
           <>
-            {!isOnboardingMode && topSlot}
-            {isOnboardingMode ? (
-              <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start gap-4 px-4 pb-6 pt-6 tablet:flex-none tablet:pb-8">
+            <div className="mt-0 flex min-h-0 w-full flex-1 flex-col items-center justify-start px-4 pb-6 pt-3 tablet:flex-none tablet:px-6 tablet:pb-8">
+              <div
+                key={hasOnboardingContent ? 'tags-box' : 'swipe-box'}
+                className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4"
+              >
                 {topSlot}
-                {cardSwipeArea}
-                <div className="px-4">
-                  <OnboardingSwipeHintIcons
-                    deltaX={combinedOnboardingSwipeX}
-                    disabled={isAnimating}
-                    onInteresting={() => handleDismiss('right', 'button')}
-                    onNotInteresting={() => handleDismiss('left', 'button')}
-                  />
-                </div>
+                {hasOnboardingContent ? (
+                  onboardingContent
+                ) : showOnboardingSideActions ? (
+                  <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
+                    <div className="hidden justify-end tablet:flex">
+                      <OnboardingSwipeHintButton
+                        deltaX={combinedOnboardingSwipeX}
+                        direction="left"
+                        disabled={isAnimating}
+                        onClick={() => handleDismiss('left', 'button')}
+                      />
+                    </div>
+                    <div className="flex justify-center px-4 tablet:px-0">
+                      {cardSwipeArea}
+                    </div>
+                    <div className="hidden justify-start tablet:flex">
+                      <OnboardingSwipeHintButton
+                        deltaX={combinedOnboardingSwipeX}
+                        direction="right"
+                        disabled={isAnimating}
+                        onClick={() => handleDismiss('right', 'button')}
+                      />
+                    </div>
+                    <div className="flex justify-center px-4 tablet:hidden">
+                      <OnboardingSwipeHintIcons
+                        deltaX={combinedOnboardingSwipeX}
+                        disabled={isAnimating}
+                        onInteresting={() => handleDismiss('right', 'button')}
+                        onNotInteresting={() => handleDismiss('left', 'button')}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-center px-4">
+                      {cardSwipeArea}
+                    </div>
+                    <div className="flex justify-center px-4">
+                      <OnboardingSwipeHintIcons
+                        deltaX={combinedOnboardingSwipeX}
+                        disabled={isAnimating}
+                        onInteresting={() => handleDismiss('right', 'button')}
+                        onNotInteresting={() => handleDismiss('left', 'button')}
+                      />
+                    </div>
+                  </>
+                )}
                 {bottomSlot}
               </div>
-            ) : (
-              <>
-                {cardSwipeArea}
-                {showDefaultActions && (
-                  <div className="flex items-center justify-center gap-4 p-4 pt-3">
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          ❄️
-                        </span>
-                      }
-                      onClick={() => handleDismiss('left', 'button')}
-                      disabled={isAnimating}
-                      className="!size-14 rounded-full"
-                      aria-label="Cold take - downvote"
-                    />
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          😐
-                        </span>
-                      }
-                      onClick={() => handleSkip('button')}
-                      disabled={isAnimating}
-                      className="!size-12 rounded-full"
-                      aria-label="Skip hot take"
-                    />
-                    <Button
-                      variant={ButtonVariant.Float}
-                      size={ButtonSize.Large}
-                      icon={
-                        <span
-                          className="text-[1.375rem] leading-none"
-                          aria-hidden
-                        >
-                          🔥
-                        </span>
-                      }
-                      onClick={() => handleDismiss('right', 'button')}
-                      disabled={isAnimating}
-                      className="!size-14 rounded-full"
-                      aria-label="Hot take - upvote"
-                    />
-                  </div>
-                )}
-                {bottomSlot}
-                {showAddHotTakeButton && user?.username && (
-                  <div className="px-4 pb-4">
-                    <Button
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Medium}
-                      tag="a"
-                      href={`${webappUrl}${user.username}#hot-takes`}
-                      className="w-full"
-                      onClick={(e: React.MouseEvent) => {
-                        onRequestClose?.(e);
-                      }}
-                    >
-                      Add your own hot take
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+            </div>
           </>
         )}
+
+        {!isModalLoading &&
+          !isModalEmpty &&
+          !isOnboardingMode &&
+          currentCardId && (
+            <>
+              {topSlot}
+              {cardSwipeArea}
+              {showDefaultActions && (
+                <div className="flex items-center justify-center gap-4 p-4 pt-3">
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        ❄️
+                      </span>
+                    }
+                    onClick={() => handleDismiss('left', 'button')}
+                    disabled={isAnimating}
+                    className="!size-14 rounded-full"
+                    aria-label="Cold take - downvote"
+                  />
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        😐
+                      </span>
+                    }
+                    onClick={() => handleSkip('button')}
+                    disabled={isAnimating}
+                    className="!size-12 rounded-full"
+                    aria-label="Skip hot take"
+                  />
+                  <Button
+                    variant={ButtonVariant.Float}
+                    size={ButtonSize.Large}
+                    icon={
+                      <span
+                        className="text-[1.375rem] leading-none"
+                        aria-hidden
+                      >
+                        🔥
+                      </span>
+                    }
+                    onClick={() => handleDismiss('right', 'button')}
+                    disabled={isAnimating}
+                    className="!size-14 rounded-full"
+                    aria-label="Hot take - upvote"
+                  />
+                </div>
+              )}
+              {bottomSlot}
+              {showAddHotTakeButton && user?.username && (
+                <div className="px-4 pb-4">
+                  <Button
+                    variant={ButtonVariant.Tertiary}
+                    size={ButtonSize.Medium}
+                    tag="a"
+                    href={`${webappUrl}${user.username}#hot-takes`}
+                    className="w-full"
+                    onClick={(e: React.MouseEvent) => {
+                      onRequestClose?.(e);
+                    }}
+                  >
+                    Add your own hot take
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
       </Modal.Body>
     </Modal>
   );

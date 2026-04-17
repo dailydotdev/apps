@@ -10,16 +10,16 @@ import {
   getSwipeOnboardingBarProgress,
   getSwipeOnboardingGuidanceMessage,
   getSwipeOnboardingHeadline,
+  SWIPE_ONBOARDING_REFINE_TARGET,
   type SwipeOnboardingProgressCopyVariant,
 } from '../../lib/swipeOnboardingGuidance';
 
 /** Typing speed; full headline refresh when swipe tier copy changes. */
 const SWIPE_HEADLINE_TYPING_MS_PER_CHAR = 12;
 /**
- * Stable min height = 3 × typo-title2 line-height (1.875rem) so headline changes do not
- * shift the progress bar.
+ * Stable min height keeps the typed copy from jumping while the progress bar updates.
  */
-const SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS = 'min-h-[5.625rem]';
+const SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS = 'min-h-[4.75rem]';
 
 function SwipeOnboardingTypingHeadline({
   line1,
@@ -59,14 +59,14 @@ function SwipeOnboardingTypingHeadline({
   return (
     <div
       aria-live="polite"
-      className={`flex w-full max-w-[20rem] flex-col items-center justify-center text-center ${SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS}`}
+      className={`flex w-full flex-col items-start justify-center text-left ${SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS}`}
     >
       <Typography
         bold
-        center
         tag={TypographyTag.H2}
-        type={TypographyType.Title2}
+        type={TypographyType.Title3}
         color={TypographyColor.Primary}
+        className="w-full text-balance"
       >
         {shownLine1}
         {shownLine2 !== undefined ? (
@@ -117,9 +117,11 @@ export function SwipeOnboardingProgressHeader({
   const progress = getSwipeOnboardingBarProgress(progressCount);
   const { line1: headlineLine1, line2: headlineLine2 } =
     getSwipeOnboardingHeadline(progressCount, copyVariant);
+  const progressLabel = copyVariant === 'tags' ? 'Manual setup' : 'Feed setup';
+  const progressValue = Math.min(progressCount, SWIPE_ONBOARDING_REFINE_TARGET);
 
   return (
-    <div className="pointer-events-none flex w-full max-w-[20rem] select-none flex-col items-center gap-8 self-center px-4 pb-2 pt-0 text-center">
+    <div className="pointer-events-none flex w-full max-w-[32rem] select-none flex-col gap-4 self-center rounded-[1.75rem] border border-border-subtlest-secondary bg-background-default px-5 py-4 shadow-[0_24px_72px_-42px_rgba(0,0,0,0.58)]">
       {/* eslint-disable-next-line react/no-unknown-property -- scoped keyframes for progress bar */}
       <style>{`
               @keyframes swipeOnboardingProgressShimmer {
@@ -235,6 +237,14 @@ export function SwipeOnboardingProgressHeader({
                 }
               }
             `}</style>
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-medium text-text-secondary typo-footnote">
+          {progressLabel}
+        </span>
+        <span className="font-medium text-text-tertiary typo-footnote">
+          {progressValue} / {SWIPE_ONBOARDING_REFINE_TARGET}
+        </span>
+      </div>
       <SwipeOnboardingTypingHeadline
         line1={headlineLine1}
         line2={headlineLine2}
@@ -378,7 +388,6 @@ export function SwipeOnboardingProgressHeader({
         </div>
         <Typography
           bold
-          center
           className="text-balance"
           tag={TypographyTag.P}
           type={TypographyType.Caption1}
