@@ -347,22 +347,21 @@ export function PostContentRaw({
     />
   );
 
-  const mobilePreviewDrawer = showArticlePreviewEmbed ? (
-    <Drawer
-      isOpen={!isTablet && isMobilePreviewOpen}
-      onClose={closeMobile}
-      className={{
-        wrapper: 'h-[88vh]',
-        drawer: 'flex-1 !p-0',
-      }}
-      displayCloseButton
-      appendOnRoot
-    >
-      {!isTablet && isMobilePreviewOpen && (
+  const mobilePreviewDrawer =
+    showArticlePreviewEmbed && !isTablet && isMobilePreviewOpen ? (
+      <Drawer
+        isOpen
+        onClose={closeMobile}
+        className={{
+          wrapper: 'h-[88vh]',
+          drawer: 'flex-1 !p-0',
+        }}
+        displayCloseButton
+        appendOnRoot
+      >
         <PostArticlePreviewEmbed {...previewEmbedProps} className="!flex" />
-      )}
-    </Drawer>
-  ) : null;
+      </Drawer>
+    ) : null;
 
   return (
     <PostContentContainer
@@ -385,22 +384,22 @@ export function PostContentRaw({
           : undefined
       }
     >
-      {showArticlePreviewEmbed && isTablet ? (
+      <div
+        ref={previewLayoutRef}
+        className="relative flex w-full flex-1 items-stretch"
+      >
         <div
-          ref={previewLayoutRef}
-          className="relative flex w-full flex-1 items-stretch"
+          className={classNames(
+            'grid min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
+            previewGridCols,
+          )}
         >
-          <div
-            className={classNames(
-              'grid min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
-              previewGridCols,
-            )}
-          >
-            <div className="flex min-w-0 flex-col">
-              {postMainColumn}
-              {!isLaptop && postWidgetsColumn}
-            </div>
-            <div className="relative hidden tablet:block">
+          <div className="flex min-w-0 flex-col">
+            {postMainColumn}
+            {!isLaptop && postWidgetsColumn}
+          </div>
+          <div className="relative hidden tablet:block">
+            {showArticlePreviewEmbed && isTablet && (
               <Button
                 type="button"
                 size={ButtonSize.Small}
@@ -422,48 +421,46 @@ export function PostContentRaw({
                     : 'Show inline article preview'
                 }
               />
-            </div>
-            <div
-              ref={previewColumnRef}
-              className={classNames(
-                'flex min-w-0 flex-col transition-opacity duration-200 ease-in-out [overflow-x:clip]',
-                isPostPage
-                  ? 'min-h-[calc(100vh-4rem)]'
-                  : 'min-h-[calc(100vh-8rem)]',
-                showArticlePreviewColumn &&
-                  !isPreviewFloating &&
-                  !isTabletPreviewToggling
-                  ? 'opacity-100 delay-100'
-                  : 'opacity-0',
-              )}
-            >
-              {!isPreviewFloating && !isTabletPreviewToggling && (
+            )}
+          </div>
+          <div
+            ref={previewColumnRef}
+            className={classNames(
+              'flex min-w-0 flex-col transition-opacity duration-200 ease-in-out [overflow-x:clip]',
+              isPostPage
+                ? 'min-h-[calc(100vh-4rem)]'
+                : 'min-h-[calc(100vh-8rem)]',
+              showArticlePreviewColumn &&
+                !isPreviewFloating &&
+                !isTabletPreviewToggling
+                ? 'opacity-100 delay-100'
+                : 'opacity-0',
+            )}
+          >
+            {showArticlePreviewEmbed &&
+              isTablet &&
+              !isPreviewFloating &&
+              !isTabletPreviewToggling && (
                 <PostArticlePreviewEmbed {...previewEmbedProps} />
               )}
-            </div>
           </div>
-          {isLaptop && postWidgetsColumn}
-          {shouldRenderFloatingPreview && (
-            <div
-              className={classNames(
-                'absolute right-0 top-0 z-3 flex w-[21.25rem] flex-col border-l border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-in-out',
-                isPostPage ? 'h-[calc(100vh-4rem)]' : 'h-[calc(100vh-8rem)]',
-                floatingPhase === FloatingPreviewPhase.Visible
-                  ? 'translate-x-0 opacity-100'
-                  : 'pointer-events-none translate-x-full opacity-0',
-              )}
-            >
-              <PostArticlePreviewEmbed {...previewEmbedProps} />
-            </div>
-          )}
         </div>
-      ) : (
-        <>
-          {postMainColumn}
-          {postWidgetsColumn}
-          {mobilePreviewDrawer}
-        </>
-      )}
+        {isLaptop && postWidgetsColumn}
+        {showArticlePreviewEmbed && shouldRenderFloatingPreview && (
+          <div
+            className={classNames(
+              'absolute right-0 top-0 z-3 flex w-[21.25rem] flex-col border-l border-border-subtlest-tertiary bg-background-default transition-all duration-300 ease-in-out',
+              isPostPage ? 'h-[calc(100vh-4rem)]' : 'h-[calc(100vh-8rem)]',
+              floatingPhase === FloatingPreviewPhase.Visible
+                ? 'translate-x-0 opacity-100'
+                : 'pointer-events-none translate-x-full opacity-0',
+            )}
+          >
+            <PostArticlePreviewEmbed {...previewEmbedProps} />
+          </div>
+        )}
+      </div>
+      {mobilePreviewDrawer}
     </PostContentContainer>
   );
 }
