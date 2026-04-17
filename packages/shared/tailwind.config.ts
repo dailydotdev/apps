@@ -252,12 +252,23 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'embed-stripe-shift': {
+          '0%': { backgroundPosition: '0% 0%, 50% 50%' },
+          '100%': { backgroundPosition: '220% 120%, 50% 50%' },
+        },
+        'embed-stripe-shift-reverse': {
+          '0%': { backgroundPosition: '220% 140%' },
+          '100%': { backgroundPosition: '0% 0%' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'embed-stripe-shift': 'embed-stripe-shift 42s linear infinite',
+        'embed-stripe-shift-reverse':
+          'embed-stripe-shift-reverse 58s linear infinite',
       },
     },
     lineClamp: {

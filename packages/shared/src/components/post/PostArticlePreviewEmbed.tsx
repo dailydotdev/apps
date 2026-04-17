@@ -10,6 +10,7 @@ import React, {
 import { EmbeddedBrowsingWebPrompt } from '../../features/extensionEmbed/EmbeddedBrowsingWebPrompt';
 import { ExtensionSiteEmbed } from '../../features/extensionEmbed/ExtensionSiteEmbed';
 import { getBrowserExtensionInstallId } from '../../features/extensionEmbed/getBrowserExtensionInstallId';
+import { ExtensionSiteEmbedStatus } from '../../features/extensionEmbed/common';
 import type { UseExtensionSiteEmbedResult } from '../../features/extensionEmbed/useExtensionSiteEmbed';
 import { apiUrl } from '../../lib/config';
 import { Loader } from '../Loader';
@@ -24,23 +25,22 @@ type PostArticlePreviewEmbedProps = {
   targetUrl: string;
   previewHost?: string;
   className?: string;
-  onDismissArticlePreview?: () => void;
   onPreviewUnavailable?: () => void;
   forceUnavailable?: boolean;
 };
 
-const renderEmbedChrome = ({
-  extensionId,
-  state,
-}: {
-  extensionId: string | null;
-  state: UseExtensionSiteEmbedResult;
-}): ReactElement | null => {
-  if (!extensionId) {
-    return null;
-  }
+const PREVIEW_LOAD_TIMEOUT_MS = 7000;
 
-  if (state.status === 'error' && state.error) {
+enum ViewMode {
+  Install = 'install',
+  Unavailable = 'unavailable',
+  Preview = 'preview',
+}
+
+const renderEmbedChrome = (
+  state: UseExtensionSiteEmbedResult,
+): ReactElement | null => {
+  if (state.status === ExtensionSiteEmbedStatus.Error && state.error) {
     return (
       <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
@@ -57,7 +57,7 @@ const renderEmbedChrome = ({
     );
   }
 
-  if (state.status === 'reloading-extension') {
+  if (state.status === ExtensionSiteEmbedStatus.ReloadingExtension) {
     return (
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
         <Loader className="h-6 w-6" />
@@ -78,21 +78,17 @@ export function PostArticlePreviewEmbed({
   targetUrl,
   previewHost,
   className,
-  onDismissArticlePreview,
   onPreviewUnavailable,
   forceUnavailable = false,
 }: PostArticlePreviewEmbedProps): ReactElement {
   const [extensionId] = useState(() => getBrowserExtensionInstallId());
   const [hasPreviewFrameLoaded, setHasPreviewFrameLoaded] = useState(false);
   const [hasTimedOutUnavailable, setHasTimedOutUnavailable] = useState(false);
-  const [embedState, setEmbedState] = useState<{
-    status: UseExtensionSiteEmbedResult['status'];
-    errorReason: UseExtensionSiteEmbedResult['errorReason'];
-  }>({
-    status: 'idle',
-    errorReason: null,
-  });
+  const [embedStatus, setEmbedStatus] = useState<
+    UseExtensionSiteEmbedResult['status']
+  >(ExtensionSiteEmbedStatus.Idle);
   const hasNotifiedUnavailableRef = useRef(false);
+
   const previewDomain = useMemo(() => {
     if (previewHost && previewHost.length > 0) {
       return previewHost;
@@ -104,6 +100,7 @@ export function PostArticlePreviewEmbed({
       return targetUrl;
     }
   }, [previewHost, targetUrl]);
+
   const faviconSrc = useMemo(() => {
     const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
     const iconSize = Math.max(Math.round(16 * pixelRatio), 96);
@@ -116,7 +113,7 @@ export function PostArticlePreviewEmbed({
   useEffect(() => {
     setHasPreviewFrameLoaded(false);
     setHasTimedOutUnavailable(false);
-    setEmbedState({ status: 'idle', errorReason: null });
+    setEmbedStatus(ExtensionSiteEmbedStatus.Idle);
     hasNotifiedUnavailableRef.current = false;
   }, [extensionId, targetUrl]);
 
@@ -132,25 +129,24 @@ export function PostArticlePreviewEmbed({
     navigator.clipboard?.writeText(targetUrl).catch(() => {});
   }, [targetUrl]);
 
-  const isExtensionPreviewAwaitingLoad =
-    !!extensionId &&
-    embedState.status === 'ready' &&
-    !hasPreviewFrameLoaded &&
-    !forceUnavailable;
-  const shouldShowUnavailablePrompt =
-    forceUnavailable || hasTimedOutUnavailable;
-  const shouldShowPrompt = !extensionId;
-  const shouldShowPreviewHeader =
-    !!extensionId && !shouldShowUnavailablePrompt;
+  let viewMode: ViewMode;
+  if (!extensionId) {
+    viewMode = ViewMode.Install;
+  } else if (forceUnavailable || hasTimedOutUnavailable) {
+    viewMode = ViewMode.Unavailable;
+  } else {
+    viewMode = ViewMode.Preview;
+  }
+
+  const isAwaitingPreviewLoad =
+    viewMode === ViewMode.Preview &&
+    embedStatus === ExtensionSiteEmbedStatus.Ready &&
+    !hasPreviewFrameLoaded;
 
   const handleEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
-      setEmbedState({
-        status: state.status,
-        errorReason: state.errorReason,
-      });
-
-      if (state.status !== 'ready') {
+      setEmbedStatus(state.status);
+      if (state.status !== ExtensionSiteEmbedStatus.Ready) {
         setHasPreviewFrameLoaded(false);
       }
     },
@@ -168,61 +164,28 @@ export function PostArticlePreviewEmbed({
         onPreviewUnavailable();
       }
 
-      return renderEmbedChrome({
-        extensionId,
-        state,
-      });
+      return renderEmbedChrome(state);
     },
-    [extensionId, onPreviewUnavailable],
+    [onPreviewUnavailable],
   );
 
   useEffect(() => {
-    const timeout =
-      isExtensionPreviewAwaitingLoad
-        ? globalThis.setTimeout(() => {
-            if (hasNotifiedUnavailableRef.current) {
-              return;
-            }
+    if (!isAwaitingPreviewLoad) {
+      return undefined;
+    }
 
-            hasNotifiedUnavailableRef.current = true;
-            setHasTimedOutUnavailable(true);
-            onPreviewUnavailable?.();
-          }, 7000)
-        : undefined;
-
-    return () => {
-      if (timeout) {
-        globalThis.clearTimeout(timeout);
+    const timeout = globalThis.setTimeout(() => {
+      if (hasNotifiedUnavailableRef.current) {
+        return;
       }
-    };
-  }, [
-    isExtensionPreviewAwaitingLoad,
-    onPreviewUnavailable,
-  ]);
 
-  let previewContent: ReactElement;
-  if (shouldShowUnavailablePrompt) {
-    previewContent = (
-      <EmbeddedBrowsingWebPrompt
-        isPreviewUnavailable
-        unavailablePreviewUrl={targetUrl}
-      />
-    );
-  } else {
-    previewContent = (
-      <ExtensionSiteEmbed
-        extensionId={extensionId}
-        targetUrl={targetUrl}
-        enabled
-        className="h-full min-h-[28rem] w-full flex-1 border-0"
-        permissionFrameTitle="Embedded browsing permissions"
-        targetFrameTitle="Article preview"
-        onTargetFrameLoad={onExtensionPreviewFrameLoad}
-        onStateChange={handleEmbedStateChange}
-        renderState={handleRenderState}
-      />
-    );
-  }
+      hasNotifiedUnavailableRef.current = true;
+      setHasTimedOutUnavailable(true);
+      onPreviewUnavailable?.();
+    }, PREVIEW_LOAD_TIMEOUT_MS);
+
+    return () => globalThis.clearTimeout(timeout);
+  }, [isAwaitingPreviewLoad, onPreviewUnavailable]);
 
   return (
     <section
@@ -233,7 +196,7 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
-        {shouldShowPreviewHeader ? (
+        {viewMode === ViewMode.Preview ? (
           <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
             <img
               src={faviconSrc}
@@ -260,10 +223,26 @@ export function PostArticlePreviewEmbed({
             </Typography>
           </div>
         ) : null}
-        {previewContent}
-        {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
-          <EmbeddedBrowsingWebPrompt />
+        {viewMode === ViewMode.Unavailable ? (
+          <EmbeddedBrowsingWebPrompt
+            isPreviewUnavailable
+            unavailablePreviewUrl={targetUrl}
+          />
         ) : null}
+        {viewMode === ViewMode.Preview ? (
+          <ExtensionSiteEmbed
+            extensionId={extensionId}
+            targetUrl={targetUrl}
+            enabled
+            className="h-full min-h-[28rem] w-full flex-1 border-0"
+            permissionFrameTitle="Embedded browsing permissions"
+            targetFrameTitle="Article preview"
+            onTargetFrameLoad={onExtensionPreviewFrameLoad}
+            onStateChange={handleEmbedStateChange}
+            renderState={handleRenderState}
+          />
+        ) : null}
+        {viewMode === ViewMode.Install ? <EmbeddedBrowsingWebPrompt /> : null}
       </div>
     </section>
   );

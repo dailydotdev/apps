@@ -2,12 +2,12 @@ import type { MutableRefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   buildExtensionSiteEmbedFrameSrc,
+  ExtensionSiteEmbedStatus,
   extensionSiteEmbedReconnectAttempts,
   extensionSiteEmbedReconnectDelayMs,
   getExtensionOrigin,
   isEmbeddableSiteTarget,
 } from './common';
-import type { ExtensionSiteEmbedStatus } from './common';
 import {
   handleExtensionSiteEmbedMessage,
   postExtensionSiteEmbedDisableMessage,
@@ -48,7 +48,9 @@ export const useExtensionSiteEmbed = ({
 }: UseExtensionSiteEmbedOptions): UseExtensionSiteEmbedResult => {
   const [frameNonce, setFrameNonce] = useState(0);
   const [frameMode, setFrameMode] = useState<FrameMode>('permission-check');
-  const [status, setStatus] = useState<ExtensionSiteEmbedStatus>('idle');
+  const [status, setStatus] = useState<ExtensionSiteEmbedStatus>(
+    ExtensionSiteEmbedStatus.Idle,
+  );
   const [error, setError] = useState<string | null>(null);
   const [errorReason, setErrorReason] = useState<string | null>(null);
   const permissionFrameRef = useRef<HTMLIFrameElement | null>(null);
@@ -65,7 +67,7 @@ export const useExtensionSiteEmbed = ({
   }, []);
 
   const handleReconnectTimeout = useCallback(() => {
-    setStatus('error');
+    setStatus(ExtensionSiteEmbedStatus.Error);
     setError(
       'The extension reloaded, but the permission frame did not reconnect in time.',
     );
@@ -94,23 +96,26 @@ export const useExtensionSiteEmbed = ({
   );
 
   const reset = useCallback(() => {
-    resetInactiveState('idle', null);
+    resetInactiveState(ExtensionSiteEmbedStatus.Idle, null);
     setFrameNonce((value) => value + 1);
   }, [resetInactiveState]);
 
   useEffect(() => {
     if (!enabled) {
-      resetInactiveState('idle', null);
+      resetInactiveState(ExtensionSiteEmbedStatus.Idle, null);
       return;
     }
 
     if (!trimmedExtensionId) {
-      resetInactiveState('idle', null);
+      resetInactiveState(ExtensionSiteEmbedStatus.Idle, null);
       return;
     }
 
     if (!isTargetValid) {
-      resetInactiveState('error', 'Enter a valid HTTP or HTTPS target URL.');
+      resetInactiveState(
+        ExtensionSiteEmbedStatus.Error,
+        'Enter a valid HTTP or HTTPS target URL.',
+      );
       return;
     }
 
@@ -137,32 +142,32 @@ export const useExtensionSiteEmbed = ({
         expectedExtensionOrigin,
         isReconnectPending: isReconnectPendingRef.current,
         onPermissionsReady: () => {
-          setStatus('preparing-tab');
+          setStatus(ExtensionSiteEmbedStatus.PreparingTab);
           setError(null);
           setErrorReason(null);
         },
         onEmbeddingReady: () => {
           stopReconnectLoop();
           setFrameMode('target-embed');
-          setStatus('ready');
+          setStatus(ExtensionSiteEmbedStatus.Ready);
           setError(null);
           setErrorReason(null);
         },
         onReloadRequested: () => {
-          setStatus('reloading-extension');
+          setStatus(ExtensionSiteEmbedStatus.ReloadingExtension);
           setError(null);
           setErrorReason(null);
           startReconnectLoop();
         },
         onMissingPermission: () => {
           stopReconnectLoop();
-          setStatus('permission-required');
+          setStatus(ExtensionSiteEmbedStatus.PermissionRequired);
           setError(null);
           setErrorReason('missing-permission');
         },
         onError: ({ message, reason }) => {
           stopReconnectLoop();
-          setStatus('error');
+          setStatus(ExtensionSiteEmbedStatus.Error);
           setError(message);
           setErrorReason(reason ?? null);
         },

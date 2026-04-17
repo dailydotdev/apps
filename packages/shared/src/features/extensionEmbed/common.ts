@@ -48,13 +48,14 @@ export type ExtensionSiteEmbedParentMessage = {
   type: (typeof extensionSiteEmbedParentEvent)[keyof typeof extensionSiteEmbedParentEvent];
 };
 
-export type ExtensionSiteEmbedStatus =
-  | 'idle'
-  | 'permission-required'
-  | 'reloading-extension'
-  | 'preparing-tab'
-  | 'ready'
-  | 'error';
+export enum ExtensionSiteEmbedStatus {
+  Idle = 'idle',
+  PermissionRequired = 'permission-required',
+  ReloadingExtension = 'reloading-extension',
+  PreparingTab = 'preparing-tab',
+  Ready = 'ready',
+  Error = 'error',
+}
 
 export const isEmbeddableSiteTarget = (value: string): boolean => {
   try {
