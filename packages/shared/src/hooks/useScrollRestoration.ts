@@ -3,33 +3,128 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 const scrollPositions: Record<string, number> = {};
+const scrollPositionPrefix = 'scroll-restoration:';
+const maxRestoreAttempts = 180;
+const restoreTolerancePx = 1;
+
+const getScrollPositionKey = (route: string): string =>
+  `${scrollPositionPrefix}${route}`;
+
+const getMaxScrollTop = (): number =>
+  Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+const persistScrollPosition = (
+  scrollPositionKey: string,
+  scrollPosition: number,
+): void => {
+  const normalizedPosition = Math.max(0, Math.round(scrollPosition));
+
+  scrollPositions[scrollPositionKey] = normalizedPosition;
+  window.sessionStorage.setItem(scrollPositionKey, `${normalizedPosition}`);
+};
+
+const getStoredScrollPosition = (scrollPositionKey: string): number => {
+  const inMemoryPosition = scrollPositions[scrollPositionKey];
+  if (typeof inMemoryPosition === 'number') {
+    return inMemoryPosition;
+  }
+
+  const storedValue = window.sessionStorage.getItem(scrollPositionKey);
+  if (!storedValue) {
+    return 0;
+  }
+
+  const storedPosition = Number(storedValue);
+  if (!Number.isFinite(storedPosition) || storedPosition < 0) {
+    return 0;
+  }
+
+  scrollPositions[scrollPositionKey] = storedPosition;
+
+  return storedPosition;
+};
 
 export const useScrollRestoration = (): void => {
-  const { pathname } = useRouter();
+  const { asPath, events } = useRouter();
+  const scrollPositionKey = getScrollPositionKey(asPath);
 
   useEffect(() => {
-    const handleScroll = () => {
-      scrollPositions[pathname] = window.scrollY;
+    const persistCurrentScrollPosition = () => {
+      persistScrollPosition(scrollPositionKey, window.scrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        persistCurrentScrollPosition();
+      }
+    };
+
+    window.addEventListener('scroll', persistCurrentScrollPosition, {
+      passive: true,
+    });
+    window.addEventListener('beforeunload', persistCurrentScrollPosition);
+    window.addEventListener('pagehide', persistCurrentScrollPosition);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    events.on('routeChangeStart', persistCurrentScrollPosition);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      persistCurrentScrollPosition();
+      window.removeEventListener('scroll', persistCurrentScrollPosition);
+      window.removeEventListener('beforeunload', persistCurrentScrollPosition);
+      window.removeEventListener('pagehide', persistCurrentScrollPosition);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      events.off('routeChangeStart', persistCurrentScrollPosition);
     };
-  }, [pathname]);
+  }, [events, scrollPositionKey]);
 
   useEffect(() => {
-    const scrollPosition = scrollPositions[pathname] || 0;
+    const savedScrollPosition = getStoredScrollPosition(scrollPositionKey);
+    let attempts = 0;
+    let frameId = 0;
 
-    // Add a small delay to ensure content is loaded before restoring scroll
-    // This is especially important for feed pages that load content dynamically
-    const timeoutId = setTimeout(() => {
-      window.scrollTo(0, scrollPosition);
-    }, 50);
+    const restoreScrollPosition = () => {
+      const maxScrollTop = getMaxScrollTop();
+      const canFullyRestore = savedScrollPosition <= maxScrollTop;
+      const isLastAttempt = attempts >= maxRestoreAttempts;
 
-    return () => clearTimeout(timeoutId);
-  }, [pathname]);
+      if (savedScrollPosition === 0 || canFullyRestore || isLastAttempt) {
+        const targetScrollTop = Math.min(savedScrollPosition, maxScrollTop);
+        window.scrollTo(0, targetScrollTop);
+
+        if (
+          Math.abs(window.scrollY - targetScrollTop) <= restoreTolerancePx ||
+          isLastAttempt
+        ) {
+          return;
+        }
+      }
+
+      attempts += 1;
+      frameId = window.requestAnimationFrame(restoreScrollPosition);
+    };
+
+    const scheduleRestore = () => {
+      attempts = 0;
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(restoreScrollPosition);
+    };
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) {
+        return;
+      }
+
+      scheduleRestore();
+    };
+
+    scheduleRestore();
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [scrollPositionKey]);
 };
 
 export const useManualScrollRestoration = (): void => {
