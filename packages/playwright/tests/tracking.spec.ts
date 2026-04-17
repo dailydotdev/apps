@@ -18,7 +18,7 @@ test("da2 cookie is seeded with correct format and domain scope", async ({
   expect(da2).toMatchObject({
     name: "da2",
     value: expect.stringMatching(/^e2etest[a-zA-Z0-9]{14}$/),
-    domain: `.${expectedDomain}`,
+    domain: expectedDomain,
     path: "/",
     httpOnly: false,
     secure: false,
