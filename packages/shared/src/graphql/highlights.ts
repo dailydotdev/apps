@@ -163,23 +163,6 @@ export interface HighlightsPageData {
   channelConfigurations: ChannelConfiguration[];
 }
 
-const HIGHLIGHTS_CHANNEL_TO_SLUG: Record<string, string> = {
-  vibes: 'agentic',
-};
-
-const HIGHLIGHTS_SLUG_TO_CHANNEL = Object.fromEntries(
-  Object.entries(HIGHLIGHTS_CHANNEL_TO_SLUG).map(([channel, slug]) => [
-    slug,
-    channel,
-  ]),
-);
-
-export const getHighlightsChannelSlug = (channel: string): string =>
-  HIGHLIGHTS_CHANNEL_TO_SLUG[channel] ?? channel;
-
-export const resolveHighlightsChannelSlug = (slug: string): string =>
-  HIGHLIGHTS_SLUG_TO_CHANNEL[slug] ?? slug;
-
 export const HIGHLIGHTS_PAGE_QUERY = gql`
   query HighlightsPage($first: Int, $after: String) {
     majorHeadlines(first: $first, after: $after) {

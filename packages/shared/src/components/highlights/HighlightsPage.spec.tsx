@@ -17,6 +17,18 @@ const mockUseQuery = useQuery as jest.Mock;
 const mockUseRouter = useRouter as jest.Mock;
 
 describe('HighlightsPage', () => {
+  const highlightsPageData = {
+    majorHeadlines: {
+      edges: [],
+    },
+    channelConfigurations: [
+      {
+        channel: 'vibes',
+        displayName: 'Agentic',
+      },
+    ],
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseRouter.mockReturnValue({
@@ -28,17 +40,7 @@ describe('HighlightsPage', () => {
 
   it('should use the agentic alias for the vibes channel tab URL', () => {
     mockUseQuery.mockReturnValue({
-      data: {
-        majorHeadlines: {
-          edges: [],
-        },
-        channelConfigurations: [
-          {
-            channel: 'vibes',
-            displayName: 'Agentic',
-          },
-        ],
-      },
+      data: highlightsPageData,
       isFetching: false,
     });
 
@@ -48,5 +50,21 @@ describe('HighlightsPage', () => {
       'href',
       '/highlights/agentic',
     );
+  });
+
+  it('should keep the agentic tab selected for the alias route', () => {
+    mockUseRouter.mockReturnValue({
+      pathname: '/highlights/[channel]',
+      query: { channel: 'agentic' },
+      push: jest.fn(),
+    });
+    mockUseQuery.mockReturnValue({
+      data: highlightsPageData,
+      isFetching: false,
+    });
+
+    render(<HighlightsPage />);
+
+    expect(screen.getByText('Agentic')).toHaveClass('bg-theme-active');
   });
 });

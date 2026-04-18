@@ -11,9 +11,9 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import {
   channelHighlightsFeedQueryOptions,
   highlightsPageQueryOptions,
-  resolveHighlightsChannelSlug,
 } from '@dailydotdev/shared/src/graphql/highlights';
 import { HighlightsPage } from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
+import { resolveHighlightsChannelSlug } from '@dailydotdev/shared/src/lib/highlights';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';

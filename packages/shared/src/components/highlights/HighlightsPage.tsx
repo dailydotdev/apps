@@ -8,10 +8,12 @@ import type {
 } from '../../graphql/highlights';
 import {
   channelHighlightsFeedQueryOptions,
-  getHighlightsChannelSlug,
   highlightsPageQueryOptions,
-  resolveHighlightsChannelSlug,
 } from '../../graphql/highlights';
+import {
+  getHighlightsChannelSlug,
+  resolveHighlightsChannelSlug,
+} from '../../lib/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
