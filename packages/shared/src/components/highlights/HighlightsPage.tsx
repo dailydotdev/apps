@@ -8,7 +8,9 @@ import type {
 } from '../../graphql/highlights';
 import {
   channelHighlightsFeedQueryOptions,
+  getHighlightsChannelSlug,
   highlightsPageQueryOptions,
+  resolveHighlightsChannelSlug,
 } from '../../graphql/highlights';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
@@ -127,6 +129,9 @@ const ChannelTab = ({
 export const HighlightsPage = (): ReactElement => {
   const router = useRouter();
   const channel = getSingleQueryParam(router.query.channel);
+  const resolvedChannel = channel
+    ? resolveHighlightsChannelSlug(channel)
+    : undefined;
   const expandedId = getSingleQueryParam(router.query.highlight);
   const { data, isFetching } = useQuery(highlightsPageQueryOptions());
 
@@ -138,7 +143,7 @@ export const HighlightsPage = (): ReactElement => {
   const majorLoading = isFetching && !data;
 
   const activeTab =
-    channels.find((c) => c.channel === channel)?.displayName ??
+    channels.find((c) => c.channel === resolvedChannel)?.displayName ??
     MAJOR_HEADLINES_LABEL;
 
   return (
@@ -176,7 +181,9 @@ export const HighlightsPage = (): ReactElement => {
             <Tab
               key={ch.channel}
               label={ch.displayName}
-              url={`${HIGHLIGHTS_BASE_URL}/${ch.channel}`}
+              url={`${HIGHLIGHTS_BASE_URL}/${getHighlightsChannelSlug(
+                ch.channel,
+              )}`}
             >
               <ChannelTab channel={ch} expandedId={expandedId} />
             </Tab>

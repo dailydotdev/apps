@@ -11,6 +11,7 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import {
   channelHighlightsFeedQueryOptions,
   highlightsPageQueryOptions,
+  resolveHighlightsChannelSlug,
 } from '@dailydotdev/shared/src/graphql/highlights';
 import { HighlightsPage } from '@dailydotdev/shared/src/components/highlights/HighlightsPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -64,7 +65,10 @@ export async function getStaticProps({
 }: GetStaticPropsContext<HighlightsChannelPageParams>): Promise<
   GetStaticPropsResult<HighlightsChannelPageProps>
 > {
-  const channel = params?.channel;
+  const channelSlug = params?.channel;
+  const channel = channelSlug
+    ? resolveHighlightsChannelSlug(channelSlug)
+    : undefined;
 
   if (!channel) {
     return {
