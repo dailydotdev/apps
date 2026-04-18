@@ -210,9 +210,6 @@ export const cloudinaryAuthBannerBackground1920w =
 export const cloudinaryAuthBannerBackground1440w =
   'https://media.daily.dev/image/upload/s--lf8LUJjq--/c_auto,g_center,w_1440/f_auto//v1732012913/login-popover-dailydev_mxb7lw';
 
-export const cloudinaryNoAiFeedToggle =
-  'https://media.daily.dev/image/upload/s--nndE59fs--/f_auto,q_auto/v1775238401/public/ChatGPT%20Image%20Mar%2031%2C%202026%2C%2011_00_27%20PM';
-
 export const cloudinaryPWA =
   'https://media.daily.dev/image/upload/s--_kFKAft3--/f_auto/v1735045791/web_-_safari_j52hcx';
 
