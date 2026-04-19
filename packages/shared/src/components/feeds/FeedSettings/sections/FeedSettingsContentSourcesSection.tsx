@@ -128,11 +128,11 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
           color={TypographyColor.Tertiary}
           type={TypographyType.Callout}
         >
-          Following sources, squads, and users is a great way to tell the
-          system where you want your content to come from. It&apos;s a strong
-          starting signal for your feed, and as you engage with content over
-          time, its weight gradually decreases in favor of stronger signals
-          based on your actual activity.
+          Following sources, squads, and users is a great way to tell the system
+          where you want your content to come from. It&apos;s a strong starting
+          signal for your feed, and as you engage with content over time, its
+          weight gradually decreases in favor of stronger signals based on your
+          actual activity.
         </Typography>
         {searchPanel.query?.length ? (
           <>
