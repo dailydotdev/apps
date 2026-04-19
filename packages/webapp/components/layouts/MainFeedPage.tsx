@@ -73,7 +73,7 @@ export default function MainFeedPage({
   const [feedName, setFeedName] = useState(
     getInternalFeedName(router?.pathname, { isMyFeed: isMyFeedURL }),
   );
-  const [isSearchOn, setIsSearchOn] = useState(isFinderPage);
+  const [isSearchOn, setIsSearchOn] = useState(!!isFinderPage);
   useEffect(() => {
     const isMyFeed = router?.pathname === '/my-feed';
     if (getShouldRedirect(isMyFeed, !!user)) {

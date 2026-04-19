@@ -8,6 +8,11 @@ import {
   ModalPropsContext,
   ModalSize,
 } from '../../../modals/common/types';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../typography/Typography';
 import { FollowingUserList } from '../components/FollowingUserList';
 import { FollowingSourceList } from '../components/FollowingSourceList';
 import { SourceType } from '../../../../graphql/sources';
@@ -15,6 +20,7 @@ import { SearchPanelSourceSuggestions } from '../../../search/SearchPanel/Search
 import { SearchPanelUserSuggestions } from '../../../search/SearchPanel/SearchPanelUserSuggestions';
 import type { SearchPanelContextValue } from '../../../search/SearchPanel/SearchPanelContext';
 import { SearchPanelContext } from '../../../search/SearchPanel/SearchPanelContext';
+import type { SearchProviderEnum } from '../../../../graphql/search';
 import { defaultSearchProvider, providerToLabelTextMap } from '../../../search';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -34,9 +40,17 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const [activeView, setActiveView] = useState<string>(() => tabs[0]);
+  const [activeView, setActiveViewState] = useState<string>(() => tabs[0]);
 
-  const [state, setState] = useState(() => {
+  type SearchPanelState = {
+    provider: SearchProviderEnum | undefined;
+    query: string;
+    isActive: boolean;
+    providerText: string | undefined;
+    providerIcon: ReactElement | undefined;
+  };
+
+  const [state, setState] = useState<SearchPanelState>(() => {
     return {
       provider: undefined,
       query: '',
@@ -110,6 +124,16 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             });
           }}
         />
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Callout}
+        >
+          Following sources, squads, and users is a great way to tell the system
+          where you want your content to come from. It&apos;s a strong starting
+          signal for your feed, and as you engage with content over time, its
+          weight gradually decreases in favor of stronger signals based on your
+          actual activity.
+        </Typography>
         {searchPanel.query?.length ? (
           <>
             <SearchPanelSourceSuggestions title="Sources" showFollow />
@@ -120,7 +144,11 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             value={{
               tabs,
               activeView,
-              setActiveView,
+              setActiveView: (view) => {
+                if (view !== undefined) {
+                  setActiveViewState(view);
+                }
+              },
               onRequestClose: noop,
               kind: ModalKind.FlexibleCenter,
               size: ModalSize.Medium,

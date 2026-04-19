@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
@@ -18,16 +19,39 @@ import {
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
+  appStoreUrl,
   downloadBrowserExtension,
-  mobileAppUrl,
+  playStoreUrl,
   webappUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import { UserExperienceLevel } from '@dailydotdev/shared/src/lib/user';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import {
+  LogEvent,
+  TargetType,
+  TargetId,
+  Origin,
+  NotificationPromptSource,
+} from '@dailydotdev/shared/src/lib/log';
+import { FunnelEventName } from '@dailydotdev/shared/src/features/onboarding/types/funnelEvents';
+import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
+import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
+import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
+import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons/MiniClose';
+import { PhoneIcon } from '@dailydotdev/shared/src/components/icons/Phone';
+import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
+import { EditTag } from '@dailydotdev/shared/src/components/onboarding/EditTag';
+import { REQUIRED_TAGS_THRESHOLD } from '@dailydotdev/shared/src/components/onboarding/common';
+import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import {
+  useViewSize,
+  ViewSize,
+  useActions,
+} from '@dailydotdev/shared/src/hooks';
 
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
-import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
 import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
@@ -37,16 +61,17 @@ import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
-import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { useRouter } from 'next/router';
 import {
   requestGitHubProfileTags,
   requestOnboardingProfileTags,
 } from '@dailydotdev/shared/src/graphql/onboardingProfileTags';
-import { useActions } from '@dailydotdev/shared/src/hooks';
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
@@ -54,9 +79,13 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { UPDATE_USER_PROFILE_MUTATION } from '@dailydotdev/shared/src/graphql/users';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { redirectToApp } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
+import { usePushNotificationMutation } from '@dailydotdev/shared/src/hooks/notifications/usePushNotificationMutation';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { FooterLinks } from '@dailydotdev/shared/src/components/footer/FooterLinks';
+import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
+import { OnboardingChooserGrid } from './OnboardingChooserGrid';
 
 type RisingTag = {
   label: string;
@@ -132,10 +161,11 @@ export type OnboardingStep =
   | 'chooser'
   | 'auth'
   | 'importing'
+  | 'tags'
   | 'extension'
   | 'complete';
 
-type GithubImportPhase =
+type ImportPhase =
   | 'idle'
   | 'running'
   | 'awaitingSeniority'
@@ -143,13 +173,13 @@ type GithubImportPhase =
   | 'finishing'
   | 'complete';
 type ImportFlowSource = 'github' | 'ai';
-type GithubImportBodyPhase = 'checklist' | 'seniority' | 'default';
+type ImportBodyPhase = 'checklist' | 'seniority' | 'default';
 
 const AI_IMPORT_STEPS = [
   { label: 'Analyzing your profile', threshold: 12 },
-  { label: 'Matching interests', threshold: 30 },
-  { label: 'Mapping your stack', threshold: 46 },
-  { label: 'Inferring seniority', threshold: 68 },
+  { label: 'Matching interests', threshold: 28 },
+  { label: 'Mapping your stack', threshold: 48 },
+  { label: 'Inferring seniority', threshold: 78 },
   { label: 'Building your feed', threshold: 95 },
 ];
 
@@ -180,23 +210,47 @@ const ONBOARDING_EXTENSION_SEEN_KEY = 'onboarding:extension_seen';
 
 const GITHUB_IMPORT_STEPS = [
   { label: 'Connecting account', threshold: 12 },
-  { label: 'Scanning repositories', threshold: 30 },
-  { label: 'Matching interests', threshold: 46 },
-  { label: 'Inferring seniority', threshold: 68 },
-  { label: 'Building your feed', threshold: 96 },
+  { label: 'Scanning repositories', threshold: 28 },
+  { label: 'Matching interests', threshold: 48 },
+  { label: 'Inferring seniority', threshold: 78 },
+  { label: 'Building your feed', threshold: 95 },
 ];
 
-const IMPORT_ANIMATION_MS = 3500;
+const IMPORT_ANIMATION_MS = 4000;
 const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { showLogin, isLoggedIn, isAuthReady } = useAuthContext();
+  const { isLoggedIn, isAuthReady, isAndroidApp, user, loginState } =
+    useAuthContext();
+  const [isAuthenticating, setIsAuthenticating] = useState(
+    !!loginState?.isLogin,
+  );
   const { applyThemeMode } = useSettingsContext();
+  const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
   const [step, setStep] = useState<OnboardingStep>('hero');
+  const { onEnablePush } = usePushNotificationMutation();
+  const { feedSettings } = useFeedSettings();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const isNativeApp = isIOSNative() || !!isAndroidApp;
+  const mobileStoreUrl = useMemo(() => {
+    if (isIOS()) {
+      return appStoreUrl;
+    }
+    if (
+      typeof navigator !== 'undefined' &&
+      /android/i.test(navigator.userAgent)
+    ) {
+      return playStoreUrl;
+    }
+    return null;
+  }, []);
+  const showExtensionCta = isLaptop && !isNativeApp;
+  const showMobileAppCta = !isNativeApp;
+  const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
     tagsReady,
@@ -215,24 +269,23 @@ export const OnboardingV2 = (): ReactElement => {
     false,
   );
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
+  const [isLoginFlow, setIsLoginFlow] = useState(false);
+  const [acceptedMarketing, setAcceptedMarketing] = useState(true);
   const [importFlowSource, setImportFlowSource] =
     useState<ImportFlowSource>('github');
-  const [githubImportPhase, setGithubImportPhase] =
-    useState<GithubImportPhase>('idle');
-  const [githubImportProgress, setGithubImportProgress] = useState(0);
+  const [importPhase, setImportPhase] = useState<ImportPhase>('idle');
+  const [importProgress, setImportProgress] = useState(0);
   const [selectedExperienceLevel, setSelectedExperienceLevel] = useState<
     keyof typeof UserExperienceLevel | null
   >(null);
-  const [githubImportBodyHeight, setGithubImportBodyHeight] = useState<
-    number | null
-  >(null);
-  const [githubImportExiting, setGithubImportExiting] = useState(false);
+  const [importBodyHeight, setImportBodyHeight] = useState<number | null>(null);
+  const [importExiting, setImportExiting] = useState(false);
   const [signupContext, setSignupContext] = usePersistentContext<
     'github' | 'ai' | null
   >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai']);
   const pageRef = useRef<HTMLDivElement>(null);
-  const githubResumeTimeoutRef = useRef<number | null>(null);
-  const githubImportBodyContentRef = useRef<HTMLDivElement>(null);
+  const importTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const importBodyContentRef = useRef<HTMLDivElement>(null);
   const authFormRef = useRef<HTMLFormElement>(
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
@@ -250,31 +303,54 @@ export const OnboardingV2 = (): ReactElement => {
     [setSignupContext],
   );
 
-  const clearGithubResumeTimeout = useCallback(() => {
-    if (githubResumeTimeoutRef.current === null) {
-      return;
-    }
-    window.clearTimeout(githubResumeTimeoutRef.current);
-    githubResumeTimeoutRef.current = null;
+  const clearImportTimers = useCallback(() => {
+    importTimersRef.current.forEach(clearTimeout);
+    importTimersRef.current = [];
   }, []);
+
+  const trackTimer = useCallback((fn: () => void, delay: number) => {
+    const id = setTimeout(fn, delay);
+    importTimersRef.current.push(id);
+    return id;
+  }, []);
+
+  const { mutateAsync: mutateGithubTags, isPending: isGithubTagsPending } =
+    useMutation({
+      mutationFn: requestGitHubProfileTags,
+    });
+  const { mutateAsync: mutateAiTags, isPending: isAiTagsPending } = useMutation(
+    {
+      mutationFn: (prompt: string) => requestOnboardingProfileTags(prompt),
+    },
+  );
+
+  const isImporting = isGithubTagsPending || isAiTagsPending;
 
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
-      clearGithubResumeTimeout();
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.ProfileImport,
+        target_id: source === 'github' ? TargetId.GitHub : TargetId.AI,
+      });
+      clearImportTimers();
 
       setImportFlowSource(source);
       setSelectedExperienceLevel(null);
-      setGithubImportProgress(0);
-      setGithubImportPhase('running');
+      setImportProgress(0);
+      setImportPhase('running');
       setStep('importing');
 
       const apiPromise =
-        source === 'github'
-          ? requestGitHubProfileTags()
-          : requestOnboardingProfileTags(aiPrompt);
+        source === 'github' ? mutateGithubTags() : mutateAiTags(aiPrompt);
 
-      // Animate progress bar to 65% via CSS transition
-      requestAnimationFrame(() => setGithubImportProgress(65));
+      // Step progress through thresholds that complete during import
+      const steps = source === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS;
+      const preSteps = steps.filter((s) => s.threshold < 65);
+      const stepDelay = IMPORT_ANIMATION_MS / (preSteps.length + 1);
+      preSteps.forEach((s, i) => {
+        trackTimer(() => setImportProgress(s.threshold), stepDelay * (i + 1));
+      });
 
       // Wait for both API response AND minimum animation time
       const [apiResult] = await Promise.allSettled([
@@ -287,13 +363,42 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
       }
 
-      setGithubImportProgress(68);
-      setGithubImportPhase('awaitingSeniority');
+      const hasNoTags =
+        apiResult.status !== 'fulfilled' || !apiResult.value?.length;
+
+      if (hasNoTags) {
+        logEvent({
+          event_name: LogEvent.Impression,
+          target_type: TargetType.TagsFallback,
+          extra: JSON.stringify({ source }),
+        });
+        setAiPrompt('');
+        setSignupContext(null);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: { ...router.query, step: 'tags' },
+        });
+        setStep('tags');
+        return;
+      }
+
+      setImportProgress(68);
+      setImportPhase('awaitingSeniority');
     },
-    [clearGithubResumeTimeout, aiPrompt, setAiPrompt, setSignupContext],
+    [
+      logEvent,
+      clearImportTimers,
+      aiPrompt,
+      trackTimer,
+      setAiPrompt,
+      setSignupContext,
+      router,
+      mutateGithubTags,
+      mutateAiTags,
+    ],
   );
 
-  const startGithubImportFlow = useCallback(() => {
+  const startImportFlowGithub = useCallback(() => {
     startImportFlow('github');
   }, [startImportFlow]);
 
@@ -308,15 +413,15 @@ export const OnboardingV2 = (): ReactElement => {
     setStep('auth');
   }, [setSignupContext]);
 
-  const closeGithubImportFlow = useCallback(() => {
-    clearGithubResumeTimeout();
+  const closeImportFlow = useCallback(() => {
+    clearImportTimers();
     setStep('hero');
-    setGithubImportExiting(false);
+    setImportExiting(false);
     setSelectedExperienceLevel(null);
-    setGithubImportProgress(0);
-    setGithubImportPhase('idle');
+    setImportProgress(0);
+    setImportPhase('idle');
     setImportFlowSource('github');
-  }, [clearGithubResumeTimeout]);
+  }, [clearImportTimers]);
 
   const startAiProcessing = useCallback(() => {
     startImportFlow('ai');
@@ -324,18 +429,26 @@ export const OnboardingV2 = (): ReactElement => {
 
   const handleExperienceLevelSelect = useCallback(
     async (level: keyof typeof UserExperienceLevel) => {
-      if (githubImportPhase !== 'awaitingSeniority') {
+      if (importPhase !== 'awaitingSeniority') {
         return;
       }
 
-      clearGithubResumeTimeout();
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.ExperienceLevel,
+        target_id: level,
+      });
+      clearImportTimers();
       setSelectedExperienceLevel(level);
-      setGithubImportProgress((prev) => Math.max(prev, 72));
-      setGithubImportPhase('confirmingSeniority');
+      setImportProgress((prev) => Math.max(prev, 80));
+      setImportPhase('confirmingSeniority');
 
       await gqlClient
         .request(UPDATE_USER_PROFILE_MUTATION, {
-          data: { experienceLevel: UserExperienceLevel[level] },
+          data: {
+            experienceLevel: UserExperienceLevel[level],
+            acceptedMarketing,
+          },
         })
         .catch(() => undefined);
 
@@ -343,16 +456,49 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction(ActionType.EditTag);
       completeAction(ActionType.ContentTypes);
 
-      router.replace({
-        pathname: `${webappUrl}onboarding`,
-        query: { step: 'complete' },
+      logEvent({
+        event_name: FunnelEventName.CompleteFunnel,
+        extra: JSON.stringify({
+          funnel_id: 'onboarding_github_ai',
+          funnel_version: 'v1',
+          session_id: 'unknown',
+          step_id: 'complete',
+          step_type: 'complete',
+        }),
       });
 
-      githubResumeTimeoutRef.current = window.setTimeout(() => {
-        setGithubImportPhase('finishing');
+      router.replace({
+        pathname: `${webappUrl}onboarding`,
+        query: { ...router.query, step: 'complete' },
+      });
+
+      trackTimer(() => {
+        setImportPhase('finishing');
+        trackTimer(() => {
+          setImportProgress(100);
+        }, 800);
+        trackTimer(() => {
+          setImportPhase('complete');
+          trackTimer(() => {
+            setImportExiting(true);
+            trackTimer(() => {
+              setImportExiting(false);
+              setStep(showExtensionCta ? 'extension' : 'complete');
+            }, 350);
+          }, 600);
+        }, FINISHING_ANIMATION_MS);
       }, 420);
     },
-    [clearGithubResumeTimeout, githubImportPhase, completeAction, router],
+    [
+      importPhase,
+      logEvent,
+      clearImportTimers,
+      acceptedMarketing,
+      completeAction,
+      router,
+      trackTimer,
+      showExtensionCta,
+    ],
   );
 
   useEffect(() => {
@@ -365,8 +511,15 @@ export const OnboardingV2 = (): ReactElement => {
   useEffect(() => {
     if (
       !isAuthReady ||
+      isAuthenticating ||
       (
-        ['auth', 'importing', 'extension', 'complete'] as OnboardingStep[]
+        [
+          'auth',
+          'importing',
+          'tags',
+          'extension',
+          'complete',
+        ] as OnboardingStep[]
       ).includes(step)
     ) {
       return;
@@ -374,13 +527,32 @@ export const OnboardingV2 = (): ReactElement => {
 
     const urlStep = router.query.step as string | undefined;
 
+    if (urlStep === 'tags') {
+      if (!isLoggedIn) {
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
+        return;
+      }
+      setStep('tags');
+      return;
+    }
+
     if (urlStep === 'complete') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
 
-      if (extensionSeen) {
+      if (extensionSeen || !showExtensionCta) {
         setStep('complete');
       } else {
         setStep('extension');
@@ -393,15 +565,20 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (flow === 'github') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
-      startGithubImportFlow();
+      startImportFlowGithub();
       return;
     }
 
     if (isLoggedIn && signupContext === 'github') {
-      startGithubImportFlow();
+      startImportFlowGithub();
       return;
     }
 
@@ -425,6 +602,7 @@ export const OnboardingV2 = (): ReactElement => {
     }
   }, [
     isAuthReady,
+    isAuthenticating,
     isLoggedIn,
     isOnboardingActionsReady,
     isOnboardingComplete,
@@ -434,43 +612,16 @@ export const OnboardingV2 = (): ReactElement => {
     step,
     router,
     setSignupContext,
-    startGithubImportFlow,
+    startImportFlowGithub,
     startAiProcessing,
+    showExtensionCta,
   ]);
 
   useEffect(() => {
     return () => {
-      clearGithubResumeTimeout();
+      clearImportTimers();
     };
-  }, [clearGithubResumeTimeout]);
-
-  useEffect(() => {
-    if (githubImportPhase !== 'finishing') {
-      return undefined;
-    }
-
-    setGithubImportProgress(100);
-
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const track = (fn: () => void, delay: number) => {
-      const id = setTimeout(fn, delay);
-      timers.push(id);
-      return id;
-    };
-
-    track(() => {
-      setGithubImportPhase('complete');
-      track(() => {
-        setGithubImportExiting(true);
-        track(() => {
-          setGithubImportExiting(false);
-          setStep('extension');
-        }, 350);
-      }, 600);
-    }, FINISHING_ANIMATION_MS);
-
-    return () => timers.forEach(clearTimeout);
-  }, [githubImportPhase]);
+  }, [clearImportTimers]);
 
   const dismissExtensionPromo = useCallback(() => {
     setExtensionSeen(true);
@@ -478,75 +629,78 @@ export const OnboardingV2 = (): ReactElement => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setExtensionSeen]);
   const closeSignupChooser = useCallback(() => {
+    setSignupContext(null);
     setStep('hero');
-  }, []);
+  }, [setSignupContext]);
   const closeAuthSignup = useCallback(() => {
+    setAutoTriggerProvider(undefined);
+    setSignupContext(null);
+    setIsLoginFlow(false);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
-  }, []);
-  const openLogin = useCallback(() => {
-    showLogin({
-      trigger: AuthTriggers.MainButton,
-      options: { isLogin: true },
-    });
-  }, [showLogin]);
+    setIsAuthenticating(false);
+  }, [setSignupContext]);
   const openSignupAuth = useCallback(() => {
+    if (isLoggedIn) {
+      if (signupContext === 'ai' && aiPrompt?.trim()) {
+        startAiProcessing();
+      }
+      return;
+    }
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setStep('auth');
-  }, []);
+  }, [isLoggedIn, signupContext, aiPrompt, startAiProcessing]);
   const isAiSetupContext = signupContext === 'ai';
   const canStartAiFlow = aiPrompt?.trim().length > 0;
-  const isAwaitingSeniorityInput = githubImportPhase === 'awaitingSeniority';
+  const isAwaitingSeniorityInput = importPhase === 'awaitingSeniority';
   const importSteps = useMemo(
     () =>
       importFlowSource === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS,
     [importFlowSource],
   );
   const currentImportStep = useMemo(() => {
-    if (githubImportPhase === 'awaitingSeniority') {
+    if (importPhase === 'awaitingSeniority') {
       return 'Waiting for your seniority level';
     }
-    if (githubImportPhase === 'confirmingSeniority') {
+    if (importPhase === 'confirmingSeniority') {
       return 'Applying your seniority level';
     }
-    if (githubImportPhase === 'complete') {
+    if (importPhase === 'complete') {
       return 'Your feed is ready';
     }
 
-    const upcomingStep = importSteps.find(
-      (s) => githubImportProgress < s.threshold,
-    );
+    const upcomingStep = importSteps.find((s) => importProgress < s.threshold);
     return upcomingStep?.label ?? 'Building personalized feed';
-  }, [githubImportPhase, githubImportProgress, importSteps]);
-  const githubImportBodyPhase = useMemo<GithubImportBodyPhase>(() => {
+  }, [importPhase, importProgress, importSteps]);
+  const importBodyPhase = useMemo<ImportBodyPhase>(() => {
     if (
-      githubImportPhase === 'running' ||
-      githubImportPhase === 'finishing' ||
-      githubImportPhase === 'confirmingSeniority' ||
-      githubImportPhase === 'complete'
+      importPhase === 'running' ||
+      importPhase === 'finishing' ||
+      importPhase === 'confirmingSeniority' ||
+      importPhase === 'complete'
     ) {
       return 'checklist';
     }
-    if (githubImportPhase === 'awaitingSeniority') {
+    if (importPhase === 'awaitingSeniority') {
       return 'seniority';
     }
 
     return 'default';
-  }, [githubImportPhase]);
+  }, [importPhase]);
 
   useEffect(() => {
-    if (githubImportBodyPhase === 'default') {
-      setGithubImportBodyHeight(null);
+    if (importBodyPhase === 'default') {
+      setImportBodyHeight(null);
       return undefined;
     }
 
-    const contentNode = githubImportBodyContentRef.current;
+    const contentNode = importBodyContentRef.current;
     if (!contentNode) {
       return undefined;
     }
 
     const updateHeight = () => {
-      setGithubImportBodyHeight(contentNode.getBoundingClientRect().height);
+      setImportBodyHeight(contentNode.getBoundingClientRect().height);
     };
 
     updateHeight();
@@ -559,7 +713,7 @@ export const OnboardingV2 = (): ReactElement => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [githubImportBodyPhase]);
+  }, [importBodyPhase]);
 
   return (
     <div
@@ -579,6 +733,7 @@ export const OnboardingV2 = (): ReactElement => {
             <button
               type="button"
               onClick={() => {
+                setIsLoginFlow(true);
                 setAuthDisplay(AuthDisplay.Default);
                 setStep('auth');
               }}
@@ -642,22 +797,28 @@ export const OnboardingV2 = (): ReactElement => {
             position={LogoPosition.Relative}
             className="!left-0 !top-0 !mt-0 !translate-x-0"
           />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={openLogin}
-              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
-            >
-              Log in
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('chooser')}
-              className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
-            >
-              Sign up
-            </button>
-          </div>
+          {!isLoggedIn && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoginFlow(true);
+                  setAuthDisplay(AuthDisplay.Default);
+                  setStep('auth');
+                }}
+                className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep('chooser')}
+                className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
+              >
+                Sign up
+              </button>
+            </div>
+          )}
         </div>
         {/* Dot grid — shifts subtly with scroll */}
         <div
@@ -740,10 +901,12 @@ export const OnboardingV2 = (): ReactElement => {
             style={{ transitionDelay: '200ms' }}
           >
             <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
-              <span className="text-text-primary">Join top dev community.</span>
+              <span className="text-text-primary">
+                Staying updated shouldn&apos;t be hard
+              </span>
               <br />
               <span className="onb-gradient-text bg-clip-text text-transparent">
-                Build your feed identity.
+                Get your personalized dev feed
               </span>
             </h1>
           </div>
@@ -760,8 +923,9 @@ export const OnboardingV2 = (): ReactElement => {
               className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
               style={{ lineHeight: '1.65' }}
             >
-              Tap into live signals from the global dev community, then lock
-              your feed to your stack with GitHub import or AI setup.
+              Millions of developers rely on daily.dev for tech news, tools, and
+              discussions that actually matter. Tailored to your stack from day
+              one.
             </p>
           </div>
 
@@ -777,17 +941,26 @@ export const OnboardingV2 = (): ReactElement => {
               <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
               <button
                 type="button"
+                disabled={isImporting}
                 onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.HeroCta,
+                    target_id: TargetId.GitHub,
+                  });
                   if (isLoggedIn) {
-                    startGithubImportFlow();
+                    startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
                   }
                 }}
-                className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
+                className={classNames(
+                  'onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto',
+                  isImporting && 'opacity-60 cursor-not-allowed',
+                )}
               >
                 <GitHubIcon secondary size={IconSize.XSmall} />
-                Continue with GitHub
+                One-click setup
                 <svg
                   width="14"
                   height="14"
@@ -806,7 +979,14 @@ export const OnboardingV2 = (): ReactElement => {
               </button>
               <button
                 type="button"
-                onClick={() => openSignup('ai')}
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.HeroCta,
+                    target_id: TargetId.AI,
+                  });
+                  openSignup('ai');
+                }}
                 className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
               >
                 <MagicIcon
@@ -988,81 +1168,96 @@ export const OnboardingV2 = (): ReactElement => {
               className="onb-ready-reveal flex flex-col items-stretch gap-3 tablet:flex-row tablet:flex-wrap tablet:items-center tablet:justify-center"
               style={{ animationDelay: '380ms' }}
             >
-              {/* Install extension */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  )
-                }
-                className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-cabbage-default"
+              {/* Install extension — desktop only */}
+              {showExtensionCta && (
+                <a
+                  href={downloadBrowserExtension}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    logEvent({
+                      event_name: LogEvent.Click,
+                      target_type: TargetType.OnboardingComplete,
+                      target_id: TargetId.InstallExtension,
+                    })
+                  }
+                  className="hover:border-accent-cabbage-default/40 hover:bg-accent-cabbage-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
                 >
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Install extension
-                </span>
-              </button>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0 text-accent-cabbage-default"
+                  >
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span className="text-text-primary typo-callout">
+                    Install extension
+                  </span>
+                </a>
+              )}
 
-              {/* Get mobile app */}
-              <button
-                type="button"
-                onClick={() =>
-                  window.open(mobileAppUrl, '_blank', 'noopener,noreferrer')
-                }
-                className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="shrink-0 text-accent-onion-default"
-                >
-                  <rect
-                    x="7"
-                    y="2"
-                    width="10"
-                    height="20"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                  />
-                  <line
-                    x1="10"
-                    y1="19"
-                    x2="14"
-                    y2="19"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="text-text-primary typo-callout">
-                  Get mobile app
-                </span>
-              </button>
+              {/* Get mobile app — hide if already in native app */}
+              {showMobileAppCta &&
+                (mobileStoreUrl ? (
+                  <a
+                    href={mobileStoreUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() =>
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.OnboardingComplete,
+                        target_id: TargetId.MobileApp,
+                      })
+                    }
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
+                  >
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
+                    />
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.OnboardingComplete,
+                        target_id: TargetId.MobileApp,
+                      });
+                      setShowMobileAppPopup(true);
+                    }}
+                    className="hover:border-accent-onion-default/40 hover:bg-accent-onion-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
+                  >
+                    <PhoneIcon
+                      size={IconSize.Size16}
+                      className="shrink-0 text-accent-onion-default"
+                    />
+                    <span className="text-text-primary typo-callout">
+                      Get mobile app
+                    </span>
+                  </button>
+                ))}
 
               {/* Enable notifications */}
               <button
                 type="button"
                 onClick={() => {
-                  if ('Notification' in window) {
-                    Notification.requestPermission();
-                  }
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.OnboardingComplete,
+                    target_id: TargetId.EnableNotifications,
+                  });
+                  onEnablePush(NotificationPromptSource.NotificationsPage);
                 }}
                 className="hover:border-accent-cheese-default/40 hover:bg-accent-cheese-default/10 group flex items-center gap-2.5 rounded-14 border border-white/[0.10] bg-white/[0.06] px-5 py-3 transition-all duration-200"
               >
@@ -1087,20 +1282,21 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Go to feed */}
             <button
               type="button"
-              onClick={() => router.replace(webappUrl)}
+              onClick={() => {
+                logEvent({
+                  event_name: LogEvent.Click,
+                  target_type: TargetType.OnboardingComplete,
+                  target_id: TargetId.GoToFeed,
+                });
+                redirectToApp(router);
+              }}
               className="onb-ready-reveal mt-6 flex items-center gap-2 rounded-12 bg-white/[0.08] px-5 py-2.5 text-text-secondary transition-all duration-200 typo-callout hover:bg-white/[0.14] hover:text-text-primary"
               style={{ animationDelay: '520ms' }}
             >
-              Go to my feed
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M12 5l7 7-7 7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              {router.query[AFTER_AUTH_PARAM]
+                ? 'Back where you left off'
+                : 'Go to my feed'}
+              <ArrowIcon size={IconSize.Size16} className="rotate-90" />
             </button>
           </div>
         </div>
@@ -1121,17 +1317,74 @@ export const OnboardingV2 = (): ReactElement => {
         <SearchProvider>
           <FeedLayoutProvider>
             <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-              <MainFeedLayout feedName="popular" isSearchOn={false}>
-                {step !== 'complete' && (
-                  <div className="relative z-1 mx-auto mt-44 flex w-full max-w-[48rem] justify-center px-5 pb-48 mobileL:mt-48 mobileL:px-6 mobileL:pb-52 tablet:mt-14 tablet:pb-8">
-                    <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
-                  </div>
-                )}
-              </MainFeedLayout>
+              <MainFeedLayout feedName="popular" isSearchOn={false} />
             </ActiveFeedNameContext.Provider>
           </FeedLayoutProvider>
         </SearchProvider>
+        {/* ── Inline chooser panel at feed end ── */}
+        {step === 'hero' && (
+          <div className="relative -mt-48 tablet:-mt-64">
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 h-full"
+              style={{
+                background:
+                  'linear-gradient(to bottom, transparent 0%, var(--theme-background-default) 25%, var(--theme-background-default) 100%)',
+              }}
+              aria-hidden
+            />
+            <div className="relative mx-auto w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:px-8">
+              <div className="mb-6 text-center tablet:mb-8">
+                <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
+                  You just explored the global feed.
+                </p>
+                <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
+                  Now build a feed that is truly yours
+                </h3>
+              </div>
+
+              <OnboardingChooserGrid
+                aiPrompt={aiPrompt}
+                onAiPromptChange={setAiPrompt}
+                canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
+                origin={Origin.OnboardingFeedEnd}
+                onGithubClick={() => {
+                  if (isLoggedIn) {
+                    startImportFlowGithub();
+                  } else {
+                    initiateGithubAuth();
+                  }
+                }}
+                onAiSubmit={() => {
+                  if (isLoggedIn) {
+                    startAiProcessing();
+                  } else {
+                    setSignupContext('ai');
+                    openSignupAuth();
+                  }
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
+
+      {step !== 'complete' && (
+        <div className="relative z-1 mx-auto mt-4 flex w-full max-w-[48rem] justify-center px-5 pb-4 mobileL:px-6">
+          <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
+        </div>
+      )}
+
+      {/* ── Persistent backdrop across prompt / chooser / auth ── */}
+      {(step === 'prompt' ||
+        step === 'chooser' ||
+        step === 'auth' ||
+        isAuthenticating) && (
+        <div
+          className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
+          aria-hidden
+        />
+      )}
 
       {/* ── Header signup chooser popup ── */}
       {step === 'chooser' && (
@@ -1142,7 +1395,7 @@ export const OnboardingV2 = (): ReactElement => {
           aria-label="Choose personalization setup"
         >
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            className="absolute inset-0"
             onClick={closeSignupChooser}
             role="presentation"
           />
@@ -1154,349 +1407,50 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
               <div className="mb-6 text-center tablet:mb-8">
                 <p className="mb-2 text-text-secondary typo-body">
-                  Stay up to date, level up with the community, and unlock more.
+                  Millions of developers already use daily.dev.
                 </p>
                 <h3 className="font-bold text-text-primary typo-title2">
-                  Build your developer identity
+                  Now let&apos;s set up yours.
                 </h3>
               </div>
 
-              <div className="relative z-1 grid gap-4 tablet:grid-cols-2 tablet:items-stretch tablet:gap-5">
-                {/* ── Path A: GitHub ── */}
-                <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
-                  {/* Animated orb — full-width energy field */}
-                  <div
-                    className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
-                    style={{ width: 'calc(100% + 3rem)' }}
-                  >
-                    <div
-                      className="pointer-events-none absolute inset-0"
-                      style={{
-                        background:
-                          'radial-gradient(ellipse at 50% 0%, var(--theme-accent-cabbage-default) 0%, transparent 65%)',
-                        opacity: 0.22,
-                      }}
-                    />
-                    <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
-                    <svg
-                      className="ghub-ring pointer-events-none absolute"
-                      style={{ width: '11rem', height: '11rem' }}
-                      viewBox="0 0 176 176"
-                    >
-                      <circle
-                        cx="88"
-                        cy="88"
-                        r="84"
-                        fill="none"
-                        stroke="var(--theme-accent-cabbage-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="6 10"
-                        opacity="0.18"
-                      />
-                    </svg>
-                    <svg
-                      className="ghub-ring-reverse pointer-events-none absolute h-24 w-24"
-                      viewBox="0 0 96 96"
-                    >
-                      <circle
-                        cx="48"
-                        cy="48"
-                        r="44"
-                        fill="none"
-                        stroke="var(--theme-accent-cabbage-default)"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 6"
-                        opacity="0.35"
-                      />
-                    </svg>
-                    <svg
-                      className="onb-ring-slow pointer-events-none absolute h-16 w-16"
-                      viewBox="0 0 64 64"
-                    >
-                      <circle
-                        cx="32"
-                        cy="32"
-                        r="28"
-                        fill="none"
-                        stroke="var(--theme-accent-cabbage-default)"
-                        strokeWidth="1"
-                        strokeDasharray="3 5"
-                        opacity="0.3"
-                      />
-                    </svg>
-                    {[
-                      {
-                        px: '-6rem',
-                        py: '-3.5rem',
-                        dur: '3.0s',
-                        delay: '0s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '5.5rem',
-                        py: '-4rem',
-                        dur: '3.4s',
-                        delay: '0.5s',
-                        color: 'bg-accent-water-default',
-                      },
-                      {
-                        px: '-5rem',
-                        py: '3.5rem',
-                        dur: '3.2s',
-                        delay: '1.0s',
-                        color: 'bg-accent-cabbage-default',
-                      },
-                      {
-                        px: '6rem',
-                        py: '3rem',
-                        dur: '3.6s',
-                        delay: '1.5s',
-                        color: 'bg-accent-onion-default',
-                      },
-                      {
-                        px: '0.5rem',
-                        py: '-5rem',
-                        dur: '2.8s',
-                        delay: '0.7s',
-                        color: 'bg-accent-cheese-default',
-                      },
-                      {
-                        px: '-6.5rem',
-                        py: '0.5rem',
-                        dur: '3.1s',
-                        delay: '1.2s',
-                        color: 'bg-accent-water-default',
-                      },
-                    ].map((p) => (
-                      <span
-                        key={`modal-panel-ghub-${p.delay}`}
-                        className={classNames(
-                          'ghub-particle pointer-events-none absolute h-2 w-2 rounded-full',
-                          p.color,
-                        )}
-                        style={
-                          {
-                            '--px': p.px,
-                            '--py': p.py,
-                            '--dur': p.dur,
-                            '--delay': p.delay,
-                            animationDelay: p.delay,
-                          } as React.CSSProperties
-                        }
-                      />
-                    ))}
-                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <GitHubIcon
-                        secondary
-                        className="h-[26px] w-[26px] text-text-primary"
-                      />
-                    </div>
-                  </div>
-
-                  <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
-                    One-click setup
-                  </h4>
-                  <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                    Connect GitHub and let our AI do the rest.
-                  </p>
-
-                  <div className="mb-5 flex w-full flex-col items-center gap-3">
-                    {[
-                      {
-                        text: 'We spot your stack from GitHub',
-                        icon: 'stack',
-                      },
-                      {
-                        text: 'AI matches your skills to topics',
-                        icon: 'ai',
-                      },
-                      {
-                        text: 'Your feed is ready in seconds',
-                        icon: 'feed',
-                      },
-                    ].map(({ text, icon }) => (
-                      <div
-                        key={text}
-                        className="flex w-full max-w-[15.5rem] items-center gap-2"
-                      >
-                        <span
-                          className={classNames(
-                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
-                            icon === 'stack' &&
-                              'bg-accent-avocado-default/20 text-accent-avocado-default',
-                            icon === 'ai' &&
-                              'bg-accent-cheese-default/20 text-accent-cheese-default',
-                            icon === 'feed' &&
-                              'bg-accent-water-default/20 text-accent-water-default',
-                          )}
-                        >
-                          {icon === 'stack' && (
-                            <TerminalIcon size={IconSize.Size16} secondary />
-                          )}
-                          {icon === 'ai' && (
-                            <MagicIcon size={IconSize.Size16} secondary />
-                          )}
-                          {icon === 'feed' && (
-                            <NewTabIcon size={IconSize.Size16} secondary />
-                          )}
-                        </span>
-                        <span className="text-left text-text-primary typo-footnote">
-                          {text}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
-
-                  <div className="relative mt-auto w-full pt-4">
-                    <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setStep('hero');
-                        if (isLoggedIn) {
-                          startGithubImportFlow();
-                        } else {
-                          initiateGithubAuth();
-                        }
-                      }}
-                      className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
-                    >
-                      <GitHubIcon secondary size={IconSize.XSmall} />
-                      Continue with GitHub
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
-                      >
-                        <path
-                          d="M5 12h14M12 5l7 7-7 7"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <p className="mt-2.5 text-text-quaternary typo-caption2">
-                    Read-only access &middot; No special permissions
-                  </p>
-                </div>
-
-                {/* ── Path B: Manual ── */}
-                <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
-                  {/* Static icon zone */}
-                  <div
-                    className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
-                    style={{ width: 'calc(100% + 3rem)' }}
-                  >
-                    <div
-                      className="pointer-events-none absolute inset-0"
-                      style={{
-                        background:
-                          'radial-gradient(ellipse at 50% 0%, var(--theme-accent-onion-default) 0%, transparent 65%)',
-                        opacity: 0.22,
-                      }}
-                    />
-                    <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
-                      <MagicIcon
-                        secondary
-                        size={IconSize.Small}
-                        className="text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-body">
-                    Tell our AI about yourself
-                  </h4>
-                  <p className="mb-5 text-center text-text-tertiary typo-footnote">
-                    Describe your stack and let AI build your feed.
-                  </p>
-
-                  {/* Textarea */}
-                  <div className="onb-textarea-glow mb-3 w-full rounded-12 border border-white/[0.06] bg-white/[0.02] transition-all duration-300 focus-within:border-white/[0.18] focus-within:bg-white/[0.08] focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.14),0_12px_28px_rgba(0,0,0,0.3)] hover:border-white/[0.06] hover:bg-white/[0.02] hover:shadow-none">
-                    <textarea
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key !== 'Enter' || e.shiftKey) {
-                          return;
-                        }
-                        e.preventDefault();
-                        if (aiPrompt.trim()) {
-                          if (isLoggedIn) {
-                            setStep('hero');
-                            startAiProcessing();
-                          } else {
-                            openSignupAuth();
-                          }
-                        }
-                      }}
-                      rows={4}
-                      placeholder="I'm a frontend engineer working with React and TypeScript. Interested in system design, AI tooling..."
-                      className="min-h-[6.25rem] w-full resize-none bg-transparent px-3.5 pb-2 pt-3 text-text-primary transition-colors duration-200 typo-callout placeholder:text-text-quaternary focus:outline-none focus:placeholder:text-text-disabled"
-                    />
-                  </div>
-
-                  {/* Build feed CTA — disabled when no input */}
-                  <div className="relative mt-auto w-full pt-4">
-                    <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
-                    <button
-                      type="button"
-                      disabled={!canStartAiFlow}
-                      onClick={() => {
-                        if (isLoggedIn) {
-                          setStep('hero');
-                          startAiProcessing();
-                        } else {
-                          openSignupAuth();
-                        }
-                      }}
-                      className={classNames(
-                        'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-                        canStartAiFlow
-                          ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
-                          : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
-                      )}
-                    >
-                      <MagicIcon
-                        secondary
-                        size={IconSize.Size16}
-                        className="transition-transform duration-300 group-hover:translate-x-0.5"
-                      />
-                      Generate my feed with AI
-                    </button>
-                  </div>
-                  <p className="mt-2.5 text-text-quaternary typo-caption2">
-                    AI-powered &middot; instant personalization
-                  </p>
-                </div>
-              </div>
+              <OnboardingChooserGrid
+                aiPrompt={aiPrompt}
+                onAiPromptChange={setAiPrompt}
+                canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
+                origin={Origin.OnboardingModal}
+                onGithubClick={() => {
+                  setStep('hero');
+                  if (isLoggedIn) {
+                    startImportFlowGithub();
+                  } else {
+                    initiateGithubAuth();
+                  }
+                }}
+                onAiSubmit={() => {
+                  if (isLoggedIn) {
+                    setStep('hero');
+                    startAiProcessing();
+                  } else {
+                    setSignupContext('ai');
+                    openSignupAuth();
+                  }
+                }}
+              />
             </div>
           </div>
         </div>
       )}
 
       {/* ── Persistent backdrop during import→extension transition ── */}
-      {githubImportExiting && (
+      {importExiting && (
         <div
           className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
           aria-hidden
@@ -1504,7 +1458,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Auth Signup Overlay (providers: Google, GitHub, email) ── */}
-      {step === 'auth' && (
+      {(step === 'auth' || isAuthenticating) && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -1512,7 +1466,7 @@ export const OnboardingV2 = (): ReactElement => {
           aria-label="Create your account"
         >
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
+            className="absolute inset-0"
             onClick={closeAuthSignup}
             role="presentation"
           />
@@ -1525,14 +1479,7 @@ export const OnboardingV2 = (): ReactElement => {
                 className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
                 aria-label="Close"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <MiniCloseIcon size={IconSize.Size16} />
               </button>
             )}
 
@@ -1553,22 +1500,24 @@ export const OnboardingV2 = (): ReactElement => {
                 defaultDisplay={authDisplay}
                 forceDefaultDisplay
                 simplified
+                isLoginFlow={isLoginFlow}
                 autoTriggerProvider={autoTriggerProvider}
-                socialProviderScopes={
-                  signupContext === 'github'
-                    ? ['user:email', 'repo']
-                    : undefined
-                }
-                className={{ container: '!min-h-0' }}
+                acceptedMarketing={acceptedMarketing}
                 onAuthStateUpdate={(props: Partial<AuthProps>) => {
+                  if (props.isLoginFlow !== undefined) {
+                    setIsLoginFlow(props.isLoginFlow);
+                    setAuthDisplay(AuthDisplay.Default);
+                    return;
+                  }
                   if (props.defaultDisplay) {
                     setAuthDisplay(props.defaultDisplay);
                   }
                 }}
                 onSuccessfulRegistration={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   if (signupContext === 'github') {
-                    startGithubImportFlow();
+                    startImportFlowGithub();
                   } else if (signupContext === 'ai') {
                     startAiProcessing();
                   } else {
@@ -1577,10 +1526,57 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulLogin={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   closeAuthSignup();
                 }}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Tag Selection Fallback ── */}
+      {step === 'tags' && (
+        <div
+          className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select your tags"
+        >
+          <div className="bg-black/70 absolute inset-0 backdrop-blur-sm" />
+          <div className="relative z-1 flex max-h-[90dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-2xl tablet:rounded-24">
+            <EditTag
+              feedSettings={feedSettings}
+              userId={user?.id || ''}
+              headline="Pick tags that are relevant to you"
+              hidePreview
+            />
+            <button
+              type="button"
+              disabled={
+                (feedSettings?.includeTags?.length || 0) <
+                REQUIRED_TAGS_THRESHOLD
+              }
+              onClick={() => {
+                completeAction(ActionType.CompletedOnboarding);
+                completeAction(ActionType.EditTag);
+                completeAction(ActionType.ContentTypes);
+                router.replace({
+                  pathname: `${webappUrl}onboarding`,
+                  query: { ...router.query, step: 'complete' },
+                });
+                setStep(showExtensionCta ? 'extension' : 'complete');
+              }}
+              className="mx-auto mt-6 rounded-14 bg-white px-8 py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {(feedSettings?.includeTags?.length || 0) >=
+              REQUIRED_TAGS_THRESHOLD
+                ? 'Continue'
+                : `Select ${
+                    REQUIRED_TAGS_THRESHOLD -
+                    (feedSettings?.includeTags?.length || 0)
+                  } more tags`}
+            </button>
           </div>
         </div>
       )}
@@ -1606,14 +1602,7 @@ export const OnboardingV2 = (): ReactElement => {
               className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             <div className="flex w-full flex-col items-center px-5 pb-6 pt-7 tablet:px-6">
@@ -1658,7 +1647,7 @@ export const OnboardingV2 = (): ReactElement => {
                   [
                     'Zero clicks to your personalized feed',
                     'Catch trending tools & discussions early',
-                    'Trusted by 1M+ developers daily',
+                    'Top-rated on Chrome Web Store',
                   ] as const
                 ).map((label) => (
                   <div
@@ -1679,14 +1668,16 @@ export const OnboardingV2 = (): ReactElement => {
               </div>
 
               {/* CTA */}
-              <button
-                type="button"
+              <a
+                href={downloadBrowserExtension}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => {
-                  window.open(
-                    downloadBrowserExtension,
-                    '_blank',
-                    'noopener,noreferrer',
-                  );
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.ExtensionPromo,
+                    target_id: TargetId.Install,
+                  });
                   dismissExtensionPromo();
                 }}
                 className="mb-2 flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(163,230,53,0.22)]"
@@ -1705,11 +1696,18 @@ export const OnboardingV2 = (): ReactElement => {
                   <ChromeIcon aria-hidden size={IconSize.Size16} />
                 )}
                 Add to {isEdgeBrowser ? 'Edge' : 'Chrome'}
-              </button>
+              </a>
 
               <button
                 type="button"
-                onClick={dismissExtensionPromo}
+                onClick={() => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.ExtensionPromo,
+                    target_id: TargetId.Dismiss,
+                  });
+                  dismissExtensionPromo();
+                }}
                 className="mb-5 rounded-10 px-4 py-2 text-text-tertiary transition-all typo-callout hover:bg-white/[0.06] hover:text-text-secondary"
               >
                 I&apos;ll continue on web for now
@@ -1738,6 +1736,79 @@ export const OnboardingV2 = (): ReactElement => {
         </div>
       )}
 
+      {/* ── Mobile App Download Popup (desktop only) ── */}
+      {showMobileAppPopup && (
+        <div
+          className="fixed inset-0 z-modal flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Get the mobile app"
+        >
+          <div
+            className="bg-black/70 absolute inset-0 backdrop-blur-sm"
+            onClick={() => setShowMobileAppPopup(false)}
+            role="presentation"
+          />
+          <div className="relative z-1 flex w-full max-w-sm flex-col items-center rounded-24 border border-white/[0.08] bg-background-default p-6 shadow-[0_32px_90px_rgba(0,0,0,0.58)]">
+            <button
+              type="button"
+              onClick={() => setShowMobileAppPopup(false)}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
+              aria-label="Close"
+            >
+              <MiniCloseIcon size={IconSize.Size16} />
+            </button>
+
+            <PhoneIcon
+              size={IconSize.XLarge}
+              className="mb-4 text-accent-onion-default"
+            />
+
+            <h3 className="mb-2 text-center font-bold text-text-primary typo-title3">
+              Get daily.dev on mobile
+            </h3>
+            <p className="mb-6 text-center text-text-tertiary typo-callout">
+              Your personalized feed, anywhere.
+            </p>
+
+            <div className="flex w-full flex-col gap-3">
+              <a
+                href={appStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MobileAppDownload,
+                    target_id: TargetId.IOS,
+                  })
+                }
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 bg-white py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)]"
+              >
+                <AppleIcon size={IconSize.Size16} />
+                Download for iOS
+              </a>
+              <a
+                href={playStoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() =>
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MobileAppDownload,
+                    target_id: TargetId.Android,
+                  })
+                }
+                className="flex w-full items-center justify-center gap-2.5 rounded-14 border border-white/[0.12] bg-white/[0.06] py-3 font-bold text-text-primary transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:bg-white/[0.10]"
+              >
+                <AndroidIcon secondary size={IconSize.Size16} />
+                Download for Android
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Profile Import Overlay ── */}
       {step === 'importing' && (
         <div
@@ -1754,11 +1825,9 @@ export const OnboardingV2 = (): ReactElement => {
           <div
             className={classNames(
               'bg-black/70 absolute inset-0 backdrop-blur-md',
-              githubImportExiting
-                ? 'onb-modal-backdrop-exit'
-                : 'onb-modal-backdrop',
+              importExiting ? 'onb-modal-backdrop-exit' : 'onb-modal-backdrop',
             )}
-            onClick={closeGithubImportFlow}
+            onClick={closeImportFlow}
             role="presentation"
           />
 
@@ -1766,23 +1835,16 @@ export const OnboardingV2 = (): ReactElement => {
           <div
             className={classNames(
               'relative z-1 flex max-h-[100dvh] w-full flex-col items-center overflow-y-auto rounded-t-20 border border-white/[0.10] bg-raw-pepper-90 px-5 py-6 shadow-[0_32px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)] tablet:mx-4 tablet:max-w-md tablet:rounded-20 tablet:px-6',
-              githubImportExiting && 'onb-modal-exit',
+              importExiting && 'onb-modal-exit',
             )}
           >
             <button
               type="button"
-              onClick={closeGithubImportFlow}
+              onClick={closeImportFlow}
               className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
             {/* ── Animated orb — full-width energy field ── */}
             <div
@@ -1995,12 +2057,12 @@ export const OnboardingV2 = (): ReactElement => {
             {/* ── Title & progress ── */}
             <h2 className="mb-1 text-center font-bold text-text-primary typo-title3">
               {(() => {
-                if (githubImportPhase === 'complete') {
+                if (importPhase === 'complete') {
                   return 'Your feed is ready';
                 }
                 if (
-                  githubImportPhase === 'awaitingSeniority' ||
-                  githubImportPhase === 'confirmingSeniority'
+                  importPhase === 'awaitingSeniority' ||
+                  importPhase === 'confirmingSeniority'
                 ) {
                   return 'Almost there';
                 }
@@ -2012,15 +2074,15 @@ export const OnboardingV2 = (): ReactElement => {
 
             <p className="mb-4 text-center text-text-tertiary typo-footnote">
               {(() => {
-                if (githubImportPhase === 'complete') {
+                if (importPhase === 'complete') {
                   return 'We built a personalized feed just for you.';
                 }
-                if (githubImportPhase === 'awaitingSeniority') {
+                if (importPhase === 'awaitingSeniority') {
                   return importFlowSource === 'github'
                     ? 'One thing we couldn\u2019t find on your profile.'
                     : 'One last detail to finish your profile setup.';
                 }
-                if (githubImportPhase === 'confirmingSeniority') {
+                if (importPhase === 'confirmingSeniority') {
                   return 'Got it. Finishing up...';
                 }
                 return currentImportStep;
@@ -2028,22 +2090,40 @@ export const OnboardingV2 = (): ReactElement => {
             </p>
 
             {/* ── Progress track ── */}
-            {githubImportPhase !== 'idle' && (
+            {importPhase !== 'idle' && (
               <div className="mb-5 w-full">
                 <div className="relative h-1 w-full overflow-hidden rounded-[0.125rem] bg-white/[0.10]">
                   <div
                     className="h-full rounded-[0.125rem] bg-accent-cabbage-default transition-[width] duration-300 ease-out"
-                    style={{ width: `${Math.max(githubImportProgress, 6)}%` }}
+                    style={{ width: `${Math.max(importProgress, 6)}%` }}
                   />
                 </div>
               </div>
             )}
 
-            {githubImportBodyPhase !== 'default' && (
+            {importBodyPhase === 'seniority' && (
+              <Checkbox
+                name="optOutMarketing"
+                checked={!acceptedMarketing}
+                onToggleCallback={(checked) => {
+                  logEvent({
+                    event_name: LogEvent.Click,
+                    target_type: TargetType.MarketingOptOut,
+                    target_id: checked ? TargetId.OptOut : TargetId.OptIn,
+                  });
+                  setAcceptedMarketing(!checked);
+                }}
+                className="mb-4 self-start typo-caption2"
+              >
+                I don&apos;t want to receive updates and promotions via email
+              </Checkbox>
+            )}
+
+            {importBodyPhase !== 'default' && (
               <div
                 className={classNames(
                   'w-full overflow-hidden',
-                  githubImportBodyPhase === 'seniority'
+                  importBodyPhase === 'seniority'
                     ? 'rounded-none border-0 bg-transparent p-0'
                     : 'rounded-16 border border-white/[0.06] bg-white/[0.01] p-3.5',
                 )}
@@ -2051,27 +2131,27 @@ export const OnboardingV2 = (): ReactElement => {
                 <div
                   className="ghub-phase-shell overflow-hidden transition-[height] duration-300 ease-out"
                   style={{
-                    height: githubImportBodyHeight
-                      ? `${githubImportBodyHeight}px`
+                    height: importBodyHeight
+                      ? `${importBodyHeight}px`
                       : undefined,
                   }}
                 >
                   <div
-                    key={githubImportBodyPhase}
-                    ref={githubImportBodyContentRef}
+                    key={importBodyPhase}
+                    ref={importBodyContentRef}
                     className={
-                      githubImportBodyPhase === 'checklist'
+                      importBodyPhase === 'checklist'
                         ? 'min-h-0'
                         : 'min-h-[12rem]'
                     }
                   >
                     {/* ── Import checklist (during active import) ── */}
-                    {githubImportBodyPhase === 'checklist' && (
+                    {importBodyPhase === 'checklist' && (
                       <div className="flex w-full flex-col gap-2.5">
                         {importSteps.map((s, i) => {
-                          const done = githubImportProgress >= s.threshold;
+                          const done = importProgress >= s.threshold;
                           const active =
-                            !done && githubImportProgress >= s.threshold - 16;
+                            !done && importProgress >= s.threshold - 16;
                           // eslint-disable-next-line no-nested-ternary
                           const statusText = done
                             ? 'Done'
@@ -2156,7 +2236,7 @@ export const OnboardingV2 = (): ReactElement => {
                     )}
 
                     {/* ── Seniority question ── */}
-                    {githubImportBodyPhase === 'seniority' && (
+                    {importBodyPhase === 'seniority' && (
                       <div>
                         <p className="mb-3 text-left font-medium text-text-primary typo-callout">
                           What is your seniority level?
@@ -2228,10 +2308,9 @@ export const OnboardingV2 = (): ReactElement => {
           role="dialog"
           aria-modal="true"
         >
-          {/* Backdrop */}
           <div
-            className="onb-modal-backdrop bg-black/80 absolute inset-0 backdrop-blur-lg"
-            onClick={() => setStep('hero')}
+            className="absolute inset-0"
+            onClick={closeSignupChooser}
             role="presentation"
           />
 
@@ -2240,18 +2319,11 @@ export const OnboardingV2 = (): ReactElement => {
             {/* Close */}
             <button
               type="button"
-              onClick={() => setStep('hero')}
+              onClick={closeSignupChooser}
               className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
               aria-label="Close"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M18 6L6 18M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <MiniCloseIcon size={IconSize.Size16} />
             </button>
 
             {/* Content */}
@@ -2361,6 +2433,11 @@ export const OnboardingV2 = (): ReactElement => {
                         }
                         e.preventDefault();
                         if (aiPrompt.trim()) {
+                          logEvent({
+                            event_name: LogEvent.Click,
+                            target_type: TargetType.SignupPrompt,
+                            target_id: TargetId.AI,
+                          });
                           openSignupAuth();
                         }
                       }}
@@ -2383,11 +2460,20 @@ export const OnboardingV2 = (): ReactElement => {
                 {signupContext === 'github' && (
                   <button
                     type="button"
-                    className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
+                    disabled={isImporting}
+                    className={classNames(
+                      'onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none',
+                      isImporting && 'opacity-60 cursor-not-allowed',
+                    )}
                     onClick={() => {
+                      logEvent({
+                        event_name: LogEvent.Click,
+                        target_type: TargetType.SignupPrompt,
+                        target_id: TargetId.GitHub,
+                      });
                       if (isLoggedIn) {
                         setStep('hero');
-                        startGithubImportFlow();
+                        startImportFlowGithub();
                       } else {
                         initiateGithubAuth();
                       }
@@ -2416,14 +2502,19 @@ export const OnboardingV2 = (): ReactElement => {
                   <>
                     <button
                       type="button"
-                      disabled={!canStartAiFlow}
+                      disabled={!canStartAiFlow || isImporting}
                       className={classNames(
                         'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-                        canStartAiFlow
+                        canStartAiFlow && !isImporting
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}
                       onClick={() => {
+                        logEvent({
+                          event_name: LogEvent.Click,
+                          target_type: TargetType.SignupPrompt,
+                          target_id: TargetId.AI,
+                        });
                         if (isLoggedIn) {
                           setStep('hero');
                           startAiProcessing();

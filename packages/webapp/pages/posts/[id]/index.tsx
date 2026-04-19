@@ -39,6 +39,8 @@ import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featurePostSignupWidget } from '@dailydotdev/shared/src/lib/featureManagement';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
@@ -183,6 +185,10 @@ export const PostPage = ({
   const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { value: isPostSignupWidget } = useConditionalFeature({
+    feature: featurePostSignupWidget,
+    shouldEvaluate: shouldShowAuthBanner,
+  });
   const { post, isError, isLoading } = usePostById({
     id,
     options: {
@@ -282,7 +288,9 @@ export const PostPage = ({
               },
             }}
           />
-          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+          {shouldShowAuthBanner && isLaptop && (
+            <PostAuthBanner compact={isPostSignupWidget} />
+          )}
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>

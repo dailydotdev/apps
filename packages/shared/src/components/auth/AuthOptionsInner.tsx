@@ -159,8 +159,11 @@ function AuthOptionsInner({
   simplified = false,
   ignoreMessages = false,
   onboardingSignupButton,
+  hideLoginLink,
+  compact,
   autoTriggerProvider,
   socialProviderScopes,
+  acceptedMarketing,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -308,29 +311,26 @@ function AuthOptionsInner({
     isLoading: isProfileUpdateLoading,
   } = useProfileForm({ onSuccess: onProfileSuccess });
 
-  const autoCompleteProfileForRecruiter = async (
-    recruiterEmail: string,
+  const autoCompleteProfile = async (
+    userEmail: string,
     name?: string,
+    marketing = false,
   ) => {
     try {
-      // Generate name from email if not provided by OAuth
-      const displayName =
-        name || generateNameFromEmail(recruiterEmail, 'Recruiter');
+      const displayName = name || generateNameFromEmail(userEmail, 'User');
 
-      // Generate username from the display name
       const username = await generateUsername(displayName);
 
-      // Auto-complete profile
       updateUserProfile({
         name: displayName,
         username,
-        acceptedMarketing: false,
+        acceptedMarketing: marketing,
       });
     } catch (error) {
       logEvent({
         event_name: AuthEventNames.SubmitSignUpFormError,
         extra: JSON.stringify({
-          error: 'Failed to auto-complete profile for recruiter',
+          error: 'Failed to auto-complete profile',
           details: error instanceof Error ? error.message : 'Unknown error',
         }),
       });
@@ -371,8 +371,9 @@ function AuthOptionsInner({
         onSuccessfulLogin?.();
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
-      // For RecruiterSelfServe, auto-complete profile without showing the form
-      await autoCompleteProfileForRecruiter(user.email, user.name);
+      await autoCompleteProfile(user.email, user.name, false);
+    } else if (trigger === AuthTriggers.Onboarding) {
+      await autoCompleteProfile(user.email, user.name, acceptedMarketing);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -481,11 +482,15 @@ function AuthOptionsInner({
       return;
     }
 
-    // For RecruiterSelfServe, auto-complete profile without showing the form
-    if (trigger === AuthTriggers.RecruiterSelfServe) {
+    if (
+      trigger === AuthTriggers.RecruiterSelfServe ||
+      trigger === AuthTriggers.Onboarding
+    ) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      await autoCompleteProfileForRecruiter(loggedUser.email, loggedUser.name);
+      const marketing =
+        trigger === AuthTriggers.Onboarding ? acceptedMarketing : false;
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, marketing);
       return;
     }
 
@@ -681,7 +686,7 @@ function AuthOptionsInner({
       className={classNames(
         'z-1 flex w-full max-w-[26.25rem] flex-col overflow-y-auto rounded-16',
         !simplified && 'bg-accent-pepper-subtlest',
-        defaultDisplay === AuthDisplay.OnboardingSignup
+        defaultDisplay === AuthDisplay.OnboardingSignup && !compact
           ? 'min-h-[21.25rem]'
           : undefined,
         className?.container,
@@ -786,6 +791,8 @@ function AuthOptionsInner({
             targetId={targetId}
             className={className}
             onboardingSignupButton={onboardingSignupButton}
+            hideLoginLink={hideLoginLink}
+            compact={compact}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

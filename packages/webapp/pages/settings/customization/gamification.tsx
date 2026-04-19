@@ -7,7 +7,6 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -16,7 +15,7 @@ import { defaultSeo } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
-const GamificationSettingsPage = (): ReactElement => {
+const GamificationSettingsPage = (): ReactElement | null => {
   const router = useRouter();
   const {
     optOutLevelSystem,
@@ -42,7 +41,7 @@ const GamificationSettingsPage = (): ReactElement => {
   }
 
   return (
-    <AccountPageContainer title="Gamification">
+    <AccountPageContainer title="Feature visibility">
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-2">
           <Typography bold type={TypographyType.Subhead}>
@@ -61,25 +60,16 @@ const GamificationSettingsPage = (): ReactElement => {
         </section>
 
         <section className="flex flex-col gap-2">
-          <div className="flex flex-col gap-1">
-            <Typography bold type={TypographyType.Subhead}>
-              Show quests
-            </Typography>
-
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Turn quest UI on or off across the product.
-            </Typography>
-          </div>
+          <Typography bold type={TypographyType.Subhead}>
+            Show quests
+          </Typography>
 
           <SettingsSwitch
             name="quest-system"
             checked={!optOutQuestSystem}
             onToggle={toggleOptOutQuestSystem}
           >
-            Toggle to display or hide the quest system UI.
+            Toggle to display or hide the quest system UI across the product.
           </SettingsSwitch>
         </section>
       </div>
@@ -89,7 +79,7 @@ const GamificationSettingsPage = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  title: getTemplatedTitle('Gamification'),
+  title: getTemplatedTitle('Feature visibility'),
 };
 
 GamificationSettingsPage.getLayout = getSettingsLayout;

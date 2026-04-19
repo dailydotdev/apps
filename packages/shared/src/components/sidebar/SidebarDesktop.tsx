@@ -13,6 +13,7 @@ import { CreatePostButton } from '../post/write';
 import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
+import { HelpWidget } from '../help/HelpWidget';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -54,7 +55,7 @@ export const SidebarDesktop = ({
         featureTheme && 'bg-transparent',
       )}
     >
-      <SidebarScrollWrapper>
+      <SidebarScrollWrapper className="!h-auto min-h-0 flex-1">
         <Nav>
           <SidebarMenuIcon />
           {/* Primary Action */}
@@ -110,6 +111,9 @@ export const SidebarDesktop = ({
           />
         </Nav>
       </SidebarScrollWrapper>
+
+      {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
+      <HelpWidget sidebarExpanded={sidebarExpanded} />
     </SidebarAside>
   );
 };

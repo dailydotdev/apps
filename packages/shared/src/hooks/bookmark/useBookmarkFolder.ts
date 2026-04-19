@@ -18,7 +18,7 @@ interface UseBookmarkFolder {
   query: {
     isPending: boolean;
     isReady: boolean;
-    folder: BookmarkFolder;
+    folder?: BookmarkFolder;
   };
   update: {
     isPending: boolean;
@@ -62,7 +62,7 @@ export const useBookmarkFolder = ({
 
       logEvent({
         event_name: LogEvent.RenameBookmarkFolder,
-        target_id: folder.id,
+        target_id: folder!.id,
       });
     },
     onError: () => {

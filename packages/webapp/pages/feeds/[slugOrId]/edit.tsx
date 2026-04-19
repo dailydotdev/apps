@@ -22,7 +22,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const EditFeedPage = (): ReactElement => {
+const EditFeedPage = (): ReactElement | null => {
   const router = useRouter();
   const { FeedPageLayoutComponent } = useFeedLayout();
   const feedSlugOrId = router.query.slugOrId as string;

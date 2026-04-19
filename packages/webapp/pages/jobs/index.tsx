@@ -26,7 +26,7 @@ const activeStatuses = [
   OpportunityMatchStatus.CandidateAccepted,
 ];
 
-const JobsPage = (): ReactElement => {
+const JobsPage = (): ReactElement | null => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);

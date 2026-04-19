@@ -29,7 +29,7 @@ export type UseRelatedPostsProps = {
 type RelatedPostsQueryData = Connection<RelatedPost>;
 
 export type UseRelatedPosts = {
-  relatedPosts: InfiniteData<RelatedPostsQueryData>;
+  relatedPosts?: InfiniteData<RelatedPostsQueryData>;
   isLoading: boolean;
   hasNextPage: boolean;
   fetchNextPage: UseInfiniteQueryResult['fetchNextPage'];
@@ -51,7 +51,7 @@ export const useRelatedPosts = ({
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: generateQueryKey(RequestKey.RelatedPosts, null, {
+    queryKey: generateQueryKey(RequestKey.RelatedPosts, undefined, {
       id: postId,
       type: relationType,
     }),

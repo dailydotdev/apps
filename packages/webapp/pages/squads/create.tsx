@@ -182,10 +182,11 @@ function CreatePost(): ReactElement {
       return;
     }
 
-    const { options, ...args } = params;
+    const { options, image, ...args } = params;
 
     await onCreate({
       ...args,
+      ...(image instanceof File && image.size > 0 && { image }),
       ...(options?.length && {
         options: options.map((text, order) => ({
           text,

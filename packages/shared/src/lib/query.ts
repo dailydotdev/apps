@@ -212,7 +212,6 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
-  Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
   PriceMetadata = 'price_metadata',
@@ -274,6 +273,7 @@ export enum RequestKey {
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
+  MarketingCtas = 'marketing_ctas',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

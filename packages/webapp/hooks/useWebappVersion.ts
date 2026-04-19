@@ -16,7 +16,7 @@ const getVersion = (query: ParsedUrlQuery): string | undefined => {
   return undefined;
 };
 
-export default function useWebappVersion(): string {
+export default function useWebappVersion(): string | undefined {
   const { query } = useRouter();
   const [version, setVersion] = useState<string>();
 

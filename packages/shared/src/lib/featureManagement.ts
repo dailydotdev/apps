@@ -32,7 +32,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureNoAiFeed = new Feature('no_ai_feed', false);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
 
 // @ts-expect-error stale feature without default
@@ -153,4 +152,6 @@ export const sharedPostPreviewFeature = new Feature(
   false,
 );
 
-export const featureOnboardingV2 = new Feature('onboarding_v2', isDevelopment);
+export const featureOnboardingV2 = new Feature('onboarding_v2', false);
+
+export const featurePostSignupWidget = new Feature('post_signup_widget', false);

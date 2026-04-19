@@ -22,7 +22,7 @@ describe('ProtectedPage', () => {
     render(
       <AuthContext.Provider
         value={{
-          user: null,
+          user: undefined,
           isAuthReady: true,
           isFetched: true,
           isLoggedIn: false,

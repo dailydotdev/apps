@@ -22,9 +22,9 @@ import {
   InviteIcon,
   MagicIcon,
   MailIcon,
+  EyeIcon,
   NewTabIcon,
   PhoneIcon,
-  PinIcon,
   ReputationLightningIcon,
   ExitIcon,
   OrganizationIcon,
@@ -33,14 +33,13 @@ import {
   TerminalIcon,
   TourIcon,
   FeatherIcon,
-  GiftIcon,
+  JoystickIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
 import {
   appsUrl,
   businessWebsiteUrl,
   docs,
-  feedback,
   reputation,
   settingsUrl,
   walletUrl,
@@ -70,14 +69,8 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
-import {
-  achievementTrackingWidgetFeature,
-  questsFeature,
-} from '../../lib/featureManagement';
+import { questsFeature } from '../../lib/featureManagement';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
-import { shouldShowAchievementTracker } from '../../lib/achievements';
-import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 
 type MenuItems = Record<
   string,
@@ -90,32 +83,14 @@ type MenuItems = Record<
 const defineMenuItems = <T extends MenuItems>(items: T): T => items;
 
 const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
-  const { openModal, closeModal } = useLazyModal();
+  const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
 
-  const { value: isAchievementTrackingWidgetEnabled } = useConditionalFeature({
-    feature: achievementTrackingWidgetFeature,
-    shouldEvaluate: !!user,
-  });
   const { value: isQuestsFeatureEnabled } = useConditionalFeature({
     feature: questsFeature,
     shouldEvaluate: !!user,
   });
-
-  const { achievements, unlockedCount, totalCount } = useProfileAchievements(
-    user,
-    isAchievementTrackingWidgetEnabled === true,
-  );
-
-  const showAchievementTracker = shouldShowAchievementTracker({
-    isExperimentEnabled: isAchievementTrackingWidgetEnabled === true,
-    unlockedCount,
-    totalCount,
-  });
-
-  const { trackedAchievement, trackAchievement, untrackAchievement } =
-    useTrackedAchievement(undefined, showAchievementTracker);
 
   const items = useMemo(
     () =>
@@ -129,9 +104,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: `${settingsUrl}/profile`,
             },
             account: {
-              title: 'Account',
+              title: 'Account & Security',
               icon: MailIcon,
               href: `${settingsUrl}/security`,
+            },
+            notifications: {
+              title: 'Notifications',
+              icon: BellIcon,
+              href: `${settingsUrl}/notifications`,
             },
             'job-preferences': {
               title: 'Job preferences',
@@ -144,30 +124,15 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
                 });
               },
             },
-            achievements: {
-              title: 'Achievements',
-              icon: MedalBadgeIcon,
-              href: `${webappUrl}${user?.username}/achievements`,
-            },
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
               href: `${settingsUrl}/appearance`,
             },
             composition: {
-              title: 'Composition',
+              title: 'Posting',
               icon: FeatherIcon,
               href: `${settingsUrl}/composition`,
-            },
-            notifications: {
-              title: 'Notifications',
-              icon: BellIcon,
-              href: `${settingsUrl}/notifications`,
-            },
-            feedback: {
-              title: 'Your Feedback',
-              icon: FeedbackIcon,
-              href: `${settingsUrl}/feedback`,
             },
             invite: {
               title: 'Invite Friends',
@@ -176,43 +141,39 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
             },
           },
         },
-        misc: {
-          title: 'Misc',
+        feed: {
+          title: 'Feed settings',
           items: {
-            hotTakes: {
-              title: 'Hot Takes',
-              icon: HotIcon,
-              href: `${webappUrl}?openModal=hottakes`,
-              onClick: () => {
-                logEvent({ event_name: LogEvent.OpenHotAndCold });
-                onClose?.();
-              },
+            general: {
+              title: 'General',
+              icon: EditIcon,
+              href: `${settingsUrl}/feed/general`,
             },
-            trackAchievement: {
-              title: 'Track achievement',
-              icon: PinIcon,
-              onClick: () => {
-                logEvent({
-                  event_name: LogEvent.OpenAchievementPickerModal,
-                });
-                onClose?.();
-                openModal({
-                  type: LazyModal.AchievementPicker,
-                  props: {
-                    achievements: achievements ?? [],
-                    trackedAchievementId: trackedAchievement?.achievement.id,
-                    onTrack: async (achievementId: string) => {
-                      await trackAchievement(achievementId);
-                      closeModal();
-                    },
-                    onUntrack: async () => {
-                      await untrackAchievement();
-                      closeModal();
-                    },
-                  },
-                });
-              },
-            } as ProfileSectionItemPropsWithoutHref,
+            tags: {
+              title: 'Tags',
+              icon: HashtagIcon,
+              href: `${settingsUrl}/feed/tags`,
+            },
+            sources: {
+              title: 'Content sources',
+              icon: AddUserIcon,
+              href: `${settingsUrl}/feed/sources`,
+            },
+            preferences: {
+              title: 'Content preferences',
+              icon: AppIcon,
+              href: `${settingsUrl}/feed/preferences`,
+            },
+            ai: {
+              title: 'AI superpowers',
+              icon: MagicIcon,
+              href: `${settingsUrl}/feed/ai`,
+            },
+            blocked: {
+              title: 'Blocked content',
+              icon: BlockIcon,
+              href: `${settingsUrl}/feed/blocked`,
+            },
           },
         },
         career: {
@@ -250,6 +211,63 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
             },
           },
         },
+        playground: {
+          title: 'Gamification',
+          items: {
+            gameCenter: {
+              title: 'Game Center',
+              icon: JoystickIcon,
+              href: `${webappUrl}game-center`,
+              external: true,
+            },
+            gamification: {
+              title: 'Feature visibility',
+              icon: EyeIcon,
+              href: `${settingsUrl}/customization/gamification`,
+            },
+            streaks: {
+              title: 'Streaks',
+              icon: HotIcon,
+              href: `${settingsUrl}/customization/streaks`,
+            },
+            achievements: {
+              title: 'Achievements',
+              icon: MedalBadgeIcon,
+              href: `${webappUrl}${user?.username}/achievements`,
+              external: true,
+            },
+            hotTakes: {
+              title: 'Hot Takes',
+              icon: HotIcon,
+              href: `${webappUrl}?openModal=hottakes`,
+              external: true,
+              onClick: () => {
+                logEvent({ event_name: LogEvent.OpenHotAndCold });
+                onClose?.();
+              },
+            },
+            devcard: {
+              title: 'DevCard',
+              icon: DevCardIcon,
+              href: `${settingsUrl}/customization/devcard`,
+            },
+          },
+        },
+        customization: {
+          title: 'Developers',
+          items: {
+            api: {
+              title: 'API Access',
+              icon: TerminalIcon,
+              href: `${settingsUrl}/api`,
+            },
+            integrations: {
+              title: 'Integrations',
+              icon: EmbedIcon,
+              href: `${settingsUrl}/customization/integrations`,
+            },
+          },
+        },
         billing: {
           title: 'Billing and Monetization',
           items: {
@@ -276,74 +294,14 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
             } as ProfileSectionItemPropsWithoutHref,
           },
         },
-        feed: {
-          title: 'Feed Settings',
-          items: {
-            general: {
-              title: 'General',
-              icon: EditIcon,
-              href: `${settingsUrl}/feed/general`,
-            },
-            tags: {
-              title: 'Tags',
-              icon: HashtagIcon,
-              href: `${settingsUrl}/feed/tags`,
-            },
-            sources: {
-              title: 'Content sources',
-              icon: AddUserIcon,
-              href: `${settingsUrl}/feed/sources`,
-            },
-            preferences: {
-              title: 'Content preferences',
-              icon: AppIcon,
-              href: `${settingsUrl}/feed/preferences`,
-            },
-            ai: {
-              title: 'AI superpowers',
-              icon: MagicIcon,
-              href: `${settingsUrl}/feed/ai`,
-            },
-            blocked: {
-              title: 'Blocked content',
-              icon: BlockIcon,
-              href: `${settingsUrl}/feed/blocked`,
-            },
-          },
-        },
-        customization: {
-          title: 'Customization',
-          items: {
-            streaks: {
-              title: 'Streaks',
-              icon: HotIcon,
-              href: `${settingsUrl}/customization/streaks`,
-            },
-            gamification: {
-              title: 'Gamification',
-              icon: GiftIcon,
-              href: `${settingsUrl}/customization/gamification`,
-            },
-            devcard: {
-              title: 'DevCard',
-              icon: DevCardIcon,
-              href: `${settingsUrl}/customization/devcard`,
-            },
-            integrations: {
-              title: 'Integrations',
-              icon: EmbedIcon,
-              href: `${settingsUrl}/customization/integrations`,
-            },
-            api: {
-              title: 'API Access',
-              icon: TerminalIcon,
-              href: `${settingsUrl}/api`,
-            },
-          },
-        },
         help: {
           title: 'Help center',
           items: {
+            feedback: {
+              title: 'Your Feedback',
+              icon: FeedbackIcon,
+              href: `${settingsUrl}/feedback`,
+            },
             privacy: {
               title: 'Privacy',
               icon: PrivacyIcon,
@@ -373,12 +331,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               href: docs,
               external: true,
             },
-            support: {
-              title: 'Support',
-              icon: FeedbackIcon,
-              href: feedback,
-              external: true,
-            },
           },
         },
         logout: {
@@ -392,20 +344,10 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
           },
         },
       }),
-    [
-      achievements,
-      closeModal,
-      logEvent,
-      onClose,
-      openModal,
-      trackAchievement,
-      untrackAchievement,
-      trackedAchievement?.achievement.id,
-      user?.username,
-    ],
+    [logEvent, onClose, openModal, user?.username],
   );
 
-  return { items, showAchievementTracker, isQuestsFeatureEnabled };
+  return { items, isQuestsFeatureEnabled };
 };
 
 interface ProfileSettingsMenuProps {
@@ -414,8 +356,6 @@ interface ProfileSettingsMenuProps {
   shouldKeepOpen?: boolean;
 }
 
-const TRACK_ACHIEVEMENT_KEY = 'trackAchievement';
-
 export const InnerProfileSettingsMenu = ({
   className,
   onClose,
@@ -423,11 +363,8 @@ export const InnerProfileSettingsMenu = ({
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const {
-    items: accountPageItems,
-    showAchievementTracker,
-    isQuestsFeatureEnabled,
-  } = useAccountPageItems({ onClose });
+  const { items: accountPageItems, isQuestsFeatureEnabled } =
+    useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -438,7 +375,7 @@ export const InnerProfileSettingsMenu = ({
           <ProfileSection
             key={key}
             withSeparator={!lastItem}
-            title={menuItem.title}
+            title={menuItem.title ?? undefined}
             items={Object.entries(menuItem.items)
               .filter(([itemKey, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
@@ -446,14 +383,14 @@ export const InnerProfileSettingsMenu = ({
                 }
 
                 if (
-                  itemKey === TRACK_ACHIEVEMENT_KEY &&
-                  !showAchievementTracker
+                  itemKey === 'gamification' &&
+                  isQuestsFeatureEnabled !== true
                 ) {
                   return false;
                 }
 
                 if (
-                  itemKey === 'gamification' &&
+                  itemKey === 'gameCenter' &&
                   isQuestsFeatureEnabled !== true
                 ) {
                   return false;
@@ -491,7 +428,7 @@ export function ProfileSettingsMenuMobile({
       shouldKeepOpen={shouldKeepOpen}
       drawerProps={{
         isOpen,
-        onClose,
+        onClose: onClose ?? (() => {}),
       }}
     >
       <InnerProfileSettingsMenu className="p-4" onClose={onClose} />
@@ -499,7 +436,7 @@ export function ProfileSettingsMenuMobile({
   );
 }
 
-export function ProfileSettingsMenuDesktop(): ReactElement {
+export function ProfileSettingsMenuDesktop(): ReactElement | null {
   const { user } = useAuthContext();
   const featureTheme = useFeatureTheme();
 

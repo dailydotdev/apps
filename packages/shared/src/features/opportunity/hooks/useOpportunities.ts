@@ -27,7 +27,7 @@ export const useOpportunities = ({
   const { requestMethod } = useRequestProtocol();
 
   const query = useInfiniteQuery({
-    queryKey: generateQueryKey(RequestKey.Opportunities, null, {
+    queryKey: generateQueryKey(RequestKey.Opportunities, undefined, {
       state,
       first,
     }),
