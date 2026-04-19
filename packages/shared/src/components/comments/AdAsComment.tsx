@@ -25,9 +25,7 @@ import { AdvertiseLink } from '../cards/ad/common/AdvertiseLink';
 interface AdAsCommentProps {
   postId: string;
 }
-export const AdAsComment = ({
-  postId,
-}: AdAsCommentProps): ReactElement | null => {
+export const AdAsComment = ({ postId }: AdAsCommentProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -48,7 +46,6 @@ export const AdAsComment = ({
       if (!ad) {
         return;
       }
-
       logEvent(
         adLogEvent(action, ad, {
           extra: {
@@ -61,7 +58,7 @@ export const AdAsComment = ({
   );
 
   const promotedText = useScrambler(
-    ad ? `Promoted by ${ad.source}` : undefined,
+    !ad ? undefined : `Promoted by ${ad.source}`,
   );
 
   const onRefreshClick = useCallback(async () => {
@@ -79,7 +76,7 @@ export const AdAsComment = ({
   }, [ad, onAdAction]);
 
   if (!ad) {
-    return null;
+    return <></>;
   }
 
   if (isFetching && !isRefetching) {

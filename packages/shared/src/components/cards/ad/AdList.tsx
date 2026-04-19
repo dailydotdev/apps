@@ -1,5 +1,5 @@
-import type { AnchorHTMLAttributes, ForwardedRef, ReactElement } from 'react';
-import React, { forwardRef, useCallback } from 'react';
+import type { AnchorHTMLAttributes, ReactElement } from 'react';
+import React, { forwardRef } from 'react';
 import {
   CardContent,
   CardImage,
@@ -32,7 +32,7 @@ const getLinkProps = ({
   onLinkClick,
 }: {
   ad: Ad;
-  onLinkClick?: (ad: Ad) => unknown;
+  onLinkClick: (ad: Ad) => unknown;
 }): AnchorHTMLAttributes<HTMLAnchorElement> => {
   return {
     href: ad.link,
@@ -44,36 +44,28 @@ const getLinkProps = ({
 };
 
 export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
-  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
-  forwardedRef: ForwardedRef<HTMLElement>,
+  { ad, onLinkClick, domProps, index, feedIndex },
+  forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const matchingTags = ad.matchingTags ?? [];
-  const inViewRef = useCallback<InViewRef>(
-    (node) => {
-      const nextNode = node as HTMLElement | null;
-
-      if (typeof forwardedRef === 'function') {
-        forwardedRef(nextNode);
-        return;
-      }
-
-      if (forwardedRef) {
-        const forwardedRefObject = forwardedRef;
-        forwardedRefObject.current = nextNode;
-      }
-    },
-    [forwardedRef],
+  const { ref } = useAutoRotatingAds(
+    ad,
+    index,
+    feedIndex,
+    forwardedRef as InViewRef,
   );
-  const { ref } = useAutoRotatingAds(ad, index, feedIndex, inViewRef);
+  const matchingTags = ad?.matchingTags ?? [];
 
   return (
     <FeedItemContainer
       domProps={domProps ?? {}}
       ref={ref}
       data-testid="adItem"
-      linkProps={getLinkProps({ ad, onLinkClick })}
+      linkProps={getLinkProps({
+        ad,
+        onLinkClick: onLinkClick ?? (() => undefined),
+      })}
     >
       <CardContent>
         <CardTextContainer className="mr-4 flex-1">
@@ -93,36 +85,25 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
       </CardContent>
 
       <div className="z-1 flex items-center pt-2">
-        <div className="flex items-center gap-2">
-          {!!ad.callToAction && (
-            <Button
-              tag="a"
-              href={ad.link}
-              target="_blank"
-              rel="noopener"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              className="typo-footnote"
-              {...combinedClicks(() => onLinkClick?.(ad))}
-            >
-              {ad.callToAction}
-            </Button>
-          )}
-          <AdvertiseLink
-            targetId={TargetId.AdCard}
-            buttonStyle
+        {!!ad.callToAction && (
+          <Button
+            tag="a"
+            href={ad.link}
+            target="_blank"
+            rel="noopener"
+            variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
-          />
-        </div>
-        <div className="ml-auto">
-          {!isPlus && (
-            <RemoveAd
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              className="!font-normal typo-footnote"
-            />
-          )}
-        </div>
+            {...combinedClicks(() => onLinkClick?.(ad))}
+          >
+            {ad.callToAction}
+          </Button>
+        )}
+        <AdvertiseLink
+          targetId={TargetId.AdCard}
+          buttonStyle
+          size={ButtonSize.Small}
+        />
+        <div className="ml-auto">{!isPlus && <RemoveAd />}</div>
       </div>
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>

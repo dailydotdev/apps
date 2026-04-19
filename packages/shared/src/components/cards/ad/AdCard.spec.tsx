@@ -39,11 +39,10 @@ const renderListComponent = (
 
 const renderSignalListComponent = (
   props: Partial<AdCardProps> = {},
-  gb = new GrowthBook(),
 ): RenderResult => {
   const client = new QueryClient();
   return render(
-    <TestBootProvider client={client} gb={gb}>
+    <TestBootProvider client={client}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <SignalAdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -173,13 +172,4 @@ it('should render company logo and company name in signal ad header', async () =
   const logo = await screen.findByAltText(`Avatar of ${companyName}`);
   expect(logo).toHaveAttribute('src', companyLogo);
   expect(screen.getByText(companyName)).toBeInTheDocument();
-});
-
-it('should render advertise link on signal list ad when feature is enabled', () => {
-  renderSignalListComponent({}, getGrowthBook(true));
-
-  expect(screen.getByRole('link', { name: 'Advertise here' })).toHaveAttribute(
-    'href',
-    businessWebsiteUrl,
-  );
 });
