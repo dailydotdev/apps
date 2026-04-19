@@ -8,6 +8,11 @@ import {
   ModalPropsContext,
   ModalSize,
 } from '../../../modals/common/types';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../typography/Typography';
 import { FollowingUserList } from '../components/FollowingUserList';
 import { FollowingSourceList } from '../components/FollowingSourceList';
 import { SourceType } from '../../../../graphql/sources';
@@ -110,6 +115,16 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             });
           }}
         />
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Callout}
+        >
+          Following sources, squads, and users is a great way to tell the
+          system where you want your content to come from. It&apos;s a strong
+          starting signal for your feed, and as you engage with content over
+          time, its weight gradually decreases in favor of stronger signals
+          based on your actual activity.
+        </Typography>
         {searchPanel.query?.length ? (
           <>
             <SearchPanelSourceSuggestions title="Sources" showFollow />

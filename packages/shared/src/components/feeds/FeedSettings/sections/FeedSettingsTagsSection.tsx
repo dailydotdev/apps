@@ -94,6 +94,15 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         placeholder="Search tags"
         valueChanged={onSearch}
       />
+      <Typography
+        color={TypographyColor.Tertiary}
+        type={TypographyType.Callout}
+      >
+        Tags are a great way to tell the system what you&apos;re interested in.
+        They&apos;re a strong starting signal for your feed, and as you engage
+        with content over time, their weight gradually decreases in favor of
+        stronger signals based on your actual activity.
+      </Typography>
       <ModalPropsContext.Provider
         value={{
           tabs,
