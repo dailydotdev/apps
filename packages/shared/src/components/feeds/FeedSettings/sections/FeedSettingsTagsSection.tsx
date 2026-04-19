@@ -47,7 +47,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
   });
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [onSearch] = useDebounceFn(setSearchQuery, 200);
+  const [onSearch] = useDebounceFn<string>(
+    (value) => setSearchQuery(value ?? ''),
+    200,
+  );
 
   const { data: searchResult } = useTagSearch({
     value: searchQuery,
@@ -70,6 +73,10 @@ export const FeedSettingsTagsSection = (): ReactElement => {
 
     const tagsPerLetter = tagsToGroup.reduce((acc, tagItem) => {
       const tag = typeof tagItem === 'string' ? { name: tagItem } : tagItem;
+
+      if (!tag.name) {
+        return acc;
+      }
 
       const firstLetter = tag.name[0].toUpperCase();
       acc[firstLetter] = acc[firstLetter] || [];
@@ -107,7 +114,11 @@ export const FeedSettingsTagsSection = (): ReactElement => {
         value={{
           tabs,
           activeView,
-          setActiveView,
+          setActiveView: (view) => {
+            if (view !== undefined) {
+              setActiveView(view);
+            }
+          },
           onRequestClose: noop,
           kind: ModalKind.FlexibleCenter,
           size: ModalSize.Medium,
@@ -127,12 +138,12 @@ export const FeedSettingsTagsSection = (): ReactElement => {
               shouldUpdateAlerts={false}
               feedId={feed?.id}
               origin={
-                feed.type === FeedType.Main
+                feed?.type === FeedType.Main
                   ? Origin.TagsFilter
                   : Origin.CustomFeed
               }
               searchOrigin={
-                feed.type === FeedType.Main
+                feed?.type === FeedType.Main
                   ? Origin.ManageTag
                   : Origin.CustomFeed
               }
@@ -159,18 +170,26 @@ export const FeedSettingsTagsSection = (): ReactElement => {
                         {letter}
                       </Typography>
                       <div className="flex flex-1 flex-wrap gap-2">
-                        {tags.map((tag) => (
-                          <TagElement
-                            key={tag.name}
-                            isSelected
-                            tag={tag}
-                            onClick={() => {
-                              editFeedSettings(() =>
-                                onUnfollowTags({ tags: [tag.name] }),
-                              );
-                            }}
-                          />
-                        ))}
+                        {tags.map((tag) => {
+                          if (!tag.name) {
+                            return null;
+                          }
+
+                          const tagName = tag.name;
+
+                          return (
+                            <TagElement
+                              key={tagName}
+                              isSelected
+                              tag={tag}
+                              onClick={() => {
+                                editFeedSettings(() =>
+                                  onUnfollowTags({ tags: [tagName] }),
+                                );
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   </section>

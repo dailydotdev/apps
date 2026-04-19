@@ -20,6 +20,7 @@ import { SearchPanelSourceSuggestions } from '../../../search/SearchPanel/Search
 import { SearchPanelUserSuggestions } from '../../../search/SearchPanel/SearchPanelUserSuggestions';
 import type { SearchPanelContextValue } from '../../../search/SearchPanel/SearchPanelContext';
 import { SearchPanelContext } from '../../../search/SearchPanel/SearchPanelContext';
+import type { SearchProviderEnum } from '../../../../graphql/search';
 import { defaultSearchProvider, providerToLabelTextMap } from '../../../search';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -39,9 +40,17 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
   const { editFeedSettings } = useFeedSettingsEditContext();
   const { user } = useAuthContext();
   const queryClient = useQueryClient();
-  const [activeView, setActiveView] = useState<string>(() => tabs[0]);
+  const [activeView, setActiveViewState] = useState<string>(() => tabs[0]);
 
-  const [state, setState] = useState(() => {
+  type SearchPanelState = {
+    provider: SearchProviderEnum | undefined;
+    query: string;
+    isActive: boolean;
+    providerText: string | undefined;
+    providerIcon: ReactElement | undefined;
+  };
+
+  const [state, setState] = useState<SearchPanelState>(() => {
     return {
       provider: undefined,
       query: '',
@@ -135,7 +144,11 @@ export const FeedSettingsContentSourcesSection = (): ReactElement => {
             value={{
               tabs,
               activeView,
-              setActiveView,
+              setActiveView: (view) => {
+                if (view !== undefined) {
+                  setActiveViewState(view);
+                }
+              },
               onRequestClose: noop,
               kind: ModalKind.FlexibleCenter,
               size: ModalSize.Medium,
