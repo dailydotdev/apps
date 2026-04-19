@@ -288,8 +288,8 @@ export const PostPage = ({
               },
             }}
           />
-          {shouldShowAuthBanner && isLaptop && !isPostSignupWidget && (
-            <PostAuthBanner />
+          {shouldShowAuthBanner && isLaptop && (
+            <PostAuthBanner compact={isPostSignupWidget} />
           )}
         </FooterNavBarLayout>
       </LogExtraContextProvider>

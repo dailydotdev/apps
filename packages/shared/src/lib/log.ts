@@ -289,8 +289,6 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
-  ToggleNoAiFeed = 'toggle no ai feed',
-  SaveNoAiFeedPreference = 'save no ai feed preference',
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
