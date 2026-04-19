@@ -71,6 +71,7 @@ type Props = {
   onGithubClick: () => void;
   onAiSubmit: () => void;
   origin: string;
+  isImporting?: boolean;
 };
 
 export function OnboardingChooserGrid({
@@ -80,6 +81,7 @@ export function OnboardingChooserGrid({
   onGithubClick,
   onAiSubmit,
   origin,
+  isImporting,
 }: Props): ReactElement {
   const { logEvent } = useLogContext();
   return (
@@ -219,6 +221,7 @@ export function OnboardingChooserGrid({
           <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
           <button
             type="button"
+            disabled={isImporting}
             onClick={() => {
               logEvent({
                 event_name: LogEvent.Click,
@@ -228,7 +231,10 @@ export function OnboardingChooserGrid({
               });
               onGithubClick();
             }}
-            className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2"
+            className={classNames(
+              'onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2',
+              isImporting && 'opacity-60 cursor-not-allowed',
+            )}
           >
             <GitHubIcon secondary size={IconSize.XSmall} />
             Continue with GitHub
@@ -308,7 +314,7 @@ export function OnboardingChooserGrid({
           <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
           <button
             type="button"
-            disabled={!canStartAiFlow}
+            disabled={!canStartAiFlow || isImporting}
             onClick={() => {
               logEvent({
                 event_name: LogEvent.Click,
@@ -320,7 +326,7 @@ export function OnboardingChooserGrid({
             }}
             className={classNames(
               'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-              canStartAiFlow
+              canStartAiFlow && !isImporting
                 ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                 : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
             )}

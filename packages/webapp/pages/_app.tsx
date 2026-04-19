@@ -328,7 +328,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           />
 
           <link rel="preconnect" href="https://api.daily.dev" />
-          <link rel="preconnect" href="https://sso.daily.dev" />
           <link rel="preconnect" href="https://media.daily.dev" />
         </Head>
         <DefaultSeo

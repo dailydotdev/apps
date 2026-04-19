@@ -67,6 +67,7 @@ import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { HotJarTracking } from '../components/Pixels';
 
 const OnboardingV2 = dynamic(
   () =>
@@ -360,7 +361,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
           initialStepId={initialStepId}
           onComplete={onComplete}
         />
-        {/* <HotJarTracking hotjarId="3871311" /> */}
+        <HotJarTracking hotjarId="3871311" />
       </div>
     )
   );
