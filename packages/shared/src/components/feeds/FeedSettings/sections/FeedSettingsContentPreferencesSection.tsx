@@ -50,6 +50,14 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
 
   return (
     <>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        Shape your feed by choosing which types and categories of content appear
+        in it. These are hard filters, so anything you turn off here won&apos;t
+        show up at all.
+      </Typography>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
@@ -101,13 +109,14 @@ export const FeedSettingsContentPreferencesSection = (): ReactElement => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
-            Categories
+            Post types
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Pick the categories of content you&apos;d like to see in your feed.
+            These are the types of posts that can appear in your feed. Turn off
+            the ones you&apos;d rather not see.
           </Typography>
         </div>
         {contentSourceList?.map(({ id, title, description, options }) => {
