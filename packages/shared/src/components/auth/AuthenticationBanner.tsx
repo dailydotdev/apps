@@ -18,34 +18,58 @@ import { AuthDisplay } from './common';
 
 const Section = classed('div', 'flex flex-col');
 
+interface AuthenticationBannerProps extends PropsWithChildren {
+  compact?: boolean;
+}
+
 export function AuthenticationBanner({
   children,
-}: PropsWithChildren): ReactElement {
+  compact,
+}: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
 
   return (
     <BottomBannerContainer
       className={classNames(
-        'border-t border-accent-cabbage-default py-10 shadow-3',
+        'border-t border-accent-cabbage-default shadow-3',
+        compact ? 'py-4' : 'py-10',
         authGradientBg,
       )}
     >
-      <div className="flex max-w-[63.75rem] flex-row  justify-center gap-10">
+      <div
+        className={classNames(
+          'flex max-w-[63.75rem] flex-row justify-center gap-10',
+          compact && 'items-center',
+        )}
+      >
         <Image
           className="absolute left-0 top-0 -z-1 h-full w-full"
           src={bg}
           srcSet={`${laptopBg} 1440w, ${desktopBg} 1920w, ${bg} 2880w`}
           sizes="(max-width: 1440px) 100vw, (max-width: 1920px) 1920px, 100vw"
         />
-        <Section className="max-w-full flex-grow basis-0 gap-4">
-          {children || (
-            <OnboardingHeadline
-              className={{
-                title: 'typo-mega3',
-                description: 'mb-8 typo-title3',
-              }}
-            />
+        <Section
+          className={classNames(
+            'max-w-full flex-grow basis-0',
+            compact ? 'justify-center gap-2' : 'gap-4',
           )}
+        >
+          {children ||
+            (compact ? (
+              <OnboardingHeadline
+                className={{
+                  title: 'typo-large-title',
+                  description: 'typo-body',
+                }}
+              />
+            ) : (
+              <OnboardingHeadline
+                className={{
+                  title: 'typo-mega3',
+                  description: 'mb-8 typo-title3',
+                }}
+              />
+            ))}
         </Section>
         <Section className="w-[23.25rem]">
           <AuthOptions
@@ -56,7 +80,7 @@ export function AuthenticationBanner({
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
             className={{
-              onboardingSignup: '!gap-4',
+              onboardingSignup: compact ? '!gap-3' : '!gap-4',
             }}
             onAuthStateUpdate={(props) => {
               showLogin({
@@ -67,6 +91,8 @@ export function AuthenticationBanner({
             onboardingSignupButton={{
               variant: ButtonVariant.Primary,
             }}
+            hideLoginLink={compact}
+            compact={compact}
           />
         </Section>
       </div>
