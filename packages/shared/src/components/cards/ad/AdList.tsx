@@ -103,7 +103,9 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
           buttonStyle
           size={ButtonSize.Small}
         />
-        <div className="ml-auto">{!isPlus && <RemoveAd />}</div>
+        <div className="ml-auto">
+          {!isPlus && <RemoveAd className="!font-normal" />}
+        </div>
       </div>
       <AdPixel pixel={ad.pixel} />
     </FeedItemContainer>

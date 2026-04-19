@@ -83,6 +83,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
               <RemoveAd
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
+                className="!font-normal"
               />
             )}
           </div>
