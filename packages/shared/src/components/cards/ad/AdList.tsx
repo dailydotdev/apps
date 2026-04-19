@@ -105,7 +105,10 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         />
         <div className="ml-auto">
           {!isPlus && (
-            <RemoveAd size={ButtonSize.Small} className="!font-normal" />
+            <RemoveAd
+              size={ButtonSize.Small}
+              className="!font-normal typo-footnote"
+            />
           )}
         </div>
       </div>
