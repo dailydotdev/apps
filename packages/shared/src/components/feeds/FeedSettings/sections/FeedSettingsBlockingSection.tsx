@@ -52,8 +52,8 @@ export const FeedSettingsBlockingSection = (): ReactElement => {
         color={TypographyColor.Tertiary}
         type={TypographyType.Callout}
       >
-        Manage everything you’ve excluded from your feed. Search and block
-        sources, squads, users, or tags to fine-tune your content.
+        Block sources, squads, users, or tags you never want to see. Anything
+        blocked here is removed from your feed entirely.
       </Typography>
       <BlockedWords />
       <ModalPropsContext.Provider
