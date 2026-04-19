@@ -8,8 +8,10 @@ import { generateQueryKey, RequestKey } from '../../../lib/query';
 
 const UserPersonalizedBanner = ({
   userId,
+  compact,
 }: {
   userId: string;
+  compact?: boolean;
 }): ReactElement => {
   const key = generateQueryKey(RequestKey.ReferringUser);
   const { data: user, isError } = useQuery({
@@ -18,18 +20,18 @@ const UserPersonalizedBanner = ({
   });
 
   if (isError) {
-    return <AuthenticationBanner />;
+    return <AuthenticationBanner compact={compact} />;
   }
 
   const name = user?.name ? user?.name.split(' ')[0] : user?.username;
 
   return (
-    <AuthenticationBanner>
+    <AuthenticationBanner compact={compact}>
       {user?.image && <ProfilePicture user={user} />}
       <OnboardingHeadline
         className={{
-          title: 'typo-mega3',
-          description: 'mb-8 typo-title3',
+          title: compact ? 'typo-large-title' : 'typo-mega3',
+          description: compact ? 'typo-body' : 'mb-8 typo-title3',
         }}
         pretitle={user?.username}
         title="shared it, so it's probably a good one."
