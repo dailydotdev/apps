@@ -124,9 +124,7 @@ describe('Button', () => {
       <Button variant={ButtonVariant.Primary}>Button</Button>,
     );
 
-    const initialLabel = screen
-      .getByRole('button')
-      .querySelector('.btn-label');
+    const initialLabel = screen.getByRole('button').querySelector('.btn-label');
 
     expect(initialLabel).toBeInTheDocument();
     expect(initialLabel).not.toHaveClass('invisible');
@@ -137,9 +135,7 @@ describe('Button', () => {
       </Button>,
     );
 
-    const loadingLabel = screen
-      .getByRole('button')
-      .querySelector('.btn-label');
+    const loadingLabel = screen.getByRole('button').querySelector('.btn-label');
 
     expect(loadingLabel).toBe(initialLabel);
     expect(loadingLabel).toHaveClass('invisible');
