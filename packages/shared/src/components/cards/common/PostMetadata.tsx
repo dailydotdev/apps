@@ -20,6 +20,8 @@ interface PostMetadataProps
   isVideoType?: boolean;
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
+  numSources?: number;
+  dateLabel?: string;
 }
 
 export default function PostMetadata({
@@ -32,6 +34,8 @@ export default function PostMetadata({
   isVideoType,
   domain,
   pollMetadata,
+  numSources,
+  dateLabel,
 }: PostMetadataProps): ReactElement {
   const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
@@ -62,7 +66,13 @@ export default function PostMetadata({
     !!createdAt &&
       !boostedBy && {
         key: 'date',
-        node: <DateFormat date={createdAt} type={TimeFormatType.Post} />,
+        node: (
+          <DateFormat
+            date={createdAt}
+            type={TimeFormatType.Post}
+            prefix={dateLabel ? `${dateLabel} ` : undefined}
+          />
+        ),
       },
     showReadTime && {
       key: 'readTime',
@@ -72,6 +82,15 @@ export default function PostMetadata({
         </span>
       ),
     },
+    !!numSources &&
+      numSources > 0 && {
+        key: 'sources',
+        node: (
+          <span data-testid="numSources">
+            {numSources} {numSources === 1 ? 'source' : 'sources'}
+          </span>
+        ),
+      },
     !!showReadTime && domain && { key: 'domain', node: domain },
     hasUpvoteCount &&
       upvoteCount > 0 && {
@@ -87,7 +106,7 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-text-tertiary typo-footnote',
+        'flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote',
         className,
       )}
     >

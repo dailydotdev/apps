@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -24,6 +25,9 @@ import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
 import type { Post } from '../../../graphql/posts';
+import { majorHeadlinesQueryOptions } from '../../../graphql/highlights';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureCollectionCardEnhancements } from '../../../lib/featureManagement';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -53,8 +57,32 @@ const CollectionPostContentRaw = ({
     origin,
     post,
   });
-  const { updatedAt, contentHtml, image } = post;
+  const { value: isCollectionEnhancementsEnabled } = useConditionalFeature({
+    feature: featureCollectionCardEnhancements,
+  });
+  const { updatedAt, createdAt, contentHtml, image, numCollectionSources } =
+    post;
+  const wasUpdated =
+    isCollectionEnhancementsEnabled && !!updatedAt && updatedAt !== createdAt;
+  const dateToShow = wasUpdated ? updatedAt : createdAt;
+  const hasSources =
+    isCollectionEnhancementsEnabled &&
+    !!numCollectionSources &&
+    numCollectionSources > 0;
   const { onCopyPostLink, onReadArticle } = engagementActions;
+
+  const { data: highlightsData } = useQuery({
+    ...majorHeadlinesQueryOptions({}),
+    enabled: isCollectionEnhancementsEnabled,
+  });
+  const highlightForPost = useMemo(() => {
+    if (!isCollectionEnhancementsEnabled) {
+      return undefined;
+    }
+    return highlightsData?.majorHeadlines.edges.find(
+      (edge) => edge.node.post.id === post.id,
+    )?.node;
+  }, [highlightsData, post.id, isCollectionEnhancementsEnabled]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -130,7 +158,7 @@ const CollectionPostContentRaw = ({
         >
           <div className="mb-6 flex flex-col gap-6">
             <CollectionsIntro className="mt-6 laptop:hidden" />
-            <div className="flex flex-row items-center pt-6">
+            <div className="flex flex-row items-center gap-2 pt-6">
               <Link href={`${webappUrl}sources/collections`} passHref>
                 <Pill
                   tag="a"
@@ -138,6 +166,22 @@ const CollectionPostContentRaw = ({
                   className="bg-theme-overlay-float-cabbage text-brand-default"
                 />
               </Link>
+              {highlightForPost && (
+                <Link
+                  href={`${webappUrl}highlights?highlight=${highlightForPost.id}`}
+                  passHref
+                >
+                  <Pill
+                    tag="a"
+                    label={
+                      <span className="feed-highlights-title-gradient">
+                        Featured in Happening Now
+                      </span>
+                    }
+                    className="bg-theme-overlay-float-blueCheese"
+                  />
+                </Link>
+              )}
               <CollectionPostHeaderActions
                 post={post}
                 onClose={onClose}
@@ -153,10 +197,22 @@ const CollectionPostContentRaw = ({
               {post.title}
             </h1>
             <PostTagList post={post} />
-            {!!updatedAt && (
-              <div className="flex items-center text-text-tertiary typo-footnote">
-                <span>Last updated</span> <Separator />
-                <DateFormat date={updatedAt} type={TimeFormatType.Post} />
+            {!!dateToShow && (
+              <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+                <DateFormat
+                  date={dateToShow}
+                  type={TimeFormatType.Post}
+                  prefix={wasUpdated ? 'Last updated ' : undefined}
+                />
+                {hasSources && (
+                  <>
+                    <Separator />
+                    <span>
+                      {numCollectionSources}{' '}
+                      {numCollectionSources === 1 ? 'source' : 'sources'}
+                    </span>
+                  </>
+                )}
               </div>
             )}
             {image && (

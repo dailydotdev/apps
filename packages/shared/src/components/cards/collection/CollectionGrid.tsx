@@ -16,6 +16,7 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -35,6 +36,11 @@ export const CollectionGrid = forwardRef(function CollectionCard(
 ) {
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
+  const { highlighted, collectionEnhancementsEnabled } = useFeedCardContext();
+  const wasUpdated =
+    collectionEnhancementsEnabled &&
+    !!post.updatedAt &&
+    post.updatedAt !== post.createdAt;
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
 
@@ -45,7 +51,11 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
-      flagProps={{ pinnedAt, trending }}
+      flagProps={{
+        pinnedAt,
+        trending,
+        highlighted: collectionEnhancementsEnabled && highlighted,
+      }}
       bookmarked={post.bookmarked}
     >
       <CardOverlay
@@ -70,8 +80,12 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         <PostTags post={post} className="!items-end" />
       </CardTextContainer>
       <PostMetadata
-        createdAt={post.createdAt}
+        createdAt={wasUpdated ? post.updatedAt : post.createdAt}
+        dateLabel={wasUpdated ? 'Updated' : undefined}
         readTime={post.readTime}
+        numSources={
+          collectionEnhancementsEnabled ? post.numCollectionSources : undefined
+        }
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
       <Container>

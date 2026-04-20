@@ -42,6 +42,9 @@ interface CardHeaderProps {
     topLabel?: PostMetadataProps['topLabel'];
     bottomLabel?: PostMetadataProps['bottomLabel'];
     dateFirst?: PostMetadataProps['dateFirst'];
+    createdAt?: PostMetadataProps['createdAt'];
+    dateLabel?: PostMetadataProps['dateLabel'];
+    numSources?: PostMetadataProps['numSources'];
   };
 }
 

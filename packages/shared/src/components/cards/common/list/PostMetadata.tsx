@@ -19,6 +19,8 @@ export interface PostMetadataProps {
   bottomLabel?: ReactElement | string;
   createdAt?: string;
   dateFirst?: boolean;
+  dateLabel?: string;
+  numSources?: number;
 }
 
 export default function PostMetadata({
@@ -27,10 +29,25 @@ export default function PostMetadata({
   topLabel,
   bottomLabel,
   dateFirst,
+  dateLabel,
+  numSources,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
   const promotedText = useScrambler(
     boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
+  );
+  const hasSources = !!numSources && numSources > 0;
+  const dateNode = !!createdAt && (
+    <DateFormat
+      date={createdAt}
+      type={TimeFormatType.Post}
+      prefix={dateLabel ? `${dateLabel} ` : undefined}
+    />
+  );
+  const sourcesNode = hasSources && (
+    <span data-testid="numSources">
+      {numSources} {numSources === 1 ? 'source' : 'sources'}
+    </span>
   );
 
   return (
@@ -51,9 +68,7 @@ export default function PostMetadata({
         {!!boostedBy && !!bottomLabel && <Separator />}
         {dateFirst ? (
           <>
-            {!!createdAt && (
-              <DateFormat date={createdAt} type={TimeFormatType.Post} />
-            )}
+            {dateNode}
             {!!createdAt && !!bottomLabel && <Separator />}
             {bottomLabel}
           </>
@@ -61,11 +76,13 @@ export default function PostMetadata({
           <>
             {bottomLabel}
             {(!!bottomLabel || !!boostedBy) && !!createdAt && <Separator />}
-            {!!createdAt && (
-              <DateFormat date={createdAt} type={TimeFormatType.Post} />
-            )}
+            {dateNode}
           </>
         )}
+        {(!!createdAt || !!bottomLabel || !!boostedBy) && sourcesNode && (
+          <Separator />
+        )}
+        {sourcesNode}
       </div>
     </div>
   );

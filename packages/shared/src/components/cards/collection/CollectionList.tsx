@@ -18,6 +18,7 @@ import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -38,6 +39,11 @@ export const CollectionList = forwardRef(function CollectionCard(
   const isMobile = useViewSize(ViewSize.MobileL);
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title);
+  const { highlighted, collectionEnhancementsEnabled } = useFeedCardContext();
+  const wasUpdated =
+    collectionEnhancementsEnabled &&
+    !!post.updatedAt &&
+    post.updatedAt !== post.createdAt;
   const actionButtons = (
     <Container className="pointer-events-none mt-2">
       <ActionButtons
@@ -60,7 +66,12 @@ export const CollectionList = forwardRef(function CollectionCard(
         className: domProps.className,
       }}
       ref={ref}
-      flagProps={{ pinnedAt: post.pinnedAt, type: post.type }}
+      flagProps={{
+        pinnedAt: post.pinnedAt,
+        type: post.type,
+        trending: post.trending,
+        highlighted: collectionEnhancementsEnabled && highlighted,
+      }}
       linkProps={{
         title: post.title,
         onClick: () => onPostClick(post),
@@ -69,7 +80,16 @@ export const CollectionList = forwardRef(function CollectionCard(
       bookmarked={post.bookmarked}
     >
       <CardContainer>
-        <PostCardHeader post={post}>
+        <PostCardHeader
+          post={post}
+          metadata={{
+            createdAt: wasUpdated ? post.updatedAt : post.createdAt,
+            dateLabel: wasUpdated ? 'Updated' : undefined,
+            numSources: collectionEnhancementsEnabled
+              ? post.numCollectionSources
+              : undefined,
+          }}
+        >
           <CollectionPillSources
             className={{
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),
