@@ -51,7 +51,6 @@ import {
   NotificationPromptSource,
   TargetType,
 } from '../../lib/log';
-import { useNotificationCtaExperiment } from '../notifications/useNotificationCtaExperiment';
 import { useNotificationCtaAnalytics } from '../notifications/useNotificationCtaAnalytics';
 
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
@@ -122,8 +121,6 @@ export const usePostToSquad = ({
   const { isSubscribed } = usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
   const { logClick, logImpression } = useNotificationCtaAnalytics();
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const client = useQueryClient();
   const { completeAction } = useActions();
   const [preview, setPreview] = useState<ExternalLinkPreview>(
@@ -131,8 +128,7 @@ export const usePostToSquad = ({
   );
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
-  const shouldShowEnableNotificationToast =
-    isNotificationCtaExperimentEnabled && !isSubscribed;
+  const shouldShowEnableNotificationToast = !isSubscribed;
 
   const handleMutationError = useCallback(
     (err: unknown): void => {
