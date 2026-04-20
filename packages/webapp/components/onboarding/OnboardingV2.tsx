@@ -52,11 +52,6 @@ import {
 
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
-import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
-import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
-import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
-import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -86,74 +81,6 @@ import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
 import { OnboardingChooserGrid } from './OnboardingChooserGrid';
-
-type RisingTag = {
-  label: string;
-  left: string;
-  delay: string;
-  duration: string;
-  driftX: number;
-};
-
-const RISING_TAGS_DESKTOP: RisingTag[] = [
-  { label: 'React', left: '8%', delay: '0s', duration: '14s', driftX: 12 },
-  { label: 'AI & ML', left: '28%', delay: '1.2s', duration: '15s', driftX: -8 },
-  {
-    label: 'System Design',
-    left: '52%',
-    delay: '0.6s',
-    duration: '14.5s',
-    driftX: 10,
-  },
-  { label: 'Docker', left: '78%', delay: '2s', duration: '13.8s', driftX: -14 },
-  {
-    label: 'TypeScript',
-    left: '18%',
-    delay: '3.4s',
-    duration: '15.2s',
-    driftX: 8,
-  },
-  {
-    label: 'Next.js',
-    left: '88%',
-    delay: '2.8s',
-    duration: '14.4s',
-    driftX: -10,
-  },
-  {
-    label: 'Python',
-    left: '42%',
-    delay: '4.2s',
-    duration: '14.8s',
-    driftX: -6,
-  },
-  {
-    label: 'Kubernetes',
-    left: '66%',
-    delay: '5s',
-    duration: '14.2s',
-    driftX: 12,
-  },
-];
-
-const RISING_TAGS_MOBILE: RisingTag[] = [
-  { label: 'React', left: '10%', delay: '0s', duration: '13.5s', driftX: 8 },
-  {
-    label: 'AI & ML',
-    left: '55%',
-    delay: '1.5s',
-    duration: '14s',
-    driftX: -10,
-  },
-  { label: 'Docker', left: '30%', delay: '3s', duration: '13s', driftX: 6 },
-  {
-    label: 'TypeScript',
-    left: '75%',
-    delay: '4.5s',
-    duration: '14.5s',
-    driftX: -8,
-  },
-];
 
 export type OnboardingStep =
   | 'hero'
@@ -253,7 +180,6 @@ export const OnboardingV2 = (): ReactElement => {
   const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
-    tagsReady,
     feedVisible,
     heroRef,
     confettiParticles,
@@ -293,14 +219,6 @@ export const OnboardingV2 = (): ReactElement => {
   const popularFeedNameValue = useMemo(
     () => ({ feedName: SharedFeedPage.Popular as const }),
     [],
-  );
-
-  const openSignup = useCallback(
-    (context: 'github' | 'ai') => {
-      setSignupContext(context);
-      setStep('prompt');
-    },
-    [setSignupContext],
   );
 
   const clearImportTimers = useCallback(() => {
@@ -715,10 +633,25 @@ export const OnboardingV2 = (): ReactElement => {
     };
   }, [importBodyPhase]);
 
+  useEffect(() => {
+    if (step !== 'hero') {
+      return undefined;
+    }
+    const { style } = document.body;
+    const prev = style.overflow;
+    style.overflow = 'hidden';
+    return () => {
+      style.overflow = prev;
+    };
+  }, [step]);
+
   return (
     <div
       ref={pageRef}
-      className="onb-page relative tablet:pt-16 laptop:pl-11"
+      className={classNames(
+        'onb-page relative tablet:pt-16',
+        step === 'hero' && 'flex min-h-dvh flex-col overflow-hidden',
+      )}
       role="presentation"
     >
       <OnboardingV2Styles />
@@ -752,46 +685,18 @@ export const OnboardingV2 = (): ReactElement => {
         )}
       </header>
 
-      {/* ── Dummy Sidebar (laptop only) ── */}
-      <aside className="pointer-events-none fixed left-0 top-16 z-2 hidden h-[calc(100vh-theme(space.16))] w-11 select-none flex-col border-r border-border-subtlest-tertiary bg-background-default laptop:flex">
-        <nav className="flex flex-col items-center gap-0.5 pt-3">
-          <div className="flex h-9 w-full items-center justify-center">
-            <HomeIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <SquadIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <HotIcon className="h-5 w-5 text-text-disabled" secondary={false} />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <EyeIcon className="h-5 w-5 text-text-disabled" secondary={false} />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <TerminalIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-        </nav>
-      </aside>
-
       {/* ── Hero ── */}
       <section
         ref={heroRef}
         className={classNames(
-          'onb-hero relative overflow-hidden py-2 tablet:py-8',
+          'onb-hero relative overflow-hidden',
           step === 'complete' && 'hidden',
+          step === 'hero' && 'flex min-h-0 flex-1 flex-col',
+          step !== 'hero' && 'py-2 tablet:py-8',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
       >
-        <div className="z-10 relative mx-auto mb-3 flex w-full max-w-[63.75rem] items-center justify-between px-4 tablet:hidden">
+        <div className="z-10 relative mx-auto mb-3 flex w-full max-w-[63.75rem] shrink-0 items-center justify-between px-4 tablet:hidden">
           <Logo
             compact
             position={LogoPosition.Relative}
@@ -842,57 +747,23 @@ export const OnboardingV2 = (): ReactElement => {
           <div className="onb-float-1 bg-accent-cheese-default/20 absolute left-[25%] top-[70%] h-1 w-1 rounded-full" />
           <div className="onb-float-2 bg-accent-cabbage-default/20 absolute left-[85%] top-[45%] h-1 w-1 rounded-full" />
           <div className="onb-float-3 bg-white/20 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full" />
-          {tagsReady &&
-            RISING_TAGS_DESKTOP.map((tag) => (
-              <span
-                key={tag.label}
-                className="onb-rising-tag absolute bottom-0 hidden whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption1 tablet:block"
-                style={
-                  {
-                    left: tag.left,
-                    '--tag-delay': tag.delay,
-                    '--tag-duration': tag.duration,
-                    '--tag-drift-x': `${tag.driftX}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {tag.label}
-              </span>
-            ))}
         </div>
 
         {/* Single radial hero glow */}
         <div className="onb-hero-radial pointer-events-none absolute inset-x-0 top-0 h-[26rem]" />
 
-        {/* Centered text content */}
-        <div className="relative mx-auto max-w-[63.75rem] px-4 text-center laptop:px-6">
+        {/* Title + chooser — on hero, flex fills space above footer (no page scroll) */}
+        <div
+          className={classNames(
+            'z-10 relative mx-auto w-full max-w-[63.75rem] px-4 text-center laptop:px-6',
+            step === 'hero'
+              ? 'flex min-h-0 flex-1 flex-col justify-center py-2 tablet:py-4'
+              : 'py-2',
+          )}
+        >
           <div className="pointer-events-none mb-1 hidden h-[1.5rem] tablet:block" />
-          {/* Mobile-only rising tags */}
-          <div
-            className={classNames(
-              'pointer-events-none relative mb-4 h-[4.5rem] overflow-hidden tablet:hidden',
-            )}
-          >
-            {tagsReady &&
-              RISING_TAGS_MOBILE.map((tag) => (
-                <span
-                  key={`mob-${tag.label}`}
-                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
-                  style={
-                    {
-                      left: tag.left,
-                      '--tag-delay': tag.delay,
-                      '--tag-duration': tag.duration,
-                      '--tag-drift-x': `${tag.driftX}px`,
-                    } as React.CSSProperties
-                  }
-                >
-                  {tag.label}
-                </span>
-              ))}
-          </div>
 
-          {/* Headline */}
+          {/* Headline — slightly smaller than typo-mega1 on tablet */}
           <div
             className={classNames(
               'transition-all duration-700 ease-out',
@@ -900,140 +771,52 @@ export const OnboardingV2 = (): ReactElement => {
             )}
             style={{ transitionDelay: '200ms' }}
           >
-            <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
+            <h1 className="mx-auto max-w-[22rem] font-bold leading-[1.3] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.22] tablet:typo-large-title">
               <span className="text-text-primary">
-                Staying updated shouldn&apos;t be hard
+                Staying sharp shouldn&apos;t be hard
               </span>
               <br />
               <span className="onb-gradient-text bg-clip-text text-transparent">
-                Get your personalized dev feed
+                A dev feed built around your stack
               </span>
             </h1>
           </div>
 
-          {/* Subtext */}
-          <div
-            className={classNames(
-              'transition-all duration-700 ease-out',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-            )}
-            style={{ transitionDelay: '400ms' }}
-          >
-            <p
-              className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
-              style={{ lineHeight: '1.65' }}
+          {step === 'hero' && (
+            <div
+              className={classNames(
+                'relative mx-auto mt-6 w-full max-w-[58rem] px-0 tablet:mt-8',
+                mounted
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-3 opacity-0',
+                'transition-all duration-700 ease-out',
+              )}
+              style={{ transitionDelay: '350ms' }}
             >
-              Millions of developers rely on daily.dev for tech news, tools, and
-              discussions that actually matter. Tailored to your stack from day
-              one.
-            </p>
-          </div>
-
-          {/* Hero CTA group */}
-          <div
-            className={classNames(
-              'mt-7 transition-all duration-700 ease-out',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-            )}
-            style={{ transitionDelay: '500ms' }}
-          >
-            <div className="relative mx-auto flex w-full flex-col items-center justify-center gap-3 tablet:w-fit tablet:flex-row">
-              <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
-              <button
-                type="button"
-                disabled={isImporting}
-                onClick={() => {
-                  logEvent({
-                    event_name: LogEvent.Click,
-                    target_type: TargetType.HeroCta,
-                    target_id: TargetId.GitHub,
-                  });
+              <OnboardingChooserGrid
+                aiPrompt={aiPrompt}
+                onAiPromptChange={setAiPrompt}
+                canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
+                origin={Origin.OnboardingFeedEnd}
+                onGithubClick={() => {
                   if (isLoggedIn) {
                     startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
                   }
                 }}
-                className={classNames(
-                  'onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto',
-                  isImporting && 'opacity-60 cursor-not-allowed',
-                )}
-              >
-                <GitHubIcon secondary size={IconSize.XSmall} />
-                One-click setup
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  logEvent({
-                    event_name: LogEvent.Click,
-                    target_type: TargetType.HeroCta,
-                    target_id: TargetId.AI,
-                  });
-                  openSignup('ai');
-                }}
-                className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
-              >
-                <MagicIcon
-                  secondary
-                  size={IconSize.Size16}
-                  className="text-text-primary"
-                />
-                Set up with AI
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-text-quaternary transition-transform duration-300 group-hover:translate-x-0.5"
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile-only bottom rising tags */}
-          <div className="pointer-events-none relative mt-5 h-[4.5rem] overflow-hidden tablet:hidden">
-            {tagsReady &&
-              RISING_TAGS_MOBILE.map((tag) => (
-                <span
-                  key={`mob-bot-${tag.label}`}
-                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
-                  style={
-                    {
-                      left: `${100 - parseInt(tag.left, 10)}%`,
-                      '--tag-delay': `${parseFloat(tag.delay) + 2}s`,
-                      '--tag-duration': tag.duration,
-                      '--tag-drift-x': `${-tag.driftX}px`,
-                    } as React.CSSProperties
+                onAiSubmit={() => {
+                  if (isLoggedIn) {
+                    startAiProcessing();
+                  } else {
+                    setSignupContext('ai');
+                    openSignupAuth();
                   }
-                >
-                  {tag.label}
-                </span>
-              ))}
-          </div>
+                }}
+              />
+            </div>
+          )}
         </div>
       </section>
 
@@ -1302,75 +1085,38 @@ export const OnboardingV2 = (): ReactElement => {
         </div>
       )}
 
-      {/* ── Feed ── */}
-      <div
-        className={classNames(
-          'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
-          // eslint-disable-next-line no-nested-ternary
-          step === 'complete'
-            ? 'onb-feed-unlocked translate-y-0 opacity-100'
-            : feedVisible
-            ? 'translate-y-0 opacity-100'
-            : 'pointer-events-none translate-y-2 opacity-0',
-        )}
-      >
-        <SearchProvider>
-          <FeedLayoutProvider>
-            <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-              <MainFeedLayout feedName="popular" isSearchOn={false} />
-            </ActiveFeedNameContext.Provider>
-          </FeedLayoutProvider>
-        </SearchProvider>
-        {/* ── Inline chooser panel at feed end ── */}
-        {step === 'hero' && (
-          <div className="relative -mt-48 tablet:-mt-64">
-            <div
-              className="pointer-events-none absolute inset-x-0 top-0 h-full"
-              style={{
-                background:
-                  'linear-gradient(to bottom, transparent 0%, var(--theme-background-default) 25%, var(--theme-background-default) 100%)',
-              }}
-              aria-hidden
-            />
-            <div className="relative mx-auto w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:px-8">
-              <div className="mb-6 text-center tablet:mb-8">
-                <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
-                  You just explored the global feed.
-                </p>
-                <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
-                  Now build a feed that is truly yours
-                </h3>
-              </div>
-
-              <OnboardingChooserGrid
-                aiPrompt={aiPrompt}
-                onAiPromptChange={setAiPrompt}
-                canStartAiFlow={canStartAiFlow}
-                isImporting={isImporting}
-                origin={Origin.OnboardingFeedEnd}
-                onGithubClick={() => {
-                  if (isLoggedIn) {
-                    startImportFlowGithub();
-                  } else {
-                    initiateGithubAuth();
-                  }
-                }}
-                onAiSubmit={() => {
-                  if (isLoggedIn) {
-                    startAiProcessing();
-                  } else {
-                    setSignupContext('ai');
-                    openSignupAuth();
-                  }
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      {/* ── Feed (hidden on hero — chooser lives in hero) ── */}
+      {step !== 'hero' && (
+        <div
+          className={classNames(
+            'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
+            // eslint-disable-next-line no-nested-ternary
+            step === 'complete'
+              ? 'onb-feed-unlocked translate-y-0 opacity-100'
+              : feedVisible
+              ? 'translate-y-0 opacity-100'
+              : 'pointer-events-none translate-y-2 opacity-0',
+          )}
+        >
+          <SearchProvider>
+            <FeedLayoutProvider>
+              <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
+                <MainFeedLayout feedName="popular" isSearchOn={false} />
+              </ActiveFeedNameContext.Provider>
+            </FeedLayoutProvider>
+          </SearchProvider>
+        </div>
+      )}
 
       {step !== 'complete' && (
-        <div className="relative z-1 mx-auto mt-4 flex w-full max-w-[48rem] justify-center px-5 pb-4 mobileL:px-6">
+        <div
+          className={classNames(
+            'relative z-1 mx-auto flex w-full max-w-[48rem] justify-center px-5 mobileL:px-6',
+            step === 'hero'
+              ? 'mt-auto shrink-0 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]'
+              : 'mt-4 pb-4',
+          )}
+        >
           <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
         </div>
       )}
