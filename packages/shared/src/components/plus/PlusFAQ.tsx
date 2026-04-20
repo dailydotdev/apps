@@ -9,9 +9,12 @@ import {
 import { Accordion } from '../accordion';
 import { anchorDefaultRel } from '../../lib/strings';
 import { feedback } from '../../lib/constants';
-import { plusFAQItems } from './common';
+import { plusFAQItemsApi, plusFAQItemsControl } from './common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { useConditionalFeature } from '../../hooks';
+import { featurePlusApiLanding } from '../../lib/featureManagement';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 
 interface FAQ {
   question: string;
@@ -50,6 +53,13 @@ const FAQItem = ({ item }: { item: FAQ }): ReactElement => {
 export const PlusFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
+  const { isPlus } = usePlusSubscription();
+  const { value: apiLandingVariant } = useConditionalFeature({
+    feature: featurePlusApiLanding,
+    shouldEvaluate: !isPlus,
+  });
+  const items =
+    apiLandingVariant === 'api' ? plusFAQItemsApi : plusFAQItemsControl;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography
@@ -62,7 +72,7 @@ export const PlusFAQ = (): ReactElement => {
         Frequently asked questions
       </Typography>
       <div className="mx-auto flex max-w-3xl flex-col gap-4">
-        {plusFAQItems.map((item) => (
+        {items.map((item) => (
           <FAQItem key={item.question} item={item} />
         ))}
       </div>

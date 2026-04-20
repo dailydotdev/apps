@@ -11,23 +11,7 @@ type FAQItem = {
   answer: React.ReactNode;
 };
 
-export const plusFAQItems: FAQItem[] = [
-  {
-    question: 'What can I build with the API?',
-    answer: `Coding agents, Slack bots, dashboards, personalized digests, anything that needs a feed of what developers are actually reading. Check the API docs for available endpoints and pre-built integrations with Claude Code, Cursor, and Codex.`,
-  },
-  {
-    question: 'What endpoints does the API have?',
-    answer: `Personalized feed, search, post details, bookmarks. Full OpenAPI spec at api.daily.dev/public/v1/docs/json.`,
-  },
-  {
-    question: 'How does authentication work?',
-    answer: `You create personal access tokens from your account settings after subscribing. Pick an expiration (30 days, 90 days, 1 year, or never) and use it as a Bearer token.`,
-  },
-  {
-    question: 'Are there usage limits?',
-    answer: `There are rate limits designed for personal use and small integrations. If you're planning something heavier, email support@daily.dev and we'll figure it out together.`,
-  },
+export const plusFAQItemsControl: FAQItem[] = [
   {
     question: 'Can I use my Plus membership on multiple devices?',
     answer: `Yes! Your Plus benefits are tied to your account, so you can use them across all your devices (desktop, mobile, or tablet) just by logging in.`,
@@ -72,4 +56,28 @@ export const plusFAQItems: FAQItem[] = [
     question: 'What happens to my data if I cancel?',
     answer: `Your preferences and bookmarks will stay in your account, but some premium features (like custom feeds, advanced filtering, and bookmark folders) will no longer be accessible.`,
   },
+];
+
+const apiFAQItems: FAQItem[] = [
+  {
+    question: 'What can I build with the API?',
+    answer: `Coding agents, Slack bots, dashboards, personalized digests, anything that needs a feed of what developers are actually reading. Check the API docs for available endpoints and pre-built integrations with Claude Code, Cursor, and Codex.`,
+  },
+  {
+    question: 'What endpoints does the API have?',
+    answer: `Personalized feed, search, post details, bookmarks. Full OpenAPI spec at api.daily.dev/public/v1/docs/json.`,
+  },
+  {
+    question: 'How does authentication work?',
+    answer: `You create personal access tokens from your account settings after subscribing. Pick an expiration (30 days, 90 days, 1 year, or never) and use it as a Bearer token.`,
+  },
+  {
+    question: 'Are there usage limits?',
+    answer: `There are rate limits designed for personal use and small integrations. If you're planning something heavier, email support@daily.dev and we'll figure it out together.`,
+  },
+];
+
+export const plusFAQItemsApi: FAQItem[] = [
+  ...apiFAQItems,
+  ...plusFAQItemsControl,
 ];

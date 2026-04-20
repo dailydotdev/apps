@@ -8,6 +8,7 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { anchorDefaultRel } from '../../lib/strings';
+import { plusPublicApiDocs } from '../../lib/constants';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import { AiIcon, MagicIcon, TerminalIcon } from '../icons';
@@ -92,7 +93,7 @@ export const PlusApiShowcase = (): ReactElement => {
       <div className="mt-8 flex justify-center">
         <Button
           tag="a"
-          href="https://docs.daily.dev/docs/plus/public-api"
+          href={plusPublicApiDocs}
           target="_blank"
           rel={anchorDefaultRel}
           size={ButtonSize.Medium}

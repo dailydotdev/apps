@@ -13,12 +13,11 @@ import {
   plusFeatureListApiFirst,
   plusOrganizationFeatureList,
 } from './PlusList';
-import { useFeature } from '../GrowthBookProvider';
+import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { usePlusSubscription } from '../../hooks';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -150,12 +149,15 @@ export const PlusInfo = ({
   const { giftOneYear, isOrganization, checkoutItemsLoading } =
     usePaymentContext();
   const { openModal } = useLazyModal();
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const { giftToUser } = useGiftUserContext();
 
   const [itemQuantity, setItemQuantity] = useState<number>(1);
 
-  const apiLandingVariant = useFeature(featurePlusApiLanding);
+  const { value: apiLandingVariant } = useConditionalFeature({
+    feature: featurePlusApiLanding,
+    shouldEvaluate: !isPlus,
+  });
   const isApiVariant = apiLandingVariant === 'api';
 
   const plusType = getPlusType({
