@@ -82,7 +82,8 @@ function FeedItemContainer(
   const isFeedPreview = useFeedPreviewMode();
   const showFlag =
     (!!pinnedAt || !!highlighted || !!trending) && !isFeedPreview;
-  const showTypeLabel = !!adAttribution || !!type;
+  const typeLabelValue = adAttribution ?? type;
+  const showTypeLabel = !!typeLabelValue;
   const [focus, setFocus] = useState(false);
 
   return (
@@ -100,7 +101,7 @@ function FeedItemContainer(
         ...(highlightBookmarkedPost && { background: bookmarkProviderListBg }),
       }}
     >
-      {linkProps && (
+      {linkProps?.href && (
         <Link href={linkProps.href}>
           <CardLink
             {...linkProps}
@@ -111,10 +112,10 @@ function FeedItemContainer(
       )}
       {(showTypeLabel || showFlag) && (
         <fieldset>
-          {showTypeLabel && (
+          {typeLabelValue && (
             <TypeLabel
               focus={focus}
-              type={adAttribution ?? type}
+              type={typeLabelValue}
               className="absolute left-3"
             />
           )}

@@ -41,14 +41,18 @@ export const CollectionGrid = forwardRef(function CollectionCard(
     collectionEnhancementsEnabled &&
     !!post.updatedAt &&
     post.updatedAt !== post.createdAt;
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
   return (
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        className: getPostClassNames(
+          post,
+          domProps.className ?? '',
+          'min-h-card',
+        ),
       }}
       ref={ref}
       flagProps={{

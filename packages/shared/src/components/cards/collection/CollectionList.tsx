@@ -38,7 +38,7 @@ export const CollectionList = forwardRef(function CollectionCard(
 ) {
   const isMobile = useViewSize(ViewSize.MobileL);
   const image = usePostImage(post);
-  const { title } = useTruncatedSummary(post?.title);
+  const { title } = useTruncatedSummary(post?.title ?? '');
   const { highlighted, collectionEnhancementsEnabled } = useFeedCardContext();
   const wasUpdated =
     collectionEnhancementsEnabled &&
@@ -74,7 +74,7 @@ export const CollectionList = forwardRef(function CollectionCard(
       }}
       linkProps={{
         title: post.title,
-        onClick: () => onPostClick(post),
+        onClick: () => onPostClick?.(post),
         href: post.commentsPermalink,
       }}
       bookmarked={post.bookmarked}
@@ -95,8 +95,8 @@ export const CollectionList = forwardRef(function CollectionCard(
               main: classNames(!!post.collectionSources?.length && '-my-0.5'),
               avatar: 'group-hover:border-background-subtle',
             }}
-            sources={post.collectionSources}
-            totalSources={post.numCollectionSources}
+            sources={post.collectionSources ?? []}
+            totalSources={post.numCollectionSources ?? 0}
             alwaysShowSources
           />
         </PostCardHeader>
