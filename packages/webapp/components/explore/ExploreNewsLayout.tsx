@@ -65,6 +65,7 @@ import {
 import type { ExploreStory } from './exploreTypes';
 import { ExploreTopCommentChip } from './ExploreTopCommentChip';
 import { ExploreTopNewsHeader } from './ExploreTopNewsHeader';
+import { NewExploreLayoutBanner } from './NewExploreLayoutBanner';
 
 export type { ExploreStory } from './exploreTypes';
 
@@ -741,13 +742,11 @@ const StorySectionBlock = ({
           </h2>
         </header>
       )}
-      {section.id !== 'latest' && (
+      {!isLatestSection && !isPopularSection && (
         <header className="mb-2 flex items-center justify-between gap-3">
           <Link href={section.href}>
             <a className="text-text-primary transition-colors">
-              <h2 className="font-bold typo-title3">
-                {isPopularSection ? 'More stories' : section.title}
-              </h2>
+              <h2 className="font-bold typo-title3">{section.title}</h2>
             </a>
           </Link>
         </header>
@@ -909,11 +908,6 @@ const MoreStoriesStrip = ({
 
   return (
     <section id="more-stories-strip" className="my-4">
-      <header className="mb-2">
-        <h2 className="font-bold text-text-primary typo-title3">
-          More stories
-        </h2>
-      </header>
       <div className="rounded-16 pb-3 pl-0 pr-0 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-0 laptop:pt-0">
         {stories.map((story) => (
           <StoryRow
@@ -1429,6 +1423,8 @@ export const ExploreNewsLayout = ({
           ))}
         </div>
       </section>
+
+      <NewExploreLayoutBanner />
 
       <section id="top-news" className="w-full px-8 pb-6 pt-0 laptop:px-8">
         <ExploreTopNewsHeader activeTabId={activeTabId} />
