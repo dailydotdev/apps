@@ -16,7 +16,7 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
-import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+import { isPostUpdated } from '../../../graphql/posts';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -36,11 +36,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
 ) {
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
-  const { highlighted, collectionEnhancementsEnabled } = useFeedCardContext();
-  const wasUpdated =
-    collectionEnhancementsEnabled &&
-    !!post.updatedAt &&
-    post.updatedAt !== post.createdAt;
+  const wasUpdated = isPostUpdated(post);
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
@@ -55,11 +51,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         ),
       }}
       ref={ref}
-      flagProps={{
-        pinnedAt,
-        trending,
-        highlighted: collectionEnhancementsEnabled && highlighted,
-      }}
+      flagProps={{ pinnedAt, trending }}
       bookmarked={post.bookmarked}
     >
       <CardOverlay
@@ -87,9 +79,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         createdAt={wasUpdated ? post.updatedAt : post.createdAt}
         dateLabel={wasUpdated ? 'Updated' : undefined}
         readTime={post.readTime}
-        numSources={
-          collectionEnhancementsEnabled ? post.numCollectionSources : undefined
-        }
+        numSources={post.numCollectionSources}
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
       <Container>

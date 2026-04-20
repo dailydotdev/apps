@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -24,10 +23,8 @@ import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
-import type { Post } from '../../../graphql/posts';
-import { majorHeadlinesQueryOptions } from '../../../graphql/highlights';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureCollectionCardEnhancements } from '../../../lib/featureManagement';
+import { isPostUpdated, type Post } from '../../../graphql/posts';
+import { pluralize } from '../../../lib/strings';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -57,32 +54,12 @@ const CollectionPostContentRaw = ({
     origin,
     post,
   });
-  const { value: isCollectionEnhancementsEnabled } = useConditionalFeature({
-    feature: featureCollectionCardEnhancements,
-  });
-  const { updatedAt, createdAt, contentHtml, image, numCollectionSources } =
+  const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
     post;
-  const wasUpdated =
-    isCollectionEnhancementsEnabled && !!updatedAt && updatedAt !== createdAt;
+  const wasUpdated = isPostUpdated(post);
   const dateToShow = wasUpdated ? updatedAt : createdAt;
-  const hasSources =
-    isCollectionEnhancementsEnabled &&
-    !!numCollectionSources &&
-    numCollectionSources > 0;
+  const hasSources = !!numCollectionSources && numCollectionSources > 0;
   const { onCopyPostLink, onReadArticle } = engagementActions;
-
-  const { data: highlightsData } = useQuery({
-    ...majorHeadlinesQueryOptions({}),
-    enabled: isCollectionEnhancementsEnabled,
-  });
-  const highlightForPost = useMemo(() => {
-    if (!isCollectionEnhancementsEnabled) {
-      return undefined;
-    }
-    return highlightsData?.majorHeadlines.edges.find(
-      (edge) => edge.node.post.id === post.id,
-    )?.node;
-  }, [highlightsData, post.id, isCollectionEnhancementsEnabled]);
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const containerClass = classNames(
@@ -166,22 +143,6 @@ const CollectionPostContentRaw = ({
                   className="bg-theme-overlay-float-cabbage text-brand-default"
                 />
               </Link>
-              {highlightForPost && (
-                <Link
-                  href={`${webappUrl}highlights?highlight=${highlightForPost.id}`}
-                  passHref
-                >
-                  <Pill
-                    tag="a"
-                    label={
-                      <span className="feed-highlights-title-gradient">
-                        Featured in Happening Now
-                      </span>
-                    }
-                    className="bg-theme-overlay-float-blueCheese"
-                  />
-                </Link>
-              )}
               <CollectionPostHeaderActions
                 post={post}
                 onClose={onClose}
@@ -209,7 +170,7 @@ const CollectionPostContentRaw = ({
                     <Separator />
                     <span>
                       {numCollectionSources}{' '}
-                      {numCollectionSources === 1 ? 'source' : 'sources'}
+                      {pluralize('source', numCollectionSources)}
                     </span>
                   </>
                 )}

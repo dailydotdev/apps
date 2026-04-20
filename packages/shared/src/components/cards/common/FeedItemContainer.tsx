@@ -13,7 +13,6 @@ import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
-  highlighted?: boolean;
 }
 
 interface FeedItemContainerProps {
@@ -23,35 +22,6 @@ interface FeedItemContainerProps {
   bookmarked?: boolean;
 }
 
-const getRaisedLabelType = ({
-  pinnedAt,
-  highlighted,
-}: Pick<FlagProps, 'pinnedAt' | 'highlighted'>): RaisedLabelType => {
-  if (pinnedAt) {
-    return RaisedLabelType.Pinned;
-  }
-  if (highlighted) {
-    return RaisedLabelType.Highlight;
-  }
-  return RaisedLabelType.Hot;
-};
-
-const getRaisedLabelDescription = ({
-  type,
-  trending,
-}: {
-  type: RaisedLabelType;
-  trending?: number;
-}): string | undefined => {
-  if (type === RaisedLabelType.Hot) {
-    return `${trending} devs read it last hour`;
-  }
-  if (type === RaisedLabelType.Highlight) {
-    return 'Featured in Happening Now';
-  }
-  return undefined;
-};
-
 function FeedItemContainer(
   { flagProps = {}, children, domProps, bookmarked }: FeedItemContainerProps,
   ref?: Ref<HTMLElement>,
@@ -59,14 +29,17 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { listMode, pinnedAt, trending, highlighted } = flagProps;
-  const type = getRaisedLabelType({ pinnedAt, highlighted });
-  const description = getRaisedLabelDescription({ type, trending });
+  const { listMode, pinnedAt, trending } = flagProps;
+  const type = pinnedAt ? RaisedLabelType.Pinned : RaisedLabelType.Hot;
+  const description =
+    type === RaisedLabelType.Hot
+      ? `${trending} devs read it last hour`
+      : undefined;
   const isFeedPreview = useFeedPreviewMode();
 
   return (
     <ConditionalWrapper
-      condition={(!!pinnedAt || !!highlighted || !!trending) && !isFeedPreview}
+      condition={(!!pinnedAt || !!trending) && !isFeedPreview}
       wrapper={(component) => (
         <RaisedLabelContainer>
           {component}

@@ -27,37 +27,7 @@ interface FlagProps
   extends Omit<Pick<Post, 'pinnedAt' | 'trending' | 'type'>, 'type'> {
   type?: Post['type'] | ReactElement | string;
   adAttribution?: ReactElement | string;
-  highlighted?: boolean;
 }
-
-const getListRaisedLabelType = ({
-  pinnedAt,
-  highlighted,
-}: Pick<FlagProps, 'pinnedAt' | 'highlighted'>): RaisedLabelType => {
-  if (pinnedAt) {
-    return RaisedLabelType.Pinned;
-  }
-  if (highlighted) {
-    return RaisedLabelType.Highlight;
-  }
-  return RaisedLabelType.Hot;
-};
-
-const getListRaisedLabelDescription = ({
-  type,
-  trending,
-}: {
-  type: RaisedLabelType;
-  trending?: number;
-}): string | undefined => {
-  if (type === RaisedLabelType.Hot && trending && trending > 0) {
-    return `${trending} devs read it last hour`;
-  }
-  if (type === RaisedLabelType.Highlight) {
-    return 'Featured in Happening Now';
-  }
-  return undefined;
-};
 
 function FeedItemContainer(
   {
@@ -72,16 +42,16 @@ function FeedItemContainer(
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: bookmarked ?? false,
   });
-  const { adAttribution, pinnedAt, trending, type, highlighted } =
-    flagProps ?? {};
-  const raisedLabelType = getListRaisedLabelType({ pinnedAt, highlighted });
-  const description = getListRaisedLabelDescription({
-    type: raisedLabelType,
-    trending,
-  });
+  const { adAttribution, pinnedAt, trending, type } = flagProps ?? {};
+  const raisedLabelType = pinnedAt
+    ? RaisedLabelType.Pinned
+    : RaisedLabelType.Hot;
+  const description =
+    raisedLabelType === RaisedLabelType.Hot && trending && trending > 0
+      ? `${trending} devs read it last hour`
+      : undefined;
   const isFeedPreview = useFeedPreviewMode();
-  const showFlag =
-    (!!pinnedAt || !!highlighted || !!trending) && !isFeedPreview;
+  const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;
   const typeLabelValue = adAttribution ?? type;
   const showTypeLabel = !!typeLabelValue;
   const [focus, setFocus] = useState(false);

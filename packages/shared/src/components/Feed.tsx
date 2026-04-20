@@ -10,7 +10,6 @@ import React, {
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import type { QueryKey } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
 import type { PostItem, UseFeedOptionalParams } from '../hooks/useFeed';
 import useFeed, { isBoostedPostAd } from '../hooks/useFeed';
 import type { Ad, Post } from '../graphql/posts';
@@ -62,12 +61,9 @@ import { useFeedContentPreferenceMutationSubscription } from './feeds/useFeedCon
 import { useFeedBookmarkPost } from '../hooks/bookmark/useFeedBookmarkPost';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
-import { FeedItemType } from './cards/common/common';
-import { majorHeadlinesQueryOptions } from '../graphql/highlights';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
-  featureCollectionCardEnhancements,
   featureFeedAdTemplate,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -458,38 +454,6 @@ export default function Feed<T>({
     'go to link',
   );
 
-  const { value: isCollectionEnhancementsEnabled } = useConditionalFeature({
-    feature: featureCollectionCardEnhancements,
-  });
-
-  const { data: majorHeadlinesData } = useQuery({
-    ...majorHeadlinesQueryOptions({}),
-    enabled: isCollectionEnhancementsEnabled,
-  });
-
-  const highlightedPostIds = useMemo(() => {
-    const set = new Set<string>();
-    if (!isCollectionEnhancementsEnabled) {
-      return set;
-    }
-    items.forEach((feedItem) => {
-      if (feedItem.type !== FeedItemType.Highlight) {
-        return;
-      }
-      feedItem.highlights.forEach((highlight) => {
-        if (highlight.post?.id) {
-          set.add(highlight.post.id);
-        }
-      });
-    });
-    majorHeadlinesData?.majorHeadlines.edges.forEach(({ node }) => {
-      if (node.post?.id) {
-        set.add(node.post.id);
-      }
-    });
-    return set;
-  }, [items, majorHeadlinesData, isCollectionEnhancementsEnabled]);
-
   const trackFinishFeed = useCallback(() => {
     if (!canFetchMore) {
       logEvent({
@@ -677,11 +641,6 @@ export default function Feed<T>({
                   boostedBy: isBoostedPostAd(item)
                     ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                     : undefined,
-                  highlighted:
-                    item.type === FeedItemType.Post &&
-                    highlightedPostIds.has(item.post.id),
-                  collectionEnhancementsEnabled:
-                    isCollectionEnhancementsEnabled,
                 }}
               >
                 {showPromoBanner && index === indexWhenShowingPromoBanner && (

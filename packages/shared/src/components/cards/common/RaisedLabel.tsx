@@ -10,23 +10,12 @@ export enum RaisedLabelType {
   Hot = 'Hot',
   Pinned = 'Pinned',
   Beta = 'Beta',
-  Highlight = 'Highlight',
 }
 
 const typeToClassName: Record<RaisedLabelType, string> = {
   [RaisedLabelType.Hot]: 'bg-status-error',
   [RaisedLabelType.Pinned]: 'bg-status-warning',
   [RaisedLabelType.Beta]: 'bg-raw-cabbage-40',
-  [RaisedLabelType.Highlight]: 'bg-theme-overlay-float-blueCheese',
-};
-
-const typeToTextClassName: Partial<Record<RaisedLabelType, string>> = {
-  [RaisedLabelType.Highlight]:
-    'feed-highlights-title-gradient text-[0.5rem] leading-none',
-};
-
-const typeToContainerClassName: Partial<Record<RaisedLabelType, string>> = {
-  [RaisedLabelType.Highlight]: 'pt-1',
 };
 
 export interface RaisedLabelProps {
@@ -74,9 +63,8 @@ export function RaisedLabel({
         >
           <div
             className={classNames(
-              'relative -top-2 flex h-4 items-center rounded-4 px-2 font-bold uppercase typo-caption2',
+              'relative -top-2 flex h-4 items-center rounded-4 px-2 font-bold uppercase text-white typo-caption2',
               typeToClassName[type],
-              typeToTextClassName[type] ?? 'text-white',
             )}
           >
             {type}
@@ -106,18 +94,12 @@ export function RaisedLabel({
             'flex items-center px-1',
             styles.flag,
             typeToClassName[type],
-            typeToContainerClassName[type],
             listMode
               ? 'h-5 w-full justify-center rounded-l-4 mouse:translate-x-9'
               : 'h-full flex-col rounded-t-4 mouse:translate-y-4',
           )}
         >
-          <span
-            className={classNames(
-              'font-bold uppercase typo-caption2',
-              typeToTextClassName[type] ?? 'text-white',
-            )}
-          >
+          <span className="font-bold uppercase text-white typo-caption2">
             {type}
           </span>
         </div>

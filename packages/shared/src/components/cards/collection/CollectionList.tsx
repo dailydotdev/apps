@@ -18,7 +18,7 @@ import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
-import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
+import { isPostUpdated } from '../../../graphql/posts';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -39,11 +39,7 @@ export const CollectionList = forwardRef(function CollectionCard(
   const isMobile = useViewSize(ViewSize.MobileL);
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title ?? '');
-  const { highlighted, collectionEnhancementsEnabled } = useFeedCardContext();
-  const wasUpdated =
-    collectionEnhancementsEnabled &&
-    !!post.updatedAt &&
-    post.updatedAt !== post.createdAt;
+  const wasUpdated = isPostUpdated(post);
   const actionButtons = (
     <Container className="pointer-events-none mt-2">
       <ActionButtons
@@ -70,7 +66,6 @@ export const CollectionList = forwardRef(function CollectionCard(
         pinnedAt: post.pinnedAt,
         type: post.type,
         trending: post.trending,
-        highlighted: collectionEnhancementsEnabled && highlighted,
       }}
       linkProps={{
         title: post.title,
@@ -85,9 +80,7 @@ export const CollectionList = forwardRef(function CollectionCard(
           metadata={{
             createdAt: wasUpdated ? post.updatedAt : post.createdAt,
             dateLabel: wasUpdated ? 'Updated' : undefined,
-            numSources: collectionEnhancementsEnabled
-              ? post.numCollectionSources
-              : undefined,
+            numSources: post.numCollectionSources,
           }}
         >
           <CollectionPillSources

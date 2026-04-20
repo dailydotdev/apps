@@ -12,6 +12,7 @@ import {
   TypographyColor,
 } from '../../../typography/Typography';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { pluralize } from '../../../../lib/strings';
 
 export interface PostMetadataProps {
   className?: string;
@@ -46,7 +47,7 @@ export default function PostMetadata({
   );
   const sourcesNode = hasSources && (
     <span data-testid="numSources">
-      {numSources} {numSources === 1 ? 'source' : 'sources'}
+      {numSources} {pluralize('source', numSources)}
     </span>
   );
 

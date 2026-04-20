@@ -6,6 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
+import { pluralize } from '../../../lib/strings';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
@@ -87,7 +88,7 @@ export default function PostMetadata({
         key: 'sources',
         node: (
           <span data-testid="numSources">
-            {numSources} {numSources === 1 ? 'source' : 'sources'}
+            {numSources} {pluralize('source', numSources)}
           </span>
         ),
       },
