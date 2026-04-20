@@ -241,7 +241,7 @@ describe('FunnelPricingV2', () => {
   let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
   const getProceedButton = (): HTMLElement =>
-    screen.getByRole('button', { name: 'Get my plan' });
+    screen.getAllByRole('button', { name: 'Get my plan' })[0];
 
   const getMonthlyPlanRadio = (): HTMLElement => {
     const monthlyPlan = screen
