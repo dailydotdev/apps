@@ -1,5 +1,5 @@
-import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import React, { useContext, useEffect, useRef } from 'react';
+import type { ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -36,7 +36,11 @@ import {
   useToastNotification,
   useVotePost,
 } from '@dailydotdev/shared/src/hooks';
+import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
+import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import type { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
 import '@dailydotdev/shared/src/styles/globals.css';
 import {
   DropdownMenu,
@@ -49,6 +53,7 @@ import { MenuIcon as WrapperMenuIcon } from '@dailydotdev/shared/src/components/
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
 import type { ReportedCallback } from '@dailydotdev/shared/src/components/modals';
+import { ReportPostModal } from '@dailydotdev/shared/src/components/modals';
 import { labels } from '@dailydotdev/shared/src/lib';
 import useCompanionActions from './useCompanionActions';
 import CompanionToggle from './CompanionToggle';
@@ -60,10 +65,10 @@ if (!isTesting) {
 type CompanionMenuProps = {
   post: PostBootData;
   companionHelper: boolean;
-  setPost: (post: PostBootData) => void;
+  setPost: (T) => void;
   companionState: boolean;
   onOptOut: () => void;
-  setCompanionState: Dispatch<SetStateAction<boolean>>;
+  setCompanionState: (T) => void;
   verticalPosition: number;
   setVerticalPosition: (position: number) => void;
   isDragging: boolean;
@@ -83,10 +88,11 @@ export default function CompanionMenu({
   isDragging,
   setIsDragging,
 }: CompanionMenuProps): ReactElement {
-  const { openModal } = useLazyModal();
+  const { modal, closeModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
   const { showPrompt } = usePrompt();
+  const [reportModal, setReportModal] = useState<boolean>();
   const { displayToast } = useToastNotification();
   const dragStartRef = useRef({ y: 0, initialY: 0 });
 
@@ -94,13 +100,7 @@ export default function CompanionMenu({
     'companion_helper',
     companionHelper,
   );
-  const updatePost = async ({
-    update,
-    event,
-  }: {
-    update: Partial<PostBootData>;
-    event: LogEvent;
-  }) => {
+  const updatePost = async ({ update, event }) => {
     const oldPost = post;
     setPost({
       ...post,
@@ -254,9 +254,8 @@ export default function CompanionMenu({
         <WrapperMenuIcon
           Icon={DownvoteIcon}
           className={
-            post?.userState?.vote === UserVote.Down
-              ? 'text-accent-ketchup-default'
-              : undefined
+            post?.userState?.vote === UserVote.Down &&
+            'text-accent-ketchup-default'
           }
           secondary={post?.userState?.vote === UserVote.Down}
         />
@@ -279,17 +278,7 @@ export default function CompanionMenu({
     {
       icon: <WrapperMenuIcon Icon={FlagIcon} />,
       label: 'Report',
-      action: () =>
-        openModal({
-          type: LazyModal.ReportPost,
-          props: {
-            className: 'z-rank',
-            post,
-            index: 1,
-            origin: Origin.CompanionContextMenu,
-            onReported: onReportPost,
-          },
-        }),
+      action: () => setReportModal(true),
     },
     {
       icon: <WrapperMenuIcon Icon={FeedbackIcon} />,
@@ -444,7 +433,35 @@ export default function CompanionMenu({
             <DropdownMenuOptions options={options} />
           </DropdownMenuContent>
         </DropdownMenu>
+        {modal?.type === LazyModal.Share && (
+          <ShareModal
+            isOpen
+            parentSelector={getCompanionWrapper}
+            onRequestClose={closeModal}
+            {...(modal.props as ShareProps)}
+          />
+        )}
+        {modal?.type === LazyModal.UpvotedPopup && (
+          <UpvotedPopupModal
+            isOpen
+            parentSelector={getCompanionWrapper}
+            onRequestClose={closeModal}
+            {...(modal.props as UpvotedPopupModalProps)}
+          />
+        )}
       </div>
+      {reportModal && (
+        <ReportPostModal
+          className="z-rank"
+          post={post}
+          parentSelector={getCompanionWrapper}
+          isOpen={!!reportModal}
+          index={1}
+          origin={Origin.CompanionContextMenu}
+          onReported={onReportPost}
+          onRequestClose={() => setReportModal(null)}
+        />
+      )}
     </>
   );
 }

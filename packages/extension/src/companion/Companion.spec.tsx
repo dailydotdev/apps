@@ -3,68 +3,13 @@ import '@testing-library/jest-dom';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import defaultUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import { PostType, UserVote } from '@dailydotdev/shared/src/graphql/posts';
+import { UserVote } from '@dailydotdev/shared/src/graphql/posts';
 import {
   completeActionMock,
   mockGraphQL,
 } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import App from './App';
-import type { CompanionData } from './App';
-
-const mockCloseModal = jest.fn();
-const mockUseLazyModal = jest.fn<
-  {
-    modal: unknown;
-    closeModal: typeof mockCloseModal;
-    openModal: jest.Mock;
-  },
-  []
->(() => ({
-  modal: null,
-  closeModal: mockCloseModal,
-  openModal: jest.fn(),
-}));
-
-jest.mock('@dailydotdev/shared/src/hooks/useLazyModal', () => ({
-  useLazyModal: () => mockUseLazyModal(),
-}));
-
-function mockCreateModal(testId: string) {
-  const MockModal = ({
-    parentSelector,
-  }: {
-    parentSelector?: () => HTMLElement;
-  }) => (
-    <div data-testid={testId}>{parentSelector?.().tagName ?? 'MISSING'}</div>
-  );
-
-  MockModal.displayName = `MockModal(${testId})`;
-
-  return MockModal;
-}
-
-jest.mock('@dailydotdev/shared/src/components/modals/ShareModal', () => ({
-  __esModule: true,
-  default: mockCreateModal('share-modal'),
-}));
-
-jest.mock(
-  '@dailydotdev/shared/src/components/modals/UpvotedPopupModal',
-  () => ({
-    __esModule: true,
-    default: mockCreateModal('upvoted-modal'),
-  }),
-);
-
-jest.mock(
-  '@dailydotdev/shared/src/components/modals/report/ReportPostModal',
-  () => ({
-    __esModule: true,
-    default: mockCreateModal('report-modal'),
-  }),
-);
 
 jest.mock('webextension-polyfill', () => {
   return {
@@ -101,7 +46,6 @@ const defaultPostData = {
   bookmarked: true,
   commentsPermalink: 'https://app.daily.dev/posts/62S6GrSzK',
   id: '62S6GrSzK',
-  image: 'https://daily.dev/image.png',
   numComments: 1,
   numUpvotes: 6,
   source: { id: 'gamedevacademy', name: 'GameDev Academy' },
@@ -109,7 +53,6 @@ const defaultPostData = {
     'In this lesson, we’ll compare the differences between promises and Async/await. We also learn how to handle errors in JavaScript using try catch blocks. In the next video, we take a look at the differences in promises and Await and then decide which one to use for this course.',
   title: 'Learn Asynchronus Programming – JavaScript Tutorial',
   trending: true,
-  type: PostType.Article,
   upvoted: true,
   downvoted: false,
   userState: {
@@ -117,19 +60,11 @@ const defaultPostData = {
   },
 };
 
-const renderComponent = (
-  postdata: Partial<typeof defaultPostData>,
-  settings: Partial<CompanionData['settings']>,
-): RenderResult => {
+const renderComponent = (postdata, settings): RenderResult => {
   return render(
     <App
-      postData={
-        {
-          ...defaultPostData,
-          ...postdata,
-        } as unknown as CompanionData['postData']
-      }
-      settings={settings as CompanionData['settings']}
+      postData={{ ...defaultPostData, ...postdata }}
+      settings={settings}
       url="https://gamedevacademy.org/javascript-asynchronus-programming-tutorial/"
       alerts={{
         rankLastSeen: new Date(),
@@ -147,39 +82,11 @@ const renderComponent = (
 };
 
 describe('companion app', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockUseLazyModal.mockReturnValue({
-      modal: null,
-      closeModal: mockCloseModal,
-      openModal: jest.fn(),
-    });
-  });
-
   it('should render the companion app', async () => {
     renderComponent({}, {});
     const wrapper = await screen.findByTestId('companion');
     expect(wrapper).toBeInTheDocument();
   });
-
-  it.each([
-    [LazyModal.Share, 'share-modal'],
-    [LazyModal.UpvotedPopup, 'upvoted-modal'],
-    [LazyModal.ReportPost, 'report-modal'],
-  ])(
-    'should render %s from the companion app root with companion parent selector',
-    async (type, testId) => {
-      mockUseLazyModal.mockReturnValue({
-        modal: { type, props: { post: defaultPostData } },
-        closeModal: mockCloseModal,
-        openModal: jest.fn(),
-      });
-
-      renderComponent({}, {});
-
-      expect(await screen.findByTestId(testId)).toHaveTextContent('BODY');
-    },
-  );
 
   it('should not render the companion is opt out', async () => {
     const { container } = renderComponent({}, { optOutCompanion: true });
