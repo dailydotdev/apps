@@ -19,6 +19,7 @@ import {
   getNextPageParam,
   removeCachedPagePost,
   RequestKey,
+  StaleTime,
   updateCachedPagePost,
 } from '../lib/query';
 import type { MarketingCta } from '../components/marketingCta/common';
@@ -226,6 +227,7 @@ export default function useFeed<T>(
       return res;
     },
     refetchOnMount: false,
+    gcTime: StaleTime.OneHour,
     ...options,
     enabled: !!query && tokenRefreshed,
     refetchOnReconnect: false,

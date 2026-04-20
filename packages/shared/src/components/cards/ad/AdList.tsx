@@ -1,5 +1,5 @@
 import type { AnchorHTMLAttributes, ReactElement } from 'react';
-import React, { forwardRef, useCallback } from 'react';
+import React, { forwardRef } from 'react';
 import {
   CardContent,
   CardImage,
@@ -17,7 +17,6 @@ import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
-import { AdRefresh } from './common/AdRefresh';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import AdAttribution from './common/AdAttribution';
@@ -25,6 +24,8 @@ import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import { TargetId } from '../../../lib/log';
+import { AdvertiseLink } from './common/AdvertiseLink';
 
 const getLinkProps = ({
   ad,
@@ -42,30 +43,29 @@ const getLinkProps = ({
   };
 };
 
-export const AdList = forwardRef(function AdCard(
-  { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
-  inViewRef: InViewRef,
+export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
+  { ad, onLinkClick, domProps, index, feedIndex },
+  forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const { ref, refetch, isRefetching } = useAutoRotatingAds(
+  const { ref } = useAutoRotatingAds(
     ad,
     index,
     feedIndex,
-    inViewRef,
+    forwardedRef as InViewRef,
   );
-
-  const onRefreshClick = useCallback(async () => {
-    onRefresh?.(ad);
-    await refetch();
-  }, [ad, onRefresh, refetch]);
+  const matchingTags = ad?.matchingTags ?? [];
 
   return (
     <FeedItemContainer
-      domProps={domProps}
+      domProps={domProps ?? {}}
       ref={ref}
       data-testid="adItem"
-      linkProps={getLinkProps({ ad, onLinkClick })}
+      linkProps={getLinkProps({
+        ad,
+        onLinkClick: onLinkClick ?? (() => undefined),
+      })}
     >
       <CardContent>
         <CardTextContainer className="mr-4 flex-1">
@@ -73,8 +73,8 @@ export const AdList = forwardRef(function AdCard(
             <AdFavicon ad={ad} className="mx-0 !mt-0 mb-2" />
             {ad.description}
           </CardTitle>
-          {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
-            <PostTags post={{ tags: ad.matchingTags.slice(0, 6) }} />
+          {adImprovementsV3 && matchingTags.length > 0 ? (
+            <PostTags post={{ tags: matchingTags.slice(0, 6) }} />
           ) : null}
           <AdAttribution
             ad={ad}
@@ -98,11 +98,18 @@ export const AdList = forwardRef(function AdCard(
             {ad.callToAction}
           </Button>
         )}
-        <div className="ml-auto flex items-center gap-2">
-          {!!onRefresh && (
-            <AdRefresh onClick={onRefreshClick} loading={isRefetching} />
+        <AdvertiseLink
+          targetId={TargetId.AdCard}
+          buttonStyle
+          size={ButtonSize.Small}
+        />
+        <div className="ml-auto">
+          {!isPlus && (
+            <RemoveAd
+              size={ButtonSize.Small}
+              className="!font-normal typo-footnote"
+            />
           )}
-          {!isPlus && <RemoveAd />}
         </div>
       </div>
       <AdPixel pixel={ad.pixel} />
