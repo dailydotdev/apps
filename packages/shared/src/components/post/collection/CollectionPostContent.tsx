@@ -162,7 +162,11 @@ const CollectionPostContentRaw = ({
               <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
                 <DateFormat
                   date={dateToShow}
-                  type={TimeFormatType.Post}
+                  type={
+                    wasUpdated
+                      ? TimeFormatType.PostUpdated
+                      : TimeFormatType.Post
+                  }
                   prefix={wasUpdated ? 'Last updated ' : undefined}
                 />
                 {hasSources && (

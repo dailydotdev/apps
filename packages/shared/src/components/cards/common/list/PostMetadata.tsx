@@ -22,6 +22,7 @@ export interface PostMetadataProps {
   dateFirst?: boolean;
   dateLabel?: string;
   numSources?: number;
+  dateType?: TimeFormatType;
 }
 
 export default function PostMetadata({
@@ -32,6 +33,7 @@ export default function PostMetadata({
   dateFirst,
   dateLabel,
   numSources,
+  dateType = TimeFormatType.Post,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
   const promotedText = useScrambler(
@@ -41,7 +43,7 @@ export default function PostMetadata({
   const dateNode = !!createdAt && (
     <DateFormat
       date={createdAt}
-      type={TimeFormatType.Post}
+      type={dateType}
       prefix={dateLabel ? `${dateLabel} ` : undefined}
     />
   );

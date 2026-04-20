@@ -19,6 +19,7 @@ import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { isPostUpdated } from '../../../graphql/posts';
+import { TimeFormatType } from '../../../lib/dateFormat';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -80,6 +81,9 @@ export const CollectionList = forwardRef(function CollectionCard(
           metadata={{
             createdAt: wasUpdated ? post.updatedAt : post.createdAt,
             dateLabel: wasUpdated ? 'Updated' : undefined,
+            dateType: wasUpdated
+              ? TimeFormatType.PostUpdated
+              : TimeFormatType.Post,
             numSources: post.numCollectionSources,
           }}
         >

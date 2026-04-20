@@ -23,6 +23,7 @@ interface PostMetadataProps
   pollMetadata?: PollMetadataProps;
   numSources?: number;
   dateLabel?: string;
+  dateType?: TimeFormatType;
 }
 
 export default function PostMetadata({
@@ -37,6 +38,7 @@ export default function PostMetadata({
   pollMetadata,
   numSources,
   dateLabel,
+  dateType = TimeFormatType.Post,
 }: PostMetadataProps): ReactElement {
   const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
@@ -70,7 +72,7 @@ export default function PostMetadata({
         node: (
           <DateFormat
             date={createdAt}
-            type={TimeFormatType.Post}
+            type={dateType}
             prefix={dateLabel ? `${dateLabel} ` : undefined}
           />
         ),

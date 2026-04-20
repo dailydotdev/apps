@@ -17,6 +17,7 @@ import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
+import { TimeFormatType } from '../../../lib/dateFormat';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -78,6 +79,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       <PostMetadata
         createdAt={wasUpdated ? post.updatedAt : post.createdAt}
         dateLabel={wasUpdated ? 'Updated' : undefined}
+        dateType={wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post}
         readTime={post.readTime}
         numSources={post.numCollectionSources}
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
