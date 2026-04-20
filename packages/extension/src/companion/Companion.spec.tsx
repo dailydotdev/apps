@@ -31,29 +31,40 @@ jest.mock('@dailydotdev/shared/src/hooks/useLazyModal', () => ({
   useLazyModal: () => mockUseLazyModal(),
 }));
 
+function createMockModal(testId: string) {
+  const MockModal = ({
+    parentSelector,
+  }: {
+    parentSelector?: () => HTMLElement;
+  }) => (
+    <div data-testid={testId}>{parentSelector?.().tagName ?? 'MISSING'}</div>
+  );
+
+  MockModal.displayName = `MockModal(${testId})`;
+
+  return MockModal;
+}
+
 jest.mock('@dailydotdev/shared/src/components/modals/ShareModal', () => ({
   __esModule: true,
-  default: ({ parentSelector }: { parentSelector?: unknown }) => (
-    <div data-testid="share-modal">{String(Boolean(parentSelector))}</div>
-  ),
+  default: createMockModal('share-modal'),
 }));
 
 jest.mock(
   '@dailydotdev/shared/src/components/modals/UpvotedPopupModal',
   () => ({
     __esModule: true,
-    default: ({ parentSelector }: { parentSelector?: unknown }) => (
-      <div data-testid="upvoted-modal">{String(Boolean(parentSelector))}</div>
-    ),
+    default: createMockModal('upvoted-modal'),
   }),
 );
 
-jest.mock('@dailydotdev/shared/src/components/modals', () => ({
-  __esModule: true,
-  ReportPostModal: ({ parentSelector }: { parentSelector?: unknown }) => (
-    <div data-testid="report-modal">{String(Boolean(parentSelector))}</div>
-  ),
-}));
+jest.mock(
+  '@dailydotdev/shared/src/components/modals/report/ReportPostModal',
+  () => ({
+    __esModule: true,
+    default: createMockModal('report-modal'),
+  }),
+);
 
 jest.mock('webextension-polyfill', () => {
   return {
@@ -166,7 +177,7 @@ describe('companion app', () => {
 
       renderComponent({}, {});
 
-      expect(await screen.findByTestId(testId)).toHaveTextContent('true');
+      expect(await screen.findByTestId(testId)).toHaveTextContent('BODY');
     },
   );
 

@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactElement } from 'react';
+import type { ComponentProps, ComponentType, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
@@ -20,11 +20,9 @@ import {
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
-import { ReportPostModal } from '@dailydotdev/shared/src/components/modals';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
-import type { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
-import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
+import ReportPostModal from '@dailydotdev/shared/src/components/modals/report/ReportPostModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { NotificationsContextProvider } from '@dailydotdev/shared/src/contexts/NotificationsContext';
@@ -40,15 +38,8 @@ structuredCloneJsonPolyfill();
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
-type CompanionShareProps = Omit<ShareProps, 'parentSelector'>;
-type CompanionUpvotedPopupModalProps = Omit<
-  UpvotedPopupModalProps,
-  'parentSelector'
->;
-type ReportPostModalProps = Omit<
-  ComponentProps<typeof ReportPostModal>,
-  'isOpen' | 'onRequestClose' | 'parentSelector'
->;
+type CompanionModalProps<T extends ComponentType<any>> =
+  Omit<ComponentProps<T>, 'isOpen' | 'onRequestClose' | 'parentSelector'>;
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
   Boot,
@@ -69,40 +60,37 @@ const getModalParent = (): HTMLElement =>
 function CompanionModalElement(): ReactElement | null {
   const { modal, closeModal } = useLazyModal();
 
-  if (modal?.type === LazyModal.Share) {
-    return (
-      <ShareModal
-        {...(modal.props as CompanionShareProps)}
-        isOpen
-        parentSelector={getModalParent}
-        onRequestClose={closeModal}
-      />
-    );
+  switch (modal?.type) {
+    case LazyModal.Share:
+      return (
+        <ShareModal
+          {...(modal.props as CompanionModalProps<typeof ShareModal>)}
+          isOpen
+          parentSelector={getModalParent}
+          onRequestClose={closeModal}
+        />
+      );
+    case LazyModal.UpvotedPopup:
+      return (
+        <UpvotedPopupModal
+          {...(modal.props as CompanionModalProps<typeof UpvotedPopupModal>)}
+          isOpen
+          parentSelector={getModalParent}
+          onRequestClose={closeModal}
+        />
+      );
+    case LazyModal.ReportPost:
+      return (
+        <ReportPostModal
+          {...(modal.props as CompanionModalProps<typeof ReportPostModal>)}
+          isOpen
+          parentSelector={getModalParent}
+          onRequestClose={closeModal}
+        />
+      );
+    default:
+      return null;
   }
-
-  if (modal?.type === LazyModal.UpvotedPopup) {
-    return (
-      <UpvotedPopupModal
-        {...(modal.props as CompanionUpvotedPopupModalProps)}
-        isOpen
-        parentSelector={getModalParent}
-        onRequestClose={closeModal}
-      />
-    );
-  }
-
-  if (modal?.type === LazyModal.ReportPost) {
-    return (
-      <ReportPostModal
-        {...(modal.props as ReportPostModalProps)}
-        isOpen
-        parentSelector={getModalParent}
-        onRequestClose={closeModal}
-      />
-    );
-  }
-
-  return null;
 }
 
 export default function App({
