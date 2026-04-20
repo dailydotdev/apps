@@ -58,6 +58,7 @@ export enum ActionType {
   AchievementSyncPrompt = 'achievement_sync_prompt',
   DisableAchievementCompletion = 'disable_achievement_completion',
   DismissInstallExtension = 'dismiss_install_extension',
+  DismissShortcutsExtensionPromo = 'dismiss_shortcuts_extension_promo',
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
