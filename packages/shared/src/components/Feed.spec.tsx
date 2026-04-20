@@ -1172,15 +1172,14 @@ describe('Feed logged in', () => {
       'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
-    const submitBtn = await screen.findByText('Submit report');
+    const submitBtn = await screen.findByRole('button', {
+      name: 'Submit report',
+    });
     expect(submitBtn).toBeDisabled();
-    const javascriptElements = await screen.findAllByText('#javascript');
-    const javascriptBtn = javascriptElements.find(
-      (item) => item.tagName === 'BUTTON',
-    );
-    fireEvent.click(
-      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
-    );
+    const javascriptBtn = await screen.findByRole('button', {
+      name: '#javascript',
+    });
+    fireEvent.click(javascriptBtn);
     expect(submitBtn).toBeEnabled();
     fireEvent.click(submitBtn);
 
@@ -1211,14 +1210,13 @@ describe('Feed logged in', () => {
       'Off-topic or wrong tags',
     );
     fireEvent.click(irrelevantTagsBtn);
-    const submitBtn = await screen.findByText('Submit report');
-    const javascriptElements = await screen.findAllByText('#javascript');
-    const javascriptBtn = javascriptElements.find(
-      (item) => item.tagName === 'BUTTON',
-    );
-    fireEvent.click(
-      getRequiredValue(javascriptBtn, 'Expected javascript report tag button'),
-    );
+    const submitBtn = await screen.findByRole('button', {
+      name: 'Submit report',
+    });
+    const javascriptBtn = await screen.findByRole('button', {
+      name: '#javascript',
+    });
+    fireEvent.click(javascriptBtn);
     expect(submitBtn).toBeEnabled();
 
     const brokenLinkBtn = await screen.findByText('Broken link');

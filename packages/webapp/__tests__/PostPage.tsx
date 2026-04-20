@@ -899,8 +899,8 @@ describe('downvote flow', () => {
 
   it('should prevent user to click block if no tags are selected', async () => {
     await prepareDownvote();
-    const block = await screen.findByText<HTMLButtonElement>('Block');
-    expect(block?.disabled).toBe(true);
+    const block = await screen.findByRole('button', { name: 'Block' });
+    expect(block.disabled).toBe(true);
   });
 
   it('should display the option to never see the selection again if close panel', async () => {
