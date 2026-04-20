@@ -289,7 +289,7 @@ const ExploreAdPostActionRow = ({
   }
 
   return (
-    <div className="z-1 mt-1 flex w-full min-w-0 flex-wrap items-center justify-start gap-1">
+    <div className="explore-post-actions mt-1 flex w-full min-w-0 flex-wrap items-center justify-start gap-1">
       {!!onRefreshAd && (
         <QuaternaryButton
           className="pointer-events-auto"
@@ -473,7 +473,7 @@ const StoryRow = ({
             isRefreshingAd={isRefreshingAd}
           />
         ) : (
-          <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
+          <div className="explore-post-actions mt-1 flex min-w-0 flex-wrap items-center gap-1">
             <QuaternaryButton
               labelClassName="!pl-0"
               className="btn-tertiary-avocado pointer-events-auto"
@@ -521,7 +521,9 @@ const StoryRow = ({
               color={ButtonColor.BlueCheese}
               tag="a"
               href={story.commentsPermalink}
-              onClick={(event) => onOpenPostModal?.(storyPost, event)}
+              onClick={(event: MouseEvent<HTMLElement>) =>
+                onOpenPostModal?.(storyPost, event)
+              }
               pressed={story.commented}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
@@ -603,7 +605,7 @@ const ExplorePostActionRow = ({
 
   return (
     <>
-      <div className="mt-1 flex min-w-0 flex-wrap items-center gap-1">
+      <div className="explore-post-actions mt-1 flex min-w-0 flex-wrap items-center gap-1">
         <QuaternaryButton
           labelClassName="!pl-0"
           className="btn-tertiary-avocado pointer-events-auto"
@@ -645,7 +647,9 @@ const ExplorePostActionRow = ({
           color={ButtonColor.BlueCheese}
           tag="a"
           href={story.commentsPermalink}
-          onClick={(event) => onOpenPostModal?.(storyPost, event)}
+          onClick={(event: MouseEvent<HTMLElement>) =>
+            onOpenPostModal?.(storyPost, event)
+          }
           pressed={story.commented}
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
@@ -1008,7 +1012,6 @@ export const ExploreNewsLayout = ({
   arenaHighlightsItems,
   categoryClusterStories,
 }: ExploreNewsLayoutProps): ReactElement => {
-  const [exploreNavScrolled, setExploreNavScrolled] = useState(false);
   const queryClient = useQueryClient();
   const [isRefreshingExploreAds, setIsRefreshingExploreAds] = useState(false);
 
@@ -1033,19 +1036,6 @@ export const ExploreNewsLayout = ({
       setIsRefreshingExploreAds(false);
     }
   }, [activeTabId, queryClient]);
-
-  useEffect(() => {
-    const onScroll = (): void => {
-      setExploreNavScrolled(window.scrollY > 0);
-    };
-
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, []);
 
   const isVideosMode = activeTabId === 'videos';
   const isExplorePage = activeTabId === 'explore';
@@ -1420,11 +1410,9 @@ export const ExploreNewsLayout = ({
     <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pb-8 pt-4 laptop:border-x laptop:border-border-subtlest-tertiary">
       <section
         id="explore"
-        className={`z-10 sticky top-16 px-3 transition-colors duration-200 laptop:px-8 ${
-          exploreNavScrolled ? 'bg-background-default' : ''
-        }`}
+        className="sticky top-16 z-rank isolate overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8"
       >
-        <div className="no-scrollbar flex items-center gap-7 overflow-x-auto py-2">
+        <div className="no-scrollbar relative flex items-center gap-7 overflow-x-auto py-2">
           {EXPLORE_CATEGORIES.map((tab) => (
             <Link key={tab.id} href={tab.path}>
               <a

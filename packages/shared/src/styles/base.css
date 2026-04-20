@@ -1064,6 +1064,16 @@ meter::-webkit-meter-bar {
     background: rgb(255 0 168 / 35%);
   }
 
+  .explore-post-actions {
+    position: relative;
+    z-index: 0;
+  }
+
+  .explore-post-actions > * {
+    position: relative;
+    z-index: 0;
+  }
+
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
