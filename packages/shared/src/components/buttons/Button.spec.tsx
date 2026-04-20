@@ -119,6 +119,32 @@ describe('Button', () => {
     expect(await screen.findByTestId('buttonLoader')).toBeInTheDocument();
   });
 
+  it('keeps the same label wrapper when toggling loading', () => {
+    const { rerender } = render(
+      <Button variant={ButtonVariant.Primary}>Button</Button>,
+    );
+
+    const initialLabel = screen
+      .getByRole('button')
+      .querySelector('.btn-label');
+
+    expect(initialLabel).toBeInTheDocument();
+    expect(initialLabel).not.toHaveClass('invisible');
+
+    rerender(
+      <Button variant={ButtonVariant.Primary} loading>
+        Button
+      </Button>,
+    );
+
+    const loadingLabel = screen
+      .getByRole('button')
+      .querySelector('.btn-label');
+
+    expect(loadingLabel).toBe(initialLabel);
+    expect(loadingLabel).toHaveClass('invisible');
+  });
+
   it('should set aria-pressed when pressed is true', async () => {
     renderComponent({ children: 'Button', pressed: true });
     expect(await screen.findByRole('button')).toHaveAttribute(
