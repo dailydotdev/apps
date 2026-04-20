@@ -218,7 +218,9 @@ const reframeControlItem = (
 ): PlusItem => {
   const base = plusFeatureListControl.find((item) => item.id === baseId);
   if (!base) {
-    throw new Error(`plusFeatureListControl is missing item with id: ${baseId}`);
+    throw new Error(
+      `plusFeatureListControl is missing item with id: ${baseId}`,
+    );
   }
   return {
     ...base,
@@ -240,22 +242,22 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
   },
   reframeControlItem(
     'custom feeds',
-    'Custom feeds you can query via API',
+    'Custom feeds you can query',
     `Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.`,
   ),
   reframeControlItem(
     'clean titles',
-    'AI-cleaned titles for cleaner input',
+    'AI-cleaned titles',
     `AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.`,
   ),
   reframeControlItem(
     'bookmark folders',
-    'Bookmark folders, accessible via API',
+    'Bookmark folders',
     `Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.`,
   ),
   reframeControlItem(
     'keyword filter',
-    'Keyword filters that apply to the API',
+    'Keyword filters',
     `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
   ),
   {

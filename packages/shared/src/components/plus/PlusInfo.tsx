@@ -162,7 +162,9 @@ export const PlusInfo = ({
     isGift: !!giftToUser,
     isOrganization,
   });
-  const copySource = isApiVariant ? plusInfoCopyApi : defaultPlusInfoCopyControl;
+  const copySource = isApiVariant
+    ? plusInfoCopyApi
+    : defaultPlusInfoCopyControl;
   const defaultCopy = copySource[plusType];
   const titleCopy = title || defaultCopy.title;
   const descriptionCopy = description || defaultCopy.description;

@@ -75,7 +75,7 @@ export const SidebarTablet = ({
   const ctaCopy = isApiVariant
     ? { full: 'Get API Access', short: 'API access' }
     : { full: 'Level Up with Plus', short: 'Upgrade' };
-  const hasSquads = squads?.length > 0;
+  const hasSquads = (squads?.length ?? 0) > 0;
   const squadsUrl = hasSquads
     ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
     : `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`;
@@ -214,7 +214,7 @@ export const SidebarTablet = ({
         </Button>
       </Link>
 
-      {isLoggedIn && (
+      {isLoggedIn && user && (
         <Link href={user.permalink} prefetch={false} passHref>
           <Button
             {...buttonProps}
