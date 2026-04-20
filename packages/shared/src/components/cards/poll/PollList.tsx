@@ -43,7 +43,8 @@ export const PollList = forwardRef(function PollList(
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
-  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);

@@ -12,7 +12,6 @@ const rows: Array<{ keys: string; action: string }> = [
   { keys: 'Esc', action: 'Close reader' },
   { keys: '[ / ]', action: 'Previous / next post' },
   { keys: 'R', action: 'Toggle discussion panel' },
-  { keys: 'T', action: 'Toggle reader view' },
   { keys: 'C', action: 'Focus comment composer' },
   { keys: 'U', action: 'Toggle upvote' },
   { keys: 'B', action: 'Toggle bookmark' },

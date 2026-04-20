@@ -26,7 +26,7 @@ type PostArticlePreviewEmbedProps = {
   className?: string;
   onDismissArticlePreview?: () => void;
   onPreviewUnavailable?: () => void;
-  onUseClassicView?: () => void;
+  onUseLegacyLayout?: () => void;
   forceUnavailable?: boolean;
 };
 
@@ -81,7 +81,7 @@ export function PostArticlePreviewEmbed({
   className,
   onDismissArticlePreview,
   onPreviewUnavailable,
-  onUseClassicView,
+  onUseLegacyLayout,
   forceUnavailable = false,
 }: PostArticlePreviewEmbedProps): ReactElement {
   const [extensionId] = useState(() => getBrowserExtensionInstallId());
@@ -208,7 +208,7 @@ export function PostArticlePreviewEmbed({
       <EmbeddedBrowsingWebPrompt
         isPreviewUnavailable
         unavailablePreviewUrl={targetUrl}
-        onUseClassicView={onUseClassicView}
+        onUseLegacyLayout={onUseLegacyLayout}
       />
     );
   } else {
@@ -265,9 +265,7 @@ export function PostArticlePreviewEmbed({
         ) : null}
         {previewContent}
         {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
-          <EmbeddedBrowsingWebPrompt
-            onUseClassicView={onUseClassicView}
-          />
+          <EmbeddedBrowsingWebPrompt onUseLegacyLayout={onUseLegacyLayout} />
         ) : null}
       </div>
     </section>

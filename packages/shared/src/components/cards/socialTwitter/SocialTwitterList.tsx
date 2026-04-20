@@ -48,7 +48,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
 ): ReactElement {
   const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
-  const onPostCardClick = () => onPostClick(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick(post, event);
   const containerRef = useRef<HTMLDivElement>();
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);

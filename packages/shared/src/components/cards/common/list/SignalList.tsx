@@ -36,7 +36,8 @@ export const SignalList = forwardRef(function SignalList(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const isFeedPreview = useFeedPreviewMode();
-  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
   const { title } = useSmartTitle(post);
   const resolvedTitle = title?.trim() || post.title?.trim() || '';
   const isTweetPost =

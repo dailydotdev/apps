@@ -465,7 +465,9 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
+          onPostClick={(post: Post, event) =>
+            onPostClick(post, index, row, column, false, event)
+          }
           onPostAuxClick={(post: Post) =>
             onPostClick(post, index, row, column, true)
           }

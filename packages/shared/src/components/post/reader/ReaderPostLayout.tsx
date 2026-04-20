@@ -19,6 +19,7 @@ import { MobileReaderLayout } from './MobileReaderLayout';
 import { useScrollProgress } from './hooks/useScrollProgress';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
 import { useReaderShortcuts } from './hooks/useReaderShortcuts';
+import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
 
 const CHROME_TOP_OFFSET_PX = 72;
 
@@ -28,7 +29,22 @@ type ReaderPostLayoutProps = {
   onPreviousPost?: () => void;
   onNextPost?: () => void;
   onClose: () => void;
+  /**
+   * Override the outer container className. Defaults to the modal sizing
+   * (max ~56rem high). The standalone post page passes a className that
+   * fills the viewport below the global header instead.
+   */
+  outerClassName?: string;
+  /**
+   * When true (standalone post page), the chrome shows a left-aligned back
+   * arrow (wired to `onClose`) instead of the modal's right-side close (X)
+   * button.
+   */
+  isPostPage?: boolean;
 };
+
+const DEFAULT_OUTER_CLASS_NAME =
+  'flex h-[min(100vh-2rem,56rem)] max-h-[calc(100vh-2rem)] min-h-0 w-full flex-col';
 
 export function ReaderPostLayout({
   post,
@@ -36,6 +52,8 @@ export function ReaderPostLayout({
   onPreviousPost,
   onNextPost,
   onClose,
+  outerClassName,
+  isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
   const isMobileViewport = !useViewSize(ViewSize.Tablet);
   const {
@@ -48,9 +66,9 @@ export function ReaderPostLayout({
   } = useReaderLayoutPrefs();
 
   const [isShortcutHelpOpen, setShortcutHelpOpen] = useState(false);
-  const [isReaderMode, setReaderMode] = useState(false);
   const [articleMode, setArticleMode] = useState<ReaderArticleMode>('embed');
   const [articleRefreshKey, setArticleRefreshKey] = useState(0);
+  const { optOut: useLegacyLayout } = useLegacyPostLayoutOptOut();
   const focusCommentRef = useRef<() => void>(() => {});
   const onRegisterFocusComment = useCallback((fn: () => void) => {
     focusCommentRef.current = fn;
@@ -70,12 +88,6 @@ export function ReaderPostLayout({
     setShortcutHelpOpen((open) => !open);
   }, []);
 
-  const toggleReaderMode = useCallback(() => {
-    setReaderMode((value) => !value);
-  }, []);
-  const useClassicLayout = useCallback(() => {
-    setReaderMode(true);
-  }, []);
   const refreshArticleContent = useCallback(() => {
     setArticleRefreshKey((value) => value + 1);
   }, []);
@@ -140,7 +152,6 @@ export function ReaderPostLayout({
     toggleRail,
     focusCommentComposer: focusDiscussionComposer,
     toggleShortcutHelp,
-    toggleReaderMode,
   });
 
   if (isMobileViewport) {
@@ -157,7 +168,11 @@ export function ReaderPostLayout({
               className="flex h-full min-h-0 w-full flex-col"
               data-testid="readerPostLayout"
             >
-              <MobileReaderLayout post={post} onClose={onClose} />
+              <MobileReaderLayout
+                post={post}
+                onClose={onClose}
+                isPostPage={isPostPage}
+              />
             </div>
           </ReaderContextProvider>
         </LogExtraContextProvider>
@@ -175,7 +190,7 @@ export function ReaderPostLayout({
       >
         <ReaderContextProvider value={readerContextValue}>
           <div
-            className="flex h-[min(100vh-2rem,56rem)] max-h-[calc(100vh-2rem)] min-h-0 w-full flex-col"
+            className={outerClassName ?? DEFAULT_OUTER_CLASS_NAME}
             data-testid="readerPostLayout"
           >
             <div className="relative flex min-h-0 flex-1 flex-col">
@@ -202,6 +217,7 @@ export function ReaderPostLayout({
                       onToggleRail={toggleRail}
                       onRegisterFocusComment={onRegisterFocusComment}
                       className="min-w-0"
+                      onBackToFeed={isPostPage ? onClose : undefined}
                     />
                     <PaneDivider onResizeDelta={onResizeDelta} />
                   </>
@@ -210,8 +226,7 @@ export function ReaderPostLayout({
                   <ArticleReaderFrame
                     key={articleRefreshKey}
                     post={post}
-                    forceReader={isReaderMode}
-                    onUseClassicView={useClassicLayout}
+                    onUseLegacyLayout={useLegacyLayout}
                     onModeChange={setArticleMode}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
@@ -222,9 +237,8 @@ export function ReaderPostLayout({
                     onClose={onClose}
                     isRailOpen={isRailOpen}
                     onToggleRail={toggleRail}
-                    isReaderMode={isReaderMode}
-                    onToggleReaderMode={toggleReaderMode}
                     onRefreshContent={refreshArticleContent}
+                    isPostPage={isPostPage}
                   />
                   <ReaderFloatingActionBar
                     post={post}

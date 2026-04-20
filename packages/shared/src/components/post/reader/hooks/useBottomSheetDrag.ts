@@ -3,16 +3,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export type BottomSheetSnap = 'peek' | 'half' | 'full';
 
+/** vh from top of viewport, or fixed height from bottom in px (peek strip). */
+export type BottomSheetSnapPoint = number | { px: number };
+
 type Point = {
   x: number;
   y: number;
 };
 
 type UseBottomSheetDragParams = {
-  snapPoints: Record<BottomSheetSnap, number>;
+  snapPoints: Record<BottomSheetSnap, BottomSheetSnapPoint>;
   defaultSnap?: BottomSheetSnap;
   controlledSnap?: BottomSheetSnap;
   onSnapChange?: (snap: BottomSheetSnap) => void;
+  /** Fires after pointer up so UI can suppress accidental clicks after a drag. */
+  onPointerGestureEnd?: (info: { didDrag: boolean }) => void;
 };
 
 type UseBottomSheetDragResult = {
@@ -21,7 +26,8 @@ type UseBottomSheetDragResult = {
   isDragging: boolean;
   setSnap: (snap: BottomSheetSnap) => void;
   onPointerDown: (event: ReactPointerEvent<HTMLElement>) => void;
-  currentTopVh: number;
+  /** Distance from top of containing block to sheet top edge (before drag transform). */
+  currentTopPx: number;
 };
 
 const SWIPE_VELOCITY_THRESHOLD = 0.4;
@@ -29,15 +35,27 @@ const TAP_DISTANCE_PX = 6;
 
 const orderedSnaps: BottomSheetSnap[] = ['peek', 'half', 'full'];
 
+export function snapPointToTopPx(
+  snapPoint: BottomSheetSnapPoint,
+  viewportHeight: number,
+): number {
+  if (typeof snapPoint === 'number') {
+    return (snapPoint / 100) * viewportHeight;
+  }
+  return Math.max(0, viewportHeight - snapPoint.px);
+}
+
 function resolveNextSnap(
-  snapPoints: Record<BottomSheetSnap, number>,
+  snapPoints: Record<BottomSheetSnap, BottomSheetSnapPoint>,
   currentSnap: BottomSheetSnap,
   dragOffsetPx: number,
   viewportHeight: number,
   velocityPxPerMs: number,
 ): BottomSheetSnap {
-  const currentTopVh = snapPoints[currentSnap];
-  const currentTopPx = (currentTopVh / 100) * viewportHeight;
+  const currentTopPx = snapPointToTopPx(
+    snapPoints[currentSnap],
+    viewportHeight,
+  );
   const projectedTopPx = currentTopPx + dragOffsetPx;
 
   if (Math.abs(velocityPxPerMs) >= SWIPE_VELOCITY_THRESHOLD) {
@@ -50,10 +68,23 @@ function resolveNextSnap(
     return orderedSnaps[nextIndex];
   }
 
+  const peekTopPx = snapPointToTopPx(snapPoints.peek, viewportHeight);
+  const halfTopPx = snapPointToTopPx(snapPoints.half, viewportHeight);
+
+  if (currentSnap === 'half' && dragOffsetPx > 0) {
+    const midHalfPeek = (halfTopPx + peekTopPx) / 2;
+    if (projectedTopPx >= midHalfPeek) {
+      return 'peek';
+    }
+  }
+
   let closest: BottomSheetSnap = currentSnap;
   let closestDistance = Infinity;
   orderedSnaps.forEach((candidate) => {
-    const candidateTopPx = (snapPoints[candidate] / 100) * viewportHeight;
+    const candidateTopPx = snapPointToTopPx(
+      snapPoints[candidate],
+      viewportHeight,
+    );
     const distance = Math.abs(candidateTopPx - projectedTopPx);
     if (distance < closestDistance) {
       closestDistance = distance;
@@ -68,16 +99,33 @@ export function useBottomSheetDrag({
   defaultSnap = 'peek',
   controlledSnap,
   onSnapChange,
+  onPointerGestureEnd,
 }: UseBottomSheetDragParams): UseBottomSheetDragResult {
   const [internalSnap, setInternalSnap] =
     useState<BottomSheetSnap>(defaultSnap);
   const snap = controlledSnap ?? internalSnap;
   const [dragOffsetPx, setDragOffsetPx] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(() =>
+    typeof globalThis.window !== 'undefined'
+      ? globalThis.window.innerHeight
+      : 0,
+  );
   const startPointRef = useRef<Point | null>(null);
   const lastPointRef = useRef<Point | null>(null);
   const startTsRef = useRef<number>(0);
   const pointerIdRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const onResize = (): void => {
+      setViewportHeight(globalThis.window.innerHeight);
+    };
+    onResize();
+    globalThis.window.addEventListener('resize', onResize);
+    return () => {
+      globalThis.window.removeEventListener('resize', onResize);
+    };
+  }, []);
 
   const setSnap = useCallback(
     (nextSnap: BottomSheetSnap) => {
@@ -105,28 +153,31 @@ export function useBottomSheetDrag({
       setIsDragging(false);
       if (!start || !last) {
         setDragOffsetPx(0);
+        onPointerGestureEnd?.({ didDrag: false });
         return;
       }
       const totalDelta = event.clientY - start.y;
       const isTap = Math.abs(totalDelta) < TAP_DISTANCE_PX;
       if (isTap) {
         setDragOffsetPx(0);
+        onPointerGestureEnd?.({ didDrag: false });
         return;
       }
+      onPointerGestureEnd?.({ didDrag: true });
       const durationMs = Math.max(1, performance.now() - startTsRef.current);
       const velocityPxPerMs = totalDelta / durationMs;
-      const viewportHeight = globalThis?.window?.innerHeight ?? 1;
+      const vh = globalThis?.window?.innerHeight ?? 1;
       const nextSnap = resolveNextSnap(
         snapPoints,
         snap,
         totalDelta,
-        viewportHeight,
+        vh,
         velocityPxPerMs,
       );
       setDragOffsetPx(0);
       setSnap(nextSnap);
     },
-    [setSnap, snap, snapPoints],
+    [onPointerGestureEnd, setSnap, snap, snapPoints],
   );
 
   useEffect(() => {
@@ -173,7 +224,8 @@ export function useBottomSheetDrag({
     setIsDragging(true);
   }, []);
 
-  const currentTopVh = snapPoints[snap];
+  const safeViewportHeight = viewportHeight > 0 ? viewportHeight : 1;
+  const currentTopPx = snapPointToTopPx(snapPoints[snap], safeViewportHeight);
 
   return useMemo(
     () => ({
@@ -182,8 +234,8 @@ export function useBottomSheetDrag({
       isDragging,
       setSnap,
       onPointerDown,
-      currentTopVh,
+      currentTopPx,
     }),
-    [currentTopVh, dragOffsetPx, isDragging, onPointerDown, setSnap, snap],
+    [currentTopPx, dragOffsetPx, isDragging, onPointerDown, setSnap, snap],
   );
 }

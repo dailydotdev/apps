@@ -77,6 +77,11 @@ type EngagementRailProps = {
   onToggleRail: () => void;
   onRegisterFocusComment: (fn: () => void) => void;
   className?: string;
+  /**
+   * Standalone post page only: when provided, renders a left-aligned
+   * back-to-feed arrow button at the top of the discussion rail.
+   */
+  onBackToFeed?: () => void;
 };
 
 const noopFocus = (): void => {};
@@ -89,6 +94,7 @@ export function EngagementRail({
   onToggleRail,
   onRegisterFocusComment,
   className,
+  onBackToFeed,
 }: EngagementRailProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { user } = useAuthContext();
@@ -146,49 +152,66 @@ export function EngagementRail({
       aria-label="Discussion and related"
     >
       <div className="bg-background-default/85 sticky top-0 z-[60] flex items-center justify-between gap-2 px-3 pb-2 pt-3 backdrop-blur">
-        <div className={railHeaderGroupClasses} aria-label="Post navigation">
-          {showNavigation && (
-            <>
-              {onPreviousPost && (
-                <Tooltip content="Previous post">
-                  <Button
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    className={classNames('-rotate-90', iconButtonClassName)}
-                    onClick={onPreviousPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.First, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Previous post"
-                  />
-                </Tooltip>
-              )}
-              {onNextPost && (
-                <Tooltip content="Next post">
-                  <Button
-                    className={classNames('rotate-90', iconButtonClassName)}
-                    icon={<ArrowIcon />}
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Tertiary}
-                    type="button"
-                    onClick={onNextPost}
-                    disabled={
-                      !postPosition ||
-                      [PostPosition.Last, PostPosition.Only].includes(
-                        postPosition,
-                      )
-                    }
-                    aria-label="Next post"
-                  />
-                </Tooltip>
-              )}
-            </>
+        <div className="flex items-center gap-2">
+          {onBackToFeed && (
+            <div className={railHeaderGroupClasses} aria-label="Navigation">
+              <Tooltip content="Back to feed">
+                <Button
+                  icon={<ArrowIcon className="-rotate-90" />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                  type="button"
+                  className={iconButtonClassName}
+                  onClick={onBackToFeed}
+                  aria-label="Back to feed"
+                />
+              </Tooltip>
+            </div>
           )}
+          <div className={railHeaderGroupClasses} aria-label="Post navigation">
+            {showNavigation && (
+              <>
+                {onPreviousPost && (
+                  <Tooltip content="Previous post">
+                    <Button
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      className={classNames('-rotate-90', iconButtonClassName)}
+                      onClick={onPreviousPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.First, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Previous post"
+                    />
+                  </Tooltip>
+                )}
+                {onNextPost && (
+                  <Tooltip content="Next post">
+                    <Button
+                      className={classNames('rotate-90', iconButtonClassName)}
+                      icon={<ArrowIcon />}
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Tertiary}
+                      type="button"
+                      onClick={onNextPost}
+                      disabled={
+                        !postPosition ||
+                        [PostPosition.Last, PostPosition.Only].includes(
+                          postPosition,
+                        )
+                      }
+                      aria-label="Next post"
+                    />
+                  </Tooltip>
+                )}
+              </>
+            )}
+          </div>
         </div>
         <div className={railHeaderGroupClasses}>
           <PostMenuOptions

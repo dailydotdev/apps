@@ -13,13 +13,13 @@ import {
 } from '../../components/typography/Typography';
 import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
-import { ChromeIcon, EdgeIcon, MagicIcon } from '../../components/icons';
+import { ChromeIcon, EdgeIcon } from '../../components/icons';
 
 export type EmbeddedBrowsingWebPromptProps = {
   onEnablePreview?: () => void;
   isPreviewUnavailable?: boolean;
   unavailablePreviewUrl?: string;
-  onUseClassicView?: () => void;
+  onUseLegacyLayout?: () => void;
 };
 
 /**
@@ -31,7 +31,7 @@ export function EmbeddedBrowsingWebPrompt({
   onEnablePreview,
   isPreviewUnavailable = false,
   unavailablePreviewUrl,
-  onUseClassicView,
+  onUseLegacyLayout,
 }: EmbeddedBrowsingWebPromptProps): ReactElement {
   const externalPreviewUrl =
     unavailablePreviewUrl && unavailablePreviewUrl.length > 0
@@ -123,16 +123,15 @@ export function EmbeddedBrowsingWebPrompt({
           </Typography>
           <div className="mt-1 flex w-full flex-col items-center gap-2">
             {primaryAction}
-            {onUseClassicView ? (
+            {onUseLegacyLayout ? (
               <Button
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Medium}
                 className="min-w-[8.5rem]"
-                icon={<MagicIcon />}
-                onClick={onUseClassicView}
+                onClick={onUseLegacyLayout}
               >
-                Summarize
+                Use classic article view
               </Button>
             ) : null}
           </div>

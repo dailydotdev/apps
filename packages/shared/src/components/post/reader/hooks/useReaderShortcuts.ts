@@ -13,7 +13,6 @@ type UseReaderShortcutsParams = {
   toggleRail: () => void;
   focusCommentComposer: () => void;
   toggleShortcutHelp: () => void;
-  toggleReaderMode?: () => void;
 };
 
 export function useReaderShortcuts({
@@ -25,7 +24,6 @@ export function useReaderShortcuts({
   toggleRail,
   focusCommentComposer,
   toggleShortcutHelp,
-  toggleReaderMode,
 }: UseReaderShortcutsParams): void {
   const { toggleBookmark } = useBookmarkPost();
   const { toggleUpvote } = useVotePost();
@@ -93,12 +91,6 @@ export function useReaderShortcuts({
         return;
       }
 
-      if ((event.key === 't' || event.key === 'T') && toggleReaderMode) {
-        event.preventDefault();
-        toggleReaderMode();
-        return;
-      }
-
       if (event.key === '?' || (event.shiftKey && event.key === '/')) {
         event.preventDefault();
         toggleShortcutHelp();
@@ -118,7 +110,6 @@ export function useReaderShortcuts({
     toggleRail,
     focusCommentComposer,
     toggleShortcutHelp,
-    toggleReaderMode,
     toggleBookmark,
     toggleUpvote,
   ]);

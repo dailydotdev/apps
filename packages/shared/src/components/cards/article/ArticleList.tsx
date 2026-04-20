@@ -51,7 +51,8 @@ export const ArticleList = forwardRef(function ArticleList(
   const { type, pinnedAt, trending } = post;
   const isVideoType = isVideoPost(post);
 
-  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { showFeedback } = usePostFeedback({ post });
   const isFeedPreview = useFeedPreviewMode();

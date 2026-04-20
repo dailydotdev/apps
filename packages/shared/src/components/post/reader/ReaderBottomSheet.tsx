@@ -1,25 +1,29 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type { KeyboardEvent, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
-import type { BottomSheetSnap } from './hooks/useBottomSheetDrag';
+import type {
+  BottomSheetSnap,
+  BottomSheetSnapPoint,
+} from './hooks/useBottomSheetDrag';
 import { useBottomSheetDrag } from './hooks/useBottomSheetDrag';
 
 type ReaderBottomSheetProps = {
-  snapPoints?: Record<BottomSheetSnap, number>;
+  snapPoints?: Record<BottomSheetSnap, BottomSheetSnapPoint>;
   defaultSnap?: BottomSheetSnap;
   snap?: BottomSheetSnap;
   onSnapChange?: (snap: BottomSheetSnap) => void;
+  /** Distance from top of the overlay container to the sheet top edge (for anchoring floating UI). */
+  onGeometryChange?: (sheetTopPx: number) => void;
   children: ReactNode;
   handleAriaLabel?: string;
   className?: string;
   contentClassName?: string;
-  header?: ReactNode;
 };
 
-const DEFAULT_SNAP_POINTS: Record<BottomSheetSnap, number> = {
-  peek: 35,
-  half: 12,
-  full: 2,
+const DEFAULT_SNAP_POINTS: Record<BottomSheetSnap, BottomSheetSnapPoint> = {
+  peek: { px: 72 },
+  half: 40,
+  full: 0,
 };
 
 export function ReaderBottomSheet({
@@ -27,34 +31,57 @@ export function ReaderBottomSheet({
   defaultSnap = 'peek',
   snap: controlledSnap,
   onSnapChange,
+  onGeometryChange,
   children,
   handleAriaLabel = 'Drag to resize discussion panel',
   className,
   contentClassName,
-  header,
 }: ReaderBottomSheetProps): ReactElement {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const suppressNextHandleClickRef = useRef(false);
+
+  const onPointerGestureEnd = useCallback(
+    ({ didDrag }: { didDrag: boolean }) => {
+      if (didDrag) {
+        suppressNextHandleClickRef.current = true;
+      }
+    },
+    [],
+  );
+
   const {
     snap,
     dragOffsetPx,
     isDragging,
     setSnap,
     onPointerDown,
-    currentTopVh,
+    currentTopPx,
   } = useBottomSheetDrag({
     snapPoints,
     defaultSnap,
     controlledSnap,
     onSnapChange,
+    onPointerGestureEnd,
   });
 
+  const sheetTopPx = currentTopPx + dragOffsetPx;
+
+  useLayoutEffect(() => {
+    onGeometryChange?.(sheetTopPx);
+  }, [onGeometryChange, sheetTopPx]);
+
   useEffect(() => {
-    if (snap !== 'full' && scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
+    if (snap !== 'peek' || !scrollRef.current) {
+      return;
     }
+    scrollRef.current.scrollTop = 0;
   }, [snap]);
 
   const onHandleClick = () => {
+    if (suppressNextHandleClickRef.current) {
+      suppressNextHandleClickRef.current = false;
+      return;
+    }
     if (snap === 'peek') {
       setSnap('half');
       return;
@@ -66,7 +93,7 @@ export function ReaderBottomSheet({
     setSnap('peek');
   };
 
-  const onHandleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+  const onHandleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'ArrowUp') {
       event.preventDefault();
       if (snap === 'peek') {
@@ -95,50 +122,43 @@ export function ReaderBottomSheet({
     }
   };
 
-  const transform = `translateY(calc(${currentTopVh}vh + ${dragOffsetPx}px))`;
-
   return (
     <div
       className={classNames(
-        'z-30 pointer-events-none absolute inset-0',
+        'z-30 absolute inset-x-0 bottom-0 flex min-h-0 flex-col overflow-hidden rounded-t-20 border border-border-subtlest-tertiary bg-background-default shadow-3',
+        !isDragging && 'transition-[top] duration-300 ease-in-out',
         className,
       )}
-      aria-hidden={false}
+      style={{
+        top: `${sheetTopPx}px`,
+      }}
+      role="dialog"
+      aria-modal="false"
+      aria-label="Post discussion"
     >
-      <div
-        className={classNames(
-          'pointer-events-auto absolute inset-x-0 bottom-0 top-0 flex flex-col rounded-t-16 border border-border-subtlest-tertiary bg-background-default shadow-2',
-          !isDragging && 'transition-transform duration-300 ease-in-out',
-        )}
-        style={{ transform }}
-        role="dialog"
-        aria-modal="false"
-        aria-label="Post discussion"
+      <button
+        type="button"
+        className="flex w-full shrink-0 cursor-grab touch-none items-center justify-center bg-background-default pb-2 pt-2.5 active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onClick={onHandleClick}
+        onKeyDown={onHandleKeyDown}
+        aria-label={handleAriaLabel}
+        aria-expanded={snap !== 'peek'}
       >
-        <div className="relative flex flex-col">
-          <button
-            type="button"
-            className="flex w-full cursor-grab items-center justify-center py-2 active:cursor-grabbing"
-            onPointerDown={onPointerDown}
-            onClick={onHandleClick}
-            onKeyDown={onHandleKeyDown}
-            aria-label={handleAriaLabel}
-            aria-expanded={snap !== 'peek'}
-          >
-            <span className="h-1 w-10 rounded-full bg-border-subtlest-primary" />
-          </button>
-          {header}
-        </div>
-        <div
-          ref={scrollRef}
-          className={classNames(
-            'flex-1 overflow-y-auto overscroll-contain',
-            snap !== 'full' && 'overflow-y-hidden',
-            contentClassName,
-          )}
-        >
-          {children}
-        </div>
+        <span
+          className="pointer-events-none h-1 w-9 shrink-0 rounded-full bg-border-subtlest-primary opacity-50"
+          aria-hidden
+        />
+      </button>
+      <div
+        ref={scrollRef}
+        className={classNames(
+          'min-h-0 flex-1 overscroll-contain',
+          snap === 'peek' ? 'overflow-hidden' : 'overflow-y-auto',
+          contentClassName,
+        )}
+      >
+        {children}
       </div>
     </div>
   );

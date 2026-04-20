@@ -330,7 +330,7 @@ export default function Feed<T>({
     isLoading: isReaderFeatureLoading,
   } = useConditionalFeature({
     feature: featureReaderModal,
-    shouldEvaluate: !shouldUseListFeedLayout,
+    shouldEvaluate: true,
   });
   const forceLegacyPostModalInDev =
     isDevelopment && process.env.NEXT_PUBLIC_FORCE_LEGACY_POST_MODAL === 'true';
@@ -338,6 +338,22 @@ export default function Feed<T>({
     ? !forceLegacyPostModalInDev
     : readerModalFromGrowthBook;
   const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
+  const readerEligiblePostTypes = useMemo(
+    () =>
+      new Set<PostType>([
+        PostType.Article,
+        PostType.Digest,
+        PostType.VideoYouTube,
+      ]),
+    [],
+  );
+  const isReaderEligiblePost = useCallback(
+    (post: Post): boolean =>
+      isReaderModalFeatureReady &&
+      isReaderModalOn &&
+      readerEligiblePostTypes.has(post.type),
+    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+  );
   const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
@@ -564,11 +580,23 @@ export default function Feed<T>({
     row,
     column,
     isAuxClick,
+    event,
   ) => {
+    const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
+    const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
+    const readerEligible = isReaderEligiblePost(post);
+    const shouldOpenModal =
+      !isAuxClick &&
+      !isMiddleClick &&
+      !isModifierClick &&
+      (!shouldUseListFeedLayout || readerEligible);
+    if (shouldOpenModal && shouldUseListFeedLayout && event) {
+      event.preventDefault();
+    }
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!isAuxClick && !shouldUseListFeedLayout) {
+    if (shouldOpenModal) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -599,7 +627,7 @@ export default function Feed<T>({
         is_ad: isAd,
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseListFeedLayout || isReaderEligiblePost(post)) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -740,17 +768,20 @@ export default function Feed<T>({
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            {!shouldUseListFeedLayout && selectedPost && PostModal && (
-              <PostModal
-                isOpen={!!selectedPost}
-                id={selectedPost.id}
-                onRequestClose={onPostModalClose}
-                onPreviousPost={onPrevious}
-                onNextPost={onNext}
-                postPosition={postPosition}
-                post={selectedPost}
-              />
-            )}
+            {selectedPost &&
+              PostModal &&
+              (!shouldUseListFeedLayout ||
+                isReaderEligiblePost(selectedPost)) && (
+                <PostModal
+                  isOpen={!!selectedPost}
+                  id={selectedPost.id}
+                  onRequestClose={onPostModalClose}
+                  onPreviousPost={onPrevious}
+                  onNextPost={onNext}
+                  postPosition={postPosition}
+                  post={selectedPost}
+                />
+              )}
           </>
         )}
       </FeedWrapperComponent>

@@ -5,7 +5,6 @@ import { getPostReadTarget } from '../../../graphql/posts';
 import type { Post } from '../../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
-  EyeIcon,
   MiniCloseIcon as CloseIcon,
   RefreshIcon,
   SidebarArrowRight,
@@ -25,9 +24,8 @@ type ReaderChromeProps = {
   onClose: () => void;
   isRailOpen: boolean;
   onToggleRail: () => void;
-  isReaderMode: boolean;
-  onToggleReaderMode: () => void;
   onRefreshContent: () => void;
+  isPostPage?: boolean;
 };
 
 export function ReaderChrome({
@@ -35,9 +33,8 @@ export function ReaderChrome({
   onClose,
   isRailOpen,
   onToggleRail,
-  isReaderMode,
-  onToggleReaderMode,
   onRefreshContent,
+  isPostPage = false,
 }: ReaderChromeProps): ReactElement {
   const { target: readTarget } = getPostReadTarget(post);
   const { openNewTab } = useContext(SettingsContext);
@@ -72,23 +69,6 @@ export function ReaderChrome({
     return `${apiUrl}/icon?url=${encodeURIComponent(host)}&size=${iconSize}`;
   }, [sourceDomain]);
 
-  const readerModeButton = (
-    <Tooltip content={isReaderMode ? 'Exit reader view' : 'Reader view'}>
-      <Button
-        icon={<EyeIcon secondary={isReaderMode} />}
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Tertiary}
-        type="button"
-        className={classNames(
-          iconButtonClassName,
-          isReaderMode && 'bg-surface-float',
-        )}
-        onClick={onToggleReaderMode}
-        aria-label={isReaderMode ? 'Exit reader view' : 'Reader view'}
-        aria-pressed={isReaderMode}
-      />
-    </Tooltip>
-  );
   const chromeGroupClasses =
     'pointer-events-auto flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default/70 p-px shadow-3 backdrop-blur-md backdrop-saturate-150';
   const showDiscussionButton = (
@@ -129,7 +109,6 @@ export function ReaderChrome({
         aria-label="Header controls left"
       >
         {!isRailOpen && showDiscussionButton}
-        {readerModeButton}
         {refreshContentButton}
       </div>
 
@@ -188,22 +167,26 @@ export function ReaderChrome({
         </div>
       )}
 
-      <div
-        className={classNames(chromeGroupClasses, 'justify-self-end')}
-        aria-label="Reader actions"
-      >
-        <Tooltip side="bottom" content="Close">
-          <Button
-            variant={ButtonVariant.Tertiary}
-            icon={<CloseIcon />}
-            size={ButtonSize.Small}
-            type="button"
-            className={iconButtonClassName}
-            onClick={onClose}
-            aria-label="Close reader"
-          />
-        </Tooltip>
-      </div>
+      {isPostPage ? (
+        <div className="justify-self-end" aria-hidden />
+      ) : (
+        <div
+          className={classNames(chromeGroupClasses, 'justify-self-end')}
+          aria-label="Reader actions"
+        >
+          <Tooltip side="bottom" content="Close">
+            <Button
+              variant={ButtonVariant.Tertiary}
+              icon={<CloseIcon />}
+              size={ButtonSize.Small}
+              type="button"
+              className={iconButtonClassName}
+              onClick={onClose}
+              aria-label="Close reader"
+            />
+          </Tooltip>
+        </div>
+      )}
     </div>
   );
 }
