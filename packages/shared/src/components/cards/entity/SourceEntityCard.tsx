@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import Link from '../../utilities/Link';
 import EntityCard from './EntityCard';
 import {
@@ -13,23 +13,11 @@ import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
 import { ButtonVariant } from '../../buttons/Button';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
-import EnableNotificationsCta from './EnableNotificationsCta';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';
-import {
-  ContentPreferenceStatus,
-  ContentPreferenceType,
-} from '../../../graphql/contentPreference';
-import {
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  TargetType,
-} from '../../../lib/log';
+import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
 import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
-import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
-import { useSourceActionsNotify } from '../../../hooks/source/useSourceActionsNotify';
-import { useNotificationCtaExperiment } from '../../../hooks/notifications/useNotificationCtaExperiment';
 
 type SourceEntityCardProps = {
   source: SourceTooltip;
@@ -49,67 +37,11 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
     id: sourceId,
     entity: ContentPreferenceType.Source,
   });
-  const [showNotificationCta, setShowNotificationCta] = useState(false);
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment({
-      shouldEvaluate: showNotificationCta,
-    });
-  const { subscribe } = useContentPreference();
-  const prevStatusRef = useRef(contentPreference?.status);
   const menuProps = useSourceMenuProps({ source });
-  const { haveNotificationsOn, onNotify } = useSourceActionsNotify({
-    source,
-  });
-
-  const currentStatus = contentPreference?.status;
-  const isNowFollowing =
-    currentStatus === ContentPreferenceStatus.Follow ||
-    currentStatus === ContentPreferenceStatus.Subscribed;
-  const wasFollowing =
-    prevStatusRef.current === ContentPreferenceStatus.Follow ||
-    prevStatusRef.current === ContentPreferenceStatus.Subscribed;
-  const shouldRenderNotificationCta =
-    isNotificationCtaExperimentEnabled &&
-    showNotificationCta &&
-    !haveNotificationsOn;
-
-  useEffect(() => {
-    if (currentStatus === prevStatusRef.current) {
-      return;
-    }
-
-    prevStatusRef.current = currentStatus;
-
-    if (isNowFollowing && !wasFollowing) {
-      setShowNotificationCta(true);
-      return;
-    }
-
-    if (!isNowFollowing && wasFollowing) {
-      setShowNotificationCta(false);
-    }
-  }, [currentStatus, isNowFollowing, wasFollowing]);
 
   if (!source?.id || !source.name || !source.image || !source.permalink) {
     return null;
   }
-
-  const handleTurnOn = async () => {
-    if (!source?.id) {
-      throw new Error('Cannot subscribe to notifications without source id');
-    }
-
-    if (currentStatus !== ContentPreferenceStatus.Subscribed) {
-      await subscribe({
-        id: source.id,
-        entity: ContentPreferenceType.Source,
-        entityName: source.name ?? source.id,
-      });
-    }
-
-    await onNotify();
-    setShowNotificationCta(false);
-  };
 
   return (
     <EntityCard
@@ -174,17 +106,6 @@ const SourceEntityCard = ({ source, className }: SourceEntityCardProps) => {
             {largeNumberFormat(source.flags?.totalUpvotes ?? 0) || 0} Upvotes
           </Typography>
         </div>
-        {shouldRenderNotificationCta && (
-          <EnableNotificationsCta
-            onEnable={handleTurnOn}
-            analytics={{
-              placement: NotificationCtaPlacement.SourceCard,
-              targetType: TargetType.Source,
-              targetId: source.id,
-              source: NotificationPromptSource.SourceSubscribe,
-            }}
-          />
-        )}
       </div>
     </EntityCard>
   );
