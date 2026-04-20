@@ -11,19 +11,26 @@ import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 import { PlusProductToggle } from './PlusProductToggle';
 import { PurchaseType } from '../../graphql/paddle';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusApiLanding } from '../../lib/featureManagement';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
 );
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
+const PlusApiShowcase = dynamic(() =>
+  import('./PlusApiShowcase').then((mod) => mod.PlusApiShowcase),
+);
 
 export const PlusMobile = ({
   shouldShowPlusHeader,
 }: CommonPlusPageProps): ReactElement => {
   const router = useRouter();
   const { giftToUser } = useGiftUserContext();
-  const { productOptions } = usePaymentContext();
+  const { productOptions, isOrganization } = usePaymentContext();
+  const apiLandingVariant = useFeature(featurePlusApiLanding);
+  const isApiVariant = apiLandingVariant === 'api';
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
@@ -31,10 +38,14 @@ export const PlusMobile = ({
   }, []);
 
   const onContinue = useCallback(() => {
-    const params = objectToQueryParams({
-      pid: selectedOption,
-      gift: giftToUser?.id,
-    });
+    const query: Record<string, string> = {};
+    if (selectedOption) {
+      query.pid = selectedOption;
+    }
+    if (giftToUser?.id) {
+      query.gift = giftToUser.id;
+    }
+    const params = objectToQueryParams(query);
 
     router.push(`${plusUrl}/payment?${params}`);
   }, [router, giftToUser, selectedOption]);
@@ -66,13 +77,14 @@ export const PlusMobile = ({
         />
       )}
       <PlusInfo
-        productOptions={productOptions}
+        productOptions={productOptions ?? []}
         selectedOption={selectedOption}
         onChange={selectionChange}
         onContinue={onContinue}
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
       <PlusTrustRefund className="mt-6" />
+      {isApiVariant && !isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </div>
   );

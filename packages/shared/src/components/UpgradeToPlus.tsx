@@ -13,7 +13,7 @@ import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
+import { featurePlusApiLanding } from '../lib/featureManagement';
 
 type Props = {
   iconOnly?: boolean;
@@ -37,11 +37,16 @@ export const UpgradeToPlus = ({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { value: ctaCopy } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
+  const { value: apiLandingVariant } = useConditionalFeature({
+    feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
+  const isApiVariant = apiLandingVariant === 'api';
+  const ctaCopy = isApiVariant
+    ? { full: 'Get API Access', short: 'API access' }
+    : { full: 'Level Up with Plus', short: 'Upgrade' };
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
+  const defaultColor = isApiVariant ? ButtonColor.Bacon : ButtonColor.Avocado;
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {
@@ -70,7 +75,7 @@ export const UpgradeToPlus = ({
         className={classNames(!iconOnly && 'flex-1', className)}
         icon={<DevPlusIcon />}
         size={size}
-        color={ButtonColor.Avocado}
+        color={defaultColor}
         variant={ButtonVariant.Primary}
         onClick={onClick}
         {...(variant && { variant, color })}

@@ -13,8 +13,13 @@ import { usePlusSubscription } from '../../hooks';
 
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusApiLanding } from '../../lib/featureManagement';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
+const PlusApiShowcase = dynamic(() =>
+  import('./PlusApiShowcase').then((mod) => mod.PlusApiShowcase),
+);
 
 export const PlusDesktop = ({
   shouldShowPlusHeader,
@@ -32,14 +37,16 @@ export const PlusDesktop = ({
     query: { selectedPlan },
   } = useRouter();
   const { isPlus } = usePlusSubscription();
+  const apiLandingVariant = useFeature(featurePlusApiLanding);
+  const isApiVariant = apiLandingVariant === 'api';
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement>(null);
 
   const onChangeCheckoutOption: OpenCheckoutFn = useCallback(
     ({ priceId, giftToUserId, quantity }) => {
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId, quantity });
+      openCheckout?.({ priceId, giftToUserId, quantity });
     },
     [openCheckout],
   );
@@ -56,7 +63,7 @@ export const PlusDesktop = ({
 
       const { priceId } = giftOneYear;
       setSelectedOption(priceId);
-      openCheckout({ priceId, giftToUserId: giftToUser.id });
+      openCheckout?.({ priceId, giftToUserId: giftToUser.id });
 
       return;
     }
@@ -66,7 +73,7 @@ export const PlusDesktop = ({
     // Auto-select if user is not plus or it is organization checkout
     if (option && (!isPlus || isOrganization)) {
       setSelectedOption(option);
-      openCheckout({ priceId: option });
+      openCheckout?.({ priceId: option });
     }
   }, [
     giftOneYear,
@@ -98,7 +105,7 @@ export const PlusDesktop = ({
             />
           )}
           <PlusInfo
-            productOptions={productOptions}
+            productOptions={productOptions ?? []}
             selectedOption={selectedOption}
             onChange={onChangeCheckoutOption}
             shouldShowPlusHeader={shouldShowPlusHeader}
@@ -120,6 +127,7 @@ export const PlusDesktop = ({
           )}
         </div>
       </div>
+      {isApiVariant && !isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </>
   );

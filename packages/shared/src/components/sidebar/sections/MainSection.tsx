@@ -23,7 +23,7 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
-  featurePlusCtaCopy,
+  featurePlusApiLanding,
   featureYearInReview,
   questsFeature,
 } from '../../../lib/featureManagement';
@@ -38,10 +38,14 @@ export const MainSection = ({
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const isPlus = user?.isPlus;
-  const { value: ctaCopy } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
+  const { value: apiLandingVariant } = useConditionalFeature({
+    feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
+  const isApiVariant = apiLandingVariant === 'api';
+  const ctaCopy = isApiVariant
+    ? { full: 'Get API Access', short: 'API access' }
+    : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -94,9 +98,12 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: 'text-accent-avocado-default',
-          itemClassName:
-            'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          color: isApiVariant
+            ? 'text-action-plus-default'
+            : 'text-accent-avocado-default',
+          itemClassName: isApiVariant
+            ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
+            : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
           disableDefaultBackground: true,
         }
       : undefined;
@@ -182,7 +189,8 @@ export const MainSection = ({
     ).filter((item): item is SidebarMenuItem => !!item);
   }, [
     claimableMilestoneCount,
-    ctaCopy,
+    ctaCopy.full,
+    isApiVariant,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,

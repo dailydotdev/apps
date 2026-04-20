@@ -8,7 +8,13 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { PlusList, plusOrganizationFeatureList } from './PlusList';
+import {
+  PlusList,
+  plusFeatureListApiFirst,
+  plusOrganizationFeatureList,
+} from './PlusList';
+import { useFeature } from '../GrowthBookProvider';
+import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
@@ -79,6 +85,16 @@ export const defaultPlusInfoCopyControl: Record<PlusType, PageCopy> = {
   },
 };
 
+export const plusInfoCopyApi: Record<PlusType, PageCopy> = {
+  ...defaultPlusInfoCopyControl,
+  [PlusType.Self]: {
+    title: 'A real API for the dev content you already trust',
+    description:
+      "Your coding agent doesn't know what shipped last week. The daily.dev API feeds it curated, upvote-ranked dev content through pre-built integrations for Claude Code, Cursor, and Codex.",
+    subtitle: 'Billing cycle',
+  },
+};
+
 const skeletonItems = Array.from({ length: 3 }, (_, i) => i);
 const RadioGroupSkeleton = () => (
   <div>
@@ -139,11 +155,15 @@ export const PlusInfo = ({
 
   const [itemQuantity, setItemQuantity] = useState<number>(1);
 
+  const apiLandingVariant = useFeature(featurePlusApiLanding);
+  const isApiVariant = apiLandingVariant === 'api';
+
   const plusType = getPlusType({
     isGift: !!giftToUser,
     isOrganization,
   });
-  const defaultCopy = defaultPlusInfoCopyControl[plusType];
+  const copySource = isApiVariant ? plusInfoCopyApi : defaultPlusInfoCopyControl;
+  const defaultCopy = copySource[plusType];
   const titleCopy = title || defaultCopy.title;
   const descriptionCopy = description || defaultCopy.description;
   const subtitleCopy = subtitle || defaultCopy.subtitle;
@@ -151,11 +171,14 @@ export const PlusInfo = ({
   const isOnboarding = router.pathname.startsWith('/onboarding');
   const showBuyAsAGiftButton =
     !giftToUser && showGiftButton && !!giftOneYear && !isOnboarding;
-  const plusListContent = isOrganization ? (
-    <PlusList items={plusOrganizationFeatureList} />
-  ) : (
-    <PlusList />
-  );
+  let plusListContent: ReactElement;
+  if (isOrganization) {
+    plusListContent = <PlusList items={plusOrganizationFeatureList} />;
+  } else if (isApiVariant && plusType === PlusType.Self) {
+    plusListContent = <PlusList items={plusFeatureListApiFirst} />;
+  } else {
+    plusListContent = <PlusList />;
+  }
 
   return (
     <>
@@ -187,7 +210,7 @@ export const PlusInfo = ({
           label="Team size"
           className="mb-4"
           itemQuantity={itemQuantity}
-          selectedOption={selectedOption}
+          selectedOption={selectedOption ?? ''}
           checkoutItemsLoading={checkoutItemsLoading ?? false}
           setItemQuantity={setItemQuantity}
           onChange={onChange}
@@ -247,9 +270,9 @@ export const PlusInfo = ({
           giftToUser ? 'min-h-[3rem]' : 'min-h-[6.125rem]',
         )}
       >
-        {giftToUser ? (
+        {giftToUser && giftOneYear ? (
           <PlusOptionRadio
-            key={giftOneYear?.priceId}
+            key={giftOneYear.priceId}
             option={giftOneYear}
             checked
           />

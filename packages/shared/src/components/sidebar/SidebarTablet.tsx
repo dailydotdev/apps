@@ -33,7 +33,7 @@ import { getFeedName } from '../../lib/feed';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import HeaderLogo from '../layout/HeaderLogo';
 import { useConditionalFeature, useActions } from '../../hooks';
-import { featurePlusCtaCopy } from '../../lib/featureManagement';
+import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { Bubble } from '../tooltips/utils';
 import { NewOpportunityPopover } from '../opportunity/NewOpportunityPopover';
 import { SimpleTooltip } from '../tooltips';
@@ -67,10 +67,14 @@ export const SidebarTablet = ({
     hasFiltered: !alerts?.filter,
   });
   const isPlus = user?.isPlus;
-  const { value: ctaCopy } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
+  const { value: apiLandingVariant } = useConditionalFeature({
+    feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
+  const isApiVariant = apiLandingVariant === 'api';
+  const ctaCopy = isApiVariant
+    ? { full: 'Get API Access', short: 'API access' }
+    : { full: 'Level Up with Plus', short: 'Upgrade' };
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? `${webappUrl}${squadCategoriesPaths['My Squads'].substring(1)}`
@@ -172,7 +176,9 @@ export const SidebarTablet = ({
             variant={ButtonVariant.Option}
             className={classNames(
               buttonProps.className,
-              '!text-accent-avocado-default',
+              isApiVariant
+                ? '!text-action-plus-default'
+                : '!text-accent-avocado-default',
             )}
           >
             {ctaCopy.short}
