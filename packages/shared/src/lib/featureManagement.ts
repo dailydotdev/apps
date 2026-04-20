@@ -52,6 +52,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 export const featurePlusApiLanding = new Feature('plus_api_landing', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -73,10 +74,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const notificationCtaV2Feature = new Feature(
-  'notification_cta_v2',
-  false,
-);
 
 export const featureReadingReminderVariation = new Feature<
   'control' | 'hero' | 'inline'
@@ -156,3 +153,8 @@ export const sharedPostPreviewFeature = new Feature(
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+
+export const featureShortcutsExtensionPromo = new Feature(
+  'shortcuts_extension_promo',
+  false,
+);
