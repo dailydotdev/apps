@@ -101,6 +101,8 @@ function EnableNotification({
   const classes = containerClassName[source] ?? '';
   const showTextCloseButton = sourceRenderTextCloseButton[source] ?? false;
   const buttonText = sourceToButtonText[source] ?? 'Enable notifications';
+  const shouldUseTopRightCloseButton =
+    source === NotificationPromptSource.NotificationsPage;
 
   if (source === NotificationPromptSource.SquadPostModal) {
     return (
@@ -199,10 +201,17 @@ function EnableNotification({
             Dismiss
           </Button>
         )}
-        {!showTextCloseButton && (
+        {!showTextCloseButton && !shouldUseTopRightCloseButton && (
           <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />
         )}
       </div>
+      {shouldUseTopRightCloseButton && (
+        <CloseButton
+          size={ButtonSize.XSmall}
+          className="absolute right-1 top-1 laptop:right-3 laptop:top-3"
+          onClick={onDismiss}
+        />
+      )}
     </div>
   );
 }
