@@ -165,7 +165,6 @@ export function Modal({
     return (
       <Drawer
         displayCloseButton
-        appendOnRoot={!!props?.parentSelector}
         {...drawerProps}
         isOpen
         onAfterClose={props?.onAfterClose}
