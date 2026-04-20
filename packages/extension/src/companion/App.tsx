@@ -1,4 +1,4 @@
-import type { ComponentProps, ComponentType, ReactElement } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import browser from 'webextension-polyfill';
@@ -21,6 +21,8 @@ import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PromptElement } from '@dailydotdev/shared/src/components/modals/Prompt';
 import ShareModal from '@dailydotdev/shared/src/components/modals/ShareModal';
+import type { ShareProps } from '@dailydotdev/shared/src/components/modals/post/common';
+import type { UpvotedPopupModalProps } from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import UpvotedPopupModal from '@dailydotdev/shared/src/components/modals/UpvotedPopupModal';
 import ReportPostModal from '@dailydotdev/shared/src/components/modals/report/ReportPostModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -38,8 +40,15 @@ structuredCloneJsonPolyfill();
 
 const queryClient = new QueryClient(defaultQueryClientConfig);
 const router = new CustomRouter();
-type CompanionModalProps<T extends ComponentType<any>> =
-  Omit<ComponentProps<T>, 'isOpen' | 'onRequestClose' | 'parentSelector'>;
+type CompanionShareProps = Omit<ShareProps, 'parentSelector'>;
+type CompanionUpvotedPopupModalProps = Omit<
+  UpvotedPopupModalProps,
+  'parentSelector'
+>;
+type ReportPostModalProps = Omit<
+  ComponentProps<typeof ReportPostModal>,
+  'isOpen' | 'onRequestClose' | 'parentSelector'
+>;
 
 export type CompanionData = { url: string; deviceId: string } & Pick<
   Boot,
@@ -64,7 +73,7 @@ function CompanionModalElement(): ReactElement | null {
     case LazyModal.Share:
       return (
         <ShareModal
-          {...(modal.props as CompanionModalProps<typeof ShareModal>)}
+          {...(modal.props as CompanionShareProps)}
           isOpen
           parentSelector={getModalParent}
           onRequestClose={closeModal}
@@ -73,7 +82,7 @@ function CompanionModalElement(): ReactElement | null {
     case LazyModal.UpvotedPopup:
       return (
         <UpvotedPopupModal
-          {...(modal.props as CompanionModalProps<typeof UpvotedPopupModal>)}
+          {...(modal.props as CompanionUpvotedPopupModalProps)}
           isOpen
           parentSelector={getModalParent}
           onRequestClose={closeModal}
@@ -82,7 +91,7 @@ function CompanionModalElement(): ReactElement | null {
     case LazyModal.ReportPost:
       return (
         <ReportPostModal
-          {...(modal.props as CompanionModalProps<typeof ReportPostModal>)}
+          {...(modal.props as ReportPostModalProps)}
           isOpen
           parentSelector={getModalParent}
           onRequestClose={closeModal}

@@ -31,7 +31,7 @@ jest.mock('@dailydotdev/shared/src/hooks/useLazyModal', () => ({
   useLazyModal: () => mockUseLazyModal(),
 }));
 
-function createMockModal(testId: string) {
+function mockCreateModal(testId: string) {
   const MockModal = ({
     parentSelector,
   }: {
@@ -47,14 +47,14 @@ function createMockModal(testId: string) {
 
 jest.mock('@dailydotdev/shared/src/components/modals/ShareModal', () => ({
   __esModule: true,
-  default: createMockModal('share-modal'),
+  default: mockCreateModal('share-modal'),
 }));
 
 jest.mock(
   '@dailydotdev/shared/src/components/modals/UpvotedPopupModal',
   () => ({
     __esModule: true,
-    default: createMockModal('upvoted-modal'),
+    default: mockCreateModal('upvoted-modal'),
   }),
 );
 
@@ -62,7 +62,7 @@ jest.mock(
   '@dailydotdev/shared/src/components/modals/report/ReportPostModal',
   () => ({
     __esModule: true,
-    default: createMockModal('report-modal'),
+    default: mockCreateModal('report-modal'),
   }),
 );
 
