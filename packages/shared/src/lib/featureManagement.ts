@@ -71,10 +71,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const notificationCtaV2Feature = new Feature(
-  'notification_cta_v2',
-  false,
-);
 
 export const featureReadingReminderVariation = new Feature<
   'control' | 'hero' | 'inline'
