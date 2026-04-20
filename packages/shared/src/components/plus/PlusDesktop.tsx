@@ -37,8 +37,7 @@ export const PlusDesktop = ({
     query: { selectedPlan },
   } = useRouter();
   const { isPlus } = usePlusSubscription();
-  const apiLandingVariant = useFeature(featurePlusApiLanding);
-  const isApiVariant = apiLandingVariant === 'api';
+  const isApiLanding = useFeature(featurePlusApiLanding);
   const initialPaymentOption = selectedPlan ? `${selectedPlan}` : null;
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -127,7 +126,7 @@ export const PlusDesktop = ({
           )}
         </div>
       </div>
-      {isApiVariant && !isOrganization && !giftToUser && <PlusApiShowcase />}
+      {isApiLanding && !isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </>
   );

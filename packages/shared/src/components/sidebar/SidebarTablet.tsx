@@ -67,12 +67,11 @@ export const SidebarTablet = ({
     hasFiltered: !alerts?.filter,
   });
   const isPlus = user?.isPlus;
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const isApiVariant = apiLandingVariant === 'api';
-  const ctaCopy = isApiVariant
+  const ctaCopy = isApiLanding
     ? { full: 'Get API Access', short: 'API access' }
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const hasSquads = (squads?.length ?? 0) > 0;
@@ -176,7 +175,7 @@ export const SidebarTablet = ({
             variant={ButtonVariant.Option}
             className={classNames(
               buttonProps.className,
-              isApiVariant
+              isApiLanding
                 ? '!text-action-plus-default'
                 : '!text-accent-avocado-default',
             )}

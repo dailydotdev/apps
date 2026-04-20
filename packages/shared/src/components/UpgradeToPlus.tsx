@@ -37,16 +37,15 @@ export const UpgradeToPlus = ({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const isApiVariant = apiLandingVariant === 'api';
-  const ctaCopy = isApiVariant
+  const ctaCopy = isApiLanding
     ? { full: 'Get API Access', short: 'API access' }
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
-  const defaultColor = isApiVariant ? ButtonColor.Bacon : ButtonColor.Avocado;
+  const defaultColor = isApiLanding ? ButtonColor.Bacon : ButtonColor.Avocado;
 
   const onClick = useCallback(
     (e: React.MouseEvent) => {

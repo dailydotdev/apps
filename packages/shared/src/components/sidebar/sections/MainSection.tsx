@@ -38,12 +38,11 @@ export const MainSection = ({
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const isPlus = user?.isPlus;
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const isApiVariant = apiLandingVariant === 'api';
-  const ctaCopy = isApiVariant
+  const ctaCopy = isApiLanding
     ? { full: 'Get API Access', short: 'API access' }
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
@@ -98,10 +97,10 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: isApiVariant
+          color: isApiLanding
             ? 'text-action-plus-default'
             : 'text-accent-avocado-default',
-          itemClassName: isApiVariant
+          itemClassName: isApiLanding
             ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
             : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
           disableDefaultBackground: true,
@@ -190,7 +189,7 @@ export const MainSection = ({
   }, [
     claimableMilestoneCount,
     ctaCopy.full,
-    isApiVariant,
+    isApiLanding,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,

@@ -49,10 +49,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
-export const featurePlusApiLanding = new Feature<'control' | 'api'>(
-  'plus_api_landing',
-  'control',
-);
+export const featurePlusApiLanding = new Feature('plus_api_landing', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 

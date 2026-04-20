@@ -33,13 +33,12 @@ const PlusMobileEntryBanner = ({
 }: PlusBannerProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
-  const apiLandingVariant = useFeature(featurePlusApiLanding);
+  const isApiLanding = useFeature(featurePlusApiLanding);
   if (!flags) {
     return null;
   }
   const { leadIn, description, ctaText, ctaUrl } = flags;
-  const ctaColor =
-    apiLandingVariant === 'api' ? ButtonColor.Bacon : ButtonColor.Avocado;
+  const ctaColor = isApiLanding ? ButtonColor.Bacon : ButtonColor.Avocado;
 
   const handleClose = () => {
     logEvent({

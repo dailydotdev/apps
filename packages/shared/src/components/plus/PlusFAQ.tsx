@@ -54,12 +54,11 @@ export const PlusFAQ = (): ReactElement => {
   const id = useId();
   const titleId = `${id}-title`;
   const { isPlus } = usePlusSubscription();
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const items =
-    apiLandingVariant === 'api' ? plusFAQItemsApi : plusFAQItemsControl;
+  const items = isApiLanding ? plusFAQItemsApi : plusFAQItemsControl;
   return (
     <section aria-labelledby={titleId} className="my-10">
       <Typography

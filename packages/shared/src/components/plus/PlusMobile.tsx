@@ -29,8 +29,7 @@ export const PlusMobile = ({
   const router = useRouter();
   const { giftToUser } = useGiftUserContext();
   const { productOptions, isOrganization } = usePaymentContext();
-  const apiLandingVariant = useFeature(featurePlusApiLanding);
-  const isApiVariant = apiLandingVariant === 'api';
+  const isApiLanding = useFeature(featurePlusApiLanding);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
@@ -84,7 +83,7 @@ export const PlusMobile = ({
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
       <PlusTrustRefund className="mt-6" />
-      {isApiVariant && !isOrganization && !giftToUser && <PlusApiShowcase />}
+      {isApiLanding && !isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </div>
   );

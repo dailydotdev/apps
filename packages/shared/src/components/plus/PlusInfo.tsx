@@ -154,17 +154,16 @@ export const PlusInfo = ({
 
   const [itemQuantity, setItemQuantity] = useState<number>(1);
 
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const isApiVariant = apiLandingVariant === 'api';
 
   const plusType = getPlusType({
     isGift: !!giftToUser,
     isOrganization,
   });
-  const copySource = isApiVariant
+  const copySource = isApiLanding
     ? plusInfoCopyApi
     : defaultPlusInfoCopyControl;
   const defaultCopy = copySource[plusType];
@@ -178,7 +177,7 @@ export const PlusInfo = ({
   let plusListContent: ReactElement;
   if (isOrganization) {
     plusListContent = <PlusList items={plusOrganizationFeatureList} />;
-  } else if (isApiVariant && plusType === PlusType.Self) {
+  } else if (isApiLanding && plusType === PlusType.Self) {
     plusListContent = <PlusList items={plusFeatureListApiFirst} />;
   } else {
     plusListContent = <PlusList />;

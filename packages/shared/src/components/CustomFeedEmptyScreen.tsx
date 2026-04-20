@@ -26,12 +26,11 @@ import Link from './utilities/Link';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const plusCta =
-    apiLandingVariant === 'api' ? 'Get API Access' : 'Level Up with Plus';
+  const plusCta = isApiLanding ? 'Get API Access' : 'Level Up with Plus';
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,

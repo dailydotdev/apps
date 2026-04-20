@@ -31,12 +31,11 @@ export const PlusUserBadge = ({
   size = IconSize.Size16,
 }: Props): ReactElement | null => {
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
-  const { value: apiLandingVariant } = useConditionalFeature({
+  const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
-  const plusCta =
-    apiLandingVariant === 'api' ? 'Get API Access' : 'Level Up with Plus';
+  const plusCta = isApiLanding ? 'Get API Access' : 'Level Up with Plus';
 
   if (!user.isPlus) {
     return null;
