@@ -240,18 +240,8 @@ const renderComponent = (props = {}, initialState: InitialState = {}) => {
 describe('FunnelPricingV2', () => {
   let dateMock: DateMock;
   const initialDate = new Date('2023-01-01T00:00:00Z');
-  const getProceedButton = (): HTMLElement => {
-    const proceedButton = screen
-      .getAllByText('Get my plan')
-      .filter((button) => button.tagName === 'BUTTON')
-      .at(0);
-
-    if (!proceedButton) {
-      throw new Error('Expected pricing CTA button');
-    }
-
-    return proceedButton;
-  };
+  const getProceedButton = (): HTMLElement =>
+    screen.getAllByRole('button', { name: 'Get my plan' })[0];
 
   const getMonthlyPlanRadio = (): HTMLElement => {
     const monthlyPlan = screen

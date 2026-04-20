@@ -59,6 +59,8 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingV2 } from '../../lib/featureManagement';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -177,6 +179,12 @@ function AuthOptionsInner({
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
+  const { value: isOnboardingV2 } = useConditionalFeature({
+    feature: featureOnboardingV2,
+    shouldEvaluate: trigger === AuthTriggers.Onboarding,
+  });
+  const shouldAutoCompleteOnboarding =
+    trigger === AuthTriggers.Onboarding && isOnboardingV2;
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
@@ -372,7 +380,7 @@ function AuthOptionsInner({
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
       await autoCompleteProfile(user.email, user.name, false);
-    } else if (trigger === AuthTriggers.Onboarding) {
+    } else if (shouldAutoCompleteOnboarding) {
       await autoCompleteProfile(user.email, user.name, acceptedMarketing);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
@@ -484,12 +492,13 @@ function AuthOptionsInner({
 
     if (
       trigger === AuthTriggers.RecruiterSelfServe ||
-      trigger === AuthTriggers.Onboarding
+      shouldAutoCompleteOnboarding
     ) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      const marketing =
-        trigger === AuthTriggers.Onboarding ? acceptedMarketing : false;
+      const marketing = shouldAutoCompleteOnboarding
+        ? acceptedMarketing
+        : false;
       await autoCompleteProfile(loggedUser.email, loggedUser.name, marketing);
       return;
     }
