@@ -22,6 +22,7 @@ export const uninstall = 'https://r.daily.dev/uninstall';
 export const sharingBookmarks = 'https://r.daily.dev/sharing-bookmarks';
 export const devCard = 'https://r.daily.dev/devcard-github';
 export const docs = 'https://r.daily.dev/docs';
+export const plusPublicApiDocs = 'https://docs.daily.dev/docs/plus/public-api';
 export const markdownGuide = 'https://r.daily.dev/markdown-guide';
 export const careers = 'https://r.daily.dev/careers';
 export const firstNotificationLink = 'https://r.daily.dev/notifications';

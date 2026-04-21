@@ -83,7 +83,8 @@ function ButtonComponent<TagName extends AllowedTags>(
   }: ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && isNullOrUndefined(children);
+  const hasChildren = !isNullOrUndefined(children);
+  const iconOnly = icon && !hasChildren;
   const getIconWithSize = useGetIconWithSize(
     size,
     iconOnly ?? false,
@@ -126,7 +127,11 @@ function ButtonComponent<TagName extends AllowedTags>(
           iconPosition,
         ) &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
-      {loading ? <span className="invisible">{children}</span> : children}
+      {hasChildren && (
+        <span className={classNames('btn-label', loading && 'invisible')}>
+          {children}
+        </span>
+      )}
       {icon &&
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}

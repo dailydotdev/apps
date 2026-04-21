@@ -64,7 +64,6 @@ export function PostWidgets({
         }}
         handle={source.handle}
         origin={origin}
-        showNotificationCtaOnJoin
       />
     );
   } else if (source) {
@@ -87,7 +86,6 @@ export function PostWidgets({
             container: cardClasses,
           }}
           user={creator as UserShortProfile}
-          showNotificationCtaOnFollow
         />
       )}
       <PostSidebarAdWidget

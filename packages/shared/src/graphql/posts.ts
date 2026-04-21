@@ -92,6 +92,10 @@ export const isPostOrSharedPostTwitter = (
 ): boolean =>
   isSocialTwitterPost(post) || isSocialTwitterPost(post?.sharedPost as Post);
 
+export const isPostUpdated = (
+  post: Pick<Post, 'createdAt' | 'updatedAt'>,
+): boolean => !!post.updatedAt && post.updatedAt !== post.createdAt;
+
 /**
  * For social:twitter quote posts, resolve to the top tweet (the post itself)
  * rather than the referenced/shared tweet. For all other post types, fall back

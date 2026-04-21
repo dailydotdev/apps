@@ -268,7 +268,6 @@ function FeedItemComponent({
   onCommentClick,
   onReadArticleClick,
   virtualizedNumCards,
-  disableAdRefresh,
 }: FeedItemComponentProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const queryClient = useQueryClient();
@@ -518,11 +517,6 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
-          onRefresh={
-            disableAdRefresh
-              ? undefined
-              : (ad: Ad) => onAdAction(AdActions.Refresh, ad)
-          }
         />
       );
     }

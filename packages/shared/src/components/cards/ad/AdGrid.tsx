@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { forwardRef, useCallback } from 'react';
+import React, { forwardRef } from 'react';
 
 import {
   Card,
@@ -18,31 +18,28 @@ import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
-import { AdRefresh } from './common/AdRefresh';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
+import { TargetId } from '../../../lib/log';
+import { AdvertiseLink } from './common/AdvertiseLink';
 
-export const AdGrid = forwardRef(function AdGrid(
-  { ad, onLinkClick, onRefresh, domProps, index, feedIndex }: AdCardProps,
-  inViewRef: InViewRef,
+export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
+  { ad, onLinkClick, domProps, index, feedIndex },
+  forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const { ref, refetch, isRefetching } = useAutoRotatingAds(
+  const { ref } = useAutoRotatingAds(
     ad,
     index,
     feedIndex,
-    inViewRef,
+    forwardedRef as InViewRef,
   );
-
-  const onRefreshClick = useCallback(async () => {
-    onRefresh?.(ad);
-    await refetch();
-  }, [ad, onRefresh, refetch]);
+  const matchingTags = ad?.matchingTags ?? [];
 
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
@@ -51,9 +48,9 @@ export const AdGrid = forwardRef(function AdGrid(
       <CardTextContainer className="flex-1">
         <CardTitle className="typo-title3">{ad.description}</CardTitle>
         <CardSpace />
-        {adImprovementsV3 && ad?.matchingTags?.length > 0 ? (
+        {adImprovementsV3 && matchingTags.length > 0 ? (
           <PostTags
-            post={{ tags: ad.matchingTags.slice(0, 6) }}
+            post={{ tags: matchingTags.slice(0, 6) }}
             className="!items-end"
           />
         ) : null}
@@ -76,19 +73,17 @@ export const AdGrid = forwardRef(function AdGrid(
               {ad.callToAction}
             </Button>
           )}
+          <AdvertiseLink
+            targetId={TargetId.AdCard}
+            buttonStyle
+            size={ButtonSize.Small}
+          />
           <div className="ml-auto flex items-center gap-2">
-            {!!onRefresh && (
-              <AdRefresh
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                onClick={onRefreshClick}
-                loading={isRefetching}
-              />
-            )}
             {!isPlus && (
               <RemoveAd
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
+                className="!font-normal typo-footnote"
               />
             )}
           </div>

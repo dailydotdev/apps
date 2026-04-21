@@ -8,6 +8,7 @@ import {
   EyeIcon,
   HomeIcon,
   HotIcon,
+  JoystickIcon,
   SquadIcon,
   TerminalIcon,
   YearInReviewIcon,
@@ -22,9 +23,12 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
-  featurePlusCtaCopy,
+  featurePlusApiLanding,
   featureYearInReview,
+  questsFeature,
 } from '../../../lib/featureManagement';
+import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
+import { Typography, TypographyColor } from '../../typography/Typography';
 
 export const MainSection = ({
   isItemsButton,
@@ -34,14 +38,27 @@ export const MainSection = ({
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const isPlus = user?.isPlus;
-  const { value: ctaCopy } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
+  const { value: isApiLanding } = useConditionalFeature({
+    feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
+  const ctaCopy = isApiLanding
+    ? { full: 'Get API Access', short: 'API access' }
+    : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
+  const { value: showGameCenter } = useConditionalFeature({
+    feature: questsFeature,
+    shouldEvaluate: isLoggedIn,
+  });
+  const { data: questDashboard } = useQuestDashboard();
+  const claimableMilestoneCount = useMemo(
+    () =>
+      questDashboard?.milestone?.filter((quest) => quest.claimable).length ?? 0,
+    [questDashboard?.milestone],
+  );
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     // this path can be opened on extension so it purposly
@@ -59,7 +76,7 @@ export const MainSection = ({
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
           icon: () => (
-            <ProfilePicture size={ProfileImageSize.XSmall} user={user} />
+            <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
           ),
         }
       : {
@@ -80,10 +97,36 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: 'text-accent-avocado-default',
-          itemClassName:
-            'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          color: isApiLanding
+            ? 'text-action-plus-default'
+            : 'text-accent-avocado-default',
+          itemClassName: isApiLanding
+            ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
+            : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
           disableDefaultBackground: true,
+        }
+      : undefined;
+
+    const gameCenter = showGameCenter
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
+          ),
+          title: 'Game Center',
+          path: `${webappUrl}game-center`,
+          isForcedLink: true,
+          requiresLogin: true,
+          ...(claimableMilestoneCount > 0 && {
+            rightIcon: () => (
+              <Typography
+                color={TypographyColor.Secondary}
+                bold
+                className="rounded-6 bg-background-subtle px-1.5"
+              >
+                {claimableMilestoneCount}
+              </Typography>
+            ),
+          }),
         }
       : undefined;
 
@@ -98,54 +141,60 @@ export const MainSection = ({
         }
       : undefined;
 
-    return [
-      myFeed,
-      {
-        title: 'Following',
-        // this path can be opened on extension so it purposly
-        // is not using webappUrl so it gets selected
-        path: '/following',
-        action: () => onNavTabClick?.(OtherFeedPage.Following),
-        requiresLogin: true,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
-        ),
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <HotIcon secondary={active} />} />
-        ),
-        title: 'Explore',
-        path: '/posts',
-        action: () => onNavTabClick?.(OtherFeedPage.Explore),
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <EyeIcon secondary={active} />} />
-        ),
-        title: 'History',
-        path: `${webappUrl}history`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
-        ),
-        title: 'Agentic Hub',
-        path: `${webappUrl}agents`,
-        isForcedLink: true,
-        requiresLogin: true,
-      },
-      yearInReview,
-      plusButton,
-    ].filter(Boolean);
+    return (
+      [
+        myFeed,
+        {
+          title: 'Following',
+          // this path can be opened on extension so it purposly
+          // is not using webappUrl so it gets selected
+          path: '/following',
+          action: () => onNavTabClick?.(OtherFeedPage.Following),
+          requiresLogin: true,
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          ),
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          ),
+          title: 'Explore',
+          path: '/posts',
+          action: () => onNavTabClick?.(OtherFeedPage.Explore),
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <EyeIcon secondary={active} />} />
+          ),
+          title: 'History',
+          path: `${webappUrl}history`,
+          isForcedLink: true,
+          requiresLogin: true,
+        },
+        {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
+          ),
+          title: 'Agentic Hub',
+          path: `${webappUrl}agents`,
+          isForcedLink: true,
+          requiresLogin: true,
+        },
+        gameCenter,
+        yearInReview,
+        plusButton,
+      ] as (SidebarMenuItem | undefined)[]
+    ).filter((item): item is SidebarMenuItem => !!item);
   }, [
-    ctaCopy,
+    claimableMilestoneCount,
+    ctaCopy.full,
+    isApiLanding,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
     onNavTabClick,
+    showGameCenter,
     showYearInReview,
     user,
   ]);

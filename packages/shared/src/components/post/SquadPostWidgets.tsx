@@ -41,7 +41,6 @@ export function SquadPostWidgets({
             }}
             handle={source.handle}
             origin={origin}
-            showNotificationCtaOnJoin
           />
         ) : (
           <SourceEntityCard
@@ -57,7 +56,6 @@ export function SquadPostWidgets({
             container: cardClasses,
           }}
           user={post.author as UserShortProfile}
-          showNotificationCtaOnFollow
         />
       )}
       <PostSidebarAdWidget
