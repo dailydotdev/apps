@@ -21,14 +21,9 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
-import {
-  webappUrl,
-  broadcastChannel,
-  isTesting,
-  isBrave,
-} from '../../lib/constants';
+import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { isIOSNative, isMobile } from '../../lib/func';
+import { shouldUseSocialAuthPopup } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -558,9 +553,9 @@ function AuthOptionsInner({
       await handleLoginMessage();
       return;
     }
-    const isIOSApp = isIOSNative();
+    const shouldUsePopup = shouldUseSocialAuthPopup();
     onAuthStateUpdate?.({ isLoading: true });
-    if (!isIOSApp) {
+    if (shouldUsePopup) {
       windowPopup.current = window.open();
     }
     const callbackURL = `${webappUrl}callback?login=true`;
@@ -585,21 +580,8 @@ function AuthOptionsInner({
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
-    if (isIOSApp || (isBrave() && isMobile())) {
-      window.location.href = socialUrl;
-      return;
-    }
     if (!windowPopup.current) {
-      logEvent({
-        event_name: authErrorEventName,
-        extra: JSON.stringify({
-          error: 'Failed to open social login window',
-          origin: 'betterauth social popup',
-        }),
-      });
-      setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-      onAuthStateUpdate?.({ isLoading: false });
+      window.location.href = socialUrl;
       return;
     }
     windowPopup.current.location.href = socialUrl;

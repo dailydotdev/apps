@@ -91,7 +91,6 @@ export enum Origin {
   BetterAuthNativeIdToken = 'betterauth native id token',
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
   BetterAuthSocialUrl = 'betterauth social url',
-  BetterAuthSocialPopup = 'betterauth social popup',
   LoginTurnstile = 'login turnstile',
 }
 
