@@ -78,6 +78,7 @@ function LoginForm({
       logEvent({
         event_name: AuthEventNames.LoginError,
         extra: JSON.stringify({
+          provider: 'password',
           error: 'Turnstile not valid',
           origin: Origin.LoginTurnstile,
         }),

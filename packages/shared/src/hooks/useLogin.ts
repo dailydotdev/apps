@@ -26,7 +26,7 @@ import { labels } from '../lib';
 import { Origin } from '../lib/log';
 import { useEventListener } from './useEventListener';
 import { broadcastChannel, webappUrl } from '../lib/constants';
-import { isIOSNative } from '../lib/func';
+import { shouldUseSocialAuthPopup } from '../lib/func';
 
 interface UseLogin {
   isPasswordLoginLoading?: boolean;
@@ -78,6 +78,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider: 'password',
             error: res.error,
             displayedError: labels.auth.error.invalidEmailOrPassword,
             origin: Origin.BetterAuthEmailLogin,
@@ -95,6 +96,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider: 'password',
               error: 'Missing user after Better Auth email login',
               origin: Origin.BetterAuthEmailLoginBoot,
             }),
@@ -112,6 +114,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider: 'password',
             error: getBetterAuthErrorMessage(
               error,
               'Failed to refresh Better Auth login state',
@@ -140,6 +143,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider,
               error: result.error,
               origin: Origin.BetterAuthNativeIdToken,
             }),
@@ -152,6 +156,7 @@ const useLogin = ({
             logEvent({
               event_name: AuthEventNames.LoginError,
               extra: JSON.stringify({
+                provider,
                 error: 'Missing user after Better Auth social login',
                 origin: Origin.BetterAuthNativeIdTokenBoot,
               }),
@@ -167,6 +172,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider,
               error: getBetterAuthErrorMessage(
                 error,
                 'Failed to refresh Better Auth social login state',
@@ -178,8 +184,8 @@ const useLogin = ({
         }
         return;
       }
-      const isIOSApp = isIOSNative();
-      const socialPopup = isIOSApp ? null : window.open();
+      const shouldUsePopup = shouldUseSocialAuthPopup();
+      const socialPopup = shouldUsePopup ? window.open() : null;
       const callbackURL = `${webappUrl}callback?login=true`;
       const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider,
@@ -189,6 +195,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider,
             error: error || 'Failed to get social login URL',
             origin: Origin.BetterAuthSocialUrl,
           }),
@@ -197,22 +204,11 @@ const useLogin = ({
         displayToast(labels.auth.error.generic);
         return;
       }
-      if (isIOSApp) {
-        window.location.href = socialUrl;
-        return;
-      }
       if (socialPopup) {
         socialPopup.location.href = socialUrl;
         return;
       }
-      logEvent({
-        event_name: AuthEventNames.LoginError,
-        extra: JSON.stringify({
-          error: 'Failed to open social login window',
-          origin: Origin.BetterAuthSocialPopup,
-        }),
-      });
-      displayToast(labels.auth.error.generic);
+      window.location.href = socialUrl;
     },
     [displayToast, logEvent, refetchBoot, onUpdateSignBack],
   );
