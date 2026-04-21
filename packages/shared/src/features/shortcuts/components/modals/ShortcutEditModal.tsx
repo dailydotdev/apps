@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import classNames from 'classnames';
 import {
   Button,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import ControlledTextField from '../../../../components/fields/ControlledTextField';
+import ImageInput from '../../../../components/fields/ImageInput';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
@@ -16,7 +18,12 @@ import { ShortcutTile } from '../ShortcutTile';
 import type { Shortcut, ShortcutColor } from '../../types';
 import { shortcutColorPalette } from '../../types';
 import { isValidHttpUrl, withHttps } from '../../../../lib/links';
-import classNames from 'classnames';
+import { CameraIcon } from '../../../../components/icons';
+import {
+  imageSizeLimitMB,
+  uploadContentImage,
+} from '../../../../graphql/posts';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 
 const schema = z.object({
   name: z
@@ -35,7 +42,10 @@ const schema = z.object({
     .string()
     .optional()
     .refine(
-      (value) => !value || isValidHttpUrl(withHttps(value)),
+      (value) =>
+        !value ||
+        value.startsWith('data:image/') ||
+        isValidHttpUrl(withHttps(value)),
       'Must be a valid URL',
     ),
   color: z.string().optional(),
@@ -74,6 +84,9 @@ export default function ShortcutEditModal({
   ...props
 }: ShortcutEditModalProps): ReactElement {
   const manager = useShortcutsManager();
+  const { displayToast } = useToastNotification();
+  const [isUploading, setIsUploading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const methods = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -89,8 +102,34 @@ export default function ShortcutEditModal({
     handleSubmit,
     watch,
     setError,
+    clearErrors,
+    setValue,
     formState: { isSubmitting },
   } = methods;
+
+  const handleIconUpload = async (base64: string | null, file?: File) => {
+    if (!file || !base64) {
+      clearErrors('iconUrl');
+      setValue('iconUrl', '', { shouldDirty: true });
+      return;
+    }
+    clearErrors('iconUrl');
+    // Show the base64 preview immediately while the upload finishes.
+    setValue('iconUrl', base64, { shouldDirty: true });
+    setIsUploading(true);
+    try {
+      const uploadedUrl = await uploadContentImage(file);
+      setValue('iconUrl', uploadedUrl, { shouldDirty: true });
+    } catch (error) {
+      const message =
+        (error as Error)?.message ?? 'Failed to upload the image';
+      setError('iconUrl', { message });
+      displayToast(message);
+      setValue('iconUrl', shortcut?.iconUrl ?? '', { shouldDirty: true });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const values = watch();
   const previewShortcut = useMemo<Shortcut>(
@@ -153,12 +192,62 @@ export default function ShortcutEditModal({
                 label="URL"
                 placeholder="https://example.com"
               />
-              <ControlledTextField
-                name="iconUrl"
-                label="Custom icon URL (optional)"
-                placeholder="https://example.com/icon.png"
-                hint="Leave empty to use the site favicon"
-              />
+              <div>
+                <span className="mb-2 block text-text-tertiary typo-caption1">
+                  Custom icon (optional)
+                </span>
+                <div className="flex items-center gap-4">
+                  <ImageInput
+                    initialValue={values.iconUrl || null}
+                    fallbackImage={null}
+                    closeable
+                    size="medium"
+                    fileSizeLimitMB={imageSizeLimitMB}
+                    onChange={handleIconUpload}
+                    hoverIcon={<CameraIcon secondary />}
+                    className={{
+                      container: classNames(
+                        'rounded-14 border-border-subtlest-tertiary bg-surface-float',
+                        isUploading && 'opacity-60',
+                      ),
+                    }}
+                  >
+                    <CameraIcon
+                      className="text-text-tertiary"
+                      secondary
+                    />
+                  </ImageInput>
+                  <div className="flex flex-col gap-1 text-text-tertiary typo-caption1">
+                    <span>
+                      Upload an image or drag & drop. Leave empty to use the
+                      site favicon.
+                    </span>
+                    {isUploading && (
+                      <span className="text-accent-cabbage-default">
+                        Uploading…
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowUrlInput((prev) => !prev)}
+                  className="mt-3 text-text-tertiary underline typo-caption1 hover:text-text-primary"
+                >
+                  {showUrlInput
+                    ? 'Hide icon URL'
+                    : 'Or paste an image URL instead'}
+                </button>
+                {showUrlInput && (
+                  <div className="mt-2">
+                    <ControlledTextField
+                      name="iconUrl"
+                      label=""
+                      placeholder="https://example.com/icon.png"
+                    />
+                  </div>
+                )}
+              </div>
               <div>
                 <span className="mb-2 block text-text-tertiary typo-caption1">
                   Accent color (used when no favicon is available)
@@ -211,7 +300,7 @@ export default function ShortcutEditModal({
           type="submit"
           form="shortcut-edit-form"
           variant={ButtonVariant.Primary}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
         >
           {mode === 'add' ? 'Add' : 'Save'}
         </Button>
