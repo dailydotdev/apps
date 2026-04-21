@@ -196,6 +196,8 @@ pnpm --filter extension build:chrome # Build Chrome extension
 
 **IMPORTANT**: For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` or the package's strict `tsc` command before finishing. Do not add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
 
+**IMPORTANT**: For text truncation inside flex layouts, scope the ellipsis to the text element and make the nearest flex item shrinkable with `min-w-0` (and `flex-1` when it should consume remaining space). Do not rely on `truncate` on the whole row.
+
 **IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
 
 ## Where Should I Put This Code?
