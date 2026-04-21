@@ -232,13 +232,19 @@ export const useGetIconWithSize = (
       size: icon.props?.size ?? buttonSizeToIconSize[size],
       className: classNames(
         icon.props.className,
+        'btn-icon',
         !iconOnly && 'text-base',
-        !iconOnly && iconPosition === ButtonIconPosition.Left && 'mr-1',
+        !iconOnly &&
+          iconPosition === ButtonIconPosition.Left &&
+          'btn-icon-left mr-1',
         !iconOnly &&
           !icon.props?.size &&
           iconPosition === ButtonIconPosition.Left &&
           '-ml-2',
-        !iconOnly && iconPosition === ButtonIconPosition.Right && 'ml-1',
+        !iconOnly &&
+          iconPosition === ButtonIconPosition.Right &&
+          'btn-icon-right ml-1',
+        !iconOnly && iconPosition === ButtonIconPosition.Top && 'btn-icon-top',
         !iconOnly &&
           !icon.props?.size &&
           iconPosition === ButtonIconPosition.Right &&

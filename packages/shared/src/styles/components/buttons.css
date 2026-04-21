@@ -49,18 +49,14 @@
   }
 
   &:not(.iconOnly) {
-    & .icon {
+    & .btn-icon-left {
       margin-left: -0.5rem;
       margin-right: 0.25rem;
+    }
 
-      &:not(:first-child) {
-        margin-left: 0.25rem;
-        margin-right: -0.5rem;
-      }
-
-      &:only-child {
-        margin-right: -0.5rem;
-      }
+    & .btn-icon-right {
+      margin-left: 0.25rem;
+      margin-right: -0.5rem;
     }
 
     & .socialIcon {
