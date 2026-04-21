@@ -6,11 +6,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '@dailydotdev/shared/src/graphql/sources';
 import type { UserQuest } from '@dailydotdev/shared/src/graphql/quests';
 import {
   QuestRewardType,
+  QuestStatus,
   QUEST_ROTATION_UPDATE_SUBSCRIPTION,
   QUEST_UPDATE_SUBSCRIPTION,
 } from '@dailydotdev/shared/src/graphql/quests';
@@ -18,7 +20,13 @@ import { getSquadStaticFields } from '@dailydotdev/shared/src/graphql/squads';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
+import { useClaimQuestReward } from '@dailydotdev/shared/src/hooks/useClaimQuestReward';
 import useSubscription from '@dailydotdev/shared/src/hooks/useSubscription';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   generateQueryKey,
   RequestKey,
@@ -29,7 +37,6 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { ExploreCategoryId } from './exploreCategories';
 import { getExploreCategoryById } from './exploreCategories';
 
-const DAILY_QUESTS_LIMIT = 4;
 const TOP_SQUAD_PLACEHOLDER_IMAGE =
   'https://media.daily.dev/image/upload/v1672041320/squads/squad_placeholder.jpg';
 const TOP_ACTIVE_SQUADS_30D = [
@@ -445,51 +452,103 @@ const DailyQuestCard = ({
   );
   const tooltipContent =
     quest.quest.description || `Complete: ${quest.quest.name}`;
+  const {
+    mutate: claimQuestReward,
+    isPending: isClaimPending,
+    variables: claimVariables,
+  } = useClaimQuestReward();
+  const isClaimingThisQuest =
+    isClaimPending && claimVariables?.userQuestId === quest.userQuestId;
+  const isClaimed = quest.status === QuestStatus.Claimed || !!quest.claimedAt;
+  const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
 
   return (
     <Tooltip content={tooltipContent}>
-      <div className="w-56 shrink-0 cursor-default rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
-        <div className="flex items-center gap-1">
-          <p className="line-clamp-1 font-bold text-text-primary typo-callout">
-            {quest.quest.name}
-          </p>
-          {isPlus && (
-            <PlusIcon
-              size={IconSize.XSmall}
-              className="shrink-0 text-accent-avocado-default"
+      <div className="relative w-56 shrink-0 cursor-default overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
+        <div
+          className={classNames(
+            'transition-[opacity,filter] duration-200',
+            isClaimed && 'opacity-50 grayscale',
+          )}
+        >
+          <div className="flex items-center gap-1">
+            <p className="line-clamp-1 font-bold text-text-primary typo-callout">
+              {quest.quest.name}
+            </p>
+            {isPlus && (
+              <PlusIcon
+                size={IconSize.XSmall}
+                className="shrink-0 text-accent-avocado-default"
+              />
+            )}
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-8 bg-surface-float">
+            <div
+              className="h-full rounded-8 bg-accent-avocado-default"
+              style={{ width: `${progressPercent}%` }}
             />
+          </div>
+          <p
+            className="mt-1 text-text-tertiary typo-caption2"
+            style={{ fontSize: '15px' }}
+          >
+            {quest.progress}/{quest.quest.targetCount}
+          </p>
+          {visibleRewards.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {visibleRewards.map((reward, index) => (
+                <span
+                  key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
+                  className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1"
+                >
+                  {reward.type === QuestRewardType.Xp ? (
+                    <span className="inline-flex size-5 items-center justify-center text-[0.5625rem] font-bold lowercase leading-none !text-accent-avocado-default">
+                      xp
+                    </span>
+                  ) : (
+                    <CoreIcon className="text-accent-cheese-default" />
+                  )}
+                  +{reward.amount}{' '}
+                  {reward.type === QuestRewardType.Xp ? 'XP' : 'Cores'}
+                </span>
+              ))}
+            </div>
+          )}
+          {canClaim && (
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="mt-2 w-fit"
+              disabled={isClaimingThisQuest}
+              loading={isClaimingThisQuest}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!quest.userQuestId || isClaimingThisQuest) {
+                  return;
+                }
+                claimQuestReward({
+                  userQuestId: quest.userQuestId,
+                  questId: quest.quest.id,
+                  questType: quest.quest.type,
+                });
+              }}
+            >
+              Claim
+            </Button>
           )}
         </div>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-8 bg-surface-float">
+        {isClaimed && (
           <div
-            className="h-full rounded-8 bg-accent-avocado-default"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-        <p
-          className="mt-1 text-text-tertiary typo-caption2"
-          style={{ fontSize: '15px' }}
-        >
-          {quest.progress}/{quest.quest.targetCount}
-        </p>
-        {visibleRewards.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {visibleRewards.map((reward, index) => (
-              <span
-                key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
-                className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1"
-              >
-                {reward.type === QuestRewardType.Xp ? (
-                  <span className="inline-flex size-5 items-center justify-center text-[0.5625rem] font-bold lowercase leading-none !text-accent-avocado-default">
-                    xp
-                  </span>
-                ) : (
-                  <CoreIcon className="text-accent-cheese-default" />
-                )}
-                +{reward.amount}{' '}
-                {reward.type === QuestRewardType.Xp ? 'XP' : 'Cores'}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+          >
+            <div className="-rotate-12 rounded-8 border-4 border-double border-accent-avocado-default px-4 py-1 opacity-90 shadow-lg">
+              <span className="font-black uppercase tracking-[0.25em] text-accent-avocado-default typo-title2">
+                Claimed
               </span>
-            ))}
+            </div>
           </div>
         )}
       </div>
@@ -597,7 +656,7 @@ export const ExploreSocialStrips = ({
       isPlus: true,
     }));
 
-    return [...regularQuests, ...plusQuests].slice(0, DAILY_QUESTS_LIMIT);
+    return [...regularQuests, ...plusQuests];
   }, [questDashboard]);
 
   if (!shouldRenderTopSquads && !shouldRenderTopTags && !shouldRenderProgress) {

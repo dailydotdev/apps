@@ -32,7 +32,7 @@ export function NewExploreLayoutBanner(): ReactElement | null {
   );
   const impressionLogged = useRef(false);
 
-  const showBanner = isFetched && !dismissed;
+  const showBanner = true;
 
   useEffect(() => {
     if (!showBanner || impressionLogged.current) {

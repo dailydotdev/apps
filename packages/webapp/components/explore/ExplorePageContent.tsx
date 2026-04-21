@@ -10,12 +10,14 @@ import type { PostHighlight } from '@dailydotdev/shared/src/graphql/highlights';
 import { POST_HIGHLIGHTS_QUERY } from '@dailydotdev/shared/src/graphql/highlights';
 import {
   ANONYMOUS_FEED_QUERY,
+  FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   RankingAlgorithm,
   TAG_FEED_QUERY,
   type FeedData,
 } from '@dailydotdev/shared/src/graphql/feed';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { PostType } from '@dailydotdev/shared/src/types';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { sourceQueryOptions } from '@dailydotdev/shared/src/graphql/sources';
@@ -34,6 +36,7 @@ import {
   EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS,
   getExploreCategoryById,
 } from './exploreCategories';
+import { useExploreFeedTranslations } from './useExploreFeedTranslations';
 
 const HIGHLIGHTS_CHANNEL = 'vibes';
 const STORIES_PER_SECTION = 12;
@@ -50,7 +53,9 @@ const HIGHLIGHTS_QUERY_KEY = generateQueryKey(
 const getFeedQueryKey = (
   categoryId: ExploreCategoryId,
   section: 'latest' | 'popular' | 'upvoted' | 'discussed',
-) => ['explore', categoryId, section] as const;
+  isLoggedIn: boolean,
+) =>
+  ['explore', isLoggedIn ? 'logged-in' : 'anonymous', categoryId, section] as const;
 
 const getHighlightsQuery = () =>
   gqlClient.request<{ postHighlights: PostHighlight[] }>(
@@ -63,13 +68,16 @@ const getHighlightsQuery = () =>
 const getLatestStoriesQuery = ({
   tag,
   supportedTypes,
+  isLoggedIn,
 }: {
   tag?: string;
   supportedTypes?: PostType[];
+  isLoggedIn: boolean;
 }) => {
   if (tag) {
     return () =>
       gqlClient.request<FeedData>(TAG_FEED_QUERY, {
+        loggedIn: isLoggedIn,
         tag,
         first: STORIES_PER_SECTION,
         ranking: RankingAlgorithm.Time,
@@ -77,8 +85,11 @@ const getLatestStoriesQuery = ({
       });
   }
 
+  const feedQuery = isLoggedIn ? FEED_QUERY : ANONYMOUS_FEED_QUERY;
+
   return () =>
-    gqlClient.request<FeedData>(ANONYMOUS_FEED_QUERY, {
+    gqlClient.request<FeedData>(feedQuery, {
+      loggedIn: isLoggedIn,
       first: STORIES_PER_SECTION,
       ranking: RankingAlgorithm.Time,
       supportedTypes,
@@ -88,13 +99,16 @@ const getLatestStoriesQuery = ({
 const getPopularStoriesQuery = ({
   tag,
   supportedTypes,
+  isLoggedIn,
 }: {
   tag?: string;
   supportedTypes?: PostType[];
+  isLoggedIn: boolean;
 }) => {
   if (tag) {
     return () =>
       gqlClient.request<FeedData>(TAG_FEED_QUERY, {
+        loggedIn: isLoggedIn,
         tag,
         first: STORIES_PER_SECTION,
         ranking: RankingAlgorithm.Popularity,
@@ -102,8 +116,11 @@ const getPopularStoriesQuery = ({
       });
   }
 
+  const feedQuery = isLoggedIn ? FEED_QUERY : ANONYMOUS_FEED_QUERY;
+
   return () =>
-    gqlClient.request<FeedData>(ANONYMOUS_FEED_QUERY, {
+    gqlClient.request<FeedData>(feedQuery, {
+      loggedIn: isLoggedIn,
       first: STORIES_PER_SECTION,
       ranking: RankingAlgorithm.Popularity,
       supportedTypes,
@@ -111,9 +128,18 @@ const getPopularStoriesQuery = ({
 };
 
 const getUpvotedStoriesQuery =
-  ({ tag, supportedTypes }: { tag?: string; supportedTypes?: PostType[] }) =>
+  ({
+    tag,
+    supportedTypes,
+    isLoggedIn,
+  }: {
+    tag?: string;
+    supportedTypes?: PostType[];
+    isLoggedIn: boolean;
+  }) =>
   () =>
     gqlClient.request<FeedData>(MOST_UPVOTED_FEED_QUERY, {
+      loggedIn: isLoggedIn,
       first: STORIES_PER_SECTION,
       period: UPVOTED_AND_DISCUSSED_PERIOD,
       tag,
@@ -121,16 +147,28 @@ const getUpvotedStoriesQuery =
     });
 
 const getDiscussedStoriesQuery =
-  ({ tag, supportedTypes }: { tag?: string; supportedTypes?: PostType[] }) =>
+  ({
+    tag,
+    supportedTypes,
+    isLoggedIn,
+  }: {
+    tag?: string;
+    supportedTypes?: PostType[];
+    isLoggedIn: boolean;
+  }) =>
   () =>
     gqlClient.request<FeedData>(MOST_DISCUSSED_FEED_QUERY, {
+      loggedIn: isLoggedIn,
       first: STORIES_PER_SECTION,
       period: UPVOTED_AND_DISCUSSED_PERIOD,
       tag,
       supportedTypes,
     });
 
-const getFeedQueriesForCategory = (categoryId: ExploreCategoryId) => {
+const getFeedQueriesForCategory = (
+  categoryId: ExploreCategoryId,
+  isLoggedIn: boolean,
+) => {
   const category = getExploreCategoryById(categoryId);
   const isVideosCategory =
     !!category && 'isVideos' in category && !!category.isVideos;
@@ -138,10 +176,10 @@ const getFeedQueriesForCategory = (categoryId: ExploreCategoryId) => {
   const supportedTypes = isVideosCategory ? VIDEO_SUPPORTED_TYPES : undefined;
 
   return {
-    latest: getLatestStoriesQuery({ tag, supportedTypes }),
-    popular: getPopularStoriesQuery({ tag, supportedTypes }),
-    upvoted: getUpvotedStoriesQuery({ tag, supportedTypes }),
-    discussed: getDiscussedStoriesQuery({ tag, supportedTypes }),
+    latest: getLatestStoriesQuery({ tag, supportedTypes, isLoggedIn }),
+    popular: getPopularStoriesQuery({ tag, supportedTypes, isLoggedIn }),
+    upvoted: getUpvotedStoriesQuery({ tag, supportedTypes, isLoggedIn }),
+    discussed: getDiscussedStoriesQuery({ tag, supportedTypes, isLoggedIn }),
   };
 };
 
@@ -152,7 +190,8 @@ export const prefetchExplorePageData = async ({
   queryClient: QueryClient;
   categoryId: ExploreCategoryId;
 }): Promise<void> => {
-  const feedQueries = getFeedQueriesForCategory(categoryId);
+  const isLoggedIn = false;
+  const feedQueries = getFeedQueriesForCategory(categoryId, isLoggedIn);
 
   await Promise.all([
     queryClient.prefetchQuery({
@@ -167,19 +206,19 @@ export const prefetchExplorePageData = async ({
     ),
     queryClient.prefetchQuery(arenaOptions({ groupId: 'coding-agents' })),
     queryClient.prefetchQuery({
-      queryKey: getFeedQueryKey(categoryId, 'latest'),
+      queryKey: getFeedQueryKey(categoryId, 'latest', isLoggedIn),
       queryFn: feedQueries.latest,
     }),
     queryClient.prefetchQuery({
-      queryKey: getFeedQueryKey(categoryId, 'popular'),
+      queryKey: getFeedQueryKey(categoryId, 'popular', isLoggedIn),
       queryFn: feedQueries.popular,
     }),
     queryClient.prefetchQuery({
-      queryKey: getFeedQueryKey(categoryId, 'upvoted'),
+      queryKey: getFeedQueryKey(categoryId, 'upvoted', isLoggedIn),
       queryFn: feedQueries.upvoted,
     }),
     queryClient.prefetchQuery({
-      queryKey: getFeedQueryKey(categoryId, 'discussed'),
+      queryKey: getFeedQueryKey(categoryId, 'discussed', isLoggedIn),
       queryFn: feedQueries.discussed,
     }),
   ]);
@@ -190,11 +229,12 @@ export const ExplorePageContent = ({
 }: {
   activeCategoryId: ExploreCategoryId;
 }): ReactElement => {
+  const { isLoggedIn } = useAuthContext();
   useScrollRestoration();
   const [arenaTab, setArenaTab] = useState<ArenaTab>(DEFAULT_EXPLORE_ARENA_TAB);
   const feedQueries = useMemo(
-    () => getFeedQueriesForCategory(activeCategoryId),
-    [activeCategoryId],
+    () => getFeedQueriesForCategory(activeCategoryId, isLoggedIn),
+    [activeCategoryId, isLoggedIn],
   );
   const isVideosCategory = activeCategoryId === 'videos';
   const isExploreCategory = activeCategoryId === 'explore';
@@ -227,34 +267,85 @@ export const ExplorePageContent = ({
   );
   const isArenaLoading = isFetchingArena && !arenaData;
 
+  const latestQueryKey = useMemo(
+    () => getFeedQueryKey(activeCategoryId, 'latest', isLoggedIn),
+    [activeCategoryId, isLoggedIn],
+  );
+  const popularQueryKey = useMemo(
+    () => getFeedQueryKey(activeCategoryId, 'popular', isLoggedIn),
+    [activeCategoryId, isLoggedIn],
+  );
+  const upvotedQueryKey = useMemo(
+    () => getFeedQueryKey(activeCategoryId, 'upvoted', isLoggedIn),
+    [activeCategoryId, isLoggedIn],
+  );
+  const discussedQueryKey = useMemo(
+    () => getFeedQueryKey(activeCategoryId, 'discussed', isLoggedIn),
+    [activeCategoryId, isLoggedIn],
+  );
+
   const { data: latestStoriesData } = useQuery({
-    queryKey: getFeedQueryKey(activeCategoryId, 'latest'),
+    queryKey: latestQueryKey,
     queryFn: feedQueries.latest,
     staleTime: StaleTime.Default,
   });
   const { data: popularStoriesData } = useQuery({
-    queryKey: getFeedQueryKey(activeCategoryId, 'popular'),
+    queryKey: popularQueryKey,
     queryFn: feedQueries.popular,
     staleTime: StaleTime.Default,
   });
   const { data: upvotedStoriesData } = useQuery({
-    queryKey: getFeedQueryKey(activeCategoryId, 'upvoted'),
+    queryKey: upvotedQueryKey,
     queryFn: feedQueries.upvoted,
     staleTime: StaleTime.Default,
   });
   const { data: discussedStoriesData } = useQuery({
-    queryKey: getFeedQueryKey(activeCategoryId, 'discussed'),
+    queryKey: discussedQueryKey,
     queryFn: feedQueries.discussed,
     staleTime: StaleTime.Default,
   });
+  const topicClusterQueryKeys = useMemo(
+    () =>
+      EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.map((categoryId) =>
+        getFeedQueryKey(categoryId, 'latest', isLoggedIn),
+      ),
+    [isLoggedIn],
+  );
   const topicClusterStoriesQueries = useQueries({
-    queries: EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.map((categoryId) => ({
-      queryKey: getFeedQueryKey(categoryId, 'latest'),
-      queryFn: getFeedQueriesForCategory(categoryId).latest,
+    queries: EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.map((categoryId, index) => ({
+      queryKey: topicClusterQueryKeys[index],
+      queryFn: getFeedQueriesForCategory(categoryId, isLoggedIn).latest,
       staleTime: StaleTime.Default,
       enabled: isExploreCategory,
     })),
   });
+
+  const translationSections = useMemo(
+    () => [
+      { data: latestStoriesData, queryKey: latestQueryKey },
+      { data: popularStoriesData, queryKey: popularQueryKey },
+      { data: upvotedStoriesData, queryKey: upvotedQueryKey },
+      { data: discussedStoriesData, queryKey: discussedQueryKey },
+      ...EXPLORE_TOPIC_CLUSTER_CATEGORY_IDS.map((_, index) => ({
+        data: topicClusterStoriesQueries[index]?.data,
+        queryKey: topicClusterQueryKeys[index],
+      })),
+    ],
+    [
+      latestStoriesData,
+      popularStoriesData,
+      upvotedStoriesData,
+      discussedStoriesData,
+      latestQueryKey,
+      popularQueryKey,
+      upvotedQueryKey,
+      discussedQueryKey,
+      topicClusterStoriesQueries,
+      topicClusterQueryKeys,
+    ],
+  );
+
+  useExploreFeedTranslations(translationSections);
 
   const latestStories =
     latestStoriesData?.page?.edges?.map((edge) => edge.node) ?? [];

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import HeaderLogo from './HeaderLogo';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -48,8 +49,11 @@ function MainLayoutHeader({
   const { isAnyExplore, isSearch } = useFeedName({
     feedName,
   });
+  const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const isSearchPage = isSearch || isAnyExplore;
+  const isNewExploreRoute =
+    !isLaptop && !!router?.pathname?.startsWith('/explore');
+  const isSearchPage = isSearch || isAnyExplore || isNewExploreRoute;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
   const { profile } = useActiveNav(feedName);

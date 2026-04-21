@@ -21,6 +21,8 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/RelativeTime';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
+import { ClickbaitShield } from '@dailydotdev/shared/src/components/cards/common/ClickbaitShield';
+import { useSmartTitle } from '@dailydotdev/shared/src/hooks/post/useSmartTitle';
 import {
   EXPLORE_TOPIC_CLUSTER_CATEGORIES,
   type ExploreCategoryId,
@@ -88,9 +90,10 @@ const StoryMeta = ({
   publisher,
   publisherImage,
   publishedAt,
+  post,
 }: Pick<
   ClusterStory,
-  'publisher' | 'publisherImage' | 'publishedAt'
+  'publisher' | 'publisherImage' | 'publishedAt' | 'post'
 >): ReactElement => (
   <p
     className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-text-tertiary typo-caption2"
@@ -116,8 +119,29 @@ const StoryMeta = ({
         <RelativeTime dateTime={publishedAt} />
       </>
     )}
+    {!!post?.clickbaitTitleDetected && !post?.flags?.ad && (
+      <ClickbaitShield post={post as Post} />
+    )}
   </p>
 );
+
+const StoryHeadline = ({
+  story,
+  className,
+}: {
+  story: ClusterStory;
+  className: string;
+}): ReactElement => {
+  const storyPost = story.post as Post;
+  const { title: smartTitle } = useSmartTitle(storyPost);
+  const displayTitle = smartTitle?.trim() || story.title;
+
+  return (
+    <h3 className={className} style={{ fontSize: '17px' }}>
+      {displayTitle}
+    </h3>
+  );
+};
 
 const StoryActions = ({
   post,
@@ -274,17 +298,16 @@ const TopicClusterCard = ({
               onOpenPostModal?.(cluster.featured.post as Post, event);
             }}
           >
-            <h3
+            <StoryHeadline
+              story={cluster.featured}
               className="mt-2 text-text-primary typo-callout"
-              style={{ fontSize: '17px' }}
-            >
-              {cluster.featured.title}
-            </h3>
+            />
           </a>
           <StoryMeta
             publisher={cluster.featured.publisher}
             publisherImage={cluster.featured.publisherImage}
             publishedAt={cluster.featured.publishedAt}
+            post={cluster.featured.post}
           />
           {cluster.featured.post && (
             <StoryActions
@@ -329,17 +352,16 @@ const TopicClusterCard = ({
                       onOpenPostModal?.(story.post as Post, event);
                     }}
                   >
-                    <h3
+                    <StoryHeadline
+                      story={story}
                       className="mt-1 line-clamp-2 text-text-primary transition-colors typo-callout"
-                      style={{ fontSize: '17px' }}
-                    >
-                      {story.title}
-                    </h3>
+                    />
                   </a>
                   <StoryMeta
                     publisher={story.publisher}
                     publisherImage={story.publisherImage}
                     publishedAt={story.publishedAt}
+                    post={story.post}
                   />
                   {story.post && (
                     <StoryActions

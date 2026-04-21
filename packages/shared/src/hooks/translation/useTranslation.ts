@@ -30,6 +30,12 @@ type UseTranslation = (props: {
   queryKey?: QueryKey;
   queryType?: 'post' | 'feed';
   clickbaitShieldEnabled?: boolean;
+  /**
+   * Skip the same-language filter so that smart-title fetching is attempted
+   * even when the post is already in the user's language. Used when callers
+   * need shielded titles regardless of translation status.
+   */
+  skipLanguageFilter?: boolean;
 }) => {
   fetchTranslations: (id: Post[]) => Promise<TranslateEvent[]>;
 };
@@ -141,6 +147,7 @@ export const useTranslation: UseTranslation = ({
   queryKey,
   queryType = 'post',
   clickbaitShieldEnabled: clickbaitShieldEnabledProp,
+  skipLanguageFilter = false,
 }) => {
   const abort = useRef<AbortController>();
   const { user, accessToken, isLoggedIn } = useAuthContext();
@@ -218,6 +225,7 @@ export const useTranslation: UseTranslation = ({
       const postsToTranslate = posts
         .filter(
           (post) =>
+            skipLanguageFilter ||
             !(
               [PostType.Article, PostType.VideoYouTube].includes(post.type) &&
               post.language === language
@@ -316,6 +324,7 @@ export const useTranslation: UseTranslation = ({
       updateFeed,
       updatePost,
       clickbaitShieldEnabled,
+      skipLanguageFilter,
     ],
   );
 

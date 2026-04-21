@@ -14,12 +14,14 @@ import { RelativeTime } from '@dailydotdev/shared/src/components/utilities/Relat
 import { BriefCardFeed } from '@dailydotdev/shared/src/components/cards/brief/BriefCard/BriefCardFeed';
 import { TopHero } from '@dailydotdev/shared/src/components/banners/HeroBottomBanner';
 import {
+  ArrowIcon,
   DiscussIcon,
   DownvoteIcon,
   MenuIcon,
   RefreshIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { useScrollManagement } from '@dailydotdev/shared/src/components/HorizontalScroll/useScrollManagement';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
@@ -46,6 +48,8 @@ import {
   DropdownMenuTrigger,
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import { PostOptionButton } from '@dailydotdev/shared/src/features/posts/PostOptionButton';
+import { ClickbaitShield } from '@dailydotdev/shared/src/components/cards/common/ClickbaitShield';
+import { useSmartTitle } from '@dailydotdev/shared/src/hooks/post/useSmartTitle';
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import { PostPosition } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
@@ -373,6 +377,9 @@ const StoryRow = ({
   const isDownvoteActive = story.userState?.vote === UserVote.Down;
   const upvoteCount = story.numUpvotes ?? 0;
   const commentCount = story.numComments ?? 0;
+  const { title: smartTitle } = useSmartTitle(storyPost);
+  const displayTitle = smartTitle?.trim() || getExploreStoryTitle(story);
+  const showClickbaitShield = !isAdPost && !!story.clickbaitTitleDetected;
 
   return (
     <article
@@ -413,7 +420,7 @@ const StoryRow = ({
               }
               style={{ fontSize: '17px' }}
             >
-              {getExploreStoryTitle(story)}
+              {displayTitle}
             </p>
           </a>
         </Link>
@@ -447,6 +454,7 @@ const StoryRow = ({
                     <RelativeTime dateTime={story.createdAt} />
                   </span>
                 )}
+                {showClickbaitShield && <ClickbaitShield post={storyPost} />}
               </span>
               {!showEngagementIcons && showEngagement && !!story.numUpvotes && (
                 <>
@@ -1008,6 +1016,31 @@ export const ExploreNewsLayout = ({
 }: ExploreNewsLayoutProps): ReactElement => {
   const queryClient = useQueryClient();
   const [isRefreshingExploreAds, setIsRefreshingExploreAds] = useState(false);
+  const [categoriesScroller, setCategoriesScroller] =
+    useState<HTMLDivElement | null>(null);
+  const { isAtStart: isCategoriesAtStart, isAtEnd: isCategoriesAtEnd } =
+    useScrollManagement(categoriesScroller);
+  const showCategoriesScrollHint = !!categoriesScroller && !isCategoriesAtEnd;
+  const showCategoriesScrollHintLeft =
+    !!categoriesScroller && !isCategoriesAtStart;
+  const onScrollCategoriesRight = useCallback(() => {
+    if (!categoriesScroller) {
+      return;
+    }
+    categoriesScroller.scrollBy({
+      left: categoriesScroller.clientWidth * 0.8,
+      behavior: 'smooth',
+    });
+  }, [categoriesScroller]);
+  const onScrollCategoriesLeft = useCallback(() => {
+    if (!categoriesScroller) {
+      return;
+    }
+    categoriesScroller.scrollBy({
+      left: -categoriesScroller.clientWidth * 0.8,
+      behavior: 'smooth',
+    });
+  }, [categoriesScroller]);
 
   const onRefreshExploreAds = useCallback(async () => {
     setIsRefreshingExploreAds(true);
@@ -1406,21 +1439,66 @@ export const ExploreNewsLayout = ({
         id="explore"
         className="sticky top-16 z-rank isolate overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8"
       >
-        <div className="no-scrollbar relative flex items-center gap-7 overflow-x-auto py-2">
-          {EXPLORE_CATEGORIES.map((tab) => (
-            <Link key={tab.id} href={tab.path}>
-              <a
-                aria-current={tab.id === activeTabId ? 'page' : undefined}
-                className={
-                  tab.id === activeTabId
-                    ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
-                    : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
-                }
-              >
-                {tab.label}
-              </a>
-            </Link>
-          ))}
+        <div className="relative">
+          <div
+            ref={setCategoriesScroller}
+            className="no-scrollbar relative flex items-center gap-7 overflow-x-auto py-2"
+          >
+            {EXPLORE_CATEGORIES.map((tab) => (
+              <Link key={tab.id} href={tab.path}>
+                <a
+                  aria-current={tab.id === activeTabId ? 'page' : undefined}
+                  className={
+                    tab.id === activeTabId
+                      ? 'hover:border-border-strong shrink-0 rounded-10 border border-border-subtlest-tertiary bg-surface-float px-2.5 py-1.5 font-bold text-text-primary transition-colors typo-callout hover:bg-surface-hover'
+                      : 'shrink-0 py-1.5 font-bold text-text-tertiary transition-colors typo-callout hover:text-text-primary'
+                  }
+                >
+                  {tab.label}
+                </a>
+              </Link>
+            ))}
+          </div>
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute inset-y-0 left-0 flex items-center pl-1 transition-opacity duration-200 ${
+              showCategoriesScrollHintLeft ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon className="-rotate-90 text-white" />}
+              aria-label="Scroll categories left"
+              tabIndex={showCategoriesScrollHintLeft ? 0 : -1}
+              className={`pointer-events-auto bg-background-default shadow-2 ${
+                showCategoriesScrollHintLeft ? '' : 'invisible'
+              }`}
+              onClick={onScrollCategoriesLeft}
+            />
+            <div className="pointer-events-none h-full w-12 bg-gradient-to-l from-transparent to-background-default" />
+          </div>
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1 transition-opacity duration-200 ${
+              showCategoriesScrollHint ? 'opacity-100' : 'opacity-0'
+            }`}
+          >
+            <div className="pointer-events-none h-full w-12 bg-gradient-to-r from-transparent to-background-default" />
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.XSmall}
+              icon={<ArrowIcon className="rotate-90 text-white" />}
+              aria-label="Scroll categories right"
+              tabIndex={showCategoriesScrollHint ? 0 : -1}
+              className={`pointer-events-auto bg-background-default shadow-2 ${
+                showCategoriesScrollHint ? '' : 'invisible'
+              }`}
+              onClick={onScrollCategoriesRight}
+            />
+          </div>
         </div>
       </section>
 

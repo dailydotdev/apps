@@ -25,4 +25,6 @@ export type ExploreStory = Pick<
   | 'numComments'
   | 'numUpvotes'
   | 'userState'
+  | 'clickbaitTitleDetected'
+  | 'translation'
 >;
