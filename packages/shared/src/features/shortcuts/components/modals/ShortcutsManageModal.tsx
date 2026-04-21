@@ -38,8 +38,8 @@ import { Switch } from '../../../../components/fields/Switch';
 import {
   BookmarkIcon,
   DownloadIcon,
+  DragIcon,
   EditIcon,
-  MenuIcon,
   PlusIcon,
   SitesIcon,
   TrashIcon,
@@ -105,7 +105,7 @@ function ShortcutRow({
         {...attributes}
         {...listeners}
       >
-        <MenuIcon className="rotate-90" />
+        <DragIcon />
       </button>
       <img
         src={`${apiUrl}/icon?url=${encodeURIComponent(shortcut.url)}&size=32`}

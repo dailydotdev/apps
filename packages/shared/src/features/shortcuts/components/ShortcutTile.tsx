@@ -14,7 +14,12 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../../components/dropdown/DropdownMenu';
-import { EditIcon, MenuIcon, TrashIcon } from '../../../components/icons';
+import {
+  DragIcon,
+  EditIcon,
+  MenuIcon,
+  TrashIcon,
+} from '../../../components/icons';
 import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { IconSize } from '../../../components/Icon';
 import { combinedClicks } from '../../../lib/click';
@@ -218,7 +223,7 @@ export function ShortcutTile({
           {...attributes}
           {...listeners}
         >
-          <MenuIcon size={IconSize.XSmall} className="rotate-90" />
+          <DragIcon size={IconSize.XSmall} />
         </button>
       )}
 
