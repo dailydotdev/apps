@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,20 +9,20 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import ControlledTextField from '../../../../components/fields/ControlledTextField';
-import ImageInput from '../../../../components/fields/ImageInput';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
-import { ShortcutTile } from '../ShortcutTile';
 import type { Shortcut } from '../../types';
 import { isValidHttpUrl, withHttps } from '../../../../lib/links';
-import { CameraIcon } from '../../../../components/icons';
+import { CameraIcon, EarthIcon } from '../../../../components/icons';
 import {
   imageSizeLimitMB,
   uploadContentImage,
 } from '../../../../graphql/posts';
+import { useFileInput } from '../../../../hooks/utils/useFileInput';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
+import { apiUrl } from '../../../../lib/config';
 
 const schema = z.object({
   name: z
@@ -86,12 +86,10 @@ export default function ShortcutEditModal({
     formState: { isSubmitting },
   } = methods;
 
-  const handleIconUpload = async (base64: string | null, file?: File) => {
-    if (!file || !base64) {
-      clearErrors('iconUrl');
-      setValue('iconUrl', '', { shouldDirty: true });
-      return;
-    }
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [faviconFailed, setFaviconFailed] = useState(false);
+
+  const handleIconBase64 = async (base64: string, file: File) => {
     clearErrors('iconUrl');
     // Show the base64 preview immediately while the upload finishes.
     setValue('iconUrl', base64, { shouldDirty: true });
@@ -110,17 +108,37 @@ export default function ShortcutEditModal({
     }
   };
 
+  const { onFileChange } = useFileInput({
+    limitMb: imageSizeLimitMB,
+    onChange: handleIconBase64,
+  });
+
   const values = watch();
-  const previewShortcut = useMemo<Shortcut>(
-    () => ({
-      url: values.url || 'https://example.com',
-      name: values.name || undefined,
-      iconUrl: values.iconUrl || undefined,
-      // Fallback color is derived from the URL in ShortcutTile when omitted,
-      // so the preview still looks right without a user-selected color.
-    }),
-    [values.iconUrl, values.name, values.url],
-  );
+
+  // Reset the favicon-failed flag whenever the user edits the URL, so typing
+  // past a transiently-broken state recovers and shows the new favicon.
+  useEffect(() => {
+    setFaviconFailed(false);
+  }, [values.url]);
+
+  // Decide what to render inside the icon avatar:
+  // 1. A custom icon (uploaded, base64 preview, or pasted URL) — takes priority.
+  // 2. Otherwise the site's favicon, derived from the URL as the user types.
+  // 3. If neither is available, fall back to a neutral Earth glyph so the
+  //    control still looks like "a picker", not an empty circle.
+  const hasCustomIcon = !!values.iconUrl;
+  const urlCandidate = values.url ? withHttps(values.url) : '';
+  const canShowFavicon =
+    !hasCustomIcon && !faviconFailed && isValidHttpUrl(urlCandidate);
+  const faviconSrc = canShowFavicon
+    ? `${apiUrl}/icon?url=${encodeURIComponent(urlCandidate)}&size=96`
+    : null;
+
+  const openFilePicker = () => fileInputRef.current?.click();
+  const clearCustomIcon = () => {
+    clearErrors('iconUrl');
+    setValue('iconUrl', '', { shouldDirty: true });
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     const payload = {
@@ -153,10 +171,79 @@ export default function ShortcutEditModal({
       <Modal.Body>
         <FormProvider {...methods}>
           <form id="shortcut-edit-form" onSubmit={onSubmit}>
-            <div className="relative mb-6 flex justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float py-6">
-              <div className="pointer-events-none absolute -left-12 -top-12 h-40 w-40 rounded-full bg-accent-cabbage-default/10 blur-3xl" />
-              <div className="pointer-events-none absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-accent-onion-default/10 blur-3xl" />
-              <ShortcutTile shortcut={previewShortcut} draggable={false} />
+            {/* Icon-first: a single tappable avatar at the top. The favicon
+                derived from the URL fills it by default; uploading swaps it
+                out. No secondary preview tile — users don't need to see the
+                shortcut re-rendered to know what it'll look like. */}
+            <div className="mb-6 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={openFilePicker}
+                aria-label={
+                  hasCustomIcon ? 'Replace shortcut icon' : 'Upload shortcut icon'
+                }
+                className={classNames(
+                  'group relative flex size-24 items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-accent-cabbage-default motion-reduce:transition-none',
+                  isUploading && 'opacity-60',
+                )}
+              >
+                {hasCustomIcon ? (
+                  <img
+                    src={values.iconUrl}
+                    alt=""
+                    className="size-full object-cover"
+                  />
+                ) : faviconSrc ? (
+                  <img
+                    src={faviconSrc}
+                    alt=""
+                    onError={() => setFaviconFailed(true)}
+                    className="size-12 rounded-8"
+                  />
+                ) : (
+                  <EarthIcon
+                    secondary
+                    className="size-10 text-text-tertiary"
+                  />
+                )}
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-overlay-primary-pepper py-1.5 text-text-primary typo-caption1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none"
+                >
+                  <CameraIcon secondary />
+                  {hasCustomIcon ? 'Replace' : 'Upload'}
+                </span>
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={(event) => {
+                  onFileChange(event.target.files?.[0] ?? null);
+                  // Reset so the same file can be reselected after clearing.
+                  event.target.value = '';
+                }}
+              />
+              <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
+                {isUploading ? (
+                  <span className="text-accent-cabbage-default">Uploading…</span>
+                ) : hasCustomIcon ? (
+                  <button
+                    type="button"
+                    onClick={clearCustomIcon}
+                    className="underline hover:text-text-primary"
+                  >
+                    Remove custom icon
+                  </button>
+                ) : (
+                  <span>
+                    {faviconSrc
+                      ? 'Using site favicon — click to upload your own.'
+                      : 'Click to upload an icon. Leave empty to use the site favicon.'}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -171,62 +258,22 @@ export default function ShortcutEditModal({
                 label="URL"
                 placeholder="https://example.com"
               />
-              <div>
-                <span className="mb-2 block text-text-tertiary typo-caption1">
-                  Custom icon (optional)
-                </span>
-                <div className="flex items-center gap-4">
-                  <ImageInput
-                    initialValue={values.iconUrl || null}
-                    fallbackImage={null}
-                    closeable
-                    size="medium"
-                    fileSizeLimitMB={imageSizeLimitMB}
-                    onChange={handleIconUpload}
-                    hoverIcon={<CameraIcon secondary />}
-                    className={{
-                      container: classNames(
-                        'rounded-14 border-border-subtlest-tertiary bg-surface-float',
-                        isUploading && 'opacity-60',
-                      ),
-                    }}
-                  >
-                    <CameraIcon
-                      className="text-text-tertiary"
-                      secondary
-                    />
-                  </ImageInput>
-                  <div className="flex flex-col gap-1 text-text-tertiary typo-caption1">
-                    <span>
-                      Upload an image or drag & drop. Leave empty to use the
-                      site favicon.
-                    </span>
-                    {isUploading && (
-                      <span className="text-accent-cabbage-default">
-                        Uploading…
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowUrlInput((prev) => !prev)}
-                  className="mt-3 text-text-tertiary underline typo-caption1 hover:text-text-primary"
-                >
-                  {showUrlInput
-                    ? 'Hide icon URL'
-                    : 'Or paste an image URL instead'}
-                </button>
-                {showUrlInput && (
-                  <div className="mt-2">
-                    <ControlledTextField
-                      name="iconUrl"
-                      label=""
-                      placeholder="https://example.com/icon.png"
-                    />
-                  </div>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowUrlInput((prev) => !prev)}
+                className="self-start text-text-tertiary underline typo-caption1 hover:text-text-primary"
+              >
+                {showUrlInput
+                  ? 'Hide icon URL'
+                  : 'Or paste an image URL instead'}
+              </button>
+              {showUrlInput && (
+                <ControlledTextField
+                  name="iconUrl"
+                  label="Icon URL"
+                  placeholder="https://example.com/icon.png"
+                />
+              )}
             </div>
           </form>
         </FormProvider>
