@@ -67,13 +67,16 @@ const ArticleLink = ({
   children,
   ...props
 }: ComponentProps<'a'> & { href?: string; onClick?: () => void }) => {
+  const clickHandlers = onClick
+    ? combinedClicks<HTMLAnchorElement>(() => onClick())
+    : undefined;
   return (
     <a
       href={href}
       title="Go to post"
       target="_blank"
       rel="noopener"
-      {...combinedClicks(onClick)}
+      {...clickHandlers}
       {...props}
     >
       {children}

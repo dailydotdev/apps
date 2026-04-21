@@ -67,10 +67,10 @@ export const PollList = forwardRef(function PollList(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     return {
-      topLabel: isUserSource ? authorName : post.source.name,
+      topLabel: isUserSource ? authorName : post.source?.name,
       bottomLabel: (
         <PostMetadata
           createdAt={post.createdAt}
@@ -94,11 +94,13 @@ export const PollList = forwardRef(function PollList(
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          href: post.commentsPermalink,
-          ...combinedClicks(onPostCardClick),
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              href: post.commentsPermalink,
+              ...combinedClicks(onPostCardClick),
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
@@ -110,7 +112,7 @@ export const PollList = forwardRef(function PollList(
           onReadArticleClick={onReadArticleClick}
           metadata={metadata}
         >
-          {!isUserSource && (
+          {!isUserSource && post.source && (
             <SourceButton
               size={ProfileImageSize.Large}
               source={post.source}
@@ -123,14 +125,14 @@ export const PollList = forwardRef(function PollList(
             <CardTitle
               lineClamp={undefined}
               className={classNames(
-                !!post.read && 'text-text-tertiary',
+                post.read && 'text-text-tertiary',
                 'mb-4',
               )}
             >
               {truncatedTitle}
             </CardTitle>
             <PollOptions
-              options={post.pollOptions}
+              options={post.pollOptions ?? []}
               onClick={handleVote}
               userVote={post?.userState?.pollOption?.id}
               numPollVotes={post.numPollVotes || 0}

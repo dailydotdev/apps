@@ -48,8 +48,8 @@ export const FreeformList = forwardRef(function SharePostCard(
   const { pinnedAt, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
-    onPostClick(post, event);
-  const containerRef = useRef<HTMLDivElement>();
+    onPostClick?.(post, event);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isFeedPreview = useFeedPreviewMode();
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
@@ -80,7 +80,7 @@ export const FreeformList = forwardRef(function SharePostCard(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     if (isUserSource) {
       return {
@@ -89,11 +89,11 @@ export const FreeformList = forwardRef(function SharePostCard(
     }
 
     return {
-      topLabel: enableSourceHeader ? post.source.name : authorName,
+      topLabel: enableSourceHeader ? post.source?.name : authorName,
       bottomLabel: enableSourceHeader
-        ? post.author?.name ?? `@${post.source.handle ?? 'unknown'}`
+        ? post.author?.name ?? `@${post.source?.handle ?? 'unknown'}`
         : `@${
-            post.source.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
+            post.source?.handle ?? post.sharedPost?.source?.handle ?? 'unknown'
           }`,
     };
   }, [
@@ -114,17 +114,19 @@ export const FreeformList = forwardRef(function SharePostCard(
       ref={ref}
       flagProps={{ pinnedAt, type: postType }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          onClick: onPostCardClick,
-          href: post.commentsPermalink,
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              onClick: onPostCardClick,
+              href: post.commentsPermalink,
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
       <CardContainer>
         <PostCardHeader post={post} metadata={metadata}>
-          {!isUserSource && (
+          {!isUserSource && post.source && (
             <SquadHeaderPicture
               source={post.source}
               reverse={!enableSourceHeader}

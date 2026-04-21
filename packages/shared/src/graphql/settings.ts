@@ -20,6 +20,7 @@ export type SettingsFlags = {
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
+  legacyPostLayoutOptOut?: boolean;
 };
 
 export enum SidebarSettingsFlags {

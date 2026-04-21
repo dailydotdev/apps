@@ -597,7 +597,7 @@ type QueryKeyReturnType = ReturnType<typeof generateQueryKey>;
 
 interface GenerateCommentsQueryKeyProps {
   postId: string;
-  sortBy: SortCommentsBy;
+  sortBy?: SortCommentsBy;
 }
 
 export const generateCommentsQueryKey = ({

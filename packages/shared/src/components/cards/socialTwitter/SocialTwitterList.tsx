@@ -49,8 +49,8 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
   const { pinnedAt, trending, type: postType } = post;
   const isMobile = useViewSize(ViewSize.MobileL);
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
-    onPostClick(post, event);
-  const containerRef = useRef<HTMLDivElement>();
+    onPostClick?.(post, event);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
   const { normalizedContent, hasDailyDevMarkdown, socialTextDirectionProps } =
@@ -124,11 +124,13 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
       ref={ref}
       flagProps={{ pinnedAt, trending, type: postType }}
       linkProps={
-        !isFeedPreview && {
-          title: cardLinkTitle,
-          onClick: onPostCardClick,
-          href: post.commentsPermalink,
-        }
+        !isFeedPreview
+          ? {
+              title: cardLinkTitle,
+              onClick: onPostCardClick,
+              href: post.commentsPermalink,
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
@@ -159,7 +161,7 @@ export const SocialTwitterList = forwardRef(function SocialTwitterList(
             {hasDailyDevMarkdown && (
               <CardTitle
                 {...socialTextDirectionProps}
-                className={!!post.read && 'text-text-tertiary'}
+                className={post.read ? 'text-text-tertiary' : undefined}
               >
                 {truncatedTitle}
               </CardTitle>

@@ -46,6 +46,9 @@ interface PostCommentsProps {
   onCommented?: MainCommentProps['onCommented'];
 }
 
+const noopShare = (): void => {};
+const noopShowUpvotes = (): void => {};
+
 export function PostComments({
   post,
   origin,
@@ -60,7 +63,7 @@ export function PostComments({
   onCommented,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement | null>(null);
   const isModalThread = threadCommentOrigins.has(origin);
   const { tokenRefreshed } = useContext(AuthContext);
   const { requestMethod } = useRequestProtocol();
@@ -69,7 +72,7 @@ export function PostComments({
     useQuery<PostCommentsData>({
       queryKey,
 
-      queryFn: () =>
+      queryFn: (): Promise<PostCommentsData> =>
         requestMethod(
           POST_COMMENTS_QUERY,
           { postId: id, [initialDataKey]: comments, first: 500, sortBy },
@@ -84,7 +87,7 @@ export function PostComments({
 
   const { hash: commentHash } = globalThis?.window?.location || {};
   const commentsCount = comments?.postComments?.edges?.length || 0;
-  const commentRef = useRef<HTMLElement>(null);
+  const commentRef = useRef<HTMLElement | null>(null);
   const { deleteComment } = useDeleteComment();
 
   const [scrollToComment, setScrollToComment] = useState(!!commentHash);
@@ -107,6 +110,9 @@ export function PostComments({
     );
   }
 
+  const getAppendTooltipParent = (): HTMLElement =>
+    modalParentSelector?.() ?? container.current ?? document.body;
+
   return (
     <div
       className={
@@ -119,24 +125,24 @@ export function PostComments({
       }
       ref={container}
     >
-      {comments.postComments.edges.map((e, index) => (
+      {comments!.postComments.edges.map((e, index) => (
         <MainComment
           isModalThread={isModalThread}
           className={{ commentBox: className }}
           post={post}
           origin={origin}
-          commentHash={commentHash}
-          commentRef={commentRef}
+          commentHash={commentHash ?? undefined}
+          commentRef={commentRef as React.MutableRefObject<HTMLElement>}
           comment={e.node}
           key={e.node.id}
-          onShare={onShare}
+          onShare={onShare ?? noopShare}
           onDelete={(comment, parentId) =>
-            deleteComment(comment.id, parentId, post)
+            deleteComment(comment.id, parentId ?? null, post)
           }
-          onShowUpvotes={onClickUpvote}
-          postAuthorId={post.author?.id}
-          postScoutId={post.scout?.id}
-          appendTooltipTo={modalParentSelector ?? (() => container?.current)}
+          onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
+          postAuthorId={post.author?.id ?? null}
+          postScoutId={post.scout?.id ?? null}
+          appendTooltipTo={getAppendTooltipParent}
           permissionNotificationCommentId={permissionNotificationCommentId}
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}

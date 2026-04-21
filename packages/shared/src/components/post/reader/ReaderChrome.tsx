@@ -45,7 +45,7 @@ export function ReaderChrome({
   const readHref = readTarget?.permalink ?? post.permalink;
 
   const sourceDomain = useMemo((): string => {
-    const normalizedReadTargetDomain = readTarget.domain?.trim();
+    const normalizedReadTargetDomain = readTarget?.domain?.trim();
     if (
       normalizedReadTargetDomain &&
       !isInternalDailyHost(normalizedReadTargetDomain)
@@ -57,7 +57,7 @@ export function ReaderChrome({
       return normalizedPostDomain;
     }
     return '';
-  }, [readTarget.domain, post.domain]);
+  }, [readTarget?.domain, post.domain]);
 
   const sourceLabel = sourceDomain || 'source';
   const iconButtonClassName = '!h-8 !w-8 !min-w-8 !rounded-10 !p-0';

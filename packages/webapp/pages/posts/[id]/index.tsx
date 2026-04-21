@@ -146,13 +146,13 @@ const READER_PAGE_LAYOUT_CLASS_NAME =
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
-  share: SquadPostContent,
-  welcome: SquadPostContent,
-  freeform: SquadPostContent,
+  share: SquadPostContent as PostContentComponent,
+  welcome: SquadPostContent as PostContentComponent,
+  freeform: SquadPostContent as PostContentComponent,
   [PostType.VideoYouTube]: PostContent as PostContentComponent,
-  collection: CollectionPostContent,
+  collection: CollectionPostContent as PostContentComponent,
   [PostType.Brief]: BriefPostContent as PostContentComponent,
-  [PostType.Poll]: PollPostContent,
+  [PostType.Poll]: PollPostContent as PostContentComponent,
   [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
 };

@@ -18,6 +18,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 
 interface BookmarkButtonProps {
   buttonProps?: Omit<QuaternaryButtonProps<'button'>, 'icon'>;
@@ -43,7 +44,7 @@ export function BookmarkButton({
     ? ButtonIconPosition.Top
     : ButtonIconPosition.Left;
 
-  const dropdownOptions = [
+  const dropdownOptions: MenuItemProps[] = [
     {
       label: 'Edit reminder',
       action: () =>
@@ -55,8 +56,8 @@ export function BookmarkButton({
     },
     {
       label: 'Remove bookmark',
-      action: (e: React.MouseEvent<HTMLButtonElement>) =>
-        buttonProps.onClick(e),
+      action: (...args: unknown[]) =>
+        buttonProps.onClick?.(args[0] as React.MouseEvent<HTMLButtonElement>),
     },
   ];
 
