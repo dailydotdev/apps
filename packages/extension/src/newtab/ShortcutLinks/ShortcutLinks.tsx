@@ -13,14 +13,21 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureShortcutsHub } from '@dailydotdev/shared/src/lib/featureManagement';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
+import { useShortcutsMigration } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsMigration';
 import { ShortcutLinksList } from './ShortcutLinksList';
 import { ShortcutGetStarted } from './ShortcutGetStarted';
+import { ShortcutLinksHub } from './ShortcutLinksHub';
+import { ShortcutImportFlow } from './ShortcutImportFlow';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
 }
 
-export default function ShortcutLinks({
+function LegacyShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
   const { openModal } = useLazyModal();
@@ -122,4 +129,54 @@ export default function ShortcutLinks({
       {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </>
   );
+}
+
+function NewShortcutLinks({
+  shouldUseListFeedLayout,
+}: ShortcutLinksProps): ReactElement {
+  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const manager = useShortcutsManager();
+  const { openModal } = useLazyModal();
+  const { setShowImportSource } = useShortcuts();
+  useShortcutsMigration();
+
+  if (!showTopSites) {
+    return <></>;
+  }
+
+  if (manager.shortcuts.length === 0) {
+    return (
+      <>
+        <ShortcutGetStarted
+          onTopSitesClick={toggleShowTopSites}
+          onCustomLinksClick={() =>
+            openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } })
+          }
+          onImportClick={() => setShowImportSource?.('topSites')}
+        />
+        <ShortcutImportFlow />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ShortcutLinksHub shouldUseListFeedLayout={shouldUseListFeedLayout} />
+      <ShortcutImportFlow />
+    </>
+  );
+}
+
+export default function ShortcutLinks(props: ShortcutLinksProps): ReactElement {
+  const { user } = useAuthContext();
+  const { value: hubEnabled } = useConditionalFeature({
+    feature: featureShortcutsHub,
+    shouldEvaluate: !!user,
+  });
+
+  if (user && hubEnabled) {
+    return <NewShortcutLinks {...props} />;
+  }
+
+  return <LegacyShortcutLinks {...props} />;
 }

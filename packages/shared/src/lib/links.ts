@@ -29,6 +29,29 @@ export const stripLinkParameters = (link: string): string => {
   return origin + pathname;
 };
 
+/**
+ * Canonical URL form used for duplicate detection across shortcuts.
+ * origin + pathname, lowercased, trailing slash stripped.
+ */
+export const canonicalShortcutUrl = (link: string): string | null => {
+  try {
+    const url = new URL(withHttps(link));
+    const origin = url.origin.toLowerCase();
+    const pathname = url.pathname.replace(/\/+$/, '');
+    return `${origin}${pathname}`;
+  } catch (_) {
+    return null;
+  }
+};
+
+export const getDomainFromUrl = (link: string): string => {
+  try {
+    return new URL(withHttps(link)).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return link;
+  }
+};
+
 export const removeQueryParam = (url: string, param: string): string => {
   const link = new URL(url);
   link.searchParams.delete(param);

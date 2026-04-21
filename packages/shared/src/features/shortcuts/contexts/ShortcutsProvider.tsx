@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import { useTopSites } from '../hooks/useTopSites';
+import { useBrowserBookmarks } from '../hooks/useBrowserBookmarks';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
+import type { ImportSource } from '../types';
 
 const [ShortcutsProvider, useShortcuts] = createContextProvider(
   () => {
@@ -12,6 +14,9 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
 
     const [isManual, setIsManual] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+    const [showImportSource, setShowImportSource] = useState<
+      ImportSource | null
+    >(null);
 
     const {
       topSites,
@@ -19,6 +24,13 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
       askTopSitesPermission,
       revokePermission,
     } = useTopSites();
+
+    const {
+      bookmarks,
+      hasCheckedPermission: hasCheckedBookmarksPermission,
+      askBookmarksPermission,
+      revokeBookmarksPermission,
+    } = useBrowserBookmarks();
 
     const onRevokePermission = async () => {
       await revokePermission();
@@ -52,6 +64,13 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
       onRevokePermission,
       showPermissionsModal,
       setShowPermissionsModal,
+      // New hub state
+      bookmarks,
+      hasCheckedBookmarksPermission,
+      askBookmarksPermission,
+      revokeBookmarksPermission,
+      showImportSource,
+      setShowImportSource,
     };
   },
   {

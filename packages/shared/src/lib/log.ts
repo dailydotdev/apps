@@ -200,6 +200,12 @@ export enum LogEvent {
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
   OpenShortcutConfig = 'open shortcut config',
+  AddShortcut = 'add shortcut',
+  EditShortcut = 'edit shortcut',
+  RemoveShortcut = 'remove shortcut',
+  ReorderShortcuts = 'reorder shortcuts',
+  ImportShortcuts = 'import shortcuts',
+  UndoRemoveShortcut = 'undo remove shortcut',
   // Devcard
   ShareDevcard = 'share devcard',
   GenerateDevcard = 'generate devcard',
@@ -618,6 +624,7 @@ export enum ShortcutsSourceType {
   Browser = 'browser',
   Placeholder = 'placeholder',
   Button = 'button',
+  Bookmarks = 'bookmarks',
 }
 
 export enum UserAcquisitionEvent {
