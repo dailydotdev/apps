@@ -124,10 +124,7 @@ export const PollList = forwardRef(function PollList(
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               lineClamp={undefined}
-              className={classNames(
-                post.read && 'text-text-tertiary',
-                'mb-4',
-              )}
+              className={classNames(post.read && 'text-text-tertiary', 'mb-4')}
             >
               {truncatedTitle}
             </CardTitle>

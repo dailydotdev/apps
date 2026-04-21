@@ -911,7 +911,9 @@ describe('downvote flow', () => {
 
   it('should prevent user to click block if no tags are selected', async () => {
     await prepareDownvote();
-    const block = await screen.findByRole('button', { name: 'Block' });
+    const block = await screen.findByRole<HTMLButtonElement>('button', {
+      name: 'Block',
+    });
     expect(block.disabled).toBe(true);
   });
 
