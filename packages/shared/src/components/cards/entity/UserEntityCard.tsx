@@ -209,6 +209,9 @@ const UserEntityCard = ({ user, className }: Props) => {
             user={user}
             showCompanyName
             showVerified
+            companyNameTypography={{
+              type: TypographyType.Footnote,
+            }}
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}

@@ -47,7 +47,7 @@ export const VerifiedCompanyUserBadge = ({
       side="bottom"
       className="text-center"
     >
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex min-w-0 items-center justify-center gap-1">
         <ProfilePicture
           size={size}
           className="border border-border-subtlest-secondary"
@@ -61,6 +61,7 @@ export const VerifiedCompanyUserBadge = ({
           <Typography
             type={companyNameTypography?.type}
             color={companyNameTypography?.color || TypographyColor.Secondary}
+            truncate
           >
             {companies[0].name}
           </Typography>
