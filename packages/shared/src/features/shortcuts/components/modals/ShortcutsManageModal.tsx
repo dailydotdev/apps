@@ -21,7 +21,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
@@ -62,6 +61,59 @@ import { apiUrl } from '../../../../lib/config';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { Shortcut } from '../../types';
+
+// Chrome-style radio row with a bold title and a dimmer description below.
+// Mirrors the settings pattern users already know from Chrome's new tab, so
+// the "My shortcuts vs Most visited sites" choice is self-explanatory.
+function ShortcutsModeOption({
+  id,
+  checked,
+  onSelect,
+  title,
+  description,
+}: {
+  id: string;
+  checked: boolean;
+  onSelect: () => void;
+  title: string;
+  description: string;
+}): ReactElement {
+  return (
+    <label
+      htmlFor={id}
+      className={classNames(
+        'flex cursor-pointer items-start gap-3 rounded-12 border p-3 transition-colors duration-150 motion-reduce:transition-none',
+        checked
+          ? 'border-accent-cabbage-default bg-accent-cabbage-subtlest'
+          : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary hover:bg-surface-float',
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-text-primary typo-body">{title}</p>
+        <p className="mt-0.5 text-text-tertiary typo-callout">{description}</p>
+      </div>
+      <input
+        id={id}
+        type="radio"
+        name="shortcuts-mode"
+        checked={checked}
+        onChange={onSelect}
+        className="sr-only peer"
+      />
+      <span
+        aria-hidden
+        className={classNames(
+          'mt-1 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-150 motion-reduce:transition-none',
+          checked
+            ? 'border-accent-cabbage-default bg-accent-cabbage-default'
+            : 'border-border-subtlest-secondary bg-transparent',
+        )}
+      >
+        {checked && <span className="size-1.5 rounded-full bg-white" />}
+      </span>
+    </label>
+  );
+}
 
 function ShortcutRow({
   shortcut,
@@ -144,19 +196,39 @@ export default function ShortcutsManageModal(
   props: ModalProps,
 ): ReactElement {
   const { logEvent } = useLogContext();
-  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const {
+    showTopSites,
+    toggleShowTopSites,
+    flags,
+    updateFlag,
+  } = useSettingsContext();
   const manager = useShortcutsManager();
   const {
-    onRevokePermission,
     setShowImportSource,
-    hasCheckedPermission,
-    hasCheckedBookmarksPermission,
+    topSites,
+    hasCheckedPermission: hasCheckedTopSitesPermission,
+    askTopSitesPermission,
     bookmarks,
-    revokeBookmarksPermission,
+    hasCheckedBookmarksPermission,
   } = useShortcuts();
-  const hasBookmarksPermission =
-    hasCheckedBookmarksPermission && bookmarks !== undefined;
   const { openModal } = useLazyModal();
+
+  const mode = flags?.shortcutsMode ?? 'manual';
+  const selectMode = async (next: 'manual' | 'auto') => {
+    if (next === mode) {
+      return;
+    }
+    await updateFlag('shortcutsMode', next);
+    if (next === 'auto' && topSites === undefined) {
+      await askTopSitesPermission();
+    }
+  };
+
+  const topSitesCount = topSites?.length ?? 0;
+  const bookmarksCount = bookmarks?.length ?? 0;
+  const topSitesKnown = hasCheckedTopSitesPermission && topSites !== undefined;
+  const bookmarksKnown =
+    hasCheckedBookmarksPermission && bookmarks !== undefined;
 
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
@@ -203,15 +275,26 @@ export default function ShortcutsManageModal(
   const onAdd = () =>
     openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } });
 
+  // Labels lead with the source ("Most visited sites", "Bookmarks bar") and
+  // include counts when the browser has already handed them over. If we
+  // haven't checked permission yet, the label invites the user to grant it
+  // rather than pretending we know the count.
+  const topSitesLabel = topSitesKnown
+    ? `Most visited sites · ${topSitesCount} available`
+    : 'Most visited sites · grant access to preview';
+  const bookmarksLabel = bookmarksKnown
+    ? `Bookmarks bar · ${bookmarksCount} available`
+    : 'Bookmarks bar · grant access to preview';
+
   const importOptions = [
     {
       icon: <WrappingMenuIcon Icon={SitesIcon} />,
-      label: 'From most visited',
+      label: topSitesLabel,
       action: () => setShowImportSource?.('topSites'),
     },
     {
       icon: <WrappingMenuIcon Icon={BookmarkIcon} />,
-      label: 'From bookmarks bar',
+      label: bookmarksLabel,
       action: () => setShowImportSource?.('bookmarks'),
     },
   ];
@@ -231,16 +314,6 @@ export default function ShortcutsManageModal(
           </Typography>
         </div>
         <div className="ml-auto flex gap-2">
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={onAdd}
-            disabled={!manager.canAdd}
-          >
-            Add
-          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -293,6 +366,29 @@ export default function ShortcutsManageModal(
               {showTopSites ? 'On' : 'Off'}
             </Switch>
           </div>
+
+          {showTopSites && (
+            <>
+              <HorizontalSeparator />
+              <fieldset className="flex flex-col gap-2">
+                <legend className="sr-only">Shortcuts source</legend>
+                <ShortcutsModeOption
+                  id="shortcuts-mode-manual"
+                  checked={mode === 'manual'}
+                  onSelect={() => selectMode('manual')}
+                  title="My shortcuts"
+                  description="Shortcuts are curated by you — add, edit, remove, and reorder them."
+                />
+                <ShortcutsModeOption
+                  id="shortcuts-mode-auto"
+                  checked={mode === 'auto'}
+                  onSelect={() => selectMode('auto')}
+                  title="Most visited sites"
+                  description="Shortcuts are suggested based on websites you visit often."
+                />
+              </fieldset>
+            </>
+          )}
 
           <HorizontalSeparator />
 
@@ -347,16 +443,37 @@ export default function ShortcutsManageModal(
               </div>
             </div>
           ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={manager.shortcuts.map((s) => s.url)}
-                strategy={verticalListSortingStrategy}
+            <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
+              <button
+                type="button"
+                onClick={onAdd}
+                disabled={!manager.canAdd}
+                className="group flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-tertiary p-2 text-left transition-colors duration-150 hover:border-accent-cabbage-default hover:bg-surface-float disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border-subtlest-tertiary disabled:hover:bg-transparent motion-reduce:transition-none"
+                aria-label="Add a shortcut"
               >
-                <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto">
+                <span className="flex size-8 items-center justify-center rounded-6 bg-accent-cabbage-subtlest text-accent-cabbage-default">
+                  <PlusIcon />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-text-primary typo-callout">
+                    Add a shortcut
+                  </p>
+                  <p className="truncate text-text-tertiary typo-caption1">
+                    {manager.canAdd
+                      ? `${manager.shortcuts.length}/${MAX_SHORTCUTS} used`
+                      : `Max ${MAX_SHORTCUTS} shortcuts reached`}
+                  </p>
+                </div>
+              </button>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={manager.shortcuts.map((s) => s.url)}
+                  strategy={verticalListSortingStrategy}
+                >
                   {manager.shortcuts.map((shortcut) => (
                     <ShortcutRow
                       key={shortcut.url}
@@ -365,37 +482,14 @@ export default function ShortcutsManageModal(
                       onRemove={onRemove}
                     />
                   ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-
-          {(hasCheckedPermission || hasBookmarksPermission) && (
-            <div className="flex flex-wrap gap-2">
-              {hasCheckedPermission && (
-                <Button
-                  onClick={onRevokePermission}
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Ketchup}
-                  type="button"
-                  size={ButtonSize.Small}
-                >
-                  Revoke top sites access
-                </Button>
-              )}
-              {hasBookmarksPermission && revokeBookmarksPermission && (
-                <Button
-                  onClick={() => revokeBookmarksPermission()}
-                  variant={ButtonVariant.Primary}
-                  color={ButtonColor.Ketchup}
-                  type="button"
-                  size={ButtonSize.Small}
-                >
-                  Revoke bookmarks access
-                </Button>
-              )}
+                </SortableContext>
+              </DndContext>
             </div>
           )}
+
+          {/* Permission revocation moved to the hub's overflow menu — those
+              actions belong with the permission-gated features (auto mode,
+              browser import) and don't need to be primary CTAs here. */}
         </div>
       </Modal.Body>
     </Modal>

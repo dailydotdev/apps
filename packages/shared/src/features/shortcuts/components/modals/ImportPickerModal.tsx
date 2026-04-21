@@ -85,11 +85,20 @@ export default function ImportPickerModal({
       <Modal.Header>
         <Modal.Title>
           {source === 'bookmarks'
-            ? 'Pick bookmarks to import'
-            : 'Pick sites to import'}
+            ? 'Import from your bookmarks bar'
+            : 'Import from your most visited sites'}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <p className="mb-4 text-text-tertiary typo-callout">
+          {source === 'bookmarks'
+            ? `Showing ${items.length} ${
+                items.length === 1 ? 'bookmark' : 'bookmarks'
+              } pinned to your browser's bookmarks bar. Pick the ones to add to your shortcuts — selected items will be copied, your bookmarks stay untouched.`
+            : `Showing ${items.length} ${
+                items.length === 1 ? 'site' : 'sites'
+              } your browser tracks as most visited. Pick the ones to add to your shortcuts — selected items will be copied as a one-time snapshot.`}
+        </p>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-text-tertiary typo-callout">
             <span className="font-bold text-text-primary">

@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
-import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
@@ -30,7 +29,6 @@ export function ShortcutImportFlow(): ReactElement | null {
     askBookmarksPermission,
   } = useShortcuts();
   const { customLinks } = useSettingsContext();
-  const manager = useShortcutsManager();
   const { displayToast } = useToastNotification();
   const { openModal } = useLazyModal();
 
@@ -67,22 +65,11 @@ export function ShortcutImportFlow(): ReactElement | null {
         return;
       }
 
+      // Always show the picker so the user sees exactly what gets imported,
+      // which source it comes from, and can deselect items before confirming.
+      // Previously we silently imported when items fit in capacity, which was
+      // confusing ("what just got added? where from?").
       const items = topSites.map((s) => ({ url: s.url }));
-      if (items.length <= capacity) {
-        manager
-          .importFrom('topSites', items)
-          .then((result) => {
-            displayToast(
-              `Imported ${result.imported} sites to shortcuts${
-                result.skipped ? `. ${result.skipped} skipped.` : ''
-              }`,
-            );
-          })
-          .finally(() => {
-            setShowImportSource?.(null);
-          });
-        return;
-      }
       openModal({
         type: LazyModal.ImportPicker,
         props: { source: 'topSites', items },
@@ -116,21 +103,6 @@ export function ShortcutImportFlow(): ReactElement | null {
       }
 
       const items = bookmarks.map((b) => ({ url: b.url, title: b.title }));
-      if (items.length <= capacity) {
-        manager
-          .importFrom('bookmarks', items)
-          .then((result) => {
-            displayToast(
-              `Imported ${result.imported} bookmarks to shortcuts${
-                result.skipped ? `. ${result.skipped} skipped.` : ''
-              }`,
-            );
-          })
-          .finally(() => {
-            setShowImportSource?.(null);
-          });
-        return;
-      }
       openModal({
         type: LazyModal.ImportPicker,
         props: { source: 'bookmarks', items },
@@ -144,7 +116,6 @@ export function ShortcutImportFlow(): ReactElement | null {
     bookmarks,
     hasCheckedBookmarksPermission,
     customLinks,
-    manager,
     displayToast,
     openModal,
     setShowImportSource,

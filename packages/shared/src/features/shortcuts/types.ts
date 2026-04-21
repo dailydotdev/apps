@@ -30,5 +30,9 @@ export type Shortcut = {
 
 export type ImportSource = 'topSites' | 'bookmarks';
 
+// 'auto' mirrors Chrome's default new tab: live top-sites from the browser,
+// read-only. 'manual' is the curated list the user pins and edits.
+export type ShortcutsMode = 'auto' | 'manual';
+
 export const MAX_SHORTCUTS = 12;
 export const UNDO_TIMEOUT_MS = 6000;

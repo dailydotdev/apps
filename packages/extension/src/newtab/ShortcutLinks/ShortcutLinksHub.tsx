@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   closestCenter,
@@ -29,6 +29,7 @@ import {
 } from '@dailydotdev/shared/src/components/dropdown/DropdownMenu';
 import {
   BookmarkIcon,
+  EditIcon,
   EyeIcon,
   MenuIcon,
   PlusIcon,
@@ -49,7 +50,10 @@ import {
   ShortcutsSourceType,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import type { Shortcut } from '@dailydotdev/shared/src/features/shortcuts/types';
+import type {
+  Shortcut,
+  ShortcutsMode,
+} from '@dailydotdev/shared/src/features/shortcuts/types';
 import { MAX_SHORTCUTS } from '@dailydotdev/shared/src/features/shortcuts/types';
 
 interface ShortcutLinksHubProps {
@@ -60,10 +64,30 @@ export function ShortcutLinksHub({
   shouldUseListFeedLayout,
 }: ShortcutLinksHubProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { toggleShowTopSites, showTopSites } = useSettingsContext();
+  const { toggleShowTopSites, showTopSites, flags, updateFlag } =
+    useSettingsContext();
   const { logEvent } = useLogContext();
   const manager = useShortcutsManager();
-  const { setShowImportSource } = useShortcuts();
+  const {
+    setShowImportSource,
+    topSites,
+    hasCheckedPermission: hasCheckedTopSitesPermission,
+    askTopSitesPermission,
+    onRevokePermission,
+    bookmarks,
+    revokeBookmarksPermission,
+  } = useShortcuts();
+
+  // `undefined` means "permission not granted". An empty array means granted
+  // but nothing available. We only show Revoke entries when truly granted.
+  const hasTopSitesAccess = topSites !== undefined;
+  const hasBookmarksAccess = bookmarks !== undefined;
+
+  // Default to 'manual' so existing users keep their curated lists. Auto mode
+  // is opt-in via the overflow menu (users who grant topSites permission and
+  // prefer Chrome-style live tiles).
+  const mode: ShortcutsMode = flags?.shortcutsMode ?? 'manual';
+  const isAuto = mode === 'auto';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -84,47 +108,63 @@ export function ShortcutLinksHub({
     justDraggedRef.current = false;
   };
 
-  const loggedRef = useRef(false);
+  const loggedRef = useRef<ShortcutsMode | null>(null);
   useEffect(() => {
-    if (loggedRef.current || !showTopSites) {
+    if (!showTopSites) {
       return;
     }
-    loggedRef.current = true;
+    if (loggedRef.current === mode) {
+      return;
+    }
+    loggedRef.current = mode;
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+      extra: JSON.stringify({
+        source: isAuto
+          ? ShortcutsSourceType.Browser
+          : ShortcutsSourceType.Custom,
+      }),
     });
-  }, [logEvent, showTopSites]);
+  }, [logEvent, showTopSites, mode, isAuto]);
 
   const [reorderAnnouncement, setReorderAnnouncement] = useState('');
 
-  // Defensive cap: never render more than MAX_SHORTCUTS tiles on the new tab
-  // even if `customLinks` somehow contains more (legacy data, cross-device
-  // sync, direct settings mutation). Overflow stays visible + removable in
-  // the Manage modal. Mirrors Chrome's new-tab behaviour of a fixed cap.
-  const visibleShortcuts = manager.shortcuts.slice(0, MAX_SHORTCUTS);
-  const overflowCount = manager.shortcuts.length - visibleShortcuts.length;
+  // Auto mode: render live top sites from the browser (read-only).
+  // Manual mode: render the curated customLinks (editable).
+  const autoShortcuts: Shortcut[] = useMemo(
+    () =>
+      (topSites ?? [])
+        .slice(0, MAX_SHORTCUTS)
+        .map((site) => ({ url: site.url, name: site.title || undefined })),
+    [topSites],
+  );
+  const manualShortcuts = manager.shortcuts.slice(0, MAX_SHORTCUTS);
+  const overflowCount = isAuto
+    ? 0
+    : manager.shortcuts.length - manualShortcuts.length;
+  const visibleShortcuts = isAuto ? autoShortcuts : manualShortcuts;
 
   const handleDragEnd = (event: DragEndEvent) => {
     justDraggedRef.current = true;
+    if (isAuto) {
+      return;
+    }
     const { active, over } = event;
     if (!over || active.id === over.id) {
       return;
     }
-    const urls = visibleShortcuts.map((s) => s.url);
+    const urls = manualShortcuts.map((s) => s.url);
     const oldIndex = urls.indexOf(active.id as string);
     const newIndex = urls.indexOf(over.id as string);
     if (oldIndex < 0 || newIndex < 0) {
       return;
     }
-    // Reorder affects only the visible window; append any overflow so we
-    // don't silently drop them from customLinks.
     const overflowUrls = manager.shortcuts
       .slice(MAX_SHORTCUTS)
       .map((s) => s.url);
     manager.reorder([...arrayMove(urls, oldIndex, newIndex), ...overflowUrls]);
-    const moved = visibleShortcuts[oldIndex];
+    const moved = manualShortcuts[oldIndex];
     const label = moved?.name || moved?.url || 'Shortcut';
     setReorderAnnouncement(
       `Moved ${label} to position ${newIndex + 1} of ${urls.length}`,
@@ -135,7 +175,11 @@ export function ShortcutLinksHub({
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ source: ShortcutsSourceType.Custom }),
+      extra: JSON.stringify({
+        source: isAuto
+          ? ShortcutsSourceType.Browser
+          : ShortcutsSourceType.Custom,
+      }),
     });
 
   const onEdit = (shortcut: Shortcut) =>
@@ -151,33 +195,95 @@ export function ShortcutLinksHub({
 
   const onManage = () => openModal({ type: LazyModal.ShortcutsManage });
 
-  const menuOptions = [
-    {
-      icon: <WrappingMenuIcon Icon={PlusIcon} />,
-      label: 'Add shortcut',
-      action: onAdd,
-    },
-    {
-      icon: <WrappingMenuIcon Icon={SitesIcon} />,
-      label: 'Import from browser',
-      action: () => setShowImportSource?.('topSites'),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={BookmarkIcon} />,
-      label: 'Import from bookmarks',
-      action: () => setShowImportSource?.('bookmarks'),
-    },
-    {
-      icon: <WrappingMenuIcon Icon={EyeIcon} />,
-      label: 'Hide',
-      action: toggleShowTopSites,
-    },
-    {
-      icon: <WrappingMenuIcon Icon={SettingsIcon} />,
-      label: 'Manage',
-      action: onManage,
-    },
-  ];
+  const requestTopSitesAccess = async () => {
+    // Unlike the import flow, we only need READ access here — we're not
+    // copying sites into customLinks, just rendering whatever the browser
+    // exposes. If the user declines we stay on the empty-state CTA.
+    const granted = await askTopSitesPermission();
+    return granted;
+  };
+
+  const switchToAuto = async () => {
+    await updateFlag('shortcutsMode', 'auto');
+    if (!hasCheckedTopSitesPermission || topSites === undefined) {
+      await requestTopSitesAccess();
+    }
+  };
+
+  const switchToManual = () => updateFlag('shortcutsMode', 'manual');
+
+  const revokeTopSitesItem = hasTopSitesAccess
+    ? [
+        {
+          icon: <WrappingMenuIcon Icon={SitesIcon} />,
+          label: 'Revoke Most visited sites access',
+          action: onRevokePermission,
+        },
+      ]
+    : [];
+  const revokeBookmarksItem =
+    hasBookmarksAccess && revokeBookmarksPermission
+      ? [
+          {
+            icon: <WrappingMenuIcon Icon={BookmarkIcon} />,
+            label: 'Revoke Bookmarks bar access',
+            action: () => revokeBookmarksPermission(),
+          },
+        ]
+      : [];
+
+  const menuOptions = isAuto
+    ? [
+        {
+          icon: <WrappingMenuIcon Icon={EditIcon} />,
+          label: 'Switch to My shortcuts',
+          action: switchToManual,
+        },
+        ...revokeTopSitesItem,
+        {
+          icon: <WrappingMenuIcon Icon={EyeIcon} />,
+          label: 'Hide shortcuts',
+          action: toggleShowTopSites,
+        },
+      ]
+    : [
+        {
+          icon: <WrappingMenuIcon Icon={PlusIcon} />,
+          label: 'Add shortcut',
+          action: onAdd,
+        },
+        {
+          icon: <WrappingMenuIcon Icon={SitesIcon} />,
+          label: 'Switch to Most visited sites',
+          action: switchToAuto,
+        },
+        {
+          icon: <WrappingMenuIcon Icon={SitesIcon} />,
+          label: 'Import from Most visited sites',
+          action: () => setShowImportSource?.('topSites'),
+        },
+        {
+          icon: <WrappingMenuIcon Icon={BookmarkIcon} />,
+          label: 'Import from Bookmarks bar',
+          action: () => setShowImportSource?.('bookmarks'),
+        },
+        {
+          icon: <WrappingMenuIcon Icon={SettingsIcon} />,
+          label: 'Manage',
+          action: onManage,
+        },
+        ...revokeTopSitesItem,
+        ...revokeBookmarksItem,
+        {
+          icon: <WrappingMenuIcon Icon={EyeIcon} />,
+          label: 'Hide shortcuts',
+          action: toggleShowTopSites,
+        },
+      ];
+
+  // Auto mode with no permission yet: show a clear CTA tile so the user knows
+  // why the row is empty and can grant access or switch back to manual.
+  const showAutoEmptyState = isAuto && visibleShortcuts.length === 0;
 
   return (
     <div
@@ -204,13 +310,23 @@ export function ShortcutLinksHub({
               key={shortcut.url}
               shortcut={shortcut}
               onClick={onLinkClick}
-              onEdit={onEdit}
-              onRemove={onRemove}
+              draggable={!isAuto}
+              onEdit={isAuto ? undefined : onEdit}
+              onRemove={isAuto ? undefined : onRemove}
             />
           ))}
         </SortableContext>
       </DndContext>
-      {manager.canAdd && <AddShortcutTile onClick={onAdd} />}
+      {!isAuto && manager.canAdd && <AddShortcutTile onClick={onAdd} />}
+      {showAutoEmptyState && (
+        <button
+          type="button"
+          onClick={requestTopSitesAccess}
+          className="flex h-12 items-center gap-2 rounded-14 border border-dashed border-border-subtlest-tertiary px-4 text-text-tertiary typo-callout hover:border-accent-cabbage-default hover:text-accent-cabbage-default"
+        >
+          Grant access to show Most visited sites
+        </button>
+      )}
       {overflowCount > 0 && (
         <button
           type="button"
