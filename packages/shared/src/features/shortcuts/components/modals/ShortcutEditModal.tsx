@@ -15,8 +15,7 @@ import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
 import { ShortcutTile } from '../ShortcutTile';
-import type { Shortcut, ShortcutColor } from '../../types';
-import { shortcutColorPalette } from '../../types';
+import type { Shortcut } from '../../types';
 import { isValidHttpUrl, withHttps } from '../../../../lib/links';
 import { CameraIcon } from '../../../../components/icons';
 import {
@@ -48,7 +47,6 @@ const schema = z.object({
         isValidHttpUrl(withHttps(value)),
       'Must be a valid URL',
     ),
-  color: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -57,24 +55,6 @@ type ShortcutEditModalProps = ModalProps & {
   mode: 'add' | 'edit';
   shortcut?: Shortcut;
   onSubmitted?: () => void;
-};
-
-const colorSwatchClass: Record<ShortcutColor, string> = {
-  burger: 'bg-accent-burger-bolder',
-  cheese: 'bg-accent-cheese-bolder',
-  avocado: 'bg-accent-avocado-bolder',
-  bacon: 'bg-accent-bacon-bolder',
-  blueCheese: 'bg-accent-blueCheese-bolder',
-  cabbage: 'bg-accent-cabbage-bolder',
-};
-
-const colorLabel: Record<ShortcutColor, string> = {
-  burger: 'Burger',
-  cheese: 'Cheese',
-  avocado: 'Avocado',
-  bacon: 'Bacon',
-  blueCheese: 'Blue cheese',
-  cabbage: 'Cabbage',
 };
 
 export default function ShortcutEditModal({
@@ -93,7 +73,6 @@ export default function ShortcutEditModal({
       name: shortcut?.name ?? '',
       url: shortcut?.url ?? '',
       iconUrl: shortcut?.iconUrl ?? '',
-      color: shortcut?.color ?? '',
     },
     mode: 'onBlur',
   });
@@ -137,9 +116,10 @@ export default function ShortcutEditModal({
       url: values.url || 'https://example.com',
       name: values.name || undefined,
       iconUrl: values.iconUrl || undefined,
-      color: (values.color as ShortcutColor) || 'burger',
+      // Fallback color is derived from the URL in ShortcutTile when omitted,
+      // so the preview still looks right without a user-selected color.
     }),
-    [values.color, values.iconUrl, values.name, values.url],
+    [values.iconUrl, values.name, values.url],
   );
 
   const onSubmit = handleSubmit(async (data) => {
@@ -147,7 +127,6 @@ export default function ShortcutEditModal({
       url: data.url,
       name: data.name || undefined,
       iconUrl: data.iconUrl || undefined,
-      color: data.color || undefined,
     };
 
     const result =
@@ -247,42 +226,6 @@ export default function ShortcutEditModal({
                     />
                   </div>
                 )}
-              </div>
-              <div>
-                <span className="mb-2 block text-text-tertiary typo-caption1">
-                  Accent color (used when no favicon is available)
-                </span>
-                <div
-                  role="radiogroup"
-                  aria-label="Accent color"
-                  className="flex flex-wrap gap-3"
-                >
-                  {shortcutColorPalette.map((color: ShortcutColor) => {
-                    const checked = values.color === color;
-                    return (
-                      <button
-                        key={color}
-                        type="button"
-                        aria-label={colorLabel[color]}
-                        title={colorLabel[color]}
-                        role="radio"
-                        aria-checked={checked}
-                        onClick={() =>
-                          methods.setValue('color', color, {
-                            shouldDirty: true,
-                          })
-                        }
-                        className={classNames(
-                          'size-8 rounded-full transition-all duration-150 ease-out motion-reduce:transition-none',
-                          colorSwatchClass[color],
-                          checked
-                            ? 'scale-110 ring-2 ring-border-subtlest-primary ring-offset-2 ring-offset-background-default'
-                            : 'opacity-80 hover:scale-105 hover:opacity-100 motion-reduce:hover:scale-100',
-                        )}
-                      />
-                    );
-                  })}
-                </div>
               </div>
             </div>
           </form>
