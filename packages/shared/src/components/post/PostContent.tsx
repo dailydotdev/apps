@@ -8,7 +8,12 @@ import { isEmbeddableSiteTarget } from '../../features/extensionEmbed/common';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
 import PostToc from '../widgets/PostToc';
-import { ToastSubject, useToastNotification } from '../../hooks';
+import {
+  ToastSubject,
+  useToastNotification,
+  useViewSize,
+  ViewSize,
+} from '../../hooks';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
 import { BasePostContent } from './BasePostContent';
@@ -26,13 +31,12 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import { SmartPrompt } from './smartPrompts/SmartPrompt';
+import ShowMoreContent from '../cards/common/ShowMoreContent';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EarthIcon, MiniCloseIcon } from '../icons';
-import { useViewSize, ViewSize } from '../../hooks';
 import { Drawer } from '../drawers/Drawer';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
@@ -271,7 +275,7 @@ export function PostContentRaw({
 
     if (!isLaptop || !showArticlePreviewColumn || !node) {
       setIsPreviewNarrow(false);
-      return;
+      return undefined;
     }
 
     const observer = new ResizeObserver(([entry]) => {
@@ -279,7 +283,7 @@ export function PostContentRaw({
         return;
       }
 
-      const width = entry.contentRect.width;
+      const { width } = entry.contentRect;
 
       if (width < 1) {
         return;
@@ -445,17 +449,25 @@ export function PostContentRaw({
           />
         )}
         {post.summary && (
-          <SmartPrompt
-            post={post}
-            className={isCompactModalSpacing ? 'mb-4 gap-2' : undefined}
-          />
+          <div
+            className={classNames(
+              'mb-6 text-text-secondary',
+              isCompactModalSpacing && 'mb-4',
+            )}
+          >
+            <ShowMoreContent
+              className={{ wrapper: 'overflow-hidden' }}
+              content={post.summary}
+              charactersLimit={330}
+              threshold={50}
+            />
+          </div>
         )}
         <PostTagList post={post} />
         <PostMetadata
           createdAt={post.createdAt}
           readTime={post.readTime}
           isVideoType={isVideoType}
-          showBelowThresholdLabel={false}
           className={metadataClassName}
           domain={
             !isVideoType &&
@@ -528,6 +540,22 @@ export function PostContentRaw({
     />
   );
 
+  const getPreviewGridColsClass = (): string => {
+    if (!showArticlePreviewColumn || !isTablet) {
+      return 'grid-cols-[1fr_0px_0fr]';
+    }
+
+    if (!isLaptop) {
+      return 'grid-cols-[1fr_0px_1fr]';
+    }
+
+    if (isPreviewFloating) {
+      return 'grid-cols-[1fr_0px_0fr]';
+    }
+
+    return 'grid-cols-[22rem_0px_1fr]';
+  };
+
   return (
     <PostContentContainer
       hasNavigation={hasNavigation}
@@ -552,18 +580,12 @@ export function PostContentRaw({
       {showArticlePreviewEmbed ? (
         <div
           ref={previewLayoutRef}
-          className="relative flex w-full min-h-0 flex-1"
+          className="relative flex min-h-0 w-full flex-1"
         >
           <div
             className={classNames(
               'grid min-h-0 min-w-0 flex-1 transition-[grid-template-columns] duration-300 ease-in-out',
-              showArticlePreviewColumn && isTablet
-                ? isLaptop
-                  ? isPreviewFloating
-                    ? 'grid-cols-[1fr_0px_0fr]'
-                    : 'grid-cols-[22rem_0px_1fr]'
-                  : 'grid-cols-[1fr_0px_1fr]'
-                : 'grid-cols-[1fr_0px_0fr]',
+              getPreviewGridColsClass(),
             )}
           >
             <div className="flex min-w-0 flex-col overflow-hidden">
@@ -596,7 +618,7 @@ export function PostContentRaw({
             <div
               ref={previewColumnRef}
               className={classNames(
-                'flex min-w-0 flex-col [overflow-x:clip] transition-opacity duration-200 ease-in-out',
+                'flex min-w-0 flex-col transition-opacity duration-200 ease-in-out [overflow-x:clip]',
                 showArticlePreviewColumn &&
                   !isPreviewFloating &&
                   !isTabletPreviewToggling
@@ -608,7 +630,6 @@ export function PostContentRaw({
                 <PostArticlePreviewEmbed
                   targetUrl={embedArticleTargetUrl}
                   previewHost={post.domain ?? undefined}
-                  onDismissArticlePreview={onToggleArticlePreview}
                   onPreviewUnavailable={onPreviewUnavailable}
                   forceUnavailable={isArticlePreviewUnavailable}
                 />
@@ -628,7 +649,6 @@ export function PostContentRaw({
               <PostArticlePreviewEmbed
                 targetUrl={embedArticleTargetUrl}
                 previewHost={post.domain ?? undefined}
-                onDismissArticlePreview={onToggleArticlePreview}
                 onPreviewUnavailable={onPreviewUnavailable}
                 forceUnavailable={isArticlePreviewUnavailable}
               />
@@ -647,7 +667,6 @@ export function PostContentRaw({
             <PostArticlePreviewEmbed
               targetUrl={embedArticleTargetUrl}
               previewHost={post.domain ?? undefined}
-              onDismissArticlePreview={() => setMobilePreviewOpen(false)}
               onPreviewUnavailable={onPreviewUnavailable}
               forceUnavailable={isArticlePreviewUnavailable}
               className="!flex"

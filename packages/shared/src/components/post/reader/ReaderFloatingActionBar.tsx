@@ -49,7 +49,7 @@ export function ReaderFloatingActionBar({
   return (
     <div
       className={classNames(
-        'z-20 pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary bg-background-default/70 p-0.5 shadow-3 backdrop-blur-md backdrop-saturate-150 transition-transform duration-300 ease-in-out',
+        'z-20 bg-background-default/70 pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary p-0.5 shadow-3 backdrop-blur-md backdrop-saturate-150 transition-transform duration-300 ease-in-out',
         isHidden && 'translate-y-[140%]',
       )}
       role="toolbar"

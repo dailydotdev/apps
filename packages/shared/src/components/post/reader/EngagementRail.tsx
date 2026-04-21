@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import AuthContext, { useAuthContext } from '../../../contexts/AuthContext';
 import type { Post } from '../../../graphql/posts';
-import { isVideoPost, UserVote } from '../../../graphql/posts';
+import { isVideoPost } from '../../../graphql/posts';
 import { SourceType } from '../../../graphql/sources';
 import type { SourceTooltip } from '../../../graphql/sources';
 import { useShareComment } from '../../../hooks/useShareComment';
@@ -41,9 +41,6 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { ClickableText } from '../../buttons/ClickableText';
 import Link from '../../utilities/Link';
 import { largeNumberFormat } from '../../../lib';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../../lib/post';
 import { canViewPostAnalytics } from '../../../lib/user';
 import { webappUrl } from '../../../lib/constants';
 import { ProfileImageSize } from '../../ProfilePicture';
@@ -106,21 +103,8 @@ export function EngagementRail({
   const { openShareComment } = useShareComment(Origin.ReaderModal);
   const { title: displayTitle } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
-  const isLoggedIn = !!user;
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
-  const { showCount: showUpvotes } = getUpvoteCountDisplay(
-    upvotes,
-    upvoteThresholdConfig.threshold,
-    upvoteThresholdConfig.belowThresholdLabel,
-    post.userState?.vote === UserVote.Up,
-    post.createdAt,
-    upvoteThresholdConfig.newWindowHours,
-  );
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
 
   useEffect(() => {
@@ -277,7 +261,6 @@ export function EngagementRail({
             createdAt={post.createdAt}
             readTime={post.readTime}
             isVideoType={isVideoType}
-            showBelowThresholdLabel={false}
             className="!mt-0 !typo-callout"
           />
           <ReaderRailActionBar
@@ -295,7 +278,7 @@ export function EngagementRail({
         >
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
             <div className="flex min-w-0 flex-wrap items-center gap-x-4">
-              {showUpvotes && (
+              {upvotes > 0 && (
                 <ClickableText onClick={() => onShowUpvoted(post.id, upvotes)}>
                   {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
                 </ClickableText>

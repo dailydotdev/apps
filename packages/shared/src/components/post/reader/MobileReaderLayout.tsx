@@ -8,13 +8,10 @@ import React, {
   useState,
 } from 'react';
 import type { Post } from '../../../graphql/posts';
-import { isVideoPost, UserVote } from '../../../graphql/posts';
+import { isVideoPost } from '../../../graphql/posts';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useShareComment } from '../../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureUpvoteCountThreshold } from '../../../lib/featureManagement';
-import { getUpvoteCountDisplay } from '../../../lib/post';
 import { canViewPostAnalytics } from '../../../lib/user';
 import { webappUrl } from '../../../lib/constants';
 import { Origin } from '../../../lib/log';
@@ -136,22 +133,8 @@ export function MobileReaderLayout({
   const { openShareComment } = useShareComment(Origin.ReaderModal);
   const { onShowUpvoted } = useUpvoteQuery();
   const isVideoType = isVideoPost(post);
-  const isLoggedIn = !!user;
-  const { value: upvoteThresholdConfig } = useConditionalFeature({
-    feature: featureUpvoteCountThreshold,
-    shouldEvaluate: isLoggedIn,
-  });
-
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
-  const { showCount: showUpvotes } = getUpvoteCountDisplay(
-    upvotes,
-    upvoteThresholdConfig.threshold,
-    upvoteThresholdConfig.belowThresholdLabel,
-    post.userState?.vote === UserVote.Up,
-    post.createdAt,
-    upvoteThresholdConfig.newWindowHours,
-  );
   const canSeeAnalytics = canViewPostAnalytics({ user, post });
   const isNewestFirst = sortBy === SortCommentsBy.NewestFirst;
   const sortLabel = isNewestFirst ? 'Sort: Newest first' : 'Sort: Oldest first';
@@ -241,7 +224,6 @@ export function MobileReaderLayout({
                   createdAt={post.createdAt}
                   readTime={post.readTime}
                   isVideoType={isVideoType}
-                  showBelowThresholdLabel={false}
                   className="!mt-0 !typo-footnote"
                 />
               </>
@@ -262,7 +244,6 @@ export function MobileReaderLayout({
                   createdAt={post.createdAt}
                   readTime={post.readTime}
                   isVideoType={isVideoType}
-                  showBelowThresholdLabel={false}
                   className="!mt-0 !typo-footnote"
                 />
               </>
@@ -301,7 +282,7 @@ export function MobileReaderLayout({
         >
           <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-2 text-text-tertiary typo-callout">
             <div className="flex min-w-0 flex-wrap items-center gap-x-4">
-              {showUpvotes && (
+              {upvotes > 0 && (
                 <ClickableText onClick={() => onShowUpvoted(post.id, upvotes)}>
                   {largeNumberFormat(upvotes)} Upvote{upvotes > 1 ? 's' : ''}
                 </ClickableText>

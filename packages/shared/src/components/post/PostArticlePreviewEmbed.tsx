@@ -24,7 +24,6 @@ type PostArticlePreviewEmbedProps = {
   targetUrl: string;
   previewHost?: string;
   className?: string;
-  onDismissArticlePreview?: () => void;
   onPreviewUnavailable?: () => void;
   onUseLegacyLayout?: () => void;
   forceUnavailable?: boolean;
@@ -79,7 +78,6 @@ export function PostArticlePreviewEmbed({
   targetUrl,
   previewHost,
   className,
-  onDismissArticlePreview,
   onPreviewUnavailable,
   onUseLegacyLayout,
   forceUnavailable = false,
@@ -142,8 +140,7 @@ export function PostArticlePreviewEmbed({
   const shouldShowUnavailablePrompt =
     forceUnavailable || hasTimedOutUnavailable;
   const shouldShowPrompt = !extensionId;
-  const shouldShowPreviewHeader =
-    !!extensionId && !shouldShowUnavailablePrompt;
+  const shouldShowPreviewHeader = !!extensionId && !shouldShowUnavailablePrompt;
 
   const handleEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
@@ -179,28 +176,24 @@ export function PostArticlePreviewEmbed({
   );
 
   useEffect(() => {
-    const timeout =
-      isExtensionPreviewAwaitingLoad
-        ? globalThis.setTimeout(() => {
-            if (hasNotifiedUnavailableRef.current) {
-              return;
-            }
+    const timeout = isExtensionPreviewAwaitingLoad
+      ? globalThis.setTimeout(() => {
+          if (hasNotifiedUnavailableRef.current) {
+            return;
+          }
 
-            hasNotifiedUnavailableRef.current = true;
-            setHasTimedOutUnavailable(true);
-            onPreviewUnavailable?.();
-          }, 7000)
-        : undefined;
+          hasNotifiedUnavailableRef.current = true;
+          setHasTimedOutUnavailable(true);
+          onPreviewUnavailable?.();
+        }, 7000)
+      : undefined;
 
     return () => {
       if (timeout) {
         globalThis.clearTimeout(timeout);
       }
     };
-  }, [
-    isExtensionPreviewAwaitingLoad,
-    onPreviewUnavailable,
-  ]);
+  }, [isExtensionPreviewAwaitingLoad, onPreviewUnavailable]);
 
   let previewContent: ReactElement;
   if (shouldShowUnavailablePrompt) {
