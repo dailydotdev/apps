@@ -50,6 +50,7 @@ import {
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
 import type { Shortcut } from '@dailydotdev/shared/src/features/shortcuts/types';
+import { MAX_SHORTCUTS } from '@dailydotdev/shared/src/features/shortcuts/types';
 
 interface ShortcutLinksHubProps {
   shouldUseListFeedLayout: boolean;
@@ -98,20 +99,32 @@ export function ShortcutLinksHub({
 
   const [reorderAnnouncement, setReorderAnnouncement] = useState('');
 
+  // Defensive cap: never render more than MAX_SHORTCUTS tiles on the new tab
+  // even if `customLinks` somehow contains more (legacy data, cross-device
+  // sync, direct settings mutation). Overflow stays visible + removable in
+  // the Manage modal. Mirrors Chrome's new-tab behaviour of a fixed cap.
+  const visibleShortcuts = manager.shortcuts.slice(0, MAX_SHORTCUTS);
+  const overflowCount = manager.shortcuts.length - visibleShortcuts.length;
+
   const handleDragEnd = (event: DragEndEvent) => {
     justDraggedRef.current = true;
     const { active, over } = event;
     if (!over || active.id === over.id) {
       return;
     }
-    const urls = manager.shortcuts.map((s) => s.url);
+    const urls = visibleShortcuts.map((s) => s.url);
     const oldIndex = urls.indexOf(active.id as string);
     const newIndex = urls.indexOf(over.id as string);
     if (oldIndex < 0 || newIndex < 0) {
       return;
     }
-    manager.reorder(arrayMove(urls, oldIndex, newIndex));
-    const moved = manager.shortcuts[oldIndex];
+    // Reorder affects only the visible window; append any overflow so we
+    // don't silently drop them from customLinks.
+    const overflowUrls = manager.shortcuts
+      .slice(MAX_SHORTCUTS)
+      .map((s) => s.url);
+    manager.reorder([...arrayMove(urls, oldIndex, newIndex), ...overflowUrls]);
+    const moved = visibleShortcuts[oldIndex];
     const label = moved?.name || moved?.url || 'Shortcut';
     setReorderAnnouncement(
       `Moved ${label} to position ${newIndex + 1} of ${urls.length}`,
@@ -183,10 +196,10 @@ export function ShortcutLinksHub({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={manager.shortcuts.map((s) => s.url)}
+          items={visibleShortcuts.map((s) => s.url)}
           strategy={horizontalListSortingStrategy}
         >
-          {manager.shortcuts.map((shortcut) => (
+          {visibleShortcuts.map((shortcut) => (
             <ShortcutTile
               key={shortcut.url}
               shortcut={shortcut}
@@ -198,6 +211,15 @@ export function ShortcutLinksHub({
         </SortableContext>
       </DndContext>
       {manager.canAdd && <AddShortcutTile onClick={onAdd} />}
+      {overflowCount > 0 && (
+        <button
+          type="button"
+          onClick={onManage}
+          className="mt-2 text-text-tertiary underline typo-caption1 hover:text-text-primary"
+        >
+          +{overflowCount} more
+        </button>
+      )}
       <span role="status" aria-live="polite" className="sr-only">
         {reorderAnnouncement}
       </span>
