@@ -223,7 +223,6 @@ export function EngagementRail({
             className={{ container: 'w-full bg-transparent' }}
             handle={source.handle}
             origin={Origin.ReaderModal}
-            showNotificationCtaOnJoin
           />
         )}
         {source && source.type !== SourceType.Squad && (
