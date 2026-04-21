@@ -241,11 +241,8 @@ const IntroScreen = () => {
           )}
           {!canPurchaseCores && (
             <Button className="w-full" variant={ButtonVariant.Primary} disabled>
-              <span className="inline-flex gap-1">
-                {' '}
-                Insufficient Cores
-                <CoreIcon secondary />{' '}
-              </span>
+              Insufficient Cores
+              <CoreIcon secondary />
               {product.value === 0
                 ? 'Free'
                 : formatCoresCurrency(product.value)}

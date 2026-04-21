@@ -128,7 +128,7 @@ function ButtonComponent<TagName extends AllowedTags>(
         ) &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
       {hasChildren && (
-        <span className={classNames('btn-label', loading && 'invisible')}>
+        <span className={classNames('btn-label flex items-center gap-1', loading && 'invisible')}>
           {children}
         </span>
       )}
