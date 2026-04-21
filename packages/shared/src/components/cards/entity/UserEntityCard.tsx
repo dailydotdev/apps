@@ -204,12 +204,14 @@ const UserEntityCard = ({ user, className }: Props) => {
               />
             </div>
           )}
-          <VerifiedCompanyUserBadge
-            size={ProfileImageSize.Small}
-            user={user}
-            showCompanyName
-            showVerified
-          />
+          <div className="min-w-0 flex-1">
+            <VerifiedCompanyUserBadge
+              size={ProfileImageSize.Small}
+              user={user}
+              showCompanyName
+              showVerified
+            />
+          </div>
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}
       </div>
