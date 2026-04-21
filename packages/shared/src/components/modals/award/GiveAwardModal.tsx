@@ -233,22 +233,23 @@ const IntroScreen = () => {
               variant={ButtonVariant.Primary}
               onClick={onBuyCores}
             >
-              Buy Cores <CoreIcon />{' '}
-              {product.value === 0
-                ? 'Free'
-                : formatCoresCurrency(product.value)}
+              <span className="inline-flex items-center gap-1">
+                Buy Cores <CoreIcon />
+                {product.value === 0
+                  ? 'Free'
+                  : formatCoresCurrency(product.value)}
+              </span>
             </Button>
           )}
           {!canPurchaseCores && (
             <Button className="w-full" variant={ButtonVariant.Primary} disabled>
-              <span className="inline-flex gap-1">
-                {' '}
+              <span className="inline-flex items-center gap-1">
                 Insufficient Cores
-                <CoreIcon secondary />{' '}
+                <CoreIcon secondary />
+                {product.value === 0
+                  ? 'Free'
+                  : formatCoresCurrency(product.value)}
               </span>
-              {product.value === 0
-                ? 'Free'
-                : formatCoresCurrency(product.value)}
             </Button>
           )}
           <AwardFeesNote />
@@ -366,8 +367,10 @@ const CommentScreen = () => {
           variant={ButtonVariant.Primary}
           onClick={onAwardClick}
         >
-          Send Award for <CoreIcon />{' '}
-          {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
+          <span className="inline-flex items-center gap-1">
+            Send Award for <CoreIcon />
+            {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
+          </span>
         </Button>
         <AwardFeesNote />
       </Modal.Footer>
