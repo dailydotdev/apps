@@ -20,7 +20,7 @@ import type { MainFeedPageProps } from './MainFeedPage';
 
 export default function CoresLayout({
   children,
-}: MainFeedPageProps): ReactElement {
+}: MainFeedPageProps): ReactElement | null {
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const { back, replace, push, isReady } = useRouter();
   const { user, isAuthReady } = useAuthContext();

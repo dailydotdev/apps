@@ -169,7 +169,7 @@ const AskPage = (): ReactElement => {
                 color={ButtonColor.Avocado}
                 size={ButtonSize.Large}
                 icon={<DevPlusIcon />}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   if (!isLoggedIn) {
                     e.preventDefault();
                     showLogin({ trigger: AuthTriggers.Plus });

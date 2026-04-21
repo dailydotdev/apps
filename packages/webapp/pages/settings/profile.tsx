@@ -9,7 +9,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Manage account profile'),
+  ...getPageSeoTitles('Profile details'),
 };
 
 const AccountProfilePage = (): ReactElement => {

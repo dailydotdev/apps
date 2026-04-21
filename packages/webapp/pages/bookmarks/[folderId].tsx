@@ -17,7 +17,7 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
-const BookmarksPage = (): ReactElement => {
+const BookmarksPage = (): ReactElement | null => {
   const router = useRouter();
   const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();

@@ -40,7 +40,6 @@ export enum ActionType {
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
-  SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',

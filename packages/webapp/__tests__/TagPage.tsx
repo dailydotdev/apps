@@ -34,6 +34,7 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
+import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -119,6 +120,19 @@ const topContributor: UserShortProfile = {
   reputation: 10,
 };
 
+const createArchiveIndexMock = (): MockedGraphQLResponse => ({
+  request: {
+    query: ARCHIVE_INDEX_QUERY,
+    variables: {
+      subjectType: 'post',
+      rankingType: 'best',
+      scopeType: 'tag',
+      scopeId: 'react',
+    },
+  },
+  result: { data: { archiveIndex: [] } },
+});
+
 const renderComponent = (
   mocks: MockedGraphQLResponse[] = [createFeedMock(), createTagsSettingsMock()],
   user: LoggedUser | null = defaultUser,
@@ -128,6 +142,7 @@ const renderComponent = (
   client = new QueryClient();
 
   (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
+  mockGraphQL(createArchiveIndexMock());
   nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
@@ -428,7 +443,7 @@ it('should unblock tag', async () => {
 });
 
 it('should load title and description for tag', async () => {
-  renderComponent([createFeedMock()], defaultUser, {
+  renderComponent([createFeedMock(), createTagsSettingsMock()], defaultUser, {
     ...initialDataObj,
     flags: {
       title: 'React custom title',
@@ -436,12 +451,12 @@ it('should load title and description for tag', async () => {
     },
   });
 
-  await waitFor(async () => {
-    const titleElement = await screen.findByText('React custom title');
-    expect(titleElement).toBeInTheDocument();
-    const descriptionElement = await screen.findByText(
-      'React is an amazing framework',
-    );
-    expect(descriptionElement).toBeInTheDocument();
+  await waitFor(() => {
+    expect(
+      screen.getByRole('heading', { name: 'React custom title' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('React is an amazing framework'),
+    ).toBeInTheDocument();
   });
 });

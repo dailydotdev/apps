@@ -19,7 +19,6 @@ export type SettingsFlags = {
   clickbaitShieldEnabled: boolean;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
-  lastPrompt?: string;
   defaultWriteTab?: WriteFormTab;
 };
 

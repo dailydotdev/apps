@@ -9,7 +9,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import {
   BlockIcon,
   BriefIcon,
-  CustomPromptIcon,
   FolderIcon,
   HashtagIcon,
   LabelIcon,
@@ -28,8 +27,6 @@ import {
   plusShowcasePresidentialBriefImage,
   plusShowcaseShieldImage,
   plusShowcaseShieldVideo,
-  plusShowcaseSmartPrompsImage,
-  plusShowcaseSmartPrompsVideo,
   plusShowcaseSquadImage,
   plusShowcaseTeamImage,
   plusShowcaseTeamVideo,
@@ -84,22 +81,6 @@ export const plusFeatureListControl: Array<PlusItem> = [
         'daily.dev scans the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.',
       imageUrl: plusShowcasePresidentialBriefImage,
       mediaType: 'image',
-    },
-  },
-  {
-    id: 'smart prompts',
-    label: 'Run prompts on any post',
-    status: PlusItemStatus.Ready,
-    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
-    icon: <CustomPromptIcon secondary />,
-    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
-    modalProps: {
-      title: 'Run prompts on any post',
-      description:
-        'Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.',
-      videoUrl: plusShowcaseSmartPrompsVideo,
-      imageUrl: plusShowcaseSmartPrompsImage,
-      mediaType: 'video',
     },
   },
   {

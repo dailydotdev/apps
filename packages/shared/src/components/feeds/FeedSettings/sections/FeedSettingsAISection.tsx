@@ -29,7 +29,6 @@ import {
 import { Divider } from '../../../utilities';
 import { Switch } from '../../../fields/Switch';
 import { labels } from '../../../../lib';
-import { SmartPrompts } from '../components/SmartPrompts';
 import { featurePlusCtaCopy } from '../../../../lib/featureManagement';
 import Link from '../../../utilities/Link';
 import { Tooltip } from '../../../tooltip/Tooltip';
@@ -109,7 +108,7 @@ export const FeedSettingsAISection = (): ReactElement => {
         <LanguageDropdown
           className={{ container: 'w-full max-w-60' }}
           name="language"
-          defaultValue={user.language}
+          defaultValue={user?.language}
           onChange={(value) => {
             onLanguageChange(value);
 
@@ -117,7 +116,7 @@ export const FeedSettingsAISection = (): ReactElement => {
               labels.feed.settings.globalPreferenceNotice.contentLanguage,
             );
           }}
-          icon={null}
+          icon={undefined}
           disabled={!isPlus}
         />
       </section>
@@ -210,10 +209,6 @@ export const FeedSettingsAISection = (): ReactElement => {
           </Switch>
         </ConditionalWrapper>
       </section>
-
-      <Divider className="bg-border-subtlest-tertiary" />
-
-      <SmartPrompts />
     </>
   );
 };

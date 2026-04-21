@@ -18,7 +18,7 @@ import { AccountPageContainer } from '../../../../components/layouts/SettingsLay
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Open source'),
+  ...getPageSeoTitles('Open Source'),
 };
 
 const OpenSourcePage = (): ReactElement => {

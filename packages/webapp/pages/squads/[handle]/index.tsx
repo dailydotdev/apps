@@ -26,7 +26,13 @@ import {
 } from '@dailydotdev/shared/src/graphql/squads';
 import type {
   BasicSourceMember,
+  SourceData,
   Squad,
+} from '@dailydotdev/shared/src/graphql/sources';
+import {
+  isSourceUserSource,
+  SOURCE_QUERY,
+  SourceType,
 } from '@dailydotdev/shared/src/graphql/sources';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { useQuery } from '@tanstack/react-query';
@@ -496,6 +502,32 @@ export async function getServerSideProps({
   };
 
   try {
+    const sourceResult = await gqlClient.request<SourceData>(SOURCE_QUERY, {
+      id: handle,
+    });
+
+    if (isSourceUserSource(sourceResult.source)) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/${sourceResult.source.id}`,
+          permanent: false,
+        },
+      };
+    }
+
+    if (sourceResult.source?.type === SourceType.Machine) {
+      setCacheHeader();
+
+      return {
+        redirect: {
+          destination: `/sources/${handle}`,
+          permanent: false,
+        },
+      };
+    }
+
     const referringUserPromise =
       userId && campaign
         ? gqlClient
@@ -553,8 +585,9 @@ export async function getServerSideProps({
   } catch (err) {
     const clientError = err as ClientError;
     const errors = Object.values(ApiError);
+    const errorCode = clientError?.response?.errors?.[0]?.extensions?.code;
 
-    if (errors.includes(clientError?.response?.errors?.[0]?.extensions?.code)) {
+    if (errors.includes(errorCode)) {
       setCacheHeader();
 
       return {

@@ -964,12 +964,17 @@ export type CreatePostInMultipleSourcesResponse = Array<{
 export const createPostInMultipleSources = async (
   variables: CreatePostInMultipleSourcesArgs,
 ) => {
+  const { image, ...rest } = variables;
+  const sanitized = {
+    ...rest,
+    ...(image instanceof File && image.size > 0 ? { image } : {}),
+  };
   const res = await gqlClient.request<
     {
       createPostInMultipleSources: CreatePostInMultipleSourcesResponse;
     },
     CreatePostInMultipleSourcesArgs
-  >(CREATE_POST_IN_MULTIPLE_SOURCES, variables);
+  >(CREATE_POST_IN_MULTIPLE_SOURCES, sanitized);
   return res.createPostInMultipleSources;
 };
 

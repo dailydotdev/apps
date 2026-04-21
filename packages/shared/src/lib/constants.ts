@@ -34,6 +34,9 @@ export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';
 export const businessWebsiteUrl = 'https://r.daily.dev/business';
 export const appsUrl = 'https://daily.dev/apps';
+export const appStoreUrl = 'https://apps.apple.com/app/daily-dev/id6740634400';
+export const playStoreUrl =
+  'https://play.google.com/store/apps/details?id=dev.daily';
 export const timezoneSettingsUrl = 'https://r.daily.dev/timezone';
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProductionAPI =

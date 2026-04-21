@@ -1,7 +1,7 @@
 import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import type { FeedData } from '../../graphql/posts';
 import type { FeedItemData } from '../../graphql/feed';
-import { isFeedApiPostItem } from '../../graphql/feed';
+import { isFeedApiHighlightItem, isFeedApiPostItem } from '../../graphql/feed';
 import type { ContentPreferenceMutation } from '../../hooks/contentPreference/types';
 import {
   contentPreferenceMutationMatcher,
@@ -76,6 +76,10 @@ export const useFeedContentPreferenceMutationSubscription = ({
                           }),
                         },
                       };
+                    }
+
+                    if (isFeedApiHighlightItem(edge.node)) {
+                      return edge;
                     }
 
                     const newPostData = updatePostContentPreference({

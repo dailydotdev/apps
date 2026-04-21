@@ -109,7 +109,9 @@ describe('tab container component', () => {
 
       const first = await screen.findByText('First');
       fireEvent.click(first);
-      expect(routerPush).toHaveBeenCalledWith('/first');
+      expect(routerPush).toHaveBeenCalledWith('/first', undefined, {
+        shallow: false,
+      });
     });
   });
 });

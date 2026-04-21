@@ -59,6 +59,8 @@ export enum OtherFeedPage {
   TagsTopPosts = 'tags[tag]/top-posts',
   TagsMostUpvoted = 'tags[tag]/most-upvoted',
   TagsBestDiscussed = 'tags[tag]/best-discussed',
+  TagArchive = 'tags[tag]/best-of',
+  SourceArchive = 'sources[source]/best-of',
   Explore = 'posts',
   ExploreLatest = 'postslatest',
   ExploreDiscussed = 'postsdiscussed',
@@ -188,6 +190,9 @@ export enum RequestKey {
   TagFeed = 'tagFeed',
   TagsMostUpvoted = 'tagsMostUpvoted',
   TagsBestDiscussed = 'tagsBestDiscussed',
+  Archive = 'archive',
+  ArchiveIndex = 'archiveIndex',
+  FeaturedArchives = 'featuredArchives',
   UserCompanies = 'user_companies',
   PostCodeSnippets = 'post_code_snippets',
   ContentPreference = 'content_preference',
@@ -207,7 +212,6 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
-  Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
   PriceMetadata = 'price_metadata',
@@ -269,6 +273,7 @@ export enum RequestKey {
   TopSentimentEntities = 'top_sentiment_entities',
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
+  MarketingCtas = 'marketing_ctas',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
