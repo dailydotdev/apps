@@ -175,7 +175,7 @@ export default function ShortcutEditModal({
                 derived from the URL fills it by default; uploading swaps it
                 out. No secondary preview tile — users don't need to see the
                 shortcut re-rendered to know what it'll look like. */}
-            <div className="mb-6 flex flex-col items-center gap-2">
+            <div className="mb-6 flex flex-col items-center gap-3">
               <button
                 type="button"
                 onClick={openFilePicker}
@@ -183,7 +183,10 @@ export default function ShortcutEditModal({
                   hasCustomIcon ? 'Replace shortcut icon' : 'Upload shortcut icon'
                 }
                 className={classNames(
-                  'group relative flex size-24 items-center justify-center overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-accent-cabbage-default motion-reduce:transition-none',
+                  // Flat avatar picker. Hover reveals the "Upload" overlay
+                  // and swaps the surface to a quieter neutral \u2014 no lift, no
+                  // accent border flash, the camera glyph does the talking.
+                  'group relative flex size-20 items-center justify-center overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-border-subtlest-secondary hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
                   isUploading && 'opacity-60',
                 )}
               >
@@ -198,20 +201,19 @@ export default function ShortcutEditModal({
                     src={faviconSrc}
                     alt=""
                     onError={() => setFaviconFailed(true)}
-                    className="size-12 rounded-8"
+                    className="size-10 rounded-8"
                   />
                 ) : (
                   <EarthIcon
                     secondary
-                    className="size-10 text-text-tertiary"
+                    className="size-8 text-text-tertiary"
                   />
                 )}
                 <span
                   aria-hidden
-                  className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-overlay-primary-pepper py-1.5 text-text-primary typo-caption1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none"
+                  className="absolute inset-0 flex items-center justify-center bg-overlay-primary-pepper text-text-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none"
                 >
                   <CameraIcon secondary />
-                  {hasCustomIcon ? 'Replace' : 'Upload'}
                 </span>
               </button>
               <input
@@ -225,22 +227,28 @@ export default function ShortcutEditModal({
                   event.target.value = '';
                 }}
               />
-              <div className="flex items-center gap-3 text-text-tertiary typo-caption1">
+              <div
+                aria-live="polite"
+                className="min-h-[20px] text-center text-text-tertiary typo-caption1"
+              >
                 {isUploading ? (
-                  <span className="text-accent-cabbage-default">Uploading…</span>
+                  <span className="inline-flex items-center gap-2 text-text-tertiary">
+                    <span className="size-1.5 animate-pulse rounded-full bg-text-tertiary" />
+                    Uploading…
+                  </span>
                 ) : hasCustomIcon ? (
                   <button
                     type="button"
                     onClick={clearCustomIcon}
-                    className="underline hover:text-text-primary"
+                    className="underline-offset-2 hover:text-text-primary hover:underline"
                   >
                     Remove custom icon
                   </button>
                 ) : (
                   <span>
                     {faviconSrc
-                      ? 'Using site favicon — click to upload your own.'
-                      : 'Click to upload an icon. Leave empty to use the site favicon.'}
+                      ? 'Using site favicon. Click the avatar to upload your own.'
+                      : 'Click the avatar to upload an icon.'}
                   </span>
                 )}
               </div>
@@ -261,7 +269,7 @@ export default function ShortcutEditModal({
               <button
                 type="button"
                 onClick={() => setShowUrlInput((prev) => !prev)}
-                className="self-start text-text-tertiary underline typo-caption1 hover:text-text-primary"
+                className="self-start text-text-tertiary underline-offset-2 typo-caption1 hover:text-text-primary hover:underline"
               >
                 {showUrlInput
                   ? 'Hide icon URL'

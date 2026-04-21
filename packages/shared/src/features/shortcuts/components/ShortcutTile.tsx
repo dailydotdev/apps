@@ -1,13 +1,13 @@
-import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import type {
+  KeyboardEvent,
+  MouseEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactElement,
+} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,17 +15,21 @@ import {
   DropdownMenuTrigger,
 } from '../../../components/dropdown/DropdownMenu';
 import {
-  DragIcon,
   EditIcon,
   MenuIcon,
+  MiniCloseIcon,
   TrashIcon,
 } from '../../../components/icons';
-import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { IconSize } from '../../../components/Icon';
+import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { combinedClicks } from '../../../lib/click';
 import { apiUrl } from '../../../lib/config';
 import { getDomainFromUrl } from '../../../lib/links';
-import type { Shortcut, ShortcutColor } from '../types';
+import type {
+  Shortcut,
+  ShortcutColor,
+  ShortcutsAppearance,
+} from '../types';
 
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
@@ -42,39 +46,31 @@ const colorClass: Record<ShortcutColor, string> = {
   cabbage: 'bg-accent-cabbage-bolder text-white',
 };
 
-const colorGlowClass: Record<ShortcutColor, string> = {
-  burger: 'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-burger-default)/0.45)]',
-  cheese:
-    'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-cheese-default)/0.45)]',
-  avocado:
-    'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-avocado-default)/0.45)]',
-  bacon:
-    'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-bacon-default)/0.45)]',
-  blueCheese:
-    'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-blueCheese-default)/0.45)]',
-  cabbage:
-    'group-hover:shadow-[0_8px_24px_-8px_rgb(var(--theme-accent-cabbage-default)/0.45)]',
-};
-
 interface LetterChipProps {
   name: string;
   color: ShortcutColor;
-  size?: 'sm' | 'lg';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 function LetterChip({
   name,
   color,
-  size = 'sm',
+  size = 'md',
 }: LetterChipProps): ReactElement {
   const letter = (name || '?').charAt(0).toUpperCase();
+  const sizeClass =
+    size === 'lg'
+      ? 'size-10 text-lg'
+      : size === 'sm'
+      ? 'size-6 text-xs'
+      : 'size-8 text-sm';
   return (
     <span
       aria-hidden
       className={classNames(
         'flex items-center justify-center rounded-8 font-bold',
         colorClass[color],
-        size === 'lg' ? 'size-10 text-lg' : 'size-6 text-xs',
+        sizeClass,
       )}
     >
       {letter}
@@ -84,19 +80,23 @@ function LetterChip({
 
 interface ShortcutTileProps {
   shortcut: Shortcut;
+  appearance?: ShortcutsAppearance;
   draggable?: boolean;
   onClick?: () => void;
   onEdit?: (shortcut: Shortcut) => void;
   onRemove?: (shortcut: Shortcut) => void;
+  removeLabel?: string;
   className?: string;
 }
 
 export function ShortcutTile({
   shortcut,
+  appearance = 'tile',
   draggable = true,
   onClick,
   onEdit,
   onRemove,
+  removeLabel = 'Remove',
   className,
 }: ShortcutTileProps): ReactElement {
   const { url, name, iconUrl, color = 'burger' } = shortcut;
@@ -129,16 +129,39 @@ export function ShortcutTile({
     [onClick],
   );
 
+  const pointerOriginRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      pointerOriginRef.current = { x: event.clientX, y: event.clientY };
+    },
+    [],
+  );
+
+  const didPointerTravel = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>): boolean => {
+      const origin = pointerOriginRef.current;
+      pointerOriginRef.current = null;
+      if (!origin) {
+        return false;
+      }
+      const dx = event.clientX - origin.x;
+      const dy = event.clientY - origin.y;
+      return dx * dx + dy * dy >= 25;
+    },
+    [],
+  );
+
   const handleAnchorClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      if (isDragging) {
+      if (isDragging || didPointerTravel(event)) {
         event.preventDefault();
         event.stopPropagation();
         return;
       }
       onClick?.();
     },
-    [isDragging, onClick],
+    [didPointerTravel, isDragging, onClick],
   );
 
   const finalIconSrc =
@@ -155,91 +178,168 @@ export function ShortcutTile({
     event.stopPropagation();
   };
 
-  const menuOptions = [
-    ...(onEdit
-      ? [
-          {
-            icon: <WrappingMenuIcon Icon={EditIcon} />,
-            label: 'Edit',
-            action: () => onEdit(shortcut),
-          },
-        ]
-      : []),
-    ...(onRemove
-      ? [
-          {
-            icon: <WrappingMenuIcon Icon={TrashIcon} />,
-            label: 'Remove',
-            action: () => onRemove(shortcut),
-          },
-        ]
-      : []),
-  ];
+  const useQuickRemove = !!onRemove && !onEdit;
+
+  const menuOptions = useQuickRemove
+    ? []
+    : [
+        ...(onEdit
+          ? [
+              {
+                icon: <WrappingMenuIcon Icon={EditIcon} />,
+                label: 'Edit',
+                action: () => onEdit(shortcut),
+              },
+            ]
+          : []),
+        ...(onRemove
+          ? [
+              {
+                icon: <WrappingMenuIcon Icon={TrashIcon} />,
+                label: removeLabel,
+                action: () => onRemove(shortcut),
+              },
+            ]
+          : []),
+      ];
+
+  const dragHandleProps = draggable ? { ...attributes, ...listeners } : {};
+
+  const isChip = appearance === 'chip';
+  const isIconOnly = appearance === 'icon';
+
+  // Favicon/letter renderer, sized per appearance. Chip mode uses a smaller
+  // 16px glyph to fit the compact pill; tile/icon modes stay at the roomier
+  // 24px favicon the rest of the feature uses.
+  const iconContent = shouldShowFavicon ? (
+    <img
+      src={finalIconSrc}
+      alt=""
+      onError={handleIconError}
+      className={classNames('rounded-4', isChip ? 'size-5' : 'size-6')}
+    />
+  ) : (
+    <LetterChip name={label} color={color} size={isChip ? 'sm' : 'lg'} />
+  );
+
+  // Anchor (the clickable favicon box). Tile/icon modes make it the whole
+  // square; chip mode makes it a compact slot inside a horizontal pill.
+  const anchorCommon = {
+    href: url,
+    rel: 'noopener noreferrer',
+    onPointerDown: handlePointerDown,
+    onKeyDown: handleKey,
+    'aria-label': label,
+  };
+
+  // Outer container styling per appearance:
+  // - tile : 76px-wide column with label underneath (Chrome new tab).
+  // - icon : compact square (iOS dock / Arc pinned tabs).
+  // - chip : horizontal pill with favicon + label (Chrome bookmarks bar).
+  const containerClass = classNames(
+    'group relative outline-none transition-colors duration-150 ease-out motion-reduce:transition-none',
+    isChip
+      ? 'flex h-9 max-w-[200px] items-center gap-2 rounded-10 bg-surface-float pl-2 pr-2 hover:bg-background-default focus-within:bg-background-default'
+      : isIconOnly
+      ? 'flex size-12 items-center justify-center rounded-12 hover:bg-surface-float focus-within:bg-surface-float'
+      : 'flex w-[76px] flex-col items-center rounded-14 p-2 hover:bg-surface-float focus-within:bg-surface-float',
+    draggable && 'cursor-grab active:cursor-grabbing',
+    isDragging &&
+      'z-10 rotate-[-2deg] bg-surface-float shadow-2 motion-reduce:rotate-0',
+    className,
+  );
+
+  // Action button position changes with layout so it always sits on an
+  // outside corner rather than over the label.
+  const actionBtnPositionClass = isChip
+    ? 'absolute -right-1 -top-1'
+    : 'absolute right-0.5 top-0.5';
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={classNames(
-        'group relative flex w-[68px] flex-col items-center',
-        isDragging && 'z-10 opacity-60 motion-reduce:opacity-100',
-        className,
-      )}
+      {...dragHandleProps}
+      className={containerClass}
+      title={isIconOnly || isChip ? label : undefined}
     >
-      <a
-        href={url}
-        rel="noopener noreferrer"
-        {...combinedClicks(handleAnchorClick)}
-        onKeyDown={handleKey}
-        className={classNames(
-          'relative mb-2 flex size-12 items-center justify-center overflow-hidden rounded-14 bg-surface-float text-text-secondary transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-subtlest-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-          colorGlowClass[color],
-        )}
-        aria-label={label}
-      >
-        {shouldShowFavicon ? (
-          <img
-            src={finalIconSrc}
-            alt={label}
-            onError={handleIconError}
-            className="size-6 rounded-4"
-          />
-        ) : (
-          <LetterChip name={label} color={color} size="lg" />
-        )}
-      </a>
-      <span
-        className="max-w-16 truncate text-center text-text-tertiary transition-colors duration-150 typo-caption2 group-hover:text-text-primary"
-        title={label}
-      >
-        {label}
-      </span>
+      {isChip ? (
+        // CHIP: single pill, favicon on the left inside the pill, text right.
+        <a
+          {...combinedClicks(handleAnchorClick)}
+          {...anchorCommon}
+          className="flex min-w-0 flex-1 items-center gap-2 focus-visible:outline-none"
+        >
+          <span className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-6">
+            {iconContent}
+          </span>
+          <span className="min-w-0 flex-1 truncate text-text-primary typo-caption1">
+            {label}
+          </span>
+        </a>
+      ) : isIconOnly ? (
+        // ICON ONLY: just the favicon box, no label.
+        <a
+          {...combinedClicks(handleAnchorClick)}
+          {...anchorCommon}
+          className="relative flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none"
+        >
+          {iconContent}
+        </a>
+      ) : (
+        // TILE: favicon square + label under (default Chrome new-tab style).
+        <>
+          <a
+            {...combinedClicks(handleAnchorClick)}
+            {...anchorCommon}
+            className="relative mb-1.5 flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none"
+          >
+            {iconContent}
+          </a>
+          <span
+            className="max-w-full truncate text-center text-text-secondary typo-caption2 group-hover:text-text-primary"
+            title={label}
+          >
+            {label}
+          </span>
+        </>
+      )}
 
-      {draggable && (
+      {useQuickRemove && (
         <button
           type="button"
-          aria-label={`Drag to reorder ${label}`}
-          className="absolute -left-1 -top-1 flex size-5 cursor-grab items-center justify-center rounded-full border border-border-subtlest-tertiary bg-surface-primary text-text-tertiary opacity-0 shadow-1 transition-all duration-150 hover:bg-surface-hover hover:text-text-primary focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing motion-reduce:transition-none"
-          {...attributes}
-          {...listeners}
+          aria-label={`${removeLabel} ${label}`}
+          title={`${removeLabel} ${label}`}
+          onClick={(event) => {
+            stop(event);
+            onRemove?.(shortcut);
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+          className={classNames(
+            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-[opacity,background-color] duration-150 focus-visible:opacity-100 hover:bg-accent-ketchup-default hover:text-white group-hover:opacity-100 motion-reduce:transition-none',
+            actionBtnPositionClass,
+          )}
         >
-          <DragIcon size={IconSize.XSmall} />
+          <MiniCloseIcon size={IconSize.XXSmall} />
         </button>
       )}
 
       {menuOptions.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
+            <button
               type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.XSmall}
               aria-label={`${label} actions`}
               aria-haspopup="menu"
               onClick={stop}
-              icon={<MenuIcon />}
-              className="!absolute -right-1 -top-1 border border-border-subtlest-tertiary bg-surface-primary opacity-0 shadow-1 transition-all duration-150 hover:bg-surface-hover focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none"
-            />
+              onPointerDown={(event) => event.stopPropagation()}
+              className={classNames(
+                'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-opacity duration-150 focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
+                actionBtnPositionClass,
+              )}
+            >
+              <MenuIcon size={IconSize.XXSmall} />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuOptions options={menuOptions} />
