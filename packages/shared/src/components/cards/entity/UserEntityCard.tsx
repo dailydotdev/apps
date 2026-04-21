@@ -192,7 +192,7 @@ const UserEntityCard = ({ user, className }: Props) => {
             dateFormat="MMM d. yyyy"
           />
         </div>
-        <div className="flex gap-2 truncate">
+        <div className="flex min-w-0 gap-2">
           {!!user?.reputation && (
             <div className="rounded-8 border border-border-subtlest-tertiary px-2">
               <ReputationUserBadge
@@ -209,9 +209,6 @@ const UserEntityCard = ({ user, className }: Props) => {
             user={user}
             showCompanyName
             showVerified
-            companyNameTypography={{
-              type: TypographyType.Footnote,
-            }}
           />
         </div>
         {bio && <EntityDescription copy={bio} length={100} />}

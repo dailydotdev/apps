@@ -59,7 +59,7 @@ export const VerifiedCompanyUserBadge = ({
         />
         {showCompanyName && (
           <Typography
-            type={companyNameTypography?.type}
+            type={companyNameTypography?.type ?? TypographyType.Footnote}
             color={companyNameTypography?.color || TypographyColor.Secondary}
             truncate
           >
