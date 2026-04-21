@@ -26,7 +26,7 @@ import { labels } from '../lib';
 import { Origin } from '../lib/log';
 import { useEventListener } from './useEventListener';
 import { broadcastChannel, webappUrl } from '../lib/constants';
-import { isIOSNative } from '../lib/func';
+import { shouldUseSocialAuthPopup } from '../lib/func';
 
 interface UseLogin {
   isPasswordLoginLoading?: boolean;
@@ -178,8 +178,8 @@ const useLogin = ({
         }
         return;
       }
-      const isIOSApp = isIOSNative();
-      const socialPopup = isIOSApp ? null : window.open();
+      const shouldUsePopup = shouldUseSocialAuthPopup();
+      const socialPopup = shouldUsePopup ? window.open() : null;
       const callbackURL = `${webappUrl}callback?login=true`;
       const { url: socialUrl, error } = await getBetterAuthSocialRedirectData(
         provider,
@@ -197,22 +197,11 @@ const useLogin = ({
         displayToast(labels.auth.error.generic);
         return;
       }
-      if (isIOSApp) {
-        window.location.href = socialUrl;
-        return;
-      }
       if (socialPopup) {
         socialPopup.location.href = socialUrl;
         return;
       }
-      logEvent({
-        event_name: AuthEventNames.LoginError,
-        extra: JSON.stringify({
-          error: 'Failed to open social login window',
-          origin: Origin.BetterAuthSocialPopup,
-        }),
-      });
-      displayToast(labels.auth.error.generic);
+      window.location.href = socialUrl;
     },
     [displayToast, logEvent, refetchBoot, onUpdateSignBack],
   );

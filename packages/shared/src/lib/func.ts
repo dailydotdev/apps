@@ -216,6 +216,18 @@ export const isMobile = (): boolean =>
 export const shouldUseNativeShare = (): boolean =>
   'share' in globalThis?.navigator && isMobile();
 
+export const shouldUseSocialAuthPopup = (): boolean => {
+  if (isIOSNative()) {
+    return false;
+  }
+
+  if (isBrave() && isMobile()) {
+    return false;
+  }
+
+  return true;
+};
+
 interface BroadcastMessage {
   eventKey: string;
   [key: string]: unknown;
