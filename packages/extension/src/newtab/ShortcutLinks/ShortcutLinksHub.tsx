@@ -21,6 +21,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -363,9 +364,8 @@ export function ShortcutLinksHub({
             aria-label="Shortcut options"
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-[260px]">
+        <DropdownMenuContent align="end">
           <SourceModeToggleItem isAuto={isAuto} onToggle={toggleSourceMode} />
-          <div className="my-1 h-px bg-border-subtlest-tertiary" aria-hidden />
           <DropdownMenuOptions options={menuOptions} />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -378,11 +378,13 @@ interface SourceModeToggleItemProps {
   onToggle: () => void;
 }
 
-// A stable menu row that flips source mode in place. Lives inside the
-// DropdownMenuContent so the surrounding options don't shuffle when the mode
-// changes. We call `preventDefault` on `onSelect` so the menu stays open after
-// toggling, matching the mental model of "I'm adjusting a setting, not
-// triggering an action".
+// Stable menu row that flips source mode in place. Uses the same metrics as
+// standard DropdownMenuOptions rows (h-7, typo-footnote, MenuIcon wrapper) so
+// the dropdown reads as one dense list — matching the PostOptionButton
+// convention. The enclosing DropdownMenuItem owns click + keyboard; the
+// native Switch is pointer-events-none so clicks fall through to the row
+// handler and `preventDefault` on `onSelect` keeps the menu open after
+// toggling (it's a setting, not an action).
 function SourceModeToggleItem({
   isAuto,
   onToggle,
@@ -395,40 +397,20 @@ function SourceModeToggleItem({
         event.preventDefault();
         onToggle();
       }}
-      className="!items-start !gap-3 !py-2.5"
     >
-      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-text-tertiary">
-        <SitesIcon />
+      <span className="inline-flex flex-1 items-center gap-2">
+        <WrappingMenuIcon Icon={SitesIcon} />
+        <span className="flex-1 truncate">Most visited sites</span>
+        <Switch
+          inputId="shortcuts-source-toggle"
+          name="shortcuts-source-toggle"
+          checked={isAuto}
+          onToggle={onToggle}
+          aria-label="Most visited sites"
+          className="pointer-events-none ml-2"
+          compact
+        />
       </span>
-      <span className="flex flex-1 flex-col gap-0.5 text-left">
-        <span className="text-text-primary typo-callout">
-          Most visited sites
-        </span>
-        <span className="text-text-tertiary typo-caption1">
-          Auto-fill from your browsing history
-        </span>
-      </span>
-      <SwitchTrack checked={isAuto} />
     </DropdownMenuItem>
-  );
-}
-
-// Visual-only switch. The enclosing menu item owns click + keyboard handling.
-function SwitchTrack({ checked }: { checked: boolean }): ReactElement {
-  return (
-    <span
-      aria-hidden
-      className={classNames(
-        'relative mt-0.5 inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-150 motion-reduce:transition-none',
-        checked ? 'bg-accent-cabbage-default' : 'bg-surface-float',
-      )}
-    >
-      <span
-        className={classNames(
-          'inline-block size-4 rounded-full bg-white shadow-2 transition-transform duration-150 motion-reduce:transition-none',
-          checked ? 'translate-x-[18px]' : 'translate-x-0.5',
-        )}
-      />
-    </span>
   );
 }
