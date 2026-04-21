@@ -274,6 +274,7 @@ export const getFeedName = (
 export type FeedAdTemplate = {
   adStart: number;
   adRepeat?: number;
+  adJitter?: number;
 };
 
 export function usePostLogEvent() {

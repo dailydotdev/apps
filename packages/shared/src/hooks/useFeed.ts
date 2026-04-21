@@ -150,6 +150,50 @@ export interface UseFeedOptionalParams<T> {
   onEmptyFeed?: () => void;
 }
 
+/* eslint-disable no-bitwise -- intentional bitwise ops for FNV-1a hash */
+const hashSeed = (key: string, n: number): number => {
+  let h = 2166136261 >>> 0;
+  const s = `${key}:${n}`;
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+};
+/* eslint-enable no-bitwise */
+
+export const getAdSlotIndex = ({
+  index,
+  adStart,
+  adRepeat,
+  adJitter = 0,
+  seed,
+}: {
+  index: number;
+  adStart: number;
+  adRepeat: number;
+  adJitter?: number;
+  seed: string;
+}): number | undefined => {
+  if (adRepeat <= 0) {
+    return undefined;
+  }
+  const safeJitter = Math.max(
+    0,
+    Math.min(adJitter, Math.floor((adRepeat - 1) / 2)),
+  );
+  if (index < adStart - safeJitter) {
+    return undefined;
+  }
+  const n = Math.max(0, Math.round((index - adStart) / adRepeat));
+  const offset =
+    safeJitter === 0
+      ? 0
+      : (hashSeed(seed, n) % (safeJitter * 2 + 1)) - safeJitter;
+  const pos = adStart + n * adRepeat + offset;
+  return pos === index ? n : undefined;
+};
+
 export default function useFeed<T>(
   feedQueryKey: QueryKey,
   pageSize: number,
@@ -318,20 +362,19 @@ export default function useFeed<T>(
         adTemplate?.adStart ??
         featureFeedAdTemplate.defaultValue.default.adStart;
       const adRepeat = adTemplate?.adRepeat ?? pageSize + 1;
+      const adJitter = adTemplate?.adJitter ?? 0;
 
-      const adIndex = index - adStart; // 0-based index from adStart
+      const adPage = getAdSlotIndex({
+        index,
+        adStart,
+        adRepeat,
+        adJitter,
+        seed: JSON.stringify(feedQueryKey),
+      });
 
-      // if adIndex is negative, it means we are not supposed to show ads yet based on adStart
-      if (adIndex < 0) {
+      if (adPage === undefined) {
         return undefined;
       }
-      const adMatch = adIndex % adRepeat === 0; // should ad be shown at this index based on adRepeat
-
-      if (!adMatch) {
-        return undefined;
-      }
-
-      const adPage = adIndex / adRepeat; // page number for ad
 
       if (isLoading) {
         return createPlaceholderItem(adPage);
@@ -365,8 +408,10 @@ export default function useFeed<T>(
       isLoading,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
+      adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
+      feedQueryKey,
     ],
   );
 
