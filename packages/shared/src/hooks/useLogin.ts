@@ -78,6 +78,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider: 'password',
             error: res.error,
             displayedError: labels.auth.error.invalidEmailOrPassword,
             origin: Origin.BetterAuthEmailLogin,
@@ -95,6 +96,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider: 'password',
               error: 'Missing user after Better Auth email login',
               origin: Origin.BetterAuthEmailLoginBoot,
             }),
@@ -112,6 +114,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider: 'password',
             error: getBetterAuthErrorMessage(
               error,
               'Failed to refresh Better Auth login state',
@@ -140,6 +143,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider,
               error: result.error,
               origin: Origin.BetterAuthNativeIdToken,
             }),
@@ -152,6 +156,7 @@ const useLogin = ({
             logEvent({
               event_name: AuthEventNames.LoginError,
               extra: JSON.stringify({
+                provider,
                 error: 'Missing user after Better Auth social login',
                 origin: Origin.BetterAuthNativeIdTokenBoot,
               }),
@@ -167,6 +172,7 @@ const useLogin = ({
           logEvent({
             event_name: AuthEventNames.LoginError,
             extra: JSON.stringify({
+              provider,
               error: getBetterAuthErrorMessage(
                 error,
                 'Failed to refresh Better Auth social login state',
@@ -189,6 +195,7 @@ const useLogin = ({
         logEvent({
           event_name: AuthEventNames.LoginError,
           extra: JSON.stringify({
+            provider,
             error: error || 'Failed to get social login URL',
             origin: Origin.BetterAuthSocialUrl,
           }),

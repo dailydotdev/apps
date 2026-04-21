@@ -427,6 +427,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error: callbackError,
           origin: 'betterauth social auth callback',
           data:
@@ -445,6 +446,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error: getBetterAuthErrorMessage(
             error,
             'Failed to refresh Better Auth social auth state',
@@ -463,6 +465,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error:
             'Could not find authenticated user after social authentication',
           origin: 'betterauth social auth boot',
@@ -541,6 +544,7 @@ function AuthOptionsInner({
         logEvent({
           event_name: authErrorEventName,
           extra: JSON.stringify({
+            provider,
             error: result.error,
             origin: 'betterauth native id token',
           }),
@@ -569,6 +573,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: authErrorEventName,
         extra: JSON.stringify({
+          provider,
           error: error || 'Failed to get social login URL',
           origin: 'betterauth social url',
         }),
