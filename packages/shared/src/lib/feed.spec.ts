@@ -1,4 +1,4 @@
-import { getAdSlotIndex } from './useFeed';
+import { getAdSlotIndex } from './feed';
 
 describe('getAdSlotIndex', () => {
   const seed = '["feed","my-feed"]';
@@ -16,13 +16,43 @@ describe('getAdSlotIndex', () => {
     expect(positions).toEqual([2, 7, 12, 17, 22, 27, 32, 37]);
   });
 
-  it('returns undefined for indices before the first possible ad slot', () => {
+  it('returns undefined for indices before adStart (no jitter)', () => {
+    const adStart = 2;
+    const adRepeat = 5;
+    expect(
+      getAdSlotIndex({ index: 0, adStart, adRepeat, seed }),
+    ).toBeUndefined();
+    expect(
+      getAdSlotIndex({ index: 1, adStart, adRepeat, seed }),
+    ).toBeUndefined();
+  });
+
+  it('returns undefined for non-positive adRepeat', () => {
+    expect(
+      getAdSlotIndex({ index: 2, adStart: 2, adRepeat: 0, seed }),
+    ).toBeUndefined();
+  });
+
+  it('never places the first ad before adStart, even with jitter', () => {
     const adStart = 2;
     const adRepeat = 5;
     const adJitter = 2;
-    expect(
-      getAdSlotIndex({ index: -1, adStart, adRepeat, adJitter, seed }),
-    ).toBeUndefined();
+    const seeds = Array.from({ length: 50 }, (_, i) => `["feed","user-${i}"]`);
+    seeds.forEach((s) => {
+      let firstHit: number | undefined;
+      for (let index = 0; index < adRepeat; index += 1) {
+        if (
+          getAdSlotIndex({ index, adStart, adRepeat, adJitter, seed: s }) !==
+          undefined
+        ) {
+          firstHit = index;
+          break;
+        }
+      }
+      expect(firstHit).toBeDefined();
+      expect(firstHit).toBeGreaterThanOrEqual(adStart);
+      expect(firstHit).toBeLessThanOrEqual(adStart + adJitter);
+    });
   });
 
   it('keeps jittered positions inside the expected window per slot', () => {
@@ -47,7 +77,8 @@ describe('getAdSlotIndex', () => {
     Array.from(windows.entries()).forEach(([n, hits]) => {
       expect(hits).toHaveLength(1);
       const center = adStart + n * adRepeat;
-      expect(hits[0]).toBeGreaterThanOrEqual(center - adJitter);
+      const lowerBound = n === 0 ? adStart : center - adJitter;
+      expect(hits[0]).toBeGreaterThanOrEqual(lowerBound);
       expect(hits[0]).toBeLessThanOrEqual(center + adJitter);
     });
     expect(windows.size).toBeGreaterThanOrEqual(10);

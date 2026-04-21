@@ -277,6 +277,53 @@ export type FeedAdTemplate = {
   adJitter?: number;
 };
 
+/* eslint-disable no-bitwise -- intentional bitwise ops for FNV-1a hash */
+const hashSeed = (key: string, n: number): number => {
+  let h = 2166136261 >>> 0;
+  const s = `${key}:${n}`;
+  for (let i = 0; i < s.length; i += 1) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+};
+/* eslint-enable no-bitwise */
+
+export const getAdSlotIndex = ({
+  index,
+  adStart,
+  adRepeat,
+  adJitter = 0,
+  seed,
+}: {
+  index: number;
+  adStart: number;
+  adRepeat: number;
+  adJitter?: number;
+  seed: string;
+}): number | undefined => {
+  if (adRepeat <= 0) {
+    return undefined;
+  }
+  if (index < adStart) {
+    return undefined;
+  }
+  const safeJitter = Math.max(
+    0,
+    Math.min(adJitter, Math.floor((adRepeat - 1) / 2)),
+  );
+  const n = Math.max(0, Math.round((index - adStart) / adRepeat));
+  // For n === 0, only allow non-negative jitter so the first ad never lands
+  // before adStart. For n > 0, jitter is symmetric around the cadence.
+  const isFirst = n === 0;
+  const range = isFirst ? safeJitter + 1 : safeJitter * 2 + 1;
+  const baseOffset = isFirst ? 0 : -safeJitter;
+  const offset =
+    safeJitter === 0 ? 0 : (hashSeed(seed, n) % range) + baseOffset;
+  const pos = adStart + n * adRepeat + offset;
+  return pos === index ? n : undefined;
+};
+
 export function usePostLogEvent() {
   const { boostedBy } = useFeedCardContext();
 

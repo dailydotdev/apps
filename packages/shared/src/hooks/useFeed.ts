@@ -29,6 +29,7 @@ import { usePlusSubscription } from './usePlusSubscription';
 import { LogEvent } from '../lib/log';
 import { useLogContext } from '../contexts/LogContext';
 import type { FeedAdTemplate } from '../lib/feed';
+import { getAdSlotIndex } from '../lib/feed';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
 import { cloudinaryPostImageCoverPlaceholder } from '../lib/image';
 import { AD_PLACEHOLDER_SOURCE_ID } from '../lib/constants';
@@ -149,50 +150,6 @@ export interface UseFeedOptionalParams<T> {
   settings?: UseFeedSettingParams;
   onEmptyFeed?: () => void;
 }
-
-/* eslint-disable no-bitwise -- intentional bitwise ops for FNV-1a hash */
-const hashSeed = (key: string, n: number): number => {
-  let h = 2166136261 >>> 0;
-  const s = `${key}:${n}`;
-  for (let i = 0; i < s.length; i += 1) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
-  }
-  return h;
-};
-/* eslint-enable no-bitwise */
-
-export const getAdSlotIndex = ({
-  index,
-  adStart,
-  adRepeat,
-  adJitter = 0,
-  seed,
-}: {
-  index: number;
-  adStart: number;
-  adRepeat: number;
-  adJitter?: number;
-  seed: string;
-}): number | undefined => {
-  if (adRepeat <= 0) {
-    return undefined;
-  }
-  const safeJitter = Math.max(
-    0,
-    Math.min(adJitter, Math.floor((adRepeat - 1) / 2)),
-  );
-  if (index < adStart - safeJitter) {
-    return undefined;
-  }
-  const n = Math.max(0, Math.round((index - adStart) / adRepeat));
-  const offset =
-    safeJitter === 0
-      ? 0
-      : (hashSeed(seed, n) % (safeJitter * 2 + 1)) - safeJitter;
-  const pos = adStart + n * adRepeat + offset;
-  return pos === index ? n : undefined;
-};
 
 export default function useFeed<T>(
   feedQueryKey: QueryKey,
