@@ -256,15 +256,18 @@ export function ShortcutLinksHub({
   };
 
   const menuOptions = [
-    {
-      icon: <WrappingMenuIcon Icon={PlusIcon} />,
-      label: 'Add shortcut',
-      action: onAdd,
-      disabled: isAuto,
-      ariaLabel: isAuto
-        ? 'Add shortcut (available in My shortcuts mode)'
-        : 'Add shortcut',
-    },
+    // "Add shortcut" only appears in manual mode. In auto mode the row is
+    // populated from browser history, so surfacing a disabled add item would
+    // be noise. The toggle at the top handles the mode switch.
+    ...(isAuto
+      ? []
+      : [
+          {
+            icon: <WrappingMenuIcon Icon={PlusIcon} />,
+            label: 'Add shortcut',
+            action: onAdd,
+          },
+        ]),
     {
       icon: <WrappingMenuIcon Icon={SettingsIcon} />,
       label: 'Manage shortcuts…',
@@ -366,6 +369,10 @@ export function ShortcutLinksHub({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <SourceModeToggleItem isAuto={isAuto} onToggle={toggleSourceMode} />
+          <div
+            aria-hidden
+            className="mx-2 my-1 h-px bg-border-subtlest-tertiary"
+          />
           <DropdownMenuOptions options={menuOptions} />
         </DropdownMenuContent>
       </DropdownMenu>

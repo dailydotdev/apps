@@ -6,8 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import classNames from 'classnames';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../../../../components/typography/Typography';
 import ControlledTextField from '../../../../components/fields/ControlledTextField';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
@@ -163,19 +169,20 @@ export default function ShortcutEditModal({
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Small} {...props}>
-      <Modal.Header>
-        <Modal.Title>
+      {/* Title uses the same Body+bold rhythm as the Manage modal so the two
+          surfaces feel like siblings, not different products. */}
+      <Modal.Header showCloseButton>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           {mode === 'add' ? 'Add shortcut' : 'Edit shortcut'}
-        </Modal.Title>
+        </Typography>
       </Modal.Header>
       <Modal.Body>
         <FormProvider {...methods}>
           <form id="shortcut-edit-form" onSubmit={onSubmit}>
             {/* Icon-first: a single tappable avatar at the top. The favicon
                 derived from the URL fills it by default; uploading swaps it
-                out. No secondary preview tile — users don't need to see the
-                shortcut re-rendered to know what it'll look like. */}
-            <div className="mb-6 flex flex-col items-center gap-3">
+                out. */}
+            <div className="mb-5 flex flex-col items-center gap-2">
               <button
                 type="button"
                 onClick={openFilePicker}
@@ -183,10 +190,7 @@ export default function ShortcutEditModal({
                   hasCustomIcon ? 'Replace shortcut icon' : 'Upload shortcut icon'
                 }
                 className={classNames(
-                  // Flat avatar picker. Hover reveals the "Upload" overlay
-                  // and swaps the surface to a quieter neutral \u2014 no lift, no
-                  // accent border flash, the camera glyph does the talking.
-                  'group relative flex size-20 items-center justify-center overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-border-subtlest-secondary hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
+                  'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-border-subtlest-secondary hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
                   isUploading && 'opacity-60',
                 )}
               >
@@ -201,12 +205,12 @@ export default function ShortcutEditModal({
                     src={faviconSrc}
                     alt=""
                     onError={() => setFaviconFailed(true)}
-                    className="size-10 rounded-8"
+                    className="size-8 rounded-6"
                   />
                 ) : (
                   <EarthIcon
                     secondary
-                    className="size-8 text-text-tertiary"
+                    className="size-6 text-text-tertiary"
                   />
                 )}
                 <span
@@ -223,13 +227,12 @@ export default function ShortcutEditModal({
                 className="sr-only"
                 onChange={(event) => {
                   onFileChange(event.target.files?.[0] ?? null);
-                  // Reset so the same file can be reselected after clearing.
                   event.target.value = '';
                 }}
               />
               <div
                 aria-live="polite"
-                className="min-h-[20px] text-center text-text-tertiary typo-caption1"
+                className="min-h-[18px] text-center text-text-tertiary typo-caption1"
               >
                 {isUploading ? (
                   <span className="inline-flex items-center gap-2 text-text-tertiary">
@@ -246,25 +249,23 @@ export default function ShortcutEditModal({
                   </button>
                 ) : (
                   <span>
-                    {faviconSrc
-                      ? 'Using site favicon. Click the avatar to upload your own.'
-                      : 'Click the avatar to upload an icon.'}
+                    {faviconSrc ? 'Tap to upload your own' : 'Tap to upload'}
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <ControlledTextField
+                name="url"
+                label="URL"
+                placeholder="https://example.com"
+              />
               <ControlledTextField
                 name="name"
                 label="Name (optional)"
                 placeholder="My shortcut"
                 hint="Max 40 characters"
-              />
-              <ControlledTextField
-                name="url"
-                label="URL"
-                placeholder="https://example.com"
               />
               <button
                 type="button"
@@ -290,6 +291,7 @@ export default function ShortcutEditModal({
         <Button
           type="button"
           variant={ButtonVariant.Float}
+          size={ButtonSize.Small}
           onClick={() => props.onRequestClose?.(undefined as never)}
         >
           Cancel
@@ -298,6 +300,7 @@ export default function ShortcutEditModal({
           type="submit"
           form="shortcut-edit-form"
           variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
           disabled={isSubmitting || isUploading}
         >
           {mode === 'add' ? 'Add' : 'Save'}
