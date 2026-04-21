@@ -30,6 +30,7 @@ export enum FunnelStepType {
   OrganicSignup = 'organicRegistration',
   OrganicCheckout = 'organicCheckout',
   BrowserExtension = 'browserExtension',
+  BrowserExtensionModal = 'browserExtensionModal',
   UploadCv = 'uploadCv',
 }
 
@@ -349,6 +350,17 @@ export interface FunnelStepBrowserExtension
   }>;
 }
 
+export interface FunnelStepBrowserExtensionModal
+  extends FunnelStepCommon<{
+    headline: string;
+    explainer: string;
+  }> {
+  type: FunnelStepType.BrowserExtensionModal;
+  onTransition: FunnelStepTransitionCallback<{
+    browserName: BrowserName;
+  }>;
+}
+
 export interface FunnelStepUploadCv
   extends FunnelStepCommon<{
     headline: string;
@@ -387,6 +399,7 @@ export type FunnelStep =
   | FunnelStepOrganicSignup
   | FunnelStepOrganicCheckout
   | FunnelStepBrowserExtension
+  | FunnelStepBrowserExtensionModal
   | FunnelStepPlusCards
   | FunnelStepUploadCv;
 
@@ -437,4 +450,8 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+];
+
+export const stepsAsOverlay: Array<FunnelStepType> = [
+  FunnelStepType.BrowserExtensionModal,
 ];
