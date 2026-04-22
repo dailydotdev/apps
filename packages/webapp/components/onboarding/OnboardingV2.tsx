@@ -290,9 +290,13 @@ export const OnboardingV2 = (): ReactElement => {
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
 
-  const popularFeedNameValue = useMemo(
-    () => ({ feedName: SharedFeedPage.Popular as const }),
-    [],
+  const showPersonalizedFeed = step === 'complete' && isLoggedIn;
+  const activeFeedName = showPersonalizedFeed
+    ? SharedFeedPage.MyFeed
+    : SharedFeedPage.Popular;
+  const activeFeedNameValue = useMemo(
+    () => ({ feedName: activeFeedName }),
+    [activeFeedName],
   );
 
   const openSignup = useCallback(
@@ -1316,8 +1320,13 @@ export const OnboardingV2 = (): ReactElement => {
       >
         <SearchProvider>
           <FeedLayoutProvider>
-            <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-              <MainFeedLayout feedName="popular" isSearchOn={false} />
+            <ActiveFeedNameContext.Provider value={activeFeedNameValue}>
+              <MainFeedLayout
+                feedName={showPersonalizedFeed ? 'default' : 'popular'}
+                isSearchOn={false}
+                hideFeedActionButtons
+                disableBriefCard
+              />
             </ActiveFeedNameContext.Provider>
           </FeedLayoutProvider>
         </SearchProvider>
