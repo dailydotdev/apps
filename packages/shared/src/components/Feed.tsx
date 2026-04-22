@@ -75,6 +75,7 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -332,11 +333,13 @@ export default function Feed<T>({
     feature: featureReaderModal,
     shouldEvaluate: true,
   });
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const forceLegacyPostModalInDev =
     isDevelopment && process.env.NEXT_PUBLIC_FORCE_LEGACY_POST_MODAL === 'true';
-  const isReaderModalOn = isDevelopment
+  const isReaderModalFromConfig = isDevelopment
     ? !forceLegacyPostModalInDev
     : readerModalFromGrowthBook;
+  const isReaderModalOn = isReaderModalFromConfig && !isLegacyLayoutOptedOut;
   const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>

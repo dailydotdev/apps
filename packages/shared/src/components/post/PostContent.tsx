@@ -38,6 +38,7 @@ import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EarthIcon, MiniCloseIcon } from '../icons';
 import { Drawer } from '../drawers/Drawer';
+import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -134,8 +135,10 @@ export function PostContentRaw({
       ? post.permalink
       : null;
 
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const showArticlePreviewEmbed =
     isPreviewHydrated &&
+    !isLegacyLayoutOptedOut &&
     !isVideoType &&
     post.type === PostType.Article &&
     embedArticleTargetUrl !== null;
