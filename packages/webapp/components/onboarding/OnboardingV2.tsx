@@ -189,10 +189,9 @@ export const OnboardingV2 = (): ReactElement => {
     ONBOARDING_AI_PROMPT_KEY,
     '',
   );
-  const [extensionSeen, setExtensionSeen] = usePersistentContext<boolean>(
-    ONBOARDING_EXTENSION_SEEN_KEY,
-    false,
-  );
+  const [extensionSeen, setExtensionSeen, isExtensionSeenFetched] =
+    usePersistentContext<boolean>(ONBOARDING_EXTENSION_SEEN_KEY, false);
+  const shouldShowExtension = showExtensionCta && !extensionSeen;
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [isLoginFlow, setIsLoginFlow] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(true);
@@ -404,7 +403,7 @@ export const OnboardingV2 = (): ReactElement => {
             setImportExiting(true);
             trackTimer(() => {
               setImportExiting(false);
-              setStep(showExtensionCta ? 'extension' : 'complete');
+              setStep(shouldShowExtension ? 'extension' : 'complete');
             }, 350);
           }, 600);
         }, FINISHING_ANIMATION_MS);
@@ -418,7 +417,7 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction,
       router,
       trackTimer,
-      showExtensionCta,
+      shouldShowExtension,
     ],
   );
 
@@ -473,11 +472,11 @@ export const OnboardingV2 = (): ReactElement => {
         return;
       }
 
-      if (extensionSeen || !showExtensionCta) {
-        setStep('complete');
-      } else {
-        setStep('extension');
+      if (!isExtensionSeenFetched) {
+        return;
       }
+
+      setStep(shouldShowExtension ? 'extension' : 'complete');
 
       return;
     }
@@ -527,7 +526,8 @@ export const OnboardingV2 = (): ReactElement => {
     isLoggedIn,
     isOnboardingActionsReady,
     isOnboardingComplete,
-    extensionSeen,
+    isExtensionSeenFetched,
+    shouldShowExtension,
     aiPrompt,
     signupContext,
     step,
@@ -535,7 +535,6 @@ export const OnboardingV2 = (): ReactElement => {
     setSignupContext,
     startImportFlowGithub,
     startAiProcessing,
-    showExtensionCta,
   ]);
 
   useEffect(() => {
@@ -1287,7 +1286,7 @@ export const OnboardingV2 = (): ReactElement => {
                   pathname: `${webappUrl}onboarding`,
                   query: { ...router.query, step: 'complete' },
                 });
-                setStep(showExtensionCta ? 'extension' : 'complete');
+                setStep(shouldShowExtension ? 'extension' : 'complete');
               }}
               className="mx-auto mt-6 rounded-14 bg-white px-8 py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
             >
