@@ -1075,7 +1075,7 @@ export const OnboardingV2 = (): ReactElement => {
 
       {/* ── Feed (only on complete step — chooser lives in hero) ── */}
       {step === 'complete' && (
-        <div className="onb-feed-stage onb-feed-unlocked relative min-h-[50vh] translate-y-0 opacity-100 transition-[opacity,transform] duration-500 ease-out laptop:px-10">
+        <div className="onb-feed-stage relative min-h-[50vh] laptop:px-10">
           <SearchProvider>
             <FeedLayoutProvider>
               <ActiveFeedNameContext.Provider value={activeFeedNameValue}>
