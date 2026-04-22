@@ -45,6 +45,8 @@ import {
   useFeedLayout,
   useFeedVotePost,
   useMutationSubscription,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
@@ -339,7 +341,9 @@ export default function Feed<T>({
   const isReaderModalFromConfig = isDevelopment
     ? !forceLegacyPostModalInDev
     : readerModalFromGrowthBook;
-  const isReaderModalOn = isReaderModalFromConfig && !isLegacyLayoutOptedOut;
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  const isReaderModalOn =
+    isReaderModalFromConfig && !isLegacyLayoutOptedOut && isTabletViewport;
   const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>

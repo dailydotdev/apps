@@ -224,7 +224,9 @@ export const PostPage = ({
   const isReaderModalFromConfig = isDevelopment
     ? !forceLegacyPostModalInDev
     : readerModalFromGrowthBook;
-  const isReaderModalOn = isReaderModalFromConfig && !isLegacyLayoutOptedOut;
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  const isReaderModalOn =
+    isReaderModalFromConfig && !isLegacyLayoutOptedOut && isTabletViewport;
   const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(

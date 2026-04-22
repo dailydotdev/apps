@@ -1,5 +1,5 @@
 import type { MutableRefObject, ReactElement, RefObject } from 'react';
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { Post } from '../../../graphql/posts';
 
 export type ReaderContextValue = {
@@ -11,9 +11,6 @@ export type ReaderContextValue = {
   setRailWidthPx: (width: number) => void;
   focusCommentRef: MutableRefObject<() => void>;
   articleScrollRef: RefObject<HTMLDivElement | null>;
-  isShortcutHelpOpen: boolean;
-  setShortcutHelpOpen: (open: boolean) => void;
-  toggleShortcutHelp: () => void;
 };
 
 const ReaderContext = createContext<ReaderContextValue | null>(null);
@@ -42,24 +39,4 @@ export function useReaderContext(): ReaderContextValue {
 
 export function useOptionalReaderContext(): ReaderContextValue | null {
   return useContext(ReaderContext);
-}
-
-export function useReaderContextActions(): Pick<
-  ReaderContextValue,
-  'toggleRail' | 'toggleShortcutHelp'
-> & {
-  focusCommentComposer: () => void;
-} {
-  const { toggleRail, toggleShortcutHelp, focusCommentRef } =
-    useReaderContext();
-  return useMemo(
-    () => ({
-      toggleRail,
-      toggleShortcutHelp,
-      focusCommentComposer: () => {
-        focusCommentRef.current();
-      },
-    }),
-    [toggleRail, toggleShortcutHelp, focusCommentRef],
-  );
 }

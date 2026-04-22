@@ -20,6 +20,9 @@ import {
   TypographyType,
 } from '../typography/Typography';
 
+const FRAME_LOAD_TIMEOUT_MS = 7000;
+const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
+
 type PostArticlePreviewEmbedProps = {
   targetUrl: string;
   previewHost?: string;
@@ -29,17 +32,9 @@ type PostArticlePreviewEmbedProps = {
   forceUnavailable?: boolean;
 };
 
-const renderEmbedChrome = ({
-  extensionId,
-  state,
-}: {
-  extensionId: string | null;
-  state: UseExtensionSiteEmbedResult;
-}): ReactElement | null => {
-  if (!extensionId) {
-    return null;
-  }
-
+const renderEmbedChrome = (
+  state: UseExtensionSiteEmbedResult,
+): ReactElement | null => {
   if (state.status === 'error' && state.error) {
     return (
       <div
@@ -83,142 +78,110 @@ export function PostArticlePreviewEmbed({
   forceUnavailable = false,
 }: PostArticlePreviewEmbedProps): ReactElement {
   const [extensionId] = useState(() => getBrowserExtensionInstallId());
-  const [hasPreviewFrameLoaded, setHasPreviewFrameLoaded] = useState(false);
-  const [hasTimedOutUnavailable, setHasTimedOutUnavailable] = useState(false);
-  const [embedState, setEmbedState] = useState<{
-    status: UseExtensionSiteEmbedResult['status'];
-    errorReason: UseExtensionSiteEmbedResult['errorReason'];
-  }>({
-    status: 'idle',
-    errorReason: null,
-  });
-  const hasNotifiedUnavailableRef = useRef(false);
+  const [isFrameLoaded, setIsFrameLoaded] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
+  const [embedStatus, setEmbedStatus] =
+    useState<UseExtensionSiteEmbedResult['status']>('idle');
+
   const previewDomain = useMemo(() => {
-    if (previewHost && previewHost.length > 0) {
+    if (previewHost) {
       return previewHost;
     }
-
     try {
       return new URL(targetUrl).hostname;
     } catch {
       return targetUrl;
     }
   }, [previewHost, targetUrl]);
+
   const faviconSrc = useMemo(() => {
     const pixelRatio = globalThis?.window?.devicePixelRatio ?? 1;
     const iconSize = Math.max(Math.round(16 * pixelRatio), 96);
-
     return `${apiUrl}/icon?url=${encodeURIComponent(
       previewDomain,
     )}&size=${iconSize}`;
   }, [previewDomain]);
 
+  // Reset per target/extension change.
   useEffect(() => {
-    setHasPreviewFrameLoaded(false);
-    setHasTimedOutUnavailable(false);
-    setEmbedState({ status: 'idle', errorReason: null });
-    hasNotifiedUnavailableRef.current = false;
+    setIsFrameLoaded(false);
+    setHasTimedOut(false);
+    setEmbedStatus('idle');
   }, [extensionId, targetUrl]);
 
-  const onExtensionPreviewFrameLoad = useCallback(() => {
-    setHasPreviewFrameLoaded(true);
-  }, []);
-
   const onCopyPreviewUrl = useCallback(() => {
-    if (!targetUrl) {
-      return;
-    }
-
     navigator.clipboard?.writeText(targetUrl).catch(() => {});
   }, [targetUrl]);
 
-  const isExtensionPreviewAwaitingLoad =
+  const isUnavailable = forceUnavailable || hasTimedOut;
+
+  // Dedupe parent notification: fire onPreviewUnavailable once on transition.
+  const didNotifyRef = useRef(false);
+  useEffect(() => {
+    if (isUnavailable && !didNotifyRef.current && !forceUnavailable) {
+      didNotifyRef.current = true;
+      onPreviewUnavailable?.();
+    }
+  }, [forceUnavailable, isUnavailable, onPreviewUnavailable]);
+
+  // Detect "extension ready but site blocks embedding" via load timeout.
+  const isAwaitingFrame =
     !!extensionId &&
-    embedState.status === 'ready' &&
-    !hasPreviewFrameLoaded &&
-    !forceUnavailable;
-  const shouldShowUnavailablePrompt =
-    forceUnavailable || hasTimedOutUnavailable;
-  const shouldShowPrompt = !extensionId;
-  const shouldShowPreviewHeader = !!extensionId && !shouldShowUnavailablePrompt;
+    embedStatus === 'ready' &&
+    !isFrameLoaded &&
+    !isUnavailable;
+  useEffect(() => {
+    if (!isAwaitingFrame) {
+      return undefined;
+    }
+    const timeout = globalThis.setTimeout(
+      () => setHasTimedOut(true),
+      FRAME_LOAD_TIMEOUT_MS,
+    );
+    return () => globalThis.clearTimeout(timeout);
+  }, [isAwaitingFrame]);
 
-  const handleEmbedStateChange = useCallback(
+  // Detect "permission frame never connects" (e.g. webapp origin not allow-
+  // listed in the extension manifest, so Chrome blocks the iframe entirely
+  // and we never receive any state message).
+  const isAwaitingPermissionFrame =
+    !!extensionId && embedStatus === 'idle' && !isUnavailable;
+  useEffect(() => {
+    if (!isAwaitingPermissionFrame) {
+      return undefined;
+    }
+    const timeout = globalThis.setTimeout(
+      () => setHasTimedOut(true),
+      PERMISSION_FRAME_CONNECT_TIMEOUT_MS,
+    );
+    return () => globalThis.clearTimeout(timeout);
+  }, [isAwaitingPermissionFrame]);
+
+  const onEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
-      setEmbedState({
-        status: state.status,
-        errorReason: state.errorReason,
-      });
-
+      setEmbedStatus(state.status);
       if (state.status !== 'ready') {
-        setHasPreviewFrameLoaded(false);
+        setIsFrameLoaded(false);
+      }
+      // Any permission or enablement failure means we can't safely embed —
+      // fall back to the unavailable prompt (open externally / classic view).
+      // "missing-permission" is kept live so the extension frame can show its
+      // own grant prompt inside the iframe.
+      if (
+        state.status === 'error' ||
+        state.errorReason === 'preview-unavailable' ||
+        state.errorReason === 'permission-denied' ||
+        state.errorReason === 'permission-request-failed' ||
+        state.errorReason === 'enable-frame-embedding-failed'
+      ) {
+        setHasTimedOut(true);
       }
     },
     [],
   );
 
-  const handleRenderState = useCallback(
-    (state: UseExtensionSiteEmbedResult) => {
-      if (
-        state.errorReason === 'preview-unavailable' &&
-        onPreviewUnavailable &&
-        !hasNotifiedUnavailableRef.current
-      ) {
-        hasNotifiedUnavailableRef.current = true;
-        onPreviewUnavailable();
-      }
-
-      return renderEmbedChrome({
-        extensionId,
-        state,
-      });
-    },
-    [extensionId, onPreviewUnavailable],
-  );
-
-  useEffect(() => {
-    const timeout = isExtensionPreviewAwaitingLoad
-      ? globalThis.setTimeout(() => {
-          if (hasNotifiedUnavailableRef.current) {
-            return;
-          }
-
-          hasNotifiedUnavailableRef.current = true;
-          setHasTimedOutUnavailable(true);
-          onPreviewUnavailable?.();
-        }, 7000)
-      : undefined;
-
-    return () => {
-      if (timeout) {
-        globalThis.clearTimeout(timeout);
-      }
-    };
-  }, [isExtensionPreviewAwaitingLoad, onPreviewUnavailable]);
-
-  let previewContent: ReactElement;
-  if (shouldShowUnavailablePrompt) {
-    previewContent = (
-      <EmbeddedBrowsingWebPrompt
-        isPreviewUnavailable
-        unavailablePreviewUrl={targetUrl}
-        onUseLegacyLayout={onUseLegacyLayout}
-      />
-    );
-  } else {
-    previewContent = (
-      <ExtensionSiteEmbed
-        extensionId={extensionId}
-        targetUrl={targetUrl}
-        enabled
-        className="h-full min-h-[28rem] w-full flex-1 border-0"
-        permissionFrameTitle="Embedded browsing permissions"
-        targetFrameTitle="Article preview"
-        onTargetFrameLoad={onExtensionPreviewFrameLoad}
-        onStateChange={handleEmbedStateChange}
-        renderState={handleRenderState}
-      />
-    );
-  }
+  const showHeader = !!extensionId && !isUnavailable;
+  const showInstallPrompt = !extensionId && !isUnavailable;
 
   return (
     <section
@@ -229,7 +192,7 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
-        {shouldShowPreviewHeader ? (
+        {showHeader && (
           <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
             <img
               src={faviconSrc}
@@ -255,11 +218,29 @@ export function PostArticlePreviewEmbed({
               </button>
             </Typography>
           </div>
-        ) : null}
-        {previewContent}
-        {shouldShowPrompt && !shouldShowUnavailablePrompt ? (
+        )}
+        {isUnavailable ? (
+          <EmbeddedBrowsingWebPrompt
+            isPreviewUnavailable
+            unavailablePreviewUrl={targetUrl}
+            onUseLegacyLayout={onUseLegacyLayout}
+          />
+        ) : (
+          <ExtensionSiteEmbed
+            extensionId={extensionId}
+            targetUrl={targetUrl}
+            enabled
+            className="h-full min-h-[28rem] w-full flex-1 border-0"
+            permissionFrameTitle="Embedded browsing permissions"
+            targetFrameTitle="Article preview"
+            onTargetFrameLoad={() => setIsFrameLoaded(true)}
+            onStateChange={onEmbedStateChange}
+            renderState={renderEmbedChrome}
+          />
+        )}
+        {showInstallPrompt && (
           <EmbeddedBrowsingWebPrompt onUseLegacyLayout={onUseLegacyLayout} />
-        ) : null}
+        )}
       </div>
     </section>
   );

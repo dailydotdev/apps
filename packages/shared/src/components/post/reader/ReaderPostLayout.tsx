@@ -6,22 +6,18 @@ import type { PostPosition } from '../../../hooks/usePostModalNavigation';
 import { ActivePostContextProvider } from '../../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import { TargetType } from '../../../lib/log';
-import { useViewSize, ViewSize } from '../../../hooks';
 import { ReaderContextProvider } from './ReaderContext';
 import { ReaderChrome } from './ReaderChrome';
 import { ArticleReaderFrame } from './ArticleReaderFrame';
-import type { ReaderArticleMode } from './ArticleReaderFrame';
 import { EngagementRail } from './EngagementRail';
 import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
 import { PaneDivider } from './PaneDivider';
-import { ShortcutHelpOverlay } from './ShortcutHelpOverlay';
-import { MobileReaderLayout } from './MobileReaderLayout';
-import { useScrollProgress } from './hooks/useScrollProgress';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
-import { useReaderShortcuts } from './hooks/useReaderShortcuts';
 import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
 
 const CHROME_TOP_OFFSET_PX = 72;
+const DEFAULT_OUTER_CLASS_NAME =
+  'flex h-[min(100vh-2rem,56rem)] max-h-[calc(100vh-2rem)] min-h-0 w-full flex-col';
 
 type ReaderPostLayoutProps = {
   post: Post;
@@ -43,9 +39,6 @@ type ReaderPostLayoutProps = {
   isPostPage?: boolean;
 };
 
-const DEFAULT_OUTER_CLASS_NAME =
-  'flex h-[min(100vh-2rem,56rem)] max-h-[calc(100vh-2rem)] min-h-0 w-full flex-col';
-
 export function ReaderPostLayout({
   post,
   postPosition,
@@ -55,7 +48,6 @@ export function ReaderPostLayout({
   outerClassName,
   isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
-  const isMobileViewport = !useViewSize(ViewSize.Tablet);
   const {
     isRailOpen,
     setRailOpen,
@@ -65,8 +57,6 @@ export function ReaderPostLayout({
     maxRailWidthPx,
   } = useReaderLayoutPrefs();
 
-  const [isShortcutHelpOpen, setShortcutHelpOpen] = useState(false);
-  const [articleMode, setArticleMode] = useState<ReaderArticleMode>('embed');
   const [articleRefreshKey, setArticleRefreshKey] = useState(0);
   const { optOut: useLegacyLayout } = useLegacyPostLayoutOptOut();
   const focusCommentRef = useRef<() => void>(() => {});
@@ -75,18 +65,9 @@ export function ReaderPostLayout({
   }, []);
   const fallbackScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const { isFloatingBarHidden } = useScrollProgress(
-    fallbackScrollRef,
-    articleMode === 'fallback',
-  );
-
   const toggleRail = useCallback(() => {
     setRailOpen(!isRailOpen);
   }, [isRailOpen, setRailOpen]);
-
-  const toggleShortcutHelp = useCallback(() => {
-    setShortcutHelpOpen((open) => !open);
-  }, []);
 
   const refreshArticleContent = useCallback(() => {
     setArticleRefreshKey((value) => value + 1);
@@ -127,58 +108,9 @@ export function ReaderPostLayout({
       setRailWidthPx,
       focusCommentRef,
       articleScrollRef: fallbackScrollRef,
-      isShortcutHelpOpen,
-      setShortcutHelpOpen,
-      toggleShortcutHelp,
     }),
-    [
-      post,
-      isRailOpen,
-      setRailOpen,
-      toggleRail,
-      railWidthPx,
-      setRailWidthPx,
-      isShortcutHelpOpen,
-      toggleShortcutHelp,
-    ],
+    [post, isRailOpen, setRailOpen, toggleRail, railWidthPx, setRailWidthPx],
   );
-
-  useReaderShortcuts({
-    isActive: !isMobileViewport,
-    post,
-    onClose,
-    onPreviousPost,
-    onNextPost,
-    toggleRail,
-    focusCommentComposer: focusDiscussionComposer,
-    toggleShortcutHelp,
-  });
-
-  if (isMobileViewport) {
-    return (
-      <ActivePostContextProvider post={post}>
-        <LogExtraContextProvider
-          selector={() => ({
-            referrer_target_id: post?.id,
-            referrer_target_type: post?.id ? TargetType.Post : undefined,
-          })}
-        >
-          <ReaderContextProvider value={readerContextValue}>
-            <div
-              className="flex h-full min-h-0 w-full flex-col"
-              data-testid="readerPostLayout"
-            >
-              <MobileReaderLayout
-                post={post}
-                onClose={onClose}
-                isPostPage={isPostPage}
-              />
-            </div>
-          </ReaderContextProvider>
-        </LogExtraContextProvider>
-      </ActivePostContextProvider>
-    );
-  }
 
   return (
     <ActivePostContextProvider post={post}>
@@ -227,7 +159,6 @@ export function ReaderPostLayout({
                     key={articleRefreshKey}
                     post={post}
                     onUseLegacyLayout={useLegacyLayout}
-                    onModeChange={setArticleMode}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
@@ -242,15 +173,10 @@ export function ReaderPostLayout({
                   />
                   <ReaderFloatingActionBar
                     post={post}
-                    isHidden={isFloatingBarHidden}
                     onCommentClick={focusDiscussionComposer}
                   />
                 </div>
               </div>
-              <ShortcutHelpOverlay
-                isOpen={isShortcutHelpOpen}
-                onClose={() => setShortcutHelpOpen(false)}
-              />
             </div>
           </div>
         </ReaderContextProvider>

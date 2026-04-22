@@ -20,6 +20,7 @@ const hiddenPermissionFrameClassName =
   'pointer-events-none absolute h-0 w-0 opacity-0';
 const visibleFrameClassName = 'h-full w-full';
 const frameBaseLayerClassName = 'relative z-0';
+const frameContainerClassName = 'relative z-0 flex min-h-0 flex-1 flex-col';
 
 export const ExtensionSiteEmbed = ({
   className = visibleFrameClassName,
@@ -48,7 +49,7 @@ export const ExtensionSiteEmbed = ({
     <>
       {view}
       {hasAnyFrame ? (
-        <div className="relative z-0">
+        <div className={frameContainerClassName}>
           {state.permissionFrameSrc ? (
             <iframe
               ref={state.permissionFrameRef}
