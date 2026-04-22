@@ -636,24 +636,12 @@ export const OnboardingV2 = (): ReactElement => {
     };
   }, [importBodyPhase]);
 
-  useEffect(() => {
-    if (step !== 'hero') {
-      return undefined;
-    }
-    const { style } = document.body;
-    const prev = style.overflow;
-    style.overflow = 'hidden';
-    return () => {
-      style.overflow = prev;
-    };
-  }, [step]);
-
   return (
     <div
       ref={pageRef}
       className={classNames(
         'onb-page relative tablet:pt-16',
-        step === 'hero' && 'flex min-h-dvh flex-col overflow-hidden',
+        step === 'hero' && 'flex min-h-dvh flex-col',
       )}
       role="presentation"
     >
@@ -692,14 +680,13 @@ export const OnboardingV2 = (): ReactElement => {
       <section
         ref={heroRef}
         className={classNames(
-          'onb-hero relative overflow-hidden',
+          'onb-hero relative overflow-hidden py-2 tablet:py-8',
           step === 'complete' && 'hidden',
-          step === 'hero' && 'flex min-h-0 flex-1 flex-col',
-          step !== 'hero' && 'py-2 tablet:py-8',
+          step === 'hero' && 'flex flex-1 flex-col',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
       >
-        <div className="z-10 relative mx-auto mb-3 flex w-full max-w-[63.75rem] shrink-0 items-center justify-between px-4 tablet:hidden">
+        <div className="z-10 relative mx-auto mb-6 flex w-full max-w-[63.75rem] shrink-0 items-center justify-between px-4 tablet:hidden">
           <Logo
             compact
             position={LogoPosition.Relative}
@@ -755,13 +742,11 @@ export const OnboardingV2 = (): ReactElement => {
         {/* Single radial hero glow */}
         <div className="onb-hero-radial pointer-events-none absolute inset-x-0 top-0 h-[26rem]" />
 
-        {/* Title + chooser — on hero, flex fills space above footer (no page scroll) */}
+        {/* Title + chooser */}
         <div
           className={classNames(
             'z-10 relative mx-auto w-full max-w-[63.75rem] px-4 text-center laptop:px-6',
-            step === 'hero'
-              ? 'flex min-h-0 flex-1 flex-col justify-center py-2 tablet:py-4'
-              : 'py-2',
+            step === 'hero' && 'flex flex-1 flex-col justify-center',
           )}
         >
           <div className="pointer-events-none mb-1 hidden h-[1.5rem] tablet:block" />
@@ -801,7 +786,7 @@ export const OnboardingV2 = (): ReactElement => {
                 onAiPromptChange={setAiPrompt}
                 canStartAiFlow={canStartAiFlow}
                 isImporting={isImporting}
-                origin={Origin.OnboardingFeedEnd}
+                origin={Origin.Onboarding}
                 onGithubClick={() => {
                   if (isLoggedIn) {
                     startImportFlowGithub();
@@ -1107,14 +1092,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {step !== 'complete' && (
-        <div
-          className={classNames(
-            'relative z-1 mx-auto flex w-full max-w-[48rem] justify-center px-5 mobileL:px-6',
-            step === 'hero'
-              ? 'mt-auto shrink-0 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]'
-              : 'mt-4 pb-4',
-          )}
-        >
+        <div className="relative z-1 mx-auto mt-4 flex w-full max-w-[48rem] justify-center px-5 pb-4 mobileL:px-6">
           <FooterLinks className="mx-auto w-full max-w-[21rem] justify-center px-1 text-center typo-caption2 tablet:max-w-none tablet:typo-footnote" />
         </div>
       )}
