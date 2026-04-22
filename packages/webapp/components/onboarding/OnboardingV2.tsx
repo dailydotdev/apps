@@ -185,10 +185,8 @@ export const OnboardingV2 = (): ReactElement => {
     isEdgeBrowser,
     extensionImages,
   } = useOnboardingAnimations(step);
-  const [aiPrompt, setAiPrompt] = usePersistentContext<string>(
-    ONBOARDING_AI_PROMPT_KEY,
-    '',
-  );
+  const [aiPrompt, setAiPrompt, isAiPromptFetched] =
+    usePersistentContext<string>(ONBOARDING_AI_PROMPT_KEY, '', undefined, '');
   const [extensionSeen, setExtensionSeen, isExtensionSeenFetched] =
     usePersistentContext<boolean>(ONBOARDING_EXTENSION_SEEN_KEY, false);
   const shouldShowExtension = showExtensionCta && !extensionSeen;
@@ -204,9 +202,12 @@ export const OnboardingV2 = (): ReactElement => {
   >(null);
   const [importBodyHeight, setImportBodyHeight] = useState<number | null>(null);
   const [importExiting, setImportExiting] = useState(false);
-  const [signupContext, setSignupContext] = usePersistentContext<
-    'github' | 'ai' | null
-  >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai']);
+  const [signupContext, setSignupContext, isSignupContextFetched] =
+    usePersistentContext<'github' | 'ai' | null>(
+      ONBOARDING_SIGNUP_CONTEXT_KEY,
+      null,
+      ['github', 'ai'],
+    );
   const pageRef = useRef<HTMLDivElement>(null);
   const importTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const importBodyContentRef = useRef<HTMLDivElement>(null);
@@ -432,6 +433,8 @@ export const OnboardingV2 = (): ReactElement => {
     if (
       !isAuthReady ||
       isAuthenticating ||
+      !isAiPromptFetched ||
+      !isSignupContextFetched ||
       (
         [
           'auth',
@@ -527,6 +530,8 @@ export const OnboardingV2 = (): ReactElement => {
     isOnboardingActionsReady,
     isOnboardingComplete,
     isExtensionSeenFetched,
+    isAiPromptFetched,
+    isSignupContextFetched,
     shouldShowExtension,
     aiPrompt,
     signupContext,
