@@ -1,4 +1,4 @@
-import { getTimezoneOffset, utcToZonedTime } from 'date-fns-tz';
+import { getTimezoneOffset } from 'date-fns-tz';
 import type { FC } from 'react';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
@@ -9,6 +9,33 @@ interface TimeZoneItem {
   label: string;
   offset?: number;
 }
+
+const MINUTES_IN_HOUR = 60;
+const MILLISECONDS_IN_MINUTE = 60 * 1000;
+export const DEFAULT_TIMEZONE = 'Etc/UTC';
+
+const getTimezoneOffsetInMinutes = (
+  timezone: string,
+  date = new Date(),
+): number => {
+  return Math.round(
+    getTimezoneOffset(timezone || DEFAULT_TIMEZONE, date) /
+      MILLISECONDS_IN_MINUTE,
+  );
+};
+
+const formatTimezoneOffset = (offsetInMinutes: number): string => {
+  const absoluteOffset = Math.abs(offsetInMinutes);
+  const hours = Math.floor(absoluteOffset / MINUTES_IN_HOUR);
+  const minutes = absoluteOffset % MINUTES_IN_HOUR;
+  const sign = offsetInMinutes > 0 ? '+' : offsetInMinutes < 0 ? '-' : '';
+
+  if (!minutes) {
+    return `${sign}${hours}`;
+  }
+
+  return `${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
+};
 
 const TIME_ZONES: TimeZoneItem[] = [
   {
@@ -510,19 +537,10 @@ const TIME_ZONES: TimeZoneItem[] = [
 ];
 
 const timeZoneCurrentOffsetLabel = (timeZone: TimeZoneItem) => {
-  const date = new Date();
-  date.setMilliseconds(0);
-  const userOffset = (date.getTimezoneOffset() / 60) * -1;
+  const offset = getTimezoneOffsetInMinutes(timeZone.value);
 
-  const timeZoneDate = utcToZonedTime(date, timeZone.value);
-  const localTimeZoneDate = new Date(timeZoneDate.toLocaleString('en-US'));
-
-  const diffHrs =
-    (localTimeZoneDate.getTime() - date.getTime()) / 1000 / 60 / 60;
-  const timeZoneOffset = userOffset + diffHrs;
-  const offset = timeZoneOffset >= 24 ? timeZoneOffset - 24 : timeZoneOffset;
   return {
-    label: `(UTC ${timeZoneOffset > 0 ? '+' : ''}${offset}) ${timeZone.label}`,
+    label: `(UTC ${formatTimezoneOffset(offset)}) ${timeZone.label}`,
     offset,
   };
 };
@@ -536,11 +554,9 @@ export const getTimeZoneOptions = (): TimeZoneItem[] => {
 
 export const getUserDefaultTimezone = (): string => {
   const timeZoneOptions = getTimeZoneOptions();
-  const timeZoneOffset = (new Date().getTimezoneOffset() / 60) * -1;
+  const timeZoneOffset = formatTimezoneOffset(-new Date().getTimezoneOffset());
   const timezoneGuess = timeZoneOptions.find((timezone) =>
-    timezone.label.startsWith(
-      `(UTC ${timeZoneOffset > 0 ? '+' : ''}${timeZoneOffset})`,
-    ),
+    timezone.label.startsWith(`(UTC ${timeZoneOffset})`),
   );
 
   if (timezoneGuess) {
@@ -589,8 +605,6 @@ export const getTimeZoneIcon = (timezone: string): FC<IconProps> => {
   return hour >= 6 && hour < 18 ? DaytimeIcon : NighttimeIcon;
 };
 
-export const DEFAULT_TIMEZONE = 'Etc/UTC';
-
 export const dateFormatInTimezone = (
   date: Date,
   format: string,
@@ -617,9 +631,8 @@ export const isSameDayInTimezone = (
 };
 
 export const getTimezoneOffsetLabel = (timezone: string): string => {
-  // from ms to hours
-  const timezoneOffset =
-    getTimezoneOffset(timezone || DEFAULT_TIMEZONE) / (60 * 60 * 1000);
+  const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
+  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);
 
-  return `(UTC ${timezoneOffset > 0 ? '+' : ''}${timezoneOffset}) ${timezone}`;
+  return `(UTC ${formatTimezoneOffset(timezoneOffset)}) ${resolvedTimezone}`;
 };
