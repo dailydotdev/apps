@@ -84,7 +84,6 @@ export enum Origin {
   Leaderboard = 'leaderboard',
   // Onboarding v2
   OnboardingModal = 'onboarding modal',
-  OnboardingFeedEnd = 'onboarding feed end',
   // Auth
   BetterAuthEmailLogin = 'betterauth email login',
   BetterAuthEmailLoginBoot = 'betterauth email login boot',
