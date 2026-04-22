@@ -25,7 +25,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import { feature } from '../../lib/featureManagement';
+import { feature, featureReaderModal } from '../../lib/featureManagement';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -136,8 +137,13 @@ export function PostContentRaw({
       : null;
 
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const { value: isReaderModalEnabled } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: true,
+  });
   const showArticlePreviewEmbed =
     isPreviewHydrated &&
+    isReaderModalEnabled &&
     !isLegacyLayoutOptedOut &&
     !isVideoType &&
     post.type === PostType.Article &&
