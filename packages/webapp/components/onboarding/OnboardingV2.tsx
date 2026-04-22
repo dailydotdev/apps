@@ -180,7 +180,6 @@ export const OnboardingV2 = (): ReactElement => {
   const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
-    feedVisible,
     heroRef,
     confettiParticles,
     isEdgeBrowser,
@@ -216,9 +215,13 @@ export const OnboardingV2 = (): ReactElement => {
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
 
-  const popularFeedNameValue = useMemo(
-    () => ({ feedName: SharedFeedPage.Popular as const }),
-    [],
+  const showPersonalizedFeed = step === 'complete' && isLoggedIn;
+  const activeFeedName = showPersonalizedFeed
+    ? SharedFeedPage.MyFeed
+    : SharedFeedPage.Popular;
+  const activeFeedNameValue = useMemo(
+    () => ({ feedName: activeFeedName }),
+    [activeFeedName],
   );
 
   const clearImportTimers = useCallback(() => {
@@ -1085,23 +1088,18 @@ export const OnboardingV2 = (): ReactElement => {
         </div>
       )}
 
-      {/* ── Feed (hidden on hero — chooser lives in hero) ── */}
-      {step !== 'hero' && (
-        <div
-          className={classNames(
-            'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
-            // eslint-disable-next-line no-nested-ternary
-            step === 'complete'
-              ? 'onb-feed-unlocked translate-y-0 opacity-100'
-              : feedVisible
-              ? 'translate-y-0 opacity-100'
-              : 'pointer-events-none translate-y-2 opacity-0',
-          )}
-        >
+      {/* ── Feed (only on complete step — chooser lives in hero) ── */}
+      {step === 'complete' && (
+        <div className="onb-feed-stage onb-feed-unlocked relative min-h-[50vh] translate-y-0 opacity-100 transition-[opacity,transform] duration-500 ease-out laptop:px-10">
           <SearchProvider>
             <FeedLayoutProvider>
-              <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-                <MainFeedLayout feedName="popular" isSearchOn={false} />
+              <ActiveFeedNameContext.Provider value={activeFeedNameValue}>
+                <MainFeedLayout
+                  feedName={showPersonalizedFeed ? 'default' : 'popular'}
+                  isSearchOn={false}
+                  hideFeedActionButtons
+                  disableBriefCard
+                />
               </ActiveFeedNameContext.Provider>
             </FeedLayoutProvider>
           </SearchProvider>

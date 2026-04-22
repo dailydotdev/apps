@@ -49,7 +49,10 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
+export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {

@@ -91,7 +91,6 @@ export enum Origin {
   BetterAuthNativeIdToken = 'betterauth native id token',
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
   BetterAuthSocialUrl = 'betterauth social url',
-  BetterAuthSocialPopup = 'betterauth social popup',
   LoginTurnstile = 'login turnstile',
 }
 
@@ -432,6 +431,7 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   PromotionCard = 'promotion_card',
+  PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
@@ -472,6 +472,7 @@ export enum TargetType {
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
+  AdvertiseHereCta = 'advertise here cta',
   // Onboarding v2
   HeroCta = 'hero cta',
   SignupChooser = 'signup chooser',
@@ -508,6 +509,9 @@ export enum TargetId {
   Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
+  AdCard = 'ad card',
+  AdSidebar = 'ad sidebar',
+  AdComment = 'ad comment',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',

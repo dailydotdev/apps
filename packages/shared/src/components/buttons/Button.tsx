@@ -16,7 +16,6 @@ import {
   VariantColorToClassName,
   VariantToClassName,
 } from './common';
-import { isNullOrUndefined } from '../../lib/func';
 import classed from '../../lib/classed';
 
 export type IconType = React.ReactElement<IconProps>;
@@ -83,19 +82,34 @@ function ButtonComponent<TagName extends AllowedTags>(
   }: ButtonProps<TagName>,
   ref?: Ref<ButtonElementType<TagName>>,
 ): ReactElement {
-  const iconOnly = icon && isNullOrUndefined(children);
+  const childNodes = React.Children.toArray(children);
+  const hasChildren = childNodes.length > 0;
+  const shouldWrapLabel =
+    hasChildren &&
+    childNodes.every(
+      (child) => typeof child === 'string' || typeof child === 'number',
+    );
+  const iconOnly = icon && !hasChildren;
   const getIconWithSize = useGetIconWithSize(
     size,
     iconOnly ?? false,
     iconPosition,
   );
   const isAnchor = Tag === 'a';
+  const anchorClickProps =
+    isAnchor && onClick
+      ? combinedClicks<HTMLAnchorElement>(
+          onClick as React.MouseEventHandler<HTMLAnchorElement>,
+        )
+      : {};
+  const isOptionOrQuiz =
+    variant === ButtonVariant.Option || variant === ButtonVariant.Quiz;
   const [isHovering, setIsHovering] = useState(false);
 
   return (
     <Tag
       {...props}
-      {...(isAnchor ? combinedClicks(onClick) : { onClick })}
+      {...(isAnchor ? anchorClickProps : { onClick })}
       aria-busy={loading}
       aria-pressed={pressed}
       ref={ref}
@@ -103,13 +117,12 @@ function ButtonComponent<TagName extends AllowedTags>(
         `btn focus-outline inline-flex cursor-pointer select-none flex-row
         items-center border no-underline shadow-none transition
         duration-200 ease-in-out typo-callout`,
-        ![ButtonVariant.Option, ButtonVariant.Quiz].includes(variant) &&
-          'justify-center font-bold',
+        !isOptionOrQuiz && 'justify-center font-bold',
         { iconOnly },
         iconOnly ? IconOnlySizeToClassName[size] : SizeToClassName[size],
         iconPosition === ButtonIconPosition.Top && `flex-col !px-2`,
-        !color && VariantToClassName[variant],
-        VariantColorToClassName[variant]?.[color],
+        variant && !color && VariantToClassName[variant],
+        variant && color && VariantColorToClassName[variant]?.[color],
         className,
       )}
       onMouseEnter={(e: React.MouseEvent<AllowedElements>) => {
@@ -126,7 +139,13 @@ function ButtonComponent<TagName extends AllowedTags>(
           iconPosition,
         ) &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}
-      {loading ? <span className="invisible">{children}</span> : children}
+      {shouldWrapLabel ? (
+        <span className={classNames('btn-label', loading && 'invisible')}>
+          {children}
+        </span>
+      ) : (
+        children
+      )}
       {icon &&
         iconPosition === ButtonIconPosition.Right &&
         getIconWithSize(icon, iconSecondaryOnHover ? isHovering : false)}

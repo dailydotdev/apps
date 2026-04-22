@@ -16,6 +16,8 @@ import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
+import { isPostUpdated } from '../../../graphql/posts';
+import { TimeFormatType } from '../../../lib/dateFormat';
 
 export const CollectionGrid = forwardRef(function CollectionCard(
   {
@@ -35,14 +37,19 @@ export const CollectionGrid = forwardRef(function CollectionCard(
 ) {
   const { pinnedAt, trending } = post;
   const image = usePostImage(post);
-  const onPostCardClick = () => onPostClick(post);
-  const onPostCardAuxClick = () => onPostAuxClick(post);
+  const wasUpdated = isPostUpdated(post);
+  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardAuxClick = () => onPostAuxClick?.(post);
 
   return (
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(post, domProps.className, 'min-h-card'),
+        className: getPostClassNames(
+          post,
+          domProps.className ?? '',
+          'min-h-card',
+        ),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
@@ -70,8 +77,11 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         <PostTags post={post} className="!items-end" />
       </CardTextContainer>
       <PostMetadata
-        createdAt={post.createdAt}
+        createdAt={wasUpdated ? post.updatedAt : post.createdAt}
+        dateLabel={wasUpdated ? 'Updated' : undefined}
+        dateType={wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post}
         readTime={post.readTime}
+        numSources={post.numCollectionSources}
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
       <Container>

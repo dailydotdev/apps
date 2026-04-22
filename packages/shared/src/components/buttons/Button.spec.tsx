@@ -8,7 +8,7 @@ import {
   ButtonVariant,
   ButtonIconPosition,
 } from './Button';
-import { UpvoteIcon } from '../icons';
+import { ArrowIcon, UpvoteIcon } from '../icons';
 
 const renderComponent = <Tag extends AllowedTags>(
   props: Partial<ButtonProps<Tag>> = {},
@@ -78,7 +78,7 @@ describe('Button', () => {
         icon: <UpvoteIcon data-testid="icon" />,
         children: 'Upvote',
       });
-      expect(await screen.findByTestId('icon')).toBeInTheDocument();
+      expect(await screen.findByTestId('icon')).toHaveClass('btn-icon-left');
       expect(await screen.findByRole('button')).not.toHaveClass('iconOnly');
     });
 
@@ -94,6 +94,7 @@ describe('Button', () => {
 
       expect(button).toBeInTheDocument();
       expect(rightIcon).toBeInTheDocument();
+      expect(rightIcon).toHaveClass('btn-icon-right');
 
       // check if icon appears AFTER the label
       expect(button.innerHTML.indexOf('Upvote')).toBeLessThan(
@@ -117,6 +118,40 @@ describe('Button', () => {
       'true',
     );
     expect(await screen.findByTestId('buttonLoader')).toBeInTheDocument();
+  });
+
+  it('keeps the same label wrapper when toggling loading', () => {
+    const { rerender } = render(
+      <Button variant={ButtonVariant.Primary}>Button</Button>,
+    );
+
+    const initialLabel = screen.getByRole('button').querySelector('.btn-label');
+
+    expect(initialLabel).toBeInTheDocument();
+    expect(initialLabel).not.toHaveClass('invisible');
+
+    rerender(
+      <Button variant={ButtonVariant.Primary} loading>
+        Button
+      </Button>,
+    );
+
+    const loadingLabel = screen.getByRole('button').querySelector('.btn-label');
+
+    expect(loadingLabel).toBe(initialLabel);
+    expect(loadingLabel).toHaveClass('invisible');
+  });
+
+  it('does not wrap mixed button content in the label span', () => {
+    render(
+      <Button variant={ButtonVariant.Primary}>
+        Button
+        <ArrowIcon data-testid="child-icon" />
+      </Button>,
+    );
+
+    expect(screen.getByTestId('child-icon')).toBeInTheDocument();
+    expect(screen.getByRole('button').querySelector('.btn-label')).toBeNull();
   });
 
   it('should set aria-pressed when pressed is true', async () => {
