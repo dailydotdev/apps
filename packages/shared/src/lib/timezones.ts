@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import { DaytimeIcon, NighttimeIcon } from '../components/icons/TimeZone';
 import type { IconProps } from '../components/Icon';
+import { MILLISECONDS_IN_MINUTE, MINUTES_IN_HOUR } from './time';
 
 interface TimeZoneItem {
   value: string;
@@ -10,8 +11,6 @@ interface TimeZoneItem {
   offset?: number;
 }
 
-const MINUTES_IN_HOUR = 60;
-const MILLISECONDS_IN_MINUTE = 60 * 1000;
 export const DEFAULT_TIMEZONE = 'Etc/UTC';
 
 const getTimezoneOffsetInMinutes = (
@@ -28,7 +27,13 @@ const formatTimezoneOffset = (offsetInMinutes: number): string => {
   const absoluteOffset = Math.abs(offsetInMinutes);
   const hours = Math.floor(absoluteOffset / MINUTES_IN_HOUR);
   const minutes = absoluteOffset % MINUTES_IN_HOUR;
-  const sign = offsetInMinutes > 0 ? '+' : offsetInMinutes < 0 ? '-' : '';
+  let sign = '';
+
+  if (offsetInMinutes > 0) {
+    sign = '+';
+  } else if (offsetInMinutes < 0) {
+    sign = '-';
+  }
 
   if (!minutes) {
     return `${sign}${hours}`;

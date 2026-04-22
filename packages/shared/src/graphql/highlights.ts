@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { Connection } from './common';
+import { ONE_MINUTE } from '../lib/time';
 
 export interface PostHighlight {
   id: string;
@@ -35,7 +36,6 @@ export interface MajorHeadlinesData {
   majorHeadlines: Connection<PostHighlight>;
 }
 
-const ONE_MINUTE = 60 * 1000;
 export const HIGHLIGHTS_PAGE_QUERY_KEY = ['highlights-page'];
 
 type HighlightIdentity = Pick<PostHighlight, 'id'>;
