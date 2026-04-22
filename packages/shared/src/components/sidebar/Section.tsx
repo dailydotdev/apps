@@ -44,12 +44,20 @@ export function Section({
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
-  const isVisible = useRef(
-    isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
-  );
+  const currentFlagValue = flag ? flags?.[flag] : undefined;
+  const initialIsVisible = isNullOrUndefined(currentFlagValue)
+    ? true
+    : currentFlagValue;
+  const isVisible = useRef(initialIsVisible);
+
   const toggleFlag = () => {
-    updateFlag(flag, !isVisible.current);
-    isVisible.current = !isVisible.current;
+    const nextIsVisible = !isVisible.current;
+
+    if (flag) {
+      updateFlag(flag, nextIsVisible);
+    }
+
+    isVisible.current = nextIsVisible;
   };
 
   return (
