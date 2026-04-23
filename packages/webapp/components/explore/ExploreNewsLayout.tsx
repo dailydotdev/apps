@@ -141,6 +141,7 @@ const getExploreFeedQueryKey = (
 
 interface ExploreNewsLayoutProps {
   activeTabId: ExploreCategoryId;
+  includeExploreOnlySections?: boolean;
   highlightsLoading: boolean;
   highlights: PostHighlight[];
   digestSource?: Source | null;
@@ -1056,6 +1057,7 @@ const ReadingBriefStrip = (): ReactElement => {
 
 export const ExploreNewsLayout = ({
   activeTabId,
+  includeExploreOnlySections = true,
   highlightsLoading,
   highlights,
   digestSource,
@@ -1126,7 +1128,7 @@ export const ExploreNewsLayout = ({
 
   const isVideosMode = activeTabId === 'videos';
   const isExplorePage = activeTabId === 'explore';
-  const showExploreOnlySections = isExplorePage;
+  const showExploreOnlySections = isExplorePage && includeExploreOnlySections;
   const {
     shouldShow: shouldShowReadingReminderHero,
     title: readingReminderTitle,

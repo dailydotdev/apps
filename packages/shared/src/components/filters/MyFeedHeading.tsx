@@ -20,10 +20,16 @@ import { useActiveFeedNameContext } from '../../contexts';
 
 interface MyFeedHeadingProps {
   onOpenFeedFilters?: () => void;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+  showLabel?: boolean;
 }
 
 function MyFeedHeading({
   onOpenFeedFilters,
+  size = ButtonSize.Medium,
+  variant,
+  showLabel = true,
 }: MyFeedHeadingProps): ReactElement {
   const { push, pathname, query } = useRouter();
   const { completeAction } = useActions();
@@ -49,27 +55,26 @@ function MyFeedHeading({
 
   const onClick = useCallback(() => {
     onOpenFeedFilters?.();
-
-    return push(editFeedUrl);
+    void push(editFeedUrl);
   }, [editFeedUrl, onOpenFeedFilters, push]);
 
   return (
     <>
       <FeedSettingsButton
         onClick={onClick}
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        size={size}
+        variant={variant ?? (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary)}
         icon={<FilterIcon />}
         iconPosition={
           shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
         }
       >
-        {!isMobile ? 'Feed settings' : null}
+        {showLabel && !isMobile ? 'Feed settings' : null}
       </FeedSettingsButton>
       {showToggleShortcuts && (
         <Button
-          size={ButtonSize.Medium}
-          variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+          size={size}
+          variant={variant ?? (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary)}
           className="mr-auto"
           onClick={() => {
             if (isOldUserWithNoShortcuts) {

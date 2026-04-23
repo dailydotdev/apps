@@ -16,6 +16,7 @@ import {
   FolderIcon,
   HammerIcon,
   LanguageIcon,
+  LinkIcon,
   MenuIcon as RawMenuIcon,
   MiniCloseIcon,
   MinusIcon,
@@ -102,6 +103,8 @@ import type { FeedItem } from '../../hooks/useFeed';
 import { isBoostedPostAd } from '../../hooks/useFeed';
 import type { MenuItemProps } from '../../components/dropdown/common';
 import { useFeedContentTypeAction } from '../../components/filters/useFeedContentTypeAction';
+import { useLoggedCopyPostLink } from '../../hooks/post/useLoggedCopyPostLink';
+import { ShareProvider } from '../../lib/share';
 
 const getBlockLabel = (
   name: string,
@@ -189,6 +192,10 @@ const PostOptionButtonContent = ({
   const { boostedBy } = useFeedCardContext();
   const { hidePost, unhidePost } = useReportPost();
   const { openSharePost } = useSharePost(origin);
+  const { onCopyLink, isLoading: isCopyingLink } = useLoggedCopyPostLink(
+    post,
+    Origin.PostContextMenu,
+  );
   const { follow, unfollow, unblock, block } = useContentPreference();
   const { openModal } = useLazyModal();
   const { showPrompt } = usePrompt();
@@ -466,6 +473,12 @@ const PostOptionButtonContent = ({
           post,
           ...logOpts,
         }),
+    },
+    {
+      icon: <MenuIcon Icon={LinkIcon} />,
+      label: 'Copy link',
+      action: () => onCopyLink(ShareProvider.CopyLink),
+      disabled: isCopyingLink,
     },
   ];
 

@@ -41,7 +41,13 @@ function AchievementIcon({
   );
 }
 
-export function AchievementTrackerButton(): ReactElement | null {
+export function AchievementTrackerButton({
+  size = ButtonSize.Medium,
+  variant,
+}: {
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+} = {}): ReactElement | null {
   const { openModal, closeModal } = useLazyModal();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -99,11 +105,7 @@ export function AchievementTrackerButton(): ReactElement | null {
       return trackedAchievement.achievement?.unit;
     }
 
-    const { unit } = trackedAchievement.achievement;
-
-    return unit
-      ? `${progressValue} of ${targetCount} ${unit}`
-      : `${progressValue} of ${targetCount}`;
+    return `${progressValue}/${targetCount}`;
   })();
   const hasButtonLabel = !!buttonLabel;
 
@@ -162,8 +164,8 @@ export function AchievementTrackerButton(): ReactElement | null {
   const buttonContent = (
     <div className="relative">
       <Button
-        size={ButtonSize.Medium}
-        variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
+        size={size}
+        variant={variant ?? (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary)}
         icon={
           (isTrackingAchievement ? (
             <AchievementIcon

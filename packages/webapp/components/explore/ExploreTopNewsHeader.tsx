@@ -6,7 +6,15 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import MyFeedHeading from '@dailydotdev/shared/src/components/filters/MyFeedHeading';
+import { AchievementTrackerButton } from '@dailydotdev/shared/src/components/filters/AchievementTrackerButton';
+import { ToggleClickbaitShield } from '@dailydotdev/shared/src/components/buttons/ToggleClickbaitShield';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/common';
 import {
   dateFormatInTimezone,
   DEFAULT_TIMEZONE,
@@ -31,25 +39,42 @@ export function ExploreTopNewsHeader({
   const showDate = activeTabId === 'explore';
 
   return (
-    <div className="mb-6">
-      <Typography
-        tag={TypographyTag.H1}
-        type={TypographyType.Title1}
-        color={TypographyColor.Primary}
-        bold
-      >
-        {title}
-      </Typography>
-      {showDate && (
+    <div className="mb-6 flex items-start justify-between gap-4">
+      <div>
         <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="mt-1"
+          tag={TypographyTag.H1}
+          type={TypographyType.Title1}
+          color={TypographyColor.Primary}
+          bold
         >
-          {todayLabel}
+          {title}
         </Typography>
-      )}
+        {showDate && (
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+            className="mt-1"
+          >
+            {todayLabel}
+          </Typography>
+        )}
+      </div>
+      <div className="hidden shrink-0 items-center gap-2 tablet:flex">
+        <MyFeedHeading
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Subtle}
+          showLabel={false}
+        />
+        <ToggleClickbaitShield
+          origin={Origin.ExplorePage}
+          buttonProps={{ size: ButtonSize.Small, variant: ButtonVariant.Subtle }}
+        />
+        <AchievementTrackerButton
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Subtle}
+        />
+      </div>
     </div>
   );
 }

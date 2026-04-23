@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useRouter } from 'next/router';
 import {
   Button,
   ButtonSize,
@@ -18,7 +17,6 @@ import {
 
 // TODO(prod): revisit whether dismiss should remain session-scoped.
 const STORAGE_KEY = 'new_explore_layout_banner_dismissed';
-const SWITCH_TO_CARDS_HREF = '/posts';
 
 const BENEFITS = [
   'Top stories at a glance',
@@ -27,7 +25,6 @@ const BENEFITS = [
 ];
 
 export function NewExploreLayoutBanner(): ReactElement | null {
-  const router = useRouter();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const [dismissed, setDismissed] = useState(false);
@@ -83,7 +80,6 @@ export function NewExploreLayoutBanner(): ReactElement | null {
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem(STORAGE_KEY);
     }
-    router.push('/explore');
   };
 
   const onSwitchToCards = () => {
@@ -103,7 +99,6 @@ export function NewExploreLayoutBanner(): ReactElement | null {
         onClick: onUndoSwitchToCards,
       },
     });
-    router.push(SWITCH_TO_CARDS_HREF);
   };
 
   return (
@@ -136,7 +131,7 @@ export function NewExploreLayoutBanner(): ReactElement | null {
             <div className="flex shrink-0 items-center gap-2 self-start tablet:self-center">
               <Button
                 type="button"
-                variant={ButtonVariant.Float}
+                variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 onClick={onSwitchToCards}
               >

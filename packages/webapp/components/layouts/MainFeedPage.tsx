@@ -9,6 +9,13 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
 import { getLayout } from './FeedLayout';
+import { ExplorePageContent } from '../explore/ExplorePageContent';
+import {
+  ExploreLayoutPreference,
+  exploreLayoutPreferenceChangedEvent,
+  getExploreLayoutPreference,
+} from '@dailydotdev/shared/src/lib/exploreLayoutPreference';
+import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
 
 const MainFeedLayout = dynamic(
   () =>
@@ -68,6 +75,10 @@ export default function MainFeedPage({
 }: MainFeedPageProps): ReactElement {
   const router = useRouter();
   const { user } = useContext(AuthContext);
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const [exploreLayoutPreference, setExploreLayoutPreference] = useState(
+    ExploreLayoutPreference.New,
+  );
   const isFinderPage = router?.pathname === '/search/posts' || isFinder;
   const isMyFeedURL = router?.query?.slugOrId === user?.id;
   const [feedName, setFeedName] = useState(
@@ -98,8 +109,46 @@ export default function MainFeedPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
+  useEffect(() => {
+    setExploreLayoutPreference(getExploreLayoutPreference());
+
+    const onPreferenceChange = () => {
+      setExploreLayoutPreference(getExploreLayoutPreference());
+    };
+
+    window.addEventListener(
+      exploreLayoutPreferenceChangedEvent,
+      onPreferenceChange,
+    );
+
+    return () => {
+      window.removeEventListener(
+        exploreLayoutPreferenceChangedEvent,
+        onPreferenceChange,
+      );
+    };
+  }, []);
+
   if (!feedName) {
     return <></>;
+  }
+
+  const shouldShowExploreMainLayout =
+    router.pathname === '/' &&
+    !!user &&
+    !Boolean(isCustomDefaultFeed) &&
+    exploreLayoutPreference === ExploreLayoutPreference.New;
+
+  if (shouldShowExploreMainLayout) {
+    return (
+      <>
+        {children}
+        <ExplorePageContent
+          activeCategoryId="explore"
+          includeExploreOnlySections={false}
+        />
+      </>
+    );
   }
 
   return (
