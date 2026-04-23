@@ -74,7 +74,8 @@
       "__dev__matches": [
         "https://staging.daily.dev/*",
         "https://*.staging.daily.dev/*",
-        "https://*.local.fylla.dev/*"
+        "https://*.local.fylla.dev/*",
+        "https://preview.app.daily.dev/*"
       ]
     }
   ],
