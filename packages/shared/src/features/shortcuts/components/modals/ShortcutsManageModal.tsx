@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';

@@ -48,7 +48,9 @@ export const canonicalShortcutUrl = (link: string): string | null => {
     // rebuild origin from parts instead of using `url.origin` which would
     // bake the `www.` back in.
     const port = url.port ? `:${url.port}` : '';
-    return `${url.protocol.toLowerCase()}//${hostname}${port}${pathname}${url.search}${url.hash}`;
+    return `${url.protocol.toLowerCase()}//${hostname}${port}${pathname}${
+      url.search
+    }${url.hash}`;
   } catch (_) {
     return null;
   }
