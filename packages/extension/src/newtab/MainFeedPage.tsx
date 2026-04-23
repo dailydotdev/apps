@@ -24,6 +24,8 @@ import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
 } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
+import { FocusModeGreeting } from '@dailydotdev/shared/src/features/customizeNewTab/components/FocusModeGreeting';
+import { useFocusMode } from '@dailydotdev/shared/src/features/customizeNewTab/store/focusMode.store';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -85,6 +87,16 @@ export default function MainFeedPage({
   const customizerOffset = customizer.isOpen
     ? `${CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}px`
     : '0px';
+  const { isEnabled: isFocusMode, isRevealed: isFocusRevealed } =
+    useFocusMode();
+  // Focus mode hides everything that's not the headline feed until the user
+  // scrolls; passing null to `shortcuts` cleanly removes the shortcuts row.
+  const shortcutsSlot =
+    isFocusMode && !isFocusRevealed
+      ? null
+      : shortcuts ?? (
+          <ShortcutLinks shouldUseListFeedLayout={shouldUseListFeedLayout} />
+        );
 
   useLayoutEffect(() => {
     if (!initialPage || !shouldInitializeCurrentPage) {
@@ -162,6 +174,7 @@ export default function MainFeedPage({
           additionalButtons={!loadingUser && <CompanionPopupButton />}
         >
           <FeedLayoutProvider>
+            <FocusModeGreeting />
             <MainFeedLayout
               feedName={feedName}
               isSearchOn={isSearchOn}
@@ -186,13 +199,7 @@ export default function MainFeedPage({
                   }}
                 />
               }
-              shortcuts={
-                shortcuts ?? (
-                  <ShortcutLinks
-                    shouldUseListFeedLayout={shouldUseListFeedLayout}
-                  />
-                )
-              }
+              shortcuts={shortcutsSlot}
             />
           </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

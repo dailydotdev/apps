@@ -119,7 +119,7 @@ export type SettingsContextProviderProps = {
   loadedSettings?: boolean;
 };
 
-const defaultSettings: RemoteSettings = {
+export const defaultSettings: RemoteSettings = {
   spaciness: 'eco',
   openNewTab: true,
   insaneMode: false,

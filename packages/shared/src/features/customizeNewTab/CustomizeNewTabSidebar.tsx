@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { MagicIcon, MiniCloseIcon } from '../../components/icons';
+import { MagicIcon, MiniCloseIcon, RefreshIcon } from '../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -14,11 +14,16 @@ import {
 } from '../../components/typography/Typography';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { useSettingsContext } from '../../contexts/SettingsContext';
+import {
+  defaultSettings,
+  useSettingsContext,
+} from '../../contexts/SettingsContext';
 import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
+import { FocusSection } from './sections/FocusSection';
 import { useSetRightSidebarOffset } from './store/rightSidebar.store';
+import { useFocusMode } from './store/focusMode.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
@@ -32,8 +37,10 @@ export const CustomizeNewTabSidebar = ({
 }: CustomizeNewTabSidebarProps): ReactElement | null => {
   const { shouldRender, isOpen, open, close } = customizer;
   const { logEvent } = useLogContext();
-  const { showFeedbackButton } = useSettingsContext();
+  const { showFeedbackButton, setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
+  const { setEnabled: setFocusModeEnabled, setRevealed: setFocusRevealed } =
+    useFocusMode();
   const panelId = useId();
   const impressionLoggedRef = useRef(false);
 
@@ -54,6 +61,19 @@ export const CustomizeNewTabSidebar = ({
       target_id: 'rail_open',
     });
     open();
+  };
+
+  const handleReset = () => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.CustomizeNewTab,
+      target_id: 'reset_defaults',
+    });
+    // Reset both server-synced remote settings and the local focus-mode
+    // state so "defaults" actually means a pristine new tab.
+    setSettings(defaultSettings);
+    setFocusModeEnabled(false);
+    setFocusRevealed(false);
   };
 
   // Expose the panel width as a global offset so the fixed header, feedback
@@ -164,12 +184,23 @@ export const CustomizeNewTabSidebar = ({
         </header>
 
         <div className="flex-1 overflow-y-auto">
+          <FocusSection />
           <AppearanceSection />
           <ShortcutsSection />
           <WidgetsSection />
         </div>
 
-        <footer className="flex items-center justify-end gap-3 border-t border-border-subtlest-tertiary px-5 py-4">
+        <footer className="flex items-center justify-between gap-3 border-t border-border-subtlest-tertiary px-5 py-4">
+          <Button
+            type="button"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<RefreshIcon />}
+            onClick={handleReset}
+            title="Reset all customizations to their default values"
+          >
+            Reset
+          </Button>
           <Button
             type="button"
             variant={ButtonVariant.Primary}
