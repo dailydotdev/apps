@@ -13,6 +13,7 @@ export type ExploreStory = Pick<
   | 'sharedPost'
   | 'author'
   | 'scout'
+  | 'permalink'
   | 'commentsPermalink'
   | 'createdAt'
   | 'creatorTwitter'

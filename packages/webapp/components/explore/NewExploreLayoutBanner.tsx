@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
@@ -8,11 +8,15 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MiniCloseIcon } from '@dailydotdev/shared/src/components/icons';
-import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import {
+  ExploreLayoutPreference,
+  setExploreLayoutPreference,
+} from '@dailydotdev/shared/src/lib/exploreLayoutPreference';
 
+// TODO(prod): revisit whether dismiss should remain session-scoped.
 const STORAGE_KEY = 'new_explore_layout_banner_dismissed';
 const SWITCH_TO_CARDS_HREF = '/posts';
 
@@ -26,13 +30,20 @@ export function NewExploreLayoutBanner(): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const [dismissed, setDismissed, isFetched] = usePersistentContext<boolean>(
-    STORAGE_KEY,
-    false,
-  );
+  const [dismissed, setDismissed] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
   const impressionLogged = useRef(false);
 
-  const showBanner = true;
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    setDismissed(window.sessionStorage.getItem(STORAGE_KEY) === 'true');
+    setIsFetched(true);
+  }, []);
+
+  const showBanner = isFetched && !dismissed;
 
   useEffect(() => {
     if (!showBanner || impressionLogged.current) {
@@ -56,6 +67,9 @@ export function NewExploreLayoutBanner(): ReactElement | null {
       extra: JSON.stringify({ action: 'dismiss' }),
     });
     setDismissed(true);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(STORAGE_KEY, 'true');
+    }
   };
 
   const onUndoSwitchToCards = async () => {
@@ -64,7 +78,11 @@ export function NewExploreLayoutBanner(): ReactElement | null {
       target_id: 'new_explore_layout_banner',
       extra: JSON.stringify({ action: 'undo_switch_to_cards' }),
     });
-    await setDismissed(false);
+    setDismissed(false);
+    setExploreLayoutPreference(ExploreLayoutPreference.New);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem(STORAGE_KEY);
+    }
     router.push('/explore');
   };
 
@@ -75,6 +93,10 @@ export function NewExploreLayoutBanner(): ReactElement | null {
       extra: JSON.stringify({ action: 'switch_to_cards' }),
     });
     setDismissed(true);
+    setExploreLayoutPreference(ExploreLayoutPreference.Cards);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(STORAGE_KEY, 'true');
+    }
     displayToast('You can always change it back on settings', {
       action: {
         copy: 'Undo',
@@ -118,7 +140,7 @@ export function NewExploreLayoutBanner(): ReactElement | null {
                 size={ButtonSize.Small}
                 onClick={onSwitchToCards}
               >
-                Switch to cards
+                Switch to old layout
               </Button>
               <Button
                 type="button"

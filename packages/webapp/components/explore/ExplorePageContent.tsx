@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NextSeo } from 'next-seo';
+import { useRouter } from 'next/router';
 import type { QueryClient } from '@tanstack/react-query';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { arenaOptions } from '@dailydotdev/shared/src/features/agents/arena/queries';
@@ -28,6 +29,10 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useScrollRestoration } from '@dailydotdev/shared/src/hooks';
+import {
+  ExploreLayoutPreference,
+  getExploreLayoutPreference,
+} from '@dailydotdev/shared/src/lib/exploreLayoutPreference';
 import { getPageSeoTitles } from '../layouts/utils';
 import { defaultOpenGraph } from '../../next-seo';
 import { ExploreNewsLayout } from './ExploreNewsLayout';
@@ -229,9 +234,18 @@ export const ExplorePageContent = ({
 }: {
   activeCategoryId: ExploreCategoryId;
 }): ReactElement => {
+  const router = useRouter();
   const { isLoggedIn } = useAuthContext();
   useScrollRestoration();
   const [arenaTab, setArenaTab] = useState<ArenaTab>(DEFAULT_EXPLORE_ARENA_TAB);
+
+  useEffect(() => {
+    if (getExploreLayoutPreference() !== ExploreLayoutPreference.Cards) {
+      return;
+    }
+
+    router.replace('/posts');
+  }, [router]);
   const feedQueries = useMemo(
     () => getFeedQueriesForCategory(activeCategoryId, isLoggedIn),
     [activeCategoryId, isLoggedIn],

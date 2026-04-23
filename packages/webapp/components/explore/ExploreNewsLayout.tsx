@@ -20,6 +20,7 @@ import {
   DownvoteIcon,
   MenuIcon,
   RefreshIcon,
+  TimerIcon,
   UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { useScrollManagement } from '@dailydotdev/shared/src/components/HorizontalScroll/useScrollManagement';
@@ -55,6 +56,8 @@ import { useSmartTitle } from '@dailydotdev/shared/src/hooks/post/useSmartTitle'
 import { PostModalMap } from '@dailydotdev/shared/src/components/Feed';
 import { PostPosition } from '@dailydotdev/shared/src/hooks/usePostModalNavigation';
 import { PostContentReminder } from '@dailydotdev/shared/src/components/post/common/PostContentReminder';
+import PostTags from '@dailydotdev/shared/src/components/cards/common/PostTags';
+import { formatReadTime } from '@dailydotdev/shared/src/components/utilities';
 import { briefingUrl, plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
@@ -258,6 +261,9 @@ const StoryOriginMeta = ({
   return null;
 };
 
+const getStoryReadPath = (story: ExploreStory): string =>
+  story.permalink || story.sharedPost?.permalink || story.commentsPermalink;
+
 /** Refresh + remove — headline/thumbnail remain the tap targets for the post. */
 const ExploreAdPostActionRow = ({
   story,
@@ -396,6 +402,7 @@ const StoryRow = ({
   });
   const displayTitle = smartTitle?.trim() || getExploreStoryTitle(story);
   const showClickbaitShield = !isAdPost && !!story.clickbaitTitleDetected;
+  const storyReadPath = getStoryReadPath(story);
   const shouldHighlightBookmarkedStory =
     showBookmarkRevisit &&
     (forceBookmarkRevisit ||
@@ -413,9 +420,9 @@ const StoryRow = ({
       )}
     >
       {hasStoryImage && (
-        <Link href={story.commentsPermalink}>
+        <Link href={storyReadPath}>
           <a
-            href={story.commentsPermalink}
+            href={storyReadPath}
             className={classNames(
               'h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float',
               imageOnRight && 'order-2',
@@ -442,9 +449,9 @@ const StoryRow = ({
             {bookmarkProviderText}
           </span>
         )}
-        <Link href={story.commentsPermalink}>
+        <Link href={storyReadPath}>
           <a
-            href={story.commentsPermalink}
+            href={storyReadPath}
             onClick={(event) => onOpenPostModal?.(storyPost, event)}
           >
             <p
@@ -489,6 +496,15 @@ const StoryRow = ({
                     <RelativeTime dateTime={story.createdAt} />
                   </span>
                 )}
+                {!!story.readTime && (
+                  <>
+                    <span aria-hidden>•</span>
+                    <span className="inline-flex shrink-0 items-center gap-0.5">
+                      <TimerIcon size={IconSize.Size16} />
+                      <span>{formatReadTime(story.readTime)}</span>
+                    </span>
+                  </>
+                )}
                 {showClickbaitShield && <ClickbaitShield post={storyPost} />}
               </span>
               {!showEngagementIcons && showEngagement && !!story.numUpvotes && (
@@ -508,6 +524,11 @@ const StoryRow = ({
             </>
           )}
         </div>
+        {!isAdPost && (
+          <div className="mt-1 flex items-center gap-1">
+            <PostTags post={storyPost} />
+          </div>
+        )}
         {isAdPost ? (
           <ExploreAdPostActionRow
             story={story}
@@ -865,9 +886,9 @@ const CompactSectionBlock = ({
             }
           >
             {isUpvotedSection || isDiscussedSection ? (
-              <Link href={story.commentsPermalink}>
+              <Link href={getStoryReadPath(story)}>
                 <a
-                  href={story.commentsPermalink}
+                  href={getStoryReadPath(story)}
                   className="flex items-start gap-3 py-2"
                   onClick={(event) => onOpenPostModal?.(story as Post, event)}
                 >
@@ -1474,6 +1495,7 @@ export const ExploreNewsLayout = ({
 
   return (
     <main className="mx-auto flex w-full max-w-[72rem] flex-col gap-8 pb-8 pt-4 laptop:border-x laptop:border-border-subtlest-tertiary">
+      <NewExploreLayoutBanner />
       <section
         id="explore"
         className="sticky top-16 z-rank isolate overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8"
@@ -1541,17 +1563,15 @@ export const ExploreNewsLayout = ({
         </div>
       </section>
 
-      <NewExploreLayoutBanner />
-
       <section id="top-news" className="w-full px-8 pb-6 pt-0 laptop:px-8">
         <ExploreTopNewsHeader activeTabId={activeTabId} />
         <div className="grid gap-4 laptop:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] laptop:gap-x-8">
           {leadStory ? (
             <article className="rounded-12 p-0">
               {!!leadStory.image?.trim() && (
-                <Link href={leadStory.commentsPermalink}>
+                <Link href={getStoryReadPath(leadStory)}>
                   <a
-                    href={leadStory.commentsPermalink}
+                    href={getStoryReadPath(leadStory)}
                     className="focus-visible-outline group block rounded-12"
                     onClick={(event) =>
                       onOpenPostModal?.(leadStory as Post, event)
@@ -1565,9 +1585,9 @@ export const ExploreNewsLayout = ({
                   </a>
                 </Link>
               )}
-              <Link href={leadStory.commentsPermalink}>
+              <Link href={getStoryReadPath(leadStory)}>
                 <a
-                  href={leadStory.commentsPermalink}
+                  href={getStoryReadPath(leadStory)}
                   className="focus-visible-outline group block rounded-12"
                   onClick={(event) =>
                     onOpenPostModal?.(leadStory as Post, event)

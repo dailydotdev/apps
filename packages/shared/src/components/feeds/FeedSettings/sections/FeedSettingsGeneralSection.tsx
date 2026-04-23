@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../utilities/Link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
@@ -21,6 +21,12 @@ import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
 import { usePlusSubscription } from '../../../../hooks';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import { Radio } from '../../../fields/Radio';
+import {
+  ExploreLayoutPreference,
+  getExploreLayoutPreference,
+  setExploreLayoutPreference,
+} from '../../../../lib/exploreLayoutPreference';
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -31,6 +37,13 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
   const { isPlus } = usePlusSubscription();
+  const [layoutPreference, setLayoutPreference] = useState(
+    ExploreLayoutPreference.New,
+  );
+
+  useEffect(() => {
+    setLayoutPreference(getExploreLayoutPreference());
+  }, []);
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -167,6 +180,39 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           </Tooltip>
         )}
       </div>
+      {isMainFeed && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <Typography bold type={TypographyType.Body}>
+              Feed layout
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Choose your feed layout
+            </Typography>
+          </div>
+          <Radio
+            name="exploreLayoutPreference"
+            options={[
+              {
+                label: 'Explore',
+                value: ExploreLayoutPreference.New,
+              },
+              {
+                label: 'Classic cards',
+                value: ExploreLayoutPreference.Cards,
+              },
+            ]}
+            value={layoutPreference}
+            onChange={(value) => {
+              setLayoutPreference(value);
+              setExploreLayoutPreference(value);
+            }}
+          />
+        </div>
+      )}
       {isCustomFeed && (
         <>
           <Divider className="my-1 bg-border-subtlest-tertiary" />
