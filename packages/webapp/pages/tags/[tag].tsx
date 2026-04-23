@@ -388,7 +388,7 @@ const TagPage = ({
         items={[{ label: 'Tags', href: '/tags' }, { label: title }]}
         className="mx-4"
       />
-      <PageInfoHeader className="mx-4 !w-auto">
+      <PageInfoHeader className="mx-4">
         <SponsoredTagHero tag={tag} className="mb-4" />
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />

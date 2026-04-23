@@ -20,6 +20,7 @@ export type TooltipProps = TooltipProviderProps &
     content: ReactNode;
     visible?: boolean;
     enableMobileClick?: boolean;
+    noArrow?: boolean;
   };
 export function Tooltip({
   children,
@@ -30,6 +31,7 @@ export function Tooltip({
   className,
   enableMobileClick,
   open: controlledOpen,
+  noArrow,
   ...props
 }: TooltipProps) {
   const [open, setOpen] = useState(false);
@@ -70,7 +72,9 @@ export function Tooltip({
             {...props}
           >
             {content}
-            <RadixPrimitive.Arrow className="TooltipArrow fill-text-primary" />
+            {!noArrow && (
+              <RadixPrimitive.Arrow className="TooltipArrow fill-text-primary" />
+            )}
           </RadixPrimitive.Content>
         </RadixPrimitive.Portal>
       </RadixPrimitive.Root>

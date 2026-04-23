@@ -185,7 +185,7 @@ export function UserStackModal({
                 <TextField
                   {...register('title')}
                   autoComplete="off"
-                  autoFocus={!isEditing}
+                  autoFocus={!isEditing && !defaultTitle}
                   inputId="stackTitle"
                   label="Technology, tool, or skill"
                   maxLength={255}
@@ -205,46 +205,22 @@ export function UserStackModal({
                   onChange={(e) => {
                     setValue('title', e.target.value);
                     if (!isEditing) {
+                      if (
+                        hasSelectedFromDefault &&
+                        e.target.value !== defaultTitle
+                      ) {
+                        setHasSelectedFromDefault(false);
+                      }
                       setShowSuggestions(true);
                     }
                   }}
                   onFocus={() => {
-                    if (!isEditing) {
+                    if (!isEditing && !hasSelectedFromDefault) {
                       setShowSuggestions(true);
                     }
                   }}
                 />
               </ConditionalWrapper>
-              <TextField
-                {...register('title')}
-                autoComplete="off"
-                autoFocus={!defaultTitle}
-                inputId="stackTitle"
-                label="Technology, tool, or skill"
-                maxLength={255}
-                valid={!errors.title}
-                hint={errors.title?.message}
-                disabled={isEditing}
-                onChange={(e) => {
-                  setValue('title', e.target.value);
-                  if (!isEditing) {
-                    // If user changes the pre-selected title, enable suggestions
-                    if (
-                      hasSelectedFromDefault &&
-                      e.target.value !== defaultTitle
-                    ) {
-                      setHasSelectedFromDefault(false);
-                    }
-                    setShowSuggestions(true);
-                  }
-                }}
-                onFocus={() => {
-                  // Don't show suggestions if we have a pre-selected default title
-                  if (!isEditing && !hasSelectedFromDefault) {
-                    setShowSuggestions(true);
-                  }
-                }}
-              />
               {!isEditing && showSuggestions && title.trim() && (
                 <div className="absolute left-0 right-0 top-full z-1 mt-1 max-h-48 overflow-auto rounded-12 border border-border-subtlest-tertiary bg-background-default shadow-2">
                   {filteredSuggestions.map((suggestion) => (

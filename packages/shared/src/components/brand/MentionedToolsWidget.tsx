@@ -197,7 +197,7 @@ export const MentionedToolsWidget = ({
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
                       >
-                        Sponsored
+                        Powered by
                       </Typography>
                     )}
                   </div>
@@ -235,7 +235,8 @@ export const MentionedToolsWidget = ({
                     />
                   }
                   side="left"
-                  className="no-arrow !max-w-none !rounded-16 !bg-transparent !p-0"
+                  noArrow
+                  className="!max-w-none !rounded-16 !bg-transparent !p-0"
                 >
                   {toolItem}
                 </Tooltip>

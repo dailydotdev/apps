@@ -84,7 +84,7 @@ export const SponsoredTagHero = ({
       />
 
       {/* Content - white text for contrast */}
-      <div className="relative flex flex-col gap-4 p-6 tablet:flex-row tablet:items-center tablet:justify-between">
+      <div className="relative flex flex-col gap-4 p-6 laptop:flex-row laptop:flex-wrap laptop:items-center laptop:justify-between">
         <div className="flex items-center gap-4">
           {/* Brand logo with glow */}
           {sponsorInfo.brandLogo && (
@@ -101,15 +101,15 @@ export const SponsoredTagHero = ({
             </div>
           )}
 
-          <div className="flex flex-col gap-1">
-            <span className="text-white/80 typo-callout">Sponsored by</span>
+          <div className="flex w-full flex-1 flex-col gap-1">
+            <span className="text-white/80 typo-callout">Powered by</span>
             <span className="font-bold text-white typo-title3">
               {sponsorInfo.brandName}
             </span>
             {highlightedWordConfig.config?.tooltipDescription && (
-              <span className="text-white/90 max-w-lg typo-body">
+              <p className="text-white/90 flex w-full max-w-lg typo-body">
                 {highlightedWordConfig.config.tooltipDescription}
-              </span>
+              </p>
             )}
           </div>
         </div>
@@ -123,7 +123,7 @@ export const SponsoredTagHero = ({
             href={ctaUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="!text-gray-900 hover:bg-white/90 flex-shrink-0 self-start bg-white tablet:self-center"
+            className="!text-gray-900 hover:bg-white/90 w-full bg-white laptop:w-auto laptop:flex-shrink-0 laptop:self-center"
           >
             {ctaText}
             <OpenLinkIcon className="ml-2" />

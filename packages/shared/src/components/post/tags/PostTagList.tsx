@@ -77,18 +77,6 @@ const PostTagItem = ({
           />
         </a>
       </Link>
-      <span
-        className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
-        role="separator"
-      />
-      <Tooltip content={`Follow #${tag}`}>
-        <Button
-          icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
-          onClick={() => onFollow(tag)}
-          size={ButtonSize.XSmall}
-          type="button"
-        />
-      </Tooltip>
       {!isFollowed && (
         <>
           <span
@@ -100,6 +88,7 @@ const PostTagItem = ({
               icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
               onClick={() => onFollow(tag)}
               size={ButtonSize.XSmall}
+              type="button"
             />
           </Tooltip>
         </>

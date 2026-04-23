@@ -167,7 +167,8 @@ export const BrandedTag = ({
         <Tooltip
           content={tooltipContent}
           side="bottom"
-          className="no-arrow !max-w-none !rounded-16 !bg-transparent !p-0"
+          noArrow
+          className="!max-w-none !rounded-16 !bg-transparent !p-0"
         >
           {spanElement}
         </Tooltip>
@@ -194,7 +195,8 @@ export const BrandedTag = ({
       <Tooltip
         content={tooltipContent}
         side="bottom"
-        className="!max-w-none !rounded-16 !bg-transparent !p-0 [&_.TooltipArrow]:hidden"
+        noArrow
+        className="!max-w-none !rounded-16 !bg-transparent !p-0"
       >
         {buttonElement}
       </Tooltip>

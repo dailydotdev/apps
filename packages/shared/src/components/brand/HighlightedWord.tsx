@@ -54,8 +54,10 @@ export const HighlightedWord = ({
     }
 
     const lowerWord = word.toLowerCase().trim();
-    const match = creatives.find((c) =>
-      c.keywords.some((k) => k.toLowerCase() === lowerWord),
+    const match = creatives.find(
+      (c) =>
+        c.keywords.some((k) => k.toLowerCase() === lowerWord) ||
+        c.tags.some((t) => t.toLowerCase() === lowerWord),
     );
 
     if (!match) {
@@ -85,7 +87,8 @@ export const HighlightedWord = ({
   return (
     <Tooltip
       content={tooltipContent}
-      className="no-arrow !max-w-none !rounded-16 !bg-transparent !p-0"
+      noArrow
+      className="!max-w-none !rounded-16 !bg-transparent !p-0"
       delayDuration={100}
     >
       <span
@@ -123,55 +126,61 @@ export const HighlightedText = ({
   tags,
   className,
 }: HighlightedTextProps): ReactElement => {
-  const { getHighlightedWordConfig } = useBrandSponsorship();
-  const { creatives } = useEngagementAdsContext();
+  const { creatives, getCreativeForTags } = useEngagementAdsContext();
 
-  // Build a highlight config: from specific tags, or by merging all creatives' keywords
-  const config = useMemo(() => {
+  // Resolve the primary creative (keywords list) and a fallback tags list.
+  // Keywords are scanned first; tags are only used if no keyword matched.
+  const { keywords, fallbackTags } = useMemo(() => {
     if (tags?.length) {
-      return getHighlightedWordConfig(tags).config;
-    }
+      const creative = getCreativeForTags(tags);
 
-    if (!creatives.length) {
-      return null;
-    }
-
-    // Merge all creatives' keywords into one config for text scanning
-    const allKeywords = creatives.flatMap((c) => c.keywords);
-
-    if (!allKeywords.length) {
-      return null;
+      return {
+        keywords: creative?.keywords ?? [],
+        fallbackTags: creative?.tags ?? [],
+      };
     }
 
     return {
-      keywords: allKeywords,
-      highlightStyle: 'dotted' as const,
-      triggerOn: 'hover' as const,
-      tooltipTitle: '',
-      tooltipDescription: '',
+      keywords: creatives.flatMap((c) => c.keywords),
+      fallbackTags: creatives.flatMap((c) => c.tags),
     };
-  }, [tags, creatives, getHighlightedWordConfig]);
+  }, [tags, creatives, getCreativeForTags]);
 
   const parts = useMemo((): ReactNode[] => {
-    if (!config || !text) {
+    if (!text) {
       return [text];
     }
 
-    const matches = findHighlightedKeywords(text, config);
+    const scan = (terms: string[]) =>
+      terms.length
+        ? findHighlightedKeywords(text, {
+            keywords: terms,
+            highlightStyle: 'dotted',
+            triggerOn: 'hover',
+            tooltipTitle: '',
+            tooltipDescription: '',
+          })
+        : [];
 
-    if (matches.length === 0) {
+    // Scan keywords first; only fall back to tags if nothing matched
+    const matches = scan(keywords);
+    const finalMatches =
+      matches.length === 0 && fallbackTags.length
+        ? scan(fallbackTags)
+        : matches;
+
+    if (finalMatches.length === 0) {
       return [text];
     }
 
-    // Only highlight the first match
-    const match = matches[0];
+    const match = finalMatches[0];
 
     return [
       text.slice(0, match.start),
       <HighlightedWord key="highlight-0" word={match.keyword} tags={tags} />,
       text.slice(match.end),
     ];
-  }, [text, tags, config]);
+  }, [text, tags, keywords, fallbackTags]);
 
   return <span className={className}>{parts}</span>;
 };
