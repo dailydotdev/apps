@@ -4,7 +4,11 @@ import type {
   EngagementCreative,
   ResolvedCreative,
 } from '../lib/engagementAds';
-import { findCreativeForTags, resolveCreative } from '../lib/engagementAds';
+import {
+  findCreativeForTags,
+  findCreativeForTool,
+  resolveCreative,
+} from '../lib/engagementAds';
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
 
 interface EngagementAdsContextValue {
@@ -13,11 +17,15 @@ interface EngagementAdsContextValue {
 
   /** Find a creative matching specific tags (stateless lookup) */
   getCreativeForTags: (tags: string[]) => ResolvedCreative | null;
+
+  /** Find a creative whose tools list includes the given tool name */
+  getCreativeForTool: (toolName?: string | null) => ResolvedCreative | null;
 }
 
 const defaultValue: EngagementAdsContextValue = {
   creatives: [],
   getCreativeForTags: () => null,
+  getCreativeForTool: () => null,
 };
 
 const EngagementAdsContext =
@@ -50,12 +58,19 @@ export const EngagementAdsProvider = ({
     [resolvedCreatives],
   );
 
+  const getCreativeForTool = useCallback(
+    (toolName?: string | null) =>
+      findCreativeForTool(resolvedCreatives, toolName),
+    [resolvedCreatives],
+  );
+
   const contextValue = useMemo(
     () => ({
       creatives: resolvedCreatives,
       getCreativeForTags,
+      getCreativeForTool,
     }),
-    [resolvedCreatives, getCreativeForTags],
+    [resolvedCreatives, getCreativeForTags, getCreativeForTool],
   );
 
   return (

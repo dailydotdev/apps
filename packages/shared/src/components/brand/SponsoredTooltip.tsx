@@ -52,10 +52,7 @@ export const SponsoredTooltip = ({
           <span className="text-xs font-medium text-text-quaternary">
             Powered by
           </span>
-          <span
-            className="font-bold text-text-primary"
-            style={colors ? { color: colors.primary } : undefined}
-          >
+          <span className="font-bold text-text-primary">
             {config.tooltipTitle}
           </span>
         </div>

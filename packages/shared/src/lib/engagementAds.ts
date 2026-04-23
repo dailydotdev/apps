@@ -80,3 +80,20 @@ export const findCreativeForTags = (
     creatives.find((c) => c.tags.some((t) => lowerTags.includes(t))) ?? null
   );
 };
+
+/** Find the first creative whose tools list includes the given tool name */
+export const findCreativeForTool = (
+  creatives?: ResolvedCreative[],
+  toolName?: string | null,
+): ResolvedCreative | null => {
+  if (!toolName || !creatives?.length) {
+    return null;
+  }
+
+  const lower = toolName.toLowerCase().trim();
+
+  return (
+    creatives.find((c) => c.tools.some((t) => t.toLowerCase() === lower)) ??
+    null
+  );
+};
