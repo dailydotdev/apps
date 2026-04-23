@@ -23,10 +23,17 @@ export function PostContentReminder({
 
   return (
     <PostContentWidget
-      className={classNames('mt-6 w-full', className)}
+      className={classNames(
+        'mt-0 w-full flex-row justify-start gap-0 border-0 bg-surface-float py-2 laptop:gap-0',
+        className,
+      )}
       title="Don’t have time now? Set a reminder"
+      titleClassName="font-normal"
     >
-      <PostReminderOptions post={post} className="laptop:ml-auto" />
+      <PostReminderOptions
+        post={post}
+        className="min-w-0 flex-1 justify-end laptop:w-auto laptop:flex-none laptop:ml-auto"
+      />
     </PostContentWidget>
   );
 }

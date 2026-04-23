@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
   ArenaTab,
@@ -30,6 +31,7 @@ import {
 } from '@dailydotdev/shared/src/components/cards/brief/BriefContext';
 import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
+import { useJustBookmarked } from '@dailydotdev/shared/src/hooks/bookmark/useJustBookmarked';
 import {
   Button,
   ButtonColor,
@@ -70,6 +72,11 @@ import type { ExploreStory } from './exploreTypes';
 import { ExploreTopCommentChip } from './ExploreTopCommentChip';
 import { ExploreTopNewsHeader } from './ExploreTopNewsHeader';
 import { NewExploreLayoutBanner } from './NewExploreLayoutBanner';
+import {
+  bookmarkProviderIcon,
+  bookmarkProviderText,
+  bookmarkProviderTextClassName,
+} from '@dailydotdev/shared/src/components/cards/common/BookmarkProviderHeader';
 
 export type { ExploreStory } from './exploreTypes';
 
@@ -341,6 +348,8 @@ const StoryRow = ({
   headlineMaxLines = 3,
   compactTopNews = false,
   showTopCommentChip = false,
+  showBookmarkRevisit = false,
+  forceBookmarkRevisit = false,
   onOpenPostModal,
   onRefreshAd,
   isRefreshingAd,
@@ -358,6 +367,10 @@ const StoryRow = ({
   compactTopNews?: boolean;
   /** Top comment preview under actions (Popular section) */
   showTopCommentChip?: boolean;
+  /** Apply bookmark revisit highlight treatment for saved posts. */
+  showBookmarkRevisit?: boolean;
+  /** Always show bookmark revisit treatment (debug/validation mode). */
+  forceBookmarkRevisit?: boolean;
   onOpenPostModal?: (post: Post, event: MouseEvent<HTMLElement>) => void;
   onRefreshAd?: () => void | Promise<void>;
   isRefreshingAd?: boolean;
@@ -378,24 +391,35 @@ const StoryRow = ({
   const upvoteCount = story.numUpvotes ?? 0;
   const commentCount = story.numComments ?? 0;
   const { title: smartTitle } = useSmartTitle(storyPost);
+  const { justBookmarked, wasBookmarked } = useJustBookmarked({
+    bookmarked: story.bookmarked ?? false,
+  });
   const displayTitle = smartTitle?.trim() || getExploreStoryTitle(story);
   const showClickbaitShield = !isAdPost && !!story.clickbaitTitleDetected;
+  const shouldHighlightBookmarkedStory =
+    showBookmarkRevisit &&
+    (forceBookmarkRevisit ||
+      (wasBookmarked && !justBookmarked && !!story.bookmarked)) &&
+    !isAdPost;
 
   return (
     <article
-      className={
-        compactTopNews
-          ? 'group flex items-start gap-3 pb-2.5 pt-0 last:pb-0'
-          : 'group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5'
-      }
+      className={classNames(
+        shouldHighlightBookmarkedStory
+          ? 'group -mx-3 flex items-start gap-3 rounded-16 border border-action-bookmark-active bg-action-bookmark-float px-3 py-2.5 hover:border-action-bookmark-default'
+          : compactTopNews
+            ? 'group flex items-start gap-3 pb-2.5 pt-0 last:pb-0'
+            : 'group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5',
+      )}
     >
       {hasStoryImage && (
         <Link href={story.commentsPermalink}>
           <a
             href={story.commentsPermalink}
-            className={`h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float ${
-              imageOnRight ? 'order-2' : ''
-            }`}
+            className={classNames(
+              'h-16 w-16 shrink-0 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float',
+              imageOnRight && 'order-2',
+            )}
             onClick={(event) => onOpenPostModal?.(storyPost, event)}
           >
             <img
@@ -407,6 +431,17 @@ const StoryRow = ({
         </Link>
       )}
       <div className="min-w-0 flex-1">
+        {shouldHighlightBookmarkedStory && (
+          <span
+            className={classNames(
+              'mb-1.5 flex items-center',
+              bookmarkProviderTextClassName,
+            )}
+          >
+            {bookmarkProviderIcon}
+            {bookmarkProviderText}
+          </span>
+        )}
         <Link href={story.commentsPermalink}>
           <a
             href={story.commentsPermalink}
@@ -760,7 +795,7 @@ const StorySectionBlock = ({
         </header>
       )}
       {storiesToRender.length > 0 ? (
-        storiesToRender.map((story) => (
+        storiesToRender.map((story, index) => (
           <StoryRow
             key={story.id}
             story={story}
@@ -768,6 +803,8 @@ const StorySectionBlock = ({
             showEngagement={showEngagement}
             showEngagementIcons
             headlineMaxLines={isSponsoredSlotSection ? 2 : 3}
+            showBookmarkRevisit={isLatestSection || isPopularSection}
+            forceBookmarkRevisit={isLatestSection && index === 0}
             isSponsored={
               isSponsoredSlotSection && sponsoredStory?.id === story.id
             }
@@ -917,13 +954,15 @@ const MoreStoriesStrip = ({
   return (
     <section id="more-stories-strip" className="my-4">
       <div className="rounded-16 pb-3 pl-0 pr-0 pt-0 laptop:pb-4 laptop:pl-0 laptop:pr-0 laptop:pt-0">
-        {stories.map((story) => (
+        {stories.map((story, index) => (
           <StoryRow
             key={story.id}
             story={story}
             showEngagement
             showEngagementIcons
             headlineMaxLines={2}
+            showBookmarkRevisit
+            forceBookmarkRevisit={index === 0}
             onOpenPostModal={onOpenPostModal}
             onRefreshAd={onRefreshAd}
             isRefreshingAd={isRefreshingAd}

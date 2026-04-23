@@ -23,7 +23,7 @@ interface PostReminderOptionsProps {
 export function PostReminderOptions({
   post,
   className,
-  buttonProps = { variant: ButtonVariant.Float, size: ButtonSize.XSmall },
+  buttonProps = { variant: ButtonVariant.Tertiary, size: ButtonSize.XSmall },
 }: PostReminderOptionsProps): ReactElement {
   const { onInteract, previousInteraction } = usePostActions({ post });
   const { openModal } = useLazyModal();

@@ -7,6 +7,7 @@ interface PostContentWidgetProps {
   title: ReactNode;
   icon?: ReactNode;
   className?: string;
+  titleClassName?: string;
 }
 
 export function PostContentWidget({
@@ -14,6 +15,7 @@ export function PostContentWidget({
   className,
   icon,
   title,
+  titleClassName,
 }: PostContentWidgetProps): ReactElement {
   return (
     <div
@@ -22,7 +24,12 @@ export function PostContentWidget({
         className,
       )}
     >
-      <span className="flex flex-row items-center gap-1 font-bold text-text-tertiary typo-callout">
+      <span
+        className={classNames(
+          'flex flex-row items-center gap-1 font-bold text-text-tertiary typo-callout',
+          titleClassName,
+        )}
+      >
         {icon}
         {title}
       </span>
