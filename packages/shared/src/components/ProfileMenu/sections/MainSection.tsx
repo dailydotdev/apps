@@ -16,7 +16,7 @@ import {
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
-import type { SidebarSectionProps } from './common';
+import type { SidebarSectionProps } from '../../sidebar/sections/common';
 import { plusUrl, webappUrl } from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
