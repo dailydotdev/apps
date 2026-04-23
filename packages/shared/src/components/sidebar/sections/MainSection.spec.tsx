@@ -97,10 +97,7 @@ describe('MainSection', () => {
   it('should link directly to milestone quests when claimable milestone quests exist', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
-        milestone: [
-          { claimable: true },
-          { claimable: false },
-        ],
+        milestone: [{ claimable: true }, { claimable: false }],
       },
     });
 
