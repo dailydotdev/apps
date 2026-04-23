@@ -7,12 +7,12 @@ const Probe = (): JSX.Element => {
   return (
     <div>
       <span data-testid="todos">{String(toggles.todos)}</span>
-      <span data-testid="quote">{String(toggles.quote)}</span>
+      <span data-testid="weather">{String(toggles.weather)}</span>
       <button type="button" onClick={() => setToggle('todos', false)}>
         hide-todos
       </button>
-      <button type="button" onClick={() => setToggle('quote', true)}>
-        show-quote
+      <button type="button" onClick={() => setToggle('weather', true)}>
+        show-weather
       </button>
       <button type="button" onClick={reset}>
         reset
@@ -29,22 +29,22 @@ describe('zenModules.store', () => {
   it('defaults to sensible Zen modules', () => {
     render(<Probe />);
     expect(screen.getByTestId('todos')).toHaveTextContent('true');
-    expect(screen.getByTestId('quote')).toHaveTextContent('false');
+    expect(screen.getByTestId('weather')).toHaveTextContent('false');
   });
 
   it('persists toggles and resets back to defaults', () => {
     render(<Probe />);
     act(() => {
       screen.getByText('hide-todos').click();
-      screen.getByText('show-quote').click();
+      screen.getByText('show-weather').click();
     });
     expect(screen.getByTestId('todos')).toHaveTextContent('false');
-    expect(screen.getByTestId('quote')).toHaveTextContent('true');
+    expect(screen.getByTestId('weather')).toHaveTextContent('true');
 
     act(() => {
       screen.getByText('reset').click();
     });
     expect(screen.getByTestId('todos')).toHaveTextContent('true');
-    expect(screen.getByTestId('quote')).toHaveTextContent('false');
+    expect(screen.getByTestId('weather')).toHaveTextContent('false');
   });
 });

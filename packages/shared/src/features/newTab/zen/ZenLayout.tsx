@@ -3,8 +3,6 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { useConditionalFeature } from '../../../hooks';
-import { featureZenWallpapers } from '../../../lib/featureManagement';
 import { useZenModules } from '../store/zenModules.store';
 import { ZenClock } from './ZenClock';
 import { ZenGreeting } from './ZenGreeting';
@@ -14,6 +12,7 @@ import { ZenMustReads } from './ZenMustReads';
 import { ZenQuote } from './ZenQuote';
 import { ZenBackground } from './ZenBackground';
 import { ZenWeather } from './ZenWeather';
+import { ZenTodayStrip } from './ZenTodayStrip';
 
 interface ZenLayoutProps {
   className?: string;
@@ -31,11 +30,10 @@ export const ZenLayout = ({
 }: ZenLayoutProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { toggles } = useZenModules();
-  const { value: wallpapersEnabled } = useConditionalFeature({
-    feature: featureZenWallpapers,
-    shouldEvaluate: toggles.wallpaper,
-  });
-  const showWallpaper = toggles.wallpaper && wallpapersEnabled;
+  // Wallpaper used to be flag-gated but we want new-tab modes to produce an
+  // obviously different experience the moment a user picks Zen. The toggle
+  // still lives in the sidebar for anyone who prefers a flat background.
+  const showWallpaper = toggles.wallpaper;
 
   useEffect(() => {
     logEvent({
@@ -68,6 +66,8 @@ export const ZenLayout = ({
           <ZenGreeting />
           {toggles.weather ? <ZenWeather className="mt-1" /> : null}
         </div>
+
+        <ZenTodayStrip />
 
         {toggles.quote ? <ZenQuote /> : null}
 

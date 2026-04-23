@@ -61,6 +61,9 @@ const writeTodos = (todos: Todo[]): void => {
     return;
   }
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  // Broadcast so other subscribers in the same tab (e.g. ZenTodayStrip) can
+  // re-read. `storage` events only fire across tabs, so we need our own.
+  window.dispatchEvent(new CustomEvent('newtab:zen:todos:changed'));
 };
 
 export const ZenTodos = (): ReactElement => {

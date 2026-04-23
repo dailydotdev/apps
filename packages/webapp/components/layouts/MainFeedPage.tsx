@@ -8,6 +8,7 @@ import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities'
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
+import { NewTabModeRenderer } from '@dailydotdev/shared/src/features/newTab/NewTabModeRenderer';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -102,7 +103,12 @@ export default function MainFeedPage({
     return <></>;
   }
 
-  return (
+  // Only the root "/" feed behaves like a new-tab surface where Zen/Focus
+  // modes make sense. All other routes (bookmarks, sources, squads...) are
+  // explicit destinations, so we always render the feed layout there.
+  const isRootFeed = feedName === 'default' && !isSearchOn;
+
+  const feedContent = (
     <MainFeedLayout
       feedName={feedName}
       isSearchOn={isSearchOn}
@@ -114,6 +120,12 @@ export default function MainFeedPage({
       {children}
     </MainFeedLayout>
   );
+
+  if (!isRootFeed) {
+    return feedContent;
+  }
+
+  return <NewTabModeRenderer>{feedContent}</NewTabModeRenderer>;
 }
 
 export function getMainFeedLayout(
