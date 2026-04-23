@@ -15,14 +15,7 @@ import {
 } from '../../../components/buttons/Button';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
-import type { Spaciness } from '../../../graphql/settings';
 import { SidebarSection } from '../components/SidebarSection';
-
-const spacinessOptions: { value: Spaciness; label: string }[] = [
-  { value: 'eco', label: 'Eco' },
-  { value: 'roomy', label: 'Roomy' },
-  { value: 'cozy', label: 'Cozy' },
-];
 
 interface SegmentedControlRowProps {
   label: string;
@@ -42,8 +35,7 @@ const SegmentedRow = ({
 
 export const AppearanceSection = (): ReactElement => {
   const { logEvent } = useLogContext();
-  const { insaneMode, toggleInsaneMode, spaciness, setSpaciness } =
-    useSettingsContext();
+  const { insaneMode, toggleInsaneMode } = useSettingsContext();
 
   const onLayoutToggle = useCallback(
     async (isList: boolean) => {
@@ -56,18 +48,6 @@ export const AppearanceSection = (): ReactElement => {
       return toggleInsaneMode(isList);
     },
     [logEvent, toggleInsaneMode],
-  );
-
-  const onSpacinessChange = useCallback(
-    (value: Spaciness) => {
-      logEvent({
-        event_name: LogEvent.ChangeSettings,
-        target_type: TargetType.CustomizeNewTab,
-        target_id: `spaciness_${value}`,
-      });
-      setSpaciness(value);
-    },
-    [logEvent, setSpaciness],
   );
 
   return (
@@ -95,27 +75,6 @@ export const AppearanceSection = (): ReactElement => {
           >
             List
           </Button>
-        </ButtonGroup>
-      </SegmentedRow>
-
-      <SegmentedRow label="Density">
-        <ButtonGroup>
-          {spacinessOptions.map(({ value, label }) => {
-            const isActive = value === spaciness;
-            return (
-              <Button
-                key={value}
-                variant={
-                  isActive ? ButtonVariant.Float : ButtonVariant.Tertiary
-                }
-                size={ButtonSize.XSmall}
-                onClick={() => onSpacinessChange(value)}
-                className={isActive ? 'text-text-primary' : undefined}
-              >
-                {label}
-              </Button>
-            );
-          })}
         </ButtonGroup>
       </SegmentedRow>
     </SidebarSection>

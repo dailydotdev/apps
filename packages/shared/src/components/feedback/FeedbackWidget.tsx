@@ -7,12 +7,14 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useRightSidebarOffset } from '../../features/customizeNewTab/store/rightSidebar.store';
 
 export function FeedbackWidget(): ReactElement | null {
   const { user } = useAuthContext();
   const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
+  const rightSidebarOffset = useRightSidebarOffset();
 
   // Only show for authenticated users on desktop when setting is enabled
   // Mobile feedback is handled by FooterPlusButton
@@ -25,7 +27,11 @@ export function FeedbackWidget(): ReactElement | null {
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
       icon={<FeedbackIcon />}
-      className="fixed bottom-4 right-4 z-max shadow-2"
+      className="fixed bottom-4 z-max shadow-2"
+      style={{
+        right: `calc(1rem + ${rightSidebarOffset}px)`,
+        transition: 'right 200ms ease-in-out',
+      }}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback"
     >

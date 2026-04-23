@@ -6,8 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { MagicIcon, SettingsIcon } from '../../components/icons';
-import CloseButton from '../../components/CloseButton';
+import { MagicIcon, MiniCloseIcon } from '../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -15,14 +14,14 @@ import {
 } from '../../components/typography/Typography';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
-import { settingsUrl } from '../../lib/constants';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
+import { useSetRightSidebarOffset } from './store/rightSidebar.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
-export const CUSTOMIZE_NEW_TAB_RAIL_WIDTH_PX = 40;
 
 interface CustomizeNewTabSidebarProps {
   customizer: ReturnType<typeof useCustomizeNewTab>;
@@ -33,6 +32,8 @@ export const CustomizeNewTabSidebar = ({
 }: CustomizeNewTabSidebarProps): ReactElement | null => {
   const { shouldRender, isOpen, open, close } = customizer;
   const { logEvent } = useLogContext();
+  const { showFeedbackButton } = useSettingsContext();
+  const setRightSidebarOffset = useSetRightSidebarOffset();
   const panelId = useId();
   const impressionLoggedRef = useRef(false);
 
@@ -54,6 +55,15 @@ export const CustomizeNewTabSidebar = ({
     });
     open();
   };
+
+  // Expose the panel width as a global offset so the fixed header, feedback
+  // button and feed layout all shift/reshape in sync with the panel.
+  useEffect(() => {
+    setRightSidebarOffset(
+      shouldRender && isOpen ? CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX : 0,
+    );
+    return () => setRightSidebarOffset(0);
+  }, [shouldRender, isOpen, setRightSidebarOffset]);
 
   useEffect(() => {
     if (!isOpen || impressionLoggedRef.current) {
@@ -90,6 +100,11 @@ export const CustomizeNewTabSidebar = ({
     return null;
   }
 
+  // Stack the Customize pill above the Feedback pill (which sits at bottom-4)
+  // so they never occlude each other. When feedback is disabled we drop the
+  // gap so Customize lives at the normal bottom-4 position.
+  const customizeBottomClass = showFeedbackButton ? 'bottom-20' : 'bottom-4';
+
   return (
     <>
       {/* Floating "Customize" pill: always visible when panel is closed. */}
@@ -103,7 +118,10 @@ export const CustomizeNewTabSidebar = ({
           size={ButtonSize.Medium}
           icon={<MagicIcon secondary />}
           title="Customize new tab"
-          className="fixed bottom-6 right-6 z-modal shadow-2"
+          className={classNames(
+            'fixed right-4 z-max shadow-2',
+            customizeBottomClass,
+          )}
         >
           Customize
         </Button>
@@ -134,9 +152,13 @@ export const CustomizeNewTabSidebar = ({
               Settings.
             </Typography>
           </div>
-          <CloseButton
+          <Button
             type="button"
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
+            icon={<MiniCloseIcon />}
+            aria-label="Close customize sidebar"
+            title="Close"
             onClick={() => handleClose('x')}
           />
         </header>
@@ -147,19 +169,7 @@ export const CustomizeNewTabSidebar = ({
           <WidgetsSection />
         </div>
 
-        <footer className="flex items-center justify-between gap-3 border-t border-border-subtlest-tertiary px-5 py-4">
-          <Button
-            type="button"
-            tag="a"
-            href={`${settingsUrl}/appearance`}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<SettingsIcon />}
-          >
-            Open full settings
-          </Button>
+        <footer className="flex items-center justify-end gap-3 border-t border-border-subtlest-tertiary px-5 py-4">
           <Button
             type="button"
             variant={ButtonVariant.Primary}

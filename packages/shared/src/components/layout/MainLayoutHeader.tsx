@@ -14,6 +14,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
+import { useRightSidebarOffset } from '../../features/customizeNewTab/store/rightSidebar.store';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -52,6 +53,7 @@ function MainLayoutHeader({
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+  const rightSidebarOffset = useRightSidebarOffset();
   const { profile } = useActiveNav(feedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
@@ -105,7 +107,14 @@ function MainLayoutHeader({
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}
-      style={featureTheme ? featureTheme.navbar : undefined}
+      style={{
+        ...(featureTheme ? featureTheme.navbar : undefined),
+        right: rightSidebarOffset,
+        width: rightSidebarOffset
+          ? `calc(100% - ${rightSidebarOffset}px)`
+          : undefined,
+        transition: 'right 200ms ease-in-out, width 200ms ease-in-out',
+      }}
     >
       {isMobileSearchPage ? (
         <>

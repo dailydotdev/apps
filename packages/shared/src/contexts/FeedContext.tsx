@@ -4,6 +4,7 @@ import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import { useRightSidebarOffset } from '../features/customizeNewTab/store/rightSidebar.store';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
@@ -117,6 +118,7 @@ export function FeedLayoutProvider({
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
+  const rightSidebarOffset = useRightSidebarOffset();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -127,6 +129,11 @@ export function FeedLayoutProvider({
   const [debouncedSidebarExpanded, setDebouncedSidebarExpanded] =
     useState(sidebarExpanded);
 
+  // Same debounce applied to the right-side panel's offset so the feed does
+  // not re-layout in the middle of the slide-in animation.
+  const [debouncedRightOffset, setDebouncedRightOffset] =
+    useState(rightSidebarOffset);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSidebarExpanded(sidebarExpanded);
@@ -134,6 +141,14 @@ export function FeedLayoutProvider({
 
     return () => clearTimeout(timer);
   }, [sidebarExpanded]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRightOffset(rightSidebarOffset);
+    }, SIDEBAR_TRANSITION_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [rightSidebarOffset]);
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
     const enhancedFeedSettings = Object.entries(baseFeedSettings).reduce(
@@ -162,27 +177,37 @@ export function FeedLayoutProvider({
     };
   }, [feedAdTemplateFeature.value]);
 
-  // Generate the breakpoints for the feed settings
-  // Uses debounced sidebar state to sync layout change with sidebar animation
+  // Generate the breakpoints for the feed settings.
+  // Uses debounced sidebar state to sync layout change with sidebar animation,
+  // and also shifts breakpoints right by any active right-side panel (e.g. the
+  // customize new tab sidebar) so the feed drops a column while it's open.
   const feedBreakpoints = useMemo(() => {
     const breakpoints = feedSettings.map((setting) =>
       setting.breakpoint.replace('@media ', ''),
     );
 
-    if (!sidebarRendered) {
+    let leftOffset = 0;
+    if (sidebarRendered) {
+      leftOffset = debouncedSidebarExpanded
+        ? sidebarOpenWidth
+        : sidebarRenderedWidth;
+    }
+
+    const totalOffset = leftOffset + debouncedRightOffset;
+
+    if (totalOffset === 0) {
       return breakpoints;
     }
 
-    if (debouncedSidebarExpanded) {
-      return breakpoints.map((breakpoint) =>
-        replaceDigitsWithIncrement(breakpoint, sidebarOpenWidth),
-      );
-    }
-
     return breakpoints.map((breakpoint) =>
-      replaceDigitsWithIncrement(breakpoint, sidebarRenderedWidth),
+      replaceDigitsWithIncrement(breakpoint, totalOffset),
     );
-  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
+  }, [
+    feedSettings,
+    debouncedSidebarExpanded,
+    sidebarRendered,
+    debouncedRightOffset,
+  ]);
 
   const currentSettings = useMedia(
     feedBreakpoints,
