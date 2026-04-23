@@ -109,7 +109,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(defaultAlerts, [], undefined, false);
+  renderComponent(defaultAlerts, [], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -136,13 +136,15 @@ it('should render Highlights item linking to highlights page', async () => {
 
 it('should require login before opening following for anonymous users', async () => {
   renderComponent(defaultAlerts, [createMockFeedSettings()], null);
-  const item = await screen.findByText('Following');
+  const item = await screen.findByRole('link', { name: 'Following' });
 
   fireEvent.click(item);
 
-  expect(showLogin).toHaveBeenCalledWith({
-    trigger: 'Following',
-  });
+  await waitFor(() =>
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: 'Following',
+    }),
+  );
 });
 
 const sidebarItems = [
