@@ -15,6 +15,8 @@ const errorLog = (...args: unknown[]): void => {
 
 type SendParentMessage = (type: string, detail: Record<string, string>) => void;
 
+type PermissionRequestOutcome = 'granted' | 'dismissed' | 'failed';
+
 export const createFrameCleanupController = () => {
   let shouldDisableEmbeddingOnCleanup = false;
 
@@ -53,39 +55,41 @@ export const initializeFrame = async ({
   const hasPermissions = await hasFrameEmbeddingPermissions();
 
   if (!hasPermissions) {
+    const onRequestPermission = async (): Promise<PermissionRequestOutcome> => {
+      try {
+        const granted = await requestFrameEmbeddingPermissions();
+
+        if (!granted) {
+          sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
+            reason: 'permission-denied',
+            target: target.href,
+          });
+          return 'dismissed';
+        }
+
+        sendParentMessage(extensionSiteEmbedFrameEvent.ReloadRequested, {
+          target: target.href,
+        });
+
+        // After the optional permission prompt resolves, the fresh extension
+        // context is much more reliable for enabling the DNR session rule.
+        globalThis.setTimeout(() => {
+          browser.runtime.reload();
+        }, 100);
+
+        return 'granted';
+      } catch {
+        sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
+          reason: 'permission-request-failed',
+          target: target.href,
+        });
+        return 'failed';
+      }
+    };
+
     renderPermissionPrompt({
       root,
-      onRequestPermission: async () => {
-        try {
-          const granted = await requestFrameEmbeddingPermissions();
-
-          if (!granted) {
-            sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
-              reason: 'permission-denied',
-              target: target.href,
-            });
-            return 'dismissed';
-          }
-
-          sendParentMessage(extensionSiteEmbedFrameEvent.ReloadRequested, {
-            target: target.href,
-          });
-
-          // After the optional permission prompt resolves, the fresh extension
-          // context is much more reliable for enabling the DNR session rule.
-          globalThis.setTimeout(() => {
-            browser.runtime.reload();
-          }, 100);
-
-          return 'granted';
-        } catch {
-          sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
-            reason: 'permission-request-failed',
-            target: target.href,
-          });
-          return 'failed';
-        }
-      },
+      onRequestPermission,
     });
 
     sendParentMessage(extensionSiteEmbedFrameEvent.Error, {

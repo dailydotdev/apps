@@ -19,8 +19,9 @@ const getFrameOrigin = (frame: HTMLIFrameElement | null): string | null => {
   }
 };
 
-export const postExtensionSiteEmbedDisableMessage = (
+const postFrameMessage = (
   frame: HTMLIFrameElement | null,
+  type: (typeof extensionSiteEmbedParentEvent)[keyof typeof extensionSiteEmbedParentEvent],
 ): void => {
   if (!frame?.contentWindow) {
     return;
@@ -31,13 +32,27 @@ export const postExtensionSiteEmbedDisableMessage = (
     return;
   }
 
-  frame.contentWindow.postMessage(
-    {
-      source: extensionSiteEmbedParentMessageSource,
-      type: extensionSiteEmbedParentEvent.Disable,
-    },
-    frameOrigin,
-  );
+  try {
+    frame.contentWindow.postMessage(
+      {
+        source: extensionSiteEmbedParentMessageSource,
+        type,
+      },
+      frameOrigin,
+    );
+  } catch {
+    // Chrome throws when the iframe failed to navigate to the extension
+    // origin (e.g. blocked by `web_accessible_resources` or extension
+    // uninstalled mid-session) — the iframe ends up at about:blank inheriting
+    // the parent origin, which mismatches the strict `targetOrigin` we pass.
+    // The message would be a no-op anyway in that state, so swallow it.
+  }
+};
+
+export const postExtensionSiteEmbedDisableMessage = (
+  frame: HTMLIFrameElement | null,
+): void => {
+  postFrameMessage(frame, extensionSiteEmbedParentEvent.Disable);
 };
 
 type HandleExtensionSiteEmbedMessageOptions = {

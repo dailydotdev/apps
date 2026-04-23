@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
@@ -13,11 +13,9 @@ import { EngagementRail } from './EngagementRail';
 import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
 import { PaneDivider } from './PaneDivider';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
-import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
 
 const CHROME_TOP_OFFSET_PX = 72;
-const DEFAULT_OUTER_CLASS_NAME =
-  'flex h-[min(100vh-2rem,56rem)] max-h-[calc(100vh-2rem)] min-h-0 w-full flex-col';
+const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
 
 type ReaderPostLayoutProps = {
   post: Post;
@@ -57,8 +55,6 @@ export function ReaderPostLayout({
     maxRailWidthPx,
   } = useReaderLayoutPrefs();
 
-  const [articleRefreshKey, setArticleRefreshKey] = useState(0);
-  const { optOut: useLegacyLayout } = useLegacyPostLayoutOptOut();
   const focusCommentRef = useRef<() => void>(() => {});
   const onRegisterFocusComment = useCallback((fn: () => void) => {
     focusCommentRef.current = fn;
@@ -68,10 +64,6 @@ export function ReaderPostLayout({
   const toggleRail = useCallback(() => {
     setRailOpen(!isRailOpen);
   }, [isRailOpen, setRailOpen]);
-
-  const refreshArticleContent = useCallback(() => {
-    setArticleRefreshKey((value) => value + 1);
-  }, []);
 
   const focusDiscussionComposer = useCallback(() => {
     if (!isRailOpen) {
@@ -156,9 +148,7 @@ export function ReaderPostLayout({
                 )}
                 <div className="relative flex min-h-0 min-w-0 flex-col">
                   <ArticleReaderFrame
-                    key={articleRefreshKey}
                     post={post}
-                    onUseLegacyLayout={useLegacyLayout}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
@@ -168,7 +158,6 @@ export function ReaderPostLayout({
                     onClose={onClose}
                     isRailOpen={isRailOpen}
                     onToggleRail={toggleRail}
-                    onRefreshContent={refreshArticleContent}
                     isPostPage={isPostPage}
                   />
                   <ReaderFloatingActionBar

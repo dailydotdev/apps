@@ -10,7 +10,6 @@ type ArticleReaderFrameProps = {
   post: Post;
   className?: string;
   onEmbedUnavailable?: () => void;
-  onUseLegacyLayout?: () => void;
   fallbackScrollRef?: Ref<HTMLDivElement>;
   contentTopOffsetPx?: number;
 };
@@ -19,7 +18,6 @@ export function ArticleReaderFrame({
   post,
   className,
   onEmbedUnavailable,
-  onUseLegacyLayout,
   fallbackScrollRef,
   contentTopOffsetPx = 0,
 }: ArticleReaderFrameProps): ReactElement {
@@ -59,7 +57,6 @@ export function ArticleReaderFrame({
         targetUrl={targetUrl}
         previewHost={post.domain ?? undefined}
         onPreviewUnavailable={onPreviewUnavailable}
-        onUseLegacyLayout={onUseLegacyLayout}
         className="!flex min-h-0 flex-1"
       />
     </div>

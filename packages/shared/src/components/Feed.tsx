@@ -53,7 +53,7 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketingCta/common';
-import { isNullOrUndefined } from '../lib/func';
+import { isExtensionCapableBrowser, isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
@@ -331,12 +331,16 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
+  // Only enroll users whose browser can install our extension into the
+  // reader-modal experiment — Firefox/Safari/Other can never complete the
+  // embedded-browsing flow, so pulling them into the test pollutes the stats.
+  const isExtensionBrowser = useMemo(() => isExtensionCapableBrowser(), []);
   const {
     value: readerModalFromGrowthBook,
     isLoading: isReaderFeatureLoading,
   } = useConditionalFeature({
     feature: featureReaderModal,
-    shouldEvaluate: true,
+    shouldEvaluate: isExtensionBrowser,
   });
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const forceLegacyPostModalInDev =
@@ -346,7 +350,10 @@ export default function Feed<T>({
     : readerModalFromGrowthBook;
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isReaderModalOn =
-    isReaderModalFromConfig && !isLegacyLayoutOptedOut && isTabletViewport;
+    isExtensionBrowser &&
+    isReaderModalFromConfig &&
+    !isLegacyLayoutOptedOut &&
+    isTabletViewport;
   const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>
