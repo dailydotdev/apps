@@ -8,6 +8,7 @@ import {
   useViewSize,
   ViewSize,
   useClickbaitTries,
+  useConditionalFeature,
 } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
@@ -17,7 +18,6 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { useFeature } from '../../GrowthBookProvider';
 import { featureFeedClickbaitShieldWarning } from '../../../lib/featureManagement';
 
 export const ClickbaitShield = ({
@@ -33,7 +33,10 @@ export const ClickbaitShield = ({
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
-  const showWarningShield = useFeature(featureFeedClickbaitShieldWarning);
+  const { value: showWarningShield } = useConditionalFeature({
+    feature: featureFeedClickbaitShieldWarning,
+    shouldEvaluate: !isPlus,
+  });
 
   if (!isPlus) {
     if (!fetchedSmartTitle && !showWarningShield) {
