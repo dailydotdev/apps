@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -66,6 +66,16 @@ export const useShortcutsManager = (): UseShortcutsManager => {
   const metaMap = useMemo(() => flags?.shortcutMeta ?? {}, [flags]);
   const links = useMemo(() => customLinks ?? [], [customLinks]);
 
+  // Refs tracking the latest committed state so undo toasts can recompute
+  // against fresh data rather than a stale closure snapshot, which would
+  // otherwise clobber unrelated writes that landed during the undo window.
+  const linksRef = useRef(links);
+  const metaRef = useRef(metaMap);
+  useEffect(() => {
+    linksRef.current = links;
+    metaRef.current = metaMap;
+  }, [links, metaMap]);
+
   const shortcuts = useMemo<Shortcut[]>(
     () =>
       links.map((url) => {
@@ -115,14 +125,15 @@ export const useShortcutsManager = (): UseShortcutsManager => {
   );
 
   const writeBatch = useCallback(
-    (
+    async (
       nextLinks: string[],
       nextMeta: Record<string, ShortcutMeta>,
-    ): Promise<void> =>
-      setSettings({
+    ): Promise<void> => {
+      await setSettings({
         customLinks: nextLinks,
         flags: { ...flags, shortcutMeta: nextMeta } as SettingsFlags,
-      }) as Promise<void>,
+      });
+    },
     [flags, setSettings],
   );
 
@@ -227,9 +238,19 @@ export const useShortcutsManager = (): UseShortcutsManager => {
         action: {
           copy: 'Undo',
           onClick: async () => {
-            const restoredLinks = [...nextLinks];
-            restoredLinks.splice(index, 0, url);
-            const restoredMeta = { ...nextMeta };
+            // Recompute from the latest committed state so we don't stomp
+            // unrelated shortcut writes that landed during the undo window.
+            const currentLinks = linksRef.current;
+            const currentMeta = metaRef.current;
+            if (currentLinks.includes(url)) {
+              // User re-added the same shortcut during the undo window;
+              // nothing to restore.
+              return;
+            }
+            const insertAt = Math.min(index, currentLinks.length);
+            const restoredLinks = [...currentLinks];
+            restoredLinks.splice(insertAt, 0, url);
+            const restoredMeta = { ...currentMeta };
             if (prevMeta) {
               restoredMeta[url] = prevMeta;
             }

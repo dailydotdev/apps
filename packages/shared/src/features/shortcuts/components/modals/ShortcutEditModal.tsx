@@ -30,6 +30,7 @@ import { useFileInput } from '../../../../hooks/utils/useFileInput';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { apiUrl } from '../../../../lib/config';
+import { invokeOnRequestClose } from './closeModal';
 
 const schema = z.object({
   name: z
@@ -75,7 +76,7 @@ export default function ShortcutEditModal({
   const { closeModal } = useLazyModal();
   const close = () => {
     closeModal();
-    props.onRequestClose?.(undefined as never);
+    invokeOnRequestClose(props.onRequestClose);
   };
   const [isUploading, setIsUploading] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);

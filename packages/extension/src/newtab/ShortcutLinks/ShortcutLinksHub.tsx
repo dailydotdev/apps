@@ -306,8 +306,15 @@ export function ShortcutLinksHub({
 
   const switchToAuto = async () => {
     await updateFlag('shortcutsMode', 'auto');
+    // Auto mode is worthless without topSites permission — if the user
+    // declines (or it was previously denied and the browser returned no
+    // data), flip back to manual so they don't end up with an empty row
+    // and no idea how to fix it.
     if (!hasCheckedTopSitesPermission || topSites === undefined) {
-      await requestTopSitesAccess();
+      const granted = await requestTopSitesAccess();
+      if (!granted) {
+        await updateFlag('shortcutsMode', 'manual');
+      }
     }
   };
 
@@ -343,9 +350,16 @@ export function ShortcutLinksHub({
     },
   ];
 
-  // Auto mode with no permission yet: show a clear CTA tile so the user knows
-  // why the row is empty and can grant access or switch back to manual.
+  // Auto mode empty has two shapes: either the user hasn't granted topSites
+  // permission yet (ask for it) or they've granted it but the browser
+  // returned no sites (new profile, cleared history). We surface copy for
+  // both — "Grant access" is wrong when the user already granted and just
+  // has an empty history.
+  const autoPermissionGranted =
+    hasCheckedTopSitesPermission && topSites !== undefined;
   const showAutoEmptyState = isAuto && visibleShortcuts.length === 0;
+  const showAutoPermissionCta = showAutoEmptyState && !autoPermissionGranted;
+  const showAutoNoHistoryMessage = showAutoEmptyState && autoPermissionGranted;
 
   // Controlled open state so the trigger stays visible while the menu is
   // open even when the user hovers *into* the floating menu content.
@@ -426,7 +440,7 @@ export function ShortcutLinksHub({
           isDropActive={isDropTarget}
         />
       )}
-      {showAutoEmptyState && (
+      {showAutoPermissionCta && (
         <button
           type="button"
           onClick={requestTopSitesAccess}
@@ -435,14 +449,22 @@ export function ShortcutLinksHub({
           Grant access to show Most visited sites
         </button>
       )}
+      {showAutoNoHistoryMessage && (
+        <span className="flex h-11 items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 text-text-tertiary typo-callout">
+          Nothing visited yet — check back after browsing a few sites
+        </span>
+      )}
       {overflowCount > 0 && (
         <button
           type="button"
           onClick={onManage}
           className={classNames(
             'rounded-8 px-2 py-1 text-text-tertiary transition-colors duration-150 typo-caption1 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
-            // Only align with the icon square (not the label) in tile mode.
-            appearance === 'tile' && 'mt-2',
+            // Align with the favicon vertical center (not the full tile which
+            // includes the label underneath). See the DropdownMenuTrigger
+            // below for the full math; this button is ~h-7 (28px) so we nudge
+            // its top by 16px to land center ≈ 30px from tile top.
+            appearance === 'tile' && 'self-start mt-[16px]',
           )}
         >
           +{overflowCount} more
@@ -468,7 +490,15 @@ export function ShortcutLinksHub({
               forceShowMenuButton
                 ? 'opacity-100'
                 : 'opacity-0 focus-visible:opacity-100 group-focus-within/hub:opacity-100 group-hover/hub:opacity-100 [@media(hover:none)]:opacity-100',
-              appearance === 'tile' && 'mt-2',
+              // Center the button on the favicon row, not the whole tile
+              // (the tile is tall because of the label underneath).
+              //   tile padding-top: p-2   =  8px
+              //   favicon height:   size-11 = 44px → center at 8 + 22 = 30px
+              //   button height:    size-8 = 32px → top offset = 30 − 16 = 14px
+              // `self-start` pins align-self so parent `items-center` can't
+              // re-center the button on the full tile height and drag it
+              // back down onto the label row.
+              appearance === 'tile' && 'self-start mt-[14px]',
             )}
             aria-label="Shortcut options"
           />

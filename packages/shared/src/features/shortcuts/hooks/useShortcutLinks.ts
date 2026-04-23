@@ -7,16 +7,16 @@ import { useShortcutsUser } from './useShortcutsUser';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
 
 export interface UseShortcutLinks {
-  formRef: MutableRefObject<HTMLFormElement>;
+  formRef: MutableRefObject<HTMLFormElement | undefined>;
   onSaveChanges: (
     e: FormEvent,
-  ) => Promise<{ errors: Record<string | number, string> }>;
+  ) => Promise<{ errors: Record<string, string> | null }>;
   askTopSitesBrowserPermission: () => Promise<boolean>;
   hasCheckedPermission?: boolean;
-  isTopSiteActive?: boolean;
-  hasTopSites?: boolean;
+  isTopSiteActive?: boolean | null;
+  hasTopSites?: boolean | null;
   isManual?: boolean;
-  shortcutLinks: string[];
+  shortcutLinks?: string[];
   formLinks: string[];
   customLinks?: string[];
   hideShortcuts: boolean;
@@ -33,7 +33,7 @@ export function useShortcutLinks(): UseShortcutLinks {
   const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
 
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
-  const hasCustomLinks = customLinks?.length > 0;
+  const hasCustomLinks = (customLinks?.length ?? 0) > 0;
   const isTopSiteActive =
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
   // Legacy surface caps at 8 tiles. The upstream hook now hands back up to
@@ -50,10 +50,14 @@ export function useShortcutLinks(): UseShortcutLinks {
   const showGetStarted =
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
-  const getFormInputs = () =>
-    Array.from(formRef.current.elements).filter(
+  const getFormInputs = () => {
+    if (!formRef.current) {
+      return [] as HTMLInputElement[];
+    }
+    return Array.from(formRef.current.elements).filter(
       (el) => el.getAttribute('name') === 'shortcutLink',
     ) as HTMLInputElement[];
+  };
 
   const onSaveChanges = async (e: FormEvent) => {
     e.preventDefault();

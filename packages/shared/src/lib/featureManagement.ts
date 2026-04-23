@@ -159,4 +159,4 @@ export const featureShortcutsExtensionPromo = new Feature(
   false,
 );
 
-export const featureShortcutsHub = new Feature('shortcuts_hub', true);
+export const featureShortcutsHub = new Feature('shortcuts_hub', false);

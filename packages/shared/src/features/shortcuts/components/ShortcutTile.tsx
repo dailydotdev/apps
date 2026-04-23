@@ -27,13 +27,10 @@ import { combinedClicks } from '../../../lib/click';
 import { apiUrl } from '../../../lib/config';
 import { getDomainFromUrl } from '../../../lib/links';
 import {
-  DRAG_ACTIVATION_DISTANCE_PX,
+  DRAG_ACTIVATION_DISTANCE_SQ_PX,
   POST_DRAG_SUPPRESSION_MS,
 } from '../hooks/useDragClickGuard';
 import type { Shortcut, ShortcutColor, ShortcutsAppearance } from '../types';
-
-const DRAG_ACTIVATION_DISTANCE_SQ_PX =
-  DRAG_ACTIVATION_DISTANCE_PX * DRAG_ACTIVATION_DISTANCE_PX;
 
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
@@ -319,20 +316,14 @@ export function ShortcutTile({
     className,
   );
 
-  // Action button position changes with layout so it always sits on an
-  // outside corner rather than over the label. In tile mode the button's
-  // vertical center is aligned to the favicon square (not the full tile)
-  // so it reads as a control over the icon, not floating above the label.
-  // Math: container `p-2` (8px) + favicon `size-11` (44px) → favicon
-  // center at 30px; button is `size-5` (20px), so top = 30 − 10 = 20px
-  // → `top-5`.
+  // Action button sits in the top-right corner of the tile across every
+  // layout. Chip mode pokes slightly outside to clear the pill edge; tile
+  // and icon modes tuck just inside the container.
   let actionBtnPositionClass: string;
   if (isChip) {
     actionBtnPositionClass = 'absolute -right-1 -top-1';
-  } else if (isIconOnly) {
-    actionBtnPositionClass = 'absolute right-0.5 top-0.5';
   } else {
-    actionBtnPositionClass = 'absolute right-0.5 top-5';
+    actionBtnPositionClass = 'absolute right-0.5 top-0.5';
   }
 
   return (

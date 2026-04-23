@@ -22,6 +22,7 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import type { LazyModal } from '../../../../components/modals/common/types';
+import { invokeOnRequestClose } from './closeModal';
 
 export interface ImportPickerItem {
   url: string;
@@ -91,7 +92,7 @@ export default function ImportPickerModal({
 
   const close = () => {
     closeModal();
-    props.onRequestClose?.(undefined as never);
+    invokeOnRequestClose(props.onRequestClose);
   };
 
   // Cancel = "back out of the import", not "close the whole shortcuts flow".
@@ -148,11 +149,23 @@ export default function ImportPickerModal({
   const handleImport = async () => {
     const result = await manager.importFrom(source, selected);
     onImported?.(result);
-    displayToast(
-      `Imported ${result.imported} ${
-        source === 'bookmarks' ? 'bookmarks' : 'sites'
-      } to shortcuts${result.skipped ? `. ${result.skipped} skipped.` : ''}`,
-    );
+    const noun = source === 'bookmarks' ? 'bookmarks' : 'sites';
+    if (result.imported === 0) {
+      // Every selected row was a duplicate or we were at capacity — calling
+      // that a success with "Imported 0" reads like a bug. Tell the user
+      // what actually happened instead.
+      displayToast(
+        result.skipped > 0
+          ? `Nothing imported — ${result.skipped} ${noun} already in shortcuts`
+          : `Nothing to import`,
+      );
+    } else {
+      displayToast(
+        `Imported ${result.imported} ${noun} to shortcuts${
+          result.skipped ? `. ${result.skipped} skipped.` : ''
+        }`,
+      );
+    }
     close();
   };
 

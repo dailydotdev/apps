@@ -11,15 +11,12 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
-import { DRAG_ACTIVATION_DISTANCE_PX } from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
+import { DRAG_ACTIVATION_DISTANCE_SQ_PX } from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
-
-const DRAG_ACTIVATION_DISTANCE_SQ_PX =
-  DRAG_ACTIVATION_DISTANCE_PX * DRAG_ACTIVATION_DISTANCE_PX;
 
 export function ShortcutItemPlaceholder({
   isCtaAddShortcut = false,

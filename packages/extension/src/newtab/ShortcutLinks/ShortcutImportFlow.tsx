@@ -9,7 +9,12 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
-import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import { MostVisitedSitesPermissionContent } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesPermissionContent';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { MAX_SHORTCUTS } from '@dailydotdev/shared/src/features/shortcuts/types';
@@ -144,33 +149,15 @@ export function ShortcutImportFlow(): ReactElement | null {
         isOpen
         onRequestClose={() => setShowImportSource?.(null)}
       >
-        <Modal.Header />
-        <Modal.Body>
-          <Modal.Title className="mb-4">Show most visited sites</Modal.Title>
-          <Modal.Text className="text-center">
-            To import your most visited sites, your browser will ask for
-            permission. Once approved, the data is kept locally.
-          </Modal.Text>
-          <LazyImage
-            imgSrc={
-              process.env.TARGET_BROWSER === 'firefox'
-                ? '/mvs_firefox.jpg'
-                : '/mvs_google.jpg'
-            }
-            imgAlt="Image of the browser's default home screen"
-            className="mx-auto my-8 w-full max-w-[22rem] rounded-16"
-            ratio="45.8%"
-            eager
-          />
-          <Modal.Text className="text-center">
-            We will never collect your browsing history. We promise.
-          </Modal.Text>
-        </Modal.Body>
-        <Modal.Footer justify={Justify.Center}>
-          <Button onClick={onGrant} variant={ButtonVariant.Primary}>
-            Import shortcuts
-          </Button>
-        </Modal.Footer>
+        <Modal.Header showCloseButton>
+          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+            Show most visited sites
+          </Typography>
+        </Modal.Header>
+        <MostVisitedSitesPermissionContent
+          onGrant={onGrant}
+          ctaLabel="Import shortcuts"
+        />
       </Modal>
     );
   }

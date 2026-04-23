@@ -31,11 +31,13 @@ export const stripLinkParameters = (link: string): string => {
 
 /**
  * Canonical URL form used for duplicate detection across shortcuts.
- * origin + pathname, lowercased, trailing slash stripped, leading `www.`
- * removed from the hostname. The `www.` collapse matters because users
- * routinely paste both `example.com` and `www.example.com` for the same
- * site (and browsers treat them as one in top-sites/history), so without
- * it the dedup pass would happily keep both tiles.
+ * We keep protocol, hostname (lower-cased, leading `www.` stripped), port,
+ * pathname (trailing slash stripped), search, and hash — so different
+ * hashes or query strings on the same site are treated as different
+ * shortcuts. The `www.` collapse matters because users routinely paste
+ * both `example.com` and `www.example.com` for the same site (and
+ * browsers treat them as one in top-sites/history), so without it the
+ * dedup pass would happily keep both tiles.
  */
 export const canonicalShortcutUrl = (link: string): string | null => {
   try {
@@ -46,7 +48,7 @@ export const canonicalShortcutUrl = (link: string): string | null => {
     // rebuild origin from parts instead of using `url.origin` which would
     // bake the `www.` back in.
     const port = url.port ? `:${url.port}` : '';
-    return `${url.protocol.toLowerCase()}//${hostname}${port}${pathname}`;
+    return `${url.protocol.toLowerCase()}//${hostname}${port}${pathname}${url.search}${url.hash}`;
   } catch (_) {
     return null;
   }

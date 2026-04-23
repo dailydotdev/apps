@@ -34,7 +34,6 @@ const strictSkipList = new Set([
   'packages/shared/src/hooks/useLogin.ts',
   'packages/shared/src/hooks/useRegistration.ts',
   'packages/shared/src/contexts/AuthContext.tsx',
-  'packages/shared/src/contexts/SettingsContext.tsx',
   'packages/webapp/pages/_app.tsx',
   'packages/webapp/pages/onboarding.tsx',
   'packages/extension/src/newtab/App.tsx',

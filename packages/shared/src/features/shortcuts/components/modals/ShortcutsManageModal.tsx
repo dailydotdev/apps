@@ -1,8 +1,3 @@
-// Helper components (`ConnectionRow`, `BrowserConnectionsSection`) live below
-// the main modal for readability — they only exist to keep the modal body
-// declarative. Function declarations are hoisted, so calling them earlier in
-// the file is safe; the lint rule disagrees.
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
@@ -63,6 +58,7 @@ import { apiUrl } from '../../../../lib/config';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
+import { invokeOnRequestClose } from './closeModal';
 
 // Flattened state-machine for the Browser access row's primary action. The
 // button can either trigger the picker (granted) or ask for permission (not
@@ -484,7 +480,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   const { openModal, closeModal } = useLazyModal();
   const close = () => {
     closeModal();
-    props?.onRequestClose?.(undefined as never);
+    invokeOnRequestClose(props?.onRequestClose);
   };
 
   const mode = flags?.shortcutsMode ?? 'manual';

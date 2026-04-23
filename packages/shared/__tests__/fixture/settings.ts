@@ -40,8 +40,6 @@ export const createTestSettings = (
   updateFlag: jest.fn(),
   updateFlagRemote: jest.fn(),
   updatePromptFlag: jest.fn(),
-  updateShortcutMeta: jest.fn(),
-  removeShortcut: jest.fn(),
   onToggleHeaderPlacement: jest.fn(),
   setSettings: jest.fn(),
   applyThemeMode: jest.fn(),

@@ -24,7 +24,10 @@ export const useShortcutsMigration = (): void => {
   const { customLinks, flags } = useSettingsContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { topSites, hasCheckedPermission } = useShortcuts();
-  const manager = useShortcutsManager();
+  // Destructure `importFrom` so the effect's dep list tracks the only
+  // function we actually invoke. Depending on `manager` would rerun the
+  // effect every time any *other* shortcut field on the manager changed.
+  const { importFrom } = useShortcutsManager();
   const { displayToast } = useToastNotification();
   const inFlightRef = useRef(false);
   const ranRef = useRef(false);
@@ -69,8 +72,7 @@ export const useShortcutsMigration = (): void => {
 
     inFlightRef.current = true;
     const items = topSites.map((s) => ({ url: s.url }));
-    manager
-      .importFrom('topSites', items)
+    importFrom('topSites', items)
       .then((result) => {
         if (result.imported > 0) {
           displayToast(
@@ -95,7 +97,7 @@ export const useShortcutsMigration = (): void => {
     customLinks,
     flags,
     topSites,
-    manager,
+    importFrom,
     displayToast,
   ]);
 };

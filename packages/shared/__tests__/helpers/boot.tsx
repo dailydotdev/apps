@@ -71,8 +71,6 @@ export const settingsContext: SettingsContextData = {
   updateFlag: jest.fn(),
   updateFlagRemote: jest.fn(),
   updatePromptFlag: jest.fn(),
-  updateShortcutMeta: jest.fn(),
-  removeShortcut: jest.fn(),
   applyThemeMode: jest.fn(),
 };
 

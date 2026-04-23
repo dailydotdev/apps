@@ -118,7 +118,7 @@ function LegacyShortcutLinks({
             {...{
               onLinkClick,
               onOptionsOpen,
-              shortcutLinks,
+              shortcutLinks: shortcutLinks ?? [],
               shouldUseListFeedLayout,
               toggleShowTopSites,
               onReorder,

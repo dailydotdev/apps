@@ -43,6 +43,18 @@ describe('lib/links tests', () => {
       );
     });
 
+    it('preserves search params and hash so distinct pages dedup separately', () => {
+      expect(
+        canonicalShortcutUrl('https://example.com/search?q=foo'),
+      ).toEqual('https://example.com/search?q=foo');
+      expect(canonicalShortcutUrl('https://example.com/app#/route')).toEqual(
+        'https://example.com/app#/route',
+      );
+      expect(
+        canonicalShortcutUrl('https://example.com/search?q=foo'),
+      ).not.toEqual(canonicalShortcutUrl('https://example.com/search?q=bar'));
+    });
+
     it('returns null for invalid input', () => {
       expect(canonicalShortcutUrl('not a url')).toBeNull();
     });

@@ -10,6 +10,15 @@ import { useCallback, useEffect, useRef } from 'react';
 export const DRAG_ACTIVATION_DISTANCE_PX = 5;
 
 /**
+ * Squared distance counterpart of {@link DRAG_ACTIVATION_DISTANCE_PX}, exposed
+ * so callers can skip a `Math.sqrt` in hot pointer paths by comparing against
+ * `dx * dx + dy * dy` directly. Kept next to its source value so the two
+ * cannot drift.
+ */
+export const DRAG_ACTIVATION_DISTANCE_SQ_PX =
+  DRAG_ACTIVATION_DISTANCE_PX * DRAG_ACTIVATION_DISTANCE_PX;
+
+/**
  * How long after a drag ends we continue to swallow stray clicks. Chrome
  * occasionally fires a second synthesized click when a drag crosses element
  * boundaries, and the first click can arrive on a different DOM target than

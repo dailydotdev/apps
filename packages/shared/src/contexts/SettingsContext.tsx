@@ -13,7 +13,6 @@ import type {
   SettingsFlags,
   Spaciness,
 } from '../graphql/settings';
-import type { ShortcutMeta } from '../features/shortcuts/types';
 import {
   CampaignCtaPlacement,
   UPDATE_USER_SETTINGS_MUTATION,
@@ -60,11 +59,6 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
-  updateShortcutMeta: (
-    url: string,
-    patch: ShortcutMeta | null,
-  ) => Promise<unknown>;
-  removeShortcut: (url: string) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
   updateFlag: (
     flag: keyof SettingsFlags,
@@ -299,44 +293,6 @@ export const SettingsContextProvider = ({
       loadedSettings: loadedSettings ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
-      updateShortcutMeta: (url: string, patch: ShortcutMeta | null) => {
-        const current = settings.flags?.shortcutMeta ?? {};
-        const next = { ...current };
-        if (!patch) {
-          delete next[url];
-        } else {
-          const merged = { ...(current[url] ?? {}), ...patch };
-          const isEmpty = !merged.name && !merged.iconUrl && !merged.color;
-          if (isEmpty) {
-            delete next[url];
-          } else {
-            next[url] = merged;
-          }
-        }
-        return setSettings({
-          ...settings,
-          flags: {
-            ...settings.flags,
-            shortcutMeta: next,
-          } as SettingsFlags,
-        });
-      },
-      removeShortcut: (url: string) => {
-        const nextLinks = (settings.customLinks ?? []).filter(
-          (existing) => existing !== url,
-        );
-        const current = settings.flags?.shortcutMeta ?? {};
-        const nextMeta = { ...current };
-        delete nextMeta[url];
-        return setSettings({
-          ...settings,
-          customLinks: nextLinks,
-          flags: {
-            ...settings.flags,
-            shortcutMeta: nextMeta,
-          } as SettingsFlags,
-        });
-      },
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
         setSettings({ ...settings, sortCommentsBy }),
       updateFlag: (flag: keyof SettingsFlags, value: string | boolean) =>
