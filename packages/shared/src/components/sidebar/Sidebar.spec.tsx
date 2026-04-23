@@ -38,9 +38,10 @@ const defaultAlerts: Alerts = { filter: true };
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
-  user: LoggedUser | undefined = defaultUser,
+  user: LoggedUser | null | undefined = defaultUser,
   sidebarExpanded = true,
 ): RenderResult => {
+  const resolvedUser = user === null ? undefined : user;
   const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
@@ -58,10 +59,10 @@ const renderComponent = (
       >
         <AuthContext.Provider
           value={{
-            user,
+            user: resolvedUser,
             isAuthReady: true,
             isFetched: true,
-            isLoggedIn: !!user?.id,
+            isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,
             showLogin,
             logout: jest.fn(),
@@ -134,7 +135,7 @@ it('should render Highlights item linking to highlights page', async () => {
 });
 
 it('should require login before opening following for anonymous users', async () => {
-  renderComponent(defaultAlerts, [createMockFeedSettings()], undefined);
+  renderComponent(defaultAlerts, [createMockFeedSettings()], null);
   const item = await screen.findByText('Following');
 
   fireEvent.click(item);
