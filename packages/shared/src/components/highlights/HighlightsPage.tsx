@@ -153,7 +153,7 @@ export const HighlightsPage = (): ReactElement => {
         showBorder={false}
         shallow
         swipeable
-        tabListProps={{ autoScrollActive: true }}
+        tabListProps={{ autoScrollActive: true, dragScroll: true }}
         tabTag="a"
         className={{
           header:

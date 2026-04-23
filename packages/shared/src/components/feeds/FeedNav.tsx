@@ -35,7 +35,7 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
-  AgenticHub = 'Agentic Hub',
+  HappeningNow = 'Happening Now',
   Explore = 'Explore',
   Tags = 'Tags',
   Sources = 'Sources',
@@ -100,7 +100,7 @@ function FeedNav(): ReactElement {
       [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
       [forYouTab]: FeedNavTab.ForYou,
       [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}agents`]: FeedNavTab.AgenticHub,
+      [`${webappUrl}highlights`]: FeedNavTab.HappeningNow,
       ...customFeeds,
     };
 
