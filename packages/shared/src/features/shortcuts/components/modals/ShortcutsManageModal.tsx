@@ -1,3 +1,8 @@
+// Helper components (`ConnectionRow`, `BrowserConnectionsSection`) live below
+// the main modal for readability — they only exist to keep the modal body
+// declarative. Function declarations are hoisted, so calling them earlier in
+// the file is safe; the lint rule disagrees.
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
@@ -58,6 +63,56 @@ import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
 
+// Flattened state-machine for the Browser access row's primary action. The
+// button can either trigger the picker (granted) or ask for permission (not
+// granted); extracted from JSX so we don't nest ternaries inline.
+function getTopSitesPrimaryAction({
+  topSitesGranted,
+  setShowImportSource,
+  askTopSitesPermission,
+}: {
+  topSitesGranted: boolean;
+  setShowImportSource?: (
+    source: 'topSites' | 'bookmarks',
+    returnTo?: LazyModal.ShortcutsManage,
+  ) => void;
+  askTopSitesPermission?: () => Promise<boolean> | void;
+}): (() => void) | undefined {
+  if (topSitesGranted) {
+    if (!setShowImportSource) {
+      return undefined;
+    }
+    return () => setShowImportSource('topSites', LazyModal.ShortcutsManage);
+  }
+  if (!askTopSitesPermission) {
+    return undefined;
+  }
+  return () => {
+    askTopSitesPermission();
+  };
+}
+
+// Same flattening as `getTopSitesPrimaryAction`, but for the Bookmarks row.
+function getBookmarksPrimaryAction({
+  bookmarksGranted,
+  onImportBookmarks,
+  onAskBookmarks,
+}: {
+  bookmarksGranted: boolean;
+  onImportBookmarks?: () => void;
+  onAskBookmarks?: () => Promise<boolean> | void;
+}): (() => void) | undefined {
+  if (bookmarksGranted) {
+    return onImportBookmarks;
+  }
+  if (!onAskBookmarks) {
+    return undefined;
+  }
+  return () => {
+    onAskBookmarks();
+  };
+}
+
 // Plain-text section header. Bold subhead + muted caption, no decorative
 // icon chip. Keeps each group clearly delimited vertically without the
 // visual weight of a leading glyph — settings rhythm closer to Linear /
@@ -104,16 +159,16 @@ function CapacityPill({
   max: number;
 }): ReactElement {
   const remaining = max - used;
-  const tone =
-    used >= max
-      ? 'bg-overlay-float-ketchup text-accent-ketchup-default'
-      : remaining <= 2
-        ? 'bg-overlay-float-cabbage text-accent-cabbage-default'
-        : 'bg-surface-float text-text-tertiary';
+  let tone = 'bg-surface-float text-text-tertiary';
+  if (used >= max) {
+    tone = 'bg-overlay-float-ketchup text-accent-ketchup-default';
+  } else if (remaining <= 2) {
+    tone = 'bg-overlay-float-cabbage text-accent-cabbage-default';
+  }
   return (
     <span
       className={classNames(
-        'rounded-6 px-1.5 py-0.5 tabular-nums typo-caption1 font-bold',
+        'rounded-6 px-1.5 py-0.5 font-bold tabular-nums typo-caption1',
         tone,
       )}
     >
@@ -181,9 +236,7 @@ function ShortcutsModeOption({
         <p
           className={classNames(
             'typo-callout',
-            checked
-              ? 'font-bold text-text-primary'
-              : 'text-text-primary',
+            checked ? 'font-bold text-text-primary' : 'text-text-primary',
           )}
         >
           {title}
@@ -255,7 +308,7 @@ function ShortcutRow({
       {/* Actions fade in on row hover/focus. On touch devices (no hover),
           we reveal them at 60% opacity so they're always reachable without
           overwhelming the row. */}
-      <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-60 [@media(hover:none)]:focus-within:opacity-100 motion-reduce:transition-none">
+      <div className="[@media(hover:none)]:opacity-60 flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none [@media(hover:none)]:focus-within:opacity-100">
         <Button
           type="button"
           variant={ButtonVariant.Tertiary}
@@ -301,7 +354,7 @@ function AppearancePicker({
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center gap-1">
               <div className="size-5 rounded-6 bg-border-subtlest-secondary" />
-              <div className="h-1 w-4 rounded-1 bg-border-subtlest-tertiary" />
+              <div className="rounded-1 h-1 w-4 bg-border-subtlest-tertiary" />
             </div>
           ))}
         </div>
@@ -332,7 +385,7 @@ function AppearancePicker({
               className="flex h-3 w-14 items-center gap-1 rounded-4 bg-border-subtlest-tertiary px-1"
             >
               <div className="size-1.5 shrink-0 rounded-2 bg-border-subtlest-secondary" />
-              <div className="h-0.5 flex-1 rounded-1 bg-border-subtlest-secondary" />
+              <div className="rounded-1 h-0.5 flex-1 bg-border-subtlest-secondary" />
             </div>
           ))}
         </div>
@@ -391,7 +444,7 @@ function AppearancePicker({
               </div>
               <span
                 className={classNames(
-                  'typo-caption1 transition-colors duration-150 motion-reduce:transition-none',
+                  'transition-colors duration-150 typo-caption1 motion-reduce:transition-none',
                   checked
                     ? 'font-bold text-text-primary'
                     : 'text-text-tertiary group-hover:text-text-primary',
@@ -407,16 +460,10 @@ function AppearancePicker({
   );
 }
 
-export default function ShortcutsManageModal(
-  props: ModalProps,
-): ReactElement {
+export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
-  const {
-    showTopSites,
-    toggleShowTopSites,
-    flags,
-    updateFlag,
-  } = useSettingsContext();
+  const { showTopSites, toggleShowTopSites, flags, updateFlag } =
+    useSettingsContext();
   const manager = useShortcutsManager();
   const {
     setShowImportSource,
@@ -429,10 +476,8 @@ export default function ShortcutsManageModal(
     askBookmarksPermission,
     revokeBookmarksPermission,
   } = useShortcuts();
-  const {
-    hidden: hiddenTopSites,
-    restore: restoreHiddenTopSites,
-  } = useHiddenTopSites();
+  const { hidden: hiddenTopSites, restore: restoreHiddenTopSites } =
+    useHiddenTopSites();
   const { openModal, closeModal } = useLazyModal();
   const close = () => {
     closeModal();
@@ -618,7 +663,7 @@ export default function ShortcutsManageModal(
                   visually reinforces that these settings belong to this
                   radio, not to the general Connections list below. */}
               {mode === 'auto' && (
-                <div className="mt-1 flex flex-col gap-0.5 rounded-12 bg-surface-float/40 p-1">
+                <div className="bg-surface-float/40 mt-1 flex flex-col gap-0.5 rounded-12 p-1">
                   <ConnectionRow
                     icon={<ChromeIcon />}
                     label="Browser access"
@@ -628,19 +673,11 @@ export default function ShortcutsManageModal(
                         : 'Grant access so we can read your most visited sites.'
                     }
                     primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
-                    onPrimary={
-                      topSitesGranted
-                        ? (setShowImportSource
-                            ? () =>
-                                setShowImportSource(
-                                  'topSites',
-                                  LazyModal.ShortcutsManage,
-                                )
-                            : undefined)
-                        : askTopSitesPermission
-                          ? () => askTopSitesPermission()
-                          : undefined
-                    }
+                    onPrimary={getTopSitesPrimaryAction({
+                      topSitesGranted,
+                      setShowImportSource,
+                      askTopSitesPermission,
+                    })}
                     secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
                     onSecondary={
                       topSitesGranted ? () => onRevokePermission?.() : undefined
@@ -673,7 +710,7 @@ export default function ShortcutsManageModal(
                 }
               />
               {manager.shortcuts.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-4 py-8 text-center">
+                <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary px-4 py-8 text-center">
                   <span
                     aria-hidden
                     className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"
@@ -713,7 +750,7 @@ export default function ShortcutsManageModal(
                     type="button"
                     onClick={onAdd}
                     disabled={!manager.canAdd}
-                    className="group flex items-center gap-3 rounded-10 p-2 text-left transition-colors duration-150 hover:bg-surface-float disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent motion-reduce:transition-none"
+                    className="disabled:opacity-60 group flex items-center gap-3 rounded-10 p-2 text-left transition-colors duration-150 hover:bg-surface-float disabled:cursor-not-allowed disabled:hover:bg-transparent motion-reduce:transition-none"
                     aria-label="Add a shortcut"
                   >
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-8 border border-dashed border-border-subtlest-tertiary text-text-tertiary transition-all duration-150 group-hover:border-solid group-hover:border-accent-cabbage-default group-hover:bg-overlay-float-cabbage group-hover:text-accent-cabbage-default motion-reduce:transition-none">
@@ -761,10 +798,7 @@ export default function ShortcutsManageModal(
             onImportBookmarks={
               setShowImportSource
                 ? () =>
-                    setShowImportSource(
-                      'bookmarks',
-                      LazyModal.ShortcutsManage,
-                    )
+                    setShowImportSource('bookmarks', LazyModal.ShortcutsManage)
                 : undefined
             }
             onAskBookmarks={askBookmarksPermission}
@@ -817,13 +851,11 @@ function BrowserConnectionsSection({
               : 'Grant access to import your browser bookmarks.'
           }
           primaryLabel={bookmarksGranted ? 'Import' : 'Connect'}
-          onPrimary={
-            bookmarksGranted
-              ? onImportBookmarks
-              : onAskBookmarks
-                ? () => onAskBookmarks()
-                : undefined
-          }
+          onPrimary={getBookmarksPrimaryAction({
+            bookmarksGranted,
+            onImportBookmarks,
+            onAskBookmarks,
+          })}
           secondaryLabel={bookmarksGranted ? 'Disconnect' : undefined}
           onSecondary={
             bookmarksGranted ? () => onRevokeBookmarks?.() : undefined

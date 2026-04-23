@@ -65,6 +65,48 @@ interface ShortcutLinksHubProps {
   shouldUseListFeedLayout: boolean;
 }
 
+interface SourceModeToggleItemProps {
+  isAuto: boolean;
+  onToggle: () => void;
+}
+
+// Stable menu row that flips source mode in place. Uses the same metrics as
+// standard DropdownMenuOptions rows (h-7, typo-footnote, MenuIcon wrapper) so
+// the dropdown reads as one dense list — matching the PostOptionButton
+// convention. The enclosing DropdownMenuItem owns click + keyboard; the
+// native Switch is pointer-events-none so clicks fall through to the row
+// handler and `preventDefault` on `onSelect` keeps the menu open after
+// toggling (it's a setting, not an action).
+function SourceModeToggleItem({
+  isAuto,
+  onToggle,
+}: SourceModeToggleItemProps): ReactElement {
+  return (
+    <DropdownMenuItem
+      role="menuitemcheckbox"
+      aria-checked={isAuto}
+      onSelect={(event) => {
+        event.preventDefault();
+        onToggle();
+      }}
+    >
+      <span className="inline-flex flex-1 items-center gap-2">
+        <WrappingMenuIcon Icon={SitesIcon} />
+        <span className="flex-1 truncate">Most visited sites</span>
+        <Switch
+          inputId="shortcuts-source-toggle"
+          name="shortcuts-source-toggle"
+          checked={isAuto}
+          onToggle={onToggle}
+          aria-label="Most visited sites"
+          className="pointer-events-none ml-2"
+          compact
+        />
+      </span>
+    </DropdownMenuItem>
+  );
+}
+
 export function ShortcutLinksHub({
   shouldUseListFeedLayout,
 }: ShortcutLinksHubProps): ReactElement {
@@ -334,7 +376,7 @@ export function ShortcutLinksHub({
         // room because of the label, but tighter than before so the row
         // reads as one cluster of shortcuts. Icons/chips pack like a real
         // bookmarks bar.
-        appearance === 'tile' && 'gap-x-1 gap-y-2 items-start',
+        appearance === 'tile' && 'items-start gap-x-1 gap-y-2',
         appearance === 'icon' && 'gap-1',
         appearance === 'chip' && 'gap-1',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
@@ -376,7 +418,7 @@ export function ShortcutLinksHub({
         <button
           type="button"
           onClick={requestTopSitesAccess}
-          className="flex h-11 items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 text-text-tertiary typo-callout transition-colors duration-150 hover:border-solid hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none"
+          className="flex h-11 items-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 text-text-tertiary transition-colors duration-150 typo-callout hover:border-solid hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none"
         >
           Grant access to show Most visited sites
         </button>
@@ -386,7 +428,7 @@ export function ShortcutLinksHub({
           type="button"
           onClick={onManage}
           className={classNames(
-            'rounded-8 px-2 py-1 text-text-tertiary typo-caption1 transition-colors duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
+            'rounded-8 px-2 py-1 text-text-tertiary transition-colors duration-150 typo-caption1 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
             // Only align with the icon square (not the label) in tile mode.
             appearance === 'tile' && 'mt-2',
           )}
@@ -413,7 +455,7 @@ export function ShortcutLinksHub({
               // - any case flagged above where hiding would trap the user
               forceShowMenuButton
                 ? 'opacity-100'
-                : 'opacity-0 group-hover/hub:opacity-100 group-focus-within/hub:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100',
+                : 'opacity-0 focus-visible:opacity-100 group-focus-within/hub:opacity-100 group-hover/hub:opacity-100 [@media(hover:none)]:opacity-100',
               appearance === 'tile' && 'mt-2',
             )}
             aria-label="Shortcut options"
@@ -431,46 +473,3 @@ export function ShortcutLinksHub({
     </div>
   );
 }
-
-interface SourceModeToggleItemProps {
-  isAuto: boolean;
-  onToggle: () => void;
-}
-
-// Stable menu row that flips source mode in place. Uses the same metrics as
-// standard DropdownMenuOptions rows (h-7, typo-footnote, MenuIcon wrapper) so
-// the dropdown reads as one dense list — matching the PostOptionButton
-// convention. The enclosing DropdownMenuItem owns click + keyboard; the
-// native Switch is pointer-events-none so clicks fall through to the row
-// handler and `preventDefault` on `onSelect` keeps the menu open after
-// toggling (it's a setting, not an action).
-function SourceModeToggleItem({
-  isAuto,
-  onToggle,
-}: SourceModeToggleItemProps): ReactElement {
-  return (
-    <DropdownMenuItem
-      role="menuitemcheckbox"
-      aria-checked={isAuto}
-      onSelect={(event) => {
-        event.preventDefault();
-        onToggle();
-      }}
-    >
-      <span className="inline-flex flex-1 items-center gap-2">
-        <WrappingMenuIcon Icon={SitesIcon} />
-        <span className="flex-1 truncate">Most visited sites</span>
-        <Switch
-          inputId="shortcuts-source-toggle"
-          name="shortcuts-source-toggle"
-          checked={isAuto}
-          onToggle={onToggle}
-          aria-label="Most visited sites"
-          className="pointer-events-none ml-2"
-          compact
-        />
-      </span>
-    </DropdownMenuItem>
-  );
-}
-

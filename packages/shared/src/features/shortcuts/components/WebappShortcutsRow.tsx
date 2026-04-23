@@ -21,22 +21,12 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { LazyModal } from '../../../components/modals/common/types';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '../../../lib/log';
+import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
 import { ShortcutTile } from './ShortcutTile';
 import { AddShortcutTile } from './AddShortcutTile';
 import { useShortcutsManager } from '../hooks/useShortcutsManager';
-import {
-  DEFAULT_SHORTCUTS_APPEARANCE,
-  MAX_SHORTCUTS,
-} from '../types';
-import type {
-  Shortcut,
-  ShortcutsAppearance,
-} from '../types';
+import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../types';
+import type { Shortcut, ShortcutsAppearance } from '../types';
 
 interface WebappShortcutsRowProps {
   className?: string;
@@ -189,7 +179,7 @@ export function WebappShortcutsRow({
       onAuxClickCapture={suppressClickCapture}
       className={classNames(
         'hidden flex-wrap items-center mobileXL:flex',
-        appearance === 'tile' && 'gap-x-1 gap-y-2 items-start',
+        appearance === 'tile' && 'items-start gap-x-1 gap-y-2',
         appearance === 'icon' && 'gap-1',
         appearance === 'chip' && 'gap-1',
         className,

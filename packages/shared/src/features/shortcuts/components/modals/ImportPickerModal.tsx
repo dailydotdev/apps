@@ -21,7 +21,7 @@ import { useShortcutsManager } from '../../hooks/useShortcutsManager';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { LazyModal } from '../../../../components/modals/common/types';
+import type { LazyModal } from '../../../../components/modals/common/types';
 
 export interface ImportPickerItem {
   url: string;
@@ -34,8 +34,11 @@ export interface ImportPickerModalProps extends ModalProps {
   onImported?: (result: { imported: number; skipped: number }) => void;
   // When set, the Cancel button hands control back to this modal instead of
   // fully dismissing the stack. Keeps "cancel the import" distinct from
-  // "close the whole flow" (which the header X still does).
-  returnTo?: LazyModal;
+  // "close the whole flow" (which the header X still does). Narrowed to
+  // `ShortcutsManage` because that's the only prop-less modal we reopen
+  // from here; keeping it narrow avoids the generic `openModal` call
+  // requiring a `props` argument at the type level.
+  returnTo?: LazyModal.ShortcutsManage;
 }
 
 // Favicon with graceful fallback: the browser-icon proxy often ships a blurry
@@ -129,8 +132,7 @@ export default function ImportPickerModal({
       return { ...prev, [url]: next };
     });
 
-  const allSelected =
-    selectableCount > 0 && selected.length >= selectableCount;
+  const allSelected = selectableCount > 0 && selected.length >= selectableCount;
   const toggleAll = () => {
     if (allSelected) {
       setChecked({});
@@ -162,9 +164,9 @@ export default function ImportPickerModal({
   // origins the profile has, sometimes 8, sometimes 20).
   const sourceCopy = isBookmarks
     ? `Pick the ones you want. Your bookmarks stay untouched. ${items.length} available.`
-    : `Pick the ones you want. Snapshot from your browser. ${items.length} site${
-        items.length === 1 ? '' : 's'
-      } available.`;
+    : `Pick the ones you want. Snapshot from your browser. ${
+        items.length
+      } site${items.length === 1 ? '' : 's'} available.`;
 
   const slotsLeft = Math.max(0, capacity - selected.length);
 
@@ -185,11 +187,11 @@ export default function ImportPickerModal({
             no "progress to fill" metaphor. Picking is optional, not a
             task. */}
         <div
-          className="mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float/40 px-3 py-2"
+          className="bg-surface-float/40 mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2"
           aria-live="polite"
         >
           <div className="flex flex-col leading-tight">
-            <span className="text-text-primary typo-footnote font-bold tabular-nums">
+            <span className="font-bold tabular-nums text-text-primary typo-footnote">
               {selected.length === 0
                 ? 'Nothing picked yet'
                 : `${selected.length} picked`}
@@ -199,14 +201,16 @@ export default function ImportPickerModal({
                 ? `You've hit the ${MAX_SHORTCUTS}-shortcut limit`
                 : `${slotsLeft} of ${MAX_SHORTCUTS} slot${
                     slotsLeft === 1 ? '' : 's'
-                  } left${alreadyUsed > 0 ? ` · ${alreadyUsed} already saved` : ''}`}
+                  } left${
+                    alreadyUsed > 0 ? ` · ${alreadyUsed} already saved` : ''
+                  }`}
             </span>
           </div>
           <button
             type="button"
             onClick={toggleAll}
             disabled={selectableCount === 0}
-            className="shrink-0 rounded-8 px-2 py-1 text-text-secondary typo-caption1 font-bold transition-colors duration-150 hover:bg-surface-float hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+            className="shrink-0 rounded-8 px-2 py-1 font-bold text-text-secondary transition-colors duration-150 typo-caption1 hover:bg-surface-float hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
           >
             {allSelected ? 'Clear all' : 'Select all'}
           </button>
@@ -216,7 +220,7 @@ export default function ImportPickerModal({
           // Empty state worth looking at. The source-specific glyph tells
           // users what we tried to read from, and the copy explains *why*
           // there's nothing — not just "empty" which reads like our bug.
-          <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-6 py-10 text-center">
+          <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary px-6 py-10 text-center">
             <span
               aria-hidden
               className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"

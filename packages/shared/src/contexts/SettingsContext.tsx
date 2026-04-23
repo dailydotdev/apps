@@ -306,8 +306,7 @@ export const SettingsContextProvider = ({
           delete next[url];
         } else {
           const merged = { ...(current[url] ?? {}), ...patch };
-          const isEmpty =
-            !merged.name && !merged.iconUrl && !merged.color;
+          const isEmpty = !merged.name && !merged.iconUrl && !merged.color;
           if (isEmpty) {
             delete next[url];
           } else {

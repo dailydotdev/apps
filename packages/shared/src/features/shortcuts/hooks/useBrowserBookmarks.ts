@@ -25,16 +25,15 @@ const findBookmarksBar = (
   if (!nodes) {
     return null;
   }
-  for (const node of nodes) {
+  return nodes.reduce<Bookmarks.BookmarkTreeNode | null>((found, node) => {
+    if (found) {
+      return found;
+    }
     if (isBookmarksBarNode(node)) {
       return node;
     }
-    const nested = findBookmarksBar(node.children);
-    if (nested) {
-      return nested;
-    }
-  }
-  return null;
+    return findBookmarksBar(node.children);
+  }, null);
 };
 
 type FlattenResult = { bookmarks: BrowserBookmark[]; skippedNested: number };
@@ -44,25 +43,22 @@ const flattenBar = (bar: Bookmarks.BookmarkTreeNode): FlattenResult => {
   let skippedNested = 0;
 
   const walk = (nodes: Bookmarks.BookmarkTreeNode[], depth: number) => {
-    for (const node of nodes) {
+    nodes.forEach((node) => {
       if (node.url) {
         bookmarks.push({
           title: node.title || node.url,
           url: node.url,
         });
-        // eslint-disable-next-line no-continue
-        continue;
+        return;
       }
-      // Folder
       if (depth === 0) {
-        // Flatten one level deep only.
         if (node.children?.length) {
           walk(node.children, depth + 1);
         }
       } else if (node.children) {
         skippedNested += node.children.filter((c) => c.url).length;
       }
-    }
+    });
   };
 
   walk(bar.children ?? [], 0);

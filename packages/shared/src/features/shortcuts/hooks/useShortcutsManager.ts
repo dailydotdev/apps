@@ -2,26 +2,21 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import {
-  LogEvent,
-  ShortcutsSourceType,
-  TargetType,
-} from '../../../lib/log';
+import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
 import { canonicalShortcutUrl, withHttps } from '../../../lib/links';
 import type { SettingsFlags } from '../../../graphql/settings';
-import type {
-  ImportSource,
-  Shortcut,
-  ShortcutMeta,
-} from '../types';
+import type { ImportSource, Shortcut, ShortcutMeta } from '../types';
 import { MAX_SHORTCUTS, UNDO_TIMEOUT_MS, shortcutColorPalette } from '../types';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
-import type { BrowserBookmark } from './useBrowserBookmarks';
 
+// djb2-style string hash; bitwise ops are deliberate for 32-bit truncation
+// behaviour equivalent to what Java's String.hashCode() does.
 const hashString = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i += 1) {
+    // eslint-disable-next-line no-bitwise
     hash = (hash << 5) - hash + str.charCodeAt(i);
+    // eslint-disable-next-line no-bitwise
     hash |= 0;
   }
   return Math.abs(hash);
@@ -30,9 +25,7 @@ const hashString = (str: string): number => {
 const defaultColorForUrl = (url: string) => {
   try {
     const host = new URL(withHttps(url)).hostname;
-    return shortcutColorPalette[
-      hashString(host) % shortcutColorPalette.length
-    ];
+    return shortcutColorPalette[hashString(host) % shortcutColorPalette.length];
   } catch (_) {
     return shortcutColorPalette[0];
   }
@@ -60,25 +53,17 @@ export interface UseShortcutsManager {
   findDuplicate: (url: string) => string | null;
 }
 
-interface UseShortcutsManagerProps {
-  topSitesUrls?: string[];
-  bookmarks?: BrowserBookmark[];
-}
-
 const colorIsValid = (color?: string): color is ShortcutMeta['color'] =>
-  !!color &&
-  (shortcutColorPalette as readonly string[]).includes(color);
+  !!color && (shortcutColorPalette as readonly string[]).includes(color);
 
-export const useShortcutsManager = (
-  { topSitesUrls, bookmarks }: UseShortcutsManagerProps = {},
-): UseShortcutsManager => {
+export const useShortcutsManager = (): UseShortcutsManager => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { customLinks, flags, updateCustomLinks, setSettings } =
     useSettingsContext();
   const { setShowImportSource } = useShortcuts();
 
-  const metaMap = flags?.shortcutMeta ?? {};
+  const metaMap = useMemo(() => flags?.shortcutMeta ?? {}, [flags]);
   const links = useMemo(() => customLinks ?? [], [customLinks]);
 
   const shortcuts = useMemo<Shortcut[]>(
@@ -280,35 +265,30 @@ export const useShortcutsManager = (
       const batchMeta: Record<string, ShortcutMeta> = {};
       let skipped = 0;
 
-      for (const item of items) {
+      items.forEach((item) => {
         if (batchLinks.length >= capacity) {
           skipped += 1;
-          // eslint-disable-next-line no-continue
-          continue;
+          return;
         }
         const httpsUrl = withHttps(item.url);
         const key = canonicalShortcutUrl(httpsUrl);
         if (!key || existingKeys.has(key)) {
           skipped += 1;
-          // eslint-disable-next-line no-continue
-          continue;
+          return;
         }
         existingKeys.add(key);
         batchLinks.push(httpsUrl);
         if (item.title) {
           batchMeta[httpsUrl] = { name: item.title };
         }
-      }
+      });
 
       if (!batchLinks.length) {
         setShowImportSource?.(null);
         return { imported: 0, skipped };
       }
 
-      await writeBatch(
-        [...links, ...batchLinks],
-        { ...metaMap, ...batchMeta },
-      );
+      await writeBatch([...links, ...batchLinks], { ...metaMap, ...batchMeta });
 
       const logSource =
         source === 'bookmarks'
@@ -336,4 +316,3 @@ export const useShortcutsManager = (
     findDuplicate,
   };
 };
-

@@ -33,11 +33,27 @@ interface SuggestedSite {
 
 function buildSuggestions(githubIcon: string): SuggestedSite[] {
   return [
-    { url: 'https://mail.google.com', name: 'Gmail', icon: cloudinaryShortcutsIconsGmail },
+    {
+      url: 'https://mail.google.com',
+      name: 'Gmail',
+      icon: cloudinaryShortcutsIconsGmail,
+    },
     { url: 'https://github.com', name: 'GitHub', icon: githubIcon },
-    { url: 'https://reddit.com', name: 'Reddit', icon: cloudinaryShortcutsIconsReddit },
-    { url: 'https://chatgpt.com', name: 'ChatGPT', icon: cloudinaryShortcutsIconsOpenai },
-    { url: 'https://stackoverflow.com', name: 'Stack Overflow', icon: cloudinaryShortcutsIconsStackoverflow },
+    {
+      url: 'https://reddit.com',
+      name: 'Reddit',
+      icon: cloudinaryShortcutsIconsReddit,
+    },
+    {
+      url: 'https://chatgpt.com',
+      name: 'ChatGPT',
+      icon: cloudinaryShortcutsIconsOpenai,
+    },
+    {
+      url: 'https://stackoverflow.com',
+      name: 'Stack Overflow',
+      icon: cloudinaryShortcutsIconsStackoverflow,
+    },
   ];
 }
 
@@ -64,7 +80,7 @@ function SuggestedSiteButton({
           className="size-6 object-contain"
         />
       </span>
-      <span className="text-text-tertiary typo-caption2 opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none">
+      <span className="text-text-tertiary opacity-0 transition-opacity duration-150 typo-caption2 group-hover:opacity-100 motion-reduce:transition-none">
         + {site.name}
       </span>
     </button>
@@ -139,7 +155,9 @@ export const ShortcutGetStarted = ({
       return;
     }
     markStarted();
-    displayToast(`Added ${result.imported} shortcut${result.imported === 1 ? '' : 's'}.`);
+    displayToast(
+      `Added ${result.imported} shortcut${result.imported === 1 ? '' : 's'}.`,
+    );
   };
 
   return (

@@ -25,11 +25,7 @@ import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { combinedClicks } from '../../../lib/click';
 import { apiUrl } from '../../../lib/config';
 import { getDomainFromUrl } from '../../../lib/links';
-import type {
-  Shortcut,
-  ShortcutColor,
-  ShortcutsAppearance,
-} from '../types';
+import type { Shortcut, ShortcutColor, ShortcutsAppearance } from '../types';
 
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
@@ -58,12 +54,12 @@ function LetterChip({
   size = 'md',
 }: LetterChipProps): ReactElement {
   const letter = (name || '?').charAt(0).toUpperCase();
-  const sizeClass =
-    size === 'lg'
-      ? 'size-10 text-lg'
-      : size === 'sm'
-      ? 'size-6 text-xs'
-      : 'size-8 text-sm';
+  const sizeClassMap: Record<'sm' | 'md' | 'lg', string> = {
+    lg: 'size-10 text-lg',
+    sm: 'size-6 text-xs',
+    md: 'size-8 text-sm',
+  };
+  const sizeClass = sizeClassMap[size];
   return (
     <span
       aria-hidden
@@ -177,11 +173,7 @@ export function ShortcutTile({
 
   const handleAnchorClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      if (
-        isDragging ||
-        justDraggedRef.current ||
-        didPointerTravel(event)
-      ) {
+      if (isDragging || justDraggedRef.current || didPointerTravel(event)) {
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -263,13 +255,20 @@ export function ShortcutTile({
   // - tile : 76px-wide column with label underneath (Chrome new tab).
   // - icon : compact square (iOS dock / Arc pinned tabs).
   // - chip : horizontal pill with favicon + label (Chrome bookmarks bar).
+  let appearanceContainerClass: string;
+  if (isChip) {
+    appearanceContainerClass =
+      'flex h-9 max-w-[200px] items-center gap-2 rounded-10 bg-surface-float pl-2 pr-2 focus-within:bg-background-default hover:bg-background-default';
+  } else if (isIconOnly) {
+    appearanceContainerClass =
+      'flex size-12 items-center justify-center rounded-12 focus-within:bg-surface-float hover:bg-surface-float';
+  } else {
+    appearanceContainerClass =
+      'flex w-[76px] flex-col items-center rounded-14 p-2 focus-within:bg-surface-float hover:bg-surface-float';
+  }
   const containerClass = classNames(
     'group relative outline-none transition-colors duration-150 ease-out motion-reduce:transition-none',
-    isChip
-      ? 'flex h-9 max-w-[200px] items-center gap-2 rounded-10 bg-surface-float pl-2 pr-2 hover:bg-background-default focus-within:bg-background-default'
-      : isIconOnly
-      ? 'flex size-12 items-center justify-center rounded-12 hover:bg-surface-float focus-within:bg-surface-float'
-      : 'flex w-[76px] flex-col items-center rounded-14 p-2 hover:bg-surface-float focus-within:bg-surface-float',
+    appearanceContainerClass,
     draggable && 'cursor-grab active:cursor-grabbing',
     isDragging &&
       'z-10 rotate-[-2deg] bg-surface-float shadow-2 motion-reduce:rotate-0',
@@ -290,6 +289,7 @@ export function ShortcutTile({
       className={containerClass}
       title={isIconOnly || isChip ? label : undefined}
     >
+      {/* eslint-disable-next-line no-nested-ternary */}
       {isChip ? (
         // CHIP: single pill, favicon on the left inside the pill, text right.
         <a
@@ -343,7 +343,7 @@ export function ShortcutTile({
           }}
           onPointerDown={(event) => event.stopPropagation()}
           className={classNames(
-            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-[opacity,background-color] duration-150 focus-visible:opacity-100 hover:bg-accent-ketchup-default hover:text-white group-hover:opacity-100 motion-reduce:transition-none',
+            'flex size-5 cursor-pointer items-center justify-center rounded-full bg-text-primary text-surface-invert opacity-0 shadow-2 transition-[opacity,background-color] duration-150 hover:bg-accent-ketchup-default hover:text-white focus-visible:opacity-100 group-hover:opacity-100 motion-reduce:transition-none',
             actionBtnPositionClass,
           )}
         >

@@ -21,11 +21,14 @@ export function useHiddenTopSites(): {
     undefined,
     [],
   );
-  const hidden = value ?? [];
+  const hidden = useMemo(() => value ?? [], [value]);
 
   const hiddenSet = useMemo(() => new Set(hidden), [hidden]);
 
-  const isHidden = useCallback((url: string) => hiddenSet.has(url), [hiddenSet]);
+  const isHidden = useCallback(
+    (url: string) => hiddenSet.has(url),
+    [hiddenSet],
+  );
 
   const hide = useCallback(
     async (url: string) => {

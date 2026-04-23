@@ -33,11 +33,12 @@ const extractUrlFromDrop = (event: DragEvent): string | null => {
 
   const uriList = event.dataTransfer.getData('text/uri-list');
   if (uriList) {
-    for (const line of uriList.split(/\r?\n/)) {
-      const parsed = tryParse(line);
-      if (parsed) {
-        return parsed;
-      }
+    const fromUriList = uriList
+      .split(/\r?\n/)
+      .map(tryParse)
+      .find((parsed): parsed is string => !!parsed);
+    if (fromUriList) {
+      return fromUriList;
     }
   }
   const plain = event.dataTransfer.getData('text/plain');
@@ -80,7 +81,9 @@ export function AddShortcutTile({
     event.preventDefault();
     // `copy` is the universal "you can drop this here" cursor across browsers
     // and communicates intent: we're not moving the dragged thing, we're
-    // adding a copy of it to the shortcuts row.
+    // adding a copy of it to the shortcuts row. Assigning to `dropEffect` is
+    // the standard HTML5 DnD pattern; `event` is the only way to set it.
+    // eslint-disable-next-line no-param-reassign
     event.dataTransfer.dropEffect = 'copy';
   };
 
@@ -165,7 +168,9 @@ export function AddShortcutTile({
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
         )}
         aria-label={`Add shortcut${dropHint}`}
-        title={canAcceptDrop ? 'Add shortcut or drop a link here' : 'Add shortcut'}
+        title={
+          canAcceptDrop ? 'Add shortcut or drop a link here' : 'Add shortcut'
+        }
       >
         {iconBox}
       </button>

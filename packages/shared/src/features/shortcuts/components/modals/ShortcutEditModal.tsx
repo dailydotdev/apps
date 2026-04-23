@@ -108,9 +108,7 @@ export default function ShortcutEditModal({
   // Debounced copy of the URL used solely for the live favicon preview.
   // Typing 15 characters shouldn't fire 15 requests to the icon proxy —
   // 250ms idle matches the "I stopped typing" feel of most address bars.
-  const [debouncedUrl, setDebouncedUrl] = useState<string>(
-    shortcut?.url ?? '',
-  );
+  const [debouncedUrl, setDebouncedUrl] = useState<string>(shortcut?.url ?? '');
 
   const handleIconBase64 = async (base64: string, file: File) => {
     clearErrors('iconUrl');
@@ -121,8 +119,7 @@ export default function ShortcutEditModal({
       const uploadedUrl = await uploadContentImage(file);
       setValue('iconUrl', uploadedUrl, { shouldDirty: true });
     } catch (error) {
-      const message =
-        (error as Error)?.message ?? 'Failed to upload the image';
+      const message = (error as Error)?.message ?? 'Failed to upload the image';
       setError('iconUrl', { message });
       displayToast(message);
       setValue('iconUrl', shortcut?.iconUrl ?? '', { shouldDirty: true });
@@ -188,6 +185,9 @@ export default function ShortcutEditModal({
   };
   const handleAvatarDragOver = (event: React.DragEvent) => {
     event.preventDefault();
+    // Assigning to `dropEffect` is the standard HTML5 DnD pattern — the
+    // drop cursor is only configurable through the event's dataTransfer.
+    // eslint-disable-next-line no-param-reassign
     event.dataTransfer.dropEffect = 'copy';
   };
   const handleAvatarDragLeave = () => setIsDropTarget(false);
@@ -264,16 +264,19 @@ export default function ShortcutEditModal({
                 onDragLeave={handleAvatarDragLeave}
                 onDrop={handleAvatarDrop}
                 aria-label={
-                  hasCustomIcon ? 'Replace shortcut icon' : 'Upload shortcut icon'
+                  hasCustomIcon
+                    ? 'Replace shortcut icon'
+                    : 'Upload shortcut icon'
                 }
                 className={classNames(
-                  'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-all duration-150 hover:-translate-y-px hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:hover:transform-none motion-reduce:transition-none',
+                  'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-all duration-150 hover:-translate-y-px hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none motion-reduce:hover:transform-none',
                   isDropTarget
-                    ? 'border-accent-cabbage-default bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default/30'
+                    ? 'ring-accent-cabbage-default/30 border-accent-cabbage-default bg-overlay-float-cabbage ring-2'
                     : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
                   isUploading && 'opacity-60',
                 )}
               >
+                {/* eslint-disable-next-line no-nested-ternary */}
                 {hasCustomIcon ? (
                   <img
                     src={values.iconUrl}
@@ -289,10 +292,7 @@ export default function ShortcutEditModal({
                     className="size-8 rounded-6"
                   />
                 ) : (
-                  <EarthIcon
-                    secondary
-                    className="size-6 text-text-tertiary"
-                  />
+                  <EarthIcon secondary className="size-6 text-text-tertiary" />
                 )}
                 {/* Upload ring: a spinning cabbage arc that feels like real
                     progress rather than just "something dimmed". Covers the
@@ -321,6 +321,9 @@ export default function ShortcutEditModal({
                 className="sr-only"
                 onChange={(event) => {
                   onFileChange(event.target.files?.[0] ?? null);
+                  // Reset the input so picking the same file again still
+                  // fires a change event.
+                  // eslint-disable-next-line no-param-reassign
                   event.target.value = '';
                 }}
               />
@@ -332,6 +335,7 @@ export default function ShortcutEditModal({
                 aria-live="polite"
                 className="flex min-h-[18px] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
               >
+                {/* eslint-disable-next-line no-nested-ternary */}
                 {isUploading ? (
                   <span className="inline-flex items-center gap-2 text-accent-cabbage-default">
                     <span className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default" />
@@ -343,6 +347,7 @@ export default function ShortcutEditModal({
                   </span>
                 ) : (
                   <>
+                    {/* eslint-disable-next-line no-nested-ternary */}
                     {hasCustomIcon ? (
                       <button
                         type="button"
@@ -395,8 +400,10 @@ export default function ShortcutEditModal({
                 />
                 <div
                   className={classNames(
-                    'flex justify-end px-1 text-right typo-caption1 tabular-nums transition-colors duration-150 motion-reduce:transition-none',
-                    nameNearCap ? 'text-accent-cabbage-default' : 'text-text-tertiary',
+                    'flex justify-end px-1 text-right tabular-nums transition-colors duration-150 typo-caption1 motion-reduce:transition-none',
+                    nameNearCap
+                      ? 'text-accent-cabbage-default'
+                      : 'text-text-tertiary',
                   )}
                   aria-live="polite"
                 >

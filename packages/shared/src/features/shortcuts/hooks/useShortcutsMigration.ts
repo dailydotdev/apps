@@ -24,9 +24,7 @@ export const useShortcutsMigration = (): void => {
   const { customLinks } = useSettingsContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { topSites, hasCheckedPermission } = useShortcuts();
-  const manager = useShortcutsManager({
-    topSitesUrls: topSites?.map((s) => s.url),
-  });
+  const manager = useShortcutsManager();
   const { displayToast } = useToastNotification();
   const inFlightRef = useRef(false);
   const ranRef = useRef(false);
