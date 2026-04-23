@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { Section } from '../Section';
-import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
+import { Section } from '../../sidebar/Section';
+import type { SidebarMenuItem } from '../../sidebar/common';
+import { ListIcon } from '../../sidebar/common';
 import {
   DevPlusIcon,
   EyeIcon,
