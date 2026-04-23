@@ -206,6 +206,9 @@ export enum LogEvent {
   ReorderShortcuts = 'reorder shortcuts',
   ImportShortcuts = 'import shortcuts',
   UndoRemoveShortcut = 'undo remove shortcut',
+  ChangeShortcutsMode = 'change shortcuts mode',
+  ChangeShortcutsAppearance = 'change shortcuts appearance',
+  ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
   GenerateDevcard = 'generate devcard',

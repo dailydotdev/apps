@@ -70,7 +70,6 @@ export enum LazyModal {
   CustomLinks = 'customLinks',
   ShortcutEdit = 'shortcutEdit',
   ShortcutsManage = 'shortcutsManage',
-  BookmarksPermission = 'bookmarksPermission',
   ImportPicker = 'importPicker',
   ListAwards = 'listAwards',
   AdsDashboard = 'adsDashboard',

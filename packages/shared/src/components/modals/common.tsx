@@ -275,13 +275,6 @@ const ShortcutsManageModal = dynamic(
     ),
 );
 
-const BookmarksPermissionModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "bookmarksPermissionModal" */ '../../features/shortcuts/components/modals/BookmarksPermissionModal'
-    ),
-);
-
 const ImportPickerModal = dynamic(
   () =>
     import(
@@ -529,7 +522,6 @@ export const modals = {
   [LazyModal.CustomLinks]: CustomLinksModal,
   [LazyModal.ShortcutEdit]: ShortcutEditModal,
   [LazyModal.ShortcutsManage]: ShortcutsManageModal,
-  [LazyModal.BookmarksPermission]: BookmarksPermissionModal,
   [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.AdsDashboard]: AdsDashboardModal,

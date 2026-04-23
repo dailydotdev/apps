@@ -36,10 +36,16 @@ import { Switch } from '../../../../components/fields/Switch';
 import {
   BookmarkIcon,
   DragIcon,
+  EarthIcon,
   EditIcon,
+  EyeIcon,
+  LayoutIcon,
+  LinkIcon,
+  MagicIcon,
   PlusIcon,
   RefreshIcon,
   SitesIcon,
+  StarIcon,
   TrashIcon,
   VIcon,
 } from '../../../../components/icons';
@@ -56,9 +62,84 @@ import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
 
-// Lean mode row styled like the settings-page radio pattern:
-// borderless by default, a quiet hover, and a filled cabbage ring on select.
-// No left accent rail, no heavy outline — the radio dot carries the state.
+// Reusable section header that anchors every top-level group in the modal.
+// The small glyph chip on the left gives each section a unique "family crest"
+// so users can scan the modal vertically and know where they are at a glance
+// (Apple System Settings / Raycast pattern). The chip stays neutral by
+// default and picks up a subtle accent tint when the section is the active
+// subject — we use that only on Appearance right now but the API is ready.
+function SectionHeader({
+  icon,
+  title,
+  description,
+  trailing,
+}: {
+  icon: ReactElement;
+  title: string;
+  description?: string;
+  trailing?: ReactElement;
+}): ReactElement {
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        aria-hidden
+        className="flex size-7 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-secondary"
+      >
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <Typography bold type={TypographyType.Subhead}>
+          {title}
+        </Typography>
+        {description && (
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+          >
+            {description}
+          </Typography>
+        )}
+      </div>
+      {trailing}
+    </div>
+  );
+}
+
+// Compact capacity pill used next to "Your shortcuts". The tone warms up as
+// the library fills so the limit feels present without ever shouting — grey
+// through most of the range, cabbage accent when there are two or fewer
+// slots left, rose when the cap is hit. Tabular nums keep the width steady
+// as the count ticks up.
+function CapacityPill({
+  used,
+  max,
+}: {
+  used: number;
+  max: number;
+}): ReactElement {
+  const remaining = max - used;
+  const tone =
+    used >= max
+      ? 'bg-overlay-float-ketchup text-accent-ketchup-default'
+      : remaining <= 2
+        ? 'bg-overlay-float-cabbage text-accent-cabbage-default'
+        : 'bg-surface-float text-text-tertiary';
+  return (
+    <span
+      className={classNames(
+        'rounded-6 px-1.5 py-0.5 tabular-nums typo-caption1 font-bold',
+        tone,
+      )}
+    >
+      {used}/{max}
+    </span>
+  );
+}
+
+// Clean radio row. Selected state is carried entirely by the filled cabbage
+// dot + bold title — no background fill, so it never reads like a hover.
+// Hover is the only place we tint the surface, which keeps the difference
+// between "you're pointing at this" and "this is selected" obvious.
 function ShortcutsModeOption({
   id,
   checked,
@@ -75,10 +156,7 @@ function ShortcutsModeOption({
   return (
     <label
       htmlFor={id}
-      className={classNames(
-        'group flex cursor-pointer items-start gap-3 rounded-10 p-2 transition-colors duration-150 motion-reduce:transition-none',
-        checked ? 'bg-surface-float' : 'hover:bg-surface-float',
-      )}
+      className="group flex cursor-pointer items-start gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none"
     >
       <input
         id={id}
@@ -102,7 +180,16 @@ function ShortcutsModeOption({
         )}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-text-primary typo-callout">{title}</p>
+        <p
+          className={classNames(
+            'typo-callout',
+            checked
+              ? 'font-bold text-text-primary'
+              : 'text-text-primary',
+          )}
+        >
+          {title}
+        </p>
         <p className="mt-0.5 text-text-tertiary typo-caption1">{description}</p>
       </div>
     </label>
@@ -167,7 +254,10 @@ function ShortcutRow({
           {shortcut.url}
         </p>
       </div>
-      <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none">
+      {/* Actions fade in on row hover/focus. On touch devices (no hover),
+          we reveal them at 60% opacity so they're always reachable without
+          overwhelming the row. */}
+      <div className="flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-60 [@media(hover:none)]:focus-within:opacity-100 motion-reduce:transition-none">
         <Button
           type="button"
           variant={ButtonVariant.Tertiary}
@@ -183,7 +273,7 @@ function ShortcutRow({
           icon={<TrashIcon />}
           aria-label={`Remove ${label}`}
           onClick={() => onRemove(shortcut)}
-          className="hover:!text-status-error"
+          className="hover:!bg-overlay-float-ketchup hover:!text-accent-ketchup-default"
         />
       </div>
     </div>
@@ -255,8 +345,12 @@ function AppearancePicker({
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-1 text-text-primary typo-subhead">
-        <span className="font-bold">Appearance</span>
+      <legend className="contents">
+        <SectionHeader
+          icon={<LayoutIcon className="size-4" />}
+          title="Appearance"
+          description="How the row renders on the new-tab page."
+        />
       </legend>
       <div
         className="grid grid-cols-3 gap-2"
@@ -273,15 +367,16 @@ function AppearancePicker({
               aria-checked={checked}
               onClick={() => onChange(opt.id)}
               className={classNames(
-                'group relative flex flex-col items-center gap-1.5 rounded-10 border p-2 text-left outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
+                // Card rests on a 1px border. Selected adds an accent border
+                // + corner badge + a soft cabbage-tinted background to the
+                // preview shelf, so the choice feels lit up, not merely
+                // outlined. Focus ring stays on the whole card for keyboards.
+                'group relative flex flex-col items-center gap-1.5 rounded-12 border p-2 text-left outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
                 checked
-                  ? 'border-accent-cabbage-default bg-surface-float'
-                  : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+                  ? 'border-accent-cabbage-default bg-overlay-float-cabbage/40'
+                  : 'border-border-subtlest-tertiary hover:-translate-y-px hover:border-border-subtlest-secondary hover:bg-surface-float',
               )}
             >
-              {/* A small corner badge is the clearest "this one is chosen"
-                  signal — stronger than a color swap but quieter than an
-                  accent rail that covers the whole row. */}
               {checked && (
                 <span
                   aria-hidden
@@ -290,12 +385,17 @@ function AppearancePicker({
                   <VIcon className="size-2.5" />
                 </span>
               )}
-              <div className="flex h-10 w-full items-center justify-center rounded-6 bg-background-default">
+              <div
+                className={classNames(
+                  'flex h-10 w-full items-center justify-center rounded-8 transition-colors duration-150 motion-reduce:transition-none',
+                  checked ? 'bg-background-default' : 'bg-background-subtle',
+                )}
+              >
                 {opt.preview}
               </div>
               <span
                 className={classNames(
-                  'typo-caption1',
+                  'typo-caption1 transition-colors duration-150 motion-reduce:transition-none',
                   checked
                     ? 'font-bold text-text-primary'
                     : 'text-text-tertiary group-hover:text-text-primary',
@@ -330,13 +430,18 @@ export default function ShortcutsManageModal(
     onRevokePermission,
     bookmarks,
     hasCheckedBookmarksPermission,
+    askBookmarksPermission,
     revokeBookmarksPermission,
   } = useShortcuts();
   const {
     hidden: hiddenTopSites,
     restore: restoreHiddenTopSites,
   } = useHiddenTopSites();
-  const { openModal } = useLazyModal();
+  const { openModal, closeModal } = useLazyModal();
+  const close = () => {
+    closeModal();
+    props?.onRequestClose?.(undefined as never);
+  };
 
   const mode = flags?.shortcutsMode ?? 'manual';
   const selectMode = async (next: 'manual' | 'auto') => {
@@ -344,6 +449,11 @@ export default function ShortcutsManageModal(
       return;
     }
     await updateFlag('shortcutsMode', next);
+    logEvent({
+      event_name: LogEvent.ChangeShortcutsMode,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ mode: next }),
+    });
     if (next === 'auto' && topSites === undefined) {
       await askTopSitesPermission();
     }
@@ -356,6 +466,26 @@ export default function ShortcutsManageModal(
       return;
     }
     updateFlag('shortcutsAppearance', next);
+    logEvent({
+      event_name: LogEvent.ChangeShortcutsAppearance,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ appearance: next }),
+    });
+  };
+
+  // Sync flag: when on, the same shortcuts render on daily.dev's web app
+  // (not just the new-tab extension). Lives here in the manage modal — with
+  // a clear description — instead of as a one-line toggle in the dropdown
+  // where the "what does this do" wasn't obvious.
+  const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;
+  const toggleShowOnWebapp = () => {
+    const next = !showOnWebapp;
+    updateFlag('showShortcutsOnWebapp', next);
+    logEvent({
+      event_name: LogEvent.ToggleShortcutsOnWebapp,
+      target_type: TargetType.Shortcuts,
+      extra: JSON.stringify({ enabled: next }),
+    });
   };
 
   const topSitesCount = topSites?.length ?? 0;
@@ -411,60 +541,66 @@ export default function ShortcutsManageModal(
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
+      {/* Header: title only on the left, primary Done on the right. The
+          count badge moved out of the header — it lives next to the
+          "Your shortcuts" subhead where it's contextual instead of
+          floating above unrelated sections. */}
       <Modal.Header showCloseButton={false}>
-        <div className="flex items-baseline gap-2">
-          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
-            Shortcuts
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {manager.shortcuts.length}/{MAX_SHORTCUTS}
-          </Typography>
-        </div>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+          Shortcuts
+        </Typography>
         <Button
           type="button"
-          variant={ButtonVariant.Float}
+          variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           className="ml-auto"
-          onClick={() => props?.onRequestClose?.(undefined as never)}
+          onClick={close}
         >
           Done
         </Button>
       </Modal.Header>
       <Modal.Body>
-        {/* Matches the settings page rhythm: sections spaced with gap, bold
-            Subhead titles, no heavy separators between groups. */}
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-1 flex-col">
-              <Typography bold type={TypographyType.Subhead}>
-                Show shortcuts
-              </Typography>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Toggle the row visibility on the new-tab page.
-              </Typography>
-            </div>
-            <Switch
-              inputId="showTopSites-switch"
-              name="showTopSites"
-              compact={false}
-              checked={showTopSites}
-              onToggle={toggleShowTopSites}
-              aria-label="Show shortcuts"
-            />
-          </div>
+        {/* Settings flow, top to bottom: visibility → look → source → list →
+            connections. Each section gets a small anchor glyph via
+            SectionHeader so the modal reads as a set of distinct "cards" of
+            configuration rather than a wall of bolded titles, and we drop
+            hairline dividers between them for vertical rhythm. */}
+        <div className="flex flex-col divide-y divide-border-subtlest-tertiary [&>*:not(:first-child)]:pt-5 [&>*:not(:last-child)]:pb-5">
+          <SectionHeader
+            icon={<EyeIcon className="size-4" />}
+            title="Show shortcuts"
+            description="Toggle the row visibility on the new-tab page."
+            trailing={
+              <Switch
+                inputId="showTopSites-switch"
+                name="showTopSites"
+                compact={false}
+                checked={showTopSites}
+                onToggle={toggleShowTopSites}
+                aria-label="Show shortcuts"
+              />
+            }
+          />
 
           {showTopSites && (
-            <>
-              <fieldset className="flex flex-col gap-1">
-                <legend className="mb-1 text-text-primary typo-subhead">
-                  <span className="font-bold">Source</span>
-                </legend>
+            <div className="flex flex-col gap-4">
+              <AppearancePicker
+                value={appearance}
+                onChange={selectAppearance}
+              />
+            </div>
+          )}
+
+          {showTopSites && (
+            <fieldset className="flex flex-col gap-2">
+              <legend className="contents">
+                <SectionHeader
+                  icon={<MagicIcon className="size-4" />}
+                  title="Source"
+                  description="Choose where this row gets its shortcuts from."
+                />
+              </legend>
+              <div className="flex flex-col gap-1">
                 <ShortcutsModeOption
                   id="shortcuts-mode-manual"
                   checked={mode === 'manual'}
@@ -479,42 +615,43 @@ export default function ShortcutsManageModal(
                   title="Most visited sites"
                   description="Suggested from your browser history."
                 />
-              </fieldset>
-
-              <AppearancePicker
-                value={appearance}
-                onChange={selectAppearance}
-              />
-            </>
+              </div>
+            </fieldset>
           )}
 
           {mode === 'manual' && (
-            <section className="flex flex-col gap-1">
-              <div className="mb-1 flex items-baseline justify-between">
-                <Typography bold type={TypographyType.Subhead}>
-                  Your shortcuts
-                </Typography>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {manager.shortcuts.length}/{MAX_SHORTCUTS}
-                </Typography>
-              </div>
+            <section className="flex flex-col gap-2">
+              <SectionHeader
+                icon={<StarIcon className="size-4" />}
+                title="Your shortcuts"
+                description="Drag to reorder. Hover a row to edit or remove."
+                trailing={
+                  <CapacityPill
+                    used={manager.shortcuts.length}
+                    max={MAX_SHORTCUTS}
+                  />
+                }
+              />
               {manager.shortcuts.length === 0 ? (
-                <div className="flex flex-col items-center gap-2 rounded-10 bg-surface-float px-4 py-8 text-center">
+                <div className="flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-4 py-8 text-center">
+                  <span
+                    aria-hidden
+                    className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"
+                  >
+                    <StarIcon secondary className="size-6" />
+                  </span>
                   <Typography
                     type={TypographyType.Callout}
                     color={TypographyColor.Primary}
                     bold
                   >
-                    No shortcuts yet
+                    Your shortcuts, your rules
                   </Typography>
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
                   >
-                    Add one manually or import from Browser connections below.
+                    Add one manually or import from Connections below.
                   </Typography>
                   <Button
                     type="button"
@@ -529,19 +666,30 @@ export default function ShortcutsManageModal(
                 </div>
               ) : (
                 <div className="flex max-h-[50vh] flex-col gap-0.5 overflow-y-auto">
+                  {/* Inline "Add" affordance. Visually distinct from the
+                      shortcut rows (dashed icon chip, muted copy, subtle
+                      right-side hint) so it reads as a utility row, not
+                      another shortcut. At the cap we keep it visible but
+                      disabled with a tiny "Library full" hint — tells users
+                      why without hiding the control. */}
                   <button
                     type="button"
                     onClick={onAdd}
                     disabled={!manager.canAdd}
-                    className="group flex items-center gap-3 rounded-10 p-2 text-left transition-colors duration-150 hover:bg-surface-float disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent motion-reduce:transition-none"
+                    className="group flex items-center gap-3 rounded-10 p-2 text-left transition-colors duration-150 hover:bg-surface-float disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent motion-reduce:transition-none"
                     aria-label="Add a shortcut"
                   >
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-8 border border-dashed border-border-subtlest-tertiary text-text-tertiary transition-colors duration-150 group-hover:border-solid group-hover:border-border-subtlest-secondary group-hover:bg-background-default group-hover:text-text-primary motion-reduce:transition-none">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-8 border border-dashed border-border-subtlest-tertiary text-text-tertiary transition-all duration-150 group-hover:border-solid group-hover:border-accent-cabbage-default group-hover:bg-overlay-float-cabbage group-hover:text-accent-cabbage-default motion-reduce:transition-none">
                       <PlusIcon />
                     </span>
                     <p className="truncate text-text-primary typo-callout">
                       Add a shortcut
                     </p>
+                    {!manager.canAdd && (
+                      <span className="ml-auto text-text-tertiary typo-caption1">
+                        Library full
+                      </span>
+                    )}
                   </button>
                   <DndContext
                     sensors={sensors}
@@ -571,10 +719,13 @@ export default function ShortcutsManageModal(
             topSitesGranted={topSites !== undefined}
             bookmarksGranted={bookmarks !== undefined}
             hiddenCount={hiddenTopSites.length}
+            isAuto={mode === 'auto'}
             topSitesCount={topSitesCount}
             bookmarksCount={bookmarksCount}
             topSitesKnown={topSitesKnown}
             bookmarksKnown={bookmarksKnown}
+            showOnWebapp={showOnWebapp}
+            onToggleShowOnWebapp={toggleShowOnWebapp}
             onImportTopSites={
               setShowImportSource
                 ? () => setShowImportSource('topSites')
@@ -586,6 +737,7 @@ export default function ShortcutsManageModal(
                 : undefined
             }
             onAskTopSites={askTopSitesPermission}
+            onAskBookmarks={askBookmarksPermission}
             onRevokeTopSites={onRevokePermission}
             onRevokeBookmarks={revokeBookmarksPermission}
             onRestoreHidden={() => restoreHiddenTopSites()}
@@ -600,53 +752,55 @@ interface BrowserConnectionsSectionProps {
   topSitesGranted: boolean;
   bookmarksGranted: boolean;
   hiddenCount: number;
+  isAuto: boolean;
   topSitesCount: number;
   bookmarksCount: number;
   topSitesKnown: boolean;
   bookmarksKnown: boolean;
+  showOnWebapp: boolean;
+  onToggleShowOnWebapp: () => void;
   onImportTopSites?: () => void;
   onImportBookmarks?: () => void;
   onAskTopSites?: () => void | Promise<boolean>;
+  onAskBookmarks?: () => void | Promise<boolean>;
   onRevokeTopSites?: () => void | Promise<void>;
   onRevokeBookmarks?: () => void | Promise<void>;
   onRestoreHidden: () => void;
 }
 
-// Single home for anything that involves the browser:
-// import (primary action), revoke (secondary), and restore hidden.
-// Lives at the bottom because it's a "settings-like" section — less used
-// than adding/editing shortcuts but too important to bury in a menu.
+// Groups every cross-surface concern: permissions the browser grants us to
+// read (top sites, bookmarks, hidden restoration) AND where we write the
+// shortcuts (just this new-tab page, or synced to daily.dev). Previously the
+// "Show on daily.dev" setting floated between Source and Your shortcuts as
+// its own loose card, which fought the rest of the modal's rhythm. Living
+// here, it reads as one more connection — just one that flows outward
+// instead of inward.
 function BrowserConnectionsSection({
   topSitesGranted,
   bookmarksGranted,
   hiddenCount,
+  isAuto,
   topSitesCount,
   bookmarksCount,
   topSitesKnown,
   bookmarksKnown,
+  showOnWebapp,
+  onToggleShowOnWebapp,
   onImportTopSites,
   onImportBookmarks,
   onAskTopSites,
+  onAskBookmarks,
   onRevokeTopSites,
   onRevokeBookmarks,
   onRestoreHidden,
 }: BrowserConnectionsSectionProps): ReactElement {
   return (
-    <section
-      aria-label="Browser connections"
-      className="flex flex-col gap-2"
-    >
-      <div className="mb-1 flex flex-col">
-        <Typography bold type={TypographyType.Subhead}>
-          Browser connections
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          Import from and manage what daily.dev can read from your browser.
-        </Typography>
-      </div>
+    <section aria-label="Connections" className="flex flex-col gap-2">
+      <SectionHeader
+        icon={<LinkIcon className="size-4" />}
+        title="Connections"
+        description="Import from your browser, or sync this row to daily.dev so it follows you across signed-in devices."
+      />
       <ul className="flex flex-col gap-0.5">
         <ConnectionRow
           icon={<SitesIcon />}
@@ -669,6 +823,20 @@ function BrowserConnectionsSection({
             topSitesGranted ? () => onRevokeTopSites?.() : undefined
           }
         />
+        {/* Hidden sites is purely an auto-mode concept: the only way to add
+            to this list is to X-out a tile in the live top-sites row. In
+            manual mode it's dead data, so we hide it. Pinning it directly
+            under Most visited sites (rather than after Bookmarks) makes the
+            ownership obvious at a glance — "these go together". */}
+        {isAuto && hiddenCount > 0 && (
+          <ConnectionRow
+            icon={<RefreshIcon />}
+            label={`Hidden sites (${hiddenCount})`}
+            description="Restore sites you removed from your Most visited row."
+            primaryLabel="Restore all"
+            onPrimary={onRestoreHidden}
+          />
+        )}
         <ConnectionRow
           icon={<BookmarkIcon />}
           label="Bookmarks bar"
@@ -678,21 +846,33 @@ function BrowserConnectionsSection({
               : 'Grant access to import your browser bookmarks.'
           }
           primaryLabel={bookmarksGranted ? 'Import' : 'Connect'}
-          onPrimary={bookmarksGranted ? onImportBookmarks : onImportBookmarks}
+          onPrimary={
+            bookmarksGranted
+              ? onImportBookmarks
+              : onAskBookmarks
+                ? () => onAskBookmarks()
+                : undefined
+          }
           secondaryLabel={bookmarksGranted ? 'Disconnect' : undefined}
           onSecondary={
             bookmarksGranted ? () => onRevokeBookmarks?.() : undefined
           }
         />
-        {hiddenCount > 0 && (
-          <ConnectionRow
-            icon={<RefreshIcon />}
-            label={`Hidden sites (${hiddenCount})`}
-            description="Sites you removed from auto mode."
-            primaryLabel="Restore all"
-            onPrimary={onRestoreHidden}
-          />
-        )}
+        <ConnectionRow
+          icon={<EarthIcon />}
+          label="Sync to daily.dev"
+          description="Show these shortcuts on the web app on every signed-in browser."
+          trailing={
+            <Switch
+              inputId="shortcuts-show-on-webapp"
+              name="shortcuts-show-on-webapp"
+              compact={false}
+              checked={showOnWebapp}
+              onToggle={onToggleShowOnWebapp}
+              aria-label="Sync shortcuts to daily.dev"
+            />
+          }
+        />
       </ul>
     </section>
   );
@@ -702,10 +882,15 @@ interface ConnectionRowProps {
   icon: ReactElement;
   label: string;
   description: string;
-  primaryLabel: string;
+  primaryLabel?: string;
   onPrimary?: () => void;
   secondaryLabel?: string;
   onSecondary?: () => void;
+  // Optional override for the trailing control. When provided, we skip the
+  // primary/secondary button pair and render this slot instead. Lets the
+  // sync row drop a Switch into the same footprint without a special-case
+  // component.
+  trailing?: ReactElement;
 }
 
 function ConnectionRow({
@@ -716,6 +901,7 @@ function ConnectionRow({
   onPrimary,
   secondaryLabel,
   onSecondary,
+  trailing,
 }: ConnectionRowProps): ReactElement {
   return (
     <li className="flex items-center gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none">
@@ -729,25 +915,31 @@ function ConnectionRow({
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
-        {secondaryLabel && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
-            onClick={onSecondary}
-          >
-            {secondaryLabel}
-          </Button>
+        {trailing ?? (
+          <>
+            {secondaryLabel && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                onClick={onSecondary}
+              >
+                {secondaryLabel}
+              </Button>
+            )}
+            {primaryLabel && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.XSmall}
+                disabled={!onPrimary}
+                onClick={onPrimary}
+              >
+                {primaryLabel}
+              </Button>
+            )}
+          </>
         )}
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.XSmall}
-          disabled={!onPrimary}
-          onClick={onPrimary}
-        >
-          {primaryLabel}
-        </Button>
       </div>
     </li>
   );

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Browser, TopSites } from 'webextension-polyfill';
 import { checkIsExtension } from '../../../lib/func';
+import { MAX_SHORTCUTS } from '../types';
 
 type TopSite = TopSites.MostVisitedURL;
 
@@ -16,7 +17,7 @@ export const useTopSites = () => {
 
     try {
       await browser.topSites.get().then((result = []) => {
-        setTopSites(result.slice(0, 8));
+        setTopSites(result.slice(0, MAX_SHORTCUTS));
       });
     } catch (err) {
       setTopSites(undefined);

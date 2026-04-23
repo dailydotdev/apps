@@ -13,6 +13,7 @@ import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
 import ShortcutsExtensionPromo from './banners/ShortcutsExtensionPromo';
+import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -689,6 +690,9 @@ export default function MainFeedLayout({
           onEnable={onEnable}
           onDismiss={onDismiss}
         />
+      )}
+      {!checkIsExtension() && isHomePage && (
+        <WebappShortcutsRow className="px-4 pb-2" />
       )}
       {shouldShowShortcutsPromo && (
         <ShortcutsExtensionPromo

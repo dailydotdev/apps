@@ -28,6 +28,7 @@ import {
 } from '../../../../graphql/posts';
 import { useFileInput } from '../../../../hooks/utils/useFileInput';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { apiUrl } from '../../../../lib/config';
 
 const schema = z.object({
@@ -71,6 +72,11 @@ export default function ShortcutEditModal({
 }: ShortcutEditModalProps): ReactElement {
   const manager = useShortcutsManager();
   const { displayToast } = useToastNotification();
+  const { closeModal } = useLazyModal();
+  const close = () => {
+    closeModal();
+    props.onRequestClose?.(undefined as never);
+  };
   const [isUploading, setIsUploading] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const methods = useForm<FormValues>({
@@ -94,6 +100,17 @@ export default function ShortcutEditModal({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [faviconFailed, setFaviconFailed] = useState(false);
+  const [customIconFailed, setCustomIconFailed] = useState(false);
+  // Drop-on-avatar: users who have a favicon.ico / logo sitting on disk
+  // should be able to fling it onto the icon picker without clicking
+  // through a file dialog. Mirrors the AddShortcutTile drop affordance.
+  const [isDropTarget, setIsDropTarget] = useState(false);
+  // Debounced copy of the URL used solely for the live favicon preview.
+  // Typing 15 characters shouldn't fire 15 requests to the icon proxy —
+  // 250ms idle matches the "I stopped typing" feel of most address bars.
+  const [debouncedUrl, setDebouncedUrl] = useState<string>(
+    shortcut?.url ?? '',
+  );
 
   const handleIconBase64 = async (base64: string, file: File) => {
     clearErrors('iconUrl');
@@ -125,15 +142,27 @@ export default function ShortcutEditModal({
   // past a transiently-broken state recovers and shows the new favicon.
   useEffect(() => {
     setFaviconFailed(false);
+    const handle = setTimeout(() => {
+      setDebouncedUrl(values.url ?? '');
+    }, 250);
+    return () => clearTimeout(handle);
   }, [values.url]);
 
+  // Same deal for the custom icon: if the user pastes a new URL, give it a
+  // fresh chance to load instead of keeping the broken-image state.
+  useEffect(() => {
+    setCustomIconFailed(false);
+  }, [values.iconUrl]);
+
   // Decide what to render inside the icon avatar:
-  // 1. A custom icon (uploaded, base64 preview, or pasted URL) — takes priority.
+  // 1. A valid custom icon (uploaded, base64 preview, or pasted URL that
+  //    actually loads). If the user pasted a broken URL we fall through to
+  //    the favicon instead of showing a broken-image glyph.
   // 2. Otherwise the site's favicon, derived from the URL as the user types.
   // 3. If neither is available, fall back to a neutral Earth glyph so the
   //    control still looks like "a picker", not an empty circle.
-  const hasCustomIcon = !!values.iconUrl;
-  const urlCandidate = values.url ? withHttps(values.url) : '';
+  const hasCustomIcon = !!values.iconUrl && !customIconFailed;
+  const urlCandidate = debouncedUrl ? withHttps(debouncedUrl) : '';
   const canShowFavicon =
     !hasCustomIcon && !faviconFailed && isValidHttpUrl(urlCandidate);
   const faviconSrc = canShowFavicon
@@ -146,6 +175,44 @@ export default function ShortcutEditModal({
     setValue('iconUrl', '', { shouldDirty: true });
   };
 
+  // File drop onto the avatar: we only accept a single image file. Multiple
+  // files or non-images are silently ignored — the user barely interacted,
+  // we shouldn't punish them with a modal error. The visual ring handles
+  // the feedback loop (green-ish while hovering a valid file, cleared on
+  // leave/drop).
+  const handleAvatarDragEnter = (event: React.DragEvent) => {
+    event.preventDefault();
+    if (event.dataTransfer.types.includes('Files')) {
+      setIsDropTarget(true);
+    }
+  };
+  const handleAvatarDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  };
+  const handleAvatarDragLeave = () => setIsDropTarget(false);
+  const handleAvatarDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDropTarget(false);
+    const file = Array.from(event.dataTransfer.files || []).find((candidate) =>
+      candidate.type.startsWith('image/'),
+    );
+    if (!file) {
+      return;
+    }
+    onFileChange(file);
+  };
+
+  // Live character counter for the name field. Swaps from muted to warning
+  // tone as we close in on the 40-char cap, so users feel the limit before
+  // they hit it.
+  const nameValue = values.name ?? '';
+  const nameLen = nameValue.length;
+  const nameNearCap = nameLen >= 32;
+  const nameHint = nameLen
+    ? `${nameLen} / 40 characters`
+    : 'Up to 40 characters';
+
   const onSubmit = handleSubmit(async (data) => {
     const payload = {
       url: data.url,
@@ -153,18 +220,24 @@ export default function ShortcutEditModal({
       iconUrl: data.iconUrl || undefined,
     };
 
-    const result =
-      mode === 'add'
-        ? await manager.addShortcut(payload)
-        : await manager.updateShortcut(shortcut!.url, payload);
+    try {
+      const result =
+        mode === 'add'
+          ? await manager.addShortcut(payload)
+          : await manager.updateShortcut(shortcut!.url, payload);
 
-    if (result.error) {
-      setError('url', { message: result.error });
-      return;
+      if (result.error) {
+        setError('url', { message: result.error });
+        return;
+      }
+    } catch {
+      // The write is optimistic — local state already reflects the change.
+      // If the remote mutation rejects, SettingsContext rolls it back and will
+      // toast its own error. We still close here so the user isn't trapped.
     }
 
     onSubmitted?.();
-    props.onRequestClose?.(undefined as never);
+    close();
   });
 
   return (
@@ -180,17 +253,24 @@ export default function ShortcutEditModal({
         <FormProvider {...methods}>
           <form id="shortcut-edit-form" onSubmit={onSubmit}>
             {/* Icon-first: a single tappable avatar at the top. The favicon
-                derived from the URL fills it by default; uploading swaps it
-                out. */}
+                derived from the URL fills it by default; uploading (or
+                dropping an image onto the avatar) swaps it out. */}
             <div className="mb-5 flex flex-col items-center gap-2">
               <button
                 type="button"
                 onClick={openFilePicker}
+                onDragEnter={handleAvatarDragEnter}
+                onDragOver={handleAvatarDragOver}
+                onDragLeave={handleAvatarDragLeave}
+                onDrop={handleAvatarDrop}
                 aria-label={
                   hasCustomIcon ? 'Replace shortcut icon' : 'Upload shortcut icon'
                 }
                 className={classNames(
-                  'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors duration-150 hover:border-border-subtlest-secondary hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
+                  'group relative flex size-16 items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-all duration-150 hover:-translate-y-px hover:bg-surface-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:hover:transform-none motion-reduce:transition-none',
+                  isDropTarget
+                    ? 'border-accent-cabbage-default bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default/30'
+                    : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
                   isUploading && 'opacity-60',
                 )}
               >
@@ -198,6 +278,7 @@ export default function ShortcutEditModal({
                   <img
                     src={values.iconUrl}
                     alt=""
+                    onError={() => setCustomIconFailed(true)}
                     className="size-full object-cover"
                   />
                 ) : faviconSrc ? (
@@ -213,12 +294,25 @@ export default function ShortcutEditModal({
                     className="size-6 text-text-tertiary"
                   />
                 )}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 flex items-center justify-center bg-overlay-primary-pepper text-text-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none"
-                >
-                  <CameraIcon secondary />
-                </span>
+                {/* Upload ring: a spinning cabbage arc that feels like real
+                    progress rather than just "something dimmed". Covers the
+                    icon while the asset is being posted to the server. */}
+                {isUploading && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 flex items-center justify-center bg-overlay-primary-pepper"
+                  >
+                    <span className="size-8 animate-spin rounded-full border-[3px] border-border-subtlest-tertiary border-t-accent-cabbage-default motion-reduce:animate-none" />
+                  </span>
+                )}
+                {!isUploading && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 flex items-center justify-center bg-overlay-primary-pepper text-text-primary opacity-0 transition-opacity duration-150 group-hover:opacity-100 motion-reduce:transition-none"
+                  >
+                    <CameraIcon secondary />
+                  </span>
+                )}
               </button>
               <input
                 ref={fileInputRef}
@@ -230,59 +324,90 @@ export default function ShortcutEditModal({
                   event.target.value = '';
                 }}
               />
+              {/* All icon-related affordances live with the avatar:
+                  upload status, remove, and the "paste URL" escape hatch.
+                  Keeping them together means a user scanning the form
+                  doesn't have to hunt around for icon controls. */}
               <div
                 aria-live="polite"
-                className="min-h-[18px] text-center text-text-tertiary typo-caption1"
+                className="flex min-h-[18px] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
               >
                 {isUploading ? (
-                  <span className="inline-flex items-center gap-2 text-text-tertiary">
-                    <span className="size-1.5 animate-pulse rounded-full bg-text-tertiary" />
+                  <span className="inline-flex items-center gap-2 text-accent-cabbage-default">
+                    <span className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default" />
                     Uploading…
                   </span>
-                ) : hasCustomIcon ? (
-                  <button
-                    type="button"
-                    onClick={clearCustomIcon}
-                    className="underline-offset-2 hover:text-text-primary hover:underline"
-                  >
-                    Remove custom icon
-                  </button>
-                ) : (
-                  <span>
-                    {faviconSrc ? 'Tap to upload your own' : 'Tap to upload'}
+                ) : isDropTarget ? (
+                  <span className="text-accent-cabbage-default">
+                    Drop to use this image
                   </span>
+                ) : (
+                  <>
+                    {hasCustomIcon ? (
+                      <button
+                        type="button"
+                        onClick={clearCustomIcon}
+                        className="underline-offset-2 hover:text-text-primary hover:underline"
+                      >
+                        Remove custom icon
+                      </button>
+                    ) : customIconFailed ? (
+                      <span className="text-status-error">
+                        Couldn&apos;t load that image — showing favicon instead
+                      </span>
+                    ) : (
+                      <span>
+                        {faviconSrc
+                          ? 'Tap or drop to upload'
+                          : 'Tap or drop an image to upload'}
+                      </span>
+                    )}
+                    <span aria-hidden className="text-text-quaternary">
+                      ·
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowUrlInput((prev) => !prev)}
+                      className="underline-offset-2 hover:text-text-primary hover:underline"
+                    >
+                      {showUrlInput ? 'Hide icon URL' : 'Paste image URL'}
+                    </button>
+                  </>
                 )}
               </div>
+              {showUrlInput && (
+                <div className="mt-2 w-full">
+                  <ControlledTextField
+                    name="iconUrl"
+                    label="Icon URL"
+                    placeholder="https://example.com/icon.png"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <ControlledTextField
+                  name="name"
+                  label="Name (optional)"
+                  placeholder="My shortcut"
+                />
+                <div
+                  className={classNames(
+                    'flex justify-end px-1 text-right typo-caption1 tabular-nums transition-colors duration-150 motion-reduce:transition-none',
+                    nameNearCap ? 'text-accent-cabbage-default' : 'text-text-tertiary',
+                  )}
+                  aria-live="polite"
+                >
+                  {nameHint}
+                </div>
+              </div>
               <ControlledTextField
                 name="url"
                 label="URL"
                 placeholder="https://example.com"
               />
-              <ControlledTextField
-                name="name"
-                label="Name (optional)"
-                placeholder="My shortcut"
-                hint="Max 40 characters"
-              />
-              <button
-                type="button"
-                onClick={() => setShowUrlInput((prev) => !prev)}
-                className="self-start text-text-tertiary underline-offset-2 typo-caption1 hover:text-text-primary hover:underline"
-              >
-                {showUrlInput
-                  ? 'Hide icon URL'
-                  : 'Or paste an image URL instead'}
-              </button>
-              {showUrlInput && (
-                <ControlledTextField
-                  name="iconUrl"
-                  label="Icon URL"
-                  placeholder="https://example.com/icon.png"
-                />
-              )}
             </div>
           </form>
         </FormProvider>
@@ -292,7 +417,7 @@ export default function ShortcutEditModal({
           type="button"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
-          onClick={() => props.onRequestClose?.(undefined as never)}
+          onClick={close}
         >
           Cancel
         </Button>

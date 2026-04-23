@@ -32,7 +32,6 @@ import {
 import {
   EyeIcon,
   MenuIcon,
-  PlusIcon,
   SettingsIcon,
   SitesIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -224,6 +223,17 @@ export function ShortcutLinksHub({
   const onAdd = () =>
     openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } });
 
+  // Drag-a-link-into-the-row shortcut: skip the edit modal entirely when
+  // the user drops a URL from the address bar or another tab. We only
+  // surface a toast when the add fails (duplicate / limit), because the
+  // success case speaks for itself — the tile just appears in the row.
+  const onDropUrl = async (url: string) => {
+    const result = await manager.addShortcut({ url });
+    if (result.error) {
+      displayToast(result.error);
+    }
+  };
+
   const onManage = () => openModal({ type: LazyModal.ShortcutsManage });
 
   const requestTopSitesAccess = async () => {
@@ -255,19 +265,12 @@ export function ShortcutLinksHub({
     }
   };
 
+  // The inline "+" tile already lets users add when there's room. We don't
+  // mirror "Add shortcut" into the dropdown: it either duplicates the tile
+  // (manual + room left) or points at a disabled action (at the 12/12 cap),
+  // both of which are clutter. At the limit, the library's-full story is
+  // told by the Manage modal's counter and by tiles already filling the row.
   const menuOptions = [
-    // "Add shortcut" only appears in manual mode. In auto mode the row is
-    // populated from browser history, so surfacing a disabled add item would
-    // be noise. The toggle at the top handles the mode switch.
-    ...(isAuto
-      ? []
-      : [
-          {
-            icon: <WrappingMenuIcon Icon={PlusIcon} />,
-            label: 'Add shortcut',
-            action: onAdd,
-          },
-        ]),
     {
       icon: <WrappingMenuIcon Icon={SettingsIcon} />,
       label: 'Manage shortcuts…',
@@ -284,19 +287,50 @@ export function ShortcutLinksHub({
   // why the row is empty and can grant access or switch back to manual.
   const showAutoEmptyState = isAuto && visibleShortcuts.length === 0;
 
+  // Controlled open state so (a) the trigger stays visible while the menu
+  // is open even when the user hovers *into* the floating menu content and
+  // (b) right-clicking the toolbar background can open the menu too.
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Right-click anywhere on the toolbar background opens the same menu.
+  // Matches the Chrome bookmarks bar / Finder sidebar pattern. Individual
+  // tiles already handle their own contextmenu (edit/remove) and call
+  // `stopPropagation`, so this only fires on the empty space between tiles.
+  const handleToolbarContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setMenuOpen(true);
+  };
+
+  // Force the trigger visible in these cases so users aren't trapped:
+  // - the menu is already open (don't yank the trigger mid-hover)
+  // - the auto-mode empty state is showing (no tiles to hover, only options)
+  // - there's literally nothing else in the row (no "+" tile, no tiles)
+  const forceShowMenuButton =
+    menuOpen ||
+    showAutoEmptyState ||
+    (visibleShortcuts.length === 0 && (isAuto || !manager.canAdd));
+
   return (
     <div
       role="toolbar"
       aria-label="Shortcuts"
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
+      onContextMenu={handleToolbarContextMenu}
       className={classNames(
-        'hidden flex-wrap items-center tablet:flex',
-        // Gap scales with density: tiles have labels so they need breathing
-        // room; chips/icons pack tighter like a real bookmarks bar.
-        appearance === 'tile' && 'gap-x-2 gap-y-3 items-start',
-        appearance === 'icon' && 'gap-1.5',
-        appearance === 'chip' && 'gap-1.5',
+        // `group` powers the hover-reveal of the overflow button below.
+        'group/hub',
+        // Shown from mobileXL (500px) up so narrow desktop windows and
+        // split-screen use get the hub too. Still hidden on phone-sized
+        // viewports where the new-tab page isn't really the use-case.
+        'hidden flex-wrap items-center mobileXL:flex',
+        // Gap scales with density: tiles still need a touch of breathing
+        // room because of the label, but tighter than before so the row
+        // reads as one cluster of shortcuts. Icons/chips pack like a real
+        // bookmarks bar.
+        appearance === 'tile' && 'gap-x-1 gap-y-2 items-start',
+        appearance === 'icon' && 'gap-1',
+        appearance === 'chip' && 'gap-1',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
       )}
     >
@@ -326,7 +360,11 @@ export function ShortcutLinksHub({
         </SortableContext>
       </DndContext>
       {!isAuto && manager.canAdd && (
-        <AddShortcutTile appearance={appearance} onClick={onAdd} />
+        <AddShortcutTile
+          appearance={appearance}
+          onClick={onAdd}
+          onDropUrl={onDropUrl}
+        />
       )}
       {showAutoEmptyState && (
         <button
@@ -353,7 +391,7 @@ export function ShortcutLinksHub({
       <span role="status" aria-live="polite" className="sr-only">
         {reorderAnnouncement}
       </span>
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
@@ -361,7 +399,15 @@ export function ShortcutLinksHub({
             size={ButtonSize.Small}
             icon={<MenuIcon className="rotate-90" secondary />}
             className={classNames(
-              'ml-1 !size-8 !min-w-0 rounded-full text-text-tertiary transition-colors duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
+              'ml-1 !size-8 !min-w-0 rounded-full text-text-tertiary transition-opacity duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
+              // Quiet by default, reveals when the user shows intent:
+              // - hovering anywhere on the row
+              // - keyboard-focusing any child (focus-within)
+              // - touch devices where hover doesn't exist
+              // - any case flagged above where hiding would trap the user
+              forceShowMenuButton
+                ? 'opacity-100'
+                : 'opacity-0 group-hover/hub:opacity-100 group-focus-within/hub:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100',
               appearance === 'tile' && 'mt-2',
             )}
             aria-label="Shortcut options"
@@ -421,3 +467,4 @@ function SourceModeToggleItem({
     </DropdownMenuItem>
   );
 }
+

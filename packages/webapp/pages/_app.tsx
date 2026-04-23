@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
@@ -396,7 +397,9 @@ export default function App(
               <PushNotificationContextProvider>
                 <SubscriptionContextProvider>
                   <PostReferrerContextProvider>
-                    <InternalApp {...props} />
+                    <ShortcutsProvider>
+                      <InternalApp {...props} />
+                    </ShortcutsProvider>
                   </PostReferrerContextProvider>
                 </SubscriptionContextProvider>
               </PushNotificationContextProvider>

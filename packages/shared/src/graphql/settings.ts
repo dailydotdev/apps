@@ -28,6 +28,7 @@ export type SettingsFlags = {
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
+  showShortcutsOnWebapp?: boolean;
 };
 
 export enum SidebarSettingsFlags {

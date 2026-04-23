@@ -5,7 +5,13 @@ import { Button, ButtonVariant } from '../../../../components/buttons/Button';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
-import { VIcon } from '../../../../components/icons';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../../../components/typography/Typography';
+import { BookmarkIcon, SitesIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { apiUrl } from '../../../../lib/config';
 import { getDomainFromUrl } from '../../../../lib/links';
@@ -72,7 +78,8 @@ export default function ImportPickerModal({
   const manager = useShortcutsManager();
   const { displayToast } = useToastNotification();
 
-  const capacity = Math.max(0, MAX_SHORTCUTS - (customLinks?.length ?? 0));
+  const alreadyUsed = customLinks?.length ?? 0;
+  const capacity = Math.max(0, MAX_SHORTCUTS - alreadyUsed);
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
     const state: Record<string, boolean> = {};
     items.slice(0, capacity).forEach((item) => {
@@ -125,72 +132,114 @@ export default function ImportPickerModal({
 
   const isBookmarks = source === 'bookmarks';
   const title = isBookmarks ? 'Import bookmarks' : 'Import most visited';
-  const subtitle = isBookmarks
-    ? 'Tap to pick. Your bookmarks stay untouched.'
-    : 'Tap to pick. Added as a snapshot of your history.';
+  // Spell out where the list came from and how many rows the browser surfaced.
+  // Stops users assuming we've clipped the list at whatever number they see
+  // (Chrome's topSites API, for instance, returns however many repeat-visit
+  // origins the profile has — sometimes 8, sometimes 20).
+  const sourceCopy = isBookmarks
+    ? `Tap to pick. Your bookmarks stay untouched — ${items.length} found.`
+    : `Tap to pick. Snapshot from your browser — ${items.length} site${
+        items.length === 1 ? '' : 's'
+      } shared.`;
 
-  // Segmented capacity meter. Rather than a thin progress line that reads as
-  // a random pink scratch, we render one pip per slot. Filled pips are your
-  // picks; empty pips are the room you still have. Lights up like a battery.
-  const pips = Array.from({ length: Math.max(capacity, 1) });
+  // Capacity meter always represents the full library (MAX_SHORTCUTS slots),
+  // so users can see at a glance that the limit is 12 — not whatever number
+  // is left after their existing shortcuts. Three zones stack across it:
+  // already saved (muted), currently picking (accent), free (empty).
+  const pips = Array.from({ length: MAX_SHORTCUTS });
+  const filledEnd = alreadyUsed + selected.length;
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
-      <Modal.Header>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Modal.Title>{title}</Modal.Title>
-          <p className="mt-0.5 truncate text-text-tertiary typo-caption1">
-            {subtitle}
-          </p>
-        </div>
+      {/* Same header rhythm as the Manage / Edit modals: left-aligned, Body
+          bold, no oversized Title1. Subtitle lives in the body as helper
+          copy so the header stays compact. */}
+      <Modal.Header showCloseButton>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+          {title}
+        </Typography>
       </Modal.Header>
       <Modal.Body>
+        <p className="mb-4 text-text-tertiary typo-callout">{sourceCopy}</p>
         {/* Capacity bar: count + pip row + inline select-all toggle. Three
             affordances packed into one compact strip so the body can breathe. */}
-        <div className="mb-3 flex items-center gap-4">
+        <div className="mb-3 flex flex-col gap-2">
+          <div className="flex items-baseline justify-between gap-3">
+            <div className="flex items-baseline gap-2 tabular-nums">
+              <span className="text-text-primary typo-body">
+                <span className="font-bold">{filledEnd}</span>
+                <span className="text-text-tertiary">/{MAX_SHORTCUTS}</span>
+              </span>
+              <span className="text-text-tertiary typo-caption1">
+                {alreadyUsed > 0
+                  ? `${alreadyUsed} saved · ${selected.length} picked`
+                  : `${selected.length} picked`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={toggleAll}
+              disabled={selectableCount === 0}
+              className="shrink-0 rounded-8 bg-surface-float px-2 py-1 text-text-secondary typo-caption1 font-bold transition-colors duration-150 hover:bg-surface-primary hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+            >
+              {allSelected ? 'Clear all' : 'Select all'}
+            </button>
+          </div>
           <div
-            className="flex flex-1 items-center gap-3"
+            className="flex gap-1"
             role="progressbar"
             aria-valuenow={selected.length}
             aria-valuemin={0}
             aria-valuemax={capacity}
-            aria-label={`${selected.length} of ${capacity} slots selected`}
+            aria-label={`${selected.length} of ${capacity} available slots selected. Library holds up to ${MAX_SHORTCUTS} shortcuts, ${alreadyUsed} already saved.`}
           >
-            <span className="tabular-nums text-text-primary typo-body">
-              <span className="font-bold">{selected.length}</span>
-              <span className="text-text-tertiary">/{capacity}</span>
-            </span>
-            <div className="flex flex-1 gap-1" aria-hidden>
-              {pips.map((_, idx) => (
+            {pips.map((_, idx) => {
+              const inSaved = idx < alreadyUsed;
+              const inPicked = !inSaved && idx < filledEnd;
+              return (
                 <span
                   key={idx}
+                  aria-hidden
                   className={classNames(
-                    'h-1.5 flex-1 rounded-full transition-colors duration-150 motion-reduce:transition-none',
-                    idx < selected.length
-                      ? 'bg-accent-cabbage-default'
-                      : 'bg-surface-float',
+                    'h-2 flex-1 rounded-2 transition-colors duration-150 motion-reduce:transition-none',
+                    inPicked && 'bg-accent-cabbage-default',
+                    inSaved && 'bg-text-tertiary/40',
+                    !inPicked && !inSaved && 'bg-surface-float',
                   )}
                 />
-              ))}
-            </div>
+              );
+            })}
           </div>
-          <button
-            type="button"
-            onClick={toggleAll}
-            disabled={selectableCount === 0}
-            className="shrink-0 rounded-6 text-text-secondary typo-callout underline-offset-2 transition-colors duration-150 hover:text-text-primary hover:underline disabled:cursor-not-allowed disabled:text-text-disabled disabled:no-underline motion-reduce:transition-none"
-          >
-            {allSelected ? 'Clear all' : 'Select all'}
-          </button>
         </div>
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-16 border border-dashed border-border-subtlest-tertiary px-6 py-10 text-center">
-            <span className="text-text-tertiary">
-              {isBookmarks
-                ? 'Your bookmarks bar is empty.'
-                : 'No most visited sites yet.'}
+          // Empty state worth looking at. The source-specific glyph tells
+          // users what we tried to read from, and the copy explains *why*
+          // there's nothing — not just "empty" which reads like our bug.
+          <div className="flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary bg-surface-float/40 px-6 py-10 text-center">
+            <span
+              aria-hidden
+              className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"
+            >
+              {isBookmarks ? (
+                <BookmarkIcon secondary className="size-6" />
+              ) : (
+                <SitesIcon secondary className="size-6" />
+              )}
             </span>
+            <Typography type={TypographyType.Callout} bold>
+              {isBookmarks
+                ? 'No bookmarks to import'
+                : 'No browsing history to show'}
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {isBookmarks
+                ? 'Add bookmarks to your browser bar, then come back.'
+                : 'Visit a few sites first — your browser needs history to suggest from.'}
+            </Typography>
           </div>
         ) : (
           // Tap-to-toggle rows. No separate checkbox column. Selected state is
@@ -214,28 +263,24 @@ export default function ImportPickerModal({
                     disabled={atCap}
                     onClick={() => toggle(item.url)}
                     className={classNames(
-                      'group flex w-full items-center gap-3 rounded-12 p-2 text-left transition-colors duration-150 motion-reduce:transition-none',
+                      // Quiet-by-default row that picks up a subtle cabbage
+                      // tint + thin accent bar on the leading edge when
+                      // selected, so a full page of rows reads as "these
+                      // are picked" instantly without shouting.
+                      'group relative flex w-full items-center gap-3 rounded-12 p-2 text-left transition-all duration-150 active:scale-[0.995] motion-reduce:transform-none motion-reduce:transition-none',
                       isChecked
-                        ? 'bg-surface-float'
+                        ? 'bg-overlay-float-cabbage/50'
                         : 'hover:bg-surface-float',
                       atCap && 'cursor-not-allowed opacity-40',
                     )}
                   >
-                    <span className="relative">
-                      <FaviconOrLetter url={item.url} label={label} />
-                      {/* Selection badge overlays the icon bottom-right.
-                          Scales in when picked for a light touch of delight
-                          without the whole row having to slide or shift. */}
+                    {isChecked && (
                       <span
                         aria-hidden
-                        className={classNames(
-                          'absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default text-white shadow-2 ring-2 ring-background-default transition-transform duration-150 motion-reduce:transition-none',
-                          isChecked ? 'scale-100' : 'scale-0',
-                        )}
-                      >
-                        <VIcon size={IconSize.XXSmall} />
-                      </span>
-                    </span>
+                        className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-accent-cabbage-default"
+                      />
+                    )}
+                    <FaviconOrLetter url={item.url} label={label} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-text-primary typo-callout">
                         {label}
@@ -244,6 +289,28 @@ export default function ImportPickerModal({
                         {getDomainFromUrl(item.url)}
                       </p>
                     </div>
+                    {/* Selection indicator on the trailing edge — reads as
+                        "this row is picked" the moment you glance at it,
+                        instead of squinting at a tiny badge tucked behind
+                        the favicon. Empty ring at rest gives the row a
+                        clear "tap me" affordance. */}
+                    <span
+                      aria-hidden
+                      className={classNames(
+                        'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-150 motion-reduce:transition-none',
+                        isChecked
+                          ? 'scale-110 border-accent-cabbage-default bg-accent-cabbage-default text-surface-invert shadow-sm motion-reduce:scale-100'
+                          : 'border-border-subtlest-tertiary bg-transparent group-hover:border-border-subtlest-secondary',
+                      )}
+                    >
+                      <VIcon
+                        size={IconSize.XXSmall}
+                        className={classNames(
+                          'transition-opacity duration-150 motion-reduce:transition-none',
+                          isChecked ? 'opacity-100' : 'opacity-0',
+                        )}
+                      />
+                    </span>
                   </button>
                 </li>
               );
@@ -254,10 +321,10 @@ export default function ImportPickerModal({
       <Modal.Footer justify={Justify.Between}>
         <span className="text-text-tertiary typo-caption1">
           {atCapacity
-            ? 'Capacity reached'
-            : `${Math.max(0, capacity - selected.length)} slot${
+            ? `Library full (${MAX_SHORTCUTS}/${MAX_SHORTCUTS})`
+            : `${Math.max(0, capacity - selected.length)} of ${MAX_SHORTCUTS} slot${
                 capacity - selected.length === 1 ? '' : 's'
-              } left`}
+              } free`}
         </span>
         <div className="flex gap-2">
           <Button

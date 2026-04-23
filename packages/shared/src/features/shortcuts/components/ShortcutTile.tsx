@@ -341,7 +341,11 @@ export function ShortcutTile({
               <MenuIcon size={IconSize.XXSmall} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          {/* Tile menu only carries 1–2 short labels (Edit / Remove or
+              Hide), so the default 256px action width feels enormous next
+              to a 76px tile. min-w-0 + a sensible 7rem floor lets it size
+              to its content while staying tappable on touch. */}
+          <DropdownMenuContent className="!min-w-[7rem]">
             <DropdownMenuOptions options={menuOptions} />
           </DropdownMenuContent>
         </DropdownMenu>
