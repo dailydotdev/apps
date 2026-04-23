@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Enables CodeRabbit early-access / preview capabilities for PR reviews on this branch.
+language: "en-US"
+early_access: true
