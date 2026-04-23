@@ -20,6 +20,8 @@ import type { ImportSource } from '../../types';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../../../components/modals/common/types';
 
 export interface ImportPickerItem {
   url: string;
@@ -30,6 +32,10 @@ export interface ImportPickerModalProps extends ModalProps {
   source: ImportSource;
   items: ImportPickerItem[];
   onImported?: (result: { imported: number; skipped: number }) => void;
+  // When set, the Cancel button hands control back to this modal instead of
+  // fully dismissing the stack. Keeps "cancel the import" distinct from
+  // "close the whole flow" (which the header X still does).
+  returnTo?: LazyModal;
 }
 
 // Favicon with graceful fallback: the browser-icon proxy often ships a blurry
@@ -72,11 +78,29 @@ export default function ImportPickerModal({
   source,
   items,
   onImported,
+  returnTo,
   ...props
 }: ImportPickerModalProps): ReactElement {
   const { customLinks } = useSettingsContext();
   const manager = useShortcutsManager();
   const { displayToast } = useToastNotification();
+  const { openModal, closeModal } = useLazyModal();
+
+  const close = () => {
+    closeModal();
+    props.onRequestClose?.(undefined as never);
+  };
+
+  // Cancel = "back out of the import", not "close the whole shortcuts flow".
+  // If the picker was triggered from another modal (e.g. Manage), hand
+  // control back there so the user lands where they came from.
+  const handleCancel = () => {
+    if (returnTo) {
+      openModal({ type: returnTo });
+      return;
+    }
+    close();
+  };
 
   const alreadyUsed = customLinks?.length ?? 0;
   const capacity = Math.max(0, MAX_SHORTCUTS - alreadyUsed);
@@ -127,7 +151,7 @@ export default function ImportPickerModal({
         source === 'bookmarks' ? 'bookmarks' : 'sites'
       } to shortcuts${result.skipped ? `. ${result.skipped} skipped.` : ''}`,
     );
-    props.onRequestClose?.(undefined as never);
+    close();
   };
 
   const isBookmarks = source === 'bookmarks';
@@ -135,19 +159,14 @@ export default function ImportPickerModal({
   // Spell out where the list came from and how many rows the browser surfaced.
   // Stops users assuming we've clipped the list at whatever number they see
   // (Chrome's topSites API, for instance, returns however many repeat-visit
-  // origins the profile has — sometimes 8, sometimes 20).
+  // origins the profile has, sometimes 8, sometimes 20).
   const sourceCopy = isBookmarks
-    ? `Tap to pick. Your bookmarks stay untouched — ${items.length} found.`
-    : `Tap to pick. Snapshot from your browser — ${items.length} site${
+    ? `Pick the ones you want. Your bookmarks stay untouched. ${items.length} available.`
+    : `Pick the ones you want. Snapshot from your browser. ${items.length} site${
         items.length === 1 ? '' : 's'
-      } shared.`;
+      } available.`;
 
-  // Capacity meter always represents the full library (MAX_SHORTCUTS slots),
-  // so users can see at a glance that the limit is 12 — not whatever number
-  // is left after their existing shortcuts. Three zones stack across it:
-  // already saved (muted), currently picking (accent), free (empty).
-  const pips = Array.from({ length: MAX_SHORTCUTS });
-  const filledEnd = alreadyUsed + selected.length;
+  const slotsLeft = Math.max(0, capacity - selected.length);
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
@@ -160,56 +179,37 @@ export default function ImportPickerModal({
         </Typography>
       </Modal.Header>
       <Modal.Body>
-        <p className="mb-4 text-text-tertiary typo-callout">{sourceCopy}</p>
-        {/* Capacity bar: count + pip row + inline select-all toggle. Three
-            affordances packed into one compact strip so the body can breathe. */}
-        <div className="mb-3 flex flex-col gap-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <div className="flex items-baseline gap-2 tabular-nums">
-              <span className="text-text-primary typo-body">
-                <span className="font-bold">{filledEnd}</span>
-                <span className="text-text-tertiary">/{MAX_SHORTCUTS}</span>
-              </span>
-              <span className="text-text-tertiary typo-caption1">
-                {alreadyUsed > 0
-                  ? `${alreadyUsed} saved · ${selected.length} picked`
-                  : `${selected.length} picked`}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={toggleAll}
-              disabled={selectableCount === 0}
-              className="shrink-0 rounded-8 bg-surface-float px-2 py-1 text-text-secondary typo-caption1 font-bold transition-colors duration-150 hover:bg-surface-primary hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
-            >
-              {allSelected ? 'Clear all' : 'Select all'}
-            </button>
+        <p className="mb-3 text-text-tertiary typo-callout">{sourceCopy}</p>
+        {/* Calm status strip: what you've picked + how many slots you have
+            left, and an inline Select-all / Clear-all toggle. No fill bar,
+            no "progress to fill" metaphor. Picking is optional, not a
+            task. */}
+        <div
+          className="mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary bg-surface-float/40 px-3 py-2"
+          aria-live="polite"
+        >
+          <div className="flex flex-col leading-tight">
+            <span className="text-text-primary typo-footnote font-bold tabular-nums">
+              {selected.length === 0
+                ? 'Nothing picked yet'
+                : `${selected.length} picked`}
+            </span>
+            <span className="text-text-tertiary typo-caption1">
+              {atCapacity
+                ? `You've hit the ${MAX_SHORTCUTS}-shortcut limit`
+                : `${slotsLeft} of ${MAX_SHORTCUTS} slot${
+                    slotsLeft === 1 ? '' : 's'
+                  } left${alreadyUsed > 0 ? ` · ${alreadyUsed} already saved` : ''}`}
+            </span>
           </div>
-          <div
-            className="flex gap-1"
-            role="progressbar"
-            aria-valuenow={selected.length}
-            aria-valuemin={0}
-            aria-valuemax={capacity}
-            aria-label={`${selected.length} of ${capacity} available slots selected. Library holds up to ${MAX_SHORTCUTS} shortcuts, ${alreadyUsed} already saved.`}
+          <button
+            type="button"
+            onClick={toggleAll}
+            disabled={selectableCount === 0}
+            className="shrink-0 rounded-8 px-2 py-1 text-text-secondary typo-caption1 font-bold transition-colors duration-150 hover:bg-surface-float hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
           >
-            {pips.map((_, idx) => {
-              const inSaved = idx < alreadyUsed;
-              const inPicked = !inSaved && idx < filledEnd;
-              return (
-                <span
-                  key={idx}
-                  aria-hidden
-                  className={classNames(
-                    'h-2 flex-1 rounded-2 transition-colors duration-150 motion-reduce:transition-none',
-                    inPicked && 'bg-accent-cabbage-default',
-                    inSaved && 'bg-text-tertiary/40',
-                    !inPicked && !inSaved && 'bg-surface-float',
-                  )}
-                />
-              );
-            })}
-          </div>
+            {allSelected ? 'Clear all' : 'Select all'}
+          </button>
         </div>
 
         {items.length === 0 ? (
@@ -238,7 +238,7 @@ export default function ImportPickerModal({
             >
               {isBookmarks
                 ? 'Add bookmarks to your browser bar, then come back.'
-                : 'Visit a few sites first — your browser needs history to suggest from.'}
+                : 'Visit a few sites first. Your browser needs history to suggest from.'}
             </Typography>
           </div>
         ) : (
@@ -263,23 +263,17 @@ export default function ImportPickerModal({
                     disabled={atCap}
                     onClick={() => toggle(item.url)}
                     className={classNames(
-                      // Quiet-by-default row that picks up a subtle cabbage
-                      // tint + thin accent bar on the leading edge when
-                      // selected, so a full page of rows reads as "these
-                      // are picked" instantly without shouting.
-                      'group relative flex w-full items-center gap-3 rounded-12 p-2 text-left transition-all duration-150 active:scale-[0.995] motion-reduce:transform-none motion-reduce:transition-none',
+                      // Selection is carried by the trailing check alone so
+                      // a long list of picked rows doesn't look like a wall
+                      // of colour. Selected rows get a hair of surface tint
+                      // to feel "lifted", nothing more.
+                      'group relative flex w-full items-center gap-3 rounded-12 p-2 text-left transition-colors duration-150 motion-reduce:transition-none',
                       isChecked
-                        ? 'bg-overlay-float-cabbage/50'
-                        : 'hover:bg-surface-float',
+                        ? 'bg-surface-float hover:bg-surface-float'
+                        : 'hover:bg-surface-float/60',
                       atCap && 'cursor-not-allowed opacity-40',
                     )}
                   >
-                    {isChecked && (
-                      <span
-                        aria-hidden
-                        className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-accent-cabbage-default"
-                      />
-                    )}
                     <FaviconOrLetter url={item.url} label={label} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-text-primary typo-callout">
@@ -289,17 +283,14 @@ export default function ImportPickerModal({
                         {getDomainFromUrl(item.url)}
                       </p>
                     </div>
-                    {/* Selection indicator on the trailing edge — reads as
-                        "this row is picked" the moment you glance at it,
-                        instead of squinting at a tiny badge tucked behind
-                        the favicon. Empty ring at rest gives the row a
-                        clear "tap me" affordance. */}
+                    {/* The only selection signal: a small filled check on the
+                        trailing edge. Empty ring at rest invites a tap. */}
                     <span
                       aria-hidden
                       className={classNames(
-                        'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-150 motion-reduce:transition-none',
+                        'flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-150 motion-reduce:transition-none',
                         isChecked
-                          ? 'scale-110 border-accent-cabbage-default bg-accent-cabbage-default text-surface-invert shadow-sm motion-reduce:scale-100'
+                          ? 'border-accent-cabbage-default bg-accent-cabbage-default text-surface-invert'
                           : 'border-border-subtlest-tertiary bg-transparent group-hover:border-border-subtlest-secondary',
                       )}
                     >
@@ -318,31 +309,22 @@ export default function ImportPickerModal({
           </ul>
         )}
       </Modal.Body>
-      <Modal.Footer justify={Justify.Between}>
-        <span className="text-text-tertiary typo-caption1">
-          {atCapacity
-            ? `Library full (${MAX_SHORTCUTS}/${MAX_SHORTCUTS})`
-            : `${Math.max(0, capacity - selected.length)} of ${MAX_SHORTCUTS} slot${
-                capacity - selected.length === 1 ? '' : 's'
-              } free`}
-        </span>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            onClick={() => props.onRequestClose?.(undefined as never)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            onClick={handleImport}
-            disabled={!selected.length}
-          >
-            {selected.length ? `Import ${selected.length}` : 'Import'}
-          </Button>
-        </div>
+      <Modal.Footer justify={Justify.End}>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          onClick={handleCancel}
+        >
+          {returnTo ? 'Back' : 'Cancel'}
+        </Button>
+        <Button
+          type="button"
+          variant={ButtonVariant.Primary}
+          onClick={handleImport}
+          disabled={!selected.length}
+        >
+          {selected.length ? `Import ${selected.length}` : 'Import'}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

@@ -353,7 +353,7 @@ export default function ShortcutEditModal({
                       </button>
                     ) : customIconFailed ? (
                       <span className="text-status-error">
-                        Couldn&apos;t load that image — showing favicon instead
+                        Couldn&apos;t load that image. Showing favicon instead.
                       </span>
                     ) : (
                       <span>

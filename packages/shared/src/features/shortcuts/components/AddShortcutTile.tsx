@@ -165,7 +165,7 @@ export function AddShortcutTile({
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
         )}
         aria-label={`Add shortcut${dropHint}`}
-        title={canAcceptDrop ? 'Add shortcut — or drop a link here' : 'Add shortcut'}
+        title={canAcceptDrop ? 'Add shortcut or drop a link here' : 'Add shortcut'}
       >
         {iconBox}
       </button>

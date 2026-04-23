@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import { useTopSites } from '../hooks/useTopSites';
 import { useBrowserBookmarks } from '../hooks/useBrowserBookmarks';
@@ -6,6 +6,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import type { ImportSource } from '../types';
+import { LazyModal } from '../../../components/modals/common/types';
 
 const [ShortcutsProvider, useShortcuts] = createContextProvider(
   () => {
@@ -14,9 +15,23 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
 
     const [isManual, setIsManual] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
-    const [showImportSource, setShowImportSource] = useState<
+    const [showImportSource, setShowImportSourceRaw] = useState<
       ImportSource | null
     >(null);
+    // When the picker was triggered from another modal (e.g. Manage), we
+    // remember it so the picker's Cancel button can hand control back there
+    // instead of fully dismissing the flow.
+    const [returnToAfterImport, setReturnToAfterImport] = useState<
+      LazyModal | undefined
+    >(undefined);
+
+    const setShowImportSource = useCallback(
+      (source: ImportSource | null, returnTo?: LazyModal) => {
+        setReturnToAfterImport(source ? returnTo : undefined);
+        setShowImportSourceRaw(source);
+      },
+      [],
+    );
 
     const {
       topSites,
@@ -71,6 +86,7 @@ const [ShortcutsProvider, useShortcuts] = createContextProvider(
       revokeBookmarksPermission,
       showImportSource,
       setShowImportSource,
+      returnToAfterImport,
     };
   },
   {

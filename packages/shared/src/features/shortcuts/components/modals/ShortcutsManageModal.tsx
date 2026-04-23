@@ -38,17 +38,13 @@ import {
   DragIcon,
   EarthIcon,
   EditIcon,
-  EyeIcon,
-  LayoutIcon,
-  LinkIcon,
-  MagicIcon,
   PlusIcon,
   RefreshIcon,
-  SitesIcon,
   StarIcon,
   TrashIcon,
   VIcon,
 } from '../../../../components/icons';
+import { ChromeIcon } from '../../../../components/icons/Browser/Chrome';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../../lib/log';
@@ -62,31 +58,21 @@ import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
 
-// Reusable section header that anchors every top-level group in the modal.
-// The small glyph chip on the left gives each section a unique "family crest"
-// so users can scan the modal vertically and know where they are at a glance
-// (Apple System Settings / Raycast pattern). The chip stays neutral by
-// default and picks up a subtle accent tint when the section is the active
-// subject — we use that only on Appearance right now but the API is ready.
+// Plain-text section header. Bold subhead + muted caption, no decorative
+// icon chip. Keeps each group clearly delimited vertically without the
+// visual weight of a leading glyph — settings rhythm closer to Linear /
+// GitHub preferences than Raycast.
 function SectionHeader({
-  icon,
   title,
   description,
   trailing,
 }: {
-  icon: ReactElement;
   title: string;
   description?: string;
   trailing?: ReactElement;
 }): ReactElement {
   return (
     <div className="flex items-center gap-3">
-      <span
-        aria-hidden
-        className="flex size-7 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-secondary"
-      >
-        {icon}
-      </span>
       <div className="min-w-0 flex-1">
         <Typography bold type={TypographyType.Subhead}>
           {title}
@@ -139,19 +125,23 @@ function CapacityPill({
 // Clean radio row. Selected state is carried entirely by the filled cabbage
 // dot + bold title — no background fill, so it never reads like a hover.
 // Hover is the only place we tint the surface, which keeps the difference
-// between "you're pointing at this" and "this is selected" obvious.
+// between "you're pointing at this" and "this is selected" obvious. When a
+// leadingIcon is supplied it renders between the radio and the copy, which
+// we use to flag the auto-mode radio as "data from your browser".
 function ShortcutsModeOption({
   id,
   checked,
   onSelect,
   title,
   description,
+  leadingIcon,
 }: {
   id: string;
   checked: boolean;
   onSelect: () => void;
   title: string;
   description: string;
+  leadingIcon?: ReactElement;
 }): ReactElement {
   return (
     <label
@@ -179,6 +169,14 @@ function ShortcutsModeOption({
           <span className="size-2 rounded-full bg-accent-cabbage-default" />
         )}
       </span>
+      {leadingIcon && (
+        <span
+          aria-hidden
+          className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-text-secondary"
+        >
+          {leadingIcon}
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p
           className={classNames(
@@ -281,9 +279,8 @@ function ShortcutRow({
 }
 
 // Appearance picker: three preset cards with tiny live previews so users
-// see what they're picking. Pattern is borrowed from Raindrop.io's layout
-// switcher and Notion's view picker — one click changes the row style of
-// the whole toolbar.
+// see what they're picking. Pattern borrowed from Raindrop.io's layout
+// switcher and Notion's view picker.
 function AppearancePicker({
   value,
   onChange,
@@ -347,7 +344,6 @@ function AppearancePicker({
     <fieldset className="flex flex-col gap-2">
       <legend className="contents">
         <SectionHeader
-          icon={<LayoutIcon className="size-4" />}
           title="Appearance"
           description="How the row renders on the new-tab page."
         />
@@ -490,7 +486,8 @@ export default function ShortcutsManageModal(
 
   const topSitesCount = topSites?.length ?? 0;
   const bookmarksCount = bookmarks?.length ?? 0;
-  const topSitesKnown = hasCheckedTopSitesPermission && topSites !== undefined;
+  const topSitesGranted = topSites !== undefined;
+  const topSitesKnown = hasCheckedTopSitesPermission && topSitesGranted;
   const bookmarksKnown =
     hasCheckedBookmarksPermission && bookmarks !== undefined;
 
@@ -560,14 +557,12 @@ export default function ShortcutsManageModal(
         </Button>
       </Modal.Header>
       <Modal.Body>
-        {/* Settings flow, top to bottom: visibility → look → source → list →
-            connections. Each section gets a small anchor glyph via
-            SectionHeader so the modal reads as a set of distinct "cards" of
-            configuration rather than a wall of bolded titles, and we drop
-            hairline dividers between them for vertical rhythm. */}
+        {/* Sections stack vertically with hairline dividers. Flow goes:
+            visibility (master switch) → look → source (with inline auto
+            controls when auto is picked) → your list (manual) →
+            connections (bookmarks + cross-device sync). */}
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary [&>*:not(:first-child)]:pt-5 [&>*:not(:last-child)]:pb-5">
           <SectionHeader
-            icon={<EyeIcon className="size-4" />}
             title="Show shortcuts"
             description="Toggle the row visibility on the new-tab page."
             trailing={
@@ -595,7 +590,6 @@ export default function ShortcutsManageModal(
             <fieldset className="flex flex-col gap-2">
               <legend className="contents">
                 <SectionHeader
-                  icon={<MagicIcon className="size-4" />}
                   title="Source"
                   description="Choose where this row gets its shortcuts from."
                 />
@@ -606,23 +600,69 @@ export default function ShortcutsManageModal(
                   checked={mode === 'manual'}
                   onSelect={() => selectMode('manual')}
                   title="My shortcuts"
-                  description="Curated by you — add, edit, reorder."
+                  description="Curated by you. Add, edit, and reorder."
                 />
                 <ShortcutsModeOption
                   id="shortcuts-mode-auto"
                   checked={mode === 'auto'}
                   onSelect={() => selectMode('auto')}
                   title="Most visited sites"
-                  description="Suggested from your browser history."
+                  description="Pulled automatically from your browser history."
+                  leadingIcon={<ChromeIcon className="size-5" />}
                 />
               </div>
+              {/* Auto-mode inline controls. When the user picks "Most
+                  visited sites" they need to (a) grant permission if we
+                  don't have it yet, and (b) restore any sites they hid
+                  from the live row. Keeping both inside this section
+                  visually reinforces that these settings belong to this
+                  radio, not to the general Connections list below. */}
+              {mode === 'auto' && (
+                <div className="mt-1 flex flex-col gap-0.5 rounded-12 bg-surface-float/40 p-1">
+                  <ConnectionRow
+                    icon={<ChromeIcon />}
+                    label="Browser access"
+                    description={
+                      topSitesKnown
+                        ? `${topSitesCount} sites available from your browser.`
+                        : 'Grant access so we can read your most visited sites.'
+                    }
+                    primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
+                    onPrimary={
+                      topSitesGranted
+                        ? (setShowImportSource
+                            ? () =>
+                                setShowImportSource(
+                                  'topSites',
+                                  LazyModal.ShortcutsManage,
+                                )
+                            : undefined)
+                        : askTopSitesPermission
+                          ? () => askTopSitesPermission()
+                          : undefined
+                    }
+                    secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
+                    onSecondary={
+                      topSitesGranted ? () => onRevokePermission?.() : undefined
+                    }
+                  />
+                  {hiddenTopSites.length > 0 && (
+                    <ConnectionRow
+                      icon={<RefreshIcon />}
+                      label={`Hidden sites (${hiddenTopSites.length})`}
+                      description="Restore sites you removed from your Most visited row."
+                      primaryLabel="Restore all"
+                      onPrimary={() => restoreHiddenTopSites()}
+                    />
+                  )}
+                </div>
+              )}
             </fieldset>
           )}
 
           {mode === 'manual' && (
             <section className="flex flex-col gap-2">
               <SectionHeader
-                icon={<StarIcon className="size-4" />}
                 title="Your shortcuts"
                 description="Drag to reorder. Hover a row to edit or remove."
                 trailing={
@@ -666,12 +706,9 @@ export default function ShortcutsManageModal(
                 </div>
               ) : (
                 <div className="flex max-h-[50vh] flex-col gap-0.5 overflow-y-auto">
-                  {/* Inline "Add" affordance. Visually distinct from the
-                      shortcut rows (dashed icon chip, muted copy, subtle
-                      right-side hint) so it reads as a utility row, not
-                      another shortcut. At the cap we keep it visible but
-                      disabled with a tiny "Library full" hint — tells users
-                      why without hiding the control. */}
+                  {/* Inline "Add" affordance sitting above the list. At
+                      the cap we keep it visible but disabled with a tiny
+                      "Library full" hint so users know why they can't add. */}
                   <button
                     type="button"
                     onClick={onAdd}
@@ -716,31 +753,22 @@ export default function ShortcutsManageModal(
           )}
 
           <BrowserConnectionsSection
-            topSitesGranted={topSites !== undefined}
             bookmarksGranted={bookmarks !== undefined}
-            hiddenCount={hiddenTopSites.length}
-            isAuto={mode === 'auto'}
-            topSitesCount={topSitesCount}
             bookmarksCount={bookmarksCount}
-            topSitesKnown={topSitesKnown}
             bookmarksKnown={bookmarksKnown}
             showOnWebapp={showOnWebapp}
             onToggleShowOnWebapp={toggleShowOnWebapp}
-            onImportTopSites={
-              setShowImportSource
-                ? () => setShowImportSource('topSites')
-                : undefined
-            }
             onImportBookmarks={
               setShowImportSource
-                ? () => setShowImportSource('bookmarks')
+                ? () =>
+                    setShowImportSource(
+                      'bookmarks',
+                      LazyModal.ShortcutsManage,
+                    )
                 : undefined
             }
-            onAskTopSites={askTopSitesPermission}
             onAskBookmarks={askBookmarksPermission}
-            onRevokeTopSites={onRevokePermission}
             onRevokeBookmarks={revokeBookmarksPermission}
-            onRestoreHidden={() => restoreHiddenTopSites()}
           />
         </div>
       </Modal.Body>
@@ -749,94 +777,37 @@ export default function ShortcutsManageModal(
 }
 
 interface BrowserConnectionsSectionProps {
-  topSitesGranted: boolean;
   bookmarksGranted: boolean;
-  hiddenCount: number;
-  isAuto: boolean;
-  topSitesCount: number;
   bookmarksCount: number;
-  topSitesKnown: boolean;
   bookmarksKnown: boolean;
   showOnWebapp: boolean;
   onToggleShowOnWebapp: () => void;
-  onImportTopSites?: () => void;
   onImportBookmarks?: () => void;
-  onAskTopSites?: () => void | Promise<boolean>;
   onAskBookmarks?: () => void | Promise<boolean>;
-  onRevokeTopSites?: () => void | Promise<void>;
   onRevokeBookmarks?: () => void | Promise<void>;
-  onRestoreHidden: () => void;
 }
 
-// Groups every cross-surface concern: permissions the browser grants us to
-// read (top sites, bookmarks, hidden restoration) AND where we write the
-// shortcuts (just this new-tab page, or synced to daily.dev). Previously the
-// "Show on daily.dev" setting floated between Source and Your shortcuts as
-// its own loose card, which fought the rest of the modal's rhythm. Living
-// here, it reads as one more connection — just one that flows outward
-// instead of inward.
+// "Connections" holds everything that's not specific to one source choice:
+// importing from bookmarks (available regardless of auto/manual) and the
+// cross-device web app sync. Top-sites permissions live under the Source
+// radio where they actually belong, so this section stays short and clear.
 function BrowserConnectionsSection({
-  topSitesGranted,
   bookmarksGranted,
-  hiddenCount,
-  isAuto,
-  topSitesCount,
   bookmarksCount,
-  topSitesKnown,
   bookmarksKnown,
   showOnWebapp,
   onToggleShowOnWebapp,
-  onImportTopSites,
   onImportBookmarks,
-  onAskTopSites,
   onAskBookmarks,
-  onRevokeTopSites,
   onRevokeBookmarks,
-  onRestoreHidden,
 }: BrowserConnectionsSectionProps): ReactElement {
   return (
     <section aria-label="Connections" className="flex flex-col gap-2">
       <SectionHeader
-        icon={<LinkIcon className="size-4" />}
         title="Connections"
-        description="Import from your browser, or sync this row to daily.dev so it follows you across signed-in devices."
+        description="Pull from your browser, or mirror your shortcuts on the daily.dev web app."
       />
       <ul className="flex flex-col gap-0.5">
-        <ConnectionRow
-          icon={<SitesIcon />}
-          label="Most visited sites"
-          description={
-            topSitesKnown
-              ? `${topSitesCount} available`
-              : 'Grant access to import or switch to auto mode.'
-          }
-          primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
-          onPrimary={
-            topSitesGranted
-              ? onImportTopSites
-              : onAskTopSites
-                ? () => onAskTopSites()
-                : undefined
-          }
-          secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
-          onSecondary={
-            topSitesGranted ? () => onRevokeTopSites?.() : undefined
-          }
-        />
-        {/* Hidden sites is purely an auto-mode concept: the only way to add
-            to this list is to X-out a tile in the live top-sites row. In
-            manual mode it's dead data, so we hide it. Pinning it directly
-            under Most visited sites (rather than after Bookmarks) makes the
-            ownership obvious at a glance — "these go together". */}
-        {isAuto && hiddenCount > 0 && (
-          <ConnectionRow
-            icon={<RefreshIcon />}
-            label={`Hidden sites (${hiddenCount})`}
-            description="Restore sites you removed from your Most visited row."
-            primaryLabel="Restore all"
-            onPrimary={onRestoreHidden}
-          />
-        )}
         <ConnectionRow
           icon={<BookmarkIcon />}
           label="Bookmarks bar"
@@ -860,8 +831,8 @@ function BrowserConnectionsSection({
         />
         <ConnectionRow
           icon={<EarthIcon />}
-          label="Sync to daily.dev"
-          description="Show these shortcuts on the web app on every signed-in browser."
+          label="Show on daily.dev web app"
+          description="Mirror these shortcuts across every signed-in browser."
           trailing={
             <Switch
               inputId="shortcuts-show-on-webapp"
@@ -869,7 +840,7 @@ function BrowserConnectionsSection({
               compact={false}
               checked={showOnWebapp}
               onToggle={onToggleShowOnWebapp}
-              aria-label="Sync shortcuts to daily.dev"
+              aria-label="Show shortcuts on daily.dev web app"
             />
           }
         />

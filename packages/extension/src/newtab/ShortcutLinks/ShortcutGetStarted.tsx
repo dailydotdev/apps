@@ -152,7 +152,7 @@ export const ShortcutGetStarted = ({
         </h4>
         <p className="max-w-md text-text-tertiary typo-callout laptop:text-center">
           Pin the sites you hit every day. Tap a suggestion below for a
-          one-click start — or add your own.
+          one-click start, or add your own.
         </p>
       </div>
       <div

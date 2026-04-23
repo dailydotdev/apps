@@ -21,6 +21,7 @@ export function ShortcutImportFlow(): ReactElement | null {
   const {
     showImportSource,
     setShowImportSource,
+    returnToAfterImport,
     topSites,
     hasCheckedPermission: hasCheckedTopSitesPermission,
     askTopSitesPermission,
@@ -72,7 +73,7 @@ export function ShortcutImportFlow(): ReactElement | null {
       const items = topSites.map((s) => ({ url: s.url }));
       openModal({
         type: LazyModal.ImportPicker,
-        props: { source: 'topSites', items },
+        props: { source: 'topSites', items, returnTo: returnToAfterImport },
       });
       setShowImportSource?.(null);
       return;
@@ -105,7 +106,7 @@ export function ShortcutImportFlow(): ReactElement | null {
       const items = bookmarks.map((b) => ({ url: b.url, title: b.title }));
       openModal({
         type: LazyModal.ImportPicker,
-        props: { source: 'bookmarks', items },
+        props: { source: 'bookmarks', items, returnTo: returnToAfterImport },
       });
       setShowImportSource?.(null);
     }
@@ -119,6 +120,7 @@ export function ShortcutImportFlow(): ReactElement | null {
     displayToast,
     openModal,
     setShowImportSource,
+    returnToAfterImport,
   ]);
 
   // Permission modals: shown when the user asked to import but the browser
