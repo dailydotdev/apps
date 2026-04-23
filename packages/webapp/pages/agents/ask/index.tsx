@@ -78,12 +78,6 @@ const getAskBreadcrumbJsonLd = (): string =>
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Agentic Hub',
-        item: 'https://app.daily.dev/agents',
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
         name: 'daily-dev-ask',
         item: ASK_URL,
       },

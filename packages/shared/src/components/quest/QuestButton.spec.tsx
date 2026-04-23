@@ -512,7 +512,7 @@ describe('QuestButton', () => {
     ).toHaveAttribute('data-tooltip-content', 'Go to Leaderboards');
   });
 
-  it('should label arena quests as the Arena', async () => {
+  it('should not render a destination button for arena quests', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
         ...questDashboard,
@@ -552,8 +552,8 @@ describe('QuestButton', () => {
     );
 
     expect(
-      await screen.findByRole('button', { name: 'Go to the Arena' }),
-    ).toHaveAttribute('data-tooltip-content', 'Go to the Arena');
+      screen.queryByRole('button', { name: 'Go to the Arena' }),
+    ).not.toBeInTheDocument();
   });
 
   it('should route link post quests to the squads create page', async () => {

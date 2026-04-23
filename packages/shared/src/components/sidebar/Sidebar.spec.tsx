@@ -3,11 +3,11 @@ import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createTestSettings } from '../../../__tests__/fixture/settings';
 import AuthContext from '../../contexts/AuthContext';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
-import type { SettingsContextData } from '../../contexts/SettingsContext';
-import SettingsContext, { ThemeMode } from '../../contexts/SettingsContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { FEED_SETTINGS_QUERY } from '../../graphql/feedSettings';
@@ -38,24 +38,13 @@ const defaultAlerts: Alerts = { filter: true };
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
-  user: LoggedUser = defaultUser,
+  user: LoggedUser | undefined = defaultUser,
   sidebarExpanded = true,
 ): RenderResult => {
-  const settingsContext: SettingsContextData = {
-    spaciness: 'eco',
-    openNewTab: true,
-    setTheme: jest.fn(),
-    themeMode: ThemeMode.Dark,
-    setSpaciness: jest.fn(),
-    toggleOpenNewTab: jest.fn(),
-    insaneMode: false,
-    loadedSettings: true,
-    toggleInsaneMode: jest.fn(),
-    showTopSites: true,
-    toggleShowTopSites: jest.fn(),
+  const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
-  };
+  });
   client = new QueryClient();
   client.setQueryData(TOAST_NOTIF_KEY, null);
   mocks.forEach(mockGraphQL);
@@ -91,9 +80,7 @@ const renderComponent = (
           >
             <SettingsContext.Provider value={settingsContext}>
               <SidebarDesktop
-                sidebarRendered
                 activePage="my-feed"
-                onLogoClick={jest.fn()}
                 onNavTabClick={jest.fn()}
                 isNavButtons={false}
               />
@@ -121,7 +108,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(defaultAlerts, [], null, false);
+  renderComponent(defaultAlerts, [], undefined, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -135,19 +122,19 @@ it('should show the For You items if the user has filters', async () => {
   expect(section).toBeInTheDocument();
 });
 
-it('should render Agentic Hub item linking to agents hub', async () => {
+it('should render Highlights item linking to highlights page', async () => {
   renderComponent();
-  const item = await screen.findByText('Agentic Hub');
+  const item = await screen.findByText('Happening Now');
   expect(item).toBeInTheDocument();
   // eslint-disable-next-line testing-library/no-node-access
   expect(item.closest('a')).toHaveAttribute(
     'href',
-    expect.stringContaining('/agents'),
+    expect.stringContaining('/highlights'),
   );
 });
 
 it('should require login before opening following for anonymous users', async () => {
-  renderComponent(defaultAlerts, [createMockFeedSettings()], null);
+  renderComponent(defaultAlerts, [createMockFeedSettings()], undefined);
   const item = await screen.findByText('Following');
 
   fireEvent.click(item);
