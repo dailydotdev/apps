@@ -36,7 +36,11 @@ export function useShortcutLinks(): UseShortcutLinks {
   const hasCustomLinks = customLinks?.length > 0;
   const isTopSiteActive =
     hasCheckedPermission && !hasCustomLinks && hasTopSites;
-  const sites = topSites?.map((site) => site.url);
+  // Legacy surface caps at 8 tiles. The upstream hook now hands back up to
+  // `MAX_SHORTCUTS` (12) so the new hub's auto mode can render the full
+  // row, so we slice here to keep the legacy row's visual width stable
+  // for flag-off users.
+  const sites = topSites?.slice(0, 8).map((site) => site.url);
   const shortcutLinks = isTopSiteActive ? sites : customLinks;
   const formLinks = (isManual ? customLinks : sites) || [];
 

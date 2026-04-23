@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -205,8 +205,6 @@ export const useShortcutsManager = (): UseShortcutsManager => {
     [links, metaMap, findDuplicate, writeBatch, log],
   );
 
-  const undoRef = useRef<{ timeout?: ReturnType<typeof setTimeout> }>({});
-
   const removeShortcut = useCallback<UseShortcutsManager['removeShortcut']>(
     async (url) => {
       const index = links.indexOf(url);
@@ -221,10 +219,9 @@ export const useShortcutsManager = (): UseShortcutsManager => {
       await writeBatch(nextLinks, nextMeta);
       log(LogEvent.RemoveShortcut);
 
-      if (undoRef.current.timeout) {
-        clearTimeout(undoRef.current.timeout);
-      }
-
+      // `displayToast` owns the 6s undo window via `timer`; a second
+      // remove clobbers the first toast through the toast manager, so we
+      // don't need to track timers here.
       displayToast('Shortcut removed', {
         timer: UNDO_TIMEOUT_MS,
         action: {
