@@ -75,7 +75,7 @@ export interface Action {
 }
 
 export const COMPLETED_USER_ACTIONS = gql`
-  {
+  query CompletedUserActions {
     actions {
       type
       completedAt

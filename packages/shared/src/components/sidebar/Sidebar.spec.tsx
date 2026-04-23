@@ -38,14 +38,14 @@ const defaultAlerts: Alerts = { filter: true };
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
-  user: LoggedUser | null = defaultUser,
+  user: LoggedUser | null | undefined = defaultUser,
   sidebarExpanded = true,
 ): RenderResult => {
+  const resolvedUser = user === null ? undefined : user;
   const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
   });
-  const authUser = user ?? undefined;
   client = new QueryClient();
   client.setQueryData(TOAST_NOTIF_KEY, null);
   mocks.forEach(mockGraphQL);
@@ -59,10 +59,10 @@ const renderComponent = (
       >
         <AuthContext.Provider
           value={{
-            user: authUser,
+            user: resolvedUser,
             isAuthReady: true,
             isFetched: true,
-            isLoggedIn: !!authUser?.id,
+            isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,
             showLogin,
             logout: jest.fn(),

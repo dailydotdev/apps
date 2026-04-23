@@ -744,7 +744,7 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  {
+  query FeedList {
     feedList {
       pageInfo {
         endCursor
