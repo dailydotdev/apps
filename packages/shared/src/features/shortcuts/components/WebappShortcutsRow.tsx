@@ -125,6 +125,14 @@ export function WebappShortcutsRow({
     event.stopPropagation();
   };
 
+  // Match the extension hub's native-drag backstop. Tiles already mark their
+  // anchors/favicons as `draggable={false}`, but capture-phase cancellation
+  // at the toolbar root kills any stray URL drag before the browser can
+  // navigate the tab on drop-outside-a-handler.
+  const suppressNativeDragCapture = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     armDragSuppression();
     const { active, over } = event;
@@ -177,6 +185,7 @@ export function WebappShortcutsRow({
       aria-label="Shortcuts"
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
+      onDragStartCapture={suppressNativeDragCapture}
       className={classNames(
         'hidden flex-wrap items-center mobileXL:flex',
         appearance === 'tile' && 'items-start gap-x-1 gap-y-2',

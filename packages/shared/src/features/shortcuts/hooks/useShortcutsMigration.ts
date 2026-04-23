@@ -21,7 +21,7 @@ import { useShortcuts } from '../contexts/ShortcutsProvider';
  *   on the next mount.
  */
 export const useShortcutsMigration = (): void => {
-  const { customLinks } = useSettingsContext();
+  const { customLinks, flags } = useSettingsContext();
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { topSites, hasCheckedPermission } = useShortcuts();
   const manager = useShortcutsManager();
@@ -38,6 +38,15 @@ export const useShortcutsMigration = (): void => {
     }
     if (checkHasCompleted(ActionType.ShortcutsMigratedFromTopSites)) {
       ranRef.current = true;
+      return;
+    }
+    // Auto mode renders live top sites directly, so copying them into
+    // `customLinks` would leave the user with a stale manual list the next
+    // time they flip back to manual. Latch the migration action anyway so
+    // we don't keep re-evaluating this branch on every mount.
+    if ((flags?.shortcutsMode ?? 'manual') === 'auto') {
+      ranRef.current = true;
+      completeAction(ActionType.ShortcutsMigratedFromTopSites);
       return;
     }
     // Once the user has engaged with the hub at all (picked suggestions,
@@ -84,6 +93,7 @@ export const useShortcutsMigration = (): void => {
     checkHasCompleted,
     completeAction,
     customLinks,
+    flags,
     topSites,
     manager,
     displayToast,

@@ -178,6 +178,15 @@ export function ShortcutLinksHub({
     event.stopPropagation();
   };
 
+  // Belt-and-suspenders for native HTML5 drag. Each tile already marks its
+  // anchor/favicon as `draggable={false}`, but capture-phase cancellation
+  // at the toolbar root makes it impossible for a stray child (or a
+  // browser that ignores the attribute) to kick off a URL drag that could
+  // then navigate the tab when dropped outside any drop zone.
+  const suppressNativeDragCapture = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
   const loggedRef = useRef<ShortcutsMode | null>(null);
   useEffect(() => {
     if (!showTopSites) {
@@ -365,6 +374,7 @@ export function ShortcutLinksHub({
       aria-label="Shortcuts"
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
+      onDragStartCapture={suppressNativeDragCapture}
       className={classNames(
         // `group` powers the hover-reveal of the overflow button below.
         'group/hub',

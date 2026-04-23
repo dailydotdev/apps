@@ -243,11 +243,15 @@ export function ShortcutTile({
 
   // Favicon/letter renderer, sized per appearance. Chip mode uses a smaller
   // 16px glyph to fit the compact pill; tile/icon modes stay at the roomier
-  // 24px favicon the rest of the feature uses.
+  // 24px favicon the rest of the feature uses. `draggable={false}` kills
+  // the browser's default image drag so dnd-kit's pointer lifecycle is the
+  // only drag semantics on the tile — a stray drop outside the hub can no
+  // longer hand Chrome a URL to navigate the tab to.
   const iconContent = shouldShowFavicon ? (
     <img
       src={finalIconSrc}
       alt=""
+      draggable={false}
       onError={handleIconError}
       className={classNames('rounded-4', isChip ? 'size-5' : 'size-6')}
     />
@@ -257,9 +261,13 @@ export function ShortcutTile({
 
   // Anchor (the clickable favicon box). Tile/icon modes make it the whole
   // square; chip mode makes it a compact slot inside a horizontal pill.
+  // `draggable={false}` at the DOM level — belt to the `onDragStart`
+  // preventDefault suspenders — because Chrome otherwise starts a URL drag
+  // on mousedown before React's delegated handler can cancel it.
   const anchorCommon = {
     href: url,
     rel: 'noopener noreferrer',
+    draggable: false,
     onPointerDown: handlePointerDown,
     onKeyDown: handleKey,
     'aria-label': label,

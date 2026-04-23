@@ -134,7 +134,7 @@ function LegacyShortcutLinks({
 function NewShortcutLinks({
   shouldUseListFeedLayout,
 }: ShortcutLinksProps): ReactElement {
-  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const { showTopSites, toggleShowTopSites, flags } = useSettingsContext();
   const manager = useShortcutsManager();
   const { openModal } = useLazyModal();
   useShortcutsMigration();
@@ -143,7 +143,14 @@ function NewShortcutLinks({
     return <></>;
   }
 
-  if (manager.shortcuts.length === 0) {
+  // Auto mode renders live top sites from the browser and ships its own
+  // permission CTA / empty state inside the hub, so an empty `customLinks`
+  // is not a signal to show onboarding. Only manual-mode users with zero
+  // curated shortcuts should see the "Choose your most visited sites" card.
+  const mode = flags?.shortcutsMode ?? 'manual';
+  const showOnboarding = mode === 'manual' && manager.shortcuts.length === 0;
+
+  if (showOnboarding) {
     return (
       <>
         <ShortcutGetStarted
