@@ -1,4 +1,5 @@
 import type {
+  DragEvent as ReactDragEvent,
   KeyboardEvent,
   MouseEvent,
   PointerEvent as ReactPointerEvent,
@@ -224,6 +225,19 @@ export function ShortcutTile({
 
   const dragHandleProps = draggable ? { ...attributes, ...listeners } : {};
 
+  // Anchors (`<a href>`) and images are natively draggable via the browser's
+  // HTML5 drag-and-drop. With dnd-kit's PointerSensor using a 5px activation
+  // threshold, the browser can start its own URL-drag before dnd-kit takes
+  // over. If the user drops that URL outside a registered drop zone —
+  // anywhere to the *left* of `AddShortcutTile` — Chrome's default action is
+  // to navigate the current tab to the URL, which looks exactly like a
+  // stray click. Swallowing `dragstart` at the tile root disables native
+  // HTML5 drag for the anchor and favicon without affecting dnd-kit (which
+  // listens to pointer events, not drag events).
+  const suppressNativeDrag = useCallback((event: ReactDragEvent) => {
+    event.preventDefault();
+  }, []);
+
   const isChip = appearance === 'chip';
   const isIconOnly = appearance === 'icon';
 
@@ -286,6 +300,7 @@ export function ShortcutTile({
       ref={setNodeRef}
       style={style}
       {...dragHandleProps}
+      onDragStart={suppressNativeDrag}
       className={containerClass}
       title={isIconOnly || isChip ? label : undefined}
     >

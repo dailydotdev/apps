@@ -40,6 +40,17 @@ export const useShortcutsMigration = (): void => {
       ranRef.current = true;
       return;
     }
+    // Once the user has engaged with the hub at all (picked suggestions,
+    // added/skipped from the get-started screen, or dismissed it), they own
+    // their list. An empty `customLinks` after that point is intentional —
+    // never silently re-import top sites over it. We latch the migration
+    // action too so this decision persists across devices/new tabs and the
+    // effect won't keep re-evaluating on every remount.
+    if (checkHasCompleted(ActionType.FirstShortcutsSession)) {
+      ranRef.current = true;
+      completeAction(ActionType.ShortcutsMigratedFromTopSites);
+      return;
+    }
     if ((customLinks?.length ?? 0) > 0) {
       return;
     }

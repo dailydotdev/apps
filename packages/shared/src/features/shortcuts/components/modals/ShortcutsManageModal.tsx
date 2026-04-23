@@ -43,6 +43,7 @@ import {
   DragIcon,
   EarthIcon,
   EditIcon,
+  LinkIcon,
   PlusIcon,
   RefreshIcon,
   StarIcon,
@@ -180,23 +181,25 @@ function CapacityPill({
 // Clean radio row. Selected state is carried entirely by the filled cabbage
 // dot + bold title — no background fill, so it never reads like a hover.
 // Hover is the only place we tint the surface, which keeps the difference
-// between "you're pointing at this" and "this is selected" obvious. When a
-// leadingIcon is supplied it renders between the radio and the copy, which
-// we use to flag the auto-mode radio as "data from your browser".
+// between "you're pointing at this" and "this is selected" obvious. An
+// optional `trailingBadge` sits on the right (kept out of the radio/text
+// column) so we can flag a row with a brand mark — e.g. the Chrome glyph
+// on the auto-mode row — without knocking the radio bullet and copy out
+// of alignment.
 function ShortcutsModeOption({
   id,
   checked,
   onSelect,
   title,
   description,
-  leadingIcon,
+  trailingBadge,
 }: {
   id: string;
   checked: boolean;
   onSelect: () => void;
   title: string;
   description: string;
-  leadingIcon?: ReactElement;
+  trailingBadge?: ReactElement;
 }): ReactElement {
   return (
     <label
@@ -224,14 +227,6 @@ function ShortcutsModeOption({
           <span className="size-2 rounded-full bg-accent-cabbage-default" />
         )}
       </span>
-      {leadingIcon && (
-        <span
-          aria-hidden
-          className="mt-0.5 flex size-5 shrink-0 items-center justify-center text-text-secondary"
-        >
-          {leadingIcon}
-        </span>
-      )}
       <div className="min-w-0 flex-1">
         <p
           className={classNames(
@@ -243,6 +238,14 @@ function ShortcutsModeOption({
         </p>
         <p className="mt-0.5 text-text-tertiary typo-caption1">{description}</p>
       </div>
+      {trailingBadge && (
+        <span
+          aria-hidden
+          className="mt-0.5 flex size-5 shrink-0 items-center justify-center"
+        >
+          {trailingBadge}
+        </span>
+      )}
     </label>
   );
 }
@@ -653,7 +656,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
                   onSelect={() => selectMode('auto')}
                   title="Most visited sites"
                   description="Pulled automatically from your browser history."
-                  leadingIcon={<ChromeIcon className="size-5" />}
+                  trailingBadge={<ChromeIcon className="size-5" />}
                 />
               </div>
               {/* Auto-mode inline controls. When the user picks "Most
@@ -665,7 +668,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
               {mode === 'auto' && (
                 <div className="bg-surface-float/40 mt-1 flex flex-col gap-0.5 rounded-12 p-1">
                   <ConnectionRow
-                    icon={<ChromeIcon />}
+                    icon={<LinkIcon />}
                     label="Browser access"
                     description={
                       topSitesKnown

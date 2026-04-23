@@ -33,8 +33,8 @@ import {
   EyeIcon,
   MenuIcon,
   SettingsIcon,
-  SitesIcon,
 } from '@dailydotdev/shared/src/components/icons';
+import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MenuIcon as WrappingMenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -91,7 +91,7 @@ function SourceModeToggleItem({
       }}
     >
       <span className="inline-flex flex-1 items-center gap-2">
-        <WrappingMenuIcon Icon={SitesIcon} />
+        <WrappingMenuIcon Icon={ChromeIcon} />
         <span className="flex-1 truncate">Most visited sites</span>
         <Switch
           inputId="shortcuts-source-toggle"
@@ -447,7 +447,7 @@ export function ShortcutLinksHub({
             size={ButtonSize.Small}
             icon={<MenuIcon className="rotate-90" secondary />}
             className={classNames(
-              'ml-1 !size-8 !min-w-0 rounded-full text-text-tertiary transition-opacity duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
+              'ml-1 !size-8 !min-w-0 !rounded-10 text-text-tertiary transition-opacity duration-150 hover:bg-surface-float hover:text-text-primary motion-reduce:transition-none',
               // Quiet by default, reveals when the user shows intent:
               // - hovering anywhere on the row
               // - keyboard-focusing any child (focus-within)

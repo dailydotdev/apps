@@ -137,7 +137,6 @@ function NewShortcutLinks({
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const manager = useShortcutsManager();
   const { openModal } = useLazyModal();
-  const { setShowImportSource } = useShortcuts();
   useShortcutsMigration();
 
   if (!showTopSites) {
@@ -152,7 +151,6 @@ function NewShortcutLinks({
           onCustomLinksClick={() =>
             openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } })
           }
-          onImportClick={() => setShowImportSource?.('topSites')}
         />
         <ShortcutImportFlow />
       </>
