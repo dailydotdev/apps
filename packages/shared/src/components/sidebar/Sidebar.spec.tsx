@@ -35,12 +35,24 @@ const createMockFeedSettings = () => ({
 
 const defaultAlerts: Alerts = { filter: true };
 
+interface RenderOptions {
+  // Callers pass `undefined` explicitly to mean "anonymous user" — we can't
+  // rely on a default-param `= defaultUser`, because ES default-parameter
+  // semantics fire on `undefined`, which would silently log the test user in
+  // and mask anonymous-only behaviour like the login-required gate on sidebar
+  // items. An explicit options object sidesteps the ambiguity.
+  user?: LoggedUser;
+  isAnonymous?: boolean;
+  sidebarExpanded?: boolean;
+}
+
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
-  user: LoggedUser | undefined = defaultUser,
-  sidebarExpanded = true,
+  options: RenderOptions = {},
 ): RenderResult => {
+  const { user, isAnonymous = false, sidebarExpanded = true } = options;
+  const resolvedUser = isAnonymous ? undefined : user ?? defaultUser;
   const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
@@ -58,10 +70,10 @@ const renderComponent = (
       >
         <AuthContext.Provider
           value={{
-            user,
+            user: resolvedUser,
             isAuthReady: true,
             isFetched: true,
-            isLoggedIn: !!user?.id,
+            isLoggedIn: !!resolvedUser?.id,
             shouldShowLogin: false,
             showLogin,
             logout: jest.fn(),
@@ -108,7 +120,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(defaultAlerts, [], undefined, false);
+  renderComponent(defaultAlerts, [], { sidebarExpanded: false });
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -134,7 +146,9 @@ it('should render Highlights item linking to highlights page', async () => {
 });
 
 it('should require login before opening following for anonymous users', async () => {
-  renderComponent(defaultAlerts, [createMockFeedSettings()], undefined);
+  renderComponent(defaultAlerts, [createMockFeedSettings()], {
+    isAnonymous: true,
+  });
   const item = await screen.findByText('Following');
 
   fireEvent.click(item);
