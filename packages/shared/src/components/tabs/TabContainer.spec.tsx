@@ -201,7 +201,7 @@ describe('tab container component', () => {
 
       const first = await screen.findByRole('link', { name: 'First' });
 
-      expect(first).toHaveAttribute('draggable', 'false');
+      expect(first.draggable).toBe(false);
     });
   });
 });

@@ -135,13 +135,15 @@ it('should render Highlights item linking to highlights page', async () => {
 
 it('should require login before opening following for anonymous users', async () => {
   renderComponent(defaultAlerts, [createMockFeedSettings()], undefined);
-  const item = await screen.findByText('Following');
+  const item = await screen.findByRole('link', { name: 'Following' });
 
   fireEvent.click(item);
 
-  expect(showLogin).toHaveBeenCalledWith({
-    trigger: 'Following',
-  });
+  await waitFor(() =>
+    expect(showLogin).toHaveBeenCalledWith({
+      trigger: 'Following',
+    }),
+  );
 });
 
 const sidebarItems = [
