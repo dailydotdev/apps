@@ -413,6 +413,11 @@ export const ACTIVITY_NOTIFICATIONS: NotificationItem[] = [
     label: 'Report updates',
     group: false,
   },
+  {
+    id: NotificationType.UserFollow,
+    label: 'New followers',
+    group: false,
+  },
 ];
 
 export const FOLLOWING_NOTIFICATIONS: NotificationItem[] = [

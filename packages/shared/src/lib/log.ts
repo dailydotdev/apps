@@ -84,7 +84,13 @@ export enum Origin {
   Leaderboard = 'leaderboard',
   // Onboarding v2
   OnboardingModal = 'onboarding modal',
-  OnboardingFeedEnd = 'onboarding feed end',
+  // Auth
+  BetterAuthEmailLogin = 'betterauth email login',
+  BetterAuthEmailLoginBoot = 'betterauth email login boot',
+  BetterAuthNativeIdToken = 'betterauth native id token',
+  BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
+  BetterAuthSocialUrl = 'betterauth social url',
+  LoginTurnstile = 'login turnstile',
 }
 
 export enum LogEvent {
@@ -281,8 +287,6 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
-  ToggleNoAiFeed = 'toggle no ai feed',
-  SaveNoAiFeedPreference = 'save no ai feed preference',
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
@@ -292,10 +296,6 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   // End Share
-  // Start Smart Prompts
-  SmartPrompt = 'smart prompt',
-  ToggleSmartPrompts = 'toggle smart prompts',
-  // End Smart Prompts
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -430,6 +430,7 @@ export enum TargetType {
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
   PromotionCard = 'promotion_card',
+  PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
@@ -470,8 +471,8 @@ export enum TargetType {
   AchievementCard = 'achievement card',
   BriefCard = 'brief card',
   HighlightsCard = 'highlights card',
+  AdvertiseHereCta = 'advertise here cta',
   // Onboarding v2
-  HeroCta = 'hero cta',
   SignupChooser = 'signup chooser',
   SignupPrompt = 'signup prompt',
   ProfileImport = 'profile import',
@@ -506,6 +507,9 @@ export enum TargetId {
   Header = 'header',
   ProfileDropdown = 'profile dropdown',
   Ads = 'ads',
+  AdCard = 'ad card',
+  AdSidebar = 'ad sidebar',
+  AdComment = 'ad comment',
   MyProfile = 'my profile',
   PlusBadge = 'plus badge',
   PlusPage = 'plus page',
@@ -518,7 +522,6 @@ export enum TargetId {
   StreakTimezoneLabel = 'streak timezone label',
   StreakTimezoneMismatchPrompt = 'streak timezone mismatch prompt',
   ContextMenu = 'context',
-  SmartPrompt = 'smart prompt',
   Account = 'account',
   Brief = 'brief',
   NotificationSettings = 'notification settings',

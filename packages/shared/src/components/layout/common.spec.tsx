@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import SettingsContext from '../../contexts/SettingsContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -10,7 +10,6 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
 import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
-import { LogEvent, Origin, TargetId } from '../../lib/log';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
 
@@ -96,12 +95,10 @@ const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 
 const createActionsState = ({
   dismissedInstallExtension = false,
-  dismissedNoAiToggle = false,
   isActionsFetched = true,
   completeAction = jest.fn(),
 }: {
   dismissedInstallExtension?: boolean;
-  dismissedNoAiToggle?: boolean;
   isActionsFetched?: boolean;
   completeAction?: jest.Mock;
 } = {}) => ({
@@ -110,31 +107,18 @@ const createActionsState = ({
       return dismissedInstallExtension;
     }
 
-    if (type === ActionType.DismissNoAiFeedToggle) {
-      return dismissedNoAiToggle;
-    }
-
     return false;
   }),
   completeAction,
   isActionsFetched,
 });
 
-const renderComponent = ({
-  noAiState,
-}: {
-  noAiState?: {
-    isAvailable: boolean;
-    isEnabled: boolean;
-    onToggle: () => Promise<void>;
-  };
-} = {}) =>
+const renderComponent = () =>
   render(
     <SettingsContext.Provider value={{ sortingEnabled: false } as never}>
       <SearchControlHeader
         feedName={SharedFeedPage.MyFeed}
         algoState={[0, jest.fn()]}
-        noAiState={noAiState}
       />
     </SettingsContext.Provider>,
   );
@@ -218,104 +202,5 @@ describe('SearchControlHeader', () => {
     expect(
       screen.getByRole('link', { name: 'Get it for Chrome' }),
     ).toBeInTheDocument();
-  });
-
-  it('does not render the No AI switch when unavailable', () => {
-    mockUseActions.mockReturnValue(
-      createActionsState({ dismissedInstallExtension: true }),
-    );
-
-    renderComponent({
-      noAiState: {
-        isAvailable: false,
-        isEnabled: false,
-        onToggle: jest.fn().mockResolvedValue(undefined),
-      },
-    });
-
-    expect(screen.queryByText('No AI mode')).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('checkbox', { name: 'Toggle No AI mode' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders a No AI switch and logs when toggled', async () => {
-    const onToggle = jest.fn().mockResolvedValue(undefined);
-    const logEvent = jest.fn();
-    mockUseLogContext.mockReturnValue({ logEvent });
-    mockUseActions.mockReturnValue(
-      createActionsState({ dismissedInstallExtension: true }),
-    );
-
-    renderComponent({
-      noAiState: {
-        isAvailable: true,
-        isEnabled: false,
-        onToggle,
-      },
-    });
-
-    expect(screen.getByText('No AI mode')).toBeInTheDocument();
-    const switchInput = screen.getByRole('checkbox', {
-      name: 'Toggle No AI mode',
-    });
-    fireEvent.click(switchInput);
-
-    expect(onToggle).toHaveBeenCalledTimes(1);
-    await waitFor(() => {
-      expect(logEvent).toHaveBeenCalledWith({
-        event_name: LogEvent.ToggleNoAiFeed,
-        target_id: TargetId.On,
-        extra: JSON.stringify({
-          origin: Origin.Feed,
-        }),
-      });
-    });
-  });
-
-  it('does not render the No AI switch after dismissal', () => {
-    mockUseActions.mockReturnValue(
-      createActionsState({
-        dismissedInstallExtension: true,
-        dismissedNoAiToggle: true,
-      }),
-    );
-
-    renderComponent({
-      noAiState: {
-        isAvailable: true,
-        isEnabled: false,
-        onToggle: jest.fn().mockResolvedValue(undefined),
-      },
-    });
-
-    expect(screen.queryByText('No AI mode')).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('checkbox', { name: 'Toggle No AI mode' }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('dismisses the No AI header card', () => {
-    const completeAction = jest.fn();
-    mockUseActions.mockReturnValue(
-      createActionsState({
-        dismissedInstallExtension: true,
-        completeAction,
-      }),
-    );
-
-    renderComponent({
-      noAiState: {
-        isAvailable: true,
-        isEnabled: false,
-        onToggle: jest.fn().mockResolvedValue(undefined),
-      },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss No AI mode' }));
-
-    expect(completeAction).toHaveBeenCalledWith(
-      ActionType.DismissNoAiFeedToggle,
-    );
   });
 });

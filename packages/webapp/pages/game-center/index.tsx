@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -28,6 +28,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { shouldShowAchievementTracker } from '@dailydotdev/shared/src/lib/achievements';
+import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
 import {
   formatDate,
   TimeFormatType,
@@ -286,6 +287,10 @@ function GameCenterPage({
     () => questDashboard?.milestone ?? [],
     [questDashboard?.milestone],
   );
+  const claimableMilestoneCount = useMemo(
+    () => milestoneQuests.filter((quest) => quest.claimable).length,
+    [milestoneQuests],
+  );
   const claimingMilestoneQuestId = isClaimQuestPending
     ? claimQuestVariables?.userQuestId
     : undefined;
@@ -345,6 +350,7 @@ function GameCenterPage({
   );
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
+  const milestoneHash = `#${gameCenterMilestoneSectionId}`;
   let mostEarnedBadgeSubtitle =
     'Read in a topic more than once to see a favorite';
 
@@ -399,6 +405,20 @@ function GameCenterPage({
     [claimQuestReward],
   );
 
+  useEffect(() => {
+    if (!router.isReady || claimableMilestoneCount === 0) {
+      return;
+    }
+
+    if (!router.asPath?.includes(milestoneHash)) {
+      return;
+    }
+
+    document
+      .getElementById(gameCenterMilestoneSectionId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [claimableMilestoneCount, milestoneHash, router.asPath, router.isReady]);
+
   let milestoneQuestContent: ReactElement;
 
   if (isQuestPending) {
@@ -414,9 +434,6 @@ function GameCenterPage({
         title="Milestones"
         quests={milestoneQuests}
         layout="grid"
-        initialVisibleCount={4}
-        showMoreLabel="Show more"
-        showLessLabel="Show less"
         showLevelSystem={showLevelSystem}
         onDestinationClick={handleMilestoneDestinationClick}
         claimingQuestId={claimingMilestoneQuestId}
@@ -954,7 +971,10 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section className="flex flex-col gap-4">
+          <section
+            id={gameCenterMilestoneSectionId}
+            className="flex scroll-mt-16 flex-col gap-4"
+          >
             <SectionHeader
               title="Milestone quests"
               description="Longer-running quest goals that track your progress until they are ready to claim."

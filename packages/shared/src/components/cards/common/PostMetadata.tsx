@@ -6,6 +6,7 @@ import { Separator } from './common';
 import type { Post } from '../../../graphql/posts';
 import { formatReadTime, DateFormat } from '../../utilities';
 import { largeNumberFormat } from '../../../lib';
+import { pluralize } from '../../../lib/strings';
 import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { PollMetadataProps } from './PollMetadata';
@@ -20,6 +21,9 @@ interface PostMetadataProps
   isVideoType?: boolean;
   domain?: ReactNode;
   pollMetadata?: PollMetadataProps;
+  numSources?: number;
+  dateLabel?: string;
+  dateType?: TimeFormatType;
 }
 
 export default function PostMetadata({
@@ -32,6 +36,9 @@ export default function PostMetadata({
   isVideoType,
   domain,
   pollMetadata,
+  numSources,
+  dateLabel,
+  dateType = TimeFormatType.Post,
 }: PostMetadataProps): ReactElement {
   const hasUpvoteCount = typeof numUpvotes === 'number';
   const upvoteCount = numUpvotes ?? 0;
@@ -62,7 +69,13 @@ export default function PostMetadata({
     !!createdAt &&
       !boostedBy && {
         key: 'date',
-        node: <DateFormat date={createdAt} type={TimeFormatType.Post} />,
+        node: (
+          <DateFormat
+            date={createdAt}
+            type={dateType}
+            prefix={dateLabel ? `${dateLabel} ` : undefined}
+          />
+        ),
       },
     showReadTime && {
       key: 'readTime',
@@ -72,6 +85,15 @@ export default function PostMetadata({
         </span>
       ),
     },
+    !!numSources &&
+      numSources > 0 && {
+        key: 'sources',
+        node: (
+          <span data-testid="numSources">
+            {numSources} {pluralize('source', numSources)}
+          </span>
+        ),
+      },
     !!showReadTime && domain && { key: 'domain', node: domain },
     hasUpvoteCount &&
       upvoteCount > 0 && {
@@ -87,7 +109,7 @@ export default function PostMetadata({
   return (
     <div
       className={classNames(
-        'flex items-center text-text-tertiary typo-footnote',
+        'flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote',
         className,
       )}
     >

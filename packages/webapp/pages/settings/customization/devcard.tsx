@@ -26,7 +26,7 @@ const DevCardStep2 = dynamic(() =>
   ).then((mod) => mod.DevCardStep2),
 );
 
-const seoTitles = getPageSeoTitles('Grab your DevCard');
+const seoTitles = getPageSeoTitles('DevCard');
 const seo: NextSeoProps = {
   title: seoTitles.title,
   description:

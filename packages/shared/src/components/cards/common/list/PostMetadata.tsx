@@ -12,6 +12,7 @@ import {
   TypographyColor,
 } from '../../../typography/Typography';
 import { useScrambler } from '../../../../hooks/useScrambler';
+import { pluralize } from '../../../../lib/strings';
 
 export interface PostMetadataProps {
   className?: string;
@@ -19,6 +20,9 @@ export interface PostMetadataProps {
   bottomLabel?: ReactElement | string;
   createdAt?: string;
   dateFirst?: boolean;
+  dateLabel?: string;
+  numSources?: number;
+  dateType?: TimeFormatType;
 }
 
 export default function PostMetadata({
@@ -27,10 +31,26 @@ export default function PostMetadata({
   topLabel,
   bottomLabel,
   dateFirst,
+  dateLabel,
+  numSources,
+  dateType = TimeFormatType.Post,
 }: PostMetadataProps): ReactElement {
   const { boostedBy } = useFeedCardContext();
   const promotedText = useScrambler(
     boostedBy ? `Promoted by @${boostedBy.username}` : undefined,
+  );
+  const hasSources = !!numSources && numSources > 0;
+  const dateNode = !!createdAt && (
+    <DateFormat
+      date={createdAt}
+      type={dateType}
+      prefix={dateLabel ? `${dateLabel} ` : undefined}
+    />
+  );
+  const sourcesNode = hasSources && (
+    <span data-testid="numSources">
+      {numSources} {pluralize('source', numSources)}
+    </span>
   );
 
   return (
@@ -51,9 +71,7 @@ export default function PostMetadata({
         {!!boostedBy && !!bottomLabel && <Separator />}
         {dateFirst ? (
           <>
-            {!!createdAt && (
-              <DateFormat date={createdAt} type={TimeFormatType.Post} />
-            )}
+            {dateNode}
             {!!createdAt && !!bottomLabel && <Separator />}
             {bottomLabel}
           </>
@@ -61,11 +79,13 @@ export default function PostMetadata({
           <>
             {bottomLabel}
             {(!!bottomLabel || !!boostedBy) && !!createdAt && <Separator />}
-            {!!createdAt && (
-              <DateFormat date={createdAt} type={TimeFormatType.Post} />
-            )}
+            {dateNode}
           </>
         )}
+        {(!!createdAt || !!bottomLabel || !!boostedBy) && sourcesNode && (
+          <Separator />
+        )}
+        {sourcesNode}
       </div>
     </div>
   );

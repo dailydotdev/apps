@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import classNames from 'classnames';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
@@ -33,6 +34,7 @@ import {
   Origin,
   NotificationPromptSource,
 } from '@dailydotdev/shared/src/lib/log';
+import { FunnelEventName } from '@dailydotdev/shared/src/features/onboarding/types/funnelEvents';
 import { isIOSNative, isIOS } from '@dailydotdev/shared/src/lib/func';
 import { AppleIcon } from '@dailydotdev/shared/src/components/icons/Apple';
 import { AndroidIcon } from '@dailydotdev/shared/src/components/icons/Android';
@@ -50,18 +52,16 @@ import {
 
 import { ChromeIcon } from '@dailydotdev/shared/src/components/icons/Browser/Chrome';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
-import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
-import { HomeIcon } from '@dailydotdev/shared/src/components/icons/Home';
-import { HotIcon } from '@dailydotdev/shared/src/components/icons/Hot';
-import { EyeIcon } from '@dailydotdev/shared/src/components/icons/Eye';
-import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { VIcon } from '@dailydotdev/shared/src/components/icons/V';
 import { StarIcon } from '@dailydotdev/shared/src/components/icons/Star';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import AuthOptions from '@dailydotdev/shared/src/components/auth/AuthOptions';
 import type { AuthProps } from '@dailydotdev/shared/src/components/auth/common';
-import { AuthDisplay } from '@dailydotdev/shared/src/components/auth/common';
+import {
+  AFTER_AUTH_PARAM,
+  AuthDisplay,
+} from '@dailydotdev/shared/src/components/auth/common';
 import { useRouter } from 'next/router';
 import {
   requestGitHubProfileTags,
@@ -81,74 +81,6 @@ import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
 import { OnboardingV2Styles } from './OnboardingV2Styles';
 import { useOnboardingAnimations } from './useOnboardingAnimations';
 import { OnboardingChooserGrid } from './OnboardingChooserGrid';
-
-type RisingTag = {
-  label: string;
-  left: string;
-  delay: string;
-  duration: string;
-  driftX: number;
-};
-
-const RISING_TAGS_DESKTOP: RisingTag[] = [
-  { label: 'React', left: '8%', delay: '0s', duration: '14s', driftX: 12 },
-  { label: 'AI & ML', left: '28%', delay: '1.2s', duration: '15s', driftX: -8 },
-  {
-    label: 'System Design',
-    left: '52%',
-    delay: '0.6s',
-    duration: '14.5s',
-    driftX: 10,
-  },
-  { label: 'Docker', left: '78%', delay: '2s', duration: '13.8s', driftX: -14 },
-  {
-    label: 'TypeScript',
-    left: '18%',
-    delay: '3.4s',
-    duration: '15.2s',
-    driftX: 8,
-  },
-  {
-    label: 'Next.js',
-    left: '88%',
-    delay: '2.8s',
-    duration: '14.4s',
-    driftX: -10,
-  },
-  {
-    label: 'Python',
-    left: '42%',
-    delay: '4.2s',
-    duration: '14.8s',
-    driftX: -6,
-  },
-  {
-    label: 'Kubernetes',
-    left: '66%',
-    delay: '5s',
-    duration: '14.2s',
-    driftX: 12,
-  },
-];
-
-const RISING_TAGS_MOBILE: RisingTag[] = [
-  { label: 'React', left: '10%', delay: '0s', duration: '13.5s', driftX: 8 },
-  {
-    label: 'AI & ML',
-    left: '55%',
-    delay: '1.5s',
-    duration: '14s',
-    driftX: -10,
-  },
-  { label: 'Docker', left: '30%', delay: '3s', duration: '13s', driftX: 6 },
-  {
-    label: 'TypeScript',
-    left: '75%',
-    delay: '4.5s',
-    duration: '14.5s',
-    driftX: -8,
-  },
-];
 
 export type OnboardingStep =
   | 'hero'
@@ -216,7 +148,11 @@ const FINISHING_ANIMATION_MS = 1500;
 
 export const OnboardingV2 = (): ReactElement => {
   const router = useRouter();
-  const { isLoggedIn, isAuthReady, isAndroidApp, user } = useAuthContext();
+  const { isLoggedIn, isAuthReady, isAndroidApp, user, loginState } =
+    useAuthContext();
+  const [isAuthenticating, setIsAuthenticating] = useState(
+    !!loginState?.isLogin,
+  );
   const { applyThemeMode } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
@@ -244,21 +180,16 @@ export const OnboardingV2 = (): ReactElement => {
   const [showMobileAppPopup, setShowMobileAppPopup] = useState(false);
   const {
     mounted,
-    tagsReady,
-    feedVisible,
     heroRef,
     confettiParticles,
     isEdgeBrowser,
     extensionImages,
   } = useOnboardingAnimations(step);
-  const [aiPrompt, setAiPrompt] = usePersistentContext<string>(
-    ONBOARDING_AI_PROMPT_KEY,
-    '',
-  );
-  const [extensionSeen, setExtensionSeen] = usePersistentContext<boolean>(
-    ONBOARDING_EXTENSION_SEEN_KEY,
-    false,
-  );
+  const [aiPrompt, setAiPrompt, isAiPromptFetched] =
+    usePersistentContext<string>(ONBOARDING_AI_PROMPT_KEY, '', undefined, '');
+  const [extensionSeen, setExtensionSeen, isExtensionSeenFetched] =
+    usePersistentContext<boolean>(ONBOARDING_EXTENSION_SEEN_KEY, false);
+  const shouldShowExtension = showExtensionCta && !extensionSeen;
   const [authDisplay, setAuthDisplay] = useState(AuthDisplay.OnboardingSignup);
   const [isLoginFlow, setIsLoginFlow] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(true);
@@ -271,9 +202,12 @@ export const OnboardingV2 = (): ReactElement => {
   >(null);
   const [importBodyHeight, setImportBodyHeight] = useState<number | null>(null);
   const [importExiting, setImportExiting] = useState(false);
-  const [signupContext, setSignupContext] = usePersistentContext<
-    'github' | 'ai' | null
-  >(ONBOARDING_SIGNUP_CONTEXT_KEY, null, ['github', 'ai']);
+  const [signupContext, setSignupContext, isSignupContextFetched] =
+    usePersistentContext<'github' | 'ai' | null>(
+      ONBOARDING_SIGNUP_CONTEXT_KEY,
+      null,
+      ['github', 'ai'],
+    );
   const pageRef = useRef<HTMLDivElement>(null);
   const importTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const importBodyContentRef = useRef<HTMLDivElement>(null);
@@ -281,17 +215,13 @@ export const OnboardingV2 = (): ReactElement => {
     null,
   ) as React.MutableRefObject<HTMLFormElement>;
 
-  const popularFeedNameValue = useMemo(
-    () => ({ feedName: SharedFeedPage.Popular as const }),
-    [],
-  );
-
-  const openSignup = useCallback(
-    (context: 'github' | 'ai') => {
-      setSignupContext(context);
-      setStep('prompt');
-    },
-    [setSignupContext],
+  const showPersonalizedFeed = step === 'complete' && isLoggedIn;
+  const activeFeedName = showPersonalizedFeed
+    ? SharedFeedPage.MyFeed
+    : SharedFeedPage.Popular;
+  const activeFeedNameValue = useMemo(
+    () => ({ feedName: activeFeedName }),
+    [activeFeedName],
   );
 
   const clearImportTimers = useCallback(() => {
@@ -304,6 +234,18 @@ export const OnboardingV2 = (): ReactElement => {
     importTimersRef.current.push(id);
     return id;
   }, []);
+
+  const { mutateAsync: mutateGithubTags, isPending: isGithubTagsPending } =
+    useMutation({
+      mutationFn: requestGitHubProfileTags,
+    });
+  const { mutateAsync: mutateAiTags, isPending: isAiTagsPending } = useMutation(
+    {
+      mutationFn: (prompt: string) => requestOnboardingProfileTags(prompt),
+    },
+  );
+
+  const isImporting = isGithubTagsPending || isAiTagsPending;
 
   const startImportFlow = useCallback(
     async (source: ImportFlowSource) => {
@@ -321,9 +263,7 @@ export const OnboardingV2 = (): ReactElement => {
       setStep('importing');
 
       const apiPromise =
-        source === 'github'
-          ? requestGitHubProfileTags()
-          : requestOnboardingProfileTags(aiPrompt);
+        source === 'github' ? mutateGithubTags() : mutateAiTags(aiPrompt);
 
       // Step progress through thresholds that complete during import
       const steps = source === 'github' ? GITHUB_IMPORT_STEPS : AI_IMPORT_STEPS;
@@ -357,7 +297,7 @@ export const OnboardingV2 = (): ReactElement => {
         setSignupContext(null);
         router.replace({
           pathname: `${webappUrl}onboarding`,
-          query: { step: 'tags' },
+          query: { ...router.query, step: 'tags' },
         });
         setStep('tags');
         return;
@@ -374,6 +314,8 @@ export const OnboardingV2 = (): ReactElement => {
       setAiPrompt,
       setSignupContext,
       router,
+      mutateGithubTags,
+      mutateAiTags,
     ],
   );
 
@@ -435,9 +377,20 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction(ActionType.EditTag);
       completeAction(ActionType.ContentTypes);
 
+      logEvent({
+        event_name: FunnelEventName.CompleteFunnel,
+        extra: JSON.stringify({
+          funnel_id: 'onboarding_github_ai',
+          funnel_version: 'v1',
+          session_id: 'unknown',
+          step_id: 'complete',
+          step_type: 'complete',
+        }),
+      });
+
       router.replace({
         pathname: `${webappUrl}onboarding`,
-        query: { step: 'complete' },
+        query: { ...router.query, step: 'complete' },
       });
 
       trackTimer(() => {
@@ -451,7 +404,7 @@ export const OnboardingV2 = (): ReactElement => {
             setImportExiting(true);
             trackTimer(() => {
               setImportExiting(false);
-              setStep(showExtensionCta ? 'extension' : 'complete');
+              setStep(shouldShowExtension ? 'extension' : 'complete');
             }, 350);
           }, 600);
         }, FINISHING_ANIMATION_MS);
@@ -465,7 +418,7 @@ export const OnboardingV2 = (): ReactElement => {
       completeAction,
       router,
       trackTimer,
-      showExtensionCta,
+      shouldShowExtension,
     ],
   );
 
@@ -479,6 +432,9 @@ export const OnboardingV2 = (): ReactElement => {
   useEffect(() => {
     if (
       !isAuthReady ||
+      isAuthenticating ||
+      !isAiPromptFetched ||
+      !isSignupContextFetched ||
       (
         [
           'auth',
@@ -496,7 +452,12 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (urlStep === 'tags') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
       setStep('tags');
@@ -505,15 +466,20 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (urlStep === 'complete') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
 
-      if (extensionSeen || !showExtensionCta) {
-        setStep('complete');
-      } else {
-        setStep('extension');
+      if (!isExtensionSeenFetched) {
+        return;
       }
+
+      setStep(shouldShowExtension ? 'extension' : 'complete');
 
       return;
     }
@@ -522,7 +488,12 @@ export const OnboardingV2 = (): ReactElement => {
 
     if (flow === 'github') {
       if (!isLoggedIn) {
-        router.replace(`${webappUrl}onboarding`);
+        router.replace({
+          pathname: `${webappUrl}onboarding`,
+          query: router.query[AFTER_AUTH_PARAM]
+            ? { [AFTER_AUTH_PARAM]: router.query[AFTER_AUTH_PARAM] }
+            : {},
+        });
         return;
       }
       startImportFlowGithub();
@@ -554,10 +525,14 @@ export const OnboardingV2 = (): ReactElement => {
     }
   }, [
     isAuthReady,
+    isAuthenticating,
     isLoggedIn,
     isOnboardingActionsReady,
     isOnboardingComplete,
-    extensionSeen,
+    isExtensionSeenFetched,
+    isAiPromptFetched,
+    isSignupContextFetched,
+    shouldShowExtension,
     aiPrompt,
     signupContext,
     step,
@@ -565,7 +540,6 @@ export const OnboardingV2 = (): ReactElement => {
     setSignupContext,
     startImportFlowGithub,
     startAiProcessing,
-    showExtensionCta,
   ]);
 
   useEffect(() => {
@@ -589,11 +563,18 @@ export const OnboardingV2 = (): ReactElement => {
     setIsLoginFlow(false);
     setStep('hero');
     setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setIsAuthenticating(false);
   }, [setSignupContext]);
   const openSignupAuth = useCallback(() => {
+    if (isLoggedIn) {
+      if (signupContext === 'ai' && aiPrompt?.trim()) {
+        startAiProcessing();
+      }
+      return;
+    }
     setAuthDisplay(AuthDisplay.OnboardingSignup);
     setStep('auth');
-  }, []);
+  }, [isLoggedIn, signupContext, aiPrompt, startAiProcessing]);
   const isAiSetupContext = signupContext === 'ai';
   const canStartAiFlow = aiPrompt?.trim().length > 0;
   const isAwaitingSeniorityInput = importPhase === 'awaitingSeniority';
@@ -662,7 +643,10 @@ export const OnboardingV2 = (): ReactElement => {
   return (
     <div
       ref={pageRef}
-      className="onb-page relative tablet:pt-16 laptop:pl-11"
+      className={classNames(
+        'onb-page relative tablet:pt-16',
+        step === 'hero' && 'flex min-h-dvh flex-col',
+      )}
       role="presentation"
     >
       <OnboardingV2Styles />
@@ -696,71 +680,44 @@ export const OnboardingV2 = (): ReactElement => {
         )}
       </header>
 
-      {/* ── Dummy Sidebar (laptop only) ── */}
-      <aside className="pointer-events-none fixed left-0 top-16 z-2 hidden h-[calc(100vh-theme(space.16))] w-11 select-none flex-col border-r border-border-subtlest-tertiary bg-background-default laptop:flex">
-        <nav className="flex flex-col items-center gap-0.5 pt-3">
-          <div className="flex h-9 w-full items-center justify-center">
-            <HomeIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <SquadIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <HotIcon className="h-5 w-5 text-text-disabled" secondary={false} />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <EyeIcon className="h-5 w-5 text-text-disabled" secondary={false} />
-          </div>
-          <div className="flex h-9 w-full items-center justify-center">
-            <TerminalIcon
-              className="h-5 w-5 text-text-disabled"
-              secondary={false}
-            />
-          </div>
-        </nav>
-      </aside>
-
       {/* ── Hero ── */}
       <section
         ref={heroRef}
         className={classNames(
           'onb-hero relative overflow-hidden py-2 tablet:py-8',
           step === 'complete' && 'hidden',
+          step === 'hero' && 'flex flex-1 flex-col',
         )}
         style={{ '--scroll-y': '0' } as React.CSSProperties}
       >
-        <div className="z-10 relative mx-auto mb-3 flex w-full max-w-[63.75rem] items-center justify-between px-4 tablet:hidden">
+        <div className="z-10 relative mx-auto mb-6 flex w-full max-w-[63.75rem] shrink-0 items-center justify-between px-4 tablet:hidden">
           <Logo
             compact
             position={LogoPosition.Relative}
             className="!left-0 !top-0 !mt-0 !translate-x-0"
           />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsLoginFlow(true);
-                setAuthDisplay(AuthDisplay.Default);
-                setStep('auth');
-              }}
-              className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
-            >
-              Log in
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep('chooser')}
-              className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
-            >
-              Sign up
-            </button>
-          </div>
+          {!isLoggedIn && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoginFlow(true);
+                  setAuthDisplay(AuthDisplay.Default);
+                  setStep('auth');
+                }}
+                className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep('chooser')}
+                className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
+              >
+                Sign up
+              </button>
+            </div>
+          )}
         </div>
         {/* Dot grid — shifts subtly with scroll */}
         <div
@@ -784,57 +741,21 @@ export const OnboardingV2 = (): ReactElement => {
           <div className="onb-float-1 bg-accent-cheese-default/20 absolute left-[25%] top-[70%] h-1 w-1 rounded-full" />
           <div className="onb-float-2 bg-accent-cabbage-default/20 absolute left-[85%] top-[45%] h-1 w-1 rounded-full" />
           <div className="onb-float-3 bg-white/20 absolute left-[40%] top-[30%] h-0.5 w-0.5 rounded-full" />
-          {tagsReady &&
-            RISING_TAGS_DESKTOP.map((tag) => (
-              <span
-                key={tag.label}
-                className="onb-rising-tag absolute bottom-0 hidden whitespace-nowrap rounded-8 border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-text-quaternary typo-caption1 tablet:block"
-                style={
-                  {
-                    left: tag.left,
-                    '--tag-delay': tag.delay,
-                    '--tag-duration': tag.duration,
-                    '--tag-drift-x': `${tag.driftX}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {tag.label}
-              </span>
-            ))}
         </div>
 
         {/* Single radial hero glow */}
         <div className="onb-hero-radial pointer-events-none absolute inset-x-0 top-0 h-[26rem]" />
 
-        {/* Centered text content */}
-        <div className="relative mx-auto max-w-[63.75rem] px-4 text-center laptop:px-6">
+        {/* Title + chooser */}
+        <div
+          className={classNames(
+            'z-10 relative mx-auto w-full max-w-[63.75rem] px-4 text-center laptop:px-6',
+            step === 'hero' && 'flex flex-1 flex-col justify-center',
+          )}
+        >
           <div className="pointer-events-none mb-1 hidden h-[1.5rem] tablet:block" />
-          {/* Mobile-only rising tags */}
-          <div
-            className={classNames(
-              'pointer-events-none relative mb-4 h-[4.5rem] overflow-hidden tablet:hidden',
-            )}
-          >
-            {tagsReady &&
-              RISING_TAGS_MOBILE.map((tag) => (
-                <span
-                  key={`mob-${tag.label}`}
-                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
-                  style={
-                    {
-                      left: tag.left,
-                      '--tag-delay': tag.delay,
-                      '--tag-duration': tag.duration,
-                      '--tag-drift-x': `${tag.driftX}px`,
-                    } as React.CSSProperties
-                  }
-                >
-                  {tag.label}
-                </span>
-              ))}
-          </div>
 
-          {/* Headline */}
+          {/* Headline — slightly smaller than typo-mega1 on tablet */}
           <div
             className={classNames(
               'transition-all duration-700 ease-out',
@@ -842,136 +763,52 @@ export const OnboardingV2 = (): ReactElement => {
             )}
             style={{ transitionDelay: '200ms' }}
           >
-            <h1 className="mx-auto max-w-[20rem] font-bold leading-[1.12] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.08] tablet:typo-mega1">
+            <h1 className="mx-auto max-w-[22rem] font-bold leading-[1.3] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.22] tablet:typo-large-title">
               <span className="text-text-primary">
-                Staying updated shouldn&apos;t be hard
+                Staying sharp shouldn&apos;t be hard
               </span>
               <br />
               <span className="onb-gradient-text bg-clip-text text-transparent">
-                Get your personalized dev feed
+                A dev feed built around your stack
               </span>
             </h1>
           </div>
 
-          {/* Subtext */}
-          <div
-            className={classNames(
-              'transition-all duration-700 ease-out',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-            )}
-            style={{ transitionDelay: '400ms' }}
-          >
-            <p
-              className="mx-auto mt-4 max-w-[20rem] text-text-secondary typo-callout tablet:mt-5 tablet:max-w-[36rem] tablet:typo-body"
-              style={{ lineHeight: '1.65' }}
+          {step === 'hero' && (
+            <div
+              className={classNames(
+                'relative mx-auto mt-6 w-full max-w-[58rem] px-0 tablet:mt-8',
+                mounted
+                  ? 'translate-y-0 opacity-100'
+                  : 'translate-y-3 opacity-0',
+                'transition-all duration-700 ease-out',
+              )}
+              style={{ transitionDelay: '350ms' }}
             >
-              Millions of developers rely on daily.dev for tech news, tools, and
-              discussions that actually matter. Tailored to your stack from day
-              one.
-            </p>
-          </div>
-
-          {/* Hero CTA group */}
-          <div
-            className={classNames(
-              'mt-7 transition-all duration-700 ease-out',
-              mounted ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
-            )}
-            style={{ transitionDelay: '500ms' }}
-          >
-            <div className="relative mx-auto flex w-full flex-col items-center justify-center gap-3 tablet:w-fit tablet:flex-row">
-              <div className="onb-btn-glow pointer-events-none absolute -inset-3 rounded-20 bg-white/[0.06] blur-xl" />
-              <button
-                type="button"
-                onClick={() => {
-                  logEvent({
-                    event_name: LogEvent.Click,
-                    target_type: TargetType.HeroCta,
-                    target_id: TargetId.GitHub,
-                  });
+              <OnboardingChooserGrid
+                aiPrompt={aiPrompt}
+                onAiPromptChange={setAiPrompt}
+                canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
+                origin={Origin.Onboarding}
+                onGithubClick={() => {
                   if (isLoggedIn) {
                     startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
                   }
                 }}
-                className="onb-btn-shine focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-7 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
-              >
-                <GitHubIcon secondary size={IconSize.XSmall} />
-                One-click setup
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-black/30 transition-transform duration-300 group-hover:translate-x-0.5"
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  logEvent({
-                    event_name: LogEvent.Click,
-                    target_type: TargetType.HeroCta,
-                    target_id: TargetId.AI,
-                  });
-                  openSignup('ai');
-                }}
-                className="focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 border border-white/[0.12] bg-white/[0.04] px-6 py-3.5 font-bold text-text-primary backdrop-blur-md transition-all duration-300 typo-callout hover:-translate-y-1 hover:border-white/[0.22] hover:bg-white/[0.08] hover:shadow-[0_10px_35px_rgba(0,0,0,0.28)] focus-visible:outline-none focus-visible:ring-2 tablet:w-auto"
-              >
-                <MagicIcon
-                  secondary
-                  size={IconSize.Size16}
-                  className="text-text-primary"
-                />
-                Set up with AI
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-text-quaternary transition-transform duration-300 group-hover:translate-x-0.5"
-                >
-                  <path
-                    d="M5 12h14M12 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile-only bottom rising tags */}
-          <div className="pointer-events-none relative mt-5 h-[4.5rem] overflow-hidden tablet:hidden">
-            {tagsReady &&
-              RISING_TAGS_MOBILE.map((tag) => (
-                <span
-                  key={`mob-bot-${tag.label}`}
-                  className="onb-rising-tag absolute bottom-0 whitespace-nowrap rounded-8 border border-white/[0.06] bg-white/[0.02] px-2 py-0.5 text-text-quaternary typo-caption2"
-                  style={
-                    {
-                      left: `${100 - parseInt(tag.left, 10)}%`,
-                      '--tag-delay': `${parseFloat(tag.delay) + 2}s`,
-                      '--tag-duration': tag.duration,
-                      '--tag-drift-x': `${-tag.driftX}px`,
-                    } as React.CSSProperties
+                onAiSubmit={() => {
+                  if (isLoggedIn) {
+                    startAiProcessing();
+                  } else {
+                    setSignupContext('ai');
+                    openSignupAuth();
                   }
-                >
-                  {tag.label}
-                </span>
-              ))}
-          </div>
+                }}
+              />
+            </div>
+          )}
         </div>
       </section>
 
@@ -1226,73 +1063,37 @@ export const OnboardingV2 = (): ReactElement => {
                   target_type: TargetType.OnboardingComplete,
                   target_id: TargetId.GoToFeed,
                 });
-                router.replace(webappUrl);
+                redirectToApp(router);
               }}
               className="onb-ready-reveal mt-6 flex items-center gap-2 rounded-12 bg-white/[0.08] px-5 py-2.5 text-text-secondary transition-all duration-200 typo-callout hover:bg-white/[0.14] hover:text-text-primary"
               style={{ animationDelay: '520ms' }}
             >
-              Go to my feed
+              {router.query[AFTER_AUTH_PARAM]
+                ? 'Back where you left off'
+                : 'Go to my feed'}
               <ArrowIcon size={IconSize.Size16} className="rotate-90" />
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Feed ── */}
-      <div
-        className={classNames(
-          'onb-feed-stage relative min-h-[50vh] transition-[opacity,transform] duration-500 ease-out laptop:px-10',
-          // eslint-disable-next-line no-nested-ternary
-          step === 'complete'
-            ? 'onb-feed-unlocked translate-y-0 opacity-100'
-            : feedVisible
-            ? 'translate-y-0 opacity-100'
-            : 'pointer-events-none translate-y-2 opacity-0',
-        )}
-      >
-        <SearchProvider>
-          <FeedLayoutProvider>
-            <ActiveFeedNameContext.Provider value={popularFeedNameValue}>
-              <MainFeedLayout feedName="popular" isSearchOn={false} />
-            </ActiveFeedNameContext.Provider>
-          </FeedLayoutProvider>
-        </SearchProvider>
-        {/* ── Inline chooser panel at feed end ── */}
-        {step === 'hero' && (
-          <div className="mx-auto -mt-48 w-full max-w-[58rem] px-4 pb-12 pt-6 tablet:-mt-64 tablet:px-8">
-            <div className="mb-6 text-center tablet:mb-8">
-              <p className="mb-2 text-text-secondary typo-callout tablet:typo-body">
-                You just explored the global feed.
-              </p>
-              <h3 className="font-bold text-text-primary typo-title2 tablet:typo-title1">
-                Now build a feed that is truly yours
-              </h3>
-            </div>
-
-            <OnboardingChooserGrid
-              aiPrompt={aiPrompt}
-              onAiPromptChange={setAiPrompt}
-              canStartAiFlow={canStartAiFlow}
-              origin={Origin.OnboardingFeedEnd}
-              onGithubClick={() => {
-                if (isLoggedIn) {
-                  startImportFlowGithub();
-                } else {
-                  initiateGithubAuth();
-                }
-              }}
-              onAiSubmit={() => {
-                if (isLoggedIn) {
-                  startAiProcessing();
-                } else {
-                  setSignupContext('ai');
-                  openSignupAuth();
-                }
-              }}
-            />
-          </div>
-        )}
-      </div>
+      {/* ── Feed (only on complete step — chooser lives in hero) ── */}
+      {step === 'complete' && (
+        <div className="onb-feed-stage relative min-h-[50vh] laptop:px-10">
+          <SearchProvider>
+            <FeedLayoutProvider>
+              <ActiveFeedNameContext.Provider value={activeFeedNameValue}>
+                <MainFeedLayout
+                  feedName={showPersonalizedFeed ? 'default' : 'popular'}
+                  isSearchOn={false}
+                  hideFeedActionButtons
+                  disableBriefCard
+                />
+              </ActiveFeedNameContext.Provider>
+            </FeedLayoutProvider>
+          </SearchProvider>
+        </div>
+      )}
 
       {step !== 'complete' && (
         <div className="relative z-1 mx-auto mt-4 flex w-full max-w-[48rem] justify-center px-5 pb-4 mobileL:px-6">
@@ -1301,7 +1102,10 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Persistent backdrop across prompt / chooser / auth ── */}
-      {(step === 'prompt' || step === 'chooser' || step === 'auth') && (
+      {(step === 'prompt' ||
+        step === 'chooser' ||
+        step === 'auth' ||
+        isAuthenticating) && (
         <div
           className="bg-black/80 fixed inset-0 z-modal backdrop-blur-lg"
           aria-hidden
@@ -1346,6 +1150,7 @@ export const OnboardingV2 = (): ReactElement => {
                 aiPrompt={aiPrompt}
                 onAiPromptChange={setAiPrompt}
                 canStartAiFlow={canStartAiFlow}
+                isImporting={isImporting}
                 origin={Origin.OnboardingModal}
                 onGithubClick={() => {
                   setStep('hero');
@@ -1379,7 +1184,7 @@ export const OnboardingV2 = (): ReactElement => {
       )}
 
       {/* ── Auth Signup Overlay (providers: Google, GitHub, email) ── */}
-      {step === 'auth' && (
+      {(step === 'auth' || isAuthenticating) && (
         <div
           className="fixed inset-0 z-modal flex items-end tablet:items-center tablet:justify-center tablet:p-4"
           role="dialog"
@@ -1436,6 +1241,7 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulRegistration={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   if (signupContext === 'github') {
                     startImportFlowGithub();
                   } else if (signupContext === 'ai') {
@@ -1446,6 +1252,7 @@ export const OnboardingV2 = (): ReactElement => {
                 }}
                 onSuccessfulLogin={() => {
                   setAutoTriggerProvider(undefined);
+                  setIsAuthenticating(false);
                   closeAuthSignup();
                 }}
               />
@@ -1482,9 +1289,9 @@ export const OnboardingV2 = (): ReactElement => {
                 completeAction(ActionType.ContentTypes);
                 router.replace({
                   pathname: `${webappUrl}onboarding`,
-                  query: { step: 'complete' },
+                  query: { ...router.query, step: 'complete' },
                 });
-                setStep(showExtensionCta ? 'extension' : 'complete');
+                setStep(shouldShowExtension ? 'extension' : 'complete');
               }}
               className="mx-auto mt-6 rounded-14 bg-white px-8 py-3 font-bold text-black transition-all duration-200 typo-callout hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -2379,7 +2186,11 @@ export const OnboardingV2 = (): ReactElement => {
                 {signupContext === 'github' && (
                   <button
                     type="button"
-                    className="onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none"
+                    disabled={isImporting}
+                    className={classNames(
+                      'onb-btn-shine group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-4 py-3.5 font-bold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none',
+                      isImporting && 'opacity-60 cursor-not-allowed',
+                    )}
                     onClick={() => {
                       logEvent({
                         event_name: LogEvent.Click,
@@ -2417,10 +2228,10 @@ export const OnboardingV2 = (): ReactElement => {
                   <>
                     <button
                       type="button"
-                      disabled={!canStartAiFlow}
+                      disabled={!canStartAiFlow || isImporting}
                       className={classNames(
                         'focus-visible:ring-white/20 group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 px-5 py-3.5 font-bold transition-all duration-300 typo-callout focus-visible:outline-none focus-visible:ring-2',
-                        canStartAiFlow
+                        canStartAiFlow && !isImporting
                           ? 'bg-white text-black hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)]'
                           : 'cursor-not-allowed bg-white/[0.08] text-text-disabled',
                       )}

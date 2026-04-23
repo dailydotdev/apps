@@ -25,7 +25,7 @@ import {
   getApiError,
   gqlClient,
 } from '../../graphql/common';
-import { useToastNotification, ToastSubject } from '../useToastNotification';
+import { useToastNotification } from '../useToastNotification';
 import type { NotifyOptionalProps } from '../useToastNotification';
 import type { SourcePostModeration } from '../../graphql/squads';
 import { addPostToSquad, updateSquadPost } from '../../graphql/squads';
@@ -39,20 +39,6 @@ import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
-import {
-  ButtonIconPosition,
-  ButtonVariant,
-} from '../../components/buttons/Button';
-import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { usePushNotificationMutation } from '../notifications/usePushNotificationMutation';
-import {
-  NotificationCtaKind,
-  NotificationCtaPlacement,
-  NotificationPromptSource,
-  TargetType,
-} from '../../lib/log';
-import { useNotificationCtaExperiment } from '../notifications/useNotificationCtaExperiment';
-import { useNotificationCtaAnalytics } from '../notifications/useNotificationCtaAnalytics';
 
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
@@ -119,11 +105,6 @@ export const usePostToSquad = ({
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
   const { user } = useAuthContext();
-  const { isSubscribed } = usePushNotificationContext();
-  const { onEnablePush } = usePushNotificationMutation();
-  const { logClick, logImpression } = useNotificationCtaAnalytics();
-  const { isEnabled: isNotificationCtaExperimentEnabled } =
-    useNotificationCtaExperiment();
   const client = useQueryClient();
   const { completeAction } = useActions();
   const [preview, setPreview] = useState<ExternalLinkPreview>(
@@ -131,8 +112,6 @@ export const usePostToSquad = ({
   );
   const { requestMethod: requestMethodContext } = useRequestProtocol();
   const requestMethod = requestMethodContext ?? gqlClient.request;
-  const shouldShowEnableNotificationToast =
-    isNotificationCtaExperimentEnabled && !isSubscribed;
 
   const handleMutationError = useCallback(
     (err: unknown): void => {
@@ -265,34 +244,6 @@ export const usePostToSquad = ({
     const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
     if (customToast) {
       displayToast(customToast.message, customToast.options);
-    } else if (!update && shouldShowEnableNotificationToast) {
-      logImpression({
-        kind: NotificationCtaKind.ToastCta,
-        targetType: TargetType.EnableNotifications,
-        source: NotificationPromptSource.SquadPostCommentary,
-        placement: NotificationCtaPlacement.SquadShareToast,
-      });
-      displayToast('Post shared. Don’t miss the replies.', {
-        subject: ToastSubject.Feed,
-        action: {
-          copy: 'Turn on',
-          onClick: async () => {
-            logClick({
-              kind: NotificationCtaKind.ToastCta,
-              targetType: TargetType.EnableNotifications,
-              source: NotificationPromptSource.SquadPostCommentary,
-              placement: NotificationCtaPlacement.SquadShareToast,
-            });
-            await onEnablePush(NotificationPromptSource.SquadPostCommentary);
-          },
-          buttonProps: {
-            size: ButtonSize.Small,
-            variant: ButtonVariant.Primary,
-            icon: <BellIcon />,
-            iconPosition: ButtonIconPosition.Left,
-          },
-        },
-      });
     } else {
       displayToast(
         update

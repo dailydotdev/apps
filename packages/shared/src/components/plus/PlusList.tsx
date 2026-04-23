@@ -9,7 +9,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import {
   BlockIcon,
   BriefIcon,
-  CustomPromptIcon,
   FolderIcon,
   HashtagIcon,
   LabelIcon,
@@ -28,8 +27,6 @@ import {
   plusShowcasePresidentialBriefImage,
   plusShowcaseShieldImage,
   plusShowcaseShieldVideo,
-  plusShowcaseSmartPrompsImage,
-  plusShowcaseSmartPrompsVideo,
   plusShowcaseSquadImage,
   plusShowcaseTeamImage,
   plusShowcaseTeamVideo,
@@ -84,22 +81,6 @@ export const plusFeatureListControl: Array<PlusItem> = [
         'daily.dev scans the latest dev content, filters the noise, and delivers a personalized briefing of what actually matters.',
       imageUrl: plusShowcasePresidentialBriefImage,
       mediaType: 'image',
-    },
-  },
-  {
-    id: 'smart prompts',
-    label: 'Run prompts on any post',
-    status: PlusItemStatus.Ready,
-    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
-    icon: <CustomPromptIcon secondary />,
-    iconClasses: 'bg-overlay-float-bacon text-accent-bacon-default',
-    modalProps: {
-      title: 'Run prompts on any post',
-      description:
-        'Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.',
-      videoUrl: plusShowcaseSmartPrompsVideo,
-      imageUrl: plusShowcaseSmartPrompsImage,
-      mediaType: 'video',
     },
   },
   {
@@ -229,6 +210,63 @@ export const plusFeatureListControl: Array<PlusItem> = [
 ];
 
 export const plusFeatureList = plusFeatureListControl;
+
+const reframeControlItem = (
+  baseId: string,
+  label: string,
+  tooltip: string,
+): PlusItem => {
+  const base = plusFeatureListControl.find((item) => item.id === baseId);
+  if (!base) {
+    throw new Error(
+      `plusFeatureListControl is missing item with id: ${baseId}`,
+    );
+  }
+  return {
+    ...base,
+    label,
+    tooltip,
+    modalProps: base.modalProps
+      ? { ...base.modalProps, title: label, description: tooltip }
+      : undefined,
+  };
+};
+
+export const plusFeatureListApiFirst: Array<PlusItem> = [
+  {
+    id: 'public-api',
+    label: 'Public API access',
+    status: PlusItemStatus.Ready,
+    highlight: true,
+    tooltip: `Endpoints for your feed, search, posts, and bookmarks. Plus pre-built integrations for Claude Code, Cursor, and Codex.`,
+  },
+  reframeControlItem(
+    'custom feeds',
+    'Custom feeds you can query',
+    `Filter feeds by tools, languages, and topics. Pull them into your agent or dashboard through the feeds endpoint.`,
+  ),
+  reframeControlItem(
+    'clean titles',
+    'AI-cleaned titles',
+    `AI rewrites clickbait and low-signal titles so your agents and digests ingest accurate metadata, not ragebait.`,
+  ),
+  reframeControlItem(
+    'bookmark folders',
+    'Bookmark folders',
+    `Organize posts into folders, then pull them via the bookmarks endpoint. Great for read-later apps, digests, or Notion mirrors.`,
+  ),
+  reframeControlItem(
+    'keyword filter',
+    'Keyword filters',
+    `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
+  ),
+  {
+    id: 'plus-everything-else',
+    label: 'Everything else in daily.dev Plus',
+    status: PlusItemStatus.Ready,
+    tooltip: `Ad-free reading, auto-translate, presidential briefings, members-only Squad, and more. The full Plus experience, bundled with your API access.`,
+  },
+];
 
 export const plusOrganizationFeatureList: Array<PlusItem> = [
   {

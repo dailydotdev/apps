@@ -21,17 +21,16 @@ import { LogEvent, TargetId } from '../lib/log';
 import { Button } from './buttons/Button';
 import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
-import { featurePlusCtaCopy } from '../lib/featureManagement';
+import { featurePlusApiLanding } from '../lib/featureManagement';
 import Link from './utilities/Link';
 
 export const CustomFeedEmptyScreen = (): ReactElement => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
-  const {
-    value: { full: plusCta },
-  } = useConditionalFeature({
-    feature: featurePlusCtaCopy,
+  const { value: isApiLanding } = useConditionalFeature({
+    feature: featurePlusApiLanding,
     shouldEvaluate: !isPlus,
   });
+  const plusCta = isApiLanding ? 'Get API Access' : 'Level Up with Plus';
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,

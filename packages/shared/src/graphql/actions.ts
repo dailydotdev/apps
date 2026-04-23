@@ -40,7 +40,6 @@ export enum ActionType {
   EditTag = 'edit_tag',
   ContentTypes = 'content_types',
   StreakTimezoneMismatch = 'streak_timezone_mismatch',
-  SmartPrompt = 'smart_prompt',
   CheckedCoresRole = 'checked_cores_role',
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
@@ -59,7 +58,7 @@ export enum ActionType {
   AchievementSyncPrompt = 'achievement_sync_prompt',
   DisableAchievementCompletion = 'disable_achievement_completion',
   DismissInstallExtension = 'dismiss_install_extension',
-  DismissNoAiFeedToggle = 'dismiss_no_ai_feed_toggle',
+  DismissShortcutsExtensionPromo = 'dismiss_shortcuts_extension_promo',
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
@@ -76,7 +75,7 @@ export interface Action {
 }
 
 export const COMPLETED_USER_ACTIONS = gql`
-  {
+  query CompletedUserActions {
     actions {
       type
       completedAt

@@ -39,7 +39,7 @@ import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { defaultSeo } from '../../../../next-seo';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
 
-const Page = (): ReactElement => {
+const Page = (): ReactElement | null => {
   const router = useRouter();
   const { showPrompt } = usePrompt();
   const {
@@ -72,10 +72,7 @@ const Page = (): ReactElement => {
       data.image = imageFile;
     }
 
-    await updateOrganization({
-      id: organization.id,
-      form: data,
-    });
+    await updateOrganization({ form: data });
 
     setImageChanged(false);
     return null;
@@ -98,14 +95,14 @@ const Page = (): ReactElement => {
     }
   };
 
+  if (isFetching || !organization) {
+    return null;
+  }
+
   const disableDeletion =
     !isOwner ||
     organization.status === SubscriptionStatus.Active ||
     seats.assigned > 0;
-
-  if (isFetching) {
-    return null;
-  }
 
   return (
     <AccountPageContainer
@@ -220,7 +217,7 @@ const Page = (): ReactElement => {
 
 const seo: NextSeoProps = {
   ...defaultSeo,
-  ...getPageSeoTitles('Organization'),
+  ...getPageSeoTitles('General'),
 };
 
 Page.getLayout = getOrganizationLayout;

@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
+import ShortcutsExtensionPromo from './banners/ShortcutsExtensionPromo';
 import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -53,6 +54,7 @@ import {
   discussedFeedVersion,
   feature,
   featureFeedV2Highlights,
+  featureShortcutsExtensionPromo,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -71,10 +73,14 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
+import { checkIsExtension, isNullOrUndefined } from '../lib/func';
+import { useActions } from '../hooks/useActions';
+import { ActionType } from '../graphql/actions';
+import { useBoot } from '../hooks/useBoot';
+import { MarketingCtaVariant } from './marketingCta/common';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
-import { useNoAiFeed } from '../hooks/useNoAiFeed';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -172,6 +178,8 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  hideFeedActionButtons?: boolean;
+  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -211,6 +219,8 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  hideFeedActionButtons,
+  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -224,8 +234,6 @@ export default function MainFeedLayout({
     hasUser: !!user,
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
-  const shouldEvaluateNoAi =
-    feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
@@ -305,14 +313,6 @@ export default function MainFeedLayout({
     feature: featureFeedV2Highlights,
     shouldEvaluate: shouldEvaluateFeedV2Highlights,
   });
-  const {
-    isNoAi,
-    isNoAiAvailable,
-    isLoaded: isNoAiLoaded,
-    toggleNoAi,
-  } = useNoAiFeed({
-    shouldEvaluate: shouldEvaluateNoAi,
-  });
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -388,7 +388,6 @@ export default function MainFeedLayout({
               highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
             }
           : {}),
-        ...(shouldEvaluateNoAi && isNoAi ? { noAi: true } : {}),
         version:
           isDevelopment && !isProductionAPI
             ? 1
@@ -410,8 +409,6 @@ export default function MainFeedLayout({
     tokenRefreshed,
     feedVersion,
     isFeedV2HighlightsEnabled,
-    isNoAi,
-    shouldEvaluateNoAi,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
@@ -464,10 +461,6 @@ export default function MainFeedLayout({
       return null;
     }
 
-    if (shouldEvaluateNoAi && !isNoAiLoaded) {
-      return null;
-    }
-
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
         return null;
@@ -486,19 +479,10 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-        actionButtons: feedWithActions && (
+        actionButtons: feedWithActions && !hideFeedActionButtons && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
-            noAiState={
-              shouldEvaluateNoAi
-                ? {
-                    isAvailable: isNoAiAvailable,
-                    isEnabled: isNoAi,
-                    onToggle: toggleNoAi,
-                  }
-                : undefined
-            }
           />
         ),
       };
@@ -574,19 +558,10 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-      actionButtons: feedWithActions && (
+      actionButtons: feedWithActions && !hideFeedActionButtons && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
-          noAiState={
-            shouldEvaluateNoAi
-              ? {
-                  isAvailable: isNoAiAvailable,
-                  isEnabled: isNoAi,
-                  onToggle: toggleNoAi,
-                }
-              : undefined
-          }
         />
       ),
     };
@@ -618,11 +593,7 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
-    shouldEvaluateNoAi,
-    isNoAiLoaded,
-    isNoAiAvailable,
-    isNoAi,
-    toggleNoAi,
+    hideFeedActionButtons,
   ]);
 
   useEffect(() => {
@@ -637,8 +608,39 @@ export default function MainFeedLayout({
   const shouldShowReadingReminderOnHomepage =
     shouldEvaluateReminderPlacement && isControlVariation;
 
+  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { getMarketingCta } = useBoot();
+  const hasDismissedShortcutsPromo = checkHasCompleted(
+    ActionType.DismissShortcutsExtensionPromo,
+  );
+  const hasFeedBannerMarketingCta = !!getMarketingCta(
+    MarketingCtaVariant.FeedBanner,
+  );
+  const hasUploadedCv = checkHasCompleted(ActionType.UploadedCV);
+  const willShowCvUploadBanner =
+    hasFeedBannerMarketingCta && isActionsFetched && !hasUploadedCv;
+  const canShowShortcutsPromo =
+    !!user &&
+    isHomePage &&
+    isLaptop &&
+    !checkIsExtension() &&
+    isActionsFetched &&
+    !hasDismissedShortcutsPromo &&
+    !shouldShowReadingReminderOnHomepage &&
+    !willShowCvUploadBanner &&
+    isNullOrUndefined(user?.flags?.lastExtensionUse);
+  const { value: shouldShowShortcutsPromo } = useConditionalFeature({
+    feature: featureShortcutsExtensionPromo,
+    shouldEvaluate: canShowShortcutsPromo,
+  });
+
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
+      if (clickedTab === ExploreTabs.BestOf && checkIsExtension()) {
+        window.open(`${webappUrl}posts/best-of`, '_blank', 'noopener');
+        return;
+      }
+
       if (onNavTabClick) {
         onNavTabClick(tabToUrl[clickedTab]);
       }
@@ -693,6 +695,17 @@ export default function MainFeedLayout({
           onDismiss={onDismiss}
         />
       )}
+      {shouldShowShortcutsPromo && (
+        <ShortcutsExtensionPromo
+          className="px-4 pb-2"
+          onDismiss={() =>
+            completeAction(ActionType.DismissShortcutsExtensionPromo)
+          }
+          onInstall={() =>
+            completeAction(ActionType.DismissShortcutsExtensionPromo)
+          }
+        />
+      )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
           isMainFeed
@@ -712,6 +725,7 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
+            disableBriefCard={disableBriefCard}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}

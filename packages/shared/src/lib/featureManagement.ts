@@ -32,7 +32,6 @@ export const upvotedFeedVersion = new Feature('upvoted_feed_version', 2);
 export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
-export const featureNoAiFeed = new Feature('no_ai_feed', false);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
 
 // @ts-expect-error stale feature without default
@@ -50,7 +49,10 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
+export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
+export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -72,10 +74,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 });
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
-export const notificationCtaV2Feature = new Feature(
-  'notification_cta_v2',
-  false,
-);
 
 export const featureReadingReminderVariation = new Feature<
   'control' | 'hero' | 'inline'
@@ -153,3 +151,10 @@ export const sharedPostPreviewFeature = new Feature(
 );
 
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
+
+export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+
+export const featureShortcutsExtensionPromo = new Feature(
+  'shortcuts_extension_promo',
+  false,
+);

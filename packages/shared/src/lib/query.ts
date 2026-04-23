@@ -32,6 +32,7 @@ import type {
   ContentPreferenceType,
 } from '../graphql/contentPreference';
 import { PostType } from '../types';
+import { FIVE_MINUTES, ONE_HOUR, ONE_MINUTE, THIRTY_MINUTES } from './time';
 
 export enum OtherFeedPage {
   Tag = 'tag',
@@ -73,10 +74,6 @@ export enum OtherFeedPage {
   AgentsVibes = 'agents-vibes',
 }
 
-const ONE_MINUTE = 60 * 1000;
-const THIRTY_MINUTES = ONE_MINUTE * 30;
-const FIVE_MINUTES = ONE_MINUTE * 5;
-const ONE_HOUR = ONE_MINUTE * 60;
 export const STALE_TIME = 30 * 1000;
 
 export enum StaleTime {
@@ -212,7 +209,6 @@ export enum RequestKey {
   BookmarkFolders = 'bookmark_folders',
   FetchedOriginalTitle = 'fetched_original_title',
   GifterUser = 'gifter_user',
-  Prompts = 'smart_prompts',
   PostActions = 'post_actions',
   PricePreview = 'price_preview',
   PriceMetadata = 'price_metadata',

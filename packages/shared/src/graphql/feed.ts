@@ -341,7 +341,6 @@ export const FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
-    $noAi: Boolean
     ${SUPPORTED_TYPES}
   ) {
     page: feed(
@@ -349,7 +348,6 @@ export const FEED_QUERY = gql`
       after: $after
       ranking: $ranking
       version: $version
-      noAi: $noAi
       supportedTypes: $supportedTypes
     ) {
       ...FeedPostConnection
@@ -365,7 +363,6 @@ export const FEED_V2_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
-    $noAi: Boolean
     $highlightsLimit: Int
     ${SUPPORTED_TYPES}
   ) {
@@ -374,7 +371,6 @@ export const FEED_V2_QUERY = gql`
       after: $after
       ranking: $ranking
       version: $version
-      noAi: $noAi
       highlightsLimit: $highlightsLimit
       supportedTypes: $supportedTypes
     ) {
@@ -748,7 +744,7 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  {
+  query FeedList {
     feedList {
       pageInfo {
         endCursor

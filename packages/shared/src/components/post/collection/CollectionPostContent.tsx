@@ -23,7 +23,8 @@ import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
 import { CollectionPostHeaderActions } from './CollectionPostHeaderActions';
-import type { Post } from '../../../graphql/posts';
+import { isPostUpdated, type Post } from '../../../graphql/posts';
+import { pluralize } from '../../../lib/strings';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -53,7 +54,11 @@ const CollectionPostContentRaw = ({
     origin,
     post,
   });
-  const { updatedAt, contentHtml, image } = post;
+  const { createdAt, updatedAt, contentHtml, image, numCollectionSources } =
+    post;
+  const wasUpdated = isPostUpdated(post);
+  const dateToShow = wasUpdated ? updatedAt : createdAt;
+  const hasSources = !!numCollectionSources && numCollectionSources > 0;
   const { onCopyPostLink, onReadArticle } = engagementActions;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -130,7 +135,7 @@ const CollectionPostContentRaw = ({
         >
           <div className="mb-6 flex flex-col gap-6">
             <CollectionsIntro className="mt-6 laptop:hidden" />
-            <div className="flex flex-row items-center pt-6">
+            <div className="flex flex-row items-center gap-2 pt-6">
               <Link href={`${webappUrl}sources/collections`} passHref>
                 <Pill
                   tag="a"
@@ -153,10 +158,26 @@ const CollectionPostContentRaw = ({
               {post.title}
             </h1>
             <PostTagList post={post} />
-            {!!updatedAt && (
-              <div className="flex items-center text-text-tertiary typo-footnote">
-                <span>Last updated</span> <Separator />
-                <DateFormat date={updatedAt} type={TimeFormatType.Post} />
+            {!!dateToShow && (
+              <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+                <DateFormat
+                  date={dateToShow}
+                  type={
+                    wasUpdated
+                      ? TimeFormatType.PostUpdated
+                      : TimeFormatType.Post
+                  }
+                  prefix={wasUpdated ? 'Last updated ' : undefined}
+                />
+                {hasSources && (
+                  <>
+                    <Separator />
+                    <span>
+                      {numCollectionSources}{' '}
+                      {pluralize('source', numCollectionSources)}
+                    </span>
+                  </>
+                )}
               </div>
             )}
             {image && (

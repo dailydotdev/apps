@@ -76,6 +76,7 @@ export enum AuthTriggers {
   AiFluencyQuiz = 'ai fluency quiz',
   Gear = 'gear',
   AddToStack = 'add to stack',
+  PostPage = 'post page',
 }
 
 export type AuthTriggersType =
