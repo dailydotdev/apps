@@ -745,7 +745,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
                   </Button>
                 </div>
               ) : (
-                <div className="flex max-h-[50vh] flex-col gap-0.5 overflow-y-auto">
+                <div className="flex flex-col gap-0.5">
                   {/* Inline "Add" affordance sitting above the list. At
                       the cap we keep it visible but disabled with a tiny
                       "Library full" hint so users know why they can't add. */}
