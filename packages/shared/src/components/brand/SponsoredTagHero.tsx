@@ -102,12 +102,12 @@ export const SponsoredTagHero = ({
           )}
 
           <div className="flex w-full flex-1 flex-col gap-1">
-            <span className="text-white/80 typo-callout">Powered by</span>
+            <span className="text-white typo-callout">Powered by</span>
             <span className="font-bold text-white typo-title3">
               {sponsorInfo.brandName}
             </span>
             {highlightedWordConfig.config?.tooltipDescription && (
-              <p className="text-white/90 flex w-full max-w-lg typo-body">
+              <p className="flex w-full max-w-lg text-white typo-body">
                 {highlightedWordConfig.config.tooltipDescription}
               </p>
             )}
@@ -123,7 +123,7 @@ export const SponsoredTagHero = ({
             href={ctaUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="!text-gray-900 hover:bg-white/90 w-full bg-white laptop:w-auto laptop:flex-shrink-0 laptop:self-center"
+            className="hover:bg-white/90 w-full !bg-white text-raw-pepper-90 laptop:w-auto laptop:flex-shrink-0 laptop:self-center"
           >
             {ctaText}
             <OpenLinkIcon className="ml-2" />
