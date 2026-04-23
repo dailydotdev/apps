@@ -42,6 +42,11 @@ import { ShortcutTile } from '@dailydotdev/shared/src/features/shortcuts/compone
 import { AddShortcutTile } from '@dailydotdev/shared/src/features/shortcuts/components/AddShortcutTile';
 import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
 import { useHiddenTopSites } from '@dailydotdev/shared/src/features/shortcuts/hooks/useHiddenTopSites';
+import {
+  useDragClickGuard,
+  DRAG_ACTIVATION_DISTANCE_PX,
+} from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
+import { useShortcutDropZone } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutDropZone';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -137,7 +142,7 @@ export function ShortcutLinksHub({
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
+      activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE_PX },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -145,38 +150,14 @@ export function ShortcutLinksHub({
   );
 
   // dnd-kit activates drag via pointer events; browsers still synthesize a
-  // `click` on `pointerup` over the anchor because the element follows the
-  // pointer (no relative movement). We flag the drag lifecycle and swallow
-  // any click that arrives in a short window afterward, so the link never
-  // navigates. The window (instead of a one-shot flag) guards against browsers
-  // that fire extra clicks, and against reorders that put a *different* tile
-  // under the pointer at drop time.
-  const justDraggedRef = useRef(false);
-  const justDraggedTimerRef = useRef<number | null>(null);
-  const armDragSuppression = () => {
-    justDraggedRef.current = true;
-    if (justDraggedTimerRef.current !== null) {
-      window.clearTimeout(justDraggedTimerRef.current);
-    }
-    justDraggedTimerRef.current = window.setTimeout(() => {
-      justDraggedRef.current = false;
-      justDraggedTimerRef.current = null;
-    }, 400);
-  };
-  useEffect(() => {
-    return () => {
-      if (justDraggedTimerRef.current !== null) {
-        window.clearTimeout(justDraggedTimerRef.current);
-      }
-    };
-  }, []);
-  const suppressClickCapture = (event: React.MouseEvent) => {
-    if (!justDraggedRef.current) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  // `click` on `pointerup` because the tile follows the pointer via CSS
+  // transform, and on drops *outside* the toolbar the click target can be a
+  // sibling surface React's root listener never bubbles up to our handler.
+  // `useDragClickGuard` installs a document-level capture-phase listener so
+  // the stray click is swallowed wherever it lands, with the toolbar's
+  // `onClickCapture` kept as a React-side belt for the normal in-bounds case.
+  const { armGuard: armDragSuppression, onClickCapture: suppressClickCapture } =
+    useDragClickGuard();
 
   // Belt-and-suspenders for native HTML5 drag. Each tile already marks its
   // anchor/favicon as `draggable={false}`, but capture-phase cancellation
@@ -292,15 +273,26 @@ export function ShortcutLinksHub({
     openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } });
 
   // Drag-a-link-into-the-row shortcut: skip the edit modal entirely when
-  // the user drops a URL from the address bar or another tab. We only
-  // surface a toast when the add fails (duplicate / limit), because the
-  // success case speaks for itself — the tile just appears in the row.
+  // the user drops a URL from the address bar, another tab, or the
+  // browser's bookmarks bar. We only surface a toast when the add fails
+  // (duplicate / limit), because the success case speaks for itself — the
+  // tile just appears in the row.
   const onDropUrl = async (url: string) => {
     const result = await manager.addShortcut({ url });
     if (result.error) {
       displayToast(result.error);
     }
   };
+
+  // The whole toolbar is the drop zone (auto mode excluded — we can't add
+  // to a browser-managed list). The "+" tile is still visible for click
+  // discoverability, but users no longer have to aim at a 44px target to
+  // drop a bookmark — anywhere on the row counts.
+  const canAcceptDroppedUrl = !isAuto && manager.canAdd;
+  const { isDropTarget, dropHandlers } = useShortcutDropZone(
+    onDropUrl,
+    canAcceptDroppedUrl,
+  );
 
   const onManage = () => openModal({ type: LazyModal.ShortcutsManage });
 
@@ -375,6 +367,7 @@ export function ShortcutLinksHub({
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
       onDragStartCapture={suppressNativeDragCapture}
+      {...dropHandlers}
       className={classNames(
         // `group` powers the hover-reveal of the overflow button below.
         'group/hub',
@@ -390,6 +383,14 @@ export function ShortcutLinksHub({
         appearance === 'icon' && 'gap-1',
         appearance === 'chip' && 'gap-1',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
+        // Drag-to-add indicator: a soft accent ring + tinted background
+        // highlights the entire row so users dragging a bookmark see a
+        // clear "drop here" affordance regardless of where on the row
+        // they aim. `ring` uses box-shadow so there's no layout shift,
+        // and `rounded-12` keeps the halo in keeping with the tiles.
+        'rounded-12 transition-[box-shadow,background-color] duration-150 motion-reduce:transition-none',
+        isDropTarget &&
+          'bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default ring-offset-4 ring-offset-background-default',
       )}
     >
       <DndContext
@@ -421,7 +422,8 @@ export function ShortcutLinksHub({
         <AddShortcutTile
           appearance={appearance}
           onClick={onAdd}
-          onDropUrl={onDropUrl}
+          acceptsDroppedUrl={canAcceptDroppedUrl}
+          isDropActive={isDropTarget}
         />
       )}
       {showAutoEmptyState && (

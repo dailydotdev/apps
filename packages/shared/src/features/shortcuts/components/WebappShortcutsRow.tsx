@@ -25,6 +25,11 @@ import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
 import { ShortcutTile } from './ShortcutTile';
 import { AddShortcutTile } from './AddShortcutTile';
 import { useShortcutsManager } from '../hooks/useShortcutsManager';
+import {
+  useDragClickGuard,
+  DRAG_ACTIVATION_DISTANCE_PX,
+} from '../hooks/useDragClickGuard';
+import { useShortcutDropZone } from '../hooks/useShortcutDropZone';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../types';
 import type { Shortcut, ShortcutsAppearance } from '../types';
 
@@ -85,7 +90,7 @@ export function WebappShortcutsRow({
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
+      activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE_PX },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -95,35 +100,11 @@ export function WebappShortcutsRow({
   // Same click-suppression guard the extension hub uses: dnd-kit swallows
   // the pointerdown to pointerup sequence but the browser still fires a
   // click on release, so we intercept it (otherwise the link would
-  // navigate mid-drag). Uses a short time window rather than a one-shot
-  // flag so reorders that move tiles under the pointer at drop time still
-  // get their stray clicks suppressed.
-  const justDraggedRef = useRef(false);
-  const justDraggedTimerRef = useRef<number | null>(null);
-  const armDragSuppression = () => {
-    justDraggedRef.current = true;
-    if (justDraggedTimerRef.current !== null) {
-      window.clearTimeout(justDraggedTimerRef.current);
-    }
-    justDraggedTimerRef.current = window.setTimeout(() => {
-      justDraggedRef.current = false;
-      justDraggedTimerRef.current = null;
-    }, 400);
-  };
-  useEffect(() => {
-    return () => {
-      if (justDraggedTimerRef.current !== null) {
-        window.clearTimeout(justDraggedTimerRef.current);
-      }
-    };
-  }, []);
-  const suppressClickCapture = (event: React.MouseEvent) => {
-    if (!justDraggedRef.current) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  // navigate mid-drag). The hook attaches a document-level capture-phase
+  // listener so clicks that land *outside* the toolbar's DOM subtree after
+  // a long drag are still caught.
+  const { armGuard: armDragSuppression, onClickCapture: suppressClickCapture } =
+    useDragClickGuard();
 
   // Match the extension hub's native-drag backstop. Tiles already mark their
   // anchors/favicons as `draggable={false}`, but capture-phase cancellation
@@ -169,6 +150,15 @@ export function WebappShortcutsRow({
     }
   };
 
+  // The whole row is the drop zone, not just the tiny "+" tile — see
+  // `useShortcutDropZone` for rationale. Only active when there's room in
+  // the library for another shortcut.
+  const canAcceptDroppedUrl = manager.canAdd;
+  const { isDropTarget, dropHandlers } = useShortcutDropZone(
+    onDropUrl,
+    canAcceptDroppedUrl,
+  );
+
   // Gatekeeping: only render for opted-in users with something to show or
   // the ability to add. Users who haven't turned on the setting — or who
   // hid the row entirely — get nothing.
@@ -186,11 +176,18 @@ export function WebappShortcutsRow({
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
       onDragStartCapture={suppressNativeDragCapture}
+      {...dropHandlers}
       className={classNames(
         'hidden flex-wrap items-center mobileXL:flex',
         appearance === 'tile' && 'items-start gap-x-1 gap-y-2',
         appearance === 'icon' && 'gap-1',
         appearance === 'chip' && 'gap-1',
+        // Drag-to-add indicator: same treatment as the extension hub so
+        // the two surfaces feel like the same widget. Ring is box-shadow
+        // based → no layout shift when the halo turns on.
+        'rounded-12 transition-[box-shadow,background-color] duration-150 motion-reduce:transition-none',
+        isDropTarget &&
+          'bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default ring-offset-4 ring-offset-background-default',
         className,
       )}
     >
@@ -220,7 +217,8 @@ export function WebappShortcutsRow({
         <AddShortcutTile
           appearance={appearance}
           onClick={onAdd}
-          onDropUrl={onDropUrl}
+          acceptsDroppedUrl={canAcceptDroppedUrl}
+          isDropActive={isDropTarget}
         />
       )}
     </div>

@@ -598,7 +598,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
-          className="ml-auto"
+          className="-mr-2 ml-auto tablet:-mr-4"
           onClick={close}
         >
           Done
@@ -659,45 +659,50 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
                   trailingBadge={<ChromeIcon className="size-5" />}
                 />
               </div>
-              {/* Auto-mode inline controls. When the user picks "Most
-                  visited sites" they need to (a) grant permission if we
-                  don't have it yet, and (b) restore any sites they hid
-                  from the live row. Keeping both inside this section
-                  visually reinforces that these settings belong to this
-                  radio, not to the general Connections list below. */}
-              {mode === 'auto' && (
-                <div className="bg-surface-float/40 mt-1 flex flex-col gap-0.5 rounded-12 p-1">
-                  <ConnectionRow
-                    icon={<LinkIcon />}
-                    label="Browser access"
-                    description={
-                      topSitesKnown
-                        ? `${topSitesCount} sites available from your browser.`
-                        : 'Grant access so we can read your most visited sites.'
-                    }
-                    primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
-                    onPrimary={getTopSitesPrimaryAction({
-                      topSitesGranted,
-                      setShowImportSource,
-                      askTopSitesPermission,
-                    })}
-                    secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
-                    onSecondary={
-                      topSitesGranted ? () => onRevokePermission?.() : undefined
-                    }
-                  />
-                  {hiddenTopSites.length > 0 && (
-                    <ConnectionRow
-                      icon={<RefreshIcon />}
-                      label={`Hidden sites (${hiddenTopSites.length})`}
-                      description="Restore sites you removed from your Most visited row."
-                      primaryLabel="Restore all"
-                      onPrimary={() => restoreHiddenTopSites()}
-                    />
-                  )}
-                </div>
-              )}
             </fieldset>
+          )}
+
+          {/* Auto-mode connections. Mirrors the manual-mode Connections
+              section 1:1 — same SectionHeader treatment, same bare <ul>
+              of ConnectionRows — so the divider, title, and row padding
+              all line up regardless of which source the user picks. */}
+          {showTopSites && mode === 'auto' && (
+            <section aria-label="Connections" className="flex flex-col gap-2">
+              <SectionHeader
+                title="Connections"
+                description="Pull your most visited sites from your browser."
+              />
+              <ul className="flex flex-col gap-0.5">
+                <ConnectionRow
+                  icon={<LinkIcon />}
+                  label="Browser access"
+                  description={
+                    topSitesKnown
+                      ? `${topSitesCount} sites available from your browser.`
+                      : 'Grant access so we can read your most visited sites.'
+                  }
+                  primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
+                  onPrimary={getTopSitesPrimaryAction({
+                    topSitesGranted,
+                    setShowImportSource,
+                    askTopSitesPermission,
+                  })}
+                  secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
+                  onSecondary={
+                    topSitesGranted ? () => onRevokePermission?.() : undefined
+                  }
+                />
+                {hiddenTopSites.length > 0 && (
+                  <ConnectionRow
+                    icon={<RefreshIcon />}
+                    label={`Hidden sites (${hiddenTopSites.length})`}
+                    description="Restore sites you removed from your Most visited row."
+                    primaryLabel="Restore all"
+                    onPrimary={() => restoreHiddenTopSites()}
+                  />
+                )}
+              </ul>
+            </section>
           )}
 
           {mode === 'manual' && (

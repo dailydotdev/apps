@@ -26,7 +26,14 @@ import { MenuIcon as WrappingMenuIcon } from '../../../components/MenuIcon';
 import { combinedClicks } from '../../../lib/click';
 import { apiUrl } from '../../../lib/config';
 import { getDomainFromUrl } from '../../../lib/links';
+import {
+  DRAG_ACTIVATION_DISTANCE_PX,
+  POST_DRAG_SUPPRESSION_MS,
+} from '../hooks/useDragClickGuard';
 import type { Shortcut, ShortcutColor, ShortcutsAppearance } from '../types';
+
+const DRAG_ACTIVATION_DISTANCE_SQ_PX =
+  DRAG_ACTIVATION_DISTANCE_PX * DRAG_ACTIVATION_DISTANCE_PX;
 
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
@@ -144,7 +151,7 @@ export function ShortcutTile({
       }
       const dx = event.clientX - origin.x;
       const dy = event.clientY - origin.y;
-      return dx * dx + dy * dy >= 25;
+      return dx * dx + dy * dy >= DRAG_ACTIVATION_DISTANCE_SQ_PX;
     },
     [],
   );
@@ -168,7 +175,7 @@ export function ShortcutTile({
     dragWasActiveRef.current = false;
     const timer = window.setTimeout(() => {
       justDraggedRef.current = false;
-    }, 400);
+    }, POST_DRAG_SUPPRESSION_MS);
     return () => window.clearTimeout(timer);
   }, [isDragging]);
 
@@ -273,6 +280,21 @@ export function ShortcutTile({
     'aria-label': label,
   };
 
+  // `<a>` defaults to `cursor: pointer` which overrides the container's
+  // `cursor-grab` and makes users think the favicon isn't a drag handle
+  // (they see a click cursor, try to drag anyway, and the drop lands a
+  // stray click that navigates the tab). Force the grab/grabbing cursor
+  // on the anchor too so the whole tile reads as draggable. When drag is
+  // in-flight, `pointer-events-none` on the anchor keeps the browser from
+  // firing its `click` on pointerup — the drop becomes a no-op visually
+  // even if every other suppression fails.
+  const anchorCursorClass = draggable
+    ? classNames(
+        'cursor-grab active:cursor-grabbing',
+        isDragging && 'pointer-events-none',
+      )
+    : '';
+
   // Outer container styling per appearance:
   // - tile : 76px-wide column with label underneath (Chrome new tab).
   // - icon : compact square (iOS dock / Arc pinned tabs).
@@ -298,10 +320,20 @@ export function ShortcutTile({
   );
 
   // Action button position changes with layout so it always sits on an
-  // outside corner rather than over the label.
-  const actionBtnPositionClass = isChip
-    ? 'absolute -right-1 -top-1'
-    : 'absolute right-0.5 top-0.5';
+  // outside corner rather than over the label. In tile mode the button's
+  // vertical center is aligned to the favicon square (not the full tile)
+  // so it reads as a control over the icon, not floating above the label.
+  // Math: container `p-2` (8px) + favicon `size-11` (44px) → favicon
+  // center at 30px; button is `size-5` (20px), so top = 30 − 10 = 20px
+  // → `top-5`.
+  let actionBtnPositionClass: string;
+  if (isChip) {
+    actionBtnPositionClass = 'absolute -right-1 -top-1';
+  } else if (isIconOnly) {
+    actionBtnPositionClass = 'absolute right-0.5 top-0.5';
+  } else {
+    actionBtnPositionClass = 'absolute right-0.5 top-5';
+  }
 
   return (
     <div
@@ -318,7 +350,10 @@ export function ShortcutTile({
         <a
           {...combinedClicks(handleAnchorClick)}
           {...anchorCommon}
-          className="flex min-w-0 flex-1 items-center gap-2 focus-visible:outline-none"
+          className={classNames(
+            'flex min-w-0 flex-1 items-center gap-2 focus-visible:outline-none',
+            anchorCursorClass,
+          )}
         >
           <span className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-6">
             {iconContent}
@@ -332,7 +367,10 @@ export function ShortcutTile({
         <a
           {...combinedClicks(handleAnchorClick)}
           {...anchorCommon}
-          className="relative flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none"
+          className={classNames(
+            'relative flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none',
+            anchorCursorClass,
+          )}
         >
           {iconContent}
         </a>
@@ -342,7 +380,10 @@ export function ShortcutTile({
           <a
             {...combinedClicks(handleAnchorClick)}
             {...anchorCommon}
-            className="relative mb-1.5 flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none"
+            className={classNames(
+              'relative mb-1.5 flex size-11 items-center justify-center overflow-hidden rounded-12 bg-surface-float text-text-secondary transition-colors duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default group-hover:bg-background-default motion-reduce:transition-none',
+              anchorCursorClass,
+            )}
           >
             {iconContent}
           </a>

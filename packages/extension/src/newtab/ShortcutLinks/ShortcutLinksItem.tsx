@@ -1,5 +1,9 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type {
+  MouseEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactElement,
+} from 'react';
+import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 
@@ -7,11 +11,15 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { combinedClicks } from '@dailydotdev/shared/src/lib/click';
 
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { DRAG_ACTIVATION_DISTANCE_PX } from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 const pixelRatio = globalThis?.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
+
+const DRAG_ACTIVATION_DISTANCE_SQ_PX =
+  DRAG_ACTIVATION_DISTANCE_PX * DRAG_ACTIVATION_DISTANCE_PX;
 
 export function ShortcutItemPlaceholder({
   isCtaAddShortcut = false,
@@ -71,6 +79,35 @@ export function ShortcutLinksItem({
     transition,
   };
 
+  // Per-tile travel detector: if the pointer moved more than ~5px between
+  // pointerdown and click, it was a drag gesture — not a click — and we
+  // swallow the anchor's navigation. Works even when dnd-kit's `isDragging`
+  // has already flipped back to false by the time the browser fires click.
+  const pointerOriginRef = useRef<{ x: number; y: number } | null>(null);
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLAnchorElement>) => {
+      pointerOriginRef.current = { x: event.clientX, y: event.clientY };
+    },
+    [],
+  );
+  const handleAnchorClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      const origin = pointerOriginRef.current;
+      pointerOriginRef.current = null;
+      const travelled = origin
+        ? (event.clientX - origin.x) ** 2 + (event.clientY - origin.y) ** 2 >=
+          DRAG_ACTIVATION_DISTANCE_SQ_PX
+        : false;
+      if (isDragging || travelled) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      onLinkClick();
+    },
+    [isDragging, onLinkClick],
+  );
+
   return (
     <a
       ref={setNodeRef}
@@ -79,17 +116,20 @@ export function ShortcutLinksItem({
       {...listeners}
       href={url}
       rel="noopener noreferrer"
-      {...combinedClicks(onLinkClick)}
+      draggable={false}
+      onPointerDown={handlePointerDown}
+      {...combinedClicks(handleAnchorClick)}
       className={classNames(
         'mr-4 flex flex-col items-center',
         isDraggable && 'cursor-grab active:cursor-grabbing',
-        isDragging && 'opacity-50',
+        isDragging && 'pointer-events-none opacity-50',
       )}
     >
       <div className="mb-2 flex size-12 items-center justify-center rounded-full bg-surface-float text-text-secondary">
         <img
           src={`${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${iconSize}`}
           alt={url}
+          draggable={false}
           className="size-6"
         />
       </div>
