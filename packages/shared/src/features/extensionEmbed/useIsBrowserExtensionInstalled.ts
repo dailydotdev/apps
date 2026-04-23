@@ -1,13 +1,13 @@
-import { useSyncExternalStore } from 'react';
-
 // The extension ships a tiny content script (`ping`) that runs at
-// document_start on daily.dev origins and stamps `<html data-daily-extension-installed>`.
-// Reading that marker is the source of truth for "is the extension installed
-// in this browser right now?" — it runs before any webapp JS, so the check is
-// synchronous, id-agnostic, and doesn't depend on the webapp's build env
-// matching the real installed extension id.
+// document_start on daily.dev origins and stamps
+// `<html data-daily-extension-installed>`. Reading the attribute is the
+// fastest "is the extension installed in this browser right now?" signal —
+// it runs before any webapp JS, synchronously, id-agnostic, and doesn't
+// depend on the webapp's build env matching the installed extension id.
+// The marker can't change within a session (content scripts don't
+// retroactively inject into open tabs on install), so no reactive
+// subscription is needed.
 const MARKER_DATASET_KEY = 'dailyExtensionInstalled';
-const MARKER_ATTRIBUTE = 'data-daily-extension-installed';
 
 const readMarker = (): boolean => {
   if (typeof document === 'undefined') {
@@ -16,24 +16,60 @@ const readMarker = (): boolean => {
   return document.documentElement?.dataset?.[MARKER_DATASET_KEY] === 'true';
 };
 
-const subscribe = (onChange: () => void): (() => void) => {
-  if (
-    typeof document === 'undefined' ||
-    typeof MutationObserver === 'undefined'
-  ) {
-    return () => {};
+// Fallback probe for users on extension builds that predate the `ping`
+// content script. We preload a resource from the same
+// `web_accessible_resources` entry as `frame.html` — if the preload
+// succeeds, we know both (a) an extension at that id is installed and (b)
+// the current origin is in `frame.html`'s `matches`, which is exactly the
+// two conditions we need for the embed iframe to actually load. Probing
+// `css/companion.css` (universal `*://*/*` matches) would false-positive
+// for origins that aren't allowed to embed `frame.html`, leading to
+// Chrome's "page blocked" flash.
+const PROBE_RESOURCE_PATH = 'js/frame.bundle.js';
+const PROBE_TIMEOUT_MS = 1500;
+
+export const detectBrowserExtensionInstalled = (
+  extensionId: string | null | undefined,
+  timeoutMs: number = PROBE_TIMEOUT_MS,
+): Promise<boolean> => {
+  const trimmedId = extensionId?.trim();
+
+  if (!trimmedId || typeof document === 'undefined') {
+    return Promise.resolve(false);
   }
 
-  const observer = new MutationObserver(() => onChange());
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: [MARKER_ATTRIBUTE],
+  if (readMarker()) {
+    return Promise.resolve(true);
+  }
+
+  return new Promise<boolean>((resolve) => {
+    const link = document.createElement('link');
+    // `preload`+`as=script` always fetches but never executes, so the probe
+    // can't leak code into the host page.
+    link.rel = 'preload';
+    link.as = 'script';
+    link.href = `chrome-extension://${trimmedId}/${PROBE_RESOURCE_PATH}`;
+
+    let settled = false;
+    const finalize = (installed: boolean) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      link.onload = null;
+      link.onerror = null;
+      link.remove();
+      resolve(installed);
+    };
+
+    link.onload = () => finalize(true);
+    link.onerror = () => finalize(false);
+
+    document.head.appendChild(link);
+
+    globalThis.setTimeout(() => finalize(false), timeoutMs);
   });
-
-  return () => observer.disconnect();
 };
-
-const getServerSnapshot = (): boolean => false;
 
 export type UseIsBrowserExtensionInstalled = {
   isInstalled: boolean;
@@ -43,15 +79,10 @@ export type UseIsBrowserExtensionInstalled = {
 };
 
 export const useIsBrowserExtensionInstalled =
-  (): UseIsBrowserExtensionInstalled => {
-    const isInstalled = useSyncExternalStore(
-      subscribe,
-      readMarker,
-      getServerSnapshot,
-    );
-
-    return { isInstalled, isChecking: false };
-  };
+  (): UseIsBrowserExtensionInstalled => ({
+    isInstalled: readMarker(),
+    isChecking: false,
+  });
 
 // Function form for non-hook callers (e.g. imperative checks).
 export const isBrowserExtensionInstalled = (): boolean => readMarker();

@@ -7,10 +7,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { EmbeddedBrowsingWebPrompt } from '../../features/extensionEmbed/EmbeddedBrowsingWebPrompt';
 import { ExtensionSiteEmbed } from '../../features/extensionEmbed/ExtensionSiteEmbed';
 import { getBrowserExtensionInstallId } from '../../features/extensionEmbed/getBrowserExtensionInstallId';
 import type { UseExtensionSiteEmbedResult } from '../../features/extensionEmbed/useExtensionSiteEmbed';
-import { useIsBrowserExtensionInstalled } from '../../features/extensionEmbed/useIsBrowserExtensionInstalled';
+import {
+  detectBrowserExtensionInstalled,
+  useIsBrowserExtensionInstalled,
+} from '../../features/extensionEmbed/useIsBrowserExtensionInstalled';
 import { checkIsExtension } from '../../lib/func';
 import { apiUrl } from '../../lib/config';
 import { Loader } from '../Loader';
@@ -78,19 +82,15 @@ export function PostArticlePreviewEmbed({
 }: PostArticlePreviewEmbedProps): ReactElement | null {
   const [extensionId] = useState(() => getBrowserExtensionInstallId());
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
-  const [hasTimedOut, setHasTimedOut] = useState(false);
   const [embedStatus, setEmbedStatus] =
     useState<UseExtensionSiteEmbedResult['status']>('idle');
+  // Two distinct "things went wrong" states so we can map each to the
+  // right UX: a pre-connect timeout or a genuine post-ready failure.
+  const [timedOutBeforeConnect, setTimedOutBeforeConnect] = useState(false);
+  const [previewBroken, setPreviewBroken] = useState(false);
 
-  // On the webapp, the extension id is baked into the build, so its presence
-  // doesn't tell us whether the user actually installed the extension in this
-  // browser. The extension's `ping` content script stamps a marker on <html>
-  // at document_start on daily.dev origins — reading it is the source of
-  // truth for "installed in this browser". Extension surfaces (new tab) are
-  // always "installed" by definition.
   const isInExtension = checkIsExtension();
   const { isInstalled } = useIsBrowserExtensionInstalled();
-  const shouldPromptInstall = !isInExtension && !isInstalled;
 
   const previewDomain = useMemo(() => {
     if (previewHost) {
@@ -114,69 +114,100 @@ export function PostArticlePreviewEmbed({
   // Reset per target/extension change.
   useEffect(() => {
     setIsFrameLoaded(false);
-    setHasTimedOut(false);
     setEmbedStatus('idle');
+    setTimedOutBeforeConnect(false);
+    setPreviewBroken(false);
   }, [extensionId, targetUrl]);
+
+  // Fast-path "not installed / not embeddable from this origin": probe a
+  // resource that shares `frame.html`'s `web_accessible_resources` matches.
+  // If the probe fails (extension missing OR origin not allowed to embed),
+  // short-circuit the 7s connect timeout and show the install prompt in
+  // ~100ms instead of leaving the user on Chrome's "page blocked" screen.
+  useEffect(() => {
+    if (isInExtension || !extensionId) {
+      return undefined;
+    }
+    let cancelled = false;
+    detectBrowserExtensionInstalled(extensionId).then((installed) => {
+      if (!cancelled && !installed) {
+        setTimedOutBeforeConnect(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [extensionId, isInExtension]);
 
   const onCopyPreviewUrl = useCallback(() => {
     navigator.clipboard?.writeText(targetUrl).catch(() => {});
   }, [targetUrl]);
 
-  const isUnavailable = forceUnavailable || hasTimedOut;
+  // "Extension not installed / origin not in frame.html's WAR matches":
+  //  - No extensionId at all → can't even construct the iframe src.
+  //  - OR ping hasn't stamped the install marker AND the iframe never
+  //    reported any state within the connect timeout.
+  // Either way we stay inline and show the install prompt — we don't drop
+  // the user into the classic reader for a one-click fix.
+  const shouldPromptInstall =
+    !isInExtension &&
+    (!extensionId ||
+      timedOutBeforeConnect ||
+      (!isInstalled && embedStatus === 'idle' && timedOutBeforeConnect));
 
-  // Dedupe parent notification: fire onPreviewUnavailable once on transition.
-  // This fires both for terminal iframe failures (`isUnavailable`) and for
-  // "extension not installed" (`shouldPromptInstall`) — the parent
-  // (`ArticleReaderFrame`) responds by swapping in `ReaderFallback`, which is
-  // the only prompt we ever want to show outside the iframe.
+  // "Iframe connected but the embed ultimately failed": dropped target
+  // frame, DNR rule couldn't be set up, publisher blocks embedding, etc.
+  // These warrant the classic reader fallback via the parent.
+  const isGenuinelyUnavailable = forceUnavailable || previewBroken;
+
   const didNotifyRef = useRef(false);
-  const shouldFallBackToParent = isUnavailable || shouldPromptInstall;
   useEffect(() => {
-    if (shouldFallBackToParent && !didNotifyRef.current && !forceUnavailable) {
+    if (isGenuinelyUnavailable && !didNotifyRef.current && !forceUnavailable) {
       didNotifyRef.current = true;
       onPreviewUnavailable?.();
     }
-  }, [forceUnavailable, shouldFallBackToParent, onPreviewUnavailable]);
+  }, [forceUnavailable, isGenuinelyUnavailable, onPreviewUnavailable]);
 
-  // Detect "extension ready but site blocks embedding" via load timeout.
-  const isAwaitingFrame =
+  // Pre-connect timeout: iframe mounted but the permission frame never posted
+  // anything back within the window. Treat this as "can't embed from here"
+  // and show the install prompt. Armed only while we haven't heard from the
+  // iframe yet.
+  const isAwaitingFirstConnect =
     !!extensionId &&
-    !shouldPromptInstall &&
-    embedStatus === 'ready' &&
-    !isFrameLoaded &&
-    !isUnavailable;
-  useEffect(() => {
-    if (!isAwaitingFrame) {
-      return undefined;
-    }
-    const timeout = globalThis.setTimeout(
-      () => setHasTimedOut(true),
-      FRAME_LOAD_TIMEOUT_MS,
-    );
-    return () => globalThis.clearTimeout(timeout);
-  }, [isAwaitingFrame]);
-
-  // "Permission frame never connects" fallback: Chrome blocks the iframe so
-  // we never receive any state message. Historically this was a sign we
-  // couldn't embed at all, so flip to the terminal "preview unavailable"
-  // prompt. The enable-permission flow is handled separately via the
-  // explicit `missing-permission` error reason the frame posts — far more
-  // reliable than a timeout-based guess.
-  const isAwaitingPermissionFrame =
-    !!extensionId &&
-    !shouldPromptInstall &&
+    !isInExtension &&
     embedStatus === 'idle' &&
-    !isUnavailable;
+    !timedOutBeforeConnect &&
+    !shouldPromptInstall &&
+    !isGenuinelyUnavailable;
   useEffect(() => {
-    if (!isAwaitingPermissionFrame) {
+    if (!isAwaitingFirstConnect) {
       return undefined;
     }
     const timeout = globalThis.setTimeout(
-      () => setHasTimedOut(true),
+      () => setTimedOutBeforeConnect(true),
       PERMISSION_FRAME_CONNECT_TIMEOUT_MS,
     );
     return () => globalThis.clearTimeout(timeout);
-  }, [isAwaitingPermissionFrame]);
+  }, [isAwaitingFirstConnect]);
+
+  // Post-ready timeout: iframe is in `ready` state but the target site never
+  // actually loaded (publisher blocked embedding even after our DNR rule was
+  // set). This is a genuine "preview unavailable".
+  const isAwaitingTargetLoad =
+    !!extensionId &&
+    embedStatus === 'ready' &&
+    !isFrameLoaded &&
+    !isGenuinelyUnavailable;
+  useEffect(() => {
+    if (!isAwaitingTargetLoad) {
+      return undefined;
+    }
+    const timeout = globalThis.setTimeout(
+      () => setPreviewBroken(true),
+      FRAME_LOAD_TIMEOUT_MS,
+    );
+    return () => globalThis.clearTimeout(timeout);
+  }, [isAwaitingTargetLoad]);
 
   const onEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
@@ -184,13 +215,12 @@ export function PostArticlePreviewEmbed({
       if (state.status !== 'ready') {
         setIsFrameLoaded(false);
       }
-      // Keep the iframe mounted when the user can retry from within it:
-      // `missing-permission` (prompt hasn't been attempted yet),
-      // `permission-denied` (user hit ESC / "Not now" on Chrome's popup),
-      // and `permission-request-failed` (transient error). The underlying
-      // hook flips `status` to `'error'` for the latter two, so gate on the
-      // reason *before* checking status to avoid collapsing into the
-      // terminal "preview unavailable" state.
+      // Keep the iframe mounted for states the user can retry from within
+      // it: missing-permission (prompt hasn't been attempted), permission-
+      // denied (ESC / "Not now"), permission-request-failed (transient).
+      // The underlying hook flips `status` to `'error'` for the two latter
+      // ones, so gate on the reason before collapsing into the genuine
+      // failure path.
       const isRecoverablePermissionReason =
         state.errorReason === 'missing-permission' ||
         state.errorReason === 'permission-denied' ||
@@ -203,13 +233,13 @@ export function PostArticlePreviewEmbed({
         state.errorReason === 'preview-unavailable' ||
         state.errorReason === 'enable-frame-embedding-failed'
       ) {
-        setHasTimedOut(true);
+        setPreviewBroken(true);
       }
     },
     [],
   );
 
-  if (shouldFallBackToParent) {
+  if (isGenuinelyUnavailable) {
     return null;
   }
 
@@ -222,42 +252,48 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
-        <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
-          <img
-            src={faviconSrc}
-            alt=""
-            className="size-4 shrink-0 rounded-4"
-            loading="lazy"
-            aria-hidden
-          />
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Secondary}
-            className="min-w-0 flex-1 truncate"
-          >
-            <button
-              type="button"
-              onClick={onCopyPreviewUrl}
-              className="block w-full truncate text-left"
-              title="Copy preview URL"
-              aria-label="Copy preview URL"
-            >
-              {previewDomain}
-            </button>
-          </Typography>
-        </div>
-        <ExtensionSiteEmbed
-          extensionId={extensionId}
-          targetUrl={targetUrl}
-          enabled
-          className="h-full min-h-[28rem] w-full flex-1 border-0"
-          permissionFrameTitle="Embedded browsing permissions"
-          targetFrameTitle="Article preview"
-          onTargetFrameLoad={() => setIsFrameLoaded(true)}
-          onStateChange={onEmbedStateChange}
-          renderState={renderEmbedChrome}
-        />
+        {shouldPromptInstall ? (
+          <EmbeddedBrowsingWebPrompt />
+        ) : (
+          <>
+            <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
+              <img
+                src={faviconSrc}
+                alt=""
+                className="size-4 shrink-0 rounded-4"
+                loading="lazy"
+                aria-hidden
+              />
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Secondary}
+                className="min-w-0 flex-1 truncate"
+              >
+                <button
+                  type="button"
+                  onClick={onCopyPreviewUrl}
+                  className="block w-full truncate text-left"
+                  title="Copy preview URL"
+                  aria-label="Copy preview URL"
+                >
+                  {previewDomain}
+                </button>
+              </Typography>
+            </div>
+            <ExtensionSiteEmbed
+              extensionId={extensionId}
+              targetUrl={targetUrl}
+              enabled
+              className="h-full min-h-[28rem] w-full flex-1 border-0"
+              permissionFrameTitle="Embedded browsing permissions"
+              targetFrameTitle="Article preview"
+              onTargetFrameLoad={() => setIsFrameLoaded(true)}
+              onStateChange={onEmbedStateChange}
+              renderState={renderEmbedChrome}
+            />
+          </>
+        )}
       </div>
     </section>
   );
