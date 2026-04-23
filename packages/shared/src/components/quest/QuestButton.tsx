@@ -336,6 +336,8 @@ const getQuestDestination = (
       return { label: 'Leaderboards', path: '/users' };
     case 'view_user_profile':
       return { label: 'Profiles', path: '/users' };
+    case 'visit_arena':
+      return { label: 'the Arena', path: '/agents/arena' };
     case 'visit_explore_page':
       return { label: 'Explore', path: '/posts' };
     case 'visit_discussions_page':

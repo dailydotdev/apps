@@ -10,7 +10,7 @@ import {
   HotIcon,
   JoystickIcon,
   SquadIcon,
-  MegaphoneIcon,
+  TerminalIcon,
   YearInReviewIcon,
 } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -174,11 +174,12 @@ export const MainSection = ({
         },
         {
           icon: (active: boolean) => (
-            <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
+            <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
           ),
-          title: 'Happening Now',
-          path: `${webappUrl}highlights`,
+          title: 'Agentic Hub',
+          path: `${webappUrl}agents`,
           isForcedLink: true,
+          requiresLogin: true,
         },
         gameCenter,
         yearInReview,
