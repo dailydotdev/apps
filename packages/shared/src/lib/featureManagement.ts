@@ -160,3 +160,11 @@ export const featureShortcutsExtensionPromo = new Feature(
 );
 
 export const featureNewtabCustomizer = new Feature('newtab_customizer', false);
+
+export type NewTabModeVariant = 'control' | 'zen' | 'full';
+export const featureNewTabMode = new Feature<NewTabModeVariant>(
+  'new_tab_mode',
+  'control',
+);
+export const featureZenWallpapers = new Feature('zen_wallpapers', false);
+export const featureFocusBlocking = new Feature('focus_blocking', false);

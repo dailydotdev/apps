@@ -5,7 +5,6 @@ import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useRightSidebarOffset } from '../features/customizeNewTab/store/rightSidebar.store';
-import { useFocusMode } from '../features/customizeNewTab/store/focusMode.store';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
@@ -120,9 +119,6 @@ export function FeedLayoutProvider({
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
   const rightSidebarOffset = useRightSidebarOffset();
-  const { isEnabled: isFocusMode, isRevealed: isFocusRevealed } =
-    useFocusMode();
-  const isFocusLayout = isFocusMode && !isFocusRevealed;
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -219,14 +215,8 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
-  // Focus mode forces the single-column "default" layout regardless of
-  // viewport width so the new tab renders a calm, hero-style feed. Once the
-  // user scrolls past the reveal threshold the layout snaps back to whatever
-  // their normal breakpoint dictates.
-  const currentSettings = isFocusLayout ? defaultFeedSettings : mediaSettings;
-
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={mediaSettings}>
       {children}
     </FeedContext.Provider>
   );

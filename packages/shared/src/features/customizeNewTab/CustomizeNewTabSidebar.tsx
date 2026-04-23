@@ -21,9 +21,13 @@ import {
 import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
-import { FocusSection } from './sections/FocusSection';
+import { NewTabModeSection } from '../newTab/sidebar/NewTabModeSection';
+import { ZenLayoutSection } from '../newTab/sidebar/ZenLayoutSection';
+import { FocusSessionsSection } from '../newTab/sidebar/FocusSessionsSection';
+import { FocusBlocklistSection } from '../newTab/sidebar/FocusBlocklistSection';
 import { useSetRightSidebarOffset } from './store/rightSidebar.store';
-import { useFocusMode } from './store/focusMode.store';
+import { useNewTabMode } from '../newTab/store/newTabMode.store';
+import { resetZenModulesForReset } from '../newTab/store/zenModules.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
@@ -39,8 +43,7 @@ export const CustomizeNewTabSidebar = ({
   const { logEvent } = useLogContext();
   const { showFeedbackButton, setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
-  const { setEnabled: setFocusModeEnabled, setRevealed: setFocusRevealed } =
-    useFocusMode();
+  const { setMode } = useNewTabMode();
   const panelId = useId();
   const impressionLoggedRef = useRef(false);
 
@@ -69,11 +72,11 @@ export const CustomizeNewTabSidebar = ({
       target_type: TargetType.CustomizeNewTab,
       target_id: 'reset_defaults',
     });
-    // Reset both server-synced remote settings and the local focus-mode
-    // state so "defaults" actually means a pristine new tab.
+    // Reset both server-synced remote settings and the local new-tab mode so
+    // "defaults" actually means a pristine new tab.
     setSettings(defaultSettings);
-    setFocusModeEnabled(false);
-    setFocusRevealed(false);
+    setMode('discover');
+    resetZenModulesForReset();
   };
 
   // Expose the panel width as a global offset so the fixed header, feedback
@@ -184,7 +187,10 @@ export const CustomizeNewTabSidebar = ({
         </header>
 
         <div className="flex-1 overflow-y-auto">
-          <FocusSection />
+          <NewTabModeSection />
+          <ZenLayoutSection />
+          <FocusSessionsSection />
+          <FocusBlocklistSection />
           <AppearanceSection />
           <ShortcutsSection />
           <WidgetsSection />

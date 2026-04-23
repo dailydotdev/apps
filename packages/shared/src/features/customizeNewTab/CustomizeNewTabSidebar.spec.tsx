@@ -41,12 +41,21 @@ describe('CustomizeNewTabSidebar', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders all three sections when open', () => {
+  it('renders all sections when open', () => {
     renderSidebar();
     expect(screen.getByText('Make this tab yours')).toBeInTheDocument();
+    expect(screen.getByText('New tab mode')).toBeInTheDocument();
     expect(screen.getByText('Appearance')).toBeInTheDocument();
     expect(screen.getByText('Shortcuts')).toBeInTheDocument();
     expect(screen.getByText('New tab widgets')).toBeInTheDocument();
+  });
+
+  it('exposes the Zen and Discover mode options in the mode picker', () => {
+    renderSidebar();
+    expect(screen.getByRole('button', { name: /Zen/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Discover/ }),
+    ).toBeInTheDocument();
   });
 
   it('calls close with via="done" when Done is clicked', () => {
