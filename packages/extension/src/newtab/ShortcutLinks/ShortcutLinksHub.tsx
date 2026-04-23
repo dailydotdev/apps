@@ -464,7 +464,7 @@ export function ShortcutLinksHub({
             // includes the label underneath). See the DropdownMenuTrigger
             // below for the full math; this button is ~h-7 (28px) so we nudge
             // its top by 16px to land center ≈ 30px from tile top.
-            appearance === 'tile' && 'self-start mt-[16px]',
+            appearance === 'tile' && 'mt-[16px] self-start',
           )}
         >
           +{overflowCount} more
@@ -498,7 +498,7 @@ export function ShortcutLinksHub({
               // `self-start` pins align-self so parent `items-center` can't
               // re-center the button on the full tile height and drag it
               // back down onto the label row.
-              appearance === 'tile' && 'self-start mt-[14px]',
+              appearance === 'tile' && 'mt-[14px] self-start',
             )}
             aria-label="Shortcut options"
           />
