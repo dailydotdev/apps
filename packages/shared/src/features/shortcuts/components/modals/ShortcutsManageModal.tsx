@@ -792,21 +792,31 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             </section>
           )}
 
-          <BrowserConnectionsSection
-            bookmarksGranted={bookmarks !== undefined}
-            bookmarksCount={bookmarksCount}
-            bookmarksKnown={bookmarksKnown}
-            showOnWebapp={showOnWebapp}
-            onToggleShowOnWebapp={toggleShowOnWebapp}
-            onImportBookmarks={
-              setShowImportSource
-                ? () =>
-                    setShowImportSource('bookmarks', LazyModal.ShortcutsManage)
-                : undefined
-            }
-            onAskBookmarks={askBookmarksPermission}
-            onRevokeBookmarks={revokeBookmarksPermission}
-          />
+          {/* Connections (bookmarks import + web-app sync) only apply when the
+              user curates their own list. In auto mode the row is fed by
+              browser history, so importing bookmarks or mirroring a manual
+              list across devices is meaningless — hide the whole section to
+              match how "Your shortcuts" disappears above. */}
+          {mode === 'manual' && (
+            <BrowserConnectionsSection
+              bookmarksGranted={bookmarks !== undefined}
+              bookmarksCount={bookmarksCount}
+              bookmarksKnown={bookmarksKnown}
+              showOnWebapp={showOnWebapp}
+              onToggleShowOnWebapp={toggleShowOnWebapp}
+              onImportBookmarks={
+                setShowImportSource
+                  ? () =>
+                      setShowImportSource(
+                        'bookmarks',
+                        LazyModal.ShortcutsManage,
+                      )
+                  : undefined
+              }
+              onAskBookmarks={askBookmarksPermission}
+              onRevokeBookmarks={revokeBookmarksPermission}
+            />
+          )}
         </div>
       </Modal.Body>
     </Modal>
