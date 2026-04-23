@@ -33,7 +33,6 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -66,6 +65,15 @@ const CookieBanner = dynamic(
       /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
     ),
 );
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() =>
+        import('@tanstack/react-query-devtools').then(
+          (mod) => mod.ReactQueryDevtools,
+        ),
+      )
+    : (): null => null;
 
 interface ComponentGetLayout {
   getLayout?: (
@@ -330,6 +338,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
           <link rel="preconnect" href="https://api.daily.dev" />
           <link rel="preconnect" href="https://media.daily.dev" />
+          <link rel="dns-prefetch" href="https://connect.facebook.net" />
+          <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+          <link rel="dns-prefetch" href="https://static.hotjar.com" />
+          <link rel="dns-prefetch" href="https://static.ads-twitter.com" />
+          <link rel="dns-prefetch" href="https://www.redditstatic.com" />
+          <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
         </Head>
         <DefaultSeo
           {...Seo}

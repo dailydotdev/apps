@@ -49,10 +49,8 @@ function buildConfettiParticles(): ConfettiParticle[] {
 }
 
 export function useOnboardingAnimations(step: OnboardingStep) {
-  // ── Mount + tag reveal + feed visible state ──
+  // ── Mount state ──
   const [mounted, setMounted] = useState(false);
-  const [tagsReady, setTagsReady] = useState(false);
-  const [feedVisible, setFeedVisible] = useState(false);
 
   // ── Refs ──
   const heroRef = useRef<HTMLElement>(null);
@@ -64,34 +62,6 @@ export function useOnboardingAnimations(step: OnboardingStep) {
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
-
-  // ── Tag reveal timing ──
-  useEffect(() => {
-    if (!mounted) {
-      return undefined;
-    }
-    let idleTimer: number | null = null;
-    let revealTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const revealTags = () => {
-      revealTimer = setTimeout(() => setTagsReady(true), 180);
-    };
-
-    if ('requestIdleCallback' in window) {
-      idleTimer = window.requestIdleCallback(revealTags, { timeout: 1400 });
-    } else {
-      revealTimer = setTimeout(() => setTagsReady(true), 1200);
-    }
-
-    return () => {
-      if (idleTimer !== null && 'cancelIdleCallback' in window) {
-        window.cancelIdleCallback(idleTimer);
-      }
-      if (revealTimer !== null) {
-        window.clearTimeout(revealTimer);
-      }
-    };
-  }, [mounted]);
 
   // ── Body overflow management ──
   useEffect(() => {
@@ -109,77 +79,6 @@ export function useOnboardingAnimations(step: OnboardingStep) {
       prevBodyOverflowRef.current = '';
     };
   }, [step]);
-
-  // ── Feed article reveal + intersection observer ──
-  useEffect(() => {
-    if (!mounted) {
-      return undefined;
-    }
-
-    const timer = window.setTimeout(() => {
-      setFeedVisible(true);
-    }, 400);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('onb-revealed');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -40px 0px', threshold: 0.05 },
-    );
-
-    const observeFeedArticles = () => {
-      document
-        .querySelectorAll<HTMLElement>('.onb-feed-stage article')
-        .forEach((article, i) => {
-          if (!article.dataset.onbRevealDelay) {
-            article.style.setProperty(
-              '--reveal-delay',
-              `${Math.min(i * 60, 400)}ms`,
-            );
-            // eslint-disable-next-line no-param-reassign
-            article.dataset.onbRevealDelay = 'true';
-          }
-
-          if (article.classList.contains('onb-revealed')) {
-            return;
-          }
-
-          observer.observe(article);
-        });
-    };
-
-    observeFeedArticles();
-
-    const mutationObserver = new MutationObserver((mutations) => {
-      const hasNewArticles = mutations.some((mutation) =>
-        Array.from(mutation.addedNodes).some(
-          (node) =>
-            node instanceof HTMLElement &&
-            (node.tagName === 'ARTICLE' || node.querySelector('article')),
-        ),
-      );
-      if (hasNewArticles) {
-        observeFeedArticles();
-      }
-    });
-    const feedContainer =
-      document.querySelector('.onb-feed-stage') ?? document.body;
-    mutationObserver.observe(feedContainer, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => {
-      window.clearTimeout(timer);
-      mutationObserver.disconnect();
-      observer.disconnect();
-    };
-  }, [mounted]);
 
   // ── Parallax scroll ──
   useEffect(() => {
@@ -246,8 +145,6 @@ export function useOnboardingAnimations(step: OnboardingStep) {
 
   return {
     mounted,
-    tagsReady,
-    feedVisible,
     heroRef,
     confettiParticles,
     isEdgeBrowser,
