@@ -482,6 +482,7 @@ export enum TargetType {
   MarketingOptOut = 'marketing opt out',
   OnboardingComplete = 'onboarding complete',
   MobileAppDownload = 'mobile app download',
+  CustomizeNewTab = 'customize new tab',
 }
 
 export enum TargetId {

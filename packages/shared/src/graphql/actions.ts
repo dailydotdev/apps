@@ -62,6 +62,7 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
+  DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
 }
 
 export const cvActions = [
