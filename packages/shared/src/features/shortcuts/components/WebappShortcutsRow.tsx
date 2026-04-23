@@ -103,19 +103,36 @@ export function WebappShortcutsRow({
   );
 
   // Same click-suppression guard the extension hub uses: dnd-kit swallows
-  // the pointerdown→up sequence but the browser still fires a click on
-  // release, so we have to intercept or the link would navigate mid-drag.
+  // the pointerdown to pointerup sequence but the browser still fires a
+  // click on release, so we intercept it (otherwise the link would
+  // navigate mid-drag). Uses a short time window rather than a one-shot
+  // flag so reorders that move tiles under the pointer at drop time still
+  // get their stray clicks suppressed.
   const justDraggedRef = useRef(false);
+  const justDraggedTimerRef = useRef<number | null>(null);
   const armDragSuppression = () => {
     justDraggedRef.current = true;
+    if (justDraggedTimerRef.current !== null) {
+      window.clearTimeout(justDraggedTimerRef.current);
+    }
+    justDraggedTimerRef.current = window.setTimeout(() => {
+      justDraggedRef.current = false;
+      justDraggedTimerRef.current = null;
+    }, 400);
   };
+  useEffect(() => {
+    return () => {
+      if (justDraggedTimerRef.current !== null) {
+        window.clearTimeout(justDraggedTimerRef.current);
+      }
+    };
+  }, []);
   const suppressClickCapture = (event: React.MouseEvent) => {
     if (!justDraggedRef.current) {
       return;
     }
     event.preventDefault();
     event.stopPropagation();
-    justDraggedRef.current = false;
   };
 
   const handleDragEnd = (event: DragEndEvent) => {

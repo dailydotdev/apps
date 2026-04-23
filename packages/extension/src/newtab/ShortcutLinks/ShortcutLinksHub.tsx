@@ -104,19 +104,36 @@ export function ShortcutLinksHub({
 
   // dnd-kit activates drag via pointer events; browsers still synthesize a
   // `click` on `pointerup` over the anchor because the element follows the
-  // pointer (no relative movement). We flag the drag lifecycle and swallow the
-  // synthesized click in the capture phase so the link never navigates.
+  // pointer (no relative movement). We flag the drag lifecycle and swallow
+  // any click that arrives in a short window afterward, so the link never
+  // navigates. The window (instead of a one-shot flag) guards against browsers
+  // that fire extra clicks, and against reorders that put a *different* tile
+  // under the pointer at drop time.
   const justDraggedRef = useRef(false);
+  const justDraggedTimerRef = useRef<number | null>(null);
   const armDragSuppression = () => {
     justDraggedRef.current = true;
+    if (justDraggedTimerRef.current !== null) {
+      window.clearTimeout(justDraggedTimerRef.current);
+    }
+    justDraggedTimerRef.current = window.setTimeout(() => {
+      justDraggedRef.current = false;
+      justDraggedTimerRef.current = null;
+    }, 400);
   };
+  useEffect(() => {
+    return () => {
+      if (justDraggedTimerRef.current !== null) {
+        window.clearTimeout(justDraggedTimerRef.current);
+      }
+    };
+  }, []);
   const suppressClickCapture = (event: React.MouseEvent) => {
     if (!justDraggedRef.current) {
       return;
     }
     event.preventDefault();
     event.stopPropagation();
-    justDraggedRef.current = false;
   };
 
   const loggedRef = useRef<ShortcutsMode | null>(null);
@@ -287,19 +304,9 @@ export function ShortcutLinksHub({
   // why the row is empty and can grant access or switch back to manual.
   const showAutoEmptyState = isAuto && visibleShortcuts.length === 0;
 
-  // Controlled open state so (a) the trigger stays visible while the menu
-  // is open even when the user hovers *into* the floating menu content and
-  // (b) right-clicking the toolbar background can open the menu too.
+  // Controlled open state so the trigger stays visible while the menu is
+  // open even when the user hovers *into* the floating menu content.
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Right-click anywhere on the toolbar background opens the same menu.
-  // Matches the Chrome bookmarks bar / Finder sidebar pattern. Individual
-  // tiles already handle their own contextmenu (edit/remove) and call
-  // `stopPropagation`, so this only fires on the empty space between tiles.
-  const handleToolbarContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setMenuOpen(true);
-  };
 
   // Force the trigger visible in these cases so users aren't trapped:
   // - the menu is already open (don't yank the trigger mid-hover)
@@ -316,7 +323,6 @@ export function ShortcutLinksHub({
       aria-label="Shortcuts"
       onClickCapture={suppressClickCapture}
       onAuxClickCapture={suppressClickCapture}
-      onContextMenu={handleToolbarContextMenu}
       className={classNames(
         // `group` powers the hover-reveal of the overflow button below.
         'group/hub',

@@ -4,7 +4,7 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactElement,
 } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -152,9 +152,36 @@ export function ShortcutTile({
     [],
   );
 
+  // `isDragging` can flip back to false *before* the browser fires the stray
+  // `click` that follows pointerup on a drag. And because dnd-kit reorders
+  // tiles under the pointer, that click sometimes lands on a sibling tile
+  // where `didPointerTravel` has no recorded origin to compare against. A
+  // short "just dragged" window catches both cases reliably.
+  const justDraggedRef = useRef(false);
+  const dragWasActiveRef = useRef(false);
+  useEffect(() => {
+    if (isDragging) {
+      dragWasActiveRef.current = true;
+      justDraggedRef.current = true;
+      return undefined;
+    }
+    if (!dragWasActiveRef.current) {
+      return undefined;
+    }
+    dragWasActiveRef.current = false;
+    const timer = window.setTimeout(() => {
+      justDraggedRef.current = false;
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [isDragging]);
+
   const handleAnchorClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      if (isDragging || didPointerTravel(event)) {
+      if (
+        isDragging ||
+        justDraggedRef.current ||
+        didPointerTravel(event)
+      ) {
         event.preventDefault();
         event.stopPropagation();
         return;
