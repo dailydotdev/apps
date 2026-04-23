@@ -18,7 +18,6 @@ const renderSidebar = (
     isOpen: true,
     open,
     close,
-    isFlagLoading: false,
     ...overrides,
   };
 

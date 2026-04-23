@@ -92,24 +92,21 @@ export const CustomizeNewTabSidebar = ({
 
   return (
     <>
-      {/* Collapsed rail: always visible when panel is closed */}
+      {/* Floating "Customize" pill: always visible when panel is closed. */}
       {!isOpen && (
-        <button
+        <Button
           type="button"
           onClick={handleOpen}
           aria-expanded={false}
           aria-controls={panelId}
-          className="fixed right-0 top-1/2 z-modal hidden -translate-y-1/2 flex-col items-center gap-3 rounded-l-12 border border-r-0 border-border-subtlest-tertiary bg-surface-float px-2 py-4 text-text-secondary hover:text-text-primary laptop:flex"
+          variant={ButtonVariant.Float}
+          size={ButtonSize.Medium}
+          icon={<MagicIcon secondary />}
           title="Customize new tab"
+          className="fixed bottom-6 right-6 z-modal shadow-2"
         >
-          <MagicIcon secondary />
-          <span
-            className="font-bold typo-caption1"
-            style={{ writingMode: 'vertical-rl' }}
-          >
-            Customize
-          </span>
-        </button>
+          Customize
+        </Button>
       )}
 
       {/* Expanded panel */}
@@ -118,7 +115,7 @@ export const CustomizeNewTabSidebar = ({
         aria-label="Make this tab yours"
         aria-hidden={!isOpen}
         className={classNames(
-          'fixed right-0 top-0 z-modal hidden h-screen flex-col border-l border-border-subtlest-tertiary bg-background-default shadow-2 transition-transform duration-200 ease-in-out laptop:flex',
+          'fixed right-0 top-0 z-modal flex h-screen max-w-[100vw] flex-col border-l border-border-subtlest-tertiary bg-background-default shadow-2 transition-transform duration-200 ease-in-out',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         style={{ width: CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX }}

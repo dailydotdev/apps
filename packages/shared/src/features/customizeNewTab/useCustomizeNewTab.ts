@@ -1,40 +1,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useActions } from '../../hooks/useActions';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
 import { ActionType } from '../../graphql/actions';
-import { featureNewtabCustomizer } from '../../lib/featureManagement';
 
 export interface UseCustomizeNewTab {
   shouldRender: boolean;
   isOpen: boolean;
   open: () => void;
   close: (via: 'x' | 'esc' | 'done') => void;
-  isFlagLoading: boolean;
 }
 
 // Users whose account was created within this window are considered "new"
 // and get the panel opened automatically on first visit. Everyone else can
-// still reach it via the collapsed rail.
+// still reach it via the floating Customize button.
 export const NEW_USER_WINDOW_DAYS = 14;
 
 export const useCustomizeNewTab = (): UseCustomizeNewTab => {
   const { user } = useAuthContext();
   const { isOnboardingComplete, isOnboardingActionsReady } =
     useOnboardingActions();
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
+  const { checkHasCompleted, completeAction } = useActions();
   const hasDismissed = checkHasCompleted(ActionType.DismissedNewTabCustomizer);
 
-  const shouldEvaluate = isActionsFetched && isOnboardingComplete;
-  const { value: isFlagEnabled, isLoading: isFlagLoading } =
-    useConditionalFeature({
-      feature: featureNewtabCustomizer,
-      shouldEvaluate,
-    });
-
-  const shouldRender =
-    isOnboardingActionsReady && isOnboardingComplete && !!isFlagEnabled;
+  // The button is visible to any logged-in user who has finished onboarding.
+  // Gating further (e.g. on a feature flag) would hide it from everyone by
+  // default, which isn't what we want.
+  const shouldRender = isOnboardingActionsReady && isOnboardingComplete;
 
   const isNewUser = useMemo(() => {
     if (!user?.createdAt) {
@@ -49,25 +41,16 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
   const [hasSyncedInitialOpen, setHasSyncedInitialOpen] = useState(false);
 
   // Auto-open once on first visit for new users who haven't dismissed yet.
-  // Existing users will only see the collapsed rail until they open it.
+  // Existing users will only see the floating button until they open it.
   useEffect(() => {
-    if (hasSyncedInitialOpen) {
-      return;
-    }
-    if (!shouldRender || isFlagLoading) {
+    if (hasSyncedInitialOpen || !shouldRender) {
       return;
     }
     setHasSyncedInitialOpen(true);
     if (isNewUser && !hasDismissed) {
       setIsOpen(true);
     }
-  }, [
-    hasSyncedInitialOpen,
-    shouldRender,
-    isFlagLoading,
-    hasDismissed,
-    isNewUser,
-  ]);
+  }, [hasSyncedInitialOpen, shouldRender, hasDismissed, isNewUser]);
 
   const open = useCallback(() => setIsOpen(true), []);
 
@@ -90,6 +73,5 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
     isOpen,
     open,
     close,
-    isFlagLoading,
   };
 };

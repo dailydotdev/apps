@@ -13,7 +13,6 @@ const StubbedSidebar = ({ defaultOpen = true }: { defaultOpen?: boolean }) => {
     isOpen,
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
-    isFlagLoading: false,
   };
   return <CustomizeNewTabSidebar customizer={customizer} />;
 };
