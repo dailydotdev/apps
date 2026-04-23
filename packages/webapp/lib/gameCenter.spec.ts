@@ -145,8 +145,24 @@ describe('game center helpers', () => {
     expect(summary.highlightedQuest?.quest.id).toBe('daily-claimable');
   });
 
-  it('picks the most progressed active quest while skipping claimed ones', () => {
+  it('picks the most progressed upcoming quest while skipping claimable and claimed ones', () => {
     const mostProgressedQuest = getMostProgressedQuest([
+      createQuest({
+        questId: 'claimable-milestone',
+        name: 'Claimable milestone',
+        progress: 10,
+        claimable: true,
+        status: QuestStatus.Completed,
+        completedAt: new Date('2025-02-01T00:00:00.000Z'),
+        quest: {
+          id: 'claimable-milestone',
+          name: 'Claimable milestone',
+          description: 'Claimable milestone description',
+          type: QuestType.Milestone,
+          eventType: 'read_post',
+          targetCount: 10,
+        },
+      }),
       createQuest({
         questId: 'claimed-milestone',
         name: 'Claimed milestone',
