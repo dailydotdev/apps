@@ -1,11 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import type { QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
@@ -15,7 +9,6 @@ import { FormWrapper } from '../../fields/form';
 import type { CommentMarkdownInputProps } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { CommentMarkdownInput } from '../../fields/MarkdownInput/CommentMarkdownInput';
 import { useMutateComment } from '../../../hooks/post/useMutateComment';
-import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
 import type { Comment, PostCommentsData } from '../../../graphql/comments';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { NotificationPromptSource } from '../../../lib/log';
@@ -79,7 +72,6 @@ const getCommentFromCache = ({
 
   return undefined;
 };
-
 export interface CommentModalProps
   extends LazyModalCommonProps,
     CommentMarkdownInputProps {
@@ -97,11 +89,6 @@ export default function CommentModal({
   post,
   initialContent: initialContentFromProps,
 }: CommentModalProps): ReactElement {
-  const inputRef = useRef<HTMLFormElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const replyRef = useRef<HTMLDivElement>(null);
-  const switchRef = useRef<HTMLLabelElement>(null);
-
   const { user } = useAuthContext();
   const client = useQueryClient();
   const [modalNode, setModalNode] = useState<HTMLElement>(null);
@@ -166,20 +153,6 @@ export default function CommentModal({
     modalNode?.scrollTo?.({ behavior: 'auto', top: 10000 });
   }, [modalNode]);
 
-  const { height } = useVisualViewport();
-  const replyHeight = replyRef.current?.clientHeight ?? 0;
-  const footerHeight = switchRef.current?.clientHeight ?? 0;
-  const headerHeight = headerRef.current?.offsetHeight ?? 0;
-  const totalHeight = height - headerHeight - replyHeight - footerHeight;
-  const inputHeight = totalHeight > 0 ? Math.max(totalHeight, 300) : 'auto';
-
-  if (
-    inputRef.current &&
-    inputRef.current.style?.height !== `${inputHeight}px`
-  ) {
-    inputRef.current.style.height = `${inputHeight}px`;
-  }
-
   const { submitCopy, initialContent } = useMemo(() => {
     if (isEdit) {
       return {
@@ -217,7 +190,7 @@ export default function CommentModal({
       className="!border-none"
       overlayClassName="!touch-none"
     >
-      <Modal.Body className="!p-0" ref={refCallback}>
+      <Modal.Body className="bg-background-default !p-0" ref={refCallback}>
         <WriteCommentContext.Provider
           value={{ mutateComment: mutateCommentResult }}
         >
@@ -235,10 +208,10 @@ export default function CommentModal({
               disabled: isSuccess,
             }}
             className={{
-              container: 'flex-1 first:!border-none',
+              container:
+                'flex min-h-full flex-1 flex-col bg-background-default first:!border-none',
               header: 'sticky top-0 z-2 w-full bg-background-default',
             }}
-            headerRef={headerRef}
           >
             {isReply && comment && (
               <>
@@ -251,10 +224,7 @@ export default function CommentModal({
                   postAuthorId={post?.author?.id}
                   postScoutId={post?.scout?.id}
                 />
-                <div
-                  className="ml-12 flex gap-2 border-l border-border-subtlest-tertiary py-3 pl-5 text-text-tertiary typo-caption1"
-                  ref={replyRef}
-                >
+                <div className="ml-12 flex gap-2 border-l border-border-subtlest-tertiary py-3 pl-5 text-text-tertiary typo-caption1">
                   Reply to
                   <span className="font-bold text-text-primary">
                     {comment.author?.username}
@@ -263,16 +233,15 @@ export default function CommentModal({
               </>
             )}
             <CommentMarkdownInput
-              ref={inputRef}
               replyTo={null}
               post={post}
               parentCommentId={parentCommentId}
               editCommentId={isEdit && editCommentId}
               initialContent={initialContent}
               className={{
-                markdownContainer: 'flex-1',
+                markdownContainer: 'min-h-0 flex-1',
                 container: classNames(
-                  'flex flex-col',
+                  'flex min-h-0 flex-col',
                   isReply ? 'h-[calc(100%-2.5rem)]' : 'h-full',
                 ),
                 tab: 'flex-1',
@@ -291,7 +260,6 @@ export default function CommentModal({
                 compact={false}
                 checked={isEnabled}
                 onToggle={onToggle}
-                ref={switchRef}
               >
                 Receive updates when other members engage
               </Switch>
