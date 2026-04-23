@@ -197,6 +197,7 @@ describe('tab container component', () => {
       renderUrlComponent({
         shouldMountInactive: true,
         tabListProps: { dragScroll: true },
+        tabTag: 'a',
       });
 
       const first = await screen.findByRole('link', { name: 'First' });

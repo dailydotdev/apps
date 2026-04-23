@@ -38,13 +38,14 @@ const defaultAlerts: Alerts = { filter: true };
 const renderComponent = (
   alertsData = defaultAlerts,
   mocks: MockedGraphQLResponse[] = [createMockFeedSettings()],
-  user: LoggedUser | undefined = defaultUser,
+  user: LoggedUser | null = defaultUser,
   sidebarExpanded = true,
 ): RenderResult => {
   const settingsContext = createTestSettings({
     sidebarExpanded,
     toggleSidebarExpanded,
   });
+  const authUser = user ?? undefined;
   client = new QueryClient();
   client.setQueryData(TOAST_NOTIF_KEY, null);
   mocks.forEach(mockGraphQL);
@@ -58,10 +59,10 @@ const renderComponent = (
       >
         <AuthContext.Provider
           value={{
-            user,
+            user: authUser,
             isAuthReady: true,
             isFetched: true,
-            isLoggedIn: !!user?.id,
+            isLoggedIn: !!authUser?.id,
             shouldShowLogin: false,
             showLogin,
             logout: jest.fn(),
@@ -108,7 +109,7 @@ it('should toggle the sidebar on button click', async () => {
 });
 
 it('should show the sidebar as closed if user has this set', async () => {
-  renderComponent(defaultAlerts, [], undefined, false);
+  renderComponent(defaultAlerts, [], null, false);
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
@@ -134,7 +135,7 @@ it('should render Highlights item linking to highlights page', async () => {
 });
 
 it('should require login before opening following for anonymous users', async () => {
-  renderComponent(defaultAlerts, [createMockFeedSettings()], undefined);
+  renderComponent(defaultAlerts, [createMockFeedSettings()], null);
   const item = await screen.findByRole('link', { name: 'Following' });
 
   fireEvent.click(item);
