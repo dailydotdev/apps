@@ -17,8 +17,14 @@ import { FeedSettingsMenu } from '../../feeds/FeedSettings/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureFeedClickbaitShieldWarning } from '../../../lib/featureManagement';
 
-export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
+export const ClickbaitShield = ({
+  post,
+}: {
+  post: Post;
+}): ReactElement | null => {
   const { openModal } = useLazyModal();
   const { isPlus } = usePlusSubscription();
   const { fetchSmartTitle, fetchedSmartTitle, shieldActive } =
@@ -27,8 +33,13 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
   const router = useRouter();
   const { user } = useAuthContext();
   const { hasUsedFreeTrial, triesLeft } = useClickbaitTries();
+  const showWarningShield = useFeature(featureFeedClickbaitShieldWarning);
 
   if (!isPlus) {
+    if (!fetchedSmartTitle && !showWarningShield) {
+      return null;
+    }
+
     return (
       <Tooltip
         className="max-w-70 text-center !typo-subhead"

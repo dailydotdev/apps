@@ -89,6 +89,11 @@ export const featureReadingReminderHeroCopy = new Feature(
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
 
+export const featureFeedClickbaitShieldWarning = new Feature(
+  'feed_clickbait_shield_warning',
+  true,
+);
+
 export { feature };
 
 export const featureCores = new Feature('cores', isDevelopment);
