@@ -85,5 +85,3 @@ export const SponsoredTooltip = ({
     </div>
   );
 };
-
-export default SponsoredTooltip;

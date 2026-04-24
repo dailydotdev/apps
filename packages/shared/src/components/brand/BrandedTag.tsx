@@ -205,5 +205,3 @@ export const BrandedTag = ({
 
   return buttonElement;
 };
-
-export default BrandedTag;

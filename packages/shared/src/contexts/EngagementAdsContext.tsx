@@ -7,6 +7,7 @@ import type {
 import {
   findCreativeForTags,
   findCreativeForTool,
+  parseCreatives,
   resolveCreative,
 } from '../lib/engagementAds';
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
@@ -46,11 +47,7 @@ export const EngagementAdsProvider = ({
   const isLight = useIsLightTheme();
 
   const resolvedCreatives = useMemo(() => {
-    if (!rawCreatives?.length) {
-      return [];
-    }
-
-    return rawCreatives.map((c) => resolveCreative(c, isLight));
+    return parseCreatives(rawCreatives).map((c) => resolveCreative(c, isLight));
   }, [rawCreatives, isLight]);
 
   const getCreativeForTags = useCallback(

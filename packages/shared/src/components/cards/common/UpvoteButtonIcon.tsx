@@ -19,6 +19,10 @@ interface UpvoteButtonIconProps extends IconProps {
   } | null;
 }
 
+// Keep in sync with the `spinAndScale` keyframe duration in UpvoteButtonIcon.module.css
+const ROTATION_DURATION_MS = 400;
+const BRAND_ICON_VISIBLE_MS = 1200;
+
 export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
   props: UpvoteButtonIconProps,
 ): ReactElement {
@@ -51,19 +55,19 @@ export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
       // Start rotation animation
       setIsRotating(true);
 
-      // After rotation completes (400ms), show brand icon
+      // After rotation completes, show brand icon
       const showBrandTimeout = setTimeout(() => {
         if (brandAnimation.brandLogo) {
           setShowBrandIcon(true);
         }
         setIsRotating(false);
-      }, 400);
+      }, ROTATION_DURATION_MS);
       timeoutRefs.current.push(showBrandTimeout);
 
-      // After showing brand icon for 1.2s, switch back to upvote icon
+      // Then hide the brand icon after it has been visible long enough
       const hideBrandTimeout = setTimeout(() => {
         setShowBrandIcon(false);
-      }, 1600);
+      }, ROTATION_DURATION_MS + BRAND_ICON_VISIBLE_MS);
       timeoutRefs.current.push(hideBrandTimeout);
     }
     prevActiveRef.current = isUpvoteActive;

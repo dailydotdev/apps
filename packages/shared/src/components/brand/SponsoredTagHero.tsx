@@ -145,5 +145,3 @@ export const SponsoredTagHero = ({
     </div>
   );
 };
-
-export default SponsoredTagHero;

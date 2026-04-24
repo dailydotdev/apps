@@ -260,5 +260,3 @@ export const MentionedToolsWidget = ({
     </>
   );
 };
-
-export default MentionedToolsWidget;

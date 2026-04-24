@@ -4,28 +4,32 @@
  * Defines the raw API shape from boot and the resolved creative type
  * used by all downstream components.
  */
+import { z } from 'zod';
+import { urlParseSchema } from './links';
 
-/** Dark/light theme-aware value from the API */
-export interface ThemedValue {
-  dark: string;
-  light: string;
-}
+const themedStringSchema = z.object({
+  dark: z.string(),
+  light: z.string(),
+});
 
 /** Raw shape from boot API (snake_case JSON) */
-export interface EngagementCreative {
-  gen_id: string;
-  promoted_name: string;
-  promoted_body: string;
-  promoted_cta: string;
-  promoted_url: string;
-  promoted_logo_img: ThemedValue;
-  promoted_icon_img: ThemedValue;
-  promoted_gradient_start: ThemedValue;
-  promoted_gradient_end: ThemedValue;
-  tools: string[];
-  keywords: string[];
-  tags: string[];
-}
+export const engagementCreativeSchema = z.object({
+  gen_id: z.string(),
+  promoted_name: z.string(),
+  promoted_body: z.string(),
+  promoted_cta: z.string(),
+  promoted_url: urlParseSchema,
+  promoted_logo_img: themedStringSchema,
+  promoted_icon_img: themedStringSchema,
+  promoted_gradient_start: themedStringSchema,
+  promoted_gradient_end: themedStringSchema,
+  tools: z.array(z.string()),
+  keywords: z.array(z.string()),
+  tags: z.array(z.string()),
+});
+
+export type EngagementCreative = z.infer<typeof engagementCreativeSchema>;
+export type ThemedValue = z.infer<typeof themedStringSchema>;
 
 /** EngagementCreative with themed values resolved to the current theme */
 export interface ResolvedCreative {
@@ -42,6 +46,21 @@ export interface ResolvedCreative {
   keywords: string[];
   tags: string[];
 }
+
+/**
+ * Validate raw creatives against the schema.
+ * Silently drops creatives whose URLs are not https:// (or are malformed).
+ */
+export const parseCreatives = (rawCreatives: unknown): EngagementCreative[] => {
+  if (!Array.isArray(rawCreatives)) {
+    return [];
+  }
+
+  return rawCreatives.flatMap((raw) => {
+    const result = engagementCreativeSchema.safeParse(raw);
+    return result.success ? [result.data] : [];
+  });
+};
 
 const resolveThemed = (value: ThemedValue, isLight: boolean): string =>
   isLight ? value.light : value.dark;

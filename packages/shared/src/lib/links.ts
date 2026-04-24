@@ -1,5 +1,23 @@
+import { z } from 'zod';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
+
+export const urlStartRegexMatch = /^https?:\/\//i;
+
+export const urlParseSchema = z.preprocess(
+  (val) => {
+    if (typeof val === 'string') {
+      return val.match(urlStartRegexMatch) ? val : `https://${val}`;
+    }
+
+    return val;
+  },
+  z.url({
+    protocol: /^https?$/,
+    hostname: z.regexes.domain,
+    normalize: true,
+  }),
+);
 
 export const getTagPageLink = (tag: string): string =>
   `${process.env.NEXT_PUBLIC_WEBAPP_URL}tags/${encodeURIComponent(tag)}`;

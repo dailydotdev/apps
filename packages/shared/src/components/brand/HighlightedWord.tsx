@@ -100,7 +100,7 @@ export const HighlightedWord = ({
   );
 };
 
-interface HighlightedTextProps {
+interface HighlightedBrandTextProps {
   /** The full text to scan for keywords */
   text: string;
   /** Tags used to look up the matching creative. When omitted, checks all creatives. */
@@ -110,22 +110,22 @@ interface HighlightedTextProps {
 }
 
 /**
- * HighlightedText Component
+ * HighlightedBrandText Component
  *
  * Scans text for sponsored keywords and wraps them with HighlightedWord components.
  * Non-matching text is rendered as-is.
  *
  * @example
  * ```tsx
- * <HighlightedText text="Learn about AI and machine learning" />
+ * <HighlightedBrandText text="Learn about AI and machine learning" />
  * // "AI" would be highlighted if it's a sponsored keyword
  * ```
  */
-export const HighlightedText = ({
+export const HighlightedBrandText = ({
   text,
   tags,
   className,
-}: HighlightedTextProps): ReactElement => {
+}: HighlightedBrandTextProps): ReactElement => {
   const { creatives, getCreativeForTags } = useEngagementAdsContext();
 
   // Resolve the primary creative (keywords list) and a fallback tags list.
@@ -169,5 +169,3 @@ export const HighlightedText = ({
 
   return <span className={className}>{parts}</span>;
 };
-
-export default HighlightedWord;

@@ -1,5 +1,12 @@
 import type { ReactElement, CSSProperties } from 'react';
-import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useCallback,
+  memo,
+} from 'react';
 import type { BrandColors, UpvoteAnimationConfig } from '../../lib/brand';
 
 interface Particle {
@@ -191,50 +198,46 @@ const BrandedUpvoteAnimation = memo(
       }
     }, [onComplete]);
 
-    // Trigger animation when isActive becomes true
+    // Mount the canvas when activated
     useEffect(() => {
-      if (!isActive) {
+      if (isActive) {
+        setShouldRender(true);
+      }
+    }, [isActive]);
+
+    // Seed particles and kick off the rAF loop once the canvas is in the DOM
+    useLayoutEffect(() => {
+      if (!shouldRender) {
         return undefined;
       }
 
-      // Start animation
-      setShouldRender(true);
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        return undefined;
+      }
 
-      // Small delay to ensure canvas is mounted
-      const timeoutId = setTimeout(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) {
-          return;
-        }
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const particleCount = config.particleCount || 30;
+      const newParticles: Particle[] = [];
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
+      for (let i = 0; i < particleCount; i += 1) {
+        newParticles.push(createParticle(centerX, centerY));
+      }
 
-        // Create particles based on config
-        const particleCount = config.particleCount || 30;
-        const newParticles: Particle[] = [];
+      particlesRef.current = newParticles;
 
-        for (let i = 0; i < particleCount; i += 1) {
-          newParticles.push(createParticle(centerX, centerY));
-        }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      animationFrameRef.current = requestAnimationFrame(animate);
 
-        particlesRef.current = newParticles;
-
-        // Start animation loop
-        if (animationFrameRef.current) {
-          cancelAnimationFrame(animationFrameRef.current);
-        }
-        animationFrameRef.current = requestAnimationFrame(animate);
-      }, 50);
-
-      // Cleanup
       return () => {
-        clearTimeout(timeoutId);
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
       };
-    }, [isActive, config.particleCount, createParticle, animate]);
+    }, [shouldRender, config.particleCount, createParticle, animate]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -272,4 +275,3 @@ const BrandedUpvoteAnimation = memo(
 BrandedUpvoteAnimation.displayName = 'BrandedUpvoteAnimation';
 
 export { BrandedUpvoteAnimation };
-export default BrandedUpvoteAnimation;
