@@ -59,13 +59,9 @@ import { apiUrl } from '../../../../lib/config';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
-import { invokeOnRequestClose } from './closeModal';
 import type { ShortcutEditFormState } from '../ShortcutEditForm';
 import { ShortcutEditForm } from '../ShortcutEditForm';
 
-// Flattened state-machine for the Browser access row's primary action. The
-// button can either trigger the picker (granted) or ask for permission (not
-// granted); extracted from JSX so we don't nest ternaries inline.
 function getTopSitesPrimaryAction({
   topSitesGranted,
   setShowImportSource,
@@ -92,7 +88,6 @@ function getTopSitesPrimaryAction({
   };
 }
 
-// Same flattening as `getTopSitesPrimaryAction`, but for the Bookmarks row.
 function getBookmarksPrimaryAction({
   bookmarksGranted,
   onImportBookmarks,
@@ -113,10 +108,6 @@ function getBookmarksPrimaryAction({
   };
 }
 
-// Plain-text section header. Bold subhead + muted caption, no decorative
-// icon chip. Keeps each group clearly delimited vertically without the
-// visual weight of a leading glyph — settings rhythm closer to Linear /
-// GitHub preferences than Raycast.
 function SectionHeader({
   title,
   description,
@@ -146,11 +137,6 @@ function SectionHeader({
   );
 }
 
-// Compact capacity pill used next to "Your shortcuts". The tone warms up as
-// the library fills so the limit feels present without ever shouting — grey
-// through most of the range, cabbage accent when there are two or fewer
-// slots left, rose when the cap is hit. Tabular nums keep the width steady
-// as the count ticks up.
 function CapacityPill({
   used,
   max,
@@ -177,14 +163,6 @@ function CapacityPill({
   );
 }
 
-// Clean radio row. Selected state is carried entirely by the filled cabbage
-// dot + bold title — no background fill, so it never reads like a hover.
-// Hover is the only place we tint the surface, which keeps the difference
-// between "you're pointing at this" and "this is selected" obvious. An
-// optional `trailingBadge` sits on the right (kept out of the radio/text
-// column) so we can flag a row with a brand mark — e.g. the Chrome glyph
-// on the auto-mode row — without knocking the radio bullet and copy out
-// of alignment.
 function ShortcutsModeOption({
   id,
   checked,
@@ -279,9 +257,6 @@ function ShortcutRow({
       ref={setNodeRef}
       style={style}
       className={classNames(
-        // Rows are quiet by default; hover darkens the surface only.
-        // Drag state tilts slightly with a real shadow so the user feels
-        // the row "lift" without the busy scale-up jump.
         'group relative flex items-center gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none',
         isDragging &&
           'z-10 rotate-[-1deg] bg-surface-float shadow-2 motion-reduce:rotate-0',
@@ -307,9 +282,8 @@ function ShortcutRow({
           {shortcut.url}
         </p>
       </div>
-      {/* Actions fade in on row hover/focus. On touch devices (no hover),
-          we reveal them at 60% opacity so they're always reachable without
-          overwhelming the row. */}
+      {/* Row actions are hover-revealed on pointer devices and always
+          partially visible on touch (no hover state to reveal them). */}
       <div className="[@media(hover:none)]:opacity-60 flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none [@media(hover:none)]:focus-within:opacity-100">
         <Button
           type="button"
@@ -333,9 +307,6 @@ function ShortcutRow({
   );
 }
 
-// Appearance picker: three preset cards with tiny live previews so users
-// see what they're picking. Pattern borrowed from Raindrop.io's layout
-// switcher and Notion's view picker.
 function AppearancePicker({
   value,
   onChange,
@@ -418,10 +389,6 @@ function AppearancePicker({
               aria-checked={checked}
               onClick={() => onChange(opt.id)}
               className={classNames(
-                // Card rests on a 1px border. Selected adds an accent border
-                // + corner badge + a soft cabbage-tinted background to the
-                // preview shelf, so the choice feels lit up, not merely
-                // outlined. Focus ring stays on the whole card for keyboards.
                 'group relative flex flex-col items-center gap-1.5 rounded-12 border p-2 text-left outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
                 checked
                   ? 'border-accent-cabbage-default bg-overlay-float-cabbage/40'
@@ -483,7 +450,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   const { closeModal } = useLazyModal();
   const close = () => {
     closeModal();
-    invokeOnRequestClose(props?.onRequestClose);
+    props?.onRequestClose?.(undefined as never);
   };
 
   const mode = flags?.shortcutsMode ?? 'manual';
@@ -516,10 +483,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     });
   };
 
-  // Sync flag: when on, the same shortcuts render on daily.dev's web app
-  // (not just the new-tab extension). Lives here in the manage modal — with
-  // a clear description — instead of as a one-line toggle in the dropdown
-  // where the "what does this do" wasn't obvious.
   const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;
   const toggleShowOnWebapp = () => {
     const next = !showOnWebapp;
@@ -571,12 +534,9 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     manager.reorder(arrayMove(urls, oldIndex, newIndex));
   };
 
-  // Inline add/edit: we keep the form inside the manage modal instead of
-  // opening a separate ShortcutEdit modal. Popping a second modal closed this
-  // one via the LazyModal registry (only one can be open at a time), so the
-  // user landed on an empty surface after saving and had to reopen Manage
-  // from the hub. Swapping this modal's body between "list view" and "form
-  // view" keeps the whole flow in a single surface.
+  // Inline add/edit instead of a nested ShortcutEdit modal — the LazyModal
+  // registry only keeps one modal open at a time, so stacking would close
+  // Manage and strand the user on an empty surface after save.
   const [editing, setEditing] = useState<
     { mode: 'add' } | { mode: 'edit'; shortcut: Shortcut } | null
   >(null);
@@ -650,10 +610,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
-      {/* Header: title only on the left, primary Done on the right. The
-          count badge moved out of the header — it lives next to the
-          "Your shortcuts" subhead where it's contextual instead of
-          floating above unrelated sections. */}
       <Modal.Header showCloseButton={false}>
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           Shortcuts
@@ -669,10 +625,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
         </Button>
       </Modal.Header>
       <Modal.Body>
-        {/* Sections stack vertically with hairline dividers. Flow goes:
-            visibility (master switch) → look → source (with inline auto
-            controls when auto is picked) → your list (manual) →
-            connections (bookmarks + cross-device sync). */}
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary [&>*:not(:first-child)]:pt-5 [&>*:not(:last-child)]:pb-5">
           <SectionHeader
             title="Show shortcuts"
@@ -717,10 +669,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             </fieldset>
           )}
 
-          {/* Auto-mode connections. Mirrors the manual-mode Connections
-              section 1:1 — same SectionHeader treatment, same bare <ul>
-              of ConnectionRows — so the divider, title, and row padding
-              all line up regardless of which source the user picks. */}
           {showTopSites && mode === 'auto' && (
             <section aria-label="Connections" className="flex flex-col gap-2">
               <SectionHeader
@@ -806,9 +754,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
                 </div>
               ) : (
                 <div className="flex flex-col gap-0.5">
-                  {/* Inline "Add" affordance sitting above the list. At
-                      the cap we keep it visible but disabled with a tiny
-                      "Library full" hint so users know why they can't add. */}
                   <button
                     type="button"
                     onClick={onAdd}
@@ -852,11 +797,8 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             </section>
           )}
 
-          {/* Connections (bookmarks import + web-app sync) only apply when the
-              user curates their own list. In auto mode the row is fed by
-              browser history, so importing bookmarks or mirroring a manual
-              list across devices is meaningless — hide the whole section to
-              match how "Your shortcuts" disappears above. */}
+          {/* Bookmarks import + webapp sync are manual-only — in auto mode
+              the row comes straight from browser history. */}
           {mode === 'manual' && (
             <BrowserConnectionsSection
               bookmarksGranted={bookmarks !== undefined}
@@ -878,9 +820,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             />
           )}
 
-          {/* Appearance lives at the bottom: it tweaks how the already-decided
-              source+list renders, so it reads better *after* users have
-              picked what the row shows. */}
           {showTopSites && (
             <div className="flex flex-col gap-4">
               <AppearancePicker
@@ -906,10 +845,6 @@ interface BrowserConnectionsSectionProps {
   onRevokeBookmarks?: () => void | Promise<void>;
 }
 
-// "Connections" holds everything that's not specific to one source choice:
-// importing from bookmarks (available regardless of auto/manual) and the
-// cross-device web app sync. Top-sites permissions live under the Source
-// radio where they actually belong, so this section stays short and clear.
 function BrowserConnectionsSection({
   bookmarksGranted,
   bookmarksCount,
@@ -974,10 +909,8 @@ interface ConnectionRowProps {
   onPrimary?: () => void;
   secondaryLabel?: string;
   onSecondary?: () => void;
-  // Optional override for the trailing control. When provided, we skip the
-  // primary/secondary button pair and render this slot instead. Lets the
-  // sync row drop a Switch into the same footprint without a special-case
-  // component.
+  // When set, replaces the primary/secondary button pair (used by the
+  // webapp-sync row to drop in a Switch).
   trailing?: ReactElement;
 }
 

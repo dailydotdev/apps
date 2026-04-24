@@ -15,7 +15,6 @@ import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
 import type { Shortcut } from '../../types';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
-import { invokeOnRequestClose } from './closeModal';
 import type { ShortcutEditFormState } from '../ShortcutEditForm';
 import { ShortcutEditForm } from '../ShortcutEditForm';
 
@@ -40,7 +39,7 @@ export default function ShortcutEditModal({
   });
   const close = () => {
     closeModal();
-    invokeOnRequestClose(props.onRequestClose);
+    props.onRequestClose?.(undefined as never);
   };
 
   return (

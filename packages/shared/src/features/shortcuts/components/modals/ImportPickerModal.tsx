@@ -22,7 +22,6 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import type { LazyModal } from '../../../../components/modals/common/types';
-import { invokeOnRequestClose } from './closeModal';
 
 export interface ImportPickerItem {
   url: string;
@@ -33,18 +32,13 @@ export interface ImportPickerModalProps extends ModalProps {
   source: ImportSource;
   items: ImportPickerItem[];
   onImported?: (result: { imported: number; skipped: number }) => void;
-  // When set, the Cancel button hands control back to this modal instead of
-  // fully dismissing the stack. Keeps "cancel the import" distinct from
-  // "close the whole flow" (which the header X still does). Narrowed to
-  // `ShortcutsManage` because that's the only prop-less modal we reopen
-  // from here; keeping it narrow avoids the generic `openModal` call
-  // requiring a `props` argument at the type level.
+  // When set, Cancel reopens this modal instead of dismissing the stack —
+  // lets the picker be invoked from Manage without losing the user's place.
   returnTo?: LazyModal.ShortcutsManage;
 }
 
-// Favicon with graceful fallback: the browser-icon proxy often ships a blurry
-// 16px globe for sites it doesn't know. Instead of rendering that fuzz, we
-// swap to a letter chip painted from the site's first character.
+// The icon proxy falls back to a blurry generic globe for unknown sites;
+// swap that for a letter chip instead.
 function FaviconOrLetter({
   url,
   label,
@@ -92,12 +86,9 @@ export default function ImportPickerModal({
 
   const close = () => {
     closeModal();
-    invokeOnRequestClose(props.onRequestClose);
+    props.onRequestClose?.(undefined as never);
   };
 
-  // Cancel = "back out of the import", not "close the whole shortcuts flow".
-  // If the picker was triggered from another modal (e.g. Manage), hand
-  // control back there so the user lands where they came from.
   const handleCancel = () => {
     if (returnTo) {
       openModal({ type: returnTo });
@@ -150,10 +141,9 @@ export default function ImportPickerModal({
     const result = await manager.importFrom(source, selected);
     onImported?.(result);
     const noun = source === 'bookmarks' ? 'bookmarks' : 'sites';
+    // Every selection ended up as a duplicate / at-cap skip. Reporting
+    // "Imported 0" would read like a bug — say what actually happened.
     if (result.imported === 0) {
-      // Every selected row was a duplicate or we were at capacity — calling
-      // that a success with "Imported 0" reads like a bug. Tell the user
-      // what actually happened instead.
       displayToast(
         result.skipped > 0
           ? `Nothing imported — ${result.skipped} ${noun} already in shortcuts`
@@ -171,10 +161,6 @@ export default function ImportPickerModal({
 
   const isBookmarks = source === 'bookmarks';
   const title = isBookmarks ? 'Import bookmarks' : 'Import most visited';
-  // Spell out where the list came from and how many rows the browser surfaced.
-  // Stops users assuming we've clipped the list at whatever number they see
-  // (Chrome's topSites API, for instance, returns however many repeat-visit
-  // origins the profile has, sometimes 8, sometimes 20).
   const sourceCopy = isBookmarks
     ? `Pick the ones you want. Your bookmarks stay untouched. ${items.length} available.`
     : `Pick the ones you want. Snapshot from your browser. ${
@@ -185,9 +171,6 @@ export default function ImportPickerModal({
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
-      {/* Same header rhythm as the Manage / Edit modals: left-aligned, Body
-          bold, no oversized Title1. Subtitle lives in the body as helper
-          copy so the header stays compact. */}
       <Modal.Header showCloseButton>
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           {title}
@@ -195,10 +178,6 @@ export default function ImportPickerModal({
       </Modal.Header>
       <Modal.Body>
         <p className="mb-3 text-text-tertiary typo-callout">{sourceCopy}</p>
-        {/* Calm status strip: what you've picked + how many slots you have
-            left, and an inline Select-all / Clear-all toggle. No fill bar,
-            no "progress to fill" metaphor. Picking is optional, not a
-            task. */}
         <div
           className="bg-surface-float/40 mb-4 flex items-center justify-between gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2"
           aria-live="polite"
@@ -230,9 +209,6 @@ export default function ImportPickerModal({
         </div>
 
         {items.length === 0 ? (
-          // Empty state worth looking at. The source-specific glyph tells
-          // users what we tried to read from, and the copy explains *why*
-          // there's nothing — not just "empty" which reads like our bug.
           <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary px-6 py-10 text-center">
             <span
               aria-hidden
@@ -259,9 +235,6 @@ export default function ImportPickerModal({
             </Typography>
           </div>
         ) : (
-          // Tap-to-toggle rows. No separate checkbox column. Selected state is
-          // a check badge on the icon itself (iOS Photos multi-select feel)
-          // plus a calm surface tint. Dead quiet until you interact.
           <ul
             role="listbox"
             aria-multiselectable="true"
@@ -280,10 +253,6 @@ export default function ImportPickerModal({
                     disabled={atCap}
                     onClick={() => toggle(item.url)}
                     className={classNames(
-                      // Selection is carried by the trailing check alone so
-                      // a long list of picked rows doesn't look like a wall
-                      // of colour. Selected rows get a hair of surface tint
-                      // to feel "lifted", nothing more.
                       'group relative flex w-full items-center gap-3 rounded-12 p-2 text-left transition-colors duration-150 motion-reduce:transition-none',
                       isChecked
                         ? 'bg-surface-float hover:bg-surface-float'
@@ -300,8 +269,6 @@ export default function ImportPickerModal({
                         {getDomainFromUrl(item.url)}
                       </p>
                     </div>
-                    {/* The only selection signal: a small filled check on the
-                        trailing edge. Empty ring at rest invites a tap. */}
                     <span
                       aria-hidden
                       className={classNames(

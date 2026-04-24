@@ -153,11 +153,10 @@ export function ShortcutTile({
     [],
   );
 
-  // `isDragging` can flip back to false *before* the browser fires the stray
-  // `click` that follows pointerup on a drag. And because dnd-kit reorders
-  // tiles under the pointer, that click sometimes lands on a sibling tile
-  // where `didPointerTravel` has no recorded origin to compare against. A
-  // short "just dragged" window catches both cases reliably.
+  // `isDragging` flips back to false before the browser fires the stray
+  // post-drag `click`, and that click can land on a *sibling* tile (dnd-kit
+  // reorders mid-drag) with no recorded pointer origin. The short post-drag
+  // window catches both cases.
   const justDraggedRef = useRef(false);
   const dragWasActiveRef = useRef(false);
   useEffect(() => {
@@ -229,15 +228,9 @@ export function ShortcutTile({
 
   const dragHandleProps = draggable ? { ...attributes, ...listeners } : {};
 
-  // Anchors (`<a href>`) and images are natively draggable via the browser's
-  // HTML5 drag-and-drop. With dnd-kit's PointerSensor using a 5px activation
-  // threshold, the browser can start its own URL-drag before dnd-kit takes
-  // over. If the user drops that URL outside a registered drop zone —
-  // anywhere to the *left* of `AddShortcutTile` — Chrome's default action is
-  // to navigate the current tab to the URL, which looks exactly like a
-  // stray click. Swallowing `dragstart` at the tile root disables native
-  // HTML5 drag for the anchor and favicon without affecting dnd-kit (which
-  // listens to pointer events, not drag events).
+  // The browser starts a native HTML5 URL-drag on `<a>` / `<img>` before
+  // dnd-kit's pointer threshold fires. Dropping that URL outside any drop
+  // zone navigates the tab — kill `dragstart` at the tile root.
   const suppressNativeDrag = useCallback((event: ReactDragEvent) => {
     event.preventDefault();
   }, []);
@@ -245,12 +238,6 @@ export function ShortcutTile({
   const isChip = appearance === 'chip';
   const isIconOnly = appearance === 'icon';
 
-  // Favicon/letter renderer, sized per appearance. Chip mode uses a smaller
-  // 16px glyph to fit the compact pill; tile/icon modes stay at the roomier
-  // 24px favicon the rest of the feature uses. `draggable={false}` kills
-  // the browser's default image drag so dnd-kit's pointer lifecycle is the
-  // only drag semantics on the tile — a stray drop outside the hub can no
-  // longer hand Chrome a URL to navigate the tab to.
   const iconContent = shouldShowFavicon ? (
     <img
       src={finalIconSrc}
@@ -263,11 +250,8 @@ export function ShortcutTile({
     <LetterChip name={label} color={color} size={isChip ? 'sm' : 'lg'} />
   );
 
-  // Anchor (the clickable favicon box). Tile/icon modes make it the whole
-  // square; chip mode makes it a compact slot inside a horizontal pill.
-  // `draggable={false}` at the DOM level — belt to the `onDragStart`
-  // preventDefault suspenders — because Chrome otherwise starts a URL drag
-  // on mousedown before React's delegated handler can cancel it.
+  // `draggable={false}` belt to the `onDragStart` preventDefault suspenders
+  // — Chrome starts a URL drag on mousedown before React's handler runs.
   const anchorCommon = {
     href: url,
     rel: 'noopener noreferrer',
@@ -277,14 +261,9 @@ export function ShortcutTile({
     'aria-label': label,
   };
 
-  // `<a>` defaults to `cursor: pointer` which overrides the container's
-  // `cursor-grab` and makes users think the favicon isn't a drag handle
-  // (they see a click cursor, try to drag anyway, and the drop lands a
-  // stray click that navigates the tab). Force the grab/grabbing cursor
-  // on the anchor too so the whole tile reads as draggable. When drag is
-  // in-flight, `pointer-events-none` on the anchor keeps the browser from
-  // firing its `click` on pointerup — the drop becomes a no-op visually
-  // even if every other suppression fails.
+  // Override the anchor's default `cursor: pointer` so the whole tile reads
+  // as draggable. `pointer-events-none` during drag is a last-resort shield
+  // against post-drop click handlers.
   const anchorCursorClass = draggable
     ? classNames(
         'cursor-grab active:cursor-grabbing',
@@ -292,20 +271,16 @@ export function ShortcutTile({
       )
     : '';
 
-  // Outer container styling per appearance:
-  // - tile : 76px-wide column with label underneath (Chrome new tab).
-  // - icon : compact square (iOS dock / Arc pinned tabs).
-  // - chip : horizontal pill with favicon + label (Chrome bookmarks bar).
   let appearanceContainerClass: string;
   if (isChip) {
     appearanceContainerClass =
-      'flex h-9 max-w-[200px] items-center gap-2 rounded-10 bg-surface-float pl-2 pr-2 focus-within:bg-background-default hover:bg-background-default';
+      'flex h-9 max-w-[12.5rem] items-center gap-2 rounded-10 bg-surface-float pl-2 pr-2 focus-within:bg-background-default hover:bg-background-default';
   } else if (isIconOnly) {
     appearanceContainerClass =
       'flex size-12 items-center justify-center rounded-12 focus-within:bg-surface-float hover:bg-surface-float';
   } else {
     appearanceContainerClass =
-      'flex w-[76px] flex-col items-center rounded-14 p-2 focus-within:bg-surface-float hover:bg-surface-float';
+      'flex w-[4.75rem] flex-col items-center rounded-14 p-2 focus-within:bg-surface-float hover:bg-surface-float';
   }
   const containerClass = classNames(
     'group relative outline-none transition-colors duration-150 ease-out motion-reduce:transition-none',
@@ -316,9 +291,6 @@ export function ShortcutTile({
     className,
   );
 
-  // Action button sits in the top-right corner of the tile across every
-  // layout. Chip mode pokes slightly outside to clear the pill edge; tile
-  // and icon modes tuck just inside the container.
   let actionBtnPositionClass: string;
   if (isChip) {
     actionBtnPositionClass = 'absolute -right-1 -top-1';

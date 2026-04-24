@@ -54,12 +54,10 @@ export type ShortcutEditFormProps = {
   onStateChange?: (state: ShortcutEditFormState) => void;
 };
 
-// Reusable form body for adding/editing a single shortcut. Rendered inside a
-// standalone modal by `ShortcutEditModal` and inline inside the manage modal
-// by `ShortcutsManageModal`. Leaves the action buttons to the parent so each
-// host can place them in its own footer/structure — the form just exposes a
-// stable `formId` to bind the submit button to and reports submit/upload
-// state through `onStateChange` so the parent can disable its submit button.
+// Reused by both `ShortcutEditModal` (standalone) and `ShortcutsManageModal`
+// (inline). The parent owns the action buttons and binds them to this form
+// via `formId` + `onStateChange` — the modal places them in `Modal.Footer`,
+// the inline version renders them below the form.
 export function ShortcutEditForm({
   mode,
   shortcut,
@@ -91,9 +89,8 @@ export function ShortcutEditForm({
     formState: { isSubmitting },
   } = methods;
 
-  // Surface submit/upload state to the parent so it can disable its submit
-  // button. Kept in a ref so we don't re-invoke on every render — we only
-  // push when the booleans actually flip.
+  // Only notify the parent when either boolean actually flips, otherwise
+  // every keystroke would re-invoke `onStateChange`.
   const lastReportedRef = useRef<ShortcutEditFormState | null>(null);
   useEffect(() => {
     const next = { isSubmitting, isUploading };
@@ -112,13 +109,8 @@ export function ShortcutEditForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [faviconFailed, setFaviconFailed] = useState(false);
   const [customIconFailed, setCustomIconFailed] = useState(false);
-  // Drop-on-avatar: users who have a favicon.ico / logo sitting on disk
-  // should be able to fling it onto the icon picker without clicking
-  // through a file dialog. Mirrors the AddShortcutTile drop affordance.
   const [isDropTarget, setIsDropTarget] = useState(false);
-  // Debounced copy of the URL used solely for the live favicon preview.
-  // Typing 15 characters shouldn't fire 15 requests to the icon proxy —
-  // 250ms idle matches the "I stopped typing" feel of most address bars.
+  // 250ms debounce on favicon requests while the user is typing.
   const [debouncedUrl, setDebouncedUrl] = useState<string>(shortcut?.url ?? '');
 
   const handleIconBase64 = async (base64: string, file: File) => {
@@ -274,7 +266,7 @@ export function ShortcutEditForm({
                 aria-hidden
                 className="absolute inset-0 flex items-center justify-center bg-overlay-primary-pepper"
               >
-                <span className="size-8 animate-spin rounded-full border-[3px] border-border-subtlest-tertiary border-t-accent-cabbage-default motion-reduce:animate-none" />
+                <span className="size-8 animate-spin rounded-full border-[0.1875rem] border-border-subtlest-tertiary border-t-accent-cabbage-default motion-reduce:animate-none" />
               </span>
             )}
             {!isUploading && (
@@ -299,7 +291,7 @@ export function ShortcutEditForm({
           />
           <div
             aria-live="polite"
-            className="flex min-h-[18px] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
+            className="flex min-h-[1.125rem] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
           >
             {/* eslint-disable-next-line no-nested-ternary */}
             {isUploading ? (

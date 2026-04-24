@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   closestCenter,
@@ -30,24 +30,17 @@ import {
   DRAG_ACTIVATION_DISTANCE_PX,
 } from '../hooks/useDragClickGuard';
 import { useShortcutDropZone } from '../hooks/useShortcutDropZone';
-import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../types';
+import { DEFAULT_SHORTCUTS_APPEARANCE } from '../types';
 import type { Shortcut, ShortcutsAppearance } from '../types';
 
 interface WebappShortcutsRowProps {
   className?: string;
 }
 
-/**
- * Webapp-side shortcut row. Only renders when the user has enabled
- * `showShortcutsOnWebapp` from the extension's manage modal. Reuses the same
- * `ShortcutTile` and `useShortcutsManager` the extension hub does so edits
- * and reorders stay in sync across surfaces.
- *
- * Auto mode (live top-sites from the browser) is intentionally ignored on
- * the webapp — we don't have topSites permission outside the extension and
- * the "most visited sites" concept doesn't travel across devices anyway.
- * Manual curated shortcuts do.
- */
+// Shares `ShortcutTile` / `useShortcutsManager` with the extension hub so
+// edits and reorders stay in sync. Auto mode is ignored — we don't have
+// topSites permission on the webapp and live browser history doesn't
+// translate across devices anyway.
 export function WebappShortcutsRow({
   className,
 }: WebappShortcutsRowProps): ReactElement | null {
@@ -60,15 +53,8 @@ export function WebappShortcutsRow({
   const enabled = flags?.showShortcutsOnWebapp ?? false;
   const appearance: ShortcutsAppearance =
     flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
+  const shortcuts = manager.shortcuts;
 
-  const shortcuts: Shortcut[] = useMemo(
-    () => manager.shortcuts.slice(0, MAX_SHORTCUTS),
-    [manager.shortcuts],
-  );
-
-  // One-shot impression per enabled->rendered cycle. Lets us slice hub
-  // adoption between "on the extension" and "on the webapp" without needing
-  // client-side duplication.
   const loggedRef = useRef(false);
   useEffect(() => {
     if (loggedRef.current) {
@@ -97,19 +83,11 @@ export function WebappShortcutsRow({
     }),
   );
 
-  // Same click-suppression guard the extension hub uses: dnd-kit swallows
-  // the pointerdown to pointerup sequence but the browser still fires a
-  // click on release, so we intercept it (otherwise the link would
-  // navigate mid-drag). The hook attaches a document-level capture-phase
-  // listener so clicks that land *outside* the toolbar's DOM subtree after
-  // a long drag are still caught.
+  // Same drag-guard plumbing as `ShortcutLinksHub` — see that file for the
+  // full rationale on post-drag click + native URL-drag suppression.
   const { armGuard: armDragSuppression, onClickCapture: suppressClickCapture } =
     useDragClickGuard();
 
-  // Match the extension hub's native-drag backstop. Tiles already mark their
-  // anchors/favicons as `draggable={false}`, but capture-phase cancellation
-  // at the toolbar root kills any stray URL drag before the browser can
-  // navigate the tab on drop-outside-a-handler.
   const suppressNativeDragCapture = (event: React.DragEvent) => {
     event.preventDefault();
   };
@@ -126,10 +104,7 @@ export function WebappShortcutsRow({
     if (oldIndex < 0 || newIndex < 0) {
       return;
     }
-    const overflowUrls = manager.shortcuts
-      .slice(MAX_SHORTCUTS)
-      .map((s) => s.url);
-    manager.reorder([...arrayMove(urls, oldIndex, newIndex), ...overflowUrls]);
+    manager.reorder(arrayMove(urls, oldIndex, newIndex));
   };
 
   const onEdit = (shortcut: Shortcut) =>
@@ -150,18 +125,12 @@ export function WebappShortcutsRow({
     }
   };
 
-  // The whole row is the drop zone, not just the tiny "+" tile — see
-  // `useShortcutDropZone` for rationale. Only active when there's room in
-  // the library for another shortcut.
   const canAcceptDroppedUrl = manager.canAdd;
   const { isDropTarget, dropHandlers } = useShortcutDropZone(
     onDropUrl,
     canAcceptDroppedUrl,
   );
 
-  // Gatekeeping: only render for opted-in users with something to show or
-  // the ability to add. Users who haven't turned on the setting — or who
-  // hid the row entirely — get nothing.
   if (!enabled || !showTopSites) {
     return null;
   }
@@ -182,9 +151,6 @@ export function WebappShortcutsRow({
         appearance === 'tile' && 'items-start gap-x-1 gap-y-2',
         appearance === 'icon' && 'gap-1',
         appearance === 'chip' && 'gap-1',
-        // Drag-to-add indicator: same treatment as the extension hub so
-        // the two surfaces feel like the same widget. Ring is box-shadow
-        // based → no layout shift when the halo turns on.
         'rounded-12 transition-[box-shadow,background-color] duration-150 motion-reduce:transition-none',
         isDropTarget &&
           'bg-overlay-float-cabbage ring-2 ring-accent-cabbage-default ring-offset-4 ring-offset-background-default',

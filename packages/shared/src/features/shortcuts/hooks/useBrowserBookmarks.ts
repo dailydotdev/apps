@@ -36,11 +36,8 @@ const findBookmarksBar = (
   }, null);
 };
 
-type FlattenResult = { bookmarks: BrowserBookmark[]; skippedNested: number };
-
-const flattenBar = (bar: Bookmarks.BookmarkTreeNode): FlattenResult => {
+const flattenBar = (bar: Bookmarks.BookmarkTreeNode): BrowserBookmark[] => {
   const bookmarks: BrowserBookmark[] = [];
-  let skippedNested = 0;
 
   const walk = (nodes: Bookmarks.BookmarkTreeNode[], depth: number) => {
     nodes.forEach((node) => {
@@ -55,19 +52,16 @@ const flattenBar = (bar: Bookmarks.BookmarkTreeNode): FlattenResult => {
         if (node.children?.length) {
           walk(node.children, depth + 1);
         }
-      } else if (node.children) {
-        skippedNested += node.children.filter((c) => c.url).length;
       }
     });
   };
 
   walk(bar.children ?? [], 0);
-  return { bookmarks, skippedNested };
+  return bookmarks;
 };
 
 export interface UseBrowserBookmarks {
   bookmarks: BrowserBookmark[] | undefined;
-  skippedNested: number;
   hasCheckedPermission: boolean;
   askBookmarksPermission: () => Promise<boolean>;
   revokeBookmarksPermission: () => Promise<void>;
@@ -76,13 +70,11 @@ export interface UseBrowserBookmarks {
 export const useBrowserBookmarks = (): UseBrowserBookmarks => {
   const [browser, setBrowser] = useState<Browser>();
   const [bookmarks, setBookmarks] = useState<BrowserBookmark[] | undefined>();
-  const [skippedNested, setSkippedNested] = useState(0);
   const [hasCheckedPermission, setHasCheckedPermission] = useState(false);
 
   const getBookmarks = useCallback(async (): Promise<void> => {
     if (!browser?.bookmarks) {
       setBookmarks(undefined);
-      setSkippedNested(0);
       setHasCheckedPermission(true);
       return;
     }
@@ -92,15 +84,11 @@ export const useBrowserBookmarks = (): UseBrowserBookmarks => {
       const bar = findBookmarksBar(tree);
       if (!bar) {
         setBookmarks([]);
-        setSkippedNested(0);
       } else {
-        const { bookmarks: flat, skippedNested: skipped } = flattenBar(bar);
-        setBookmarks(flat);
-        setSkippedNested(skipped);
+        setBookmarks(flattenBar(bar));
       }
     } catch (_) {
       setBookmarks(undefined);
-      setSkippedNested(0);
     }
 
     setHasCheckedPermission(true);
@@ -127,7 +115,6 @@ export const useBrowserBookmarks = (): UseBrowserBookmarks => {
 
     await browser.permissions.remove({ permissions: ['bookmarks'] });
     setBookmarks(undefined);
-    setSkippedNested(0);
   }, [browser]);
 
   useEffect(() => {
@@ -144,14 +131,12 @@ export const useBrowserBookmarks = (): UseBrowserBookmarks => {
   return useMemo(
     () => ({
       bookmarks,
-      skippedNested,
       hasCheckedPermission,
       askBookmarksPermission,
       revokeBookmarksPermission,
     }),
     [
       bookmarks,
-      skippedNested,
       hasCheckedPermission,
       askBookmarksPermission,
       revokeBookmarksPermission,

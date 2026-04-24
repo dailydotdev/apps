@@ -9,21 +9,13 @@ interface AddShortcutTileProps {
   onClick: () => void;
   appearance?: ShortcutsAppearance;
   disabled?: boolean;
-  /**
-   * Whether the surrounding row is currently accepting a URL drop. Drop
-   * handling lives on the parent toolbar (see `useShortcutDropZone`) so the
-   * whole row is one big drop target instead of this small button. The tile
-   * itself only reflects the state in its label + aria hints so users know
-   * dropping is an option even when the indicator isn't firing yet.
-   */
+  // Whether the parent row currently accepts a URL drop (drop handling lives
+  // on the toolbar via `useShortcutDropZone` — this tile just mirrors state
+  // in its label + aria hints).
   acceptsDroppedUrl?: boolean;
-  /** Reflects the parent-owned `isDropTarget` state for the label swap. */
   isDropActive?: boolean;
 }
 
-// Mirrors ShortcutTile's three appearance layouts so the row stays visually
-// coherent across modes. Dashed outline on the icon slot signals "empty"
-// without competing with the real tiles around it.
 export function AddShortcutTile({
   onClick,
   appearance = 'tile',
@@ -34,8 +26,6 @@ export function AddShortcutTile({
   const isChip = appearance === 'chip';
   const isIconOnly = appearance === 'icon';
 
-  // While the parent row is highlighted as a drop target, also tint the
-  // "+" slot so the user's aim has a clear focal point inside the halo.
   const dropStateClass = isDropActive
     ? 'border-accent-cabbage-default bg-accent-cabbage-default/10 text-accent-cabbage-default'
     : '';
@@ -66,7 +56,7 @@ export function AddShortcutTile({
         onClick={onClick}
         disabled={disabled}
         className={classNames(
-          'group flex h-9 max-w-[140px] items-center gap-2 rounded-10 border border-dashed border-border-subtlest-tertiary bg-transparent px-2 text-text-tertiary outline-none transition-colors duration-150 ease-out hover:border-solid hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary focus-visible:bg-surface-float motion-reduce:transition-none',
+          'group flex h-9 max-w-[8.75rem] items-center gap-2 rounded-10 border border-dashed border-border-subtlest-tertiary bg-transparent px-2 text-text-tertiary outline-none transition-colors duration-150 ease-out hover:border-solid hover:border-border-subtlest-secondary hover:bg-surface-float hover:text-text-primary focus-visible:bg-surface-float motion-reduce:transition-none',
           'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
           isDropActive && dropStateClass,
         )}
@@ -106,7 +96,7 @@ export function AddShortcutTile({
       onClick={onClick}
       disabled={disabled}
       className={classNames(
-        'group flex w-[76px] flex-col items-center gap-1.5 rounded-14 p-2 outline-none transition-colors duration-150 ease-out hover:bg-surface-float focus-visible:bg-surface-float motion-reduce:transition-none',
+        'group flex w-[4.75rem] flex-col items-center gap-1.5 rounded-14 p-2 outline-none transition-colors duration-150 ease-out hover:bg-surface-float focus-visible:bg-surface-float motion-reduce:transition-none',
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent',
       )}
       aria-label={`Add shortcut${dropHint}`}
