@@ -43,7 +43,6 @@ const strictSkipList = new Set([
   'packages/shared/src/components/brand/SponsoredTagHero.tsx',
   'packages/shared/src/components/cards/common/UpvoteButtonIcon.tsx',
   'packages/shared/src/components/post/tags/PostTagList.tsx',
-  'packages/shared/src/components/ProfileMenu/sections/MainSection.tsx',
   'packages/shared/src/contexts/EngagementAdsContext.spec.tsx',
   'packages/webapp/pages/posts/[id]/index.tsx',
 ]);
