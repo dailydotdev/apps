@@ -7,11 +7,13 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useShortcuts } from '../../shortcuts/contexts/ShortcutsProvider';
 import { EditIcon, ShortcutsIcon } from '../../../components/icons';
-import { SidebarSection } from '../components/SidebarSection';
 import {
-  SidebarActionRow,
-  SidebarSwitchRow,
-} from '../components/SidebarCompactRow';
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { SidebarSection } from '../components/SidebarSection';
+import { SidebarSwitchRow } from '../components/SidebarCompactRow';
 
 export const ShortcutsSection = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -66,12 +68,20 @@ export const ShortcutsSection = (): ReactElement => {
         onToggle={onToggle}
       />
       {showTopSites ? (
-        <SidebarActionRow
-          label="Edit shortcuts"
-          description="Pick between top sites and custom links."
-          icon={EditIcon}
-          onClick={onEditShortcuts}
-        />
+        // Real button (not another row) so it reads unambiguously as a
+        // clickable action. The previous SidebarActionRow looked like a
+        // switch row with a missing toggle, which tested as confusing.
+        <div className="px-2 pt-1">
+          <Button
+            type="button"
+            variant={ButtonVariant.Secondary}
+            size={ButtonSize.Small}
+            icon={<EditIcon />}
+            onClick={onEditShortcuts}
+          >
+            Edit shortcuts
+          </Button>
+        </div>
       ) : null}
     </SidebarSection>
   );

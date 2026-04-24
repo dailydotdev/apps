@@ -16,6 +16,7 @@ const renderSidebar = (
   const customizer: UseCustomizeNewTab = {
     shouldRender: true,
     isOpen: true,
+    isFirstSession: false,
     open,
     close,
     ...overrides,

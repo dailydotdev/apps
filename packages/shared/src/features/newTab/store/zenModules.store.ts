@@ -15,11 +15,13 @@ export interface ZenModuleToggles {
 
 const DEFAULT_TOGGLES: ZenModuleToggles = {
   // The briefing (feed) and shortcuts are the product-native core of Zen.
-  // Everything else is an optional accent the user opts in to so the page
-  // stays content-first and never turns into a to-do dashboard.
+  // Everything else — including the gradient wallpaper — is an optional
+  // accent the user opts in to. Keeping wallpaper off by default means
+  // Zen lands on the clean neutral background (calm, content-first) rather
+  // than a loud ambient gradient that can feel jarring on first visit.
   mustReads: true,
   shortcuts: true,
-  wallpaper: true,
+  wallpaper: false,
   intention: false,
   todos: false,
   quote: false,

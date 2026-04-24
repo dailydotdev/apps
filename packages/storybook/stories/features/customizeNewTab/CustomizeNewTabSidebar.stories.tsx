@@ -6,11 +6,18 @@ import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext'
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import ExtensionProviders from '../../extension/_providers';
 
-const StubbedSidebar = ({ defaultOpen = true }: { defaultOpen?: boolean }) => {
+const StubbedSidebar = ({
+  defaultOpen = true,
+  isFirstSession = false,
+}: {
+  defaultOpen?: boolean;
+  isFirstSession?: boolean;
+}) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const customizer: UseCustomizeNewTab = {
     shouldRender: true,
     isOpen,
+    isFirstSession,
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
   };
@@ -51,6 +58,18 @@ export const Collapsed: Story = {
 
 export const Light: Story = {
   args: { defaultOpen: true },
+  parameters: {
+    backgrounds: { default: 'light' },
+    theme: 'light',
+  },
+};
+
+export const FirstSession: Story = {
+  args: { defaultOpen: true, isFirstSession: true },
+};
+
+export const FirstSessionLight: Story = {
+  args: { defaultOpen: true, isFirstSession: true },
   parameters: {
     backgrounds: { default: 'light' },
     theme: 'light',

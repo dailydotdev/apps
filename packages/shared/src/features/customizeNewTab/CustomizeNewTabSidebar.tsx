@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -20,6 +20,7 @@ import {
 import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
+import { FirstSessionWelcome } from './components/FirstSessionWelcome';
 import { NewTabModeSection } from '../newTab/sidebar/NewTabModeSection';
 import { ZenLayoutSection } from '../newTab/sidebar/ZenLayoutSection';
 import { FocusSessionsSection } from '../newTab/sidebar/FocusSessionsSection';
@@ -38,7 +39,21 @@ interface CustomizeNewTabSidebarProps {
 export const CustomizeNewTabSidebar = ({
   customizer,
 }: CustomizeNewTabSidebarProps): ReactElement | null => {
-  const { shouldRender, isOpen, open, close } = customizer;
+  const {
+    shouldRender,
+    isOpen,
+    isFirstSession: realIsFirstSession,
+    open,
+    close,
+  } = customizer;
+
+  // TEMP: local-only toggle so we can flip between the first-session hero and
+  // the default sidebar without wiping server actions or creating fake users.
+  // Remove once we've validated the first-session experience end-to-end.
+  const [firstSessionOverride, setFirstSessionOverride] = useState<
+    boolean | null
+  >(null);
+  const isFirstSession = firstSessionOverride ?? realIsFirstSession;
   const { logEvent } = useLogContext();
   const { showFeedbackButton, setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
@@ -97,9 +112,10 @@ export const CustomizeNewTabSidebar = ({
       target_type: TargetType.CustomizeNewTab,
       extra: JSON.stringify({
         feature_name: 'newtab_customizer',
+        is_first_session: isFirstSession,
       }),
     });
-  }, [isOpen, logEvent]);
+  }, [isOpen, isFirstSession, logEvent]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -129,6 +145,28 @@ export const CustomizeNewTabSidebar = ({
 
   return (
     <>
+      {/* TEMP: dev-only toggle for the first-session welcome. Pinned to the
+          top center of the viewport so it can't be covered by the left nav
+          rail or the right customize panel. Intentionally loud (bacon →
+          cabbage gradient, white ring, bold label) so it's unmissable while
+          we're QA'ing the experience. Remove this block once the welcome is
+          approved. */}
+      <button
+        type="button"
+        onClick={() => setFirstSessionOverride(!isFirstSession)}
+        className="fixed left-1/2 top-3 z-max flex -translate-x-1/2 items-center gap-2 rounded-12 bg-gradient-to-br from-accent-bacon-default to-accent-cabbage-default px-4 py-2.5 font-bold text-white shadow-2 ring-2 ring-white/30 transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-cabbage-default typo-footnote"
+        title="Local toggle — flips the first-session welcome on/off"
+      >
+        <span
+          className={classNames(
+            'inline-block h-2.5 w-2.5 rounded-full',
+            isFirstSession ? 'bg-white' : 'bg-white/40',
+          )}
+          aria-hidden
+        />
+        First session: {isFirstSession ? 'ON' : 'OFF'} · click to toggle
+      </button>
+
       {/* Floating "Customize" pill: always visible when panel is closed. */}
       {!isOpen && (
         <Button
@@ -164,7 +202,7 @@ export const CustomizeNewTabSidebar = ({
       >
         <header className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-5 py-3">
           <Typography type={TypographyType.Body} bold>
-            Customize
+            {isFirstSession ? 'Welcome' : 'Customize'}
           </Typography>
           <Button
             type="button"
@@ -178,6 +216,7 @@ export const CustomizeNewTabSidebar = ({
         </header>
 
         <div className="flex-1 overflow-y-auto py-2">
+          {isFirstSession ? <FirstSessionWelcome /> : null}
           <NewTabModeSection />
           <ZenLayoutSection />
           <FocusSessionsSection />

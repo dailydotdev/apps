@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import { BriefIcon, HotIcon, TimerIcon } from '../../../components/icons';
+import { EarthIcon, MoonIcon, TimerIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -13,6 +13,7 @@ import {
   SidebarSegmented,
   type SegmentedOption,
 } from '../../customizeNewTab/components/SidebarSegmented';
+import { PauseNewTabRow } from '../../customizeNewTab/components/PauseNewTabRow';
 import type { NewTabMode } from '../store/newTabMode.store';
 import { useNewTabMode } from '../store/newTabMode.store';
 
@@ -22,10 +23,16 @@ const HINTS: Record<NewTabMode, string> = {
   zen: 'A calm homepage. Small briefing, no infinite feed.',
 };
 
+// Icon choices map to mental models:
+// - Discover: a globe, because it reads as "the open stream from the world"
+// - Focus:    a timer, unchanged, it's the clearest "session" metaphor
+// - Zen:      a moon, because it's the most unambiguous "calm / quiet mode"
+//   symbol and avoids clashing with the Brief card which already uses its
+//   own briefing glyph.
 const OPTIONS: SegmentedOption<NewTabMode>[] = [
-  { value: 'discover', label: 'Discover', icon: HotIcon },
+  { value: 'discover', label: 'Discover', icon: EarthIcon },
   { value: 'focus', label: 'Focus', icon: TimerIcon },
-  { value: 'zen', label: 'Zen', icon: BriefIcon },
+  { value: 'zen', label: 'Zen', icon: MoonIcon },
 ];
 
 export const NewTabModeSection = (): ReactElement => {
@@ -63,6 +70,9 @@ export const NewTabModeSection = (): ReactElement => {
       >
         {HINTS[mode]}
       </Typography>
+      {/* Pause sits alongside Mode because it's effectively a fourth "mode"
+          (take a break). The row renders null outside the extension. */}
+      <PauseNewTabRow />
     </SidebarSection>
   );
 };

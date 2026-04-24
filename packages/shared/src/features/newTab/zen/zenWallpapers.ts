@@ -51,13 +51,19 @@ export const ZEN_WALLPAPERS: ZenWallpaper[] = [
   },
 ];
 
-export const DEFAULT_WALLPAPER_ID: ZenWallpaper['id'] = 'aurora';
+// "auto" is a sentinel — the resolver checks for it explicitly and delegates
+// to `pickWallpaperForTime`. We default to auto so a fresh Zen homepage
+// always feels contextual (dawn gradient at 7am, night at 11pm) instead of
+// landing on a flat green that's jarring for first-time users.
+export const DEFAULT_WALLPAPER_ID: ZenWallpaper['id'] | 'auto' = 'auto';
 
 export const getWallpaperById = (id: string): ZenWallpaper =>
   ZEN_WALLPAPERS.find((wallpaper) => wallpaper.id === id) ?? ZEN_WALLPAPERS[0];
 
 // Picks a wallpaper based on local time so the default feel matches the
-// moment. Users can still override in settings.
+// moment. Users can still override in settings. Evening (>=20) reuses
+// "night" rather than "aurora" — aurora's green reads as a mistake when it
+// appears without the user opting in.
 export const pickWallpaperForTime = (date: Date = new Date()): ZenWallpaper => {
   const hour = date.getHours();
   if (hour < 6) {
@@ -72,5 +78,5 @@ export const pickWallpaperForTime = (date: Date = new Date()): ZenWallpaper => {
   if (hour < 20) {
     return getWallpaperById('sunset');
   }
-  return getWallpaperById('aurora');
+  return getWallpaperById('night');
 };

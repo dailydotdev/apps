@@ -7,6 +7,12 @@ import { ActionType } from '../../graphql/actions';
 export interface UseCustomizeNewTab {
   shouldRender: boolean;
   isOpen: boolean;
+  /**
+   * True on the auto-opened first visit for a brand-new user who hasn't
+   * dismissed the customizer yet. Used to swap in a welcome hero and tweak
+   * copy so this reads as onboarding, not a settings drawer.
+   */
+  isFirstSession: boolean;
   open: () => void;
   close: (via: 'x' | 'esc' | 'done') => void;
 }
@@ -68,9 +74,16 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
     [completeAction, hasDismissed],
   );
 
+  // "First session" = brand-new user who landed on their first new tab and
+  // hasn't dismissed the customizer yet. The moment they close it (via Done,
+  // X, Esc, or the inline "Got it" button) we complete the action and this
+  // flips to false on the next render / visit.
+  const isFirstSession = shouldRender && isNewUser && !hasDismissed;
+
   return {
     shouldRender,
     isOpen,
+    isFirstSession,
     open,
     close,
   };

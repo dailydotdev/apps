@@ -3,6 +3,8 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureZenWallpapers } from '../../../lib/featureManagement';
 import { useZenModules } from '../store/zenModules.store';
 import { ZenAmbientStrip } from './ZenAmbientStrip';
 import { ZenIntention } from './ZenIntention';
@@ -30,7 +32,15 @@ export const ZenLayout = ({
 }: ZenLayoutProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { toggles } = useZenModules();
-  const showWallpaper = toggles.wallpaper;
+  const { value: wallpapersEnabled } = useConditionalFeature({
+    feature: featureZenWallpapers,
+  });
+  // Gate on both the toggle *and* the feature flag so that users who had
+  // `wallpaper: true` written to localStorage before we shipped the flag (or
+  // before we changed the default) don't end up with a loud gradient they
+  // can't turn off — the Layout section only exposes the control when the
+  // flag is on.
+  const showWallpaper = toggles.wallpaper && wallpapersEnabled;
 
   useEffect(() => {
     logEvent({
