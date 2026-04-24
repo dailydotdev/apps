@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { MostVisitedSitesPermissionContent } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesPermissionContent';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -96,17 +96,22 @@ export function ShortcutImportFlow(): ReactElement | null {
   const { openModal } = useLazyModal();
   const handledRef = useRef<ImportSource | null>(null);
 
-  const closeImportFlow = () => setShowImportSource?.(null);
+  const closeImportFlow = useCallback(
+    () => setShowImportSource?.(null),
+    [setShowImportSource],
+  );
   const isTopSitesImport = showImportSource === 'topSites';
   const hasCheckedPermission = isTopSitesImport
     ? hasCheckedTopSitesPermission
     : hasCheckedBookmarksPermission;
-  const items = (isTopSitesImport
-    ? topSites?.map((site) => ({ url: site.url }))
-    : bookmarks?.map((bookmark) => ({
-        url: bookmark.url,
-        title: bookmark.title,
-      }))) as Array<{ url: string; title?: string }> | undefined;
+  const items = (
+    isTopSitesImport
+      ? topSites?.map((site) => ({ url: site.url }))
+      : bookmarks?.map((bookmark) => ({
+          url: bookmark.url,
+          title: bookmark.title,
+        }))
+  ) as Array<{ url: string; title?: string }> | undefined;
   const askPermission = isTopSitesImport
     ? askTopSitesPermission
     : askBookmarksPermission;
@@ -159,6 +164,7 @@ export function ShortcutImportFlow(): ReactElement | null {
     emptyToast,
     hasCheckedPermission,
     items,
+    closeImportFlow,
     openModal,
     returnToAfterImport,
     showImportSource,
@@ -189,9 +195,6 @@ export function ShortcutImportFlow(): ReactElement | null {
   }
 
   return (
-    <BookmarksPermissionModal
-      onGrant={handleGrant}
-      onClose={closeImportFlow}
-    />
+    <BookmarksPermissionModal onGrant={handleGrant} onClose={closeImportFlow} />
   );
 }

@@ -199,6 +199,57 @@ export function ShortcutEditForm({
   const nameHint = nameLen
     ? `${nameLen} / 40 characters`
     : 'Up to 40 characters';
+  const uploadPrompt = faviconSrc
+    ? 'Tap or drop to upload'
+    : 'Tap or drop an image to upload';
+
+  let iconStatus: ReactElement;
+  if (isUploading) {
+    iconStatus = (
+      <span className="inline-flex items-center gap-2 text-accent-cabbage-default">
+        <span className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default" />
+        Uploading…
+      </span>
+    );
+  } else if (hasCustomIcon) {
+    iconStatus = (
+      <button
+        type="button"
+        onClick={clearCustomIcon}
+        className="underline-offset-2 hover:text-text-primary hover:underline"
+      >
+        Remove custom icon
+      </button>
+    );
+  } else if (customIconFailed) {
+    iconStatus = (
+      <span className="text-status-error">
+        Couldn&apos;t load that image. Showing favicon instead.
+      </span>
+    );
+  } else if (isDropTarget) {
+    iconStatus = (
+      <span className="text-accent-cabbage-default">
+        Drop to use this image
+      </span>
+    );
+  } else {
+    iconStatus = (
+      <>
+        <span>{uploadPrompt}</span>
+        <span aria-hidden className="text-text-quaternary">
+          ·
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowUrlInput((prev) => !prev)}
+          className="underline-offset-2 hover:text-text-primary hover:underline"
+        >
+          {showUrlInput ? 'Hide image URL' : 'Paste image URL'}
+        </button>
+      </>
+    );
+  }
 
   const onSubmit = handleSubmit(async (data) => {
     const payload = {
@@ -299,46 +350,7 @@ export function ShortcutEditForm({
             aria-live="polite"
             className="flex min-h-[1.125rem] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
           >
-            {isUploading ? (
-              <span className="inline-flex items-center gap-2 text-accent-cabbage-default">
-                <span className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default" />
-                Uploading…
-              </span>
-            ) : hasCustomIcon ? (
-              <button
-                type="button"
-                onClick={clearCustomIcon}
-                className="underline-offset-2 hover:text-text-primary hover:underline"
-              >
-                Remove custom icon
-              </button>
-            ) : customIconFailed ? (
-              <span className="text-status-error">
-                Couldn&apos;t load that image. Showing favicon instead.
-              </span>
-            ) : isDropTarget ? (
-              <span className="text-accent-cabbage-default">
-                Drop to use this image
-              </span>
-            ) : (
-              <>
-                <span>
-                  {faviconSrc
-                    ? 'Tap or drop to upload'
-                    : 'Tap or drop an image to upload'}
-                </span>
-                <span aria-hidden className="text-text-quaternary">
-                  ·
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowUrlInput((prev) => !prev)}
-                  className="underline-offset-2 hover:text-text-primary hover:underline"
-                >
-                  {showUrlInput ? 'Hide image URL' : 'Paste image URL'}
-                </button>
-              </>
-            )}
+            {iconStatus}
           </div>
           {showUrlInput && (
             <div className="mt-2 w-full">

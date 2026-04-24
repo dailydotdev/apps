@@ -42,11 +42,11 @@ export function WebappShortcutsRow({
   const { flags, showTopSites } = useSettingsContext();
   const { logEvent } = useLogContext();
   const manualRow = useManualShortcutsRow();
+  const { shortcuts } = manualRow;
 
   const enabled = flags?.showShortcutsOnWebapp ?? false;
   const appearance: ShortcutsAppearance =
     flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
-  const shortcuts = manualRow.shortcuts;
 
   const loggedRef = useRef(false);
   useEffect(() => {

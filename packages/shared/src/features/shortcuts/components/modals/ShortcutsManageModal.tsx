@@ -188,10 +188,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
           />
 
           {showTopSites && (
-            <ShortcutsModeSection
-              mode={mode}
-              onSelectMode={handleSelectMode}
-            />
+            <ShortcutsModeSection mode={mode} onSelectMode={handleSelectMode} />
           )}
 
           {showTopSites && mode === 'auto' && (
