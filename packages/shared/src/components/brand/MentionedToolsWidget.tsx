@@ -185,13 +185,6 @@ export const MentionedToolsWidget = ({
                     <div className="rounded size-6 flex-shrink-0 bg-surface-float" />
                   )}
                   <div className="flex flex-col">
-                    <Typography
-                      type={TypographyType.Callout}
-                      color={TypographyColor.Primary}
-                      bold
-                    >
-                      {tool.name}
-                    </Typography>
                     {isSponsored && (
                       <Typography
                         type={TypographyType.Caption1}
@@ -200,6 +193,13 @@ export const MentionedToolsWidget = ({
                         Powered by
                       </Typography>
                     )}
+                    <Typography
+                      type={TypographyType.Callout}
+                      color={TypographyColor.Primary}
+                      bold
+                    >
+                      {tool.name}
+                    </Typography>
                   </div>
                 </div>
 
