@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import { BriefIcon, FeatherIcon, TimerIcon } from '../../../components/icons';
+import { BriefIcon, HotIcon, TimerIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -17,15 +17,15 @@ import type { NewTabMode } from '../store/newTabMode.store';
 import { useNewTabMode } from '../store/newTabMode.store';
 
 const HINTS: Record<NewTabMode, string> = {
-  zen: 'A calm homepage. Small briefing, no infinite feed.',
-  focus: 'Timer replaces the feed until the session ends.',
   discover: 'The endless daily.dev feed.',
+  focus: 'Timer replaces the feed until the session ends.',
+  zen: 'A calm homepage. Small briefing, no infinite feed.',
 };
 
 const OPTIONS: SegmentedOption<NewTabMode>[] = [
-  { value: 'zen', label: 'Zen', icon: FeatherIcon },
+  { value: 'discover', label: 'Discover', icon: HotIcon },
   { value: 'focus', label: 'Focus', icon: TimerIcon },
-  { value: 'discover', label: 'Discover', icon: BriefIcon },
+  { value: 'zen', label: 'Zen', icon: BriefIcon },
 ];
 
 export const NewTabModeSection = (): ReactElement => {

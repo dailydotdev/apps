@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
-import { addDays, addHours, addMinutes, format } from 'date-fns';
+import { format } from 'date-fns';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -31,6 +31,7 @@ import {
 import { IconSize } from '../../../components/Icon';
 import { SidebarSection } from '../components/SidebarSection';
 import {
+  SidebarActionRow,
   SidebarSwitchRow,
   type SidebarRowIcon,
 } from '../components/SidebarCompactRow';
@@ -40,29 +41,6 @@ interface LoggedToggleArgs {
   next: boolean;
   toggle: () => Promise<unknown> | void;
 }
-
-interface DndPreset {
-  id: string;
-  label: string;
-  getExpiration: () => Date;
-}
-
-const dndPresets: DndPreset[] = [
-  {
-    id: '30m',
-    label: '30m',
-    getExpiration: () => addMinutes(new Date(), 30),
-  },
-  { id: '1h', label: '1h', getExpiration: () => addHours(new Date(), 1) },
-  { id: '2h', label: '2h', getExpiration: () => addHours(new Date(), 2) },
-  {
-    id: 'tomorrow',
-    label: 'Tomorrow',
-    getExpiration: () => addDays(new Date(), 1),
-  },
-];
-
-const DND_FALLBACK_URL = 'chrome://new-tab-page';
 
 interface WidgetDef {
   id: string;
@@ -74,8 +52,75 @@ interface WidgetDef {
   enabled?: boolean;
 }
 
-const pillClass =
-  'rounded-8 bg-background-default px-2.5 py-1 text-text-tertiary transition-colors typo-footnote hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default';
+interface PauseRowProps {
+  isActive: boolean;
+  expiration?: Date | string | null;
+  onOpenDndModal: () => void;
+  onUnpause: () => void;
+}
+
+/**
+ * Renders as a single compact row that mirrors SidebarActionRow/SwitchRow.
+ * - Inactive: clickable row; click opens the DND modal (which owns the
+ *   preset/custom picker). Removes the awkward inline card we had before.
+ * - Active: non-clickable row (so we can safely nest the Resume button),
+ *   shows the expiration and a Resume control.
+ */
+const PauseRow = ({
+  isActive,
+  expiration,
+  onOpenDndModal,
+  onUnpause,
+}: PauseRowProps): ReactElement => {
+  if (!isActive) {
+    return (
+      <SidebarActionRow
+        label="Pause new tab"
+        description="Temporarily hide the feed and notifications."
+        icon={PauseIcon}
+        onClick={onOpenDndModal}
+      />
+    );
+  }
+
+  const untilLabel = expiration
+    ? `Paused until ${format(new Date(expiration), 'MMM d, h:mm a')}`
+    : 'Paused';
+
+  return (
+    <div
+      className={classNames(
+        'flex min-h-9 items-center gap-3 rounded-10 bg-surface-float px-2 py-1.5',
+      )}
+    >
+      <PauseIcon
+        size={IconSize.Size16}
+        secondary
+        className="shrink-0 text-accent-cabbage-default"
+      />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Typography type={TypographyType.Callout} className="truncate">
+          Pause new tab
+        </Typography>
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="break-words"
+        >
+          {untilLabel}
+        </Typography>
+      </div>
+      <Button
+        type="button"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.XSmall}
+        onClick={onUnpause}
+      >
+        Resume
+      </Button>
+    </div>
+  );
+};
 
 export const WidgetsSection = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -111,30 +156,11 @@ export const WidgetsSection = (): ReactElement => {
     [logEvent],
   );
 
-  const onPauseFor = useCallback(
-    async (preset: DndPreset) => {
-      if (!onDndSettings) {
-        return;
-      }
-      logEvent({
-        event_name: LogEvent.Click,
-        target_type: TargetType.CustomizeNewTab,
-        target_id: 'dnd_preset',
-        extra: JSON.stringify({ preset: preset.id }),
-      });
-      await onDndSettings({
-        expiration: preset.getExpiration(),
-        link: DND_FALLBACK_URL,
-      });
-    },
-    [logEvent, onDndSettings],
-  );
-
   const onOpenDndModal = useCallback(() => {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.CustomizeNewTab,
-      target_id: 'dnd_custom',
+      target_id: 'dnd_open',
     });
     setShowDnd(true);
   }, [logEvent, setShowDnd]);
@@ -207,72 +233,12 @@ export const WidgetsSection = (): ReactElement => {
   return (
     <SidebarSection title="Widgets">
       {showDndControls ? (
-        <div
-          className={classNames(
-            'flex flex-col gap-2 rounded-10 p-3',
-            'ring-1 ring-border-subtlest-tertiary',
-            isActive ? 'bg-surface-float' : 'bg-transparent',
-          )}
-        >
-          <div className="flex min-w-0 items-start gap-2.5">
-            <PauseIcon
-              size={IconSize.Size16}
-              secondary={isActive}
-              className={classNames(
-                'mt-0.5 shrink-0',
-                isActive ? 'text-accent-cabbage-default' : 'text-text-tertiary',
-              )}
-            />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <Typography type={TypographyType.Callout} bold>
-                Pause new tab
-              </Typography>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="break-words"
-              >
-                {isActive && dndSettings?.expiration
-                  ? `Paused until ${format(
-                      new Date(dndSettings.expiration),
-                      'MMM d, h:mm a',
-                    )}`
-                  : 'Temporarily hide the feed and notifications.'}
-              </Typography>
-            </div>
-          </div>
-          {isActive ? (
-            <Button
-              type="button"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.XSmall}
-              onClick={onUnpause}
-              className="self-start"
-            >
-              Unpause now
-            </Button>
-          ) : (
-            <div className="flex flex-wrap gap-1">
-              {dndPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => onPauseFor(preset)}
-                  className={pillClass}
-                >
-                  {preset.label}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={onOpenDndModal}
-                className={pillClass}
-              >
-                Custom…
-              </button>
-            </div>
-          )}
-        </div>
+        <PauseRow
+          isActive={isActive}
+          expiration={dndSettings?.expiration ?? null}
+          onOpenDndModal={onOpenDndModal}
+          onUnpause={onUnpause}
+        />
       ) : null}
 
       {widgets.map((widget) => (
