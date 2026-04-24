@@ -118,36 +118,14 @@ export function ShortcutsModeSection({
   );
 }
 
-function getConnectionPrimaryAction({
-  isConnected,
-  onConnectedAction,
-  onConnectAction,
-}: {
-  isConnected: boolean;
-  onConnectedAction?: () => void;
-  onConnectAction?: () => void | Promise<boolean>;
-}): (() => void) | undefined {
-  if (isConnected) {
-    return onConnectedAction;
-  }
-
-  if (!onConnectAction) {
-    return undefined;
-  }
-
-  return () => {
-    onConnectAction();
-  };
-}
-
 interface ConnectionRowProps {
   icon: ReactElement;
   label: string;
   description: string;
   primaryLabel?: string;
-  onPrimary?: () => void;
+  onPrimary?: () => void | Promise<unknown>;
   secondaryLabel?: string;
-  onSecondary?: () => void;
+  onSecondary?: () => void | Promise<unknown>;
   trailing?: ReactElement;
 }
 
@@ -240,11 +218,7 @@ export function AutoConnectionsSection({
               : 'Grant access so we can read your most visited sites.'
           }
           primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
-          onPrimary={getConnectionPrimaryAction({
-            isConnected: topSitesGranted,
-            onConnectedAction: onImportTopSites,
-            onConnectAction: onAskTopSites,
-          })}
+          onPrimary={topSitesGranted ? onImportTopSites : onAskTopSites}
           secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
           onSecondary={topSitesGranted ? () => onRevokeTopSites?.() : undefined}
         />
@@ -299,11 +273,7 @@ export function BrowserConnectionsSection({
               : 'Grant access to import your browser bookmarks.'
           }
           primaryLabel={bookmarksGranted ? 'Import' : 'Connect'}
-          onPrimary={getConnectionPrimaryAction({
-            isConnected: bookmarksGranted,
-            onConnectedAction: onImportBookmarks,
-            onConnectAction: onAskBookmarks,
-          })}
+          onPrimary={bookmarksGranted ? onImportBookmarks : onAskBookmarks}
           secondaryLabel={bookmarksGranted ? 'Disconnect' : undefined}
           onSecondary={
             bookmarksGranted ? () => onRevokeBookmarks?.() : undefined

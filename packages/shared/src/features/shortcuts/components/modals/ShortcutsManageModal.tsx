@@ -80,9 +80,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     props?.onRequestClose?.(undefined as never);
   };
 
-  const closeEditor = () => setEditing(null);
-  const openEditor = (next: ShortcutsManageEditingState) => setEditing(next);
-
   const mode = flags?.shortcutsMode ?? 'manual';
   const appearance: ShortcutsAppearance =
     flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
@@ -136,8 +133,8 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   };
 
   const handleEditShortcut = (shortcut: Shortcut) =>
-    openEditor({ mode: 'edit', shortcut });
-  const handleAddShortcut = () => openEditor({ mode: 'add' });
+    setEditing({ mode: 'edit', shortcut });
+  const handleAddShortcut = () => setEditing({ mode: 'add' });
 
   const openTopSitesImport = setShowImportSource
     ? () => setShowImportSource('topSites', LazyModal.ShortcutsManage)
@@ -151,7 +148,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     return (
       <ShortcutsManageEditor
         editing={editing}
-        onClose={closeEditor}
+        onClose={() => setEditing(null)}
         {...props}
       />
     );

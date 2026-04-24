@@ -14,7 +14,7 @@ import {
 import { BookmarkIcon, SitesIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { apiUrl } from '../../../../lib/config';
-import { canonicalShortcutUrl, getDomainFromUrl } from '../../../../lib/links';
+import { getDomainFromUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { ImportSource } from '../../types';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
@@ -22,6 +22,7 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import type { LazyModal } from '../../../../components/modals/common/types';
+import { getShortcutDedupKey } from '../../lib/getShortcutDedupKey';
 
 export interface ImportPickerItem {
   url: string;
@@ -88,11 +89,11 @@ export default function ImportPickerModal({
     const seen = new Set<string>();
 
     return items.filter((item) => {
-      const canonicalUrl = canonicalShortcutUrl(item.url) ?? item.url;
-      if (seen.has(canonicalUrl)) {
+      const dedupKey = getShortcutDedupKey(item.url) ?? item.url;
+      if (seen.has(dedupKey)) {
         return false;
       }
-      seen.add(canonicalUrl);
+      seen.add(dedupKey);
       return true;
     });
   }, [items]);

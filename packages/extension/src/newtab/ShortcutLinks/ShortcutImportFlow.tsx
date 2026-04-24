@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
-import type { ImportPickerItem } from '@dailydotdev/shared/src/features/shortcuts/components/modals/ImportPickerModal';
 import { MostVisitedSitesPermissionContent } from '@dailydotdev/shared/src/features/shortcuts/components/modals/MostVisitedSitesPermissionContent';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
@@ -22,13 +21,6 @@ import {
   type ImportSource,
   MAX_SHORTCUTS,
 } from '@dailydotdev/shared/src/features/shortcuts/types';
-
-interface ImportFlowState {
-  hasCheckedPermission: boolean;
-  items?: ImportPickerItem[];
-  askPermission: () => Promise<boolean>;
-  emptyToast: string;
-}
 
 interface PermissionModalProps {
   onGrant: () => Promise<void>;
@@ -105,27 +97,22 @@ export function ShortcutImportFlow(): ReactElement | null {
   const handledRef = useRef<ImportSource | null>(null);
 
   const closeImportFlow = () => setShowImportSource?.(null);
-
-  const getImportState = (source: ImportSource): ImportFlowState => {
-    if (source === 'topSites') {
-      return {
-        hasCheckedPermission: hasCheckedTopSitesPermission,
-        items: topSites?.map((site) => ({ url: site.url })),
-        askPermission: askTopSitesPermission,
-        emptyToast: 'No top sites yet. Visit some sites and try again.',
-      };
-    }
-
-    return {
-      hasCheckedPermission: hasCheckedBookmarksPermission,
-      items: bookmarks?.map((bookmark) => ({
+  const isTopSitesImport = showImportSource === 'topSites';
+  const hasCheckedPermission = isTopSitesImport
+    ? hasCheckedTopSitesPermission
+    : hasCheckedBookmarksPermission;
+  const items = (isTopSitesImport
+    ? topSites?.map((site) => ({ url: site.url }))
+    : bookmarks?.map((bookmark) => ({
         url: bookmark.url,
         title: bookmark.title,
-      })),
-      askPermission: askBookmarksPermission,
-      emptyToast: 'Your bookmarks bar is empty. Add some bookmarks and try again.',
-    };
-  };
+      }))) as Array<{ url: string; title?: string }> | undefined;
+  const askPermission = isTopSitesImport
+    ? askTopSitesPermission
+    : askBookmarksPermission;
+  const emptyToast = isTopSitesImport
+    ? 'No top sites yet. Visit some sites and try again.'
+    : 'Your bookmarks bar is empty. Add some bookmarks and try again.';
 
   useEffect(() => {
     if (!showImportSource) {
@@ -133,8 +120,7 @@ export function ShortcutImportFlow(): ReactElement | null {
       return;
     }
 
-    const importState = getImportState(showImportSource);
-    if (!importState.hasCheckedPermission || importState.items === undefined) {
+    if (!hasCheckedPermission || items === undefined) {
       return;
     }
 
@@ -144,8 +130,8 @@ export function ShortcutImportFlow(): ReactElement | null {
     handledRef.current = showImportSource;
 
     const capacity = Math.max(0, MAX_SHORTCUTS - (customLinks?.length ?? 0));
-    if (importState.items.length === 0) {
-      displayToast(importState.emptyToast);
+    if (items.length === 0) {
+      displayToast(emptyToast);
       closeImportFlow();
       return;
     }
@@ -162,43 +148,38 @@ export function ShortcutImportFlow(): ReactElement | null {
       type: LazyModal.ImportPicker,
       props: {
         source: showImportSource,
-        items: importState.items,
+        items,
         returnTo: returnToAfterImport,
       },
     });
     closeImportFlow();
   }, [
-    askBookmarksPermission,
-    askTopSitesPermission,
-    bookmarks,
     customLinks,
     displayToast,
-    hasCheckedBookmarksPermission,
-    hasCheckedTopSitesPermission,
+    emptyToast,
+    hasCheckedPermission,
+    items,
     openModal,
     returnToAfterImport,
-    setShowImportSource,
     showImportSource,
-    topSites,
   ]);
 
   if (!showImportSource) {
     return null;
   }
 
-  const importState = getImportState(showImportSource);
-  if (!importState.hasCheckedPermission || importState.items !== undefined) {
+  if (!hasCheckedPermission || items !== undefined) {
     return null;
   }
 
   const handleGrant = async () => {
-    const granted = await importState.askPermission();
+    const granted = await askPermission();
     if (!granted) {
       closeImportFlow();
     }
   };
 
-  if (showImportSource === 'topSites') {
+  if (isTopSitesImport) {
     return (
       <TopSitesPermissionModal
         onGrant={handleGrant}

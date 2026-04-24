@@ -3,11 +3,12 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
-import { canonicalShortcutUrl, withHttps } from '../../../lib/links';
+import { withHttps } from '../../../lib/links';
 import type { SettingsFlags } from '../../../graphql/settings';
 import type { ImportSource, Shortcut, ShortcutMeta } from '../types';
 import { MAX_SHORTCUTS, UNDO_TIMEOUT_MS } from '../types';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
+import { getShortcutDedupKey } from '../lib/getShortcutDedupKey';
 
 export interface UseShortcutsManager {
   shortcuts: Shortcut[];
@@ -78,7 +79,7 @@ export const useShortcutsManager = (): UseShortcutsManager => {
   const canonicalMap = useMemo(() => {
     const map = new Map<string, string>();
     links.forEach((url) => {
-      const key = canonicalShortcutUrl(url);
+      const key = getShortcutDedupKey(url);
       if (key) {
         map.set(key, url);
       }
@@ -88,7 +89,7 @@ export const useShortcutsManager = (): UseShortcutsManager => {
 
   const findDuplicate = useCallback(
     (url: string) => {
-      const key = canonicalShortcutUrl(url);
+      const key = getShortcutDedupKey(url);
       if (!key) {
         return null;
       }
@@ -267,7 +268,7 @@ export const useShortcutsManager = (): UseShortcutsManager => {
           return;
         }
         const httpsUrl = withHttps(item.url);
-        const key = canonicalShortcutUrl(httpsUrl);
+        const key = getShortcutDedupKey(httpsUrl);
         if (!key || existingKeys.has(key)) {
           skipped += 1;
           return;
