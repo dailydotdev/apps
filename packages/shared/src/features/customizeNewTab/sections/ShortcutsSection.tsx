@@ -6,21 +6,28 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useShortcuts } from '../../shortcuts/contexts/ShortcutsProvider';
-import {
-  Button,
-  ButtonGroup,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
+import { EditIcon, ShortcutsIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { SidebarSection } from '../components/SidebarSection';
-import { SidebarSwitch } from '../components/SidebarSwitch';
+import {
+  SidebarActionRow,
+  SidebarSwitchRow,
+} from '../components/SidebarCompactRow';
+import {
+  SidebarSegmented,
+  type SegmentedOption,
+} from '../components/SidebarSegmented';
 
 type ShortcutSource = 'browser' | 'custom';
+
+const SOURCE_OPTIONS: SegmentedOption<ShortcutSource>[] = [
+  { value: 'browser', label: 'Top sites' },
+  { value: 'custom', label: 'Custom' },
+];
 
 export const ShortcutsSection = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -48,8 +55,6 @@ export const ShortcutsSection = (): ReactElement => {
       extra: JSON.stringify({ enabled: nextValue }),
     });
 
-    // Turning ON without prior permission / custom links: route through the
-    // existing permissions modal so users can pick browser top sites vs custom.
     if (nextValue && !hasCheckedPermission && !hasCustomLinks) {
       setShowPermissionsModal(true);
       return;
@@ -88,18 +93,12 @@ export const ShortcutsSection = (): ReactElement => {
       });
 
       if (source === 'browser') {
-        // Going back to the browser's own top sites: drop the "manual" flag
-        // if it was set purely because the user had custom links, and re-ask
-        // for permission if we've never checked.
         if (!hasCheckedPermission) {
           askTopSitesPermission();
         } else {
           onRevokePermission();
         }
       } else {
-        // Custom mode: open the links modal so the user can populate the list
-        // immediately. Revoking permissions here would surprise the user, so
-        // we just flip the manual flag via onRevokePermission().
         onRevokePermission();
         openModal({ type: LazyModal.CustomLinks });
       }
@@ -115,75 +114,42 @@ export const ShortcutsSection = (): ReactElement => {
   );
 
   return (
-    <SidebarSection
-      title="Shortcuts"
-      description="Pin your go-to sites so they're one click away on every new tab."
-    >
-      <SidebarSwitch
+    <SidebarSection title="Shortcuts">
+      <SidebarSwitchRow
         name="newtab-customizer-shortcuts"
         label="Show shortcuts"
-        description="Display a row of quick-access sites above your feed."
+        description="A row of quick-access sites above your feed."
+        icon={ShortcutsIcon}
         checked={showTopSites}
         onToggle={onToggle}
       />
 
-      <div
-        className={
-          showTopSites
-            ? 'flex flex-col gap-3'
-            : 'flex flex-col gap-3 opacity-50'
-        }
-      >
-        <div className="flex items-center justify-between gap-4">
-          <Typography
-            color={TypographyColor.Tertiary}
-            type={TypographyType.Subhead}
-          >
-            Data source
-          </Typography>
-          <ButtonGroup>
-            <Button
-              variant={
-                activeSource === 'browser'
-                  ? ButtonVariant.Float
-                  : ButtonVariant.Tertiary
-              }
-              size={ButtonSize.XSmall}
-              onClick={() => onSwitchSource('browser')}
-              className={
-                activeSource === 'browser' ? 'text-text-primary' : undefined
-              }
-              disabled={!showTopSites}
+      {showTopSites ? (
+        <div className="flex flex-col gap-1 px-1 pt-1">
+          <div className="flex min-w-0 items-center justify-between gap-3 px-1 py-1">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="shrink-0"
             >
-              Top sites
-            </Button>
-            <Button
-              variant={
-                activeSource === 'custom'
-                  ? ButtonVariant.Float
-                  : ButtonVariant.Tertiary
-              }
-              size={ButtonSize.XSmall}
-              onClick={() => onSwitchSource('custom')}
-              className={
-                activeSource === 'custom' ? 'text-text-primary' : undefined
-              }
-              disabled={!showTopSites}
-            >
-              Custom
-            </Button>
-          </ButtonGroup>
+              Source
+            </Typography>
+            <div className="flex min-w-0 max-w-[60%] flex-1">
+              <SidebarSegmented
+                value={activeSource}
+                options={SOURCE_OPTIONS}
+                onChange={onSwitchSource}
+                ariaLabel="Shortcut source"
+              />
+            </div>
+          </div>
+          <SidebarActionRow
+            label="Edit shortcuts"
+            icon={EditIcon}
+            onClick={onEditShortcuts}
+          />
         </div>
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          size={ButtonSize.Small}
-          onClick={onEditShortcuts}
-          disabled={!showTopSites}
-        >
-          Edit shortcuts
-        </Button>
-      </div>
+      ) : null}
     </SidebarSection>
   );
 };

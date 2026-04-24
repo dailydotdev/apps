@@ -43,19 +43,17 @@ describe('CustomizeNewTabSidebar', () => {
 
   it('renders all sections when open', () => {
     renderSidebar();
-    expect(screen.getByText('Make this tab yours')).toBeInTheDocument();
-    expect(screen.getByText('New tab mode')).toBeInTheDocument();
+    expect(screen.getAllByText('Customize').length).toBeGreaterThan(0);
+    expect(screen.getByText('Mode')).toBeInTheDocument();
     expect(screen.getByText('Appearance')).toBeInTheDocument();
     expect(screen.getByText('Shortcuts')).toBeInTheDocument();
-    expect(screen.getByText('New tab widgets')).toBeInTheDocument();
+    expect(screen.getByText('Widgets')).toBeInTheDocument();
   });
 
   it('exposes the Zen and Discover mode options in the mode picker', () => {
     renderSidebar();
-    expect(screen.getByRole('button', { name: /Zen/ })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Discover/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Zen/ })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Discover/ })).toBeInTheDocument();
   });
 
   it('calls close with via="done" when Done is clicked', () => {
@@ -79,7 +77,8 @@ describe('CustomizeNewTabSidebar', () => {
   it('shows the rail (and not the panel title) when closed', () => {
     renderSidebar({ isOpen: false });
     expect(screen.getByTitle('Customize new tab')).toBeInTheDocument();
-    const panel = screen.getByLabelText('Make this tab yours');
+    const panel = screen.getByRole('dialog', { hidden: true });
     expect(panel).toHaveAttribute('aria-hidden', 'true');
+    expect(panel).toHaveAttribute('aria-label', 'Customize new tab');
   });
 });

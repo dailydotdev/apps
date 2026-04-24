@@ -9,7 +9,6 @@ import {
 import { MagicIcon, MiniCloseIcon, RefreshIcon } from '../../components/icons';
 import {
   Typography,
-  TypographyColor,
   TypographyType,
 } from '../../components/typography/Typography';
 import { useLogContext } from '../../contexts/LogContext';
@@ -153,7 +152,9 @@ export const CustomizeNewTabSidebar = ({
       {/* Expanded panel */}
       <aside
         id={panelId}
-        aria-label="Make this tab yours"
+        role="dialog"
+        aria-modal={false}
+        aria-label="Customize new tab"
         aria-hidden={!isOpen}
         className={classNames(
           'fixed right-0 top-0 z-modal flex h-screen max-w-[100vw] flex-col border-l border-border-subtlest-tertiary bg-background-default shadow-2 transition-transform duration-200 ease-in-out',
@@ -161,20 +162,10 @@ export const CustomizeNewTabSidebar = ({
         )}
         style={{ width: CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX }}
       >
-        <header className="flex items-start justify-between gap-2 border-b border-border-subtlest-tertiary px-5 pb-4 pt-5">
-          <div className="flex flex-col gap-1">
-            <Typography type={TypographyType.Title3} bold>
-              Make this tab yours
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              Tune the look, pick what shows up on every new tab, and make
-              daily.dev feel like home. You can change any of this later in
-              Settings.
-            </Typography>
-          </div>
+        <header className="flex shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-5 py-3">
+          <Typography type={TypographyType.Body} bold>
+            Customize
+          </Typography>
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
@@ -186,26 +177,26 @@ export const CustomizeNewTabSidebar = ({
           />
         </header>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto py-2">
           <NewTabModeSection />
           <ZenLayoutSection />
           <FocusSessionsSection />
-          <FocusBlocklistSection />
           <AppearanceSection />
           <ShortcutsSection />
           <WidgetsSection />
+          <FocusBlocklistSection />
         </div>
 
-        <footer className="flex items-center justify-between gap-3 border-t border-border-subtlest-tertiary px-5 py-4">
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-border-subtlest-tertiary px-5 py-3">
           <Button
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<RefreshIcon />}
             onClick={handleReset}
-            title="Reset all customizations to their default values"
+            title="Reset all customizations to their defaults"
           >
-            Reset
+            Reset to defaults
           </Button>
           <Button
             type="button"

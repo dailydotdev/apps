@@ -26,6 +26,7 @@ import {
 import { useFocusHistory } from '../store/focusHistory.store';
 import { FocusEscapePrompt } from './FocusEscapePrompt';
 import { FocusRecap } from './FocusRecap';
+import { FocusFeedActive, FocusFeedTrending } from './FocusFeed';
 
 const padTwo = (n: number): string => n.toString().padStart(2, '0');
 
@@ -308,16 +309,22 @@ export const FocusSession = (): ReactElement => {
   return (
     <section
       aria-label="Focus session"
-      className="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-10 px-4 pb-16 pt-16 tablet:pt-24"
+      className="mx-auto flex w-full max-w-5xl flex-col items-center gap-12 px-4 pb-16 pt-12 tablet:pt-16"
     >
       {active ? (
-        <Countdown
-          onPause={handlePause}
-          onResume={handleResume}
-          onEndRequest={handleEndRequest}
-        />
+        <>
+          <Countdown
+            onPause={handlePause}
+            onResume={handleResume}
+            onEndRequest={handleEndRequest}
+          />
+          <FocusFeedActive />
+        </>
       ) : (
-        <PresetPicker onStart={handleStart} />
+        <>
+          <PresetPicker onStart={handleStart} />
+          <FocusFeedTrending />
+        </>
       )}
       <FocusEscapePrompt
         isOpen={isEscapeOpen}

@@ -4,15 +4,12 @@ import classNames from 'classnames';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useZenModules } from '../store/zenModules.store';
-import { ZenClock } from './ZenClock';
-import { ZenGreeting } from './ZenGreeting';
+import { ZenAmbientStrip } from './ZenAmbientStrip';
 import { ZenIntention } from './ZenIntention';
 import { ZenTodos } from './ZenTodos';
-import { ZenMustReads } from './ZenMustReads';
+import { ZenBriefing } from './ZenBriefing';
 import { ZenQuote } from './ZenQuote';
 import { ZenBackground } from './ZenBackground';
-import { ZenWeather } from './ZenWeather';
-import { ZenTodayStrip } from './ZenTodayStrip';
 
 interface ZenLayoutProps {
   className?: string;
@@ -21,18 +18,18 @@ interface ZenLayoutProps {
   shortcuts?: ReactNode;
 }
 
-// Zen is a single-column, generously spaced homepage. Modules are opt-in via
-// `useZenModules`; the infinite feed is intentionally absent. The must-reads
-// card has an explicit "Open full feed" escape hatch.
+// Zen is daily.dev's content-first "calm mode": the briefing is the star,
+// ambient widgets (clock, greeting, weather) shrink into a single strip at
+// the top, and personal productivity tools (intention, todos) move to a
+// compact accent row below so they never compete with the feed for attention.
+// This is the key product guardrail: Zen must always show the feed, because
+// staying up to date is daily.dev's core value and ads are its business.
 export const ZenLayout = ({
   className,
   shortcuts,
 }: ZenLayoutProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { toggles } = useZenModules();
-  // Wallpaper used to be flag-gated but we want new-tab modes to produce an
-  // obviously different experience the moment a user picks Zen. The toggle
-  // still lives in the sidebar for anyone who prefers a flat background.
   const showWallpaper = toggles.wallpaper;
 
   useEffect(() => {
@@ -47,9 +44,11 @@ export const ZenLayout = ({
         wallpaper: showWallpaper,
       }),
     });
-    // Only log on mount; toggles themselves have their own analytics events.
+    // Only log on mount; toggles have their own analytics.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logEvent]);
+
+  const hasAccents = toggles.intention || toggles.todos || toggles.quote;
 
   return (
     <>
@@ -57,29 +56,25 @@ export const ZenLayout = ({
       <main
         aria-label="Zen homepage"
         className={classNames(
-          'mx-auto flex w-full max-w-5xl flex-col items-center gap-10 px-4 pb-16 pt-10 tablet:pt-16',
+          'mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 pb-16 pt-8 tablet:pt-10',
           className,
         )}
       >
-        <div className="flex flex-col items-center gap-3">
-          <ZenClock />
-          <ZenGreeting />
-          {toggles.weather ? <ZenWeather className="mt-1" /> : null}
-        </div>
+        <ZenAmbientStrip />
 
-        <ZenTodayStrip />
+        {toggles.mustReads ? <ZenBriefing /> : null}
 
-        {toggles.quote ? <ZenQuote /> : null}
-
-        {toggles.intention ? <ZenIntention /> : null}
-
-        {toggles.todos ? <ZenTodos /> : null}
-
-        {toggles.shortcuts && shortcuts ? (
-          <div className="w-full max-w-4xl">{shortcuts}</div>
+        {hasAccents ? (
+          <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2 laptop:grid-cols-3">
+            {toggles.intention ? <ZenIntention /> : null}
+            {toggles.todos ? <ZenTodos /> : null}
+            {toggles.quote ? <ZenQuote /> : null}
+          </div>
         ) : null}
 
-        {toggles.mustReads ? <ZenMustReads /> : null}
+        {toggles.shortcuts && shortcuts ? (
+          <div className="w-full">{shortcuts}</div>
+        ) : null}
       </main>
     </>
   );

@@ -14,16 +14,15 @@ export interface ZenModuleToggles {
 }
 
 const DEFAULT_TOGGLES: ZenModuleToggles = {
-  intention: true,
-  todos: true,
+  // The briefing (feed) and shortcuts are the product-native core of Zen.
+  // Everything else is an optional accent the user opts in to so the page
+  // stays content-first and never turns into a to-do dashboard.
   mustReads: true,
-  // Quote, wallpaper, and weather are on by default so the mode switch
-  // produces an obviously different experience the moment a user tries it.
-  // Users who dislike any of these can disable them in the Zen layout
-  // section of the customizer.
-  quote: true,
-  wallpaper: true,
   shortcuts: true,
+  wallpaper: true,
+  intention: false,
+  todos: false,
+  quote: false,
   weather: false,
 };
 

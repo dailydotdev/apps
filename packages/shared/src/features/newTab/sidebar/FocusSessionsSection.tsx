@@ -1,12 +1,18 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import classNames from 'classnames';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { useConditionalFeature } from '../../../hooks';
-import { featureNewTabMode } from '../../../lib/featureManagement';
 import { SidebarSection } from '../../customizeNewTab/components/SidebarSection';
-import { SidebarSwitch } from '../../customizeNewTab/components/SidebarSwitch';
+import { SidebarSwitchRow } from '../../customizeNewTab/components/SidebarCompactRow';
+import {
+  SidebarSegmented,
+  type SegmentedOption,
+} from '../../customizeNewTab/components/SidebarSegmented';
 import { useNewTabMode } from '../store/newTabMode.store';
 import {
   FOCUS_SESSION_PRESETS_MIN,
@@ -18,10 +24,6 @@ export const FocusSessionsSection = (): ReactElement | null => {
   const { mode } = useNewTabMode();
   const { settings, setDefaultDuration, setEscapeFriction } =
     useFocusSettings();
-  const { value: newTabModeVariant } = useConditionalFeature({
-    feature: featureNewTabMode,
-    shouldEvaluate: true,
-  });
 
   const handlePick = useCallback(
     (minutes: number) => {
@@ -47,52 +49,36 @@ export const FocusSessionsSection = (): ReactElement | null => {
     setEscapeFriction(next);
   }, [logEvent, settings.escapeFriction, setEscapeFriction]);
 
-  // Only the `full` arm exposes Focus; fall back to hidden elsewhere.
-  if (newTabModeVariant !== 'full' && mode !== 'focus') {
+  if (mode !== 'focus') {
     return null;
   }
 
+  const presetOptions: SegmentedOption<string>[] =
+    FOCUS_SESSION_PRESETS_MIN.map((minutes) => ({
+      value: String(minutes),
+      label: `${minutes}m`,
+    }));
+
   return (
-    <SidebarSection
-      title="Focus sessions"
-      description="Tune how focus mode starts and ends."
-    >
-      <div className="flex flex-col gap-2">
-        <span className="font-bold text-text-primary typo-callout">
-          Default length
-        </span>
-        <div
-          role="radiogroup"
-          aria-label="Default session length"
-          className="flex flex-wrap gap-2"
+    <SidebarSection title="Layout">
+      <div className="flex flex-col gap-1.5 px-1 py-1">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
         >
-          {FOCUS_SESSION_PRESETS_MIN.map((minutes) => {
-            const active = settings.defaultDurationMinutes === minutes;
-            return (
-              <button
-                key={minutes}
-                type="button"
-                role="radio"
-                aria-checked={active}
-                onClick={() => handlePick(minutes)}
-                className={classNames(
-                  'rounded-10 border px-3 py-1 transition-colors typo-callout',
-                  active
-                    ? 'border-accent-cabbage-default bg-surface-float text-text-primary'
-                    : 'border-border-subtlest-tertiary text-text-tertiary hover:bg-surface-float hover:text-text-primary',
-                )}
-              >
-                {minutes} min
-              </button>
-            );
-          })}
-        </div>
+          Default session length
+        </Typography>
+        <SidebarSegmented
+          value={String(settings.defaultDurationMinutes)}
+          options={presetOptions}
+          onChange={(value) => handlePick(Number(value))}
+          ariaLabel="Default session length"
+        />
       </div>
 
-      <SidebarSwitch
+      <SidebarSwitchRow
         name="focus-escape-friction"
-        label="Ask before ending early"
-        description="Show a confirmation prompt when you try to break focus before the timer hits zero."
+        label="Confirm before ending early"
         checked={settings.escapeFriction}
         onToggle={handleFrictionToggle}
       />
