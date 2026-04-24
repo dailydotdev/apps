@@ -1,433 +1,41 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import React, { useCallback, useEffect, useState } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import { Switch } from '../../../../components/fields/Switch';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Switch } from '../../../../components/fields/Switch';
-import {
-  BookmarkIcon,
-  DragIcon,
-  EarthIcon,
-  EditIcon,
-  LinkIcon,
-  PlusIcon,
-  RefreshIcon,
-  StarIcon,
-  TrashIcon,
-  VIcon,
-} from '../../../../components/icons';
-import { ChromeIcon } from '../../../../components/icons/Browser/Chrome';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../../lib/log';
-import { useShortcutsManager } from '../../hooks/useShortcutsManager';
-import { useHiddenTopSites } from '../../hooks/useHiddenTopSites';
-import { useShortcuts } from '../../contexts/ShortcutsProvider';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LogEvent, TargetType } from '../../../../lib/log';
 import { LazyModal } from '../../../../components/modals/common/types';
-import { apiUrl } from '../../../../lib/config';
-import { getDomainFromUrl } from '../../../../lib/links';
-import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
+import { useShortcuts } from '../../contexts/ShortcutsProvider';
+import { useHiddenTopSites } from '../../hooks/useHiddenTopSites';
+import { useShortcutsManager } from '../../hooks/useShortcutsManager';
+import { DEFAULT_SHORTCUTS_APPEARANCE } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
-import type { ShortcutEditFormState } from '../ShortcutEditForm';
-import { ShortcutEditForm } from '../ShortcutEditForm';
-
-function getTopSitesPrimaryAction({
-  topSitesGranted,
-  setShowImportSource,
-  askTopSitesPermission,
-}: {
-  topSitesGranted: boolean;
-  setShowImportSource?: (
-    source: 'topSites' | 'bookmarks',
-    returnTo?: LazyModal.ShortcutsManage,
-  ) => void;
-  askTopSitesPermission?: () => Promise<boolean> | void;
-}): (() => void) | undefined {
-  if (topSitesGranted) {
-    if (!setShowImportSource) {
-      return undefined;
-    }
-    return () => setShowImportSource('topSites', LazyModal.ShortcutsManage);
-  }
-  if (!askTopSitesPermission) {
-    return undefined;
-  }
-  return () => {
-    askTopSitesPermission();
-  };
-}
-
-function getBookmarksPrimaryAction({
-  bookmarksGranted,
-  onImportBookmarks,
-  onAskBookmarks,
-}: {
-  bookmarksGranted: boolean;
-  onImportBookmarks?: () => void;
-  onAskBookmarks?: () => Promise<boolean> | void;
-}): (() => void) | undefined {
-  if (bookmarksGranted) {
-    return onImportBookmarks;
-  }
-  if (!onAskBookmarks) {
-    return undefined;
-  }
-  return () => {
-    onAskBookmarks();
-  };
-}
-
-function SectionHeader({
-  title,
-  description,
-  trailing,
-}: {
-  title: string;
-  description?: string;
-  trailing?: ReactElement;
-}): ReactElement {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="min-w-0 flex-1">
-        <Typography bold type={TypographyType.Subhead}>
-          {title}
-        </Typography>
-        {description && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {description}
-          </Typography>
-        )}
-      </div>
-      {trailing}
-    </div>
-  );
-}
-
-function CapacityPill({
-  used,
-  max,
-}: {
-  used: number;
-  max: number;
-}): ReactElement {
-  const remaining = max - used;
-  let tone = 'bg-surface-float text-text-tertiary';
-  if (used >= max) {
-    tone = 'bg-overlay-float-ketchup text-accent-ketchup-default';
-  } else if (remaining <= 2) {
-    tone = 'bg-overlay-float-cabbage text-accent-cabbage-default';
-  }
-  return (
-    <span
-      className={classNames(
-        'rounded-6 px-1.5 py-0.5 font-bold tabular-nums typo-caption1',
-        tone,
-      )}
-    >
-      {used}/{max}
-    </span>
-  );
-}
-
-function ShortcutsModeOption({
-  id,
-  checked,
-  onSelect,
-  title,
-  description,
-  trailingBadge,
-}: {
-  id: string;
-  checked: boolean;
-  onSelect: () => void;
-  title: string;
-  description: string;
-  trailingBadge?: ReactElement;
-}): ReactElement {
-  return (
-    <label
-      htmlFor={id}
-      className="group flex cursor-pointer items-start gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none"
-    >
-      <input
-        id={id}
-        type="radio"
-        name="shortcuts-mode"
-        checked={checked}
-        onChange={onSelect}
-        className="peer sr-only"
-      />
-      <span
-        aria-hidden
-        className={classNames(
-          'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-150 motion-reduce:transition-none',
-          checked
-            ? 'border-accent-cabbage-default'
-            : 'border-border-subtlest-secondary group-hover:border-border-subtlest-primary',
-        )}
-      >
-        {checked && (
-          <span className="size-2 rounded-full bg-accent-cabbage-default" />
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p
-          className={classNames(
-            'typo-callout',
-            checked ? 'font-bold text-text-primary' : 'text-text-primary',
-          )}
-        >
-          {title}
-        </p>
-        <p className="mt-0.5 text-text-tertiary typo-caption1">{description}</p>
-      </div>
-      {trailingBadge && (
-        <span
-          aria-hidden
-          className="mt-0.5 flex size-5 shrink-0 items-center justify-center"
-        >
-          {trailingBadge}
-        </span>
-      )}
-    </label>
-  );
-}
-
-function ShortcutRow({
-  shortcut,
-  onEdit,
-  onRemove,
-}: {
-  shortcut: Shortcut;
-  onEdit: (shortcut: Shortcut) => void;
-  onRemove: (shortcut: Shortcut) => void;
-}): ReactElement {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: shortcut.url });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  const label = shortcut.name || getDomainFromUrl(shortcut.url);
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={classNames(
-        'group relative flex items-center gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none',
-        isDragging &&
-          'z-10 rotate-[-1deg] bg-surface-float shadow-2 motion-reduce:rotate-0',
-      )}
-    >
-      <button
-        type="button"
-        aria-label={`Drag to reorder ${label}`}
-        className="flex size-6 shrink-0 cursor-grab items-center justify-center rounded-6 text-text-quaternary transition-colors duration-150 hover:text-text-primary focus-visible:text-text-primary active:cursor-grabbing motion-reduce:transition-none"
-        {...attributes}
-        {...listeners}
-      >
-        <DragIcon />
-      </button>
-      <img
-        src={`${apiUrl}/icon?url=${encodeURIComponent(shortcut.url)}&size=32`}
-        alt=""
-        className="size-8 shrink-0 rounded-8 bg-surface-float"
-      />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-text-primary typo-callout">{label}</p>
-        <p className="truncate text-text-tertiary typo-caption1">
-          {shortcut.url}
-        </p>
-      </div>
-      {/* Row actions are hover-revealed on pointer devices and always
-          partially visible on touch (no hover state to reveal them). */}
-      <div className="[@media(hover:none)]:opacity-60 flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none [@media(hover:none)]:focus-within:opacity-100">
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<EditIcon />}
-          aria-label={`Edit ${label}`}
-          onClick={() => onEdit(shortcut)}
-        />
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<TrashIcon />}
-          aria-label={`Remove ${label}`}
-          onClick={() => onRemove(shortcut)}
-          className="hover:!bg-overlay-float-ketchup hover:!text-accent-ketchup-default"
-        />
-      </div>
-    </div>
-  );
-}
-
-function AppearancePicker({
-  value,
-  onChange,
-}: {
-  value: ShortcutsAppearance;
-  onChange: (next: ShortcutsAppearance) => void;
-}): ReactElement {
-  const options: Array<{
-    id: ShortcutsAppearance;
-    title: string;
-    preview: ReactElement;
-  }> = [
-    {
-      id: 'tile',
-      title: 'Tile',
-      preview: (
-        <div className="flex items-start gap-1.5" aria-hidden>
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <div className="size-5 rounded-6 bg-border-subtlest-secondary" />
-              <div className="rounded-1 h-1 w-4 bg-border-subtlest-tertiary" />
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    {
-      id: 'icon',
-      title: 'Icon',
-      preview: (
-        <div className="flex items-center gap-1" aria-hidden>
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="size-5 rounded-6 bg-border-subtlest-secondary"
-            />
-          ))}
-        </div>
-      ),
-    },
-    {
-      id: 'chip',
-      title: 'Chip',
-      preview: (
-        <div className="flex flex-col gap-1" aria-hidden>
-          {[0, 1].map((i) => (
-            <div
-              key={i}
-              className="flex h-3 w-14 items-center gap-1 rounded-4 bg-border-subtlest-tertiary px-1"
-            >
-              <div className="size-1.5 shrink-0 rounded-2 bg-border-subtlest-secondary" />
-              <div className="rounded-1 h-0.5 flex-1 bg-border-subtlest-secondary" />
-            </div>
-          ))}
-        </div>
-      ),
-    },
-  ];
-
-  return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="contents">
-        <SectionHeader
-          title="Appearance"
-          description="How the row renders on the new-tab page."
-        />
-      </legend>
-      <div
-        className="grid grid-cols-3 gap-2"
-        role="radiogroup"
-        aria-label="Shortcut appearance"
-      >
-        {options.map((opt) => {
-          const checked = value === opt.id;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              role="radio"
-              aria-checked={checked}
-              onClick={() => onChange(opt.id)}
-              className={classNames(
-                'group relative flex flex-col items-center gap-1.5 rounded-12 border p-2 text-left outline-none transition-all duration-150 focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2 focus-visible:ring-offset-background-default motion-reduce:transition-none',
-                checked
-                  ? 'border-accent-cabbage-default bg-overlay-float-cabbage/40'
-                  : 'border-border-subtlest-tertiary hover:-translate-y-px hover:border-border-subtlest-secondary hover:bg-surface-float',
-              )}
-            >
-              {checked && (
-                <span
-                  aria-hidden
-                  className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default text-surface-invert shadow-2"
-                >
-                  <VIcon className="size-2.5" />
-                </span>
-              )}
-              <div
-                className={classNames(
-                  'flex h-10 w-full items-center justify-center rounded-8 transition-colors duration-150 motion-reduce:transition-none',
-                  checked ? 'bg-background-default' : 'bg-background-subtle',
-                )}
-              >
-                {opt.preview}
-              </div>
-              <span
-                className={classNames(
-                  'transition-colors duration-150 typo-caption1 motion-reduce:transition-none',
-                  checked
-                    ? 'font-bold text-text-primary'
-                    : 'text-text-tertiary group-hover:text-text-primary',
-                )}
-              >
-                {opt.title}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
+import { AppearancePicker } from './ShortcutsManageAppearancePicker';
+import {
+  AutoConnectionsSection,
+  BrowserConnectionsSection,
+  ShortcutsModeSection,
+} from './ShortcutsManageConnectionsSection';
+import { SectionHeader } from './ShortcutsManageCommon';
+import { ManualShortcutsSection } from './ShortcutsManageManualSection';
+import {
+  ShortcutsManageEditor,
+  type ShortcutsManageEditingState,
+} from './ShortcutsManageEditor';
 
 export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
@@ -448,163 +56,104 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   const { hidden: hiddenTopSites, restore: restoreHiddenTopSites } =
     useHiddenTopSites();
   const { closeModal } = useLazyModal();
+  const [editing, setEditing] = useState<ShortcutsManageEditingState | null>(
+    null,
+  );
+
+  const logShortcutsEvent = useCallback(
+    (eventName: LogEvent, extra?: Record<string, unknown>) => {
+      logEvent({
+        event_name: eventName,
+        target_type: TargetType.Shortcuts,
+        extra: extra ? JSON.stringify(extra) : undefined,
+      });
+    },
+    [logEvent],
+  );
+
+  useEffect(() => {
+    logShortcutsEvent(LogEvent.OpenShortcutConfig);
+  }, [logShortcutsEvent]);
+
   const close = () => {
     closeModal();
     props?.onRequestClose?.(undefined as never);
   };
 
+  const closeEditor = () => setEditing(null);
+  const openEditor = (next: ShortcutsManageEditingState) => setEditing(next);
+
   const mode = flags?.shortcutsMode ?? 'manual';
-  const selectMode = async (next: 'manual' | 'auto') => {
+  const appearance: ShortcutsAppearance =
+    flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
+  const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;
+
+  const topSitesGranted = topSites !== undefined;
+  const topSitesKnown = hasCheckedTopSitesPermission && topSitesGranted;
+  const bookmarksGranted = bookmarks !== undefined;
+  const bookmarksKnown = hasCheckedBookmarksPermission && bookmarksGranted;
+
+  const handleSelectMode = async (next: 'manual' | 'auto') => {
     if (next === mode) {
       return;
     }
+
     await updateFlag('shortcutsMode', next);
-    logEvent({
-      event_name: LogEvent.ChangeShortcutsMode,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ mode: next }),
-    });
+    logShortcutsEvent(LogEvent.ChangeShortcutsMode, { mode: next });
+
     if (next === 'auto' && topSites === undefined) {
       await askTopSitesPermission();
     }
   };
 
-  const appearance: ShortcutsAppearance =
-    flags?.shortcutsAppearance ?? DEFAULT_SHORTCUTS_APPEARANCE;
-  const selectAppearance = (next: ShortcutsAppearance) => {
+  const handleSelectAppearance = (next: ShortcutsAppearance) => {
     if (next === appearance) {
       return;
     }
+
     updateFlag('shortcutsAppearance', next);
-    logEvent({
-      event_name: LogEvent.ChangeShortcutsAppearance,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ appearance: next }),
+    logShortcutsEvent(LogEvent.ChangeShortcutsAppearance, {
+      appearance: next,
     });
   };
 
-  const showOnWebapp = flags?.showShortcutsOnWebapp ?? false;
-  const toggleShowOnWebapp = () => {
+  const handleToggleShowOnWebapp = () => {
     const next = !showOnWebapp;
     updateFlag('showShortcutsOnWebapp', next);
-    logEvent({
-      event_name: LogEvent.ToggleShortcutsOnWebapp,
-      target_type: TargetType.Shortcuts,
-      extra: JSON.stringify({ enabled: next }),
-    });
+    logShortcutsEvent(LogEvent.ToggleShortcutsOnWebapp, { enabled: next });
   };
 
-  const topSitesCount = topSites?.length ?? 0;
-  const bookmarksCount = bookmarks?.length ?? 0;
-  const topSitesGranted = topSites !== undefined;
-  const topSitesKnown = hasCheckedTopSitesPermission && topSitesGranted;
-  const bookmarksKnown =
-    hasCheckedBookmarksPermission && bookmarks !== undefined;
+  const handleReorderShortcuts = (activeId: string, overId: string) => {
+    const urls = manager.shortcuts.map((shortcut) => shortcut.url);
+    const oldIndex = urls.indexOf(activeId);
+    const newIndex = urls.indexOf(overId);
 
-  const logRef = useRef<typeof logEvent>();
-  logRef.current = logEvent;
-
-  useEffect(() => {
-    logRef.current?.({
-      event_name: LogEvent.OpenShortcutConfig,
-      target_type: TargetType.Shortcuts,
-    });
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 250, tolerance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) {
+    if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) {
       return;
     }
-    const urls = manager.shortcuts.map((s) => s.url);
-    const oldIndex = urls.indexOf(active.id as string);
-    const newIndex = urls.indexOf(over.id as string);
+
     manager.reorder(arrayMove(urls, oldIndex, newIndex));
   };
 
-  // Inline add/edit instead of a nested ShortcutEdit modal — the LazyModal
-  // registry only keeps one modal open at a time, so stacking would close
-  // Manage and strand the user on an empty surface after save.
-  const [editing, setEditing] = useState<
-    { mode: 'add' } | { mode: 'edit'; shortcut: Shortcut } | null
-  >(null);
-  const [formState, setFormState] = useState<ShortcutEditFormState>({
-    isSubmitting: false,
-    isUploading: false,
-  });
+  const handleEditShortcut = (shortcut: Shortcut) =>
+    openEditor({ mode: 'edit', shortcut });
+  const handleAddShortcut = () => openEditor({ mode: 'add' });
 
-  const onEdit = (shortcut: Shortcut) => setEditing({ mode: 'edit', shortcut });
+  const openTopSitesImport = setShowImportSource
+    ? () => setShowImportSource('topSites', LazyModal.ShortcutsManage)
+    : undefined;
 
-  const onRemove = (shortcut: Shortcut) => manager.removeShortcut(shortcut.url);
-
-  const onAdd = () => setEditing({ mode: 'add' });
-
-  const closeEditor = () => setEditing(null);
-
-  const EDIT_FORM_ID = 'shortcut-edit-form-manage';
+  const openBookmarksImport = setShowImportSource
+    ? () => setShowImportSource('bookmarks', LazyModal.ShortcutsManage)
+    : undefined;
 
   if (editing) {
     return (
-      <Modal
-        kind={Modal.Kind.FlexibleCenter}
-        size={Modal.Size.Medium}
+      <ShortcutsManageEditor
+        editing={editing}
+        onClose={closeEditor}
         {...props}
-      >
-        <Modal.Header showCloseButton={false}>
-          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
-            {editing.mode === 'add' ? 'Add shortcut' : 'Edit shortcut'}
-          </Typography>
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            className="-mr-2 ml-auto tablet:-mr-4"
-            onClick={closeEditor}
-          >
-            Back
-          </Button>
-        </Modal.Header>
-        <Modal.Body>
-          <ShortcutEditForm
-            mode={editing.mode}
-            shortcut={editing.mode === 'edit' ? editing.shortcut : undefined}
-            formId={EDIT_FORM_ID}
-            onStateChange={setFormState}
-            onDone={closeEditor}
-          />
-          <div className="mt-4 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              onClick={closeEditor}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              form={EDIT_FORM_ID}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              disabled={formState.isSubmitting || formState.isUploading}
-            >
-              {editing.mode === 'add' ? 'Add' : 'Save'}
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
+      />
     );
   }
 
@@ -642,179 +191,44 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
           />
 
           {showTopSites && (
-            <fieldset className="flex flex-col gap-2">
-              <legend className="contents">
-                <SectionHeader
-                  title="Source"
-                  description="Choose where this row gets its shortcuts from."
-                />
-              </legend>
-              <div className="flex flex-col gap-1">
-                <ShortcutsModeOption
-                  id="shortcuts-mode-manual"
-                  checked={mode === 'manual'}
-                  onSelect={() => selectMode('manual')}
-                  title="My shortcuts"
-                  description="Curated by you. Add, edit, and reorder."
-                />
-                <ShortcutsModeOption
-                  id="shortcuts-mode-auto"
-                  checked={mode === 'auto'}
-                  onSelect={() => selectMode('auto')}
-                  title="Most visited sites"
-                  description="Pulled automatically from your browser history."
-                  trailingBadge={<ChromeIcon className="size-5" />}
-                />
-              </div>
-            </fieldset>
+            <ShortcutsModeSection
+              mode={mode}
+              onSelectMode={handleSelectMode}
+            />
           )}
 
           {showTopSites && mode === 'auto' && (
-            <section aria-label="Connections" className="flex flex-col gap-2">
-              <SectionHeader
-                title="Connections"
-                description="Pull your most visited sites from your browser."
-              />
-              <ul className="flex flex-col gap-0.5">
-                <ConnectionRow
-                  icon={<LinkIcon />}
-                  label="Browser access"
-                  description={
-                    topSitesKnown
-                      ? `${topSitesCount} sites available from your browser.`
-                      : 'Grant access so we can read your most visited sites.'
-                  }
-                  primaryLabel={topSitesGranted ? 'Import' : 'Connect'}
-                  onPrimary={getTopSitesPrimaryAction({
-                    topSitesGranted,
-                    setShowImportSource,
-                    askTopSitesPermission,
-                  })}
-                  secondaryLabel={topSitesGranted ? 'Disconnect' : undefined}
-                  onSecondary={
-                    topSitesGranted ? () => onRevokePermission?.() : undefined
-                  }
-                />
-                {hiddenTopSites.length > 0 && (
-                  <ConnectionRow
-                    icon={<RefreshIcon />}
-                    label={`Hidden sites (${hiddenTopSites.length})`}
-                    description="Restore sites you removed from your Most visited row."
-                    primaryLabel="Restore all"
-                    onPrimary={() => restoreHiddenTopSites()}
-                  />
-                )}
-              </ul>
-            </section>
+            <AutoConnectionsSection
+              topSitesGranted={topSitesGranted}
+              topSitesKnown={topSitesKnown}
+              topSitesCount={topSites?.length ?? 0}
+              hiddenTopSitesCount={hiddenTopSites.length}
+              onImportTopSites={openTopSitesImport}
+              onAskTopSites={askTopSitesPermission}
+              onRevokeTopSites={onRevokePermission}
+              onRestoreHiddenTopSites={restoreHiddenTopSites}
+            />
           )}
 
           {mode === 'manual' && (
-            <section className="flex flex-col gap-2">
-              <SectionHeader
-                title="Your shortcuts"
-                description="Drag to reorder. Hover a row to edit or remove."
-                trailing={
-                  <CapacityPill
-                    used={manager.shortcuts.length}
-                    max={MAX_SHORTCUTS}
-                  />
-                }
-              />
-              {manager.shortcuts.length === 0 ? (
-                <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-14 border border-dashed border-border-subtlest-tertiary px-4 py-8 text-center">
-                  <span
-                    aria-hidden
-                    className="flex size-12 items-center justify-center rounded-14 bg-overlay-float-cabbage text-accent-cabbage-default"
-                  >
-                    <StarIcon secondary className="size-6" />
-                  </span>
-                  <Typography
-                    type={TypographyType.Callout}
-                    color={TypographyColor.Primary}
-                    bold
-                  >
-                    Your shortcuts, your rules
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                  >
-                    Add one manually or import from Connections below.
-                  </Typography>
-                  <Button
-                    type="button"
-                    variant={ButtonVariant.Primary}
-                    size={ButtonSize.Small}
-                    icon={<PlusIcon />}
-                    onClick={onAdd}
-                    className="mt-1"
-                  >
-                    Add shortcut
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    onClick={onAdd}
-                    disabled={!manager.canAdd}
-                    className="disabled:opacity-60 group flex items-center gap-3 rounded-10 p-2 text-left transition-colors duration-150 hover:bg-surface-float disabled:cursor-not-allowed disabled:hover:bg-transparent motion-reduce:transition-none"
-                    aria-label="Add a shortcut"
-                  >
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-8 border border-dashed border-border-subtlest-tertiary text-text-tertiary transition-all duration-150 group-hover:border-solid group-hover:border-accent-cabbage-default group-hover:bg-overlay-float-cabbage group-hover:text-accent-cabbage-default motion-reduce:transition-none">
-                      <PlusIcon />
-                    </span>
-                    <p className="truncate text-text-primary typo-callout">
-                      Add a shortcut
-                    </p>
-                    {!manager.canAdd && (
-                      <span className="ml-auto text-text-tertiary typo-caption1">
-                        Library full
-                      </span>
-                    )}
-                  </button>
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={manager.shortcuts.map((s) => s.url)}
-                      strategy={verticalListSortingStrategy}
-                    >
-                      {manager.shortcuts.map((shortcut) => (
-                        <ShortcutRow
-                          key={shortcut.url}
-                          shortcut={shortcut}
-                          onEdit={onEdit}
-                          onRemove={onRemove}
-                        />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
-                </div>
-              )}
-            </section>
+            <ManualShortcutsSection
+              shortcuts={manager.shortcuts}
+              canAdd={manager.canAdd}
+              onAdd={handleAddShortcut}
+              onEdit={handleEditShortcut}
+              onRemove={(shortcut) => manager.removeShortcut(shortcut.url)}
+              onReorder={handleReorderShortcuts}
+            />
           )}
 
-          {/* Bookmarks import + webapp sync are manual-only — in auto mode
-              the row comes straight from browser history. */}
           {mode === 'manual' && (
             <BrowserConnectionsSection
-              bookmarksGranted={bookmarks !== undefined}
-              bookmarksCount={bookmarksCount}
+              bookmarksGranted={bookmarksGranted}
+              bookmarksCount={bookmarks?.length ?? 0}
               bookmarksKnown={bookmarksKnown}
               showOnWebapp={showOnWebapp}
-              onToggleShowOnWebapp={toggleShowOnWebapp}
-              onImportBookmarks={
-                setShowImportSource
-                  ? () =>
-                      setShowImportSource(
-                        'bookmarks',
-                        LazyModal.ShortcutsManage,
-                      )
-                  : undefined
-              }
+              onToggleShowOnWebapp={handleToggleShowOnWebapp}
+              onImportBookmarks={openBookmarksImport}
               onAskBookmarks={askBookmarksPermission}
               onRevokeBookmarks={revokeBookmarksPermission}
             />
@@ -824,144 +238,12 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
             <div className="flex flex-col gap-4">
               <AppearancePicker
                 value={appearance}
-                onChange={selectAppearance}
+                onChange={handleSelectAppearance}
               />
             </div>
           )}
         </div>
       </Modal.Body>
     </Modal>
-  );
-}
-
-interface BrowserConnectionsSectionProps {
-  bookmarksGranted: boolean;
-  bookmarksCount: number;
-  bookmarksKnown: boolean;
-  showOnWebapp: boolean;
-  onToggleShowOnWebapp: () => void;
-  onImportBookmarks?: () => void;
-  onAskBookmarks?: () => void | Promise<boolean>;
-  onRevokeBookmarks?: () => void | Promise<void>;
-}
-
-function BrowserConnectionsSection({
-  bookmarksGranted,
-  bookmarksCount,
-  bookmarksKnown,
-  showOnWebapp,
-  onToggleShowOnWebapp,
-  onImportBookmarks,
-  onAskBookmarks,
-  onRevokeBookmarks,
-}: BrowserConnectionsSectionProps): ReactElement {
-  return (
-    <section aria-label="Connections" className="flex flex-col gap-2">
-      <SectionHeader
-        title="Connections"
-        description="Pull from your browser, or mirror your shortcuts on the daily.dev web app."
-      />
-      <ul className="flex flex-col gap-0.5">
-        <ConnectionRow
-          icon={<BookmarkIcon />}
-          label="Bookmarks bar"
-          description={
-            bookmarksKnown
-              ? `${bookmarksCount} available`
-              : 'Grant access to import your browser bookmarks.'
-          }
-          primaryLabel={bookmarksGranted ? 'Import' : 'Connect'}
-          onPrimary={getBookmarksPrimaryAction({
-            bookmarksGranted,
-            onImportBookmarks,
-            onAskBookmarks,
-          })}
-          secondaryLabel={bookmarksGranted ? 'Disconnect' : undefined}
-          onSecondary={
-            bookmarksGranted ? () => onRevokeBookmarks?.() : undefined
-          }
-        />
-        <ConnectionRow
-          icon={<EarthIcon />}
-          label="Show on daily.dev web app"
-          description="Mirror these shortcuts across every signed-in browser."
-          trailing={
-            <Switch
-              inputId="shortcuts-show-on-webapp"
-              name="shortcuts-show-on-webapp"
-              compact={false}
-              checked={showOnWebapp}
-              onToggle={onToggleShowOnWebapp}
-              aria-label="Show shortcuts on daily.dev web app"
-            />
-          }
-        />
-      </ul>
-    </section>
-  );
-}
-
-interface ConnectionRowProps {
-  icon: ReactElement;
-  label: string;
-  description: string;
-  primaryLabel?: string;
-  onPrimary?: () => void;
-  secondaryLabel?: string;
-  onSecondary?: () => void;
-  // When set, replaces the primary/secondary button pair (used by the
-  // webapp-sync row to drop in a Switch).
-  trailing?: ReactElement;
-}
-
-function ConnectionRow({
-  icon,
-  label,
-  description,
-  primaryLabel,
-  onPrimary,
-  secondaryLabel,
-  onSecondary,
-  trailing,
-}: ConnectionRowProps): ReactElement {
-  return (
-    <li className="flex items-center gap-3 rounded-10 p-2 transition-colors duration-150 hover:bg-surface-float motion-reduce:transition-none">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-text-primary typo-callout">{label}</p>
-        <p className="truncate text-text-tertiary typo-caption1">
-          {description}
-        </p>
-      </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {trailing ?? (
-          <>
-            {secondaryLabel && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.XSmall}
-                onClick={onSecondary}
-              >
-                {secondaryLabel}
-              </Button>
-            )}
-            {primaryLabel && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.XSmall}
-                disabled={!onPrimary}
-                onClick={onPrimary}
-              >
-                {primaryLabel}
-              </Button>
-            )}
-          </>
-        )}
-      </div>
-    </li>
   );
 }

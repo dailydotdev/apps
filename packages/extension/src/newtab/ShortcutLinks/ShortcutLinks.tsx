@@ -13,11 +13,9 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureShortcutsHub } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
 import { useShortcutsMigration } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsMigration';
+import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
 import { ShortcutLinksList } from './ShortcutLinksList';
 import { ShortcutGetStarted } from './ShortcutGetStarted';
 import { ShortcutLinksHub } from './ShortcutLinksHub';
@@ -172,13 +170,9 @@ function NewShortcutLinks({
 }
 
 export default function ShortcutLinks(props: ShortcutLinksProps): ReactElement {
-  const { user } = useAuthContext();
-  const { value: hubEnabled } = useConditionalFeature({
-    feature: featureShortcutsHub,
-    shouldEvaluate: !!user,
-  });
+  const hubEnabled = useIsShortcutsHubEnabled();
 
-  if (user && hubEnabled) {
+  if (hubEnabled) {
     return <NewShortcutLinks {...props} />;
   }
 

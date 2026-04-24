@@ -9,25 +9,20 @@ import { PauseIcon, PlayIcon, ShortcutsIcon, StoryIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { checkIsExtension } from '../../../lib/func';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureShortcutsHub } from '../../../lib/featureManagement';
+import { useIsShortcutsHubEnabled } from '../../../features/shortcuts/hooks/useIsShortcutsHubEnabled';
 
 export const ExtensionSection = (): ReactElement | null => {
   const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
-  const { user } = useAuthContext();
+  const hubEnabled = useIsShortcutsHubEnabled();
   // Route "Shortcuts" in the profile menu to the same modal the user sees
   // elsewhere. On the new hub that's ShortcutsManage (settings-like); on
   // the legacy hub it's still CustomLinks. Gating this through the same
   // feature flag keeps the menu consistent with the row on the new tab.
-  const { value: hubEnabled } = useConditionalFeature({
-    feature: featureShortcutsHub,
-    shouldEvaluate: !!user,
-  });
-  const shortcutsModal =
-    user && hubEnabled ? LazyModal.ShortcutsManage : LazyModal.CustomLinks;
+  const shortcutsModal = hubEnabled
+    ? LazyModal.ShortcutsManage
+    : LazyModal.CustomLinks;
 
   if (!checkIsExtension()) {
     return null;

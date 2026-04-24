@@ -14,7 +14,7 @@ import {
 import { BookmarkIcon, SitesIcon, VIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { apiUrl } from '../../../../lib/config';
-import { getDomainFromUrl } from '../../../../lib/links';
+import { canonicalShortcutUrl, getDomainFromUrl } from '../../../../lib/links';
 import { MAX_SHORTCUTS } from '../../types';
 import type { ImportSource } from '../../types';
 import { useShortcutsManager } from '../../hooks/useShortcutsManager';
@@ -84,6 +84,19 @@ export default function ImportPickerModal({
   const { displayToast } = useToastNotification();
   const { openModal, closeModal } = useLazyModal();
 
+  const dedupedItems = useMemo(() => {
+    const seen = new Set<string>();
+
+    return items.filter((item) => {
+      const canonicalUrl = canonicalShortcutUrl(item.url) ?? item.url;
+      if (seen.has(canonicalUrl)) {
+        return false;
+      }
+      seen.add(canonicalUrl);
+      return true;
+    });
+  }, [items]);
+
   const close = () => {
     closeModal();
     props.onRequestClose?.(undefined as never);
@@ -101,18 +114,18 @@ export default function ImportPickerModal({
   const capacity = Math.max(0, MAX_SHORTCUTS - alreadyUsed);
   const [checked, setChecked] = useState<Record<string, boolean>>(() => {
     const state: Record<string, boolean> = {};
-    items.slice(0, capacity).forEach((item) => {
+    dedupedItems.slice(0, capacity).forEach((item) => {
       state[item.url] = true;
     });
     return state;
   });
 
   const selected = useMemo(
-    () => items.filter((item) => checked[item.url]),
-    [checked, items],
+    () => dedupedItems.filter((item) => checked[item.url]),
+    [checked, dedupedItems],
   );
 
-  const selectableCount = Math.min(items.length, capacity);
+  const selectableCount = Math.min(dedupedItems.length, capacity);
   const atCapacity = selected.length >= capacity;
 
   const toggle = (url: string) =>
@@ -131,7 +144,7 @@ export default function ImportPickerModal({
       return;
     }
     const next: Record<string, boolean> = {};
-    items.slice(0, capacity).forEach((item) => {
+    dedupedItems.slice(0, capacity).forEach((item) => {
       next[item.url] = true;
     });
     setChecked(next);
@@ -162,10 +175,10 @@ export default function ImportPickerModal({
   const isBookmarks = source === 'bookmarks';
   const title = isBookmarks ? 'Import bookmarks' : 'Import most visited';
   const sourceCopy = isBookmarks
-    ? `Pick the ones you want. Your bookmarks stay untouched. ${items.length} available.`
+    ? `Pick the ones you want. Your bookmarks stay untouched. ${dedupedItems.length} available.`
     : `Pick the ones you want. Snapshot from your browser. ${
-        items.length
-      } site${items.length === 1 ? '' : 's'} available.`;
+        dedupedItems.length
+      } site${dedupedItems.length === 1 ? '' : 's'} available.`;
 
   const slotsLeft = Math.max(0, capacity - selected.length);
 
@@ -208,7 +221,7 @@ export default function ImportPickerModal({
           </button>
         </div>
 
-        {items.length === 0 ? (
+        {dedupedItems.length === 0 ? (
           <div className="bg-surface-float/40 flex flex-col items-center gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary px-6 py-10 text-center">
             <span
               aria-hidden
@@ -240,7 +253,7 @@ export default function ImportPickerModal({
             aria-multiselectable="true"
             className="flex max-h-[60vh] flex-col gap-0.5 overflow-y-auto pr-1"
           >
-            {items.map((item) => {
+            {dedupedItems.map((item) => {
               const isChecked = !!checked[item.url];
               const atCap = !isChecked && atCapacity;
               const label = item.title || getDomainFromUrl(item.url);
