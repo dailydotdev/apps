@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
@@ -19,6 +19,7 @@ import { useClaimQuestReward } from '@dailydotdev/shared/src/hooks/useClaimQuest
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
+import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
 import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { QuestStatus, QuestType } from '@dailydotdev/shared/src/graphql/quests';
 import GameCenterPage, {
@@ -131,6 +132,7 @@ const mockUseHasAccessToCores = useHasAccessToCores as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseRouter = useRouter as jest.Mock;
 const mockPush = jest.fn();
+const scrollIntoView = jest.fn();
 
 const highestReputation = [
   {
@@ -243,6 +245,7 @@ describe('game center static props', () => {
 describe('game center client gating', () => {
   beforeEach(() => {
     mockPush.mockReset();
+    scrollIntoView.mockReset();
     mockUseConditionalFeature.mockReset();
     mockUseConditionalFeature.mockReturnValue({
       value: false,
@@ -284,11 +287,20 @@ describe('game center client gating', () => {
     });
     mockUseRouter.mockReturnValue({
       push: mockPush,
+      asPath: '/game-center',
+      isReady: true,
     });
     mockUseQuery.mockReturnValue({
       data: [],
       isPending: false,
       error: null,
+    });
+  });
+
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: scrollIntoView,
     });
   });
 
@@ -428,7 +440,8 @@ describe('game center client gating', () => {
     );
 
     expect(screen.getByText('Milestone quests')).toBeInTheDocument();
-    expect(screen.getAllByText('Reader marathon')).toHaveLength(2);
+    expect(screen.getByText('Reader marathon')).toBeInTheDocument();
+    expect(screen.getByText('No upcoming milestone yet')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Claim' }));
 
@@ -436,6 +449,79 @@ describe('game center client gating', () => {
       userQuestId: 'user-milestone-quest-1',
       questId: 'milestone-quest-1',
       questType: QuestType.Milestone,
+    });
+  });
+
+  it('should scroll to the milestone quest section when claimable milestone quests are linked from the sidebar', async () => {
+    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
+      value: feature === questsFeature,
+      isLoading: false,
+    }));
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        level: {
+          level: 5,
+          totalXp: 400,
+          xpInLevel: 100,
+          xpToNextLevel: 100,
+        },
+        currentStreak: 2,
+        longestStreak: 4,
+        daily: {
+          regular: [],
+          plus: [],
+        },
+        weekly: {
+          regular: [],
+          plus: [],
+        },
+        milestone: [
+          {
+            rotationId: 'milestone-quest-1',
+            userQuestId: 'user-milestone-quest-1',
+            progress: 8,
+            status: QuestStatus.Completed,
+            completedAt: null,
+            claimedAt: null,
+            locked: false,
+            claimable: true,
+            quest: {
+              id: 'milestone-quest-1',
+              name: 'Reader marathon',
+              description: 'Read 8 posts',
+              type: QuestType.Milestone,
+              eventType: 'read_post',
+              targetCount: 8,
+            },
+            rewards: [],
+          },
+        ],
+      },
+      isPending: false,
+    });
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+      asPath: `/game-center#${gameCenterMilestoneSectionId}`,
+      isReady: true,
+    });
+
+    render(
+      React.createElement(GameCenterPage, {
+        highestReputation: [],
+        mostQuestsCompleted: [],
+        questCompletionStats: null,
+      }),
+    );
+
+    expect(
+      screen.getByText('Milestone quests').closest('section'),
+    ).toHaveAttribute('id', gameCenterMilestoneSectionId);
+
+    await waitFor(() => {
+      expect(scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
     });
   });
 
@@ -549,7 +635,102 @@ describe('game center client gating', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render milestone quests in a two-column grid and reveal more than four on demand', async () => {
+  it('should skip claimable milestones in the progress snapshot card and show the next upcoming one', () => {
+    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
+      value: feature === questsFeature,
+      isLoading: false,
+    }));
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        level: {
+          level: 5,
+          totalXp: 400,
+          xpInLevel: 100,
+          xpToNextLevel: 100,
+        },
+        currentStreak: 2,
+        longestStreak: 4,
+        daily: {
+          regular: [],
+          plus: [],
+        },
+        weekly: {
+          regular: [],
+          plus: [],
+        },
+        milestone: [
+          {
+            rotationId: 'milestone-quest-1',
+            userQuestId: 'user-milestone-quest-1',
+            progress: 10,
+            status: QuestStatus.Completed,
+            completedAt: new Date('2025-03-01T00:00:00.000Z'),
+            claimedAt: null,
+            locked: false,
+            claimable: true,
+            quest: {
+              id: 'milestone-quest-1',
+              name: 'Ready to claim milestone',
+              description: 'Read 10 posts',
+              type: QuestType.Milestone,
+              eventType: 'custom_milestone_event',
+              targetCount: 10,
+            },
+            rewards: [],
+          },
+          {
+            rotationId: 'milestone-quest-2',
+            userQuestId: 'user-milestone-quest-2',
+            progress: 7,
+            status: QuestStatus.InProgress,
+            completedAt: null,
+            claimedAt: null,
+            locked: false,
+            claimable: false,
+            quest: {
+              id: 'milestone-quest-2',
+              name: 'Next upcoming milestone',
+              description: 'Read 8 posts',
+              type: QuestType.Milestone,
+              eventType: 'custom_milestone_event',
+              targetCount: 8,
+            },
+            rewards: [],
+          },
+        ],
+      },
+      isPending: false,
+    });
+
+    render(
+      React.createElement(GameCenterPage, {
+        highestReputation: [],
+        mostQuestsCompleted: [],
+        questCompletionStats: null,
+      }),
+    );
+
+    const upcomingMilestoneCard = screen
+      .getByText('Upcoming milestone')
+      .closest('div');
+
+    expect(upcomingMilestoneCard).not.toBeNull();
+    expect(
+      within(upcomingMilestoneCard as HTMLElement).queryByText(
+        'Ready to claim milestone',
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      within(upcomingMilestoneCard as HTMLElement).getByText(
+        'Next upcoming milestone',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(upcomingMilestoneCard as HTMLElement).getByText('7/8 progress'),
+    ).toBeInTheDocument();
+  });
+
+  it('should render all milestone quests in a two-column grid without a show more toggle', () => {
     mockUseConditionalFeature
       .mockReturnValueOnce({
         value: true,
@@ -613,18 +794,12 @@ describe('game center client gating', () => {
     expect(milestoneGrid).toBeInTheDocument();
     expect(screen.getByText('Milestone quest 4')).toBeInTheDocument();
     expect(
-      within(milestoneGrid as HTMLElement).queryByText('Milestone quest 5'),
-    ).not.toBeInTheDocument();
-
-    expect(milestoneGrid).toHaveClass('grid', 'tablet:grid-cols-2');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Show more' }));
-
-    expect(
       within(milestoneGrid as HTMLElement).getByText('Milestone quest 5'),
     ).toBeInTheDocument();
+
+    expect(milestoneGrid).toHaveClass('grid', 'tablet:grid-cols-2');
     expect(
-      screen.getByRole('button', { name: 'Show less' }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: /Show (more|less)/ }),
+    ).not.toBeInTheDocument();
   });
 });

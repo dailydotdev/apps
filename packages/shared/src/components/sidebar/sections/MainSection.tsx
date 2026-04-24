@@ -17,7 +17,11 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
-import { plusUrl, webappUrl } from '../../../lib/constants';
+import {
+  gameCenterMilestoneSectionId,
+  plusUrl,
+  webappUrl,
+} from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
@@ -107,13 +111,17 @@ export const MainSection = ({
         }
       : undefined;
 
+    const gameCenterPath = `${webappUrl}game-center${
+      claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
+    }`;
+
     const gameCenter = showGameCenter
       ? {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
           ),
           title: 'Game Center',
-          path: `${webappUrl}game-center`,
+          path: gameCenterPath,
           isForcedLink: true,
           requiresLogin: true,
           ...(claimableMilestoneCount > 0 && {
