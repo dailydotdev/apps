@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DndContext,
@@ -60,6 +60,8 @@ import { getDomainFromUrl } from '../../../../lib/links';
 import { DEFAULT_SHORTCUTS_APPEARANCE, MAX_SHORTCUTS } from '../../types';
 import type { Shortcut, ShortcutsAppearance } from '../../types';
 import { invokeOnRequestClose } from './closeModal';
+import type { ShortcutEditFormState } from '../ShortcutEditForm';
+import { ShortcutEditForm } from '../ShortcutEditForm';
 
 // Flattened state-machine for the Browser access row's primary action. The
 // button can either trigger the picker (granted) or ask for permission (not
@@ -478,7 +480,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
   } = useShortcuts();
   const { hidden: hiddenTopSites, restore: restoreHiddenTopSites } =
     useHiddenTopSites();
-  const { openModal, closeModal } = useLazyModal();
+  const { closeModal } = useLazyModal();
   const close = () => {
     closeModal();
     invokeOnRequestClose(props?.onRequestClose);
@@ -569,17 +571,82 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
     manager.reorder(arrayMove(urls, oldIndex, newIndex));
   };
 
-  const onEdit = (shortcut: Shortcut) => {
-    openModal({
-      type: LazyModal.ShortcutEdit,
-      props: { mode: 'edit', shortcut },
-    });
-  };
+  // Inline add/edit: we keep the form inside the manage modal instead of
+  // opening a separate ShortcutEdit modal. Popping a second modal closed this
+  // one via the LazyModal registry (only one can be open at a time), so the
+  // user landed on an empty surface after saving and had to reopen Manage
+  // from the hub. Swapping this modal's body between "list view" and "form
+  // view" keeps the whole flow in a single surface.
+  const [editing, setEditing] = useState<
+    { mode: 'add' } | { mode: 'edit'; shortcut: Shortcut } | null
+  >(null);
+  const [formState, setFormState] = useState<ShortcutEditFormState>({
+    isSubmitting: false,
+    isUploading: false,
+  });
+
+  const onEdit = (shortcut: Shortcut) => setEditing({ mode: 'edit', shortcut });
 
   const onRemove = (shortcut: Shortcut) => manager.removeShortcut(shortcut.url);
 
-  const onAdd = () =>
-    openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } });
+  const onAdd = () => setEditing({ mode: 'add' });
+
+  const closeEditor = () => setEditing(null);
+
+  const EDIT_FORM_ID = 'shortcut-edit-form-manage';
+
+  if (editing) {
+    return (
+      <Modal
+        kind={Modal.Kind.FlexibleCenter}
+        size={Modal.Size.Medium}
+        {...props}
+      >
+        <Modal.Header showCloseButton={false}>
+          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+            {editing.mode === 'add' ? 'Add shortcut' : 'Edit shortcut'}
+          </Typography>
+          <Button
+            type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            className="-mr-2 ml-auto tablet:-mr-4"
+            onClick={closeEditor}
+          >
+            Back
+          </Button>
+        </Modal.Header>
+        <Modal.Body>
+          <ShortcutEditForm
+            mode={editing.mode}
+            shortcut={editing.mode === 'edit' ? editing.shortcut : undefined}
+            formId={EDIT_FORM_ID}
+            onStateChange={setFormState}
+            onDone={closeEditor}
+          />
+          <div className="mt-4 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              onClick={closeEditor}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form={EDIT_FORM_ID}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              disabled={formState.isSubmitting || formState.isUploading}
+            >
+              {editing.mode === 'add' ? 'Add' : 'Save'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   return (
     <Modal kind={Modal.Kind.FlexibleCenter} size={Modal.Size.Medium} {...props}>
@@ -621,15 +688,6 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
               />
             }
           />
-
-          {showTopSites && (
-            <div className="flex flex-col gap-4">
-              <AppearancePicker
-                value={appearance}
-                onChange={selectAppearance}
-              />
-            </div>
-          )}
 
           {showTopSites && (
             <fieldset className="flex flex-col gap-2">
@@ -818,6 +876,18 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
               onAskBookmarks={askBookmarksPermission}
               onRevokeBookmarks={revokeBookmarksPermission}
             />
+          )}
+
+          {/* Appearance lives at the bottom: it tweaks how the already-decided
+              source+list renders, so it reads better *after* users have
+              picked what the row shows. */}
+          {showTopSites && (
+            <div className="flex flex-col gap-4">
+              <AppearancePicker
+                value={appearance}
+                onChange={selectAppearance}
+              />
+            </div>
           )}
         </div>
       </Modal.Body>

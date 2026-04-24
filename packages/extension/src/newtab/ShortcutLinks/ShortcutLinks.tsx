@@ -156,7 +156,7 @@ function NewShortcutLinks({
         <ShortcutGetStarted
           onTopSitesClick={toggleShowTopSites}
           onCustomLinksClick={() =>
-            openModal({ type: LazyModal.ShortcutEdit, props: { mode: 'add' } })
+            openModal({ type: LazyModal.ShortcutsManage })
           }
         />
         <ShortcutImportFlow />
