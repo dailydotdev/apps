@@ -45,6 +45,8 @@ import {
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 import ConditionalWrapper from '../ConditionalWrapper';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureNewD1Experience } from '../../lib/featureManagement';
 
 type State<T> = [T, Dispatch<SetStateAction<T>>];
 
@@ -97,6 +99,20 @@ export const SearchControlHeader = ({
     SharedFeedPage.CustomForm,
   ];
   const hasFeedActions = feedsWithActions.includes(feedName as SharedFeedPage);
+  const hasDismissedInstallExtension = checkHasCompleted(
+    ActionType.DismissInstallExtension,
+  );
+  const canInstallExtension =
+    !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
+  const shouldEvaluateInstallExtensionPrompt =
+    hasFeedActions &&
+    isActionsFetched &&
+    canInstallExtension &&
+    !hasDismissedInstallExtension;
+  const { value: isNewD1Experience } = useConditionalFeature({
+    feature: featureNewD1Experience,
+    shouldEvaluate: shouldEvaluateInstallExtensionPrompt,
+  });
 
   if (isMobile) {
     return null;
@@ -115,16 +131,8 @@ export const SearchControlHeader = ({
     buttonVariant: isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary,
   };
 
-  const hasDismissedInstallExtension = checkHasCompleted(
-    ActionType.DismissInstallExtension,
-  );
-  const canInstallExtension =
-    !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldShowInstallExtensionPrompt =
-    hasFeedActions &&
-    isActionsFetched &&
-    canInstallExtension &&
-    !hasDismissedInstallExtension;
+    shouldEvaluateInstallExtensionPrompt && !isNewD1Experience;
   const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
       <Button

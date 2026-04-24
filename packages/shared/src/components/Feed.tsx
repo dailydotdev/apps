@@ -65,6 +65,7 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featureNewD1Experience,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -250,7 +251,12 @@ export default function Feed<T>({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
+  const { value: isNewD1Experience } = useConditionalFeature({
+    feature: featureNewD1Experience,
+    shouldEvaluate: shouldEvaluateBriefCard,
+  });
+  const showBriefCard =
+    shouldEvaluateBriefCard && briefCardFeatureValue && !isNewD1Experience;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };

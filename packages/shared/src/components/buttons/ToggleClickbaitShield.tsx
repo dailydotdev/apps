@@ -21,6 +21,8 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
 import { FeedSettingsMenu } from '../feeds/FeedSettings/types';
 import { Tooltip } from '../tooltip/Tooltip';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureNewD1Experience } from '../../lib/featureManagement';
 
 export const ToggleClickbaitShield = ({
   origin,
@@ -28,7 +30,7 @@ export const ToggleClickbaitShield = ({
 }: {
   origin: Origin;
   buttonProps?: ButtonProps<'button'>;
-}): ReactElement => {
+}): ReactElement | null => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
   const { isPlus } = usePlusSubscription();
@@ -39,6 +41,10 @@ export const ToggleClickbaitShield = ({
   const { user } = useAuthContext();
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
+  const { value: isNewD1Experience } = useConditionalFeature({
+    feature: featureNewD1Experience,
+    shouldEvaluate: !isPlus,
+  });
 
   const commonIconProps: ButtonProps<'button'> = {
     size: ButtonSize.Medium,
@@ -48,6 +54,9 @@ export const ToggleClickbaitShield = ({
   };
 
   if (!isPlus) {
+    if (isNewD1Experience) {
+      return null;
+    }
     return (
       <Tooltip
         side="bottom"
