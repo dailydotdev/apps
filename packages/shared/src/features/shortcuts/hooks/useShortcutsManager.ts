@@ -6,30 +6,8 @@ import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
 import { canonicalShortcutUrl, withHttps } from '../../../lib/links';
 import type { SettingsFlags } from '../../../graphql/settings';
 import type { ImportSource, Shortcut, ShortcutMeta } from '../types';
-import { MAX_SHORTCUTS, UNDO_TIMEOUT_MS, shortcutColorPalette } from '../types';
+import { MAX_SHORTCUTS, UNDO_TIMEOUT_MS } from '../types';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
-
-// djb2-style string hash; bitwise ops are deliberate for 32-bit truncation
-// behaviour equivalent to what Java's String.hashCode() does.
-const hashString = (str: string): number => {
-  let hash = 0;
-  for (let i = 0; i < str.length; i += 1) {
-    // eslint-disable-next-line no-bitwise
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    // eslint-disable-next-line no-bitwise
-    hash |= 0;
-  }
-  return Math.abs(hash);
-};
-
-const defaultColorForUrl = (url: string) => {
-  try {
-    const host = new URL(withHttps(url)).hostname;
-    return shortcutColorPalette[hashString(host) % shortcutColorPalette.length];
-  } catch (_) {
-    return shortcutColorPalette[0];
-  }
-};
 
 export interface UseShortcutsManager {
   shortcuts: Shortcut[];
@@ -38,11 +16,10 @@ export interface UseShortcutsManager {
     url: string;
     name?: string;
     iconUrl?: string;
-    color?: string;
   }) => Promise<{ error?: string }>;
   updateShortcut: (
     url: string,
-    patch: { url?: string; name?: string; iconUrl?: string; color?: string },
+    patch: { url?: string; name?: string; iconUrl?: string },
   ) => Promise<{ error?: string }>;
   removeShortcut: (url: string) => Promise<void>;
   reorder: (nextUrls: string[]) => Promise<void>;
@@ -53,9 +30,6 @@ export interface UseShortcutsManager {
   findDuplicate: (url: string) => string | null;
 }
 
-const colorIsValid = (color?: string): color is ShortcutMeta['color'] =>
-  !!color && (shortcutColorPalette as readonly string[]).includes(color);
-
 export const useShortcutsManager = (): UseShortcutsManager => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -63,7 +37,19 @@ export const useShortcutsManager = (): UseShortcutsManager => {
     useSettingsContext();
   const { setShowImportSource } = useShortcuts();
 
-  const metaMap = useMemo(() => flags?.shortcutMeta ?? {}, [flags]);
+  const metaMap = useMemo<Record<string, ShortcutMeta>>(() => {
+    const rawMeta = flags?.shortcutMeta ?? {};
+
+    return Object.fromEntries(
+      Object.entries(rawMeta).map(([url, meta]) => [
+        url,
+        {
+          name: meta?.name,
+          iconUrl: meta?.iconUrl,
+        },
+      ]),
+    );
+  }, [flags]);
   const links = useMemo(() => customLinks ?? [], [customLinks]);
 
   // Refs tracking the latest committed state so undo toasts can recompute
@@ -84,7 +70,6 @@ export const useShortcutsManager = (): UseShortcutsManager => {
           url,
           name: meta.name,
           iconUrl: meta.iconUrl,
-          color: meta.color ?? defaultColorForUrl(url),
         };
       }),
     [links, metaMap],
@@ -138,7 +123,7 @@ export const useShortcutsManager = (): UseShortcutsManager => {
   );
 
   const addShortcut: UseShortcutsManager['addShortcut'] = useCallback(
-    async ({ url, name, iconUrl, color }) => {
+    async ({ url, name, iconUrl }) => {
       if (!canAdd) {
         return { error: `You can only add up to ${MAX_SHORTCUTS} shortcuts.` };
       }
@@ -154,9 +139,6 @@ export const useShortcutsManager = (): UseShortcutsManager => {
       }
       if (iconUrl) {
         meta.iconUrl = iconUrl;
-      }
-      if (colorIsValid(color)) {
-        meta.color = color;
       }
       const nextLinks = [...links, httpsUrl];
       const nextMeta = { ...metaMap };
@@ -196,15 +178,11 @@ export const useShortcutsManager = (): UseShortcutsManager => {
         ...(patch.iconUrl !== undefined
           ? { iconUrl: patch.iconUrl || undefined }
           : {}),
-        ...(patch.color !== undefined && colorIsValid(patch.color)
-          ? { color: patch.color }
-          : {}),
       };
 
       const nextMeta = { ...metaMap };
       delete nextMeta[url];
-      const isEmpty =
-        !mergedMeta.name && !mergedMeta.iconUrl && !mergedMeta.color;
+      const isEmpty = !mergedMeta.name && !mergedMeta.iconUrl;
       if (!isEmpty) {
         nextMeta[nextUrl] = mergedMeta;
       }

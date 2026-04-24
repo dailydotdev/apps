@@ -9,10 +9,14 @@ import { useShortcutsManager } from '../hooks/useShortcutsManager';
 import type { Shortcut } from '../types';
 import { isValidHttpUrl, withHttps } from '../../../lib/links';
 import { CameraIcon, EarthIcon } from '../../../components/icons';
-import { imageSizeLimitMB, uploadContentImage } from '../../../graphql/posts';
+import { apiUrl } from '../../../lib/config';
+import {
+  allowedContentImage,
+  imageSizeLimitMB,
+  uploadContentImage,
+} from '../../../graphql/posts';
 import { useFileInput } from '../../../hooks/utils/useFileInput';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { apiUrl } from '../../../lib/config';
 
 const schema = z.object({
   name: z
@@ -31,10 +35,7 @@ const schema = z.object({
     .string()
     .optional()
     .refine(
-      (value) =>
-        !value ||
-        value.startsWith('data:image/') ||
-        isValidHttpUrl(withHttps(value)),
+      (value) => !value || isValidHttpUrl(withHttps(value)),
       'Must be a valid URL',
     ),
 });
@@ -117,6 +118,7 @@ export function ShortcutEditForm({
     clearErrors('iconUrl');
     setValue('iconUrl', base64, { shouldDirty: true });
     setIsUploading(true);
+
     try {
       const uploadedUrl = await uploadContentImage(file);
       setValue('iconUrl', uploadedUrl, { shouldDirty: true });
@@ -132,6 +134,7 @@ export function ShortcutEditForm({
 
   const { onFileChange } = useFileInput({
     limitMb: imageSizeLimitMB,
+    acceptedTypes: allowedContentImage,
     onChange: handleIconBase64,
   });
 
@@ -169,12 +172,15 @@ export function ShortcutEditForm({
       setIsDropTarget(true);
     }
   };
+
   const handleAvatarDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     // eslint-disable-next-line no-param-reassign
     event.dataTransfer.dropEffect = 'copy';
   };
+
   const handleAvatarDragLeave = () => setIsDropTarget(false);
+
   const handleAvatarDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setIsDropTarget(false);
@@ -281,7 +287,7 @@ export function ShortcutEditForm({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={allowedContentImage.join(',')}
             className="sr-only"
             onChange={(event) => {
               onFileChange(event.target.files?.[0] ?? null);
@@ -293,11 +299,22 @@ export function ShortcutEditForm({
             aria-live="polite"
             className="flex min-h-[1.125rem] flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-center text-text-tertiary typo-caption1"
           >
-            {/* eslint-disable-next-line no-nested-ternary */}
             {isUploading ? (
               <span className="inline-flex items-center gap-2 text-accent-cabbage-default">
                 <span className="size-1.5 animate-pulse rounded-full bg-accent-cabbage-default" />
                 Uploading…
+              </span>
+            ) : hasCustomIcon ? (
+              <button
+                type="button"
+                onClick={clearCustomIcon}
+                className="underline-offset-2 hover:text-text-primary hover:underline"
+              >
+                Remove custom icon
+              </button>
+            ) : customIconFailed ? (
+              <span className="text-status-error">
+                Couldn&apos;t load that image. Showing favicon instead.
               </span>
             ) : isDropTarget ? (
               <span className="text-accent-cabbage-default">
@@ -305,26 +322,11 @@ export function ShortcutEditForm({
               </span>
             ) : (
               <>
-                {/* eslint-disable-next-line no-nested-ternary */}
-                {hasCustomIcon ? (
-                  <button
-                    type="button"
-                    onClick={clearCustomIcon}
-                    className="underline-offset-2 hover:text-text-primary hover:underline"
-                  >
-                    Remove custom icon
-                  </button>
-                ) : customIconFailed ? (
-                  <span className="text-status-error">
-                    Couldn&apos;t load that image. Showing favicon instead.
-                  </span>
-                ) : (
-                  <span>
-                    {faviconSrc
-                      ? 'Tap or drop to upload'
-                      : 'Tap or drop an image to upload'}
-                  </span>
-                )}
+                <span>
+                  {faviconSrc
+                    ? 'Tap or drop to upload'
+                    : 'Tap or drop an image to upload'}
+                </span>
                 <span aria-hidden className="text-text-quaternary">
                   ·
                 </span>
@@ -333,7 +335,7 @@ export function ShortcutEditForm({
                   onClick={() => setShowUrlInput((prev) => !prev)}
                   className="underline-offset-2 hover:text-text-primary hover:underline"
                 >
-                  {showUrlInput ? 'Hide icon URL' : 'Paste image URL'}
+                  {showUrlInput ? 'Hide image URL' : 'Paste image URL'}
                 </button>
               </>
             )}

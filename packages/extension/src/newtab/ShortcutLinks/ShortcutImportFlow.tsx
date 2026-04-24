@@ -28,10 +28,63 @@ interface ImportFlowState {
   items?: ImportPickerItem[];
   askPermission: () => Promise<boolean>;
   emptyToast: string;
-  renderPermissionModal: (
-    onGrant: () => Promise<void>,
-    onClose: () => void,
-  ) => ReactElement;
+}
+
+interface PermissionModalProps {
+  onGrant: () => Promise<void>;
+  onClose: () => void;
+}
+
+function TopSitesPermissionModal({
+  onGrant,
+  onClose,
+}: PermissionModalProps): ReactElement {
+  return (
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+      isOpen
+      onRequestClose={onClose}
+    >
+      <Modal.Header showCloseButton>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+          Show most visited sites
+        </Typography>
+      </Modal.Header>
+      <MostVisitedSitesPermissionContent
+        onGrant={onGrant}
+        ctaLabel="Import shortcuts"
+      />
+    </Modal>
+  );
+}
+
+function BookmarksPermissionModal({
+  onGrant,
+  onClose,
+}: PermissionModalProps): ReactElement {
+  return (
+    <Modal
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Medium}
+      isOpen
+      onRequestClose={onClose}
+    >
+      <Modal.Header />
+      <Modal.Body>
+        <Modal.Title className="mb-4">Import your bookmarks bar</Modal.Title>
+        <Modal.Text className="text-center">
+          To import your bookmarks bar, your browser will ask for permission to
+          read bookmarks. We never sync your bookmarks to our servers.
+        </Modal.Text>
+      </Modal.Body>
+      <Modal.Footer justify={Justify.Center}>
+        <Button type="button" onClick={onGrant} variant={ButtonVariant.Primary}>
+          Import bookmarks
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 }
 
 export function ShortcutImportFlow(): ReactElement | null {
@@ -60,24 +113,6 @@ export function ShortcutImportFlow(): ReactElement | null {
         items: topSites?.map((site) => ({ url: site.url })),
         askPermission: askTopSitesPermission,
         emptyToast: 'No top sites yet. Visit some sites and try again.',
-        renderPermissionModal: (onGrant, onClose) => (
-          <Modal
-            kind={Modal.Kind.FlexibleCenter}
-            size={Modal.Size.Medium}
-            isOpen
-            onRequestClose={onClose}
-          >
-            <Modal.Header showCloseButton>
-              <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
-                Show most visited sites
-              </Typography>
-            </Modal.Header>
-            <MostVisitedSitesPermissionContent
-              onGrant={onGrant}
-              ctaLabel="Import shortcuts"
-            />
-          </Modal>
-        ),
       };
     }
 
@@ -89,32 +124,6 @@ export function ShortcutImportFlow(): ReactElement | null {
       })),
       askPermission: askBookmarksPermission,
       emptyToast: 'Your bookmarks bar is empty. Add some bookmarks and try again.',
-      renderPermissionModal: (onGrant, onClose) => (
-        <Modal
-          kind={Modal.Kind.FlexibleCenter}
-          size={Modal.Size.Medium}
-          isOpen
-          onRequestClose={onClose}
-        >
-          <Modal.Header />
-          <Modal.Body>
-            <Modal.Title className="mb-4">Import your bookmarks bar</Modal.Title>
-            <Modal.Text className="text-center">
-              To import your bookmarks bar, your browser will ask for permission
-              to read bookmarks. We never sync your bookmarks to our servers.
-            </Modal.Text>
-          </Modal.Body>
-          <Modal.Footer justify={Justify.Center}>
-            <Button
-              type="button"
-              onClick={onGrant}
-              variant={ButtonVariant.Primary}
-            >
-              Import bookmarks
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      ),
     };
   };
 
@@ -189,5 +198,19 @@ export function ShortcutImportFlow(): ReactElement | null {
     }
   };
 
-  return importState.renderPermissionModal(handleGrant, closeImportFlow);
+  if (showImportSource === 'topSites') {
+    return (
+      <TopSitesPermissionModal
+        onGrant={handleGrant}
+        onClose={closeImportFlow}
+      />
+    );
+  }
+
+  return (
+    <BookmarksPermissionModal
+      onGrant={handleGrant}
+      onClose={closeImportFlow}
+    />
+  );
 }

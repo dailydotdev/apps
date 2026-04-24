@@ -30,7 +30,7 @@ import {
   DRAG_ACTIVATION_DISTANCE_SQ_PX,
   POST_DRAG_SUPPRESSION_MS,
 } from '../hooks/useDragClickGuard';
-import type { Shortcut, ShortcutColor, ShortcutsAppearance } from '../types';
+import type { Shortcut, ShortcutsAppearance } from '../types';
 
 const pixelRatio =
   typeof globalThis?.window === 'undefined'
@@ -38,24 +38,40 @@ const pixelRatio =
     : globalThis.window.devicePixelRatio ?? 1;
 const iconSize = Math.round(24 * pixelRatio);
 
-const colorClass: Record<ShortcutColor, string> = {
-  burger: 'bg-accent-burger-bolder text-white',
-  cheese: 'bg-accent-cheese-bolder text-black',
-  avocado: 'bg-accent-avocado-bolder text-white',
-  bacon: 'bg-accent-bacon-bolder text-white',
-  blueCheese: 'bg-accent-blueCheese-bolder text-white',
-  cabbage: 'bg-accent-cabbage-bolder text-white',
+const letterChipClasses = [
+  'bg-accent-burger-bolder text-white',
+  'bg-accent-cheese-bolder text-black',
+  'bg-accent-avocado-bolder text-white',
+  'bg-accent-bacon-bolder text-white',
+  'bg-accent-blueCheese-bolder text-white',
+  'bg-accent-cabbage-bolder text-white',
+] as const;
+
+const hashString = (value: string): number => {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    // eslint-disable-next-line no-bitwise
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    // eslint-disable-next-line no-bitwise
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
 };
+
+const getLetterChipClass = (seed: string): string =>
+  letterChipClasses[hashString(seed) % letterChipClasses.length];
 
 interface LetterChipProps {
   name: string;
-  color: ShortcutColor;
+  seed: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
 function LetterChip({
   name,
-  color,
+  seed,
   size = 'md',
 }: LetterChipProps): ReactElement {
   const letter = (name || '?').charAt(0).toUpperCase();
@@ -70,7 +86,7 @@ function LetterChip({
       aria-hidden
       className={classNames(
         'flex items-center justify-center rounded-8 font-bold',
-        colorClass[color],
+        getLetterChipClass(seed),
         sizeClass,
       )}
     >
@@ -100,7 +116,7 @@ export function ShortcutTile({
   removeLabel = 'Remove',
   className,
 }: ShortcutTileProps): ReactElement {
-  const { url, name, iconUrl, color = 'burger' } = shortcut;
+  const { url, name, iconUrl } = shortcut;
   const label = name || getDomainFromUrl(url);
   const [iconBroken, setIconBroken] = useState(false);
 
@@ -247,7 +263,7 @@ export function ShortcutTile({
       className={classNames('rounded-4', isChip ? 'size-5' : 'size-6')}
     />
   ) : (
-    <LetterChip name={label} color={color} size={isChip ? 'sm' : 'lg'} />
+    <LetterChip name={label} seed={url} size={isChip ? 'sm' : 'lg'} />
   );
 
   // `draggable={false}` belt to the `onDragStart` preventDefault suspenders
