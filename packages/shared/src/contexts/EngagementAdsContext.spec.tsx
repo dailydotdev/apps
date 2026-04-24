@@ -75,6 +75,7 @@ describe('EngagementAdsContext', () => {
     const invalidCreative = {
       ...mockCreative,
       gen_id: 'creative-invalid',
+      // eslint-disable-next-line no-script-url
       promoted_url: 'javascript:alert(1)',
     } as EngagementCreative;
 

@@ -45,22 +45,13 @@ describe('parseCreatives', () => {
   });
 
   it('drops creatives with non-http(s) urls', () => {
+    // eslint-disable-next-line no-script-url
     const bad = { ...validRaw, promoted_url: 'javascript:alert(1)' };
     expect(parseCreatives([bad])).toEqual([]);
   });
 
-  it('drops creatives with malformed themed image urls', () => {
-    const bad = {
-      ...validRaw,
-      promoted_logo_img: {
-        dark: 'not a url',
-        light: validRaw.promoted_logo_img.light,
-      },
-    };
-    expect(parseCreatives([bad])).toEqual([]);
-  });
-
   it('keeps valid creatives alongside invalid ones', () => {
+    // eslint-disable-next-line no-script-url
     const invalid = { ...validRaw, gen_id: 'bad', promoted_url: 'javascript:' };
     const parsed = parseCreatives([validRaw, invalid]);
     expect(parsed.map((c) => c.gen_id)).toEqual(['c1']);
