@@ -62,71 +62,38 @@ export interface HighlightedWordConfig {
 // Utilities
 // ============================================================================
 
-/**
- * Check if a word matches any highlighted keyword (case-insensitive)
- */
-export const isWordHighlighted = (
-  word: string,
-  config: HighlightedWordConfig | null | undefined,
-): boolean => {
-  if (!config?.keywords?.length) {
-    return false;
-  }
-  const normalizedWord = word.toLowerCase().trim();
-  return config.keywords.some(
-    (keyword) => keyword.toLowerCase() === normalizedWord,
-  );
-};
-
-/**
- * Escape special regex characters
- */
-const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
-
-/**
- * Find highlighted keyword matches in text
- * Returns an array of match objects with start/end indices
- */
 export interface KeywordMatch {
   keyword: string;
   start: number;
   end: number;
 }
 
-export const findHighlightedKeywords = (
+const escapeRegex = (str: string): string =>
+  str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Find the earliest whole-word keyword occurrence in text (case-insensitive).
+ * Returns null when no keyword matches.
+ */
+export const findFirstHighlightedKeyword = (
   text: string,
-  config: HighlightedWordConfig | null | undefined,
-): KeywordMatch[] => {
-  if (!config?.keywords?.length || !text) {
-    return [];
+  keywords: string[] | undefined,
+): KeywordMatch | null => {
+  if (!keywords?.length || !text) {
+    return null;
   }
 
-  const matches: KeywordMatch[] = [];
-  const lowerText = text.toLowerCase();
+  const pattern = keywords.map(escapeRegex).join('|');
+  const regex = new RegExp(`\\b(?:${pattern})\\b`, 'i');
+  const match = text.match(regex);
 
-  config.keywords.forEach((keyword) => {
-    const lowerKeyword = keyword.toLowerCase();
-    // Use word boundary regex to match whole words only
-    const regex = new RegExp(`\\b${escapeRegex(lowerKeyword)}\\b`, 'gi');
-    let match: RegExpExecArray | null = regex.exec(lowerText);
+  if (!match || match.index === undefined) {
+    return null;
+  }
 
-    while (match !== null) {
-      matches.push({
-        keyword: text.slice(match.index, match.index + keyword.length),
-        start: match.index,
-        end: match.index + keyword.length,
-      });
-
-      match = regex.exec(lowerText);
-    }
-  });
-
-  // Sort by start position and remove overlapping matches
-  return matches
-    .sort((a, b) => a.start - b.start)
-    .filter(
-      (match, index, arr) => index === 0 || match.start >= arr[index - 1].end,
-    );
+  return {
+    keyword: match[0],
+    start: match.index,
+    end: match.index + match[0].length,
+  };
 };

@@ -5,7 +5,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { SponsoredTooltip } from './SponsoredTooltip';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import type { HighlightStyle } from '../../lib/brand';
-import { findHighlightedKeywords } from '../../lib/brand';
+import { findFirstHighlightedKeyword } from '../../lib/brand';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 
 interface HighlightedWordProps {
@@ -151,29 +151,14 @@ export const HighlightedText = ({
       return [text];
     }
 
-    const scan = (terms: string[]) =>
-      terms.length
-        ? findHighlightedKeywords(text, {
-            keywords: terms,
-            highlightStyle: 'dotted',
-            triggerOn: 'hover',
-            tooltipTitle: '',
-            tooltipDescription: '',
-          })
-        : [];
+    // Scan keywords first; only fall back to tags if no keyword matched
+    const match =
+      findFirstHighlightedKeyword(text, keywords) ??
+      findFirstHighlightedKeyword(text, fallbackTags);
 
-    // Scan keywords first; only fall back to tags if nothing matched
-    const matches = scan(keywords);
-    const finalMatches =
-      matches.length === 0 && fallbackTags.length
-        ? scan(fallbackTags)
-        : matches;
-
-    if (finalMatches.length === 0) {
+    if (!match) {
       return [text];
     }
-
-    const match = finalMatches[0];
 
     return [
       text.slice(0, match.start),

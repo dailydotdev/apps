@@ -247,7 +247,6 @@ const Wallet = (): ReactElement => {
                 balance={transactionSummary?.spent || 0}
               />
             </section>
-
             <Divider />
             <section className="flex w-full flex-col gap-6">
               <Typography type={TypographyType.Body} bold>

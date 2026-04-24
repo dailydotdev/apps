@@ -139,12 +139,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: InviteIcon,
               href: `${settingsUrl}/invite`,
             },
-            // TODO: Re-enable when ready
-            // coupons: {
-            //   title: 'Coupons',
-            //   icon: GiftIcon,
-            //   href: `${settingsUrl}/coupons`,
-            // },
           },
         },
         feed: {
