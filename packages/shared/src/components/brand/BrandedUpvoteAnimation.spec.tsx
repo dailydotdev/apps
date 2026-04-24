@@ -23,6 +23,7 @@ describe('BrandedUpvoteAnimation', () => {
         config={config}
       />,
     );
+    // eslint-disable-next-line testing-library/no-container
     expect(container.querySelector('canvas')).toBeNull();
   });
 
@@ -34,12 +35,14 @@ describe('BrandedUpvoteAnimation', () => {
         config={config}
       />,
     );
+    // eslint-disable-next-line testing-library/no-container
     expect(container.querySelector('canvas')).toBeNull();
 
     rerender(
       <BrandedUpvoteAnimation isActive colors={colors} config={config} />,
     );
 
+    // eslint-disable-next-line testing-library/no-container
     expect(container.querySelector('canvas')).not.toBeNull();
   });
 });
