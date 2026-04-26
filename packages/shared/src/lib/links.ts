@@ -83,10 +83,7 @@ export const getPathnameWithQuery = (
   return `${pathname}${queryString ? `?${queryString}` : ''}`;
 };
 
-export const agentsHighlightsPath = getPathnameWithQuery(
-  '/highlights',
-  new URLSearchParams({ channel: 'agents' }),
-);
+export const agentsHighlightsPath = '/highlights/vibes';
 
 export const agentsHighlightsUrl = `${webappUrl}${agentsHighlightsPath.slice(
   1,
