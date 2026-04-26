@@ -84,7 +84,8 @@ const HighlightCardOptionsContent = ({
 export const HighlightCardOptions = ({
   className,
 }: HighlightCardOptionsProps): ReactElement | null => {
-  const { user } = useAuthContext();
+  const auth = useAuthContext();
+  const user = auth?.user;
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureMajorHeadlinesPush,
     shouldEvaluate: !!user,
