@@ -69,8 +69,6 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
-import { questsFeature } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
 type MenuItems = Record<
   string,
@@ -86,11 +84,6 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
-
-  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
-    feature: questsFeature,
-    shouldEvaluate: !!user,
-  });
 
   const items = useMemo(
     () =>
@@ -347,7 +340,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
     [logEvent, onClose, openModal, user?.username],
   );
 
-  return { items, isQuestsFeatureEnabled };
+  return { items };
 };
 
 interface ProfileSettingsMenuProps {
@@ -363,8 +356,7 @@ export const InnerProfileSettingsMenu = ({
   const { asPath } = useRouter();
   const isMobile = useViewSize(ViewSize.MobileL);
   const hasAccessToCores = useHasAccessToCores();
-  const { items: accountPageItems, isQuestsFeatureEnabled } =
-    useAccountPageItems({ onClose });
+  const { items: accountPageItems } = useAccountPageItems({ onClose });
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
@@ -377,22 +369,8 @@ export const InnerProfileSettingsMenu = ({
             withSeparator={!lastItem}
             title={menuItem.title ?? undefined}
             items={Object.entries(menuItem.items)
-              .filter(([itemKey, item]) => {
+              .filter(([, item]) => {
                 if (item.href === walletUrl && !hasAccessToCores) {
-                  return false;
-                }
-
-                if (
-                  itemKey === 'gamification' &&
-                  isQuestsFeatureEnabled !== true
-                ) {
-                  return false;
-                }
-
-                if (
-                  itemKey === 'gameCenter' &&
-                  isQuestsFeatureEnabled !== true
-                ) {
                   return false;
                 }
 
