@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   DropdownMenu,
@@ -21,6 +22,8 @@ import { featureMajorHeadlinesPush } from '../../../lib/featureManagement';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import type { MenuItemProps } from '../../dropdown/common';
 
+const NOTIFICATION_SETTINGS_PATH = '/settings/notifications';
+
 interface HighlightCardOptionsProps {
   className?: string;
 }
@@ -28,6 +31,7 @@ interface HighlightCardOptionsProps {
 const HighlightCardOptionsContent = ({
   className,
 }: HighlightCardOptionsProps): ReactElement => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const { displayToast } = useToastNotification();
@@ -46,7 +50,12 @@ const HighlightCardOptionsContent = ({
         return;
       }
       await subscribe('feed_card');
-      displayToast("You'll be the first to know when news breaks.");
+      displayToast("You'll be the first to know when news breaks.", {
+        action: {
+          copy: 'Settings',
+          onClick: () => router.push(NOTIFICATION_SETTINGS_PATH),
+        },
+      });
     } finally {
       setIsPending(false);
     }
@@ -70,7 +79,11 @@ const HighlightCardOptionsContent = ({
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<RawMenuIcon />}
-          className={classNames('my-auto', className)}
+          className={classNames(
+            'my-auto',
+            !open && 'invisible group-hover:visible',
+            className,
+          )}
           aria-label="Highlight options"
         />
       </DropdownMenuTrigger>

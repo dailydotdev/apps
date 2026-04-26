@@ -9,6 +9,11 @@ const mockDisplayToast = jest.fn();
 const mockUseAuth = jest.fn();
 const mockUseConditionalFeature = jest.fn();
 const mockUseMajorHeadlinesSubscription = jest.fn();
+const mockRouterPush = jest.fn();
+
+jest.mock('next/router', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}));
 
 jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuth(),
@@ -99,8 +104,26 @@ describe('HighlightCardOptions', () => {
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(
         "You'll be the first to know when news breaks.",
+        expect.objectContaining({
+          action: expect.objectContaining({ copy: 'Settings' }),
+        }),
       );
     });
+  });
+
+  it('should navigate to notification settings when toast action is clicked', async () => {
+    renderComponent();
+
+    fireEvent.click(screen.getByText('Get real-time alerts'));
+
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalled();
+    });
+
+    const toastArgs = mockDisplayToast.mock.calls[0][1];
+    toastArgs.action.onClick();
+
+    expect(mockRouterPush).toHaveBeenCalledWith('/settings/notifications');
   });
 
   it('should show unsubscribe label when subscribed and trigger unsubscribe on click', async () => {

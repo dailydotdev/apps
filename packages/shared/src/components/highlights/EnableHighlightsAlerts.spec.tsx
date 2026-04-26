@@ -12,6 +12,16 @@ const mockDisplayToast = jest.fn();
 const mockUseAuth = jest.fn();
 const mockUseConditionalFeature = jest.fn();
 const mockUseMajorHeadlinesSubscription = jest.fn();
+const mockRouterPush = jest.fn();
+const mockUsePushNotificationContext = jest.fn();
+
+jest.mock('next/router', () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}));
+
+jest.mock('../../contexts/PushNotificationContext', () => ({
+  usePushNotificationContext: () => mockUsePushNotificationContext(),
+}));
 
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
@@ -50,19 +60,19 @@ describe('EnableHighlightsAlerts', () => {
     mockUseConditionalFeature.mockReturnValue({ value: true });
     mockUseMajorHeadlinesSubscription.mockReturnValue({
       isSubscribed: false,
+      isLoading: false,
       subscribe: mockSubscribe,
       unsubscribe: jest.fn(),
     });
     mockCheckHasCompleted.mockReturnValue(false);
+    mockUsePushNotificationContext.mockReturnValue({ isSubscribed: false });
   });
 
   it('should render banner when feature is on, user is logged in, not subscribed and not dismissed', () => {
     renderComponent();
 
-    expect(
-      screen.getByText('Get real-time alerts when news breaks'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Turn on alerts')).toBeInTheDocument();
+    expect(screen.getByText('Push notifications')).toBeInTheDocument();
+    expect(screen.getByText('Enable notifications')).toBeInTheDocument();
   });
 
   it('should not render when feature is off', () => {
@@ -70,9 +80,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(
-      screen.queryByText('Get real-time alerts when news breaks'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
   });
 
   it('should not render for guests', () => {
@@ -80,23 +88,20 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(
-      screen.queryByText('Get real-time alerts when news breaks'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
   });
 
   it('should not render when already subscribed', () => {
     mockUseMajorHeadlinesSubscription.mockReturnValue({
       isSubscribed: true,
+      isLoading: false,
       subscribe: mockSubscribe,
       unsubscribe: jest.fn(),
     });
 
     renderComponent();
 
-    expect(
-      screen.queryByText('Get real-time alerts when news breaks'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
   });
 
   it('should not render when dismissed', () => {
@@ -104,9 +109,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(
-      screen.queryByText('Get real-time alerts when news breaks'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
   });
 
   it('should log impression on render', () => {
@@ -118,10 +121,10 @@ describe('EnableHighlightsAlerts', () => {
     });
   });
 
-  it('should subscribe and show toast on CTA click', async () => {
+  it('should subscribe and show toast with settings action on CTA click when push is not yet enabled', async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByText('Turn on alerts'));
+    fireEvent.click(screen.getByText('Enable notifications'));
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
@@ -130,8 +133,35 @@ describe('EnableHighlightsAlerts', () => {
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(
         "You'll be the first to know when news breaks.",
+        expect.objectContaining({
+          action: expect.objectContaining({ copy: 'Settings' }),
+        }),
       );
     });
+
+    const toastArgs = mockDisplayToast.mock.calls[0][1];
+    toastArgs.action.onClick();
+    expect(mockRouterPush).toHaveBeenCalledWith('/settings/notifications');
+  });
+
+  it('should show enabled state inline when push was already granted', async () => {
+    mockUsePushNotificationContext.mockReturnValue({ isSubscribed: true });
+
+    renderComponent();
+
+    fireEvent.click(screen.getByText('Enable notifications'));
+
+    await waitFor(() => {
+      expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('Push notifications successfully enabled'),
+      ).toBeInTheDocument();
+    });
+
+    expect(mockDisplayToast).not.toHaveBeenCalled();
   });
 
   it('should complete dismiss action and log dismiss on close', async () => {
