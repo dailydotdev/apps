@@ -714,25 +714,22 @@ it('should show TLDR when there is a summary', async () => {
   expect(link).not.toBeInTheDocument();
 });
 
-it('should toggle TLDR on click', async () => {
+it('should show full TLDR for long summaries without a Show more toggle', async () => {
+  const summaryText =
+    "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.";
   renderPost({}, [
-    createPostMock({
-      summary:
-        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.",
-    }),
+    createPostMock({ summary: summaryText }),
     completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
+  expect(el).toHaveTextContent(summaryText);
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
   const showMoreLink = queryByText(
     getRequiredElement(el.parentElement, 'Expected TLDR container parent'),
     'Show more',
   );
-  expect(showMoreLink).toBeInTheDocument();
-  fireEvent.click(getRequiredElement(showMoreLink, 'Expected show more link'));
-  const showLessLink = await screen.findByText('Show less');
-  expect(showLessLink).toBeInTheDocument();
+  expect(showMoreLink).not.toBeInTheDocument();
 });
 
 it('should not show Show more link when there is a summary without reaching threshold', async () => {
@@ -899,7 +896,9 @@ describe('downvote flow', () => {
 
   it('should prevent user to click block if no tags are selected', async () => {
     await prepareDownvote();
-    const block = await screen.findByRole('button', { name: 'Block' });
+    const block = await screen.findByRole<HTMLButtonElement>('button', {
+      name: 'Block',
+    });
     expect(block.disabled).toBe(true);
   });
 
