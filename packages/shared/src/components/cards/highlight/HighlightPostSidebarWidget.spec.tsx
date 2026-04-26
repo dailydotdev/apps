@@ -1,6 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HighlightPostSidebarWidget } from './HighlightPostSidebarWidget';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -165,7 +164,8 @@ describe('HighlightPostSidebarWidget', () => {
     expect(screen.queryByText('The first highlight')).not.toBeInTheDocument();
   });
 
-  it('pauses rotation while hovering', async () => {
+  it('pauses rotation while hovering and resumes after unhover', async () => {
+    jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
     mockGqlRequest.mockResolvedValue(
       buildResponse([
         buildHighlight('h1', 'The first highlight'),
@@ -174,18 +174,58 @@ describe('HighlightPostSidebarWidget', () => {
     );
 
     renderWidget();
-    const article = await screen.findByTestId('postPageHighlightWidget');
-    expect(screen.getByText('The first highlight')).toBeInTheDocument();
 
-    await userEvent.hover(article);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await waitFor(() =>
+      expect(screen.getByText('The first highlight')).toBeInTheDocument(),
+    );
 
-    jest.useFakeTimers();
+    const widget = screen.getByTestId('postPageHighlightWidget');
+
+    await act(async () => {
+      fireEvent.mouseEnter(widget);
+    });
+
     await act(async () => {
       jest.advanceTimersByTime(6000);
+    });
+    await act(async () => {
       jest.advanceTimersByTime(500);
     });
 
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
     expect(screen.queryByText('The second highlight')).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.mouseLeave(widget);
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(6000);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    expect(screen.getByText('The second highlight')).toBeInTheDocument();
+    expect(screen.queryByText('The first highlight')).not.toBeInTheDocument();
+  });
+
+  it('logs an impression when highlights load', async () => {
+    mockGqlRequest.mockResolvedValue(
+      buildResponse([buildHighlight('h1', 'A headline')]),
+    );
+
+    renderWidget();
+
+    await screen.findByText('Happening Now');
+
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: 'impression' }),
+      ),
+    );
   });
 });
