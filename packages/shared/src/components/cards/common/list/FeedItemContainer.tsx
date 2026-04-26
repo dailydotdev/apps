@@ -14,6 +14,7 @@ import { RaisedLabel, RaisedLabelType } from '../RaisedLabel';
 import { useFeedPreviewMode, useBookmarkProvider } from '../../../../hooks';
 import { TypeLabel } from './TypeLabel';
 import { bookmarkProviderListBg } from '../../../../styles/custom';
+import { getTrendingDescription } from '../getTrendingDescription';
 
 interface FeedItemContainerProps {
   flagProps?: FlagProps;
@@ -47,8 +48,8 @@ function FeedItemContainer(
     ? RaisedLabelType.Pinned
     : RaisedLabelType.Hot;
   const description =
-    raisedLabelType === RaisedLabelType.Hot && trending && trending > 0
-      ? `${trending} devs read it last hour`
+    raisedLabelType === RaisedLabelType.Hot
+      ? getTrendingDescription(trending)
       : undefined;
   const isFeedPreview = useFeedPreviewMode();
   const showFlag = (!!pinnedAt || !!trending) && !isFeedPreview;

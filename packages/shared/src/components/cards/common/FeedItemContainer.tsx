@@ -10,6 +10,7 @@ import {
 } from './RaisedLabel';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
+import { getTrendingDescription } from './getTrendingDescription';
 
 export interface FlagProps extends Pick<Post, 'trending' | 'pinnedAt'> {
   listMode?: boolean;
@@ -32,9 +33,7 @@ function FeedItemContainer(
   const { listMode, pinnedAt, trending } = flagProps;
   const type = pinnedAt ? RaisedLabelType.Pinned : RaisedLabelType.Hot;
   const description =
-    type === RaisedLabelType.Hot
-      ? `${trending} devs read it last hour`
-      : undefined;
+    type === RaisedLabelType.Hot ? getTrendingDescription(trending) : undefined;
   const isFeedPreview = useFeedPreviewMode();
 
   return (
