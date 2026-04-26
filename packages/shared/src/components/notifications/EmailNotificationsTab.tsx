@@ -17,8 +17,12 @@ import PersonalizedDigest from './PersonalizedDigest';
 import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureMajorHeadlinesPush } from '../../lib/featureManagement';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const EmailNotificationsTab = (): ReactElement => {
+  const { user } = useAuthContext();
   const {
     notificationSettings: ns,
     toggleSetting,
@@ -27,9 +31,37 @@ const EmailNotificationsTab = (): ReactElement => {
     unsubscribeAllEmail,
     emailsDisabled,
   } = useNotificationSettings();
+  const { value: isMajorHeadlinesEnabled } = useConditionalFeature({
+    feature: featureMajorHeadlinesPush,
+    shouldEvaluate: !!user,
+  });
 
   return (
     <section className="flex flex-col gap-6 py-4">
+      {isMajorHeadlinesEnabled && (
+        <>
+          <NotificationSection>
+            <Typography type={TypographyType.Body} bold>
+              Happening Now
+            </Typography>
+            <NotificationContainer>
+              <NotificationSwitch
+                id={NotificationType.MajorHeadlineAdded}
+                label="Major headlines"
+                description="Get pinged when breaking news drops in your channels"
+                checked={
+                  ns?.[NotificationType.MajorHeadlineAdded]?.email ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() =>
+                  toggleSetting(NotificationType.MajorHeadlineAdded, 'email')
+                }
+              />
+            </NotificationContainer>
+          </NotificationSection>
+          <HorizontalSeparator className="mx-4" />
+        </>
+      )}
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Activity

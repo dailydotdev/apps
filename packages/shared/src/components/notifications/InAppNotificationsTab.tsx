@@ -40,6 +40,9 @@ import NotificationCheckbox from './NotificationCheckbox';
 import NotificationSwitch from './NotificationSwitch';
 import NotificationGroupToggle from './NotificationToggle';
 import ReadingReminderToggle from './ReadingReminderToggle';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureMajorHeadlinesPush } from '../../lib/featureManagement';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -47,12 +50,17 @@ const InAppNotificationsTab = (): ReactElement => {
   const { isSubscribed, isInitialized, isPushSupported } =
     usePushNotificationContext();
   const { openModal } = useLazyModal();
+  const { user } = useAuthContext();
   const {
     notificationSettings: ns,
     toggleSetting,
     toggleGroup,
     getGroupStatus,
   } = useNotificationSettings();
+  const { value: isMajorHeadlinesEnabled } = useConditionalFeature({
+    feature: featureMajorHeadlinesPush,
+    shouldEvaluate: !!user,
+  });
 
   const onTogglePush = async () => {
     logEvent({
@@ -117,6 +125,30 @@ const InAppNotificationsTab = (): ReactElement => {
           }
         />
       </div>
+      {isMajorHeadlinesEnabled && (
+        <>
+          <NotificationSection>
+            <Typography type={TypographyType.Body} bold>
+              Happening Now
+            </Typography>
+            <NotificationContainer>
+              <NotificationSwitch
+                id={NotificationType.MajorHeadlineAdded}
+                label="Major headlines"
+                description="Get pinged when breaking news drops in your channels"
+                checked={
+                  ns?.[NotificationType.MajorHeadlineAdded]?.inApp ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() =>
+                  toggleSetting(NotificationType.MajorHeadlineAdded, 'inApp')
+                }
+              />
+            </NotificationContainer>
+          </NotificationSection>
+          <HorizontalSeparator className="mx-4" />
+        </>
+      )}
       <NotificationSection>
         <Typography type={TypographyType.Body} bold>
           Activity

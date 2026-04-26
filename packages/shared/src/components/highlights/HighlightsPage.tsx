@@ -13,6 +13,7 @@ import {
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
+import { EnableHighlightsAlerts } from './EnableHighlightsAlerts';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const SKELETON_COUNT = 5;
@@ -148,6 +149,7 @@ export const HighlightsPage = (): ReactElement => {
           Happening Now
         </h1>
       </header>
+      <EnableHighlightsAlerts />
       <TabContainer
         controlledActive={activeTab}
         showBorder={false}
