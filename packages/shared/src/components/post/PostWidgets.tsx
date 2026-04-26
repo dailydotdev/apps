@@ -16,6 +16,7 @@ import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
+import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
@@ -102,6 +103,7 @@ export function PostWidgets({
         link={post.commentsPermalink}
         onCopyPostLink={onCopyPostLink}
       />
+      <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
