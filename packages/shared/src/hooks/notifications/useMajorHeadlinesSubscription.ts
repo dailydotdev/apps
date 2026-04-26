@@ -39,7 +39,8 @@ export const useMajorHeadlinesSubscription =
       setNotificationStatusBulk,
     } = useNotificationSettings();
 
-    const settings = notificationSettings?.[NotificationType.MajorHeadlineAdded];
+    const settings =
+      notificationSettings?.[NotificationType.MajorHeadlineAdded];
     const isInAppSubscribed =
       settings?.inApp === NotificationPreferenceStatus.Subscribed;
     const isEmailSubscribed =
@@ -110,6 +111,12 @@ export const useMajorHeadlinesSubscription =
         subscribe,
         unsubscribe,
       }),
-      [isSubscribed, isPushEnabled, isLoadingPreferences, subscribe, unsubscribe],
+      [
+        isSubscribed,
+        isPushEnabled,
+        isLoadingPreferences,
+        subscribe,
+        unsubscribe,
+      ],
     );
   };

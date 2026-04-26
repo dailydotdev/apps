@@ -45,9 +45,7 @@ const HighlightCardOptionsContent = ({
 
   const options: MenuItemProps[] = [
     {
-      icon: (
-        <MenuIcon Icon={isSubscribed ? BellSubscribedIcon : BellAddIcon} />
-      ),
+      icon: <MenuIcon Icon={isSubscribed ? BellSubscribedIcon : BellAddIcon} />,
       label: isSubscribed
         ? 'Turn off real-time alerts'
         : 'Get real-time alerts',
@@ -67,11 +65,9 @@ const HighlightCardOptionsContent = ({
           aria-label="Highlight options"
         />
       </DropdownMenuTrigger>
-      {open && (
-        <DropdownMenuContent>
-          <DropdownMenuOptions options={options} />
-        </DropdownMenuContent>
-      )}
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 };

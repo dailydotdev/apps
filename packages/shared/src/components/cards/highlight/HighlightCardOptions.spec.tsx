@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { HighlightCardOptions } from './HighlightCardOptions';
+import type { MenuItemProps } from '../../dropdown/common';
 
 const mockSubscribe = jest.fn().mockResolvedValue(undefined);
 const mockUnsubscribe = jest.fn().mockResolvedValue(undefined);
@@ -17,15 +18,32 @@ jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: () => mockUseConditionalFeature(),
 }));
 
-jest.mock(
-  '../../../hooks/notifications/useMajorHeadlinesSubscription',
-  () => ({
-    useMajorHeadlinesSubscription: () => mockUseMajorHeadlinesSubscription(),
-  }),
-);
+jest.mock('../../../hooks/notifications/useMajorHeadlinesSubscription', () => ({
+  useMajorHeadlinesSubscription: () => mockUseMajorHeadlinesSubscription(),
+}));
 
 jest.mock('../../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
+}));
+
+jest.mock('../../dropdown/DropdownMenu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuOptions: ({ options }: { options: MenuItemProps[] }) => (
+    <div>
+      {options.map(({ label, action }) => (
+        <button key={label} type="button" onClick={action}>
+          {label}
+        </button>
+      ))}
+    </div>
+  ),
 }));
 
 const renderComponent = () => render(<HighlightCardOptions />);
@@ -73,10 +91,7 @@ describe('HighlightCardOptions', () => {
   it('should show subscribe label when not subscribed and trigger subscribe on click', async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Highlight options' }));
-
-    const action = await screen.findByText('Get real-time alerts');
-    fireEvent.click(action);
+    fireEvent.click(screen.getByText('Get real-time alerts'));
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalledWith('feed_card');
@@ -97,10 +112,7 @@ describe('HighlightCardOptions', () => {
 
     renderComponent();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Highlight options' }));
-
-    const action = await screen.findByText('Turn off real-time alerts');
-    fireEvent.click(action);
+    fireEvent.click(screen.getByText('Turn off real-time alerts'));
 
     await waitFor(() => {
       expect(mockUnsubscribe).toHaveBeenCalledWith('feed_card');
