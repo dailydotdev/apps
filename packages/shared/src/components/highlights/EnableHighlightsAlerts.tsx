@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import CloseButton from '../CloseButton';
@@ -33,7 +33,9 @@ export const EnableHighlightsAlerts = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { isSubscribed, subscribe } = useMajorHeadlinesSubscription();
+  const { isSubscribed, isLoading, subscribe } =
+    useMajorHeadlinesSubscription();
+  const [isPending, setIsPending] = useState(false);
 
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureMajorHeadlinesPush,
@@ -60,9 +62,17 @@ export const EnableHighlightsAlerts = ({
   );
 
   const handleEnable = useCallback(async () => {
-    await subscribe(ORIGIN);
-    displayToast("You'll be the first to know when news breaks.");
-  }, [subscribe, displayToast]);
+    if (isPending || isLoading) {
+      return;
+    }
+    setIsPending(true);
+    try {
+      await subscribe(ORIGIN);
+      displayToast("You'll be the first to know when news breaks.");
+    } finally {
+      setIsPending(false);
+    }
+  }, [isPending, isLoading, subscribe, displayToast]);
 
   const handleDismiss = useCallback(() => {
     completeAction(ActionType.DismissedMajorHeadlinesAlertsBanner);
@@ -102,6 +112,7 @@ export const EnableHighlightsAlerts = ({
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
         onClick={handleEnable}
+        disabled={isPending || isLoading}
       >
         Turn on alerts
       </Button>

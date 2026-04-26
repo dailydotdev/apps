@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { NotificationType } from '../../components/notifications/utils';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import useNotificationSettings from './useNotificationSettings';
@@ -41,11 +41,8 @@ export const useMajorHeadlinesSubscription =
 
     const settings =
       notificationSettings?.[NotificationType.MajorHeadlineAdded];
-    const isInAppSubscribed =
+    const isSubscribed =
       settings?.inApp === NotificationPreferenceStatus.Subscribed;
-    const isEmailSubscribed =
-      settings?.email === NotificationPreferenceStatus.Subscribed;
-    const isSubscribed = isInAppSubscribed || isEmailSubscribed;
 
     const subscribe = useCallback(
       async (origin: MajorHeadlinesOrigin) => {
@@ -59,11 +56,6 @@ export const useMajorHeadlinesSubscription =
           {
             type: NotificationType.MajorHeadlineAdded,
             channel: 'inApp',
-            status: NotificationPreferenceStatus.Subscribed,
-          },
-          {
-            type: NotificationType.MajorHeadlineAdded,
-            channel: 'email',
             status: NotificationPreferenceStatus.Subscribed,
           },
         ]);
@@ -88,11 +80,6 @@ export const useMajorHeadlinesSubscription =
             channel: 'inApp',
             status: NotificationPreferenceStatus.Muted,
           },
-          {
-            type: NotificationType.MajorHeadlineAdded,
-            channel: 'email',
-            status: NotificationPreferenceStatus.Muted,
-          },
         ]);
 
         logEvent({
@@ -103,20 +90,11 @@ export const useMajorHeadlinesSubscription =
       [user, setNotificationStatusBulk, logEvent],
     );
 
-    return useMemo(
-      () => ({
-        isSubscribed,
-        isPushEnabled,
-        isLoading: isLoadingPreferences,
-        subscribe,
-        unsubscribe,
-      }),
-      [
-        isSubscribed,
-        isPushEnabled,
-        isLoadingPreferences,
-        subscribe,
-        unsubscribe,
-      ],
-    );
+    return {
+      isSubscribed,
+      isPushEnabled,
+      isLoading: isLoadingPreferences,
+      subscribe,
+      unsubscribe,
+    };
   };

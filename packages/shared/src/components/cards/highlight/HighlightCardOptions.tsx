@@ -29,18 +29,27 @@ const HighlightCardOptionsContent = ({
   className,
 }: HighlightCardOptionsProps): ReactElement => {
   const [open, setOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const { displayToast } = useToastNotification();
-  const { isSubscribed, subscribe, unsubscribe } =
+  const { isSubscribed, isLoading, subscribe, unsubscribe } =
     useMajorHeadlinesSubscription();
 
   const handleToggle = async () => {
-    if (isSubscribed) {
-      await unsubscribe('feed_card');
-      displayToast('Real-time alerts turned off.');
+    if (isPending || isLoading) {
       return;
     }
-    await subscribe('feed_card');
-    displayToast("You'll be the first to know when news breaks.");
+    setIsPending(true);
+    try {
+      if (isSubscribed) {
+        await unsubscribe('feed_card');
+        displayToast('Real-time alerts turned off.');
+        return;
+      }
+      await subscribe('feed_card');
+      displayToast("You'll be the first to know when news breaks.");
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const options: MenuItemProps[] = [
@@ -75,8 +84,7 @@ const HighlightCardOptionsContent = ({
 export const HighlightCardOptions = ({
   className,
 }: HighlightCardOptionsProps): ReactElement | null => {
-  const auth = useAuthContext();
-  const user = auth?.user;
+  const { user } = useAuthContext();
   const { value: isFeatureEnabled } = useConditionalFeature({
     feature: featureMajorHeadlinesPush,
     shouldEvaluate: !!user,
