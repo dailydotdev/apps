@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { HighlightCardOptions } from './HighlightCardOptions';
-import type { MenuItemProps } from '../../dropdown/common';
 
 const mockSubscribe = jest.fn().mockResolvedValue(undefined);
 const mockUnsubscribe = jest.fn().mockResolvedValue(undefined);
@@ -31,24 +30,8 @@ jest.mock('../../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
-jest.mock('../../dropdown/DropdownMenu', () => ({
-  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
-    children,
-  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  DropdownMenuOptions: ({ options }: { options: MenuItemProps[] }) => (
-    <div>
-      {options.map(({ label, action }) => (
-        <button key={label} type="button" onClick={action}>
-          {label}
-        </button>
-      ))}
-    </div>
-  ),
+jest.mock('../../tooltip/Tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 const renderComponent = () => render(<HighlightCardOptions />);
@@ -60,16 +43,17 @@ describe('HighlightCardOptions', () => {
     mockUseConditionalFeature.mockReturnValue({ value: true });
     mockUseMajorHeadlinesSubscription.mockReturnValue({
       isSubscribed: false,
+      isLoading: false,
       subscribe: mockSubscribe,
       unsubscribe: mockUnsubscribe,
     });
   });
 
-  it('should render trigger button when feature is on and user is logged in', () => {
+  it('should render bell button when feature is on and user is logged in', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('button', { name: 'Highlight options' }),
+      screen.getByRole('button', { name: 'Get real-time alerts' }),
     ).toBeInTheDocument();
   });
 
@@ -79,7 +63,7 @@ describe('HighlightCardOptions', () => {
     renderComponent();
 
     expect(
-      screen.queryByRole('button', { name: 'Highlight options' }),
+      screen.queryByRole('button', { name: 'Get real-time alerts' }),
     ).not.toBeInTheDocument();
   });
 
@@ -89,14 +73,16 @@ describe('HighlightCardOptions', () => {
     renderComponent();
 
     expect(
-      screen.queryByRole('button', { name: 'Highlight options' }),
+      screen.queryByRole('button', { name: 'Get real-time alerts' }),
     ).not.toBeInTheDocument();
   });
 
-  it('should show subscribe label when not subscribed and trigger subscribe on click', async () => {
+  it('should subscribe and show toast with settings action when not subscribed', async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByText('Get real-time alerts'));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Get real-time alerts' }),
+    );
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalledWith('feed_card');
@@ -114,7 +100,9 @@ describe('HighlightCardOptions', () => {
   it('should navigate to notification settings when toast action is clicked', async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByText('Get real-time alerts'));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Get real-time alerts' }),
+    );
 
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalled();
@@ -126,19 +114,27 @@ describe('HighlightCardOptions', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/settings/notifications');
   });
 
-  it('should show unsubscribe label when subscribed and trigger unsubscribe on click', async () => {
+  it('should unsubscribe when subscribed', async () => {
     mockUseMajorHeadlinesSubscription.mockReturnValue({
       isSubscribed: true,
+      isLoading: false,
       subscribe: mockSubscribe,
       unsubscribe: mockUnsubscribe,
     });
 
     renderComponent();
 
-    fireEvent.click(screen.getByText('Turn off real-time alerts'));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Turn off real-time alerts' }),
+    );
 
     await waitFor(() => {
       expect(mockUnsubscribe).toHaveBeenCalledWith('feed_card');
+    });
+    await waitFor(() => {
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'Real-time alerts turned off.',
+      );
     });
   });
 });

@@ -3,24 +3,13 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuOptions,
-  DropdownMenuTrigger,
-} from '../../dropdown/DropdownMenu';
-import {
-  BellAddIcon,
-  BellSubscribedIcon,
-  MenuIcon as RawMenuIcon,
-} from '../../icons';
-import { MenuIcon } from '../../MenuIcon';
+import { BellAddIcon, BellSubscribedIcon } from '../../icons';
+import { Tooltip } from '../../tooltip/Tooltip';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useMajorHeadlinesSubscription } from '../../../hooks/notifications/useMajorHeadlinesSubscription';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureMajorHeadlinesPush } from '../../../lib/featureManagement';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import type { MenuItemProps } from '../../dropdown/common';
 
 const NOTIFICATION_SETTINGS_PATH = '/settings/notifications';
 
@@ -32,7 +21,6 @@ const HighlightCardOptionsContent = ({
   className,
 }: HighlightCardOptionsProps): ReactElement => {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const { displayToast } = useToastNotification();
   const { isSubscribed, isLoading, subscribe, unsubscribe } =
@@ -61,36 +49,27 @@ const HighlightCardOptionsContent = ({
     }
   };
 
-  const options: MenuItemProps[] = [
-    {
-      icon: <MenuIcon Icon={isSubscribed ? BellSubscribedIcon : BellAddIcon} />,
-      label: isSubscribed
-        ? 'Turn off real-time alerts'
-        : 'Get real-time alerts',
-      action: handleToggle,
-    },
-  ];
+  const label = isSubscribed
+    ? 'Turn off real-time alerts'
+    : 'Get real-time alerts';
+  const Icon = isSubscribed ? BellSubscribedIcon : BellAddIcon;
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          icon={<RawMenuIcon />}
-          className={classNames(
-            'my-auto',
-            !open && 'invisible group-hover:visible',
-            className,
-          )}
-          aria-label="Highlight options"
-        />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuOptions options={options} />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Tooltip content={label}>
+      <Button
+        type="button"
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<Icon />}
+        className={classNames(
+          'my-auto invisible group-hover:visible',
+          className,
+        )}
+        aria-label={label}
+        onClick={handleToggle}
+        disabled={isPending || isLoading}
+      />
+    </Tooltip>
   );
 };
 
