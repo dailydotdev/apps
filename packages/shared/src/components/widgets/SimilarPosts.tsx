@@ -23,6 +23,7 @@ import {
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
 import { WidgetContainer } from './common';
+import { getTrendingDescription } from '../cards/common/getTrendingDescription';
 
 export type SimilarPostsProps = {
   posts: Post[] | null;
@@ -46,47 +47,50 @@ type PostProps = {
 const imageClassName = 'w-7 h-7 rounded-full mt-1';
 const textContainerClassName = 'flex flex-col ml-3 mr-2 flex-1';
 
-const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => (
-  <article
-    className={classNames(
-      'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
-      styles.card,
-    )}
-  >
-    <CardLink
-      href={post.commentsPermalink}
-      title={post.title}
-      {...combinedClicks(onLinkClick)}
-    />
-    <LazyImage
-      imgSrc={post.source?.image ?? ''}
-      imgAlt={post.source?.name ?? ''}
-      className={imageClassName}
-    />
-    <div className={textContainerClassName}>
-      <h5
-        className={classNames(
-          'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
-          styles.title,
-        )}
-      >
-        {post.title}
-      </h5>
-      {post.trending ? (
-        <div className="flex items-center text-text-tertiary typo-footnote">
-          <HotLabel />
-          <div className="ml-2">{post.trending} devs read it last hour</div>
-        </div>
-      ) : (
-        <PostEngagementCounts
-          upvotes={post.numUpvotes ?? 0}
-          comments={post.numComments ?? 0}
-          className="text-text-tertiary"
-        />
+const DefaultListItem = ({ post, onLinkClick }: PostProps): ReactElement => {
+  const trendingDescription = getTrendingDescription(post.trending);
+  return (
+    <article
+      className={classNames(
+        'group relative -mx-4 flex items-start px-4 py-3 hover:bg-surface-hover',
+        styles.card,
       )}
-    </div>
-  </article>
-);
+    >
+      <CardLink
+        href={post.commentsPermalink}
+        title={post.title}
+        {...combinedClicks(onLinkClick)}
+      />
+      <LazyImage
+        imgSrc={post.source?.image ?? ''}
+        imgAlt={post.source?.name ?? ''}
+        className={imageClassName}
+      />
+      <div className={textContainerClassName}>
+        <h5
+          className={classNames(
+            'multi-truncate mb-0.5 text-ellipsis break-words text-text-primary typo-callout',
+            styles.title,
+          )}
+        >
+          {post.title}
+        </h5>
+        {trendingDescription ? (
+          <div className="flex items-center text-text-tertiary typo-footnote">
+            <HotLabel />
+            <div className="ml-2">{trendingDescription}</div>
+          </div>
+        ) : (
+          <PostEngagementCounts
+            upvotes={post.numUpvotes ?? 0}
+            comments={post.numComments ?? 0}
+            className="text-text-tertiary"
+          />
+        )}
+      </div>
+    </article>
+  );
+};
 
 const TextPlaceholder = classed(ElementPlaceholder, 'h-3 rounded-12 my-0.5');
 
