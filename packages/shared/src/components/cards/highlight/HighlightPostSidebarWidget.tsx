@@ -1,17 +1,9 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { WidgetContainer } from '../../widgets/common';
-import {
-  getHighlightsUrl,
-  highlightsTitleGradientClassName,
-} from './common';
+import { getHighlightsUrl, highlightsTitleGradientClassName } from './common';
 import {
   majorHeadlinesQueryOptions,
   type PostHighlight,
@@ -168,10 +160,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
       >
         Happening Now
       </h4>
-      <div
-        className="flex min-h-[5rem] flex-col"
-        aria-live="polite"
-      >
+      <div className="flex min-h-[5rem] flex-col" aria-live="polite">
         <Link href={headlineHref}>
           <a
             className={classNames(
@@ -195,7 +184,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
       <Link href={getHighlightsUrl(firstHighlight?.id)}>
         <a
           aria-label="Read all highlights"
-          className="mt-2 inline-flex items-center self-start gap-1 typo-footnote"
+          className="mt-2 inline-flex items-center gap-1 self-start typo-footnote"
           href={getHighlightsUrl(firstHighlight?.id)}
           onClick={onReadAllClick}
         >

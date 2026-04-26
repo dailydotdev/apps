@@ -12,7 +12,8 @@ export interface HighlightCardProps {
   onReadAllClick?: () => void;
 }
 
-export const highlightsTitleGradientClassName = 'feed-highlights-title-gradient';
+export const highlightsTitleGradientClassName =
+  'feed-highlights-title-gradient';
 
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
