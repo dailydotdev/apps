@@ -80,7 +80,10 @@ export const HighlightCardContent = ({
         >
           Happening Now
         </h3>
-        <HighlightCardOptions className="ml-auto" />
+        <HighlightCardOptions
+          channel={firstHighlight?.channel}
+          className="ml-auto"
+        />
       </header>
       <div className={contentClassName}>
         {highlights.map((highlight, index) => (

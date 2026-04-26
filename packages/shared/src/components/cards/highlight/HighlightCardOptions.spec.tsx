@@ -1,9 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { HighlightCardOptions } from './HighlightCardOptions';
+import { HighlightSignificance } from '../../../graphql/highlights';
 
-const mockSubscribe = jest.fn().mockResolvedValue(undefined);
-const mockUnsubscribe = jest.fn().mockResolvedValue(undefined);
+const mockSubscribeChannel = jest.fn().mockResolvedValue(undefined);
+const mockUnsubscribeChannel = jest.fn().mockResolvedValue(undefined);
+const mockIsChannelSubscribed = jest.fn();
 const mockDisplayToast = jest.fn();
 const mockUseAuth = jest.fn();
 const mockUseConditionalFeature = jest.fn();
@@ -34,22 +36,25 @@ jest.mock('../../tooltip/Tooltip', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-const renderComponent = () => render(<HighlightCardOptions />);
+const renderComponent = (channel = 'tech') =>
+  render(<HighlightCardOptions channel={channel} />);
 
 describe('HighlightCardOptions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: { id: '1' } });
     mockUseConditionalFeature.mockReturnValue({ value: true });
+    mockIsChannelSubscribed.mockReturnValue(false);
     mockUseMajorHeadlinesSubscription.mockReturnValue({
-      isSubscribed: false,
+      isChannelSubscribed: mockIsChannelSubscribed,
       isLoading: false,
-      subscribe: mockSubscribe,
-      unsubscribe: mockUnsubscribe,
+      isPending: false,
+      subscribeChannel: mockSubscribeChannel,
+      unsubscribeChannel: mockUnsubscribeChannel,
     });
   });
 
-  it('should render bell button when feature is on and user is logged in', () => {
+  it('should render bell button when feature is on, user is logged in and channel is provided', () => {
     renderComponent();
 
     expect(
@@ -77,15 +82,27 @@ describe('HighlightCardOptions', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should subscribe and show toast with settings action when not subscribed', async () => {
-    renderComponent();
+  it('should not render when channel is missing', () => {
+    render(<HighlightCardOptions />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Get real-time alerts' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should subscribe channel at Major+ and show toast with settings action when not subscribed', async () => {
+    renderComponent('tech');
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Get real-time alerts' }),
     );
 
     await waitFor(() => {
-      expect(mockSubscribe).toHaveBeenCalledWith('feed_card');
+      expect(mockSubscribeChannel).toHaveBeenCalledWith(
+        'tech',
+        HighlightSignificance.Major,
+        'feed_card',
+      );
     });
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(
@@ -114,22 +131,17 @@ describe('HighlightCardOptions', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/settings/notifications');
   });
 
-  it('should unsubscribe when subscribed', async () => {
-    mockUseMajorHeadlinesSubscription.mockReturnValue({
-      isSubscribed: true,
-      isLoading: false,
-      subscribe: mockSubscribe,
-      unsubscribe: mockUnsubscribe,
-    });
+  it('should unsubscribe when channel is already subscribed', async () => {
+    mockIsChannelSubscribed.mockReturnValue(true);
 
-    renderComponent();
+    renderComponent('tech');
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Turn off real-time alerts' }),
     );
 
     await waitFor(() => {
-      expect(mockUnsubscribe).toHaveBeenCalledWith('feed_card');
+      expect(mockUnsubscribeChannel).toHaveBeenCalledWith('tech', 'feed_card');
     });
     await waitFor(() => {
       expect(mockDisplayToast).toHaveBeenCalledWith(

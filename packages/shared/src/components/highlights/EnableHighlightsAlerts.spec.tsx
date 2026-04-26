@@ -3,9 +3,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { EnableHighlightsAlerts } from './EnableHighlightsAlerts';
 import { LogEvent } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
+import { HighlightSignificance } from '../../graphql/highlights';
 
 const mockLogEvent = jest.fn();
-const mockSubscribe = jest.fn().mockResolvedValue(undefined);
+const mockSubscribeAll = jest.fn().mockResolvedValue(undefined);
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockDisplayToast = jest.fn();
@@ -53,22 +54,25 @@ jest.mock('../../hooks/useToastNotification', () => ({
 
 const renderComponent = () => render(<EnableHighlightsAlerts />);
 
+const defaultHookReturn = (overrides = {}) => ({
+  isAnyChannelSubscribed: false,
+  isLoading: false,
+  isPending: false,
+  subscribeAll: mockSubscribeAll,
+  ...overrides,
+});
+
 describe('EnableHighlightsAlerts', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: { id: '1' } });
     mockUseConditionalFeature.mockReturnValue({ value: true });
-    mockUseMajorHeadlinesSubscription.mockReturnValue({
-      isSubscribed: false,
-      isLoading: false,
-      subscribe: mockSubscribe,
-      unsubscribe: jest.fn(),
-    });
+    mockUseMajorHeadlinesSubscription.mockReturnValue(defaultHookReturn());
     mockCheckHasCompleted.mockReturnValue(false);
     mockUsePushNotificationContext.mockReturnValue({ isSubscribed: false });
   });
 
-  it('should render banner when feature is on, user is logged in, not subscribed and not dismissed', () => {
+  it('should render banner when feature is on, user is logged in, no channels subscribed and not dismissed', () => {
     renderComponent();
 
     expect(screen.getByText('Push notifications')).toBeInTheDocument();
@@ -91,13 +95,10 @@ describe('EnableHighlightsAlerts', () => {
     expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
   });
 
-  it('should not render when already subscribed', () => {
-    mockUseMajorHeadlinesSubscription.mockReturnValue({
-      isSubscribed: true,
-      isLoading: false,
-      subscribe: mockSubscribe,
-      unsubscribe: jest.fn(),
-    });
+  it('should not render when any channel is already subscribed', () => {
+    mockUseMajorHeadlinesSubscription.mockReturnValue(
+      defaultHookReturn({ isAnyChannelSubscribed: true }),
+    );
 
     renderComponent();
 
@@ -121,13 +122,16 @@ describe('EnableHighlightsAlerts', () => {
     });
   });
 
-  it('should subscribe and show toast with settings action on CTA click when push is not yet enabled', async () => {
+  it('should subscribe all channels at Major+ and show toast on CTA click when push is not yet enabled', async () => {
     renderComponent();
 
     fireEvent.click(screen.getByText('Enable notifications'));
 
     await waitFor(() => {
-      expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
+      expect(mockSubscribeAll).toHaveBeenCalledWith(
+        HighlightSignificance.Major,
+        'highlights_page',
+      );
     });
 
     await waitFor(() => {
@@ -152,7 +156,10 @@ describe('EnableHighlightsAlerts', () => {
     fireEvent.click(screen.getByText('Enable notifications'));
 
     await waitFor(() => {
-      expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
+      expect(mockSubscribeAll).toHaveBeenCalledWith(
+        HighlightSignificance.Major,
+        'highlights_page',
+      );
     });
 
     await waitFor(() => {
