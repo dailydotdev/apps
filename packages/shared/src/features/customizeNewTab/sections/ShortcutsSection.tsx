@@ -7,12 +7,7 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { useShortcuts } from '../../shortcuts/contexts/ShortcutsProvider';
-import {
-  EditIcon,
-  PlusIcon,
-  ShortcutsIcon,
-} from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
+import { EditIcon, PlusIcon, ShortcutsIcon } from '../../../components/icons';
 import {
   Button,
   ButtonSize,
@@ -126,8 +121,7 @@ export const ShortcutsSection = (): ReactElement => {
         // returns `topSites === undefined` after a denial), otherwise the
         // toggle would flip silently and the feed would stay empty without
         // ever giving the user a way to grant access.
-        const needsPermission =
-          !hasCheckedPermission || topSites === undefined;
+        const needsPermission = !hasCheckedPermission || topSites === undefined;
         if (needsPermission) {
           setShowPermissionsModal(true);
         }

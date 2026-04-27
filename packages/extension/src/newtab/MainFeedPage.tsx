@@ -25,13 +25,6 @@ import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
 } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
-import { FirstSessionDevToggle } from '@dailydotdev/shared/src/features/customizeNewTab/components/FirstSessionDevToggle';
-import { NewTabModeRenderer } from '@dailydotdev/shared/src/features/newTab/NewTabModeRenderer';
-import { FocusBlockedBanner } from '@dailydotdev/shared/src/features/newTab/focus/FocusBlockedBanner';
-import {
-  isSessionActive,
-  useFocusSession,
-} from '@dailydotdev/shared/src/features/newTab/store/focusSession.store';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -44,9 +37,6 @@ const PostsSearch = dynamic(
     ),
 );
 
-// Discover is the heaviest bundle by far (feeds, ads, cards, filters). Lazy-
-// loading it means Zen/Focus new tabs never pull the feed runtime into their
-// critical path.
 const MainFeedLayout = dynamic(
   () =>
     import(
@@ -104,8 +94,6 @@ export default function MainFeedPage({
   const customizerOffset = customizer.isOpen
     ? `${CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}px`
     : '0px';
-  const { session: focusSession } = useFocusSession();
-  const isFocusSessionRunning = isSessionActive(focusSession);
   const shortcutsSlot = shortcuts ?? (
     <ShortcutLinks shouldUseListFeedLayout={shouldUseListFeedLayout} />
   );
@@ -182,7 +170,10 @@ export default function MainFeedPage({
             showFeedbackButton ? 'bottom-36' : 'bottom-20',
           )}
         >
-          <ScrollToTopButton compact className="!static !right-auto !top-auto" />
+          <ScrollToTopButton
+            compact
+            className="!static !right-auto !top-auto"
+          />
         </div>
         <MainLayout
           mainPage
@@ -191,53 +182,43 @@ export default function MainFeedPage({
           onLogoClick={onLogoClick}
           onNavTabClick={onNavTabClick}
           screenCentered={false}
-          customBanner={
-            <>
-              <FocusBlockedBanner />
-              {isDndActive && <DndBanner />}
-            </>
-          }
+          customBanner={isDndActive && <DndBanner />}
           additionalButtons={
-            !loadingUser &&
-            !isFocusSessionRunning &&
-            !optOutCompanion && <CompanionPopupButton />
+            !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
         >
-          <NewTabModeRenderer shortcuts={shortcutsSlot}>
-            <FeedLayoutProvider>
-              <MainFeedLayout
-                feedName={feedName}
-                isSearchOn={isSearchOn}
-                searchQuery={searchQuery}
-                onNavTabClick={onNavTabClick}
-                searchChildren={
-                  <PostsSearch
-                    onSubmitQuery={async (query, extraFlags) => {
-                      logEvent({
-                        event_name: LogEvent.SubmitSearch,
-                        extra: JSON.stringify({
-                          query,
-                          provider: SearchProviderEnum.Posts,
-                          ...extraFlags,
-                        }),
-                      });
+          <FeedLayoutProvider>
+            <MainFeedLayout
+              feedName={feedName}
+              isSearchOn={isSearchOn}
+              searchQuery={searchQuery}
+              onNavTabClick={onNavTabClick}
+              searchChildren={
+                <PostsSearch
+                  onSubmitQuery={async (query, extraFlags) => {
+                    logEvent({
+                      event_name: LogEvent.SubmitSearch,
+                      extra: JSON.stringify({
+                        query,
+                        provider: SearchProviderEnum.Posts,
+                        ...extraFlags,
+                      }),
+                    });
 
-                      setSearchQuery(query);
-                    }}
-                    onFocus={() => {
-                      logEvent({ event_name: LogEvent.FocusSearch });
-                    }}
-                  />
-                }
-                shortcuts={shortcutsSlot}
-              />
-            </FeedLayoutProvider>
-          </NewTabModeRenderer>
+                    setSearchQuery(query);
+                  }}
+                  onFocus={() => {
+                    logEvent({ event_name: LogEvent.FocusSearch });
+                  }}
+                />
+              }
+              shortcuts={shortcutsSlot}
+            />
+          </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
         </MainLayout>
       </div>
       <CustomizeNewTabSidebar customizer={customizer} />
-      <FirstSessionDevToggle realIsFirstSession={customizer.realIsFirstSession} />
     </>
   );
 }

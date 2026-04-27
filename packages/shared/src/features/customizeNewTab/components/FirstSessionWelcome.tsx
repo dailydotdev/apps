@@ -50,7 +50,7 @@ export const FirstSessionWelcome = ({
         // state. Static dark glass is plenty without it.
         effectsEnabled
           ? [
-              'border border-white/20',
+              'border-white/20 border',
               'motion-reduce:animate-[newtab-welcome-in_0.6s_ease-out]',
               // Single declaration keeps entrance + rim + halo together so
               // Tailwind utilities don't clobber each other's `animation`.
@@ -105,7 +105,7 @@ export const FirstSessionWelcome = ({
         <div
           aria-hidden
           className={classNames(
-            'pointer-events-none absolute inset-0 rounded-16 opacity-70 blur-[0.5px]',
+            'opacity-70 pointer-events-none absolute inset-0 rounded-16 blur-[0.5px]',
             'bg-[conic-gradient(from_140deg_at_50%_50%,transparent_0deg,rgba(255,255,255,0.36)_42deg,var(--theme-accent-cabbage-default)_82deg,transparent_130deg,transparent_230deg,var(--theme-accent-onion-default)_292deg,transparent_360deg)]',
           )}
         />
@@ -135,7 +135,7 @@ export const FirstSessionWelcome = ({
       <div
         aria-hidden
         className={classNames(
-          'pointer-events-none absolute -right-12 -top-14 h-48 w-48 rounded-full bg-accent-cabbage-default/35 blur-3xl',
+          'bg-accent-cabbage-default/35 pointer-events-none absolute -right-12 -top-14 h-48 w-48 rounded-full blur-3xl',
           effectsEnabled
             ? 'motion-safe:animate-[newtab-welcome-orb_6s_ease-in-out_infinite]'
             : null,
@@ -143,7 +143,7 @@ export const FirstSessionWelcome = ({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-20 -left-20 h-52 w-52 rounded-full bg-accent-onion-default/30 blur-3xl"
+        className="bg-accent-onion-default/30 pointer-events-none absolute -bottom-20 -left-20 h-52 w-52 rounded-full blur-3xl"
       />
 
       {/* Slow shimmer sweep — reads as polished glass catching light, not a
@@ -152,7 +152,7 @@ export const FirstSessionWelcome = ({
       {effectsEnabled ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 -left-1/2 w-2/3 bg-gradient-to-r from-transparent via-white/30 to-transparent motion-safe:animate-[newtab-welcome-shimmer_4.4s_ease-in-out_infinite]"
+          className="via-white/30 pointer-events-none absolute inset-y-0 -left-1/2 w-2/3 bg-gradient-to-r from-transparent to-transparent motion-safe:animate-[newtab-welcome-shimmer_4.4s_ease-in-out_infinite]"
         />
       ) : null}
 
@@ -162,7 +162,7 @@ export const FirstSessionWelcome = ({
             aria-hidden
             className={classNames(
               'flex h-8 w-8 shrink-0 items-center justify-center rounded-10',
-              'bg-white/10 text-white ring-1 ring-inset ring-white/30 backdrop-blur-sm',
+              'bg-white/10 ring-white/30 text-white ring-1 ring-inset backdrop-blur-sm',
             )}
           >
             <MagicIcon size={IconSize.Size16} secondary />
@@ -170,7 +170,7 @@ export const FirstSessionWelcome = ({
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
-            className="uppercase tracking-[0.16em] text-white/80"
+            className="text-white/80 uppercase tracking-[0.16em]"
           >
             Your dev reading habit
           </Typography>
@@ -198,8 +198,8 @@ export const FirstSessionWelcome = ({
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}
           className={classNames(
-            'mt-1 rounded-10 bg-white/10 px-2.5 py-2 text-white/95',
-            'ring-1 ring-inset ring-white/20 backdrop-blur-md',
+            'bg-white/10 text-white/95 mt-1 rounded-10 px-2.5 py-2',
+            'ring-white/20 ring-1 ring-inset backdrop-blur-md',
           )}
         >
           Customize everything below: Discover or Focus, shortcuts, widgets,

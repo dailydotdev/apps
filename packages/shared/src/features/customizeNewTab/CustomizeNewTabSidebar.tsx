@@ -24,7 +24,6 @@ import { FirstSessionWelcome } from './components/FirstSessionWelcome';
 import { KeepItOverlay } from './components/KeepItOverlay';
 import { NewTabModeSection } from '../newTab/sidebar/NewTabModeSection';
 import { FocusSection } from '../newTab/sidebar/FocusSection';
-import { FocusBlocklistSection } from '../newTab/sidebar/FocusBlocklistSection';
 import { useSetRightSidebarOffset } from './store/rightSidebar.store';
 import { useNewTabMode } from '../newTab/store/newTabMode.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
@@ -231,10 +230,7 @@ export const CustomizeNewTabSidebar = ({
           ) : null}
           <NewTabModeSection />
           {mode === 'focus' ? (
-            <>
-              <FocusSection />
-              <FocusBlocklistSection />
-            </>
+            <FocusSection />
           ) : (
             <>
               <AppearanceSection />

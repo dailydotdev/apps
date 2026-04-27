@@ -177,15 +177,11 @@ export const KeepItOverlay = ({
           <span
             className={classNames(
               'flex h-12 w-12 items-center justify-center rounded-full',
-              'bg-accent-cabbage-default text-white ring-2 ring-white/70',
+              'ring-white/70 bg-accent-cabbage-default text-white ring-2',
               'motion-safe:animate-[keep-it-arrow-ring_1.8s_ease-out_infinite]',
             )}
           >
-            <ArrowIcon
-              size={IconSize.Small}
-              secondary
-              className="rotate-90"
-            />
+            <ArrowIcon size={IconSize.Small} secondary className="rotate-90" />
           </span>
         </div>
       </div>

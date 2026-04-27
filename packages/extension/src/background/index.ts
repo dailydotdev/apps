@@ -17,7 +17,6 @@ import {
   disableFrameEmbeddingForTab,
   enableFrameEmbeddingForTab,
 } from '../lib/frameEmbedding';
-import { registerFocusBlocker } from './focusBlocker';
 
 type ChromeRuntimeMessageSender = Runtime.MessageSender;
 type ChromeSendResponse = (response?: unknown) => void;
@@ -292,7 +291,3 @@ if (typeof browser.runtime.requestUpdateCheck === 'undefined') {
     browser.runtime.reload();
   });
 }
-
-// Focus blocklist redirect. Safe to call unconditionally: the listener is a
-// no-op until the user opts in and the experiment flag is enabled.
-registerFocusBlocker();

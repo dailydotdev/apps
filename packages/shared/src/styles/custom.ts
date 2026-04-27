@@ -34,15 +34,3 @@ export const profileCompletionCardBg =
 
 export const profileCompletionButtonBg =
   'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
-
-// Zen wallpaper gradients. Kept here because they live outside the token
-// system (pure visual ambience, not semantic) and we want to centralize any
-// raw color usage. See `features/newTab/zen/zenWallpapers.ts` for metadata.
-export const zenWallpaperGradients = {
-  dawn: 'linear-gradient(135deg, #FFC2A1 0%, #FF9EB5 40%, #9F7AEA 100%)',
-  noon: 'linear-gradient(135deg, #76D7FF 0%, #3FB6FF 50%, #1A73E8 100%)',
-  forest: 'linear-gradient(135deg, #2B5F3B 0%, #4C9B5B 50%, #C5E8AC 100%)',
-  sunset: 'linear-gradient(135deg, #FF7B54 0%, #FF3C6A 45%, #9B0F65 100%)',
-  night: 'linear-gradient(135deg, #0F1020 0%, #1B1F44 50%, #3B2F6C 100%)',
-  aurora: 'linear-gradient(135deg, #0B3A3C 0%, #107878 40%, #39C6B0 100%)',
-} as const;

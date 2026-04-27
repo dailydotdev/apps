@@ -17,7 +17,6 @@ const renderSidebar = (
     shouldRender: true,
     isOpen: true,
     isFirstSession: false,
-    realIsFirstSession: false,
     open,
     close,
     ...overrides,
@@ -116,18 +115,8 @@ describe('CustomizeNewTabSidebar', () => {
     expect(panel).toHaveAttribute('aria-label', 'Customize new tab');
   });
 
-  it('does not render the dev-only first-session toggle inside the sidebar', () => {
-    // The dev toggle moved out of the sidebar into a standalone component
-    // mounted at the new-tab page level so it stays visible regardless of
-    // sidebar shouldRender / isOpen state. See FirstSessionDevToggle.
-    renderSidebar();
-    expect(
-      screen.queryByRole('button', { name: /first session/i }),
-    ).not.toBeInTheDocument();
-  });
-
   it('renders the first-session welcome hero when isFirstSession is true', () => {
-    renderSidebar({ isFirstSession: true, realIsFirstSession: true });
+    renderSidebar({ isFirstSession: true });
     expect(
       screen.getByText(/A new tab that helps you stay current\./i),
     ).toBeInTheDocument();
@@ -135,7 +124,7 @@ describe('CustomizeNewTabSidebar', () => {
 
   it('hides the first-session effects after ten seconds', () => {
     jest.useFakeTimers();
-    renderSidebar({ isFirstSession: true, realIsFirstSession: true });
+    renderSidebar({ isFirstSession: true });
 
     const welcome = screen
       .getByText(/A new tab that helps you stay current\./i)
@@ -154,7 +143,7 @@ describe('CustomizeNewTabSidebar', () => {
   });
 
   it('hides the first-session effects on sidebar interaction', () => {
-    renderSidebar({ isFirstSession: true, realIsFirstSession: true });
+    renderSidebar({ isFirstSession: true });
 
     const welcome = screen
       .getByText(/A new tab that helps you stay current\./i)
