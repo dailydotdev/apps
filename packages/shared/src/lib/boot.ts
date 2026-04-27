@@ -122,7 +122,6 @@ const getBootURL = (app: string, url?: string, pathname?: string) => {
   if (referrer) {
     params.append('referrer', referrer);
   }
-  params.append('ega', '1');
 
   return `${apiUrl}/boot${appRoute}?${params}`;
 };
