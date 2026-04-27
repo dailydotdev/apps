@@ -21,6 +21,8 @@ import { webappUrl } from '../../lib/constants';
 import { AuthTriggers } from '../../lib/auth';
 import type { PublicProfile } from '../../lib/user';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 interface Tool {
   id: string;
@@ -50,6 +52,7 @@ export const MentionedToolsWidget = ({
     useBrandSponsorship();
   const { getCreativeForTags } = useEngagementAdsContext();
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const { stackItems, add, remove } = useUserStack(user as PublicProfile);
 
@@ -97,10 +100,14 @@ export const MentionedToolsWidget = ({
         return;
       }
 
+      logEvent({
+        event_name: LogEvent.StartAddUserStack,
+        target_id: tool.name,
+      });
       setSelectedToolName(tool.name);
       setIsModalOpen(true);
     },
-    [user, showLogin, isToolInStack, router],
+    [user, showLogin, isToolInStack, router, logEvent],
   );
 
   const handleAddToStack = useCallback(
