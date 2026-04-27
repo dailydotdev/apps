@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -36,7 +36,14 @@ interface CustomizeNewTabSidebarProps {
 export const CustomizeNewTabSidebar = ({
   customizer,
 }: CustomizeNewTabSidebarProps): ReactElement | null => {
-  const { shouldRender, isOpen, isFirstSession, open, close } = customizer;
+  const {
+    shouldRender,
+    isOpen,
+    isFirstSession,
+    hasSettledInitialOpen,
+    open,
+    close,
+  } = customizer;
   const { logEvent } = useLogContext();
   const { showFeedbackButton, setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
@@ -77,7 +84,11 @@ export const CustomizeNewTabSidebar = ({
 
   // Expose the panel width as a global offset so the fixed header, feedback
   // button and feed layout all shift/reshape in sync with the panel.
-  useEffect(() => {
+  // `useLayoutEffect` so the offset commits before paint — pairs with the
+  // auto-open layout effect in `useCustomizeNewTab` to make sure the feed
+  // and floating chrome reach their resting widths in the same frame the
+  // panel does, instead of a beat behind.
+  useLayoutEffect(() => {
     setRightSidebarOffset(
       shouldRender && isOpen ? CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX : 0,
     );
@@ -160,7 +171,13 @@ export const CustomizeNewTabSidebar = ({
         aria-label="Customize new tab"
         aria-hidden={!isOpen}
         className={classNames(
-          'fixed right-0 top-0 z-modal flex h-screen max-w-[100vw] flex-col overflow-hidden border-l border-border-subtlest-tertiary bg-background-default shadow-2 transition-transform duration-200 ease-in-out',
+          'fixed right-0 top-0 z-modal flex h-screen max-w-[100vw] flex-col overflow-hidden border-l border-border-subtlest-tertiary bg-background-default shadow-2',
+          // Skip the slide transition on the very first paint so a
+          // first-session auto-open snaps to its open position without
+          // animating in (which previously felt jarring + caused a layout
+          // shift). Subsequent open / close animate normally.
+          hasSettledInitialOpen &&
+            'transition-transform duration-200 ease-in-out',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         style={{ width: CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX }}

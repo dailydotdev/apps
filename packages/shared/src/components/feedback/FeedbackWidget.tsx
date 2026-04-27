@@ -7,7 +7,10 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { useRightSidebarOffset } from '../../features/customizeNewTab/store/rightSidebar.store';
+import {
+  useRightSidebarOffset,
+  useRightSidebarSettled,
+} from '../../features/customizeNewTab/store/rightSidebar.store';
 
 export function FeedbackWidget(): ReactElement | null {
   const { user } = useAuthContext();
@@ -15,6 +18,10 @@ export function FeedbackWidget(): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const rightSidebarOffset = useRightSidebarOffset();
+  // Match the rest of the new-tab chrome: skip the slide transition on
+  // first paint so the customizer auto-open lands without any siblings
+  // animating in alongside it. Subsequent open/close still animate.
+  const isRightSidebarSettled = useRightSidebarSettled();
 
   // Only show for authenticated users on desktop when setting is enabled
   // Mobile feedback is handled by FooterPlusButton
@@ -30,7 +37,9 @@ export function FeedbackWidget(): ReactElement | null {
       className="fixed bottom-4 z-max shadow-2"
       style={{
         right: `calc(1rem + ${rightSidebarOffset}px)`,
-        transition: 'right 200ms ease-in-out',
+        transition: isRightSidebarSettled
+          ? 'right 200ms ease-in-out'
+          : undefined,
       }}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback"

@@ -17,6 +17,7 @@ const renderSidebar = (
     shouldRender: true,
     isOpen: true,
     isFirstSession: false,
+    hasSettledInitialOpen: true,
     open,
     close,
     ...overrides,

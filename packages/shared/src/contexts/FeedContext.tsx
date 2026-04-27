@@ -1,10 +1,13 @@
 import type { ReactElement, PropsWithChildren } from 'react';
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
-import { useRightSidebarOffset } from '../features/customizeNewTab/store/rightSidebar.store';
+import {
+  useRightSidebarOffset,
+  useRightSidebarSettled,
+} from '../features/customizeNewTab/store/rightSidebar.store';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
@@ -119,6 +122,7 @@ export function FeedLayoutProvider({
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
   const rightSidebarOffset = useRightSidebarOffset();
+  const isRightSidebarSettled = useRightSidebarSettled();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -142,13 +146,27 @@ export function FeedLayoutProvider({
     return () => clearTimeout(timer);
   }, [sidebarExpanded]);
 
+  // While the customizer is still settling into its initial paint state
+  // (no transitions running yet), keep the debounced offset in lockstep
+  // with the live offset so the feed renders with its final column count
+  // on the *first* paint instead of re-flowing once the debounce timer
+  // fires. `useLayoutEffect` here so the sync lands before paint.
+  useLayoutEffect(() => {
+    if (!isRightSidebarSettled) {
+      setDebouncedRightOffset(rightSidebarOffset);
+    }
+  }, [rightSidebarOffset, isRightSidebarSettled]);
+
   useEffect(() => {
+    if (!isRightSidebarSettled) {
+      return undefined;
+    }
     const timer = setTimeout(() => {
       setDebouncedRightOffset(rightSidebarOffset);
     }, SIDEBAR_TRANSITION_DURATION);
 
     return () => clearTimeout(timer);
-  }, [rightSidebarOffset]);
+  }, [rightSidebarOffset, isRightSidebarSettled]);
 
   const { feedSettings, defaultFeedSettings } = useMemo(() => {
     const enhancedFeedSettings = Object.entries(baseFeedSettings).reduce(

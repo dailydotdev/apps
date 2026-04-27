@@ -161,7 +161,14 @@ export default function MainFeedPage({
   return (
     <>
       <div
-        className="transition-[padding] duration-200 ease-in-out"
+        className={classNames(
+          // Skip the padding transition on the very first paint so the
+          // first-session auto-open lands without any layout-shift —
+          // the panel + feed reach their resting positions in lockstep.
+          // Subsequent open / close still animate normally.
+          customizer.hasSettledInitialOpen &&
+            'transition-[padding] duration-200 ease-in-out',
+        )}
         style={{ paddingRight: customizerOffset }}
       >
         {/* Stack the small back-to-top icon directly above the dominant
@@ -169,7 +176,9 @@ export default function MainFeedPage({
             Bottom offset shifts up further when the floating Feedback pill
             is visible (Customize moves to bottom-20 in that case). The
             inline `right` slides the wrapper out from under the customizer
-            panel when it opens, mirroring `FeedbackWidget`. */}
+            panel when it opens, mirroring `FeedbackWidget`. The transition
+            is gated on `hasSettledInitialOpen` for the same reason as the
+            outer wrapper above. */}
         <div
           className={classNames(
             'fixed z-2',
@@ -177,7 +186,9 @@ export default function MainFeedPage({
           )}
           style={{
             right: `calc(1rem + ${rightSidebarOffset}px)`,
-            transition: 'right 200ms ease-in-out',
+            transition: customizer.hasSettledInitialOpen
+              ? 'right 200ms ease-in-out'
+              : undefined,
           }}
         >
           <ScrollToTopButton
