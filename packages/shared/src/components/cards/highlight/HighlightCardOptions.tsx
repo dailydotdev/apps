@@ -10,44 +10,34 @@ import { useMajorHeadlinesSubscription } from '../../../hooks/notifications/useM
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureMajorHeadlinesPush } from '../../../lib/featureManagement';
 import { useToastNotification } from '../../../hooks/useToastNotification';
-import { HighlightSignificance } from '../../../graphql/highlights';
 
 const NOTIFICATION_SETTINGS_PATH = '/settings/notifications';
 
 interface HighlightCardOptionsProps {
-  channel?: string;
   className?: string;
 }
 
 const HighlightCardOptionsContent = ({
-  channel,
   className,
-}: HighlightCardOptionsProps & { channel: string }): ReactElement => {
+}: HighlightCardOptionsProps): ReactElement => {
   const router = useRouter();
-  const [isToggling, setIsToggling] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const { displayToast } = useToastNotification();
-  const {
-    isChannelSubscribed,
-    isLoading,
-    isPending,
-    subscribeChannel,
-    unsubscribeChannel,
-  } = useMajorHeadlinesSubscription();
-
-  const isSubscribed = isChannelSubscribed(channel);
+  const { isSubscribed, isLoading, subscribe, unsubscribe } =
+    useMajorHeadlinesSubscription();
 
   const handleToggle = async () => {
-    if (isToggling || isLoading || isPending) {
+    if (isPending || isLoading) {
       return;
     }
-    setIsToggling(true);
+    setIsPending(true);
     try {
       if (isSubscribed) {
-        await unsubscribeChannel(channel, 'feed_card');
+        await unsubscribe('feed_card');
         displayToast('Real-time alerts turned off.');
         return;
       }
-      await subscribeChannel(channel, HighlightSignificance.Major, 'feed_card');
+      await subscribe('feed_card');
       displayToast("You'll be the first to know when news breaks.", {
         action: {
           copy: 'Settings',
@@ -55,7 +45,7 @@ const HighlightCardOptionsContent = ({
         },
       });
     } finally {
-      setIsToggling(false);
+      setIsPending(false);
     }
   };
 
@@ -77,14 +67,13 @@ const HighlightCardOptionsContent = ({
         )}
         aria-label={label}
         onClick={handleToggle}
-        disabled={isToggling || isLoading || isPending}
+        disabled={isPending || isLoading}
       />
     </Tooltip>
   );
 };
 
 export const HighlightCardOptions = ({
-  channel,
   className,
 }: HighlightCardOptionsProps): ReactElement | null => {
   const auth = useAuthContext();
@@ -94,13 +83,11 @@ export const HighlightCardOptions = ({
     shouldEvaluate: !!user,
   });
 
-  if (!isFeatureEnabled || !user || !channel) {
+  if (!isFeatureEnabled || !user) {
     return null;
   }
 
-  return (
-    <HighlightCardOptionsContent channel={channel} className={className} />
-  );
+  return <HighlightCardOptionsContent className={className} />;
 };
 
 export default HighlightCardOptions;

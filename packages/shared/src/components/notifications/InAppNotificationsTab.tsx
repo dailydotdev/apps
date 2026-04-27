@@ -43,7 +43,6 @@ import ReadingReminderToggle from './ReadingReminderToggle';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureMajorHeadlinesPush } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
-import MajorHeadlinesNotificationSection from './MajorHeadlinesNotificationSection';
 
 const InAppNotificationsTab = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -128,7 +127,25 @@ const InAppNotificationsTab = (): ReactElement => {
       </div>
       {isMajorHeadlinesEnabled && (
         <>
-          <MajorHeadlinesNotificationSection />
+          <NotificationSection>
+            <Typography type={TypographyType.Body} bold>
+              Happening Now
+            </Typography>
+            <NotificationContainer>
+              <NotificationSwitch
+                id={NotificationType.MajorHeadlineAdded}
+                label="Major headlines"
+                description="Get pinged when major news breaks in the developer world"
+                checked={
+                  ns?.[NotificationType.MajorHeadlineAdded]?.inApp ===
+                  NotificationPreferenceStatus.Subscribed
+                }
+                onToggle={() =>
+                  toggleSetting(NotificationType.MajorHeadlineAdded, 'inApp')
+                }
+              />
+            </NotificationContainer>
+          </NotificationSection>
           <HorizontalSeparator className="mx-4" />
         </>
       )}

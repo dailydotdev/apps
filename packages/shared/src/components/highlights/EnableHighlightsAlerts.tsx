@@ -25,7 +25,6 @@ import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { LogEvent } from '../../lib/log';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
-import { HighlightSignificance } from '../../graphql/highlights';
 
 interface EnableHighlightsAlertsProps {
   className?: string;
@@ -43,9 +42,9 @@ export const EnableHighlightsAlerts = ({
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
-  const { isAnyChannelSubscribed, isLoading, isPending, subscribeAll } =
+  const { isSubscribed, isLoading, subscribe } =
     useMajorHeadlinesSubscription();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [acceptedJustNow, setAcceptedJustNow] = useState(false);
 
   const { value: isFeatureEnabled } = useConditionalFeature({
@@ -61,7 +60,7 @@ export const EnableHighlightsAlerts = ({
     isFeatureEnabled &&
     !!user &&
     isActionsFetched &&
-    !isAnyChannelSubscribed &&
+    !isSubscribed &&
     !isDismissed;
 
   useLogEventOnce(
@@ -73,12 +72,12 @@ export const EnableHighlightsAlerts = ({
   );
 
   const handleEnable = useCallback(async () => {
-    if (isSubmitting || isLoading || isPending) {
+    if (isPending || isLoading) {
       return;
     }
-    setIsSubmitting(true);
+    setIsPending(true);
     try {
-      await subscribeAll(HighlightSignificance.Major, ORIGIN);
+      await subscribe(ORIGIN);
       if (isPushEnabled) {
         setAcceptedJustNow(true);
         return;
@@ -90,17 +89,9 @@ export const EnableHighlightsAlerts = ({
         },
       });
     } finally {
-      setIsSubmitting(false);
+      setIsPending(false);
     }
-  }, [
-    isSubmitting,
-    isLoading,
-    isPending,
-    subscribeAll,
-    isPushEnabled,
-    displayToast,
-    router,
-  ]);
+  }, [isPending, isLoading, subscribe, isPushEnabled, displayToast, router]);
 
   const handleDismiss = useCallback(() => {
     completeAction(ActionType.DismissedMajorHeadlinesAlertsBanner);
@@ -165,7 +156,7 @@ export const EnableHighlightsAlerts = ({
             color={ButtonColor.Cabbage}
             className="mr-4"
             onClick={handleEnable}
-            disabled={isSubmitting || isLoading || isPending}
+            disabled={isPending || isLoading}
           >
             Enable notifications
           </Button>

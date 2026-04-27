@@ -1,9 +1,7 @@
 import { useCallback } from 'react';
-import type {
-  HighlightSignificance,
-  ChannelConfiguration,
-} from '../../graphql/highlights';
-import { useChannelHighlightPreferences } from './useChannelHighlightPreferences';
+import { NotificationType } from '../../components/notifications/utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import useNotificationSettings from './useNotificationSettings';
 import { usePushNotificationMutation } from './usePushNotificationMutation';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -13,28 +11,11 @@ import { LogEvent, NotificationPromptSource } from '../../lib/log';
 type MajorHeadlinesOrigin = 'settings' | 'highlights_page' | 'feed_card';
 
 type UseMajorHeadlinesSubscriptionResult = {
-  channels: ChannelConfiguration[];
-  isAnyChannelSubscribed: boolean;
-  isChannelSubscribed: (channel: string) => boolean;
-  getMinSignificance: (
-    channel: string,
-  ) => HighlightSignificance | null | undefined;
+  isSubscribed: boolean;
   isPushEnabled: boolean;
   isLoading: boolean;
-  isPending: boolean;
-  subscribeChannel: (
-    channel: string,
-    minSignificance: HighlightSignificance,
-    origin: MajorHeadlinesOrigin,
-  ) => Promise<void>;
-  unsubscribeChannel: (
-    channel: string,
-    origin: MajorHeadlinesOrigin,
-  ) => Promise<void>;
-  subscribeAll: (
-    minSignificance: HighlightSignificance,
-    origin: MajorHeadlinesOrigin,
-  ) => Promise<void>;
+  subscribe: (origin: MajorHeadlinesOrigin) => Promise<void>;
+  unsubscribe: (origin: MajorHeadlinesOrigin) => Promise<void>;
 };
 
 const ORIGIN_TO_PROMPT_SOURCE: Record<
@@ -53,85 +34,67 @@ export const useMajorHeadlinesSubscription =
     const { isSubscribed: isPushEnabled } = usePushNotificationContext();
     const { onEnablePush } = usePushNotificationMutation();
     const {
-      channels,
-      isLoading,
-      isPending,
-      getMinSignificance,
-      isChannelSubscribed,
-      isAnyChannelSubscribed,
-      setChannelPreference,
-      subscribeAll: subscribeAllChannels,
-    } = useChannelHighlightPreferences();
+      notificationSettings,
+      isLoadingPreferences,
+      setNotificationStatusBulk,
+    } = useNotificationSettings();
 
-    const subscribeChannel = useCallback(
-      async (
-        channel: string,
-        minSignificance: HighlightSignificance,
-        origin: MajorHeadlinesOrigin,
-      ) => {
+    const settings =
+      notificationSettings?.[NotificationType.MajorHeadlineAdded];
+    const isSubscribed =
+      settings?.inApp === NotificationPreferenceStatus.Subscribed;
+
+    const subscribe = useCallback(
+      async (origin: MajorHeadlinesOrigin) => {
         if (!user) {
           return;
         }
 
         await onEnablePush(ORIGIN_TO_PROMPT_SOURCE[origin]);
 
-        await setChannelPreference(channel, minSignificance);
+        setNotificationStatusBulk([
+          {
+            type: NotificationType.MajorHeadlineAdded,
+            channel: 'inApp',
+            status: NotificationPreferenceStatus.Subscribed,
+          },
+        ]);
 
         logEvent({
           event_name: LogEvent.EnableMajorHeadlinesAlerts,
-          extra: JSON.stringify({ origin, channel, minSignificance }),
+          extra: JSON.stringify({ origin }),
         });
       },
-      [user, onEnablePush, setChannelPreference, logEvent],
+      [user, onEnablePush, setNotificationStatusBulk, logEvent],
     );
 
-    const unsubscribeChannel = useCallback(
-      async (channel: string, origin: MajorHeadlinesOrigin) => {
+    const unsubscribe = useCallback(
+      async (origin: MajorHeadlinesOrigin) => {
         if (!user) {
           return;
         }
 
-        await setChannelPreference(channel, null);
+        setNotificationStatusBulk([
+          {
+            type: NotificationType.MajorHeadlineAdded,
+            channel: 'inApp',
+            status: NotificationPreferenceStatus.Muted,
+          },
+        ]);
 
         logEvent({
           event_name: LogEvent.DisableMajorHeadlinesAlerts,
-          extra: JSON.stringify({ origin, channel }),
+          extra: JSON.stringify({ origin }),
         });
       },
-      [user, setChannelPreference, logEvent],
-    );
-
-    const subscribeAll = useCallback(
-      async (
-        minSignificance: HighlightSignificance,
-        origin: MajorHeadlinesOrigin,
-      ) => {
-        if (!user) {
-          return;
-        }
-
-        await onEnablePush(ORIGIN_TO_PROMPT_SOURCE[origin]);
-
-        await subscribeAllChannels(minSignificance);
-
-        logEvent({
-          event_name: LogEvent.EnableMajorHeadlinesAlerts,
-          extra: JSON.stringify({ origin, scope: 'all', minSignificance }),
-        });
-      },
-      [user, onEnablePush, subscribeAllChannels, logEvent],
+      [user, setNotificationStatusBulk, logEvent],
     );
 
     return {
-      channels,
-      isAnyChannelSubscribed,
-      isChannelSubscribed,
-      getMinSignificance,
+      isSubscribed,
       isPushEnabled,
-      isLoading,
-      isPending,
-      subscribeChannel,
-      unsubscribeChannel,
-      subscribeAll,
+      isLoading: isLoadingPreferences,
+      subscribe,
+      unsubscribe,
     };
   };

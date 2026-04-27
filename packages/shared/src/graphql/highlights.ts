@@ -152,60 +152,11 @@ export interface ChannelDigestConfiguration {
   };
 }
 
-export enum HighlightSignificance {
-  Breaking = 'BREAKING',
-  Major = 'MAJOR',
-  Notable = 'NOTABLE',
-  Routine = 'ROUTINE',
-}
-
 export interface ChannelConfiguration {
   channel: string;
   displayName: string;
   digest?: ChannelDigestConfiguration | null;
-  viewerMinSignificance?: HighlightSignificance | null;
 }
-
-export interface ChannelConfigurationsData {
-  channelConfigurations: ChannelConfiguration[];
-}
-
-export const CHANNEL_HIGHLIGHT_PREFERENCES_QUERY_KEY = [
-  'channel-highlight-preferences',
-];
-
-export const CHANNEL_HIGHLIGHT_PREFERENCES_QUERY = gql`
-  query ChannelHighlightPreferences {
-    channelConfigurations {
-      channel
-      displayName
-      viewerMinSignificance
-    }
-  }
-`;
-
-export const channelHighlightPreferencesQueryOptions = () => ({
-  queryKey: CHANNEL_HIGHLIGHT_PREFERENCES_QUERY_KEY,
-  queryFn: () =>
-    gqlClient.request<ChannelConfigurationsData>(
-      CHANNEL_HIGHLIGHT_PREFERENCES_QUERY,
-    ),
-  staleTime: ONE_MINUTE,
-});
-
-export const SET_CHANNEL_HIGHLIGHT_PREFERENCE_MUTATION = gql`
-  mutation SetChannelHighlightPreference(
-    $channel: String!
-    $minSignificance: HighlightSignificance
-  ) {
-    setChannelHighlightPreference(
-      channel: $channel
-      minSignificance: $minSignificance
-    ) {
-      _
-    }
-  }
-`;
 
 export interface HighlightsPageData {
   majorHeadlines: Connection<PostHighlightFeed>;
@@ -228,7 +179,6 @@ export const HIGHLIGHTS_PAGE_QUERY = gql`
     channelConfigurations {
       channel
       displayName
-      viewerMinSignificance
       digest {
         frequency
         source {
