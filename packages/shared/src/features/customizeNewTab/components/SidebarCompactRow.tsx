@@ -9,6 +9,8 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Switch } from '../../../components/fields/Switch';
+import { InfoIcon } from '../../../components/icons';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
 
 export type SidebarRowIcon = ComponentType<IconProps>;
 
@@ -20,6 +22,19 @@ interface RowBodyProps {
   iconTone?: 'default' | 'neutral';
   iconSecondary?: boolean;
   rightAdornment?: ReactNode;
+  /**
+   * One-sentence explanation rendered inside a tooltip when the user hovers
+   * or focuses the small info chip next to the label. The chip is only
+   * shown when this prop is set so rows that need no extra context stay
+   * uncluttered.
+   */
+  tooltip?: ReactNode;
+  /**
+   * Accessible label for the info chip. Defaults to "More about <label>"
+   * so screen readers announce something meaningful even when `label` is
+   * a string.
+   */
+  tooltipAriaLabel?: string;
 }
 
 const RowBody = ({
@@ -30,42 +45,67 @@ const RowBody = ({
   iconTone = 'default',
   iconSecondary,
   rightAdornment,
-}: RowBodyProps): ReactElement => (
-  <>
-    {IconEl ? (
-      <IconEl
-        size={IconSize.Size16}
-        secondary={iconSecondary ?? (iconTone === 'default' && active)}
-        className={classNames(
-          'shrink-0 transition-colors',
-          iconTone === 'neutral' &&
-            '[&_*]:fill-current [&_*]:stroke-current text-text-tertiary',
-          iconTone !== 'neutral' && active && 'text-text-primary',
-          iconTone !== 'neutral' && !active && 'text-text-tertiary',
-        )}
-      />
-    ) : null}
-    <span className="flex min-w-0 flex-1 flex-col">
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Primary}
-        className="truncate"
-      >
-        {label}
-      </Typography>
-      {description ? (
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="break-words"
-        >
-          {description}
-        </Typography>
+  tooltip,
+  tooltipAriaLabel,
+}: RowBodyProps): ReactElement => {
+  const infoLabel =
+    tooltipAriaLabel ??
+    (typeof label === 'string' ? `More about ${label}` : 'More info');
+  return (
+    <>
+      {IconEl ? (
+        <IconEl
+          size={IconSize.Size16}
+          secondary={iconSecondary ?? (iconTone === 'default' && active)}
+          className={classNames(
+            'shrink-0 transition-colors',
+            iconTone === 'neutral' &&
+              '[&_*]:fill-current [&_*]:stroke-current text-text-tertiary',
+            iconTone !== 'neutral' && active && 'text-text-primary',
+            iconTone !== 'neutral' && !active && 'text-text-tertiary',
+          )}
+        />
       ) : null}
-    </span>
-    {rightAdornment}
-  </>
-);
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex min-w-0 items-center gap-1">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            className="min-w-0 truncate"
+          >
+            {label}
+          </Typography>
+          {tooltip ? (
+            <Tooltip content={tooltip}>
+              <button
+                type="button"
+                aria-label={infoLabel}
+                onClick={(event) => event.stopPropagation()}
+                className={classNames(
+                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+                  'text-text-quaternary transition-colors hover:text-text-primary',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
+                )}
+              >
+                <InfoIcon size={IconSize.XXSmall} />
+              </button>
+            </Tooltip>
+          ) : null}
+        </span>
+        {description ? (
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="break-words"
+          >
+            {description}
+          </Typography>
+        ) : null}
+      </span>
+      {rightAdornment}
+    </>
+  );
+};
 
 // Hover shows the tint; focus-within only adds a ring (no background),
 // so rows don't look "sticky-selected" after a click keeps the switch
@@ -89,6 +129,11 @@ interface SwitchRowProps {
    * Falls back to `label` when omitted.
    */
   ariaLabel?: string;
+  /**
+   * Optional one-sentence explanation shown in a tooltip when the user
+   * hovers / focuses the small info chip rendered next to the label.
+   */
+  tooltip?: ReactNode;
 }
 
 const labelToAriaLabel = (label: ReactNode, fallback?: string): string => {
@@ -110,6 +155,7 @@ export const SidebarSwitchRow = ({
   iconTone,
   iconSecondary,
   ariaLabel,
+  tooltip,
 }: SwitchRowProps): ReactElement => {
   // Row is a non-semantic clickable region that simply forwards a pointer
   // click to the inner Switch's `onToggle`. We deliberately don't expose it
@@ -149,6 +195,7 @@ export const SidebarSwitchRow = ({
         active={checked}
         iconTone={iconTone}
         iconSecondary={iconSecondary}
+        tooltip={tooltip}
         rightAdornment={
           <span
             className="contents"

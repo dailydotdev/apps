@@ -125,46 +125,14 @@ describe('CustomizeNewTabSidebar', () => {
   it('renders the first-session welcome hero when isFirstSession is true', () => {
     renderSidebar({ isFirstSession: true });
     expect(
-      screen.getByText(/A new tab that helps you stay current\./i),
+      screen.getByText(/Make your new tab work for you\./i),
     ).toBeInTheDocument();
   });
 
-  // Match any `motion-safe:animate-[newtab-welcome-…]` class so we don't have
-  // to update tests every time a designer tweaks the keyframe timing.
-  const hasWelcomeMotionClass = (element: HTMLElement | null): boolean =>
-    !!element &&
-    Array.from(element.classList).some((cls) =>
-      cls.startsWith('motion-safe:animate-[newtab-welcome-'),
-    );
-
-  it('hides the first-session effects after ten seconds', () => {
-    jest.useFakeTimers();
-    renderSidebar({ isFirstSession: true });
-
-    const welcome = screen
-      .getByText(/A new tab that helps you stay current\./i)
-      .closest('section') as HTMLElement | null;
-    expect(hasWelcomeMotionClass(welcome)).toBe(true);
-
-    act(() => {
-      jest.advanceTimersByTime(10_000);
-    });
-
-    expect(hasWelcomeMotionClass(welcome)).toBe(false);
-  });
-
-  it('hides the first-session effects on sidebar interaction', () => {
-    renderSidebar({ isFirstSession: true });
-
-    const welcome = screen
-      .getByText(/A new tab that helps you stay current\./i)
-      .closest('section') as HTMLElement | null;
-    expect(hasWelcomeMotionClass(welcome)).toBe(true);
-
-    fireEvent.pointerDown(
-      screen.getByRole('complementary', { name: 'Customize new tab' }),
-    );
-
-    expect(hasWelcomeMotionClass(welcome)).toBe(false);
+  it('omits the welcome hero on returning visits', () => {
+    renderSidebar({ isFirstSession: false });
+    expect(
+      screen.queryByText(/Make your new tab work for you\./i),
+    ).not.toBeInTheDocument();
   });
 });

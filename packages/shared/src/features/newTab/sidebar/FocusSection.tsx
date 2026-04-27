@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { format } from 'date-fns';
 import {
@@ -19,6 +19,7 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import { useDndContext } from '../../../contexts/DndContext';
 import { isExtension } from '../../../lib/func';
 import { SidebarSection } from '../../customizeNewTab/components/SidebarSection';
+import { TimeDropdown } from '../../customizeNewTab/components/TimeDropdown';
 import {
   WEEKDAYS,
   isValidTimeString,
@@ -160,8 +161,6 @@ const ScheduleEditor = ({
   onUpdate,
 }: ScheduleEditorProps): ReactElement => {
   const initial = useMemo(() => summariseWindows(windows), [windows]);
-  const startId = useId();
-  const endId = useId();
   const [days, setDays] = useState<Set<Weekday>>(initial.days);
   const [start, setStart] = useState(initial.start);
   const [end, setEnd] = useState(initial.end);
@@ -213,20 +212,6 @@ const ScheduleEditor = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Native <input type="time"> indicators paint pure black/white by
-          default which clashes with our muted palette. Filter the indicator
-          down to the same gray as the surrounding chrome and dial back the
-          input chrome so the picker feels native rather than themed. */}
-      <style>{`
-        .newtab-focus-time-input::-webkit-calendar-picker-indicator {
-          filter: grayscale(1) opacity(0.55);
-          cursor: pointer;
-        }
-        .newtab-focus-time-input::-webkit-calendar-picker-indicator:hover {
-          opacity: 0.85;
-        }
-      `}</style>
-
       <div className="flex flex-wrap gap-1.5">
         {WEEKDAYS.map((day) => {
           const selected = days.has(day.value);
@@ -252,22 +237,19 @@ const ScheduleEditor = ({
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
-        <label htmlFor={startId} className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
             From
           </Typography>
-          <input
-            id={startId}
-            aria-label="Start time"
-            type="time"
+          <TimeDropdown
             value={start}
-            onChange={(event) => handleStart(event.target.value)}
-            className="newtab-focus-time-input w-full rounded-10 bg-surface-float px-2.5 py-2 text-text-primary typo-footnote focus:outline-none focus:ring-2 focus:ring-accent-cabbage-default"
+            onChange={handleStart}
+            ariaLabel="Start time"
           />
-        </label>
+        </div>
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Caption1}
@@ -276,22 +258,15 @@ const ScheduleEditor = ({
         >
           to
         </Typography>
-        <label htmlFor={endId} className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
             Until
           </Typography>
-          <input
-            id={endId}
-            aria-label="End time"
-            type="time"
-            value={end}
-            onChange={(event) => handleEnd(event.target.value)}
-            className="newtab-focus-time-input w-full rounded-10 bg-surface-float px-2.5 py-2 text-text-primary typo-footnote focus:outline-none focus:ring-2 focus:ring-accent-cabbage-default"
-          />
-        </label>
+          <TimeDropdown value={end} onChange={handleEnd} ariaLabel="End time" />
+        </div>
       </div>
 
       <Typography

@@ -34,6 +34,8 @@ interface WidgetDef {
   id: string;
   name: string;
   label: string;
+  /** One-sentence explanation rendered inside the row's info tooltip. */
+  tooltip: string;
   icon: SidebarRowIcon;
   iconSecondary?: boolean;
   checked: boolean;
@@ -157,6 +159,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'reputation',
       name: 'newtab-customizer-reputation',
       label: 'Reputation badge',
+      tooltip:
+        'Shows your reputation score in the header. Hides the number only — you keep earning reputation as you contribute.',
       icon: ReputationIcon,
       iconSecondary: true,
       checked: !optOutReputation,
@@ -169,6 +173,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'cores',
       name: 'newtab-customizer-cores',
       label: 'Cores wallet',
+      tooltip:
+        'Shows your Cores balance in the header. Cores are the in-app currency you spend to award creators and unlock perks.',
       icon: CoinIcon,
       checked: !optOutCores,
       toggle: toggleOptOutCores,
@@ -177,6 +183,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'streak',
       name: 'newtab-customizer-streak',
       label: 'Reading streak',
+      tooltip:
+        'Shows the flame counter that tracks how many days in a row you have read on daily.dev.',
       icon: HotIcon,
       checked: !optOutReadingStreak,
       toggle: toggleOptOutReadingStreak,
@@ -185,6 +193,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'gamification',
       name: 'newtab-customizer-gamification',
       label: 'Gamification',
+      tooltip:
+        'Shows levels and quests — small daily challenges that reward you for staying current with your reading.',
       icon: StarIcon,
       checked: isGamificationOn,
       toggle: handleGamificationToggle,
@@ -193,6 +203,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'companion',
       name: 'newtab-customizer-companion',
       label: 'Companion widget',
+      tooltip:
+        'Adds a small daily.dev side panel on every article you visit so you can comment, upvote, and share without leaving the page.',
       icon: DiscussIcon,
       checked: !optOutCompanion,
       toggle: handleCompanionToggle,
@@ -201,6 +213,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'feedback_button',
       name: 'newtab-customizer-feedback',
       label: 'Feedback button',
+      tooltip:
+        'Floating button in the bottom-right that opens a quick form to send the daily.dev team your feedback.',
       icon: FeedbackIcon,
       checked: showFeedbackButton,
       toggle: toggleShowFeedbackButton,
@@ -209,6 +223,8 @@ export const WidgetsSection = (): ReactElement => {
       id: 'auto_dismiss_notifications',
       name: 'newtab-customizer-auto-dismiss',
       label: 'Auto-dismiss notifications',
+      tooltip:
+        'Marks in-app notifications as read automatically after you open the bell, instead of leaving the dot until you click each one.',
       icon: BellIcon,
       checked: autoDismissNotifications,
       toggle: toggleAutoDismissNotifications,
@@ -222,6 +238,7 @@ export const WidgetsSection = (): ReactElement => {
           key={widget.id}
           name={widget.name}
           label={widget.label}
+          tooltip={widget.tooltip}
           icon={widget.icon}
           iconTone="neutral"
           iconSecondary={widget.iconSecondary}

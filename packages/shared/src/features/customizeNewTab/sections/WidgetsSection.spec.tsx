@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -64,7 +65,15 @@ const renderWidgets = () => {
   mockUseLazyModal.mockReturnValue({ openModal: jest.fn() });
   mockUseHasAccessToCores.mockReturnValue(true);
 
-  render(<WidgetsSection />);
+  // The info-icon tooltip on each widget row reads from the React Query
+  // client (Tooltip → useRequestProtocol). Wrap renders in a query client so
+  // mounting a row no longer throws "No QueryClient set".
+  const client = new QueryClient();
+  render(
+    <QueryClientProvider client={client}>
+      <WidgetsSection />
+    </QueryClientProvider>,
+  );
 
   return { settings, logEvent };
 };

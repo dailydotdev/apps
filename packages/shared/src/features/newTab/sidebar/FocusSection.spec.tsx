@@ -29,6 +29,32 @@ jest.mock('../../../lib/func', () => {
   };
 });
 
+// Stub the time dropdown so the FocusSection spec stays focused on schedule
+// logic — the real dropdown pulls in `RootPortal` → `useRequestProtocol` →
+// `useQueryClient`, none of which this suite is wired for. The dropdown
+// itself is exercised in its own component / integration tests.
+jest.mock('../../customizeNewTab/components/TimeDropdown', () => {
+  const ReactModule = jest.requireActual('react');
+  return {
+    TimeDropdown: ({
+      value,
+      onChange,
+      ariaLabel,
+    }: {
+      value: string;
+      onChange: (next: string) => void;
+      ariaLabel: string;
+    }) =>
+      ReactModule.createElement('input', {
+        'aria-label': ariaLabel,
+        type: 'time',
+        value,
+        onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+          onChange(event.target.value),
+      }),
+  };
+});
+
 const baseSchedule = {
   pauseUntil: null as number | null,
   windows: [] as Array<{ weekday: number; start: string; end: string }>,
