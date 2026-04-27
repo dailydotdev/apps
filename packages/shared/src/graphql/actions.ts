@@ -63,6 +63,7 @@ export enum ActionType {
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
   DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
+  SeenKeepItOverlay = 'seen_keep_it_overlay',
 }
 
 export const cvActions = [

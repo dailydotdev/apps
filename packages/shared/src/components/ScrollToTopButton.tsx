@@ -12,12 +12,23 @@ const baseStyle: CSSProperties = {
   willChange: 'transform, opacity',
 };
 
-export default function ScrollToTopButton(): ReactElement {
+interface ScrollToTopButtonProps {
+  className?: string;
+  compact?: boolean;
+}
+
+export default function ScrollToTopButton({
+  className,
+  compact = false,
+}: ScrollToTopButtonProps): ReactElement {
   const [show, setShow] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const { showFeedbackButton } = useSettingsContext();
   const size = (() => {
+    if (compact) {
+      return ButtonSize.Small;
+    }
     if (isLaptop) {
       return ButtonSize.XLarge;
     }
@@ -57,6 +68,7 @@ export default function ScrollToTopButton(): ReactElement {
         showFeedbackButton
           ? '-top-26 tablet:-top-28 laptop:-top-32'
           : '-top-12 tablet:-top-18 laptop:-top-24',
+        className,
       )}
       variant={ButtonVariant.Primary}
       size={size}

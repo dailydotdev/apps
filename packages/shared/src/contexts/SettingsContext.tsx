@@ -55,6 +55,8 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleOptOutLevelSystem: () => Promise<void>;
   toggleOptOutQuestSystem: () => Promise<void>;
   toggleOptOutCompanion: () => Promise<void>;
+  toggleOptOutCores: () => Promise<void>;
+  toggleOptOutReputation: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
@@ -130,7 +132,17 @@ export const defaultSettings: RemoteSettings = {
   optOutReadingStreak: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
-  optOutCompanion: false,
+  // Default-off: the companion needs broad host permissions, so we wait for
+  // the user to opt in via the explicit confirmation modal in the
+  // Customize -> Widgets sidebar before flipping this on.
+  optOutCompanion: true,
+  // Default-on: users with Cores access see the wallet pill in the header.
+  // The Customize -> Widgets toggle lets them hide it without losing access.
+  optOutCores: false,
+  // Default-on: the reputation badge is visible in the header pill. Users
+  // who don't want a number in their face during deep work can hide it via
+  // the Customize -> Widgets toggle without affecting earned reputation.
+  optOutReputation: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.OldestFirst,
   showFeedbackButton: true,
@@ -271,6 +283,16 @@ export const SettingsContextProvider = ({
         setSettings({
           ...settings,
           optOutCompanion: !settings.optOutCompanion,
+        }),
+      toggleOptOutCores: () =>
+        setSettings({
+          ...settings,
+          optOutCores: !settings.optOutCores,
+        }),
+      toggleOptOutReputation: () =>
+        setSettings({
+          ...settings,
+          optOutReputation: !settings.optOutReputation,
         }),
       toggleAutoDismissNotifications: () =>
         setSettings({

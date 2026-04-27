@@ -7,11 +7,16 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { MiniCloseIcon as XIcon } from '@dailydotdev/shared/src/components/icons';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
+import { useFocusSchedule } from '@dailydotdev/shared/src/features/newTab/store/focusSchedule.store';
 
 export default function DndBanner(): ReactElement {
   const { onDndSettings } = useDndContext();
+  const { pauseFor } = useFocusSchedule();
 
-  const turnOff = () => onDndSettings(null);
+  const turnOff = () => {
+    pauseFor(null);
+    onDndSettings(null);
+  };
 
   return (
     <div className="relative z-popup flex w-full flex-col items-start bg-accent-onion-default py-3 pl-3 pr-12 typo-footnote laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0">

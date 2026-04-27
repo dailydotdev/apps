@@ -6,11 +6,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -23,6 +25,7 @@ import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
 } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
+import { FirstSessionDevToggle } from '@dailydotdev/shared/src/features/customizeNewTab/components/FirstSessionDevToggle';
 import { NewTabModeRenderer } from '@dailydotdev/shared/src/features/newTab/NewTabModeRenderer';
 import { FocusBlockedBanner } from '@dailydotdev/shared/src/features/newTab/focus/FocusBlockedBanner';
 import {
@@ -88,6 +91,7 @@ export default function MainFeedPage({
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
+  const { optOutCompanion, showFeedbackButton } = useSettingsContext();
   const [feedName, setFeedName] = useState<string>(() =>
     getInitialFeedName(initialPage),
   );
@@ -168,8 +172,17 @@ export default function MainFeedPage({
         className="transition-[padding] duration-200 ease-in-out"
         style={{ paddingRight: customizerOffset }}
       >
-        <div className="fixed bottom-0 left-0 z-2 w-full">
-          <ScrollToTopButton />
+        {/* Stack the small back-to-top icon directly above the dominant
+            Customize pill so they share the right rail without overlapping.
+            Bottom offset shifts up further when the floating Feedback pill
+            is visible (Customize moves to bottom-20 in that case). */}
+        <div
+          className={classNames(
+            'fixed right-4 z-2',
+            showFeedbackButton ? 'bottom-36' : 'bottom-20',
+          )}
+        >
+          <ScrollToTopButton compact className="!static !right-auto !top-auto" />
         </div>
         <MainLayout
           mainPage
@@ -185,7 +198,9 @@ export default function MainFeedPage({
             </>
           }
           additionalButtons={
-            !loadingUser && !isFocusSessionRunning && <CompanionPopupButton />
+            !loadingUser &&
+            !isFocusSessionRunning &&
+            !optOutCompanion && <CompanionPopupButton />
           }
         >
           <NewTabModeRenderer shortcuts={shortcutsSlot}>
@@ -222,6 +237,7 @@ export default function MainFeedPage({
         </MainLayout>
       </div>
       <CustomizeNewTabSidebar customizer={customizer} />
+      <FirstSessionDevToggle realIsFirstSession={customizer.realIsFirstSession} />
     </>
   );
 }

@@ -13,11 +13,14 @@ export function MostVisitedSitesModal({
   ...props
 }: ModalProps): ReactElement {
   const { askTopSitesBrowserPermission } = useShortcutLinks();
-  const { setIsManual, setShowPermissionsModal } = useShortcuts();
+  const { setSourceManual, setShowPermissionsModal } = useShortcuts();
 
   const onRequestClose = () => {
     setShowPermissionsModal(false);
-    setIsManual(true);
+    // Cancelling the permission flow means the user backs out of the
+    // top-sites choice — fall back to manual so we don't leave them in a
+    // half-committed "topsites" preference with no permission.
+    setSourceManual(true);
   };
 
   return (
@@ -53,11 +56,14 @@ export function MostVisitedSitesModal({
         <Button
           onClick={async () => {
             const granted = await askTopSitesBrowserPermission();
-            setIsManual(!granted);
-
-            if (granted) {
-              setShowPermissionsModal(false);
-            }
+            // Record the user's final source choice: top sites on grant,
+            // manual on deny. Keeps the sidebar segmented control and the
+            // popup cards in sync with what the feed actually shows.
+            setSourceManual(!granted);
+            // Always dismiss the modal — even on deny — so the user isn't
+            // trapped behind an unreachable Chrome dialog. The reverted
+            // source ('manual') above keeps the rest of the UI consistent.
+            setShowPermissionsModal(false);
           }}
           variant={ButtonVariant.Primary}
         >

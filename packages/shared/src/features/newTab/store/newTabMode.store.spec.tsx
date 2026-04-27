@@ -7,8 +7,8 @@ const Probe = (): JSX.Element => {
   return (
     <div>
       <span data-testid="mode">{mode}</span>
-      <button type="button" onClick={() => setMode('zen')}>
-        go-zen
+      <button type="button" onClick={() => setMode('focus')}>
+        go-focus
       </button>
     </div>
   );
@@ -24,10 +24,10 @@ describe('newTabMode.store', () => {
     expect(screen.getByTestId('mode')).toHaveTextContent('discover');
   });
 
-  it('migrates the legacy focus-mode=true flag to zen', () => {
+  it('migrates the legacy focus-mode flag to discover (Zen removed)', () => {
     window.localStorage.setItem('newtab:focus-mode', JSON.stringify(true));
     render(<Probe />);
-    expect(screen.getByTestId('mode')).toHaveTextContent('zen');
+    expect(screen.getByTestId('mode')).toHaveTextContent('discover');
     expect(window.localStorage.getItem('newtab:focus-mode')).toBeNull();
   });
 
@@ -38,12 +38,18 @@ describe('newTabMode.store', () => {
     expect(window.localStorage.getItem('newtab:focus-mode')).toBeNull();
   });
 
+  it('falls back to discover when stored mode is the removed "zen" value', () => {
+    window.localStorage.setItem('newtab:mode', JSON.stringify('zen'));
+    render(<Probe />);
+    expect(screen.getByTestId('mode')).toHaveTextContent('discover');
+  });
+
   it('persists mode changes to storage', () => {
     render(<Probe />);
     act(() => {
-      screen.getByText('go-zen').click();
+      screen.getByText('go-focus').click();
     });
-    expect(screen.getByTestId('mode')).toHaveTextContent('zen');
-    expect(window.localStorage.getItem('newtab:mode')).toBe('"zen"');
+    expect(screen.getByTestId('mode')).toHaveTextContent('focus');
+    expect(window.localStorage.getItem('newtab:mode')).toBe('"focus"');
   });
 });

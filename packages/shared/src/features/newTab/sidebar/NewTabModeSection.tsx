@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
-import { EarthIcon, MoonIcon, TimerIcon } from '../../../components/icons';
+import { EarthIcon, TimerIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -13,26 +13,21 @@ import {
   SidebarSegmented,
   type SegmentedOption,
 } from '../../customizeNewTab/components/SidebarSegmented';
-import { PauseNewTabRow } from '../../customizeNewTab/components/PauseNewTabRow';
 import type { NewTabMode } from '../store/newTabMode.store';
 import { useNewTabMode } from '../store/newTabMode.store';
 
 const HINTS: Record<NewTabMode, string> = {
-  discover: 'The endless daily.dev feed.',
-  focus: 'Timer replaces the feed until the session ends.',
-  zen: 'A calm homepage. Small briefing, no infinite feed.',
+  discover: 'Your daily.dev feed every time you open a tab.',
+  focus: 'Quiet the feed during deep work — pause now or schedule it.',
 };
 
-// Icon choices map to mental models:
-// - Discover: a globe, because it reads as "the open stream from the world"
-// - Focus:    a timer, unchanged, it's the clearest "session" metaphor
-// - Zen:      a moon, because it's the most unambiguous "calm / quiet mode"
-//   symbol and avoids clashing with the Brief card which already uses its
-//   own briefing glyph.
+// Two modes only: Discover (the classic, infinite feed) and Focus (a
+// commitment surface — runs a timer, can be scheduled, can block sites).
+// Zen was removed in favour of this simpler split; the FocusSection below
+// owns Pause-now, Active hours and Session length so the picker stays clean.
 const OPTIONS: SegmentedOption<NewTabMode>[] = [
   { value: 'discover', label: 'Discover', icon: EarthIcon },
   { value: 'focus', label: 'Focus', icon: TimerIcon },
-  { value: 'zen', label: 'Zen', icon: MoonIcon },
 ];
 
 export const NewTabModeSection = (): ReactElement => {
@@ -70,9 +65,6 @@ export const NewTabModeSection = (): ReactElement => {
       >
         {HINTS[mode]}
       </Typography>
-      {/* Pause sits alongside Mode because it's effectively a fourth "mode"
-          (take a break). The row renders null outside the extension. */}
-      <PauseNewTabRow />
     </SidebarSection>
   );
 };

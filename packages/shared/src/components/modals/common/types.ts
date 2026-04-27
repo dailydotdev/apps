@@ -98,6 +98,7 @@ export enum LazyModal {
   AchievementCompletion = 'achievementCompletion',
   CompareAchievements = 'compareAchievements',
   AchievementShowcase = 'achievementShowcase',
+  CompanionPermission = 'companionPermission',
 }
 
 export type ModalTabItem = {

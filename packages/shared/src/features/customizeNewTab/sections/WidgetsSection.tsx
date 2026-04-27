@@ -4,14 +4,18 @@ import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../../components/modals/common/types';
 import { questsFeature } from '../../../lib/featureManagement';
 import { isExtension } from '../../../lib/func';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import {
   BellIcon,
+  CoinIcon,
   DiscussIcon,
   FeedbackIcon,
-  FlagIcon,
-  ReadingStreakIcon,
+  HotIcon,
+  ReputationIcon,
   StarIcon,
 } from '../../../components/icons';
 import { SidebarSection } from '../components/SidebarSection';
@@ -31,6 +35,7 @@ interface WidgetDef {
   name: string;
   label: string;
   icon: SidebarRowIcon;
+  iconSecondary?: boolean;
   checked: boolean;
   toggle: () => Promise<unknown> | void;
   enabled?: boolean;
@@ -38,6 +43,7 @@ interface WidgetDef {
 
 export const WidgetsSection = (): ReactElement => {
   const { logEvent } = useLogContext();
+  const { openModal } = useLazyModal();
   const {
     optOutReadingStreak,
     toggleOptOutReadingStreak,
@@ -47,6 +53,10 @@ export const WidgetsSection = (): ReactElement => {
     toggleOptOutQuestSystem,
     optOutCompanion,
     toggleOptOutCompanion,
+    optOutCores,
+    toggleOptOutCores,
+    optOutReputation,
+    toggleOptOutReputation,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
     showFeedbackButton,
@@ -55,6 +65,7 @@ export const WidgetsSection = (): ReactElement => {
   const { value: isQuestsEnabled } = useConditionalFeature({
     feature: questsFeature,
   });
+  const hasCoresAccess = useHasAccessToCores();
 
   const logToggle = useCallback(
     ({ targetId, next, toggle }: LoggedToggleArgs) => {
@@ -69,30 +80,114 @@ export const WidgetsSection = (): ReactElement => {
     [logEvent],
   );
 
+  // Gamification = Levels + Quests as one consumer-facing toggle. The two
+  // server flags stay independent so other surfaces that read them
+  // individually keep working; we just keep them in sync from this row.
+  const isGamificationOn = !optOutLevelSystem && !optOutQuestSystem;
+  const handleGamificationToggle = useCallback(async () => {
+    const next = !isGamificationOn;
+    logEvent({
+      event_name: LogEvent.ChangeSettings,
+      target_type: TargetType.CustomizeNewTab,
+      target_id: 'gamification',
+      extra: JSON.stringify({ enabled: next }),
+    });
+    // We need to flip each opt-out flag whose current state disagrees with
+    // the desired aggregate. For "next === true" that means opting in to any
+    // currently-opted-out subsystem; for "next === false" the inverse.
+    const ops: Array<Promise<unknown> | void> = [];
+    if (optOutLevelSystem !== !next) {
+      ops.push(toggleOptOutLevelSystem());
+    }
+    if (optOutQuestSystem !== !next) {
+      ops.push(toggleOptOutQuestSystem());
+    }
+    await Promise.all(ops.filter(Boolean) as Array<Promise<unknown>>);
+  }, [
+    isGamificationOn,
+    logEvent,
+    optOutLevelSystem,
+    optOutQuestSystem,
+    toggleOptOutLevelSystem,
+    toggleOptOutQuestSystem,
+  ]);
+
+  // Companion is gated behind a confirmation modal whenever the user tries
+  // to enable it: we need their consent before requesting the broad host
+  // permission Chrome will show. Disabling is unrestricted.
+  const handleCompanionToggle = useCallback(() => {
+    if (!optOutCompanion) {
+      logEvent({
+        event_name: LogEvent.ChangeSettings,
+        target_type: TargetType.CustomizeNewTab,
+        target_id: 'companion',
+        extra: JSON.stringify({ enabled: false }),
+      });
+      toggleOptOutCompanion();
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.CustomizeNewTab,
+      target_id: 'companion_permission_modal_open',
+    });
+    openModal({
+      type: LazyModal.CompanionPermission,
+      props: {
+        onActivated: () => {
+          logEvent({
+            event_name: LogEvent.ChangeSettings,
+            target_type: TargetType.CustomizeNewTab,
+            target_id: 'companion',
+            extra: JSON.stringify({ enabled: true }),
+          });
+          toggleOptOutCompanion();
+        },
+      },
+    });
+  }, [logEvent, openModal, optOutCompanion, toggleOptOutCompanion]);
+
+  // All widget rows render outlined, gray icons so the section reads as a
+  // uniform stack of toggles. ReputationIcon is the odd one out — its
+  // primary glyph is filled and the outlined variant lives on `secondary`.
   const widgets: WidgetDef[] = [
+    // Reputation badge in the header pill. Hides the number only — earned
+    // reputation, the profile page, badges, and notifications are unaffected.
+    {
+      id: 'reputation',
+      name: 'newtab-customizer-reputation',
+      label: 'Reputation badge',
+      icon: ReputationIcon,
+      iconSecondary: true,
+      checked: !optOutReputation,
+      toggle: toggleOptOutReputation,
+    },
+    // Cores wallet pill in the header. Only show the row to users who
+    // actually have access to Cores — for everyone else the toggle would be
+    // a confusing no-op since the pill never renders for them anyway.
+    hasCoresAccess && {
+      id: 'cores',
+      name: 'newtab-customizer-cores',
+      label: 'Cores wallet',
+      icon: CoinIcon,
+      checked: !optOutCores,
+      toggle: toggleOptOutCores,
+    },
     {
       id: 'streak',
       name: 'newtab-customizer-streak',
       label: 'Reading streak',
-      icon: ReadingStreakIcon,
+      icon: HotIcon,
       checked: !optOutReadingStreak,
       toggle: toggleOptOutReadingStreak,
     },
     isQuestsEnabled && {
-      id: 'levels',
-      name: 'newtab-customizer-levels',
-      label: 'Levels',
+      id: 'gamification',
+      name: 'newtab-customizer-gamification',
+      label: 'Gamification',
       icon: StarIcon,
-      checked: !optOutLevelSystem,
-      toggle: toggleOptOutLevelSystem,
-    },
-    isQuestsEnabled && {
-      id: 'quests',
-      name: 'newtab-customizer-quests',
-      label: 'Quests',
-      icon: FlagIcon,
-      checked: !optOutQuestSystem,
-      toggle: toggleOptOutQuestSystem,
+      checked: isGamificationOn,
+      toggle: handleGamificationToggle,
     },
     isExtension && {
       id: 'companion',
@@ -100,7 +195,7 @@ export const WidgetsSection = (): ReactElement => {
       label: 'Companion widget',
       icon: DiscussIcon,
       checked: !optOutCompanion,
-      toggle: toggleOptOutCompanion,
+      toggle: handleCompanionToggle,
     },
     {
       id: 'feedback_button',
@@ -128,14 +223,21 @@ export const WidgetsSection = (): ReactElement => {
           name={widget.name}
           label={widget.label}
           icon={widget.icon}
+          iconTone="neutral"
+          iconSecondary={widget.iconSecondary}
           checked={widget.checked}
-          onToggle={() =>
+          onToggle={() => {
+            // Companion + Gamification own their own toggle/log flow.
+            if (widget.id === 'companion' || widget.id === 'gamification') {
+              widget.toggle();
+              return;
+            }
             logToggle({
               targetId: widget.id,
               next: !widget.checked,
               toggle: widget.toggle,
-            })
-          }
+            });
+          }}
         />
       ))}
     </SidebarSection>

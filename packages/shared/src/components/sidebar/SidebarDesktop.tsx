@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useBanner } from '../../hooks/useBanner';
+import { useDndContext } from '../../contexts/DndContext';
 import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
@@ -33,6 +34,10 @@ export const SidebarDesktop = ({
   const router = useRouter();
   const { sidebarExpanded } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
+  const { isActive: isDndActive } = useDndContext();
+  // The DnD/Take-a-break strip steals the same 32px banner slot above the
+  // header, so the sidebar needs to slide down to keep its top edge under it.
+  const hasTopBanner = isBannerAvailable || isDndActive;
   const activePage = activePageProp || router.asPath || router.pathname;
 
   const defaultRenderSectionProps = useMemo(
@@ -49,7 +54,7 @@ export const SidebarDesktop = ({
       data-testid="sidebar-aside"
       className={classNames(
         sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
-        isBannerAvailable
+        hasTopBanner
           ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
           : 'laptop:top-16 laptop:h-[calc(100vh-theme(space.16))]',
         featureTheme && 'bg-transparent',

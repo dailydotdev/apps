@@ -17,6 +17,8 @@ interface RowBodyProps {
   description?: ReactNode;
   icon?: SidebarRowIcon;
   active: boolean;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
   rightAdornment?: ReactNode;
 }
 
@@ -25,16 +27,21 @@ const RowBody = ({
   description,
   icon: IconEl,
   active,
+  iconTone = 'default',
+  iconSecondary,
   rightAdornment,
 }: RowBodyProps): ReactElement => (
   <>
     {IconEl ? (
       <IconEl
         size={IconSize.Size16}
-        secondary={active}
+        secondary={iconSecondary ?? (iconTone === 'default' && active)}
         className={classNames(
           'shrink-0 transition-colors',
-          active ? 'text-text-primary' : 'text-text-tertiary',
+          iconTone === 'neutral' &&
+            '[&_*]:fill-current [&_*]:stroke-current text-text-tertiary',
+          iconTone !== 'neutral' && active && 'text-text-primary',
+          iconTone !== 'neutral' && !active && 'text-text-tertiary',
         )}
       />
     ) : null}
@@ -75,6 +82,8 @@ interface SwitchRowProps {
   onToggle: () => void;
   disabled?: boolean;
   className?: string;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
   /**
    * Required for screen readers when `label` is not a plain string.
    * Falls back to `label` when omitted.
@@ -98,36 +107,75 @@ export const SidebarSwitchRow = ({
   onToggle,
   disabled,
   className,
+  iconTone,
+  iconSecondary,
   ariaLabel,
-}: SwitchRowProps): ReactElement => (
-  // eslint-disable-next-line jsx-a11y/label-has-associated-control
-  <label
-    htmlFor={`${name}-switch`}
-    className={classNames(
-      ROW_BASE,
-      disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
-      className,
-    )}
-  >
-    <RowBody
-      label={label}
-      description={description}
-      icon={icon}
-      active={checked}
-      rightAdornment={
-        <Switch
-          inputId={`${name}-switch`}
-          name={name}
-          compact
-          checked={checked}
-          onToggle={onToggle}
-          disabled={disabled}
-          aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
-        />
-      }
-    />
-  </label>
-);
+}: SwitchRowProps): ReactElement => {
+  // The Switch component already wraps its <input> in its own <label>, so
+  // we can't make the row another <label htmlFor=…> — both labels would
+  // forward a single click to the input and onChange would fire twice,
+  // flipping the toggle and immediately flipping it back. Instead the row
+  // is a clickable <div> that calls onToggle directly, with the Switch
+  // wrapper stopping propagation so a click on the actual switch toggles
+  // exactly once.
+  const handleRowClick = () => {
+    if (disabled) {
+      return;
+    }
+    onToggle();
+  };
+  const handleRowKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) {
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onToggle();
+    }
+  };
+  return (
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-pressed={checked}
+      aria-disabled={disabled || undefined}
+      aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
+      onClick={handleRowClick}
+      onKeyDown={handleRowKeyDown}
+      className={classNames(
+        ROW_BASE,
+        disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
+        className,
+      )}
+    >
+      <RowBody
+        label={label}
+        description={description}
+        icon={icon}
+        active={checked}
+        iconTone={iconTone}
+        iconSecondary={iconSecondary}
+        rightAdornment={
+          <span
+            className="contents"
+            onClick={(event) => event.stopPropagation()}
+            role="presentation"
+          >
+            <Switch
+              inputId={`${name}-switch`}
+              name={name}
+              compact
+              checked={checked}
+              onToggle={onToggle}
+              disabled={disabled}
+              aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
+            />
+          </span>
+        }
+      />
+    </div>
+  );
+};
 
 interface ActionRowProps {
   label: ReactNode;
@@ -137,6 +185,8 @@ interface ActionRowProps {
   rightAdornment?: ReactNode;
   disabled?: boolean;
   className?: string;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
   ariaLabel?: string;
 }
 
@@ -148,6 +198,8 @@ export const SidebarActionRow = ({
   rightAdornment,
   disabled,
   className,
+  iconTone,
+  iconSecondary,
   ariaLabel,
 }: ActionRowProps): ReactElement => (
   <button
@@ -167,6 +219,8 @@ export const SidebarActionRow = ({
       description={description}
       icon={icon}
       active={false}
+      iconTone={iconTone}
+      iconSecondary={iconSecondary}
       rightAdornment={rightAdornment}
     />
   </button>

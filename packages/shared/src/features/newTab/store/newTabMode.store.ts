@@ -1,23 +1,25 @@
 import { useCallback, useSyncExternalStore } from 'react';
+import { mirrorToExtensionStorage } from '../../../lib/extensionStorage';
 
-// The new tab can take on one of three identities. Zen is a calm homepage,
-// Focus is a commitment session (Phase 2), Discover is the classic feed.
-// Phase 1 only surfaces Zen and Discover in the UI; the focus variant is
-// reserved so we don't need a schema migration when it lands.
-export type NewTabMode = 'zen' | 'focus' | 'discover';
+// The new tab can take on one of two identities. Discover is the classic feed
+// and the default; Focus is a commitment session (live timer, scheduled
+// blocks, optional site blocking). Zen previously existed but was removed in
+// favour of a simpler two-mode mental model — stored 'zen' values fall back
+// to 'discover' transparently.
+export type NewTabMode = 'focus' | 'discover';
 
-const STORAGE_KEY = 'newtab:mode';
+export const NEW_TAB_MODE_STORAGE_KEY = 'newtab:mode';
 const LEGACY_FOCUS_MODE_KEY = 'newtab:focus-mode';
 const CHANGE_EVENT = 'newtab:mode:changed';
 
 const isNewTabMode = (value: unknown): value is NewTabMode =>
-  value === 'zen' || value === 'focus' || value === 'discover';
+  value === 'focus' || value === 'discover';
 
 const readFromStorage = (): NewTabMode => {
   if (typeof window === 'undefined') {
     return 'discover';
   }
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(NEW_TAB_MODE_STORAGE_KEY);
   if (raw === null) {
     return 'discover';
   }
@@ -26,15 +28,20 @@ const readFromStorage = (): NewTabMode => {
     if (isNewTabMode(parsed)) {
       return parsed;
     }
+    // Legacy zen users land on Discover — that's the closest match to "I want
+    // the daily.dev feed when I open a tab" once we collapse the modes.
+    if (parsed === 'zen') {
+      return 'discover';
+    }
   } catch {
     // fall through to default
   }
   return 'discover';
 };
 
-// Legacy focus-mode users land on Zen because that's the closest match to
-// the old bounded single-column layout they opted into. Idempotent: we
-// delete the legacy key once handled, so subsequent calls are no-ops.
+// Legacy focus-mode users land on Discover (formerly Zen) since Zen has been
+// removed. Idempotent: we delete the legacy key once handled, so subsequent
+// calls are no-ops.
 export const runLegacyMigration = (): void => {
   if (typeof window === 'undefined') {
     return;
@@ -45,17 +52,16 @@ export const runLegacyMigration = (): void => {
   }
   window.localStorage.removeItem(LEGACY_FOCUS_MODE_KEY);
 
-  if (window.localStorage.getItem(STORAGE_KEY) !== null) {
+  if (window.localStorage.getItem(NEW_TAB_MODE_STORAGE_KEY) !== null) {
     return;
   }
 
-  let next: NewTabMode = 'discover';
-  try {
-    next = JSON.parse(raw) === true ? 'zen' : 'discover';
-  } catch {
-    next = 'discover';
-  }
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  // Either way we want them on Discover — Zen no longer exists.
+  window.localStorage.setItem(
+    NEW_TAB_MODE_STORAGE_KEY,
+    JSON.stringify('discover'),
+  );
+  mirrorToExtensionStorage(NEW_TAB_MODE_STORAGE_KEY, 'discover');
   if (typeof CustomEvent !== 'undefined') {
     window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
   }
@@ -97,7 +103,8 @@ export const useNewTabMode = (): {
     if (typeof window === 'undefined') {
       return;
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(NEW_TAB_MODE_STORAGE_KEY, JSON.stringify(next));
+    mirrorToExtensionStorage(NEW_TAB_MODE_STORAGE_KEY, next);
     window.dispatchEvent(new CustomEvent(CHANGE_EVENT));
   }, []);
 
