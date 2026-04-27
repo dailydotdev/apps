@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import { LiveRoomControls } from './LiveRoomControls';
@@ -85,6 +86,16 @@ const createRoomState = (): NonNullable<LiveRoomContextValue['roomState']> => {
   return roomState;
 };
 
+const renderLiveRoomControls = () => {
+  const queryClient = new QueryClient();
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <LiveRoomControls onLeave={jest.fn()} />
+    </QueryClientProvider>,
+  );
+};
+
 describe('LiveRoomControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -94,7 +105,7 @@ describe('LiveRoomControls', () => {
     const joinSpeakerQueue = jest.fn().mockResolvedValue(undefined);
     mockUseLiveRoom.mockReturnValue(createContextValue({ joinSpeakerQueue }));
 
-    render(<LiveRoomControls onLeave={jest.fn()} />);
+    renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'Join queue' }));
 
@@ -116,7 +127,7 @@ describe('LiveRoomControls', () => {
       }),
     );
 
-    render(<LiveRoomControls onLeave={jest.fn()} />);
+    renderLiveRoomControls();
 
     const queuedButton = screen.getByRole('button', { name: 'Queued' });
     expect(queuedButton).toBeDisabled();
@@ -128,7 +139,7 @@ describe('LiveRoomControls', () => {
     const sendReaction = jest.fn().mockResolvedValue(undefined);
     mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
 
-    render(<LiveRoomControls onLeave={jest.fn()} />);
+    renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'React 🔥' }));
 
@@ -144,7 +155,7 @@ describe('LiveRoomControls', () => {
       }),
     );
 
-    render(<LiveRoomControls onLeave={jest.fn()} />);
+    renderLiveRoomControls();
 
     expect(
       screen.getByRole('button', { name: 'End room' }),
@@ -177,7 +188,7 @@ describe('LiveRoomControls', () => {
       }),
     );
 
-    render(<LiveRoomControls onLeave={jest.fn()} />);
+    renderLiveRoomControls();
 
     expect(screen.getByRole('button', { name: 'Mic off' })).toBeInTheDocument();
     expect(
