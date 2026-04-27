@@ -113,10 +113,10 @@ describe('FocusSection', () => {
   });
 
   it('seeds weekdays 9-5 the first time the schedule toggle flips on', () => {
-    const { container } = render(<FocusSection />);
-    const toggle = container.querySelector(
-      '#focus-schedule-toggle',
-    ) as HTMLInputElement;
+    render(<FocusSection />);
+    const toggle = screen.getByLabelText(/Active hours/i, {
+      selector: 'input',
+    });
     act(() => {
       fireEvent.click(toggle);
     });
@@ -138,10 +138,10 @@ describe('FocusSection', () => {
       enabled: true,
       windows: [{ weekday: 1, start: '09:00', end: '17:00' }],
     };
-    const { container } = render(<FocusSection />);
-    const toggle = container.querySelector(
-      '#focus-schedule-toggle',
-    ) as HTMLInputElement;
+    render(<FocusSection />);
+    const toggle = screen.getByLabelText(/Active hours/i, {
+      selector: 'input',
+    });
     act(() => {
       fireEvent.click(toggle);
     });

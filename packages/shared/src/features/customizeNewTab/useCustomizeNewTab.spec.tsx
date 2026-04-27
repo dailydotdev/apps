@@ -1,10 +1,7 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { ActionType } from '../../graphql/actions';
-import {
-  NEW_USER_WINDOW_DAYS,
-  useCustomizeNewTab,
-} from './useCustomizeNewTab';
+import { NEW_USER_WINDOW_DAYS, useCustomizeNewTab } from './useCustomizeNewTab';
 
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
@@ -98,9 +95,7 @@ describe('useCustomizeNewTab', () => {
   });
 
   it('flips isFirstSession off once the user has dismissed the customizer', () => {
-    const recent = new Date(
-      Date.now() - 1000 * 60 * 60 * 24,
-    );
+    const recent = new Date(Date.now() - 1000 * 60 * 60 * 24);
     mockUseAuthContext.mockReturnValue({
       user: { createdAt: recent.toISOString() },
     });
