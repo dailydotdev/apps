@@ -5,7 +5,7 @@ import { LazyImage } from '../../../components/LazyImage';
 import { sanitizeMessage } from '../lib/utils';
 import type { FunnelBannerMessageParameters } from '../types/funnel';
 
-type FunnelBannerMessageProps = FunnelBannerMessageParameters &
+type FunnelBannerMessageProps = Partial<FunnelBannerMessageParameters> &
   ComponentProps<'div'>;
 
 export const FunnelBannerMessage = ({
@@ -13,7 +13,10 @@ export const FunnelBannerMessage = ({
   content,
   className,
 }: FunnelBannerMessageProps) => {
-  const contentHtml = useMemo(() => sanitizeMessage(content), [content]);
+  const contentHtml = useMemo(
+    () => (content ? sanitizeMessage(content) : ''),
+    [content],
+  );
 
   return (
     <div

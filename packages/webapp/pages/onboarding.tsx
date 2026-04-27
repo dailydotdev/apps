@@ -43,6 +43,7 @@ import {
   FunnelBootFeatureKey,
   getFunnelBootData,
 } from '@dailydotdev/shared/src/features/onboarding/funnelBoot';
+import type { FunnelState } from '@dailydotdev/shared/src/features/onboarding/types/funnelBoot';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import {
@@ -59,6 +60,20 @@ import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import type { FunnelStepComponentOverrides } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
+import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import dynamic from 'next/dynamic';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { onboardingSwipeInterceptTagsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+
+// Loaded only when the swipe-intercept feature flag is on, so the swipe deck
+// + recommender code never ships for users not in the experiment.
+const FunnelEditTagsSwipeInterceptor = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "funnelEditTagsSwipeInterceptor" */ '../components/onboarding/FunnelEditTagsSwipeInterceptor'
+    ).then((mod) => mod.FunnelEditTagsSwipeInterceptor),
+);
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
@@ -158,14 +173,15 @@ const isValidAction = (
 };
 
 const useOnboardingAuth = () => {
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
   const router = useRouter();
-  const action = isValidAction(router.query.action) && router.query.action;
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
+  const action = isValidAction(router.query.action)
+    ? router.query.action
+    : undefined;
+  const { data } = useOnboardingBoot();
+  const funnelState = data?.funnelState;
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isLoginFlow, defaultDisplay } = auth;
@@ -239,8 +255,7 @@ const useOnboardingAuth = () => {
       targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
-      onAuthStateUpdate: (props: AuthProps) =>
-        updateAuth({ isAuthenticating: true, ...props }),
+      onAuthStateUpdate: (props: Partial<AuthProps>) => updateAuth({ ...props }),
       onboardingSignupButton: {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
@@ -268,7 +283,7 @@ const useOnboardingAuth = () => {
   };
 };
 
-function Onboarding({ initialStepId }: PageProps): ReactElement {
+function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const router = useRouter();
   const {
     isAuthenticating,
@@ -343,17 +358,49 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
+  if (!isFunnelReady || !funnelState) {
+    return null;
+  }
+
   return (
-    isFunnelReady && (
-      <div className="flex min-h-dvh min-w-full flex-col">
-        <FunnelStepper
-          {...funnelState}
-          initialStepId={initialStepId}
-          onComplete={onComplete}
-        />
-        {/* <HotJarTracking hotjarId="3871311" /> */}
-      </div>
-    )
+    <FunnelStepperWithSwipeIntercept
+      funnelState={funnelState}
+      initialStepId={initialStepId}
+      onComplete={onComplete}
+    />
+  );
+}
+
+interface FunnelStepperWithSwipeInterceptProps {
+  funnelState: FunnelState;
+  initialStepId: string | null;
+  onComplete: () => void;
+}
+
+function FunnelStepperWithSwipeIntercept({
+  funnelState,
+  initialStepId,
+  onComplete,
+}: FunnelStepperWithSwipeInterceptProps): ReactElement {
+  const { value: isSwipeInterceptEnabled } = useConditionalFeature({
+    feature: onboardingSwipeInterceptTagsFeature,
+  });
+
+  const stepComponentOverrides: FunnelStepComponentOverrides | undefined =
+    isSwipeInterceptEnabled
+      ? { [FunnelStepType.EditTags]: FunnelEditTagsSwipeInterceptor }
+      : undefined;
+
+  return (
+    <div className="flex min-h-dvh min-w-full flex-col">
+      <FunnelStepper
+        {...funnelState}
+        initialStepId={initialStepId}
+        onComplete={onComplete}
+        stepComponentOverrides={stepComponentOverrides}
+      />
+      {/* <HotJarTracking hotjarId="3871311" /> */}
+    </div>
   );
 }
 

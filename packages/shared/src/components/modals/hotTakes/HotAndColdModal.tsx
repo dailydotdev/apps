@@ -10,6 +10,7 @@ import { useSwipeable } from 'react-swipeable';
 import classNames from 'classnames';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
+import type { Post } from '../../../graphql/posts';
 import { ModalSize } from '../common/types';
 import { useDiscoverHotTakes } from '../../../hooks/useDiscoverHotTakes';
 import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
@@ -53,7 +54,7 @@ const COLD_ACCENT_COLOR = '#123a88';
 const HOT_TAKE_CARD_HEIGHT = '28rem';
 /** Title3 × 3 lines (typo-title3 line-height 1.625rem in tailwind/typography.ts). */
 const ONBOARDING_CARD_TITLE_MIN_HEIGHT = '4.875rem';
-/** Fixed onboarding post card (source + 3-line title + 4:3 image + padding). */
+/** Fixed onboarding post card (source + 3-line title + short summary + padding). */
 const ONBOARDING_POST_CARD_HEIGHT = '24rem';
 /** Swipe stack area: card height plus back-card vertical offset (8px). */
 const ONBOARDING_SWIPE_AREA_HEIGHT = '24.5rem';
@@ -1433,18 +1434,15 @@ const OnboardingPostCard = ({
             {card.title || 'Popular developer story'}
           </Typography>
         </div>
-        <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-12">
-          {card.image ? (
-            <img
-              alt={card.title ?? 'Popular post'}
-              className="size-full rounded-12 object-cover"
-              draggable={false}
-              src={card.image}
-            />
-          ) : (
-            <div className="size-full rounded-12 bg-surface-hover" />
-          )}
-        </div>
+        {card.shortSummary ? (
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Secondary}
+            className="line-clamp-6"
+          >
+            {card.shortSummary}
+          </Typography>
+        ) : null}
       </div>
     </div>
   );
@@ -1536,16 +1534,14 @@ export type OnboardingSwipeActionMeta = {
   onboardingCardId?: string;
 };
 
-export interface OnboardingSwipeCard {
-  id: string;
-  title?: string;
-  image?: string | null;
-  tags?: string[];
-  source?: {
-    name?: string | null;
-    image?: string | null;
-  } | null;
-}
+/**
+ * The onboarding deck card is a `Post` (full daily-api shape) augmented with a
+ * `shortSummary` from the recommender service. Posts are passed in directly so
+ * existing post hooks (bookmark, vote, share) work without conversion.
+ */
+export type OnboardingSwipeCard = Post & {
+  shortSummary?: string | null;
+};
 
 interface HotAndColdModalProps extends ModalProps {
   title?: string;

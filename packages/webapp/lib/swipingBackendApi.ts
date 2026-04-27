@@ -6,8 +6,6 @@ export interface PostSummary {
   title: string;
   summary: string;
   tags: string[];
-  url: string;
-  source_id: string;
 }
 
 export interface DiscoverPostsRequest {

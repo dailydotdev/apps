@@ -153,6 +153,11 @@ export const sharedPostPreviewFeature = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
+export const onboardingSwipeInterceptTagsFeature = new Feature(
+  'onboarding_swipe_intercept_tags',
+  false,
+);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;

@@ -50,15 +50,27 @@ import { useFunnelPricing } from '../hooks/useFunnelPricing';
 import { FunnelPaymentPricingContext } from '../../../contexts/payment/context';
 import { useEventListener } from '../../../hooks';
 
+// The override component is invoked with the discriminated FunnelStep matching its
+// FunnelStepType key. We use `any` to allow callers to pass narrow components
+// (e.g. one accepting FunnelStepEditTags) without wrestling contravariance.
+export type FunnelStepComponentOverrides = Partial<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Record<FunnelStepType, React.ComponentType<any>>
+>;
+
 export interface FunnelStepperProps {
   funnel: FunnelJSON;
   initialStepId?: string | null;
   onComplete?: () => void;
   session: FunnelSession;
   showCookieBanner?: boolean;
+  /** Replace the component used to render specific step types. Useful for experiments
+   * that swap a single step (e.g. swipe-based EditTags) without changing the funnel JSON. */
+  stepComponentOverrides?: FunnelStepComponentOverrides;
 }
 
-const stepComponentMap = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const stepComponentMap: Partial<Record<FunnelStepType, React.ComponentType<any>>> = {
   [FunnelStepType.Checkout]: FunnelCheckout,
   [FunnelStepType.Fact]: FunnelFact,
   [FunnelStepType.Loading]: FunnelLoading,
@@ -77,17 +89,22 @@ const stepComponentMap = {
   [FunnelStepType.PlusCards]: FunnelPlusCards,
   [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
   [FunnelStepType.UploadCv]: FunnelUploadCv,
-} as const;
+};
 
-function FunnelStepComponent<Step extends FunnelStep>(props: Step) {
-  const { type } = props;
-  const Component = stepComponentMap[type];
+function FunnelStepComponent<Step extends FunnelStep>(
+  props: Step & { stepComponentOverrides?: FunnelStepComponentOverrides },
+) {
+  const { type, stepComponentOverrides, ...rest } = props;
+  const Override = stepComponentOverrides?.[type];
+  const Component =
+    (Override as React.ComponentType<Step> | undefined) ??
+    (stepComponentMap[type] as React.ComponentType<Step> | undefined);
 
   if (!Component) {
     return null;
   }
 
-  return <Component {...props} />;
+  return <Component {...(rest as unknown as Step)} />;
 }
 
 export const FunnelStepper = ({
@@ -96,7 +113,8 @@ export const FunnelStepper = ({
   session,
   showCookieBanner,
   onComplete,
-}: FunnelStepperProps): ReactElement => {
+  stepComponentOverrides,
+}: FunnelStepperProps): ReactElement | null => {
   const steps = useMemo(
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
     [funnel?.chapters],
@@ -123,7 +141,12 @@ export const FunnelStepper = ({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
-  useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
+  useEventListener(
+    globalThis as unknown as Window,
+    'scrollend',
+    trackOnScroll,
+    { passive: true },
+  );
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const currentNavigationRef = useRef({ step, position });
@@ -187,13 +210,15 @@ export const FunnelStepper = ({
   );
 
   const successCallback = useCallback(
-    (event?: PaddleEventData) =>
+    (event: unknown) => {
+      const paddleEvent = event as PaddleEventData | undefined;
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: {
-          subscribed: event?.data?.customer?.email,
+          subscribed: paddleEvent?.data?.customer?.email,
         },
-      }),
+      });
+    },
     [onTransition],
   );
 
@@ -295,6 +320,7 @@ export const FunnelStepper = ({
                       isActive={isActive}
                       onTransition={onTransition}
                       onRegisterStepToSkip={onRegisterStepToSkip}
+                      stepComponentOverrides={stepComponentOverrides}
                     />
                   </div>
                 );
