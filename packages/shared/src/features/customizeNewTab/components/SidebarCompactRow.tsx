@@ -13,12 +13,15 @@ import { InfoIcon } from '../../../components/icons';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
 
-// Mirror the Plus list's tooltip styling so the customizer rails feel
-// like the same product surface — short and centered, narrower than
-// the default `max-w-full` so a one-liner doesn't sprawl across the
-// whole panel. We go one notch tighter than Plus (`max-w-64` vs
-// `max-w-72`) because the rail itself is narrower than the Plus modal.
-const ROW_TOOLTIP_CLASS = '!tablet:max-w-64 !max-w-full text-center';
+// Cap the tooltip width to a tight 18rem (~288px) so a one-liner wraps
+// cleanly into 2–3 lines instead of sprawling across the feed when the
+// row is hovered. The `!` is required because the Tooltip's base class
+// already sets `max-w-full`; without `!important` our cap is ignored.
+// We deliberately do NOT use a responsive modifier here — earlier we
+// tried `!tablet:max-w-64`, but `!` before a breakpoint isn't valid
+// Tailwind v3 syntax (it must follow the modifier, e.g. `tablet:!...`),
+// so the rule never compiled and the default `max-w-full` won.
+const ROW_TOOLTIP_CLASS = '!max-w-72 text-center';
 
 export type SidebarRowIcon = ComponentType<IconProps>;
 

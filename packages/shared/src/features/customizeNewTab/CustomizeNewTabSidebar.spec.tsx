@@ -90,10 +90,22 @@ describe('CustomizeNewTabSidebar', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('calls close when Done is clicked', () => {
-    const { close } = renderSidebar();
-    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
-    expect(close).toHaveBeenCalled();
+  it('does not render a footer Done button — settings are real-time', () => {
+    // Every toggle / picker writes through immediately, so there is no
+    // draft state to commit. A "Done" button would imply confirmation and
+    // sit redundantly next to the X. Reset moved into the header alongside
+    // the X; nothing else lives at the bottom of the panel.
+    renderSidebar();
+    expect(
+      screen.queryByRole('button', { name: 'Done' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('exposes Reset to defaults in the header', () => {
+    renderSidebar();
+    expect(
+      screen.getByRole('button', { name: /reset to defaults/i }),
+    ).toBeInTheDocument();
   });
 
   it('calls close when the X button is clicked', () => {

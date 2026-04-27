@@ -514,8 +514,7 @@ export const FocusSection = (): ReactElement => {
               color={TypographyColor.Tertiary}
               className="break-words"
             >
-              Hours when Focus is active on your new tab. Outside this window,
-              your regular feed is back.
+              Hours when Focus quiets your feed.
             </Typography>
           </label>
           <Switch

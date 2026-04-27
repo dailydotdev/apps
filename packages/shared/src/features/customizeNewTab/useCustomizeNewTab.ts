@@ -77,8 +77,8 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
   const setCustomizerFirstSession = useSetCustomizerFirstSession();
 
   // "First session" = brand-new user who landed on their first new tab and
-  // hasn't dismissed the customizer yet. The moment they close it (via Done,
-  // X, Esc, or the inline "Got it" button) we complete the action and this
+  // hasn't dismissed the customizer yet. The moment they close it (via X
+  // or Esc) we complete the `DismissedNewTabCustomizer` action and this
   // flips to false on the next render / visit.
   const isFirstSession = shouldRender && isNewUser && !hasDismissed;
 

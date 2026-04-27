@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -21,6 +21,7 @@ import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
 import { FirstSessionWelcome } from './components/FirstSessionWelcome';
+import { KeepItOverlay } from './components/KeepItOverlay';
 import { NewTabModeSection } from '../newTab/sidebar/NewTabModeSection';
 import { FocusSection } from '../newTab/sidebar/FocusSection';
 import { useSetRightSidebarOffset } from './store/rightSidebar.store';
@@ -28,6 +29,14 @@ import { useNewTabMode } from '../newTab/store/newTabMode.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
+// First-session attention amplifier (the welcome card halo + rim + orb +
+// shimmer animations PLUS the page-level glow column + bouncing arrow chip
+// over the feed) auto-dampens after this window. Long enough for a new
+// user's eye to land on the panel; short enough that the loud effects
+// don't sit there competing with the rest of the UI. After it fires, the
+// welcome card collapses to a flat dark gradient surface (no halo, no
+// border, no orbs, no animations) and the amplifier unmounts entirely.
+const FIRST_SESSION_EFFECT_DURATION_MS = 7_000;
 
 interface CustomizeNewTabSidebarProps {
   customizer: ReturnType<typeof useCustomizeNewTab>;
@@ -43,8 +52,9 @@ export const CustomizeNewTabSidebar = ({
   const setRightSidebarOffset = useSetRightSidebarOffset();
   const { mode, setMode } = useNewTabMode();
   const impressionLoggedRef = useRef(false);
+  const [showFirstSessionEffects, setShowFirstSessionEffects] = useState(false);
 
-  const handleClose = (via: 'x' | 'esc' | 'done') => {
+  const handleClose = (via: 'x' | 'esc') => {
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.CustomizeNewTab,
@@ -111,12 +121,50 @@ export const CustomizeNewTabSidebar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  // Drive the first-session attention amplifier. Turns on the welcome card's
+  // animated layers (rim / halo / orb / shimmer / animated border) and the
+  // page-level `KeepItOverlay` (glow column + bouncing arrow chip) for a
+  // brand-new user's first impression, then dampens both on a 7s timer (or
+  // immediately on first sidebar interaction) so the loud effects don't
+  // outlast the moment that earned them. After dampening, the welcome card
+  // collapses to a flat dark surface with no animations, and the amplifier
+  // unmounts entirely.
+  useEffect(() => {
+    if (!isFirstSession || !isOpen) {
+      setShowFirstSessionEffects(false);
+      return undefined;
+    }
+
+    setShowFirstSessionEffects(true);
+    const timer = window.setTimeout(
+      () => setShowFirstSessionEffects(false),
+      FIRST_SESSION_EFFECT_DURATION_MS,
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [isFirstSession, isOpen]);
+
+  const hideFirstSessionEffects = () => {
+    setShowFirstSessionEffects(false);
+  };
+
   if (!shouldRender) {
     return null;
   }
 
   return (
     <>
+      {/* First-session sidebar amplifier — a glowing column + bouncing
+          arrow chip painted over the feed side of the sidebar's left edge.
+          Lives as long as `showFirstSessionEffects` is on (7s timer + the
+          panel pointer-down handler dismiss it early). After that the
+          column glow and arrow chip unmount entirely; the welcome card
+          stays but flattens (see `FirstSessionWelcome.effectsEnabled`). */}
+      <KeepItOverlay
+        isFirstSession={isFirstSession && isOpen && showFirstSessionEffects}
+        sidebarWidthPx={CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}
+      />
+
       {/* Expanded panel. The native `<aside>` carries an implicit
           `complementary` role, which is the right semantics for this
           side-by-side settings rail. We deliberately don't use
@@ -144,28 +192,50 @@ export const CustomizeNewTabSidebar = ({
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         style={{ width: CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX }}
+        onPointerDown={hideFirstSessionEffects}
       >
         {/* Header height matches `MainLayoutHeader` exactly (`h-14` mobile /
             `laptop:h-16` laptop) so the bottom border of the sidebar header
             sits on the same horizontal line as the feed header — the user
-            never sees a one-off step between the two. */}
+            never sees a one-off step between the two.
+
+            Reset lives here (not in a footer) because every setting in this
+            panel writes through immediately — there's no draft state to
+            commit, so a "Done" button would only fake confirmation. The
+            close X is canonical for dismiss; Reset is paired with it so the
+            two destructive/lifecycle actions sit together. */}
         <header className="relative flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-5 laptop:h-16">
           <Typography type={TypographyType.Body} bold>
             {isFirstSession ? 'Welcome' : 'Customize'}
           </Typography>
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MiniCloseIcon />}
-            aria-label="Close customize sidebar"
-            title="Close"
-            onClick={() => handleClose('x')}
-          />
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<RefreshIcon />}
+              aria-label="Reset to defaults"
+              title="Reset to defaults"
+              onClick={handleReset}
+            />
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<MiniCloseIcon />}
+              aria-label="Close customize sidebar"
+              title="Close"
+              onClick={() => handleClose('x')}
+            />
+          </div>
         </header>
 
         <div className="relative flex-1 overflow-y-auto py-2">
-          {isFirstSession ? <FirstSessionWelcome /> : null}
+          {isFirstSession ? (
+            <FirstSessionWelcome
+              effectsEnabled={isOpen && showFirstSessionEffects}
+            />
+          ) : null}
           <NewTabModeSection />
           {mode === 'focus' ? (
             <FocusSection />
@@ -177,27 +247,6 @@ export const CustomizeNewTabSidebar = ({
             </>
           )}
         </div>
-
-        <footer className="relative flex shrink-0 items-center justify-between gap-3 border-t border-border-subtlest-tertiary px-5 py-3">
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<RefreshIcon />}
-            onClick={handleReset}
-            title="Reset"
-          >
-            Reset
-          </Button>
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            onClick={() => handleClose('done')}
-          >
-            Done
-          </Button>
-        </footer>
       </aside>
     </>
   );

@@ -117,7 +117,7 @@ describe('useCustomizeNewTab', () => {
     expect(result.current.isOpen).toBe(true);
   });
 
-  it('does not auto-open returning users', () => {
+  it('does not auto-open for returning users outside the new-user window', () => {
     const old = new Date(
       Date.now() - 1000 * 60 * 60 * 24 * (NEW_USER_WINDOW_DAYS + 5),
     );
@@ -160,10 +160,12 @@ describe('useCustomizeNewTab', () => {
 
   it('opens on subsequent open requests but ignores the initial counter value', () => {
     mockUseCustomizerOpenRequest.mockReturnValue(2);
+    setOnboardingReady({ isOnboardingComplete: false });
 
     const { result, rerender } = renderUseCustomizeNewTab();
     expect(result.current.isOpen).toBe(false);
 
+    setOnboardingReady({ isOnboardingComplete: true });
     mockUseCustomizerOpenRequest.mockReturnValue(3);
     rerender();
     expect(result.current.isOpen).toBe(true);
