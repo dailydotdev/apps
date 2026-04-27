@@ -111,37 +111,31 @@ export const SidebarSwitchRow = ({
   iconSecondary,
   ariaLabel,
 }: SwitchRowProps): ReactElement => {
-  // The Switch component already wraps its <input> in its own <label>, so
-  // we can't make the row another <label htmlFor=…> — both labels would
-  // forward a single click to the input and onChange would fire twice,
-  // flipping the toggle and immediately flipping it back. Instead the row
-  // is a clickable <div> that calls onToggle directly, with the Switch
-  // wrapper stopping propagation so a click on the actual switch toggles
-  // exactly once.
+  // Row is a non-semantic clickable region that simply forwards a pointer
+  // click to the inner Switch's `onToggle`. We deliberately don't expose it
+  // as a focusable button: that would create *two* tab stops for the same
+  // logical control (the row + the native checkbox inside the Switch) and
+  // double-announce the state to screen readers ("toggle, pressed" then
+  // "checkbox, checked"). The checkbox inside the Switch is the canonical
+  // a11y entry point; everything else is pointer affordance.
+  //
+  // The inner Switch is itself a <label> wrapping its <input>, so we wrap
+  // it in a span that stops click propagation — otherwise a click on the
+  // real switch would bubble up to this div and fire `onToggle` a second
+  // time, immediately reverting the change.
   const handleRowClick = () => {
     if (disabled) {
       return;
     }
     onToggle();
   };
-  const handleRowKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (disabled) {
-      return;
-    }
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onToggle();
-    }
-  };
   return (
+    // Pointer-only affordance that forwards clicks to the Switch; we
+    // deliberately don't expose it to keyboard / AT (see the comment
+    // above), so the matching a11y rules don't apply here.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-pressed={checked}
-      aria-disabled={disabled || undefined}
-      aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
       onClick={handleRowClick}
-      onKeyDown={handleRowKeyDown}
       className={classNames(
         ROW_BASE,
         disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',

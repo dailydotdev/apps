@@ -42,12 +42,20 @@ export const CompanionPermissionModal = ({
 
   const handleActivate = async (event: React.MouseEvent) => {
     if (requestContentScripts) {
-      const granted = await requestContentScripts({
-        origin: 'companion permission modal',
-      });
-      // Only mark the setting as opted-in when Chrome actually granted the
-      // permission. If the user dismissed Chrome's prompt we leave the
-      // toggle off so the next click re-prompts cleanly.
+      // The host shim either resolves with `granted` or — rarely, but it
+      // happens on locked-down profiles / managed extensions — throws. Either
+      // way we close the modal and leave the opt-out flag untouched so the
+      // next click on the toggle re-prompts cleanly. An unhandled rejection
+      // here would otherwise strand the user on a Modal that does nothing.
+      let granted = false;
+      try {
+        granted = await requestContentScripts({
+          origin: 'companion permission modal',
+        });
+      } catch {
+        onRequestClose(event);
+        return;
+      }
       if (!granted) {
         onRequestClose(event);
         return;
@@ -74,8 +82,8 @@ export const CompanionPermissionModal = ({
       <ModalBody className="flex flex-col gap-4">
         <Typography type={TypographyType.Callout}>
           The companion floats on top of any article you open so you can upvote,
-          bookmark and discuss without leaving the page. We&apos;ll ask Chrome
-          for one extra permission so it can show up there.
+          bookmark and discuss without leaving the page. We&apos;ll ask your
+          browser for one extra permission so it can show up there.
         </Typography>
 
         <a

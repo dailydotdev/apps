@@ -110,9 +110,16 @@ describe('CustomizeNewTabSidebar', () => {
   it('shows the rail (and not the panel title) when closed', () => {
     renderSidebar({ isOpen: false });
     expect(screen.getByTitle('Customize new tab')).toBeInTheDocument();
-    const panel = screen.getByRole('dialog', { hidden: true });
+    // Multiple <aside> elements (welcome hero, bookmarks tip) all map to
+    // the implicit `complementary` role; pick the panel itself by the
+    // aria-label we attach to it. Filtering with `name:` doesn't work
+    // here because the panel is `aria-hidden` while collapsed and the
+    // accessible-name lookup short-circuits on hidden subtrees.
+    const panels = screen.getAllByRole('complementary', { hidden: true });
+    const panel = panels.find(
+      (el) => el.getAttribute('aria-label') === 'Customize new tab',
+    );
     expect(panel).toHaveAttribute('aria-hidden', 'true');
-    expect(panel).toHaveAttribute('aria-label', 'Customize new tab');
   });
 
   it('renders the first-session welcome hero when isFirstSession is true', () => {
@@ -154,7 +161,9 @@ describe('CustomizeNewTabSidebar', () => {
       .closest('section') as HTMLElement | null;
     expect(hasWelcomeMotionClass(welcome)).toBe(true);
 
-    fireEvent.pointerDown(screen.getByRole('dialog'));
+    fireEvent.pointerDown(
+      screen.getByRole('complementary', { name: 'Customize new tab' }),
+    );
 
     expect(hasWelcomeMotionClass(welcome)).toBe(false);
   });

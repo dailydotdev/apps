@@ -69,14 +69,22 @@ const renderWidgets = () => {
   return { settings, logEvent };
 };
 
+// The Switch component embeds the aria-label in an `.sr-only` span inside
+// the wrapping <label>, which gives the checkbox its accessible name. Read
+// it back through `input.labels[0].textContent` so the test follows the
+// same path AT does.
+const getCheckboxAccessibleName = (input: HTMLElement): string =>
+  (input as HTMLInputElement).labels?.[0]?.textContent?.trim() ?? '';
+
 describe('WidgetsSection', () => {
   it('renders widgets in the requested order', () => {
     renderWidgets();
 
+    // Each widget row exposes itself to AT through the underlying checkbox
+    // (we deliberately don't double up by giving the row a button role), so
+    // the order assertion follows checkbox accessible names.
     expect(
-      screen
-        .getAllByRole('button')
-        .map((row) => row.getAttribute('aria-label')),
+      screen.getAllByRole('checkbox').map(getCheckboxAccessibleName),
     ).toEqual([
       'Reputation badge',
       'Cores wallet',
@@ -90,7 +98,7 @@ describe('WidgetsSection', () => {
 
   it('flips optOutReadingStreak when the row is clicked', () => {
     const { settings } = renderWidgets();
-    const row = screen.getByRole('button', { name: 'Reading streak' });
+    const row = screen.getByRole('checkbox', { name: 'Reading streak' });
 
     fireEvent.click(row);
 

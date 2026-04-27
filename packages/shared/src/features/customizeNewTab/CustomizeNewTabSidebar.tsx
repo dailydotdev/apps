@@ -182,11 +182,14 @@ export const CustomizeNewTabSidebar = ({
         </Button>
       )}
 
-      {/* Expanded panel */}
+      {/* Expanded panel. The native `<aside>` carries an implicit
+          `complementary` role, which is the right semantics for this
+          side-by-side settings rail. We deliberately don't use
+          `role="dialog"`: the panel is non-modal (feed stays interactive,
+          no focus trap), and `aria-modal={false}` on a dialog is a
+          confusing signal to AT. */}
       <aside
         id={panelId}
-        role="dialog"
-        aria-modal={false}
         aria-label="Customize new tab"
         aria-hidden={!isOpen}
         className={classNames(

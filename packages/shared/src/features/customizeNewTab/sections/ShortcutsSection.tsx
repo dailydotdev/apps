@@ -57,8 +57,8 @@ export const ShortcutsSection = (): ReactElement => {
   const source: ShortcutsSource = isManual ? 'manual' : 'topsites';
 
   // Render the bookmarks-bar shortcut in the user's native modifier glyph
-  // so the hint matches what Chrome actually expects. We can't toggle the
-  // bookmarks bar from an extension (Chrome exposes no API for it), so the
+  // so the hint matches what the host browser expects. We can't toggle the
+  // bookmarks bar from an extension (no cross-browser API for it), so the
   // best we can do is teach the keyboard shortcut.
   const bookmarksKeys = useMemo<string[]>(
     () => (isAppleDevice() ? ['\u2318', 'Shift', 'B'] : ['Ctrl', 'Shift', 'B']),
@@ -247,7 +247,7 @@ export const ShortcutsSection = (): ReactElement => {
         </div>
       </div>
 
-      {/* Chrome doesn't expose an extension API to toggle the bookmarks bar,
+      {/* No browser exposes an extension API to toggle the bookmarks bar,
           so the useful action here is a clear flat tip with the actual
           keyboard shortcut on its own line so it can never push past the
           panel edge. */}
@@ -258,14 +258,14 @@ export const ShortcutsSection = (): ReactElement => {
             color={TypographyColor.Primary}
             bold
           >
-            Chrome bookmarks bar
+            Bookmarks bar
           </Typography>
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
             className="break-words"
           >
-            Don&apos;t see your bookmarks bar? Toggle it in Chrome with:
+            Don&apos;t see your bookmarks bar? Toggle it in your browser with:
           </Typography>
           <div className="flex min-w-0 flex-wrap items-center gap-1">
             {bookmarksKeys.map((key, index) => (

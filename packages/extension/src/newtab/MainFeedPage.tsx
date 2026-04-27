@@ -25,6 +25,7 @@ import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
 } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
+import { useRightSidebarOffset } from '@dailydotdev/shared/src/features/customizeNewTab/store/rightSidebar.store';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -94,6 +95,9 @@ export default function MainFeedPage({
   const customizerOffset = customizer.isOpen
     ? `${CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}px`
     : '0px';
+  // Same source the header & feedback pill read so any fixed control on the
+  // new tab can stay clear of the open panel without recomputing widths.
+  const rightSidebarOffset = useRightSidebarOffset();
   const shortcutsSlot = shortcuts ?? (
     <ShortcutLinks shouldUseListFeedLayout={shouldUseListFeedLayout} />
   );
@@ -163,12 +167,18 @@ export default function MainFeedPage({
         {/* Stack the small back-to-top icon directly above the dominant
             Customize pill so they share the right rail without overlapping.
             Bottom offset shifts up further when the floating Feedback pill
-            is visible (Customize moves to bottom-20 in that case). */}
+            is visible (Customize moves to bottom-20 in that case). The
+            inline `right` slides the wrapper out from under the customizer
+            panel when it opens, mirroring `FeedbackWidget`. */}
         <div
           className={classNames(
-            'fixed right-4 z-2',
+            'fixed z-2',
             showFeedbackButton ? 'bottom-36' : 'bottom-20',
           )}
+          style={{
+            right: `calc(1rem + ${rightSidebarOffset}px)`,
+            transition: 'right 200ms ease-in-out',
+          }}
         >
           <ScrollToTopButton
             compact

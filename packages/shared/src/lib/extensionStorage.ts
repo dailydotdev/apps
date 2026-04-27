@@ -17,6 +17,21 @@ const getExtensionStorage = (): StorageArea | undefined => {
   return scope.chrome?.storage?.local ?? scope.browser?.storage?.local;
 };
 
+// Anything that needs the mirror to be authoritative should fall back to the
+// `localStorage` source of truth (e.g. the new-tab bootstrap reading the
+// schedule directly), so a failure here is observability, not a bug we need
+// to handle at every call site.
+/* eslint-disable no-console -- diagnostic surface for the storage mirror;
+   lint complains because we touch console at all, but observability is the
+   whole point of this function. */
+const reportMirrorFailure = (key: string, error: unknown): void => {
+  if (typeof console === 'undefined' || typeof console.warn !== 'function') {
+    return;
+  }
+  console.warn(`[mirrorToExtensionStorage] failed to mirror "${key}":`, error);
+};
+/* eslint-enable no-console */
+
 export const mirrorToExtensionStorage = (key: string, value: unknown): void => {
   const storage = getExtensionStorage();
   if (!storage) {
@@ -28,9 +43,11 @@ export const mirrorToExtensionStorage = (key: string, value: unknown): void => {
       maybePromise &&
       typeof (maybePromise as Promise<void>).catch === 'function'
     ) {
-      (maybePromise as Promise<void>).catch(() => undefined);
+      (maybePromise as Promise<void>).catch((error) =>
+        reportMirrorFailure(key, error),
+      );
     }
-  } catch {
-    // Swallow: mirroring is best-effort. Background falls back to defaults.
+  } catch (error) {
+    reportMirrorFailure(key, error);
   }
 };

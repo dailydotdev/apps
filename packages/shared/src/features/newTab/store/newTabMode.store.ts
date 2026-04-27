@@ -39,6 +39,13 @@ const readFromStorage = (): NewTabMode => {
   return 'discover';
 };
 
+/**
+ * Synchronous read of the persisted mode. The new-tab bootstrap uses this to
+ * decide redirects without paying the round-trip cost of the
+ * `chrome.storage.local` mirror (which can race with rapid toggles).
+ */
+export const readNewTabMode = readFromStorage;
+
 // Legacy focus-mode users land on Discover (formerly Zen) since Zen has been
 // removed. Idempotent: we delete the legacy key once handled, so subsequent
 // calls are no-ops.

@@ -89,6 +89,13 @@ const read = (): FocusSchedule => {
   return value;
 };
 
+/**
+ * Synchronous read of the persisted schedule. The new-tab bootstrap uses
+ * this to decide redirects without paying the round-trip cost (and the
+ * silent-mirror failure mode) of `chrome.storage.local`.
+ */
+export const readFocusSchedule = read;
+
 const write = (value: FocusSchedule): void => {
   if (typeof window === 'undefined') {
     return;
