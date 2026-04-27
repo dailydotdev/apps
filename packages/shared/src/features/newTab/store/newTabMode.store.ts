@@ -88,9 +88,13 @@ export const useNewTabMode = (): {
   mode: NewTabMode;
   setMode: (mode: NewTabMode) => void;
 } => {
-  // Called on every render; idempotent since the legacy key is deleted on
-  // first success. Runs before useSyncExternalStore's getSnapshot so the
-  // returned mode already reflects any migration that happened this tab.
+  // Idempotent: after the first successful migration the legacy key is
+  // removed and subsequent calls early-return on the `raw === null` check.
+  // We pay one `localStorage.getItem` per render in the steady state, which
+  // is cheap but not free — the call lives here (rather than only at
+  // module load) because tests, the popup, and the storybook host can all
+  // mount this hook after seeding legacy storage and they need the
+  // migration to run on first render rather than after a paint.
   runLegacyMigration();
 
   const mode = useSyncExternalStore(

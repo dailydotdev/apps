@@ -51,10 +51,16 @@ export const KeepItOverlay = ({
   sidebarWidthPx,
 }: KeepItOverlayProps): ReactElement | null => {
   const { logEvent } = useLogContext();
-  const { completeAction, isActionsFetched } = useActions();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
   const impressionLoggedRef = useRef(false);
 
-  const shouldShow = isFirstSession && isActionsFetched;
+  // Show-once: the amplifier is intentionally loud, so we only paint it on
+  // the user's first new-tab visit. After it renders we record
+  // `SeenKeepItOverlay` and skip subsequent renders even if `isFirstSession`
+  // would otherwise still be true (e.g. user reloads before dismissing).
+  const hasSeen =
+    isActionsFetched && checkHasCompleted(ActionType.SeenKeepItOverlay);
+  const shouldShow = isFirstSession && isActionsFetched && !hasSeen;
 
   useEffect(() => {
     if (!shouldShow || impressionLoggedRef.current) {
@@ -112,12 +118,12 @@ export const KeepItOverlay = ({
         @keyframes keep-it-arrow-ring {
           0% {
             box-shadow:
-              0 0 0 0 rgba(192, 41, 240, 0.55),
+              0 0 0 0 color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent),
               0 0 1.25rem 0.25rem rgba(255,255,255,0.45);
           }
           100% {
             box-shadow:
-              0 0 0 1.25rem rgba(192, 41, 240, 0),
+              0 0 0 1.25rem transparent,
               0 0 1.5rem 0.5rem rgba(255,255,255,0);
           }
         }

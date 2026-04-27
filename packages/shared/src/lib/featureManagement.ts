@@ -158,5 +158,3 @@ export const featureShortcutsExtensionPromo = new Feature(
   'shortcuts_extension_promo',
   false,
 );
-
-export const featureNewtabCustomizer = new Feature('newtab_customizer', false);

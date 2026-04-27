@@ -89,22 +89,22 @@ describe('CustomizeNewTabSidebar', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('calls close with via="done" when Done is clicked', () => {
+  it('calls close when Done is clicked', () => {
     const { close } = renderSidebar();
     fireEvent.click(screen.getByRole('button', { name: 'Done' }));
-    expect(close).toHaveBeenCalledWith('done');
+    expect(close).toHaveBeenCalled();
   });
 
-  it('calls close with via="x" when the X button is clicked', () => {
+  it('calls close when the X button is clicked', () => {
     const { close } = renderSidebar();
     fireEvent.click(screen.getByRole('button', { name: /close/i }));
-    expect(close).toHaveBeenCalledWith('x');
+    expect(close).toHaveBeenCalled();
   });
 
-  it('calls close with via="esc" when Escape is pressed', () => {
+  it('calls close when Escape is pressed', () => {
     const { close } = renderSidebar();
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(close).toHaveBeenCalledWith('esc');
+    expect(close).toHaveBeenCalled();
   });
 
   it('shows the rail (and not the panel title) when closed', () => {
@@ -122,24 +122,28 @@ describe('CustomizeNewTabSidebar', () => {
     ).toBeInTheDocument();
   });
 
+  // Match any `motion-safe:animate-[newtab-welcome-…]` class so we don't have
+  // to update tests every time a designer tweaks the keyframe timing.
+  const hasWelcomeMotionClass = (element: HTMLElement | null): boolean =>
+    !!element &&
+    Array.from(element.classList).some((cls) =>
+      cls.startsWith('motion-safe:animate-[newtab-welcome-'),
+    );
+
   it('hides the first-session effects after ten seconds', () => {
     jest.useFakeTimers();
     renderSidebar({ isFirstSession: true });
 
     const welcome = screen
       .getByText(/A new tab that helps you stay current\./i)
-      .closest('section');
-    expect(welcome).toHaveClass(
-      'motion-safe:animate-[newtab-welcome-in_0.6s_ease-out,newtab-welcome-rim_5.6s_ease-in-out_infinite,newtab-welcome-halo_4.8s_ease-in-out_infinite]',
-    );
+      .closest('section') as HTMLElement | null;
+    expect(hasWelcomeMotionClass(welcome)).toBe(true);
 
     act(() => {
       jest.advanceTimersByTime(10_000);
     });
 
-    expect(welcome).not.toHaveClass(
-      'motion-safe:animate-[newtab-welcome-in_0.6s_ease-out,newtab-welcome-rim_5.6s_ease-in-out_infinite,newtab-welcome-halo_4.8s_ease-in-out_infinite]',
-    );
+    expect(hasWelcomeMotionClass(welcome)).toBe(false);
   });
 
   it('hides the first-session effects on sidebar interaction', () => {
@@ -147,15 +151,11 @@ describe('CustomizeNewTabSidebar', () => {
 
     const welcome = screen
       .getByText(/A new tab that helps you stay current\./i)
-      .closest('section');
-    expect(welcome).toHaveClass(
-      'motion-safe:animate-[newtab-welcome-in_0.6s_ease-out,newtab-welcome-rim_5.6s_ease-in-out_infinite,newtab-welcome-halo_4.8s_ease-in-out_infinite]',
-    );
+      .closest('section') as HTMLElement | null;
+    expect(hasWelcomeMotionClass(welcome)).toBe(true);
 
     fireEvent.pointerDown(screen.getByRole('dialog'));
 
-    expect(welcome).not.toHaveClass(
-      'motion-safe:animate-[newtab-welcome-in_0.6s_ease-out,newtab-welcome-rim_5.6s_ease-in-out_infinite,newtab-welcome-halo_4.8s_ease-in-out_infinite]',
-    );
+    expect(hasWelcomeMotionClass(welcome)).toBe(false);
   });
 });

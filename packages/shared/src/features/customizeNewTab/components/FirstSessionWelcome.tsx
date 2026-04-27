@@ -67,7 +67,7 @@ export const FirstSessionWelcome = ({
         }
         @keyframes newtab-welcome-rim {
           0%, 100% { border-color: rgba(255,255,255,0.18); }
-          50% { border-color: rgba(192,41,240,0.55); }
+          50% { border-color: color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent); }
         }
         @keyframes newtab-welcome-halo {
           0%, 100% {

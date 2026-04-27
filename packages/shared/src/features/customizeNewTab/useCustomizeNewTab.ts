@@ -15,7 +15,7 @@ export interface UseCustomizeNewTab {
    */
   isFirstSession: boolean;
   open: () => void;
-  close: (via: 'x' | 'esc' | 'done') => void;
+  close: () => void;
 }
 
 // Users whose account was created within this window are considered "new"
@@ -85,19 +85,16 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
     setIsOpen(true);
   }, [openRequest, shouldRender]);
 
-  // via is provided by the shell so it can log a dismiss event with source;
-  // the hook itself only needs to flip state and record the action once.
-  const close = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (via: 'x' | 'esc' | 'done') => {
-      setIsOpen(false);
-      if (!hasDismissed) {
-        // Fire-and-forget: the action api dedupes on the server.
-        completeAction(ActionType.DismissedNewTabCustomizer);
-      }
-    },
-    [completeAction, hasDismissed],
-  );
+  // The shell logs a dismiss event with the close source ("x" / "esc" /
+  // "done"); the hook itself only needs to flip state and record the action
+  // once so future visits don't auto-open.
+  const close = useCallback(() => {
+    setIsOpen(false);
+    if (!hasDismissed) {
+      // Fire-and-forget: the action api dedupes on the server.
+      completeAction(ActionType.DismissedNewTabCustomizer);
+    }
+  }, [completeAction, hasDismissed]);
 
   return {
     shouldRender,

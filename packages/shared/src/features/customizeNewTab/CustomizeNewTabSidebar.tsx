@@ -54,7 +54,7 @@ export const CustomizeNewTabSidebar = ({
       target_id: 'dismiss',
       extra: JSON.stringify({ via }),
     });
-    close(via);
+    close();
   };
 
   const handleOpen = () => {
