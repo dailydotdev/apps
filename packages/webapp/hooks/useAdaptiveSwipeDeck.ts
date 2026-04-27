@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { ADD_BOOKMARKS_MUTATION } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/types';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { bookmarkMutationKey } from '@dailydotdev/shared/src/hooks/bookmark/types';
 import { getPostByIdKey } from '@dailydotdev/shared/src/lib/query';
@@ -130,12 +131,26 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       const nextCards: OnboardingSwipeCard[] = [];
       for (const summary of batch.posts) {
         const post = batch.hydrated.get(summary.post_id);
-        if (!post) continue; // Filter out posts daily-api couldn't return.
-        // Prime the post-by-id cache so other hooks (bookmark optimistic update,
-        // post page navigation) can find it.
-        queryClient.setQueryData(getPostByIdKey(post.id), { post });
-        postLookupRef.current.set(post.id, post);
-        nextCards.push({ ...post, shortSummary: summary.summary });
+        if (post) {
+          // Real post — prime the post-by-id cache so other hooks
+          // (bookmark optimistic update, post page navigation) can find it.
+          queryClient.setQueryData(getPostByIdKey(post.id), { post });
+          postLookupRef.current.set(post.id, post);
+          nextCards.push({ ...post, shortSummary: summary.summary });
+          continue;
+        }
+        // No matching daily-api post (recommender corpus mismatch). Render a
+        // stub so the deck stays full; right-swipe handling skips bookmarking
+        // these since there is no real Post to bookmark.
+        nextCards.push({
+          id: summary.post_id,
+          title: summary.title,
+          tags: summary.tags,
+          image: '',
+          commentsPermalink: '',
+          type: PostType.Article,
+          shortSummary: summary.summary,
+        });
       }
       setCards(nextCards);
       batchSizeRef.current = nextCards.length;
