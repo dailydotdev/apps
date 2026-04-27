@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -26,6 +26,8 @@ import { useToolTopSquads } from '../../hooks/useToolTopSquads';
 import { UserStackTopSquadsTooltip } from './UserStackTopSquadsTooltip';
 import { useEngagementAdsContext } from '../../../../contexts/EngagementAdsContext';
 import { SponsoredTooltip } from '../../../../components/brand/SponsoredTooltip';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../../lib/log';
 
 interface UserStackItemProps {
   item: UserStack;
@@ -56,8 +58,25 @@ function UserStackItemBody({
   });
   const { getCreativeForTool } = useEngagementAdsContext();
   const sponsoredCreative = getCreativeForTool(title);
+  const { logEvent } = useLogContext();
+  const hasLoggedHoverRef = useRef(false);
 
   const iconUrl = sponsoredCreative?.logo || tool.faviconUrl;
+
+  const handleSponsoredHover = useCallback(() => {
+    if (!sponsoredCreative || hasLoggedHoverRef.current) {
+      return;
+    }
+    hasLoggedHoverRef.current = true;
+    logEvent({
+      event_name: LogEvent.HoverEngagementTooltip,
+      target_id: title,
+      extra: JSON.stringify({
+        origin: Origin.ProfileStack,
+        gen_id: sponsoredCreative.genId,
+      }),
+    });
+  }, [logEvent, sponsoredCreative, title]);
 
   const usingSince = startedAt
     ? `Since ${formatMonthYearOnly(new Date(startedAt))}`
@@ -111,8 +130,14 @@ function UserStackItemBody({
           'hover:border-border-subtlest-secondary',
           className,
         )}
-        onMouseEnter={() => setShouldFetchTooltipData(true)}
-        onFocusCapture={() => setShouldFetchTooltipData(true)}
+        onMouseEnter={() => {
+          setShouldFetchTooltipData(true);
+          handleSponsoredHover();
+        }}
+        onFocusCapture={() => {
+          setShouldFetchTooltipData(true);
+          handleSponsoredHover();
+        }}
       >
         <div className="flex items-center gap-2">
           {dragHandle}

@@ -27,6 +27,8 @@ interface PostTagItemProps {
   isFollowed?: boolean;
   onFollow?: (tag: string) => void;
   tag: string;
+  /** Render the BrandedTag wrapper for engagement-ads styling. Off by default — preserves the original chip layout when no creative is present. */
+  useBrandedRenderer?: boolean;
   disableBranding?: boolean;
 }
 
@@ -53,8 +55,53 @@ const PostTagItem = ({
   isFollowed,
   onFollow,
   tag,
+  useBrandedRenderer,
   disableBranding,
 }: PostTagItemProps): ReactElement => {
+  // Default rendering — matches the pre-engagement-ads layout exactly.
+  // Used when no creative is sponsoring any tag in the list.
+  if (!useBrandedRenderer) {
+    if (isFollowed) {
+      return (
+        <Link href={getTagPageLink(tag)} passHref prefetch={false}>
+          <Chip
+            className="border px-2 py-1 hover:bg-border-subtlest-tertiary"
+            role="listitem"
+            tag={TypographyTag.Link}
+            title={`Check all #${tag} posts`}
+          >
+            #{tag}
+          </Chip>
+        </Link>
+      );
+    }
+
+    return (
+      <Chip className="flex items-center bg-surface-float" role="listitem">
+        <Link href={getTagPageLink(tag)} passHref>
+          <a
+            className="inline-block px-2 py-1"
+            title={`Check all #${tag} posts`}
+          >{`#${tag}`}</a>
+        </Link>
+        <span
+          className="h-3 translate-y-px rounded-2 border border-border-subtlest-tertiary"
+          role="separator"
+        />
+        <Tooltip content={`Follow #${tag}`}>
+          <Button
+            icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
+            onClick={() => onFollow(tag)}
+            size={ButtonSize.XSmall}
+            type="button"
+          />
+        </Tooltip>
+      </Chip>
+    );
+  }
+
+  // Engagement-ads-aware rendering. Only used when at least one tag in
+  // the list is sponsored.
   return (
     <Chip
       className={classNames(
@@ -111,6 +158,8 @@ const PostTagListInner = ({ post }: PostTagListProps): ReactElement => {
 
   const followedSet = new Set(tags.followed);
 
+  const useBrandedRenderer = firstSponsoredTag !== null;
+
   return (
     <ul aria-label="Post tags" className="flex flex-wrap items-center gap-2">
       {tags.all.map((tag) => (
@@ -119,6 +168,7 @@ const PostTagListInner = ({ post }: PostTagListProps): ReactElement => {
           tag={tag}
           isFollowed={followedSet.has(tag)}
           onFollow={onFollowTag}
+          useBrandedRenderer={useBrandedRenderer}
           disableBranding={tag !== firstSponsoredTag}
         />
       ))}

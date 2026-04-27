@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, Fragment } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SponsoredTooltip } from './SponsoredTooltip';
@@ -7,6 +7,8 @@ import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import type { HighlightStyle } from '../../lib/brand';
 import { findFirstHighlightedKeyword } from '../../lib/brand';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin } from '../../lib/log';
 
 interface HighlightedWordProps {
   /** The word/text to highlight */
@@ -68,6 +70,20 @@ export const HighlightedWord = ({
   }, [tags, word, creatives, getHighlightedWordConfig]);
 
   const { config, brandName, brandLogo, colors } = highlightResult;
+  const { logEvent } = useLogContext();
+  const hasLoggedRef = useRef(false);
+
+  const handleMouseEnter = useCallback(() => {
+    if (hasLoggedRef.current) {
+      return;
+    }
+    hasLoggedRef.current = true;
+    logEvent({
+      event_name: LogEvent.HoverEngagementTooltip,
+      target_id: word,
+      extra: JSON.stringify({ origin: Origin.HighlightedKeyword }),
+    });
+  }, [logEvent, word]);
 
   if (!config || !brandName) {
     return <>{word}</>;
@@ -93,6 +109,7 @@ export const HighlightedWord = ({
     >
       <span
         className={classNames('transition-colors', highlightClasses, className)}
+        onMouseEnter={handleMouseEnter}
       >
         {word}
       </span>
@@ -146,26 +163,26 @@ export const HighlightedBrandText = ({
     };
   }, [tags, creatives, getCreativeForTags]);
 
-  const parts = useMemo((): ReactNode[] => {
+  const match = useMemo(() => {
     if (!text) {
-      return [text];
+      return null;
     }
-
     // Scan keywords first; only fall back to tags if no keyword matched
-    const match =
+    return (
       findFirstHighlightedKeyword(text, keywords) ??
-      findFirstHighlightedKeyword(text, fallbackTags);
+      findFirstHighlightedKeyword(text, fallbackTags)
+    );
+  }, [text, keywords, fallbackTags]);
 
-    if (!match) {
-      return [text];
-    }
+  if (!match) {
+    return <>{text}</>;
+  }
 
-    return [
-      text.slice(0, match.start),
-      <HighlightedWord key="highlight-0" word={match.keyword} tags={tags} />,
-      text.slice(match.end),
-    ];
-  }, [text, tags, keywords, fallbackTags]);
-
-  return <span className={className}>{parts}</span>;
+  return (
+    <span className={className}>
+      {text.slice(0, match.start)}
+      <HighlightedWord key="highlight-0" word={match.keyword} tags={tags} />
+      {text.slice(match.end)}
+    </span>
+  );
 };
