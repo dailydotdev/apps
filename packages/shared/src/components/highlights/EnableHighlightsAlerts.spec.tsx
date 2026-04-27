@@ -71,9 +71,7 @@ describe('EnableHighlightsAlerts', () => {
   it('should render banner when feature is on, user is logged in, not subscribed and not dismissed', () => {
     renderComponent();
 
-    expect(
-      screen.getByText('Never miss a major headline'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Never miss a major headline')).toBeInTheDocument();
     expect(screen.getByText('Notify me')).toBeInTheDocument();
   });
 
@@ -82,7 +80,9 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Never miss a major headline'),
+    ).not.toBeInTheDocument();
   });
 
   it('should not render for guests', () => {
@@ -90,7 +90,9 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Never miss a major headline'),
+    ).not.toBeInTheDocument();
   });
 
   it('should not render when already subscribed', () => {
@@ -103,7 +105,9 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Never miss a major headline'),
+    ).not.toBeInTheDocument();
   });
 
   it('should not render when dismissed', () => {
@@ -111,7 +115,9 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Never miss a major headline'),
+    ).not.toBeInTheDocument();
   });
 
   it('should log impression on render', () => {

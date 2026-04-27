@@ -114,9 +114,7 @@ export const EnableHighlightsAlerts = ({
     >
       <span className="flex flex-row font-bold">
         {acceptedJustNow && <VIcon className="mr-2" />}
-        {acceptedJustNow
-          ? "You're in the loop"
-          : 'Never miss a major headline'}
+        {acceptedJustNow ? "You're in the loop" : 'Never miss a major headline'}
       </span>
       <div className="mt-2 flex justify-between gap-2">
         <p className="w-full text-text-tertiary tablet:w-3/5">
