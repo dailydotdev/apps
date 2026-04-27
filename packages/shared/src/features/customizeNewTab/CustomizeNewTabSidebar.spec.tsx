@@ -2,10 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import { defaultSettings } from '../../contexts/SettingsContext';
+import { SortCommentsBy } from '../../graphql/comments';
 import { CustomizeNewTabSidebar } from './CustomizeNewTabSidebar';
 import type { UseCustomizeNewTab } from './useCustomizeNewTab';
 import { DndContextProvider } from '../../contexts/DndContext';
 import { ShortcutsProvider } from '../shortcuts/contexts/ShortcutsProvider';
+import {
+  DEFAULT_FOCUS_SCHEDULE,
+  FOCUS_SCHEDULE_STORAGE_KEY,
+} from '../newTab/store/focusSchedule.store';
 
 const renderSidebar = (
   overrides: Partial<UseCustomizeNewTab> = {},
@@ -140,6 +146,35 @@ describe('CustomizeNewTabSidebar', () => {
       (el) => el.getAttribute('aria-label') === 'Customize new tab',
     );
     expect(panel).toHaveAttribute('aria-hidden', 'true');
+    expect(panel).toHaveAttribute('inert');
+  });
+
+  it('resets only customizer-owned settings and local new-tab state', () => {
+    const setSettings = jest.fn();
+    renderSidebar({}, { setSettings });
+
+    fireEvent.click(screen.getByRole('button', { name: /reset to defaults/i }));
+
+    expect(setSettings).toHaveBeenCalledWith({
+      theme: defaultSettings.theme,
+      insaneMode: defaultSettings.insaneMode,
+      showTopSites: defaultSettings.showTopSites,
+      optOutReadingStreak: defaultSettings.optOutReadingStreak,
+      optOutLevelSystem: defaultSettings.optOutLevelSystem,
+      optOutQuestSystem: defaultSettings.optOutQuestSystem,
+      optOutCompanion: defaultSettings.optOutCompanion,
+      optOutCores: defaultSettings.optOutCores,
+      optOutReputation: defaultSettings.optOutReputation,
+      autoDismissNotifications: defaultSettings.autoDismissNotifications,
+      showFeedbackButton: defaultSettings.showFeedbackButton,
+    });
+    expect(setSettings.mock.calls[0][0]).not.toHaveProperty(
+      'sortCommentsBy',
+      SortCommentsBy.OldestFirst,
+    );
+    expect(window.localStorage.getItem(FOCUS_SCHEDULE_STORAGE_KEY)).toBe(
+      JSON.stringify(DEFAULT_FOCUS_SCHEDULE),
+    );
   });
 
   it('renders the first-session welcome hero when isFirstSession is true', () => {
@@ -154,5 +189,26 @@ describe('CustomizeNewTabSidebar', () => {
     expect(
       screen.queryByText(/Make your new tab work for you\./i),
     ).not.toBeInTheDocument();
+  });
+
+  it('dampens first-session effects after seven seconds', () => {
+    jest.useFakeTimers();
+    renderSidebar({ isFirstSession: true });
+
+    const title = screen.getByRole('heading', {
+      name: /Make your new tab work for you\./i,
+    });
+    const welcomeCard = title.closest('section');
+
+    expect(screen.getByTestId('keep-it-overlay')).toBeInTheDocument();
+    expect(welcomeCard?.className).toContain('motion-safe:animate');
+
+    act(() => {
+      jest.advanceTimersByTime(7_000);
+    });
+
+    expect(screen.queryByTestId('keep-it-overlay')).not.toBeInTheDocument();
+    expect(welcomeCard?.className).not.toContain('motion-safe:animate');
+    expect(welcomeCard).not.toHaveClass('border-accent-cabbage-default/40');
   });
 });

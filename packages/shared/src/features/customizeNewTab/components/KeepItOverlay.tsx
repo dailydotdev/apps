@@ -68,6 +68,7 @@ export const KeepItOverlay = ({
   return (
     <div
       aria-hidden
+      data-testid="keep-it-overlay"
       className={classNames(
         'pointer-events-none fixed inset-y-0 z-max',
         'motion-safe:animate-[keep-it-amp-in_0.6s_ease-out]',

@@ -17,6 +17,7 @@ import {
   defaultSettings,
   useSettingsContext,
 } from '../../contexts/SettingsContext';
+import type { RemoteSettings } from '../../graphql/settings';
 import { AppearanceSection } from './sections/AppearanceSection';
 import { ShortcutsSection } from './sections/ShortcutsSection';
 import { WidgetsSection } from './sections/WidgetsSection';
@@ -26,6 +27,10 @@ import { NewTabModeSection } from '../newTab/sidebar/NewTabModeSection';
 import { FocusSection } from '../newTab/sidebar/FocusSection';
 import { useSetRightSidebarOffset } from './store/rightSidebar.store';
 import { useNewTabMode } from '../newTab/store/newTabMode.store';
+import {
+  DEFAULT_FOCUS_SCHEDULE,
+  useFocusSchedule,
+} from '../newTab/store/focusSchedule.store';
 import type { useCustomizeNewTab } from './useCustomizeNewTab';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
@@ -37,6 +42,20 @@ export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
 // welcome card collapses to a flat dark gradient surface (no halo, no
 // border, no orbs, no animations) and the amplifier unmounts entirely.
 const FIRST_SESSION_EFFECT_DURATION_MS = 7_000;
+
+const CUSTOMIZER_DEFAULT_SETTINGS: Partial<RemoteSettings> = {
+  theme: defaultSettings.theme,
+  insaneMode: defaultSettings.insaneMode,
+  showTopSites: defaultSettings.showTopSites,
+  optOutReadingStreak: defaultSettings.optOutReadingStreak,
+  optOutLevelSystem: defaultSettings.optOutLevelSystem,
+  optOutQuestSystem: defaultSettings.optOutQuestSystem,
+  optOutCompanion: defaultSettings.optOutCompanion,
+  optOutCores: defaultSettings.optOutCores,
+  optOutReputation: defaultSettings.optOutReputation,
+  autoDismissNotifications: defaultSettings.autoDismissNotifications,
+  showFeedbackButton: defaultSettings.showFeedbackButton,
+};
 
 interface CustomizeNewTabSidebarProps {
   customizer: ReturnType<typeof useCustomizeNewTab>;
@@ -51,7 +70,9 @@ export const CustomizeNewTabSidebar = ({
   const { setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
   const { mode, setMode } = useNewTabMode();
+  const { setSchedule } = useFocusSchedule();
   const impressionLoggedRef = useRef(false);
+  const panelRef = useRef<HTMLElement | null>(null);
   const [showFirstSessionEffects, setShowFirstSessionEffects] = useState(false);
 
   const handleClose = (via: 'x' | 'esc') => {
@@ -70,10 +91,12 @@ export const CustomizeNewTabSidebar = ({
       target_type: TargetType.CustomizeNewTab,
       target_id: 'reset_defaults',
     });
-    // Reset both server-synced remote settings and the local new-tab mode so
-    // "defaults" actually means a pristine new tab.
-    setSettings(defaultSettings);
+    // Reset only settings owned by this sidebar. Avoid clobbering unrelated
+    // account-wide preferences (comment sorting, campaign placement, write-tab
+    // defaults, etc.) from an icon-only header action.
+    setSettings(CUSTOMIZER_DEFAULT_SETTINGS);
     setMode('discover');
+    setSchedule(DEFAULT_FOCUS_SCHEDULE);
   };
 
   // Expose the panel width as a global offset so the fixed header, feedback
@@ -104,6 +127,23 @@ export const CustomizeNewTabSidebar = ({
     });
   }, [isOpen, isFirstSession, logEvent]);
 
+  // `aria-hidden` removes the closed panel from the accessibility tree, but
+  // because the element remains mounted for the slide transition its controls
+  // would otherwise stay keyboard-focusable offscreen. React 18 warns when
+  // rendering the `inert` attribute directly, so manage the real DOM attribute
+  // here instead.
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+    if (isOpen) {
+      panel.removeAttribute('inert');
+      return;
+    }
+    panel.setAttribute('inert', '');
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) {
       return undefined;
@@ -124,11 +164,10 @@ export const CustomizeNewTabSidebar = ({
   // Drive the first-session attention amplifier. Turns on the welcome card's
   // animated layers (rim / halo / orb / shimmer / animated border) and the
   // page-level `KeepItOverlay` (glow column + bouncing arrow chip) for a
-  // brand-new user's first impression, then dampens both on a 7s timer (or
-  // immediately on first sidebar interaction) so the loud effects don't
-  // outlast the moment that earned them. After dampening, the welcome card
-  // collapses to a flat dark surface with no animations, and the amplifier
-  // unmounts entirely.
+  // brand-new user's first impression, then dampens both on a 7s timer so the
+  // loud effects don't outlast the moment that earned them. After dampening,
+  // the welcome card collapses to a flat dark surface with no animations, and
+  // the amplifier unmounts entirely.
   useEffect(() => {
     if (!isFirstSession || !isOpen) {
       setShowFirstSessionEffects(false);
@@ -144,10 +183,6 @@ export const CustomizeNewTabSidebar = ({
     return () => window.clearTimeout(timer);
   }, [isFirstSession, isOpen]);
 
-  const hideFirstSessionEffects = () => {
-    setShowFirstSessionEffects(false);
-  };
-
   if (!shouldRender) {
     return null;
   }
@@ -156,10 +191,10 @@ export const CustomizeNewTabSidebar = ({
     <>
       {/* First-session sidebar amplifier — a glowing column + bouncing
           arrow chip painted over the feed side of the sidebar's left edge.
-          Lives as long as `showFirstSessionEffects` is on (7s timer + the
-          panel pointer-down handler dismiss it early). After that the
-          column glow and arrow chip unmount entirely; the welcome card
-          stays but flattens (see `FirstSessionWelcome.effectsEnabled`). */}
+          Lives as long as `showFirstSessionEffects` is on (7s timer).
+          After that the column glow and arrow chip unmount entirely; the
+          welcome card stays but flattens (see
+          `FirstSessionWelcome.effectsEnabled`). */}
       <KeepItOverlay
         isFirstSession={isFirstSession && isOpen && showFirstSessionEffects}
         sidebarWidthPx={CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}
@@ -179,6 +214,7 @@ export const CustomizeNewTabSidebar = ({
           and lands here). The standalone pill cluttered the corner next
           to Feedback / scroll-to-top without earning its space. */}
       <aside
+        ref={panelRef}
         aria-label="Customize new tab"
         aria-hidden={!isOpen}
         className={classNames(
@@ -192,7 +228,6 @@ export const CustomizeNewTabSidebar = ({
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         style={{ width: CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX }}
-        onPointerDown={hideFirstSessionEffects}
       >
         {/* Header height matches `MainLayoutHeader` exactly (`h-14` mobile /
             `laptop:h-16` laptop) so the bottom border of the sidebar header
