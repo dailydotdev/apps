@@ -101,6 +101,12 @@ export const getPathnameWithQuery = (
   return `${pathname}${queryString ? `?${queryString}` : ''}`;
 };
 
+export const agentsHighlightsPath = '/highlights/vibes';
+
+export const agentsHighlightsUrl = `${webappUrl}${agentsHighlightsPath.slice(
+  1,
+)}`;
+
 export const withPrefix = (prefix: string, url?: string): string => {
   if (!url) {
     return '';

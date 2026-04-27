@@ -7,7 +7,6 @@
  */
 
 export const MARKDOWN_ROUTES: Record<string, string> = {
-  '/agents/arena': '/api/md/agents-arena',
   '/sources': '/api/md/sources',
   '/tags': '/api/md/tags',
   '/squads/discover': '/api/md/squads',
