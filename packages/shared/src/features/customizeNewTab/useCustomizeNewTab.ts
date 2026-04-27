@@ -13,6 +13,7 @@ import { ActionType } from '../../graphql/actions';
 import { useCustomizerOpenRequest } from './store/customizerOpenRequest.store';
 import {
   useRightSidebarSettled,
+  useSetCustomizerFirstSession,
   useSetRightSidebarSettled,
 } from './store/rightSidebar.store';
 
@@ -73,12 +74,31 @@ export const useCustomizeNewTab = (): UseCustomizeNewTab => {
   const [hasSyncedInitialOpen, setHasSyncedInitialOpen] = useState(false);
   const hasSettledInitialOpen = useRightSidebarSettled();
   const setRightSidebarSettled = useSetRightSidebarSettled();
+  const setCustomizerFirstSession = useSetCustomizerFirstSession();
 
   // "First session" = brand-new user who landed on their first new tab and
   // hasn't dismissed the customizer yet. The moment they close it (via Done,
   // X, Esc, or the inline "Got it" button) we complete the action and this
   // flips to false on the next render / visit.
   const isFirstSession = shouldRender && isNewUser && !hasDismissed;
+
+  // Publish first-session state on a shared atom so other chrome can step
+  // out of the way during onboarding. `FeedbackWidget` reads this and
+  // short-circuits while it's true so a brand-new user only sees the
+  // customizer panel in the corner — no competing Feedback pill. The
+  // moment they dismiss the customizer once, `isFirstSession` flips to
+  // false and feedback returns to its default (visible) state from the
+  // second session onward.
+  useEffect(() => {
+    setCustomizerFirstSession(isFirstSession);
+  }, [isFirstSession, setCustomizerFirstSession]);
+
+  // Reset on unmount so navigating away from the new tab (or hot-reload
+  // in dev) doesn't leave a stale `true` lying around — feedback would
+  // stay hidden on every other surface otherwise.
+  useEffect(() => {
+    return () => setCustomizerFirstSession(false);
+  }, [setCustomizerFirstSession]);
 
   // Auto-open once on first visit for new users who haven't dismissed yet.
   // Existing users will only see the floating button until they open it.

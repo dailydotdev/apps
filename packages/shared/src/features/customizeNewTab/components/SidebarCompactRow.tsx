@@ -11,6 +11,14 @@ import {
 import { Switch } from '../../../components/fields/Switch';
 import { InfoIcon } from '../../../components/icons';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
+
+// Mirror the Plus list's tooltip styling so the customizer rails feel
+// like the same product surface — short and centered, narrower than
+// the default `max-w-full` so a one-liner doesn't sprawl across the
+// whole panel. We go one notch tighter than Plus (`max-w-64` vs
+// `max-w-72`) because the rail itself is narrower than the Plus modal.
+const ROW_TOOLTIP_CLASS = '!tablet:max-w-64 !max-w-full text-center';
 
 export type SidebarRowIcon = ComponentType<IconProps>;
 
@@ -23,18 +31,13 @@ interface RowBodyProps {
   iconSecondary?: boolean;
   rightAdornment?: ReactNode;
   /**
-   * One-sentence explanation rendered inside a tooltip when the user hovers
-   * or focuses the small info chip next to the label. The chip is only
-   * shown when this prop is set so rows that need no extra context stay
-   * uncluttered.
+   * When set, a decorative `InfoIcon` is rendered next to the label so the
+   * row signals there's a tooltip to read. The actual tooltip wrapping
+   * happens at the row level (in `SidebarSwitchRow` / `SidebarActionRow`)
+   * so hovering anywhere on the row reveals it — matches the Plus list
+   * pattern in `PlusListItem`.
    */
-  tooltip?: ReactNode;
-  /**
-   * Accessible label for the info chip. Defaults to "More about <label>"
-   * so screen readers announce something meaningful even when `label` is
-   * a string.
-   */
-  tooltipAriaLabel?: string;
+  hasTooltip?: boolean;
 }
 
 const RowBody = ({
@@ -45,12 +48,8 @@ const RowBody = ({
   iconTone = 'default',
   iconSecondary,
   rightAdornment,
-  tooltip,
-  tooltipAriaLabel,
+  hasTooltip,
 }: RowBodyProps): ReactElement => {
-  const infoLabel =
-    tooltipAriaLabel ??
-    (typeof label === 'string' ? `More about ${label}` : 'More info');
   return (
     <>
       {IconEl ? (
@@ -75,21 +74,15 @@ const RowBody = ({
           >
             {label}
           </Typography>
-          {tooltip ? (
-            <Tooltip content={tooltip}>
-              <button
-                type="button"
-                aria-label={infoLabel}
-                onClick={(event) => event.stopPropagation()}
-                className={classNames(
-                  'flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
-                  'text-text-quaternary transition-colors hover:text-text-primary',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
-                )}
-              >
-                <InfoIcon size={IconSize.XXSmall} />
-              </button>
-            </Tooltip>
+          {hasTooltip ? (
+            // Decorative — same as `PlusListItem`. The actual hover
+            // target is the entire row, not this glyph; we just mark it
+            // so users notice there's extra context to read.
+            <InfoIcon
+              aria-hidden
+              size={IconSize.XXSmall}
+              className="shrink-0 text-text-quaternary"
+            />
           ) : null}
         </span>
         {description ? (
@@ -176,45 +169,62 @@ export const SidebarSwitchRow = ({
     onToggle();
   };
   return (
-    // Pointer-only affordance that forwards clicks to the Switch; we
-    // deliberately don't expose it to keyboard / AT (see the comment
-    // above), so the matching a11y rules don't apply here.
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div
-      onClick={handleRowClick}
-      className={classNames(
-        ROW_BASE,
-        disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
-        className,
+    // Mirror `PlusListItem`'s pattern: when there's an explanation to
+    // surface, wrap the entire row in a Tooltip so hovering anywhere on
+    // it reveals the info — not just the small icon. Rows without a
+    // tooltip render bare to keep DOM and accessibility simple.
+    <ConditionalWrapper
+      condition={!!tooltip}
+      wrapper={(component: ReactNode) => (
+        <Tooltip
+          content={tooltip}
+          delayDuration={0}
+          className={ROW_TOOLTIP_CLASS}
+        >
+          {component as ReactElement}
+        </Tooltip>
       )}
     >
-      <RowBody
-        label={label}
-        description={description}
-        icon={icon}
-        active={checked}
-        iconTone={iconTone}
-        iconSecondary={iconSecondary}
-        tooltip={tooltip}
-        rightAdornment={
-          <span
-            className="contents"
-            onClick={(event) => event.stopPropagation()}
-            role="presentation"
-          >
-            <Switch
-              inputId={`${name}-switch`}
-              name={name}
-              compact
-              checked={checked}
-              onToggle={onToggle}
-              disabled={disabled}
-              aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
-            />
-          </span>
-        }
-      />
-    </div>
+      {/* Pointer-only affordance that forwards clicks to the Switch; we
+          deliberately don't expose it to keyboard / AT (see the comment
+          above), so the matching a11y rules don't apply here. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div
+        onClick={handleRowClick}
+        className={classNames(
+          ROW_BASE,
+          disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
+          className,
+        )}
+      >
+        <RowBody
+          label={label}
+          description={description}
+          icon={icon}
+          active={checked}
+          iconTone={iconTone}
+          iconSecondary={iconSecondary}
+          hasTooltip={!!tooltip}
+          rightAdornment={
+            <span
+              className="contents"
+              onClick={(event) => event.stopPropagation()}
+              role="presentation"
+            >
+              <Switch
+                inputId={`${name}-switch`}
+                name={name}
+                compact
+                checked={checked}
+                onToggle={onToggle}
+                disabled={disabled}
+                aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
+              />
+            </span>
+          }
+        />
+      </div>
+    </ConditionalWrapper>
   );
 };
 

@@ -108,9 +108,16 @@ describe('CustomizeNewTabSidebar', () => {
     expect(close).toHaveBeenCalled();
   });
 
-  it('shows the rail (and not the panel title) when closed', () => {
+  it('hides the panel without rendering any floating affordance when closed', () => {
+    // We deliberately removed the floating "Customize" pill — on a brand
+    // new tab the panel auto-opens, and returning users open it from the
+    // profile dropdown. So when the panel is closed there should be no
+    // visible call-to-action in the corner.
     renderSidebar({ isOpen: false });
-    expect(screen.getByTitle('Customize new tab')).toBeInTheDocument();
+    expect(screen.queryByTitle('Customize new tab')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Customize/ }),
+    ).not.toBeInTheDocument();
     // Multiple <aside> elements (welcome hero, bookmarks tip) all map to
     // the implicit `complementary` role; pick the panel itself by the
     // aria-label we attach to it. Filtering with `name:` doesn't work

@@ -18,9 +18,8 @@ const StubbedSidebar = ({
     shouldRender: true,
     isOpen,
     isFirstSession,
-    // Storybook stories show the sidebar already at rest, so the panel
-    // animates in/out normally when the user toggles it from the floating
-    // button. The auto-open settle flow only matters in the live extension.
+    // Storybook stories show the sidebar already at rest. The auto-open
+    // settle flow (and its rAF) only matters in the live extension.
     hasSettledInitialOpen: true,
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
@@ -54,10 +53,6 @@ type Story = StoryObj<typeof StubbedSidebar>;
 
 export const Open: Story = {
   args: { defaultOpen: true },
-};
-
-export const Collapsed: Story = {
-  args: { defaultOpen: false },
 };
 
 export const Light: Story = {

@@ -26,3 +26,20 @@ export const useRightSidebarSettled = (): boolean =>
 
 export const useSetRightSidebarSettled = (): ((value: boolean) => void) =>
   useSetAtom(rightSidebarSettledAtom);
+
+// `true` while a brand-new user is on their auto-opened first-session
+// new tab and hasn't dismissed the customizer yet. Set by
+// `useCustomizeNewTab` when it mounts in first-session mode and reset
+// on close / unmount. Other shared chrome reads this to step out of the
+// way during onboarding — currently `FeedbackWidget` short-circuits
+// while it's true so the corner stays focused on the customizer panel
+// instead of competing with a Feedback pill. From the second session
+// onward (after the user has dismissed once) the atom stays `false`
+// and feedback shows by default.
+export const customizerFirstSessionAtom = atom<boolean>(false);
+
+export const useCustomizerFirstSession = (): boolean =>
+  useAtomValue(customizerFirstSessionAtom);
+
+export const useSetCustomizerFirstSession = (): ((value: boolean) => void) =>
+  useSetAtom(customizerFirstSessionAtom);

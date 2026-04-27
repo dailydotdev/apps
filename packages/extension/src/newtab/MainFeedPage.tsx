@@ -25,7 +25,10 @@ import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
 } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
-import { useRightSidebarOffset } from '@dailydotdev/shared/src/features/customizeNewTab/store/rightSidebar.store';
+import {
+  useCustomizerFirstSession,
+  useRightSidebarOffset,
+} from '@dailydotdev/shared/src/features/customizeNewTab/store/rightSidebar.store';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -98,6 +101,13 @@ export default function MainFeedPage({
   // Same source the header & feedback pill read so any fixed control on the
   // new tab can stay clear of the open panel without recomputing widths.
   const rightSidebarOffset = useRightSidebarOffset();
+  // Mirror `FeedbackWidget`'s short-circuit during first-session
+  // onboarding so the scroll-to-top wrapper drops to the bottom rail
+  // instead of leaving a gap where the (now hidden) Feedback pill would
+  // have been.
+  const isCustomizerFirstSession = useCustomizerFirstSession();
+  const isFeedbackButtonRendered =
+    showFeedbackButton && !isCustomizerFirstSession;
   const shortcutsSlot = shortcuts ?? (
     <ShortcutLinks shouldUseListFeedLayout={shouldUseListFeedLayout} />
   );
@@ -171,18 +181,19 @@ export default function MainFeedPage({
         )}
         style={{ paddingRight: customizerOffset }}
       >
-        {/* Stack the small back-to-top icon directly above the dominant
-            Customize pill so they share the right rail without overlapping.
-            Bottom offset shifts up further when the floating Feedback pill
-            is visible (Customize moves to bottom-20 in that case). The
-            inline `right` slides the wrapper out from under the customizer
-            panel when it opens, mirroring `FeedbackWidget`. The transition
-            is gated on `hasSettledInitialOpen` for the same reason as the
-            outer wrapper above. */}
+        {/* Park the back-to-top icon just above the Feedback pill (when
+            visible) so they share the right rail without overlapping. With
+            no Feedback pill — either disabled in settings or hidden during
+            first-session onboarding — the icon drops to the corner instead
+            of floating over a gap. The inline `right` slides the wrapper
+            out from under the customizer panel when it opens, mirroring
+            `FeedbackWidget`. The transition is gated on
+            `hasSettledInitialOpen` for the same reason as the outer
+            wrapper above. */}
         <div
           className={classNames(
             'fixed z-2',
-            showFeedbackButton ? 'bottom-36' : 'bottom-20',
+            isFeedbackButtonRendered ? 'bottom-20' : 'bottom-4',
           )}
           style={{
             right: `calc(1rem + ${rightSidebarOffset}px)`,

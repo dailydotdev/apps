@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useId, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
-import { MagicIcon, MiniCloseIcon, RefreshIcon } from '../../components/icons';
+import { MiniCloseIcon, RefreshIcon } from '../../components/icons';
 import {
   Typography,
   TypographyType,
@@ -36,19 +36,12 @@ interface CustomizeNewTabSidebarProps {
 export const CustomizeNewTabSidebar = ({
   customizer,
 }: CustomizeNewTabSidebarProps): ReactElement | null => {
-  const {
-    shouldRender,
-    isOpen,
-    isFirstSession,
-    hasSettledInitialOpen,
-    open,
-    close,
-  } = customizer;
+  const { shouldRender, isOpen, isFirstSession, hasSettledInitialOpen, close } =
+    customizer;
   const { logEvent } = useLogContext();
-  const { showFeedbackButton, setSettings } = useSettingsContext();
+  const { setSettings } = useSettingsContext();
   const setRightSidebarOffset = useSetRightSidebarOffset();
   const { mode, setMode } = useNewTabMode();
-  const panelId = useId();
   const impressionLoggedRef = useRef(false);
 
   const handleClose = (via: 'x' | 'esc' | 'done') => {
@@ -59,15 +52,6 @@ export const CustomizeNewTabSidebar = ({
       extra: JSON.stringify({ via }),
     });
     close();
-  };
-
-  const handleOpen = () => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: TargetType.CustomizeNewTab,
-      target_id: 'rail_open',
-    });
-    open();
   };
 
   const handleReset = () => {
@@ -131,43 +115,22 @@ export const CustomizeNewTabSidebar = ({
     return null;
   }
 
-  // Stack the Customize pill above the Feedback pill (which sits at bottom-4)
-  // so they never occlude each other. When feedback is disabled we drop the
-  // gap so Customize lives at the normal bottom-4 position.
-  const customizeBottomClass = showFeedbackButton ? 'bottom-20' : 'bottom-4';
-
   return (
     <>
-      {/* Floating "Customize" pill. Sized Small to match other floating
-          new-tab utilities (Feedback, Scroll-to-top); a Large pill in the
-          corner read as visually loud next to the rest of the chrome. */}
-      {!isOpen && (
-        <Button
-          type="button"
-          onClick={handleOpen}
-          aria-expanded={false}
-          aria-controls={panelId}
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          icon={<MagicIcon secondary />}
-          title="Customize new tab"
-          className={classNames(
-            'fixed right-4 z-max shadow-3 hover:shadow-2',
-            customizeBottomClass,
-          )}
-        >
-          Customize
-        </Button>
-      )}
-
       {/* Expanded panel. The native `<aside>` carries an implicit
           `complementary` role, which is the right semantics for this
           side-by-side settings rail. We deliberately don't use
           `role="dialog"`: the panel is non-modal (feed stays interactive,
           no focus trap), and `aria-modal={false}` on a dialog is a
-          confusing signal to AT. */}
+          confusing signal to AT.
+
+          There is no longer a floating "Customize" pill on the new tab —
+          first-session users get the auto-open onboarding, and returning
+          users open the customizer from the profile dropdown's
+          "Customize new tab" entry (which bumps `useRequestCustomizerOpen`
+          and lands here). The standalone pill cluttered the corner next
+          to Feedback / scroll-to-top without earning its space. */}
       <aside
-        id={panelId}
         aria-label="Customize new tab"
         aria-hidden={!isOpen}
         className={classNames(

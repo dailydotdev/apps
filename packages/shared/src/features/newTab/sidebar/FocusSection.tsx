@@ -274,7 +274,7 @@ const ScheduleEditor = ({
         color={TypographyColor.Tertiary}
         className="break-words"
       >
-        Focus on {formatDaysSummary(days)}, {formatTime12h(start)} –{' '}
+        Focus active on {formatDaysSummary(days)}, {formatTime12h(start)} –{' '}
         {formatTime12h(end)}
       </Typography>
     </div>
@@ -514,7 +514,8 @@ export const FocusSection = (): ReactElement => {
               color={TypographyColor.Tertiary}
               className="break-words"
             >
-              Recurring hours when new tabs stay out of the way.
+              Hours when Focus is active on your new tab. Outside this window,
+              your regular feed is back.
             </Typography>
           </label>
           <Switch

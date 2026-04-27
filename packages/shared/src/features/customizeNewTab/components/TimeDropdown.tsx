@@ -1,12 +1,12 @@
-import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { format } from 'date-fns';
 import {
   Dropdown,
   type DropdownClassName,
 } from '../../../components/fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/Button';
-import { TimerIcon } from '../../../components/icons';
 
 // 30-minute granularity (48 slots) is the granularity every focus app worth
 // pointing at uses for "active hours" — iOS Focus, macOS DnD, Calendar event
@@ -74,7 +74,13 @@ const DEFAULT_CLASSNAME: DropdownClassName = {
   // Button's `typo-body` without us having to fight Tailwind specificity
   // through `!important`.
   label: 'mr-1 flex-1 truncate text-text-primary typo-footnote',
-  menu: 'menu-primary scrollable max-h-64',
+  // Cap the *inner* scroll wrapper, not the outer Radix Content. The
+  // outer carries `overflow-hidden` from `DropdownMenuContent`; setting
+  // `max-h-*` on it clips the scrollable region and lops off the last
+  // few half-hour slots. The arbitrary variant targets the immediate
+  // child div (the one that owns `overflow-y-auto`) so all 48 options
+  // stay reachable inside a compact, predictable height.
+  menu: '[&_>_div]:!max-h-72',
 };
 
 /**
@@ -84,6 +90,17 @@ const DEFAULT_CLASSNAME: DropdownClassName = {
  * selection) — browsers don't expose the host OS picker to web pages, and
  * Chrome's stock popup is a wheel/lookup widget that clashes hard with
  * everything else in the customizer.
+ *
+ * UX behaviour worth knowing about:
+ *  - Field is icon-free: the label `From` / `Until` already names the
+ *    control, and a clock glyph inside the chip just doubled the visual
+ *    weight without adding meaning.
+ *  - On open we scroll the current selection into the centre of the
+ *    menu so picking 5:00 PM doesn't mean dragging through the morning
+ *    every time.
+ *  - The current selection renders bold inside the menu so users can
+ *    spot "where I am right now" at a glance, in addition to whatever
+ *    keyboard-focus ring Radix layers on top.
  */
 export const TimeDropdown = ({
   value,
@@ -92,6 +109,25 @@ export const TimeDropdown = ({
   className,
 }: TimeDropdownProps): ReactElement => {
   const selectedIndex = useMemo(() => snapToHalfHourIndex(value), [value]);
+  const selectedItemRef = useRef<HTMLSpanElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Centre the current selection in the menu's scroll viewport on open.
+  // Without this Radix renders the list scrolled to the top (12:00 AM)
+  // every time, so a user with a 5:00 PM "Until" has to scroll through
+  // the whole morning to confirm or change it. Using rAF instead of a
+  // synchronous scroll waits one frame for Radix to mount + layout the
+  // portal so `scrollIntoView` actually has a scrollable ancestor to
+  // walk to.
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+    const handle = requestAnimationFrame(() => {
+      selectedItemRef.current?.scrollIntoView({ block: 'center' });
+    });
+    return () => cancelAnimationFrame(handle);
+  }, [isOpen]);
 
   const mergedClassName: DropdownClassName = useMemo(
     () => ({
@@ -101,17 +137,29 @@ export const TimeDropdown = ({
     [className],
   );
 
+  const renderTimeItem = (label: string, index: number): ReactNode => {
+    const isSelected = index === selectedIndex;
+    return (
+      <span
+        ref={isSelected ? selectedItemRef : undefined}
+        className={classNames(isSelected && 'font-bold text-text-primary')}
+      >
+        {label}
+      </span>
+    );
+  };
+
   return (
     <Dropdown
       aria-label={ariaLabel}
       className={mergedClassName}
-      icon={<TimerIcon secondary />}
       selectedIndex={selectedIndex}
       options={HALF_HOUR_LABELS}
       onChange={(_, index) => onChange(HALF_HOUR_VALUES[index])}
+      onOpenChange={setIsOpen}
       buttonSize={ButtonSize.Small}
       buttonVariant={ButtonVariant.Float}
-      scrollable
+      renderItem={renderTimeItem}
       drawerProps={{ title: ariaLabel }}
     />
   );

@@ -8,6 +8,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import {
+  useCustomizerFirstSession,
   useRightSidebarOffset,
   useRightSidebarSettled,
 } from '../../features/customizeNewTab/store/rightSidebar.store';
@@ -22,10 +23,16 @@ export function FeedbackWidget(): ReactElement | null {
   // first paint so the customizer auto-open lands without any siblings
   // animating in alongside it. Subsequent open/close still animate.
   const isRightSidebarSettled = useRightSidebarSettled();
+  // Hide while a brand-new user is in their auto-opened first-session
+  // new tab. Without this the corner has the customizer panel + a
+  // Feedback pill competing for attention, which dilutes the
+  // onboarding moment. From the second session onward the atom stays
+  // `false` and feedback shows by default.
+  const isCustomizerFirstSession = useCustomizerFirstSession();
 
   // Only show for authenticated users on desktop when setting is enabled
   // Mobile feedback is handled by FooterPlusButton
-  if (!user || isMobile || !showFeedbackButton) {
+  if (!user || isMobile || !showFeedbackButton || isCustomizerFirstSession) {
     return null;
   }
 

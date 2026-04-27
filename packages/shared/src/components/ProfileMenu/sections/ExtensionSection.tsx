@@ -50,7 +50,7 @@ export const ExtensionSection = ({
       items={[
         {
           title: 'Customize new tab',
-          icon: () => <MagicIcon secondary />,
+          icon: MagicIcon,
           onClick: onCustomize,
         },
       ]}
