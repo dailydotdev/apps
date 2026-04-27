@@ -22,7 +22,6 @@ export const SponsoredTooltip = ({
   config,
   brandName,
   brandLogo,
-  colors,
   className,
 }: SponsoredTooltipProps): ReactElement => {
   const handleCtaClick = (e: React.MouseEvent): void => {
@@ -70,14 +69,6 @@ export const SponsoredTooltip = ({
           size={ButtonSize.Small}
           onClick={handleCtaClick}
           className="mt-1 w-full"
-          style={
-            colors
-              ? {
-                  backgroundColor: colors.primary,
-                  color: '#fff',
-                }
-              : undefined
-          }
         >
           {config.ctaText}
         </Button>

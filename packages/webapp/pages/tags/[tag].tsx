@@ -80,7 +80,6 @@ import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPr
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
-import { useBrandSponsorship } from '@dailydotdev/shared/src/hooks/useBrandSponsorship';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -289,8 +288,6 @@ const TagPage = ({
 }: TagPageProps): ReactElement => {
   const { push } = useRouter();
   const showRoadmap = useFeature(feature.showRoadmap);
-  const { isTagSponsored } = useBrandSponsorship();
-  const hasEngagementAd = isTagSponsored(tag);
   const { user, showLogin } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -398,9 +395,7 @@ const TagPage = ({
         items={[{ label: 'Tags', href: '/tags' }, { label: title }]}
         className="mx-4"
       />
-      <PageInfoHeader
-        className={classNames('mx-4', !hasEngagementAd && '!w-auto')}
-      >
+      <PageInfoHeader className={classNames('mx-4')}>
         <SponsoredTagHero tag={tag} className="mb-4" />
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
