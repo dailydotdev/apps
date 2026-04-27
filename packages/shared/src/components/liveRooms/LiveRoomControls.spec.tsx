@@ -3,15 +3,15 @@ import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import { LiveRoomControls } from './LiveRoomControls';
 
-const useLiveRoomMock = jest.fn<LiveRoomContextValue, []>();
-const displayToast = jest.fn();
+const mockUseLiveRoom = jest.fn<LiveRoomContextValue, []>();
+const mockDisplayToast = jest.fn();
 
 jest.mock('../../contexts/LiveRoomContext', () => ({
-  useLiveRoom: () => useLiveRoomMock(),
+  useLiveRoom: () => mockUseLiveRoom(),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
-  useToastNotification: () => ({ displayToast }),
+  useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
 const createContextValue = (
@@ -92,7 +92,7 @@ describe('LiveRoomControls', () => {
 
   it('lets an audience participant join the speaker queue', () => {
     const joinSpeakerQueue = jest.fn().mockResolvedValue(undefined);
-    useLiveRoomMock.mockReturnValue(createContextValue({ joinSpeakerQueue }));
+    mockUseLiveRoom.mockReturnValue(createContextValue({ joinSpeakerQueue }));
 
     render(<LiveRoomControls onLeave={jest.fn()} />);
 
@@ -103,7 +103,7 @@ describe('LiveRoomControls', () => {
 
   it('shows queued audience state without requeueing', () => {
     const joinSpeakerQueue = jest.fn().mockResolvedValue(undefined);
-    useLiveRoomMock.mockReturnValue(
+    mockUseLiveRoom.mockReturnValue(
       createContextValue({
         joinSpeakerQueue,
         roomState: {
@@ -126,7 +126,7 @@ describe('LiveRoomControls', () => {
 
   it('sends emoji reactions through the live room command path', () => {
     const sendReaction = jest.fn().mockResolvedValue(undefined);
-    useLiveRoomMock.mockReturnValue(createContextValue({ sendReaction }));
+    mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
 
     render(<LiveRoomControls onLeave={jest.fn()} />);
 
@@ -136,7 +136,7 @@ describe('LiveRoomControls', () => {
   });
 
   it('keeps host controls separate from the audience queue button', () => {
-    useLiveRoomMock.mockReturnValue(
+    mockUseLiveRoom.mockReturnValue(
       createContextValue({
         role: 'host',
         participantId: 'host',
@@ -155,7 +155,7 @@ describe('LiveRoomControls', () => {
   });
 
   it('shows media controls when the current participant becomes a speaker', () => {
-    useLiveRoomMock.mockReturnValue(
+    mockUseLiveRoom.mockReturnValue(
       createContextValue({
         role: 'speaker',
         participantId: 'audience',
