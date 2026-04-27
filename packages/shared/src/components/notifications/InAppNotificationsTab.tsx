@@ -134,7 +134,7 @@ const InAppNotificationsTab = (): ReactElement => {
             <NotificationContainer>
               <NotificationSwitch
                 id={NotificationType.MajorHeadlineAdded}
-                label="Major headlines"
+                label="Breaking news"
                 description="Get pinged when major news breaks in the developer world"
                 checked={
                   ns?.[NotificationType.MajorHeadlineAdded]?.inApp ===

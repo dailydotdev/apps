@@ -71,8 +71,10 @@ describe('EnableHighlightsAlerts', () => {
   it('should render banner when feature is on, user is logged in, not subscribed and not dismissed', () => {
     renderComponent();
 
-    expect(screen.getByText('Push notifications')).toBeInTheDocument();
-    expect(screen.getByText('Enable notifications')).toBeInTheDocument();
+    expect(
+      screen.getByText('Never miss a major headline'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Notify me')).toBeInTheDocument();
   });
 
   it('should not render when feature is off', () => {
@@ -80,7 +82,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
   });
 
   it('should not render for guests', () => {
@@ -88,7 +90,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
   });
 
   it('should not render when already subscribed', () => {
@@ -101,7 +103,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
   });
 
   it('should not render when dismissed', () => {
@@ -109,7 +111,7 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    expect(screen.queryByText('Push notifications')).not.toBeInTheDocument();
+    expect(screen.queryByText('Never miss a major headline')).not.toBeInTheDocument();
   });
 
   it('should log impression on render', () => {
@@ -124,7 +126,7 @@ describe('EnableHighlightsAlerts', () => {
   it('should subscribe and show toast with settings action on CTA click when push is not yet enabled', async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByText('Enable notifications'));
+    fireEvent.click(screen.getByText('Notify me'));
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
@@ -149,16 +151,14 @@ describe('EnableHighlightsAlerts', () => {
 
     renderComponent();
 
-    fireEvent.click(screen.getByText('Enable notifications'));
+    fireEvent.click(screen.getByText('Notify me'));
 
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalledWith('highlights_page');
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Push notifications successfully enabled'),
-      ).toBeInTheDocument();
+      expect(screen.getByText("You're in the loop")).toBeInTheDocument();
     });
 
     expect(mockDisplayToast).not.toHaveBeenCalled();
