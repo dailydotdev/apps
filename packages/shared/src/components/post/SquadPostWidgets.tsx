@@ -17,6 +17,7 @@ import type { UserShortProfile } from '../../lib/user';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
 import { PostSignupWidget } from './PostSignupWidget';
+import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
 export function SquadPostWidgets({
   onCopyPostLink,
@@ -76,6 +77,7 @@ export function SquadPostWidgets({
           />
         </>
       )}
+      <HighlightPostSidebarWidget />
       {tokenRefreshed && <FurtherReading currentPost={post} />}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
