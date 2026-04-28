@@ -29,7 +29,7 @@ import {
   ButtonVariant,
 } from '../../buttons/Button';
 import { TimeSortIcon } from '../../icons/Sort/Time';
-import { AnalyticsIcon, ArrowIcon, SidebarArrowLeft } from '../../icons';
+import { AnalyticsIcon, ArrowIcon } from '../../icons';
 import { PostMenuOptions } from '../PostMenuOptions';
 import {
   Typography,
@@ -71,7 +71,6 @@ type EngagementRailProps = {
   postPosition?: PostPosition;
   onPreviousPost?: () => void;
   onNextPost?: () => void;
-  onToggleRail: () => void;
   onRegisterFocusComment: (fn: () => void) => void;
   className?: string;
   /**
@@ -88,7 +87,6 @@ export function EngagementRail({
   postPosition,
   onPreviousPost,
   onNextPost,
-  onToggleRail,
   onRegisterFocusComment,
   className,
   onBackToFeed,
@@ -203,18 +201,6 @@ export function EngagementRail({
             origin={Origin.ReaderModal}
             buttonSize={ButtonSize.Small}
           />
-          <Tooltip content="Hide discussion">
-            <Button
-              icon={<SidebarArrowLeft />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              type="button"
-              className={iconButtonClassName}
-              onClick={onToggleRail}
-              aria-label="Hide discussion panel"
-              aria-pressed
-            />
-          </Tooltip>
         </div>
       </div>
       <div className="flex min-w-0 flex-col gap-4 px-4 pb-6 pt-4">

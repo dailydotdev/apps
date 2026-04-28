@@ -4,6 +4,7 @@ import { useSettingsContext } from '../../../../contexts/SettingsContext';
 export function useLegacyPostLayoutOptOut(): {
   isOptedOut: boolean;
   optOut: () => void;
+  optIn: () => void;
 } {
   const { flags, updateFlag } = useSettingsContext();
   const isOptedOut = flags?.legacyPostLayoutOptOut ?? false;
@@ -12,5 +13,9 @@ export function useLegacyPostLayoutOptOut(): {
     updateFlag('legacyPostLayoutOptOut', true);
   }, [updateFlag]);
 
-  return { isOptedOut, optOut };
+  const optIn = useCallback(() => {
+    updateFlag('legacyPostLayoutOptOut', false);
+  }, [updateFlag]);
+
+  return { isOptedOut, optOut, optIn };
 }

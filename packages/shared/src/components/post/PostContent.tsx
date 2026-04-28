@@ -36,7 +36,7 @@ import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { EarthIcon, MiniCloseIcon } from '../icons';
+import { EarthIcon } from '../icons';
 import { Drawer } from '../drawers/Drawer';
 import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 
@@ -238,13 +238,11 @@ export function PostContentRaw({
 
   const showArticlePreviewColumn =
     showArticlePreviewEmbed && !isArticlePreviewDismissed;
+  const shouldShowArticlePreviewToggle = false;
   const isPreviewFloating =
     isLaptop && showArticlePreviewColumn && isPreviewNarrow;
   const shouldRenderFloatingPreview =
     isFloatingPreviewVisible || isPreviewFloating;
-  const isPreviewActive = isTablet
-    ? showArticlePreviewColumn
-    : isMobilePreviewOpen;
 
   useEffect(() => {
     if (floatingPreviewCloseTimeoutRef.current) {
@@ -429,7 +427,9 @@ export function PostContentRaw({
               onReadArticle={onReadArticle}
               hideSubscribeAction={hideSubscribeAction}
             />
-            {!isTablet && showArticlePreviewEmbed && (
+            {!isTablet &&
+              showArticlePreviewEmbed &&
+              shouldShowArticlePreviewToggle && (
               <Button
                 type="button"
                 size={ButtonSize.Small}
@@ -603,29 +603,7 @@ export function PostContentRaw({
               {postMainColumn}
               {!isLaptop && postWidgetsColumn}
             </div>
-            <div className="relative hidden tablet:block">
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                className={classNames(
-                  'z-30 absolute right-0 !rounded-r-none',
-                  isPostPage ? 'top-[4.5rem] laptop:top-6' : 'top-4',
-                )}
-                onClick={onToggleArticlePreview}
-                icon={isPreviewActive ? <MiniCloseIcon /> : <EarthIcon />}
-                title={
-                  isPreviewActive
-                    ? 'Hide inline article preview'
-                    : 'Show inline article preview'
-                }
-                aria-label={
-                  isPreviewActive
-                    ? 'Hide inline article preview'
-                    : 'Show inline article preview'
-                }
-              />
-            </div>
+            <div className="relative hidden tablet:block" />
             <div
               ref={previewColumnRef}
               className={classNames(

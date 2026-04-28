@@ -28,6 +28,7 @@ import {
 const FRAME_LOAD_TIMEOUT_MS = 7000;
 const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
 const EXTENSION_INSTALL_POLL_INTERVAL_MS = 1500;
+const EXTENSION_PING_MESSAGE_SOURCE = 'daily-extension-ping';
 
 type PostArticlePreviewEmbedProps = {
   targetUrl: string;
@@ -40,43 +41,6 @@ type PostArticlePreviewEmbedProps = {
   collapseOnUnavailable?: boolean;
 };
 
-const renderEmbedChrome = (
-  state: UseExtensionSiteEmbedResult,
-): ReactElement | null => {
-  if (state.status === 'error' && state.error) {
-    return (
-      <div
-        className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
-        aria-live="polite"
-      >
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="max-w-sm text-center"
-        >
-          {state.error}
-        </Typography>
-      </div>
-    );
-  }
-
-  if (state.status === 'reloading-extension') {
-    return (
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
-        <Loader className="h-6 w-6" />
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Secondary}
-        >
-          Reloading extension…
-        </Typography>
-      </div>
-    );
-  }
-
-  return null;
-};
-
 export function PostArticlePreviewEmbed({
   targetUrl,
   previewHost,
@@ -87,7 +51,9 @@ export function PostArticlePreviewEmbed({
   forceUnavailable = false,
   collapseOnUnavailable = true,
 }: PostArticlePreviewEmbedProps): ReactElement | null {
-  const [extensionId] = useState(() => getBrowserExtensionInstallId());
+  const [extensionId, setExtensionId] = useState(() =>
+    getBrowserExtensionInstallId(),
+  );
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [embedStatus, setEmbedStatus] =
     useState<UseExtensionSiteEmbedResult['status']>('idle');
@@ -129,6 +95,34 @@ export function PostArticlePreviewEmbed({
     setPreviewBroken(false);
   }, [extensionId, targetUrl]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const onPingMessage = (event: MessageEvent) => {
+      if (event.source !== window || event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data?.source !== EXTENSION_PING_MESSAGE_SOURCE) {
+        return;
+      }
+
+      setIsInstalledAfterPrompt(true);
+      const nextExtensionId =
+        typeof event.data?.extensionId === 'string'
+          ? event.data.extensionId.trim()
+          : '';
+      if (nextExtensionId) {
+        setExtensionId(nextExtensionId);
+      }
+    };
+
+    window.addEventListener('message', onPingMessage);
+    return () => window.removeEventListener('message', onPingMessage);
+  }, []);
+
   // Fast-path "not installed / not embeddable from this origin": probe a
   // resource that shares `frame.html`'s `web_accessible_resources` matches.
   // If the probe fails (extension missing OR origin not allowed to embed),
@@ -139,7 +133,11 @@ export function PostArticlePreviewEmbed({
       return undefined;
     }
     let cancelled = false;
-    detectBrowserExtensionInstalled(extensionId).then((installed) => {
+    const resolvedExtensionId = getBrowserExtensionInstallId() ?? extensionId;
+    if (resolvedExtensionId !== extensionId) {
+      setExtensionId(resolvedExtensionId);
+    }
+    detectBrowserExtensionInstalled(resolvedExtensionId).then((installed) => {
       if (cancelled) {
         return;
       }
@@ -183,17 +181,28 @@ export function PostArticlePreviewEmbed({
 
     let cancelled = false;
     const interval = globalThis.setInterval(() => {
-      detectBrowserExtensionInstalled(extensionId).then((installedNow) => {
-        if (cancelled || !installedNow) {
-          return;
-        }
+      const resolvedExtensionId = getBrowserExtensionInstallId() ?? extensionId;
+      if (resolvedExtensionId !== extensionId) {
+        setExtensionId(resolvedExtensionId);
+      }
 
-        setIsInstalledAfterPrompt(true);
+      if (!resolvedExtensionId) {
+        return;
+      }
+
+      detectBrowserExtensionInstalled(resolvedExtensionId).then(
+        (installedNow) => {
+          if (cancelled || !installedNow) {
+            return;
+          }
+
+          setIsInstalledAfterPrompt(true);
         setIsFrameLoaded(false);
         setEmbedStatus('idle');
         setTimedOutBeforeConnect(false);
-        setPreviewBroken(false);
-      });
+          setPreviewBroken(false);
+        },
+      );
     }, EXTENSION_INSTALL_POLL_INTERVAL_MS);
 
     return () => {
@@ -292,6 +301,64 @@ export function PostArticlePreviewEmbed({
     [],
   );
 
+  const renderEmbedChrome = useCallback(
+    (state: UseExtensionSiteEmbedResult): ReactElement | null => {
+      if (state.status === 'error' && state.error) {
+        return (
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
+            aria-live="polite"
+          >
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+              className="max-w-sm text-center"
+            >
+              {state.error}
+            </Typography>
+          </div>
+        );
+      }
+
+      if (state.status === 'reloading-extension') {
+        return (
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
+            <Loader className="h-6 w-6" />
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Secondary}
+            >
+              Reloading extension…
+            </Typography>
+          </div>
+        );
+      }
+
+      const shouldShowLoading =
+        !previewBroken &&
+        (state.status === 'idle' ||
+          state.status === 'preparing-tab' ||
+          (state.status === 'ready' && !isFrameLoaded));
+
+      if (!shouldShowLoading) {
+        return null;
+      }
+
+      return (
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
+          <Loader className="h-6 w-6" />
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
+            Loading article preview…
+          </Typography>
+        </div>
+      );
+    },
+    [isFrameLoaded, previewBroken],
+  );
+
   if (shouldCollapseUnavailable) {
     return null;
   }
@@ -305,7 +372,7 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
-        <div className="flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
+        <div className="flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 pb-2 pt-3">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {leftHeaderActions ? (
               <div className="flex shrink-0 items-center gap-2">

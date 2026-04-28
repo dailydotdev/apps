@@ -127,15 +127,18 @@ const ensureStyles = (): void => {
       padding: 0 1rem;
       border: 0;
       border-radius: 12px;
-      background: #ffffff;
-      color: #0e1217;
+      background: #c029f0;
+      color: #ffffff;
       font: inherit;
       font-size: 0.9375rem;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity 150ms ease;
+      transition: opacity 150ms ease, transform 150ms ease;
     }
-    .embedded-browsing-button:hover { opacity: 0.85; }
+    .embedded-browsing-button:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
     .embedded-browsing-button:disabled { opacity: 0.6; cursor: not-allowed; }
   `;
   document.head.appendChild(style);

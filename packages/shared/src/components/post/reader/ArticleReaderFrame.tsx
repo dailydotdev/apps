@@ -12,8 +12,6 @@ type ArticleReaderFrameProps = {
   isEmbeddable: boolean;
   className?: string;
   onClose: () => void;
-  isRailOpen: boolean;
-  onToggleRail: () => void;
   isPostPage?: boolean;
   fallbackScrollRef?: Ref<HTMLDivElement>;
   contentTopOffsetPx?: number;
@@ -25,14 +23,12 @@ export function ArticleReaderFrame({
   isEmbeddable,
   className,
   onClose,
-  isRailOpen,
-  onToggleRail,
   isPostPage = false,
   fallbackScrollRef,
   contentTopOffsetPx = 0,
 }: ArticleReaderFrameProps): ReactElement {
   const isFallback = !targetUrl || !isEmbeddable;
-  const hasHeaderActions = !isRailOpen || !isPostPage;
+  const hasHeaderActions = !isPostPage;
 
   if (isFallback) {
     return (
@@ -59,14 +55,12 @@ export function ArticleReaderFrame({
       <PostArticlePreviewEmbed
         targetUrl={targetUrl}
         previewHost={post.domain ?? undefined}
-        leftHeaderActions={
-          hasHeaderActions && !isRailOpen ? (
-            <ReaderHeaderActionGroup onToggleRail={onToggleRail} />
-          ) : null
-        }
         rightHeaderActions={
           hasHeaderActions && !isPostPage ? (
-            <ReaderHeaderActionGroup onClose={onClose} />
+            <ReaderHeaderActionGroup
+              onClose={onClose}
+              showLegacyLayoutOptOut
+            />
           ) : null
         }
         collapseOnUnavailable={false}

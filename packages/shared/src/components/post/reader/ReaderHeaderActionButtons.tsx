@@ -1,11 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { MiniCloseIcon as CloseIcon, SidebarArrowRight } from '../../icons';
+import {
+  EyeIcon,
+  MiniCloseIcon as CloseIcon,
+  SidebarArrowRight,
+} from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
+import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
 
 export const readerHeaderActionGroupClassName =
-  'flex items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default p-px shadow-3';
+  'flex h-9 items-center gap-px rounded-12 border border-border-subtlest-tertiary bg-background-default p-px shadow-3';
 
 const iconButtonClassName = '!h-8 !w-8 !min-w-8 !rounded-10 !p-0';
 
@@ -54,16 +59,50 @@ export function ReaderCloseButton({
   );
 }
 
+type ReaderLegacyLayoutToggleButtonProps = {
+  target?: 'classic' | 'reader';
+};
+
+export function ReaderLegacyLayoutToggleButton({
+  target = 'classic',
+}: ReaderLegacyLayoutToggleButtonProps): ReactElement {
+  const { optIn, optOut } = useLegacyPostLayoutOptOut();
+  const isClassicTarget = target === 'classic';
+
+  return (
+    <Tooltip
+      side="bottom"
+      content={
+        isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
+      }
+    >
+      <Button
+        variant={ButtonVariant.Tertiary}
+        icon={<EyeIcon />}
+        size={ButtonSize.Small}
+        type="button"
+        className={iconButtonClassName}
+        onClick={isClassicTarget ? optOut : optIn}
+        aria-label={
+          isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
+        }
+      />
+    </Tooltip>
+  );
+}
+
 type ReaderHeaderActionGroupProps = {
   onToggleRail?: () => void;
   onClose?: () => void;
+  showLegacyLayoutOptOut?: boolean;
 };
 
 export function ReaderHeaderActionGroup({
   onToggleRail,
   onClose,
+  showLegacyLayoutOptOut = false,
 }: ReaderHeaderActionGroupProps): ReactElement | null {
-  if (!onToggleRail && !onClose) {
+  if (!onToggleRail && !onClose && !showLegacyLayoutOptOut) {
     return null;
   }
 
@@ -74,9 +113,12 @@ export function ReaderHeaderActionGroup({
           <ReaderDiscussionToggleButton onToggleRail={onToggleRail} />
         </div>
       ) : null}
-      {onClose ? (
+      {onClose || showLegacyLayoutOptOut ? (
         <div className={readerHeaderActionGroupClassName}>
-          <ReaderCloseButton onClose={onClose} />
+          {showLegacyLayoutOptOut ? (
+            <ReaderLegacyLayoutToggleButton target="classic" />
+          ) : null}
+          {onClose ? <ReaderCloseButton onClose={onClose} /> : null}
         </div>
       ) : null}
     </>

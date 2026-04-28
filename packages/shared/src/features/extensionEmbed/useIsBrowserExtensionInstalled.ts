@@ -27,6 +27,7 @@ const readMarker = (): boolean => {
 // Chrome's "page blocked" flash.
 const PROBE_RESOURCE_PATH = 'js/frame.bundle.js';
 const PROBE_TIMEOUT_MS = 1500;
+const PROBE_QUERY_PARAM = '__daily_probe';
 
 export const detectBrowserExtensionInstalled = (
   extensionId: string | null | undefined,
@@ -48,7 +49,17 @@ export const detectBrowserExtensionInstalled = (
     // can't leak code into the host page.
     link.rel = 'preload';
     link.as = 'script';
-    link.href = `chrome-extension://${trimmedId}/${PROBE_RESOURCE_PATH}`;
+    const probeUrl = new URL(
+      `chrome-extension://${trimmedId}/${PROBE_RESOURCE_PATH}`,
+    );
+    // Cache-bust retries so a failed "extension not installed yet" probe
+    // doesn't get stuck on an earlier negative result after the user
+    // installs the extension while the modal stays open.
+    probeUrl.searchParams.set(
+      PROBE_QUERY_PARAM,
+      `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    );
+    link.href = probeUrl.toString();
 
     let settled = false;
     const finalize = (installed: boolean) => {

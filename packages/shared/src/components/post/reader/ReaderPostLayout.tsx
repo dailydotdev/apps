@@ -141,7 +141,6 @@ export function ReaderPostLayout({
                       postPosition={postPosition}
                       onPreviousPost={onPreviousPost}
                       onNextPost={onNextPost}
-                      onToggleRail={toggleRail}
                       onRegisterFocusComment={onRegisterFocusComment}
                       className="min-w-0"
                       onBackToFeed={isPostPage ? onClose : undefined}
@@ -157,16 +156,12 @@ export function ReaderPostLayout({
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
                     onClose={onClose}
-                    isRailOpen={isRailOpen}
-                    onToggleRail={toggleRail}
                     isPostPage={isPostPage}
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                   />
                   {!hasEmbeddedReaderHeader && (
                     <ReaderChrome
                       onClose={onClose}
-                      isRailOpen={isRailOpen}
-                      onToggleRail={toggleRail}
                       isPostPage={isPostPage}
                     />
                   )}
