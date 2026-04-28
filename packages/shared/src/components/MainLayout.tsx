@@ -33,8 +33,6 @@ import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
-import { useConditionalFeature } from '../hooks/useConditionalFeature';
-import { swipeOnboardingFeature } from '../lib/featureManagement';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -99,10 +97,6 @@ function MainLayoutComponent({
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
-    feature: swipeOnboardingFeature,
-    shouldEvaluate: !user,
-  });
   const swipeOnboardingPreviewQuery =
     router.query[swipeOnboardingPreviewQueryKey];
   const isSwipeOnboardingPreviewForced =
@@ -142,9 +136,7 @@ function MainLayoutComponent({
 
     if (entries.length === 0) {
       router.push(
-        isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
-          ? swipeOnboardingUrl
-          : onboardingUrl,
+        isSwipeOnboardingPreviewForced ? swipeOnboardingUrl : onboardingUrl,
       );
       return;
     }
@@ -155,17 +147,11 @@ function MainLayoutComponent({
       params.append(key, value as string);
     });
 
-    const destination =
-      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
-        ? swipeOnboardingUrl
-        : onboardingUrl;
+    const destination = isSwipeOnboardingPreviewForced
+      ? swipeOnboardingUrl
+      : onboardingUrl;
     router.push(`${destination}?${params.toString()}`);
-  }, [
-    isSwipeOnboardingEnabled,
-    isSwipeOnboardingPreviewForced,
-    shouldRedirectOnboarding,
-    router,
-  ]);
+  }, [isSwipeOnboardingPreviewForced, shouldRedirectOnboarding, router]);
 
   const ignoredUtmMediumForLogin = ['slack'];
   const utmSource = router?.query?.utm_source;

@@ -46,8 +46,6 @@ import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structu
 import { fromCDN } from '@dailydotdev/shared/src/lib';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   messageHandlerExists,
   postWebKitMessage,
@@ -144,12 +142,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   const { unreadCount } = useNotificationContext();
   const unreadText = getUnreadText(unreadCount);
   const { user, trackingId, isFunnel } = useAuthContext();
-  const {
-    value: isSwipeOnboardingEnabled,
-    isLoading: isSwipeOnboardingLoading,
-  } = useConditionalFeature({
-    feature: swipeOnboardingFeature,
-  });
   const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
     useCookieBanner();
   useWebVitals();
@@ -213,22 +205,18 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     if (
       !isFunnel &&
       isOnboardingActionsReady &&
-      (!isSwipeOnboardingLoading || isSwipeOnboardingPreviewForced) &&
       !isOnboardingComplete &&
       !isOnboardingExcludedPath(router.pathname)
     ) {
-      const destination =
-        isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
-          ? '/onboarding/swipe'
-          : '/onboarding';
+      const destination = isSwipeOnboardingPreviewForced
+        ? '/onboarding/swipe'
+        : '/onboarding';
       router.replace(destination);
     }
   }, [
     isFunnel,
     isOnboardingActionsReady,
     isOnboardingComplete,
-    isSwipeOnboardingEnabled,
-    isSwipeOnboardingLoading,
     isSwipeOnboardingPreviewForced,
     router,
   ]);

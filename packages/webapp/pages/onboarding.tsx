@@ -62,7 +62,11 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
+import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getPageSeoTitles } from '../components/layouts/utils';
+import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
 
 const seoTitles = getPageSeoTitles('Get started');
@@ -280,6 +284,25 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
+  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
+    feature: swipeOnboardingFeature,
+  });
+  const swipeOnboardingPreviewQuery = router.query.swipeOnboardingPreview;
+  const isSwipeOnboardingPreviewForced =
+    swipeOnboardingPreviewQuery === '1' ||
+    swipeOnboardingPreviewQuery === 'true' ||
+    (Array.isArray(swipeOnboardingPreviewQuery) &&
+      (swipeOnboardingPreviewQuery.includes('1') ||
+        swipeOnboardingPreviewQuery.includes('true')));
+  const stepComponentOverrides = useMemo(
+    () =>
+      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+        ? {
+            [FunnelStepType.EditTags]: FunnelSwipeOnboardingStep,
+          }
+        : undefined,
+    [isSwipeOnboardingEnabled, isSwipeOnboardingPreviewForced],
+  );
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -350,6 +373,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
           {...funnelState}
           initialStepId={initialStepId}
           onComplete={onComplete}
+          stepComponentOverrides={stepComponentOverrides}
         />
         {/* <HotJarTracking hotjarId="3871311" /> */}
       </div>

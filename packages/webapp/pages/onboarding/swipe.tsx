@@ -348,6 +348,23 @@ function SwipeOnboardingPage(): ReactElement {
     }
   }, [onboardingProgressCount]);
 
+  const bookmarkRightSwipePost = useCallback(
+    (cardId: string) => {
+      const bookmarkPost = getBookmarkablePost(cardId);
+      if (!bookmarkPost) {
+        return;
+      }
+
+      // Capture the current card payload before deck state changes.
+      toggleBookmark({
+        post: bookmarkPost,
+        origin: Origin.Onboarding,
+        disableToast: true,
+      }).catch(() => null);
+    },
+    [getBookmarkablePost, toggleBookmark],
+  );
+
   const handleSwipeInteraction = useCallback(
     (
       direction: 'left' | 'right' | 'skip',
@@ -356,21 +373,14 @@ function SwipeOnboardingPage(): ReactElement {
       if (direction === 'left' || direction === 'right') {
         setSwipesCount((value) => value + 1);
         if (meta?.onboardingCardId) {
-          handleAdaptiveSwipe(direction, meta.onboardingCardId);
           if (direction === 'right') {
-            const bookmarkPost = getBookmarkablePost(meta.onboardingCardId);
-            if (bookmarkPost) {
-              toggleBookmark({
-                post: bookmarkPost,
-                origin: Origin.Onboarding,
-                disableToast: true,
-              }).catch(() => null);
-            }
+            bookmarkRightSwipePost(meta.onboardingCardId);
           }
+          handleAdaptiveSwipe(direction, meta.onboardingCardId);
         }
       }
     },
-    [getBookmarkablePost, handleAdaptiveSwipe, toggleBookmark],
+    [bookmarkRightSwipePost, handleAdaptiveSwipe],
   );
 
   const authOptionProps: AuthOptionsProps = useMemo(
