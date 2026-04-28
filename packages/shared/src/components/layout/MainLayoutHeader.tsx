@@ -101,7 +101,7 @@ function MainLayoutHeader({
         'z-header',
         !isMobileSearchPage &&
           (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
-        hasBanner && 'laptop:top-8',
+        hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}

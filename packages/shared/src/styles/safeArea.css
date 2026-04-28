@@ -28,10 +28,13 @@ body {
 }
 
 body .antialiased > .sticky.top-0,
-body .antialiased > .fixed.top-0,
-body .antialiased [data-testid="sidebar-aside"].fixed.top-0,
+body .fixed.top-0,
 body .fixed.inset-0 {
-  top: var(--safe-area-top);
+  top: calc(var(--safe-area-top) + var(--safe-area-top-offset, 0px));
+}
+
+body .fixed.top-0.h-full {
+  height: calc(100vh - var(--safe-area-top) - var(--safe-area-top-offset, 0px));
 }
 
 .min-h-dvh {
