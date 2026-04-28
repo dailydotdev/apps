@@ -32,11 +32,17 @@ const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 const mockUseLogContext = jest.mocked(useLogContext);
 const mockGqlRequest = jest.mocked(gqlClient.request);
 
-const buildHighlight = (id: string, headline: string) => ({
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
+const buildHighlight = (
+  id: string,
+  headline: string,
+  hoursAgo = 1,
+) => ({
   id,
   channel: 'agents',
   headline,
-  highlightedAt: '2026-04-05T09:00:00.000Z',
+  highlightedAt: new Date(Date.now() - hoursAgo * ONE_HOUR_MS).toISOString(),
   post: {
     id: `post-${id}`,
     commentsPermalink: `/posts/post-${id}`,
@@ -102,6 +108,37 @@ describe('HighlightPostSidebarWidget', () => {
 
   it('returns null when no highlights are returned', async () => {
     mockGqlRequest.mockResolvedValue(buildResponse([]));
+
+    renderWidget();
+
+    await waitFor(() => expect(mockGqlRequest).toHaveBeenCalled());
+    expect(screen.queryByText('Happening Now')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('postPageHighlightWidget'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('filters out highlights older than 24 hours', async () => {
+    mockGqlRequest.mockResolvedValue(
+      buildResponse([
+        buildHighlight('fresh', 'Fresh headline', 2),
+        buildHighlight('stale', 'Stale headline', 30),
+      ]),
+    );
+
+    renderWidget();
+
+    expect(await screen.findByText('Fresh headline')).toBeInTheDocument();
+    expect(screen.queryByText('Stale headline')).not.toBeInTheDocument();
+  });
+
+  it('hides the widget when all highlights are older than 24 hours', async () => {
+    mockGqlRequest.mockResolvedValue(
+      buildResponse([
+        buildHighlight('stale1', 'Stale one', 25),
+        buildHighlight('stale2', 'Stale two', 48),
+      ]),
+    );
 
     renderWidget();
 

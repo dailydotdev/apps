@@ -17,11 +17,13 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../lib/log';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { ONE_HOUR } from '../../../lib/time';
 
 const HIGHLIGHTS_LIMIT = 10;
 const ROTATION_INTERVAL_MS = 6000;
 const FADE_DURATION_MS = 500;
 const FEED_NAME = 'post-page-highlights';
+const MAX_HIGHLIGHT_AGE_MS = 24 * ONE_HOUR;
 
 const prefersReducedMotion = (): boolean => {
   if (typeof window === 'undefined' || !window.matchMedia) {
@@ -43,8 +45,10 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
     enabled: isEnabled && !!user,
   });
 
-  const highlights: PostHighlight[] =
-    data?.majorHeadlines?.edges?.map((edge) => edge.node) ?? [];
+  const cutoff = Date.now() - MAX_HIGHLIGHT_AGE_MS;
+  const highlights: PostHighlight[] = (
+    data?.majorHeadlines?.edges?.map((edge) => edge.node) ?? []
+  ).filter((h) => new Date(h.highlightedAt).getTime() >= cutoff);
 
   const [index, setIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
@@ -175,7 +179,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
             </span>
             <RelativeTime
               dateTime={current.highlightedAt}
-              maxHoursAgo={72}
+              maxHoursAgo={24}
               className="text-text-tertiary typo-footnote"
             />
           </a>
