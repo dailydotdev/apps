@@ -91,6 +91,11 @@ export enum Origin {
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
   BetterAuthSocialUrl = 'betterauth social url',
   LoginTurnstile = 'login turnstile',
+  // Engagement ads
+  HighlightedKeyword = 'highlighted keyword',
+  ProfileStack = 'profile stack',
+  BrandedTag = 'branded tag',
+  MentionedTool = 'mentioned tool',
 }
 
 export enum LogEvent {
@@ -410,6 +415,8 @@ export enum LogEvent {
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
+  // Engagement ads
+  HoverEngagementTooltip = 'hover engagement tooltip',
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
