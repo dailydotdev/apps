@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type { OnboardingSwipeCard } from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import type { PostSummary } from '../lib/swipingBackendApi';
 import { discoverPosts } from '../lib/swipingBackendApi';
 
@@ -28,6 +30,20 @@ function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
   };
 }
 
+function toBookmarkablePost(post: PostSummary): Post {
+  return {
+    id: post.post_id,
+    title: post.title,
+    summary: post.summary,
+    permalink: post.url,
+    commentsPermalink: post.url,
+    image: '',
+    tags: post.tags,
+    bookmarked: false,
+    type: PostType.Article,
+  };
+}
+
 interface StartDeckOptions {
   prompt?: string;
   initialTags?: string[];
@@ -35,6 +51,7 @@ interface StartDeckOptions {
 
 interface AdaptiveSwipeDeck {
   cards: OnboardingSwipeCard[];
+  getBookmarkablePost: (cardId: string) => Post | undefined;
   isLoading: boolean;
   startDeck: (options?: StartDeckOptions) => Promise<void>;
   handleSwipe: (direction: 'left' | 'right', cardId: string) => void;
@@ -92,13 +109,21 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         n,
       });
       const { posts } = result;
-      for (const p of posts) {
+      posts.forEach((p) => {
         seenIdsRef.current.add(p.post_id);
         postLookupRef.current.set(p.post_id, p);
-      }
+      });
       return posts;
     },
     [getSaturatedTags, getConfirmedTags],
+  );
+
+  const getBookmarkablePost = useCallback(
+    (cardId: string): Post | undefined => {
+      const post = postLookupRef.current.get(cardId);
+      return post ? toBookmarkablePost(post) : undefined;
+    },
+    [],
   );
 
   const loadBatch = useCallback((posts: PostSummary[]) => {
@@ -122,9 +147,9 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
           selectedTagsRef.current = options.initialTags;
           // Initialize tag scores for seeded tags
           const scores: Record<string, number> = {};
-          for (const t of options.initialTags) {
+          options.initialTags.forEach((t) => {
             scores[t] = ADD_THRESHOLD;
-          }
+          });
           tagScoresRef.current = scores;
         }
         // Store the initial prompt for future fetches
@@ -140,10 +165,10 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
           n: BATCH_SIZE,
         });
         const { posts } = result;
-        for (const p of posts) {
+        posts.forEach((p) => {
           seenIdsRef.current.add(p.post_id);
           postLookupRef.current.set(p.post_id, p);
-        }
+        });
         loadBatch(posts);
       } finally {
         setIsLoading(false);
@@ -211,15 +236,13 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
       const promoted: string[] = [];
       const demoted: string[] = [];
 
-      for (const tag of tags) {
+      tags.forEach((tag) => {
         const isSelected = selectedSet.has(tag);
         tagSeenCountRef.current[tag] = (tagSeenCountRef.current[tag] || 0) + 1;
 
-        if (!isSelected) {
-          if (tagSeenCountRef.current[tag] >= IGNORE_AFTER) {
-            delete scores[tag];
-            continue;
-          }
+        if (!isSelected && tagSeenCountRef.current[tag] >= IGNORE_AFTER) {
+          delete scores[tag];
+          return;
         }
 
         const newScore = (scores[tag] || 0) + delta;
@@ -239,7 +262,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         ) {
           scores[tag] = SATURATE_THRESHOLD;
         }
-      }
+      });
 
       tagScoresRef.current = scores;
 
@@ -274,6 +297,7 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
 
   return {
     cards,
+    getBookmarkablePost,
     isLoading,
     startDeck,
     handleSwipe,

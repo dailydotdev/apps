@@ -35,6 +35,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import HotAndColdModal from '@dailydotdev/shared/src/components/modals/hotTakes/HotAndColdModal';
+import { useBookmarkPost } from '@dailydotdev/shared/src/hooks/useBookmarkPost';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
@@ -229,12 +230,14 @@ function SwipeOnboardingPage(): ReactElement {
 
   const {
     cards: adaptiveCards,
+    getBookmarkablePost,
     isLoading: isAdaptiveLoading,
     startDeck,
     handleSwipe: handleAdaptiveSwipe,
     retryFetch,
     selectedTags: adaptiveSelectedTags,
   } = useAdaptiveSwipeDeck();
+  const { toggleBookmark } = useBookmarkPost();
 
   const handlePromptSubmit = useCallback(async () => {
     if (promptLoading) {
@@ -354,10 +357,20 @@ function SwipeOnboardingPage(): ReactElement {
         setSwipesCount((value) => value + 1);
         if (meta?.onboardingCardId) {
           handleAdaptiveSwipe(direction, meta.onboardingCardId);
+          if (direction === 'right') {
+            const bookmarkPost = getBookmarkablePost(meta.onboardingCardId);
+            if (bookmarkPost) {
+              toggleBookmark({
+                post: bookmarkPost,
+                origin: Origin.Onboarding,
+                disableToast: true,
+              }).catch(() => null);
+            }
+          }
         }
       }
     },
-    [handleAdaptiveSwipe],
+    [getBookmarkablePost, handleAdaptiveSwipe, toggleBookmark],
   );
 
   const authOptionProps: AuthOptionsProps = useMemo(
