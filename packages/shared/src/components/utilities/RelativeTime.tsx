@@ -20,6 +20,8 @@ export const RelativeTime = ({
   );
 
   useEffect(() => {
+    setLabel(getLastActivityDateFormat(dateTime, { maxHoursAgo }));
+
     const id = setInterval(() => {
       setLabel(getLastActivityDateFormat(dateTime, { maxHoursAgo }));
     }, REFRESH_INTERVAL_MS);
