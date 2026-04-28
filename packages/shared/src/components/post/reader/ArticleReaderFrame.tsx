@@ -1,35 +1,40 @@
 import type { ReactElement, Ref } from 'react';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { PostArticlePreviewEmbed } from '../PostArticlePreviewEmbed';
 import { ReaderFallback } from './ReaderFallback';
-import { useIframeEmbed } from './hooks/useIframeEmbed';
+import {
+  ReaderHeaderActionGroup,
+} from './ReaderHeaderActionButtons';
 
 type ArticleReaderFrameProps = {
   post: Post;
+  targetUrl: string | null;
+  isEmbeddable: boolean;
   className?: string;
-  onEmbedUnavailable?: () => void;
+  onClose: () => void;
+  isRailOpen: boolean;
+  onToggleRail: () => void;
+  isPostPage?: boolean;
   fallbackScrollRef?: Ref<HTMLDivElement>;
   contentTopOffsetPx?: number;
 };
 
 export function ArticleReaderFrame({
   post,
+  targetUrl,
+  isEmbeddable,
   className,
-  onEmbedUnavailable,
+  onClose,
+  isRailOpen,
+  onToggleRail,
+  isPostPage = false,
   fallbackScrollRef,
   contentTopOffsetPx = 0,
 }: ArticleReaderFrameProps): ReactElement {
-  const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
-  const [forceFallback, setForceFallback] = useState(false);
-
-  const isFallback = !targetUrl || !isEmbeddable || forceFallback;
-
-  const onPreviewUnavailable = useCallback(() => {
-    setForceFallback(true);
-    onEmbedUnavailable?.();
-  }, [onEmbedUnavailable]);
+  const isFallback = !targetUrl || !isEmbeddable;
+  const hasHeaderActions = !isRailOpen || !isPostPage;
 
   if (isFallback) {
     return (
@@ -56,7 +61,17 @@ export function ArticleReaderFrame({
       <PostArticlePreviewEmbed
         targetUrl={targetUrl}
         previewHost={post.domain ?? undefined}
-        onPreviewUnavailable={onPreviewUnavailable}
+        leftHeaderActions={
+          hasHeaderActions && !isRailOpen ? (
+            <ReaderHeaderActionGroup onToggleRail={onToggleRail} />
+          ) : null
+        }
+        rightHeaderActions={
+          hasHeaderActions && !isPostPage ? (
+            <ReaderHeaderActionGroup onClose={onClose} />
+          ) : null
+        }
+        collapseOnUnavailable={false}
         className="!flex min-h-0 flex-1"
       />
     </div>

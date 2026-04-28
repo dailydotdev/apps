@@ -1,5 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
@@ -13,6 +17,7 @@ import { EngagementRail } from './EngagementRail';
 import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
 import { PaneDivider } from './PaneDivider';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
+import { useIframeEmbed } from './hooks/useIframeEmbed';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
@@ -46,6 +51,7 @@ export function ReaderPostLayout({
   outerClassName,
   isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
+  const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
   const {
     isRailOpen,
     setRailOpen,
@@ -89,6 +95,7 @@ export function ReaderPostLayout({
     maxRailWidthPx,
     Math.max(minRailWidthPx, railWidthPx),
   );
+  const hasEmbeddedReaderHeader = !!targetUrl && isEmbeddable;
 
   const readerContextValue = useMemo(
     () => ({
@@ -149,17 +156,24 @@ export function ReaderPostLayout({
                 <div className="relative flex min-h-0 min-w-0 flex-col">
                   <ArticleReaderFrame
                     post={post}
+                    targetUrl={targetUrl}
+                    isEmbeddable={isEmbeddable}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
-                    contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
-                  />
-                  <ReaderChrome
-                    post={post}
                     onClose={onClose}
                     isRailOpen={isRailOpen}
                     onToggleRail={toggleRail}
                     isPostPage={isPostPage}
+                    contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                   />
+                  {!hasEmbeddedReaderHeader && (
+                    <ReaderChrome
+                      onClose={onClose}
+                      isRailOpen={isRailOpen}
+                      onToggleRail={toggleRail}
+                      isPostPage={isPostPage}
+                    />
+                  )}
                   <ReaderFloatingActionBar
                     post={post}
                     onCommentClick={focusDiscussionComposer}

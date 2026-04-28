@@ -3,9 +3,7 @@ import type { FrameEmbedRule } from './frameEmbeddingApi';
 const FRAME_EMBED_RULE_ID_OFFSET = 1_000_000;
 const FRAME_EMBED_HEADERS = [
   'X-Frame-Options',
-  'Frame-Options',
   'Content-Security-Policy',
-  'Cross-Origin-Opener-Policy',
 ];
 const FRAME_EMBED_RULE_REGEX = '^https?://';
 

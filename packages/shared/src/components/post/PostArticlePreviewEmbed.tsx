@@ -27,13 +27,17 @@ import {
 
 const FRAME_LOAD_TIMEOUT_MS = 7000;
 const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
+const EXTENSION_INSTALL_POLL_INTERVAL_MS = 1500;
 
 type PostArticlePreviewEmbedProps = {
   targetUrl: string;
   previewHost?: string;
   className?: string;
+  leftHeaderActions?: ReactElement | null;
+  rightHeaderActions?: ReactElement | null;
   onPreviewUnavailable?: () => void;
   forceUnavailable?: boolean;
+  collapseOnUnavailable?: boolean;
 };
 
 const renderEmbedChrome = (
@@ -77,13 +81,17 @@ export function PostArticlePreviewEmbed({
   targetUrl,
   previewHost,
   className,
+  leftHeaderActions,
+  rightHeaderActions,
   onPreviewUnavailable,
   forceUnavailable = false,
+  collapseOnUnavailable = true,
 }: PostArticlePreviewEmbedProps): ReactElement | null {
   const [extensionId] = useState(() => getBrowserExtensionInstallId());
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
   const [embedStatus, setEmbedStatus] =
     useState<UseExtensionSiteEmbedResult['status']>('idle');
+  const [isInstalledAfterPrompt, setIsInstalledAfterPrompt] = useState(false);
   // Two distinct "things went wrong" states so we can map each to the
   // right UX: a pre-connect timeout or a genuine post-ready failure.
   const [timedOutBeforeConnect, setTimedOutBeforeConnect] = useState(false);
@@ -91,6 +99,7 @@ export function PostArticlePreviewEmbed({
 
   const isInExtension = checkIsExtension();
   const { isInstalled } = useIsBrowserExtensionInstalled();
+  const hasInstalledExtension = isInstalled || isInstalledAfterPrompt;
 
   const previewDomain = useMemo(() => {
     if (previewHost) {
@@ -115,6 +124,7 @@ export function PostArticlePreviewEmbed({
   useEffect(() => {
     setIsFrameLoaded(false);
     setEmbedStatus('idle');
+    setIsInstalledAfterPrompt(false);
     setTimedOutBeforeConnect(false);
     setPreviewBroken(false);
   }, [extensionId, targetUrl]);
@@ -130,6 +140,10 @@ export function PostArticlePreviewEmbed({
     }
     let cancelled = false;
     detectBrowserExtensionInstalled(extensionId).then((installed) => {
+      if (cancelled) {
+        return;
+      }
+      setIsInstalledAfterPrompt(installed);
       if (!cancelled && !installed) {
         setTimedOutBeforeConnect(true);
       }
@@ -153,20 +167,66 @@ export function PostArticlePreviewEmbed({
     !isInExtension &&
     (!extensionId ||
       timedOutBeforeConnect ||
-      (!isInstalled && embedStatus === 'idle' && timedOutBeforeConnect));
+      (!hasInstalledExtension && embedStatus === 'idle' && timedOutBeforeConnect));
+
+  useEffect(() => {
+    if (
+      isInExtension ||
+      !extensionId ||
+      !shouldPromptInstall ||
+      hasInstalledExtension
+    ) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const interval = globalThis.setInterval(() => {
+      detectBrowserExtensionInstalled(extensionId).then((installedNow) => {
+        if (cancelled || !installedNow) {
+          return;
+        }
+
+        setIsInstalledAfterPrompt(true);
+        setIsFrameLoaded(false);
+        setEmbedStatus('idle');
+        setTimedOutBeforeConnect(false);
+        setPreviewBroken(false);
+      });
+    }, EXTENSION_INSTALL_POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      globalThis.clearInterval(interval);
+    };
+  }, [
+    extensionId,
+    hasInstalledExtension,
+    isInExtension,
+    shouldPromptInstall,
+  ]);
 
   // "Iframe connected but the embed ultimately failed": dropped target
   // frame, DNR rule couldn't be set up, publisher blocks embedding, etc.
   // These warrant the classic reader fallback via the parent.
   const isGenuinelyUnavailable = forceUnavailable || previewBroken;
+  const shouldCollapseUnavailable =
+    collapseOnUnavailable && isGenuinelyUnavailable;
 
   const didNotifyRef = useRef(false);
   useEffect(() => {
-    if (isGenuinelyUnavailable && !didNotifyRef.current && !forceUnavailable) {
+    if (
+      shouldCollapseUnavailable &&
+      !didNotifyRef.current &&
+      !forceUnavailable
+    ) {
       didNotifyRef.current = true;
       onPreviewUnavailable?.();
     }
-  }, [forceUnavailable, isGenuinelyUnavailable, onPreviewUnavailable]);
+  }, [
+    forceUnavailable,
+    onPreviewUnavailable,
+    shouldCollapseUnavailable,
+  ]);
 
   // Pre-connect timeout: iframe mounted but the permission frame never posted
   // anything back within the window. Treat this as "can't embed from here"
@@ -239,7 +299,7 @@ export function PostArticlePreviewEmbed({
     [],
   );
 
-  if (isGenuinelyUnavailable) {
+  if (shouldCollapseUnavailable) {
     return null;
   }
 
@@ -252,35 +312,47 @@ export function PostArticlePreviewEmbed({
       aria-label="Article preview"
     >
       <div className="relative flex min-h-0 flex-1 flex-col overflow-visible">
+        <div className="flex items-center justify-between gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {leftHeaderActions ? (
+              <div className="flex shrink-0 items-center gap-2">
+                {leftHeaderActions}
+              </div>
+            ) : null}
+            <img
+              src={faviconSrc}
+              alt=""
+              className="size-4 shrink-0 rounded-4"
+              loading="lazy"
+              aria-hidden
+            />
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Secondary}
+              className="min-w-0 flex-1 truncate"
+            >
+              <button
+                type="button"
+                onClick={onCopyPreviewUrl}
+                className="block w-full truncate text-left"
+                title="Copy preview URL"
+                aria-label="Copy preview URL"
+              >
+                {previewDomain}
+              </button>
+            </Typography>
+          </div>
+          {rightHeaderActions ? (
+            <div className="flex shrink-0 items-center gap-2">
+              {rightHeaderActions}
+            </div>
+          ) : null}
+        </div>
         {shouldPromptInstall ? (
           <EmbeddedBrowsingWebPrompt />
         ) : (
-          <>
-            <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-2">
-              <img
-                src={faviconSrc}
-                alt=""
-                className="size-4 shrink-0 rounded-4"
-                loading="lazy"
-                aria-hidden
-              />
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Secondary}
-                className="min-w-0 flex-1 truncate"
-              >
-                <button
-                  type="button"
-                  onClick={onCopyPreviewUrl}
-                  className="block w-full truncate text-left"
-                  title="Copy preview URL"
-                  aria-label="Copy preview URL"
-                >
-                  {previewDomain}
-                </button>
-              </Typography>
-            </div>
+          <div className="relative flex min-h-0 flex-1 flex-col">
             <ExtensionSiteEmbed
               extensionId={extensionId}
               targetUrl={targetUrl}
@@ -292,7 +364,21 @@ export function PostArticlePreviewEmbed({
               onStateChange={onEmbedStateChange}
               renderState={renderEmbedChrome}
             />
-          </>
+            {!collapseOnUnavailable && previewBroken && embedStatus === 'ready' ? (
+              <div
+                className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
+                aria-live="polite"
+              >
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Secondary}
+                  className="max-w-sm text-center"
+                >
+                  Preview not available for this site.
+                </Typography>
+              </div>
+            ) : null}
+          </div>
         )}
       </div>
     </section>

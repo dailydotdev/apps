@@ -17,6 +17,48 @@ type SendParentMessage = (type: string, detail: Record<string, string>) => void;
 
 type PermissionRequestOutcome = 'granted' | 'dismissed' | 'failed';
 
+const prepareEmbedding = async ({
+  root,
+  target,
+  sendParentMessage,
+  onEmbeddingEnabled,
+}: {
+  root: HTMLDivElement;
+  target: URL;
+  sendParentMessage: SendParentMessage;
+  onEmbeddingEnabled: () => void;
+}): Promise<boolean> => {
+  sendParentMessage(extensionSiteEmbedFrameEvent.PermissionsReady, {
+    target: target.href,
+  });
+
+  // The visible site iframe only mounts after the tab-scoped rule is live.
+  // That avoids a flash of the browser's built-in frame-blocked error page.
+  renderMessage(
+    root,
+    'Preparing embedded browsing',
+    'Configuring this tab so the requested site can be embedded safely.',
+  );
+
+  const result = await enableFrameEmbeddingViaBackground();
+  if (!result.enabled) {
+    sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
+      reason: 'enable-frame-embedding-failed',
+      target: target.href,
+      error: result.error ?? 'Unknown frame embedding error',
+    });
+    return false;
+  }
+
+  // The webapp keeps this frame mounted invisibly after success so it can
+  // tear the tab-scoped rule down when the page unloads or a new target starts.
+  onEmbeddingEnabled();
+  sendParentMessage(extensionSiteEmbedFrameEvent.EmbeddingReady, {
+    target: target.href,
+  });
+  return true;
+};
+
 export const createFrameCleanupController = () => {
   let shouldDisableEmbeddingOnCleanup = false;
 
@@ -99,32 +141,10 @@ export const initializeFrame = async ({
     return;
   }
 
-  sendParentMessage(extensionSiteEmbedFrameEvent.PermissionsReady, {
-    target: target.href,
-  });
-
-  // The visible site iframe only mounts after the tab-scoped rule is live.
-  // That avoids a flash of the browser's built-in frame-blocked error page.
-  renderMessage(
+  await prepareEmbedding({
     root,
-    'Preparing embedded browsing',
-    'Configuring this tab so the requested site can be embedded safely.',
-  );
-
-  const result = await enableFrameEmbeddingViaBackground();
-  if (!result.enabled) {
-    sendParentMessage(extensionSiteEmbedFrameEvent.Error, {
-      reason: 'enable-frame-embedding-failed',
-      target: target.href,
-      error: result.error ?? 'Unknown frame embedding error',
-    });
-    return;
-  }
-
-  // The webapp keeps this frame mounted invisibly after success so it can
-  // tear the tab-scoped rule down when the page unloads or a new target starts.
-  onEmbeddingEnabled();
-  sendParentMessage(extensionSiteEmbedFrameEvent.EmbeddingReady, {
-    target: target.href,
+    target,
+    sendParentMessage,
+    onEmbeddingEnabled,
   });
 };

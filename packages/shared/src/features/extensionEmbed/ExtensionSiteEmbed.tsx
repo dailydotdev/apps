@@ -21,6 +21,11 @@ const hiddenPermissionFrameClassName =
 const visibleFrameClassName = 'h-full w-full';
 const frameBaseLayerClassName = 'relative z-0';
 const frameContainerClassName = 'relative z-0 flex min-h-0 flex-1 flex-col';
+const permissionFrameVisibleReasons = new Set([
+  'missing-permission',
+  'permission-denied',
+  'permission-request-failed',
+]);
 
 export const ExtensionSiteEmbed = ({
   className = visibleFrameClassName,
@@ -36,6 +41,10 @@ export const ExtensionSiteEmbed = ({
   stateRef.current = state;
   const view = renderState?.(state);
   const hasAnyFrame = !!state.permissionFrameSrc || !!state.targetFrameSrc;
+  const shouldShowPermissionFrame =
+    state.showPermissionFrame &&
+    (state.status === 'permission-required' ||
+      permissionFrameVisibleReasons.has(state.errorReason ?? ''));
 
   useEffect(() => {
     onStateChange?.(stateRef.current);
@@ -57,7 +66,7 @@ export const ExtensionSiteEmbed = ({
               src={state.permissionFrameSrc}
               title={permissionFrameTitle}
               className={
-                state.showPermissionFrame
+                shouldShowPermissionFrame
                   ? classNames(className, frameBaseLayerClassName)
                   : hiddenPermissionFrameClassName
               }
