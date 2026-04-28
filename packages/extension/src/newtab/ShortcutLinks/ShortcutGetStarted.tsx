@@ -76,18 +76,18 @@ export const ShortcutGetStarted = ({
       </div>
       <div className="flex gap-4">
         <Button
-          onClick={() => completeActionThenFire(onTopSitesClick)}
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Float}
-        >
-          Skip for now
-        </Button>
-        <Button
           onClick={() => completeActionThenFire(onCustomLinksClick)}
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
         >
           Add shortcuts
+        </Button>
+        <Button
+          onClick={() => completeActionThenFire(onTopSitesClick)}
+          size={ButtonSize.Medium}
+          variant={ButtonVariant.Float}
+        >
+          Skip for now
         </Button>
       </div>
     </div>

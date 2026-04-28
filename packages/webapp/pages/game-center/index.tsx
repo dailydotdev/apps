@@ -35,10 +35,7 @@ import {
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
-import {
-  achievementTrackingWidgetFeature,
-  questsFeature,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
 import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
@@ -90,7 +87,6 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import ProtectedPage from '../../components/ProtectedPage';
-import Custom404Seo from '../404';
 import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
@@ -242,11 +238,6 @@ function GameCenterPage({
   const router = useRouter();
   const { user } = useAuthContext();
   const { optOutLevelSystem } = useSettingsContext();
-  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
-    useConditionalFeature({
-      feature: questsFeature,
-      shouldEvaluate: !!user,
-    });
   const { value: isAchievementTrackingEnabled } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: !!user,
@@ -712,10 +703,7 @@ function GameCenterPage({
   }
 
   return (
-    <ProtectedPage
-      shouldFallback={isQuestsFeatureLoading || isQuestsFeatureEnabled !== true}
-      fallback={isQuestsFeatureLoading ? <></> : <Custom404Seo />}
-    >
+    <ProtectedPage>
       <div className="mx-auto w-full max-w-[72rem]">
         <LayoutHeader
           className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
@@ -902,7 +890,7 @@ function GameCenterPage({
               </div>
 
               <div className="bg-background-default/70 flex min-w-[14rem] flex-col items-start justify-center gap-4 rounded-20 border border-border-subtlest-tertiary p-5 backdrop-blur-sm">
-                {isQuestsFeatureEnabled === true && questDashboard ? (
+                {questDashboard ? (
                   <>
                     <div className="flex items-center gap-4">
                       <QuestLevelProgressCircle

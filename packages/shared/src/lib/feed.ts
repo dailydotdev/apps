@@ -70,6 +70,7 @@ export function feedLogExtra(
   ranking?: string,
   extra?: {
     scroll_y?: number;
+    gen_id?: string;
   },
   origin?: Origin,
   variant?: string,

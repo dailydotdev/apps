@@ -142,8 +142,6 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const questsFeature = new Feature('quests', false);
-
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
@@ -162,3 +160,5 @@ export const featureShortcutsExtensionPromo = new Feature(
   'shortcuts_extension_promo',
   false,
 );
+
+export const featureShortcutsHub = new Feature('shortcuts_hub', false);

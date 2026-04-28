@@ -15,6 +15,7 @@ import { SourceType } from '../../graphql/sources';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import { PostSidebarAdWidget } from './PostSidebarAdWidget';
 import { FeaturedArchives } from '../widgets/FeaturedArchives';
+import { MentionedToolsWidget } from '../brand/MentionedToolsWidget';
 import { PostSignupWidget } from './PostSignupWidget';
 import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
 
@@ -96,6 +97,7 @@ export function PostWidgets({
         postId={post.id}
         className={{ container: cardClasses }}
       />
+      <MentionedToolsWidget postTags={post.tags || []} />
       <ShareBar post={post} />
       <ShareMobile
         post={post}

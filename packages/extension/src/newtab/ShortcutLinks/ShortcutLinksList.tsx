@@ -37,6 +37,10 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {
+  useDragClickGuard,
+  DRAG_ACTIVATION_DISTANCE_PX,
+} from '@dailydotdev/shared/src/features/shortcuts/hooks/useDragClickGuard';
+import {
   ShortcutLinksItem,
   ShortcutItemPlaceholder,
 } from './ShortcutLinksItem';
@@ -64,14 +68,24 @@ export function ShortcutLinksList({
 }: ShortcutLinksListProps): ReactElement {
   const hasShortcuts = shortcutLinks?.length > 0;
 
+  // 5px distance activation lets a plain click through (so normal navigation
+  // still works) while still picking up any meaningful drag gesture.
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE_PX },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
 
+  // Same guard the hub/webapp rows use — document-level click capture so the
+  // stray click the browser fires on drag-release never navigates the tab,
+  // even if the drop lands outside the row's DOM subtree.
+  const { armGuard, onClickCapture } = useDragClickGuard();
+
   const handleDragEnd = (event: DragEndEvent) => {
+    armGuard();
     const { active, over } = event;
 
     if (!over || active.id === over.id || !onReorder || !isManual) {
@@ -100,6 +114,9 @@ export function ShortcutLinksList({
 
   const content = (
     <div
+      onClickCapture={onClickCapture}
+      onAuxClickCapture={onClickCapture}
+      onDragStartCapture={(event) => event.preventDefault()}
       className={classNames(
         'hidden tablet:flex',
         shouldUseListFeedLayout ? 'mx-6 mb-3 mt-1' : 'mb-5',
@@ -158,6 +175,8 @@ export function ShortcutLinksList({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={armGuard}
+        onDragCancel={armGuard}
         onDragEnd={handleDragEnd}
       >
         <SortableContext
