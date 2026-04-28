@@ -12,6 +12,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useLogContext } from '../../../contexts/LogContext';
 import { gqlClient } from '../../../graphql/common';
+import { ONE_HOUR } from '../../../lib/time';
 
 jest.mock('../../../lib/constants', () => ({
   webappUrl: '/',
@@ -32,13 +33,11 @@ const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 const mockUseLogContext = jest.mocked(useLogContext);
 const mockGqlRequest = jest.mocked(gqlClient.request);
 
-const ONE_HOUR_MS = 60 * 60 * 1000;
-
 const buildHighlight = (id: string, headline: string, hoursAgo = 1) => ({
   id,
   channel: 'agents',
   headline,
-  highlightedAt: new Date(Date.now() - hoursAgo * ONE_HOUR_MS).toISOString(),
+  highlightedAt: new Date(Date.now() - hoursAgo * ONE_HOUR).toISOString(),
   post: {
     id: `post-${id}`,
     commentsPermalink: `/posts/post-${id}`,

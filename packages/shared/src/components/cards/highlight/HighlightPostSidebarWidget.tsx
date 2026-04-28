@@ -17,7 +17,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../lib/log';
 import { feedHighlightsLogEvent } from '../../../lib/feed';
 import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
-import { ONE_HOUR } from '../../../lib/time';
+import { ONE_HOUR, ONE_MINUTE } from '../../../lib/time';
 
 const HIGHLIGHTS_LIMIT = 10;
 const ROTATION_INTERVAL_MS = 6000;
@@ -43,6 +43,7 @@ export const HighlightPostSidebarWidget = (): ReactElement | null => {
   const { data } = useQuery({
     ...majorHeadlinesQueryOptions({ first: HIGHLIGHTS_LIMIT }),
     enabled: isEnabled && !!user,
+    refetchInterval: ONE_MINUTE,
   });
 
   const cutoff = Date.now() - MAX_HIGHLIGHT_AGE_MS;
