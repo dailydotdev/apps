@@ -32,8 +32,8 @@
     "https://*.staging.daily.dev/"
   ],
   "__firefox|dev__permissions": ["storage", "http://localhost/", "https://*.local.fylla.dev/"],
-  "optional_permissions": ["topSites", "declarativeNetRequestWithHostAccess"],
-  "__firefox__optional_permissions": ["topSites", "*://*/*"],
+  "optional_permissions": ["topSites", "bookmarks", "declarativeNetRequestWithHostAccess"],
+  "__firefox__optional_permissions": ["topSites", "bookmarks", "*://*/*"],
   "__chrome|opera|edge__optional_host_permissions": [ "*://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"

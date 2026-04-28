@@ -1,6 +1,11 @@
 import { gql } from 'graphql-request';
 import type { SortCommentsBy } from './comments';
 import type { WriteFormTab } from '../components/fields/form/common';
+import type {
+  ShortcutMeta,
+  ShortcutsAppearance,
+  ShortcutsMode,
+} from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -20,6 +25,10 @@ export type SettingsFlags = {
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
+  shortcutMeta?: Record<string, ShortcutMeta>;
+  shortcutsMode?: ShortcutsMode;
+  shortcutsAppearance?: ShortcutsAppearance;
+  showShortcutsOnWebapp?: boolean;
 };
 
 export enum SidebarSettingsFlags {
