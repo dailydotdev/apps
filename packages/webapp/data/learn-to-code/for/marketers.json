@@ -1,0 +1,121 @@
+{
+  "slug": "for/marketers",
+  "title": "Coding for Marketers",
+  "description": "You don't need to become a developer — you need to automate the repetitive parts of your job, build internal tools your team actually needs, and stop waiting on engineering for simple changes. AI makes this realistic for the first time.",
+  "dimension": "audience",
+  "tags": ["javascript", "python", "automation", "beginners"],
+  "outcomes": [
+    "Automate repetitive reporting tasks with Python scripts that run on a schedule",
+    "Build internal tools like UTM generators and content calendars without a developer",
+    "Make basic edits to landing pages and web copy without touching engineering",
+    "Connect marketing platforms to scripts via APIs to eliminate manual data exports"
+  ],
+  "aiTips": [
+    "Start by describing your existing manual process — AI works best when you tell it what you're already doing step by step",
+    "Paste in a sample of your real data (a few rows of CSV) so the AI can write code that matches your exact column names",
+    "When something breaks, copy the full error message into the chat — AI can fix most errors immediately if you share the exact text",
+    "Ask the AI to explain each section after it writes code, so you understand what to change next time"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "automate-your-workflow",
+      "title": "Automate Your Workflow",
+      "reason": "Stop manually pulling campaign reports and copying data between spreadsheets. Build scripts that do it for you on a schedule."
+    },
+    {
+      "slug": "python",
+      "title": "Learn Python",
+      "reason": "Python is the fastest way to automate spreadsheet tasks, analyze campaign data, and generate reports — no computer science needed."
+    },
+    {
+      "slug": "build/personal-website",
+      "title": "Build a Personal Website",
+      "reason": "Stop waiting on engineering for landing pages. Build and deploy pages yourself with HTML, CSS, and a free hosting tool."
+    },
+    {
+      "slug": "vibe-coding",
+      "title": "Try Vibe Coding",
+      "reason": "Describe what you want in plain English and watch AI build it. The fastest way to create internal tools without learning syntax."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Data Processing with Python",
+      "explanation": "Python is a marketer's best friend for data work. Reading CSVs, calculating metrics, generating reports — these are things you currently do in Excel that Python can automate and run on a schedule."
+    },
+    {
+      "name": "HTML/CSS Basics",
+      "explanation": "Every web page is HTML (structure) and CSS (styling). Understanding this lets you tweak landing pages, fix formatting issues, and build simple tools without waiting for a developer."
+    },
+    {
+      "name": "APIs and Automation",
+      "explanation": "APIs let your scripts talk to services like Google Ads, HubSpot, and Slack. Instead of manually exporting data and building reports, you can automate the entire pipeline."
+    },
+    {
+      "name": "localStorage and Client-Side Apps",
+      "explanation": "You can build genuinely useful internal tools that run entirely in the browser with no server needed. localStorage keeps the data on your machine — perfect for personal productivity tools."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Automate the Boring Stuff with Python",
+      "url": "https://automatetheboringstuff.com/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "freeCodeCamp - Responsive Web Design",
+      "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "Google Apps Script Tutorial",
+      "url": "https://developers.google.com/apps-script/overview",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Zapier - Intro to APIs",
+      "url": "https://zapier.com/resources/guides/apis",
+      "type": "article",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Describe what you want automated in plain English and it builds it"
+    },
+    {
+      "name": "Google Apps Script",
+      "url": "https://script.google.com",
+      "description": "Automate Google Sheets, Docs, and Gmail — the easiest entry point for marketers"
+    },
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor for building web pages and tools visually"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/nocode",
+      "url": "https://reddit.com/r/nocode",
+      "platform": "reddit"
+    },
+    {
+      "name": "Indie Hackers",
+      "url": "https://indiehackers.com",
+      "platform": "other"
+    }
+  ],
+  "relatedSlugs": ["python", "vibe-coding", "build/todo-app"],
+  "lastUpdated": "2026-03-06"
+}

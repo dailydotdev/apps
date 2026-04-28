@@ -1,0 +1,100 @@
+{
+  "slug": "skills",
+  "title": "Acquire New Skills",
+  "description": "Go beyond the basics. Learn techniques that make you more effective — from vibe coding entire apps with AI to debugging like a pro and landing your first dev job.",
+  "dimension": "category",
+  "tags": ["programming", "ai-tools", "career", "beginners"],
+  "outcomes": [
+    "Build complete apps by describing them in plain English (vibe coding)",
+    "Debug errors systematically instead of guessing",
+    "Build a portfolio and skills that get you hired",
+    "Use AI tools effectively as a coding partner, not a crutch"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "vibe-coding",
+      "title": "Vibe Coding",
+      "reason": "Build software by describing what you want. The fastest way to go from idea to working app — no syntax required."
+    },
+    {
+      "slug": "debugging",
+      "title": "Debugging with AI",
+      "reason": "Things will break. Learn how to find and fix bugs systematically using AI as your debugging partner."
+    },
+    {
+      "slug": "get-a-dev-job",
+      "title": "Get Your First Dev Job",
+      "reason": "Turn your coding skills into a career. Portfolio building, interview prep, and what hiring managers actually look for."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Prompt Engineering for Code",
+      "explanation": "The quality of AI-generated code depends on how you describe what you want. Being specific about behavior, edge cases, and tech stack produces dramatically better results."
+    },
+    {
+      "name": "Debugging Mindset",
+      "explanation": "Debugging isn't guessing — it's systematically narrowing down where things went wrong. Read the error, form a hypothesis, test it. AI accelerates every step."
+    },
+    {
+      "name": "Iterative Development",
+      "explanation": "Build in layers — get the core working first, then add features one at a time. Trying to build everything at once produces worse results with both AI and manual coding."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Cursor Documentation",
+      "url": "https://docs.cursor.com",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Claude Code Getting Started",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/overview",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Roadmap.sh",
+      "url": "https://roadmap.sh/",
+      "type": "article",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "The most popular AI code editor — built for vibe coding workflows"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Agentic coding in your terminal — great for building full projects from a description"
+    },
+    {
+      "name": "Lovable",
+      "url": "https://lovable.dev",
+      "description": "AI full-stack engineer — generates complete apps from a single prompt"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/vibecoding",
+      "url": "https://reddit.com/r/vibecoding",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/cscareerquestions",
+      "url": "https://reddit.com/r/cscareerquestions",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["build", "languages", "automate"],
+  "lastUpdated": "2026-03-11"
+}

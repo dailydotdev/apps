@@ -1,0 +1,158 @@
+{
+  "slug": "get-a-dev-job",
+  "title": "Get Your First Dev Job",
+  "description": "Breaking into tech is more realistic than ever. Companies need developers, and AI tools mean you can build production-quality projects faster than previous generations of developers. Here's a practical path from zero to employed.",
+  "dimension": "goal",
+  "tags": ["career", "programming", "webdev", "interview"],
+  "projectDescription": "You'll build a portfolio that actually gets interviews — a deployed full-stack project, a polished GitHub profile, and practice solving the coding challenges companies ask. Each step is designed around what hiring managers and recruiters actually look for.",
+  "outcomes": [
+    "Ship a deployed full-stack portfolio project employers can click and use",
+    "Write a resume and GitHub profile that pass ATS filters and impress recruiters",
+    "Solve common interview coding challenges with explained, optimal solutions",
+    "Perform confidently in a simulated junior developer technical interview"
+  ],
+  "aiTips": [
+    "Describe your target role when asking for help — 'junior frontend at a startup' gets more relevant advice than 'developer job'",
+    "Use AI to critique your resume and GitHub README as if it were a skeptical hiring manager",
+    "For coding challenges, attempt the problem yourself first before asking the AI for the solution — the struggle is the practice",
+    "Run mock interviews repeatedly with different questions until answers feel natural, not rehearsed"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Build a portfolio project",
+      "body": "Build a full-stack task management app with: user authentication (email/password), create/edit/delete tasks with due dates and priority levels, drag-and-drop to reorder tasks, and a dashboard showing task completion stats. Use React, Node.js, and PostgreSQL. Deploy to Vercel + Railway.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "beginner",
+      "timeEstimate": "~2 hrs",
+      "stuckTip": "If the database connection fails, ask the AI to walk you through the Railway environment variables step by step."
+    },
+    {
+      "step": 2,
+      "title": "Create your developer resume",
+      "body": "Generate a one-page developer resume in HTML/CSS that I can also export to PDF. Include sections for: technical skills, projects (with links to live demos and GitHub), education, and a brief professional summary. Use a clean, ATS-friendly design. Make it responsive so it also works as a web page.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~45 min",
+      "stuckTip": "If PDF export looks off, ask the AI to add print-specific CSS that hides nav elements and fixes page breaks."
+    },
+    {
+      "step": 3,
+      "title": "Practice coding challenges",
+      "body": "Give me 5 coding challenges that commonly appear in junior developer interviews. For each one: state the problem clearly, let me attempt it, then show the optimal solution with a step-by-step explanation. Cover: array manipulation, string processing, basic algorithms, object transformation, and async/promises.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~90 min",
+      "stuckTip": "If you're completely blocked on a challenge, ask the AI for just the algorithm approach (not the code) so you can implement it yourself."
+    },
+    {
+      "step": 4,
+      "title": "Set up a GitHub profile",
+      "body": "Help me create a standout GitHub profile README with: a brief intro, my tech stack with badges, links to my best projects with descriptions, contribution stats, and a 'currently learning' section. Also help me write good README files for my top 3 repositories with screenshots, setup instructions, and tech stack details.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "Ask the AI to review your README from the perspective of a hiring manager who has 30 seconds to decide whether to look at your code."
+    },
+    {
+      "step": 5,
+      "title": "Prepare for the interview",
+      "body": "Simulate a technical interview for a junior frontend developer position. Ask me: 2 behavioral questions about my projects, 3 technical questions about React and JavaScript, 1 system design question about building a simple feature, and 1 live coding exercise. After each answer, give me feedback and a better answer.",
+      "tools": ["claude-code", "generic"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If your answers feel thin, ask the AI to help you build a story around a specific project using the STAR format (Situation, Task, Action, Result)."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "The Portfolio Over the Resume",
+      "explanation": "For junior developers, your projects speak louder than credentials. A deployed app that solves a real problem is more impressive than any certificate. Hiring managers want to see you can build things."
+    },
+    {
+      "name": "Full-Stack Basics",
+      "explanation": "Most junior roles expect you to work across the stack — frontend (React, HTML/CSS), backend (Node.js, Python), and database (SQL). You don't need to be an expert in all of them, but you need to be comfortable navigating each layer."
+    },
+    {
+      "name": "Git and Collaboration",
+      "explanation": "Every development team uses Git. Understanding branches, pull requests, and code reviews is essential. Contributing to open source is the best way to practice collaboration before your first job."
+    },
+    {
+      "name": "Technical Communication",
+      "explanation": "Explaining your code and decisions clearly matters as much as the code itself. Write good READMEs, comment your thought process, and practice talking through your approach to problems."
+    }
+  ],
+  "resources": [
+    {
+      "title": "The Odin Project — Full Stack Path",
+      "url": "https://www.theodinproject.com/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "LeetCode — Interview Prep",
+      "url": "https://leetcode.com/",
+      "type": "course",
+      "free": false
+    },
+    {
+      "title": "Tech Interview Handbook",
+      "url": "https://www.techinterviewhandbook.org/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Neetcode — Algorithm Patterns",
+      "url": "https://neetcode.io/",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "daily.dev — Developer News Feed",
+      "url": "https://app.daily.dev",
+      "type": "article",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "Build portfolio projects fast with AI assistance"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Practice coding challenges and get instant feedback"
+    },
+    {
+      "name": "GitHub",
+      "url": "https://github.com",
+      "description": "Your developer portfolio — employers will check your GitHub profile"
+    },
+    {
+      "name": "Vercel",
+      "url": "https://vercel.com",
+      "description": "Deploy your portfolio projects for free so employers can see live demos"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/cscareerquestions",
+      "url": "https://reddit.com/r/cscareerquestions",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnprogramming",
+      "url": "https://reddit.com/r/learnprogramming",
+      "platform": "reddit"
+    },
+    {
+      "name": "daily.dev",
+      "url": "https://app.daily.dev",
+      "platform": "dailydev"
+    }
+  ],
+  "relatedSlugs": ["javascript", "build/personal-website", "for/students"],
+  "lastUpdated": "2026-03-10"
+}

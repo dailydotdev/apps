@@ -1,0 +1,79 @@
+{
+  "slug": "automate",
+  "title": "Automate Your Life",
+  "description": "If you do the same task more than twice, a script can do it for you. Organize files, generate reports, send emails on a schedule — AI writes the code, you describe what you want automated.",
+  "dimension": "category",
+  "tags": ["python", "automation", "scripting", "productivity"],
+  "outcomes": [
+    "Write scripts that handle repetitive tasks so you never do them manually again",
+    "Schedule automations to run on their own — no clicking required",
+    "Connect tools and services together with APIs",
+    "Build personal dashboards and reports that update themselves"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "automate-your-workflow",
+      "title": "Automate Your Workflow",
+      "reason": "Start here. Organize messy folders, batch rename files, and build scripts that save you hours every week."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Scripting",
+      "explanation": "A script is a small program that runs a sequence of steps automatically. Instead of clicking through 10 steps manually, you run one command and it does everything."
+    },
+    {
+      "name": "APIs",
+      "explanation": "APIs let your scripts talk to services like Google Sheets, Slack, and email. Instead of copying data between tools, your script pulls it directly."
+    },
+    {
+      "name": "Scheduling",
+      "explanation": "Cron jobs and task schedulers run your scripts on a timer — every hour, every morning, every Monday. Set it up once and forget about it."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Automate the Boring Stuff with Python",
+      "url": "https://automatetheboringstuff.com/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Python for Everybody",
+      "url": "https://www.py4e.com/",
+      "type": "course",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Describe what you want automated in plain English and it builds the script"
+    },
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor — great for writing and debugging automation scripts"
+    },
+    {
+      "name": "Google Apps Script",
+      "url": "https://script.google.com",
+      "description": "Automate Google Sheets, Docs, and Gmail — no setup required"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnpython",
+      "url": "https://reddit.com/r/learnpython",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/automation",
+      "url": "https://reddit.com/r/automation",
+      "platform": "reddit"
+    }
+  ],
+  "relatedSlugs": ["python", "build", "skills"],
+  "lastUpdated": "2026-03-11"
+}

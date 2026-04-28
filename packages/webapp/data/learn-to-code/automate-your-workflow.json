@@ -1,0 +1,147 @@
+{
+  "slug": "automate-your-workflow",
+  "title": "Automate Your Workflow",
+  "description": "You don't need to be a programmer to automate repetitive tasks. If you can describe what you do manually, AI can help you write a script to do it automatically. Reclaim hours every week by automating the boring stuff.",
+  "dimension": "goal",
+  "tags": ["python", "automation", "scripting", "productivity"],
+  "projectDescription": "You'll build scripts that do your boring work for you — organizing messy downloads folders, batch renaming files, sending automated email reports, and monitoring websites for changes. Each script saves you real time every week.",
+  "outcomes": [
+    "Write Python scripts that automate repetitive file and folder tasks",
+    "Schedule scripts to run automatically without any manual trigger",
+    "Pull data from external services like Google Sheets and send formatted reports",
+    "Build a personal dashboard to monitor and manage all your automations"
+  ],
+  "aiTips": [
+    "Describe your manual workflow step by step before asking for a script — the more precise the input, the more useful the output",
+    "Always ask the AI to add logging to scripts that will run unattended so you can debug failures later",
+    "Test scripts on a small sample of real data before pointing them at your full Downloads folder or live spreadsheet",
+    "Ask the AI to add a dry-run mode that prints what the script would do without actually doing it"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Automate file organization",
+      "body": "Write a Python script that watches my Downloads folder and automatically organizes files into subfolders by type: Images (jpg, png, gif, svg), Documents (pdf, docx, xlsx), Videos (mp4, mov), Code (py, js, html, css), and Archives (zip, tar, gz). Move each file to the right folder as soon as it appears.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "If the file watcher doesn't trigger, ask the AI to show you how to test the script manually first by passing a folder path as a command-line argument."
+    },
+    {
+      "step": 2,
+      "title": "Batch rename files",
+      "body": "Create a Python script that batch renames files in a folder. It should support: adding a prefix or suffix, replacing text in filenames, converting to lowercase, adding sequential numbers, and inserting the date. Show a preview of changes before applying them. Add an undo feature that can reverse the last rename operation.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "stuckTip": "If the undo feature is confusing to implement, ask the AI to save a rename log as a JSON file that can be replayed in reverse."
+    },
+    {
+      "step": 3,
+      "title": "Automate email reports",
+      "body": "Write a Python script that reads data from a Google Sheet (using the gspread library), generates a summary report with key metrics and a chart, and sends it as a formatted HTML email using smtplib. Set it up to run automatically every Monday at 9am using a cron job or schedule library.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If Google Sheets authentication fails, ask the AI to walk you through creating a service account and sharing the sheet with it."
+    },
+    {
+      "step": 4,
+      "title": "Build a web scraper",
+      "body": "Create a Python script that monitors a webpage for changes. It should: fetch the page at regular intervals, compare with the previous version, and send me a notification (desktop notification or email) when something changes. Add support for monitoring multiple URLs from a config file.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "stuckTip": "If the comparison produces false positives (timestamps changing), ask the AI to extract only the relevant content section rather than comparing the full HTML."
+    },
+    {
+      "step": 5,
+      "title": "Create a personal automation dashboard",
+      "body": "Build a web-based dashboard that shows all my automations: which ones are running, their last execution time, success/failure status, and logs. Add buttons to run each automation manually. Include a simple form to add new scheduled tasks. Use Flask for the backend and store automation status in SQLite.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~90 min",
+      "stuckTip": "Start with a static dashboard that reads from a hardcoded SQLite file before wiring up live automation status — get the UI right first."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "File System Operations",
+      "explanation": "Python's os and pathlib modules let you create, move, rename, and delete files and folders programmatically. Every automation starts with understanding how to interact with the file system."
+    },
+    {
+      "name": "Scheduling and Cron Jobs",
+      "explanation": "Cron (Linux/Mac) and Task Scheduler (Windows) run scripts automatically at set times. This is how you make automation truly hands-free — your script runs while you sleep."
+    },
+    {
+      "name": "APIs and Web Requests",
+      "explanation": "The requests library lets Python talk to any web service. Read data from Google Sheets, send Slack messages, check the weather — if a service has an API, you can automate it."
+    },
+    {
+      "name": "Error Handling and Logging",
+      "explanation": "Automations run unattended, so they need to handle errors gracefully. Logging records what happened so you can debug failures. Try/except blocks prevent one error from crashing everything."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Automate the Boring Stuff with Python",
+      "url": "https://automatetheboringstuff.com/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Python Automation Tutorial — freeCodeCamp",
+      "url": "https://www.freecodecamp.org/news/python-automation-scripts/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Real Python — Task Automation",
+      "url": "https://realpython.com/tutorials/automation/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Zapier — No-Code Automation",
+      "url": "https://zapier.com/",
+      "type": "docs",
+      "free": false
+    }
+  ],
+  "tools": [
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Describe your manual workflow and let AI write the automation script"
+    },
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor — great for building and testing automation scripts"
+    },
+    {
+      "name": "Zapier",
+      "url": "https://zapier.com",
+      "description": "No-code automation for connecting apps — good starting point before Python"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/automate",
+      "url": "https://reddit.com/r/automate",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnpython",
+      "url": "https://reddit.com/r/learnpython",
+      "platform": "reddit"
+    },
+    {
+      "name": "Indie Hackers",
+      "url": "https://indiehackers.com",
+      "platform": "other"
+    }
+  ],
+  "relatedSlugs": ["python", "for/marketers", "for/data-analysts"],
+  "lastUpdated": "2026-03-10"
+}

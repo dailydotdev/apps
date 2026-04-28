@@ -1,0 +1,132 @@
+{
+  "slug": "for/data-analysts",
+  "title": "Coding for Data Analysts",
+  "description": "You already think in data — coding just gives you superpowers. Stop clicking through Excel menus and start writing scripts that clean, analyze, and visualize data in seconds. Python + AI tools = the end of repetitive data work.",
+  "dimension": "audience",
+  "tags": ["python", "data-science", "pandas", "automation"],
+  "outcomes": [
+    "Replace repetitive Excel workflows with Python scripts that process data in seconds",
+    "Generate professional charts and multi-page PDF reports automatically from any dataset",
+    "Build interactive dashboards stakeholders can explore without emailing you for filters",
+    "Connect directly to databases with SQL and schedule automated data refreshes"
+  ],
+  "aiTips": [
+    "Paste a few rows of your actual data as context — AI writes much better pandas code when it can see your real column names and data types",
+    "Ask the AI to add print statements at each step so you can see what the data looks like as it transforms — this makes debugging much faster",
+    "When a chart doesn't look right, describe the visual problem specifically: 'the x-axis labels are overlapping' is more useful than 'it looks bad'",
+    "Ask the AI to write modular functions rather than one big script — it's easier to reuse and adapt pieces for your next analysis"
+  ],
+  "recommendedPaths": [
+    {
+      "slug": "python",
+      "title": "Learn Python",
+      "reason": "Python + pandas is how analysts replace Excel. Write scripts that clean, transform, and analyze data in seconds instead of clicking through menus."
+    },
+    {
+      "slug": "automate-your-workflow",
+      "title": "Automate Your Workflow",
+      "reason": "Stop manually pulling reports every Monday. Build scripts that fetch data, generate charts, and email summaries on a schedule."
+    },
+    {
+      "slug": "debugging",
+      "title": "Debugging with AI",
+      "reason": "When your data pipeline breaks at 2am, you need to fix it fast. Learn to diagnose and fix errors systematically with AI help."
+    },
+    {
+      "slug": "vibe-coding",
+      "title": "Try Vibe Coding",
+      "reason": "Describe your analysis in plain English — 'group by region, calculate monthly growth rate, make a heatmap' — and watch AI write the pandas code."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "DataFrames",
+      "explanation": "A DataFrame is a table in code — rows and columns you can filter, sort, and aggregate programmatically. pandas DataFrames are like Excel spreadsheets that can process millions of rows in seconds."
+    },
+    {
+      "name": "Data Cleaning",
+      "explanation": "Real data is messy — missing values, duplicates, inconsistent formats. Data cleaning is usually 80% of the work. Python scripts make this repeatable — clean once, run the same steps on every new data drop."
+    },
+    {
+      "name": "Visualization Libraries",
+      "explanation": "matplotlib creates any chart you can imagine. seaborn makes statistical charts beautiful with minimal code. Plotly adds interactivity. Together they replace Tableau for most reporting needs."
+    },
+    {
+      "name": "SQL Fundamentals",
+      "explanation": "SQL is the language of databases. SELECT, WHERE, GROUP BY, and JOIN let you pull exactly the data you need from any database. Every analyst job expects SQL proficiency."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Python for Data Analysis (Wes McKinney)",
+      "url": "https://wesmckinney.com/book/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Kaggle Learn — Pandas",
+      "url": "https://www.kaggle.com/learn/pandas",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "Mode Analytics — SQL Tutorial",
+      "url": "https://mode.com/sql-tutorial",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "Streamlit Documentation",
+      "url": "https://docs.streamlit.io/",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Corey Schafer — Pandas Tutorials",
+      "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTsWmV9i9c58mdDCSskIFdDS",
+      "type": "video",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor — describe your analysis and it writes the pandas code"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Build data pipelines and dashboards from plain English descriptions"
+    },
+    {
+      "name": "Jupyter Notebooks",
+      "url": "https://jupyter.org/",
+      "description": "Mix code, charts, and notes in one document — the standard for data analysis"
+    },
+    {
+      "name": "Streamlit",
+      "url": "https://streamlit.io",
+      "description": "Turn Python scripts into interactive web dashboards in minutes"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/dataanalysis",
+      "url": "https://reddit.com/r/dataanalysis",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/learnpython",
+      "url": "https://reddit.com/r/learnpython",
+      "platform": "reddit"
+    },
+    {
+      "name": "Kaggle Community",
+      "url": "https://www.kaggle.com/discussions",
+      "platform": "other"
+    }
+  ],
+  "relatedSlugs": ["python", "automate-your-workflow", "for/marketers"],
+  "lastUpdated": "2026-03-10"
+}

@@ -1,0 +1,165 @@
+{
+  "slug": "javascript",
+  "title": "Learn JavaScript",
+  "description": "JavaScript is the language of the web — every website you've ever visited runs it. It's the easiest path to building interactive websites, browser extensions, and full-stack apps. With AI tools, you can start building real things today.",
+  "dimension": "language",
+  "tags": ["javascript", "webdev", "programming"],
+  "projectDescription": "You'll build interactive web pages that respond to clicks and typing, then level up to fetching real data from the internet. By the end, you'll have a full web app with user accounts and a database — the kind of project you can show employers or friends.",
+  "outcomes": [
+    "Build interactive web pages that respond to user input without reloading",
+    "Store and retrieve data in the browser using localStorage",
+    "Fetch data from external APIs and handle loading and error states",
+    "Refactor vanilla JavaScript into a component-based React app"
+  ],
+  "aiTips": [
+    "Paste error messages directly into the chat — AI is excellent at reading stack traces and pinpointing the exact line causing the issue",
+    "Ask the AI to explain each line it generates before moving on; understanding the code now prevents confusion in later steps",
+    "When a feature works but looks rough, prompt 'make this look polished with clean CSS' as a separate follow-up rather than cramming it into the first request",
+    "If you're stuck on a concept like closures or async/await, ask for a 5-line example using your current project's code rather than a generic tutorial snippet"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Your first interactive page",
+      "body": "Create an HTML page with a button that counts how many times I've clicked it. Show the count in big text on the page. Add a reset button that sets it back to zero. Use vanilla JavaScript — no frameworks. Add a comment above each section explaining what it does. Handle the edge case where someone double-clicks really fast. Add a fun animation when the count changes.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~20 min",
+      "expectedOutput": "You should see a page with a large number (starting at 0), a 'Click me' button, and a 'Reset' button. Each click makes the number jump up with a brief scale animation. The reset button smoothly returns it to 0.",
+      "comprehensionPrompt": "Ask AI: 'Explain what addEventListener does — how does the browser know which function to call when I click? What's the difference between innerHTML and textContent? Why did you use let instead of const for the counter variable?'",
+      "challenge": "Change the background color to shift slightly with each click (getting darker or changing hue). Do this yourself without asking AI.",
+      "stuckTip": "Ask the AI to walk you through what `addEventListener` does and show you a minimal working example with just one button."
+    },
+    {
+      "step": 2,
+      "title": "Build a color palette generator",
+      "body": "Create a web page that generates random color palettes. Show 5 colors side by side with their hex codes. Clicking a color copies its hex code to the clipboard and shows a brief 'Copied!' confirmation. Add a 'Generate new palette' button. Style it with clean CSS — centered layout, rounded corners, subtle shadows, and a smooth transition when new colors appear.",
+      "tools": ["cursor", "claude-code", "generic"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "expectedOutput": "A clean page with 5 vertical color bars side by side, each showing its hex code (like #3B82F6). Clicking a color briefly shows 'Copied!' and the hex code is in your clipboard. The 'Generate' button smoothly transitions to new colors.",
+      "comprehensionPrompt": "Ask AI: 'How do hex color codes work — what do the 6 characters represent? How does the Clipboard API work and why does it need a secure context? What's the difference between CSS transitions and CSS animations?'",
+      "challenge": "Add a 'lock' toggle on each color so locked colors stay the same when you generate a new palette. Implement this yourself first.",
+      "stuckTip": "If the clipboard copy isn't working, ask the AI specifically about the Clipboard API and why it requires a secure context (HTTPS or localhost)."
+    },
+    {
+      "step": 3,
+      "title": "Add localStorage persistence",
+      "body": "Add a 'Save palette' feature that stores favorite palettes in localStorage. Show saved palettes below the generator in a grid layout. Each saved palette should have a name field and a delete button with a confirmation. The saved palettes should persist when I refresh the page. Add an undo feature for accidentally deleted palettes.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~40 min",
+      "expectedOutput": "Below the generator, you should see a 'Saved Palettes' section. After saving a few palettes with custom names, refreshing the page shows them all still there. Deleting one shows a brief 'Undo' toast. Clicking Undo restores it.",
+      "comprehensionPrompt": "Ask AI: 'How does localStorage differ from cookies? What's JSON.stringify and JSON.parse — why can't localStorage store objects directly? How does the undo feature work — where is the deleted palette temporarily stored?'",
+      "stuckTip": "Open your browser's DevTools, go to the Application tab, and inspect the localStorage entries — then share what you see with the AI to debug serialization issues."
+    },
+    {
+      "step": 4,
+      "title": "Make it a single-page app",
+      "body": "Refactor the color palette tool into a React app using Vite. Keep all the same features but organize the code into components: PaletteGenerator, ColorSwatch, SavedPalettes, and PaletteCard. Add smooth animations when generating new palettes. Use proper React state management — no direct DOM manipulation.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "expectedOutput": "The app should look and behave identically to the vanilla JS version, but the code is now organized into separate component files. The React DevTools browser extension should show your component tree: App > PaletteGenerator > ColorSwatch (×5).",
+      "comprehensionPrompt": "Ask AI: 'What's the difference between vanilla JS DOM manipulation and React's approach? Why do we use useState instead of regular variables? What does the Virtual DOM do and why is it faster?'",
+      "stuckTip": "If state isn't updating as expected, ask the AI to add a `console.log` inside each component's render to trace where the data flow breaks down."
+    },
+    {
+      "step": 5,
+      "title": "Add an API integration",
+      "body": "Use the Colormind API (http://colormind.io/api/) to generate AI-powered color palettes instead of random ones. Add a loading spinner while the API responds. Keep the random generator as a fallback if the API is down. Handle network errors gracefully with a user-friendly message.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~45 min",
+      "expectedOutput": "Clicking 'Generate' shows a brief loading spinner, then the colors update from the Colormind API. If you disconnect your wifi and click 'Generate', it should show a friendly error and fall back to random generation.",
+      "comprehensionPrompt": "Ask AI: 'What is an API and how does fetch() work under the hood? What's the difference between a GET and POST request? What are CORS errors and why do they happen? How does async/await relate to Promises?'",
+      "stuckTip": "If the API call fails, ask the AI to show you how to inspect the network request in DevTools and what CORS errors look like versus a server error."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "DOM Manipulation",
+      "explanation": "The DOM is the browser's representation of your HTML page. JavaScript can change any element — update text, add buttons, change styles. Every interactive website works by manipulating the DOM."
+    },
+    {
+      "name": "Event Handling",
+      "explanation": "Events are things that happen on a page — clicks, key presses, form submissions. Event listeners let your code respond to these actions. This is how buttons, forms, and interactive features work."
+    },
+    {
+      "name": "localStorage",
+      "explanation": "localStorage lets you save data in the user's browser that persists between page refreshes. It's perfect for small apps that don't need a server — think settings, saved preferences, or bookmarks."
+    },
+    {
+      "name": "Components and State",
+      "explanation": "React breaks UIs into reusable components, each managing their own state. When state changes, React automatically updates the page. This pattern is how modern web apps like Twitter, Netflix, and daily.dev are built."
+    }
+  ],
+  "resources": [
+    {
+      "title": "JavaScript.info — The Modern JavaScript Tutorial",
+      "url": "https://javascript.info/",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "freeCodeCamp — JavaScript Algorithms and Data Structures",
+      "url": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/",
+      "type": "course",
+      "free": true
+    },
+    {
+      "title": "MDN Web Docs — JavaScript",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Fireship — JavaScript in 100 Seconds",
+      "url": "https://www.youtube.com/watch?v=DHjqpvDnNGE",
+      "type": "video",
+      "free": true
+    },
+    {
+      "title": "Eloquent JavaScript",
+      "url": "https://eloquentjavascript.net/",
+      "type": "article",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "AI code editor with built-in chat — the fastest way to build web projects"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Build entire web apps from your terminal with natural language"
+    },
+    {
+      "name": "CodePen",
+      "url": "https://codepen.io",
+      "description": "Live playground for HTML, CSS, and JavaScript — see results instantly"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/learnjavascript",
+      "url": "https://reddit.com/r/learnjavascript",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/webdev",
+      "url": "https://reddit.com/r/webdev",
+      "platform": "reddit"
+    },
+    {
+      "name": "Reactiflux Discord",
+      "url": "https://discord.gg/reactiflux",
+      "platform": "discord"
+    }
+  ],
+  "relatedSlugs": ["html-css", "build/personal-website", "python"],
+  "lastUpdated": "2026-03-10"
+}

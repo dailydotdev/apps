@@ -1,0 +1,165 @@
+{
+  "slug": "vibe-coding",
+  "title": "Vibe Coding",
+  "description": "Vibe coding is building software by describing what you want in plain English and letting AI write the code. It's the fastest way to go from idea to working app — no syntax memorization required. The key skill isn't writing code, it's knowing what to ask for.",
+  "dimension": "technique",
+  "tags": ["ai", "ai-tools", "cursor", "programming"],
+  "projectDescription": "You'll go from describing an idea in plain English to deploying a working web app — no coding experience needed. You'll learn how to talk to AI effectively, iterate on what it builds, and ship a real project you can share with a link.",
+  "outcomes": [
+    "Build and deploy a working web app using only natural language prompts",
+    "Iterate on AI-generated code to add features and fix edge cases",
+    "Review and understand code you didn't write yourself",
+    "Ship a mobile-friendly PWA to a real URL"
+  ],
+  "aiTips": [
+    "Be specific about your tech stack upfront — 'React, TypeScript, Tailwind, localStorage' beats 'make a web app'",
+    "When output isn't right, tell the AI what's wrong rather than re-prompting from scratch",
+    "Use AI to explain generated code line by line so you understand what you own",
+    "Ask AI to review its own output for bugs before you run it — it often catches obvious issues"
+  ],
+  "prompts": [
+    {
+      "step": 1,
+      "title": "Your first vibe-coded app",
+      "body": "Build me a personal bookmark manager. I want to paste a URL, and it should automatically fetch the page title, save it with tags I can add, and let me search through my saved bookmarks. Use React, TypeScript, and Tailwind. Store everything in localStorage. Add a clean, modern UI with a dark mode toggle. Handle the edge case where the URL is invalid — show a friendly error.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "expectedOutput": "You should see a web app with an input field at the top for pasting URLs. After pasting a URL and clicking 'Save', the bookmark appears in a list below with its title and any tags you added. A search bar filters bookmarks as you type. The dark mode toggle switches the entire UI.",
+      "comprehensionPrompt": "Ask AI: 'Walk me through how localStorage works — where is the data actually stored? What happens if the user clears their browser data? Why did you use React state for the UI but localStorage for persistence?'",
+      "challenge": "Change the color scheme of the dark mode. Then add a counter that shows the total number of bookmarks. Do both without asking AI.",
+      "stuckTip": "If the app won't run, paste the exact error message into the AI chat and ask it to explain and fix it."
+    },
+    {
+      "step": 2,
+      "title": "Make it smarter",
+      "body": "When I save a bookmark, auto-suggest 3 tags based on the URL and title. Group bookmarks by tag in the sidebar with a count badge showing how many bookmarks each tag has. Add a 'read later' queue that shows bookmarks I haven't opened yet, sorted by when they were saved.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "beginner",
+      "timeEstimate": "~30 min",
+      "expectedOutput": "When you save a bookmark for 'github.com/facebook/react', you should see suggested tags like 'github', 'programming', 'react'. The sidebar shows tags with counts like 'programming (5)'. The 'Read Later' tab shows unread bookmarks with the oldest at the top.",
+      "comprehensionPrompt": "Ask AI: 'How does the tag suggestion algorithm work? How would you make it smarter over time? What's the difference between filtering in the component vs filtering in a separate function?'",
+      "challenge": "Add a 'favorite' button (heart/star) to each bookmark so you can mark your most important ones. Implement this yourself before checking with AI.",
+      "stuckTip": "If the tag suggestions feel off, ask the AI to explain the logic it used and suggest a better approach."
+    },
+    {
+      "step": 3,
+      "title": "Add a feature you didn't plan",
+      "body": "Add a daily digest view that shows me 3 random unread bookmarks each morning — it should only refresh once per day (use the date as a seed). Also add import/export so I can backup my bookmarks as a JSON file and restore them on another device. Validate the imported JSON and show clear errors if the format is wrong.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "intermediate",
+      "timeEstimate": "~45 min",
+      "expectedOutput": "A 'Daily Digest' tab shows exactly 3 random unread bookmarks. Refreshing the page shows the same 3 (until tomorrow). The Export button downloads a .json file. Importing that file on a fresh browser restores all bookmarks. Importing a corrupted file shows a clear error.",
+      "comprehensionPrompt": "Ask AI: 'How does using the date as a random seed give us the same results all day? What's the difference between Math.random() and a seeded random? How does file download work in the browser without a server?'",
+      "stuckTip": "Break the feature into two separate prompts — daily digest first, then import/export — if the combined prompt produces messy results."
+    },
+    {
+      "step": 4,
+      "title": "Fix what broke",
+      "body": "Review the entire codebase and identify any bugs, performance issues, or edge cases I should fix. Then fix them. Explain each issue you found and why it matters. Specifically check: What happens with 1000+ bookmarks? What happens if localStorage is full? Are there any XSS vulnerabilities from pasting URLs?",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "expectedOutput": "AI should identify 3-8 issues. After fixes, the app should handle large datasets smoothly, show a warning when storage is nearly full, and sanitize any HTML in bookmark titles to prevent XSS.",
+      "comprehensionPrompt": "Ask AI: 'Explain each bug you found — how could a real user trigger it? What's XSS and why is it dangerous? How would you test for these issues systematically?'",
+      "stuckTip": "Ask the AI to focus on one category at a time (bugs, then performance, then edge cases) if the full review is overwhelming."
+    },
+    {
+      "step": 5,
+      "title": "Ship it",
+      "body": "Set up this project for deployment to Vercel. Add a nice README with screenshots, proper Open Graph meta tags for social sharing (so it looks good when shared on Twitter/Slack), and make sure it works well on mobile. Add a PWA manifest so I can install it as an app on my phone.",
+      "tools": ["cursor", "claude-code"],
+      "difficulty": "stretch",
+      "timeEstimate": "~60 min",
+      "expectedOutput": "After deployment, you should have a URL like 'your-app.vercel.app'. Sharing that URL on Twitter/Slack shows a nice preview card with your app's title and description. On mobile, you can 'Add to Home Screen' and it opens like a native app.",
+      "comprehensionPrompt": "Ask AI: 'What are Open Graph tags and why do they matter? What does a PWA manifest do — how does the browser know it's installable? What's the difference between Vercel's free tier and a paid plan?'",
+      "stuckTip": "If Vercel deployment fails, share the build error with the AI and ask it to fix the configuration — most issues are environment or build settings."
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Prompt Engineering for Code",
+      "explanation": "The quality of AI-generated code depends entirely on how you describe what you want. Being specific about tech stack, behavior, and edge cases produces dramatically better results than vague requests."
+    },
+    {
+      "name": "Iterative Development",
+      "explanation": "Vibe coding works best in layers — get the core working first, then add features one at a time. Each prompt builds on the last. Trying to describe everything at once usually produces worse results."
+    },
+    {
+      "name": "Code Review as a Skill",
+      "explanation": "When AI writes your code, your job shifts to reviewing it. Can you spot a bug? Does the approach make sense? Understanding code you didn't write is arguably more important than writing it yourself."
+    },
+    {
+      "name": "The 80/20 of Vibe Coding",
+      "explanation": "AI gets you to 80% fast. The last 20% — edge cases, polish, performance — is where you'll learn the most. This is where you start understanding what the code actually does."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Andrej Karpathy on Vibe Coding",
+      "url": "https://x.com/karpathy/status/1886192184808149383",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Cursor Documentation",
+      "url": "https://docs.cursor.com",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "Claude Code Getting Started",
+      "url": "https://docs.anthropic.com/en/docs/claude-code/overview",
+      "type": "docs",
+      "free": true
+    },
+    {
+      "title": "The Uncomfortable Truth About Vibe Coding",
+      "url": "https://developers.redhat.com/articles/2026/02/17/uncomfortable-truth-about-vibe-coding",
+      "type": "article",
+      "free": true
+    },
+    {
+      "title": "Fireship - Vibe Coding Explained",
+      "url": "https://www.youtube.com/fireship",
+      "type": "video",
+      "free": true
+    }
+  ],
+  "tools": [
+    {
+      "name": "Cursor",
+      "url": "https://cursor.sh",
+      "description": "The most popular AI code editor — built specifically for vibe coding workflows"
+    },
+    {
+      "name": "Claude Code",
+      "url": "https://docs.anthropic.com/en/docs/claude-code",
+      "description": "Agentic coding in your terminal — great for building full projects from a description"
+    },
+    {
+      "name": "Lovable",
+      "url": "https://lovable.dev",
+      "description": "AI full-stack engineer — generates complete apps from a single prompt"
+    }
+  ],
+  "communities": [
+    {
+      "name": "r/vibecoding",
+      "url": "https://reddit.com/r/vibecoding",
+      "platform": "reddit"
+    },
+    {
+      "name": "r/ChatGPTCoding",
+      "url": "https://reddit.com/r/ChatGPTCoding",
+      "platform": "reddit"
+    },
+    {
+      "name": "Cursor Community Discord",
+      "url": "https://discord.gg/cursor",
+      "platform": "discord"
+    }
+  ],
+  "relatedSlugs": ["python", "build/todo-app", "for/marketers"],
+  "lastUpdated": "2026-03-10"
+}
