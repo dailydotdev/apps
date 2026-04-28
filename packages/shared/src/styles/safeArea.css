@@ -13,7 +13,7 @@
 }
 
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -28,6 +28,8 @@ body {
 }
 
 body .antialiased > .sticky.top-0,
+body .antialiased > .fixed.top-0,
+body .antialiased [data-testid="sidebar-aside"].fixed.top-0,
 body .fixed.inset-0 {
   top: var(--safe-area-top);
 }
