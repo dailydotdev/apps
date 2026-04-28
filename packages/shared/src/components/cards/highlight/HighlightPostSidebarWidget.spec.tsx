@@ -34,11 +34,7 @@ const mockGqlRequest = jest.mocked(gqlClient.request);
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
-const buildHighlight = (
-  id: string,
-  headline: string,
-  hoursAgo = 1,
-) => ({
+const buildHighlight = (id: string, headline: string, hoursAgo = 1) => ({
   id,
   channel: 'agents',
   headline,
