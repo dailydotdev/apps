@@ -54,12 +54,16 @@ import { ONE_MINUTE } from '../../lib/time';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
+import {
+  anonymousDisplayName,
+  anonymousHandle,
+} from '../../lib/liveRoom/anonymousName';
 
 interface LiveRoomProps {
   roomId: string;
 }
 
-type SidePanelTab = 'chat' | 'queue';
+type SidePanelTab = 'chat' | 'queue' | 'audience';
 
 const formatStreamDuration = (seconds: number): string => {
   const safe = Math.max(0, Math.floor(seconds));
@@ -131,16 +135,13 @@ const buildParticipantStream = (
   return new MediaStream(tracks);
 };
 
-const participantLabel = (participantId: string): string =>
-  `Participant ${participantId.slice(0, 6)}`;
-
 const userDisplayName = (user: Pick<UserShortProfile, 'username'>): string =>
   `@${user.username}`;
 
 const buildParticipantProfile = (participantId: string): UserShortProfile => ({
   id: participantId,
-  name: participantLabel(participantId),
-  username: participantId,
+  name: anonymousDisplayName(participantId),
+  username: anonymousHandle(participantId),
   image: '',
   createdAt: '',
   reputation: 0,
@@ -227,21 +228,15 @@ const StageParticipantItem = ({
 
 interface SidePanelTabsProps {
   active: SidePanelTab;
-  secondaryCount: number;
-  secondaryLabel: string;
+  tabs: { id: SidePanelTab; label: string; count?: number }[];
   onChange: (tab: SidePanelTab) => void;
 }
 
 const SidePanelTabs = ({
   active,
-  secondaryCount,
-  secondaryLabel,
+  tabs,
   onChange,
 }: SidePanelTabsProps): ReactElement => {
-  const tabs: { id: SidePanelTab; label: string; count?: number }[] = [
-    { id: 'chat', label: 'Chat' },
-    { id: 'queue', label: secondaryLabel, count: secondaryCount },
-  ];
   return (
     <div
       role="tablist"
@@ -642,6 +637,7 @@ const LiveRoomChatPanel = ({
 };
 
 interface LiveRoomQueuePanelProps {
+  tab: 'queue' | 'audience';
   mode: 'moderated' | 'free_for_all';
   activeSpeakerParticipantIds: string[];
   queuedParticipantIds: string[];
@@ -661,6 +657,7 @@ interface LiveRoomQueuePanelProps {
 }
 
 const LiveRoomQueuePanel = ({
+  tab,
   mode,
   activeSpeakerParticipantIds,
   queuedParticipantIds,
@@ -685,117 +682,123 @@ const LiveRoomQueuePanel = ({
     .filter(
       (participant): participant is LiveRoomParticipantRecord => !!participant,
     );
-  const sectionTitle = mode === 'free_for_all' ? 'Audience' : 'Queue';
-  const sectionCount =
-    mode === 'free_for_all'
-      ? audienceMembers.length
-      : queuedParticipantIds.length;
+  const isAudienceTab = tab === 'audience';
+  // Show On stage in the Queue tab (moderated) and in the Audience tab when
+  // there is no separate Queue tab (free-for-all has no queue).
+  const showStageSection = !isAudienceTab || mode === 'free_for_all';
+  const sectionTitle = isAudienceTab ? 'Audience' : 'Queue';
+  const sectionCount = isAudienceTab
+    ? audienceMembers.length
+    : queuedParticipantIds.length;
+  const listIds = isAudienceTab ? audienceParticipantIds : queuedParticipantIds;
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
-        <section className="flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <Typography type={TypographyType.Footnote} bold>
-              On stage
-            </Typography>
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-            >
-              {stageLimit && mode === 'free_for_all'
-                ? `${activeSpeakers.length}/${stageLimit}`
-                : activeSpeakers.length}
-            </Typography>
-          </div>
-          {activeSpeakers.length === 0 ? (
-            <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-4 text-text-tertiary">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-float">
-                <UserIcon size={IconSize.Small} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <Typography type={TypographyType.Footnote} bold>
-                  No active speakers
-                </Typography>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {mode === 'free_for_all'
-                    ? 'Audience members can hop on stage while seats are open.'
-                    : 'Promote someone from the queue to bring them on stage.'}
-                </Typography>
-              </div>
+        {showStageSection ? (
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                On stage
+              </Typography>
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.Tertiary}
+              >
+                {stageLimit && mode === 'free_for_all'
+                  ? `${activeSpeakers.length}/${stageLimit}`
+                  : activeSpeakers.length}
+              </Typography>
             </div>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {activeSpeakers.map((participant) => {
-                const id = participant.participantId;
-                return (
-                  <StageParticipantItem
-                    key={id}
-                    participantId={id}
-                    profile={participantProfilesById.get(id)}
-                    actions={
-                      isHost ? (
-                        <div className="flex shrink-0 items-center gap-1">
-                          <Tooltip
-                            content={`Remove ${userDisplayName(
-                              participantProfilesById.get(id) ??
-                                buildParticipantProfile(id),
-                            )} from stage`}
-                          >
-                            <Button
-                              type="button"
-                              size={ButtonSize.XSmall}
-                              variant={ButtonVariant.Tertiary}
-                              icon={<RemoveUserIcon />}
-                              loading={moderationBusy === `remove-${id}`}
-                              disabled={!!moderationBusy}
-                              aria-label={`Remove ${userDisplayName(
+            {activeSpeakers.length === 0 ? (
+              <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-4 text-text-tertiary">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-float">
+                  <UserIcon size={IconSize.Small} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <Typography type={TypographyType.Footnote} bold>
+                    No active speakers
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                  >
+                    {mode === 'free_for_all'
+                      ? 'Audience members can hop on stage while seats are open.'
+                      : 'Promote someone from the queue to bring them on stage.'}
+                  </Typography>
+                </div>
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {activeSpeakers.map((participant) => {
+                  const id = participant.participantId;
+                  return (
+                    <StageParticipantItem
+                      key={id}
+                      participantId={id}
+                      profile={participantProfilesById.get(id)}
+                      actions={
+                        isHost ? (
+                          <div className="flex shrink-0 items-center gap-1">
+                            <Tooltip
+                              content={`Remove ${userDisplayName(
                                 participantProfilesById.get(id) ??
                                   buildParticipantProfile(id),
-                              )}`}
-                              onClick={() =>
-                                guardedModerationAction(`remove-${id}`, () =>
-                                  removeSpeaker(id),
-                                )
-                              }
-                            />
-                          </Tooltip>
-                          <Tooltip
-                            content={`Kick ${userDisplayName(
-                              participantProfilesById.get(id) ??
-                                buildParticipantProfile(id),
-                            )} from room`}
-                          >
-                            <Button
-                              type="button"
-                              size={ButtonSize.XSmall}
-                              variant={ButtonVariant.Tertiary}
-                              icon={<BlockIcon />}
-                              loading={moderationBusy === `kick-${id}`}
-                              disabled={!!moderationBusy}
-                              aria-label={`Kick ${userDisplayName(
+                              )} from stage`}
+                            >
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={ButtonVariant.Tertiary}
+                                icon={<RemoveUserIcon />}
+                                loading={moderationBusy === `remove-${id}`}
+                                disabled={!!moderationBusy}
+                                aria-label={`Remove ${userDisplayName(
+                                  participantProfilesById.get(id) ??
+                                    buildParticipantProfile(id),
+                                )}`}
+                                onClick={() =>
+                                  guardedModerationAction(`remove-${id}`, () =>
+                                    removeSpeaker(id),
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                            <Tooltip
+                              content={`Kick ${userDisplayName(
                                 participantProfilesById.get(id) ??
                                   buildParticipantProfile(id),
-                              )}`}
-                              onClick={() =>
-                                guardedModerationAction(`kick-${id}`, () =>
-                                  kickParticipant(id),
-                                )
-                              }
-                            />
-                          </Tooltip>
-                        </div>
-                      ) : null
-                    }
-                  />
-                );
-              })}
-            </ul>
-          )}
-        </section>
+                              )} from room`}
+                            >
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={ButtonVariant.Tertiary}
+                                icon={<BlockIcon />}
+                                loading={moderationBusy === `kick-${id}`}
+                                disabled={!!moderationBusy}
+                                aria-label={`Kick ${userDisplayName(
+                                  participantProfilesById.get(id) ??
+                                    buildParticipantProfile(id),
+                                )}`}
+                                onClick={() =>
+                                  guardedModerationAction(`kick-${id}`, () =>
+                                    kickParticipant(id),
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          </div>
+                        ) : null
+                      }
+                    />
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        ) : null}
 
         <section className="flex min-h-0 flex-1 flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
@@ -815,25 +818,20 @@ const LiveRoomQueuePanel = ({
                 <UserIcon size={IconSize.Small} />
               </span>
               <Typography type={TypographyType.Footnote} bold>
-                {mode === 'free_for_all'
-                  ? 'Audience is quiet'
-                  : 'Queue is empty'}
+                {isAudienceTab ? 'Audience is quiet' : 'Queue is empty'}
               </Typography>
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
               >
-                {mode === 'free_for_all'
+                {isAudienceTab
                   ? 'New listeners will show up here until they join the stage.'
                   : 'Audience members can request to speak.'}
               </Typography>
             </div>
           ) : (
             <ul className="flex flex-col gap-2">
-              {(mode === 'free_for_all'
-                ? audienceParticipantIds
-                : queuedParticipantIds
-              ).map((id) => {
+              {listIds.map((id) => {
                 const participant = participantsById[id];
                 if (!participant) {
                   return null;
@@ -850,7 +848,7 @@ const LiveRoomQueuePanel = ({
                     actions={
                       isHost ? (
                         <div className="flex shrink-0 items-center gap-1">
-                          {mode === 'moderated' ? (
+                          {!isAudienceTab && mode === 'moderated' ? (
                             <Tooltip
                               content={`Promote ${userDisplayName(
                                 profile,
@@ -1354,12 +1352,23 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         >
           <SidePanelTabs
             active={activeTab}
-            secondaryCount={
-              isFreeForAll
-                ? audienceParticipantIds.length
-                : queuedParticipantIds.length
-            }
-            secondaryLabel={isFreeForAll ? 'Audience' : 'Queue'}
+            tabs={[
+              { id: 'chat', label: 'Chat' },
+              ...(isFreeForAll
+                ? []
+                : [
+                    {
+                      id: 'queue' as const,
+                      label: 'Queue',
+                      count: queuedParticipantIds.length,
+                    },
+                  ]),
+              {
+                id: 'audience',
+                label: 'Audience',
+                count: audienceParticipantIds.length,
+              },
+            ]}
             onChange={setActiveTab}
           />
           <div className="min-h-0 flex-1">
@@ -1383,6 +1392,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               />
             ) : (
               <LiveRoomQueuePanel
+                tab={activeTab}
                 mode={roomMode}
                 activeSpeakerParticipantIds={activeSpeakerIds}
                 queuedParticipantIds={queuedParticipantIds}

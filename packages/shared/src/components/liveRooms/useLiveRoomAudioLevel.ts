@@ -81,4 +81,6 @@ export const useLiveRoomAudioLevel = (
   return level;
 };
 
-export const SPEAKING_LEVEL_THRESHOLD = 0.15;
+// 0.3 maps to roughly -48 dB on our normalized scale, which is a better floor
+// for speech than the previous near-silence threshold.
+export const SPEAKING_LEVEL_THRESHOLD = 0.3;

@@ -1,4 +1,5 @@
 import { computeRms, rmsToLevel } from './LiveRoomMicLevel';
+import { SPEAKING_LEVEL_THRESHOLD } from './useLiveRoomAudioLevel';
 
 describe('LiveRoomMicLevel', () => {
   it('maps normal remote speech RMS to a visible level', () => {
@@ -13,5 +14,10 @@ describe('LiveRoomMicLevel', () => {
     const rms = computeRms(new Float32Array([0.5, -0.5, 0.5, -0.5]));
 
     expect(rms).toBeCloseTo(0.5);
+  });
+
+  it('keeps the speaking indicator above background-noise levels', () => {
+    expect(rmsToLevel(0.003)).toBeLessThan(SPEAKING_LEVEL_THRESHOLD);
+    expect(rmsToLevel(0.005)).toBeGreaterThan(SPEAKING_LEVEL_THRESHOLD);
   });
 });
