@@ -84,6 +84,7 @@ const createContextValue = (
         updatedAt: '2026-04-27T09:03:00.000Z',
       },
     },
+    chatPermissions: {},
     sessions: {},
     debate: {
       speakerQueueParticipantIds: ['queued1'],
@@ -100,9 +101,13 @@ const createContextValue = (
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
   sendReaction: jest.fn(),
+  sendChatMessage: jest.fn(),
+  deleteChatMessage: jest.fn(),
+  setParticipantChatEnabled: jest.fn(),
   promoteSpeaker: jest.fn(),
   removeSpeaker: jest.fn(),
   kickParticipant: jest.fn(),
+  canChat: true,
   canPublish: true,
   isCameraOn: false,
   isMicOn: false,
@@ -119,6 +124,7 @@ const createContextValue = (
   localStream: null,
   remoteStreams: [],
   reactions: [],
+  chatMessages: [],
   ...overrides,
 });
 
@@ -201,5 +207,54 @@ describe('LiveRoom', () => {
       screen.queryByText('Sign in to join this live room'),
     ).not.toBeInTheDocument();
     expect(screen.getByText('tile-host')).toBeInTheDocument();
+  });
+
+  it('renders chat messages with sanitized markdown and send controls', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: '# heading **hello** [daily](https://daily.dev)',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByText('@speaker1')).toBeInTheDocument();
+    expect(screen.getByText('# heading')).toBeInTheDocument();
+    expect(screen.getByText('hello')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  });
+
+  it('shows host moderation controls for chat rows', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Chat moderation options for @speaker1',
+      }),
+    );
+
+    expect(screen.getByText('Delete message')).toBeInTheDocument();
+    expect(screen.getByText('Kick user')).toBeInTheDocument();
+    expect(screen.getByText('Take chat privilege')).toBeInTheDocument();
   });
 });

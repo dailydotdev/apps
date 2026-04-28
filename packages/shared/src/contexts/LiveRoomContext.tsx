@@ -27,6 +27,9 @@ import {
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
 import type {
+  ChatMessageDeletedEvent,
+  ChatMessageSentEvent,
+  LiveRoomChatMessage,
   LiveRoomParticipantRoleValue,
   LiveRoomState,
   MediaCapabilitiesPayload,
@@ -63,6 +66,8 @@ export interface LiveRoomReaction {
   lane: number;
 }
 
+export type LiveRoomChatEntry = LiveRoomChatMessage;
+
 interface RemoteSubscriptionHandle {
   stream: MediaStream;
   close: () => void;
@@ -80,9 +85,16 @@ export interface LiveRoomContextValue {
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
+  sendChatMessage: (body: string) => Promise<void>;
+  deleteChatMessage: (messageId: string) => Promise<void>;
+  setParticipantChatEnabled: (
+    targetParticipantId: string,
+    canChat: boolean,
+  ) => Promise<void>;
   promoteSpeaker: (targetParticipantId: string) => Promise<void>;
   removeSpeaker: (targetParticipantId: string) => Promise<void>;
   kickParticipant: (targetParticipantId: string) => Promise<void>;
+  canChat: boolean;
 
   canPublish: boolean;
   isCameraOn: boolean;
@@ -102,6 +114,7 @@ export interface LiveRoomContextValue {
   localStream: MediaStream | null;
   remoteStreams: RemoteMediaStream[];
   reactions: LiveRoomReaction[];
+  chatMessages: LiveRoomChatEntry[];
 }
 
 const LiveRoomContext = createContext<LiveRoomContextValue | null>(null);
@@ -116,6 +129,7 @@ export const useLiveRoom = (): LiveRoomContextValue => {
 
 const PUBLISH_ROLES: LiveRoomParticipantRoleValue[] = ['host', 'speaker'];
 const REACTION_LIFETIME_MS = 2200;
+const CHAT_HISTORY_LIMIT = 200;
 
 interface LiveRoomProviderProps {
   roomId: string;
@@ -169,6 +183,7 @@ export const LiveRoomProvider = ({
   const [recvTransportReady, setRecvTransportReady] = useState(false);
   const [connectionGeneration, setConnectionGeneration] = useState(0);
   const [reactions, setReactions] = useState<LiveRoomReaction[]>([]);
+  const [chatMessages, setChatMessages] = useState<LiveRoomChatEntry[]>([]);
 
   const connectionRef = useRef<LiveRoomConnection | null>(null);
   const deviceRef = useRef<MediasoupDevice | null>(null);
@@ -185,6 +200,11 @@ export const LiveRoomProvider = ({
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
+  const canChat =
+    !!user &&
+    roomState?.status === 'live' &&
+    !!participantId &&
+    (roomState.chatPermissions[participantId] ?? true);
 
   const pushReaction = useCallback((event: ReactionSentEvent) => {
     const createdAtMs = new Date(event.reaction.createdAt).getTime();
@@ -206,6 +226,28 @@ export const LiveRoomProvider = ({
       setReactions((current) => current.filter((item) => item.id !== id));
     }, REACTION_LIFETIME_MS);
   }, []);
+
+  const pushChatMessage = useCallback((event: ChatMessageSentEvent) => {
+    setChatMessages((current) => {
+      const next = [...current, event.message];
+
+      if (next.length <= CHAT_HISTORY_LIMIT) {
+        return next;
+      }
+
+      return next.slice(next.length - CHAT_HISTORY_LIMIT);
+    });
+  }, []);
+
+  const removeChatMessage = useCallback((event: ChatMessageDeletedEvent) => {
+    setChatMessages((current) =>
+      current.filter((message) => message.messageId !== event.messageId),
+    );
+  }, []);
+
+  useEffect(() => {
+    setChatMessages([]);
+  }, [roomId]);
 
   const closeMediaSession = useCallback((notifyServer = false) => {
     sendTransportRef.current?.close();
@@ -358,6 +400,12 @@ export const LiveRoomProvider = ({
     const offReaction = connection.onReactionSent((event) => {
       pushReaction(event);
     });
+    const offChatMessage = connection.onChatMessage((event) => {
+      pushChatMessage(event);
+    });
+    const offChatDeleted = connection.onChatMessageDeleted((event) => {
+      removeChatMessage(event);
+    });
     const offClose = connection.onClose(({ reason }) => {
       setStatus('closed');
       setErrorMessage(reason || 'Live room connection closed');
@@ -374,12 +422,14 @@ export const LiveRoomProvider = ({
       offSnapshot();
       offUpdated();
       offReaction();
+      offChatMessage();
+      offChatDeleted();
       offClose();
       offError();
       connection.close();
       connectionRef.current = null;
     };
-  }, [joinToken, pushReaction]);
+  }, [joinToken, pushChatMessage, pushReaction, removeChatMessage]);
 
   useEffect(() => {
     return () => {
@@ -860,6 +910,37 @@ export const LiveRoomProvider = ({
     await connection.send({ type: 'debate.reaction.send', key: emoji });
   }, []);
 
+  const sendChatMessage = useCallback(async (body: string) => {
+    const connection = connectionRef.current;
+    if (!connection) {
+      throw new Error('Not connected');
+    }
+    await connection.send({ type: 'chat.message.send', body });
+  }, []);
+
+  const deleteChatMessage = useCallback(async (messageId: string) => {
+    const connection = connectionRef.current;
+    if (!connection) {
+      throw new Error('Not connected');
+    }
+    await connection.send({ type: 'chat.message.delete', messageId });
+  }, []);
+
+  const setParticipantChatEnabled = useCallback(
+    async (targetParticipantId: string, nextCanChat: boolean) => {
+      const connection = connectionRef.current;
+      if (!connection) {
+        throw new Error('Not connected');
+      }
+      await connection.send({
+        type: 'chat.privilege.set',
+        targetParticipantId,
+        canChat: nextCanChat,
+      });
+    },
+    [],
+  );
+
   const promoteSpeaker = useCallback(async (targetParticipantId: string) => {
     const connection = connectionRef.current;
     if (!connection) {
@@ -904,9 +985,13 @@ export const LiveRoomProvider = ({
       endRoom,
       joinSpeakerQueue,
       sendReaction,
+      sendChatMessage,
+      deleteChatMessage,
+      setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,
       kickParticipant,
+      canChat,
       canPublish,
       isCameraOn,
       isMicOn,
@@ -923,6 +1008,7 @@ export const LiveRoomProvider = ({
       localStream,
       remoteStreams,
       reactions,
+      chatMessages,
     }),
     [
       status,
@@ -934,9 +1020,13 @@ export const LiveRoomProvider = ({
       endRoom,
       joinSpeakerQueue,
       sendReaction,
+      sendChatMessage,
+      deleteChatMessage,
+      setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,
       kickParticipant,
+      canChat,
       canPublish,
       isCameraOn,
       isMicOn,
@@ -953,6 +1043,7 @@ export const LiveRoomProvider = ({
       localStream,
       remoteStreams,
       reactions,
+      chatMessages,
     ],
   );
 

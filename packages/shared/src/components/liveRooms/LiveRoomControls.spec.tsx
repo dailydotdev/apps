@@ -47,6 +47,7 @@ const createContextValue = (
         updatedAt: '2026-04-27T09:01:00.000Z',
       },
     },
+    chatPermissions: {},
     sessions: {},
     debate: {
       speakerQueueParticipantIds: [],
@@ -63,9 +64,13 @@ const createContextValue = (
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
   sendReaction: jest.fn(),
+  sendChatMessage: jest.fn(),
+  deleteChatMessage: jest.fn(),
+  setParticipantChatEnabled: jest.fn(),
   promoteSpeaker: jest.fn(),
   removeSpeaker: jest.fn(),
   kickParticipant: jest.fn(),
+  canChat: true,
   canPublish: false,
   isCameraOn: false,
   isMicOn: false,
@@ -82,6 +87,7 @@ const createContextValue = (
   localStream: null,
   remoteStreams: [],
   reactions: [],
+  chatMessages: [],
   ...overrides,
 });
 

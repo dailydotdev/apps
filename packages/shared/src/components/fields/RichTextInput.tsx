@@ -1,4 +1,5 @@
 import type {
+  ForwardedRef,
   FormEventHandler,
   MutableRefObject,
   ReactElement,
@@ -27,12 +28,7 @@ import Image from '@tiptap/extension-image';
 import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
 import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
-import {
-  Button,
-  ButtonColor,
-  ButtonSize,
-  ButtonVariant,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
@@ -59,6 +55,7 @@ import { useImageUpload } from './RichTextEditor/useImageUpload';
 import { useDraftStorage } from './RichTextEditor/useDraftStorage';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import styles from './RichTextEditor/richtext.module.css';
+import type { UserShortProfile } from '../../lib/user';
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -144,6 +141,10 @@ interface RichTextInputProps {
   enabledCommand?: Partial<Record<MarkdownCommand, boolean>>;
   editCommentId?: string;
   parentCommentId?: string;
+  mentionSuggestions?: UserShortProfile[];
+  allowBlockFormatting?: boolean;
+  minHeightClassName?: string;
+  markdownToHtml?: (markdown: string) => string;
 }
 
 export interface RichTextInputRef {
@@ -175,8 +176,12 @@ function RichTextInput(
     enabledCommand = {},
     editCommentId,
     parentCommentId,
+    mentionSuggestions,
+    allowBlockFormatting = true,
+    minHeightClassName = 'min-h-[8rem]',
+    markdownToHtml = markdownToHtmlBasic,
   }: RichTextInputProps,
-  ref: MutableRefObject<RichTextInputRef>,
+  ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
   const shouldShowSubmit = !!submitCopy;
   const { user } = useAuthContext();
@@ -251,6 +256,7 @@ function RichTextInput(
     sourceId,
     userId: user?.id,
     onOffsetUpdate: updateOffset,
+    suggestions: mentionSuggestions,
   });
 
   const emoji = useEmojiAutocomplete({
@@ -295,6 +301,11 @@ function RichTextInput(
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        heading: allowBlockFormatting ? undefined : false,
+        bulletList: allowBlockFormatting ? undefined : false,
+        orderedList: allowBlockFormatting ? undefined : false,
+        listItem: allowBlockFormatting ? undefined : false,
+        codeBlock: allowBlockFormatting ? undefined : false,
         blockquote: false,
         horizontalRule: false,
       }),
@@ -313,7 +324,7 @@ function RichTextInput(
       ...(maxLength ? [CharacterCount.configure({ limit: maxLength })] : []),
       LinkShortcut,
     ],
-    content: markdownToHtmlBasic(input),
+    content: markdownToHtml(input),
     onUpdate: ({ editor: updatedEditor }) => {
       if (isSyncingRef.current) {
         isSyncingRef.current = false;
@@ -361,7 +372,7 @@ function RichTextInput(
         const trimmedText = textToInsert.trim();
 
         if (trimmedText && looksLikeMarkdown(trimmedText)) {
-          const convertedHtml = markdownToHtmlBasic(trimmedText);
+          const convertedHtml = markdownToHtml(trimmedText);
           if (convertedHtml) {
             event.preventDefault();
             editorRef.current
@@ -484,12 +495,10 @@ function RichTextInput(
   const switchToRichMode = useCallback(() => {
     if (editorRef.current) {
       isSyncingRef.current = true;
-      editorRef.current.commands.setContent(
-        markdownToHtmlBasic(inputRef.current),
-      );
+      editorRef.current.commands.setContent(markdownToHtml(inputRef.current));
     }
     setIsMarkdownMode(false);
-  }, []);
+  }, [markdownToHtml]);
 
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
@@ -576,7 +585,7 @@ function RichTextInput(
         return;
       }
       isSyncingRef.current = true;
-      editor.commands.setContent(markdownToHtmlBasic(value));
+      editor.commands.setContent(markdownToHtml(value));
     },
     focus: () => {
       if (isMarkdownMode) {
@@ -606,10 +615,10 @@ function RichTextInput(
 
       if (editor) {
         isSyncingRef.current = true;
-        editor.commands.setContent(markdownToHtmlBasic(initialContent));
+        editor.commands.setContent(markdownToHtml(initialContent));
       }
     }
-  }, [editor, initialContent, input, updateInput]);
+  }, [editor, initialContent, input, markdownToHtml, updateInput]);
 
   const actionIcon =
     upload.queueCount === 0 ? (
@@ -637,9 +646,10 @@ function RichTextInput(
         <Button
           size={headerActionSize}
           variant={ButtonVariant.Tertiary}
-          color={upload.queueCount ? ButtonColor.Cabbage : undefined}
           icon={actionIcon}
-          onClick={() => upload.uploadRef?.current?.click()}
+          onClick={() => {
+            upload.uploadRef?.current?.click();
+          }}
           type="button"
         />
       )}
@@ -679,7 +689,12 @@ function RichTextInput(
           className?.container,
         )}
       >
-        <div className="flex min-h-[8rem] items-center justify-center p-4">
+        <div
+          className={classNames(
+            minHeightClassName,
+            'flex items-center justify-center p-4',
+          )}
+        >
           <Loader />
         </div>
       </div>
@@ -749,7 +764,8 @@ function RichTextInput(
                 ref={markdownTextareaRef}
                 value={input}
                 className={classNames(
-                  'min-h-[8rem] resize-y bg-transparent p-4 outline-none',
+                  minHeightClassName,
+                  'resize-y bg-transparent p-4 outline-none',
                   className?.input,
                 )}
                 onInput={onMarkdownInput}
@@ -762,6 +778,7 @@ function RichTextInput(
               <RichTextToolbar
                 ref={toolbarRef}
                 editor={editor}
+                allowBlockFormatting={allowBlockFormatting}
                 onLinkAdd={(url, label) => {
                   if (!editor) {
                     return;
@@ -811,7 +828,7 @@ function RichTextInput(
                 />
               )}
               <div className="flex w-full flex-row">
-                {showUserAvatar && (
+                {showUserAvatar && user && (
                   <ProfilePicture
                     size={ProfileImageSize.Large}
                     className={classNames('ml-3 mt-3', className?.profile)}
@@ -824,8 +841,9 @@ function RichTextInput(
                   editor={editor}
                   className={classNames(
                     styles.editor,
-                    'min-h-[8rem] min-w-0 flex-1 p-4',
-                    showUserAvatar && 'ml-3 tablet:ml-0',
+                    minHeightClassName,
+                    'min-w-0 flex-1 p-4',
+                    showUserAvatar && user && 'ml-3 tablet:ml-0',
                     className?.input,
                   )}
                 />
@@ -839,7 +857,7 @@ function RichTextInput(
       </ConditionalWrapper>
       {!isMarkdownMode && (
         <RecommendedMentionTooltip
-          elementRef={editorContainerRef}
+          elementRef={editorContainerRef as MutableRefObject<HTMLElement>}
           offset={offset}
           mentions={mention.mentions}
           selected={mention.selected}
@@ -855,7 +873,7 @@ function RichTextInput(
       )}
       {!isMarkdownMode && (
         <RecommendedEmojiTooltip
-          elementRef={editorContainerRef}
+          elementRef={editorContainerRef as MutableRefObject<HTMLElement>}
           search={emoji.emojiQuery}
           emojiData={emoji.emojiData}
           offset={offset}

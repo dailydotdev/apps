@@ -61,6 +61,7 @@ export interface MainLayoutProps
   onNavTabClick?: (tab: string) => void;
   canGoBack?: string;
   hideBackButton?: boolean;
+  hideFeedbackWidget?: boolean;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -77,6 +78,7 @@ function MainLayoutComponent({
   onLogoClick,
   onNavTabClick,
   canGoBack,
+  hideFeedbackWidget = false,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -220,7 +222,7 @@ function MainLayoutComponent({
         )}
         {children}
       </main>
-      <FeedbackWidget />
+      {!hideFeedbackWidget && <FeedbackWidget />}
     </div>
   );
 }

@@ -59,6 +59,7 @@ const getLiveRoomPageLayout: typeof getLayout = (...props) =>
 LiveRoomPage.getLayout = getLiveRoomPageLayout;
 LiveRoomPage.layoutProps = {
   screenCentered: false,
+  hideFeedbackWidget: true,
   seo,
 };
 

@@ -22,6 +22,7 @@ export interface LiveRoomSessionRecord {
   sessionId: string;
   participantId: string;
   role: LiveRoomParticipantRoleValue;
+  authKind?: 'authenticated' | 'anonymous';
   connectedAt: string;
   disconnectedAt: string | null;
   resumeExpiresAt: string | null;
@@ -46,12 +47,20 @@ export interface LiveRoomState {
   status: LiveRoomStatusValue;
   version: number;
   participants: Record<string, LiveRoomParticipantRecord>;
+  chatPermissions: Record<string, boolean>;
   sessions: Record<string, LiveRoomSessionRecord>;
   debate: LiveRoomDebateState | null;
   mediaPublications: Record<string, LiveRoomMediaPublicationRecord>;
   mediaRuntimeOwner: { instanceId: string; baseUrl: string } | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface LiveRoomChatMessage {
+  messageId: string;
+  participantId: string;
+  body: string;
+  createdAt: string;
 }
 
 export interface SessionReadyEvent {
@@ -83,6 +92,19 @@ export interface ReactionSentEvent {
   };
 }
 
+export interface ChatMessageSentEvent {
+  type: 'chat.message.sent';
+  roomId: string;
+  message: LiveRoomChatMessage;
+}
+
+export interface ChatMessageDeletedEvent {
+  type: 'chat.message.deleted';
+  roomId: string;
+  messageId: string;
+  deletedAt: string;
+}
+
 export interface CommandSucceededEvent {
   type: 'command.succeeded';
   requestId: string;
@@ -100,6 +122,8 @@ export type LiveRoomServerEvent =
   | SnapshotEvent
   | RoomUpdatedEvent
   | ReactionSentEvent
+  | ChatMessageSentEvent
+  | ChatMessageDeletedEvent
   | CommandSucceededEvent
   | CommandFailedEvent;
 
@@ -129,6 +153,13 @@ export type LiveRoomCommand =
   | { type: 'connection.ping' }
   | { type: 'room.start' }
   | { type: 'room.end' }
+  | { type: 'chat.message.send'; body: string }
+  | { type: 'chat.message.delete'; messageId: string }
+  | {
+      type: 'chat.privilege.set';
+      targetParticipantId: string;
+      canChat: boolean;
+    }
   | { type: 'debate.queue.join' }
   | { type: 'debate.reaction.send'; key: string }
   | { type: 'debate.speaker.promote'; targetParticipantId: string }
