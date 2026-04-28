@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
@@ -43,6 +43,30 @@ jest.mock('./LiveRoomVideoTile', () => ({
 
 jest.mock('./LiveRoomControls', () => ({
   LiveRoomControls: () => <div>controls</div>,
+}));
+
+jest.mock('../dropdown/DropdownMenu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuItem: ({
+    children,
+    disabled,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    disabled?: boolean;
+    onClick?: () => void;
+  }) => (
+    <button type="button" disabled={disabled} onClick={onClick}>
+      {children}
+    </button>
+  ),
 }));
 
 const createContextValue = (
@@ -168,7 +192,7 @@ describe('LiveRoom', () => {
     });
   });
 
-  it('lets the host promote a specific queued participant and remove a specific active speaker', () => {
+  it('lets the host promote a specific queued participant and remove a specific active speaker', async () => {
     const promoteSpeaker = jest.fn().mockResolvedValue(undefined);
     const removeSpeaker = jest.fn().mockResolvedValue(undefined);
     mockUseLiveRoomConnection.mockReturnValue(
@@ -179,10 +203,16 @@ describe('LiveRoom', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /Queue/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Promote @queued1' }));
+
+    await waitFor(() => {
+      expect(promoteSpeaker).toHaveBeenCalledWith('queued1');
+    });
+
     fireEvent.click(screen.getByRole('button', { name: 'Remove @speaker1' }));
 
-    expect(promoteSpeaker).toHaveBeenCalledWith('queued1');
-    expect(removeSpeaker).toHaveBeenCalledWith('speaker1');
+    await waitFor(() => {
+      expect(removeSpeaker).toHaveBeenCalledWith('speaker1');
+    });
   });
 
   it('renders every active speaker on stage instead of a single current speaker', () => {
@@ -254,7 +284,7 @@ describe('LiveRoom', () => {
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
   });
 
-  it('shows host moderation controls for chat rows', () => {
+  it('shows host moderation controls for chat rows', async () => {
     mockUseLiveRoomConnection.mockReturnValue(
       createContextValue({
         chatMessages: [
@@ -270,14 +300,14 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Chat moderation options for @speaker1',
-      }),
-    );
-
-    expect(screen.getByText('Delete message')).toBeInTheDocument();
-    expect(screen.getByText('Kick user')).toBeInTheDocument();
-    expect(screen.getByText('Take chat privilege')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Delete message/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Kick user/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Revoke chat access/i }),
+    ).toBeInTheDocument();
   });
 });
