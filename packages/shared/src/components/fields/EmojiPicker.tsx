@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, {
   useState,
   useCallback,
@@ -44,11 +44,23 @@ const COMMON_EMOJIS = [
   '❤️',
 ];
 
+const DROPDOWN_GAP = 4;
+const VIEWPORT_MARGIN = 12;
+const MIN_DROPDOWN_WIDTH = 300;
+const MIN_DROPDOWN_HEIGHT = 160;
+const FALLBACK_DROPDOWN_HEIGHT = 320;
+
 type EmojiPickerProps = {
   value: string;
   onChange: (emoji: string) => void;
-  label?: string;
+  label?: string | null;
   className?: string;
+  renderTrigger?: (props: {
+    isOpen: boolean;
+    value: string;
+    toggleOpen: () => void;
+    clearValue: () => void;
+  }) => ReactNode;
 };
 
 export const EmojiPicker = ({
@@ -56,6 +68,7 @@ export const EmojiPicker = ({
   onChange,
   label = 'Icon (optional)',
   className,
+  renderTrigger,
 }: EmojiPickerProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,18 +76,52 @@ export const EmojiPicker = ({
     top: 0,
     left: 0,
     width: 0,
+    maxHeight: FALLBACK_DROPDOWN_HEIGHT,
   });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const updateDropdownPosition = useCallback(() => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownHeight =
+        dropdownRef.current?.offsetHeight ?? FALLBACK_DROPDOWN_HEIGHT;
+      const width = Math.min(
+        Math.max(rect.width, MIN_DROPDOWN_WIDTH),
+        window.innerWidth - VIEWPORT_MARGIN * 2,
+      );
+      const left = Math.min(
+        Math.max(rect.left, VIEWPORT_MARGIN),
+        window.innerWidth - width - VIEWPORT_MARGIN,
+      );
+      const availableBelow =
+        window.innerHeight - rect.bottom - VIEWPORT_MARGIN - DROPDOWN_GAP;
+      const availableAbove = rect.top - VIEWPORT_MARGIN - DROPDOWN_GAP;
+      const shouldOpenAbove =
+        availableBelow < dropdownHeight && availableAbove > availableBelow;
+      const maxHeight = Math.max(
+        shouldOpenAbove ? availableAbove : availableBelow,
+        MIN_DROPDOWN_HEIGHT,
+      );
+      const top = shouldOpenAbove
+        ? Math.max(
+            VIEWPORT_MARGIN,
+            rect.top - Math.min(dropdownHeight, maxHeight) - DROPDOWN_GAP,
+          )
+        : Math.min(
+            rect.bottom + DROPDOWN_GAP,
+            window.innerHeight -
+              Math.min(dropdownHeight, maxHeight) -
+              VIEWPORT_MARGIN,
+          );
+
       setDropdownPosition({
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
+        top,
+        left,
+        width,
+        maxHeight,
       });
     }
   }, []);
@@ -84,7 +131,7 @@ export const EmojiPicker = ({
       updateDropdownPosition();
       inputRef.current?.focus();
     }
-  }, [isOpen, updateDropdownPosition]);
+  }, [isOpen, updateDropdownPosition, searchQuery]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -125,6 +172,16 @@ export const EmojiPicker = ({
     [onChange],
   );
 
+  const clearValue = useCallback(() => {
+    onChange('');
+    setIsOpen(false);
+    setSearchQuery('');
+  }, [onChange]);
+
+  const toggleOpen = useCallback(() => {
+    setIsOpen((open) => !open);
+  }, []);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) {
       return [];
@@ -138,53 +195,63 @@ export const EmojiPicker = ({
   return (
     <div
       ref={containerRef}
-      className={classNames('relative flex flex-col gap-2', className)}
+      className={classNames(
+        'relative flex flex-col',
+        label ? 'gap-2' : 'gap-0',
+        className,
+      )}
     >
-      <Typography bold type={TypographyType.Callout}>
-        {label}
-      </Typography>
+      {label ? (
+        <Typography bold type={TypographyType.Callout}>
+          {label}
+        </Typography>
+      ) : null}
 
-      <div ref={triggerRef} className="flex items-center gap-2">
-        {value && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            onClick={() => {
-              onChange('');
-              setIsOpen(false);
-            }}
-            className="!size-10 shrink-0"
-          >
-            -
-          </Button>
-        )}
+      <div ref={triggerRef}>
+        {renderTrigger ? (
+          renderTrigger({ isOpen, value, toggleOpen, clearValue })
+        ) : (
+          <div className="flex items-center gap-2">
+            {value && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                onClick={clearValue}
+                className="!size-10 shrink-0"
+              >
+                -
+              </Button>
+            )}
 
-        {value && (
-          <div className="flex size-10 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-surface-float text-xl">
-            {value}
+            {value && (
+              <div className="flex size-10 items-center justify-center rounded-10 border border-border-subtlest-tertiary bg-surface-float text-xl">
+                {value}
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              onClick={toggleOpen}
+              className="shrink-0"
+            >
+              {isOpen && 'Close'}
+              {!isOpen && value && 'Change'}
+              {!isOpen && !value && 'Pick emoji'}
+            </Button>
           </div>
         )}
-
-        <Button
-          type="button"
-          variant={ButtonVariant.Float}
-          onClick={() => setIsOpen(!isOpen)}
-          className="shrink-0"
-        >
-          {isOpen && 'Close'}
-          {!isOpen && value && 'Change'}
-          {!isOpen && !value && 'Pick emoji'}
-        </Button>
       </div>
 
       {isOpen && (
         <div
+          ref={dropdownRef}
           className="fixed z-[100] max-h-80 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
           style={{
             top: `${dropdownPosition.top}px`,
             left: `${dropdownPosition.left}px`,
             width: `${dropdownPosition.width}px`,
-            minWidth: '300px',
+            maxHeight: `${dropdownPosition.maxHeight}px`,
           }}
         >
           <input

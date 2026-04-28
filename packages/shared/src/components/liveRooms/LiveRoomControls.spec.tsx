@@ -141,9 +141,23 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     fireEvent.click(screen.getByRole('button', { name: 'React 🔥' }));
 
     expect(sendReaction).toHaveBeenCalledWith('🔥');
+  });
+
+  it('sends custom emoji reactions through the emoji picker', () => {
+    const sendReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Custom reaction' }));
+    fireEvent.click(screen.getByRole('button', { name: '⭐' }));
+
+    expect(sendReaction).toHaveBeenCalledWith('⭐');
   });
 
   it('keeps host controls separate from the audience queue button', () => {
