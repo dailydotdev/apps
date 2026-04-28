@@ -10,6 +10,7 @@ const applyInlineTextFormatting = (value: string): string => {
   let result = value;
 
   result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  result = result.replace(/~~(.+?)~~/g, '<s>$1</s>');
   result = result.replace(/\*(?!\*)([^*]+)\*(?!\*)/g, '<em>$1</em>');
   result = result.replace(/_(.+?)_/g, '<em>$1</em>');
   result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -204,7 +205,7 @@ function serializeInline(node: Node): string {
   }
 
   const tagName = node.tagName.toLowerCase();
-  const wrapLines = (value: string, marker: '**' | '_') => {
+  const wrapLines = (value: string, marker: '**' | '_' | '~~') => {
     if (!value.includes('\n')) {
       return `${marker}${value}${marker}`;
     }
@@ -222,6 +223,10 @@ function serializeInline(node: Node): string {
     case 'em':
     case 'i':
       return wrapLines(serializeChildren(node), '_');
+    case 's':
+    case 'del':
+    case 'strike':
+      return wrapLines(serializeChildren(node), '~~');
     case 'a': {
       const href = node.getAttribute('href') || '';
       const label = serializeChildren(node) || href;
