@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Origin } from '../../lib/log';
-import type { FeedSettings } from '../../graphql/feedSettings';
 import { TagSelection } from '../tags/TagSelection';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useTagSearch } from '../../hooks/useTagSearch';
@@ -10,12 +9,10 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { SearchField } from '../fields/SearchField';
 
 interface EditTagProps {
-  feedSettings: FeedSettings;
   headline?: string;
   headlineClassName?: string;
 }
 export const EditTag = ({
-  feedSettings,
   headline,
   headlineClassName,
 }: EditTagProps): ReactElement => {

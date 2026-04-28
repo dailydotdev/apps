@@ -19,59 +19,89 @@ type MostUpvotedFeedResponse = {
   page?: Connection<Post>;
 };
 
+type SwipeOnboardingDeckState = {
+  seenIds: Set<string>;
+  strictPosts: Post[];
+  relaxedPosts: Post[];
+};
+
+function appendEligiblePosts(
+  edges: NonNullable<Connection<Post>['edges']>,
+  state: SwipeOnboardingDeckState,
+): void {
+  edges.reduce((acc, { node }) => {
+    if (acc.seenIds.has(node.id)) {
+      return acc;
+    }
+
+    acc.seenIds.add(node.id);
+
+    if (isSwipeOnboardingEligiblePost(node)) {
+      acc.strictPosts.push(node);
+      return acc;
+    }
+
+    if (isSwipeOnboardingRelaxedEligiblePost(node)) {
+      acc.relaxedPosts.push(node);
+    }
+
+    return acc;
+  }, state);
+}
+
+async function collectSwipeOnboardingPosts(
+  state: SwipeOnboardingDeckState,
+  pages = 0,
+  cursor?: string,
+): Promise<void> {
+  if (pages >= MAX_PAGES) {
+    return;
+  }
+
+  const data = await gqlClient.request<MostUpvotedFeedResponse>(
+    MOST_UPVOTED_FEED_QUERY,
+    {
+      first: PAGE_SIZE,
+      period: 30,
+      ...(cursor !== undefined ? { after: cursor } : {}),
+      supportedTypes: [...SWIPE_ONBOARDING_FEED_SUPPORTED_TYPES],
+    },
+  );
+
+  const conn = data.page;
+  const edges = conn?.edges ?? [];
+
+  appendEligiblePosts(edges, state);
+
+  const hasNext = conn?.pageInfo?.hasNextPage === true;
+  const endCursor = conn?.pageInfo?.endCursor ?? undefined;
+  const shouldStop =
+    state.strictPosts.length >= TARGET_STRICT_COUNT || !hasNext || !endCursor;
+
+  if (shouldStop) {
+    return;
+  }
+
+  await collectSwipeOnboardingPosts(state, pages + 1, endCursor);
+}
+
 /**
  * Paginates mostUpvotedFeed for swipe onboarding: prefers machine-sourced posts, then
  * fills with the same post types from any source when the strict list is short.
  */
 export async function fetchSwipeOnboardingPopularDeck(): Promise<Post[]> {
-  const seenIds = new Set<string>();
-  const strictPosts: Post[] = [];
-  const relaxedPosts: Post[] = [];
+  const state: SwipeOnboardingDeckState = {
+    seenIds: new Set<string>(),
+    strictPosts: [],
+    relaxedPosts: [],
+  };
 
-  let cursor: string | undefined;
-  let pages = 0;
+  await collectSwipeOnboardingPosts(state);
 
-  while (pages < MAX_PAGES) {
-    const data = await gqlClient.request<MostUpvotedFeedResponse>(
-      MOST_UPVOTED_FEED_QUERY,
-      {
-        first: PAGE_SIZE,
-        period: 30,
-        ...(cursor !== undefined ? { after: cursor } : {}),
-        supportedTypes: [...SWIPE_ONBOARDING_FEED_SUPPORTED_TYPES],
-      },
-    );
-
-    const conn = data.page;
-    const edges = conn?.edges ?? [];
-
-    for (const { node } of edges) {
-      if (seenIds.has(node.id)) {
-        continue;
-      }
-      seenIds.add(node.id);
-      if (isSwipeOnboardingEligiblePost(node)) {
-        strictPosts.push(node);
-      } else if (isSwipeOnboardingRelaxedEligiblePost(node)) {
-        relaxedPosts.push(node);
-      }
-    }
-
-    pages += 1;
-
-    const hasNext = conn?.pageInfo?.hasNextPage === true;
-    const endCursor = conn?.pageInfo?.endCursor ?? undefined;
-
-    if (strictPosts.length >= TARGET_STRICT_COUNT || !hasNext || !endCursor) {
-      break;
-    }
-    cursor = endCursor;
+  if (state.strictPosts.length >= STRICT_MIN_BEFORE_RELAXED) {
+    return state.strictPosts.slice(0, MAX_DECK_POSTS);
   }
 
-  if (strictPosts.length >= STRICT_MIN_BEFORE_RELAXED) {
-    return strictPosts.slice(0, MAX_DECK_POSTS);
-  }
-
-  const merged = [...strictPosts, ...relaxedPosts];
+  const merged = [...state.strictPosts, ...state.relaxedPosts];
   return merged.slice(0, MAX_DECK_POSTS);
 }

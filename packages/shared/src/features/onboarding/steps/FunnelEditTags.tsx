@@ -42,7 +42,7 @@ function FunnelEditTagsComponent({
       containerClassName="flex w-full flex-1 flex-col items-center laptop:justify-center overflow-hidden"
     >
       <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-md laptop:max-w-screen-laptop">
-        <EditTag headline={headline} feedSettings={feedSettings} />
+        <EditTag headline={headline} />
       </div>
     </FunnelStepCtaWrapper>
   );

@@ -21,37 +21,46 @@ function post(
 
 describe('isSwipeOnboardingEligiblePost', () => {
   it('accepts article, video, and poll from machine sources', () => {
-    expect(isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.Machine)))
-      .toBe(true);
     expect(
-      isSwipeOnboardingEligiblePost(post(PostType.VideoYouTube, SourceType.Machine)),
+      isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.Machine)),
     ).toBe(true);
-    expect(isSwipeOnboardingEligiblePost(post(PostType.Poll, SourceType.Machine))).toBe(
-      true,
-    );
+    expect(
+      isSwipeOnboardingEligiblePost(
+        post(PostType.VideoYouTube, SourceType.Machine),
+      ),
+    ).toBe(true);
+    expect(
+      isSwipeOnboardingEligiblePost(post(PostType.Poll, SourceType.Machine)),
+    ).toBe(true);
   });
 
   it('rejects non-machine sources', () => {
-    expect(isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.Squad))).toBe(
-      false,
-    );
-    expect(isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.User))).toBe(
-      false,
-    );
+    expect(
+      isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.Squad)),
+    ).toBe(false);
+    expect(
+      isSwipeOnboardingEligiblePost(post(PostType.Article, SourceType.User)),
+    ).toBe(false);
   });
 
   it('rejects collection, share, freeform, and social posts even from machine', () => {
     expect(
-      isSwipeOnboardingEligiblePost(post(PostType.Collection, SourceType.Machine)),
-    ).toBe(false);
-    expect(isSwipeOnboardingEligiblePost(post(PostType.Share, SourceType.Machine))).toBe(
-      false,
-    );
-    expect(
-      isSwipeOnboardingEligiblePost(post(PostType.Freeform, SourceType.Machine)),
+      isSwipeOnboardingEligiblePost(
+        post(PostType.Collection, SourceType.Machine),
+      ),
     ).toBe(false);
     expect(
-      isSwipeOnboardingEligiblePost(post(PostType.SocialTwitter, SourceType.Machine)),
+      isSwipeOnboardingEligiblePost(post(PostType.Share, SourceType.Machine)),
+    ).toBe(false);
+    expect(
+      isSwipeOnboardingEligiblePost(
+        post(PostType.Freeform, SourceType.Machine),
+      ),
+    ).toBe(false);
+    expect(
+      isSwipeOnboardingEligiblePost(
+        post(PostType.SocialTwitter, SourceType.Machine),
+      ),
     ).toBe(false);
   });
 

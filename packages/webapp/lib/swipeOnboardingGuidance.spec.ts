@@ -18,27 +18,15 @@ describe('getSwipeOnboardingGuidanceMessage', () => {
   });
 
   it('returns improve tier with remaining until 20 (swipe)', () => {
-    expect(getSwipeOnboardingGuidanceMessage(10)).toBe(
-      'Swipe 10 more posts.',
-    );
-    expect(getSwipeOnboardingGuidanceMessage(15)).toBe(
-      'Swipe 5 more posts.',
-    );
-    expect(getSwipeOnboardingGuidanceMessage(19)).toBe(
-      'Swipe 1 more post.',
-    );
+    expect(getSwipeOnboardingGuidanceMessage(10)).toBe('Swipe 10 more posts.');
+    expect(getSwipeOnboardingGuidanceMessage(15)).toBe('Swipe 5 more posts.');
+    expect(getSwipeOnboardingGuidanceMessage(19)).toBe('Swipe 1 more post.');
   });
 
   it('returns refine tier with remaining until 40 (swipe)', () => {
-    expect(getSwipeOnboardingGuidanceMessage(20)).toBe(
-      'Swipe 20 more posts.',
-    );
-    expect(getSwipeOnboardingGuidanceMessage(30)).toBe(
-      'Swipe 10 more posts.',
-    );
-    expect(getSwipeOnboardingGuidanceMessage(39)).toBe(
-      'Swipe 1 more post.',
-    );
+    expect(getSwipeOnboardingGuidanceMessage(20)).toBe('Swipe 20 more posts.');
+    expect(getSwipeOnboardingGuidanceMessage(30)).toBe('Swipe 10 more posts.');
+    expect(getSwipeOnboardingGuidanceMessage(39)).toBe('Swipe 1 more post.');
   });
 
   it('returns fine-tune copy for 40 or more (swipe)', () => {

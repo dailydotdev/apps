@@ -1998,6 +1998,7 @@ const HotAndColdModal = ({
       currentOnboardingCard,
       hasOnboardingCards,
       isAnimating,
+      isOnboardingMode,
       startDismissAnimation,
       toggleDownvote,
       toggleUpvote,
@@ -2043,6 +2044,7 @@ const HotAndColdModal = ({
       currentOnboardingCard,
       hasOnboardingCards,
       isAnimating,
+      isOnboardingMode,
       startDismissAnimation,
       logEvent,
       onSwipeAction,
@@ -2205,6 +2207,49 @@ const HotAndColdModal = ({
     </div>
   );
   const showOnboardingSideActions = onboardingActionLayout === 'sides';
+  const onboardingSwipeActions = showOnboardingSideActions ? (
+    <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
+      <div className="hidden justify-end tablet:flex">
+        <OnboardingSwipeHintButton
+          deltaX={combinedOnboardingSwipeX}
+          direction="left"
+          disabled={isAnimating}
+          onClick={() => handleDismiss('left', 'button')}
+        />
+      </div>
+      <div className="flex justify-center px-4 tablet:px-0">
+        {cardSwipeArea}
+      </div>
+      <div className="hidden justify-start tablet:flex">
+        <OnboardingSwipeHintButton
+          deltaX={combinedOnboardingSwipeX}
+          direction="right"
+          disabled={isAnimating}
+          onClick={() => handleDismiss('right', 'button')}
+        />
+      </div>
+      <div className="flex justify-center px-4 tablet:hidden">
+        <OnboardingSwipeHintIcons
+          deltaX={combinedOnboardingSwipeX}
+          disabled={isAnimating}
+          onInteresting={() => handleDismiss('right', 'button')}
+          onNotInteresting={() => handleDismiss('left', 'button')}
+        />
+      </div>
+    </div>
+  ) : (
+    <>
+      <div className="flex justify-center px-4">{cardSwipeArea}</div>
+      <div className="flex justify-center px-4">
+        <OnboardingSwipeHintIcons
+          deltaX={combinedOnboardingSwipeX}
+          disabled={isAnimating}
+          onInteresting={() => handleDismiss('right', 'button')}
+          onNotInteresting={() => handleDismiss('left', 'button')}
+        />
+      </div>
+    </>
+  );
 
   return (
     <Modal
@@ -2257,53 +2302,9 @@ const HotAndColdModal = ({
                 className="flex min-h-0 w-full max-w-[32rem] flex-1 flex-col items-stretch gap-4"
               >
                 {topSlot}
-                {hasOnboardingContent ? (
-                  onboardingContent
-                ) : showOnboardingSideActions ? (
-                  <div className="grid grid-cols-1 items-center gap-4 tablet:grid-cols-[minmax(0,3.5rem)_minmax(0,20rem)_minmax(0,3.5rem)] tablet:justify-center tablet:gap-3">
-                    <div className="hidden justify-end tablet:flex">
-                      <OnboardingSwipeHintButton
-                        deltaX={combinedOnboardingSwipeX}
-                        direction="left"
-                        disabled={isAnimating}
-                        onClick={() => handleDismiss('left', 'button')}
-                      />
-                    </div>
-                    <div className="flex justify-center px-4 tablet:px-0">
-                      {cardSwipeArea}
-                    </div>
-                    <div className="hidden justify-start tablet:flex">
-                      <OnboardingSwipeHintButton
-                        deltaX={combinedOnboardingSwipeX}
-                        direction="right"
-                        disabled={isAnimating}
-                        onClick={() => handleDismiss('right', 'button')}
-                      />
-                    </div>
-                    <div className="flex justify-center px-4 tablet:hidden">
-                      <OnboardingSwipeHintIcons
-                        deltaX={combinedOnboardingSwipeX}
-                        disabled={isAnimating}
-                        onInteresting={() => handleDismiss('right', 'button')}
-                        onNotInteresting={() => handleDismiss('left', 'button')}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-center px-4">
-                      {cardSwipeArea}
-                    </div>
-                    <div className="flex justify-center px-4">
-                      <OnboardingSwipeHintIcons
-                        deltaX={combinedOnboardingSwipeX}
-                        disabled={isAnimating}
-                        onInteresting={() => handleDismiss('right', 'button')}
-                        onNotInteresting={() => handleDismiss('left', 'button')}
-                      />
-                    </div>
-                  </>
-                )}
+                {hasOnboardingContent
+                  ? onboardingContent
+                  : onboardingSwipeActions}
                 {bottomSlot}
               </div>
             </div>

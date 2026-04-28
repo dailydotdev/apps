@@ -631,7 +631,6 @@ function SwipeOnboardingPage(): ReactElement {
             </div>
           ) : (
             <EditTag
-              feedSettings={feedSettings}
               headline="Pick tags that are relevant to you"
               headlineClassName="text-balance text-text-primary typo-title1"
             />
