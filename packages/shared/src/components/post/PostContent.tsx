@@ -32,7 +32,6 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
-import ShowMoreContent from '../cards/common/ShowMoreContent';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
@@ -463,16 +462,16 @@ export function PostContentRaw({
         {post.summary && (
           <div
             className={classNames(
-              'mb-6 text-text-secondary',
+              'mb-6 overflow-hidden text-text-secondary',
               isCompactModalSpacing && 'mb-4',
             )}
           >
-            <ShowMoreContent
-              className={{ wrapper: 'overflow-hidden' }}
-              content={post.summary}
-              charactersLimit={330}
-              threshold={50}
-            />
+            <p
+              className="select-text break-words typo-markdown"
+              data-testid="tldr-container"
+            >
+              {post.summary}
+            </p>
           </div>
         )}
         <PostTagList post={post} />

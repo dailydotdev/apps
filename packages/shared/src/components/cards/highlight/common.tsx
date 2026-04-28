@@ -38,7 +38,7 @@ const HighlightRow = ({
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
       >
-        <span className="line-clamp-2 font-bold text-text-primary typo-callout">
+        <span className="break-words font-bold text-text-primary typo-callout">
           {highlight.headline}
         </span>
         <RelativeTime
@@ -63,8 +63,8 @@ export const HighlightCardContent = ({
       : 'flex items-center px-4 py-4';
   const contentClassName =
     variant === 'list'
-      ? 'flex flex-col gap-2'
-      : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
+      ? 'no-scrollbar flex min-h-0 flex-col gap-2 overflow-y-auto'
+      : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
   const firstHighlight = highlights[0];
 

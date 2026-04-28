@@ -5,7 +5,6 @@ import {
   gameCenterMilestoneSectionId,
   webappUrl,
 } from '../../../lib/constants';
-import { questsFeature } from '../../../lib/featureManagement';
 import { useConditionalFeature } from '../../../hooks';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
@@ -64,10 +63,10 @@ describe('MainSection', () => {
       },
       isLoggedIn: true,
     });
-    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
-      value: feature === questsFeature,
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
       isLoading: false,
-    }));
+    });
     mockUseCustomDefaultFeed.mockReturnValue({
       isCustomDefaultFeed: false,
     });

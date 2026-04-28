@@ -105,7 +105,6 @@ export interface MarkQuestRotationsViewedData {
 }
 
 export enum ClientQuestEventType {
-  VisitArena = 'visit_arena',
   VisitExplorePage = 'visit_explore_page',
   VisitDiscussionsPage = 'visit_discussions_page',
   VisitReadItLaterPage = 'visit_read_it_later_page',
