@@ -1259,7 +1259,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           aria-label="Speakers"
           className="relative flex min-h-0 flex-col"
         >
-          <div className="flex flex-1 flex-wrap content-start gap-3 overflow-y-auto pb-24 tablet:pb-28">
+          <div className="flex flex-1 flex-wrap content-start gap-3 overflow-y-auto p-1.5 pb-24 tablet:pb-28">
             {stageSpeakers.map((speaker) => {
               const canModerate = isHost && !speaker.isHost;
               return (
