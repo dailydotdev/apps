@@ -197,9 +197,9 @@ export function PostArticlePreviewEmbed({
           }
 
           setIsInstalledAfterPrompt(true);
-        setIsFrameLoaded(false);
-        setEmbedStatus('idle');
-        setTimedOutBeforeConnect(false);
+          setIsFrameLoaded(false);
+          setEmbedStatus('idle');
+          setTimedOutBeforeConnect(false);
           setPreviewBroken(false);
         },
       );

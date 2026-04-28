@@ -160,10 +160,7 @@ export function ReaderPostLayout({
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                   />
                   {!hasEmbeddedReaderHeader && (
-                    <ReaderChrome
-                      onClose={onClose}
-                      isPostPage={isPostPage}
-                    />
+                    <ReaderChrome onClose={onClose} isPostPage={isPostPage} />
                   )}
                   <ReaderFloatingActionBar
                     post={post}

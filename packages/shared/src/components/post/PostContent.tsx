@@ -430,17 +430,17 @@ export function PostContentRaw({
             {!isTablet &&
               showArticlePreviewEmbed &&
               shouldShowArticlePreviewToggle && (
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                className="ml-auto shrink-0"
-                onClick={onToggleArticlePreview}
-                icon={<EarthIcon />}
-                title="Preview article"
-                aria-label="Preview article"
-              />
-            )}
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Primary}
+                  className="ml-auto shrink-0"
+                  onClick={onToggleArticlePreview}
+                  icon={<EarthIcon />}
+                  title="Preview article"
+                  aria-label="Preview article"
+                />
+              )}
           </div>
           <h1
             className="break-words font-bold typo-large-title"

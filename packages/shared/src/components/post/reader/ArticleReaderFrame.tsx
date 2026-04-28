@@ -57,10 +57,7 @@ export function ArticleReaderFrame({
         previewHost={post.domain ?? undefined}
         rightHeaderActions={
           hasHeaderActions && !isPostPage ? (
-            <ReaderHeaderActionGroup
-              onClose={onClose}
-              showLegacyLayoutOptOut
-            />
+            <ReaderHeaderActionGroup onClose={onClose} showLegacyLayoutOptOut />
           ) : null
         }
         collapseOnUnavailable={false}

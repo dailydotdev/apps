@@ -10,9 +10,7 @@ describe('detectBrowserExtensionInstalled', () => {
   it('returns true immediately when the ping marker is present', async () => {
     document.documentElement.dataset.dailyExtensionInstalled = 'true';
 
-    await expect(
-      detectBrowserExtensionInstalled('abc123'),
-    ).resolves.toBe(true);
+    await expect(detectBrowserExtensionInstalled('abc123')).resolves.toBe(true);
   });
 
   it('cache-busts probe retries for the same extension id', async () => {
@@ -28,12 +26,12 @@ describe('detectBrowserExtensionInstalled', () => {
         return node;
       });
 
-    await expect(
-      detectBrowserExtensionInstalled('abc123', 50),
-    ).resolves.toBe(false);
-    await expect(
-      detectBrowserExtensionInstalled('abc123', 50),
-    ).resolves.toBe(false);
+    await expect(detectBrowserExtensionInstalled('abc123', 50)).resolves.toBe(
+      false,
+    );
+    await expect(detectBrowserExtensionInstalled('abc123', 50)).resolves.toBe(
+      false,
+    );
 
     expect(appendChildSpy).toHaveBeenCalledTimes(2);
     expect(appendedHrefs).toHaveLength(2);

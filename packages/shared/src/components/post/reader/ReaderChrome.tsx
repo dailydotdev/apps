@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import {
-  ReaderHeaderActionGroup,
-} from './ReaderHeaderActionButtons';
+import { ReaderHeaderActionGroup } from './ReaderHeaderActionButtons';
 
 type ReaderChromeProps = {
   onClose: () => void;
@@ -21,14 +19,8 @@ export function ReaderChrome({
       <div aria-hidden />
 
       {!isPostPage && (
-        <div
-          className="pointer-events-auto"
-          aria-label="Reader actions"
-        >
-          <ReaderHeaderActionGroup
-            onClose={onClose}
-            showLegacyLayoutOptOut
-          />
+        <div className="pointer-events-auto" aria-label="Reader actions">
+          <ReaderHeaderActionGroup onClose={onClose} showLegacyLayoutOptOut />
         </div>
       )}
     </div>
