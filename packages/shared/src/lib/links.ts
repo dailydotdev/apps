@@ -47,6 +47,14 @@ export const stripLinkParameters = (link: string): string => {
   return origin + pathname;
 };
 
+export const getDomainFromUrl = (link: string): string => {
+  try {
+    return new URL(withHttps(link)).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return link;
+  }
+};
+
 export const removeQueryParam = (url: string, param: string): string => {
   const link = new URL(url);
   link.searchParams.delete(param);
