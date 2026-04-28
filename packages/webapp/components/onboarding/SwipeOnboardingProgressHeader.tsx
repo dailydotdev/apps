@@ -59,7 +59,7 @@ function SwipeOnboardingTypingHeadline({
   return (
     <div
       aria-live="polite"
-      className={`flex w-full flex-col items-start justify-center text-left ${SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS}`}
+      className={`flex w-full flex-col items-start justify-start text-left ${SWIPE_HEADLINE_BLOCK_MIN_HEIGHT_CLASS}`}
     >
       <Typography
         bold
@@ -117,7 +117,6 @@ export function SwipeOnboardingProgressHeader({
   const progress = getSwipeOnboardingBarProgress(progressCount);
   const { line1: headlineLine1, line2: headlineLine2 } =
     getSwipeOnboardingHeadline(progressCount, copyVariant);
-  const progressLabel = copyVariant === 'tags' ? 'Manual setup' : 'Feed setup';
   const progressValue = Math.min(progressCount, SWIPE_ONBOARDING_REFINE_TARGET);
 
   return (
@@ -237,14 +236,6 @@ export function SwipeOnboardingProgressHeader({
                 }
               }
             `}</style>
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-medium text-text-secondary typo-footnote">
-          {progressLabel}
-        </span>
-        <span className="font-medium text-text-tertiary typo-footnote">
-          {progressValue} / {SWIPE_ONBOARDING_REFINE_TARGET}
-        </span>
-      </div>
       <SwipeOnboardingTypingHeadline
         line1={headlineLine1}
         line2={headlineLine2}
@@ -386,15 +377,20 @@ export function SwipeOnboardingProgressHeader({
             </div>
           )}
         </div>
-        <Typography
-          bold
-          className="text-balance"
-          tag={TypographyTag.P}
-          type={TypographyType.Caption1}
-          color={TypographyColor.Secondary}
-        >
-          {getSwipeOnboardingGuidanceMessage(progressCount, copyVariant)}
-        </Typography>
+        <div className="flex items-start justify-between gap-3">
+          <Typography
+            bold
+            className="flex-1 text-balance"
+            tag={TypographyTag.P}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Secondary}
+          >
+            {getSwipeOnboardingGuidanceMessage(progressCount, copyVariant)}
+          </Typography>
+          <span className="whitespace-nowrap font-medium text-text-tertiary typo-footnote">
+            {progressValue} / {SWIPE_ONBOARDING_REFINE_TARGET}
+          </span>
+        </div>
       </div>
     </div>
   );
