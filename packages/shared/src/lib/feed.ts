@@ -181,6 +181,7 @@ interface FeedHighlightsLogEventOptions extends FeedItemPosition {
   highlightIds?: string[];
   feedMeta?: string | null;
   position?: number;
+  origin?: Origin;
 }
 
 export function feedHighlightsLogEvent(
@@ -197,6 +198,7 @@ export function feedHighlightsLogEvent(
     highlightIds,
     feedMeta,
     position,
+    origin,
   }: FeedHighlightsLogEventOptions,
 ): FeedItemLogEvent {
   return {
@@ -209,7 +211,7 @@ export function feedHighlightsLogEvent(
     feed_item_title: clickedHighlight?.headline,
     target_type: TargetType.HighlightsCard,
     extra: JSON.stringify({
-      ...feedLogExtra(feedName, ranking).extra,
+      ...feedLogExtra(feedName, ranking, undefined, origin).extra,
       ...(action ? { action } : {}),
       ...(typeof count === 'number' ? { count } : {}),
       ...(typeof position === 'number' ? { position } : {}),
