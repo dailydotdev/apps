@@ -34,7 +34,8 @@ const statusBadgeClass: Record<LiveRoomStatus, string> = {
 };
 
 const modeLabel: Record<LiveRoomMode, string> = {
-  [LiveRoomMode.Debate]: 'Debate',
+  [LiveRoomMode.Moderated]: 'Moderated',
+  [LiveRoomMode.FreeForAll]: 'Free for all',
 };
 
 export const LiveRoomCard = ({

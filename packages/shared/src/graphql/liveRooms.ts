@@ -3,7 +3,8 @@ import type { UserShortProfile } from '../lib/user';
 import { USER_SHORT_INFO_FRAGMENT } from './fragments';
 
 export enum LiveRoomMode {
-  Debate = 'debate',
+  Moderated = 'moderated',
+  FreeForAll = 'free_for_all',
 }
 
 export enum LiveRoomStatus {

@@ -185,7 +185,7 @@ const ReactionOverlay = ({
   );
 };
 
-interface DebateQueueItemProps {
+interface StageParticipantItemProps {
   participantId: string;
   profile?: UserShortProfile;
   subtitle?: string;
@@ -193,13 +193,13 @@ interface DebateQueueItemProps {
   actions?: ReactNode;
 }
 
-const DebateQueueItem = ({
+const StageParticipantItem = ({
   participantId,
   profile,
   subtitle,
   leading,
   actions,
-}: DebateQueueItemProps): ReactElement => {
+}: StageParticipantItemProps): ReactElement => {
   const user = profile ?? buildParticipantProfile(participantId);
 
   return (
@@ -227,18 +227,20 @@ const DebateQueueItem = ({
 
 interface SidePanelTabsProps {
   active: SidePanelTab;
-  queueCount: number;
+  secondaryCount: number;
+  secondaryLabel: string;
   onChange: (tab: SidePanelTab) => void;
 }
 
 const SidePanelTabs = ({
   active,
-  queueCount,
+  secondaryCount,
+  secondaryLabel,
   onChange,
 }: SidePanelTabsProps): ReactElement => {
   const tabs: { id: SidePanelTab; label: string; count?: number }[] = [
     { id: 'chat', label: 'Chat' },
-    { id: 'queue', label: 'Queue', count: queueCount },
+    { id: 'queue', label: secondaryLabel, count: secondaryCount },
   ];
   return (
     <div
@@ -640,26 +642,35 @@ const LiveRoomChatPanel = ({
 };
 
 interface LiveRoomQueuePanelProps {
+  mode: 'moderated' | 'free_for_all';
   activeSpeakerParticipantIds: string[];
   queuedParticipantIds: string[];
+  audienceParticipantIds: string[];
   participantsById: Record<string, LiveRoomParticipantRecord>;
   participantProfilesById: Map<string, UserShortProfile>;
   isHost: boolean;
-  debateBusy: string | null;
-  guardedDebateAction: (key: string, fn: () => Promise<void>) => Promise<void>;
+  stageLimit?: number | null;
+  moderationBusy: string | null;
+  guardedModerationAction: (
+    key: string,
+    fn: () => Promise<void>,
+  ) => Promise<void>;
   promoteSpeaker: (targetParticipantId: string) => Promise<void>;
   removeSpeaker: (targetParticipantId: string) => Promise<void>;
   kickParticipant: (targetParticipantId: string) => Promise<void>;
 }
 
 const LiveRoomQueuePanel = ({
+  mode,
   activeSpeakerParticipantIds,
   queuedParticipantIds,
+  audienceParticipantIds,
   participantsById,
   participantProfilesById,
   isHost,
-  debateBusy,
-  guardedDebateAction,
+  stageLimit,
+  moderationBusy,
+  guardedModerationAction,
   promoteSpeaker,
   removeSpeaker,
   kickParticipant,
@@ -669,6 +680,16 @@ const LiveRoomQueuePanel = ({
     .filter(
       (participant): participant is LiveRoomParticipantRecord => !!participant,
     );
+  const audienceMembers = audienceParticipantIds
+    .map((id) => participantsById[id])
+    .filter(
+      (participant): participant is LiveRoomParticipantRecord => !!participant,
+    );
+  const sectionTitle = mode === 'free_for_all' ? 'Audience' : 'Queue';
+  const sectionCount =
+    mode === 'free_for_all'
+      ? audienceMembers.length
+      : queuedParticipantIds.length;
 
   return (
     <div className="flex h-full flex-col">
@@ -682,7 +703,9 @@ const LiveRoomQueuePanel = ({
               type={TypographyType.Caption2}
               color={TypographyColor.Tertiary}
             >
-              {activeSpeakers.length}
+              {stageLimit && mode === 'free_for_all'
+                ? `${activeSpeakers.length}/${stageLimit}`
+                : activeSpeakers.length}
             </Typography>
           </div>
           {activeSpeakers.length === 0 ? (
@@ -698,7 +721,9 @@ const LiveRoomQueuePanel = ({
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
                 >
-                  Promote someone from the queue to bring them on stage.
+                  {mode === 'free_for_all'
+                    ? 'Audience members can hop on stage while seats are open.'
+                    : 'Promote someone from the queue to bring them on stage.'}
                 </Typography>
               </div>
             </div>
@@ -707,7 +732,7 @@ const LiveRoomQueuePanel = ({
               {activeSpeakers.map((participant) => {
                 const id = participant.participantId;
                 return (
-                  <DebateQueueItem
+                  <StageParticipantItem
                     key={id}
                     participantId={id}
                     profile={participantProfilesById.get(id)}
@@ -725,14 +750,14 @@ const LiveRoomQueuePanel = ({
                               size={ButtonSize.XSmall}
                               variant={ButtonVariant.Tertiary}
                               icon={<RemoveUserIcon />}
-                              loading={debateBusy === `remove-${id}`}
-                              disabled={!!debateBusy}
+                              loading={moderationBusy === `remove-${id}`}
+                              disabled={!!moderationBusy}
                               aria-label={`Remove ${userDisplayName(
                                 participantProfilesById.get(id) ??
                                   buildParticipantProfile(id),
                               )}`}
                               onClick={() =>
-                                guardedDebateAction(`remove-${id}`, () =>
+                                guardedModerationAction(`remove-${id}`, () =>
                                   removeSpeaker(id),
                                 )
                               }
@@ -749,14 +774,14 @@ const LiveRoomQueuePanel = ({
                               size={ButtonSize.XSmall}
                               variant={ButtonVariant.Tertiary}
                               icon={<BlockIcon />}
-                              loading={debateBusy === `kick-${id}`}
-                              disabled={!!debateBusy}
+                              loading={moderationBusy === `kick-${id}`}
+                              disabled={!!moderationBusy}
                               aria-label={`Kick ${userDisplayName(
                                 participantProfilesById.get(id) ??
                                   buildParticipantProfile(id),
                               )}`}
                               onClick={() =>
-                                guardedDebateAction(`kick-${id}`, () =>
+                                guardedModerationAction(`kick-${id}`, () =>
                                   kickParticipant(id),
                                 )
                               }
@@ -775,33 +800,40 @@ const LiveRoomQueuePanel = ({
         <section className="flex min-h-0 flex-1 flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <Typography type={TypographyType.Footnote} bold>
-              Queue
+              {sectionTitle}
             </Typography>
             <Typography
               type={TypographyType.Caption2}
               color={TypographyColor.Tertiary}
             >
-              {queuedParticipantIds.length}
+              {sectionCount}
             </Typography>
           </div>
-          {queuedParticipantIds.length === 0 ? (
+          {sectionCount === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary p-6 text-center">
               <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
                 <UserIcon size={IconSize.Small} />
               </span>
               <Typography type={TypographyType.Footnote} bold>
-                Queue is empty
+                {mode === 'free_for_all'
+                  ? 'Audience is quiet'
+                  : 'Queue is empty'}
               </Typography>
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}
               >
-                Audience members can request to speak.
+                {mode === 'free_for_all'
+                  ? 'New listeners will show up here until they join the stage.'
+                  : 'Audience members can request to speak.'}
               </Typography>
             </div>
           ) : (
             <ul className="flex flex-col gap-2">
-              {queuedParticipantIds.map((id) => {
+              {(mode === 'free_for_all'
+                ? audienceParticipantIds
+                : queuedParticipantIds
+              ).map((id) => {
                 const participant = participantsById[id];
                 if (!participant) {
                   return null;
@@ -811,33 +843,37 @@ const LiveRoomQueuePanel = ({
                   participantProfilesById.get(id) ??
                   buildParticipantProfile(id);
                 return (
-                  <DebateQueueItem
+                  <StageParticipantItem
                     key={id}
                     participantId={id}
-                    profile={participantProfilesById.get(id)}
+                    profile={profile}
                     actions={
                       isHost ? (
                         <div className="flex shrink-0 items-center gap-1">
-                          <Tooltip
-                            content={`Promote ${userDisplayName(
-                              profile,
-                            )} to speaker`}
-                          >
-                            <Button
-                              type="button"
-                              size={ButtonSize.XSmall}
-                              variant={ButtonVariant.Primary}
-                              icon={<PlusUserIcon />}
-                              loading={debateBusy === `promote-${id}`}
-                              disabled={!!debateBusy}
-                              aria-label={`Promote ${userDisplayName(profile)}`}
-                              onClick={() =>
-                                guardedDebateAction(`promote-${id}`, () =>
-                                  promoteSpeaker(id),
-                                )
-                              }
-                            />
-                          </Tooltip>
+                          {mode === 'moderated' ? (
+                            <Tooltip
+                              content={`Promote ${userDisplayName(
+                                profile,
+                              )} to speaker`}
+                            >
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={ButtonVariant.Primary}
+                                icon={<PlusUserIcon />}
+                                loading={moderationBusy === `promote-${id}`}
+                                disabled={!!moderationBusy}
+                                aria-label={`Promote ${userDisplayName(
+                                  profile,
+                                )}`}
+                                onClick={() =>
+                                  guardedModerationAction(`promote-${id}`, () =>
+                                    promoteSpeaker(id),
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : null}
                           <Tooltip
                             content={`Kick ${userDisplayName(
                               profile,
@@ -848,11 +884,11 @@ const LiveRoomQueuePanel = ({
                               size={ButtonSize.XSmall}
                               variant={ButtonVariant.Tertiary}
                               icon={<BlockIcon />}
-                              loading={debateBusy === `kick-${id}`}
-                              disabled={!!debateBusy}
+                              loading={moderationBusy === `kick-${id}`}
+                              disabled={!!moderationBusy}
                               aria-label={`Kick ${userDisplayName(profile)}`}
                               onClick={() =>
-                                guardedDebateAction(`kick-${id}`, () =>
+                                guardedModerationAction(`kick-${id}`, () =>
                                   kickParticipant(id),
                                 )
                               }
@@ -929,24 +965,24 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     router.push(`${webappUrl}live`);
   };
 
-  const [debateBusy, setDebateBusy] = useState<string | null>(null);
+  const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SidePanelTab>('chat');
   const streamDuration = useStreamDuration(roomState?.status === 'live');
 
-  const guardedDebateAction = async (
+  const guardedModerationAction = async (
     key: string,
     fn: () => Promise<void>,
   ): Promise<void> => {
-    if (debateBusy) {
+    if (moderationBusy) {
       return;
     }
-    setDebateBusy(key);
+    setModerationBusy(key);
     try {
       await fn();
     } catch (err) {
       displayToast(err instanceof Error ? err.message : 'Action failed');
     } finally {
-      setDebateBusy(null);
+      setModerationBusy(null);
     }
   };
 
@@ -1093,17 +1129,43 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const isCreated = roomState?.status === 'created';
   const isLive = roomState?.status === 'live';
   const isEnded = roomState?.status === 'ended' || room.status === 'ended';
+  const roomMode = roomState?.mode ?? room.mode;
+  const isFreeForAll = roomMode === 'free_for_all';
   const participantCount = roomState
     ? Object.keys(roomState.participants).length
     : 0;
   const activeSpeakerIds =
-    roomState?.debate?.activeSpeakerParticipantIds.filter(
+    roomState?.stage.activeSpeakerParticipantIds.filter(
       (id) => !!roomState.participants[id] && id !== room.host.id,
     ) ?? [];
   const queuedParticipantIds =
-    roomState?.debate?.speakerQueueParticipantIds.filter(
+    roomState?.stage.speakerQueueParticipantIds.filter(
       (id) => !!roomState.participants[id],
     ) ?? [];
+  const audienceParticipantIds = roomState
+    ? Object.values(roomState.participants)
+        .map((participant) => participant.participantId)
+        .filter(
+          (id) =>
+            id !== room.host.id &&
+            !activeSpeakerIds.includes(id) &&
+            !queuedParticipantIds.includes(id),
+        )
+    : [];
+  const stageLimit = roomState?.stage.speakerLimit ?? null;
+  const remainingSeats =
+    stageLimit === null
+      ? null
+      : Math.max(stageLimit - activeSpeakerIds.length, 0);
+  let waitingPrompt = 'Audience can join the queue';
+  if (isFreeForAll) {
+    waitingPrompt =
+      remainingSeats === 0
+        ? 'The stage is full right now'
+        : `${remainingSeats ?? 0} open stage spots`;
+  } else if (queuedParticipantIds.length > 0) {
+    waitingPrompt = `${queuedParticipantIds.length} in queue`;
+  }
   const hostProfile = room.host;
   const hostDisplayProfile = buildDisplayProfile(room.host);
   participantProfilesById.set(room.host.id, hostProfile);
@@ -1213,7 +1275,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                     onRemoveSpeaker={
                       canModerate
                         ? () =>
-                            guardedDebateAction(
+                            guardedModerationAction(
                               `tile-remove-${speaker.id}`,
                               () => removeSpeaker(speaker.id),
                             )
@@ -1222,14 +1284,15 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                     onKick={
                       canModerate
                         ? () =>
-                            guardedDebateAction(`tile-kick-${speaker.id}`, () =>
-                              kickParticipant(speaker.id),
+                            guardedModerationAction(
+                              `tile-kick-${speaker.id}`,
+                              () => kickParticipant(speaker.id),
                             )
                         : undefined
                     }
-                    isRemoving={debateBusy === `tile-remove-${speaker.id}`}
-                    isKicking={debateBusy === `tile-kick-${speaker.id}`}
-                    moderationDisabled={!!debateBusy}
+                    isRemoving={moderationBusy === `tile-remove-${speaker.id}`}
+                    isKicking={moderationBusy === `tile-kick-${speaker.id}`}
+                    moderationDisabled={!!moderationBusy}
                   />
                 </div>
               );
@@ -1247,9 +1310,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
                   >
-                    {queuedParticipantIds.length > 0
-                      ? `${queuedParticipantIds.length} in queue`
-                      : 'Audience can join the queue'}
+                    {waitingPrompt}
                   </Typography>
                 </div>
               </div>
@@ -1293,7 +1354,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         >
           <SidePanelTabs
             active={activeTab}
-            queueCount={queuedParticipantIds.length}
+            secondaryCount={
+              isFreeForAll
+                ? audienceParticipantIds.length
+                : queuedParticipantIds.length
+            }
+            secondaryLabel={isFreeForAll ? 'Audience' : 'Queue'}
             onChange={setActiveTab}
           />
           <div className="min-h-0 flex-1">
@@ -1317,13 +1383,16 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               />
             ) : (
               <LiveRoomQueuePanel
+                mode={roomMode}
                 activeSpeakerParticipantIds={activeSpeakerIds}
                 queuedParticipantIds={queuedParticipantIds}
+                audienceParticipantIds={audienceParticipantIds}
                 participantsById={roomState?.participants ?? {}}
                 participantProfilesById={participantProfilesById}
                 isHost={isHost}
-                debateBusy={debateBusy}
-                guardedDebateAction={guardedDebateAction}
+                stageLimit={stageLimit}
+                moderationBusy={moderationBusy}
+                guardedModerationAction={guardedModerationAction}
                 promoteSpeaker={promoteSpeaker}
                 removeSpeaker={removeSpeaker}
                 kickParticipant={kickParticipant}

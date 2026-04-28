@@ -26,7 +26,7 @@ const LiveRoom = dynamic(
 
 const seo: NextSeoProps = {
   title: 'Live room | daily.dev',
-  description: 'Join a live developer debate on daily.dev.',
+  description: 'Join a live developer room on daily.dev.',
   openGraph: {
     ...defaultOpenGraph,
     type: 'website',

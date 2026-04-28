@@ -29,6 +29,7 @@ const createContextValue = (
   errorMessage: null,
   roomState: {
     roomId: 'room-1',
+    mode: 'moderated',
     status: 'live',
     version: 1,
     participants: {
@@ -49,7 +50,7 @@ const createContextValue = (
     },
     chatPermissions: {},
     sessions: {},
-    debate: {
+    stage: {
       speakerQueueParticipantIds: [],
       activeSpeakerParticipantIds: [],
     },
@@ -63,6 +64,8 @@ const createContextValue = (
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
+  joinStage: jest.fn(),
+  leaveStage: jest.fn(),
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
@@ -136,7 +139,7 @@ describe('LiveRoomControls', () => {
         joinSpeakerQueue,
         roomState: {
           ...createRoomState(),
-          debate: {
+          stage: {
             speakerQueueParticipantIds: ['audience'],
             activeSpeakerParticipantIds: [],
           },
@@ -195,6 +198,90 @@ describe('LiveRoomControls', () => {
     });
   });
 
+  it('lets an audience participant join the stage in a free-for-all room', () => {
+    const joinStage = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        joinStage,
+        roomState: {
+          ...createRoomState(),
+          mode: 'free_for_all',
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: [],
+            speakerLimit: 4,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join stage' }));
+
+    expect(joinStage).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a speaker leave the stage in a free-for-all room', () => {
+    const leaveStage = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        leaveStage,
+        role: 'speaker',
+        roomState: {
+          ...createRoomState(),
+          mode: 'free_for_all',
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            speakerLimit: 4,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Leave stage' }));
+
+    expect(leaveStage).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows a full-stage state instead of allowing another join in free-for-all mode', () => {
+    const joinStage = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        joinStage,
+        roomState: {
+          ...createRoomState(),
+          mode: 'free_for_all',
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['speaker-1', 'speaker-2'],
+            speakerLimit: 2,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    const fullButton = screen.getByRole('button', { name: 'Stage full' });
+    expect(fullButton).toBeDisabled();
+    fireEvent.click(fullButton);
+    expect(joinStage).not.toHaveBeenCalled();
+  });
+
   it('prompts anonymous viewers to sign up instead of opening reactions', () => {
     const sendReaction = jest.fn().mockResolvedValue(undefined);
     mockUseAuthContext.mockReturnValue({
@@ -250,7 +337,7 @@ describe('LiveRoomControls', () => {
               role: 'speaker',
             },
           },
-          debate: {
+          stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['audience'],
           },

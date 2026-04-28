@@ -7,6 +7,7 @@ import type {
 } from 'mediasoup-client/lib/types';
 
 export type LiveRoomStatusValue = 'created' | 'live' | 'ended';
+export type LiveRoomModeValue = 'moderated' | 'free_for_all';
 export type LiveRoomParticipantRoleValue = 'host' | 'speaker' | 'audience';
 export type MediaKindValue = 'audio' | 'video';
 
@@ -37,19 +38,21 @@ export interface LiveRoomMediaPublicationRecord {
   updatedAt: string;
 }
 
-export interface LiveRoomDebateState {
+export interface LiveRoomStageState {
   speakerQueueParticipantIds: string[];
   activeSpeakerParticipantIds: string[];
+  speakerLimit?: number | null;
 }
 
 export interface LiveRoomState {
   roomId: string;
+  mode: LiveRoomModeValue;
   status: LiveRoomStatusValue;
   version: number;
   participants: Record<string, LiveRoomParticipantRecord>;
   chatPermissions: Record<string, boolean>;
   sessions: Record<string, LiveRoomSessionRecord>;
-  debate: LiveRoomDebateState | null;
+  stage: LiveRoomStageState;
   mediaPublications: Record<string, LiveRoomMediaPublicationRecord>;
   mediaRuntimeOwner: { instanceId: string; baseUrl: string } | null;
   createdAt: string;
@@ -160,11 +163,13 @@ export type LiveRoomCommand =
       targetParticipantId: string;
       canChat: boolean;
     }
-  | { type: 'debate.queue.join' }
-  | { type: 'debate.reaction.send'; key: string }
-  | { type: 'debate.speaker.promote'; targetParticipantId: string }
-  | { type: 'debate.speaker.remove'; targetParticipantId: string }
-  | { type: 'debate.kick'; targetParticipantId: string }
+  | { type: 'stage.queue.join' }
+  | { type: 'stage.reaction.send'; key: string }
+  | { type: 'stage.speaker.join' }
+  | { type: 'stage.speaker.leave' }
+  | { type: 'stage.speaker.promote'; targetParticipantId: string }
+  | { type: 'stage.speaker.remove'; targetParticipantId: string }
+  | { type: 'stage.kick'; targetParticipantId: string }
   | { type: 'media.capabilities.get' }
   | { type: 'media.transport.create'; direction: 'send' | 'recv' }
   | {

@@ -25,7 +25,7 @@ export const useCreateLiveRoom = () => {
         {
           input: {
             topic: input.topic,
-            mode: input.mode ?? LiveRoomMode.Debate,
+            mode: input.mode ?? LiveRoomMode.Moderated,
           },
         },
       );

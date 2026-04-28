@@ -84,6 +84,8 @@ export interface LiveRoomContextValue {
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
+  joinStage: () => Promise<void>;
+  leaveStage: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
   sendChatMessage: (body: string) => Promise<void>;
   deleteChatMessage: (messageId: string) => Promise<void>;
@@ -899,7 +901,23 @@ export const LiveRoomProvider = ({
     if (!connection) {
       throw new Error('Not connected');
     }
-    await connection.send({ type: 'debate.queue.join' });
+    await connection.send({ type: 'stage.queue.join' });
+  }, []);
+
+  const joinStage = useCallback(async () => {
+    const connection = connectionRef.current;
+    if (!connection) {
+      throw new Error('Not connected');
+    }
+    await connection.send({ type: 'stage.speaker.join' });
+  }, []);
+
+  const leaveStage = useCallback(async () => {
+    const connection = connectionRef.current;
+    if (!connection) {
+      throw new Error('Not connected');
+    }
+    await connection.send({ type: 'stage.speaker.leave' });
   }, []);
 
   const sendReaction = useCallback(async (emoji: string) => {
@@ -907,7 +925,7 @@ export const LiveRoomProvider = ({
     if (!connection) {
       throw new Error('Not connected');
     }
-    await connection.send({ type: 'debate.reaction.send', key: emoji });
+    await connection.send({ type: 'stage.reaction.send', key: emoji });
   }, []);
 
   const sendChatMessage = useCallback(async (body: string) => {
@@ -947,7 +965,7 @@ export const LiveRoomProvider = ({
       throw new Error('Not connected');
     }
     await connection.send({
-      type: 'debate.speaker.promote',
+      type: 'stage.speaker.promote',
       targetParticipantId,
     });
   }, []);
@@ -958,7 +976,7 @@ export const LiveRoomProvider = ({
       throw new Error('Not connected');
     }
     await connection.send({
-      type: 'debate.speaker.remove',
+      type: 'stage.speaker.remove',
       targetParticipantId,
     });
   }, []);
@@ -969,7 +987,7 @@ export const LiveRoomProvider = ({
       throw new Error('Not connected');
     }
     await connection.send({
-      type: 'debate.kick',
+      type: 'stage.kick',
       targetParticipantId,
     });
   }, []);
@@ -984,6 +1002,8 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      joinStage,
+      leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
@@ -1019,6 +1039,8 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      joinStage,
+      leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,

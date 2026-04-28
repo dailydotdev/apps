@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '../modals/common/Modal';
+import { Radio } from '../fields/Radio';
 import {
   Typography,
   TypographyColor,
@@ -22,6 +23,7 @@ const createLiveRoomFormSchema = z.object({
     .trim()
     .min(1, 'Topic is required')
     .max(280, 'Topic must be 280 characters or less'),
+  mode: z.nativeEnum(LiveRoomMode),
 });
 
 type CreateLiveRoomFormValues = z.infer<typeof createLiveRoomFormSchema>;
@@ -44,14 +46,14 @@ export const CreateLiveRoomModal = ({
 
   const form = useForm<CreateLiveRoomFormValues>({
     resolver: zodResolver(createLiveRoomFormSchema),
-    defaultValues: { topic: '' },
+    defaultValues: { topic: '', mode: LiveRoomMode.Moderated },
   });
 
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       const joinToken = await createLiveRoom({
         topic: values.topic,
-        mode: LiveRoomMode.Debate,
+        mode: values.mode,
       });
       onCreated(joinToken);
       onClose();
@@ -75,8 +77,8 @@ export const CreateLiveRoomModal = ({
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Pick a topic and we&apos;ll spin up a debate room you can host right
-          away.
+          Pick a topic, choose how the stage works, and we&apos;ll spin up the
+          room right away.
         </Typography>
         <FormProvider {...form}>
           <form
@@ -87,8 +89,51 @@ export const CreateLiveRoomModal = ({
             <ControlledTextField
               name="topic"
               label="Topic"
-              placeholder="What do you want to debate?"
+              placeholder="What do you want to talk about?"
             />
+            <div className="flex flex-col gap-3">
+              <Typography type={TypographyType.Footnote} bold>
+                Room mode
+              </Typography>
+              <Radio
+                name="mode"
+                value={form.watch('mode')}
+                onChange={(value) =>
+                  form.setValue('mode', value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                options={[
+                  {
+                    value: LiveRoomMode.Moderated,
+                    label: 'Moderated',
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="pl-10"
+                      >
+                        People join a queue and the host brings them on stage.
+                      </Typography>
+                    ),
+                  },
+                  {
+                    value: LiveRoomMode.FreeForAll,
+                    label: 'Free for all',
+                    afterElement: (
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="pl-10"
+                      >
+                        Anyone can hop on stage until the speaker limit is full.
+                      </Typography>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </form>
         </FormProvider>
       </Modal.Body>

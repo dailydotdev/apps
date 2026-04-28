@@ -187,6 +187,8 @@ export const LiveRoomControls = ({
     startRoom,
     endRoom,
     joinSpeakerQueue,
+    joinStage,
+    leaveStage,
     sendReaction,
     role,
     participantId,
@@ -229,11 +231,34 @@ export const LiveRoomControls = ({
 
   const isHost = role === 'host';
   const isAudience = role === 'audience';
+  const isSpeaker = role === 'speaker';
+  const isModerated = roomState?.mode === 'moderated';
+  const isFreeForAll = roomState?.mode === 'free_for_all';
   const isQueued =
     !!participantId &&
-    !!roomState?.debate?.speakerQueueParticipantIds.includes(participantId);
+    !!roomState?.stage.speakerQueueParticipantIds.includes(participantId);
+  const speakerLimit = roomState?.stage.speakerLimit ?? null;
+  const activeSpeakerCount =
+    roomState?.stage.activeSpeakerParticipantIds.length ?? 0;
+  const isStageFull =
+    isFreeForAll &&
+    roomState?.status === 'live' &&
+    speakerLimit !== null &&
+    activeSpeakerCount >= speakerLimit;
   const canJoinQueue =
-    isAudience && roomState?.status === 'live' && !isQueued && !busy;
+    isModerated &&
+    isAudience &&
+    roomState?.status === 'live' &&
+    !isQueued &&
+    !busy;
+  const canJoinStage =
+    isFreeForAll &&
+    isAudience &&
+    roomState?.status === 'live' &&
+    !isStageFull &&
+    !busy;
+  const canLeaveStage =
+    isFreeForAll && isSpeaker && roomState?.status === 'live' && !busy;
   const showGoLive = isHost && roomState?.status === 'created';
 
   const previewSuffix = (active: boolean, publishing: boolean) =>
@@ -277,6 +302,19 @@ export const LiveRoomControls = ({
     }
 
     guarded('queue', joinSpeakerQueue);
+  };
+
+  const handleJoinStage = (): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    guarded('join-stage', joinStage);
+  };
+
+  const handleLeaveStage = (): void => {
+    guarded('leave-stage', leaveStage);
   };
 
   return (
@@ -405,7 +443,7 @@ export const LiveRoomControls = ({
             >
               <span className="text-base leading-none">😀</span>
             </Button>
-            {isAudience ? (
+            {isModerated && isAudience ? (
               <Button
                 type="button"
                 size={ButtonSize.Small}
@@ -418,6 +456,33 @@ export const LiveRoomControls = ({
                 onClick={handleJoinQueue}
               >
                 {isQueued ? 'Queued' : 'Join queue'}
+              </Button>
+            ) : null}
+            {isFreeForAll && isAudience ? (
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={
+                  isStageFull ? ButtonVariant.Secondary : ButtonVariant.Primary
+                }
+                icon={<MegaphoneIcon />}
+                loading={busy === 'join-stage'}
+                disabled={!canJoinStage}
+                onClick={handleJoinStage}
+              >
+                {isStageFull ? 'Stage full' : 'Join stage'}
+              </Button>
+            ) : null}
+            {canLeaveStage ? (
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Secondary}
+                icon={<PhoneIcon />}
+                loading={busy === 'leave-stage'}
+                onClick={handleLeaveStage}
+              >
+                Leave stage
               </Button>
             ) : null}
           </ControlGroup>

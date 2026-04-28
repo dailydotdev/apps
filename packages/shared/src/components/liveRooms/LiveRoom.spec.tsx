@@ -52,6 +52,7 @@ const createContextValue = (
   errorMessage: null,
   roomState: {
     roomId: 'room-1',
+    mode: 'moderated',
     status: 'live',
     version: 1,
     participants: {
@@ -86,7 +87,7 @@ const createContextValue = (
     },
     chatPermissions: {},
     sessions: {},
-    debate: {
+    stage: {
       speakerQueueParticipantIds: ['queued1'],
       activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
     },
@@ -100,6 +101,8 @@ const createContextValue = (
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
+  joinStage: jest.fn(),
+  leaveStage: jest.fn(),
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
@@ -190,6 +193,26 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker1')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
+  });
+
+  it('switches the side panel to audience mode for free-for-all rooms', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          mode: 'free_for_all',
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['speaker1'],
+            speakerLimit: 4,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByRole('tab', { name: /Audience/ })).toBeInTheDocument();
   });
 
   it('allows anonymous users to load the live room', () => {

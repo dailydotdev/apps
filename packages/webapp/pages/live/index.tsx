@@ -30,7 +30,7 @@ import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
 const LIVE_TITLE = 'Live rooms | daily.dev';
 const LIVE_DESCRIPTION =
-  'Join live debates with developers happening right now on daily.dev.';
+  'Join live developer rooms happening right now on daily.dev.';
 
 const seo: NextSeoProps = {
   title: LIVE_TITLE,
@@ -80,7 +80,7 @@ const LivePage = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Hop into a debate or start one of your own.
+            Hop into a moderated room or open the stage to everyone.
           </Typography>
         </div>
         <Button
@@ -107,7 +107,7 @@ const LivePage = (): ReactElement => {
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Be the first to start a debate.
+            Be the first to start a room.
           </Typography>
           <Button
             className="mt-2"
