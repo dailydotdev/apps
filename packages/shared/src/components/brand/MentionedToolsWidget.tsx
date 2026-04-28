@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
@@ -22,7 +22,7 @@ import { AuthTriggers } from '../../lib/auth';
 import type { PublicProfile } from '../../lib/user';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, Origin } from '../../lib/log';
 
 interface Tool {
   id: string;
@@ -146,6 +146,23 @@ export const MentionedToolsWidget = ({
     setSelectedToolName(null);
   }, []);
 
+  const hoveredToolsRef = useRef<Set<string>>(new Set());
+
+  const handleSponsoredToolHover = useCallback(
+    (toolName: string) => {
+      if (hoveredToolsRef.current.has(toolName)) {
+        return;
+      }
+      hoveredToolsRef.current.add(toolName);
+      logEvent({
+        event_name: LogEvent.HoverEngagementTooltip,
+        target_id: toolName,
+        extra: JSON.stringify({ origin: Origin.MentionedTool }),
+      });
+    },
+    [logEvent],
+  );
+
   if (mentionedTools.length === 0) {
     return null;
   }
@@ -179,6 +196,11 @@ export const MentionedToolsWidget = ({
                 key={tool.id}
                 type="button"
                 onClick={() => handleToolClick(tool)}
+                onMouseEnter={
+                  isSponsored && !isInStack
+                    ? () => handleSponsoredToolHover(tool.name)
+                    : undefined
+                }
                 className="group flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-12 px-3 text-left transition-colors hover:bg-surface-hover"
               >
                 <div className="flex items-center gap-2">

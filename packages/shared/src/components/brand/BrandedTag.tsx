@@ -1,11 +1,13 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import type { TagBrandingStyle } from '../../lib/brand';
 import { Tooltip } from '../tooltip/Tooltip';
 import { SponsoredTooltip } from './SponsoredTooltip';
 import styles from './BrandedTag.module.css';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin } from '../../lib/log';
 
 interface BrandedTagProps {
   tag: string;
@@ -43,6 +45,20 @@ export const BrandedTag = ({
     : rawSponsorInfo;
   const isAnimated = sponsorInfo.isSponsored && !!sponsorInfo.branding;
   const showBranding = isAnimated;
+  const { logEvent } = useLogContext();
+  const hasLoggedHoverRef = useRef(false);
+
+  const handleSponsoredHover = useCallback(() => {
+    if (!sponsorInfo.isSponsored || hasLoggedHoverRef.current) {
+      return;
+    }
+    hasLoggedHoverRef.current = true;
+    logEvent({
+      event_name: LogEvent.HoverEngagementTooltip,
+      target_id: tag,
+      extra: JSON.stringify({ origin: Origin.BrandedTag }),
+    });
+  }, [logEvent, sponsorInfo.isSponsored, tag]);
 
   const getBrandedContent = (style: TagBrandingStyle): string => {
     if (!sponsorInfo.brandName) {
@@ -155,6 +171,7 @@ export const BrandedTag = ({
       <span
         role="presentation"
         onClick={handleClick}
+        onMouseEnter={handleSponsoredHover}
         className={sponsorInfo.isSponsored ? sponsoredClassName : baseClassName}
         style={sponsorInfo.isSponsored ? sponsoredStyle : undefined}
       >
@@ -183,6 +200,7 @@ export const BrandedTag = ({
     <button
       type="button"
       onClick={handleClick}
+      onMouseEnter={handleSponsoredHover}
       className={sponsorInfo.isSponsored ? sponsoredClassName : baseClassName}
       style={sponsorInfo.isSponsored ? sponsoredStyle : undefined}
     >

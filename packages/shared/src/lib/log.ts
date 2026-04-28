@@ -94,6 +94,8 @@ export enum Origin {
   // Engagement ads
   HighlightedKeyword = 'highlighted keyword',
   ProfileStack = 'profile stack',
+  BrandedTag = 'branded tag',
+  MentionedTool = 'mentioned tool',
 }
 
 export enum LogEvent {
