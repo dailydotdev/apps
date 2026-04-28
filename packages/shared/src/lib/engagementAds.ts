@@ -24,7 +24,7 @@ export const engagementCreativeSchema = z.object({
   promoted_gradient_start: themedStringSchema,
   promoted_gradient_end: themedStringSchema,
   tools: z.array(z.string()),
-  keywords: z.array(z.string()),
+  keywords: z.array(z.string()).optional().default([]),
   tags: z.array(z.string()),
 });
 
