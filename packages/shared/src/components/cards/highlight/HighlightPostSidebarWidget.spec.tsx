@@ -170,6 +170,45 @@ describe('HighlightPostSidebarWidget', () => {
     expect(screen.queryByText('The first highlight')).not.toBeInTheDocument();
   });
 
+  it('loops back to the first highlight after the last one', async () => {
+    jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
+    mockGqlRequest.mockResolvedValue(
+      buildResponse([
+        buildHighlight('h1', 'The first highlight'),
+        buildHighlight('h2', 'The second highlight'),
+      ]),
+    );
+
+    renderWidget();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText('The first highlight')).toBeInTheDocument(),
+    );
+
+    await act(async () => {
+      jest.advanceTimersByTime(6000);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    expect(screen.getByText('The second highlight')).toBeInTheDocument();
+
+    await act(async () => {
+      jest.advanceTimersByTime(6000);
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+    });
+
+    expect(screen.getByText('The first highlight')).toBeInTheDocument();
+    expect(screen.queryByText('The second highlight')).not.toBeInTheDocument();
+  });
+
   it('pauses rotation while hovering and resumes after unhover', async () => {
     jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
     mockGqlRequest.mockResolvedValue(
