@@ -138,8 +138,6 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const questsFeature = new Feature('quests', false);
-
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
