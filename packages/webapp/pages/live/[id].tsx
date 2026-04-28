@@ -2,12 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import type { NextSeoProps } from 'next-seo';
-import {
-  pageBorders,
-  pageContainerClassNames,
-} from '@dailydotdev/shared/src/components/utilities';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -46,13 +41,7 @@ const LiveRoomPage = (): ReactElement => {
   const { id } = router.query;
 
   return (
-    <main
-      className={classNames(
-        pageContainerClassNames,
-        pageBorders,
-        'min-h-page py-6',
-      )}
-    >
+    <main className="relative z-1 flex h-[calc(100dvh-4rem)] min-h-page w-full flex-col">
       {typeof id === 'string' ? (
         <LiveRoom roomId={id} />
       ) : (

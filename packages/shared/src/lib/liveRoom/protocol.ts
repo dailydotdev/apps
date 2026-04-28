@@ -38,7 +38,7 @@ export interface LiveRoomMediaPublicationRecord {
 
 export interface LiveRoomDebateState {
   speakerQueueParticipantIds: string[];
-  activeSpeakerParticipantId: string | null;
+  activeSpeakerParticipantIds: string[];
 }
 
 export interface LiveRoomState {
@@ -131,8 +131,8 @@ export type LiveRoomCommand =
   | { type: 'room.end' }
   | { type: 'debate.queue.join' }
   | { type: 'debate.reaction.send'; key: string }
-  | { type: 'debate.speaker.promote' }
-  | { type: 'debate.speaker.remove' }
+  | { type: 'debate.speaker.promote'; targetParticipantId: string }
+  | { type: 'debate.speaker.remove'; targetParticipantId: string }
   | { type: 'debate.kick'; targetParticipantId: string }
   | { type: 'media.capabilities.get' }
   | { type: 'media.transport.create'; direction: 'send' | 'recv' }

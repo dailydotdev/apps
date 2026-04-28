@@ -80,8 +80,8 @@ export interface LiveRoomContextValue {
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
-  promoteNextSpeaker: () => Promise<void>;
-  removeCurrentSpeaker: () => Promise<void>;
+  promoteSpeaker: (targetParticipantId: string) => Promise<void>;
+  removeSpeaker: (targetParticipantId: string) => Promise<void>;
   kickParticipant: (targetParticipantId: string) => Promise<void>;
 
   canPublish: boolean;
@@ -149,7 +149,7 @@ export const LiveRoomProvider = ({
   roomId,
   children,
 }: LiveRoomProviderProps): ReactElement => {
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const [status, setStatus] = useState<LiveRoomConnectionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<LiveRoomState | null>(null);
@@ -251,7 +251,7 @@ export const LiveRoomProvider = ({
   >({
     queryKey: generateQueryKey(RequestKey.LiveRooms, user, 'join', roomId),
     queryFn: () => fetchJoinToken(roomId),
-    enabled: !!user && !!roomId,
+    enabled: isAuthReady && !!roomId,
     retry: false,
     staleTime: Infinity,
     gcTime: 0,
@@ -860,20 +860,26 @@ export const LiveRoomProvider = ({
     await connection.send({ type: 'debate.reaction.send', key: emoji });
   }, []);
 
-  const promoteNextSpeaker = useCallback(async () => {
+  const promoteSpeaker = useCallback(async (targetParticipantId: string) => {
     const connection = connectionRef.current;
     if (!connection) {
       throw new Error('Not connected');
     }
-    await connection.send({ type: 'debate.speaker.promote' });
+    await connection.send({
+      type: 'debate.speaker.promote',
+      targetParticipantId,
+    });
   }, []);
 
-  const removeCurrentSpeaker = useCallback(async () => {
+  const removeSpeaker = useCallback(async (targetParticipantId: string) => {
     const connection = connectionRef.current;
     if (!connection) {
       throw new Error('Not connected');
     }
-    await connection.send({ type: 'debate.speaker.remove' });
+    await connection.send({
+      type: 'debate.speaker.remove',
+      targetParticipantId,
+    });
   }, []);
 
   const kickParticipant = useCallback(async (targetParticipantId: string) => {
@@ -898,8 +904,8 @@ export const LiveRoomProvider = ({
       endRoom,
       joinSpeakerQueue,
       sendReaction,
-      promoteNextSpeaker,
-      removeCurrentSpeaker,
+      promoteSpeaker,
+      removeSpeaker,
       kickParticipant,
       canPublish,
       isCameraOn,
@@ -928,8 +934,8 @@ export const LiveRoomProvider = ({
       endRoom,
       joinSpeakerQueue,
       sendReaction,
-      promoteNextSpeaker,
-      removeCurrentSpeaker,
+      promoteSpeaker,
+      removeSpeaker,
       kickParticipant,
       canPublish,
       isCameraOn,

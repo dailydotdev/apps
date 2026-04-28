@@ -4,20 +4,33 @@ import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
+  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { UserShortProfile } from '../../lib/user';
-import { LiveRoomMicLevel } from './LiveRoomMicLevel';
+import { MegaphoneIcon } from '../icons';
+import { IconSize } from '../Icon';
+import Link from '../utilities/Link';
+import {
+  SPEAKING_LEVEL_THRESHOLD,
+  useLiveRoomAudioLevel,
+} from './useLiveRoomAudioLevel';
+import { LiveRoomTileActions } from './LiveRoomTileActions';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
   user: UserShortProfile;
-  label?: string;
   // When true, only video is shown (audio not rendered to avoid feedback for own preview).
   selfView?: boolean;
+  isHost?: boolean;
   className?: string;
+  onRemoveSpeaker?: () => void;
+  onKick?: () => void;
+  isRemoving?: boolean;
+  isKicking?: boolean;
+  moderationDisabled?: boolean;
 }
 
 const pickLiveTrack = (
@@ -35,9 +48,14 @@ const pickLiveTrack = (
 export const LiveRoomVideoTile = ({
   stream,
   user,
-  label,
   selfView = false,
+  isHost = false,
   className,
+  onRemoveSpeaker,
+  onKick,
+  isRemoving = false,
+  isKicking = false,
+  moderationDisabled = false,
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -60,6 +78,22 @@ export const LiveRoomVideoTile = ({
     () => (audioTrack ? new MediaStream([audioTrack]) : null),
     [audioTrack],
   );
+
+  // The level analyser is the source of truth for the speaking ring; for
+  // selfView (no audio element) we still need an audio-only stream to read
+  // levels off, otherwise the host's own tile would never glow on speech.
+  const levelStream = useMemo(() => {
+    if (audioStream) {
+      return audioStream;
+    }
+    if (!selfView) {
+      return null;
+    }
+    const localAudio = pickLiveTrack(stream, 'audio');
+    return localAudio ? new MediaStream([localAudio]) : null;
+  }, [audioStream, selfView, stream]);
+  const level = useLiveRoomAudioLevel(levelStream);
+  const isSpeaking = level >= SPEAKING_LEVEL_THRESHOLD;
 
   const tryPlayAudio = (): void => {
     const node = audioRef.current;
@@ -107,7 +141,10 @@ export const LiveRoomVideoTile = ({
   return (
     <div
       className={classNames(
-        'relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-16 bg-surface-float',
+        'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        isSpeaking
+          ? 'border-accent-avocado-default shadow-[0_0_0_3px_var(--theme-accent-avocado-subtle)]'
+          : 'border-border-subtlest-tertiary',
         className,
       )}
     >
@@ -143,21 +180,46 @@ export const LiveRoomVideoTile = ({
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <audio ref={audioRef} autoPlay />
       ) : null}
-      {label ? (
-        <div className="absolute bottom-3 left-3 rounded-8 bg-overlay-base-tertiary px-2 py-1 backdrop-blur">
-          <Typography type={TypographyType.Caption1} bold>
-            {label}
-          </Typography>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
+        <div className="flex min-w-0 items-center gap-2 rounded-12 bg-overlay-dark-dark3 px-2.5 py-1 backdrop-blur transition-[padding] duration-200 ease-out group-hover:pr-1">
+          {isHost ? (
+            <Typography
+              type={TypographyType.Caption2}
+              bold
+              className="shrink-0 uppercase tracking-wide !text-accent-bun-default"
+            >
+              Host
+            </Typography>
+          ) : null}
+          <Link href={user.permalink} passHref>
+            <Typography
+              tag={TypographyTag.Link}
+              type={TypographyType.Footnote}
+              bold
+              truncate
+              className="pointer-events-auto min-w-0 !text-white hover:underline"
+            >
+              {user.name}
+            </Typography>
+          </Link>
+          <LiveRoomTileActions
+            user={user}
+            onRemoveSpeaker={onRemoveSpeaker}
+            onKick={onKick}
+            isRemoving={isRemoving}
+            isKicking={isKicking}
+            moderationDisabled={moderationDisabled}
+          />
         </div>
-      ) : null}
-      {audioStream ? (
-        <div className="absolute bottom-3 right-3 flex items-center gap-2 rounded-8 bg-overlay-base-tertiary px-2 py-1 backdrop-blur">
-          <Typography type={TypographyType.Caption2} bold>
-            Audio
-          </Typography>
-          <LiveRoomMicLevel stream={audioStream} />
-        </div>
-      ) : null}
+        {isSpeaking ? (
+          <span
+            aria-label="Speaking"
+            className="pointer-events-none flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-white"
+          >
+            <MegaphoneIcon size={IconSize.XSmall} />
+          </span>
+        ) : null}
+      </div>
       {needsAudioGesture ? (
         <Button
           className="absolute right-3 top-3"

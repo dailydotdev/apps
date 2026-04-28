@@ -3,12 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import { LiveRoomControls } from './LiveRoomControls';
+import { AuthTriggers } from '../../lib/auth';
 
 const mockUseLiveRoom = jest.fn<LiveRoomContextValue, []>();
 const mockDisplayToast = jest.fn();
+const mockShowLogin = jest.fn();
+const mockUseAuthContext = jest.fn();
 
 jest.mock('../../contexts/LiveRoomContext', () => ({
   useLiveRoom: () => mockUseLiveRoom(),
+}));
+
+jest.mock('../../contexts/AuthContext', () => ({
+  useAuthContext: () => mockUseAuthContext(),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
@@ -43,7 +50,7 @@ const createContextValue = (
     sessions: {},
     debate: {
       speakerQueueParticipantIds: [],
-      activeSpeakerParticipantId: null,
+      activeSpeakerParticipantIds: [],
     },
     mediaPublications: {},
     mediaRuntimeOwner: null,
@@ -56,8 +63,8 @@ const createContextValue = (
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
   sendReaction: jest.fn(),
-  promoteNextSpeaker: jest.fn(),
-  removeCurrentSpeaker: jest.fn(),
+  promoteSpeaker: jest.fn(),
+  removeSpeaker: jest.fn(),
   kickParticipant: jest.fn(),
   canPublish: false,
   isCameraOn: false,
@@ -99,6 +106,10 @@ const renderLiveRoomControls = () => {
 describe('LiveRoomControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseAuthContext.mockReturnValue({
+      user: { id: 'viewer-1' },
+      showLogin: mockShowLogin,
+    });
   });
 
   it('lets an audience participant join the speaker queue', () => {
@@ -121,7 +132,7 @@ describe('LiveRoomControls', () => {
           ...createRoomState(),
           debate: {
             speakerQueueParticipantIds: ['audience'],
-            activeSpeakerParticipantId: null,
+            activeSpeakerParticipantIds: [],
           },
         },
       }),
@@ -160,6 +171,45 @@ describe('LiveRoomControls', () => {
     expect(sendReaction).toHaveBeenCalledWith('⭐');
   });
 
+  it('prompts anonymous viewers to sign up instead of joining the queue', () => {
+    const joinSpeakerQueue = jest.fn().mockResolvedValue(undefined);
+    mockUseAuthContext.mockReturnValue({
+      user: undefined,
+      showLogin: mockShowLogin,
+    });
+    mockUseLiveRoom.mockReturnValue(createContextValue({ joinSpeakerQueue }));
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Join queue' }));
+
+    expect(joinSpeakerQueue).not.toHaveBeenCalled();
+    expect(mockShowLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.MainButton,
+    });
+  });
+
+  it('prompts anonymous viewers to sign up instead of opening reactions', () => {
+    const sendReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseAuthContext.mockReturnValue({
+      user: undefined,
+      showLogin: mockShowLogin,
+    });
+    mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
+
+    expect(sendReaction).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('button', { name: 'React 🔥' }),
+    ).not.toBeInTheDocument();
+    expect(mockShowLogin).toHaveBeenCalledWith({
+      trigger: AuthTriggers.MainButton,
+    });
+  });
+
   it('keeps host controls separate from the audience queue button', () => {
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
@@ -196,7 +246,7 @@ describe('LiveRoomControls', () => {
           },
           debate: {
             speakerQueueParticipantIds: [],
-            activeSpeakerParticipantId: 'audience',
+            activeSpeakerParticipantIds: ['audience'],
           },
         },
       }),

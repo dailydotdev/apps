@@ -25,7 +25,6 @@ export const useActiveLiveRooms = (): UseQueryResult<LiveRoom[]> => {
       );
       return data.activeLiveRooms;
     },
-    enabled: !!user,
     staleTime: ONE_MINUTE,
     refetchInterval: ONE_MINUTE,
   });

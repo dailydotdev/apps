@@ -19,8 +19,10 @@ import {
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { LiveRoomCard } from '@dailydotdev/shared/src/components/liveRooms/LiveRoomCard';
 import { CreateLiveRoomModal } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomModal';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useActiveLiveRooms } from '@dailydotdev/shared/src/hooks/liveRooms/useActiveLiveRooms';
 import type { LiveRoom } from '@dailydotdev/shared/src/graphql/liveRooms';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import classNames from 'classnames';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -45,10 +47,20 @@ const seo: NextSeoProps = {
 const LivePage = (): ReactElement => {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { user, showLogin } = useAuthContext();
   const { data: rooms, isLoading } = useActiveLiveRooms();
 
   const handleJoin = (room: LiveRoom): void => {
     router.push(`/live/${room.id}`);
+  };
+
+  const handleCreateClick = (): void => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.MainButton });
+      return;
+    }
+
+    setIsCreateOpen(true);
   };
 
   return (
@@ -74,7 +86,7 @@ const LivePage = (): ReactElement => {
         <Button
           variant={ButtonVariant.Primary}
           icon={<PlusIcon />}
-          onClick={() => setIsCreateOpen(true)}
+          onClick={handleCreateClick}
         >
           New room
         </Button>
@@ -100,7 +112,7 @@ const LivePage = (): ReactElement => {
           <Button
             className="mt-2"
             variant={ButtonVariant.Primary}
-            onClick={() => setIsCreateOpen(true)}
+            onClick={handleCreateClick}
           >
             Start a room
           </Button>

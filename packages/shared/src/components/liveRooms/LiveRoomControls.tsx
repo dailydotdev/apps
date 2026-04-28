@@ -2,20 +2,39 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+  type IconType,
+} from '../buttons/Button';
 import { EmojiPicker } from '../fields/EmojiPicker';
 import {
+  ArrowIcon,
   CameraIcon,
   MegaphoneIcon,
   PhoneIcon,
   PlusIcon,
-  SettingsIcon,
+  VIcon,
   VolumeOffIcon,
 } from '../icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import type { LiveRoomDeviceInfo } from '../../contexts/LiveRoomContext';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
-import { LiveRoomDevicePicker } from './LiveRoomDevicePicker';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../typography/Typography';
+import { useAuthContext } from '../../contexts/AuthContext';
+import { AuthTriggers } from '../../lib/auth';
 
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
 
@@ -39,9 +58,124 @@ const ControlGroup = ({
   </div>
 );
 
+interface DeviceSplitButtonProps {
+  isOn: boolean;
+  isLoading: boolean;
+  toggleAriaLabel: string;
+  caretAriaLabel: string;
+  caretMenuLabel: string;
+  toggleIcon: IconType;
+  onToggle: () => void;
+  devices: LiveRoomDeviceInfo[];
+  selectedId: string | null;
+  onSelect: (deviceId: string) => void;
+  emptyLabel: string;
+  extra?: ReactNode;
+}
+
+const DeviceSplitButton = ({
+  isOn,
+  isLoading,
+  toggleAriaLabel,
+  caretAriaLabel,
+  caretMenuLabel,
+  toggleIcon,
+  onToggle,
+  devices,
+  selectedId,
+  onSelect,
+  emptyLabel,
+  extra,
+}: DeviceSplitButtonProps): ReactElement => {
+  const variant = isOn ? ButtonVariant.Primary : ButtonVariant.Secondary;
+  return (
+    <div className="flex items-center">
+      <Button
+        type="button"
+        size={ButtonSize.Small}
+        variant={variant}
+        icon={toggleIcon}
+        loading={isLoading}
+        aria-label={toggleAriaLabel}
+        onClick={onToggle}
+        className="!rounded-r-none"
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={variant}
+            icon={<ArrowIcon className="rotate-180" />}
+            aria-label={caretAriaLabel}
+            className="!w-6 !rounded-l-none !border-l-0 !px-0"
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="center"
+          side="top"
+          className="min-w-[18rem]"
+        >
+          <div className="flex flex-col gap-1 px-1.5 py-1.5">
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Tertiary}
+              className="px-2 py-1 uppercase tracking-wide"
+            >
+              {caretMenuLabel}
+            </Typography>
+            {devices.length === 0 ? (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="px-2 py-2"
+              >
+                {emptyLabel}
+              </Typography>
+            ) : (
+              devices.map((device) => {
+                const isSelected = device.deviceId === selectedId;
+                return (
+                  <DropdownMenuItem
+                    key={device.deviceId}
+                    onClick={() => onSelect(device.deviceId)}
+                    aria-label={device.label}
+                  >
+                    <span className="inline-flex flex-1 items-center gap-2">
+                      <span
+                        aria-hidden
+                        className="flex size-4 shrink-0 items-center justify-center"
+                      >
+                        {isSelected ? (
+                          <VIcon
+                            size={IconSize.Size16}
+                            className="text-text-primary"
+                            secondary
+                          />
+                        ) : null}
+                      </span>
+                      <span className="truncate text-left">{device.label}</span>
+                    </span>
+                  </DropdownMenuItem>
+                );
+              })
+            )}
+            {extra ? (
+              <div className="border-t border-border-subtlest-tertiary px-2 pt-2">
+                {extra}
+              </div>
+            ) : null}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
+
 export const LiveRoomControls = ({
   onLeave,
 }: LiveRoomControlsProps): ReactElement => {
+  const { user, showLogin } = useAuthContext();
   const {
     canPublish,
     isCameraOn,
@@ -75,7 +209,6 @@ export const LiveRoomControls = ({
   const { displayToast } = useToastNotification();
   const [busy, setBusy] = useState<string | null>(null);
   const [reactionsOpen, setReactionsOpen] = useState(false);
-  const [devicesOpen, setDevicesOpen] = useState(false);
 
   const guarded = async (
     key: string,
@@ -106,6 +239,46 @@ export const LiveRoomControls = ({
   const previewSuffix = (active: boolean, publishing: boolean) =>
     active && !publishing ? ' (preview)' : '';
 
+  const promptSignup = (): void => {
+    showLogin({ trigger: AuthTriggers.MainButton });
+  };
+
+  const handleReactionsToggle = (): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    setReactionsOpen((open) => !open);
+  };
+
+  const handleReaction = (emoji: string): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    guarded(`reaction-${emoji}`, () => sendReaction(emoji));
+  };
+
+  const handleCustomReaction = (emoji: string): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    guarded('reaction-custom', () => sendReaction(emoji));
+  };
+
+  const handleJoinQueue = (): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    guarded('queue', joinSpeakerQueue);
+  };
+
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-4 z-2 flex justify-center px-3 tablet:bottom-6">
       <div className="pointer-events-auto relative flex w-full max-w-[42rem] flex-col items-center gap-2">
@@ -119,9 +292,7 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Float}
                 loading={busy === `reaction-${emoji}`}
                 aria-label={`React ${emoji}`}
-                onClick={() =>
-                  guarded(`reaction-${emoji}`, () => sendReaction(emoji))
-                }
+                onClick={() => handleReaction(emoji)}
               >
                 <span className="text-lg leading-none">{emoji}</span>
               </Button>
@@ -134,7 +305,7 @@ export const LiveRoomControls = ({
                   return;
                 }
 
-                guarded('reaction-custom', () => sendReaction(emoji));
+                handleCustomReaction(emoji);
               }}
               renderTrigger={({ isOpen, toggleOpen }) => (
                 <Button
@@ -153,14 +324,23 @@ export const LiveRoomControls = ({
           </div>
         ) : null}
 
-        {devicesOpen && canPublish ? (
-          <div className="flex w-full max-w-[28rem] flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 shadow-2">
-            <div className="flex items-center gap-2">
-              <LiveRoomDevicePicker
-                icon={<MegaphoneIcon />}
+        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-1.5 shadow-2 backdrop-blur">
+          {canPublish ? (
+            <ControlGroup>
+              <DeviceSplitButton
+                isOn={isMicOn}
+                isLoading={busy === 'mic'}
+                toggleAriaLabel={`Mic ${isMicOn ? 'on' : 'off'}${previewSuffix(
+                  isMicOn,
+                  isMicPublishing,
+                )}`}
+                caretAriaLabel="Microphone devices"
+                caretMenuLabel="Microphone"
+                toggleIcon={isMicOn ? <MegaphoneIcon /> : <VolumeOffIcon />}
+                onToggle={() => guarded('mic', toggleMic)}
                 devices={microphones}
                 selectedId={selectedMicId}
-                onChange={(id) => {
+                onSelect={(id) => {
                   selectMic(id).catch((err: unknown) =>
                     displayToast(
                       err instanceof Error
@@ -170,70 +350,42 @@ export const LiveRoomControls = ({
                   );
                 }}
                 emptyLabel="No microphones"
-                className="min-w-0 flex-1"
-              />
-              <LiveRoomMicLevel stream={localAudioStream} />
-            </div>
-            <LiveRoomDevicePicker
-              icon={<CameraIcon />}
-              devices={cameras}
-              selectedId={selectedCameraId}
-              onChange={(id) => {
-                selectCamera(id).catch((err: unknown) =>
-                  displayToast(
-                    err instanceof Error
-                      ? err.message
-                      : 'Failed to switch camera',
-                  ),
-                );
-              }}
-              emptyLabel="No cameras"
-              className="min-w-0 flex-1"
-            />
-          </div>
-        ) : null}
-
-        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-1.5 shadow-2 backdrop-blur">
-          {canPublish ? (
-            <ControlGroup>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  isMicOn ? ButtonVariant.Primary : ButtonVariant.Secondary
+                extra={
+                  localAudioStream ? (
+                    <div className="flex items-center gap-2">
+                      <Typography
+                        type={TypographyType.Caption2}
+                        color={TypographyColor.Tertiary}
+                      >
+                        Input
+                      </Typography>
+                      <LiveRoomMicLevel stream={localAudioStream} />
+                    </div>
+                  ) : null
                 }
-                icon={isMicOn ? <MegaphoneIcon /> : <VolumeOffIcon />}
-                loading={busy === 'mic'}
-                aria-label={`Mic ${isMicOn ? 'on' : 'off'}${previewSuffix(
-                  isMicOn,
-                  isMicPublishing,
-                )}`}
-                onClick={() => guarded('mic', toggleMic)}
               />
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  isCameraOn ? ButtonVariant.Primary : ButtonVariant.Secondary
-                }
-                icon={<CameraIcon secondary={isCameraOn} />}
-                loading={busy === 'camera'}
-                aria-label={`Camera ${isCameraOn ? 'on' : 'off'}${previewSuffix(
-                  isCameraOn,
-                  isCameraPublishing,
-                )}`}
-                onClick={() => guarded('camera', toggleCamera)}
-              />
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  devicesOpen ? ButtonVariant.Primary : ButtonVariant.Secondary
-                }
-                icon={<SettingsIcon />}
-                aria-label="Devices"
-                aria-expanded={devicesOpen}
-                onClick={() => setDevicesOpen((open) => !open)}
+              <DeviceSplitButton
+                isOn={isCameraOn}
+                isLoading={busy === 'camera'}
+                toggleAriaLabel={`Camera ${
+                  isCameraOn ? 'on' : 'off'
+                }${previewSuffix(isCameraOn, isCameraPublishing)}`}
+                caretAriaLabel="Camera devices"
+                caretMenuLabel="Camera"
+                toggleIcon={<CameraIcon secondary={isCameraOn} />}
+                onToggle={() => guarded('camera', toggleCamera)}
+                devices={cameras}
+                selectedId={selectedCameraId}
+                onSelect={(id) => {
+                  selectCamera(id).catch((err: unknown) =>
+                    displayToast(
+                      err instanceof Error
+                        ? err.message
+                        : 'Failed to switch camera',
+                    ),
+                  );
+                }}
+                emptyLabel="No cameras"
               />
             </ControlGroup>
           ) : null}
@@ -249,7 +401,7 @@ export const LiveRoomControls = ({
               }
               aria-label="Reactions"
               aria-expanded={reactionsOpen}
-              onClick={() => setReactionsOpen((open) => !open)}
+              onClick={handleReactionsToggle}
             >
               <span className="text-base leading-none">😀</span>
             </Button>
@@ -263,7 +415,7 @@ export const LiveRoomControls = ({
                 icon={<MegaphoneIcon />}
                 loading={busy === 'queue'}
                 disabled={!canJoinQueue}
-                onClick={() => guarded('queue', joinSpeakerQueue)}
+                onClick={handleJoinQueue}
               >
                 {isQueued ? 'Queued' : 'Join queue'}
               </Button>

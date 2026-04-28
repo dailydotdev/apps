@@ -21,7 +21,7 @@ export const useLiveRoom = (
       });
       return data.liveRoom;
     },
-    enabled: !!user && !!roomId,
+    enabled: !!roomId,
     staleTime: ONE_MINUTE,
   });
 };
