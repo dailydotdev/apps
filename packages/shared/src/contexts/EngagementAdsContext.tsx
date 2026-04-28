@@ -47,6 +47,9 @@ export const EngagementAdsProvider = ({
   const isLight = useIsLightTheme();
 
   const resolvedCreatives = useMemo(() => {
+    // TODO enable when ready for prod launch
+    return [];
+
     return parseCreatives(rawCreatives).map((c) => resolveCreative(c, isLight));
   }, [rawCreatives, isLight]);
 
