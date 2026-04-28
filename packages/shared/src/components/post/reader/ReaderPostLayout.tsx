@@ -1,9 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';

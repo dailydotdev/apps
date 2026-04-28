@@ -57,8 +57,6 @@ export const registerBrowserContentScripts = async (): Promise<void> => {
       },
     ]);
   }
-
-  return;
 };
 
 export const getContentScriptPermission = (): Promise<boolean> =>

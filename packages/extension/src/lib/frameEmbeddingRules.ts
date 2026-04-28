@@ -1,10 +1,7 @@
 import type { FrameEmbedRule } from './frameEmbeddingApi';
 
 const FRAME_EMBED_RULE_ID_OFFSET = 1_000_000;
-const FRAME_EMBED_HEADERS = [
-  'X-Frame-Options',
-  'Content-Security-Policy',
-];
+const FRAME_EMBED_HEADERS = ['X-Frame-Options', 'Content-Security-Policy'];
 const FRAME_EMBED_RULE_REGEX = '^https?://';
 
 export const getFrameEmbedRuleId = (tabId: number): number =>

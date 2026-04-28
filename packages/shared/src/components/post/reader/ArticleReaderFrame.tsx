@@ -4,9 +4,7 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { PostArticlePreviewEmbed } from '../PostArticlePreviewEmbed';
 import { ReaderFallback } from './ReaderFallback';
-import {
-  ReaderHeaderActionGroup,
-} from './ReaderHeaderActionButtons';
+import { ReaderHeaderActionGroup } from './ReaderHeaderActionButtons';
 
 type ArticleReaderFrameProps = {
   post: Post;

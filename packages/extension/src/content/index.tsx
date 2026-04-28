@@ -26,7 +26,9 @@ if (window.top === window.self) {
       const current = removeLinkTargetElement(window.location.href);
       if (current !== lastUrl) {
         lastUrl = current;
-        browser.runtime.sendMessage({ type: ExtensionMessageType.ContentLoaded });
+        browser.runtime.sendMessage({
+          type: ExtensionMessageType.ContentLoaded,
+        });
       }
     }).observe(document, { subtree: true, childList: true });
   }

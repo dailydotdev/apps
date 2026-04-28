@@ -167,7 +167,9 @@ export function PostArticlePreviewEmbed({
     !isInExtension &&
     (!extensionId ||
       timedOutBeforeConnect ||
-      (!hasInstalledExtension && embedStatus === 'idle' && timedOutBeforeConnect));
+      (!hasInstalledExtension &&
+        embedStatus === 'idle' &&
+        timedOutBeforeConnect));
 
   useEffect(() => {
     if (
@@ -198,12 +200,7 @@ export function PostArticlePreviewEmbed({
       cancelled = true;
       globalThis.clearInterval(interval);
     };
-  }, [
-    extensionId,
-    hasInstalledExtension,
-    isInExtension,
-    shouldPromptInstall,
-  ]);
+  }, [extensionId, hasInstalledExtension, isInExtension, shouldPromptInstall]);
 
   // "Iframe connected but the embed ultimately failed": dropped target
   // frame, DNR rule couldn't be set up, publisher blocks embedding, etc.
@@ -222,11 +219,7 @@ export function PostArticlePreviewEmbed({
       didNotifyRef.current = true;
       onPreviewUnavailable?.();
     }
-  }, [
-    forceUnavailable,
-    onPreviewUnavailable,
-    shouldCollapseUnavailable,
-  ]);
+  }, [forceUnavailable, onPreviewUnavailable, shouldCollapseUnavailable]);
 
   // Pre-connect timeout: iframe mounted but the permission frame never posted
   // anything back within the window. Treat this as "can't embed from here"
@@ -364,7 +357,9 @@ export function PostArticlePreviewEmbed({
               onStateChange={onEmbedStateChange}
               renderState={renderEmbedChrome}
             />
-            {!collapseOnUnavailable && previewBroken && embedStatus === 'ready' ? (
+            {!collapseOnUnavailable &&
+            previewBroken &&
+            embedStatus === 'ready' ? (
               <div
                 className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
                 aria-live="polite"
