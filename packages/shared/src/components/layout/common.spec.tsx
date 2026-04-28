@@ -73,6 +73,12 @@ jest.mock('../filters/AchievementTrackerButton', () => ({
   },
 }));
 
+jest.mock('../filters/IntroQuestButton', () => ({
+  IntroQuestButton: function MockIntroQuestButton() {
+    return null;
+  },
+}));
+
 jest.mock('../tooltip/Tooltip', () => ({
   Tooltip: function MockTooltip({
     children,

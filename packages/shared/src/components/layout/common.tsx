@@ -35,6 +35,7 @@ import { Typography } from '../typography/Typography';
 import { ToggleClickbaitShield } from '../buttons/ToggleClickbaitShield';
 import { LogEvent, Origin } from '../../lib/log';
 import { AchievementTrackerButton } from '../filters/AchievementTrackerButton';
+import { IntroQuestButton } from '../filters/IntroQuestButton';
 import { ActionType } from '../../graphql/actions';
 import {
   BrowserName,
@@ -194,6 +195,7 @@ export const SearchControlHeader = ({
         key="toggle-clickbait-shield"
       />
     ),
+    hasFeedActions && <IntroQuestButton key="intro-quests" />,
     hasFeedActions && <AchievementTrackerButton key="achievement-tracker" />,
   ];
   const secondaryActions = [isLaptop && installExtensionButton];

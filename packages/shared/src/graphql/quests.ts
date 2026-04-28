@@ -5,6 +5,7 @@ export enum QuestType {
   Daily = 'daily',
   Weekly = 'weekly',
   Milestone = 'milestone',
+  Intro = 'intro',
 }
 
 export enum QuestStatus {
@@ -66,6 +67,7 @@ export interface QuestDashboard {
   daily: QuestBucket;
   weekly: QuestBucket;
   milestone: UserQuest[];
+  intro: UserQuest[];
 }
 
 export interface QuestDashboardData {
@@ -75,7 +77,7 @@ export interface QuestDashboardData {
 export interface ClaimQuestRewardData {
   claimQuestReward: Pick<
     QuestDashboard,
-    'level' | 'daily' | 'weekly' | 'milestone'
+    'level' | 'daily' | 'weekly' | 'milestone' | 'intro'
   >;
 }
 
@@ -237,6 +239,28 @@ export const QUEST_DASHBOARD_QUERY = gql`
           amount
         }
       }
+      intro {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
+        }
+      }
       hasNewQuestRotations
     }
   }
@@ -344,6 +368,28 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
         }
       }
       milestone {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
+        }
+      }
+      intro {
         userQuestId
         rotationId
         progress
