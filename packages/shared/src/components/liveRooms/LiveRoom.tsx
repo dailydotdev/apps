@@ -67,6 +67,24 @@ interface LiveRoomProps {
 
 type SidePanelTab = 'chat' | 'queue' | 'audience';
 
+const MAX_STAGE_TILES_PER_PAGE = 12;
+
+const getStageGridColumnCount = (count: number): number => {
+  if (count <= 1) {
+    return 1;
+  }
+  if (count === 2) {
+    return 2;
+  }
+  if (count <= 4) {
+    return 2;
+  }
+  if (count <= 9) {
+    return 3;
+  }
+  return 4;
+};
+
 const formatStreamDuration = (seconds: number): string => {
   const safe = Math.max(0, Math.floor(seconds));
   const hours = Math.floor(safe / 3600);
@@ -976,6 +994,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SidePanelTab>('chat');
+  const [stagePage, setStagePage] = useState(0);
   const streamDuration = useStreamDuration(roomState?.status === 'live');
 
   const guardedModerationAction = async (
@@ -1075,6 +1094,25 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       participantProfilesById.set(id, profile);
     }
   });
+  const isHostSelfHidden =
+    videoSettings.hideSelfView && room?.host.id === participantId;
+  const visibleActiveSpeakerCount =
+    roomState?.stage.activeSpeakerParticipantIds.filter(
+      (id) =>
+        !!roomState.participants[id] &&
+        id !== room?.host.id &&
+        (!videoSettings.hideSelfView || id !== participantId),
+    ).length ?? 0;
+  const visibleStageSpeakerCount =
+    (room?.host.id && !isHostSelfHidden ? 1 : 0) + visibleActiveSpeakerCount;
+  const stagePageCount = Math.max(
+    1,
+    Math.ceil(visibleStageSpeakerCount / MAX_STAGE_TILES_PER_PAGE),
+  );
+
+  useEffect(() => {
+    setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
+  }, [stagePageCount]);
 
   if (!isAuthReady || isRoomLoading) {
     return (
@@ -1238,6 +1276,15 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const visibleStageSpeakers = stageSpeakers.filter(
     (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
   );
+  const clampedStagePage = Math.min(stagePage, stagePageCount - 1);
+  const stagePageStart = clampedStagePage * MAX_STAGE_TILES_PER_PAGE;
+  const paginatedStageSpeakers = visibleStageSpeakers.slice(
+    stagePageStart,
+    stagePageStart + MAX_STAGE_TILES_PER_PAGE,
+  );
+  const stageGridColumnCount = getStageGridColumnCount(
+    paginatedStageSpeakers.length,
+  );
 
   const showAudienceWaiting = isCreated && !isHost;
 
@@ -1284,64 +1331,105 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           aria-label="Speakers"
           className="relative flex min-h-0 flex-col"
         >
-          <div className="flex flex-1 flex-wrap content-start gap-3 overflow-y-auto p-1.5 pb-24 tablet:pb-28">
-            {visibleStageSpeakers.map((speaker) => {
-              const canModerate = isHost && !speaker.isHost;
-              return (
-                <div
-                  key={speaker.id}
-                  className="flex min-w-[18rem] flex-1 basis-[20rem]"
+          {stagePageCount > 1 ? (
+            <div className="flex items-center justify-end gap-2 px-1.5 pb-3">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+              >
+                Page {clampedStagePage + 1} / {stagePageCount}
+              </Typography>
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                disabled={clampedStagePage === 0}
+                onClick={() =>
+                  setStagePage((currentPage) => Math.max(0, currentPage - 1))
+                }
+              >
+                Prev
+              </Button>
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                disabled={clampedStagePage >= stagePageCount - 1}
+                onClick={() =>
+                  setStagePage((currentPage) =>
+                    Math.min(stagePageCount - 1, currentPage + 1),
+                  )
+                }
+              >
+                Next
+              </Button>
+            </div>
+          ) : null}
+          {paginatedStageSpeakers.length > 0 ? (
+            <div
+              className="grid flex-1 content-start gap-3 overflow-y-auto p-1.5 pb-24 tablet:pb-28"
+              style={{
+                gridTemplateColumns: `repeat(${stageGridColumnCount}, minmax(0, 1fr))`,
+              }}
+            >
+              {paginatedStageSpeakers.map((speaker) => {
+                const canModerate = isHost && !speaker.isHost;
+                return (
+                  <div key={speaker.id} className="flex min-w-0">
+                    <LiveRoomVideoTile
+                      stream={speaker.stream}
+                      user={speaker.profile}
+                      selfView={speaker.selfView}
+                      isHost={speaker.isHost}
+                      isMuted={speaker.isMuted}
+                      onRemoveSpeaker={
+                        canModerate
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-remove-${speaker.id}`,
+                                () => removeSpeaker(speaker.id),
+                              )
+                          : undefined
+                      }
+                      onKick={
+                        canModerate
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-kick-${speaker.id}`,
+                                () => kickParticipant(speaker.id),
+                              )
+                          : undefined
+                      }
+                      isRemoving={
+                        moderationBusy === `tile-remove-${speaker.id}`
+                      }
+                      isKicking={moderationBusy === `tile-kick-${speaker.id}`}
+                      moderationDisabled={!!moderationBusy}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
+                  <UserIcon size={IconSize.Small} />
+                </span>
+                <Typography type={TypographyType.Footnote} bold>
+                  No visible speakers
+                </Typography>
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
                 >
-                  <LiveRoomVideoTile
-                    stream={speaker.stream}
-                    user={speaker.profile}
-                    selfView={speaker.selfView}
-                    isHost={speaker.isHost}
-                    isMuted={speaker.isMuted}
-                    onRemoveSpeaker={
-                      canModerate
-                        ? () =>
-                            guardedModerationAction(
-                              `tile-remove-${speaker.id}`,
-                              () => removeSpeaker(speaker.id),
-                            )
-                        : undefined
-                    }
-                    onKick={
-                      canModerate
-                        ? () =>
-                            guardedModerationAction(
-                              `tile-kick-${speaker.id}`,
-                              () => kickParticipant(speaker.id),
-                            )
-                        : undefined
-                    }
-                    isRemoving={moderationBusy === `tile-remove-${speaker.id}`}
-                    isKicking={moderationBusy === `tile-kick-${speaker.id}`}
-                    moderationDisabled={!!moderationBusy}
-                  />
-                </div>
-              );
-            })}
-            {stageSpeakers.length === 1 ? (
-              <div className="flex min-w-[18rem] flex-1 basis-[20rem] items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
-                    <UserIcon size={IconSize.Small} />
-                  </span>
-                  <Typography type={TypographyType.Footnote} bold>
-                    Waiting for the next speaker
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {waitingPrompt}
-                  </Typography>
-                </div>
+                  {showAudienceWaiting
+                    ? 'The host will bring people on stage when the room starts.'
+                    : waitingPrompt}
+                </Typography>
               </div>
-            ) : null}
-          </div>
+            </div>
+          )}
 
           {showAudienceWaiting ? (
             <div className="absolute inset-x-0 top-0 flex justify-center p-3">

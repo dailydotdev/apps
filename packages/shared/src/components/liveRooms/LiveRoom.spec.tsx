@@ -1,5 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueries,
+} from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import { LiveRoom } from './LiveRoom';
@@ -9,6 +13,15 @@ const mockDisplayToast = jest.fn();
 const mockUseLiveRoomConnection = jest.fn<LiveRoomContextValue, []>();
 const mockUseLiveRoomQuery = jest.fn();
 const mockUseAuthContext = jest.fn();
+const mockUseQueries = useQueries as jest.Mock;
+
+jest.mock('@tanstack/react-query', () => {
+  const actual = jest.requireActual('@tanstack/react-query');
+  return {
+    ...actual,
+    useQueries: jest.fn(),
+  };
+});
 
 jest.mock('next/router', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -37,7 +50,7 @@ jest.mock('../../graphql/users', () => ({
 
 jest.mock('./LiveRoomVideoTile', () => ({
   LiveRoomVideoTile: ({ user }: { user: { username: string } }) => (
-    <div>{`tile-${user.username}`}</div>
+    <div data-testid="live-room-tile">{`tile-${user.username}`}</div>
   ),
 }));
 
@@ -180,9 +193,36 @@ const renderLiveRoom = () => {
   );
 };
 
+const createParticipant = (
+  participantId: string,
+  role: 'host' | 'speaker' | 'audience' = 'speaker',
+) => ({
+  participantId,
+  role,
+  sessionIds: [`session-${participantId}`],
+  joinedAt: '2026-04-27T09:00:00.000Z',
+  updatedAt: '2026-04-27T09:00:00.000Z',
+});
+
 describe('LiveRoom', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseQueries.mockImplementation(({ queries }) =>
+      queries.map(({ queryKey }: { queryKey: readonly unknown[] }) => {
+        const participantId = queryKey[queryKey.length - 1] as string;
+        return {
+          data: {
+            id: participantId,
+            username: participantId,
+            name: participantId,
+            image: '',
+            permalink: '#',
+            createdAt: '',
+            reputation: 0,
+          },
+        };
+      }),
+    );
     mockUseAuthContext.mockReturnValue({
       isAuthReady: true,
       isLoggedIn: true,
@@ -238,6 +278,28 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker1')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
+  });
+
+  it('does not render a placeholder tile when only the host is visible on stage', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          stage: {
+            speakerQueueParticipantIds: ['queued1'],
+            activeSpeakerParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(1);
+    expect(screen.getByText('tile-host')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Waiting for the next speaker'),
+    ).not.toBeInTheDocument();
   });
 
   it('hides the current participant tile when self view is disabled', () => {
@@ -340,5 +402,51 @@ describe('LiveRoom', () => {
     expect(
       screen.getByRole('button', { name: /Revoke chat access/i }),
     ).toBeInTheDocument();
+  });
+
+  it('paginates stage tiles after the first 12 visible speakers', () => {
+    const activeSpeakerParticipantIds = Array.from(
+      { length: 12 },
+      (_, index) => `speaker-${index + 1}`,
+    );
+    const participants = activeSpeakerParticipantIds.reduce<
+      NonNullable<LiveRoomContextValue['roomState']>['participants']
+    >(
+      (acc, participantId) => ({
+        ...acc,
+        [participantId]: createParticipant(participantId),
+      }),
+      {
+        host: createParticipant('host', 'host'),
+      },
+    );
+
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          participants,
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(screen.getByText('Page 2 / 2')).toBeInTheDocument();
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
+
+    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
   });
 });
