@@ -16,7 +16,7 @@ export const CoreFAQ = (): ReactElement => {
   const titleId = `${id}-title`;
 
   return (
-    <section aria-labelledby={titleId} className="my-10">
+    <section aria-labelledby={titleId} className="my-10 w-full">
       <Typography
         bold
         className="mb-10 text-center"
@@ -26,7 +26,7 @@ export const CoreFAQ = (): ReactElement => {
       >
         Frequently asked questions
       </Typography>
-      <div className="mx-auto flex max-w-3xl flex-col gap-4">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
         <RadixAccordion items={coresFAQItems} />
       </div>
       <Typography
