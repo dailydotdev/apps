@@ -33,6 +33,10 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
+export const featureMajorHeadlinesPush = new Feature(
+  'major_headlines_push',
+  false,
+);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,

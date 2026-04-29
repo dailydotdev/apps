@@ -63,6 +63,7 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
+  DismissedMajorHeadlinesAlertsBanner = 'dismissed_major_headlines_alerts_banner',
 }
 
 export const cvActions = [
