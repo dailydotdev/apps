@@ -12,7 +12,7 @@ const baseStyle: CSSProperties = {
   willChange: 'transform, opacity',
 };
 
-export default function ScrollToTopButton(): ReactElement {
+export default function ScrollToTopButton(): ReactElement | null {
   const [show, setShow] = useState(false);
   const [hasShown, setHasShown] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
