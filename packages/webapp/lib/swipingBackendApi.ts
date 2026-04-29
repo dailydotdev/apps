@@ -1,47 +1,72 @@
+import { gql } from 'graphql-request';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+
 const BASE =
   process.env.NEXT_PUBLIC_SWIPING_BACKEND_URL || 'http://localhost:8000';
 
 export interface PostSummary {
-  post_id: string;
+  postId: string;
   title: string;
   summary: string;
   tags: string[];
   url: string;
-  source_id: string;
+  sourceId: string;
 }
 
 export interface DiscoverPostsRequest {
   prompt?: string;
-  selected_tags?: string[];
-  confirmed_tags?: string[];
-  liked_titles?: string[];
-  exclude_ids?: string[];
-  saturated_tags?: string[];
+  selectedTags?: string[];
+  confirmedTags?: string[];
+  likedTitles?: string[];
+  excludeIds?: string[];
+  saturatedTags?: string[];
   n?: number;
 }
 
 export interface DiscoverPostsResponse {
   posts: PostSummary[];
-  sub_prompts: string[];
+  subPrompts: string[];
 }
+
+const ONBOARDING_DISCOVER_POSTS_MUTATION = gql`
+  mutation OnboardingDiscoverPosts(
+    $prompt: String
+    $selectedTags: [String!]
+    $confirmedTags: [String!]
+    $likedTitles: [String!]
+    $excludeIds: [String!]
+    $saturatedTags: [String!]
+    $n: Int
+  ) {
+    onboardingDiscoverPosts(
+      prompt: $prompt
+      selectedTags: $selectedTags
+      confirmedTags: $confirmedTags
+      likedTitles: $likedTitles
+      excludeIds: $excludeIds
+      saturatedTags: $saturatedTags
+      n: $n
+    ) {
+      posts {
+        postId
+        title
+        summary
+        tags
+        url
+        sourceId
+      }
+      subPrompts
+    }
+  }
+`;
 
 export async function discoverPosts(
   req: DiscoverPostsRequest,
 ): Promise<DiscoverPostsResponse> {
-  const res = await fetch(`${BASE}/api/discover-posts`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      prompt: req.prompt ?? '',
-      selected_tags: req.selected_tags ?? [],
-      confirmed_tags: req.confirmed_tags ?? [],
-      liked_titles: req.liked_titles ?? [],
-      exclude_ids: req.exclude_ids ?? [],
-      saturated_tags: req.saturated_tags ?? [],
-      n: req.n ?? 8,
-    }),
-  });
-  return res.json();
+  const data = await gqlClient.request<{
+    onboardingDiscoverPosts: DiscoverPostsResponse;
+  }>(ONBOARDING_DISCOVER_POSTS_MUTATION, req);
+  return data.onboardingDiscoverPosts;
 }
 
 export async function extractTags(prompt: string): Promise<string[]> {
@@ -52,9 +77,4 @@ export async function extractTags(prompt: string): Promise<string[]> {
   });
   const data = await res.json();
   return data.tags;
-}
-
-export async function fetchAllTags(): Promise<string[]> {
-  const res = await fetch(`${BASE}/api/tags`);
-  return res.json();
 }

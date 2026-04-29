@@ -18,7 +18,7 @@ const BATCH_SIZE = 8;
 
 function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
   return {
-    id: post.post_id,
+    id: post.postId,
     summary: post.summary,
     title: post.title,
     image: null,
@@ -32,7 +32,7 @@ function toSwipeCard(post: PostSummary): OnboardingSwipeCard {
 
 function toBookmarkablePost(post: PostSummary): Post {
   return {
-    id: post.post_id,
+    id: post.postId,
     title: post.title,
     summary: post.summary,
     permalink: post.url,
@@ -101,17 +101,17 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
   const doFetch = useCallback(
     async (n = BATCH_SIZE): Promise<PostSummary[]> => {
       const result = await discoverPosts({
-        selected_tags: selectedTagsRef.current,
-        confirmed_tags: getConfirmedTags(),
-        liked_titles: likedTitlesRef.current,
-        exclude_ids: [...seenIdsRef.current],
-        saturated_tags: getSaturatedTags(),
+        selectedTags: selectedTagsRef.current,
+        confirmedTags: getConfirmedTags(),
+        likedTitles: likedTitlesRef.current,
+        excludeIds: [...seenIdsRef.current],
+        saturatedTags: getSaturatedTags(),
         n,
       });
       const { posts } = result;
       posts.forEach((p) => {
-        seenIdsRef.current.add(p.post_id);
-        postLookupRef.current.set(p.post_id, p);
+        seenIdsRef.current.add(p.postId);
+        postLookupRef.current.set(p.postId, p);
       });
       return posts;
     },
@@ -158,16 +158,16 @@ export function useAdaptiveSwipeDeck(): AdaptiveSwipeDeck {
         }
         const result = await discoverPosts({
           prompt: options?.prompt ?? '',
-          selected_tags: selectedTagsRef.current,
-          liked_titles: likedTitlesRef.current,
-          exclude_ids: [...seenIdsRef.current],
-          saturated_tags: getSaturatedTags(),
+          selectedTags: selectedTagsRef.current,
+          likedTitles: likedTitlesRef.current,
+          excludeIds: [...seenIdsRef.current],
+          saturatedTags: getSaturatedTags(),
           n: BATCH_SIZE,
         });
         const { posts } = result;
         posts.forEach((p) => {
-          seenIdsRef.current.add(p.post_id);
-          postLookupRef.current.set(p.post_id, p);
+          seenIdsRef.current.add(p.postId);
+          postLookupRef.current.set(p.postId, p);
         });
         loadBatch(posts);
       } finally {
