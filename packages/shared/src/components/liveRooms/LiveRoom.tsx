@@ -32,6 +32,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useExitConfirmation } from '../../hooks/useExitConfirmation';
 import { webappUrl } from '../../lib/constants';
 import type { UserShortProfile } from '../../lib/user';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
@@ -962,7 +963,13 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     isLoading: isRoomLoading,
   } = useLiveRoomQuery(roomId);
 
+  const { onAskConfirmation } = useExitConfirmation({
+    message: 'Leave the live room? You will disconnect from the stream.',
+    onValidateAction: () => status !== 'connected',
+  });
+
   const handleLeave = (): void => {
+    onAskConfirmation(false);
     clearStoredLiveRoomResumeSession(roomId);
     router.push(`${webappUrl}live`);
   };

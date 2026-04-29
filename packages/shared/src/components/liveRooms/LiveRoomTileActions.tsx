@@ -12,8 +12,12 @@ import {
 import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
+import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { ContentPreferenceType } from '../../graphql/contentPreference';
+import {
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '../../graphql/contentPreference';
 import { LazyModal } from '../modals/common/types';
 import { AuthTriggers } from '../../lib/auth';
 import type { UserShortProfile } from '../../lib/user';
@@ -38,16 +42,24 @@ export const LiveRoomTileActions = ({
   moderationDisabled = false,
 }: LiveRoomTileActionsProps): ReactElement | null => {
   const { user: viewer, showLogin } = useAuthContext();
-  const { follow } = useContentPreference();
+  const { follow, unfollow } = useContentPreference();
   const { openModal } = useLazyModal();
-  const [followed, setFollowed] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
+  const isSelf = !!viewer && viewer.id === user.id;
+  const { data: followPreference } = useContentPreferenceStatusQuery({
+    id: user.id,
+    entity: ContentPreferenceType.User,
+    queryOptions: { enabled: !isSelf },
+  });
+  const isFollowing =
+    followPreference?.status === ContentPreferenceStatus.Follow ||
+    followPreference?.status === ContentPreferenceStatus.Subscribed;
 
   const showRemove = !!onRemoveSpeaker;
   const showKick = !!onKick;
   const moderationCount = (showRemove ? 1 : 0) + (showKick ? 1 : 0);
 
-  if (viewer && viewer.id === user.id && moderationCount === 0) {
+  if (isSelf && moderationCount === 0) {
     return null;
   }
 
@@ -56,17 +68,17 @@ export const LiveRoomTileActions = ({
       showLogin({ trigger: AuthTriggers.Follow });
       return;
     }
-    if (followed || followBusy) {
+    if (followBusy) {
       return;
     }
     setFollowBusy(true);
     try {
-      await follow({
+      const action = isFollowing ? unfollow : follow;
+      await action({
         id: user.id,
         entity: ContentPreferenceType.User,
         entityName: user.name,
       });
-      setFollowed(true);
     } finally {
       setFollowBusy(false);
     }
@@ -94,8 +106,10 @@ export const LiveRoomTileActions = ({
     });
   };
 
-  const isSelf = !!viewer && viewer.id === user.id;
   const showSocial = !isSelf;
+  const followLabel = isFollowing
+    ? `Unfollow ${user.name}`
+    : `Follow ${user.name}`;
 
   return (
     <div
@@ -106,20 +120,16 @@ export const LiveRoomTileActions = ({
       )}
     >
       {showSocial ? (
-        <Tooltip
-          content={followed ? `Following ${user.name}` : `Follow ${user.name}`}
-        >
+        <Tooltip content={followLabel}>
           <Button
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             className="!text-white"
-            icon={followed ? <VIcon secondary /> : <AddUserIcon />}
+            icon={isFollowing ? <VIcon secondary /> : <AddUserIcon />}
             loading={followBusy}
-            disabled={followed || followBusy}
-            aria-label={
-              followed ? `Following ${user.name}` : `Follow ${user.name}`
-            }
+            disabled={followBusy}
+            aria-label={followLabel}
             onClick={handleFollow}
           />
         </Tooltip>
