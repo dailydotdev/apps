@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactElement } from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import React, {
   forwardRef,
   useCallback,
@@ -24,12 +24,19 @@ import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { PostType } from '../../graphql/posts';
 import { AuthTriggers } from '../../lib/auth';
+import type { LoggedUser } from '../../lib/user';
+
+export interface NewCommentTriggerRenderProps {
+  user: LoggedUser | null;
+  onCommentClick: (origin: Origin) => void;
+}
 
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
   CommentInputOrModal: React.ElementType;
   onComposerOpenChange?: (isOpen: boolean) => void;
+  renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
 
 const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
@@ -50,15 +57,18 @@ function NewCommentComponent(
     shouldHandleCommentQuery = false,
     CommentInputOrModal,
     onComposerOpenChange,
+    renderTrigger,
     ...props
   }: NewCommentProps,
-  ref: MutableRefObject<NewCommentRef>,
+  ref: ForwardedRef<NewCommentRef>,
 ): ReactElement {
   const router = useRouter();
   const { logEvent } = useLogContext();
   const { logOpts } = useActiveFeedContext();
   const { user, showLogin } = useAuthContext();
-  const [inputContent, setInputContent] = useState<string>(undefined);
+  const [inputContent, setInputContent] = useState<string | undefined>(
+    undefined,
+  );
 
   const onSuccess: typeof onCommented = (comment, isNew) => {
     setInputContent(undefined);
@@ -131,6 +141,10 @@ function NewCommentComponent(
         onClose={() => setInputContent(undefined)}
       />
     );
+  }
+
+  if (renderTrigger) {
+    return renderTrigger({ user: user ?? null, onCommentClick });
   }
 
   const pictureClasses = 'hidden tablet:flex';
