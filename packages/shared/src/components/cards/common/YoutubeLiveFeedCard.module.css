@@ -1,0 +1,54 @@
+.card {
+  background-image: radial-gradient(
+      circle at 15% 15%,
+      color-mix(
+          in srgb,
+          var(--theme-accent-ketchup-default) 45%,
+          transparent
+        )
+        0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 85% 25%,
+      color-mix(in srgb, var(--theme-accent-bun-default) 40%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      color-mix(
+          in srgb,
+          var(--theme-accent-ketchup-bolder) 35%,
+          transparent
+        )
+        0%,
+      transparent 65%
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--theme-accent-ketchup-default) 18%, transparent),
+      color-mix(in srgb, var(--theme-accent-bun-default) 18%, transparent)
+    );
+  background-color: var(--theme-background-subtle);
+  background-size: 220% 220%, 200% 200%, 240% 240%, 200% 200%;
+  background-position: 0% 50%, 100% 0%, 50% 100%, 0% 50%;
+  animation: youtube-live-card-mesh 9s ease-in-out infinite;
+}
+
+@keyframes youtube-live-card-mesh {
+  0% {
+    background-position: 0% 50%, 100% 0%, 50% 100%, 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%, 0% 100%, 50% 0%, 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%, 100% 0%, 50% 100%, 0% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
