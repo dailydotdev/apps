@@ -64,6 +64,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  dailyShowFeedCardFeature,
   featureFeedAdTemplate,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -73,6 +74,8 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { YoutubeLiveFeedCard } from './cards/common/YoutubeLiveFeedCard';
+import { syntaxLiveMockPost } from '../lib/syntaxLiveMockPost';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -210,6 +213,17 @@ export default function Feed<T>({
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
+  const isDailyShowFeedCardEligible =
+    feedName === SharedFeedPage.MyFeed ||
+    feedName === SharedFeedPage.Popular ||
+    feedName === SharedFeedPage.Upvoted;
+  const { value: dailyShowFeedCardEnabled } = useConditionalFeature({
+    feature: dailyShowFeedCardFeature,
+    shouldEvaluate: isDailyShowFeedCardEligible,
+  });
+  const showDailyShowFeedCard =
+    isDailyShowFeedCardEligible && dailyShowFeedCardEnabled;
+  const dailyShowFeedCardIndex = 3;
   const showAcquisitionForm =
     isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
@@ -654,6 +668,9 @@ export default function Feed<T>({
                         : undefined,
                     }}
                   />
+                )}
+                {showDailyShowFeedCard && index === dailyShowFeedCardIndex && (
+                  <YoutubeLiveFeedCard post={syntaxLiveMockPost} />
                 )}
                 {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
                   <div
