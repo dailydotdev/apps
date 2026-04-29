@@ -15,6 +15,28 @@ export enum CampaignCtaPlacement {
   ProfileMenu = 'profileMenu',
 }
 
+export type NewTabMode = 'discover' | 'focus';
+
+export type FocusScheduleWindow = {
+  start: number;
+  end: number;
+  enabled: boolean;
+};
+
+export type FocusScheduleWeekday =
+  | 'mon'
+  | 'tue'
+  | 'wed'
+  | 'thu'
+  | 'fri'
+  | 'sat'
+  | 'sun';
+
+export type FocusSchedule = {
+  pauseUntil?: number | null;
+  windows?: Partial<Record<FocusScheduleWeekday, FocusScheduleWindow | null>>;
+};
+
 export type SettingsFlags = {
   sidebarSquadExpanded: boolean;
   sidebarCustomFeedsExpanded: boolean;
@@ -29,7 +51,11 @@ export type SettingsFlags = {
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
+  newTabMode?: NewTabMode;
+  focusSchedule?: FocusSchedule;
 };
+
+export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',

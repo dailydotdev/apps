@@ -7,16 +7,27 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 
 export function FeedbackWidget(): ReactElement | null {
   const { user } = useAuthContext();
   const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
+  const { isOpen: isCustomizerOpen, isFirstSession } = useCustomizeNewTab();
 
-  // Only show for authenticated users on desktop when setting is enabled
-  // Mobile feedback is handled by FooterPlusButton
-  if (!user || isMobile || !showFeedbackButton) {
+  // Only show for authenticated users on desktop when setting is enabled.
+  // Mobile feedback is handled by FooterPlusButton. Hide while the
+  // customize panel is open (it would float over the panel since the pill
+  // is z-max) and during the first-session welcome so the new user's eye
+  // lands on the customize panel rather than a competing pill.
+  if (
+    !user ||
+    isMobile ||
+    !showFeedbackButton ||
+    isFirstSession ||
+    isCustomizerOpen
+  ) {
     return null;
   }
 

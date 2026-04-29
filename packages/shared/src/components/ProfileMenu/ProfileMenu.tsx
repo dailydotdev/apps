@@ -85,7 +85,7 @@ export default function ProfileMenu({
 
         <AccountSection />
 
-        {checkIsExtension() && <ExtensionSection />}
+        {checkIsExtension() && <ExtensionSection onClose={onClose} />}
 
         <HorizontalSeparator />
 
