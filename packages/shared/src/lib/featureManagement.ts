@@ -33,6 +33,10 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
+export const featurePostPageHighlights = new Feature(
+  'post_page_highlights',
+  false,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -138,8 +142,6 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const questsFeature = new Feature('quests', false);
-
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
@@ -158,3 +160,5 @@ export const featureShortcutsExtensionPromo = new Feature(
   'shortcuts_extension_promo',
   false,
 );
+
+export const featureShortcutsHub = new Feature('shortcuts_hub', false);

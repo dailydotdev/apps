@@ -1,4 +1,4 @@
-import { isSelectionInMarkdownLink } from '../markdown';
+import { isSelectionInMarkdownLink, looksLikeMarkdown } from '../markdown';
 
 // Mock HTMLTextAreaElement
 const createMockTextarea = (
@@ -76,5 +76,11 @@ describe('isSelectionInMarkdownLink', () => {
     const textarea = createMockTextarea('[first](url1) [second](url2)', 15, 21);
     const result = isSelectionInMarkdownLink(textarea, 15, 21);
     expect(result).toBe(true);
+  });
+});
+
+describe('looksLikeMarkdown', () => {
+  test('should detect strikethrough markdown', () => {
+    expect(looksLikeMarkdown('~~struck~~')).toBe(true);
   });
 });

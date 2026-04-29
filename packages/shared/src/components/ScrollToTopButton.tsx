@@ -8,7 +8,7 @@ import { useViewSize, ViewSize } from '../hooks';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
 const baseStyle: CSSProperties = {
-  transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
+  transition: 'transform 0.25s ease-out, opacity 0.25s ease-out',
   willChange: 'transform, opacity',
 };
 
@@ -20,8 +20,9 @@ interface ScrollToTopButtonProps {
 export default function ScrollToTopButton({
   className,
   compact = false,
-}: ScrollToTopButtonProps): ReactElement {
+}: ScrollToTopButtonProps): ReactElement | null {
   const [show, setShow] = useState(false);
+  const [hasShown, setHasShown] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
   const { showFeedbackButton } = useSettingsContext();
@@ -30,22 +31,28 @@ export default function ScrollToTopButton({
       return ButtonSize.Small;
     }
     if (isLaptop) {
-      return ButtonSize.XLarge;
+      return ButtonSize.Large;
     }
 
-    return isTablet ? ButtonSize.Large : ButtonSize.Small;
+    return isTablet ? ButtonSize.Medium : ButtonSize.Small;
   })();
 
   useEffect(() => {
     const callback = () => {
-      setShow(document.documentElement.scrollTop >= window.innerHeight / 2);
+      const shouldShow =
+        document.documentElement.scrollTop >= window.innerHeight / 2;
+      setShow(shouldShow);
+      if (shouldShow) {
+        setHasShown(true);
+      }
     };
+    callback();
     window.addEventListener('scroll', callback, { passive: true });
     return () => window.removeEventListener('scroll', callback);
   }, []);
 
-  if (!show) {
-    return <></>;
+  if (!hasShown) {
+    return null;
   }
 
   const props: ButtonProps<'button'> = {
@@ -57,16 +64,19 @@ export default function ScrollToTopButton({
     ...baseStyle,
     transform: show ? undefined : 'translateY(1rem)',
     opacity: show ? undefined : 0,
+    pointerEvents: show ? undefined : 'none',
   };
 
   return (
     <Button
       aria-label="scroll to top"
+      aria-hidden={!show}
+      tabIndex={show ? 0 : -1}
       {...props}
       className={classNames(
         'absolute right-4 z-2',
         showFeedbackButton
-          ? '-top-26 tablet:-top-28 laptop:-top-32'
+          ? '-top-26 tablet:-top-32'
           : '-top-12 tablet:-top-18 laptop:-top-24',
         className,
       )}

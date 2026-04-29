@@ -12,15 +12,53 @@ export interface HighlightCardProps {
   onReadAllClick?: () => void;
 }
 
-const titleGradientClassName = 'feed-highlights-title-gradient';
+export const highlightsTitleGradientClassName =
+  'feed-highlights-title-gradient';
 
 const HIGHLIGHTS_URL = `${webappUrl}highlights`;
 
-const getHighlightsUrl = (highlightId?: string): string =>
+export const getHighlightsUrl = (highlightId?: string): string =>
   highlightId ? `${HIGHLIGHTS_URL}?highlight=${highlightId}` : HIGHLIGHTS_URL;
 
 const getHighlightUrl = (highlight: PostHighlight): string =>
   getHighlightsUrl(highlight.id);
+
+export const ReadAllHighlightsFooter = ({
+  highlightId,
+  onClick,
+  className,
+}: {
+  highlightId?: string;
+  onClick?: () => void;
+  className?: string;
+}): ReactElement => {
+  const href = getHighlightsUrl(highlightId);
+  return (
+    <div className={className}>
+      <Link href={href}>
+        <a
+          aria-label="Read all highlights"
+          className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+          href={href}
+          onClick={() => onClick?.()}
+        >
+          <span className="typo-callout">
+            <span className={highlightsTitleGradientClassName}>Read all</span>
+          </span>
+          <span
+            aria-hidden
+            className={classNames(
+              highlightsTitleGradientClassName,
+              'ml-auto select-none leading-none typo-title3',
+            )}
+          >
+            →
+          </span>
+        </a>
+      </Link>
+    </div>
+  );
+};
 
 const HighlightRow = ({
   highlight,
@@ -38,7 +76,7 @@ const HighlightRow = ({
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
       >
-        <span className="line-clamp-2 font-bold text-text-primary typo-callout">
+        <span className="break-words font-bold text-text-primary typo-callout">
           {highlight.headline}
         </span>
         <RelativeTime
@@ -63,8 +101,8 @@ export const HighlightCardContent = ({
       : 'flex items-center px-4 py-4';
   const contentClassName =
     variant === 'list'
-      ? 'flex flex-col gap-2'
-      : 'flex flex-1 flex-col gap-0 px-2.5 pb-1 pt-0';
+      ? 'no-scrollbar flex min-h-0 flex-col gap-2 overflow-y-auto'
+      : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
   const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
   const firstHighlight = highlights[0];
 
@@ -73,7 +111,7 @@ export const HighlightCardContent = ({
       <header className={headerClassName}>
         <h3
           className={classNames(
-            titleGradientClassName,
+            highlightsTitleGradientClassName,
             'font-bold typo-title3',
           )}
         >
@@ -90,29 +128,11 @@ export const HighlightCardContent = ({
           />
         ))}
       </div>
-      <div className={footerClassName}>
-        <Link href={getHighlightsUrl(firstHighlight?.id)}>
-          <a
-            aria-label="Read all highlights"
-            className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
-            href={getHighlightsUrl(firstHighlight?.id)}
-            onClick={() => onReadAllClick?.()}
-          >
-            <span className="typo-callout">
-              <span className={titleGradientClassName}>Read all</span>
-            </span>
-            <span
-              aria-hidden
-              className={classNames(
-                titleGradientClassName,
-                'ml-auto select-none leading-none typo-title3',
-              )}
-            >
-              →
-            </span>
-          </a>
-        </Link>
-      </div>
+      <ReadAllHighlightsFooter
+        highlightId={firstHighlight?.id}
+        onClick={onReadAllClick}
+        className={footerClassName}
+      />
     </>
   );
 };

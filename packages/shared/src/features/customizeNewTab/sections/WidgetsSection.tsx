@@ -3,10 +3,8 @@ import React, { useCallback } from 'react';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
-import { questsFeature } from '../../../lib/featureManagement';
 import { isExtension } from '../../../lib/func';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import {
@@ -64,9 +62,6 @@ export const WidgetsSection = (): ReactElement => {
     showFeedbackButton,
     toggleShowFeedbackButton,
   } = useSettingsContext();
-  const { value: isQuestsEnabled } = useConditionalFeature({
-    feature: questsFeature,
-  });
   const hasCoresAccess = useHasAccessToCores();
 
   const logToggle = useCallback(
@@ -189,7 +184,7 @@ export const WidgetsSection = (): ReactElement => {
       checked: !optOutReadingStreak,
       toggle: toggleOptOutReadingStreak,
     },
-    isQuestsEnabled && {
+    {
       id: 'gamification',
       name: 'newtab-customizer-gamification',
       label: 'Gamification',

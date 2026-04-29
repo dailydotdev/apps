@@ -16,6 +16,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
+import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -57,6 +58,7 @@ function BasePostModal({
     usePostReferrerContext()?.usePostReferrer ?? (() => {});
   const { logEvent } = useLogContext();
   const [scrollNode, setScrollNode] = useState<HTMLDivElement | null>(null);
+  const { getCreativeForTags } = useEngagementAdsContext();
 
   usePostReferrer({ post });
 
@@ -85,9 +87,11 @@ function BasePostModal({
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
+          const creative = getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
+            ...(creative && { gen_id: creative.genId }),
           };
         }}
       >

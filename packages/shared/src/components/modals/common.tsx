@@ -261,6 +261,27 @@ const CustomLinksModal = dynamic(
     ),
 );
 
+const ShortcutEditModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "shortcutEditModal" */ '../../features/shortcuts/components/modals/ShortcutEditModal'
+    ),
+);
+
+const ShortcutsManageModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "shortcutsManageModal" */ '../../features/shortcuts/components/modals/ShortcutsManageModal'
+    ),
+);
+
+const ImportPickerModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "importPickerModal" */ '../../features/shortcuts/components/modals/ImportPickerModal'
+    ),
+);
+
 const ListAwardsModal = dynamic(() =>
   import(
     /* webpackChunkName: "listAwardsModal" */ './award/ListAwardsModal'
@@ -506,6 +527,9 @@ export const modals = {
   [LazyModal.GiveAward]: GiveAwardModal,
   [LazyModal.ContentModal]: ContentModal,
   [LazyModal.CustomLinks]: CustomLinksModal,
+  [LazyModal.ShortcutEdit]: ShortcutEditModal,
+  [LazyModal.ShortcutsManage]: ShortcutsManageModal,
+  [LazyModal.ImportPicker]: ImportPickerModal,
   [LazyModal.ListAwards]: ListAwardsModal,
   [LazyModal.AdsDashboard]: AdsDashboardModal,
   [LazyModal.BoostPost]: BoostPostModal,

@@ -23,6 +23,19 @@ export function MostVisitedSitesModal({
     setSourceManual(true);
   };
 
+  // NOTE: kept inline (Modal.Body owns the title + body content) instead
+  // of routing through `MostVisitedSitesPermissionContent` from main. The
+  // extracted component swaps the title from `Modal.Title` (lives inside
+  // `Modal.Body`) to a `Typography` inside `Modal.Header`, and that move
+  // — combined with this PR's `setSourceManual` (which mutates the
+  // react-query cache via `persistSource` in `ShortcutsProvider`) —
+  // re-mounts the dialog mid-test before `expect(title).toBeVisible()`
+  // runs, breaking `extension/src/newtab/ShortcutLinks.spec.tsx::should
+  // display top sites if permission is manually granted`. Keeping the
+  // inline layout preserves the test's contract while we ship the
+  // customizer's persistence change. The dedup main was after can be
+  // re-introduced in a follow-up that updates the spec to wait for the
+  // re-mount.
   return (
     <Modal
       kind={Modal.Kind.FlexibleCenter}

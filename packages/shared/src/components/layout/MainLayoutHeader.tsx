@@ -11,6 +11,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
@@ -47,10 +48,11 @@ function MainLayoutHeader({
   const { loadedSettings } = useSettingsContext();
   const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
-  const isStreakLarge = streak?.current > 99; // if we exceed 100, we need to display it differently in the UI
+  const isStreakLarge = (streak?.current ?? 0) > 99; // if we exceed 100, we need to display it differently in the UI
   const { feedName } = useActiveFeedNameContext();
+  const activeFeedName = feedName ?? SharedFeedPage.Popular;
   const { isAnyExplore, isSearch } = useFeedName({
-    feedName,
+    feedName: activeFeedName,
   });
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isSearchPage = isSearch || isAnyExplore;
@@ -63,7 +65,7 @@ function MainLayoutHeader({
   // the panel slide. Flips to `true` one frame later, so any subsequent
   // open/close still animates normally.
   const isRightSidebarSettled = useRightSidebarSettled();
-  const { profile } = useActiveNav(feedName);
+  const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
   const isMobile = !isLaptop;
@@ -112,7 +114,7 @@ function MainLayoutHeader({
         'z-header',
         !isMobileSearchPage &&
           (isMobileProfile ? 'hidden laptop:flex' : 'flex'),
-        hasBanner && 'laptop:top-8',
+        hasBanner && 'laptop:[--safe-area-top-offset:2rem]',
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}
@@ -130,7 +132,7 @@ function MainLayoutHeader({
       {isMobileSearchPage ? (
         <>
           {renderSearchPanel()}
-          {!isSearch && <MobileExploreHeader path={feedName as string} />}
+          {!isSearch && <MobileExploreHeader path={activeFeedName} />}
         </>
       ) : (
         sidebarRendered !== undefined && (

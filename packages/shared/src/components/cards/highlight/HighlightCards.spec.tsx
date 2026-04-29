@@ -46,6 +46,12 @@ describe('Highlight cards', () => {
       'href',
       '/highlights?highlight=highlight-1',
     );
+    expect(screen.getByText('The first highlight')).not.toHaveClass(
+      'line-clamp-2',
+    );
+    expect(
+      screen.getByRole('link', { name: /the first highlight/i }).parentElement,
+    ).toHaveClass('no-scrollbar', 'overflow-y-auto');
   });
 
   it('should render the list card with highlight links', () => {

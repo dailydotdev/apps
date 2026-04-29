@@ -7,16 +7,16 @@ import { useShortcutsUser } from './useShortcutsUser';
 import { useShortcuts } from '../contexts/ShortcutsProvider';
 
 export interface UseShortcutLinks {
-  formRef: MutableRefObject<HTMLFormElement>;
+  formRef: MutableRefObject<HTMLFormElement | undefined>;
   onSaveChanges: (
     e: FormEvent,
-  ) => Promise<{ errors: Record<string | number, string> }>;
+  ) => Promise<{ errors: Record<string, string> | null }>;
   askTopSitesBrowserPermission: () => Promise<boolean>;
   hasCheckedPermission?: boolean;
-  isTopSiteActive?: boolean;
-  hasTopSites?: boolean;
+  isTopSiteActive?: boolean | null;
+  hasTopSites?: boolean | null;
   isManual?: boolean;
-  shortcutLinks: string[];
+  shortcutLinks?: string[];
   formLinks: string[];
   customLinks?: string[];
   hideShortcuts: boolean;
@@ -38,7 +38,7 @@ export function useShortcutLinks(): UseShortcutLinks {
   const { customLinks, updateCustomLinks, showTopSites } = useSettingsContext();
 
   const hasTopSites = topSites === undefined ? null : topSites?.length > 0;
-  const hasCustomLinks = customLinks?.length > 0;
+  const hasCustomLinks = (customLinks?.length ?? 0) > 0;
   // Honour the explicit source choice from the Customize sidebar / popup
   // cards so the feed flips immediately when the user toggles between
   // "My shortcuts" and "Most visited" — without destroying their saved
@@ -50,7 +50,11 @@ export function useShortcutLinks(): UseShortcutLinks {
     hasCheckedPermission &&
     hasTopSites &&
     (wantsTopSites || (!wantsManual && !hasCustomLinks));
-  const sites = topSites?.map((site) => site.url);
+  // Legacy surface caps at 8 tiles. The upstream hook now hands back up to
+  // `MAX_SHORTCUTS` (12) so the new hub's auto mode can render the full
+  // row directly off `useShortcuts().topSites`; we slice here to keep the
+  // legacy row's visual width stable for flag-off users.
+  const sites = topSites?.slice(0, 8).map((site) => site.url);
   // When the user explicitly picked "Most visited" we must NOT silently
   // render their saved custom links — that's why toggling the segmented
   // control in the sidebar appeared to do nothing. Show top sites (or an
@@ -73,10 +77,14 @@ export function useShortcutLinks(): UseShortcutLinks {
   const showGetStarted =
     !isOldUser && hasNoShortcuts && !hasCompletedFirstSession;
 
-  const getFormInputs = () =>
-    Array.from(formRef.current.elements).filter(
+  const getFormInputs = () => {
+    if (!formRef.current) {
+      return [] as HTMLInputElement[];
+    }
+    return Array.from(formRef.current.elements).filter(
       (el) => el.getAttribute('name') === 'shortcutLink',
     ) as HTMLInputElement[];
+  };
 
   const onSaveChanges = async (e: FormEvent) => {
     e.preventDefault();
