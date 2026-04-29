@@ -82,6 +82,18 @@ jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
+  __esModule: true,
+  useConditionalFeature: (args: {
+    feature?: { id?: string; defaultValue?: unknown };
+  }) => {
+    if (args?.feature?.id === 'reader_modal') {
+      return { value: false, isLoading: false };
+    }
+    return { value: args?.feature?.defaultValue, isLoading: false };
+  },
+}));
+
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();

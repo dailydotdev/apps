@@ -43,7 +43,8 @@ export const PollList = forwardRef(function PollList(
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
 
-  const onPostCardClick = () => onPostClick?.(post);
+  const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
+    onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isFeedPreview = useFeedPreviewMode();
   const { title } = useSmartTitle(post);
@@ -66,10 +67,10 @@ export const PollList = forwardRef(function PollList(
   );
 
   const metadata = useMemo(() => {
-    const authorName = post.author?.name ?? post.source.name;
+    const authorName = post.author?.name ?? post.source?.name;
 
     return {
-      topLabel: isUserSource ? authorName : post.source.name,
+      topLabel: isUserSource ? authorName : post.source?.name,
       bottomLabel: (
         <PostMetadata
           createdAt={post.createdAt}
@@ -93,11 +94,13 @@ export const PollList = forwardRef(function PollList(
       ref={ref}
       flagProps={{ pinnedAt, trending, type }}
       linkProps={
-        !isFeedPreview && {
-          title: post.title,
-          href: post.commentsPermalink,
-          ...combinedClicks(onPostCardClick),
-        }
+        !isFeedPreview
+          ? {
+              title: post.title,
+              href: post.commentsPermalink,
+              ...combinedClicks(onPostCardClick),
+            }
+          : undefined
       }
       bookmarked={post.bookmarked}
     >
@@ -109,7 +112,7 @@ export const PollList = forwardRef(function PollList(
           onReadArticleClick={onReadArticleClick}
           metadata={metadata}
         >
-          {!isUserSource && (
+          {!isUserSource && post.source && (
             <SourceButton
               size={ProfileImageSize.Large}
               source={post.source}
@@ -121,15 +124,12 @@ export const PollList = forwardRef(function PollList(
           <div className="mr-4 flex flex-1 flex-col">
             <CardTitle
               lineClamp={undefined}
-              className={classNames(
-                !!post.read && 'text-text-tertiary',
-                'mb-4',
-              )}
+              className={classNames(post.read && 'text-text-tertiary', 'mb-4')}
             >
               {truncatedTitle}
             </CardTitle>
             <PollOptions
-              options={post.pollOptions}
+              options={post.pollOptions ?? []}
               onClick={handleVote}
               userVote={post?.userState?.pollOption?.id}
               numPollVotes={post.numPollVotes || 0}

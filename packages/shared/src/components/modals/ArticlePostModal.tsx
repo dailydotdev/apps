@@ -9,6 +9,10 @@ import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import type { PassedPostNavigationProps } from '../post/common';
 import { Origin } from '../../lib/log';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureReaderModal } from '../../lib/featureManagement';
+import { ReaderLegacyLayoutToggleButton } from '../post/reader/ReaderHeaderActionButtons';
+import { useLegacyPostLayoutOptOut } from '../post/reader/hooks/useLegacyPostLayoutOptOut';
 
 interface ArticlePostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
@@ -29,6 +33,12 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+  const { value: isReaderModalEnabled } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: true,
+  });
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+
   return (
     <BasePostModal
       {...props}
@@ -41,6 +51,13 @@ export default function ArticlePostModal({
       postPosition={postPosition}
       onPreviousPost={onPreviousPost}
       onNextPost={onNextPost}
+      navigationCustomActions={
+        isReaderModalEnabled ? (
+          <ReaderLegacyLayoutToggleButton
+            target={isLegacyLayoutOptedOut ? 'reader' : 'classic'}
+          />
+        ) : null
+      }
     >
       <PostContent
         position={position}

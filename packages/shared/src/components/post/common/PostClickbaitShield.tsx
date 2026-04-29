@@ -127,7 +127,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
 
   return (
     <Tooltip
-      className="max-w-70 text-center !typo-subhead"
+      className="max-w-70 text-left !typo-subhead"
       content={
         shieldActive
           ? 'Click to see the original title'
@@ -135,7 +135,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       }
     >
       <Button
-        className="relative mr-2 mt-4 font-normal"
+        className="relative mr-2 mt-4 !justify-start text-left font-normal"
         size={ButtonSize.XSmall}
         icon={
           shieldActive ? (

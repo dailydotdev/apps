@@ -20,6 +20,7 @@ const generateEventId = (now = new Date()): string => {
 export type PostOrigin =
   | Origin.ArticlePage
   | Origin.ArticleModal
+  | Origin.ReaderModal
   | Origin.CollectionModal
   | Origin.BriefModal;
 
