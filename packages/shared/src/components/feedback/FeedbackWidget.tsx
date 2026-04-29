@@ -84,12 +84,12 @@ export function FeedbackWidget(): ReactElement | null {
       size={ButtonSize.Medium}
       className="fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
       onClick={() => openModal({ type: LazyModal.Feedback })}
-      aria-label="Send feedback. Humans reply."
+      aria-label="Send feedback. Real people reply."
     >
       <span className="mr-3 flex flex-col items-start whitespace-nowrap leading-tight">
         <span>Feedback</span>
         <span className="opacity-80 font-normal typo-caption2">
-          Humans reply
+          Real people reply
         </span>
       </span>
       <span className="flex">
