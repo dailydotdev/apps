@@ -106,10 +106,12 @@ export default function CompanionMenu({
   const { displayToast } = useToastNotification();
   const dragStartRef = useRef({ y: 0, initialY: 0 });
   const author = post.author as LoggedUser | undefined;
+  const isSameUser = user?.id === author?.id;
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: author,
   });
+  const shouldShowAwardAction = !!author && (canAward || isSameUser);
 
   const [showCompanionHelper, setShowCompanionHelper] = usePersistentContext(
     'companion_helper',
@@ -189,7 +191,7 @@ export default function CompanionMenu({
       return;
     }
 
-    if (post.userState?.awarded) {
+    if (isSameUser || post.userState?.awarded) {
       openModal({
         type: LazyModal.ListAwards,
         props: {
@@ -473,7 +475,7 @@ export default function CompanionMenu({
             icon={<ShareIcon />}
           />
         </Tooltip>
-        {canAward && (
+        {shouldShowAwardAction && (
           <Tooltip
             side="left"
             content={

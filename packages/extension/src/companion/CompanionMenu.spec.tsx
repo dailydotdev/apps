@@ -153,6 +153,19 @@ describe('CompanionMenu', () => {
     expect(screen.queryByLabelText('Award this post')).not.toBeInTheDocument();
   });
 
+  it('shows the award button for the post author', async () => {
+    renderComponent(
+      {},
+      {
+        ...defaultUser,
+        id: 'author-1',
+        coresRole: CoresRole.None,
+      },
+    );
+
+    expect(await screen.findByLabelText('Award this post')).toBeInTheDocument();
+  });
+
   it('opens the give award modal when clicking the award button', async () => {
     renderComponent();
 
@@ -191,6 +204,29 @@ describe('CompanionMenu', () => {
     fireEvent.click(
       await screen.findByLabelText('You already awarded this post!'),
     );
+
+    expect(mockOpenModal).toHaveBeenCalledWith({
+      type: LazyModal.ListAwards,
+      props: {
+        queryProps: {
+          id: defaultPost.id,
+          type: 'POST',
+        },
+      },
+    });
+  });
+
+  it('opens the awards list for the post author', async () => {
+    renderComponent(
+      {},
+      {
+        ...defaultUser,
+        id: 'author-1',
+        coresRole: CoresRole.None,
+      },
+    );
+
+    fireEvent.click(await screen.findByLabelText('Award this post'));
 
     expect(mockOpenModal).toHaveBeenCalledWith({
       type: LazyModal.ListAwards,
