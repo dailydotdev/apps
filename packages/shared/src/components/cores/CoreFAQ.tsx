@@ -26,7 +26,7 @@ export const CoreFAQ = (): ReactElement => {
       >
         Frequently asked questions
       </Typography>
-      <div className="w-xl mx-auto flex max-w-full flex-1 flex-col gap-4">
+      <div className="mx-auto flex max-w-xl flex-col gap-4">
         <RadixAccordion items={coresFAQItems} />
       </div>
       <Typography
