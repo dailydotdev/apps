@@ -22,8 +22,8 @@ const previewVideoSrc = `${webappUrl}assets/videos/syntax-live-preview.webm`;
 const previewPosterSrc = `${webappUrl}assets/videos/syntax-live-preview-poster.jpg`;
 
 /**
- * Option 3 design for the Syntax live YouTube experiment: a card-shaped
- * variant of the option 2 pill that occupies a single slot in the feed grid.
+ * Card-shaped feed slot for the daily.dev show with a looping muted webm
+ * preview as background and bottom-aligned squad/title metadata.
  */
 export function YoutubeLiveFeedCard({
   post,
@@ -68,7 +68,7 @@ export function YoutubeLiveFeedCard({
           preload="metadata"
           aria-hidden
         />
-        <div className="absolute inset-0 bg-overlay-tertiary-black opacity-55" />
+        <div className="absolute inset-0 bg-overlay-tertiary-black opacity-50" />
         <div
           className="pointer-events-none absolute inset-0 z-1 flex items-center justify-center"
           aria-hidden

@@ -64,6 +64,7 @@ import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
+  dailyShowFeedCardFeature,
   featureFeedAdTemplate,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
@@ -212,11 +213,17 @@ export default function Feed<T>({
   const isSquadFeed = feedName === OtherFeedPage.Squad;
   const trackedFeedFinish = useRef(false);
   const isMyFeed = feedName === SharedFeedPage.MyFeed;
-  const showSyntaxLiveCard =
+  const isDailyShowFeedCardEligible =
     feedName === SharedFeedPage.MyFeed ||
     feedName === SharedFeedPage.Popular ||
     feedName === SharedFeedPage.Upvoted;
-  const syntaxLiveCardIndex = 3;
+  const { value: dailyShowFeedCardEnabled } = useConditionalFeature({
+    feature: dailyShowFeedCardFeature,
+    shouldEvaluate: isDailyShowFeedCardEligible,
+  });
+  const showDailyShowFeedCard =
+    isDailyShowFeedCardEligible && dailyShowFeedCardEnabled;
+  const dailyShowFeedCardIndex = 3;
   const showAcquisitionForm =
     isMyFeed &&
     (routerQuery?.[acquisitionKey] as string)?.toLocaleLowerCase() === 'true' &&
@@ -662,7 +669,7 @@ export default function Feed<T>({
                     }}
                   />
                 )}
-                {showSyntaxLiveCard && index === syntaxLiveCardIndex && (
+                {showDailyShowFeedCard && index === dailyShowFeedCardIndex && (
                   <YoutubeLiveFeedCard post={syntaxLiveMockPost} />
                 )}
                 {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
