@@ -950,6 +950,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     canChat,
     localStream,
     remoteStreams,
+    videoSettings,
     reactions,
     chatMessages,
   } = useLiveRoomConnection();
@@ -1211,6 +1212,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       isHost: false,
     });
   });
+  const visibleStageSpeakers = stageSpeakers.filter(
+    (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
+  );
 
   const showAudienceWaiting = isCreated && !isHost;
 
@@ -1258,7 +1262,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           className="relative flex min-h-0 flex-col"
         >
           <div className="flex flex-1 flex-wrap content-start gap-3 overflow-y-auto p-1.5 pb-24 tablet:pb-28">
-            {stageSpeakers.map((speaker) => {
+            {visibleStageSpeakers.map((speaker) => {
               const canModerate = isHost && !speaker.isHost;
               return (
                 <div

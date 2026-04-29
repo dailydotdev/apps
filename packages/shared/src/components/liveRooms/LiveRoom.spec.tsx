@@ -157,6 +157,10 @@ const createContextValue = (
     autoGainControl: true,
   },
   setMicSetting: jest.fn(),
+  videoSettings: {
+    hideSelfView: false,
+  },
+  setVideoSetting: jest.fn(),
   selectCamera: jest.fn(),
   selectMic: jest.fn(),
   localStream: null,
@@ -234,6 +238,22 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker1')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
+  });
+
+  it('hides the current participant tile when self view is disabled', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        participantId: 'host',
+        videoSettings: {
+          hideSelfView: true,
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.queryByText('tile-host')).not.toBeInTheDocument();
+    expect(screen.getAllByText(/^tile-/)).toHaveLength(2);
   });
 
   it('switches the side panel to audience mode for free-for-all rooms', () => {

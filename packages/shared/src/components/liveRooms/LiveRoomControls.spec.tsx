@@ -127,6 +127,10 @@ const createContextValue = (
     autoGainControl: true,
   },
   setMicSetting: jest.fn(),
+  videoSettings: {
+    hideSelfView: false,
+  },
+  setVideoSetting: jest.fn(),
   selectCamera: jest.fn(),
   selectMic: jest.fn(),
   localStream: null,
@@ -432,5 +436,23 @@ describe('LiveRoomControls', () => {
     fireEvent.click(screen.getByLabelText('Reduce background noise'));
 
     expect(setMicSetting).toHaveBeenCalledWith('noiseSuppression', false);
+  });
+
+  it('updates the camera self-view setting from the video menu', () => {
+    const setVideoSetting = jest.fn();
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        participantId: 'audience',
+        canPublish: true,
+        setVideoSetting,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByLabelText('Hide my preview'));
+
+    expect(setVideoSetting).toHaveBeenCalledWith('hideSelfView', true);
   });
 });

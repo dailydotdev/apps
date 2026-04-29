@@ -71,6 +71,10 @@ export interface LiveRoomMicSettingSupport {
   autoGainControl: boolean;
 }
 
+export interface LiveRoomVideoSettings {
+  hideSelfView: boolean;
+}
+
 export interface LiveRoomReaction {
   id: string;
   participantId: string;
@@ -131,6 +135,11 @@ export interface LiveRoomContextValue {
     setting: keyof LiveRoomMicSettings,
     enabled: boolean,
   ) => Promise<void>;
+  videoSettings: LiveRoomVideoSettings;
+  setVideoSetting: (
+    setting: keyof LiveRoomVideoSettings,
+    enabled: boolean,
+  ) => void;
 
   localStream: MediaStream | null;
   remoteStreams: RemoteMediaStream[];
@@ -178,6 +187,11 @@ const defaultMicSettingSupport: LiveRoomMicSettingSupport = {
 };
 
 const liveRoomMicSettingsStorageKey = 'live-room-mic-settings';
+const liveRoomVideoSettingsStorageKey = 'live-room-video-settings';
+
+const defaultVideoSettings: LiveRoomVideoSettings = {
+  hideSelfView: false,
+};
 
 const readStoredMicSettings = (): LiveRoomMicSettings => {
   const storedValue = storageWrapper.getItem(liveRoomMicSettingsStorageKey);
@@ -204,6 +218,26 @@ const readStoredMicSettings = (): LiveRoomMicSettings => {
     };
   } catch {
     return defaultMicSettings;
+  }
+};
+
+const readStoredVideoSettings = (): LiveRoomVideoSettings => {
+  const storedValue = storageWrapper.getItem(liveRoomVideoSettingsStorageKey);
+  if (!storedValue) {
+    return defaultVideoSettings;
+  }
+
+  try {
+    const parsed = JSON.parse(storedValue) as Partial<LiveRoomVideoSettings>;
+
+    return {
+      hideSelfView:
+        typeof parsed.hideSelfView === 'boolean'
+          ? parsed.hideSelfView
+          : defaultVideoSettings.hideSelfView,
+    };
+  } catch {
+    return defaultVideoSettings;
   }
 };
 
@@ -277,6 +311,9 @@ export const LiveRoomProvider = ({
   const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
   const [micSettings, setMicSettings] = useState<LiveRoomMicSettings>(
     readStoredMicSettings,
+  );
+  const [videoSettings, setVideoSettings] = useState<LiveRoomVideoSettings>(
+    readStoredVideoSettings,
   );
   const [micSettingSupport, setMicSettingSupport] =
     useState<LiveRoomMicSettingSupport>(defaultMicSettingSupport);
@@ -471,6 +508,13 @@ export const LiveRoomProvider = ({
       JSON.stringify(micSettings),
     );
   }, [micSettings]);
+
+  useEffect(() => {
+    storageWrapper.setItem(
+      liveRoomVideoSettingsStorageKey,
+      JSON.stringify(videoSettings),
+    );
+  }, [videoSettings]);
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
@@ -1036,6 +1080,22 @@ export const LiveRoomProvider = ({
     [isMicOn, micSettingSupport, micSettings, selectedMicId, startCapture],
   );
 
+  const setVideoSetting = useCallback(
+    (setting: keyof LiveRoomVideoSettings, enabled: boolean) => {
+      setVideoSettings((current) => {
+        if (current[setting] === enabled) {
+          return current;
+        }
+
+        return {
+          ...current,
+          [setting]: enabled,
+        };
+      });
+    },
+    [],
+  );
+
   const startRoom = useCallback(async () => {
     const connection = connectionRef.current;
     if (!connection) {
@@ -1184,6 +1244,8 @@ export const LiveRoomProvider = ({
       micSettings,
       micSettingSupport,
       setMicSetting,
+      videoSettings,
+      setVideoSetting,
       localStream,
       remoteStreams,
       reactions,
@@ -1224,6 +1286,8 @@ export const LiveRoomProvider = ({
       micSettings,
       micSettingSupport,
       setMicSetting,
+      videoSettings,
+      setVideoSetting,
       localStream,
       remoteStreams,
       reactions,

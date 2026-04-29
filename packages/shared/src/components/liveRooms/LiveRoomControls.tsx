@@ -41,6 +41,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
+const HIDE_SELF_VIEW_LABEL = 'Hide my preview';
 
 const MIC_SETTING_ITEMS: {
   key: keyof LiveRoomMicSettings;
@@ -269,6 +270,8 @@ export const LiveRoomControls = ({
     micSettings,
     micSettingSupport,
     setMicSetting,
+    videoSettings,
+    setVideoSetting,
     localStream,
   } = useLiveRoom();
   const localAudioTrack = localStream?.getAudioTracks()[0] ?? null;
@@ -517,6 +520,21 @@ export const LiveRoomControls = ({
                   );
                 }}
                 emptyLabel="No cameras"
+                extra={
+                  <MicSettingRow
+                    id="live-room-video-setting-hide-self-view"
+                    label={HIDE_SELF_VIEW_LABEL}
+                    description="Hide your own tile while keeping your camera live."
+                    checked={videoSettings.hideSelfView}
+                    disabled={!!busy}
+                    onToggle={() =>
+                      setVideoSetting(
+                        'hideSelfView',
+                        !videoSettings.hideSelfView,
+                      )
+                    }
+                  />
+                }
               />
             </ControlGroup>
           ) : null}
