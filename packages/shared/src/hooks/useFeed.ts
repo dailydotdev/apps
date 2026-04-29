@@ -269,6 +269,13 @@ export default function useFeed<T>(
   );
 
   const { fetchAd } = useFetchAd();
+  // Per-mount random seed for ad jitter. Stable across re-renders/pagination
+  // (so ads don't visibly jump as new pages load) but varies across mounts and
+  // sessions, so the same user doesn't see ads in the same spots every visit.
+  const adJitterSeedRef = useRef<string>();
+  if (!adJitterSeedRef.current) {
+    adJitterSeedRef.current = Math.random().toString(36).slice(2);
+  }
   const adsQuery = useInfiniteQuery<
     Ad,
     ClientError,
@@ -326,7 +333,7 @@ export default function useFeed<T>(
         adStart,
         adRepeat,
         adJitter,
-        seed: JSON.stringify(feedQueryKey),
+        seed: adJitterSeedRef.current ?? '',
       });
 
       if (adPage === undefined) {
@@ -368,7 +375,6 @@ export default function useFeed<T>(
       adTemplate?.adJitter,
       adsUpdatedAt,
       pageSize,
-      feedQueryKey,
     ],
   );
 

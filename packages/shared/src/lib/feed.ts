@@ -289,6 +289,10 @@ const hashSeed = (key: string, n: number): number => {
 };
 /* eslint-enable no-bitwise */
 
+// Minimum index distance between two consecutive ads. A gap of 2 guarantees
+// at least one post between any two ads, so we never render `ad, ad` back-to-back.
+const MIN_AD_GAP = 2;
+
 export const getAdSlotIndex = ({
   index,
   adStart,
@@ -308,19 +312,23 @@ export const getAdSlotIndex = ({
   if (index < adStart) {
     return undefined;
   }
-  const safeJitter = Math.max(
-    0,
-    Math.min(adJitter, Math.floor((adRepeat - 1) / 2)),
-  );
-  const n = Math.max(0, Math.round((index - adStart) / adRepeat));
-  // For n === 0, only allow non-negative jitter so the first ad never lands
-  // before adStart. For n > 0, jitter is symmetric around the cadence.
-  const isFirst = n === 0;
-  const range = isFirst ? safeJitter + 1 : safeJitter * 2 + 1;
-  const baseOffset = isFirst ? 0 : -safeJitter;
-  const offset =
-    safeJitter === 0 ? 0 : (hashSeed(seed, n) % range) + baseOffset;
-  const pos = adStart + n * adRepeat + offset;
+  // Clamp jitter so each gap stays >= MIN_AD_GAP. With per-gap symmetric jitter
+  // in [-J, +J], the minimum gap is `adRepeat - J`, so J must be <= adRepeat - MIN_AD_GAP.
+  const safeJitter = Math.max(0, Math.min(adJitter, adRepeat - MIN_AD_GAP));
+  // Walk slots forward from 0, applying one independent jitter per gap, until
+  // we either hit `index` or pass it. The first slot uses one-sided jitter
+  // (0..+J) so the first ad never lands before `adStart`.
+  let pos =
+    adStart + (safeJitter === 0 ? 0 : hashSeed(seed, 0) % (safeJitter + 1));
+  let n = 0;
+  while (pos < index) {
+    n += 1;
+    const offset =
+      safeJitter === 0
+        ? 0
+        : (hashSeed(seed, n) % (safeJitter * 2 + 1)) - safeJitter;
+    pos += adRepeat + offset;
+  }
   return pos === index ? n : undefined;
 };
 

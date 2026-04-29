@@ -36,11 +36,11 @@ describe('getAdSlotIndex', () => {
   it('never places the first ad before adStart, even with jitter', () => {
     const adStart = 2;
     const adRepeat = 5;
-    const adJitter = 2;
+    const adJitter = 3;
     const seeds = Array.from({ length: 50 }, (_, i) => `["feed","user-${i}"]`);
     seeds.forEach((s) => {
       let firstHit: number | undefined;
-      for (let index = 0; index < adRepeat; index += 1) {
+      for (let index = 0; index < adStart + adRepeat; index += 1) {
         if (
           getAdSlotIndex({ index, adStart, adRepeat, adJitter, seed: s }) !==
           undefined
@@ -55,33 +55,25 @@ describe('getAdSlotIndex', () => {
     });
   });
 
-  it('keeps jittered positions inside the expected window per slot', () => {
+  it('keeps consecutive ad gaps within [adRepeat - J, adRepeat + J]', () => {
     const adStart = 2;
     const adRepeat = 5;
-    const adJitter = 2;
-    const windows = new Map<number, number[]>();
-    for (let index = 0; index < 60; index += 1) {
-      const n = getAdSlotIndex({
-        index,
-        adStart,
-        adRepeat,
-        adJitter,
-        seed,
-      });
-      if (n !== undefined) {
-        const list = windows.get(n) ?? [];
-        list.push(index);
-        windows.set(n, list);
+    const adJitter = 3;
+    const hits: number[] = [];
+    for (let index = 0; index < 200; index += 1) {
+      if (
+        getAdSlotIndex({ index, adStart, adRepeat, adJitter, seed }) !==
+        undefined
+      ) {
+        hits.push(index);
       }
     }
-    Array.from(windows.entries()).forEach(([n, hits]) => {
-      expect(hits).toHaveLength(1);
-      const center = adStart + n * adRepeat;
-      const lowerBound = n === 0 ? adStart : center - adJitter;
-      expect(hits[0]).toBeGreaterThanOrEqual(lowerBound);
-      expect(hits[0]).toBeLessThanOrEqual(center + adJitter);
-    });
-    expect(windows.size).toBeGreaterThanOrEqual(10);
+    expect(hits.length).toBeGreaterThan(5);
+    for (let i = 1; i < hits.length; i += 1) {
+      const gap = hits[i] - hits[i - 1];
+      expect(gap).toBeGreaterThanOrEqual(adRepeat - adJitter);
+      expect(gap).toBeLessThanOrEqual(adRepeat + adJitter);
+    }
   });
 
   it('is deterministic for the same seed and slot index', () => {
@@ -116,22 +108,27 @@ describe('getAdSlotIndex', () => {
     expect(collect(seedA)).not.toEqual(collect(seedB));
   });
 
-  it('clamps jitter so consecutive ads never overlap or reorder', () => {
+  it('always leaves at least one post between consecutive ads, regardless of jitter size', () => {
+    // adRepeat is small and jitter is intentionally huge — clamp must still
+    // guarantee `gap >= 2` so we never render `ad, ad` back-to-back.
     const adStart = 2;
-    const adRepeat = 5;
+    const adRepeat = 3;
     const adJitter = 100;
-    const hits: number[] = [];
-    for (let index = 0; index < 200; index += 1) {
-      if (
-        getAdSlotIndex({ index, adStart, adRepeat, adJitter, seed }) !==
-        undefined
-      ) {
-        hits.push(index);
+    const seeds = Array.from({ length: 25 }, (_, i) => `["feed","user-${i}"]`);
+    seeds.forEach((s) => {
+      const hits: number[] = [];
+      for (let index = 0; index < 200; index += 1) {
+        if (
+          getAdSlotIndex({ index, adStart, adRepeat, adJitter, seed: s }) !==
+          undefined
+        ) {
+          hits.push(index);
+        }
       }
-    }
-    expect(hits.length).toBeGreaterThan(5);
-    for (let i = 1; i < hits.length; i += 1) {
-      expect(hits[i]).toBeGreaterThan(hits[i - 1]);
-    }
+      expect(hits.length).toBeGreaterThan(5);
+      for (let i = 1; i < hits.length; i += 1) {
+        expect(hits[i] - hits[i - 1]).toBeGreaterThanOrEqual(2);
+      }
+    });
   });
 });
