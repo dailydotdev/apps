@@ -140,7 +140,7 @@ export function DevCard({
                 'font-bold',
                 isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
-                  ? 'line-clamp-2 typo-mega2'
+                  ? 'line-clamp-2 overflow-hidden break-words typo-mega2'
                   : 'line-clamp-1 typo-title2',
               )}
             >
