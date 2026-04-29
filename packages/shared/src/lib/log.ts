@@ -91,6 +91,11 @@ export enum Origin {
   BetterAuthNativeIdTokenBoot = 'betterauth native id token boot',
   BetterAuthSocialUrl = 'betterauth social url',
   LoginTurnstile = 'login turnstile',
+  // Engagement ads
+  HighlightedKeyword = 'highlighted keyword',
+  ProfileStack = 'profile stack',
+  BrandedTag = 'branded tag',
+  MentionedTool = 'mentioned tool',
 }
 
 export enum LogEvent {
@@ -123,6 +128,10 @@ export enum LogEvent {
   EnableNotification = 'enable notification',
   DisableNotification = 'disable notification',
   ScheduleDigest = 'schedule digest',
+  EnableMajorHeadlinesAlerts = 'enable major headlines alerts',
+  DisableMajorHeadlinesAlerts = 'disable major headlines alerts',
+  ImpressionMajorHeadlinesAlertsBanner = 'impression major headlines alerts banner',
+  DismissMajorHeadlinesAlertsBanner = 'dismiss major headlines alerts banner',
   // notifications - end
   // squads - start
   ViewSquadInvitation = 'view squad invitation',
@@ -198,6 +207,15 @@ export enum LogEvent {
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
   OpenShortcutConfig = 'open shortcut config',
+  AddShortcut = 'add shortcut',
+  EditShortcut = 'edit shortcut',
+  RemoveShortcut = 'remove shortcut',
+  ReorderShortcuts = 'reorder shortcuts',
+  ImportShortcuts = 'import shortcuts',
+  UndoRemoveShortcut = 'undo remove shortcut',
+  ChangeShortcutsMode = 'change shortcuts mode',
+  ChangeShortcutsAppearance = 'change shortcuts appearance',
+  ToggleShortcutsOnWebapp = 'toggle shortcuts on webapp',
   // Devcard
   ShareDevcard = 'share devcard',
   GenerateDevcard = 'generate devcard',
@@ -401,6 +419,8 @@ export enum LogEvent {
   ImpressionAchievementSyncPrompt = 'impression achievement sync',
   DismissAchievementSyncPrompt = 'dismiss achievement sync',
   DismissAchievementCompletion = 'dismiss achievement completion',
+  // Engagement ads
+  HoverEngagementTooltip = 'hover engagement tooltip',
   // Quests
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
@@ -608,6 +628,9 @@ export enum NotificationPromptSource {
   SquadChecklist = 'squad checklist',
   SourceSubscribe = 'source subscribe',
   ReadingReminder = 'reading reminder',
+  MajorHeadlinesSettings = 'major headlines settings',
+  MajorHeadlinesPage = 'major headlines page',
+  MajorHeadlinesCard = 'major headlines card',
 }
 
 export enum ShortcutsSourceType {
@@ -615,6 +638,7 @@ export enum ShortcutsSourceType {
   Browser = 'browser',
   Placeholder = 'placeholder',
   Button = 'button',
+  Bookmarks = 'bookmarks',
 }
 
 export enum UserAcquisitionEvent {

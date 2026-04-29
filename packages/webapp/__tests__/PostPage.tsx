@@ -361,7 +361,7 @@ it('should show post image', async () => {
 
 it('should show login on upvote click', async () => {
   renderPost({}, [createPostMock(), createCommentsMock()], undefined);
-  const el = await screen.findByLabelText('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -482,7 +482,7 @@ it('should send upvote mutation', async () => {
   mockCompleteActionMutation(ActionType.VotePost);
 
   renderPost({}, [createPostMock(), createCommentsMock()]);
-  const el = await screen.findByLabelText('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   fireEvent.click(el);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -714,25 +714,22 @@ it('should show TLDR when there is a summary', async () => {
   expect(link).not.toBeInTheDocument();
 });
 
-it('should toggle TLDR on click', async () => {
+it('should show full TLDR for long summaries without a Show more toggle', async () => {
+  const summaryText =
+    "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.";
   renderPost({}, [
-    createPostMock({
-      summary:
-        "Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book type specimen book type specimen book type specimen book type.Ipsum is simply dummy text of the printing and typesetting industry. book type.Ipsum is simply dummy text of the printing and typesetting industry.",
-    }),
+    createPostMock({ summary: summaryText }),
     completeActionMock({ action: ActionType.BookmarkPost }),
   ]);
   const el = await screen.findByTestId('tldr-container');
   expect(el).toBeInTheDocument();
+  expect(el).toHaveTextContent(summaryText);
   // eslint-disable-next-line testing-library/no-node-access, testing-library/prefer-screen-queries
   const showMoreLink = queryByText(
     getRequiredElement(el.parentElement, 'Expected TLDR container parent'),
     'Show more',
   );
-  expect(showMoreLink).toBeInTheDocument();
-  fireEvent.click(getRequiredElement(showMoreLink, 'Expected show more link'));
-  const showLessLink = await screen.findByText('Show less');
-  expect(showLessLink).toBeInTheDocument();
+  expect(showMoreLink).not.toBeInTheDocument();
 });
 
 it('should not show Show more link when there is a summary without reaching threshold', async () => {
@@ -769,7 +766,7 @@ it('should not cut summary when there is a summary without reaching threshold', 
 it('should show login on downvote click', async () => {
   renderPost({}, [createPostMock(), createCommentsMock()], undefined);
 
-  const el = await screen.findByLabelText('Downvote');
+  const [el] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -786,7 +783,7 @@ it('should send downvote mutation', async () => {
 
   renderPost({}, [createPostMock(), createCommentsMock()]);
 
-  const el = await screen.findByLabelText('Downvote');
+  const [el] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(el);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -835,7 +832,7 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
     createCommentsMock(),
   ]);
 
-  const downvote = await screen.findByLabelText('Downvote');
+  const [downvote] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(downvote);
   await new Promise(process.nextTick);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -884,7 +881,7 @@ describe('downvote flow', () => {
       }),
       createCommentsMock(),
     ]);
-    const downvote = await screen.findByLabelText('Downvote');
+    const [downvote] = await screen.findAllByLabelText('Downvote');
     fireEvent.click(downvote);
     await new Promise(process.nextTick);
     await act(async () => {
@@ -899,7 +896,9 @@ describe('downvote flow', () => {
 
   it('should prevent user to click block if no tags are selected', async () => {
     await prepareDownvote();
-    const block = await screen.findByRole('button', { name: 'Block' });
+    const block = await screen.findByRole<HTMLButtonElement>('button', {
+      name: 'Block',
+    });
     expect(block.disabled).toBe(true);
   });
 

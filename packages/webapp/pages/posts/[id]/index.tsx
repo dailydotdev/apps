@@ -48,6 +48,7 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
+import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -179,6 +180,7 @@ export const PostPage = ({
 }: Props): ReactElement => {
   useJoinReferral();
   const { logEvent } = useLogContext();
+  const { getCreativeForTags } = useEngagementAdsContext();
   const [position, setPosition] =
     useState<CSSProperties['position']>('relative');
   const router = useRouter();
@@ -259,9 +261,11 @@ export const PostPage = ({
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
         selector={() => {
+          const creative = getCreativeForTags(post?.tags || []);
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
+            ...(creative && { gen_id: creative.genId }),
           };
         }}
       >

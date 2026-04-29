@@ -20,7 +20,6 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
-import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { QuestStatus, QuestType } from '@dailydotdev/shared/src/graphql/quests';
 import GameCenterPage, {
   getStaticProps as getGameCenterStaticProps,
@@ -113,11 +112,6 @@ jest.mock('../components/ProtectedPage', () => ({
     fallback?: React.ReactNode;
     shouldFallback?: boolean;
   }) => (shouldFallback ? fallback : children),
-}));
-
-jest.mock('../pages/404', () => ({
-  __esModule: true,
-  default: () => '404 page',
 }));
 
 const mockRequest = gqlClient.request as jest.Mock;
@@ -304,38 +298,11 @@ describe('game center client gating', () => {
     });
   });
 
-  it('should render the 404 page when the quest feature is disabled', () => {
-    mockUseConditionalFeature
-      .mockReturnValueOnce({
-        value: false,
-        isLoading: false,
-      })
-      .mockReturnValueOnce({
-        value: false,
-        isLoading: false,
-      });
-
-    render(
-      React.createElement(GameCenterPage, {
-        highestReputation: [],
-        mostQuestsCompleted: [],
-        questCompletionStats: null,
-      }),
-    );
-
-    expect(screen.getByText('404 page')).toBeInTheDocument();
-  });
-
   it('should render the milestone quests section even when there are no milestone quests yet', () => {
-    mockUseConditionalFeature
-      .mockReturnValueOnce({
-        value: true,
-        isLoading: false,
-      })
-      .mockReturnValueOnce({
-        value: false,
-        isLoading: false,
-      });
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {
@@ -374,15 +341,10 @@ describe('game center client gating', () => {
   it('should render milestone quest cards with claim actions on the game center page', async () => {
     const mutate = jest.fn();
 
-    mockUseConditionalFeature
-      .mockReturnValueOnce({
-        value: true,
-        isLoading: false,
-      })
-      .mockReturnValueOnce({
-        value: false,
-        isLoading: false,
-      });
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {
@@ -453,10 +415,10 @@ describe('game center client gating', () => {
   });
 
   it('should scroll to the milestone quest section when claimable milestone quests are linked from the sidebar', async () => {
-    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
-      value: feature === questsFeature,
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
       isLoading: false,
-    }));
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {
@@ -526,10 +488,10 @@ describe('game center client gating', () => {
   });
 
   it('should highlight the most progressed milestone in the progress snapshot card', () => {
-    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
-      value: feature === questsFeature,
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
       isLoading: false,
-    }));
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {
@@ -636,10 +598,10 @@ describe('game center client gating', () => {
   });
 
   it('should skip claimable milestones in the progress snapshot card and show the next upcoming one', () => {
-    mockUseConditionalFeature.mockImplementation(({ feature }) => ({
-      value: feature === questsFeature,
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
       isLoading: false,
-    }));
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {
@@ -731,15 +693,10 @@ describe('game center client gating', () => {
   });
 
   it('should render all milestone quests in a two-column grid without a show more toggle', () => {
-    mockUseConditionalFeature
-      .mockReturnValueOnce({
-        value: true,
-        isLoading: false,
-      })
-      .mockReturnValueOnce({
-        value: false,
-        isLoading: false,
-      });
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
     mockUseQuestDashboard.mockReturnValue({
       data: {
         level: {

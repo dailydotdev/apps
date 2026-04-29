@@ -12,9 +12,7 @@ import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -73,9 +71,6 @@ const LeaderboardPage = ({
   popularHotTakes,
 }: PageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-  const { value: isQuestsFeatureEnabled } = useConditionalFeature({
-    feature: questsFeature,
-  });
 
   if (isLoading) {
     return <></>;
@@ -89,7 +84,7 @@ const LeaderboardPage = ({
         </BreadCrumbs>
       </div>
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3">
-        {isQuestsFeatureEnabled === true && isHighestLevelSupported && (
+        {isHighestLevelSupported && (
           <UserTopList
             containerProps={{
               title: 'Highest level',

@@ -45,6 +45,8 @@ export const postWindowMessage = (
 
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
+export const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
+export const isChromeExtension = process.env.TARGET_BROWSER === 'chrome';
 
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.

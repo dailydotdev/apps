@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Browser, TopSites } from 'webextension-polyfill';
 import { checkIsExtension } from '../../../lib/func';
+import { MAX_SHORTCUTS } from '../types';
 
 type TopSite = TopSites.MostVisitedURL;
 
@@ -15,8 +16,14 @@ export const useTopSites = () => {
     }
 
     try {
+      // Slice upstream so downstream consumers can choose their own visible
+      // cap: the legacy `ShortcutLinksList` takes 8, the new hub's auto
+      // mode takes `MAX_SHORTCUTS`. `MAX_SHORTCUTS` here is a defensive
+      // upper bound — browsers typically return ~10, but some profiles
+      // (edge cases, long histories) will return the full limit they
+      // support, and we don't want to haul more than we'd ever render.
       await browser.topSites.get().then((result = []) => {
-        setTopSites(result.slice(0, 8));
+        setTopSites(result.slice(0, MAX_SHORTCUTS));
       });
     } catch (err) {
       setTopSites(undefined);

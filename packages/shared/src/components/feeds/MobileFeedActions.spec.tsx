@@ -1,16 +1,15 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook';
 import { render, screen } from '@testing-library/react';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { useReadingStreak } from '../../hooks/streaks';
 import { MobileFeedActions } from './MobileFeedActions';
 
-const mockQuestButton = jest.fn(
-  (): ReactElement => <div data-testid="quest-button">Quest button</div>,
-);
+const mockQuestButton = jest.fn<ReactElement, [{ compact?: boolean }]>(() => (
+  <div data-testid="quest-button">Quest button</div>
+));
 
 jest.mock('next/dynamic', () => () => {
   return function MockDynamicComponent() {
@@ -58,31 +57,16 @@ jest.mock('../quest/QuestButton', () => ({
 
 const mockUseReadingStreak = useReadingStreak as jest.Mock;
 
-const getGrowthBook = (isQuestsFeatureEnabled = true): GrowthBook => {
-  const gb = new GrowthBook();
-
-  gb.setFeatures({
-    quests: {
-      defaultValue: isQuestsFeatureEnabled,
-    },
-  });
-
-  return gb;
-};
-
 const renderComponent = ({
   optOutQuestSystem = false,
-  isQuestsFeatureEnabled = true,
 }: {
   optOutQuestSystem?: boolean;
-  isQuestsFeatureEnabled?: boolean;
 } = {}) =>
   render(
     <TestBootProvider
       client={new QueryClient()}
       auth={{ user: loggedUser }}
       settings={{ optOutQuestSystem }}
-      gb={getGrowthBook(isQuestsFeatureEnabled)}
     >
       <MobileFeedActions />
     </TestBootProvider>,
@@ -99,7 +83,7 @@ describe('MobileFeedActions', () => {
   });
 
   it('should render the quest entry next to the streak button', () => {
-    renderComponent({ optOutQuestSystem: false, isQuestsFeatureEnabled: true });
+    renderComponent({ optOutQuestSystem: false });
 
     const actionButtons = screen.getAllByTestId(/^(streak|quest)-button$/);
 
@@ -112,7 +96,7 @@ describe('MobileFeedActions', () => {
   });
 
   it('should hide the quest entry when opted out from quests', () => {
-    renderComponent({ optOutQuestSystem: true, isQuestsFeatureEnabled: true });
+    renderComponent({ optOutQuestSystem: true });
 
     expect(screen.queryByTestId('quest-button')).not.toBeInTheDocument();
   });

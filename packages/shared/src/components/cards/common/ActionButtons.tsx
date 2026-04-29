@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
@@ -20,6 +20,7 @@ import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -75,6 +76,7 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
     isUpvoteActive,
@@ -92,6 +94,23 @@ const ActionButtons = ({
     onCopyLinkClick,
     closeTagsPanelOnUpvote: variant === 'list',
   });
+
+  // Get brand animation config if post has sponsored tags
+  const brandAnimation = useMemo(() => {
+    const animationResult = getUpvoteAnimation(post.tags || []);
+    if (
+      !animationResult.shouldAnimate ||
+      !animationResult.colors ||
+      !animationResult.config
+    ) {
+      return null;
+    }
+    return {
+      colors: animationResult.colors,
+      config: animationResult.config,
+      brandLogo: animationResult.brandLogo,
+    };
+  }, [getUpvoteAnimation, post.tags]);
 
   if (isFeedPreview) {
     return null;
@@ -176,6 +195,7 @@ const ActionButtons = ({
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
                 size={config.iconSize}
+                brandAnimation={brandAnimation}
               />
             }
           >

@@ -50,8 +50,8 @@ export const SidebarDesktop = ({
       className={classNames(
         sidebarExpanded ? 'laptop:w-60' : 'laptop:w-11',
         isBannerAvailable
-          ? 'laptop:top-24 laptop:h-[calc(100vh-theme(space.24))]'
-          : 'laptop:top-16 laptop:h-[calc(100vh-theme(space.16))]',
+          ? 'laptop:[--safe-area-top-offset:6rem]'
+          : 'laptop:[--safe-area-top-offset:4rem]',
         featureTheme && 'bg-transparent',
       )}
     >

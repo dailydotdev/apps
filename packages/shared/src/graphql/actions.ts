@@ -32,6 +32,7 @@ export enum ActionType {
   DisableReadingStreakMilestone = 'disable_reading_streak_milestone',
   DisableReadingStreakRecover = 'disable_reading_streak_recover',
   FirstShortcutsSession = 'first_shortcuts_session',
+  ShortcutsMigratedFromTopSites = 'shortcuts_migrated_from_top_sites',
   VotePost = 'vote_post',
   BookmarkPost = 'bookmark_post',
   DigestConfig = 'digest_config',
@@ -62,6 +63,7 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
+  DismissedMajorHeadlinesAlertsBanner = 'dismissed_major_headlines_alerts_banner',
 }
 
 export const cvActions = [

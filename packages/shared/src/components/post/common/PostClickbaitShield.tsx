@@ -38,7 +38,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       <>
         <div
           className={classNames(
-            'mt-6 flex flex-wrap items-center text-text-tertiary typo-callout tablet:mt-1',
+            'mt-4 flex flex-wrap items-center text-text-tertiary typo-callout',
             !fetchedSmartTitle &&
               'rounded-12 border border-border-subtlest-tertiary px-3 py-2',
           )}
@@ -135,7 +135,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
       }
     >
       <Button
-        className="relative mr-2 mt-1 font-normal"
+        className="relative mr-2 mt-4 font-normal"
         size={ButtonSize.XSmall}
         icon={
           shieldActive ? (

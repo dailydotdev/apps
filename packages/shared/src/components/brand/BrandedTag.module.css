@@ -1,0 +1,62 @@
+/* BrandedTag - Micro-interaction animations for sponsored tags */
+
+.brandedTag {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.brandedTag:hover {
+  transform: scale(1.02);
+}
+
+/* Tag content */
+.tagContent {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Branded content */
+.brandedContent {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.brandedContent.fadeIn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Brand logo pulse effect */
+.brandLogo {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 4px currentColor);
+  }
+}
+
+/* Brand text */
+.brandText {
+  white-space: nowrap;
+}
+
+/* Animated (branded) state — continuous glow, no entrance animation */
+.animated {
+  animation: tagGlow 2s ease-in-out infinite;
+}
+
+@keyframes tagGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 8px 0 var(--brand-primary, #6e40c9);
+  }
+}

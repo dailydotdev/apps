@@ -29,7 +29,6 @@ import { useConditionalFeature } from '../../../hooks';
 import {
   featurePlusApiLanding,
   featureYearInReview,
-  questsFeature,
 } from '../../../lib/featureManagement';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
@@ -51,10 +50,6 @@ export const MainSection = ({
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
-    shouldEvaluate: isLoggedIn,
-  });
-  const { value: showGameCenter } = useConditionalFeature({
-    feature: questsFeature,
     shouldEvaluate: isLoggedIn,
   });
   const { data: questDashboard } = useQuestDashboard();
@@ -115,7 +110,7 @@ export const MainSection = ({
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
     }`;
 
-    const gameCenter = showGameCenter
+    const gameCenter = isLoggedIn
       ? {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
@@ -202,7 +197,6 @@ export const MainSection = ({
     isLoggedIn,
     isPlus,
     onNavTabClick,
-    showGameCenter,
     showYearInReview,
     user,
   ]);
