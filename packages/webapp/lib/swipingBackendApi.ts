@@ -1,9 +1,6 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 
-const BASE =
-  process.env.NEXT_PUBLIC_SWIPING_BACKEND_URL || 'http://localhost:8000';
-
 export interface PostSummary {
   postId: string;
   title: string;
@@ -69,12 +66,17 @@ export async function discoverPosts(
   return data.onboardingDiscoverPosts;
 }
 
+const ONBOARDING_EXTRACT_TAGS_MUTATION = gql`
+  mutation OnboardingExtractTags($prompt: String!) {
+    onboardingExtractTags(prompt: $prompt) {
+      tags
+    }
+  }
+`;
+
 export async function extractTags(prompt: string): Promise<string[]> {
-  const res = await fetch(`${BASE}/api/extract-tags`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt }),
-  });
-  const data = await res.json();
-  return data.tags;
+  const data = await gqlClient.request<{
+    onboardingExtractTags: { tags: string[] };
+  }>(ONBOARDING_EXTRACT_TAGS_MUTATION, { prompt });
+  return data.onboardingExtractTags.tags;
 }
