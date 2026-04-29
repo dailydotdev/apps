@@ -15,6 +15,7 @@ import { walletUrl } from '../../lib/constants';
 import { largeNumberFormat } from '../../lib';
 import { formatCurrency } from '../../lib/utils';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import Link from '../utilities/Link';
 import { Tooltip } from '../tooltip/Tooltip';
 import { QuestRewardType } from '../../graphql/quests';
@@ -39,6 +40,13 @@ export default function ProfileButton({
   const { user, isAuthReady } = useAuthContext();
   const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
   const hasCoresAccess = useHasAccessToCores();
+  // Customize -> Widgets exposes a "Cores wallet" toggle that hides the pill
+  // (and only the pill) without revoking access; the menu entry under
+  // ProfileMenu still routes to /wallet. The "Reputation badge" toggle is
+  // the same idea for the rep number — hide the chrome, keep the value.
+  const { optOutCores, optOutReputation } = useSettingsContext();
+  const showCoresPill = hasCoresAccess && !optOutCores;
+  const showReputationBadge = !optOutReputation;
   const [animatedCores, setAnimatedCores] = useState<number | null>(null);
   const [animatedReputation, setAnimatedReputation] = useState<number | null>(
     null,
@@ -215,7 +223,7 @@ export default function ProfileButton({
               className="pl-4"
             />
           )}
-          {hasCoresAccess && (
+          {showCoresPill && (
             <Tooltip
               content={
                 <>
@@ -252,19 +260,21 @@ export default function ProfileButton({
             )}
             onClick={wrapHandler(() => onUpdate(!isOpen))}
           >
-            <span
-              ref={reputationCounterRef}
-              className="inline-flex items-center"
-              data-reward-target={QuestRewardType.Reputation}
-            >
-              <ReputationUserBadge
-                className="ml-1 !typo-subhead"
-                user={{ reputation: displayedReputation ?? 0 }}
-                iconProps={{
-                  size: IconSize.Small,
-                }}
-              />
-            </span>
+            {showReputationBadge ? (
+              <span
+                ref={reputationCounterRef}
+                className="inline-flex items-center"
+                data-reward-target={QuestRewardType.Reputation}
+              >
+                <ReputationUserBadge
+                  className="ml-1 !typo-subhead"
+                  user={{ reputation: displayedReputation ?? 0 }}
+                  iconProps={{
+                    size: IconSize.Small,
+                  }}
+                />
+              </span>
+            ) : null}
             <Tooltip side="bottom" content="Profile settings">
               <div className="flex items-center">
                 <ProfilePictureWithIndicator user={user} />

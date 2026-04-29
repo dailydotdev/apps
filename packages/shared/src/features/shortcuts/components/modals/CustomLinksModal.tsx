@@ -30,8 +30,12 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showTopSites, toggleShowTopSites } = useSettingsContext();
   const { onSaveChanges, formRef, hasTopSites } = useShortcutLinks();
-  const { isManual, setIsManual, onRevokePermission, setShowPermissionsModal } =
-    useShortcuts();
+  const {
+    isManual,
+    setSourceManual,
+    onRevokePermission,
+    setShowPermissionsModal,
+  } = useShortcuts();
 
   const logRef = useRef<typeof logEvent>();
   logRef.current = logEvent;
@@ -128,7 +132,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               icon={<UserIcon size={IconSize.XLarge} secondary={isManual} />}
               isActive={isManual}
               onClick={() => {
-                setIsManual(true);
+                setSourceManual(true);
               }}
             />
             <CardSelection
@@ -140,7 +144,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
                 if (!hasTopSites) {
                   setShowPermissionsModal(true);
                 }
-                setIsManual(false);
+                setSourceManual(false);
               }}
             />
           </nav>

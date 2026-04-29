@@ -476,6 +476,13 @@ const AchievementShowcaseModal = dynamic(
     ),
 );
 
+const CompanionPermissionModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "companionPermissionModal" */ './CompanionPermissionModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -553,6 +560,7 @@ export const modals = {
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
+  [LazyModal.CompanionPermission]: CompanionPermissionModal,
 };
 
 type GetComponentProps<T> = T extends

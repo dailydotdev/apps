@@ -40,6 +40,12 @@ export interface InteractivePopupProps extends DrawerOnMobileProps {
   onClose?: PopupCloseFunc;
   closeButton?: CloseButtonProps;
   disableOverlay?: boolean;
+  /**
+   * Inline style override forwarded to the popup container. Useful for
+   * dynamic positioning (e.g. shifting the menu past a right sidebar)
+   * without forking the position presets above.
+   */
+  style?: React.CSSProperties;
 }
 
 const centerClassX = 'left-1/2 -translate-x-1/2';
@@ -80,6 +86,7 @@ function InteractivePopup({
   isDrawerOnMobile,
   drawerProps,
   disableOverlay = false,
+  style,
   ...props
 }: InteractivePopupProps): ReactElement {
   const {
@@ -139,6 +146,7 @@ function InteractivePopup({
               !sidebarExpanded &&
               'laptop:left-16',
           )}
+          style={style}
           {...props}
         >
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&

@@ -8,20 +8,19 @@ export type DndSettings = { expiration: Date; link: string };
 export interface DndContextData {
   setShowDnd: Dispatch<boolean>;
   showDnd: boolean;
-  dndSettings: DndSettings;
+  dndSettings: DndSettings | null;
   isActive: boolean;
-  onDndSettings: (settings: DndSettings) => Promise<void>;
+  onDndSettings: (settings: DndSettings | null) => Promise<void>;
 }
 
 const DEFAULT_VALUE = {
-  showDnd: null,
-  setShowDnd: null,
+  showDnd: false,
+  setShowDnd: () => undefined,
   dndSettings: null,
   isActive: false,
-  onDndSettings: null,
-};
+  onDndSettings: async () => undefined,
+} satisfies DndContextData;
 const DndContext = React.createContext<DndContextData>(DEFAULT_VALUE);
-const now = new Date();
 
 interface DndContextProviderProps {
   children: ReactNode;
@@ -32,7 +31,9 @@ export const DndContextProvider = ({
 }: DndContextProviderProps): ReactElement => {
   const [showDnd, setShowDnd] = useState(false);
   const [dndSettings, setDndSettings] =
-    usePersistentContext<DndSettings>('dnd');
+    usePersistentContext<DndSettings | null>('dnd');
+  const handleDndSettings = (settings: DndSettings | null) =>
+    setDndSettings(settings);
 
   if (!checkIsExtension()) {
     return (
@@ -48,8 +49,11 @@ export const DndContextProvider = ({
         showDnd,
         setShowDnd,
         dndSettings,
-        isActive: dndSettings?.expiration?.getTime() > now.getTime(),
-        onDndSettings: setDndSettings,
+        isActive: Boolean(
+          dndSettings?.expiration &&
+            dndSettings.expiration.getTime() > Date.now(),
+        ),
+        onDndSettings: handleDndSettings,
       }}
     >
       {children}

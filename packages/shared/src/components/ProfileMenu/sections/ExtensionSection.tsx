@@ -1,56 +1,59 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-import { HorizontalSeparator } from '../../utilities';
 import { ProfileSection } from '../ProfileSection';
-import { useDndContext } from '../../../contexts/DndContext';
-import { useSettingsContext } from '../../../contexts/SettingsContext';
-import { PauseIcon, PlayIcon, ShortcutsIcon, StoryIcon } from '../../icons';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
+import { MagicIcon } from '../../icons';
 import { checkIsExtension } from '../../../lib/func';
-import { useIsShortcutsHubEnabled } from '../../../features/shortcuts/hooks/useIsShortcutsHubEnabled';
+import { useRequestCustomizerOpen } from '../../../features/customizeNewTab/store/customizerOpenRequest.store';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
 
-export const ExtensionSection = (): ReactElement | null => {
-  const { openModal } = useLazyModal();
-  const { isActive: isDndActive, setShowDnd } = useDndContext();
-  const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
-  const hubEnabled = useIsShortcutsHubEnabled();
-  // Route "Shortcuts" in the profile menu to the same modal the user sees
-  // elsewhere. On the new hub that's ShortcutsManage (settings-like); on
-  // the legacy hub it's still CustomLinks. Gating this through the same
-  // feature flag keeps the menu consistent with the row on the new tab.
-  const shortcutsModal = hubEnabled
-    ? LazyModal.ShortcutsManage
-    : LazyModal.CustomLinks;
+interface ExtensionSectionProps {
+  /**
+   * Called after the user picks any item in this section so the parent
+   * `ProfileMenu` collapses the dropdown — without this the menu stays open
+   * over the customize sidebar that's about to appear.
+   */
+  onClose?: () => void;
+}
+
+export const ExtensionSection = ({
+  onClose,
+}: ExtensionSectionProps): ReactElement | null => {
+  const { logEvent } = useLogContext();
+  const requestCustomizerOpen = useRequestCustomizerOpen();
 
   if (!checkIsExtension()) {
     return null;
   }
 
-  return (
-    <>
-      <HorizontalSeparator />
+  // The extension dropdown previously surfaced three separate toggles
+  // (Shortcuts, Pause new tab, Companion widget). All of them now live
+  // inside the Customize sidebar, so this entry just routes the user there
+  // — same idea as a "Settings" link in a menu, one tap to the destination.
+  const onCustomize = () => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.CustomizeNewTab,
+      target_id: 'profile_dropdown',
+    });
+    requestCustomizerOpen();
+    onClose?.();
+  };
 
-      <ProfileSection
-        items={[
-          {
-            title: 'Shortcuts',
-            icon: ShortcutsIcon,
-            onClick: () => openModal({ type: shortcutsModal }),
-          },
-          {
-            title: `${isDndActive ? 'Resume' : 'Pause'} new tab`,
-            icon: isDndActive ? PlayIcon : PauseIcon,
-            onClick: () => setShowDnd?.(true),
-          },
-          {
-            title: `${optOutCompanion ? 'Enable' : 'Disable'} companion widget`,
-            icon: () => <StoryIcon secondary={!optOutCompanion} />,
-            onClick: () => toggleOptOutCompanion(),
-          },
-        ]}
-      />
-    </>
+  // Rendered immediately above `AccountSection` in the profile dropdown, so
+  // the parent owns the surrounding separators and this component just emits
+  // the row itself — keeps the visual grouping with "Settings" tight, with
+  // no double-separator between them.
+  return (
+    <ProfileSection
+      items={[
+        {
+          title: 'Customize new tab',
+          icon: MagicIcon,
+          onClick: onCustomize,
+        },
+      ]}
+    />
   );
 };

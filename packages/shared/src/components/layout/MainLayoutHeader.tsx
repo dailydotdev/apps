@@ -15,6 +15,10 @@ import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
+import {
+  useRightSidebarOffset,
+  useRightSidebarSettled,
+} from '../../features/customizeNewTab/store/rightSidebar.store';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -54,6 +58,13 @@ function MainLayoutHeader({
   const isSearchPage = isSearch || isAnyExplore;
   const featureTheme = useFeatureTheme();
   const scrollClassName = useScrollTopClassName({ enabled: !!featureTheme });
+  const rightSidebarOffset = useRightSidebarOffset();
+  // While `false`, the customizer panel is still settling into its
+  // initial open/closed position on first paint — skip the right/width
+  // transition here so we don't visibly animate the header in alongside
+  // the panel slide. Flips to `true` one frame later, so any subsequent
+  // open/close still animates normally.
+  const isRightSidebarSettled = useRightSidebarSettled();
   const { profile } = useActiveNav(activeFeedName);
   const shouldUseLoadedSettings = loadedSettings && hasHydrated;
   const isMobileProfile = profile && !isLaptop;
@@ -107,7 +118,16 @@ function MainLayoutHeader({
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}
-      style={featureTheme ? featureTheme.navbar : undefined}
+      style={{
+        ...(featureTheme ? featureTheme.navbar : undefined),
+        right: rightSidebarOffset,
+        width: rightSidebarOffset
+          ? `calc(100% - ${rightSidebarOffset}px)`
+          : undefined,
+        transition: isRightSidebarSettled
+          ? 'right 200ms ease-in-out, width 200ms ease-in-out'
+          : undefined,
+      }}
     >
       {isMobileSearchPage ? (
         <>

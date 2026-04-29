@@ -34,6 +34,7 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+import { useDndContext } from '../contexts/DndContext';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -84,6 +85,11 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
+  // Treat the DnD/Take-a-break strip the same as a promotional banner so the
+  // fixed header and main padding shift down to make room for it. Without
+  // this the strip ends up hidden behind the header at the top of the page.
+  const { isActive: isDndActive } = useDndContext();
+  const hasTopBanner = isBannerAvailable || isDndActive;
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
@@ -193,7 +199,7 @@ function MainLayoutComponent({
       )}
 
       <MainLayoutHeader
-        hasBanner={isBannerAvailable}
+        hasBanner={hasTopBanner}
         sidebarRendered={sidebarRendered}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
@@ -207,7 +213,7 @@ function MainLayoutComponent({
             !isScreenCentered &&
             sidebarExpanded &&
             'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-24',
+          hasTopBanner && 'laptop:pt-24',
         )}
       >
         {isAuthReady && showSidebar && (

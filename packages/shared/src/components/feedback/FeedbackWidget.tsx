@@ -8,6 +8,11 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import {
+  useCustomizerFirstSession,
+  useRightSidebarOffset,
+  useRightSidebarSettled,
+} from '../../features/customizeNewTab/store/rightSidebar.store';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 
 const TEAM_MEMBERS = [
@@ -72,10 +77,25 @@ export function FeedbackWidget(): ReactElement | null {
   const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
+  const rightSidebarOffset = useRightSidebarOffset();
+  // Match the rest of the new-tab chrome: skip the slide transition on
+  // first paint so the customizer auto-open lands without any siblings
+  // animating in alongside it. Subsequent open/close still animate.
+  const isRightSidebarSettled = useRightSidebarSettled();
+  // Hide while a brand-new user is in their auto-opened first-session
+  // new tab. Without this the corner has the customizer panel + a
+  // Feedback pill competing for attention, which dilutes the
+  // onboarding moment. From the second session onward the atom stays
+  // `false` and feedback shows by default.
+  const isCustomizerFirstSession = useCustomizerFirstSession();
   const dailyTrio = useMemo(getDailyTrio, []);
   const [isCompact, setIsCompact] = useState(false);
 
-  const isVisible = !!user && !isMobile && showFeedbackButton;
+  // Only show for authenticated users on desktop when setting is enabled,
+  // and never during the customizer's first-session onboarding (mobile
+  // feedback is handled by FooterPlusButton).
+  const isVisible =
+    !!user && !isMobile && showFeedbackButton && !isCustomizerFirstSession;
 
   useEffect(() => {
     if (!isVisible) {
@@ -99,7 +119,17 @@ export function FeedbackWidget(): ReactElement | null {
     <Button
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
-      className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      // `right` lives on the inline style so it can track the customizer
+      // sidebar width — keep the rest of the position / chrome classes
+      // exactly as the post-redesign feedback pill ships them, just drop
+      // `right-4` so the inline rule doesn't fight the utility.
+      className="group fixed bottom-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      style={{
+        right: `calc(1rem + ${rightSidebarOffset}px)`,
+        transition: isRightSidebarSettled
+          ? 'right 200ms ease-in-out'
+          : undefined,
+      }}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Real people reply."
     >

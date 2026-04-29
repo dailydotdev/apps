@@ -6,12 +6,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import classNames from 'classnames';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
-import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -19,6 +20,15 @@ import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
+import {
+  CustomizeNewTabSidebar,
+  CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
+} from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
+import { useCustomizeNewTab } from '@dailydotdev/shared/src/features/customizeNewTab/useCustomizeNewTab';
+import {
+  useCustomizerFirstSession,
+  useRightSidebarOffset,
+} from '@dailydotdev/shared/src/features/customizeNewTab/store/rightSidebar.store';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
 import DndBanner from './DndBanner';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
@@ -28,6 +38,13 @@ const PostsSearch = dynamic(
   () =>
     import(
       /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
+    ),
+);
+
+const MainFeedLayout = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "mainFeedLayout" */ '@dailydotdev/shared/src/components/MainFeedLayout'
     ),
 );
 
@@ -68,6 +85,7 @@ export default function MainFeedPage({
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
   const { user, loadingUser } = useContext(AuthContext);
+  const { optOutCompanion, showFeedbackButton } = useSettingsContext();
   const [feedName, setFeedName] = useState<string>(() =>
     getInitialFeedName(initialPage),
   );
@@ -76,6 +94,23 @@ export default function MainFeedPage({
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const customizer = useCustomizeNewTab();
+  const customizerOffset = customizer.isOpen
+    ? `${CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX}px`
+    : '0px';
+  // Same source the header & feedback pill read so any fixed control on the
+  // new tab can stay clear of the open panel without recomputing widths.
+  const rightSidebarOffset = useRightSidebarOffset();
+  // Mirror `FeedbackWidget`'s short-circuit during first-session
+  // onboarding so the scroll-to-top wrapper drops to the bottom rail
+  // instead of leaving a gap where the (now hidden) Feedback pill would
+  // have been.
+  const isCustomizerFirstSession = useCustomizerFirstSession();
+  const isFeedbackButtonRendered =
+    showFeedbackButton && !isCustomizerFirstSession;
+  const shortcutsSlot = shortcuts ?? (
+    <ShortcutLinks shouldUseListFeedLayout={shouldUseListFeedLayout} />
+  );
 
   useLayoutEffect(() => {
     if (!initialPage || !shouldInitializeCurrentPage) {
@@ -135,55 +170,87 @@ export default function MainFeedPage({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 z-2 w-full">
-        <ScrollToTopButton />
-      </div>
-      <MainLayout
-        mainPage
-        isNavItemsButton
-        activePage={activePage}
-        onLogoClick={onLogoClick}
-        onNavTabClick={onNavTabClick}
-        screenCentered={false}
-        customBanner={isDndActive && <DndBanner />}
-        additionalButtons={!loadingUser && <CompanionPopupButton />}
+      <div
+        className={classNames(
+          // Skip the padding transition on the very first paint so the
+          // first-session auto-open lands without any layout-shift —
+          // the panel + feed reach their resting positions in lockstep.
+          // Subsequent open / close still animate normally.
+          customizer.hasSettledInitialOpen &&
+            'transition-[padding] duration-200 ease-in-out',
+        )}
+        style={{ paddingRight: customizerOffset }}
       >
-        <FeedLayoutProvider>
-          <MainFeedLayout
-            feedName={feedName}
-            isSearchOn={isSearchOn}
-            searchQuery={searchQuery}
-            onNavTabClick={onNavTabClick}
-            searchChildren={
-              <PostsSearch
-                onSubmitQuery={async (query, extraFlags) => {
-                  logEvent({
-                    event_name: LogEvent.SubmitSearch,
-                    extra: JSON.stringify({
-                      query,
-                      provider: SearchProviderEnum.Posts,
-                      ...extraFlags,
-                    }),
-                  });
-
-                  setSearchQuery(query);
-                }}
-                onFocus={() => {
-                  logEvent({ event_name: LogEvent.FocusSearch });
-                }}
-              />
-            }
-            shortcuts={
-              shortcuts ?? (
-                <ShortcutLinks
-                  shouldUseListFeedLayout={shouldUseListFeedLayout}
-                />
-              )
-            }
+        {/* Park the back-to-top icon just above the Feedback pill (when
+            visible) so they share the right rail without overlapping. With
+            no Feedback pill — either disabled in settings or hidden during
+            first-session onboarding — the icon drops to the corner instead
+            of floating over a gap. The inline `right` slides the wrapper
+            out from under the customizer panel when it opens, mirroring
+            `FeedbackWidget`. The transition is gated on
+            `hasSettledInitialOpen` for the same reason as the outer
+            wrapper above. */}
+        <div
+          className={classNames(
+            'fixed z-2',
+            isFeedbackButtonRendered ? 'bottom-20' : 'bottom-4',
+          )}
+          style={{
+            right: `calc(1rem + ${rightSidebarOffset}px)`,
+            transition: customizer.hasSettledInitialOpen
+              ? 'right 200ms ease-in-out'
+              : undefined,
+          }}
+        >
+          <ScrollToTopButton
+            compact
+            className="!static !right-auto !top-auto"
           />
-        </FeedLayoutProvider>
-        <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
-      </MainLayout>
+        </div>
+        <MainLayout
+          mainPage
+          isNavItemsButton
+          activePage={activePage}
+          onLogoClick={onLogoClick}
+          onNavTabClick={onNavTabClick}
+          screenCentered={false}
+          customBanner={isDndActive && <DndBanner />}
+          additionalButtons={
+            !loadingUser && !optOutCompanion && <CompanionPopupButton />
+          }
+        >
+          <FeedLayoutProvider>
+            <MainFeedLayout
+              feedName={feedName}
+              isSearchOn={isSearchOn}
+              searchQuery={searchQuery}
+              onNavTabClick={onNavTabClick}
+              searchChildren={
+                <PostsSearch
+                  onSubmitQuery={async (query, extraFlags) => {
+                    logEvent({
+                      event_name: LogEvent.SubmitSearch,
+                      extra: JSON.stringify({
+                        query,
+                        provider: SearchProviderEnum.Posts,
+                        ...extraFlags,
+                      }),
+                    });
+
+                    setSearchQuery(query);
+                  }}
+                  onFocus={() => {
+                    logEvent({ event_name: LogEvent.FocusSearch });
+                  }}
+                />
+              }
+              shortcuts={shortcutsSlot}
+            />
+          </FeedLayoutProvider>
+          <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
+        </MainLayout>
+      </div>
+      <CustomizeNewTabSidebar customizer={customizer} />
     </>
   );
 }

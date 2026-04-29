@@ -1,0 +1,281 @@
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import type { IconProps } from '../../../components/Icon';
+import { IconSize } from '../../../components/Icon';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import { Switch } from '../../../components/fields/Switch';
+import { InfoIcon } from '../../../components/icons';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
+import ConditionalWrapper from '../../../components/ConditionalWrapper';
+
+// Cap the tooltip width to a tight 18rem (~288px) so a one-liner wraps
+// cleanly into 2–3 lines instead of sprawling across the feed when the
+// row is hovered. The `!` is required because the Tooltip's base class
+// already sets `max-w-full`; without `!important` our cap is ignored.
+// We deliberately do NOT use a responsive modifier here — earlier we
+// tried `!tablet:max-w-64`, but `!` before a breakpoint isn't valid
+// Tailwind v3 syntax (it must follow the modifier, e.g. `tablet:!...`),
+// so the rule never compiled and the default `max-w-full` won.
+const ROW_TOOLTIP_CLASS = '!max-w-72 text-center';
+
+export type SidebarRowIcon = ComponentType<IconProps>;
+
+interface RowBodyProps {
+  label: ReactNode;
+  description?: ReactNode;
+  icon?: SidebarRowIcon;
+  active: boolean;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
+  rightAdornment?: ReactNode;
+  /**
+   * When set, a decorative `InfoIcon` is rendered next to the label so the
+   * row signals there's a tooltip to read. The actual tooltip wrapping
+   * happens at the row level (in `SidebarSwitchRow` / `SidebarActionRow`)
+   * so hovering anywhere on the row reveals it — matches the Plus list
+   * pattern in `PlusListItem`.
+   */
+  hasTooltip?: boolean;
+}
+
+const RowBody = ({
+  label,
+  description,
+  icon: IconEl,
+  active,
+  iconTone = 'default',
+  iconSecondary,
+  rightAdornment,
+  hasTooltip,
+}: RowBodyProps): ReactElement => {
+  return (
+    <>
+      {IconEl ? (
+        <IconEl
+          size={IconSize.Size16}
+          secondary={iconSecondary ?? (iconTone === 'default' && active)}
+          className={classNames(
+            'shrink-0 transition-colors',
+            iconTone === 'neutral' &&
+              '[&_*]:fill-current [&_*]:stroke-current text-text-tertiary',
+            iconTone !== 'neutral' && active && 'text-text-primary',
+            iconTone !== 'neutral' && !active && 'text-text-tertiary',
+          )}
+        />
+      ) : null}
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex min-w-0 items-center gap-1">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            className="min-w-0 truncate"
+          >
+            {label}
+          </Typography>
+          {hasTooltip ? (
+            // Decorative — same as `PlusListItem`. The actual hover
+            // target is the entire row, not this glyph; we just mark it
+            // so users notice there's extra context to read.
+            <InfoIcon
+              aria-hidden
+              size={IconSize.XXSmall}
+              className="shrink-0 text-text-quaternary"
+            />
+          ) : null}
+        </span>
+        {description ? (
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="break-words"
+          >
+            {description}
+          </Typography>
+        ) : null}
+      </span>
+      {rightAdornment}
+    </>
+  );
+};
+
+// Hover shows the tint; focus-within only adds a ring (no background),
+// so rows don't look "sticky-selected" after a click keeps the switch
+// focused.
+const ROW_BASE =
+  'group flex min-h-9 items-center gap-3 rounded-10 px-2 py-1.5 transition-colors hover:bg-surface-float focus-within:ring-2 focus-within:ring-accent-cabbage-default';
+
+interface SwitchRowProps {
+  name: string;
+  label: ReactNode;
+  description?: ReactNode;
+  icon?: SidebarRowIcon;
+  checked: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+  className?: string;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
+  /**
+   * Required for screen readers when `label` is not a plain string.
+   * Falls back to `label` when omitted.
+   */
+  ariaLabel?: string;
+  /**
+   * Optional one-sentence explanation shown in a tooltip when the user
+   * hovers / focuses the small info chip rendered next to the label.
+   */
+  tooltip?: ReactNode;
+}
+
+const labelToAriaLabel = (label: ReactNode, fallback?: string): string => {
+  if (typeof label === 'string') {
+    return label;
+  }
+  return fallback ?? 'toggle';
+};
+
+export const SidebarSwitchRow = ({
+  name,
+  label,
+  description,
+  icon,
+  checked,
+  onToggle,
+  disabled,
+  className,
+  iconTone,
+  iconSecondary,
+  ariaLabel,
+  tooltip,
+}: SwitchRowProps): ReactElement => {
+  // Row is a non-semantic clickable region that simply forwards a pointer
+  // click to the inner Switch's `onToggle`. We deliberately don't expose it
+  // as a focusable button: that would create *two* tab stops for the same
+  // logical control (the row + the native checkbox inside the Switch) and
+  // double-announce the state to screen readers ("toggle, pressed" then
+  // "checkbox, checked"). The checkbox inside the Switch is the canonical
+  // a11y entry point; everything else is pointer affordance.
+  //
+  // The inner Switch is itself a <label> wrapping its <input>, so we wrap
+  // it in a span that stops click propagation — otherwise a click on the
+  // real switch would bubble up to this div and fire `onToggle` a second
+  // time, immediately reverting the change.
+  const handleRowClick = () => {
+    if (disabled) {
+      return;
+    }
+    onToggle();
+  };
+  return (
+    // Mirror `PlusListItem`'s pattern: when there's an explanation to
+    // surface, wrap the entire row in a Tooltip so hovering anywhere on
+    // it reveals the info — not just the small icon. Rows without a
+    // tooltip render bare to keep DOM and accessibility simple.
+    <ConditionalWrapper
+      condition={!!tooltip}
+      wrapper={(component: ReactNode) => (
+        <Tooltip
+          content={tooltip}
+          delayDuration={0}
+          className={ROW_TOOLTIP_CLASS}
+        >
+          {component as ReactElement}
+        </Tooltip>
+      )}
+    >
+      {/* Pointer-only affordance that forwards clicks to the Switch; we
+          deliberately don't expose it to keyboard / AT (see the comment
+          above), so the matching a11y rules don't apply here. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+      <div
+        onClick={handleRowClick}
+        className={classNames(
+          ROW_BASE,
+          disabled ? 'pointer-events-none opacity-50' : 'cursor-pointer',
+          className,
+        )}
+      >
+        <RowBody
+          label={label}
+          description={description}
+          icon={icon}
+          active={checked}
+          iconTone={iconTone}
+          iconSecondary={iconSecondary}
+          hasTooltip={!!tooltip}
+          rightAdornment={
+            <span
+              className="contents"
+              onClick={(event) => event.stopPropagation()}
+              role="presentation"
+            >
+              <Switch
+                inputId={`${name}-switch`}
+                name={name}
+                compact
+                checked={checked}
+                onToggle={onToggle}
+                disabled={disabled}
+                aria-label={ariaLabel ?? labelToAriaLabel(label, name)}
+              />
+            </span>
+          }
+        />
+      </div>
+    </ConditionalWrapper>
+  );
+};
+
+interface ActionRowProps {
+  label: ReactNode;
+  description?: ReactNode;
+  icon?: SidebarRowIcon;
+  onClick: () => void;
+  rightAdornment?: ReactNode;
+  disabled?: boolean;
+  className?: string;
+  iconTone?: 'default' | 'neutral';
+  iconSecondary?: boolean;
+  ariaLabel?: string;
+}
+
+export const SidebarActionRow = ({
+  label,
+  description,
+  icon,
+  onClick,
+  rightAdornment,
+  disabled,
+  className,
+  iconTone,
+  iconSecondary,
+  ariaLabel,
+}: ActionRowProps): ReactElement => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={ariaLabel}
+    className={classNames(
+      ROW_BASE,
+      'w-full text-left disabled:pointer-events-none disabled:opacity-50',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default',
+      className,
+    )}
+  >
+    <RowBody
+      label={label}
+      description={description}
+      icon={icon}
+      active={false}
+      iconTone={iconTone}
+      iconSecondary={iconSecondary}
+      rightAdornment={rightAdornment}
+    />
+  </button>
+);

@@ -100,6 +100,8 @@ const defaultSettings: RemoteSettings = {
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   optOutCompanion: true,
+  optOutCores: false,
+  optOutReputation: false,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.NewestFirst,
   showFeedbackButton: true,
