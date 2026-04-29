@@ -12,8 +12,11 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { IconSize } from '../Icon';
+import { UserIcon } from '../icons';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { FlexCol, FlexRow } from '../utilities';
+import { largeNumberFormat } from '../../lib/numberFormat';
 
 interface LiveRoomCardProps {
   room: LiveRoom;
@@ -43,6 +46,13 @@ export const LiveRoomCard = ({
   onJoin,
   isJoining,
 }: LiveRoomCardProps): ReactElement => {
+  const watchingLabel =
+    typeof room.participantCount === 'number'
+      ? `${
+          largeNumberFormat(room.participantCount) ?? room.participantCount
+        } watching`
+      : null;
+
   return (
     <FlexCol className="gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
       <FlexRow className="items-center gap-2">
@@ -65,6 +75,18 @@ export const LiveRoomCard = ({
       <Typography type={TypographyType.Title3} bold className="line-clamp-2">
         {room.topic}
       </Typography>
+
+      {watchingLabel ? (
+        <FlexRow className="items-center gap-1 text-text-tertiary">
+          <UserIcon size={IconSize.Size16} />
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            {watchingLabel}
+          </Typography>
+        </FlexRow>
+      ) : null}
 
       <FlexRow className="items-center justify-between gap-2">
         <FlexRow className="min-w-0 items-center gap-2">

@@ -12,6 +12,7 @@ import { getActiveLiveRoomsKey } from './useActiveLiveRooms';
 export interface CreateLiveRoomInput {
   topic: string;
   mode?: LiveRoomMode;
+  speakerLimit?: number;
 }
 
 export const useCreateLiveRoom = () => {
@@ -26,6 +27,7 @@ export const useCreateLiveRoom = () => {
           input: {
             topic: input.topic,
             mode: input.mode ?? LiveRoomMode.Moderated,
+            speakerLimit: input.speakerLimit,
           },
         },
       );

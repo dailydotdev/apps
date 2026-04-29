@@ -27,6 +27,7 @@ export interface LiveRoom {
   status: LiveRoomStatus;
   startedAt: string | null;
   endedAt: string | null;
+  participantCount?: number | null;
   host: UserShortProfile;
 }
 
@@ -88,6 +89,7 @@ export const ACTIVE_LIVE_ROOMS_QUERY = gql`
   query ActiveLiveRooms {
     activeLiveRooms {
       ...LiveRoom
+      participantCount
     }
   }
   ${LIVE_ROOM_FRAGMENT}

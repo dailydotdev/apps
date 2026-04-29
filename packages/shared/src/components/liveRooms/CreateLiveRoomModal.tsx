@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Modal } from '../modals/common/Modal';
@@ -12,19 +12,44 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ControlledTextField from '../fields/ControlledTextField';
+import { TextField } from '../fields/TextField';
 import { type LiveRoomJoinToken, LiveRoomMode } from '../../graphql/liveRooms';
 import { useCreateLiveRoom } from '../../hooks/liveRooms/useCreateLiveRoom';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { labels } from '../../lib/labels';
 
-const createLiveRoomFormSchema = z.object({
-  topic: z
-    .string()
-    .trim()
-    .min(1, 'Topic is required')
-    .max(280, 'Topic must be 280 characters or less'),
-  mode: z.nativeEnum(LiveRoomMode),
-});
+const DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT = 4;
+
+const speakerLimitFieldSchema = z.preprocess((value) => {
+  if (value === '' || value === null || value === undefined) {
+    return undefined;
+  }
+
+  return Number(value);
+}, z.number().int().positive('Speaker limit must be at least 1').optional());
+
+const createLiveRoomFormSchema = z
+  .object({
+    topic: z
+      .string()
+      .trim()
+      .min(1, 'Topic is required')
+      .max(280, 'Topic must be 280 characters or less'),
+    mode: z.nativeEnum(LiveRoomMode),
+    speakerLimit: speakerLimitFieldSchema,
+  })
+  .superRefine((values, ctx) => {
+    if (
+      values.mode === LiveRoomMode.FreeForAll &&
+      values.speakerLimit === undefined
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['speakerLimit'],
+        message: 'Speaker limit is required for free-for-all rooms',
+      });
+    }
+  });
 
 type CreateLiveRoomFormValues = z.infer<typeof createLiveRoomFormSchema>;
 
@@ -46,14 +71,23 @@ export const CreateLiveRoomModal = ({
 
   const form = useForm<CreateLiveRoomFormValues>({
     resolver: zodResolver(createLiveRoomFormSchema),
-    defaultValues: { topic: '', mode: LiveRoomMode.Moderated },
+    defaultValues: {
+      topic: '',
+      mode: LiveRoomMode.Moderated,
+      speakerLimit: DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT,
+    },
   });
+  const selectedMode = form.watch('mode');
 
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       const joinToken = await createLiveRoom({
         topic: values.topic,
         mode: values.mode,
+        speakerLimit:
+          values.mode === LiveRoomMode.FreeForAll
+            ? values.speakerLimit
+            : undefined,
       });
       onCreated(joinToken);
       onClose();
@@ -98,12 +132,24 @@ export const CreateLiveRoomModal = ({
               <Radio
                 name="mode"
                 value={form.watch('mode')}
-                onChange={(value) =>
+                onChange={(value) => {
                   form.setValue('mode', value, {
                     shouldDirty: true,
                     shouldValidate: true,
-                  })
-                }
+                  });
+                  if (
+                    value === LiveRoomMode.FreeForAll &&
+                    form.getValues('speakerLimit') === undefined
+                  ) {
+                    form.setValue(
+                      'speakerLimit',
+                      DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT,
+                      {
+                        shouldDirty: true,
+                      },
+                    );
+                  }
+                }}
                 options={[
                   {
                     value: LiveRoomMode.Moderated,
@@ -127,13 +173,39 @@ export const CreateLiveRoomModal = ({
                         color={TypographyColor.Tertiary}
                         className="pl-10"
                       >
-                        Anyone can hop on stage until the speaker limit is full.
+                        Anyone can hop on stage until the speaker limit you set
+                        is full.
                       </Typography>
                     ),
                   },
                 ]}
               />
             </div>
+            {selectedMode === LiveRoomMode.FreeForAll ? (
+              <Controller
+                control={form.control}
+                name="speakerLimit"
+                render={({ field, fieldState }) => (
+                  <TextField
+                    inputId={field.name}
+                    name={field.name}
+                    label="Speaker limit"
+                    type="number"
+                    min={1}
+                    placeholder={String(DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT)}
+                    fieldType="secondary"
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    valid={!fieldState.error}
+                    hint={
+                      fieldState.error?.message ??
+                      'How many audience members can be on stage at once.'
+                    }
+                  />
+                )}
+              />
+            ) : null}
           </form>
         </FormProvider>
       </Modal.Body>
