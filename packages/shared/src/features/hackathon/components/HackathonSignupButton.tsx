@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { VIcon } from '../../../components/icons';
+import { AddUserIcon, VIcon } from '../../../components/icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { AuthTriggers } from '../../../lib/auth';
@@ -14,6 +16,7 @@ import { LogEvent, TargetId } from '../../../lib/log';
 import { gqlClient } from '../../../graphql/common';
 import { JOIN_HACKATHON_MUTATION } from '../../../graphql/users';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
+import { getPathnameWithQuery } from '../../../lib/links';
 import { hackathonParticipationQueryOptions } from '../queries';
 
 type HackathonSignupButtonProps = {
@@ -21,17 +24,21 @@ type HackathonSignupButtonProps = {
   className?: string;
 };
 
+const AUTOJOIN_PARAM = 'autojoin';
+
 export const HackathonSignupButton = ({
   size = ButtonSize.Large,
   className,
 }: HackathonSignupButtonProps): ReactElement => {
+  const router = useRouter();
   const { user, isLoggedIn, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
   const participationOptions = hackathonParticipationQueryOptions(user);
-  const { data, isFetched } = useQuery(participationOptions);
+  const { data, isPending } = useQuery(participationOptions);
   const [getParticipation, setParticipation] =
     useUpdateQuery(participationOptions);
   const isParticipant = !!data?.whoami?.isHackathonParticipant;
+  const autojoinRequested = router.query[AUTOJOIN_PARAM] === '1';
 
   const { mutateAsync: join, isPending: isJoining } = useMutation({
     mutationFn: () => gqlClient.request(JOIN_HACKATHON_MUTATION),
@@ -50,6 +57,37 @@ export const HackathonSignupButton = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (
+      !autojoinRequested ||
+      !isLoggedIn ||
+      isPending ||
+      isParticipant ||
+      isJoining
+    ) {
+      return;
+    }
+    join();
+  }, [
+    autojoinRequested,
+    isLoggedIn,
+    isPending,
+    isParticipant,
+    isJoining,
+    join,
+  ]);
+
+  useEffect(() => {
+    if (!autojoinRequested || !isParticipant) {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    params.delete(AUTOJOIN_PARAM);
+    router.replace(getPathnameWithQuery(router.pathname, params), undefined, {
+      shallow: true,
+    });
+  }, [autojoinRequested, isParticipant, router]);
 
   if (isLoggedIn && isParticipant) {
     return (
@@ -73,7 +111,14 @@ export const HackathonSignupButton = ({
     });
 
     if (!isLoggedIn) {
-      showLogin({ trigger: AuthTriggers.Hackathon });
+      const params = new URLSearchParams(window.location.search);
+      params.set(AUTOJOIN_PARAM, '1');
+      showLogin({
+        trigger: AuthTriggers.Hackathon,
+        options: {
+          afterAuth: getPathnameWithQuery(window.location.pathname, params),
+        },
+      });
       return;
     }
 
@@ -86,7 +131,9 @@ export const HackathonSignupButton = ({
       size={size}
       className={className}
       onClick={handleClick}
-      loading={isJoining || (isLoggedIn && !isFetched)}
+      loading={isJoining || (isLoggedIn && isPending)}
+      icon={<AddUserIcon />}
+      iconPosition={ButtonIconPosition.Left}
     >
       Sign me up
     </Button>
