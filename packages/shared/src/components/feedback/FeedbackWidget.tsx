@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { getDayOfYear } from 'date-fns';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -60,12 +61,8 @@ const TEAM_MEMBERS = [
   },
 ] as const;
 
-const MS_PER_DAY = 86_400_000;
-
 const getDailyTrio = (): ReadonlyArray<(typeof TEAM_MEMBERS)[number]> => {
-  const now = new Date();
-  const startOfYear = Date.UTC(now.getUTCFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now.getTime() - startOfYear) / MS_PER_DAY);
+  const dayOfYear = getDayOfYear(new Date());
   const len = TEAM_MEMBERS.length;
   return [0, 1, 2].map((i) => TEAM_MEMBERS[(dayOfYear + i) % len]);
 };
@@ -76,18 +73,6 @@ export function FeedbackWidget(): ReactElement | null {
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
   const dailyTrio = useMemo(getDailyTrio, []);
-  const [isCompact, setIsCompact] = useState(false);
-
-  useEffect(() => {
-    const callback = () => {
-      setIsCompact(
-        document.documentElement.scrollTop >= window.innerHeight / 2,
-      );
-    };
-    callback();
-    window.addEventListener('scroll', callback, { passive: true });
-    return () => window.removeEventListener('scroll', callback);
-  }, []);
 
   if (!user || isMobile || !showFeedbackButton) {
     return null;
@@ -97,19 +82,11 @@ export function FeedbackWidget(): ReactElement | null {
     <Button
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
-      className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      className="fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Humans reply."
     >
-      <span
-        aria-hidden={isCompact}
-        className={classNames(
-          'flex flex-col items-start overflow-hidden whitespace-nowrap leading-tight transition-all duration-300 ease-out',
-          isCompact
-            ? 'max-w-0 opacity-0 group-hover:mr-3 group-hover:max-w-40 group-hover:opacity-100'
-            : 'mr-3 max-w-40 opacity-100',
-        )}
-      >
+      <span className="mr-3 flex flex-col items-start whitespace-nowrap leading-tight">
         <span>Feedback</span>
         <span className="opacity-80 font-normal typo-caption2">
           Humans reply

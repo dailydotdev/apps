@@ -41,7 +41,7 @@ export default function ScrollToTopButton(): ReactElement {
   }, []);
 
   if (!hasShown) {
-    return <></>;
+    return null;
   }
 
   const props: ButtonProps<'button'> = {
