@@ -62,7 +62,9 @@ const sections: Section[] = [
       <>
         Agent skills like{' '}
         <Link key="daily-dev-ask" href={`${webappUrl}agents/ask`}>
-          <a className="text-text-link underline">/daily-dev-ask</a>
+          <a target="_blank" className="text-text-link underline">
+            /daily-dev-ask
+          </a>
         </Link>{' '}
         to help you out
       </>,
@@ -73,7 +75,15 @@ const sections: Section[] = [
     items: [
       '72 hours, async. Join from anywhere.',
       'To submit, post about your project on social media tagging @dailydotdev with your live URL and a short summary.',
-      'Prizes: 1 year of daily.dev Plus with all the benefits for best submissions.',
+      <>
+        Prizes: 1 year of{' '}
+        <Link key="daily-dev-ask" href={`${webappUrl}plus`}>
+          <a target="_blank" className="text-text-link underline">
+            daily.dev Plus
+          </a>
+        </Link>{' '}
+        with all the benefits for best submissions.
+      </>,
       'Winning projects featured on daily.dev and social media.',
     ],
   },
