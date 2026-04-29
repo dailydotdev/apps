@@ -78,6 +78,10 @@ export class LiveRoomConnection {
 
   constructor(private readonly options: LiveRoomConnectionOptions) {}
 
+  private get activeResumeToken(): string | null {
+    return this.latestResumeToken ?? this.options.resumeToken ?? null;
+  }
+
   open(): void {
     if (this.socket) {
       return;
@@ -86,7 +90,7 @@ export class LiveRoomConnection {
     this.manuallyClosed = false;
     this.stopReconnect();
     const params = new URLSearchParams();
-    const resumeToken = this.latestResumeToken ?? this.options.resumeToken;
+    const resumeToken = this.activeResumeToken;
     if (resumeToken) {
       params.set('resumeToken', resumeToken);
     } else if (this.options.token) {
@@ -120,7 +124,7 @@ export class LiveRoomConnection {
     });
 
     socket.addEventListener('error', () => {
-      if (this.latestResumeToken) {
+      if (this.activeResumeToken) {
         return;
       }
 
@@ -329,7 +333,7 @@ export class LiveRoomConnection {
   }
 
   private shouldReconnect(event: CloseEvent): boolean {
-    if (this.manuallyClosed || !this.latestResumeToken) {
+    if (this.manuallyClosed || !this.activeResumeToken) {
       return false;
     }
 
@@ -337,7 +341,7 @@ export class LiveRoomConnection {
   }
 
   private scheduleReconnect(): void {
-    if (this.reconnectId || this.manuallyClosed || !this.latestResumeToken) {
+    if (this.reconnectId || this.manuallyClosed || !this.activeResumeToken) {
       return;
     }
 

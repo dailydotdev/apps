@@ -26,6 +26,13 @@ import {
   buildLiveRoomWsUrl,
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
+import {
+  clearStoredLiveRoomResumeSession,
+  readStoredLiveRoomResumeSession,
+  touchStoredLiveRoomResumeSession,
+  type StoredLiveRoomResumeSession,
+  writeStoredLiveRoomResumeSession,
+} from '../lib/liveRoom/resumeSessionStorage';
 import { storageWrapper } from '../lib/storageWrapper';
 import type {
   ChatMessageDeletedEvent,
@@ -36,6 +43,7 @@ import type {
   MediaCapabilitiesPayload,
   MediaPublicationPayload,
   MediaSubscriptionPayload,
+  MediaTransportIceRestartPayload,
   MediaTransportCreatePayload,
   ReactionSentEvent,
 } from '../lib/liveRoom/protocol';
@@ -90,6 +98,8 @@ interface RemoteSubscriptionHandle {
   close: () => void;
   token?: symbol;
 }
+
+type MediaTransportDirection = 'send' | 'recv';
 
 export interface LiveRoomContextValue {
   status: LiveRoomConnectionStatus;
@@ -322,6 +332,13 @@ export const LiveRoomProvider = ({
   const [connectionGeneration, setConnectionGeneration] = useState(0);
   const [reactions, setReactions] = useState<LiveRoomReaction[]>([]);
   const [chatMessages, setChatMessages] = useState<LiveRoomChatEntry[]>([]);
+  const [storedResumeSession, setStoredResumeSession] =
+    useState<StoredLiveRoomResumeSession | null>(() =>
+      readStoredLiveRoomResumeSession(roomId),
+    );
+  const [resumeSessionTtlMs, setResumeSessionTtlMs] = useState<number | null>(
+    null,
+  );
 
   const connectionRef = useRef<LiveRoomConnection | null>(null);
   const deviceRef = useRef<MediasoupDevice | null>(null);
@@ -335,6 +352,13 @@ export const LiveRoomProvider = ({
   const subscriptionsRef = useRef<Map<string, RemoteSubscriptionHandle>>(
     new Map(),
   );
+  const mediaRestartInFlightRef = useRef<
+    Record<MediaTransportDirection, boolean>
+  >({
+    send: false,
+    recv: false,
+  });
+  const mediaRebuildQueuedRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
@@ -388,6 +412,8 @@ export const LiveRoomProvider = ({
   }, [roomId]);
 
   const closeMediaSession = useCallback((notifyServer = false) => {
+    mediaRestartInFlightRef.current.send = false;
+    mediaRestartInFlightRef.current.recv = false;
     sendTransportRef.current?.close();
     recvTransportRef.current?.close();
     sendTransportRef.current = null;
@@ -425,13 +451,95 @@ export const LiveRoomProvider = ({
     setIsMicOn(false);
   }, []);
 
+  const queueMediaRebuild = useCallback(() => {
+    if (mediaRebuildQueuedRef.current || status !== 'connected') {
+      return;
+    }
+
+    mediaRebuildQueuedRef.current = true;
+    window.setTimeout(() => {
+      mediaRebuildQueuedRef.current = false;
+      closeMediaSession();
+      setConnectionGeneration((current) => current + 1);
+    }, 0);
+  }, [closeMediaSession, status]);
+
+  const restartTransportIce = useCallback(
+    async (
+      direction: MediaTransportDirection,
+      transportId: string,
+    ): Promise<void> => {
+      if (mediaRestartInFlightRef.current[direction]) {
+        return;
+      }
+
+      const connection = connectionRef.current;
+      const transport =
+        direction === 'send'
+          ? sendTransportRef.current
+          : recvTransportRef.current;
+      if (
+        !connection ||
+        !transport ||
+        transport.closed ||
+        transport.id !== transportId
+      ) {
+        return;
+      }
+
+      mediaRestartInFlightRef.current[direction] = true;
+      try {
+        const restart = await connection.send<MediaTransportIceRestartPayload>({
+          type: 'media.transport.restartIce',
+          transportId,
+        });
+        const currentTransport =
+          direction === 'send'
+            ? sendTransportRef.current
+            : recvTransportRef.current;
+        if (
+          !currentTransport ||
+          currentTransport.closed ||
+          currentTransport.id !== transportId
+        ) {
+          return;
+        }
+
+        await currentTransport.restartIce({
+          iceParameters: restart.iceParameters,
+        });
+      } catch {
+        queueMediaRebuild();
+      } finally {
+        mediaRestartInFlightRef.current[direction] = false;
+      }
+    },
+    [queueMediaRebuild],
+  );
+
+  const attachTransportHealthHandlers = useCallback(
+    (direction: MediaTransportDirection, transport: Transport) => {
+      transport.on('connectionstatechange', (connectionState) => {
+        if (connectionState === 'disconnected') {
+          restartTransportIce(direction, transport.id).catch(() => undefined);
+          return;
+        }
+
+        if (connectionState === 'failed' || connectionState === 'closed') {
+          queueMediaRebuild();
+        }
+      });
+    },
+    [queueMediaRebuild, restartTransportIce],
+  );
+
   const { data: joinToken, error: joinError } = useQuery<
     LiveRoomJoinToken,
     Error
   >({
     queryKey: generateQueryKey(RequestKey.LiveRooms, user, 'join', roomId),
     queryFn: () => fetchJoinToken(roomId),
-    enabled: isAuthReady && !!roomId,
+    enabled: isAuthReady && !!roomId && !storedResumeSession,
     retry: false,
     staleTime: Infinity,
     gcTime: 0,
@@ -446,6 +554,10 @@ export const LiveRoomProvider = ({
       setErrorMessage(joinError.message);
     }
   }, [joinError]);
+
+  useEffect(() => {
+    setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
+  }, [roomId]);
 
   const refreshLocalStream = useCallback(() => {
     const tracks: MediaStreamTrack[] = [];
@@ -533,9 +645,9 @@ export const LiveRoomProvider = ({
     });
   }, []);
 
-  // Open the websocket once we have a join token.
+  // Open the websocket once we have a fresh join token or a cached resume token.
   useEffect(() => {
-    if (!joinToken) {
+    if (!storedResumeSession && !joinToken) {
       return undefined;
     }
 
@@ -548,17 +660,31 @@ export const LiveRoomProvider = ({
 
     const connection = new LiveRoomConnection({
       url: wsUrl,
-      token: joinToken.token,
+      ...(storedResumeSession
+        ? { resumeToken: storedResumeSession.resumeToken }
+        : { token: joinToken?.token ?? '' }),
     });
     connectionRef.current = connection;
     setStatus('connecting');
     setErrorMessage(null);
+    const openingWithResume = !!storedResumeSession;
+    let sessionReady = false;
 
     const offReady = connection.onSessionReady((event) => {
+      sessionReady = true;
       setRole(event.role);
       setParticipantId(event.participantId);
+      setResumeSessionTtlMs(event.resumeSessionTtlMs);
       setStatus('connected');
       setConnectionGeneration((current) => current + 1);
+      const nextStoredSession = {
+        roomId: event.roomId,
+        participantId: event.participantId,
+        resumeToken: event.resumeToken,
+        ttlMs: event.resumeSessionTtlMs,
+        updatedAt: Date.now(),
+      };
+      writeStoredLiveRoomResumeSession(nextStoredSession);
     });
     const offSnapshot = connection.onSnapshot((event) => {
       setRoomState(event.room);
@@ -576,10 +702,20 @@ export const LiveRoomProvider = ({
       removeChatMessage(event);
     });
     const offClose = connection.onClose(({ reason }) => {
+      if (openingWithResume && !sessionReady) {
+        clearStoredLiveRoomResumeSession(roomId);
+        setStoredResumeSession(null);
+        setStatus('idle');
+        setErrorMessage(null);
+        return;
+      }
       setStatus('closed');
       setErrorMessage(reason || 'Live room connection closed');
     });
     const offError = connection.onError((error) => {
+      if (openingWithResume && !sessionReady) {
+        return;
+      }
       setStatus('error');
       setErrorMessage(error.message);
     });
@@ -598,7 +734,41 @@ export const LiveRoomProvider = ({
       connection.close();
       connectionRef.current = null;
     };
-  }, [joinToken, pushChatMessage, pushReaction, removeChatMessage]);
+  }, [
+    joinToken,
+    pushChatMessage,
+    pushReaction,
+    removeChatMessage,
+    roomId,
+    storedResumeSession,
+  ]);
+
+  useEffect(() => {
+    if (status !== 'connected' || !resumeSessionTtlMs) {
+      return undefined;
+    }
+
+    touchStoredLiveRoomResumeSession(roomId);
+    const intervalMs = Math.max(1_000, Math.floor(resumeSessionTtlMs / 2));
+    const interval = window.setInterval(() => {
+      touchStoredLiveRoomResumeSession(roomId);
+    }, intervalMs);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [resumeSessionTtlMs, roomId, status]);
+
+  useEffect(() => {
+    if (roomState?.status === 'ended') {
+      clearStoredLiveRoomResumeSession(roomId);
+      return;
+    }
+
+    if (participantId && roomState && !roomState.participants[participantId]) {
+      clearStoredLiveRoomResumeSession(roomId);
+    }
+  }, [participantId, roomId, roomState]);
 
   useEffect(() => {
     return () => {
@@ -664,6 +834,7 @@ export const LiveRoomProvider = ({
         iceCandidates: recvOptions.iceCandidates,
         dtlsParameters: recvOptions.dtlsParameters,
       });
+      attachTransportHealthHandlers('recv', recvTransport);
       recvTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
         connection
           .send({
@@ -691,6 +862,7 @@ export const LiveRoomProvider = ({
           iceCandidates: sendOptions.iceCandidates,
           dtlsParameters: sendOptions.dtlsParameters,
         });
+        attachTransportHealthHandlers('send', sendTransport);
         sendTransport.on('connect', ({ dtlsParameters }, callback, errback) => {
           connection
             .send({
@@ -739,7 +911,13 @@ export const LiveRoomProvider = ({
       cancelled = true;
       closeMediaSession(true);
     };
-  }, [canPublish, closeMediaSession, connectionGeneration, status]);
+  }, [
+    attachTransportHealthHandlers,
+    canPublish,
+    closeMediaSession,
+    connectionGeneration,
+    status,
+  ]);
 
   // Reconcile remote subscriptions with the room state's mediaPublications.
   useEffect(() => {
@@ -801,7 +979,17 @@ export const LiveRoomProvider = ({
             // same peer so libwebrtc syncs them as a single logical stream.
             streamId: `${publication.participantId}-audio-video`,
           });
+          const removeSubscription = () => {
+            subscriptionsRef.current.delete(publication.publicationId);
+            setRemoteStreams((prev) =>
+              prev.filter(
+                (entry) => entry.publicationId !== publication.publicationId,
+              ),
+            );
+          };
           closeConsumer = () => consumer.close();
+          consumer.on('transportclose', removeSubscription);
+          consumer.on('trackended', removeSubscription);
           await connection.send({
             type: 'media.subscription.resume',
             subscriptionId: sub.subscriptionId,
@@ -867,6 +1055,10 @@ export const LiveRoomProvider = ({
         const producer = await sendTransport.produce({ track });
         producersRef.current.set(kind, producer);
         setPublishingFlag(kind, true);
+        producer.on('transportclose', () => {
+          producersRef.current.delete(kind);
+          setPublishingFlag(kind, false);
+        });
         producer.on('trackended', () => {
           producersRef.current.delete(kind);
           setPublishingFlag(kind, false);

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
+import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import {
   Button,
@@ -16,7 +17,6 @@ import {
   PhoneIcon,
   PlusIcon,
   VIcon,
-  VolumeOffIcon,
 } from '../icons';
 import {
   DropdownMenu,
@@ -71,6 +71,35 @@ interface LiveRoomControlsProps {
 
 const Divider = (): ReactElement => (
   <span aria-hidden className="h-6 w-px shrink-0 bg-border-subtlest-tertiary" />
+);
+
+type SlashedIconProps = IconProps & {
+  icon: ReactElement<IconProps>;
+  slashed: boolean;
+};
+
+const SlashedIcon = ({
+  icon,
+  slashed,
+  className,
+  ...rest
+}: SlashedIconProps): ReactElement => (
+  <span
+    className={classNames(
+      'relative inline-flex items-center justify-center',
+      className,
+    )}
+  >
+    {React.cloneElement(icon, rest)}
+    {slashed ? (
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+      >
+        <span className="block h-[2px] w-[130%] rotate-45 rounded-max bg-status-error" />
+      </span>
+    ) : null}
+  </span>
 );
 
 const ControlGroup = ({
@@ -321,16 +350,11 @@ export const LiveRoomControls = ({
     speakerLimit !== null &&
     activeSpeakerCount >= speakerLimit;
   const canJoinQueue =
-    isModerated &&
-    isAudience &&
-    roomState?.status === 'live' &&
-    !isQueued;
+    isModerated && isAudience && roomState?.status === 'live' && !isQueued;
   const canJoinStage =
-    isFreeForAll &&
-    isAudience &&
-    roomState?.status === 'live' &&
-    !isStageFull;
-  const canLeaveStage = isFreeForAll && isSpeaker && roomState?.status === 'live';
+    isFreeForAll && isAudience && roomState?.status === 'live' && !isStageFull;
+  const canLeaveStage =
+    isFreeForAll && isSpeaker && roomState?.status === 'live';
   const showGoLive = isHost && roomState?.status === 'created';
 
   const previewSuffix = (active: boolean, publishing: boolean) =>
@@ -446,7 +470,9 @@ export const LiveRoomControls = ({
                 )}`}
                 caretAriaLabel="Microphone devices"
                 caretMenuLabel="Microphone"
-                toggleIcon={isMicOn ? <MegaphoneIcon /> : <VolumeOffIcon />}
+                toggleIcon={
+                  <SlashedIcon icon={<MegaphoneIcon />} slashed={!isMicOn} />
+                }
                 onToggle={() => guarded('mic', toggleMic)}
                 devices={microphones}
                 selectedId={selectedMicId}
@@ -508,7 +534,12 @@ export const LiveRoomControls = ({
                 }${previewSuffix(isCameraOn, isCameraPublishing)}`}
                 caretAriaLabel="Camera devices"
                 caretMenuLabel="Camera"
-                toggleIcon={<CameraIcon secondary={isCameraOn} />}
+                toggleIcon={
+                  <SlashedIcon
+                    icon={<CameraIcon secondary={isCameraOn} />}
+                    slashed={!isCameraOn}
+                  />
+                }
                 onToggle={() => guarded('camera', toggleCamera)}
                 devices={cameras}
                 selectedId={selectedCameraId}

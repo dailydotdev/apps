@@ -72,6 +72,7 @@ function RichTextEditorComponent(
       StarterKit.configure({
         blockquote: false,
         horizontalRule: false,
+        link: false,
       }),
       Link.configure({
         openOnClick: false,

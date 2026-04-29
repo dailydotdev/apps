@@ -10,7 +10,7 @@ import {
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { UserShortProfile } from '../../lib/user';
-import { MegaphoneIcon } from '../icons';
+import { MegaphoneIcon, VolumeOffIcon } from '../icons';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import {
@@ -25,6 +25,7 @@ interface LiveRoomVideoTileProps {
   // When true, only video is shown (audio not rendered to avoid feedback for own preview).
   selfView?: boolean;
   isHost?: boolean;
+  isMuted?: boolean;
   className?: string;
   onRemoveSpeaker?: () => void;
   onKick?: () => void;
@@ -50,6 +51,7 @@ export const LiveRoomVideoTile = ({
   user,
   selfView = false,
   isHost = false,
+  isMuted = false,
   className,
   onRemoveSpeaker,
   onKick,
@@ -190,6 +192,13 @@ export const LiveRoomVideoTile = ({
             >
               Host
             </Typography>
+          ) : null}
+          {isMuted ? (
+            <VolumeOffIcon
+              size={IconSize.XSmall}
+              aria-label="Muted"
+              className="shrink-0 text-status-error"
+            />
           ) : null}
           <Link href={user.permalink} passHref>
             <Typography

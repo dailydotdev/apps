@@ -58,6 +58,7 @@ import {
   anonymousDisplayName,
   anonymousHandle,
 } from '../../lib/liveRoom/anonymousName';
+import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
 
 interface LiveRoomProps {
   roomId: string;
@@ -953,6 +954,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     videoSettings,
     reactions,
     chatMessages,
+    isMicOn,
   } = useLiveRoomConnection();
   const {
     data: room,
@@ -961,6 +963,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   } = useLiveRoomQuery(roomId);
 
   const handleLeave = (): void => {
+    clearStoredLiveRoomResumeSession(roomId);
     router.push(`${webappUrl}live`);
   };
 
@@ -1175,12 +1178,21 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       .filter((profile): profile is UserShortProfile => !!profile),
   ];
 
+  const audioPublisherIds = new Set(
+    Object.values(roomState?.mediaPublications ?? {})
+      .filter((publication) => publication.kind === 'audio')
+      .map((publication) => publication.participantId),
+  );
+  const isParticipantMuted = (id: string, selfView: boolean): boolean =>
+    selfView ? !isMicOn : !audioPublisherIds.has(id);
+
   const stageSpeakers: {
     id: string;
     profile: UserShortProfile;
     stream: MediaStream | null;
     selfView: boolean;
     isHost: boolean;
+    isMuted: boolean;
   }[] = [];
   const hostStream = buildParticipantStream(
     room.host.id,
@@ -1188,14 +1200,17 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     localStream,
     participantId,
   );
+  const hostSelfView = room.host.id === participantId;
   stageSpeakers.push({
     id: room.host.id,
     profile: hostDisplayProfile,
     stream: hostStream,
-    selfView: room.host.id === participantId,
+    selfView: hostSelfView,
     isHost: true,
+    isMuted: isParticipantMuted(room.host.id, hostSelfView),
   });
   activeSpeakerIds.forEach((activeSpeakerId) => {
+    const speakerSelfView = activeSpeakerId === participantId;
     stageSpeakers.push({
       id: activeSpeakerId,
       profile: buildDisplayProfile(
@@ -1208,8 +1223,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         localStream,
         participantId,
       ),
-      selfView: activeSpeakerId === participantId,
+      selfView: speakerSelfView,
       isHost: false,
+      isMuted: isParticipantMuted(activeSpeakerId, speakerSelfView),
     });
   });
   const visibleStageSpeakers = stageSpeakers.filter(
@@ -1274,6 +1290,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                     user={speaker.profile}
                     selfView={speaker.selfView}
                     isHost={speaker.isHost}
+                    isMuted={speaker.isMuted}
                     onRemoveSpeaker={
                       canModerate
                         ? () =>

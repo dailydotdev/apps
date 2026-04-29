@@ -73,6 +73,7 @@ export interface SessionReadyEvent {
   role: LiveRoomParticipantRoleValue;
   sessionId: string;
   resumeToken: string;
+  resumeSessionTtlMs: number;
 }
 
 export interface SnapshotEvent {
@@ -144,6 +145,10 @@ export interface MediaPublicationPayload {
   publicationId: string;
 }
 
+export interface MediaTransportIceRestartPayload {
+  iceParameters: IceParameters;
+}
+
 export interface MediaSubscriptionPayload {
   subscriptionId: string;
   publicationId: string;
@@ -176,6 +181,10 @@ export type LiveRoomCommand =
       type: 'media.transport.connect';
       transportId: string;
       dtlsParameters: DtlsParameters;
+    }
+  | {
+      type: 'media.transport.restartIce';
+      transportId: string;
     }
   | {
       type: 'media.publication.publish';
