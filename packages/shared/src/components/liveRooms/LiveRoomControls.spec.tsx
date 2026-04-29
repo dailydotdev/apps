@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
@@ -301,6 +301,55 @@ describe('LiveRoomControls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Leave stage' }));
 
     expect(leaveStage).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the leave-stage control visible while a reaction is pending', async () => {
+    let resolveReaction: (() => void) | undefined;
+    const sendReaction = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveReaction = resolve;
+        }),
+    );
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        sendReaction,
+        role: 'speaker',
+        canPublish: true,
+        roomState: {
+          ...createRoomState(),
+          mode: 'free_for_all',
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            speakerLimit: 4,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
+    fireEvent.click(screen.getByRole('button', { name: 'React 🔥' }));
+
+    expect(screen.getByRole('button', { name: 'Leave stage' })).toBeVisible();
+
+    resolveReaction?.();
+
+    await waitFor(() => {
+      expect(sendReaction).toHaveBeenCalledWith('🔥');
+    });
   });
 
   it('shows a full-stage state instead of allowing another join in free-for-all mode', () => {

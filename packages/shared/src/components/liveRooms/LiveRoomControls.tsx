@@ -282,23 +282,25 @@ export const LiveRoomControls = ({
     [localAudioTrack],
   );
   const { displayToast } = useToastNotification();
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busyKeys, setBusyKeys] = useState<string[]>([]);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+
+  const isBusy = (key: string): boolean => busyKeys.includes(key);
 
   const guarded = async (
     key: string,
     fn: () => Promise<void>,
   ): Promise<void> => {
-    if (busy) {
+    if (isBusy(key)) {
       return;
     }
-    setBusy(key);
+    setBusyKeys((current) => [...current, key]);
     try {
       await fn();
     } catch (err) {
       displayToast(err instanceof Error ? err.message : 'Action failed');
     } finally {
-      setBusy(null);
+      setBusyKeys((current) => current.filter((item) => item !== key));
     }
   };
 
@@ -322,16 +324,13 @@ export const LiveRoomControls = ({
     isModerated &&
     isAudience &&
     roomState?.status === 'live' &&
-    !isQueued &&
-    !busy;
+    !isQueued;
   const canJoinStage =
     isFreeForAll &&
     isAudience &&
     roomState?.status === 'live' &&
-    !isStageFull &&
-    !busy;
-  const canLeaveStage =
-    isFreeForAll && isSpeaker && roomState?.status === 'live' && !busy;
+    !isStageFull;
+  const canLeaveStage = isFreeForAll && isSpeaker && roomState?.status === 'live';
   const showGoLive = isHost && roomState?.status === 'created';
 
   const previewSuffix = (active: boolean, publishing: boolean) =>
@@ -401,7 +400,7 @@ export const LiveRoomControls = ({
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Float}
-                loading={busy === `reaction-${emoji}`}
+                loading={isBusy(`reaction-${emoji}`)}
                 aria-label={`React ${emoji}`}
                 onClick={() => handleReaction(emoji)}
               >
@@ -427,7 +426,7 @@ export const LiveRoomControls = ({
                   icon={<PlusIcon size={IconSize.Size16} />}
                   aria-label="Custom reaction"
                   aria-expanded={isOpen}
-                  disabled={!!busy}
+                  disabled={isBusy('reaction-custom')}
                   onClick={toggleOpen}
                 />
               )}
@@ -440,7 +439,7 @@ export const LiveRoomControls = ({
             <ControlGroup>
               <DeviceSplitButton
                 isOn={isMicOn}
-                isLoading={busy === 'mic'}
+                isLoading={isBusy('mic')}
                 toggleAriaLabel={`Mic ${isMicOn ? 'on' : 'off'}${previewSuffix(
                   isMicOn,
                   isMicPublishing,
@@ -486,7 +485,10 @@ export const LiveRoomControls = ({
                               : 'Not available in this browser.'
                           }
                           checked={micSettings[item.key]}
-                          disabled={!micSettingSupport[item.key] || !!busy}
+                          disabled={
+                            !micSettingSupport[item.key] ||
+                            isBusy(`mic-setting-${item.key}`)
+                          }
                           onToggle={() => {
                             guarded(`mic-setting-${item.key}`, () =>
                               setMicSetting(item.key, !micSettings[item.key]),
@@ -500,7 +502,7 @@ export const LiveRoomControls = ({
               />
               <DeviceSplitButton
                 isOn={isCameraOn}
-                isLoading={busy === 'camera'}
+                isLoading={isBusy('camera')}
                 toggleAriaLabel={`Camera ${
                   isCameraOn ? 'on' : 'off'
                 }${previewSuffix(isCameraOn, isCameraPublishing)}`}
@@ -526,12 +528,14 @@ export const LiveRoomControls = ({
                     label={HIDE_SELF_VIEW_LABEL}
                     description="Hide your own tile while keeping your camera live."
                     checked={videoSettings.hideSelfView}
-                    disabled={!!busy}
+                    disabled={isBusy('hide-self-view')}
                     onToggle={() =>
-                      setVideoSetting(
-                        'hideSelfView',
-                        !videoSettings.hideSelfView,
-                      )
+                      guarded('hide-self-view', async () => {
+                        setVideoSetting(
+                          'hideSelfView',
+                          !videoSettings.hideSelfView,
+                        );
+                      })
                     }
                   />
                 }
@@ -562,8 +566,8 @@ export const LiveRoomControls = ({
                   isQueued ? ButtonVariant.Secondary : ButtonVariant.Primary
                 }
                 icon={<MegaphoneIcon />}
-                loading={busy === 'queue'}
-                disabled={!canJoinQueue}
+                loading={isBusy('queue')}
+                disabled={!canJoinQueue || isBusy('queue')}
                 onClick={handleJoinQueue}
               >
                 {isQueued ? 'Queued' : 'Join queue'}
@@ -577,8 +581,8 @@ export const LiveRoomControls = ({
                   isStageFull ? ButtonVariant.Secondary : ButtonVariant.Primary
                 }
                 icon={<MegaphoneIcon />}
-                loading={busy === 'join-stage'}
-                disabled={!canJoinStage}
+                loading={isBusy('join-stage')}
+                disabled={!canJoinStage || isBusy('join-stage')}
                 onClick={handleJoinStage}
               >
                 {isStageFull ? 'Stage full' : 'Join stage'}
@@ -590,7 +594,7 @@ export const LiveRoomControls = ({
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Secondary}
                 icon={<PhoneIcon />}
-                loading={busy === 'leave-stage'}
+                loading={isBusy('leave-stage')}
                 onClick={handleLeaveStage}
               >
                 Leave stage
@@ -607,7 +611,7 @@ export const LiveRoomControls = ({
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
                 className="live-room-go-live-button !border-transparent"
-                loading={busy === 'go-live'}
+                loading={isBusy('go-live')}
                 onClick={() => guarded('go-live', startRoom)}
               >
                 Go live
@@ -618,7 +622,7 @@ export const LiveRoomControls = ({
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Secondary}
-                loading={busy === 'end'}
+                loading={isBusy('end')}
                 onClick={() =>
                   guarded('end', async () => {
                     await endRoom();
