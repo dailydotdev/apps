@@ -417,6 +417,7 @@ const handleClick = useCallback((key: string) => {
 ## Pull Requests
 
 Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
+When using `gh pr create` from the shell, avoid unescaped backticks in the body (command substitution). Prefer single-quoted heredocs (`cat <<'EOF'`) or plain text without backticks.
 
 Use conventional commit messages for all commits, for example `fix: ...`, `feat: ...`, or `chore: ...`.
 
