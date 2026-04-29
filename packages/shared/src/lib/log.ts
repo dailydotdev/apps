@@ -562,6 +562,7 @@ export enum TargetId {
   HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  HackathonPage = 'hackathon page',
   // Onboarding v2
   GitHub = 'github',
   AI = 'ai',
