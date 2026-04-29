@@ -40,6 +40,8 @@ export type PostBootData = Pick<
   | 'type'
   | 'flags'
   | 'userState'
+  | 'numAwards'
+  | 'featuredAward'
 >;
 
 export enum BootApp {
