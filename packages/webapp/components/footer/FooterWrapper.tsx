@@ -6,12 +6,17 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-import { blurClasses } from './common';
 
 const NewComment = dynamic(() =>
   import(
     /* webpackChunkName: "newComment" */ '@dailydotdev/shared/src/components/post/NewComment'
   ).then((mod) => mod.NewComment),
+);
+
+const MobilePostFloatingBar = dynamic(() =>
+  import(
+    /* webpackChunkName: "mobilePostFloatingBar" */ '@dailydotdev/shared/src/components/post/MobilePostFloatingBar'
+  ).then((mod) => mod.MobilePostFloatingBar),
 );
 
 const FooterPlusButton = dynamic(() =>
@@ -62,14 +67,14 @@ export default function FooterWrapper({
         <div className="my-2 w-full px-2 tablet:hidden">
           <NewComment
             post={post}
-            className={{
-              container: classNames(
-                blurClasses,
-                'h-12 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
-              ),
-            }}
             shouldHandleCommentQuery
             CommentInputOrModal={CommentInputOrModal}
+            renderTrigger={({ onCommentClick }) => (
+              <MobilePostFloatingBar
+                post={post}
+                onCommentClick={onCommentClick}
+              />
+            )}
           />
         </div>
       )}

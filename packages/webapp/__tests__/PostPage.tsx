@@ -361,7 +361,7 @@ it('should show post image', async () => {
 
 it('should show login on upvote click', async () => {
   renderPost({}, [createPostMock(), createCommentsMock()], undefined);
-  const el = await screen.findByLabelText('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -482,7 +482,7 @@ it('should send upvote mutation', async () => {
   mockCompleteActionMutation(ActionType.VotePost);
 
   renderPost({}, [createPostMock(), createCommentsMock()]);
-  const el = await screen.findByLabelText('Upvote');
+  const [el] = await screen.findAllByLabelText('Upvote');
   fireEvent.click(el);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -766,7 +766,7 @@ it('should not cut summary when there is a summary without reaching threshold', 
 it('should show login on downvote click', async () => {
   renderPost({}, [createPostMock(), createCommentsMock()], undefined);
 
-  const el = await screen.findByLabelText('Downvote');
+  const [el] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(el);
   expect(showLogin).toBeCalledTimes(1);
 });
@@ -783,7 +783,7 @@ it('should send downvote mutation', async () => {
 
   renderPost({}, [createPostMock(), createCommentsMock()]);
 
-  const el = await screen.findByLabelText('Downvote');
+  const [el] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(el);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
@@ -832,7 +832,7 @@ it('should decrement number of upvotes if downvoting post that was upvoted', asy
     createCommentsMock(),
   ]);
 
-  const downvote = await screen.findByLabelText('Downvote');
+  const [downvote] = await screen.findAllByLabelText('Downvote');
   fireEvent.click(downvote);
   await new Promise(process.nextTick);
   await waitFor(() => expect(mutationCalled).toBeTruthy());
@@ -881,7 +881,7 @@ describe('downvote flow', () => {
       }),
       createCommentsMock(),
     ]);
-    const downvote = await screen.findByLabelText('Downvote');
+    const [downvote] = await screen.findAllByLabelText('Downvote');
     fireEvent.click(downvote);
     await new Promise(process.nextTick);
     await act(async () => {
