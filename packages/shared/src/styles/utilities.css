@@ -110,6 +110,142 @@
   animation: slide-down 0.3s ease-out;
 }
 
+@keyframes live-room-reaction-fly {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+
+  12% {
+    opacity: 1;
+    transform: translate3d(0, -1rem, 0) scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--live-room-reaction-drift), -12rem, 0)
+      scale(1.3);
+  }
+}
+
+.live-room-reaction {
+  left: var(--live-room-reaction-left);
+  animation: live-room-reaction-fly 2.2s cubic-bezier(0.19, 1, 0.22, 1)
+    forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-room-reaction {
+    animation-duration: 1.2s;
+  }
+
+  @keyframes live-room-reaction-fly {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0) scale(0.95);
+    }
+
+    20% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate3d(0, -2rem, 0) scale(1);
+    }
+  }
+}
+
+@keyframes live-room-go-live-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes live-room-go-live-glow {
+  0%,
+  100% {
+    box-shadow: 0 6px 18px -10px var(--theme-accent-ketchup-bolder);
+  }
+
+  50% {
+    box-shadow: 0 10px 24px -8px var(--theme-accent-ketchup-bolder);
+  }
+}
+
+.live-room-go-live-button {
+  position: relative;
+  min-width: 6.5rem;
+  background-image: linear-gradient(
+    120deg,
+    var(--theme-accent-ketchup-bolder),
+    var(--theme-accent-bun-bolder),
+    var(--theme-accent-ketchup-bolder)
+  );
+  background-size: 240% 240%;
+  background-position: 0% 50%;
+  color: #ffffff;
+  animation: live-room-go-live-gradient 8s ease-in-out infinite,
+    live-room-go-live-glow 5s ease-in-out infinite;
+}
+
+.live-room-go-live-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  animation: live-room-go-live-gradient 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-room-go-live-button,
+  .live-room-go-live-button::after {
+    animation: none;
+  }
+}
+
+@keyframes live-room-count-bump {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.22);
+    color: var(--theme-accent-avocado-default);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.live-room-count-bump {
+  display: inline-block;
+  animation: live-room-count-bump 0.45s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-room-count-bump {
+    animation: none;
+  }
+}
+
 @keyframes crown-icon-pop {
   0% {
     transform: scale(1) rotate(0deg);
