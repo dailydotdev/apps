@@ -108,7 +108,9 @@ function MyFeedHeading({
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           icon={<FilterIcon />}
           iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+            shouldUseListFeedLayout
+              ? ButtonIconPosition.Right
+              : ButtonIconPosition.Left
           }
         >
           {!isMobile ? 'Feed settings' : null}
@@ -134,7 +136,9 @@ function MyFeedHeading({
           }}
           icon={<PlusIcon />}
           iconPosition={
-            shouldUseListFeedLayout ? ButtonIconPosition.Right : undefined
+            shouldUseListFeedLayout
+              ? ButtonIconPosition.Right
+              : ButtonIconPosition.Left
           }
         >
           Shortcuts

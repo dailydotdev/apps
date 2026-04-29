@@ -88,7 +88,11 @@ function FunnelStepComponent(props: {
   const { stepComponentOverrides, type } = props;
   const stepType = type as FunnelStepType;
   const Component =
-    stepComponentOverrides?.[stepType] ?? stepComponentMap[stepType];
+    stepComponentOverrides?.[stepType] ??
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- step types have heterogeneous props and are selected by step.type at runtime
+    (stepComponentMap as Partial<Record<FunnelStepType, ComponentType<any>>>)[
+      stepType
+    ];
 
   if (!Component) {
     return null;
@@ -104,7 +108,7 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
   stepComponentOverrides,
-}: FunnelStepperProps): ReactElement => {
+}: FunnelStepperProps): ReactElement | null => {
   const steps = useMemo(
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
     [funnel?.chapters],
@@ -131,7 +135,9 @@ export const FunnelStepper = ({
     defaultOpen: showCookieBanner,
     trackFunnelEvent,
   });
-  useEventListener(globalThis, 'scrollend', trackOnScroll, { passive: true });
+  useEventListener(globalThis.window, 'scrollend', trackOnScroll, {
+    passive: true,
+  });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
   const currentNavigationRef = useRef({ step, position });
@@ -195,11 +201,12 @@ export const FunnelStepper = ({
   );
 
   const successCallback = useCallback(
-    (event?: PaddleEventData) =>
+    (event: unknown) =>
       onTransition({
         type: FunnelStepTransitionType.Complete,
         details: {
-          subscribed: event?.data?.customer?.email,
+          subscribed: (event as PaddleEventData | undefined)?.data?.customer
+            ?.email,
         },
       }),
     [onTransition],
@@ -262,7 +269,7 @@ export const FunnelStepper = ({
             !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
           )}
         >
-          {layout.hasBanner && (
+          {layout.hasBanner && funnel.parameters.banner && (
             <FunnelBannerMessage {...funnel.parameters.banner} />
           )}
           <Header

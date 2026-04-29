@@ -162,14 +162,15 @@ const isValidAction = (
 };
 
 const useOnboardingAuth = () => {
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
   const router = useRouter();
-  const action = isValidAction(router.query.action) && router.query.action;
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
+  const action = isValidAction(router.query.action)
+    ? router.query.action
+    : undefined;
+  const { data } = useOnboardingBoot();
+  const funnelState = data?.funnelState;
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isLoginFlow, defaultDisplay } = auth;
@@ -243,8 +244,10 @@ const useOnboardingAuth = () => {
       targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
-      onAuthStateUpdate: (props: AuthProps) =>
-        updateAuth({ isAuthenticating: true, ...props }),
+      onAuthStateUpdate: (props: Partial<AuthProps>) => {
+        const { isAuthenticating: incoming, ...rest } = props;
+        updateAuth({ isAuthenticating: incoming ?? true, ...rest });
+      },
       onboardingSignupButton: {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
@@ -272,7 +275,7 @@ const useOnboardingAuth = () => {
   };
 };
 
-function Onboarding({ initialStepId }: PageProps): ReactElement {
+function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const router = useRouter();
   const {
     isAuthenticating,
@@ -366,18 +369,20 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
+  if (!isFunnelReady || !funnelState) {
+    return null;
+  }
+
   return (
-    isFunnelReady && (
-      <div className="flex min-h-dvh min-w-full flex-col">
-        <FunnelStepper
-          {...funnelState}
-          initialStepId={initialStepId}
-          onComplete={onComplete}
-          stepComponentOverrides={stepComponentOverrides}
-        />
-        {/* <HotJarTracking hotjarId="3871311" /> */}
-      </div>
-    )
+    <div className="flex min-h-dvh min-w-full flex-col">
+      <FunnelStepper
+        {...funnelState}
+        initialStepId={initialStepId}
+        onComplete={onComplete}
+        stepComponentOverrides={stepComponentOverrides}
+      />
+      {/* <HotJarTracking hotjarId="3871311" /> */}
+    </div>
   );
 }
 
