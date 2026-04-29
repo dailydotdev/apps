@@ -71,13 +71,14 @@ const HackathonPage = (): ReactElement => {
         <HackathonFAQ />
         <HackathonClosingCTA />
         <Typography
-          type={TypographyType.Caption1}
+          type={TypographyType.Caption2}
           color={TypographyColor.Quaternary}
           center
           className="max-w-md"
         >
-          daily.dev reserves the right to modify any of the above conditions and
-          dates, or to not hold the hackathon, at its own discretion.
+          daily.dev reserves the right to modify any of the above info,
+          conditions and dates, deny participation, or to not hold the
+          hackathon, at its own discretion.
         </Typography>
       </FlexCol>
     </div>

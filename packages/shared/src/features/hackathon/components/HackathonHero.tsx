@@ -45,7 +45,8 @@ export const HackathonHero = (): ReactElement => {
         color={TypographyColor.Secondary}
         className="max-w-lg"
       >
-        72 hours, three tracks, and full access to the daily.dev Public API.
+        72 hours, three tracks, and full access to the daily.dev Public API.{' '}
+        <strong>Win 1 year of daily.dev Plus!</strong>
       </Typography>
       <FlexRow className="mt-2 flex-wrap items-center justify-center gap-3">
         <HackathonSignupButton />
