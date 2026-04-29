@@ -22,6 +22,37 @@ jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
 
+jest.mock('../dropdown/DropdownMenu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
+    children,
+  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuItem: ({
+    children,
+    disabled,
+    onClick,
+    ariaLabel,
+  }: {
+    children: React.ReactNode;
+    disabled?: boolean;
+    onClick?: () => void;
+    ariaLabel?: string;
+  }) => (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </button>
+  ),
+}));
+
 const createContextValue = (
   overrides: Partial<LiveRoomContextValue> = {},
 ): LiveRoomContextValue => ({
@@ -85,6 +116,17 @@ const createContextValue = (
   microphones: [],
   selectedCameraId: null,
   selectedMicId: null,
+  micSettings: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+  micSettingSupport: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+  setMicSetting: jest.fn(),
   selectCamera: jest.fn(),
   selectMic: jest.fn(),
   localStream: null,
@@ -354,5 +396,41 @@ describe('LiveRoomControls', () => {
     expect(
       screen.queryByRole('button', { name: 'Join queue' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows built-in microphone settings in the mic menu', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        participantId: 'audience',
+        canPublish: true,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(
+      screen.getByLabelText('Reduce background noise'),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Prevent speaker echo')).toBeInTheDocument();
+    expect(screen.getByLabelText('Keep my volume steady')).toBeInTheDocument();
+  });
+
+  it('updates microphone settings from the mic menu', () => {
+    const setMicSetting = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        participantId: 'audience',
+        canPublish: true,
+        setMicSetting,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByLabelText('Reduce background noise'));
+
+    expect(setMicSetting).toHaveBeenCalledWith('noiseSuppression', false);
   });
 });

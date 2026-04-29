@@ -24,7 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import type { LiveRoomDeviceInfo } from '../../contexts/LiveRoomContext';
+import type {
+  LiveRoomDeviceInfo,
+  LiveRoomMicSettings,
+} from '../../contexts/LiveRoomContext';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
@@ -33,10 +36,33 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { Switch } from '../fields/Switch';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
+
+const MIC_SETTING_ITEMS: {
+  key: keyof LiveRoomMicSettings;
+  label: string;
+  description: string;
+}[] = [
+  {
+    key: 'noiseSuppression',
+    label: 'Reduce background noise',
+    description: 'Cut steady background sounds from your mic.',
+  },
+  {
+    key: 'echoCancellation',
+    label: 'Prevent speaker echo',
+    description: 'Reduce echo when your speakers leak back into the mic.',
+  },
+  {
+    key: 'autoGainControl',
+    label: 'Keep my volume steady',
+    description: 'Automatically balance quiet and loud moments.',
+  },
+];
 
 interface LiveRoomControlsProps {
   onLeave: () => void;
@@ -55,6 +81,47 @@ const ControlGroup = ({
 }): ReactElement => (
   <div className={classNames('flex items-center gap-1.5', className)}>
     {children}
+  </div>
+);
+
+interface MicSettingRowProps {
+  id: string;
+  label: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onToggle: () => void;
+}
+
+const MicSettingRow = ({
+  id,
+  label,
+  description,
+  checked,
+  disabled,
+  onToggle,
+}: MicSettingRowProps): ReactElement => (
+  <div className="flex items-start justify-between gap-3 rounded-12 px-2 py-2">
+    <div className="min-w-0 flex-1">
+      <Typography type={TypographyType.Footnote} bold>
+        {label}
+      </Typography>
+      <Typography
+        type={TypographyType.Caption2}
+        color={TypographyColor.Tertiary}
+      >
+        {description}
+      </Typography>
+    </div>
+    <Switch
+      inputId={id}
+      name={id}
+      checked={checked}
+      disabled={disabled}
+      onToggle={onToggle}
+      aria-label={label}
+      className="shrink-0"
+    />
   </div>
 );
 
@@ -199,6 +266,9 @@ export const LiveRoomControls = ({
     selectedMicId,
     selectCamera,
     selectMic,
+    micSettings,
+    micSettingSupport,
+    setMicSetting,
     localStream,
   } = useLiveRoom();
   const localAudioTrack = localStream?.getAudioTracks()[0] ?? null;
@@ -389,17 +459,40 @@ export const LiveRoomControls = ({
                 }}
                 emptyLabel="No microphones"
                 extra={
-                  localAudioStream ? (
-                    <div className="flex items-center gap-2">
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Input
-                      </Typography>
-                      <LiveRoomMicLevel stream={localAudioStream} />
+                  <div className="flex flex-col gap-3">
+                    {localAudioStream ? (
+                      <div className="flex items-center gap-2">
+                        <Typography
+                          type={TypographyType.Caption2}
+                          color={TypographyColor.Tertiary}
+                        >
+                          Input
+                        </Typography>
+                        <LiveRoomMicLevel stream={localAudioStream} />
+                      </div>
+                    ) : null}
+                    <div className="flex flex-col gap-1">
+                      {MIC_SETTING_ITEMS.map((item) => (
+                        <MicSettingRow
+                          key={item.key}
+                          id={`live-room-mic-setting-${item.key}`}
+                          label={item.label}
+                          description={
+                            micSettingSupport[item.key]
+                              ? item.description
+                              : 'Not available in this browser.'
+                          }
+                          checked={micSettings[item.key]}
+                          disabled={!micSettingSupport[item.key] || !!busy}
+                          onToggle={() => {
+                            guarded(`mic-setting-${item.key}`, () =>
+                              setMicSetting(item.key, !micSettings[item.key]),
+                            );
+                          }}
+                        />
+                      ))}
                     </div>
-                  ) : null
+                  </div>
                 }
               />
               <DeviceSplitButton

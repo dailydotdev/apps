@@ -26,6 +26,7 @@ import {
   buildLiveRoomWsUrl,
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
+import { storageWrapper } from '../lib/storageWrapper';
 import type {
   ChatMessageDeletedEvent,
   ChatMessageSentEvent,
@@ -56,6 +57,18 @@ export interface RemoteMediaStream {
 export interface LiveRoomDeviceInfo {
   deviceId: string;
   label: string;
+}
+
+export interface LiveRoomMicSettings {
+  echoCancellation: boolean;
+  noiseSuppression: boolean;
+  autoGainControl: boolean;
+}
+
+export interface LiveRoomMicSettingSupport {
+  echoCancellation: boolean;
+  noiseSuppression: boolean;
+  autoGainControl: boolean;
 }
 
 export interface LiveRoomReaction {
@@ -112,6 +125,12 @@ export interface LiveRoomContextValue {
   selectedMicId: string | null;
   selectCamera: (deviceId: string) => Promise<void>;
   selectMic: (deviceId: string) => Promise<void>;
+  micSettings: LiveRoomMicSettings;
+  micSettingSupport: LiveRoomMicSettingSupport;
+  setMicSetting: (
+    setting: keyof LiveRoomMicSettings,
+    enabled: boolean,
+  ) => Promise<void>;
 
   localStream: MediaStream | null;
   remoteStreams: RemoteMediaStream[];
@@ -146,19 +165,94 @@ const fetchJoinToken = async (roomId: string): Promise<LiveRoomJoinToken> => {
   return data.liveRoomJoinToken;
 };
 
+const defaultMicSettings: LiveRoomMicSettings = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+};
+
+const defaultMicSettingSupport: LiveRoomMicSettingSupport = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+};
+
+const liveRoomMicSettingsStorageKey = 'live-room-mic-settings';
+
+const readStoredMicSettings = (): LiveRoomMicSettings => {
+  const storedValue = storageWrapper.getItem(liveRoomMicSettingsStorageKey);
+  if (!storedValue) {
+    return defaultMicSettings;
+  }
+
+  try {
+    const parsed = JSON.parse(storedValue) as Partial<LiveRoomMicSettings>;
+
+    return {
+      echoCancellation:
+        typeof parsed.echoCancellation === 'boolean'
+          ? parsed.echoCancellation
+          : defaultMicSettings.echoCancellation,
+      noiseSuppression:
+        typeof parsed.noiseSuppression === 'boolean'
+          ? parsed.noiseSuppression
+          : defaultMicSettings.noiseSuppression,
+      autoGainControl:
+        typeof parsed.autoGainControl === 'boolean'
+          ? parsed.autoGainControl
+          : defaultMicSettings.autoGainControl,
+    };
+  } catch {
+    return defaultMicSettings;
+  }
+};
+
 const toDeviceInfo = (device: MediaDeviceInfo): LiveRoomDeviceInfo => ({
   deviceId: device.deviceId,
   label: device.label || `Device ${device.deviceId.slice(0, 6) || 'default'}`,
 });
 
+const buildAudioConstraints = (
+  deviceId: string | null,
+  micSettings: LiveRoomMicSettings,
+  micSettingSupport: LiveRoomMicSettingSupport,
+): MediaTrackConstraints => {
+  const constraints: MediaTrackConstraints = deviceId
+    ? { deviceId: { exact: deviceId } }
+    : {};
+
+  if (micSettingSupport.echoCancellation) {
+    constraints.echoCancellation = micSettings.echoCancellation;
+  }
+
+  if (micSettingSupport.noiseSuppression) {
+    constraints.noiseSuppression = micSettings.noiseSuppression;
+  }
+
+  if (micSettingSupport.autoGainControl) {
+    constraints.autoGainControl = micSettings.autoGainControl;
+  }
+
+  return constraints;
+};
+
 const buildConstraints = (
   kind: 'audio' | 'video',
   deviceId: string | null,
+  micSettings: LiveRoomMicSettings,
+  micSettingSupport: LiveRoomMicSettingSupport,
 ): MediaStreamConstraints => {
   const constraint: MediaTrackConstraints = deviceId
     ? { deviceId: { exact: deviceId } }
     : {};
-  return kind === 'video' ? { video: constraint } : { audio: constraint };
+
+  if (kind === 'video') {
+    return { video: constraint };
+  }
+
+  return {
+    audio: buildAudioConstraints(deviceId, micSettings, micSettingSupport),
+  };
 };
 
 export const LiveRoomProvider = ({
@@ -181,6 +275,11 @@ export const LiveRoomProvider = ({
   const [microphones, setMicrophones] = useState<LiveRoomDeviceInfo[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const [selectedMicId, setSelectedMicId] = useState<string | null>(null);
+  const [micSettings, setMicSettings] = useState<LiveRoomMicSettings>(
+    readStoredMicSettings,
+  );
+  const [micSettingSupport, setMicSettingSupport] =
+    useState<LiveRoomMicSettingSupport>(defaultMicSettingSupport);
   const [sendTransportReady, setSendTransportReady] = useState(false);
   const [recvTransportReady, setRecvTransportReady] = useState(false);
   const [connectionGeneration, setConnectionGeneration] = useState(0);
@@ -365,6 +464,30 @@ export const LiveRoomProvider = ({
       navigator.mediaDevices.removeEventListener('devicechange', handler);
     };
   }, [refreshDeviceList]);
+
+  useEffect(() => {
+    storageWrapper.setItem(
+      liveRoomMicSettingsStorageKey,
+      JSON.stringify(micSettings),
+    );
+  }, [micSettings]);
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+      return;
+    }
+
+    const supported = navigator.mediaDevices.getSupportedConstraints?.();
+    if (!supported) {
+      return;
+    }
+
+    setMicSettingSupport({
+      echoCancellation: supported.echoCancellation ?? false,
+      noiseSuppression: supported.noiseSuppression ?? false,
+      autoGainControl: supported.autoGainControl ?? false,
+    });
+  }, []);
 
   // Open the websocket once we have a join token.
   useEffect(() => {
@@ -758,12 +881,16 @@ export const LiveRoomProvider = ({
   ]);
 
   const startCapture = useCallback(
-    async (kind: 'audio' | 'video', deviceId: string | null) => {
+    async (
+      kind: 'audio' | 'video',
+      deviceId: string | null,
+      nextMicSettings: LiveRoomMicSettings = micSettings,
+    ) => {
       if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
         throw new Error('Media devices are not available');
       }
       const stream = await navigator.mediaDevices.getUserMedia(
-        buildConstraints(kind, deviceId),
+        buildConstraints(kind, deviceId, nextMicSettings, micSettingSupport),
       );
       const track =
         kind === 'video'
@@ -824,6 +951,8 @@ export const LiveRoomProvider = ({
       unpublishKind,
       canPublish,
       roomState?.status,
+      micSettings,
+      micSettingSupport,
     ],
   );
 
@@ -878,6 +1007,33 @@ export const LiveRoomProvider = ({
       }
     },
     [isMicOn, startCapture],
+  );
+
+  const setMicSetting = useCallback(
+    async (setting: keyof LiveRoomMicSettings, enabled: boolean) => {
+      if (!micSettingSupport[setting] || micSettings[setting] === enabled) {
+        return;
+      }
+
+      const previousSettings = micSettings;
+      const nextSettings: LiveRoomMicSettings = {
+        ...micSettings,
+        [setting]: enabled,
+      };
+      setMicSettings(nextSettings);
+
+      if (!isMicOn) {
+        return;
+      }
+
+      try {
+        await startCapture('audio', selectedMicId, nextSettings);
+      } catch (err) {
+        setMicSettings(previousSettings);
+        throw err;
+      }
+    },
+    [isMicOn, micSettingSupport, micSettings, selectedMicId, startCapture],
   );
 
   const startRoom = useCallback(async () => {
@@ -1025,6 +1181,9 @@ export const LiveRoomProvider = ({
       selectedMicId,
       selectCamera,
       selectMic,
+      micSettings,
+      micSettingSupport,
+      setMicSetting,
       localStream,
       remoteStreams,
       reactions,
@@ -1062,6 +1221,9 @@ export const LiveRoomProvider = ({
       selectedMicId,
       selectCamera,
       selectMic,
+      micSettings,
+      micSettingSupport,
+      setMicSetting,
       localStream,
       remoteStreams,
       reactions,

@@ -146,6 +146,17 @@ const createContextValue = (
   microphones: [],
   selectedCameraId: null,
   selectedMicId: null,
+  micSettings: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+  micSettingSupport: {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  },
+  setMicSetting: jest.fn(),
   selectCamera: jest.fn(),
   selectMic: jest.fn(),
   localStream: null,
