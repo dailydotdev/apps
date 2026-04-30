@@ -19,13 +19,21 @@ import { checkIsExtension } from '../../lib/func';
 
 export const CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX = 360;
 
+export type CustomizeNewTabOpenTrigger = 'auto' | 'rail' | 'profile_menu';
+
 export type CustomizeNewTabContextValue = {
   isEnabled: boolean;
   isOpen: boolean;
-  open: () => void;
+  open: (trigger?: CustomizeNewTabOpenTrigger) => void;
   close: () => void;
   reset: () => void;
   isFirstSession: boolean;
+  /**
+   * How the panel was last opened. Read by the impression logger so a
+   * single Impression event can carry the entry surface (auto/rail/
+   * profile menu) without a separate event per trigger.
+   */
+  openTrigger: CustomizeNewTabOpenTrigger | null;
   /**
    * The width to push the main content by while the panel is open. 0 when
    * closed or when the feature flag is off. Consumers (e.g. `MainFeedPage`)
@@ -44,6 +52,7 @@ const DEFAULT_VALUE: CustomizeNewTabContextValue = {
   close: NOOP,
   reset: NOOP,
   isFirstSession: false,
+  openTrigger: null,
   panelWidth: 0,
 };
 
@@ -125,6 +134,8 @@ export const CustomizeNewTabProvider = ({
   const isFirstSession = isEnabled && !hasSeenWelcome;
 
   const [isOpen, setIsOpen] = useState(false);
+  const [openTrigger, setOpenTrigger] =
+    useState<CustomizeNewTabOpenTrigger | null>(null);
   const dismissedRef = useRef(false);
   const seenWelcomeRef = useRef(false);
   const autoOpenedRef = useRef(false);
@@ -137,6 +148,7 @@ export const CustomizeNewTabProvider = ({
     }
     if (!hasDismissed) {
       autoOpenedRef.current = true;
+      setOpenTrigger('auto');
       setIsOpen(true);
     }
   }, [isEnabled, hasDismissed]);
@@ -163,7 +175,10 @@ export const CustomizeNewTabProvider = ({
     });
   }, [completeAction, hasSeenWelcome]);
 
-  const open = useCallback(() => setIsOpen(true), []);
+  const open = useCallback((trigger?: CustomizeNewTabOpenTrigger) => {
+    setOpenTrigger(trigger ?? null);
+    setIsOpen(true);
+  }, []);
 
   const close = useCallback(() => {
     // Record both gates: dismissal (skip auto-open next visit) and welcome
@@ -171,6 +186,7 @@ export const CustomizeNewTabProvider = ({
     // close path — X, Esc, Done — keeps Escape from leaving an
     // un-acknowledged welcome card lurking for the next session.
     setIsOpen(false);
+    setOpenTrigger(null);
     markDismissedOnce();
     if (isFirstSession) {
       markWelcomeSeenOnce();
@@ -193,8 +209,9 @@ export const CustomizeNewTabProvider = ({
       close,
       reset,
       isFirstSession,
+      openTrigger: isEnabled && isOpen ? openTrigger : null,
     }),
-    [isEnabled, isOpen, open, close, reset, isFirstSession],
+    [isEnabled, isOpen, open, close, reset, isFirstSession, openTrigger],
   );
 
   return (

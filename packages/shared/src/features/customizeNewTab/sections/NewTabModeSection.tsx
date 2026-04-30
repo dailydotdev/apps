@@ -19,7 +19,7 @@ import { normaliseNewTabMode } from '../lib/newTabMode';
 
 const HINTS: Record<NewTabMode, string> = {
   discover: 'Your daily.dev feed every time you open a tab.',
-  focus: 'Quiet the feed during deep work — pause now or schedule it.',
+  focus: 'Quiet the feed during deep work, pause now or schedule it.',
 };
 
 const MODE_OPTIONS: SidebarSegmentedOption<NewTabMode>[] = [

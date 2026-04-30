@@ -15,6 +15,7 @@ import {
 } from '../../components/typography/Typography';
 import { MagicIcon } from '../../components/icons/Magic';
 import { MiniCloseIcon } from '../../components/icons/MiniClose';
+import type { CustomizeNewTabOpenTrigger } from './CustomizeNewTabContext';
 import {
   CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX,
   useCustomizeNewTab,
@@ -32,11 +33,24 @@ export { CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX } from './CustomizeNewTabContext';
 
 const PANEL_ID = 'customize-new-tab-panel';
 
-const useImpressionLog = (isOpen: boolean, isFirstSession: boolean): void => {
+// Fires an Impression every time the panel transitions from closed to
+// open (initial auto-open, rail click, profile-menu click, and every
+// re-open after a close). The ref is reset on close so analytics get a
+// fresh impression for each open cycle, and the `trigger` distinguishes
+// entry surfaces without needing a separate event per source.
+const useImpressionLog = (
+  isOpen: boolean,
+  isFirstSession: boolean,
+  trigger: CustomizeNewTabOpenTrigger | null,
+): void => {
   const { logEvent } = useLogContext();
   const loggedRef = useRef(false);
   useEffect(() => {
-    if (!isOpen || loggedRef.current) {
+    if (!isOpen) {
+      loggedRef.current = false;
+      return;
+    }
+    if (loggedRef.current) {
       return;
     }
     loggedRef.current = true;
@@ -46,20 +60,28 @@ const useImpressionLog = (isOpen: boolean, isFirstSession: boolean): void => {
       extra: JSON.stringify({
         feature_name: 'newtab_customizer',
         is_first_session: isFirstSession,
+        trigger: trigger ?? 'unknown',
       }),
     });
-  }, [isOpen, isFirstSession, logEvent]);
+  }, [isOpen, isFirstSession, trigger, logEvent]);
 };
 
 export const CustomizeNewTabSidebar = (): ReactElement | null => {
-  const { isEnabled, isOpen, open, close, reset, isFirstSession } =
-    useCustomizeNewTab();
+  const {
+    isEnabled,
+    isOpen,
+    open,
+    close,
+    reset,
+    isFirstSession,
+    openTrigger,
+  } = useCustomizeNewTab();
   const { flags } = useSettingsContext();
   const { logEvent } = useLogContext();
   const panelRef = useRef<HTMLElement>(null);
   const mode = normaliseNewTabMode(flags?.newTabMode);
 
-  useImpressionLog(isOpen, isFirstSession);
+  useImpressionLog(isOpen, isFirstSession, openTrigger);
 
   useEffect(() => {
     panelRef.current?.toggleAttribute('inert', !isOpen);
@@ -76,7 +98,7 @@ export const CustomizeNewTabSidebar = (): ReactElement | null => {
   }
 
   const handleOpenFromPill = () => {
-    open();
+    open('rail');
     logEvent({
       event_name: LogEvent.Click,
       target_type: TargetType.CustomizeNewTab,

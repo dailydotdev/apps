@@ -252,8 +252,8 @@ export const FocusSection = (): ReactElement => {
       </SidebarSection>
 
       <SidebarSection
-        title="Active hours"
-        description="Pick the times when Focus mode kicks in automatically. Days you select redirect this tab to your browser's native new tab during the chosen window."
+        title="Scheduled focus time"
+        description="Pick the times when focus mode kicks in automatically. Days you select redirect this tab to your browser's native new tab during the chosen window."
       >
         <div className="flex flex-wrap gap-1.5">
           {WEEKDAYS.map((day) => {

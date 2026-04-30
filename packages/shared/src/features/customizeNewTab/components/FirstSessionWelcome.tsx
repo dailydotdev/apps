@@ -169,15 +169,6 @@ export const FirstSessionWelcome = ({
 
     <div className="relative flex flex-col gap-2 px-4 pb-4 pt-4">
       <Typography
-        tag={TypographyTag.Span}
-        type={TypographyType.Caption2}
-        bold
-        className="uppercase tracking-[0.16em] text-accent-cabbage-default"
-      >
-        Your dev reading habit
-      </Typography>
-
-      <Typography
         id="newtab-welcome-title"
         tag={TypographyTag.H2}
         type={TypographyType.Title3}
@@ -191,8 +182,8 @@ export const FirstSessionWelcome = ({
         type={TypographyType.Footnote}
         className="text-text-secondary"
       >
-        Top dev stories every new tab — curated to your topics, paced to your
-        day, and shaped around how you read.
+        Tailor every new tab to fit how you work, pick the layout, switch on the
+        widgets you want, and set focus hours that match your day.
       </Typography>
     </div>
   </section>

@@ -54,7 +54,7 @@ export const useCustomizeNewTabMenuItem = (
         target_type: TargetType.CustomizeNewTab,
         target_id: 'profile_menu',
       });
-      open();
+      open('profile_menu');
       onClose?.();
     },
   };

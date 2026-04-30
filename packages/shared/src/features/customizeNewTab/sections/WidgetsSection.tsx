@@ -169,7 +169,7 @@ export const WidgetsSection = (): ReactElement => {
       name: 'newtab-customizer-gamification',
       label: 'Gamification',
       tooltip:
-        'Shows levels and quests — small daily challenges that reward you for staying current with your reading.',
+        'Shows levels and quests, small daily challenges that reward you for staying current with your reading.',
       icon: StarIcon,
       checked: isGamificationOn,
       toggle: handleGamificationToggle,
