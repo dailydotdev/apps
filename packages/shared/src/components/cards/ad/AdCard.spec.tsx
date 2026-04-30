@@ -2,7 +2,6 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
@@ -25,11 +24,10 @@ beforeEach(() => {
 
 const renderListComponent = (
   props: Partial<AdCardProps> = {},
-  gb = new GrowthBook(),
 ): RenderResult => {
   const client = new QueryClient();
   return render(
-    <TestBootProvider client={client} gb={gb}>
+    <TestBootProvider client={client}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdList {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -50,29 +48,16 @@ const renderSignalListComponent = (
   );
 };
 
-const getGrowthBook = (isAdReferralCtaEnabled = false): GrowthBook => {
-  const gb = new GrowthBook();
-
-  gb.setFeatures({
-    ad_referral_cta: {
-      defaultValue: isAdReferralCtaEnabled,
-    },
-  });
-
-  return gb;
-};
-
 const getNormalizedText = (element?: Element | null): string =>
   element?.textContent?.replace(/\u200B/g, '').trim() ?? '';
 
 const renderGridComponent = (
   props: Partial<AdCardProps> = {},
-  gb = new GrowthBook(),
 ): RenderResult => {
   const client = new QueryClient();
 
   return render(
-    <TestBootProvider client={client} gb={gb}>
+    <TestBootProvider client={client}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdGrid {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -122,16 +107,8 @@ it('should show pixel images', async () => {
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
 });
 
-it('should not render advertise link by default', () => {
+it('should render advertise link on grid ad', () => {
   renderGridComponent();
-
-  expect(
-    screen.queryByRole('link', { name: 'Advertise here' }),
-  ).not.toBeInTheDocument();
-});
-
-it('should render advertise link on grid ad when feature is enabled', () => {
-  renderGridComponent({}, getGrowthBook(true));
 
   expect(screen.getByRole('link', { name: 'Advertise here' })).toHaveAttribute(
     'href',
@@ -152,8 +129,8 @@ it('should render promoted attribution outside of list title clamp', async () =>
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
 });
 
-it('should render advertise link on list ad when feature is enabled', () => {
-  renderListComponent({}, getGrowthBook(true));
+it('should render advertise link on list ad', () => {
+  renderListComponent();
 
   expect(screen.getByRole('link', { name: 'Advertise here' })).toHaveAttribute(
     'href',
