@@ -426,6 +426,16 @@ export enum LogEvent {
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
+  // Reader modal
+  ImpressionReaderModal = 'impression reader modal',
+  CloseReaderModal = 'close reader modal',
+  ToggleEmbeddedReader = 'toggle embedded reader',
+  ImpressionReaderInstallPrompt = 'impression reader install prompt',
+  ClickReaderInstallExtension = 'click reader install extension',
+  ImpressionReaderFallback = 'impression reader fallback',
+  ReaderEmbedReady = 'reader embed ready',
+  ReaderEmbedPermissionRequired = 'reader embed permission required',
+  ReaderEmbedError = 'reader embed error',
 }
 
 export enum TargetType {

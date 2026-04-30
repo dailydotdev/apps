@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
 import { ActivePostContextProvider } from '../../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
-import { TargetType } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { ReaderContextProvider } from './ReaderContext';
 import { ReaderChrome } from './ReaderChrome';
 import { ArticleReaderFrame } from './ArticleReaderFrame';
@@ -14,6 +15,7 @@ import { ReaderFloatingActionBar } from './ReaderFloatingActionBar';
 import { PaneDivider } from './PaneDivider';
 import { useReaderLayoutPrefs } from './hooks/useReaderLayoutPrefs';
 import { useIframeEmbed } from './hooks/useIframeEmbed';
+import { useReadArticle } from '../../../hooks/usePostContent';
 
 const CHROME_TOP_OFFSET_PX = 72;
 const DEFAULT_OUTER_CLASS_NAME = 'flex h-full min-h-0 w-full flex-col';
@@ -48,6 +50,55 @@ export function ReaderPostLayout({
   isPostPage = false,
 }: ReaderPostLayoutProps): ReactElement {
   const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
+  const { logEvent } = useLogContext();
+  const surface = isPostPage ? Origin.ArticlePage : Origin.ArticleModal;
+  const onReadArticle = useReadArticle({ post, origin: surface });
+  const hasEmbed = !!targetUrl && isEmbeddable;
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.ImpressionReaderModal,
+      target_type: TargetType.Post,
+      target_id: post.id,
+      extra: JSON.stringify({
+        origin: surface,
+        is_embeddable: hasEmbed,
+      }),
+    });
+    // Only fire once per post on this surface
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post.id, surface]);
+
+  // Opening a post in the embedded reader is the user committing to read it,
+  // same as clicking "Read article" in the classic flow. Fire the same click
+  // handler — reading-streak credit, read-cache update, and the server view
+  // event (the iframe loads the redirector permalink which calls notifyView
+  // server-side) — but only once the iframe actually reaches `ready`. Firing
+  // on mount would credit reads even when the install prompt or permission
+  // gate is showing in place of the article.
+  // The fallback path keeps the external "Read on host" link, which wires
+  // streak credit at click time in `ReaderFallback`.
+  const hasCreditedReadRef = useRef(false);
+  useEffect(() => {
+    hasCreditedReadRef.current = false;
+  }, [post.id]);
+  const onEmbedReady = useCallback(() => {
+    if (hasCreditedReadRef.current) {
+      return;
+    }
+    hasCreditedReadRef.current = true;
+    onReadArticle();
+  }, [onReadArticle]);
+
+  const onCloseWithLog = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.CloseReaderModal,
+      target_type: TargetType.Post,
+      target_id: post.id,
+      extra: JSON.stringify({ origin: surface }),
+    });
+    onClose();
+  }, [logEvent, onClose, post.id, surface]);
   const {
     isRailOpen,
     setRailOpen,
@@ -143,7 +194,7 @@ export function ReaderPostLayout({
                       onNextPost={onNextPost}
                       onRegisterFocusComment={onRegisterFocusComment}
                       className="min-w-0"
-                      onBackToFeed={isPostPage ? onClose : undefined}
+                      onBackToFeed={isPostPage ? onCloseWithLog : undefined}
                     />
                     <PaneDivider onResizeDelta={onResizeDelta} />
                   </>
@@ -155,12 +206,16 @@ export function ReaderPostLayout({
                     isEmbeddable={isEmbeddable}
                     fallbackScrollRef={fallbackScrollRef}
                     className="min-h-0 flex-1"
-                    onClose={onClose}
+                    onClose={onCloseWithLog}
                     isPostPage={isPostPage}
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
+                    onEmbedReady={onEmbedReady}
                   />
                   {!hasEmbeddedReaderHeader && (
-                    <ReaderChrome onClose={onClose} isPostPage={isPostPage} />
+                    <ReaderChrome
+                      onClose={onCloseWithLog}
+                      isPostPage={isPostPage}
+                    />
                   )}
                   <ReaderFloatingActionBar
                     post={post}

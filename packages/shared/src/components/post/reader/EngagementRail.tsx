@@ -150,50 +150,51 @@ export function EngagementRail({
               </Tooltip>
             </div>
           )}
-          <div className={railHeaderGroupClasses} aria-label="Post navigation">
-            {showNavigation && (
-              <>
-                {onPreviousPost && (
-                  <Tooltip content="Previous post">
-                    <Button
-                      icon={<ArrowIcon />}
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Tertiary}
-                      type="button"
-                      className={classNames('-rotate-90', iconButtonClassName)}
-                      onClick={onPreviousPost}
-                      disabled={
-                        !postPosition ||
-                        [PostPosition.First, PostPosition.Only].includes(
-                          postPosition,
-                        )
-                      }
-                      aria-label="Previous post"
-                    />
-                  </Tooltip>
-                )}
-                {onNextPost && (
-                  <Tooltip content="Next post">
-                    <Button
-                      className={classNames('rotate-90', iconButtonClassName)}
-                      icon={<ArrowIcon />}
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Tertiary}
-                      type="button"
-                      onClick={onNextPost}
-                      disabled={
-                        !postPosition ||
-                        [PostPosition.Last, PostPosition.Only].includes(
-                          postPosition,
-                        )
-                      }
-                      aria-label="Next post"
-                    />
-                  </Tooltip>
-                )}
-              </>
-            )}
-          </div>
+          {showNavigation && (
+            <div
+              className={railHeaderGroupClasses}
+              aria-label="Post navigation"
+            >
+              {onPreviousPost && (
+                <Tooltip content="Previous post">
+                  <Button
+                    icon={<ArrowIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    type="button"
+                    className={classNames('-rotate-90', iconButtonClassName)}
+                    onClick={onPreviousPost}
+                    disabled={
+                      !postPosition ||
+                      [PostPosition.First, PostPosition.Only].includes(
+                        postPosition,
+                      )
+                    }
+                    aria-label="Previous post"
+                  />
+                </Tooltip>
+              )}
+              {onNextPost && (
+                <Tooltip content="Next post">
+                  <Button
+                    className={classNames('rotate-90', iconButtonClassName)}
+                    icon={<ArrowIcon />}
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    type="button"
+                    onClick={onNextPost}
+                    disabled={
+                      !postPosition ||
+                      [PostPosition.Last, PostPosition.Only].includes(
+                        postPosition,
+                      )
+                    }
+                    aria-label="Next post"
+                  />
+                </Tooltip>
+              )}
+            </div>
+          )}
         </div>
         <div className={railHeaderGroupClasses}>
           <PostMenuOptions

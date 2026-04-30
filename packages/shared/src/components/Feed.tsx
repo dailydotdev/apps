@@ -72,7 +72,6 @@ import {
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
-import { isDevelopment } from '../lib/constants';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
@@ -344,18 +343,13 @@ export default function Feed<T>({
     shouldEvaluate: isExtensionBrowser,
   });
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const forceLegacyPostModalInDev =
-    isDevelopment && process.env.NEXT_PUBLIC_FORCE_LEGACY_POST_MODAL === 'true';
-  const isReaderModalFromConfig = isDevelopment
-    ? !forceLegacyPostModalInDev
-    : readerModalFromGrowthBook;
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isReaderModalOn =
     isExtensionBrowser &&
-    isReaderModalFromConfig &&
+    readerModalFromGrowthBook &&
     !isLegacyLayoutOptedOut &&
     isTabletViewport;
-  const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
+  const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([

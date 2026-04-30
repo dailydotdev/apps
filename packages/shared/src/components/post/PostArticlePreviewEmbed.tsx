@@ -17,13 +17,16 @@ import {
 } from '../../features/extensionEmbed/useIsBrowserExtensionInstalled';
 import { checkIsExtension } from '../../lib/func';
 import { apiUrl } from '../../lib/config';
-import { Loader } from '../Loader';
 import {
   Typography,
   TypographyTag,
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
+import { ElementPlaceholder } from '../ElementPlaceholder';
+import { TextPlaceholder } from '../widgets/common';
 
 const FRAME_LOAD_TIMEOUT_MS = 7000;
 const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
@@ -37,6 +40,14 @@ type PostArticlePreviewEmbedProps = {
   leftHeaderActions?: ReactElement | null;
   rightHeaderActions?: ReactElement | null;
   onPreviewUnavailable?: () => void;
+  /**
+   * Fires once when the iframe successfully reaches the `ready` state — i.e.
+   * permissions are granted and the target site is actually rendering. Use this
+   * to attribute "user is reading" actions (streak credit, server view event)
+   * rather than firing them on mount, which would also count install/permission
+   * prompts where the iframe is hidden.
+   */
+  onEmbedReady?: () => void;
   forceUnavailable?: boolean;
   collapseOnUnavailable?: boolean;
 };
@@ -48,6 +59,7 @@ export function PostArticlePreviewEmbed({
   leftHeaderActions,
   rightHeaderActions,
   onPreviewUnavailable,
+  onEmbedReady,
   forceUnavailable = false,
   collapseOnUnavailable = true,
 }: PostArticlePreviewEmbedProps): ReactElement | null {
@@ -271,12 +283,73 @@ export function PostArticlePreviewEmbed({
     return () => globalThis.clearTimeout(timeout);
   }, [isAwaitingTargetLoad]);
 
+  const { logEvent } = useLogContext();
+  const lastLoggedStatusRef = useRef<string | null>(null);
+  const lastLoggedReasonRef = useRef<string | null>(null);
+
+  const onEmbedReadyRef = useRef(onEmbedReady);
+  onEmbedReadyRef.current = onEmbedReady;
+
+  const logEmbedState = useCallback(
+    (state: UseExtensionSiteEmbedResult) => {
+      const stateKey = `${state.status}:${state.errorReason ?? ''}`;
+      if (
+        lastLoggedStatusRef.current === state.status &&
+        lastLoggedReasonRef.current === (state.errorReason ?? null) &&
+        stateKey !== ''
+      ) {
+        return;
+      }
+      lastLoggedStatusRef.current = state.status;
+      lastLoggedReasonRef.current = state.errorReason ?? null;
+
+      const baseExtra = { target_url: targetUrl, host: previewDomain };
+
+      if (state.status === 'ready') {
+        logEvent({
+          event_name: LogEvent.ReaderEmbedReady,
+          extra: JSON.stringify(baseExtra),
+        });
+        onEmbedReadyRef.current?.();
+        return;
+      }
+
+      if (
+        state.status === 'permission-required' ||
+        state.errorReason === 'missing-permission' ||
+        state.errorReason === 'permission-denied' ||
+        state.errorReason === 'permission-request-failed'
+      ) {
+        logEvent({
+          event_name: LogEvent.ReaderEmbedPermissionRequired,
+          extra: JSON.stringify({
+            ...baseExtra,
+            reason: state.errorReason ?? 'permission-required',
+          }),
+        });
+        return;
+      }
+
+      if (state.status === 'error') {
+        logEvent({
+          event_name: LogEvent.ReaderEmbedError,
+          extra: JSON.stringify({
+            ...baseExtra,
+            reason: state.errorReason ?? 'unknown',
+          }),
+        });
+      }
+    },
+    [logEvent, previewDomain, targetUrl],
+  );
+
   const onEmbedStateChange = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
       setEmbedStatus(state.status);
       if (state.status !== 'ready') {
         setIsFrameLoaded(false);
       }
+      logEmbedState(state);
       // Keep the iframe mounted for states the user can retry from within
       // it: missing-permission (prompt hasn't been attempted), permission-
       // denied (ESC / "Not now"), permission-request-failed (transient).
@@ -298,7 +371,7 @@ export function PostArticlePreviewEmbed({
         setPreviewBroken(true);
       }
     },
-    [],
+    [logEmbedState],
   );
 
   const renderEmbedChrome = useCallback(
@@ -320,39 +393,39 @@ export function PostArticlePreviewEmbed({
         );
       }
 
-      if (state.status === 'reloading-extension') {
-        return (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
-            <Loader className="h-6 w-6" />
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Secondary}
-            >
-              Reloading extension…
-            </Typography>
-          </div>
-        );
-      }
-
       const shouldShowLoading =
-        !previewBroken &&
-        (state.status === 'idle' ||
-          state.status === 'preparing-tab' ||
-          (state.status === 'ready' && !isFrameLoaded));
+        state.status === 'reloading-extension' ||
+        (!previewBroken &&
+          (state.status === 'idle' ||
+            state.status === 'preparing-tab' ||
+            (state.status === 'ready' && !isFrameLoaded)));
 
       if (!shouldShowLoading) {
         return null;
       }
 
       return (
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 bg-overlay-quaternary-onion">
-          <Loader className="h-6 w-6" />
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Secondary}
-          >
-            Loading article preview…
-          </Typography>
+        <div
+          aria-busy
+          aria-live="polite"
+          className="z-10 pointer-events-none absolute inset-0 flex flex-col gap-4 overflow-hidden bg-background-default px-4 pb-6 pt-6 tablet:px-8"
+        >
+          <ElementPlaceholder className="h-8 w-3/5 rounded-10" />
+          <div className="flex flex-col gap-2">
+            <TextPlaceholder className="w-2/5" />
+          </div>
+          <ElementPlaceholder className="h-52 w-full max-w-[40rem] rounded-16" />
+          <div className="flex flex-col gap-2">
+            <TextPlaceholder className="w-full" />
+            <TextPlaceholder className="w-11/12" />
+            <TextPlaceholder className="w-10/12" />
+            <TextPlaceholder className="w-9/12" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <TextPlaceholder className="w-11/12" />
+            <TextPlaceholder className="w-10/12" />
+            <TextPlaceholder className="w-8/12" />
+          </div>
         </div>
       );
     },

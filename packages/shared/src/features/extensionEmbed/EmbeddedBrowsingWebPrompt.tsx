@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Button,
   ButtonSize,
@@ -13,6 +13,8 @@ import {
 } from '../../components/typography/Typography';
 import { downloadBrowserExtension, isChrome } from '../../lib/constants';
 import { ChromeIcon, EdgeIcon } from '../../components/icons';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
 
 /**
@@ -22,11 +24,29 @@ import styles from './EmbeddedBrowsingWebPrompt.module.css';
  * so the Enable click carries the user gesture Chrome requires.
  */
 export function EmbeddedBrowsingWebPrompt(): ReactElement {
+  const { logEvent } = useLogContext();
   const isChromeBrowser = isChrome();
   const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
   const installButtonLabel = isChromeBrowser
     ? 'Install Chrome extension'
     : 'Install Edge extension';
+  const browser = isChromeBrowser ? 'chrome' : 'edge';
+
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.ImpressionReaderInstallPrompt,
+      extra: JSON.stringify({ browser }),
+    });
+    // Fire once per mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onInstallClick = () => {
+    logEvent({
+      event_name: LogEvent.ClickReaderInstallExtension,
+      extra: JSON.stringify({ browser }),
+    });
+  };
 
   return (
     <div className={styles.root}>
@@ -60,6 +80,7 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement {
               target="_blank"
               rel="noopener noreferrer"
               icon={<BrowserIcon />}
+              onClick={onInstallClick}
             >
               {installButtonLabel}
             </Button>

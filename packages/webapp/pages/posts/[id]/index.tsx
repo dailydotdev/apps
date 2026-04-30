@@ -38,10 +38,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
-import {
-  isDevelopment,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
@@ -221,15 +218,10 @@ export const PostPage = ({
     shouldEvaluate: true,
   });
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const forceLegacyPostModalInDev =
-    isDevelopment && process.env.NEXT_PUBLIC_FORCE_LEGACY_POST_MODAL === 'true';
-  const isReaderModalFromConfig = isDevelopment
-    ? !forceLegacyPostModalInDev
-    : readerModalFromGrowthBook;
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isReaderModalOn =
-    isReaderModalFromConfig && !isLegacyLayoutOptedOut && isTabletViewport;
-  const isReaderModalFeatureReady = isDevelopment || !isReaderFeatureLoading;
+    readerModalFromGrowthBook && !isLegacyLayoutOptedOut && isTabletViewport;
+  const isReaderModalFeatureReady = !isReaderFeatureLoading;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',

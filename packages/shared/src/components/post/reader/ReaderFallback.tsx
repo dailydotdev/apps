@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { forwardRef, useContext } from 'react';
+import React, { forwardRef, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
@@ -12,6 +12,9 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { useReadArticle } from '../../../hooks/usePostContent';
 
 type ReaderFallbackProps = {
   post: Post;
@@ -26,6 +29,17 @@ export const ReaderFallback = forwardRef<HTMLDivElement, ReaderFallbackProps>(
   ): ReactElement {
     const { openNewTab } = useContext(SettingsContext);
     const { title } = useSmartTitle(post);
+    const { logEvent } = useLogContext();
+    const onReadArticle = useReadArticle({ post, origin: Origin.ArticleModal });
+
+    useEffect(() => {
+      logEvent({
+        event_name: LogEvent.ImpressionReaderFallback,
+        target_type: TargetType.Post,
+        target_id: post.id,
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [post.id]);
     const hostname =
       post.domain && post.domain.length > 0
         ? post.domain
@@ -78,6 +92,7 @@ export const ReaderFallback = forwardRef<HTMLDivElement, ReaderFallbackProps>(
           size={ButtonSize.Large}
           variant={ButtonVariant.Primary}
           className="w-fit"
+          onClick={onReadArticle}
         >
           Read on {hostname || 'source'}
         </Button>
