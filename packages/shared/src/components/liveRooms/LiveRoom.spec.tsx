@@ -281,7 +281,15 @@ describe('LiveRoom', () => {
       expect(promoteSpeaker).toHaveBeenCalledWith('queued1');
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Remove @speaker1' }));
+    const removeSpeakerButton = screen.getByRole('button', {
+      name: 'Remove @speaker1',
+    });
+
+    await waitFor(() => {
+      expect(removeSpeakerButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(removeSpeakerButton);
 
     await waitFor(() => {
       expect(removeSpeaker).toHaveBeenCalledWith('speaker1');

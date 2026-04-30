@@ -23,10 +23,13 @@ import {
 } from '../graphql/liveRooms';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from './AuthContext';
+import { useLogContext } from './LogContext';
 import {
   buildLiveRoomWsUrl,
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
+import { buildStandupAnalyticsExtra } from '../lib/liveRoom/analytics';
+import { LogEvent } from '../lib/log';
 import {
   clearStoredLiveRoomResumeSession,
   readStoredLiveRoomResumeSession,
@@ -38,6 +41,7 @@ import { storageWrapper } from '../lib/storageWrapper';
 import type {
   ChatMessageDeletedEvent,
   ChatMessageSentEvent,
+  LiveRoomCommand,
   LiveRoomChatMessage,
   LiveRoomParticipantRoleValue,
   LiveRoomState,
@@ -344,11 +348,15 @@ const videoQualityOutgoingBitrateLimit: Record<LiveRoomVideoQuality, number> = {
   high: 2_500_000,
 };
 
+const getErrorMessage = (error: unknown, fallback: string): string =>
+  error instanceof Error ? error.message : fallback;
+
 export const LiveRoomProvider = ({
   roomId,
   children,
 }: LiveRoomProviderProps): ReactElement => {
   const { user, isAuthReady } = useAuthContext();
+  const { logEvent } = useLogContext();
   const [status, setStatus] = useState<LiveRoomConnectionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<LiveRoomState | null>(null);
@@ -414,6 +422,94 @@ export const LiveRoomProvider = ({
     roomState?.status === 'live' &&
     !!participantId &&
     (roomState.chatPermissions[participantId] ?? true);
+  const buildStandupExtra = useCallback(
+    (extra: Record<string, unknown> = {}) =>
+      buildStandupAnalyticsExtra(
+        {
+          roomId,
+          authKind: user ? 'authenticated' : 'anonymous',
+          role: currentRole,
+          roomStatus: roomState?.status ?? null,
+          roomMode: roomState?.mode ?? null,
+          connectionStatus: status,
+          canPublish,
+          participantId,
+          selectedMicId,
+          selectedCameraId,
+          hasLocalAudioTrack: !!localTracksRef.current.audio,
+          hasLocalVideoTrack: !!localTracksRef.current.video,
+          videoQuality: videoSettings.quality,
+          audioOnly: videoSettings.audioOnly,
+          hideSelfView: videoSettings.hideSelfView,
+          isResuming: !!storedResumeSession,
+        },
+        extra,
+      ),
+    [
+      roomId,
+      user,
+      currentRole,
+      roomState?.status,
+      roomState?.mode,
+      status,
+      canPublish,
+      participantId,
+      selectedMicId,
+      selectedCameraId,
+      videoSettings.quality,
+      videoSettings.audioOnly,
+      videoSettings.hideSelfView,
+      storedResumeSession,
+    ],
+  );
+  const logStandupError = useCallback(
+    (
+      targetId: string,
+      message: string,
+      extra: Record<string, unknown> = {},
+    ) => {
+      logEvent({
+        event_name: LogEvent.StandupError,
+        target_id: targetId,
+        extra: buildStandupExtra({
+          message,
+          ...extra,
+        }),
+      });
+    },
+    [buildStandupExtra, logEvent],
+  );
+  const sendConnectionCommand = useCallback(
+    async <T,>(
+      operation: string,
+      payload: LiveRoomCommand,
+      extra: Record<string, unknown> = {},
+    ): Promise<T> => {
+      const connection = connectionRef.current;
+      if (!connection) {
+        const error = new Error('Not connected');
+        logStandupError('websocket command', error.message, {
+          source: 'command',
+          operation,
+          ...extra,
+        });
+        throw error;
+      }
+
+      try {
+        return await connection.send<T>(payload);
+      } catch (error) {
+        const message = getErrorMessage(error, `Failed to ${operation}`);
+        logStandupError('websocket command', message, {
+          source: 'command',
+          operation,
+          ...extra,
+        });
+        throw error instanceof Error ? error : new Error(message);
+      }
+    },
+    [logStandupError],
+  );
 
   const pushReaction = useCallback((event: ReactionSentEvent) => {
     const createdAtMs = new Date(event.reaction.createdAt).getTime();
@@ -672,8 +768,11 @@ export const LiveRoomProvider = ({
     if (joinError) {
       setStatus('error');
       setErrorMessage(joinError.message);
+      logStandupError('join token fetch', joinError.message, {
+        source: 'join_token',
+      });
     }
-  }, [joinError]);
+  }, [joinError, logStandupError]);
 
   useEffect(() => {
     setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
@@ -716,10 +815,14 @@ export const LiveRoomProvider = ({
         }
         return nextMics[0]?.deviceId ?? null;
       });
-    } catch {
-      // ignore
+    } catch (error) {
+      logStandupError(
+        'device enumerate',
+        getErrorMessage(error, 'Failed to enumerate devices'),
+        { source: 'device_list' },
+      );
     }
-  }, []);
+  }, [logStandupError]);
 
   // Enumerate devices on mount and when device list changes (plug/unplug).
   useEffect(() => {
@@ -783,6 +886,11 @@ export const LiveRoomProvider = ({
     if (!wsUrl) {
       setStatus('error');
       setErrorMessage('Standup websocket URL is not configured');
+      logStandupError(
+        'websocket config',
+        'Standup websocket URL is not configured',
+        { source: 'connection_config' },
+      );
       return undefined;
     }
 
@@ -846,6 +954,9 @@ export const LiveRoomProvider = ({
       }
       setStatus('error');
       setErrorMessage(error.message);
+      logStandupError('websocket error', error.message, {
+        source: 'connection',
+      });
     });
 
     connection.open();
@@ -864,6 +975,7 @@ export const LiveRoomProvider = ({
     };
   }, [
     joinToken,
+    logStandupError,
     pushChatMessage,
     pushReaction,
     removeChatMessage,
@@ -1031,6 +1143,12 @@ export const LiveRoomProvider = ({
       ) {
         return;
       }
+      logStandupError('media init', err.message, {
+        source: 'media_init',
+        connectionGeneration,
+        recvTransportReady,
+        sendTransportReady,
+      });
       setStatus('error');
       setErrorMessage(err.message);
     });
@@ -1044,6 +1162,9 @@ export const LiveRoomProvider = ({
     canPublish,
     closeMediaSession,
     connectionGeneration,
+    logStandupError,
+    recvTransportReady,
+    sendTransportReady,
     status,
   ]);
 
@@ -1178,13 +1299,18 @@ export const LiveRoomProvider = ({
         } catch (err) {
           closeConsumer?.();
           subscriptionsRef.current.delete(publication.publicationId);
-          setErrorMessage(
-            err instanceof Error ? err.message : 'Failed to subscribe to media',
-          );
+          const message = getErrorMessage(err, 'Failed to subscribe to media');
+          logStandupError('media subscribe', message, {
+            source: 'subscription_create',
+            kind: publication.kind,
+            publicationId: publication.publicationId,
+            targetParticipantId: publication.participantId,
+          });
+          setErrorMessage(message);
         }
       })();
     });
-  }, [roomState, participantId, recvTransportReady]);
+  }, [logStandupError, roomState, participantId, recvTransportReady]);
 
   useEffect(() => {
     const syncRemoteVideoSubscriptions = async () => {
@@ -1209,13 +1335,17 @@ export const LiveRoomProvider = ({
     };
 
     syncRemoteVideoSubscriptions().catch((err) => {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'Failed to update remote video subscriptions',
+      const message = getErrorMessage(
+        err,
+        'Failed to update remote video subscriptions',
       );
+      logStandupError('media settings sync', message, {
+        source: 'remote_video_subscriptions',
+      });
+      setErrorMessage(message);
     });
   }, [
+    logStandupError,
     recvTransportReady,
     setRemoteSubscriptionPaused,
     setRemoteSubscriptionPreferredSpatialLayer,
@@ -1227,13 +1357,17 @@ export const LiveRoomProvider = ({
     setRecvTransportOutgoingBitrateLimit(
       videoQualityOutgoingBitrateLimit[videoSettings.quality],
     ).catch((err) => {
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'Failed to update remote video quality',
+      const message = getErrorMessage(
+        err,
+        'Failed to update remote video quality',
       );
+      logStandupError('media settings sync', message, {
+        source: 'remote_video_quality',
+      });
+      setErrorMessage(message);
     });
   }, [
+    logStandupError,
     recvTransportReady,
     setRecvTransportOutgoingBitrateLimit,
     videoSettings.quality,
@@ -1277,12 +1411,15 @@ export const LiveRoomProvider = ({
           setPublishingFlag(kind, false);
         });
       } catch (err) {
-        setErrorMessage(
-          err instanceof Error ? err.message : `Failed to publish ${kind}`,
-        );
+        const message = getErrorMessage(err, `Failed to publish ${kind}`);
+        logStandupError(`media publish ${kind}`, message, {
+          source: 'publish_local_track',
+          kind,
+        });
+        setErrorMessage(message);
       }
     },
-    [setPublishingFlag],
+    [logStandupError, setPublishingFlag],
   );
 
   const unpublishKind = useCallback(
@@ -1335,62 +1472,77 @@ export const LiveRoomProvider = ({
       deviceId: string | null,
       nextMicSettings: LiveRoomMicSettings = micSettings,
     ) => {
-      if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
-        throw new Error('Media devices are not available');
-      }
-      const stream = await navigator.mediaDevices.getUserMedia(
-        buildConstraints(kind, deviceId, nextMicSettings, micSettingSupport),
-      );
-      const track =
-        kind === 'video'
-          ? stream.getVideoTracks()[0]
-          : stream.getAudioTracks()[0];
-      if (!track) {
-        throw new Error(`No ${kind} track available`);
-      }
-      const previous = localTracksRef.current[kind];
-      const producer = producersRef.current.get(kind);
-      if (producer) {
-        try {
-          await producer.replaceTrack({ track });
-        } catch (err) {
-          track.stop();
-          setErrorMessage(
-            err instanceof Error
-              ? err.message
-              : `Failed to update ${kind} track`,
-          );
-          return;
+      try {
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+          throw new Error('Media devices are not available');
         }
-      }
-      localTracksRef.current[kind] = track;
-      track.addEventListener('ended', () => {
-        if (localTracksRef.current[kind] !== track) {
-          return;
+        const stream = await navigator.mediaDevices.getUserMedia(
+          buildConstraints(kind, deviceId, nextMicSettings, micSettingSupport),
+        );
+        const track =
+          kind === 'video'
+            ? stream.getVideoTracks()[0]
+            : stream.getAudioTracks()[0];
+        if (!track) {
+          throw new Error(`No ${kind} track available`);
         }
-        localTracksRef.current[kind] = null;
+        const previous = localTracksRef.current[kind];
+        const producer = producersRef.current.get(kind);
+        if (producer) {
+          try {
+            await producer.replaceTrack({ track });
+          } catch (err) {
+            track.stop();
+            const message = getErrorMessage(
+              err,
+              `Failed to update ${kind} track`,
+            );
+            logStandupError(`media replace ${kind}`, message, {
+              source: 'capture_replace',
+              kind,
+              requestedDeviceId: deviceId,
+            });
+            setErrorMessage(message);
+            return;
+          }
+        }
+        localTracksRef.current[kind] = track;
+        track.addEventListener('ended', () => {
+          if (localTracksRef.current[kind] !== track) {
+            return;
+          }
+          localTracksRef.current[kind] = null;
+          refreshLocalStream();
+          if (kind === 'video') {
+            setIsCameraOn(false);
+          } else {
+            setIsMicOn(false);
+          }
+          unpublishKind(kind).catch(() => undefined);
+        });
+        previous?.stop();
         refreshLocalStream();
-        if (kind === 'video') {
-          setIsCameraOn(false);
-        } else {
-          setIsMicOn(false);
+        // Refresh device list to capture labels now that we have permission.
+        refreshDeviceList();
+        if (producer) {
+          return;
         }
-        unpublishKind(kind).catch(() => undefined);
-      });
-      previous?.stop();
-      refreshLocalStream();
-      // Refresh device list to capture labels now that we have permission.
-      refreshDeviceList();
-      if (producer) {
-        return;
-      }
-      // Otherwise, publish if room is live and transport is ready.
-      if (
-        sendTransportRef.current &&
-        roomState?.status === 'live' &&
-        canPublish
-      ) {
-        await publishLocalTrack(kind);
+        // Otherwise, publish if room is live and transport is ready.
+        if (
+          sendTransportRef.current &&
+          roomState?.status === 'live' &&
+          canPublish
+        ) {
+          await publishLocalTrack(kind);
+        }
+      } catch (error) {
+        const message = getErrorMessage(error, `Failed to capture ${kind}`);
+        logStandupError(`media capture ${kind}`, message, {
+          source: 'capture',
+          kind,
+          requestedDeviceId: deviceId,
+        });
+        throw error instanceof Error ? error : new Error(message);
       }
     },
     [
@@ -1399,6 +1551,7 @@ export const LiveRoomProvider = ({
       publishLocalTrack,
       unpublishKind,
       canPublish,
+      logStandupError,
       roomState?.status,
       micSettings,
       micSettingSupport,
@@ -1505,116 +1658,116 @@ export const LiveRoomProvider = ({
   );
 
   const startRoom = useCallback(async () => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'room.start' });
-  }, []);
+    await sendConnectionCommand('start room', { type: 'room.start' });
+  }, [sendConnectionCommand]);
 
   const endRoom = useCallback(async () => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'room.end' });
-  }, []);
+    await sendConnectionCommand('end room', { type: 'room.end' });
+  }, [sendConnectionCommand]);
 
   const joinSpeakerQueue = useCallback(async () => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'stage.queue.join' });
-  }, []);
+    await sendConnectionCommand('join speaker queue', {
+      type: 'stage.queue.join',
+    });
+  }, [sendConnectionCommand]);
 
   const joinStage = useCallback(async () => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'stage.speaker.join' });
-  }, []);
+    await sendConnectionCommand('join stage', { type: 'stage.speaker.join' });
+  }, [sendConnectionCommand]);
 
   const leaveStage = useCallback(async () => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'stage.speaker.leave' });
-  }, []);
+    await sendConnectionCommand('leave stage', { type: 'stage.speaker.leave' });
+  }, [sendConnectionCommand]);
 
-  const sendReaction = useCallback(async (emoji: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'stage.reaction.send', key: emoji });
-  }, []);
+  const sendReaction = useCallback(
+    async (emoji: string) => {
+      await sendConnectionCommand(
+        'send reaction',
+        { type: 'stage.reaction.send', key: emoji },
+        { emoji },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
-  const sendChatMessage = useCallback(async (body: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'chat.message.send', body });
-  }, []);
+  const sendChatMessage = useCallback(
+    async (body: string) => {
+      await sendConnectionCommand(
+        'send chat message',
+        { type: 'chat.message.send', body },
+        { messageLength: body.length },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
-  const deleteChatMessage = useCallback(async (messageId: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({ type: 'chat.message.delete', messageId });
-  }, []);
+  const deleteChatMessage = useCallback(
+    async (messageId: string) => {
+      await sendConnectionCommand(
+        'delete chat message',
+        { type: 'chat.message.delete', messageId },
+        { messageId },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
   const setParticipantChatEnabled = useCallback(
     async (targetParticipantId: string, nextCanChat: boolean) => {
-      const connection = connectionRef.current;
-      if (!connection) {
-        throw new Error('Not connected');
-      }
-      await connection.send({
-        type: 'chat.privilege.set',
-        targetParticipantId,
-        canChat: nextCanChat,
-      });
+      await sendConnectionCommand(
+        'set participant chat access',
+        {
+          type: 'chat.privilege.set',
+          targetParticipantId,
+          canChat: nextCanChat,
+        },
+        { targetParticipantId, nextCanChat },
+      );
     },
-    [],
+    [sendConnectionCommand],
   );
 
-  const promoteSpeaker = useCallback(async (targetParticipantId: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({
-      type: 'stage.speaker.promote',
-      targetParticipantId,
-    });
-  }, []);
+  const promoteSpeaker = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'promote speaker',
+        {
+          type: 'stage.speaker.promote',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
-  const removeSpeaker = useCallback(async (targetParticipantId: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({
-      type: 'stage.speaker.remove',
-      targetParticipantId,
-    });
-  }, []);
+  const removeSpeaker = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'remove speaker',
+        {
+          type: 'stage.speaker.remove',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
-  const kickParticipant = useCallback(async (targetParticipantId: string) => {
-    const connection = connectionRef.current;
-    if (!connection) {
-      throw new Error('Not connected');
-    }
-    await connection.send({
-      type: 'stage.kick',
-      targetParticipantId,
-    });
-  }, []);
+  const kickParticipant = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'kick participant',
+        {
+          type: 'stage.kick',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
 
   const value = useMemo<LiveRoomContextValue>(
     () => ({
