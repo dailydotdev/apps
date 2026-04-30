@@ -170,7 +170,7 @@ export function TagSelection({
           onboardingRecommendTags: { tags: string[] };
         }>(ONBOARDING_RECOMMEND_TAGS_MUTATION, {
           selectedTags: selectedForMutation,
-          n: 5,
+          n: 10,
         });
 
         recommended = result.onboardingRecommendTags.tags.map((name) => ({
