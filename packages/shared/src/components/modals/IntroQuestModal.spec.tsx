@@ -1,10 +1,12 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import ReactModal from 'react-modal';
 import { IntroQuestModal } from './IntroQuestModal';
+import { QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS } from '../quest/QuestCard';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import {
   QuestRewardType,
   QuestStatus,
@@ -14,8 +16,22 @@ import {
 
 ReactModal.setAppElement('body');
 
+jest.mock('next/router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
 jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
+}));
+
+jest.mock('../../hooks/useClaimQuestReward', () => ({
+  useClaimQuestReward: jest.fn(),
+}));
+
+jest.mock('../tooltip/Tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 jest.mock('../../hooks', () => ({
@@ -29,6 +45,7 @@ jest.mock('../../hooks', () => ({
 const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
+const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
 const completeAction = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
@@ -62,6 +79,11 @@ describe('IntroQuestModal', () => {
       completeAction,
     });
     mockUseViewSize.mockReturnValue(false);
+    mockUseClaimQuestReward.mockReturnValue({
+      mutate: jest.fn(),
+      isPending: false,
+      variables: undefined,
+    });
   });
 
   afterEach(() => {
@@ -109,14 +131,14 @@ describe('IntroQuestModal', () => {
     expect(screen.getByText('Completed')).toBeInTheDocument();
     expect(screen.getByText('In progress')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', {
+      screen.getByRole('button', {
         name: 'Go to Notifications',
         hidden: true,
       }),
-    ).toHaveAttribute('href', '/settings/notifications');
+    ).toBeInTheDocument();
   });
 
-  it('does not render destination link for completed quests', () => {
+  it('does not render destination button for completed quests', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
         intro: [
@@ -141,11 +163,51 @@ describe('IntroQuestModal', () => {
     render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
 
     expect(
-      screen.queryByRole('link', {
+      screen.queryByRole('button', {
         name: 'Go to Notifications',
         hidden: true,
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows the claim button and claimed stamp for claimable intro quests', async () => {
+    jest.useFakeTimers();
+    const mutate = jest.fn((_variables, callbacks) => callbacks?.onSuccess?.());
+    mockUseClaimQuestReward.mockReturnValue({
+      mutate,
+      isPending: false,
+      variables: undefined,
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildIntroQuest({
+            status: QuestStatus.Completed,
+            progress: 1,
+            claimable: true,
+          }),
+        ],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    act(() => {
+      screen.getByRole('button', { name: 'Claim', hidden: true }).click();
+    });
+
+    expect(mutate).toHaveBeenCalled();
+    expect(screen.queryByText('CLAIMED')).not.toBeInTheDocument();
+
+    act(() => {
+      jest.advanceTimersByTime(QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS);
+    });
+
+    expect(screen.getByText('CLAIMED')).toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 
   it('shows a loading message while pending', () => {

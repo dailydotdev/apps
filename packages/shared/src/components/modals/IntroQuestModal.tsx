@@ -1,25 +1,41 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useRouter } from 'next/router';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { ProgressBar } from '../fields/ProgressBar';
-import { ArrowIcon, CoreIcon, TourIcon } from '../icons';
+import { TourIcon } from '../icons';
+import {
+  QuestCard,
+  QUEST_CLAIMED_STAMP_ANIMATION_MS,
+  QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS,
+  type QuestDestination,
+} from '../quest/QuestCard';
+import {
+  QuestRewardFlightLayer,
+  buildQuestRewardFlights,
+  type QuestRewardFlight,
+  type QuestRewardSource,
+} from '../quest/QuestRewardAnimations';
 import { ActionType } from '../../graphql/actions';
-import type { QuestReward, UserQuest } from '../../graphql/quests';
-import { QuestRewardType, QuestStatus } from '../../graphql/quests';
+import type { QuestType } from '../../graphql/quests';
 import { useActions } from '../../hooks';
+import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import { webappUrl } from '../../lib/constants';
 
-type IntroQuestStatus = 'complete' | 'active';
-
-type IntroQuestDestination = {
-  label: string;
-  path: string;
+type IntroQuestFlightLayerState = {
+  claimRotationId: string;
+  flights: QuestRewardFlight[];
 };
 
-const introDestinationByEventType: Record<string, IntroQuestDestination> = {
+const introDestinationByEventType: Record<string, QuestDestination> = {
   notifications_enable: {
     label: 'Notifications',
     path: '/settings/notifications',
@@ -37,141 +53,52 @@ const introDestinationByEventType: Record<string, IntroQuestDestination> = {
 const padStep = (index: number): string =>
   `Step ${(index + 1).toString().padStart(2, '0')}`;
 
-const toIntroStatus = (status: QuestStatus): IntroQuestStatus =>
-  status === QuestStatus.Completed || status === QuestStatus.Claimed
-    ? 'complete'
-    : 'active';
-
-const getProgress = (progress: number, target: number) => {
-  const safeTarget = Math.max(target, 1);
-  const safeProgress = Math.max(progress, 0);
-
-  return {
-    value: Math.min(safeProgress, safeTarget),
-    percentage: Math.min(100, Math.round((safeProgress / safeTarget) * 100)),
-    target: safeTarget,
-  };
-};
-
-const getStatusLabel = (status: IntroQuestStatus): string =>
-  status === 'complete' ? 'Completed' : 'In progress';
-
-const getRewardLabel = (reward: QuestReward): string => {
-  switch (reward.type) {
-    case QuestRewardType.Cores:
-      return 'Cores';
-    case QuestRewardType.Reputation:
-      return 'Reputation';
-    case QuestRewardType.Xp:
-    default:
-      return 'XP';
-  }
-};
-
-const getRewardIcon = (reward: QuestReward): ReactElement => {
-  switch (reward.type) {
-    case QuestRewardType.Cores:
-      return <CoreIcon className="text-accent-cheese-default" />;
-    case QuestRewardType.Xp:
-    default:
-      return (
-        <span className="inline-flex size-5 items-center justify-center text-[0.5625rem] font-bold lowercase leading-none !text-accent-avocado-default">
-          xp
-        </span>
-      );
-  }
-};
-
-const RewardChip = ({ reward }: { reward: QuestReward }): ReactElement => (
-  <span className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1">
-    {getRewardIcon(reward)}+{reward.amount.toLocaleString()}{' '}
-    {getRewardLabel(reward)}
-  </span>
-);
-
-type QuestCardProps = {
-  userQuest: UserQuest;
-  index: number;
-};
-
-const QuestCard = ({ userQuest, index }: QuestCardProps): ReactElement => {
-  const status = toIntroStatus(userQuest.status);
-  const { value, percentage, target } = getProgress(
-    userQuest.progress,
-    userQuest.quest.targetCount,
-  );
-  const destination = introDestinationByEventType[userQuest.quest.eventType];
-
-  return (
-    <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
-      <div className="flex flex-col gap-2">
-        <header className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="font-bold uppercase tracking-[0.12em] text-text-tertiary typo-caption2">
-              {padStep(index)}
-            </p>
-            <div className="flex items-start gap-2">
-              <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-                {userQuest.quest.name}
-              </p>
-              {destination && status !== 'complete' && (
-                <Button
-                  type="button"
-                  tag="a"
-                  href={destination.path}
-                  variant={ButtonVariant.Tertiary}
-                  size={ButtonSize.Small}
-                  className="!flex-none"
-                  icon={<ArrowIcon className="rotate-90" />}
-                  aria-label={`Go to ${destination.label}`}
-                />
-              )}
-            </div>
-            <p className="line-clamp-2 text-text-tertiary typo-caption1">
-              {userQuest.quest.description}
-            </p>
-          </div>
-        </header>
-
-        <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
-          <span>
-            {value}/{target}
-          </span>
-          <span>{getStatusLabel(status)}</span>
-        </div>
-
-        <ProgressBar
-          percentage={percentage}
-          shouldShowBg
-          className={{
-            wrapper: 'h-1.5 rounded-14',
-            bar: 'h-full rounded-14',
-            barColor: 'bg-accent-cabbage-default',
-          }}
-        />
-
-        <div className="flex flex-wrap gap-1">
-          {userQuest.rewards.map((reward, rewardIndex) => (
-            <RewardChip
-              key={`${userQuest.rotationId}-${
-                reward.type
-              }-${rewardIndex.toString()}`}
-              reward={reward}
-            />
-          ))}
-        </div>
-      </div>
-    </article>
-  );
-};
-
 export const IntroQuestModal = ({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement => {
+  const router = useRouter();
   const { completeAction } = useActions();
   const { data, isPending, isError } = useQuestDashboard();
+  const {
+    mutate: claimQuestReward,
+    isPending: isClaimPending,
+    variables,
+  } = useClaimQuestReward();
   const introQuests = data?.intro ?? [];
+  const claimingQuestId = isClaimPending ? variables?.userQuestId : undefined;
+  const [rewardFlightLayers, setRewardFlightLayers] = useState<
+    IntroQuestFlightLayerState[]
+  >([]);
+  const [animatingClaimRotationIds, setAnimatingClaimRotationIds] = useState<
+    string[]
+  >([]);
+  const [claimedStampRotationIds, setClaimedStampRotationIds] = useState<
+    string[]
+  >([]);
+  const [
+    animatingClaimedStampRotationIds,
+    setAnimatingClaimedStampRotationIds,
+  ] = useState<string[]>([]);
+  const [deferredClaimedStampRotationIds, setDeferredClaimedStampRotationIds] =
+    useState<string[]>([]);
+  const claimedStampTimersRef = useRef<number[]>([]);
+  const claimedStampRotationIdSet = useMemo(
+    () => new Set(claimedStampRotationIds),
+    [claimedStampRotationIds],
+  );
+  const animatingClaimRotationIdSet = useMemo(
+    () => new Set(animatingClaimRotationIds),
+    [animatingClaimRotationIds],
+  );
+  const animatingClaimedStampRotationIdSet = useMemo(
+    () => new Set(animatingClaimedStampRotationIds),
+    [animatingClaimedStampRotationIds],
+  );
+  const deferredClaimedStampRotationIdSet = useMemo(
+    () => new Set(deferredClaimedStampRotationIds),
+    [deferredClaimedStampRotationIds],
+  );
 
   useEffect(() => {
     if (!props.isOpen) {
@@ -180,6 +107,147 @@ export const IntroQuestModal = ({
 
     completeAction(ActionType.ViewedIntroQuests);
   }, [completeAction, props.isOpen]);
+
+  const clearClaimedStampTimers = useCallback(() => {
+    claimedStampTimersRef.current.forEach((timerId) => {
+      window.clearTimeout(timerId);
+    });
+    claimedStampTimersRef.current = [];
+  }, []);
+
+  const scheduleClaimedStampReveal = useCallback((claimRotationId: string) => {
+    const revealTimerId = window.setTimeout(() => {
+      setClaimedStampRotationIds((current) => {
+        if (current.includes(claimRotationId)) {
+          return current;
+        }
+
+        return [...current, claimRotationId];
+      });
+      setAnimatingClaimedStampRotationIds((current) => {
+        if (current.includes(claimRotationId)) {
+          return current;
+        }
+
+        return [...current, claimRotationId];
+      });
+      setDeferredClaimedStampRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
+      );
+      claimedStampTimersRef.current = claimedStampTimersRef.current.filter(
+        (activeTimerId) => activeTimerId !== revealTimerId,
+      );
+
+      const animationTimerId = window.setTimeout(() => {
+        setAnimatingClaimedStampRotationIds((current) =>
+          current.filter((id) => id !== claimRotationId),
+        );
+        claimedStampTimersRef.current = claimedStampTimersRef.current.filter(
+          (activeTimerId) => activeTimerId !== animationTimerId,
+        );
+      }, QUEST_CLAIMED_STAMP_ANIMATION_MS);
+
+      claimedStampTimersRef.current.push(animationTimerId);
+    }, QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS);
+
+    claimedStampTimersRef.current.push(revealTimerId);
+  }, []);
+
+  const handleRewardFlightLayerDone = useCallback(
+    (claimRotationId: string) => {
+      setRewardFlightLayers((current) =>
+        current.filter((layer) => layer.claimRotationId !== claimRotationId),
+      );
+      setAnimatingClaimRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
+      );
+      scheduleClaimedStampReveal(claimRotationId);
+    },
+    [scheduleClaimedStampReveal],
+  );
+
+  const handleClaim = useCallback(
+    (
+      userQuestId: string,
+      questId: string,
+      questType: QuestType,
+      rewardSources: QuestRewardSource[],
+      claimRotationId: string,
+    ) => {
+      setAnimatingClaimRotationIds((current) => {
+        if (current.includes(claimRotationId)) {
+          return current;
+        }
+
+        return [...current, claimRotationId];
+      });
+      setClaimedStampRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
+      );
+      setAnimatingClaimedStampRotationIds((current) =>
+        current.filter((id) => id !== claimRotationId),
+      );
+      setDeferredClaimedStampRotationIds((current) => {
+        if (current.includes(claimRotationId)) {
+          return current;
+        }
+
+        return [...current, claimRotationId];
+      });
+
+      claimQuestReward(
+        { userQuestId, questId, questType },
+        {
+          onSuccess: () => {
+            const nextFlights = buildQuestRewardFlights(rewardSources);
+
+            if (!nextFlights.length) {
+              setAnimatingClaimRotationIds((current) =>
+                current.filter((id) => id !== claimRotationId),
+              );
+              scheduleClaimedStampReveal(claimRotationId);
+              return;
+            }
+
+            setRewardFlightLayers((current) => [
+              ...current.filter(
+                (layer) => layer.claimRotationId !== claimRotationId,
+              ),
+              { claimRotationId, flights: nextFlights },
+            ]);
+          },
+          onError: () => {
+            setDeferredClaimedStampRotationIds((current) =>
+              current.filter((id) => id !== claimRotationId),
+            );
+            setRewardFlightLayers((current) =>
+              current.filter(
+                (layer) => layer.claimRotationId !== claimRotationId,
+              ),
+            );
+            setAnimatingClaimRotationIds((current) =>
+              current.filter((id) => id !== claimRotationId),
+            );
+          },
+        },
+      );
+    },
+    [claimQuestReward, scheduleClaimedStampReveal],
+  );
+
+  const handleDestinationClick = useCallback(
+    async (destination: QuestDestination) => {
+      onRequestClose?.();
+      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
+    },
+    [onRequestClose, router],
+  );
+
+  useEffect(() => {
+    return () => {
+      clearClaimedStampTimers();
+    };
+  }, [clearClaimedStampTimers]);
 
   return (
     <Modal
@@ -224,13 +292,40 @@ export const IntroQuestModal = ({
             {introQuests.map((userQuest, index) => (
               <QuestCard
                 key={userQuest.rotationId}
-                userQuest={userQuest}
-                index={index}
+                quest={userQuest}
+                onClaim={handleClaim}
+                destination={
+                  introDestinationByEventType[userQuest.quest.eventType]
+                }
+                onDestinationClick={handleDestinationClick}
+                showLevelSystem
+                isClaiming={claimingQuestId === userQuest.userQuestId}
+                isClaimAnimating={animatingClaimRotationIdSet.has(
+                  userQuest.rotationId,
+                )}
+                showClaimedStamp={claimedStampRotationIdSet.has(
+                  userQuest.rotationId,
+                )}
+                animateClaimedStamp={animatingClaimedStampRotationIdSet.has(
+                  userQuest.rotationId,
+                )}
+                suppressPersistedClaimedStamp={deferredClaimedStampRotationIdSet.has(
+                  userQuest.rotationId,
+                )}
+                eyebrow={padStep(index)}
+                showLockIcon={false}
               />
             ))}
           </div>
         )}
       </Modal.Body>
+      {rewardFlightLayers.map((layer) => (
+        <QuestRewardFlightLayer
+          key={layer.claimRotationId}
+          flights={layer.flights}
+          onDone={() => handleRewardFlightLayerDone(layer.claimRotationId)}
+        />
+      ))}
     </Modal>
   );
 };
