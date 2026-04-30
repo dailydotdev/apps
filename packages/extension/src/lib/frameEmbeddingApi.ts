@@ -1,7 +1,9 @@
 export const FRAME_EMBED_PERMISSION = 'declarativeNetRequestWithHostAccess';
 export const FRAME_EMBED_ORIGIN = '*://*/*';
 
-const DNR_CALL_TIMEOUT_MS = 1200;
+// Chromium can take a few seconds to apply DNR session-rule changes,
+// especially right after the optional host-access permission is granted.
+const DNR_CALL_TIMEOUT_MS = 4000;
 
 export type FrameEmbedRule = {
   id: number;
@@ -61,12 +63,23 @@ export const wait = (ms: number): Promise<void> =>
 export const withDnrTimeout = async <T>(
   promise: Promise<T>,
   label: string,
-): Promise<T> =>
-  Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      globalThis.setTimeout(() => {
-        reject(new Error(`${label} timed out after ${DNR_CALL_TIMEOUT_MS}ms`));
-      }, DNR_CALL_TIMEOUT_MS);
-    }),
-  ]);
+): Promise<T> => {
+  let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = globalThis.setTimeout(() => {
+          reject(
+            new Error(`${label} timed out after ${DNR_CALL_TIMEOUT_MS}ms`),
+          );
+        }, DNR_CALL_TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      globalThis.clearTimeout(timeoutId);
+    }
+  }
+};

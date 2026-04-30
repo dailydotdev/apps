@@ -12,6 +12,7 @@ export type PostClick = (
   row: number,
   column: number,
   isAuxClick?: boolean,
+  event?: React.MouseEvent,
 ) => Promise<void>;
 
 export const combinedClicks = <T = HTMLAnchorElement>(
