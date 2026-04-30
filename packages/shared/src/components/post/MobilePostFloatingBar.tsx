@@ -44,6 +44,14 @@ const containerClasses = classNames(
   'shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)]',
 );
 
+// `QuaternaryButton` renders its children inside a sibling `<label>`, so the
+// `btn-tertiary-*` text color set on the button itself doesn't reach the
+// `InteractionCounter`. We tint the counter explicitly with the tertiary
+// semantic token to match the design system; otherwise the label inherits
+// the page text color (white in dark mode) and stands out next to the
+// muted icons.
+const counterClasses = 'tabular-nums text-text-tertiary';
+
 export function MobilePostFloatingBar({
   post,
   onCommentClick,
@@ -113,7 +121,7 @@ export function MobilePostFloatingBar({
         size={ButtonSize.Medium}
       >
         {upvoteCount > 0 && (
-          <InteractionCounter className="tabular-nums" value={upvoteCount} />
+          <InteractionCounter className={counterClasses} value={upvoteCount} />
         )}
       </QuaternaryButton>
       <QuaternaryButton
@@ -136,7 +144,7 @@ export function MobilePostFloatingBar({
         className="btn-tertiary-blueCheese"
       >
         {commentCount > 0 && (
-          <InteractionCounter className="tabular-nums" value={commentCount} />
+          <InteractionCounter className={counterClasses} value={commentCount} />
         )}
       </QuaternaryButton>
       <BookmarkButton
