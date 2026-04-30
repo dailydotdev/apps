@@ -3,9 +3,15 @@ import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { QueryFilters } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useFeedSettings from '../../hooks/useFeedSettings';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+} from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
-import type { TagsData } from '../../graphql/feedSettings';
+import type {
+  AllTagCategoriesData,
+  TagsData,
+} from '../../graphql/feedSettings';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
@@ -67,6 +73,7 @@ export function TagSelection({
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
+  const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
@@ -147,9 +154,14 @@ export function TagSelection({
       let recommended: TagsData['tags'];
 
       if (isTagRecommenderEnabled) {
+        // Read the freshest selection from the cache rather than the closure-bound
+        // memo: collaborative-filtering quality depends on an accurate input set.
         // onFollowTags runs after recommendTags, so the just-clicked tag isn't
-        // yet in selectedTags. Append it to satisfy the [String!]! min-1 constraint.
-        const currentSelection = Array.from(selectedTags);
+        // yet in the cache. Append it to satisfy the [String!]! min-1 constraint.
+        const cached = queryClient.getQueryData<AllTagCategoriesData>(
+          getFeedSettingsQueryKey(user, feedId),
+        );
+        const currentSelection = cached?.feedSettings?.includeTags ?? [];
         const selectedForMutation = currentSelection.includes(tagName)
           ? currentSelection
           : [...currentSelection, tagName];
@@ -184,10 +196,19 @@ export function TagSelection({
         if (!current) {
           return current;
         }
+        const existingNames = new Set(current.tags.map((item) => item.name));
+        const newRecommended = recommended.filter(
+          (item) => item.name && !existingNames.has(item.name),
+        );
+
+        if (!newRecommended.length) {
+          return current;
+        }
+
         const newTags = [...current.tags];
         const insertIndex = newTags.findIndex((item) => item.name === tagName);
 
-        newTags.splice(insertIndex + 1, 0, ...recommended);
+        newTags.splice(insertIndex + 1, 0, ...newRecommended);
 
         return {
           tags: newTags,
