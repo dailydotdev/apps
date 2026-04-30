@@ -10,14 +10,18 @@ import {
   HotIcon,
   JoystickIcon,
   SquadIcon,
-  TerminalIcon,
+  MegaphoneIcon,
   YearInReviewIcon,
 } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
-import { plusUrl, webappUrl } from '../../../lib/constants';
+import {
+  gameCenterMilestoneSectionId,
+  plusUrl,
+  webappUrl,
+} from '../../../lib/constants';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
@@ -25,7 +29,6 @@ import { useConditionalFeature } from '../../../hooks';
 import {
   featurePlusApiLanding,
   featureYearInReview,
-  questsFeature,
 } from '../../../lib/featureManagement';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
@@ -47,10 +50,6 @@ export const MainSection = ({
     : { full: 'Level Up with Plus', short: 'Upgrade' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
-    shouldEvaluate: isLoggedIn,
-  });
-  const { value: showGameCenter } = useConditionalFeature({
-    feature: questsFeature,
     shouldEvaluate: isLoggedIn,
   });
   const { data: questDashboard } = useQuestDashboard();
@@ -107,13 +106,17 @@ export const MainSection = ({
         }
       : undefined;
 
-    const gameCenter = showGameCenter
+    const gameCenterPath = `${webappUrl}game-center${
+      claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
+    }`;
+
+    const gameCenter = isLoggedIn
       ? {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
           ),
           title: 'Game Center',
-          path: `${webappUrl}game-center`,
+          path: gameCenterPath,
           isForcedLink: true,
           requiresLogin: true,
           ...(claimableMilestoneCount > 0 && {
@@ -174,10 +177,10 @@ export const MainSection = ({
         },
         {
           icon: (active: boolean) => (
-            <ListIcon Icon={() => <TerminalIcon secondary={active} />} />
+            <ListIcon Icon={() => <MegaphoneIcon secondary={active} />} />
           ),
-          title: 'Agentic Hub',
-          path: `${webappUrl}agents`,
+          title: 'Happening Now',
+          path: `${webappUrl}highlights`,
           isForcedLink: true,
           requiresLogin: true,
         },
@@ -194,7 +197,6 @@ export const MainSection = ({
     isLoggedIn,
     isPlus,
     onNavTabClick,
-    showGameCenter,
     showYearInReview,
     user,
   ]);

@@ -12,6 +12,7 @@ import type {
 } from '../components/marketingCta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
+import type { EngagementCreative } from './engagementAds';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -81,6 +82,7 @@ export type Boot = {
     continent?: Continent;
   };
   isAndroidApp?: boolean;
+  engagementCreatives?: EngagementCreative[];
 };
 
 export type BootCacheData = Pick<
@@ -163,5 +165,5 @@ export async function getBootData({
     },
   });
   const result = await res.json();
-  return await enrichBootWithFeatures(result);
+  return enrichBootWithFeatures(result);
 }

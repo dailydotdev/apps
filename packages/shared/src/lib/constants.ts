@@ -57,6 +57,7 @@ export const isChrome = (): boolean =>
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
+export const gameCenterMilestoneSectionId = 'milestone-quests';
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';

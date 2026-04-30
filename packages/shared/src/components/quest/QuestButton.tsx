@@ -48,6 +48,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { plusUrl, webappUrl } from '../../lib/constants';
+import { agentsHighlightsPath } from '../../lib/links';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import useSubscription from '../../hooks/useSubscription';
 import { ProgressBar } from '../fields/ProgressBar';
@@ -337,7 +338,7 @@ const getQuestDestination = (
     case 'view_user_profile':
       return { label: 'Profiles', path: '/users' };
     case 'visit_arena':
-      return { label: 'the Arena', path: '/agents/arena' };
+      return { label: 'Happening Now', path: agentsHighlightsPath };
     case 'visit_explore_page':
       return { label: 'Explore', path: '/posts' };
     case 'visit_discussions_page':

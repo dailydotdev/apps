@@ -1,0 +1,315 @@
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useSettingsContext } from '../../../contexts/SettingsContext';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useToastNotification } from '../../../hooks/useToastNotification';
+import { LogEvent, ShortcutsSourceType, TargetType } from '../../../lib/log';
+import { withHttps } from '../../../lib/links';
+import type { SettingsFlags } from '../../../graphql/settings';
+import type { ImportSource, Shortcut, ShortcutMeta } from '../types';
+import { MAX_SHORTCUTS, UNDO_TIMEOUT_MS } from '../types';
+import { useShortcuts } from '../contexts/ShortcutsProvider';
+import { getShortcutDedupKey } from '../lib/getShortcutDedupKey';
+
+export interface UseShortcutsManager {
+  shortcuts: Shortcut[];
+  canAdd: boolean;
+  addShortcut: (input: {
+    url: string;
+    name?: string;
+    iconUrl?: string;
+  }) => Promise<{ error?: string }>;
+  updateShortcut: (
+    url: string,
+    patch: { url?: string; name?: string; iconUrl?: string },
+  ) => Promise<{ error?: string }>;
+  removeShortcut: (url: string) => Promise<void>;
+  reorder: (nextUrls: string[]) => Promise<void>;
+  importFrom: (
+    source: ImportSource,
+    items: Array<{ url: string; title?: string }>,
+  ) => Promise<{ imported: number; skipped: number }>;
+  findDuplicate: (url: string) => string | null;
+}
+
+export const useShortcutsManager = (): UseShortcutsManager => {
+  const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
+  const { customLinks, flags, updateCustomLinks, setSettings } =
+    useSettingsContext();
+  const { setShowImportSource } = useShortcuts();
+
+  const metaMap = useMemo<Record<string, ShortcutMeta>>(() => {
+    const rawMeta = flags?.shortcutMeta ?? {};
+
+    return Object.fromEntries(
+      Object.entries(rawMeta).map(([url, meta]) => [
+        url,
+        {
+          name: meta?.name,
+          iconUrl: meta?.iconUrl,
+        },
+      ]),
+    );
+  }, [flags]);
+  const links = useMemo(() => customLinks ?? [], [customLinks]);
+
+  // Refs tracking the latest committed state so undo toasts can recompute
+  // against fresh data rather than a stale closure snapshot, which would
+  // otherwise clobber unrelated writes that landed during the undo window.
+  const linksRef = useRef(links);
+  const metaRef = useRef(metaMap);
+  useEffect(() => {
+    linksRef.current = links;
+    metaRef.current = metaMap;
+  }, [links, metaMap]);
+
+  const shortcuts = useMemo<Shortcut[]>(
+    () =>
+      links.map((url) => {
+        const meta = metaMap[url] ?? {};
+        return {
+          url,
+          name: meta.name,
+          iconUrl: meta.iconUrl,
+        };
+      }),
+    [links, metaMap],
+  );
+
+  const canonicalMap = useMemo(() => {
+    const map = new Map<string, string>();
+    links.forEach((url) => {
+      const key = getShortcutDedupKey(url);
+      if (key) {
+        map.set(key, url);
+      }
+    });
+    return map;
+  }, [links]);
+
+  const findDuplicate = useCallback(
+    (url: string) => {
+      const key = getShortcutDedupKey(url);
+      if (!key) {
+        return null;
+      }
+      return canonicalMap.get(key) ?? null;
+    },
+    [canonicalMap],
+  );
+
+  const canAdd = links.length < MAX_SHORTCUTS;
+
+  const log = useCallback(
+    (eventName: LogEvent, extra?: Record<string, unknown>) =>
+      logEvent({
+        event_name: eventName,
+        target_type: TargetType.Shortcuts,
+        extra: extra ? JSON.stringify(extra) : undefined,
+      }),
+    [logEvent],
+  );
+
+  const writeBatch = useCallback(
+    async (
+      nextLinks: string[],
+      nextMeta: Record<string, ShortcutMeta>,
+    ): Promise<void> => {
+      await setSettings({
+        customLinks: nextLinks,
+        flags: { ...flags, shortcutMeta: nextMeta } as SettingsFlags,
+      });
+    },
+    [flags, setSettings],
+  );
+
+  const addShortcut: UseShortcutsManager['addShortcut'] = useCallback(
+    async ({ url, name, iconUrl }) => {
+      if (!canAdd) {
+        return { error: `You can only add up to ${MAX_SHORTCUTS} shortcuts.` };
+      }
+      const httpsUrl = withHttps(url);
+      const existingDuplicate = findDuplicate(httpsUrl);
+      if (existingDuplicate) {
+        return { error: 'This shortcut already exists' };
+      }
+
+      const meta: ShortcutMeta = {};
+      if (name) {
+        meta.name = name;
+      }
+      if (iconUrl) {
+        meta.iconUrl = iconUrl;
+      }
+      const nextLinks = [...links, httpsUrl];
+      const nextMeta = { ...metaMap };
+      if (Object.keys(meta).length) {
+        nextMeta[httpsUrl] = meta;
+      }
+
+      await writeBatch(nextLinks, nextMeta);
+      log(LogEvent.AddShortcut);
+      return {};
+    },
+    [canAdd, findDuplicate, links, metaMap, writeBatch, log],
+  );
+
+  const updateShortcut: UseShortcutsManager['updateShortcut'] = useCallback(
+    async (url, patch) => {
+      const index = links.indexOf(url);
+      if (index === -1) {
+        return { error: 'Shortcut not found' };
+      }
+
+      const nextUrl = patch.url ? withHttps(patch.url) : url;
+      if (nextUrl !== url) {
+        const duplicate = findDuplicate(nextUrl);
+        if (duplicate && duplicate !== url) {
+          return { error: 'This shortcut already exists' };
+        }
+      }
+
+      const nextLinks = [...links];
+      nextLinks[index] = nextUrl;
+
+      const prevMeta = metaMap[url] ?? {};
+      const mergedMeta: ShortcutMeta = {
+        ...prevMeta,
+        ...(patch.name !== undefined ? { name: patch.name || undefined } : {}),
+        ...(patch.iconUrl !== undefined
+          ? { iconUrl: patch.iconUrl || undefined }
+          : {}),
+      };
+
+      const nextMeta = { ...metaMap };
+      delete nextMeta[url];
+      const isEmpty = !mergedMeta.name && !mergedMeta.iconUrl;
+      if (!isEmpty) {
+        nextMeta[nextUrl] = mergedMeta;
+      }
+
+      await writeBatch(nextLinks, nextMeta);
+      log(LogEvent.EditShortcut);
+      return {};
+    },
+    [links, metaMap, findDuplicate, writeBatch, log],
+  );
+
+  const removeShortcut = useCallback<UseShortcutsManager['removeShortcut']>(
+    async (url) => {
+      const index = links.indexOf(url);
+      if (index === -1) {
+        return;
+      }
+      const prevMeta = metaMap[url];
+      const nextLinks = links.filter((u) => u !== url);
+      const nextMeta = { ...metaMap };
+      delete nextMeta[url];
+
+      await writeBatch(nextLinks, nextMeta);
+      log(LogEvent.RemoveShortcut);
+
+      // `displayToast` owns the 6s undo window via `timer`; a second
+      // remove clobbers the first toast through the toast manager, so we
+      // don't need to track timers here.
+      displayToast('Shortcut removed', {
+        timer: UNDO_TIMEOUT_MS,
+        action: {
+          copy: 'Undo',
+          onClick: async () => {
+            // Recompute from the latest committed state so we don't stomp
+            // unrelated shortcut writes that landed during the undo window.
+            const currentLinks = linksRef.current;
+            const currentMeta = metaRef.current;
+            if (currentLinks.includes(url)) {
+              // User re-added the same shortcut during the undo window;
+              // nothing to restore.
+              return;
+            }
+            const insertAt = Math.min(index, currentLinks.length);
+            const restoredLinks = [...currentLinks];
+            restoredLinks.splice(insertAt, 0, url);
+            const restoredMeta = { ...currentMeta };
+            if (prevMeta) {
+              restoredMeta[url] = prevMeta;
+            }
+            await writeBatch(restoredLinks, restoredMeta);
+            log(LogEvent.UndoRemoveShortcut);
+          },
+        },
+      });
+    },
+    [links, metaMap, writeBatch, displayToast, log],
+  );
+
+  const reorder = useCallback<UseShortcutsManager['reorder']>(
+    async (nextUrls) => {
+      await updateCustomLinks(nextUrls);
+      log(LogEvent.ReorderShortcuts);
+    },
+    [updateCustomLinks, log],
+  );
+
+  const importFrom = useCallback<UseShortcutsManager['importFrom']>(
+    async (source, items) => {
+      const capacity = MAX_SHORTCUTS - links.length;
+      if (capacity <= 0) {
+        return { imported: 0, skipped: items.length };
+      }
+
+      const existingKeys = new Set(canonicalMap.keys());
+      const batchLinks: string[] = [];
+      const batchMeta: Record<string, ShortcutMeta> = {};
+      let skipped = 0;
+
+      items.forEach((item) => {
+        if (batchLinks.length >= capacity) {
+          skipped += 1;
+          return;
+        }
+        const httpsUrl = withHttps(item.url);
+        const key = getShortcutDedupKey(httpsUrl);
+        if (!key || existingKeys.has(key)) {
+          skipped += 1;
+          return;
+        }
+        existingKeys.add(key);
+        batchLinks.push(httpsUrl);
+        if (item.title) {
+          batchMeta[httpsUrl] = { name: item.title };
+        }
+      });
+
+      if (!batchLinks.length) {
+        setShowImportSource?.(null);
+        return { imported: 0, skipped };
+      }
+
+      await writeBatch([...links, ...batchLinks], { ...metaMap, ...batchMeta });
+
+      const logSource =
+        source === 'bookmarks'
+          ? ShortcutsSourceType.Bookmarks
+          : ShortcutsSourceType.Browser;
+      log(LogEvent.ImportShortcuts, {
+        source: logSource,
+        count: batchLinks.length,
+      });
+
+      setShowImportSource?.(null);
+      return { imported: batchLinks.length, skipped };
+    },
+    [canonicalMap, links, metaMap, writeBatch, setShowImportSource, log],
+  );
+
+  return {
+    shortcuts,
+    canAdd,
+    addShortcut,
+    updateShortcut,
+    removeShortcut,
+    reorder,
+    importFrom,
+    findDuplicate,
+  };
+};

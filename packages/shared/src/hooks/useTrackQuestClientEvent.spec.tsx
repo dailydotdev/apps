@@ -41,7 +41,7 @@ describe('useTrackQuestClientEvent', () => {
 
   it('should track a client quest event only once for the same event key', async () => {
     const { rerender } = renderTrackQuestHook({
-      eventType: ClientQuestEventType.VisitArena,
+      eventType: ClientQuestEventType.VisitExplorePage,
     });
 
     await waitFor(() => {
@@ -49,12 +49,12 @@ describe('useTrackQuestClientEvent', () => {
     });
 
     rerender({
-      eventType: ClientQuestEventType.VisitArena,
+      eventType: ClientQuestEventType.VisitExplorePage,
     });
 
     expect(mockTrackQuestClientEvent).toHaveBeenCalledTimes(1);
     expect(mockTrackQuestClientEvent).toHaveBeenCalledWith(
-      ClientQuestEventType.VisitArena,
+      ClientQuestEventType.VisitExplorePage,
     );
   });
 

@@ -41,6 +41,13 @@ jest.mock('@dailydotdev/shared/src/lib/boot', () => ({
   getBootData: jest.fn(),
 }));
 
+// Pin these tests to the legacy code path. The shortcuts hub redesign is
+// default-on in production; the suite below exercises the legacy UI that the
+// hub is replacing behind the feature flag.
+jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
+  useConditionalFeature: () => ({ value: false, isLoading: false }),
+}));
+
 jest.mock('webextension-polyfill', () => {
   let providedPermission = false;
 

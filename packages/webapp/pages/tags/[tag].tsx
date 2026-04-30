@@ -7,6 +7,7 @@ import Head from 'next/head';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
+import classNames from 'classnames';
 import {
   BlockIcon,
   DiscussIcon,
@@ -78,6 +79,7 @@ import { useContentPreference } from '@dailydotdev/shared/src/hooks/contentPrefe
 import { ContentPreferenceType } from '@dailydotdev/shared/src/graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '@dailydotdev/shared/src/graphql/users';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import { SponsoredTagHero } from '@dailydotdev/shared/src/components/brand/SponsoredTagHero';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -393,7 +395,8 @@ const TagPage = ({
         items={[{ label: 'Tags', href: '/tags' }, { label: title }]}
         className="mx-4"
       />
-      <PageInfoHeader className="mx-4 !w-auto">
+      <PageInfoHeader className={classNames('mx-4 !w-auto')}>
+        <SponsoredTagHero tag={tag} />
         <div className="flex items-center font-bold">
           <HashtagIcon size={IconSize.XXLarge} />
           <h1 className="ml-2 w-fit typo-title2">{title}</h1>

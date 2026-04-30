@@ -49,6 +49,7 @@ export * from './Discuss';
 export * from './Docs';
 export * from './Download';
 export * from './Downvote';
+export * from './Drag';
 export * from './DrawnArrow';
 export * from './Earth';
 export * from './Edit';

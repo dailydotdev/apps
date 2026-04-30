@@ -13,16 +13,21 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useShortcuts } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
+import { useShortcutsManager } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsManager';
+import { useShortcutsMigration } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutsMigration';
+import { useIsShortcutsHubEnabled } from '@dailydotdev/shared/src/features/shortcuts/hooks/useIsShortcutsHubEnabled';
 import { ShortcutLinksList } from './ShortcutLinksList';
 import { ShortcutGetStarted } from './ShortcutGetStarted';
+import { ShortcutLinksHub } from './ShortcutLinksHub';
+import { ShortcutImportFlow } from './ShortcutImportFlow';
 
 interface ShortcutLinksProps {
   shouldUseListFeedLayout: boolean;
 }
 
-export default function ShortcutLinks({
+function LegacyShortcutLinks({
   shouldUseListFeedLayout,
-}: ShortcutLinksProps): ReactElement {
+}: ShortcutLinksProps): ReactElement | null {
   const { openModal } = useLazyModal();
   const { showTopSites, toggleShowTopSites, updateCustomLinks } =
     useSettingsContext();
@@ -95,7 +100,7 @@ export default function ShortcutLinks({
   };
 
   if (!showTopSites) {
-    return <></>;
+    return null;
   }
 
   return (
@@ -111,7 +116,7 @@ export default function ShortcutLinks({
             {...{
               onLinkClick,
               onOptionsOpen,
-              shortcutLinks,
+              shortcutLinks: shortcutLinks ?? [],
               shouldUseListFeedLayout,
               toggleShowTopSites,
               onReorder,
@@ -122,4 +127,54 @@ export default function ShortcutLinks({
       {showPermissionsModal && <MostVisitedSitesModal isOpen />}
     </>
   );
+}
+
+function NewShortcutLinks({
+  shouldUseListFeedLayout,
+}: ShortcutLinksProps): ReactElement | null {
+  const { showTopSites, toggleShowTopSites, flags } = useSettingsContext();
+  const manager = useShortcutsManager();
+  const { openModal } = useLazyModal();
+  useShortcutsMigration();
+
+  if (!showTopSites) {
+    return null;
+  }
+
+  // Onboarding is only shown for manual-mode users with no shortcuts yet —
+  // auto mode handles its own empty state (permission CTA / no-history copy)
+  // inside the hub.
+  const mode = flags?.shortcutsMode ?? 'manual';
+  const showOnboarding = mode === 'manual' && manager.shortcuts.length === 0;
+
+  if (showOnboarding) {
+    return (
+      <>
+        <ShortcutGetStarted
+          onTopSitesClick={toggleShowTopSites}
+          onCustomLinksClick={() =>
+            openModal({ type: LazyModal.ShortcutsManage })
+          }
+        />
+        <ShortcutImportFlow />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ShortcutLinksHub shouldUseListFeedLayout={shouldUseListFeedLayout} />
+      <ShortcutImportFlow />
+    </>
+  );
+}
+
+export default function ShortcutLinks(props: ShortcutLinksProps): ReactElement {
+  const hubEnabled = useIsShortcutsHubEnabled();
+
+  if (hubEnabled) {
+    return <NewShortcutLinks {...props} />;
+  }
+
+  return <LegacyShortcutLinks {...props} />;
 }

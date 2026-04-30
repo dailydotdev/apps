@@ -11,12 +11,6 @@ export const OnboardingV2Styles = (): ReactElement => (
       display: none !important;
     }
 
-    .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(n + 19) {
-      display: none !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(18) ~ div {
-      display: none !important;
-    }
     .onb-hero .onb-float-1,
     .onb-hero .onb-float-2,
     .onb-hero .onb-float-3 {
@@ -25,8 +19,6 @@ export const OnboardingV2Styles = (): ReactElement => (
     .onb-feed-stage > main[class*='utilities_feedPage'] {
       padding-top: 0 !important;
     }
-
-    /* fade-out handled by .onb-revealed nth-of-type rules below */
 
     /* ─── HERO PARALLAX ─── */
     .onb-hero {
@@ -62,41 +54,6 @@ export const OnboardingV2Styles = (): ReactElement => (
     .onb-hero .onb-dot-grid {
       transform: translateY(calc(var(--scroll-y) * 0.04px));
       opacity: calc(1 - var(--scroll-y) * 0.001);
-    }
-
-    /* ─── RISING TAG CLOUD ─── */
-    @keyframes onb-tag-rise {
-      0% {
-        opacity: 0;
-        transform: translate3d(0, 0, 0) scale(0.88);
-      }
-      6% {
-        opacity: 0.6;
-        transform: translate3d(calc(var(--tag-drift-x, 0px) * 0.1), -6vh, 0)
-          scale(0.95);
-      }
-      40% {
-        opacity: 0.45;
-        transform: translate3d(calc(var(--tag-drift-x, 0px) * 0.55), -28vh, 0)
-          scale(1);
-      }
-      75% {
-        opacity: 0.15;
-        transform: translate3d(calc(var(--tag-drift-x, 0px) * 0.85), -52vh, 0)
-          scale(1.01);
-      }
-      100% {
-        opacity: 0;
-        transform: translate3d(var(--tag-drift-x, 0px), -70vh, 0) scale(1.02);
-      }
-    }
-    .onb-rising-tag {
-      opacity: 0;
-      animation: onb-tag-rise var(--tag-duration, 14s) linear infinite;
-      animation-delay: var(--tag-delay, 0s);
-      contain: layout style;
-      will-change: transform, opacity;
-      transform: translateZ(0);
     }
 
     /* ─── SHIMMER ─── */
@@ -166,17 +123,6 @@ export const OnboardingV2Styles = (): ReactElement => (
         opacity: 1;
       }
     }
-    .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed {
-      opacity: 1 !important;
-      transform: translateY(0) scale(1) !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
-      transform: translateY(0) scale(1) !important;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.03) !important;
-      border-color: rgba(255, 255, 255, 0.06) !important;
-    }
-
     /* ─── CHIP POP ─── */
     @keyframes onb-chip-pop {
       0% {
@@ -529,12 +475,6 @@ export const OnboardingV2Styles = (): ReactElement => (
     }
     .onb-sparkle {
       animation: onb-celebration-sparkle 1.2s ease-out forwards;
-    }
-
-    .onb-feed-unlocked article {
-      opacity: 1 !important;
-      transform: none !important;
-      pointer-events: auto !important;
     }
 
     /* ─── AI PROCESSING ORB ─── */
@@ -899,72 +839,6 @@ export const OnboardingV2Styles = (): ReactElement => (
       box-shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
     }
 
-    /* ─── FEED ARTICLE SCROLL-REVEAL ─── */
-    .onb-feed-stage:not(.onb-feed-unlocked) article {
-      opacity: 0;
-      transform: translateY(0.75rem) scale(0.995);
-      transition: opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease,
-        border-color 0.25s ease !important;
-      transition-delay: var(--reveal-delay, 0ms);
-    }
-
-    /* ─── FEED FADE-OUT GRADIENT (bottom of visible articles) ─── */
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(13).onb-revealed {
-      opacity: 0.88 !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(14).onb-revealed {
-      opacity: 0.72 !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(15).onb-revealed {
-      opacity: 0.52 !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(16).onb-revealed {
-      opacity: 0.32 !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(17).onb-revealed {
-      opacity: 0.15 !important;
-    }
-    .onb-feed-stage:not(.onb-feed-unlocked)
-      article:nth-of-type(18).onb-revealed {
-      opacity: 0.05 !important;
-    }
-
-    @media (max-width: 63.9375rem) {
-      .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(n + 11) {
-        display: none !important;
-      }
-      .onb-feed-stage:not(.onb-feed-unlocked) article:nth-of-type(10) ~ div {
-        display: none !important;
-      }
-
-      .onb-feed-stage:not(.onb-feed-unlocked) article.onb-revealed:hover {
-        box-shadow: none !important;
-      }
-
-      .onb-feed-stage:not(.onb-feed-unlocked)
-        article:nth-of-type(7).onb-revealed {
-        opacity: 0.88 !important;
-      }
-      .onb-feed-stage:not(.onb-feed-unlocked)
-        article:nth-of-type(8).onb-revealed {
-        opacity: 0.65 !important;
-      }
-      .onb-feed-stage:not(.onb-feed-unlocked)
-        article:nth-of-type(9).onb-revealed {
-        opacity: 0.38 !important;
-      }
-      .onb-feed-stage:not(.onb-feed-unlocked)
-        article:nth-of-type(10).onb-revealed {
-        opacity: 0.12 !important;
-      }
-    }
-
     /* ─── TOPIC PILLS (no interaction) ─── */
     .onb-marquee span {
       pointer-events: none;
@@ -982,8 +856,6 @@ export const OnboardingV2Styles = (): ReactElement => (
           color-mix(in srgb, var(--theme-accent-onion-default) 50%, transparent);
       }
     }
-
-    /* mobile rising tags already handled by .onb-rising-tag */
 
     /* ─── MOBILE MODAL SLIDE-UP ─── */
     @keyframes onb-modal-slide-up {
@@ -1019,7 +891,6 @@ export const OnboardingV2Styles = (): ReactElement => (
     }
 
     /* ─── OFF-SCREEN ANIMATION PAUSING ─── */
-    .onb-hero-offscreen .onb-rising-tag,
     .onb-hero-offscreen .onb-hero-radial,
     .onb-hero-offscreen .onb-float-1,
     .onb-hero-offscreen .onb-float-2,
@@ -1028,8 +899,7 @@ export const OnboardingV2Styles = (): ReactElement => (
     .onb-hero-offscreen .onb-btn-glow {
       animation-play-state: paused !important;
     }
-    .onb-hero-offscreen .onb-hero-radial,
-    .onb-hero-offscreen .onb-rising-tag {
+    .onb-hero-offscreen .onb-hero-radial {
       will-change: auto !important;
     }
 
@@ -1091,8 +961,7 @@ export const OnboardingV2Styles = (): ReactElement => (
       .onb-sparkle,
       .onb-confetti-star,
       .onb-eng-pulse,
-      .onb-eng-floater,
-      .onb-rising-tag {
+      .onb-eng-floater {
         animation: none !important;
         opacity: 1 !important;
       }

@@ -33,7 +33,7 @@ export const supportedTypesForPrivateSources = [
 
 const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
-export const FEED_V2_HIGHLIGHTS_LIMIT = 4;
+export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
 
 export const getFeedV2SupportedTypes = (
   shouldSupportHighlights: boolean,
@@ -744,7 +744,7 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  {
+  query FeedList {
     feedList {
       pageInfo {
         endCursor
