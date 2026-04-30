@@ -41,10 +41,8 @@ export const SponsoredTagHero = ({
       style={{
         background: `linear-gradient(135deg,
           ${primary} 0%,
-          ${secondary} 25%,
-          #a855f7 50%,
-          #ec4899 75%,
-          #f472b6 100%)`,
+          ${secondary} 50%,
+          ${primary} 100%)`,
       }}
     >
       {/* Mesh gradient overlay for depth */}
@@ -52,10 +50,10 @@ export const SponsoredTagHero = ({
         className="pointer-events-none absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse at 20% 80%, #ec4899 0%, transparent 50%),
+            radial-gradient(ellipse at 20% 80%, ${secondary} 0%, transparent 50%),
             radial-gradient(ellipse at 80% 20%, ${primary} 0%, transparent 50%),
             radial-gradient(ellipse at 40% 40%, ${secondary} 0%, transparent 40%),
-            radial-gradient(ellipse at 60% 60%, #a855f7 0%, transparent 50%)
+            radial-gradient(ellipse at 60% 60%, ${primary} 0%, transparent 50%)
           `,
         }}
       />
@@ -64,7 +62,7 @@ export const SponsoredTagHero = ({
       <div
         className="pointer-events-none absolute right-0 top-0 size-32 rounded-full opacity-40 blur-3xl"
         style={{
-          background: '#f472b6',
+          background: secondary,
           animation: 'heroFloat 6s ease-in-out infinite',
         }}
       />

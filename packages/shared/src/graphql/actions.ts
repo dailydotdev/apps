@@ -63,6 +63,7 @@ export enum ActionType {
   DismissBriefCard = 'dismiss_brief_card',
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
+  DismissedMajorHeadlinesAlertsBanner = 'dismissed_major_headlines_alerts_banner',
   DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
   SeenKeepItOverlay = 'seen_keep_it_overlay',
 }
