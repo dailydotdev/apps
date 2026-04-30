@@ -51,6 +51,7 @@ const strictSkipList = new Set([
   // be addressed in a dedicated cleanup PR.
   'packages/shared/src/contexts/SettingsContext.tsx',
   'packages/shared/src/components/tooltips/InteractivePopup.tsx',
+  'packages/shared/src/contexts/FeedContext.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

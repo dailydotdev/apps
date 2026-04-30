@@ -26,6 +26,13 @@ export type CustomizeNewTabContextValue = {
   close: () => void;
   reset: () => void;
   isFirstSession: boolean;
+  /**
+   * The width to push the main content by while the panel is open. 0 when
+   * closed or when the feature flag is off. Consumers (e.g. `MainFeedPage`)
+   * apply this as `padding-right` so the feed shrinks alongside the panel
+   * sliding in, instead of being overlaid.
+   */
+  panelWidth: number;
 };
 
 const NOOP = () => undefined;
@@ -37,6 +44,7 @@ const DEFAULT_VALUE: CustomizeNewTabContextValue = {
   close: NOOP,
   reset: NOOP,
   isFirstSession: false,
+  panelWidth: 0,
 };
 
 const CustomizeNewTabContext =
@@ -179,6 +187,7 @@ export const CustomizeNewTabProvider = ({
   const value = useMemo<CustomizeNewTabContextValue>(
     () => ({
       isEnabled,
+      panelWidth: isEnabled && isOpen ? CUSTOMIZE_NEW_TAB_PANEL_WIDTH_PX : 0,
       isOpen: isEnabled && isOpen,
       open,
       close,

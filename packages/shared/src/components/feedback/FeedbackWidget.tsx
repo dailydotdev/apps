@@ -14,20 +14,13 @@ export function FeedbackWidget(): ReactElement | null {
   const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
   const { openModal } = useLazyModal();
-  const { isOpen: isCustomizerOpen, isFirstSession } = useCustomizeNewTab();
+  const { panelWidth, isFirstSession } = useCustomizeNewTab();
 
-  // Only show for authenticated users on desktop when setting is enabled.
-  // Mobile feedback is handled by FooterPlusButton. Hide while the
-  // customize panel is open (it would float over the panel since the pill
-  // is z-max) and during the first-session welcome so the new user's eye
-  // lands on the customize panel rather than a competing pill.
-  if (
-    !user ||
-    isMobile ||
-    !showFeedbackButton ||
-    isFirstSession ||
-    isCustomizerOpen
-  ) {
+  // Only show for authenticated users on desktop when the setting is on.
+  // Mobile feedback is handled by FooterPlusButton. Hide during the
+  // first-session welcome so the new user's eye lands on the customize
+  // panel rather than a competing pill in the corner.
+  if (!user || isMobile || !showFeedbackButton || isFirstSession) {
     return null;
   }
 
@@ -36,7 +29,14 @@ export function FeedbackWidget(): ReactElement | null {
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
       icon={<FeedbackIcon />}
-      className="fixed bottom-4 right-4 z-max shadow-2"
+      className="fixed bottom-4 z-max shadow-2"
+      style={{
+        // Slide left of the customize sidebar while it's open so the pill
+        // stays clear of the panel; transition matches the panel + header
+        // 200ms ease-in-out so all the right-anchored chrome moves in sync.
+        right: `calc(1rem + ${panelWidth}px)`,
+        transition: 'right 200ms ease-in-out',
+      }}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback"
     >

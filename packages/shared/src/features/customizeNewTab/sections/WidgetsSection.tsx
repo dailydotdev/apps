@@ -13,7 +13,6 @@ import { StarIcon } from '../../../components/icons/Star';
 import { isExtension } from '../../../lib/func';
 import { SidebarSection } from '../components/SidebarSection';
 import {
-  SidebarActionRow,
   SidebarSwitchRow,
   type SidebarRowIcon,
 } from '../components/SidebarCompactRow';
@@ -53,51 +52,62 @@ export const WidgetsSection = (): ReactElement => {
     toggleShowFeedbackButton,
   } = useSettingsContext();
   const { requestContentScripts } = useExtensionContext();
-  // The companion only actually runs when the host permission is granted.
-  // Mirror `CompanionPopupButton`'s pattern: when not granted we don't
-  // pretend to be a real toggle — we render an action row that asks for
-  // permission first. Only after the grant does the row flip to a Switch
-  // bound to `optOutCompanion`.
-  const { contentScriptGranted, isFetched: hasFetchedPermission } =
-    useContentScriptStatus();
+  const { contentScriptGranted } = useContentScriptStatus();
+  // Visible state: companion is "on" only when the host permission is
+  // granted AND the user hasn't opted out. Without the permission, the
+  // companion can't actually run, so the toggle reflects reality (off).
+  const isCompanionEnabled = !optOutCompanion && contentScriptGranted;
 
-  const handleRequestCompanion = useCallback(async () => {
-    logEvent({
-      event_name: LogEvent.Click,
-      target_type: TargetType.CustomizeNewTab,
-      target_id: 'companion_permission_request',
-    });
-    const granted =
-      (await requestContentScripts?.({
-        origin: 'customize_new_tab',
-        skipRedirect: true,
-      })) ?? false;
-    if (!granted) {
-      return;
-    }
-    // First-time permission grant should land the user with the companion
-    // actually enabled — otherwise they'd grant access and still see the
-    // row off until they tap a second time.
-    if (optOutCompanion) {
+  const handleCompanionToggle = useCallback(async () => {
+    const enabling = !isCompanionEnabled;
+    if (!enabling) {
       logEvent({
         event_name: LogEvent.ChangeSettings,
         target_type: TargetType.CustomizeNewTab,
         target_id: 'companion',
-        extra: JSON.stringify({ enabled: true }),
+        extra: JSON.stringify({ enabled: false }),
       });
       toggleOptOutCompanion();
+      return;
     }
-  }, [logEvent, optOutCompanion, requestContentScripts, toggleOptOutCompanion]);
-
-  const handleCompanionSwitch = useCallback(() => {
+    // Enabling: prompt for the host permission if we don't already have
+    // it. Once granted, the toggle becomes a regular on/off control on
+    // future clicks.
+    if (!contentScriptGranted) {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.CustomizeNewTab,
+        target_id: 'companion_permission_request',
+      });
+      const granted =
+        (await requestContentScripts?.({
+          origin: 'customize_new_tab',
+          skipRedirect: true,
+        })) ?? false;
+      if (!granted) {
+        return;
+      }
+    }
     logEvent({
       event_name: LogEvent.ChangeSettings,
       target_type: TargetType.CustomizeNewTab,
       target_id: 'companion',
-      extra: JSON.stringify({ enabled: !!optOutCompanion }),
+      extra: JSON.stringify({ enabled: true }),
     });
-    toggleOptOutCompanion();
-  }, [logEvent, optOutCompanion, toggleOptOutCompanion]);
+    // Only flip the setting if it's currently opted out — otherwise a
+    // permission-only grant (when `optOutCompanion=false` already) would
+    // turn companion straight back off.
+    if (optOutCompanion) {
+      toggleOptOutCompanion();
+    }
+  }, [
+    contentScriptGranted,
+    isCompanionEnabled,
+    logEvent,
+    optOutCompanion,
+    requestContentScripts,
+    toggleOptOutCompanion,
+  ]);
 
   const logToggle = useCallback(
     ({ targetId, next, toggle }: LoggedToggleArgs) => {
@@ -164,6 +174,16 @@ export const WidgetsSection = (): ReactElement => {
       checked: isGamificationOn,
       toggle: handleGamificationToggle,
     },
+    isExtension && {
+      id: 'companion',
+      name: 'newtab-customizer-companion',
+      label: 'Companion widget',
+      tooltip:
+        'Side panel on every article you visit so you can comment, upvote and share without leaving the page. The first time you turn this on your browser will ask for permission to load on every site.',
+      icon: DiscussIcon,
+      checked: isCompanionEnabled,
+      toggle: handleCompanionToggle,
+    },
     {
       id: 'feedback_button',
       name: 'newtab-customizer-feedback',
@@ -186,38 +206,6 @@ export const WidgetsSection = (): ReactElement => {
     },
   ].filter(Boolean) as WidgetDef[];
 
-  const renderCompanionRow = (): ReactElement | null => {
-    if (!isExtension || !hasFetchedPermission) {
-      return null;
-    }
-    if (!contentScriptGranted) {
-      // Mirrors `CompanionPopupButton`: the row reads as "Activate companion"
-      // until the user grants the host permission. After grant, the cache
-      // flips and we re-render as a real switch (below).
-      return (
-        <SidebarActionRow
-          icon={DiscussIcon}
-          iconTone="neutral"
-          label="Activate companion widget"
-          description="Side panel on every article so you can comment, upvote and share without leaving the page. Requires permission to load on every site."
-          ariaLabel="Activate companion widget"
-          onClick={handleRequestCompanion}
-        />
-      );
-    }
-    return (
-      <SidebarSwitchRow
-        name="newtab-customizer-companion"
-        icon={DiscussIcon}
-        iconTone="neutral"
-        label="Companion widget"
-        tooltip="Adds a small daily.dev side panel on every article you visit so you can comment, upvote, and share without leaving the page."
-        checked={!optOutCompanion}
-        onToggle={handleCompanionSwitch}
-      />
-    );
-  };
-
   return (
     <SidebarSection title="Widgets">
       {widgets.map((widget) => (
@@ -231,8 +219,8 @@ export const WidgetsSection = (): ReactElement => {
           iconSecondary={widget.iconSecondary}
           checked={widget.checked}
           onToggle={() => {
-            // Gamification owns its own toggle/log flow.
-            if (widget.id === 'gamification') {
+            // Companion + Gamification own their own toggle/log flow.
+            if (widget.id === 'companion' || widget.id === 'gamification') {
               widget.toggle();
               return;
             }
@@ -244,7 +232,6 @@ export const WidgetsSection = (): ReactElement => {
           }}
         />
       ))}
-      {renderCompanionRow()}
     </SidebarSection>
   );
 };

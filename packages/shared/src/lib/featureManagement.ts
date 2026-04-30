@@ -165,5 +165,5 @@ export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
 export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
-  false,
+  true,
 );

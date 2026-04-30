@@ -22,7 +22,10 @@ import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
-import { CustomizeNewTabProvider } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabContext';
+import {
+  CustomizeNewTabProvider,
+  useCustomizeNewTab,
+} from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabContext';
 import { CustomizeNewTabSidebar } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
 import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTab/lib/focusSchedule';
 import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
@@ -168,61 +171,71 @@ const MainFeedPageInner = ({
   };
 
   const { optOutCompanion } = useSettingsContext();
+  // Push the entire main column left by the panel width so the user
+  // sees their feed shrink alongside the sidebar sliding in. This is a
+  // visual signal that customizer changes affect THEIR feed, not just
+  // a panel-shaped overlay.
+  const { panelWidth } = useCustomizeNewTab();
 
   return (
     <>
       <FocusRedirectEffect />
-      <div className="fixed bottom-0 left-0 z-2 w-full">
-        <ScrollToTopButton />
-      </div>
-      <MainLayout
-        mainPage
-        isNavItemsButton
-        activePage={activePage}
-        onLogoClick={onLogoClick}
-        onNavTabClick={onNavTabClick}
-        screenCentered={false}
-        customBanner={isDndActive && <DndBanner />}
-        additionalButtons={
-          !loadingUser && !optOutCompanion && <CompanionPopupButton />
-        }
+      <div
+        className="min-h-screen transition-[padding] duration-200 ease-in-out"
+        style={{ paddingRight: panelWidth }}
       >
-        <FeedLayoutProvider>
-          <MainFeedLayout
-            feedName={feedName}
-            isSearchOn={isSearchOn}
-            searchQuery={searchQuery}
-            onNavTabClick={onNavTabClick}
-            searchChildren={
-              <PostsSearch
-                onSubmitQuery={async (query, extraFlags) => {
-                  logEvent({
-                    event_name: LogEvent.SubmitSearch,
-                    extra: JSON.stringify({
-                      query,
-                      provider: SearchProviderEnum.Posts,
-                      ...extraFlags,
-                    }),
-                  });
+        <div className="fixed bottom-0 left-0 z-2 w-full">
+          <ScrollToTopButton />
+        </div>
+        <MainLayout
+          mainPage
+          isNavItemsButton
+          activePage={activePage}
+          onLogoClick={onLogoClick}
+          onNavTabClick={onNavTabClick}
+          screenCentered={false}
+          customBanner={isDndActive && <DndBanner />}
+          additionalButtons={
+            !loadingUser && !optOutCompanion && <CompanionPopupButton />
+          }
+        >
+          <FeedLayoutProvider>
+            <MainFeedLayout
+              feedName={feedName}
+              isSearchOn={isSearchOn}
+              searchQuery={searchQuery}
+              onNavTabClick={onNavTabClick}
+              searchChildren={
+                <PostsSearch
+                  onSubmitQuery={async (query, extraFlags) => {
+                    logEvent({
+                      event_name: LogEvent.SubmitSearch,
+                      extra: JSON.stringify({
+                        query,
+                        provider: SearchProviderEnum.Posts,
+                        ...extraFlags,
+                      }),
+                    });
 
-                  setSearchQuery(query);
-                }}
-                onFocus={() => {
-                  logEvent({ event_name: LogEvent.FocusSearch });
-                }}
-              />
-            }
-            shortcuts={
-              shortcuts ?? (
-                <ShortcutLinks
-                  shouldUseListFeedLayout={shouldUseListFeedLayout}
+                    setSearchQuery(query);
+                  }}
+                  onFocus={() => {
+                    logEvent({ event_name: LogEvent.FocusSearch });
+                  }}
                 />
-              )
-            }
-          />
-        </FeedLayoutProvider>
-        <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
-      </MainLayout>
+              }
+              shortcuts={
+                shortcuts ?? (
+                  <ShortcutLinks
+                    shouldUseListFeedLayout={shouldUseListFeedLayout}
+                  />
+                )
+              }
+            />
+          </FeedLayoutProvider>
+          <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
+        </MainLayout>
+      </div>
       <CustomizeNewTabSidebar />
     </>
   );

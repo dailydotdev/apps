@@ -23,6 +23,7 @@ import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
+import { useCustomizeNewTabMenuItem } from './sections/ExtensionSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
 import { useProfileCompletionIndicator } from '../../hooks/profile/useProfileCompletionIndicator';
 
@@ -43,6 +44,7 @@ export default function ProfileMenu({
   const { user, logout } = useAuthContext();
   const { showIndicator: showProfileCompletion } =
     useProfileCompletionIndicator();
+  const customizeMenuItem = useCustomizeNewTabMenuItem(onClose);
 
   useEffect(() => {
     events.on('routeChangeStart', onClose);
@@ -83,9 +85,9 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <AccountSection />
+        <AccountSection prepended={customizeMenuItem} />
 
-        {checkIsExtension() && <ExtensionSection onClose={onClose} />}
+        {checkIsExtension() && <ExtensionSection />}
 
         <HorizontalSeparator />
 

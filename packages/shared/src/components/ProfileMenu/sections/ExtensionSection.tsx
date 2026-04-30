@@ -19,22 +19,55 @@ import { useIsShortcutsHubEnabled } from '../../../features/shortcuts/hooks/useI
 import { useCustomizeNewTab } from '../../../features/customizeNewTab/CustomizeNewTabContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
+import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 
 export type ExtensionSectionProps = {
   /**
-   * Called after the user picks the customize entry so the parent
-   * ProfileMenu collapses the dropdown — without this the menu stays open
-   * over the customize sidebar that's about to appear.
+   * Called after the user picks any item in this section so the parent
+   * ProfileMenu collapses the dropdown.
    */
   onClose?: () => void;
 };
 
-export const ExtensionSection = ({
-  onClose,
-}: ExtensionSectionProps): ReactElement | null => {
-  const { isEnabled: isCustomizerEnabled, open: openCustomizer } =
-    useCustomizeNewTab();
+/**
+ * Hook returning the "Customize new tab" item when the feature flag is
+ * on, or `null` when it isn't. AccountSection consumes this to prepend
+ * the entry directly above "Settings" — placing it inside the existing
+ * section instead of giving it its own visual block.
+ */
+export const useCustomizeNewTabMenuItem = (
+  onClose?: () => void,
+): ProfileSectionItemProps | null => {
+  const { isEnabled, open } = useCustomizeNewTab();
   const { logEvent } = useLogContext();
+
+  if (!checkIsExtension() || !isEnabled) {
+    return null;
+  }
+
+  return {
+    title: 'Customize new tab',
+    icon: MagicIcon,
+    onClick: () => {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.CustomizeNewTab,
+        target_id: 'profile_menu',
+      });
+      open();
+      onClose?.();
+    },
+  };
+};
+
+/**
+ * Legacy fallback for users in the control bucket of the customize
+ * sidebar feature flag. When the flag is on, the customize entry is
+ * folded into AccountSection via `useCustomizeNewTabMenuItem` and this
+ * component renders nothing.
+ */
+export const ExtensionSection = (): ReactElement | null => {
+  const { isEnabled: isCustomizerEnabled } = useCustomizeNewTab();
   const { openModal } = useLazyModal();
   const { isActive: isDndActive, setShowDnd } = useDndContext();
   const { optOutCompanion, toggleOptOutCompanion } = useSettingsContext();
@@ -43,40 +76,10 @@ export const ExtensionSection = ({
     ? LazyModal.ShortcutsManage
     : LazyModal.CustomLinks;
 
-  if (!checkIsExtension()) {
+  if (!checkIsExtension() || isCustomizerEnabled) {
     return null;
   }
 
-  if (isCustomizerEnabled) {
-    // Flagged-on path: the sidebar surfaces shortcuts, the DnD/Take-a-break
-    // flow, and the companion toggle in a richer form, so we collapse the
-    // legacy 3-entry list into one jump-into-customize entry.
-    return (
-      <>
-        <HorizontalSeparator />
-        <ProfileSection
-          items={[
-            {
-              title: 'Customize new tab',
-              icon: MagicIcon,
-              onClick: () => {
-                logEvent({
-                  event_name: LogEvent.Click,
-                  target_type: TargetType.CustomizeNewTab,
-                  target_id: 'profile_menu',
-                });
-                openCustomizer();
-                onClose?.();
-              },
-            },
-          ]}
-        />
-      </>
-    );
-  }
-
-  // Flag-off fallback — preserves the pre-customizer extension menu so
-  // users in the control bucket see no behavioural change.
   return (
     <>
       <HorizontalSeparator />
