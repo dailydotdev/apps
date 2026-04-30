@@ -284,6 +284,17 @@ Some components use compound patterns for flexibility:
 ### Toolbar Actions
 When adding icon-only buttons in toolbars, keep any adjacent status labels inline and match the control height (e.g., `ButtonSize.XSmall` uses `h-6`). This avoids overlap and keeps action rows visually aligned.
 
+### Toasts (`useToastNotification` / `Toast`)
+
+There is one global toast renderer (`packages/shared/src/components/notifications/Toast.tsx`); call sites only push messages via `useToastNotification().displayToast(...)`. Keep these rules in mind:
+
+- **Position**: the toast is anchored to the **top** of the viewport on every breakpoint (`top: 1rem` on mobile, `top: 2rem` on tablet+) and slides down from above. This avoids collisions with bottom-anchored chrome (`MobilePostFloatingBar`, `MobileFooterNavbar`, future floating CTAs). Do not move the toast back to the bottom on a single surface — solve it with a top-anchored toast for everyone.
+- **Prefer inline confirmation over a toast** for instant, locally-scoped actions (copy link, copy code, save toggles). Inline feedback (icon swap to checkmark, brief label change) is faster, accessible at the point of interaction, and avoids the toast at all.
+- **One toast at a time**: `displayToast` overwrites the current toast. Don't fire toasts in rapid succession from the same flow — pick the most actionable message.
+- **Auto-dismiss vs persistent**: default `timer` is 5s. Use `persistent: true` only when an `action` button is present (e.g., undo) and the user must consciously dismiss; otherwise keep the timed default.
+- **Use `subject: ToastSubject.*`** when a toast should be scoped/cleared by a specific surface (e.g., `PostContent`, `Feed`). Don't introduce new subjects unless there is a real consumer that filters on them.
+- **Copy style**: short sentence, sentence case, no trailing period unless multi-sentence. The leading checkmark/❌ emoji pattern (see `useCopy.ts`) is reserved for clipboard feedback — don't extend it to other categories.
+
 ### classed() Utility
 For simple styled wrappers:
 ```typescript
