@@ -67,15 +67,8 @@ const useImpressionLog = (
 };
 
 export const CustomizeNewTabSidebar = (): ReactElement | null => {
-  const {
-    isEnabled,
-    isOpen,
-    open,
-    close,
-    reset,
-    isFirstSession,
-    openTrigger,
-  } = useCustomizeNewTab();
+  const { isEnabled, isOpen, open, close, reset, isFirstSession, openTrigger } =
+    useCustomizeNewTab();
   const { flags } = useSettingsContext();
   const { logEvent } = useLogContext();
   const panelRef = useRef<HTMLElement>(null);
