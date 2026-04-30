@@ -34,7 +34,7 @@ const ClickbaitShieldModal = ({
   hasUsedFreeTrial = true,
   fetchSmartTitle,
   ...props
-}: Props & ModalProps): ReactElement => {
+}: Props & ModalProps): ReactElement | null => {
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const {
     value: { full: plusCta },
@@ -83,6 +83,7 @@ const ClickbaitShieldModal = ({
 
         <Switch
           className="my-4"
+          labelClassName="text-left"
           inputId="clickbait-shield-switch"
           name="clickbait_shield"
           compact={false}
@@ -99,9 +100,9 @@ const ClickbaitShieldModal = ({
             type="button"
             variant={ButtonVariant.Primary}
             icon={
-              hasUsedFreeTrial && (
+              hasUsedFreeTrial ? (
                 <DevPlusIcon className="text-action-plus-default" />
-              )
+              ) : undefined
             }
             onClick={async (event: MouseEvent) => {
               if (hasUsedFreeTrial) {

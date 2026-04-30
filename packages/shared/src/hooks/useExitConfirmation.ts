@@ -47,7 +47,10 @@ export function useExitConfirmation({
       }
 
       router.events.emit('routeChangeError');
-      throw new Error('Cancelling navigation');
+      // Throwing a string (not an Error) is Next.js's documented way to abort a
+      // route change without triggering the dev error overlay.
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw 'Route change aborted by useExitConfirmation. Please ignore this error.';
     };
 
     window.addEventListener('beforeunload', closeHandler);

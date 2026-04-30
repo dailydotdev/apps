@@ -159,13 +159,17 @@ export const disableFrameEmbeddingForTab = async (
   const ruleId = getFrameEmbedRuleId(tabId);
 
   if (!dnr) {
-    errorLog(`${FRAME_LOG_PREFIX} DNR API unavailable while disabling`);
+    // The DNR API is only present once the user grants the optional
+    // `declarativeNetRequestWithHostAccess` permission. If it's missing here,
+    // we also couldn't have enabled a rule in the first place, so disabling
+    // is a no-op. Return success silently instead of logging — callers like
+    // the frame cleanup routinely invoke this on pagehide regardless of
+    // permission state.
     return {
       enabled: false,
       tabId,
       ruleId,
       rulesCount: 0,
-      error: 'declarativeNetRequest API unavailable',
     };
   }
 

@@ -60,7 +60,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -160,9 +159,16 @@ export const featureOnboardingV2 = new Feature('onboarding_v2', false);
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
+export const featureReaderModal = new Feature('reader_modal', false);
+
 export const featureShortcutsExtensionPromo = new Feature(
   'shortcuts_extension_promo',
   false,
 );
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
+
+export const featureNewTabCustomizer = new Feature(
+  'extension_newtab_customizer',
+  false,
+);
