@@ -17,6 +17,7 @@ export type MarketingCtaFlags = {
   ctaUrl: string;
   ctaText: string;
   asFirstCard?: boolean;
+  videoUrl?: string;
 };
 
 export enum MarketingCtaVariant {
@@ -32,6 +33,7 @@ export enum MarketingCtaVariant {
   BriefCard = 'brief_card',
   YearInReview = 'year_in_review',
   HelpGuide = 'help_guide',
+  Video = 'video',
 }
 
 interface MarketingCtaTargets {
