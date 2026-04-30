@@ -93,7 +93,7 @@ export function Header({
         props: {
           offendingUser: {
             id: user.id,
-            username: user.username,
+            username: user.username || '',
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -114,12 +114,12 @@ export function Header({
           ? unblock({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             })
           : block({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             }),
     },
     {
@@ -153,7 +153,10 @@ export function Header({
     >
       <>
         {isMobile && (
-          <GoBackButton showLogo={false} className={!sticky && 'mr-3'} />
+          <GoBackButton
+            showLogo={false}
+            className={!sticky ? 'mr-3' : undefined}
+          />
         )}
         {sticky ? (
           <>
@@ -228,7 +231,7 @@ export function Header({
               follow({
                 id: user.id,
                 entity: ContentPreferenceType.User,
-                entityName: user.username,
+                entityName: user.username || '',
                 feedId,
               })
             }
@@ -236,7 +239,7 @@ export function Header({
               unfollow({
                 id: user.id,
                 entity: ContentPreferenceType.User,
-                entityName: user.username,
+                entityName: user.username || '',
                 feedId,
               })
             }

@@ -54,7 +54,7 @@ const MobileFooterNavbar = (): ReactElement => {
   const { user, squads } = useContext(AuthContext);
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
-  const hasSquads = squads?.length > 0;
+  const hasSquads = (squads?.length ?? 0) > 0;
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
@@ -102,7 +102,9 @@ const MobileFooterNavbar = (): ReactElement => {
   }, [squadsUrl]);
 
   const activeTab = useMemo(() => {
-    const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);
+    const activeKey = (
+      Object.keys(activeNav) as Array<keyof UseActiveNav>
+    ).find((key) => activeNav[key]);
 
     if (activeKey) {
       return selectedMapToTitle[activeKey];
@@ -112,7 +114,7 @@ const MobileFooterNavbar = (): ReactElement => {
       tabs.filter((tab) => !isValidElement(tab)) as FooterTab[]
     ).find((tab) => tab.path === router?.pathname);
 
-    return active?.title;
+    return active?.title ?? '';
   }, [activeNav, router?.pathname, tabs]);
 
   const activeClasses = classNames(

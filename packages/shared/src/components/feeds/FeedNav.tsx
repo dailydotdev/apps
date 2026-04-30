@@ -23,6 +23,7 @@ import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
 import classed from '../../lib/classed';
+import type { AllFeedPages } from '../../lib/query';
 import { OtherFeedPage } from '../../lib/query';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
@@ -51,9 +52,10 @@ const StickyNavIconWrapper = classed(
   'sticky flex h-14 pt-1 -translate-y-16 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
-function FeedNav(): ReactElement {
+function FeedNav(): ReactElement | null {
   const router = useRouter();
-  const { feedName } = useActiveFeedNameContext();
+  const { feedName: rawFeedName } = useActiveFeedNameContext();
+  const feedName = rawFeedName as AllFeedPages;
   const { sortingEnabled } = useSettingsContext();
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
@@ -76,22 +78,30 @@ function FeedNav(): ReactElement {
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
 
-  const urlToTab: Record<string, FeedNavTab> = useMemo(() => {
-    const customFeeds = sortedFeeds.reduce((acc, { node: feed }) => {
-      const isEditingFeed =
-        router.query.slugOrId === feed.id && router.pathname.endsWith('/edit');
-      let feedPath = `${webappUrl}feeds/${feed.id}`;
+  const urlToTab: Record<string, string> = useMemo(() => {
+    const customFeeds = sortedFeeds.reduce<Record<string, string>>(
+      (acc, { node: feed }) => {
+        const isEditingFeed =
+          router.query.slugOrId === feed.id &&
+          router.pathname.endsWith('/edit');
+        let feedPath = `${webappUrl}feeds/${feed.id}`;
 
-      if (!isEditingFeed && isCustomDefaultFeed && feed.id === defaultFeedId) {
-        feedPath = `${webappUrl}`;
-      }
+        if (
+          !isEditingFeed &&
+          isCustomDefaultFeed &&
+          feed.id === defaultFeedId
+        ) {
+          feedPath = `${webappUrl}`;
+        }
 
-      const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
+        const urlPath = `${feedPath}${isEditingFeed ? '/edit' : ''}`;
 
-      acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
+        acc[urlPath] = feed.flags?.name || `Feed ${feed.id}`;
 
-      return acc;
-    }, {});
+        return acc;
+      },
+      {},
+    );
 
     const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
 
