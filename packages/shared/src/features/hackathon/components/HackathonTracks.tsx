@@ -13,13 +13,8 @@ const tracks = [
     name: 'Developer Identity',
     tagline: 'Tell developers something about themselves.',
     description:
-      'Your daily.dev profile has a lot in it. What you read, what you save, what you follow, your tech stack, your career. Turn that into something a developer would want to share.',
-    examples: [
-      'Profile, reputation, streak stats',
-      'Tech stack and experiences',
-      'Bookmarks, follows, blocks',
-      'Reading patterns and recommendations',
-    ],
+      'Your daily.dev profile has a lot in it. What you read, what you save, what you follow, your tech stack, your career. Turn that into something a developer would want to showcase or share.',
+    examples: [],
   },
   {
     emoji: '📊',
@@ -27,12 +22,7 @@ const tracks = [
     tagline: 'Use daily.dev as a dataset.',
     description:
       'daily.dev pulls from 1,300+ sources. Tag feeds, source feeds, search, comments, recommendations. Turn all that data into something useful for other developers.',
-    examples: [
-      'Tag and source feeds',
-      'Post metadata + engagement',
-      'Search and recommendations',
-      'Popular / most discussed',
-    ],
+    examples: [],
   },
   {
     emoji: '⚡',
@@ -40,12 +30,7 @@ const tracks = [
     tagline: 'Turn reading into doing.',
     description:
       'Developers bookmark things for later and never come back to them. Build the bridge between reading on daily.dev and actually doing something with what you read.',
-    examples: [
-      'Post details + summaries',
-      'Bookmarks (the backlog)',
-      'Tech stack + experiences',
-      'Custom feeds + search',
-    ],
+    examples: [],
   },
 ];
 
@@ -87,18 +72,19 @@ export const HackathonTracks = (): ReactElement => {
             >
               {description}
             </Typography>
-            <ul className="mt-1 flex flex-col gap-1">
-              {examples.map((example) => (
-                <li key={example}>
+            {examples.length > 0 && (
+              <FlexCol className="mt-1 gap-1">
+                {examples.map((example) => (
                   <Typography
+                    key={example}
                     type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    • {example}
+                    {example}
                   </Typography>
-                </li>
-              ))}
-            </ul>
+                ))}
+              </FlexCol>
+            )}
           </FlexCol>
         ))}
       </div>

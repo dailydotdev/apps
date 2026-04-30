@@ -17,7 +17,9 @@ import { gqlClient } from '../../../graphql/common';
 import { JOIN_HACKATHON_MUTATION } from '../../../graphql/users';
 import { useUpdateQuery } from '../../../hooks/useUpdateQuery';
 import { getPathnameWithQuery } from '../../../lib/links';
+import { SimpleTooltip } from '../../../components/tooltips';
 import { hackathonParticipationQueryOptions } from '../queries';
+import { isTesting } from '../../../lib/constants';
 
 type HackathonSignupButtonProps = {
   size?: ButtonSize;
@@ -91,15 +93,23 @@ export const HackathonSignupButton = ({
 
   if (isLoggedIn && isParticipant) {
     return (
-      <Button
-        variant={ButtonVariant.Secondary}
-        size={size}
-        className={className}
-        icon={<VIcon />}
-        disabled
+      <SimpleTooltip
+        content="We will let you know before hackathon starts"
+        forceLoad={!isTesting}
+        placement="bottom"
       >
-        You&apos;re signed up
-      </Button>
+        <div>
+          <Button
+            variant={ButtonVariant.Secondary}
+            size={size}
+            className={className}
+            icon={<VIcon />}
+            disabled
+          >
+            You&apos;re signed up
+          </Button>
+        </div>
+      </SimpleTooltip>
     );
   }
 

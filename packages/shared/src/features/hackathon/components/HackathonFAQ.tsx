@@ -17,7 +17,8 @@ const faq = [
   },
   {
     title: 'Who can participate?',
-    description: 'Any developer with a daily.dev account. Beginners welcome.',
+    description:
+      'Any developer with a daily.dev account. New users and beginners welcome.',
   },
   {
     title: 'Do I need a Plus subscription?',
@@ -66,6 +67,7 @@ export const HackathonFAQ = (): ReactElement => {
         type={TypographyType.Title3}
         bold
         color={TypographyColor.Tertiary}
+        className="mx-auto"
       >
         Frequently asked questions (FAQ)
       </Typography>

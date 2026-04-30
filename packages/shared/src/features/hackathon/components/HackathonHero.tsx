@@ -9,6 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import { useIsLightTheme } from '../../../hooks/utils';
 import { briefButtonBg } from '../../../styles/custom';
+import { fromCDN } from '../../../lib/links';
 import { HackathonSignupButton } from './HackathonSignupButton';
 
 export const HackathonHero = (): ReactElement => {
@@ -26,6 +27,11 @@ export const HackathonHero = (): ReactElement => {
           daily.dev Hackathon
         </Typography>
       </FlexRow>
+      <img
+        src={fromCDN('/assets/hackathon-og.png')}
+        alt="daily.dev Hackathon"
+        className="w-full max-w-2xl rounded-16"
+      />
       <Typography
         center
         type={TypographyType.LargeTitle}
