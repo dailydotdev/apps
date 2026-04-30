@@ -2,7 +2,13 @@ import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EmojiPicker } from '../fields/EmojiPicker';
-import { CameraIcon, MegaphoneIcon, PhoneIcon, PlusIcon } from '../icons';
+import {
+  CameraIcon,
+  MegaphoneIcon,
+  PhoneIcon,
+  PlusIcon,
+  SettingsIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -14,14 +20,19 @@ import {
 } from '../typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import { Modal } from '../modals/common/Modal';
 import {
+  AUDIO_ONLY_LABEL,
   ControlGroup,
   DeviceSplitButton,
   Divider,
   HIDE_SELF_VIEW_LABEL,
   MIC_SETTING_ITEMS,
   MicSettingRow,
+  SelectSettingRow,
   SlashedIcon,
+  VIDEO_QUALITY_ITEMS,
+  VIDEO_QUALITY_LABEL,
 } from './LiveRoomControlPrimitives';
 
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
@@ -67,6 +78,7 @@ export const LiveRoomControls = ({
   const { displayToast } = useToastNotification();
   const [busyKeys, setBusyKeys] = useState<string[]>([]);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const localAudioTrack = localStream?.getAudioTracks()[0] ?? null;
   const localAudioStream = useMemo(
@@ -333,6 +345,17 @@ export const LiveRoomControls = ({
             >
               <span className="text-base leading-none">😀</span>
             </Button>
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={
+                isSettingsOpen ? ButtonVariant.Primary : ButtonVariant.Secondary
+              }
+              icon={<SettingsIcon />}
+              aria-label="Standup settings"
+              aria-expanded={isSettingsOpen}
+              onClick={() => setIsSettingsOpen(true)}
+            />
             {isModerated && isAudience ? (
               <Button
                 type="button"
@@ -407,7 +430,7 @@ export const LiveRoomControls = ({
                   })
                 }
               >
-                End room
+                End standup
               </Button>
             ) : (
               <Button
@@ -424,6 +447,38 @@ export const LiveRoomControls = ({
           </ControlGroup>
         </div>
       </div>
+      {isSettingsOpen ? (
+        <Modal
+          isOpen
+          kind={Modal.Kind.FixedCenter}
+          size={Modal.Size.Small}
+          isDrawerOnMobile
+          onRequestClose={() => setIsSettingsOpen(false)}
+        >
+          <Modal.Header title="Standup settings" />
+          <Modal.Body className="gap-1">
+            <SelectSettingRow
+              label={VIDEO_QUALITY_LABEL}
+              description="Choose how aggressively remote video should use your connection."
+              value={videoSettings.quality}
+              options={VIDEO_QUALITY_ITEMS.map((item) => ({
+                value: item.value,
+                label: item.label,
+              }))}
+              onSelect={(quality) => setVideoSetting('quality', quality)}
+            />
+            <MicSettingRow
+              id="live-room-video-setting-audio-only"
+              label={AUDIO_ONLY_LABEL}
+              description="Hide remote video and keep the standup playing through audio."
+              checked={videoSettings.audioOnly}
+              onToggle={() =>
+                setVideoSetting('audioOnly', !videoSettings.audioOnly)
+              }
+            />
+          </Modal.Body>
+        </Modal>
+      ) : null}
     </div>
   );
 };

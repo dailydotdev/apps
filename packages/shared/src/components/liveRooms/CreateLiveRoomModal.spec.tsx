@@ -86,7 +86,7 @@ describe('CreateLiveRoomModal', () => {
     fireEvent.change(screen.getByRole('spinbutton'), {
       target: { value: '6' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Start room' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start standup' }));
 
     await waitFor(() => {
       expect(mockCreateLiveRoom).toHaveBeenCalledWith({
@@ -107,7 +107,7 @@ describe('CreateLiveRoomModal', () => {
     fireEvent.change(screen.getByPlaceholderText('Topic'), {
       target: { value: 'Structured discussion' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Start room' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start standup' }));
 
     await waitFor(() => {
       expect(mockCreateLiveRoom).toHaveBeenCalledWith({

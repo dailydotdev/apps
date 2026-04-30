@@ -17,7 +17,7 @@ export const LiveRoomSidePanelTabs = ({
 }: LiveRoomSidePanelTabsProps): ReactElement => (
   <div
     role="tablist"
-    aria-label="Live room side panel"
+    aria-label="Standup side panel"
     className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-1"
   >
     {tabs.map((tab) => {

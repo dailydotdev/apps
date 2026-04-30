@@ -59,6 +59,35 @@ jest.mock('../dropdown/DropdownMenu', () => ({
   ),
 }));
 
+jest.mock('../modals/common/Modal', () => {
+  function MockModalHeader({ title }: { title?: string }) {
+    return title ? <div>{title}</div> : null;
+  }
+
+  function MockModalBody({ children }: { children: React.ReactNode }) {
+    return <div>{children}</div>;
+  }
+
+  function MockModal({ children }: { children: React.ReactNode }) {
+    return <div role="dialog">{children}</div>;
+  }
+
+  Object.assign(MockModal, {
+    Kind: {
+      FixedCenter: 'fixed-center',
+      FlexibleCenter: 'flexible-center',
+    },
+    Size: {
+      Small: 'small',
+      Medium: 'medium',
+    },
+    Header: MockModalHeader,
+    Body: MockModalBody,
+  });
+
+  return { Modal: MockModal };
+});
+
 const createContextValue = (
   overrides: Partial<LiveRoomContextValue> = {},
 ): LiveRoomContextValue => ({
@@ -134,6 +163,8 @@ const createContextValue = (
   },
   setMicSetting: jest.fn(),
   videoSettings: {
+    audioOnly: false,
+    quality: 'auto',
     hideSelfView: false,
   },
   setVideoSetting: jest.fn(),
@@ -445,7 +476,7 @@ describe('LiveRoomControls', () => {
     renderLiveRoomControls();
 
     expect(
-      screen.getByRole('button', { name: 'End room' }),
+      screen.getByRole('button', { name: 'End standup' }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Join queue' }),
@@ -541,5 +572,65 @@ describe('LiveRoomControls', () => {
     fireEvent.click(screen.getByLabelText('Hide my preview'));
 
     expect(setVideoSetting).toHaveBeenCalledWith('hideSelfView', true);
+  });
+
+  it('shows room settings to regular audience participants', () => {
+    const setVideoSetting = jest.fn();
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        canPublish: false,
+        setVideoSetting,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Standup settings' }));
+
+    expect(screen.getByText('Standup settings')).toBeInTheDocument();
+    expect(screen.getByText('Video quality')).toBeInTheDocument();
+    expect(screen.getByLabelText('Audio only')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Hide my preview')).not.toBeInTheDocument();
+    expect(setVideoSetting).not.toHaveBeenCalled();
+  });
+
+  it('updates the audio only setting from the room settings modal', () => {
+    const setVideoSetting = jest.fn();
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        canPublish: false,
+        setVideoSetting,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Standup settings' }));
+    fireEvent.click(screen.getByLabelText('Audio only'));
+
+    expect(setVideoSetting).toHaveBeenCalledWith('audioOnly', true);
+  });
+
+  it('updates the video quality setting from the room settings modal', () => {
+    const setVideoSetting = jest.fn();
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        canPublish: false,
+        setVideoSetting,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Standup settings' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Data saver' }));
+
+    expect(setVideoSetting).toHaveBeenCalledWith('quality', 'data_saver');
   });
 });

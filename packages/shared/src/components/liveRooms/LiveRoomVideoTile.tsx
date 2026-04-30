@@ -158,7 +158,7 @@ export const LiveRoomVideoTile = ({
   return (
     <div
       className={classNames(
-        'group relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        'group relative flex h-full max-h-full w-full max-w-full items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
         isSpeaking
           ? 'border-accent-avocado-default shadow-[0_0_0_3px_var(--theme-accent-avocado-subtle)]'
           : 'border-border-subtlest-tertiary',

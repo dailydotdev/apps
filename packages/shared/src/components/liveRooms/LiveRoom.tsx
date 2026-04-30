@@ -164,7 +164,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   } = useLiveRoomQuery(roomId);
 
   const { onAskConfirmation } = useExitConfirmation({
-    message: 'Leave the live room? You will disconnect from the stream.',
+    message: 'Leave the standup? You will disconnect from the stream.',
     onValidateAction: () => status !== 'connected',
   });
 
@@ -175,7 +175,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleLeave = (): void => {
     onAskConfirmation(false);
     clearStoredLiveRoomResumeSession(roomId);
-    router.push('/live');
+    router.push('/standups');
   };
 
   const guardedModerationAction = async (
@@ -261,9 +261,16 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
     return [...ids];
   }, [chatMessages, room?.host.id, roomState?.participants]);
+  const visibleRemoteStreams = useMemo(
+    () =>
+      videoSettings.audioOnly
+        ? remoteStreams.filter((stream) => stream.kind !== 'video')
+        : remoteStreams,
+    [remoteStreams, videoSettings.audioOnly],
+  );
   const participantProfiles = useLiveRoomParticipantProfiles(participantIds);
   const participantStreamsById = useLiveRoomParticipantStreams(
-    remoteStreams,
+    visibleRemoteStreams,
     localStream,
     participantId,
   );
@@ -384,6 +391,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const stageGridColumnCount = getStageGridColumnCount(
     paginatedStageSpeakers.length,
   );
+  const stageGridRowCount = Math.max(
+    1,
+    Math.ceil(paginatedStageSpeakers.length / stageGridColumnCount),
+  );
   const showAudienceWaiting = isCreated && !isHost;
 
   useEffect(() => {
@@ -408,20 +419,20 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     return (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
         <Typography type={TypographyType.Title3} bold>
-          We couldn&apos;t load this live room
+          We couldn&apos;t load this standup
         </Typography>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {roomError?.message ?? 'The room may no longer be available.'}
+          {roomError?.message ?? 'This standup may no longer be available.'}
         </Typography>
         <Button
           className="mt-2"
           variant={ButtonVariant.Primary}
           onClick={handleLeave}
         >
-          Back to live rooms
+          Back to standups
         </Button>
       </div>
     );
@@ -432,8 +443,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       <div className="flex flex-col items-center gap-3 py-10 text-center">
         <Typography type={TypographyType.Title3} bold>
           {status === 'closed'
-            ? 'Live room connection closed'
-            : "We couldn't connect to this live room"}
+            ? 'Standup connection closed'
+            : "We couldn't connect to this standup"}
         </Typography>
         {errorMessage ? (
           <Typography
@@ -448,7 +459,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           variant={ButtonVariant.Primary}
           onClick={handleLeave}
         >
-          Back to live rooms
+          Back to standups
         </Button>
       </div>
     );
@@ -533,16 +544,20 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           ) : null}
           {paginatedStageSpeakers.length > 0 ? (
             <div
-              className="grid flex-1 content-start gap-3 overflow-y-auto p-1.5 pb-24 tablet:pb-28"
+              className="grid min-h-0 flex-1 gap-3 overflow-hidden p-1.5 pb-24 tablet:pb-28"
               style={{
                 gridTemplateColumns: `repeat(${stageGridColumnCount}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${stageGridRowCount}, minmax(0, 1fr))`,
               }}
             >
               {paginatedStageSpeakers.map((speaker) => {
                 const canModerate = isHost && !speaker.isHost;
 
                 return (
-                  <div key={speaker.id} className="flex min-w-0">
+                  <div
+                    key={speaker.id}
+                    className="flex min-h-0 min-w-0 items-center justify-center"
+                  >
                     <LiveRoomVideoTile
                       stream={speaker.stream}
                       user={speaker.profile}
@@ -591,7 +606,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                   color={TypographyColor.Tertiary}
                 >
                   {showAudienceWaiting
-                    ? 'The host will bring people on stage when the room starts.'
+                    ? 'The host will bring people on stage when the standup starts.'
                     : waitingPrompt}
                 </Typography>
               </div>
@@ -605,7 +620,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
                 >
-                  Waiting for the host to start the room…
+                  Waiting for the host to start the standup…
                 </Typography>
               </span>
             </div>
@@ -615,10 +630,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-overlay-base-tertiary backdrop-blur">
               <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-center">
                 <Typography type={TypographyType.Title3} bold>
-                  This live room has ended
+                  This standup has ended
                 </Typography>
                 <Button variant={ButtonVariant.Primary} onClick={handleLeave}>
-                  Back to live rooms
+                  Back to standups
                 </Button>
               </div>
             </div>
@@ -630,7 +645,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         </section>
 
         <aside
-          aria-label="Live room side panel"
+          aria-label="Standup side panel"
           className="flex min-h-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
         >
           <LiveRoomSidePanelTabs

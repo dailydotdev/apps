@@ -25,8 +25,8 @@ const LiveRoom = dynamic(
 );
 
 const seo: NextSeoProps = {
-  title: 'Live room | daily.dev',
-  description: 'Join a live developer room on daily.dev.',
+  title: 'Standup | daily.dev',
+  description: 'Join a developer standup on daily.dev.',
   openGraph: {
     ...defaultOpenGraph,
     type: 'website',
@@ -36,12 +36,12 @@ const seo: NextSeoProps = {
   nofollow: true,
 };
 
-const LiveRoomPage = (): ReactElement => {
+const StandupPage = (): ReactElement => {
   const router = useRouter();
   const { id } = router.query;
 
   return (
-    <main className="relative z-1 flex h-[calc(100dvh-4rem)] min-h-page w-full flex-col">
+    <main className="relative z-1 flex h-[calc(100dvh-4rem)] w-full flex-col">
       {typeof id === 'string' ? (
         <LiveRoom roomId={id} />
       ) : (
@@ -53,14 +53,14 @@ const LiveRoomPage = (): ReactElement => {
   );
 };
 
-const getLiveRoomPageLayout: typeof getLayout = (...props) =>
+const getStandupPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
-LiveRoomPage.getLayout = getLiveRoomPageLayout;
-LiveRoomPage.layoutProps = {
+StandupPage.getLayout = getStandupPageLayout;
+StandupPage.layoutProps = {
   screenCentered: false,
   hideFeedbackWidget: true,
   seo,
 };
 
-export default LiveRoomPage;
+export default StandupPage;

@@ -13,6 +13,7 @@ const mockDisplayToast = jest.fn();
 const mockUseLiveRoomConnection = jest.fn<LiveRoomContextValue, []>();
 const mockUseLiveRoomQuery = jest.fn();
 const mockUseAuthContext = jest.fn();
+const mockUseLiveRoomParticipantStreams = jest.fn();
 const mockUseQueries = useQueries as jest.Mock;
 
 jest.mock('@tanstack/react-query', () => {
@@ -38,6 +39,11 @@ jest.mock('../../hooks/liveRooms/useLiveRoom', () => ({
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
+}));
+
+jest.mock('../../hooks/liveRooms/useLiveRoomParticipantStreams', () => ({
+  useLiveRoomParticipantStreams: (...args: unknown[]) =>
+    mockUseLiveRoomParticipantStreams(...args),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
@@ -171,6 +177,8 @@ const createContextValue = (
   },
   setMicSetting: jest.fn(),
   videoSettings: {
+    audioOnly: false,
+    quality: 'auto',
     hideSelfView: false,
   },
   setVideoSetting: jest.fn(),
@@ -207,6 +215,7 @@ const createParticipant = (
 describe('LiveRoom', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseLiveRoomParticipantStreams.mockReturnValue(new Map());
     mockUseQueries.mockImplementation(({ queries }) =>
       queries.map(({ queryKey }: { queryKey: readonly unknown[] }) => {
         const participantId = queryKey[queryKey.length - 1] as string;
@@ -327,6 +336,8 @@ describe('LiveRoom', () => {
       createContextValue({
         participantId: 'host',
         videoSettings: {
+          audioOnly: false,
+          quality: 'auto',
           hideSelfView: true,
         },
       }),
@@ -336,6 +347,51 @@ describe('LiveRoom', () => {
 
     expect(screen.queryByText('tile-host')).not.toBeInTheDocument();
     expect(screen.getAllByText(/^tile-/)).toHaveLength(2);
+  });
+
+  it('drops remote video streams before building participant tiles in audio only mode', () => {
+    const audioStream = { id: 'audio-stream' } as MediaStream;
+    const videoStream = { id: 'video-stream' } as MediaStream;
+
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        participantId: 'host',
+        remoteStreams: [
+          {
+            participantId: 'speaker1',
+            publicationId: 'pub-audio',
+            kind: 'audio',
+            stream: audioStream,
+          },
+          {
+            participantId: 'speaker1',
+            publicationId: 'pub-video',
+            kind: 'video',
+            stream: videoStream,
+          },
+        ],
+        videoSettings: {
+          audioOnly: true,
+          quality: 'auto',
+          hideSelfView: false,
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(mockUseLiveRoomParticipantStreams).toHaveBeenCalledWith(
+      [
+        {
+          participantId: 'speaker1',
+          publicationId: 'pub-audio',
+          kind: 'audio',
+          stream: audioStream,
+        },
+      ],
+      null,
+      'host',
+    );
   });
 
   it('switches the side panel to audience mode for free-for-all rooms', () => {
@@ -358,7 +414,7 @@ describe('LiveRoom', () => {
     expect(screen.getByRole('tab', { name: /Audience/ })).toBeInTheDocument();
   });
 
-  it('allows anonymous users to load the live room', () => {
+  it('allows anonymous users to load the standup', () => {
     mockUseAuthContext.mockReturnValue({
       isAuthReady: true,
       isLoggedIn: false,
@@ -370,7 +426,7 @@ describe('LiveRoom', () => {
     renderLiveRoom();
 
     expect(
-      screen.queryByText('Sign in to join this live room'),
+      screen.queryByText('Sign in to join this standup'),
     ).not.toBeInTheDocument();
     expect(screen.getByText('tile-host')).toBeInTheDocument();
   });

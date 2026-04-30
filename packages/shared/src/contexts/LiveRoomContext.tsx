@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import type {
+  Consumer,
   Device as MediasoupDevice,
   Producer,
   Transport,
@@ -79,7 +80,11 @@ export interface LiveRoomMicSettingSupport {
   autoGainControl: boolean;
 }
 
+export type LiveRoomVideoQuality = 'auto' | 'data_saver' | 'high';
+
 export interface LiveRoomVideoSettings {
+  audioOnly: boolean;
+  quality: LiveRoomVideoQuality;
   hideSelfView: boolean;
 }
 
@@ -94,6 +99,11 @@ export interface LiveRoomReaction {
 export type LiveRoomChatEntry = LiveRoomChatMessage;
 
 interface RemoteSubscriptionHandle {
+  kind: 'audio' | 'video';
+  paused: boolean;
+  preferredSpatialLayer?: number;
+  subscriptionId?: string;
+  consumer?: Consumer;
   stream: MediaStream;
   close: () => void;
   token?: symbol;
@@ -146,9 +156,9 @@ export interface LiveRoomContextValue {
     enabled: boolean,
   ) => Promise<void>;
   videoSettings: LiveRoomVideoSettings;
-  setVideoSetting: (
-    setting: keyof LiveRoomVideoSettings,
-    enabled: boolean,
+  setVideoSetting: <K extends keyof LiveRoomVideoSettings>(
+    setting: K,
+    value: LiveRoomVideoSettings[K],
   ) => void;
 
   localStream: MediaStream | null;
@@ -200,8 +210,16 @@ const liveRoomMicSettingsStorageKey = 'live-room-mic-settings';
 const liveRoomVideoSettingsStorageKey = 'live-room-video-settings';
 
 const defaultVideoSettings: LiveRoomVideoSettings = {
+  audioOnly: false,
+  quality: 'auto',
   hideSelfView: false,
 };
+
+const videoQualityValues: LiveRoomVideoQuality[] = [
+  'auto',
+  'data_saver',
+  'high',
+];
 
 const readStoredMicSettings = (): LiveRoomMicSettings => {
   const storedValue = storageWrapper.getItem(liveRoomMicSettingsStorageKey);
@@ -241,6 +259,15 @@ const readStoredVideoSettings = (): LiveRoomVideoSettings => {
     const parsed = JSON.parse(storedValue) as Partial<LiveRoomVideoSettings>;
 
     return {
+      audioOnly:
+        typeof parsed.audioOnly === 'boolean'
+          ? parsed.audioOnly
+          : defaultVideoSettings.audioOnly,
+      quality: videoQualityValues.includes(
+        parsed.quality as LiveRoomVideoQuality,
+      )
+        ? (parsed.quality as LiveRoomVideoQuality)
+        : defaultVideoSettings.quality,
       hideSelfView:
         typeof parsed.hideSelfView === 'boolean'
           ? parsed.hideSelfView
@@ -299,6 +326,24 @@ const buildConstraints = (
   };
 };
 
+const videoSimulcastEncodings = [
+  { rid: 'low', scaleResolutionDownBy: 4, maxBitrate: 150_000 },
+  { rid: 'medium', scaleResolutionDownBy: 2, maxBitrate: 500_000 },
+  { rid: 'high', scaleResolutionDownBy: 1, maxBitrate: 1_500_000 },
+] as const;
+
+const videoQualitySpatialLayer: Record<LiveRoomVideoQuality, number> = {
+  auto: 1,
+  data_saver: 0,
+  high: 2,
+};
+
+const videoQualityOutgoingBitrateLimit: Record<LiveRoomVideoQuality, number> = {
+  auto: 1_500_000,
+  data_saver: 500_000,
+  high: 2_500_000,
+};
+
 export const LiveRoomProvider = ({
   roomId,
   children,
@@ -352,6 +397,8 @@ export const LiveRoomProvider = ({
   const subscriptionsRef = useRef<Map<string, RemoteSubscriptionHandle>>(
     new Map(),
   );
+  const audioOnlyRef = useRef(videoSettings.audioOnly);
+  const videoQualityRef = useRef(videoSettings.quality);
   const mediaRestartInFlightRef = useRef<
     Record<MediaTransportDirection, boolean>
   >({
@@ -463,6 +510,79 @@ export const LiveRoomProvider = ({
       setConnectionGeneration((current) => current + 1);
     }, 0);
   }, [closeMediaSession, status]);
+
+  const setRemoteSubscriptionPaused = useCallback(
+    async (publicationId: string, paused: boolean) => {
+      const connection = connectionRef.current;
+      const handle = subscriptionsRef.current.get(publicationId);
+      if (
+        !connection ||
+        !handle?.subscriptionId ||
+        !handle.consumer ||
+        handle.paused === paused
+      ) {
+        return;
+      }
+
+      if (paused) {
+        await connection.send({
+          type: 'media.subscription.pause',
+          subscriptionId: handle.subscriptionId,
+        });
+        handle.consumer.pause();
+      } else {
+        await connection.send({
+          type: 'media.subscription.resume',
+          subscriptionId: handle.subscriptionId,
+        });
+        handle.consumer.resume();
+      }
+
+      handle.paused = paused;
+    },
+    [],
+  );
+
+  const setRemoteSubscriptionPreferredSpatialLayer = useCallback(
+    async (publicationId: string, spatialLayer: number) => {
+      const connection = connectionRef.current;
+      const handle = subscriptionsRef.current.get(publicationId);
+      if (
+        !connection ||
+        handle?.kind !== 'video' ||
+        !handle.subscriptionId ||
+        handle.preferredSpatialLayer === spatialLayer
+      ) {
+        return;
+      }
+
+      await connection.send({
+        type: 'media.subscription.preferredSpatialLayer.set',
+        subscriptionId: handle.subscriptionId,
+        spatialLayer,
+      });
+
+      handle.preferredSpatialLayer = spatialLayer;
+    },
+    [],
+  );
+
+  const setRecvTransportOutgoingBitrateLimit = useCallback(
+    async (bitrate: number) => {
+      const connection = connectionRef.current;
+      const recvTransport = recvTransportRef.current;
+      if (!connection || !recvTransport) {
+        return;
+      }
+
+      await connection.send({
+        type: 'media.transport.outgoingBitrate.set',
+        transportId: recvTransport.id,
+        bitrate,
+      });
+    },
+    [],
+  );
 
   const restartTransportIce = useCallback(
     async (
@@ -629,6 +749,14 @@ export const LiveRoomProvider = ({
   }, [videoSettings]);
 
   useEffect(() => {
+    audioOnlyRef.current = videoSettings.audioOnly;
+  }, [videoSettings.audioOnly]);
+
+  useEffect(() => {
+    videoQualityRef.current = videoSettings.quality;
+  }, [videoSettings.quality]);
+
+  useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
       return;
     }
@@ -654,7 +782,7 @@ export const LiveRoomProvider = ({
     const wsUrl = buildLiveRoomWsUrl(process.env.NEXT_PUBLIC_SUBS_URL ?? '');
     if (!wsUrl) {
       setStatus('error');
-      setErrorMessage('Live room websocket URL is not configured');
+      setErrorMessage('Standup websocket URL is not configured');
       return undefined;
     }
 
@@ -710,7 +838,7 @@ export const LiveRoomProvider = ({
         return;
       }
       setStatus('closed');
-      setErrorMessage(reason || 'Live room connection closed');
+      setErrorMessage(reason || 'Standup connection closed');
     });
     const offError = connection.onError((error) => {
       if (openingWithResume && !sessionReady) {
@@ -899,7 +1027,7 @@ export const LiveRoomProvider = ({
       if (
         connection.resumeToken &&
         (err.message === 'LiveRoom connection is not open' ||
-          err.message === 'Live room connection closed')
+          err.message === 'Standup connection closed')
       ) {
         return;
       }
@@ -955,6 +1083,12 @@ export const LiveRoomProvider = ({
 
       const token = Symbol(publication.publicationId);
       const placeholder: RemoteSubscriptionHandle = {
+        kind: publication.kind,
+        paused: publication.kind === 'video' && audioOnlyRef.current,
+        preferredSpatialLayer:
+          publication.kind === 'video'
+            ? videoQualitySpatialLayer[videoQualityRef.current]
+            : undefined,
         stream: new MediaStream(),
         close: () => undefined,
         token,
@@ -990,10 +1124,27 @@ export const LiveRoomProvider = ({
           closeConsumer = () => consumer.close();
           consumer.on('transportclose', removeSubscription);
           consumer.on('trackended', removeSubscription);
-          await connection.send({
-            type: 'media.subscription.resume',
-            subscriptionId: sub.subscriptionId,
-          });
+          const preferredSpatialLayer =
+            publication.kind === 'video'
+              ? videoQualitySpatialLayer[videoQualityRef.current]
+              : undefined;
+          if (preferredSpatialLayer !== undefined) {
+            await connection.send({
+              type: 'media.subscription.preferredSpatialLayer.set',
+              subscriptionId: sub.subscriptionId,
+              spatialLayer: preferredSpatialLayer,
+            });
+          }
+          const shouldStartPaused =
+            publication.kind === 'video' && audioOnlyRef.current;
+          if (shouldStartPaused) {
+            consumer.pause();
+          } else {
+            await connection.send({
+              type: 'media.subscription.resume',
+              subscriptionId: sub.subscriptionId,
+            });
+          }
           const current = subscriptionsRef.current.get(
             publication.publicationId,
           );
@@ -1003,6 +1154,11 @@ export const LiveRoomProvider = ({
           }
           const stream = new MediaStream([consumer.track]);
           const handle = {
+            consumer,
+            kind: publication.kind,
+            paused: shouldStartPaused,
+            preferredSpatialLayer,
+            subscriptionId: sub.subscriptionId,
             stream,
             close: closeConsumer,
             token,
@@ -1030,6 +1186,59 @@ export const LiveRoomProvider = ({
     });
   }, [roomState, participantId, recvTransportReady]);
 
+  useEffect(() => {
+    const syncRemoteVideoSubscriptions = async () => {
+      const entries = [...subscriptionsRef.current.entries()].filter(
+        ([, handle]) => handle.kind === 'video',
+      );
+
+      await Promise.all(
+        entries.map(([publicationId]) =>
+          setRemoteSubscriptionPaused(publicationId, videoSettings.audioOnly),
+        ),
+      );
+
+      await Promise.all(
+        entries.map(([publicationId]) =>
+          setRemoteSubscriptionPreferredSpatialLayer(
+            publicationId,
+            videoQualitySpatialLayer[videoSettings.quality],
+          ),
+        ),
+      );
+    };
+
+    syncRemoteVideoSubscriptions().catch((err) => {
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update remote video subscriptions',
+      );
+    });
+  }, [
+    recvTransportReady,
+    setRemoteSubscriptionPaused,
+    setRemoteSubscriptionPreferredSpatialLayer,
+    videoSettings.audioOnly,
+    videoSettings.quality,
+  ]);
+
+  useEffect(() => {
+    setRecvTransportOutgoingBitrateLimit(
+      videoQualityOutgoingBitrateLimit[videoSettings.quality],
+    ).catch((err) => {
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update remote video quality',
+      );
+    });
+  }, [
+    recvTransportReady,
+    setRecvTransportOutgoingBitrateLimit,
+    videoSettings.quality,
+  ]);
+
   const setPublishingFlag = useCallback(
     (kind: 'audio' | 'video', value: boolean) => {
       if (kind === 'video') {
@@ -1052,7 +1261,11 @@ export const LiveRoomProvider = ({
         return;
       }
       try {
-        const producer = await sendTransport.produce({ track });
+        const producer = await sendTransport.produce(
+          kind === 'video'
+            ? { track, encodings: [...videoSimulcastEncodings] }
+            : { track },
+        );
         producersRef.current.set(kind, producer);
         setPublishingFlag(kind, true);
         producer.on('transportclose', () => {
@@ -1273,15 +1486,18 @@ export const LiveRoomProvider = ({
   );
 
   const setVideoSetting = useCallback(
-    (setting: keyof LiveRoomVideoSettings, enabled: boolean) => {
+    <K extends keyof LiveRoomVideoSettings>(
+      setting: K,
+      value: LiveRoomVideoSettings[K],
+    ) => {
       setVideoSettings((current) => {
-        if (current[setting] === enabled) {
+        if (current[setting] === value) {
           return current;
         }
 
         return {
           ...current,
-          [setting]: enabled,
+          [setting]: value,
         };
       });
     },

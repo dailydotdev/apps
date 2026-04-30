@@ -178,6 +178,11 @@ export type LiveRoomCommand =
   | { type: 'media.capabilities.get' }
   | { type: 'media.transport.create'; direction: 'send' | 'recv' }
   | {
+      type: 'media.transport.outgoingBitrate.set';
+      transportId: string;
+      bitrate: number;
+    }
+  | {
       type: 'media.transport.connect';
       transportId: string;
       dtlsParameters: DtlsParameters;
@@ -197,6 +202,12 @@ export type LiveRoomCommand =
       transportId: string;
       publicationId: string;
       rtpCapabilities: RtpCapabilities;
+    }
+  | { type: 'media.subscription.pause'; subscriptionId: string }
+  | {
+      type: 'media.subscription.preferredSpatialLayer.set';
+      subscriptionId: string;
+      spatialLayer: number;
     }
   | { type: 'media.subscription.resume'; subscriptionId: string }
   | { type: 'media.publication.stop'; publicationId: string };

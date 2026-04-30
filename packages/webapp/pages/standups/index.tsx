@@ -28,30 +28,30 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 
-const LIVE_TITLE = 'Live rooms | daily.dev';
-const LIVE_DESCRIPTION =
-  'Join live developer rooms happening right now on daily.dev.';
+const STANDUPS_TITLE = 'Standups | daily.dev';
+const STANDUPS_DESCRIPTION =
+  'Join developer standups happening right now on daily.dev.';
 
 const seo: NextSeoProps = {
-  title: LIVE_TITLE,
-  description: LIVE_DESCRIPTION,
+  title: STANDUPS_TITLE,
+  description: STANDUPS_DESCRIPTION,
   openGraph: {
     ...defaultOpenGraph,
-    title: LIVE_TITLE,
-    description: LIVE_DESCRIPTION,
+    title: STANDUPS_TITLE,
+    description: STANDUPS_DESCRIPTION,
     type: 'website',
   },
   ...defaultSeo,
 };
 
-const LivePage = (): ReactElement => {
+const StandupsPage = (): ReactElement => {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { user, showLogin } = useAuthContext();
   const { data: rooms, isLoading } = useActiveLiveRooms();
 
   const handleJoin = (room: LiveRoom): void => {
-    router.push(`/live/${room.id}`);
+    router.push(`/standups/${room.id}`);
   };
 
   const handleCreateClick = (): void => {
@@ -74,13 +74,13 @@ const LivePage = (): ReactElement => {
       <header className="mb-6 flex items-center justify-between gap-4 px-4 tablet:px-0">
         <div className="flex flex-col gap-1">
           <Typography type={TypographyType.LargeTitle} bold>
-            Live rooms
+            Standups
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Hop into a moderated room or open the stage to everyone.
+            Hop into a moderated standup or open the stage to everyone.
           </Typography>
         </div>
         <Button
@@ -88,7 +88,7 @@ const LivePage = (): ReactElement => {
           icon={<PlusIcon />}
           onClick={handleCreateClick}
         >
-          New room
+          New standup
         </Button>
       </header>
 
@@ -101,20 +101,20 @@ const LivePage = (): ReactElement => {
       {!isLoading && (!rooms || rooms.length === 0) ? (
         <div className="flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-10 text-center">
           <Typography type={TypographyType.Title3} bold>
-            No live rooms right now
+            No standups right now
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            Be the first to start a room.
+            Be the first to start a standup.
           </Typography>
           <Button
             className="mt-2"
             variant={ButtonVariant.Primary}
             onClick={handleCreateClick}
           >
-            Start a room
+            Start a standup
           </Button>
         </div>
       ) : null}
@@ -132,7 +132,7 @@ const LivePage = (): ReactElement => {
           isOpen={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           onCreated={(joinToken) => {
-            router.push(`/live/${joinToken.room.id}`);
+            router.push(`/standups/${joinToken.room.id}`);
           }}
         />
       ) : null}
@@ -140,13 +140,13 @@ const LivePage = (): ReactElement => {
   );
 };
 
-const getLivePageLayout: typeof getLayout = (...props) =>
+const getStandupsPageLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
-LivePage.getLayout = getLivePageLayout;
-LivePage.layoutProps = {
+StandupsPage.getLayout = getStandupsPageLayout;
+StandupsPage.layoutProps = {
   screenCentered: false,
   seo,
 };
 
-export default LivePage;
+export default StandupsPage;

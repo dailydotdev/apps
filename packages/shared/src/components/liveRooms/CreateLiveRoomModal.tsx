@@ -46,7 +46,7 @@ const createLiveRoomFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['speakerLimit'],
-        message: 'Speaker limit is required for free-for-all rooms',
+        message: 'Speaker limit is required for free-for-all standups',
       });
     }
   });
@@ -105,14 +105,14 @@ export const CreateLiveRoomModal = ({
       size={Modal.Size.Small}
       onRequestClose={onClose}
     >
-      <Modal.Header title="Start a live room" />
+      <Modal.Header title="Start a standup" />
       <Modal.Body className="flex flex-col gap-4">
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
           Pick a topic, choose how the stage works, and we&apos;ll spin up the
-          room right away.
+          standup right away.
         </Typography>
         <FormProvider {...form}>
           <form
@@ -127,7 +127,7 @@ export const CreateLiveRoomModal = ({
             />
             <div className="flex flex-col gap-3">
               <Typography type={TypographyType.Footnote} bold>
-                Room mode
+                Standup mode
               </Typography>
               <Radio
                 name="mode"
@@ -223,7 +223,7 @@ export const CreateLiveRoomModal = ({
           variant={ButtonVariant.Primary}
           loading={isPending}
         >
-          Start room
+          Start standup
         </Button>
       </Modal.Footer>
     </Modal>

@@ -25,9 +25,34 @@ import {
 import type {
   LiveRoomDeviceInfo,
   LiveRoomMicSettings,
+  LiveRoomVideoQuality,
 } from '../../contexts/LiveRoomContext';
 
+export const AUDIO_ONLY_LABEL = 'Audio only';
 export const HIDE_SELF_VIEW_LABEL = 'Hide my preview';
+export const VIDEO_QUALITY_LABEL = 'Video quality';
+
+export const VIDEO_QUALITY_ITEMS: {
+  value: LiveRoomVideoQuality;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'auto',
+    label: 'Auto',
+    description: 'Balance quality and bandwidth for most standups.',
+  },
+  {
+    value: 'data_saver',
+    label: 'Data saver',
+    description: 'Prefer smaller remote video layers to reduce network use.',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    description: 'Prefer the sharpest remote video when bandwidth allows.',
+  },
+];
 
 export const MIC_SETTING_ITEMS: {
   key: keyof LiveRoomMicSettings;
@@ -134,6 +159,73 @@ export const MicSettingRow = ({
       aria-label={label}
       className="shrink-0"
     />
+  </div>
+);
+
+interface SelectSettingRowProps<TValue extends string> {
+  label: string;
+  description: string;
+  value: TValue;
+  options: {
+    value: TValue;
+    label: string;
+  }[];
+  onSelect: (value: TValue) => void;
+}
+
+export const SelectSettingRow = <TValue extends string>({
+  label,
+  description,
+  value,
+  options,
+  onSelect,
+}: SelectSettingRowProps<TValue>): ReactElement => (
+  <div className="flex items-start justify-between gap-3 rounded-12 px-2 py-2">
+    <div className="min-w-0 flex-1">
+      <Typography type={TypographyType.Footnote} bold>
+        {label}
+      </Typography>
+      <Typography
+        type={TypographyType.Caption2}
+        color={TypographyColor.Tertiary}
+      >
+        {description}
+      </Typography>
+    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Float}
+          className="!min-w-[8.5rem] shrink-0 !justify-between !px-3 !font-normal !typo-callout"
+        >
+          {options.find((option) => option.value === value)?.label}
+          <ArrowIcon className="ml-auto rotate-180" secondary />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="flex !min-w-[8.5rem] flex-col gap-1 !p-0"
+      >
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={option.value}
+            onClick={() => onSelect(option.value)}
+            className="!h-auto"
+          >
+            <div className="flex w-full items-center justify-between gap-3">
+              <Typography type={TypographyType.Footnote}>
+                {option.label}
+              </Typography>
+              {value === option.value ? (
+                <VIcon size={IconSize.Size16} secondary />
+              ) : null}
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   </div>
 );
 

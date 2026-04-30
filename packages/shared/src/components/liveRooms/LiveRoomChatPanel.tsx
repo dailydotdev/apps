@@ -60,9 +60,9 @@ const LiveRoomChatComposer = ({
   if (!isLoggedIn) {
     disabledReason = 'Sign in to join the chat.';
   } else if (isEnded) {
-    disabledReason = 'Chat has ended for this room.';
+    disabledReason = 'Chat has ended for this standup.';
   } else if (!isLive) {
-    disabledReason = 'Chat opens when the room goes live.';
+    disabledReason = 'Chat opens when the standup goes live.';
   }
 
   const handleSubmit = async (body: string): Promise<void> => {
@@ -250,7 +250,7 @@ export const LiveRoomChatPanel = ({
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
             >
-              Chat is live and messages disappear when the room ends.
+              Chat is live and messages disappear when the standup ends.
             </Typography>
           </div>
         ) : (
