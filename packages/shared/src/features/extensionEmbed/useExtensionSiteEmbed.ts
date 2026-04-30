@@ -34,6 +34,7 @@ export interface UseExtensionSiteEmbedResult {
   showTargetFrame: boolean;
   status: ExtensionSiteEmbedStatus;
   error: string | null;
+  errorReason: string | null;
   isTargetValid: boolean;
   reset: () => void;
 }
@@ -49,6 +50,7 @@ export const useExtensionSiteEmbed = ({
   const [frameMode, setFrameMode] = useState<FrameMode>('permission-check');
   const [status, setStatus] = useState<ExtensionSiteEmbedStatus>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [errorReason, setErrorReason] = useState<string | null>(null);
   const permissionFrameRef = useRef<HTMLIFrameElement | null>(null);
   const trimmedExtensionId = extensionId?.trim() ?? '';
   const trimmedTargetUrl = targetUrl.trim();
@@ -86,6 +88,7 @@ export const useExtensionSiteEmbed = ({
       setFrameMode('permission-check');
       setStatus(nextStatus);
       setError(nextError);
+      setErrorReason(null);
     },
     [postDisableMessage, stopReconnectLoop],
   );
@@ -136,27 +139,32 @@ export const useExtensionSiteEmbed = ({
         onPermissionsReady: () => {
           setStatus('preparing-tab');
           setError(null);
+          setErrorReason(null);
         },
         onEmbeddingReady: () => {
           stopReconnectLoop();
           setFrameMode('target-embed');
           setStatus('ready');
           setError(null);
+          setErrorReason(null);
         },
         onReloadRequested: () => {
           setStatus('reloading-extension');
           setError(null);
+          setErrorReason(null);
           startReconnectLoop();
         },
         onMissingPermission: () => {
           stopReconnectLoop();
           setStatus('permission-required');
           setError(null);
+          setErrorReason('missing-permission');
         },
-        onError: (nextError) => {
+        onError: ({ message, reason }) => {
           stopReconnectLoop();
           setStatus('error');
-          setError(nextError);
+          setError(message);
+          setErrorReason(reason ?? null);
         },
       });
     };
@@ -225,6 +233,7 @@ export const useExtensionSiteEmbed = ({
     showTargetFrame: !!targetFrameSrc,
     status,
     error,
+    errorReason,
     isTargetValid,
     reset,
   };

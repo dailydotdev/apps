@@ -47,6 +47,7 @@ export type SettingsFlags = {
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
+  legacyPostLayoutOptOut?: boolean;
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;

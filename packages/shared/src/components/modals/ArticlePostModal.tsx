@@ -29,6 +29,7 @@ export default function ArticlePostModal({
     isDisplayed: props.isOpen,
     offset: 0,
   });
+
   return (
     <BasePostModal
       {...props}

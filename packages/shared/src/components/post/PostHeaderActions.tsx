@@ -20,6 +20,10 @@ import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import { ReaderLegacyLayoutToggleButton } from './reader/ReaderHeaderActionButtons';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureReaderModal } from '../../lib/featureManagement';
+import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -46,6 +50,13 @@ export function PostHeaderActions({
   const isPoll = post?.type === PostType.Poll;
   const { target: readTarget } = getPostReadTarget(post);
   const readHref = readTarget?.permalink ?? post.permalink;
+  const isArticle = post?.type === PostType.Article;
+  const { value: isReaderModalEnabled } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: isArticle,
+  });
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const showReaderToggle = isArticle && isReaderModalEnabled;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
@@ -81,6 +92,11 @@ export function PostHeaderActions({
       )}
       {isCollection && !hideSubscribeAction && (
         <CollectionSubscribeButton post={post} />
+      )}
+      {showReaderToggle && (
+        <ReaderLegacyLayoutToggleButton
+          target={isLegacyLayoutOptedOut ? 'reader' : 'classic'}
+        />
       )}
       <PostMenuOptions
         post={post}
