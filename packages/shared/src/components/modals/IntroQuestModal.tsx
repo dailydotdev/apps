@@ -178,7 +178,7 @@ export const IntroQuestModal = ({
       return;
     }
 
-    void completeAction(ActionType.ViewedIntroQuests);
+    completeAction(ActionType.ViewedIntroQuests);
   }, [completeAction, props.isOpen]);
 
   return (
