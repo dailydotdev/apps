@@ -4,6 +4,7 @@ import { desktop, laptop, laptopL, laptopXL, tablet } from '../styles/media';
 import { useConditionalFeature, useMedia, usePlusSubscription } from '../hooks';
 import { useSettingsContext } from './SettingsContext';
 import useSidebarRendered from '../hooks/useSidebarRendered';
+import { useCustomizeNewTab } from '../features/customizeNewTab/CustomizeNewTabContext';
 
 import type { Spaciness } from '../graphql/settings';
 import { featureFeedAdTemplate } from '../lib/featureManagement';
@@ -117,6 +118,10 @@ export function FeedLayoutProvider({
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
+  // Customize sidebar (right side) — when open we need to push the
+  // breakpoint up by the same width so a laptop-width feed doesn't try
+  // to keep its 3-column grid in the now-narrower content area.
+  const { panelWidth: customizerPanelWidth } = useCustomizeNewTab();
   const feedAdTemplateFeature = useConditionalFeature({
     feature: featureFeedAdTemplate,
     shouldEvaluate: !isPlus,
@@ -169,20 +174,27 @@ export function FeedLayoutProvider({
       setting.breakpoint.replace('@media ', ''),
     );
 
-    if (!sidebarRendered) {
+    let leftSidebarOffset = 0;
+    if (sidebarRendered) {
+      leftSidebarOffset = debouncedSidebarExpanded
+        ? sidebarOpenWidth
+        : sidebarRenderedWidth;
+    }
+    const totalOffset = leftSidebarOffset + customizerPanelWidth;
+
+    if (totalOffset === 0) {
       return breakpoints;
     }
 
-    if (debouncedSidebarExpanded) {
-      return breakpoints.map((breakpoint) =>
-        replaceDigitsWithIncrement(breakpoint, sidebarOpenWidth),
-      );
-    }
-
     return breakpoints.map((breakpoint) =>
-      replaceDigitsWithIncrement(breakpoint, sidebarRenderedWidth),
+      replaceDigitsWithIncrement(breakpoint, totalOffset),
     );
-  }, [feedSettings, debouncedSidebarExpanded, sidebarRendered]);
+  }, [
+    feedSettings,
+    debouncedSidebarExpanded,
+    sidebarRendered,
+    customizerPanelWidth,
+  ]);
 
   const currentSettings = useMedia(
     feedBreakpoints,

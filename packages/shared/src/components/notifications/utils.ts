@@ -94,6 +94,7 @@ export enum NotificationType {
   NewOpportunityMatch = 'new_opportunity_match',
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
+  MajorHeadlineAdded = 'major_headline_added',
 }
 
 export enum NotificationIconType {
@@ -206,6 +207,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.DigestReady]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
+    [NotificationType.MajorHeadlineAdded]: 'text-brand-default',
   };
 
 export const notificationTypeNotClickable: Partial<

@@ -9,6 +9,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
+import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 
 const TEAM_MEMBERS = [
   {
@@ -75,6 +76,10 @@ export function FeedbackWidget(): ReactElement | null {
   const dailyTrio = useMemo(getDailyTrio, []);
   const [isCompact, setIsCompact] = useState(false);
 
+  const { panelWidth } = useCustomizeNewTab();
+  // Only show for authenticated users on desktop when the setting is on.
+  // Mobile feedback is handled by FooterPlusButton. Hide during the
+  // panel rather than a competing pill in the corner.
   const isVisible = !!user && !isMobile && showFeedbackButton;
 
   useEffect(() => {
@@ -99,7 +104,14 @@ export function FeedbackWidget(): ReactElement | null {
     <Button
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
-      className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      className="group fixed bottom-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
+      style={{
+        // Slide left of the customize sidebar while it's open so the pill
+        // stays clear of the panel; transition matches the panel + header
+        // 200ms ease-in-out so all the right-anchored chrome moves in sync.
+        right: `calc(1rem + ${panelWidth}px)`,
+        transition: 'right 200ms ease-in-out',
+      }}
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Real people reply."
     >
