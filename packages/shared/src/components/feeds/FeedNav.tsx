@@ -36,7 +36,6 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
-  Explore = 'Explore',
   Tags = 'Tags',
   Sources = 'Sources',
   Leaderboard = 'Leaderboard',

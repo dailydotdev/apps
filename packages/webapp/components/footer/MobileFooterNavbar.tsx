@@ -102,9 +102,15 @@ const MobileFooterNavbar = (): ReactElement => {
   }, [squadsUrl]);
 
   const activeTab = useMemo(() => {
+    const tabTitles = new Set(
+      (tabs.filter((tab) => !isValidElement(tab)) as FooterTab[]).map(
+        (tab) => tab.title,
+      ),
+    );
+
     const activeKey = (
       Object.keys(activeNav) as Array<keyof UseActiveNav>
-    ).find((key) => activeNav[key]);
+    ).find((key) => activeNav[key] && tabTitles.has(selectedMapToTitle[key]));
 
     if (activeKey) {
       return selectedMapToTitle[activeKey];

@@ -264,7 +264,11 @@ export function Header({
       {isSameUser && (
         <>
           <Link
-            href={`${webappUrl}jobs/${alerts?.opportunityId || ''}`}
+            href={
+              alerts?.opportunityId
+                ? `${webappUrl}jobs/${alerts.opportunityId}`
+                : `${webappUrl}jobs`
+            }
             passHref
           >
             <Button
