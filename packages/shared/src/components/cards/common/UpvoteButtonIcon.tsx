@@ -80,7 +80,7 @@ export const UpvoteButtonIcon = React.memo(function UpvoteButtonIconComp(
   const hasBrandLogo = brandAnimation?.brandLogo;
 
   return (
-    <span className="pointer-events-none relative">
+    <span className="pointer-events-none relative inline-flex items-center justify-center">
       <span
         className={classNames(
           styles.iconWrapper,
