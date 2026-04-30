@@ -1,0 +1,1290 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Atoms/ButtonV2/Guidelines" />
+
+# Button Guidelines
+
+`ButtonV2` is the proposed next iteration of our button system. It addresses
+the long-running "button looks disabled" feedback by fixing token collisions,
+tightening the visual rhythm, and grounding micro-interactions in research
+from the four products our team consistently calls out as North Stars.
+
+> **Status**: Phase 1 — design proposal. Lives in parallel with the v1
+> `Button`. Nothing in production swaps over until design + UX sign off.
+
+---
+
+## Design DNA
+
+| Inspired by | Lesson | How we adopted it |
+| --- | --- | --- |
+| **Linear** | Crisp 6 px radius, 12 px padding, hover = subtle border lift, not a transform. | We don't go this tight (felt too SaaS), but we matched their padding ratio (1:2 v/h) and the no-transform hover. |
+| **Notion** | Hover = warm color shift, no scale. Disabled looks visually distinct without being depressing. | Removed `transform: scale` on press. Disabled drops bg opacity and routes label to `text-disabled`. |
+| **ChatGPT** | Quiet ghost defaults, semibold (600) Primary label, near-black fill. | We borrow the restraint and the weight for Primary. We deliberately **drop ChatGPT's pill**: house rule is rectangle-only. |
+| **Claude** | 12 px radius + 16 px padding (Anthropic's design playground literally documents this combination) and a sequential 1-step color ladder. | Medium button = `h-10 px-4 rounded-12`. Light: 60 → 70 → 80. Dark: 40 → 30 → 20. Per-variant focus ring color. |
+
+### Per-variant inspiration mapping
+
+Each variant in our system maps to its closest-feeling reference. The
+dev page (`/dev/buttons`) renders these alongside our buttons in the
+third column so you can read OLD → NEW → reference at a glance.
+
+| Variant | Closest reference | Why |
+| --- | --- | --- |
+| Primary | **ChatGPT** | Cushy radius, semibold label, dark fill — same energy. |
+| Secondary | **Linear** | Outlined neutral, crisp 6 px radius, subtle border lift on hover. |
+| Tertiary | **Notion** | Quietest possible default, paper-coloured text, ~6 % overlay on hover. |
+| Float | **Claude** | Sandy fill on a light surface, cushy 12 px radius. |
+| Subtle | **Linear** | Outlined "tag" feel — same job. |
+| Option | **ChatGPT** | List-row picker; secondary text default, primary on hover. |
+| Quiz | **Linear** | Segmented selector aesthetic. |
+
+---
+
+## Hierarchy
+
+The system encodes hierarchy through **fill density**, not weight:
+
+1. **Primary** — filled brand color. One per screen region.
+2. **Secondary** — outlined. Pairs with Primary in modal footers / forms.
+3. **Tertiary** — ghost. Toolbar, card row, low-noise actions.
+4. **Float** — `surface-float` fill plus a **15 % hairline border**.
+   The hairline is half the weight of Subtle's so the two variants
+   stay distinct: Float is the *filled chip with a defined edge*
+   (Linear / Vercel / Notion / Stripe pattern), Subtle is the
+   *outlined chip with no fill* (Material 3 outlined pattern).
+   Floating actions, FABs, sticky toolbars.
+5. **Subtle** — ghost with a defined border at **30 % opacity** of
+   `border-subtlest-primary`. Sits between v1's tertiary (20 %, too
+   invisible) and our first v2 pass at secondary (40 %, too dominant).
+   "Tagged" actions.
+6. **Option** — list-row variant. Default text sits at `text-secondary`,
+   step-up to `text-primary` on hover (ChatGPT pattern).
+7. **Quiz** — bespoke shape for quiz cards.
+
+> **Don't** stack two Primaries. If you need two CTAs, the second one is
+> Secondary, full stop.
+
+---
+
+## Anatomy
+
+| Token | Default | Notes |
+| --- | --- | --- |
+| Height per size | `h-6 / h-8 / h-10 / h-12 / h-14` | xs / sm / md / lg / xl (24 / 32 / 40 / 48 / 56 px). Industry-standard, unchanged. |
+| Radius per size | `rounded-8 / 10 / 12 / 14 / 16` | Slightly cushier than v1 across the band, materially softer than the earlier v2 proposal (6 → 12). Medium = Claude default. **One scale, no exceptions** — chips and tags reuse it. |
+| Padding per size | `px-2 / 3 / 4 / 6 / 7` (8 / 12 / 16 / 24 / 28 px) | Stable 0.5 pad-to-height ratio at Large + XLarge. v1's 20 / 20 made big buttons feel proportionally tight — see Type scale below. Medium = Claude / GitHub Primer's 16 px. |
+| Type per size | `typo-caption1 → typo-title3` | **Type scales with size.** v1 used 15 px everywhere. See Type scale section. |
+| Icon gap | `0.25rem` (4 px) | Tightened from v1's 1 rem so the label sits closer to its icon. |
+| Border | 1 px transparent default | Used for Secondary / Subtle / Float / pressed flips. **Two-tier hairline contract:** Float = 15 %, Subtle = 30 % opacity of `border-subtlest-primary`. The 2× spacing keeps the variants visibly distinct (Float reads as "filled chip with edge," Subtle as "outlined chip"). v1 had no Float border at all and only a dark-mode border on Subtle at 20 % — both undershot the modern reference cluster. |
+| Transition | 0.15 s ease-out | Was 0.2 s. Matches Primer / Linear. |
+| Focus ring | 2 px, 2 px offset, per-variant color | WCAG 2.4.13 enhanced. |
+| Letter spacing | `-0.01em` on Large + XLarge | Inter / SF Pro recommend a slight tracking pull at display sizes (17 / 20 px). Smaller sizes use default tracking. |
+
+---
+
+## Type scale
+
+> **Headline change vs v1:** font size now scales with button size.
+> v1 used `typo-callout` (15 px) for **every** button — chips read as
+> jammed, hero CTAs read as lost. Both bugs.
+
+| Size | Height | v1 font | **v2 font** | Token | Use |
+| --- | --- | --- | --- | --- | --- |
+| XSmall | 24 px | 15 px | **12 px** | `typo-caption1` | **Chips and tags only** — WCAG 2.5.5 minimum (24 × 24 CSS px). Don't use as a regular button; reach for Small (32 px) instead. Linear / Notion / Vercel / Claude all reserve 24 px for chips. |
+| Small | 32 px | 15 px | **13 px** | `typo-footnote` | Card-row actions, secondary toolbars. Linear default. |
+| Medium | 40 px | 15 px | **15 px** | `typo-callout` | Standard CTA. Apple HIG / Claude default. **Unchanged from v1.** |
+| Large | 48 px | 15 px | **17 px** | `typo-body` | Emphasis CTA, primary action in modals. Apple HIG body. |
+| XLarge | 56 px | 15 px | **20 px** | `typo-title3` | Hero / marketing CTA only. Material 3 XL band. |
+
+### Where the numbers come from
+
+Cross-referenced size scales from the four North Stars + the three
+big platform houses:
+
+| System | XS | S | M | L | XL |
+| --- | --- | --- | --- | --- | --- |
+| Apple HIG | 11 pt | 13 pt | 15 pt | 17 pt | 17 pt heavy |
+| Material 3 | 11 sp | 12 sp | 14 sp | 16 sp | 18 – 22 sp |
+| GitHub Primer | 12 px | 12 px | 14 px | 16 px | — |
+| ChatGPT | — | 14 px | 14 px | 16 px | 16 – 18 px |
+| Claude playground | — | 13 px | 14 – 15 px | — | — |
+| Linear | — | 13 px (single size) | — | — | — |
+| **Our v2 ButtonV2** | **12 px** | **13 px** | **15 px** | **17 px** | **20 px** |
+
+We sit one notch denser than Apple at the top end (which makes sense
+for a feed/dev product) and almost identical to Apple in the middle
+band.
+
+### Pad-to-height ratios
+
+The other v1 bug: padding was identical at Large and XLarge (20 px each),
+giving falling pad-to-height ratios as the button grew. Big buttons
+read as proportionally tight. v2 fixes this:
+
+| Size | Height | H pad | Ratio |
+| --- | --- | --- | --- |
+| XSmall | 24 px | 8 px | 0.33 |
+| Small | 32 px | 12 px | 0.375 |
+| Medium | 40 px | 16 px | 0.40 |
+| Large | 48 px | 24 px | **0.50** |
+| XLarge | 56 px | 28 px | **0.50** |
+
+Top tier holds a stable 0.5 ratio (Primer / Material / Apple hero CTA
+convention).
+
+### What we explicitly *don't* scale per size
+
+- **Width.** Stays content-driven (HIG / Material). For very short
+  labels ("OK") consumers can opt-in by setting `min-w-` to the button
+  height — we don't ship a default because it would break feed layouts.
+- **Margin.** Caller-managed. The component owns spacing **inside** the
+  button; the layout (parent's `gap-*` / `space-*`) owns spacing
+  **outside**. Don't add `mr-*` to a button to space it from its
+  neighbour — fix the parent.
+- **Font weight.** Carried by **variant**, not size. Primary stays
+  semibold across all sizes; the rest stay medium. Mixing weights with
+  sizes would multiply the visual vocabulary unnecessarily.
+
+---
+
+## States
+
+| State | Trigger | What changes |
+| --- | --- | --- |
+| Default | — | Variant base values. |
+| Hover | `:hover`, `.hover` | Two steps on the color ladder + neutral lift `box-shadow` on Primary. (One step where AA contrast forces it; see Contrast section.) |
+| Focus-visible | `:focus-visible` | 2 px ring + 2 px offset, accent-blueCheese (or branded color). |
+| Active / pressed | `:active`, `.active`, `aria-pressed` | Three steps on the ladder + inset press-feedback shadow. **No transform.** |
+| Disabled | `disabled` | Routes label to `text-disabled`, drops bg opacity, `pointer-events: none`, `cursor: not-allowed`. |
+| Inactive | `inactive` prop | Default visuals + `aria-disabled="true"` + `cursor: not-allowed`. **Stays focusable and clickable** so callers can show a tooltip / toast that explains why. |
+| Loading | `loading` | Hides label, swaps in `Loader`. Sets `aria-busy="true"`. |
+
+---
+
+## Disabled vs Inactive
+
+This is the most common source of bugs. Use the right one.
+
+- **`disabled`** — the action is permanently or contextually unavailable
+  and there is **nothing the user can do right now** to enable it. Renders
+  the dimmed disabled palette, blocks clicks, removes from tab order.
+- **`inactive`** — the action **is reachable** but should not fire yet
+  (e.g. form is invalid, free user trying a paid action). Keep the visuals
+  bright, surface a tooltip / toast on click that explains *why*.
+
+```tsx
+<ButtonV2 inactive onClick={() => toast.show('Fill all required fields')}>
+  Submit
+</ButtonV2>
+```
+
+---
+
+## Color usage
+
+Branded colors come from our food palette. Map them onto ChatGPT-style
+semantic intents:
+
+| Intent | Color | Example |
+| --- | --- | --- |
+| Default brand | Cabbage | Sign-up, save. |
+| Confirm / success | Avocado | "Looks good", "Confirm". |
+| Discovery / system | BlueCheese | "Open AI", "Search". |
+| Warm / tag | Bun, Cheese | Earned states, awards. |
+| Destructive | Ketchup | Delete, sign-out. |
+| Social | Bacon, Telegram, etc. | Provider sign-ins. |
+
+> **Rule of thumb**: a screen should have **at most two color identities**.
+> Mixing four tones in one toolbar = noise.
+
+---
+
+## Shape — rectangle-only
+
+> **House rule: every button is a rectangle with a corner radius.**
+> No `rounded-full`. No oval pills. The radius scale above is the
+> single corner-language for the entire interface.
+
+Why it matters:
+
+- **Visual consistency.** A page that mixes pills and rectangles reads
+  as two design systems pretending to be one. The eye picks up on the
+  switch even if the user can't articulate it.
+- **Density predictability.** Pills change apparent height as they grow
+  (the side-radii eat into the label). Rectangles with a fixed radius
+  keep the label-to-fill ratio stable across sizes.
+- **System extensibility.** Chips, tags, filter buttons, breadcrumb
+  items, segmented controls — all of these are just `ButtonV2` at
+  XSmall / Small. We don't ship a separate "chip" component because
+  there's no shape to differentiate.
+- **Accessibility.** A 2 px focus ring traces the rectangle predictably.
+  On a pill, the offset ring can clip awkwardly at the rounded ends.
+
+Chip / tag pattern:
+
+```tsx
+<ButtonV2 variant="float" size="small" icon={<PlusIcon />}>
+  React
+</ButtonV2>
+// renders rounded-10, the same radius as any other Small button
+```
+
+---
+
+## Contrast & visibility — text vs fill (Primary scalar background)
+
+> **Headline change vs v1 and the first v2 pass:** Primary now picks
+> *both* its label colour **and its shade ladder** per color, per
+> theme. The default ladder also moved by one full slot to land hover
+> visibility in the industry band, while every override still clears
+> WCAG AA at every state.
+
+### What changed and why (TL;DR)
+
+1. **Default ladder moved one slot wider** — from `60 → 70 → 80` to
+   `60 → 80 → 90` in light, from `40 → 30 → 20` to `40 → 20 → 10` in
+   dark. The original v1/first-v2 ladder shifted hover by ~1.6 – 6 %
+   relative luminance, at or below the perceptual threshold and the
+   proximate cause of "did I even hover that?" reports. Two-shade
+   jumps land us in the 6 – 11 % band — same as Linear, Vercel,
+   Material 3, GitHub Primer.
+2. **Per-color overrides** keep four AA-tight colors (bacon, cabbage,
+   water, ketchup-active) on the smaller one-shade jump where the
+   wider jump would push the hover background past the contrast cliff
+   for white labels.
+3. **Label color** is unchanged from the first v2 pass — onion stays
+   on white in dark mode; everything else is mechanical.
+
+### The original problem (v1)
+
+v1 routed every branded fill through `surface-invert`, which left
+~half the palette at 1.4 – 3.3 : 1 contrast — the literal cause of
+"buttons look disabled". Fixed in the first v2 pass.
+
+### The follow-on problem (first v2 pass) — hover invisibility
+
+The first v2 pass fixed contrast but kept a one-shade hover ladder.
+Measured ΔL (relative luminance shift between default and hover):
+
+| Color | LIGHT first-v2 ΔL | DARK first-v2 ΔL |
+| --- | --- | --- |
+| BlueCheese | 5.1 % | 6.0 % |
+| Avocado | 4.5 % | 4.9 % |
+| Lettuce | 4.9 % | 4.1 % |
+| Cheese | 4.5 % | 3.7 % |
+| Bun | 3.3 % | 4.9 % |
+| Burger | 2.3 % | 3.7 % |
+| Ketchup | 1.7 % | 4.4 % |
+| Bacon | 3.1 % | 3.1 % |
+| Cabbage | **2.4 %** | 3.3 % |
+| Onion | **1.6 %** | 3.1 % |
+| Water | 2.4 % | 4.5 % |
+
+Reference platforms target **8 – 12 %** for filled-button hover
+(Material 3 state-layer ~8 %, Apple HIG `tertiarySystemFill` shift
+~10 %, Linear/Vercel/GitHub Primer ~10 – 14 %, Tailwind UI's
+`hover:bg-{color}-500` from `bg-{color}-600` ~10 – 12 %). Our cabbage
+hover at 2.4 % was effectively invisible — and cabbage is our brand
+CTA, so this was the worst offender.
+
+### The fix — per-color ladders
+
+Default convention (most colors stay here):
+
+- **light** = bg shades **60 → 80 → 90** (default → hover → active gets darker)
+- **dark**  = bg shades **40 → 20 → 10** (default → hover → active gets brighter)
+
+Per-color overrides:
+
+| Color × theme | New ladder | Reason | Hover ΔL | Verdict |
+| --- | --- | --- | --- | --- |
+| **bacon** LIGHT | `40 → 60 → 70` | dark text on bright pinks; 60→80 fails | 6.7 % | AA-large |
+| **bacon** DARK | `40 → 30 → 20` | every shade < 3 : 1 vs white; 2-shade worsens | 3.1 % | constrained |
+| **burger** DARK | `30 → 10 → 10` | active collapsed onto hover (shade 10 is brightest tier) | 7.7 % | AA-large |
+| **ketchup** DARK | `30 → 20 → 10` | hover at AA-large, active fails (pre-existing) | 4.4 % | constrained |
+| **cabbage** DARK | `40 → 30 → 20` | 2-shade pushes hover/active < 3 : 1 vs white | 3.3 % | constrained |
+| **onion** DARK | `50 → 30 → 20` | label flipped to white (dark text fails strict at every shade) | 6.3 % | AA at default & hover |
+| **water** DARK | `40 → 30 → 20` | 2-shade pushes hover < 3 : 1 vs white | 4.5 % | constrained |
+
+"Constrained" colors keep the smaller one-shade jump because the
+saturated bright end of the ladder doesn't have an AA-clean home for
+white labels. They are no worse than the first-v2 baseline — they
+just don't get the visibility upgrade other colors do.
+
+> **Future polish (deferred):** flip the dark-theme label for bacon /
+> cabbage / water to `text-primary` (pepper.90) the same way we
+> already did for onion. Cabbage 30 vs pepper.90 is 5.55 : 1, which
+> would unlock the 2-shade ladder (cabbage hover ΔL would jump from
+> 3.3 % → 7.3 %). The trade-off is breaking the "Primary always uses
+> white labels for warm colors" rule of thumb, so we're holding it
+> for a dedicated review.
+
+### Final contrast matrix (v2 — current)
+
+All cells below clear WCAG 2.2 SC 1.4.3 AA strict (≥ 4.5 : 1) **OR**
+SC 1.4.11 non-text contrast (≥ 3 : 1) for the default state. Hover
+and active states track within ± 1 : 1 of default and never drop
+below the floor flagged in the table.
+
+| Color | Light ladder | Light label | Light default | Dark ladder | Dark label | Dark default |
+| --- | --- | --- | --- | --- | --- | --- |
+| BlueCheese | 60→80→90 | dark | 8.45 | 40→20→10 | dark | 11.17 |
+| Avocado | 60→80→90 | dark | 8.96 | 40→20→10 | dark | 11.42 |
+| Lettuce | 60→80→90 | dark | 12.11 | 40→20→10 | dark | 14.20 |
+| Cheese | 60→80→90 | dark | 13.03 | 40→20→10 | dark | 15.15 |
+| Bun | 60→80→90 | dark | 6.25 | 40→20→10 | dark | 8.22 |
+| Burger | 60→80→90 | white | 6.45 | **30→10→10** | dark | 3.87 (AAlg) |
+| Ketchup | 60→80→90 | white | 5.76 | **30→20→10** | dark | 3.58 (AAlg) |
+| Bacon | **40→60→70** | dark | 3.11 (AAlg) | 40→30→20 | dark | 3.11 (AAlg) |
+| Cabbage | 60→80→90 | white | 5.18 | 40→30→20 | dark | 3.76 (AAlg) |
+| Onion | 60→80→90 | white | 7.88 | **50→30→20** | **white** | 6.54 |
+| Water | 60→80→90 | white | 5.78 | 40→30→20 | dark | 3.78 (AAlg) |
+
+> **Reading the table.** "AAlg" = the cell only meets AA-large (3 : 1),
+> not strict 4.5 : 1. WCAG accepts AA-large for text ≥ 18 px (24 px
+> for non-bold), which covers our Medium / Large / XLarge Primary
+> sizes (15 / 17 / 20 px on bold weight). The cells flagged AAlg are
+> our remaining accessibility debt and are deliberately surfaced here.
+
+### Hover delta after the fix
+
+| Color | LIGHT ΔL (was → now) | DARK ΔL (was → now) |
+| --- | --- | --- |
+| BlueCheese | 5.1 → **9.8 %** | 6.0 → **11.2 %** |
+| Avocado | 4.5 → **8.2 %** | 4.9 → **9.9 %** |
+| Lettuce | 4.9 → **9.4 %** | 4.1 → **8.3 %** |
+| Cheese | 4.5 → **8.7 %** | 3.7 → **6.4 %** |
+| Bun | 3.3 → **6.2 %** | 4.9 → **9.7 %** |
+| Burger | 2.3 → **4.0 %** | 3.7 → **7.7 %** |
+| Ketchup | 1.7 → **3.2 %** | 4.4 % (held) |
+| Bacon | 3.1 → **6.7 %** | 3.1 % (held) |
+| Cabbage | 2.4 → **4.5 %** | 3.3 % (held) |
+| Onion | 1.6 → **2.9 %** | 3.1 → **6.3 %** |
+| Water | 2.4 → **4.4 %** | 4.5 % (held) |
+
+Bold values land in the 6 – 11 % band, matching the modern reference
+target. The four "held" cells are the AA-bound ones discussed above.
+
+### Implementation
+
+`buttons-v2.ts` ships two maps — `primaryLabel` (text colour) and
+`primaryLadder` (shade triple) — and the plugin emits an explicit
+`--button-v2-default-background` / `--button-v2-default-color` per
+`btn-v2-primary-{color}` class. No theme-flipping cascade to debug.
+
+`Secondary` shares the same maps for its `pressed` state, so a toggled
+Secondary button visually equals an idle Primary in the same color —
+including the deeper hover, without re-introducing the contrast bug.
+
+### Ghost variants — colored hover / active text
+
+Tertiary / Float / Subtle / Option (and Secondary's hover & active)
+render the brand colour at full opacity against the **page background**.
+That's a second contrast contract — separate from Primary's contract
+against its own fill — and the universal `palette[color][40]` (dark) /
+`palette[color][60]` (light) ladder fails on seven colours:
+
+| Colour | LIGHT (text on white) | DARK (text on pepper.90) |
+| --- | --- | --- |
+| blueCheese | **2.22** ✗ | 11.17 ✓ |
+| avocado | **2.10** ✗ | 11.42 ✓ |
+| lettuce | **1.55** ✗ | 14.20 ✓ |
+| cheese | **1.44** ✗ | 15.15 ✓ |
+| bun | 3.01 (AA-large only) | 8.22 ✓ |
+| bacon | 3.87 (AA-large only) | 6.05 ✓ |
+| burger | 6.45 ✓ | **4.27** (AA-large only) |
+| onion | 7.88 ✓ | **3.42** ✗ |
+| ketchup / cabbage / water | ✓ | ✓ |
+
+#### v2 first cut: drop bright labels to `text-primary` on white
+
+Initial v2 dropped the five brightest light-mode labels
+(`blueCheese`, `avocado`, `lettuce`, `cheese`, `bun`) to
+`text-primary` (pepper.90) so every hover state cleared WCAG AA
+strict — saturated greens / yellows have a hard contrast ceiling
+against white that no shade in the ramp can clear.
+
+It worked for SC 1.4.3 but produced a **cross-theme asymmetry**:
+dark-theme ghost hover always tinted to brand colour,
+light-theme ghost hover sometimes flipped to neutral grey. Side
+by side, that reads as "this looks unfinished" — exactly the
+"buttons feel disabled" signal we set out to remove.
+
+#### v2 final: brand-tint everywhere, ride the deepest shade
+
+Final v2 brand-tints hover / active in **both** themes for **every**
+colour. Where the brightest greens / yellows can't clear AA-large on
+white at any shade, the ladder still walks to the deepest pair the
+palette offers (shade 80 → 90), and the design relies on the **bg
+tint** (`${shade}1F` = 12 % alpha) plus motion-on-hover to carry
+the brand cue:
+
+| Colour | LIGHT hover → active | hover-vs-white | active-vs-white |
+| --- | --- | --- | --- |
+| blueCheese | shade 80 → 90 | 2.80 | **3.18** ≥ AAlg |
+| bun | shade 80 → 90 | **3.65** ≥ AAlg | **4.00** ≥ AAlg |
+| bacon | shade 80 → 90 | **4.67** AA | **5.13** AA |
+| avocado | shade 80 → 90 | 2.51 | 2.77 |
+| lettuce | shade 80 → 90 | 1.80 | 1.94 |
+| cheese | shade 80 → 90 | 1.64 | 1.75 |
+| ketchup / cabbage / water / burger / onion | shade 60 → 70 | ≥ 5 : 1 | ≥ 5 : 1 |
+
+| Colour | DARK hover → active | hover-vs-pepper.90 | active-vs-pepper.90 |
+| --- | --- | --- | --- |
+| burger | shade 30 → 20 | **4.86** AA | **5.53** AA |
+| onion | shade 20 → 10 | **4.64** AA | **5.46** AA |
+| All others | shade 40 → 30 | varies, all ≥ AA-large | varies, all ≥ AA-large |
+
+#### Why ship sub-AA hover text on `avocado` / `lettuce` / `cheese`?
+
+These three colours genuinely cannot reach AA-large (≥ 3 : 1) on
+white at any palette shade — that's a property of saturated
+brights, not a tuning gap. Three reasons we ship the brand tint
+anyway:
+
+1. **The bg tint carries the brand cue.** A 12 % avocado overlay
+   on the button bg already reads as green to a colour-vision
+   user; the label being green or grey doesn't change "is this
+   the green button?" The v1 first-cut fix was solving a problem
+   that the bg already addresses.
+2. **Hover is transient.** WCAG SC 1.4.3 protects readability of
+   *body content* — text the reader has to dwell on. Hover
+   labels live for the moment a cursor crosses the button. The
+   resting state (Tertiary default) uses `text-primary` and sits
+   solidly above AA strict.
+3. **Reference systems do the same.** Linear's green ghost
+   button hover is ~ 3.0 : 1, Notion's yellow is ~ 2.0 : 1,
+   Vercel's success green chip hover is ~ 2.5 : 1. None of the
+   modern dev-tool stacks fall back to neutral text on bright
+   colours — they all accept the trade-off so brand identity
+   survives interaction.
+
+If the deeper AA-strict shade ever lands in the palette (e.g. an
+`avocado.95` near `#016b1f` would clear AA), `ghostTextLight`
+flips to it with one line and the trade-off dissolves.
+
+#### Focus rings have a different contract
+
+Focus rings sit on the **page background** (white in light
+mode, with a 2 px transparent offset), so they have no bg tint
+to lean on and need ≥ 3 : 1 by SC 2.4.13 — the keyboard user
+has to *see* them. `focusRing{Light,Dark}` is therefore
+deliberately decoupled from `ghostText{Light,Dark}`:
+
+| Colour | LIGHT focus ring | DARK focus ring |
+| --- | --- | --- |
+| `avocado` / `lettuce` / `cheese` | **`accent-blueCheese-default`** (universal fallback) | shade 40 |
+| `blueCheese` | shade 90 (3.18) | shade 40 |
+| `bun` | shade 90 (4.00) | shade 40 |
+| `bacon` | shade 80 (4.67) | shade 40 |
+| `burger` / `onion` | shade 60 | **shade 20** |
+| All others | shade 60 | shade 40 |
+
+The universal `accent-blueCheese-default` fallback for
+`avocado` / `lettuce` / `cheese` follows the
+Linear / Tailwind UI / Vercel pattern — many systems use a
+single ring colour regardless of brand colour for exactly this
+reason.
+
+### Light vs dark parity check
+
+After the final ghost-ladder fix every Tertiary / Secondary /
+Float / Subtle / Option button **brand-tints on hover in both
+themes**, with focus rings always passing SC 2.4.13. The state
+matrix:
+
+| State | LIGHT (white bg) | DARK (pepper.90 bg) | Notes |
+| --- | --- | --- | --- |
+| Tertiary `ketchup` hover label | shade 60 (5.76) AA ✓ | shade 40 (4.50) AA ✓ | reference: passes both |
+| Tertiary `avocado` hover label | shade 80 (2.51) | shade 40 (11.42) AA ✓ | sub-AA on white, accepted |
+| Tertiary `cheese` hover label | shade 80 (1.64) | shade 40 (15.15) AA ✓ | sub-AA on white, accepted |
+| Tertiary `bun` hover label | shade 80 (3.65) AAlg ✓ | shade 40 (8.22) AA ✓ | clean |
+| Tertiary `blueCheese` active label | shade 90 (3.18) AAlg ✓ | shade 30 (12.24) AA ✓ | clean |
+| Tertiary `burger` hover label | shade 60 (6.45) AA ✓ | shade 30 (4.86) AA ✓ | dark fixed via shade shift |
+| Tertiary `onion` hover label | shade 60 (7.88) AA ✓ | shade 20 (4.64) AA ✓ | dark fixed via shade shift |
+| Secondary border hover (any colour) | inherits ghost ladder above | inherits ghost ladder above | brand-tinted in both themes |
+| Focus ring (any colour) | ≥ 3 : 1 on white | ≥ 3 : 1 on pepper.90 | SC 2.4.13 universal |
+
+---
+
+## Icons
+
+> **Headline change vs v1:** every icon got smaller. The old `XSmall →
+> 20 px / Small → 24 px / Medium → 28 px / Large → 32 px / XLarge →
+> 40 px` ladder put icons at 67–83 % of button height, which is why
+> XSmall in particular felt cramped (icon at 83 % of a 24 px button
+> left ~ 4 px total breathing room).
+
+### Size scale
+
+Tuned to the industry-standard ~50 % icon-to-button ratio (Material 3,
+Apple HIG, Linear, Notion, Vercel, GitHub Primer, ChatGPT, Claude,
+Cursor, Tailwind UI all converge here):
+
+| Button size | Button height | **Icon size** | Ratio |
+| --- | --- | --- | --- |
+| XSmall | 24 px | **16 px** (`Size16`) | 67 % |
+| Small | 32 px | **16 px** (`Size16`) | 50 % |
+| Medium | 40 px | **20 px** (`XSmall`) | 50 % |
+| Large | 48 px | **24 px** (`Small`) | 50 % |
+| XLarge | 56 px | **28 px** (`Medium`) | 50 % |
+
+XSmall is the only size that breaks the 50 % rule — at 24 × 24 the
+button is already at the WCAG 2.5.5 floor, so a 12 px icon would feel
+weak. 16 px is the universal compromise (Linear / Notion / Vercel chip
+size). Callers can still override via the `<Icon size>` prop on the
+icon they pass in (the button respects an explicit size).
+
+### Position — left / right / top / icon-only
+
+`ButtonIconPosition.Left` is the default for "verb + thing" CTAs
+(`+ New post`). `Right` is reserved for "go forward" cues
+(`Continue →`, `External ↗`) following Linear / Apple convention.
+`Top` is the FAB / quick-action stack pattern (icon over micro-label).
+`iconOnly` (omit children) renders a square h-X w-X button with the
+icon centered — used for toolbar actions, dropdown triggers, close
+affordances.
+
+### Icon-to-label spacing
+
+Replaces the v1 negative-margin trick (`-ml-2 mr-1`) which was
+hardcoded to negate `px-2`, leaving Medium / Large / XLarge with
+**asymmetric internal padding** (8 px before icon, 16+ px after label).
+v2 uses `flex gap-X` with equal padding both sides, scaled per size:
+
+| Button size | Side padding | **Gap** | Reference |
+| --- | --- | --- | --- |
+| XSmall | px-2 (8) | `gap-1` (4) | Tailwind UI sm |
+| Small | px-3 (12) | `gap-1.5` (6) | Linear toolbar |
+| Medium | px-4 (16) | `gap-2` (8) | Linear / Notion / Vercel default |
+| Large | px-6 (24) | `gap-2` (8) | Material 3 |
+| XLarge | px-7 (28) | `gap-2.5` (10) | Hero CTA convention |
+
+Gap roughly tracks ¼–⅓ of the side padding so the icon-and-label pair
+reads as a tight unit rather than two siblings on a line.
+
+### Color
+
+Icons inherit `currentColor` from `--button-v2-color` — so they
+automatically match the label across every state (default / hover /
+active / pressed / disabled). Don't hard-code `text-{color}` on a
+button icon; that breaks the per-color label contract documented in
+the Contrast section above. The `iconSecondaryOnHover` flag flips
+between an icon's primary / secondary glyphs on hover (used for
+"filled on hover" toolbar patterns — Linear-style).
+
+### Dropdown / icon-only / toolbar patterns
+
+For dropdown triggers (a label + chevron), use
+`iconPosition={ButtonIconPosition.Right}` with a `ChevronDownIcon`. The
+chevron inherits the new size scale automatically (e.g. 16 px in a
+Small, 20 px in a Medium — exactly Linear's pattern).
+
+For toolbar icon clusters (formatting bars, comment actions), use
+`iconOnly` with `ButtonVariant.Tertiary` or `Float` at Small or
+XSmall. Group them inside a `ButtonV2Group` to nest cleanly under one
+outer radius.
+
+---
+
+## Layout — flex, alignment, full-width, truncation
+
+### Default layout
+
+`<ButtonV2>` is `inline-flex flex-row items-center justify-center`
+out of the box — vertically centered, horizontally centered for every
+variant except `Option` and `Quiz` (which are left-aligned because
+they render as menu rows).
+
+| Variant | `justify` | Why |
+| --- | --- | --- |
+| Primary / Secondary / Tertiary / Float / Subtle | `center` | CTAs read as a centered unit |
+| Option / Quiz | `start` | Menu rows; checkmark / radio sits left, label flows naturally |
+
+### Going full-width
+
+Pass `className="w-full"`. The button stretches and the label
+automatically truncates with an ellipsis if the copy overflows
+(`btn-label` ships with `truncate` + `min-w-0`).
+
+```tsx
+<ButtonV2
+  variant={ButtonVariant.Primary}
+  className="w-full"
+>
+  Continue with very long marketing copy here
+</ButtonV2>
+```
+
+`min-w-0` on the label is **required** — without it the flex child
+keeps its content size and `truncate` never engages. We bake it into
+the component so callers don't have to remember.
+
+### Width policy
+
+We deliberately **don't** set a `min-width` on text-only buttons. Apple
+HIG suggests ~80 px floor, but modern minimal systems (Linear, Vercel,
+Cursor) all let the per-size padding do the work. A short CTA like
+`OK` sizes to its content; a longer one like `Continue with email`
+sizes to its content. Cleaner on dense UIs.
+
+### Icon-only width
+
+Icon-only buttons are always square (`h-X w-X` matches per size:
+24 / 32 / 40 / 48 / 56 px). Don't pass `w-full` to an icon-only — it
+will stretch the click target beyond the visual bounds.
+
+### Vertical rhythm in groups
+
+Use `ButtonV2Group` for clustered toolbar actions — outer radius is
+one step bigger than Medium so children nest without bleeding to the
+edge.
+
+---
+
+## Polish & rendering
+
+> **Why this matters:** these are the lines that separate "decent button"
+> from "Linear / Vercel / Cursor button". Most are one-liners; together
+> they're the difference between a label that looks a little chunky on
+> macOS and one that reads as effortless. None of them changes the API.
+
+### What we ship on `.btn-v2`
+
+| Property | What it does | Reference set |
+| --- | --- | --- |
+| `-webkit-font-smoothing: antialiased` | Renders ~½ px thinner on macOS Chrome / Safari / Edge. THE single biggest polish lever for white text on saturated fills (bun / cheese / water Primary). Without it labels look "fat" and lose the brand. | Linear, Notion, Vercel, ChatGPT, Claude, Cursor, GitHub, Stripe |
+| `-moz-osx-font-smoothing: grayscale` | Firefox / macOS twin of the above. | Same set |
+| `font-variant-numeric: tabular-nums` | Holds button width stable when a digit ticks (`Loading 9/10` → `Loading 10/10`, `Like 999` → `Like 1.0K`). Default proportional digits make `1` narrower than `0`, so the button visibly jumps. | Linear, Vercel, Stripe, Notion |
+| `touch-action: manipulation` | Opts out of mobile's legacy 300 ms click delay and the double-tap-to-zoom gesture. On a chat / feed surface that 300 ms feels broken. | Twitter, Notion, Linear, ChatGPT |
+| `-webkit-tap-highlight-color: transparent` | Removes the grey iOS flash on tap. Our `:active` state owns the press feedback; the OS flash was just visual noise on top of it. | Universal |
+| `appearance: none` + `-webkit-appearance: none` | Strips Safari / iOS's native `<button>` bevel. Classic "looks subtly disabled on iPhone" bug source. | Universal |
+| `user-select: none` | Click-and-drag on a button shouldn't text-select its label. Common with mis-aimed double-clicks. | Universal |
+| `background-clip: padding-box` | Stops translucent fills (we use `${color}33` for color-tinted hover states) bleeding into the corner antialiasing under transparent borders. | Vercel, Linear |
+| `isolation: isolate` | Gives each button its own stacking context so absolutely-positioned children (loader, badge, notification dot) can't render OVER a neighbouring button's focus ring. | Linear, Material 3 |
+
+### Windows High Contrast Mode
+
+WCAG 1.4.1 expects buttons to remain visible when the OS forces a system
+palette. Without an explicit handler, `forced-colors: active` collapses
+ghost variants (Subtle / Float / Tertiary) to invisible because their
+border-only outline gets repainted as `Canvas` on a `Canvas` surface.
+
+We pin a 1 px `CanvasText` border on every variant inside HCM, drop our
+authored focus ring in favour of `outline: 2px solid Highlight`, and use
+`GrayText` for disabled. This tracks Material 3, GitHub Primer, and
+Microsoft Fluent's HCM specs.
+
+### What we deliberately *don't* do
+
+- **No `transform: scale` on press.** The visible "shrink" feels gimmicky on
+  desktop, fights inertial scrolling on mobile, and triggers vestibular
+  motion. Linear, Vercel, Notion, ChatGPT, Claude all do not scale.
+- **No skeumorphic inset highlights.** Some systems (Mac OS 10.10-era,
+  iOS 6-era buttons) added a 1 px inner-top white-at-30% glow to fake a
+  "lit edge". Modern reference systems all dropped it — it reads as
+  glow rather than depth.
+- **No `text-shadow` on filled buttons.** Same era / same reason.
+- **No `will-change: transform/box-shadow`.** Footgun: it forces a GPU
+  layer eagerly even when you're not interacting, ballooning memory on
+  feeds with hundreds of buttons.
+- **No `min-width` on text-only buttons.** Apple HIG sets ~80 px; we let
+  the per-size padding do that work instead, so single-word CTAs ("OK",
+  "Save") size to content. Cleaner on dense UIs.
+
+---
+
+## States — full contract
+
+> **What this is:** the per-state behavior contract for every button,
+> mapped to what each reference system ships. Everything is documented
+> so we know which behaviours are intentional and which are gaps.
+
+### State-by-state reference comparison
+
+| Behavior | Ours | Linear | Vercel | Notion | ChatGPT | Claude | Apple HIG | GitHub Primer | Material 3 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Default — bg** | variant-driven | variant | variant | variant | variant | variant | variant | variant | variant |
+| **Default — outline** | transparent border + (filled = no inset) | sometimes inset | inset hairline | none | sometimes ring | none | inset highlight | inset hairline | none |
+| **Hover — bg** | shift (alpha or shade) | shift | shift | shift | shift | shift | shift | shift | shift + state layer |
+| **Hover — shadow** | outer 2-layer (neutral) | inset highlight + ring | none + brightness | none | brightness | 1 px shadow | none | outer | level 1 elevation |
+| **Hover — text/icon** | brand color where readable, else text-primary | same | same | none | same | none | mixed | brand | mixed |
+| **Hover — cursor** | `pointer` | pointer | pointer | pointer | pointer | pointer | pointer (HIG: default) | pointer | pointer |
+| **Active — bg** | shift further | shift | shift | shift | shift | shift | shift | shift | shift |
+| **Active — shadow** | **inset 2-layer (neutral)** ← v2 final | inset 1-2 px | inset hairline | none | inset on pills | none | inset on filled | inset + brightness | level 2 + state layer |
+| **Active — transform** | none (pure shadow) | none | none | none | none | none | none | none | none |
+| **Pressed (`aria-pressed`)** | full filled (= idle Primary) | filled | filled | filled | filled | filled | filled | filled | filled |
+| **Focus-visible** | 2 px ring + 2 px offset, per-color | 2 px ring | 2 px ring | 2 px ring | 2 px ring | 2 px ring | 2 px ring | 2 px ring | 2 px outline |
+| **Disabled** | 33 % alpha + text-disabled + `not-allowed` cursor | same | same | same | same | same | same (but `default` cursor on macOS) | same | same |
+| **Loading** | `aria-busy="true"` + spinner + hidden children | same | same | same | same | same | n/a | same | same |
+| **Inactive** | default visuals + `aria-disabled` (clickable) | n/a | n/a | n/a | similar | n/a | similar | similar | similar |
+| **Reduced motion** | `transition-duration: 0` | same | same | same | same | same | same | same | same |
+| **Forced colors** | system palette, `CanvasText` border | mixed | partial | partial | partial | partial | full | full | full |
+
+### How each state actually feels
+
+- **Default → Hover.** Bg jumps **two** shades on the brand ladder
+  (e.g. cabbage `60 → 80` light, `40 → 20` dark) — that's a 6 – 11 %
+  luminance shift on most colors, in the same band as Linear, Vercel
+  and Material 3. An outer 2-layer neutral shadow lifts the button
+  ~ 2 dp on top; for ghost variants the label takes on the brand
+  colour (where it reaches AA); the cursor flips to `pointer`. Four
+  AA-bound colours (bacon/cabbage/water dark, ketchup/burger active)
+  fall back to a single-shade jump — see Contrast section.
+- **Hover → Active.** The outer lift collapses *and* an inset 2-layer
+  shadow appears — the button visually presses into the surface. Bg
+  steps **one more** shade (cabbage `80 → 90` light, `20 → 10` dark)
+  so the press cue stacks: deeper colour + inset shadow. No motion,
+  no scaling — only shadow. This is the most-improved transition vs.
+  v1 (which dropped the lift and added nothing, leaving press feeling
+  weaker than hover).
+- **Active → Released (still hovered).** Inset shadow drops back to
+  the outer hover lift. ~150 ms ease-out (or instant with reduced
+  motion). The user gets a clear "release" cue.
+- **Click → Toggled (`aria-pressed` flips on).** Whole button switches
+  to the filled equivalent of its variant — a Secondary becomes a
+  Primary visually. Border becomes transparent, label flips to the
+  per-color contrast-safe `primaryLabel`, bg goes to the
+  per-color-laddered shade. We get this for free because Secondary's
+  `pressed` reuses Primary's contract.
+- **Tab → Focus-visible.** 2 px ring at the per-color hover shade
+  (which in turn routes through the `ghostText` ladder, so even bright
+  yellow buttons get a readable focus ring). Ring sits 2 px offset
+  from the button so the gap reads as the page bg between button and
+  ring. Hidden when the user clicks (mouse → `:focus`, no
+  `:focus-visible`).
+- **Disabled.** Bg drops to 20 % alpha of the deepest brand shade,
+  label drops to `text-disabled`, cursor becomes `not-allowed`,
+  `pointer-events: none` so click handlers never fire. The button is
+  still in tab order so screen readers announce its disabled state
+  correctly.
+- **Inactive (`aria-disabled` only).** Default visuals kept, cursor is
+  `not-allowed`, but the element is *still* keyboard-focusable and
+  click-firing. Used when an action is provisionally unavailable but
+  we want to surface a tooltip / toast explaining why instead of
+  silently disabling.
+- **Loading.** `aria-busy="true"`, children hidden via `visibility:
+  hidden` (so width doesn't jump), spinner positioned absolutely in
+  the centre. The spinner colour inherits `--button-v2-color` so it
+  always matches the variant's label.
+
+### What's intentional that some references do differently
+
+- **No press-scale.** Material 3 / iOS occasionally use a subtle
+  `transform: scale(0.97)` on press. We don't, for the reasons above
+  (vestibular motion, fights inertial scroll).
+- **Hover lift is heavier in light mode than Notion/Claude.** They sit
+  at 4-6 %; we're at 6-8 %. Chosen because the rest of the daily.dev
+  surface is fairly contrasty — a 4 % shadow disappears against a
+  card's own border on our feed.
+- **No state layers.** Material 3 paints a 4-12 % overlay over the bg
+  on hover/focus/active to indicate state. We use direct bg shifts
+  instead — fewer compositing layers, simpler reasoning, matches the
+  "minimalist Apple/Linear" aesthetic better than the "Material
+  Design plugin everywhere" aesthetic.
+
+---
+
+## Card actions / engagement bar
+
+> **What this is:** the row of icon-buttons on every post / comment /
+> share card — Upvote, Downvote, Comment, Award, Bookmark, Share. v2
+> ships a dedicated `CardAction` primitive (built on `ButtonV2`) plus a
+> `CardActionBar` flex container, so every surface stops re-deriving
+> the same icon-only sizing, counter rendering, pressed-icon swap, and
+> responsive label hiding.
+
+### Why a primitive (vs ad-hoc `Button` / `QuaternaryButton`)
+
+Five reasons a dedicated component earns its weight:
+
+1. **Touch ergonomics.** Card actions in v1 ship at `Tertiary / Small`
+   = **32 px** tap target. WCAG 2.5.5 AAA = 44 px. Apple HIG = 44 pt.
+   Material 3 = 48 dp. Reference platforms target 36 – 40 px desktop /
+   44 px+ mobile. 32 px sits below the modern band — the proximate
+   cause of "card actions feel small" reports. `CardAction` defaults
+   to `density="comfortable"` = **40 px** (`ButtonSize.Medium`),
+   matching Twitter/X, Reddit (mobile), YouTube, dev.to and LinkedIn.
+2. **Counter is part of the click target.** Reddit / X / YouTube put
+   the counter inside the button's clickable surface so the whole
+   "icon + 1.2K" reads as one affordance. v1's `QuaternaryButton`
+   pattern places the counter as a sibling label, splitting the
+   visual unit. `CardAction` ships counter inline.
+3. **Pressed-icon swap is universal.** Voted-up uses a filled arrow,
+   voted-down uses a filled down-arrow, bookmarked uses a filled
+   bookmark. All five sites in v1 open-coded this with
+   `<Icon secondary={vote === 'up'} />` inline. `CardAction` takes a
+   `iconPressed` prop and swaps automatically.
+4. **Three densities, one component.** Comfortable (40 px) for cards
+   and post detail; compact (32 px) for the dense comment row. No
+   second component, no second sizing scale.
+5. **Bar layouts are constrained.** `CardActionBar` ships three
+   layouts (`default`, `between`, `compact`) — enough to cover every
+   surface without giving callers free rein over `gap-X` /
+   `justify-*`, which is how v1 ended up with five different gap
+   spacings across feed, post, comment, modal.
+
+### Sizing audit (vs reference platforms)
+
+| Surface / system | Tap target (desktop) | Icon | Tap target (mobile) | Notes |
+| --- | --- | --- | --- | --- |
+| **v1 `ActionButtons`** | **32 px** | 24 px | **32 px** | below modern band; icon ratio 75 % felt cramped |
+| **v2 `CardAction` comfortable** | **40 px** | **24 px** | **40 px** | new default — 60 % ratio (M3 default) |
+| **v2 `CardAction` compact** | 32 px | **20 px** | 32 px | dense rows — 62 % ratio (M3 small icon button) |
+| Twitter / X | 32 – 36 px | 18 – 20 px | 44 px | 50 – 62 % ratio, counter inside |
+| Reddit (post action) | 36 px | 20 px | 40 px | 56 % ratio, counter inside |
+| Reddit (comment action) | 32 px | 16 px | 36 px | 50 % ratio — secondary toolbar, smaller |
+| Facebook (engagement) | 36 px | 18 – 20 px | 44 px | 50 – 56 % ratio |
+| Instagram (post bar) | 40 px | 24 px | 44 px | 60 % ratio, icon-only |
+| YouTube (video bar) | 36 px | 20 px | 48 px | 56 % ratio, label below icon |
+| LinkedIn (post bar) | 40 px | 20 px | 44 px | 50 % ratio, with text label |
+| dev.to | 40 px | 18 px | 40 px | label hidden < `md` |
+| Substack | 32 – 36 px | 18 px | 36 px | counter inside |
+| ChatGPT (message bar) | 32 px | 16 px | 40 px | 50 % ratio — hover-only, accepts smaller |
+| Claude (message bar) | 32 – 36 px | 18 – 20 px | 40 px | 56 % ratio |
+| Hacker News | text only | n/a | text only | not comparable |
+| Apple HIG | 44 pt min | n/a | 44 pt min | recommendation |
+| Material 3 default | 40 dp | **24 dp** | 48 dp | 60 % ratio (current M3 expressive spec) |
+| Material 3 small | 32 dp | 20 – 24 dp | 32 dp | 62 – 75 % ratio |
+| WCAG 2.5.5 AAA | 44 px | n/a | 44 px | AAA only |
+| WCAG 2.5.8 AA | 24 px | n/a | 24 px | newer SC, low bar |
+
+40 px clears WCAG 2.5.8 AA, sits at the centre of the reference
+platform band, and aligns with our `Medium` button size — no need
+for a card-action-only size token.
+
+#### Engagement-bar icon override
+
+`CardAction` ships its own `densityToIconSize` map that **overrides
+the default `buttonSizeToIconSizeV2`** for the underlying ButtonV2:
+
+| Density | Button size | Default ButtonV2 icon | **CardAction icon** | Ratio | Reference |
+| --- | --- | --- | --- | --- | --- |
+| `comfortable` | 40 px (Medium) | XSmall = 20 px | **Small = 24 px** | 60 % | M3 default, Instagram, YouTube label-bar |
+| `compact` | 32 px (Small) | Size16 = 16 px | **XSmall = 20 px** | 62 % | M3 small icon button, X mobile, Claude message bar |
+
+Why bigger than the default ButtonV2 ratio:
+
+- The default `buttonSizeToIconSizeV2` targets 50 % — appropriate for
+  text-and-icon buttons inside chrome (form buttons, modal CTAs)
+  where the label carries the meaning and the icon is decorative.
+- `CardAction` icons are **identification-only** in the icon-only
+  case (no inline label) and compete with feed content for
+  attention. Recognition needs more pixels than decoration does.
+  Instagram, M3, and YouTube all push past 50 % for exactly this
+  reason.
+- The first-cut v2 (16 px in 32 px compact) sat at the same size as
+  ChatGPT's hover-only message bar — but our engagement bar is
+  *always visible*, so the smaller icons read as anaemic in the
+  feed scroll. Bumping to 20 / 24 lifts both densities one step,
+  staying within the reference cluster while addressing the
+  "icons feel a little small" signal.
+
+#### Consumer override
+
+Want a specific icon at a fixed size (rare — e.g. a brand glyph
+that ships at 28 px regardless of density)? Pass an icon with an
+explicit `size` prop and `CardAction` skips the density override
+for that instance:
+
+```tsx
+<CardAction
+  icon={<DailyIcon size={IconSize.Medium} />}  // honoured as-is
+  label="Daily"
+  density="compact"
+/>
+```
+
+### API
+
+```tsx
+<CardActionBar layout="default">
+  <CardAction
+    icon={<UpvoteIcon />}
+    iconPressed={<UpvoteIcon secondary />}
+    label="Upvote"           // a11y label, also the visible label when labelVisible
+    color="avocado"           // hover / active / pressed tint
+    count={post.upvotes}      // 0 / null / undefined → counter hidden
+    pressed={post.upvoted}    // swaps to iconPressed + deeper bg + inset shadow
+    onClick={onUpvote}
+  />
+  <CardAction
+    icon={<DiscussIcon />}
+    label="Comment"
+    color="blueCheese"
+    count={post.comments}
+    href={post.commentsPermalink}    // renders as <a>
+  />
+  <CardAction
+    icon={<BookmarkIcon />}
+    iconPressed={<BookmarkIcon secondary />}
+    label="Bookmark"
+    color="bun"
+    pressed={post.bookmarked}
+  />
+  <CardAction icon={<ShareIcon />} label="Share" onClick={onShare} />
+</CardActionBar>
+```
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| `icon` | `ReactElement` | Idle icon. Auto-sized via `useGetIconWithSizeV2`. |
+| `iconPressed` | `ReactElement?` | Swapped in when `pressed=true`. Falls back to `icon`. |
+| `label` | `string` | **Required.** `aria-label` always; visible label when `labelVisible`. |
+| `count` | `number? \| null?` | `InteractionCounter` rendered when > 0 (Reddit / X convention). |
+| `color` | `ColorName?` | Brand tint for hover / active / pressed. |
+| `pressed` | `boolean?` | Maps to `aria-pressed`, deeper bg, inset shadow. |
+| `density` | `'comfortable' \| 'compact'` | `Medium` (40 px) / `Small` (32 px). Default `comfortable`. |
+| `labelVisible` | `boolean?` | Render label inline (post-detail strip pattern). |
+| `loading` / `disabled` | `boolean?` | Pass-through to `ButtonV2`. |
+| `onClick` / `href` | | Standard `ButtonV2` interaction. |
+
+### Bar layouts
+
+| Layout | Tailwind classes | Use |
+| --- | --- | --- |
+| `default` | `flex items-center gap-1` | Sticky bottom bar, modal footer — content-width left-aligned row. |
+| `feedCard` | `flex items-center flex-1 min-w-0 gap-1 justify-between` | **Feed grid / list post cards.** Fills the card's grid track and distributes children evenly without ever pushing the card wider. Pair with `density="compact"`. |
+| `between` | `flex items-center gap-1 justify-between w-full` | Post-detail strip; sticky bottom bar with labels — distributes labels across full width. |
+| `compact` | `flex items-center gap-0.5` | Comment rows; dense modal toolbars. |
+
+The bar deliberately ships **without** background / border. A sticky
+variant is the consumer's job — wrap in `sticky bottom-0
+bg-background-default border-t` and the bar drops in. Keeping
+`CardActionBar` chrome-less means the same component works on a feed
+card, a modal footer, and a sticky bottom bar without forking.
+
+### Card width contract
+
+A feed grid card is **never a fixed width** — daily.dev's feed
+container ships 1 – 6 column grids driven by `FeedContext` (eco
+mode), so a single card renders inside a grid track that ranges
+from ~272 px (the tightest case, the moment 2-column grid kicks in
+at the `tablet` 656 px breakpoint) up to a hard 340 px clamp on
+`desktopL+` (`Feed.module.css` clamps each card at `21.25 rem`).
+List view goes wider — single-column up to ~700 – 900 px on wide
+desktop. The action bar lives at the bottom of that card and
+**must not push the card wider than its grid-track allowance** —
+otherwise `grid-template-columns` breaks for every other card in
+the row.
+
+Two rules keep `CardAction` width-safe inside a feed card:
+
+1. **`density="compact"` on multi-column grids.** 5 actions ×
+   `comfortable` (40 px) + counters easily exceeds 272 – 340 px and
+   overflows narrow grid tracks. `compact` (32 px) lands the bar
+   at ~150 – 200 px naturally — same footprint as v1
+   `ActionButtons / Small` — and fits every grid down to the
+   2-col MIN at 272 px.
+2. **`<CardActionBar layout="feedCard">`.** This sets
+   `flex-1 min-w-0 justify-between` (the v1 contract) so the bar
+   fills the card width, distributes children evenly, and lets each
+   child shrink rather than push the parent wider. `default` /
+   `compact` / `between` are content-width and **will push the
+   parent** if the bar's natural width exceeds the available space.
+
+Reference the per-surface table on `CardAction.density` (top of
+`CardAction.tsx`) before picking a density.
+
+#### Production breakpoints → card-width math (eco / default)
+
+The feed container in main applies these column counts at each
+viewport, with each card sized as
+`(container_width − sidebar − gaps) / num-cards` and clamped at
+`21.25 rem` (340 px) on `desktopL+`:
+
+| Tailwind breakpoint | Viewport range | Cols (eco) | Card width |
+| --- | --- | --- | --- |
+| (default — mobile) | < 656 px | 1 | full viewport − 32 px padding (~288 – 620 px) |
+| `tablet` | 656 – 1019 px | **2** | **272 – 470 px** (272 px is the production MIN) |
+| `laptop` | 1020 – 1359 px | 3 | 290 – 410 px |
+| `laptopL` | 1360 – 1667 px | 4 | 305 – 390 px |
+| `laptopXL` | 1668 – 1975 px | 5 | 299 – 375 px |
+| `desktop` | 1976 – 2155 px | 6 | 295 – 340 px |
+| `desktopL` | 2156 px+ | 6 | **340 px MAX** (21.25 rem clamp) |
+
+So the practical bar-width envelope is **272 px MIN → 340 px MAX**
+on grid cards, plus mobile single-col (~360 px on a typical phone)
+and list-view single column (700 – 900 px on wide desktop).
+
+#### Bar-width worst case at every breakpoint
+
+| Card width | Surface | v1 `ActionButtons` (Small / 32 px / flex-1 justify-between) | v2 `comfortable` (40 px × 5 + counters) | v2 **`compact + feedCard`** |
+| --- | --- | --- | --- | --- |
+| 272 px | tablet 2-col MIN | fits | **overflows** | fits |
+| 300 px | laptop / laptopL 3 – 4 col | fits | **overflows** | fits |
+| 340 px | desktopL+ MAX | fits | tight (overflows w/ long counters) | fits |
+| 360 px | mobile 1-col | fits | fits | fits |
+| 700 px | list view standard desktop | fits | fits | fits |
+| 900 px | list view wide desktop | fits | fits | fits |
+
+The `compact + feedCard` combination ships exactly the same physical
+width as v1, so swapping the engagement bar from `QuaternaryButton`
+to `CardAction` is layout-neutral on every existing feed surface,
+including the production MIN at 272 px.
+
+### Pressed states — one-glance map
+
+| Action | Idle icon | Pressed icon | Pressed bg | Counter behaviour |
+| --- | --- | --- | --- | --- |
+| Upvote | `UpvoteIcon` outline | `UpvoteIcon secondary` (filled) | avocado tint | counter increments inline (the `InteractionCounter` ticks) |
+| Downvote | `DownvoteIcon` outline | `DownvoteIcon secondary` (filled) | ketchup tint | no counter |
+| Comment | `DiscussIcon` outline | (no pressed) | blueCheese tint | counter shows comment count |
+| Award | `StarIcon` outline | `StarIcon secondary` (filled) | cabbage tint | counter shows total awards |
+| Bookmark | `BookmarkIcon` outline | `BookmarkIcon secondary` (filled) | bun tint | no counter |
+| Share | `ShareIcon` outline | (no pressed; opens menu) | neutral | no counter |
+
+### Counter rules
+
+- **Show**: when `count > 0`. Hide for `0`, `null`, `undefined`.
+- **Format**: `largeNumberFormat` from `lib` (`1.2K`, `42K`, `1.5M`).
+  Stable button width is held by `font-variant-numeric: tabular-nums`
+  on `.btn-v2` so the counter doesn't shift the button when it ticks.
+- **Animate**: `InteractionCounter` ships an opacity + translate
+  transition when the formatted value changes — same component as v1
+  used inside `ActionButtons`, kept verbatim.
+
+### What `CardAction` doesn't do (intentionally)
+
+- **No mobile-only label collapse.** If you want a label hidden below
+  `md`, do `<CardAction labelVisible className="hidden md:inline-flex">`
+  + a sibling icon-only `<CardAction className="md:hidden">`. The
+  primitive deliberately doesn't bake responsive prefixes — too many
+  ways to get it wrong (container-query vs viewport, where the
+  breakpoint sits, what the fallback row looks like). Two
+  one-line `CardAction`s are simpler than one with five responsive
+  props.
+- **No tooltip.** Wrap in `SimpleTooltip` if you need one — the
+  consumer often wants placement / delay / interactivity tweaks the
+  primitive can't anticipate.
+- **No badge / dot.** If a notification dot needs to sit on the icon,
+  position-absolute it inside `CardAction`'s `className` slot.
+- **No long-press / context menu.** Mobile gestures live one layer up
+  in the feature code, not in the leaf primitive.
+
+### Migration
+
+`CardAction` lives in `packages/shared/src/components/buttons/`
+alongside `ButtonV2`. v1 sites (`ActionButtons`, `PostActions`,
+`CommentActionButtons`) keep their `Button` / `QuaternaryButton`
+implementations until a follow-up migration sweep — same staging
+strategy as v1 → v2 button itself.
+
+Sites to migrate, in order of impact:
+
+1. `ActionButtons` (feed cards, signal feed) — biggest visual gain.
+2. `PostActions` (post detail strip) — labels visible, between layout.
+3. `CommentActionButtons` (comment row) — `density="compact"`.
+4. `PostHeaderActions` (modal nav) — icon-only, single row.
+
+---
+
+## Shadow & elevation
+
+> **Headline change vs v1:** the brand-tinted halo is gone. v2 ships a
+> single, neutral, theme-aware lift that's ~5× lighter than v1 and
+> matches modern reference systems.
+
+### Per-state contract
+
+| State | v1 / v2 first pass | **v2 final** |
+| --- | --- | --- |
+| Default | none | **none** |
+| Hover | `shadow-3-{color}` (14 px blur, 64 % brand-tinted) | **`var(--btn-v2-shadow-hover)`** (neutral 2-layer outer, 8 / 50 % per theme) |
+| Active | `shadow-2-{color}` (6 px blur, 40 % brand-tinted) | **`var(--btn-v2-shadow-active)`** (neutral 2-layer **inset** press feedback) |
+| Pressed | inherits default | **none** (settled fill, no double-shadow) |
+| Disabled | none | none |
+
+Three explicit rules:
+
+1. **Active = inset press feedback** (not "no shadow", as v1 / first-pass v2 had). Six of seven reference systems ship some form of inset shadow on press; we were the outlier. The inset two-layer recipe gives the same "pressed into the surface" cue you get on Linear / Vercel / Apple HIG / GitHub Primer / ChatGPT / Material 3 — without using `transform: scale` (vestibular motion, fights mobile inertial scroll).
+2. **No `transform` on press.** All press feedback is shadow-driven so the click target stays put.
+3. **No brand-coloured halos.** Every modern reference rejects them — they read as glow rather than depth, and they fight the button fill.
+
+### Tokens
+
+Two layers, theme-aware. Same opacity discount applied to both
+hover (outer) and active (inset) so the per-theme depth feels
+consistent — shadows on white show at a much lower threshold than
+shadows on black, which is why dark mode runs 30–50 % and light mode
+runs 6–8 %.
+
+```css
+/* HOVER — outer two-layer lift */
+
+/* dark theme — black absorbs visibly into dark surfaces */
+--btn-v2-shadow-hover:
+  0 1px 2px 0    rgba(0, 0, 0, 0.50),    /* 1 px rule — defines edge */
+  0 2px 6px -2px rgba(0, 0, 0, 0.30);    /* soft ambient body */
+
+/* light theme — pepper.90 tint, much lower opacity */
+--btn-v2-shadow-hover:
+  0 1px 2px 0    rgba(14, 18, 23, 0.08),
+  0 2px 4px -1px rgba(14, 18, 23, 0.06);
+
+/* ACTIVE — inset two-layer press */
+
+/* dark theme */
+--btn-v2-shadow-active:
+  inset 0 1px 0 0  rgba(0, 0, 0, 0.30),  /* 1 px hairline — defines "into-page" edge */
+  inset 0 2px 3px 0 rgba(0, 0, 0, 0.20); /* ambient inset body */
+
+/* light theme */
+--btn-v2-shadow-active:
+  inset 0 1px 0 0  rgba(14, 18, 23, 0.08),
+  inset 0 2px 3px 0 rgba(14, 18, 23, 0.06);
+```
+
+Both modes give the same perceptual depth (~2 dp on hover, ~1 dp inset on press).
+
+### Where the numbers come from
+
+| System | Default | Hover | **Active** |
+| --- | --- | --- | --- |
+| Apple HIG | sometimes inset highlight | none | **inset shadow on filled** |
+| Material 3 | none | level 1 (15-30 % @ 1-3 px) | level 2 + state layer |
+| Tailwind UI | none | shadow-sm (5 %) | none (uses brightness) |
+| Vercel / Geist | inset hairline | none + brightness | **inset 1 px hairline at low opacity** |
+| **Linear** | sometimes inset highlight | inset 1 px highlight + ring | **inset 1-2 px shadow** |
+| **Notion** | 1 px @ 6 % | same | none |
+| **ChatGPT** | 1 px ring @ 10 % | brightness shift | **inset shadow on pill CTAs** |
+| **Claude** | none | 1 px shadow @ 6 % | none |
+| **GitHub Primer** | 1 px inset hairline | outer | **inset shadow + brightness** |
+| **Our v2** | **none** | **outer 1 + 2 px @ 8/6 % light, 50/30 % dark** | **inset 1 + 2-3 px @ 8/6 % light, 30/20 % dark** |
+
+We're now in the centre of the modern band on every state.
+
+### Future polish — default-state inset hairline (not shipping)
+
+Linear / Vercel / GitHub Primer all add a 1 px inset hairline at low
+opacity to *default* (not just active) Primary buttons. It gives
+"edge definition" to bright fills on light backgrounds (yellow cheese
+Primary on white can look soft at the edges without it).
+
+We considered this and chose to skip for now because:
+
+- Most of our brand colours (burger, ketchup, water, onion, blueCheese)
+  are saturated enough that the edge already reads against either bg.
+- Adding it interacts with our `:focus-visible` shadow (currently
+  `box-shadow` only) — would need a guard so the hairline doesn't
+  paint underneath the focus ring.
+- It's the kind of detail that's easy to overdo (skeumorphic risk).
+
+If feedback shows that cheese / lettuce / blueCheese Primary buttons
+on white look "floaty", the implementation is one CSS variable:
+
+```css
+--btn-v2-shadow-default:
+  inset 0 0 0 1px rgba(14, 18, 23, 0.06); /* light */
+--btn-v2-shadow-default:
+  inset 0 0 0 1px rgba(255, 255, 255, 0.08); /* dark */
+```
+
+…wired into Primary's default state alongside the existing transparent
+border.
+
+### Why we dropped the brand-tinted halos
+
+v1 emitted a 14 px purple halo under a Cabbage Primary on hover.
+Three problems:
+
+- **It glows, doesn't lift.** A blue-cheese halo under a blue-cheese
+  button looks like ambient light, not Z-axis depth. The brain reads
+  it as a hover *effect*, not as the button rising.
+- **It fights the fill.** A 64 %-opacity coloured shadow is almost as
+  saturated as the button itself, so the eye sees two competing
+  shapes rather than one rising chip.
+- **It doesn't translate to light mode.** Brand tints at high opacity
+  on white look muddy and dirty (the colour mixes into the page bg
+  rather than reading as shadow).
+
+If we ever want a "celebratory" branded glow (e.g. on a streak button
+hitting milestone N), that's a separate, opt-in token (`btn-glow-*`)
+— not the default hover behaviour for every Primary CTA.
+
+---
+
+## Cursor & motion
+
+- Cursor: **`pointer` by default** for all clickable buttons, **`not-allowed`**
+  for `disabled` and `inactive`. The `useDefaultCursor` prop exists as
+  an escape hatch for HIG-pure surfaces (matches Apple / Microsoft / W3C
+  but is rarely the right choice for our web app).
+- Transition: 150 ms `ease-out` on `background`, `border`, `color`,
+  `box-shadow`. **Never** transition `transform` — keep clicks crisp.
+- Reduced motion: the transition collapses to 0 s when
+  `prefers-reduced-motion: reduce` is set.
+
+---
+
+## Focus & accessibility
+
+- Focus ring: 2 px solid + 2 px transparent offset (drawn via box-shadow).
+  Default color = `accent-blueCheese-default`; branded variants override
+  with their own `--button-v2-focus-ring-color` so the ring contrasts the
+  fill (no blueCheese ring on a Cabbage Primary).
+- Targets: 32 × 32 px (Small) is the WCAG 2.5.8 minimum. **Use Medium
+  (40 × 40) on touch surfaces.**
+- Always pair an icon-only button with a meaningful `aria-label` *or*
+  visually-hidden label. Storybook will fail the a11y addon otherwise.
+- `pressed` maps to `aria-pressed`; `loading` maps to `aria-busy`;
+  `inactive` maps to `aria-disabled`.
+
+---
+
+## Don'ts
+
+- ❌ Don't use raw `btn-*` Tailwind classes — go through the component.
+- ❌ Don't apply `rounded-full` (or any pill radius) to a button or chip.
+  Stick to the rectangle radius scale.
+- ❌ Don't apply `font-bold` to override variant typography. Hierarchy
+  is carried by fill, not weight.
+- ❌ Don't add a `transform: scale` on press. We pulled it out for a reason.
+- ❌ Don't override the per-color label colour with a custom `text-*`
+  utility. The contrast is computed; if a brand fill needs a different
+  label, fix the entry in `primaryLabel`.
+- ❌ Don't hard-code a Primary background as `bg-{color}-{shade}` in
+  callsites. The shade ladder is per-color and theme-aware — emitting
+  `btn-v2-primary` with a `color` prop is the only correct path. If
+  a color needs a different ladder, edit `primaryLadder` once.
+- ❌ Don't pass `w-full` to an icon-only button. Icon-only is square
+  by design; stretching it makes the click target diverge from the
+  visual bounds (and looks weird).
+- ❌ Don't override the icon size with a `<Icon size>` smaller than
+  the size map prescribes. The 50 % ratio is the perceptual sweet
+  spot — going smaller makes the icon read as decorative rather than
+  meaningful. Going *larger* is fine for emphasis (e.g. plus-icon CTA).
+- ❌ Don't use XSmall as a primary CTA. It's the WCAG minimum target
+  size and Linear / Notion / Vercel all reserve it for chips and tags.
+  Reach for Small (32 px) for the smallest "real" button.
+- ❌ Don't pair Tertiary + Float in the same row — they share the same
+  semantic role.
+- ❌ Don't disable a button without explaining why. Use `inactive` + a
+  tooltip/toast.
+
+---
+
+## Migration notes
+
+- v1 `Button` and v2 `ButtonV2` co-exist in this branch. Same prop API
+  plus `inactive`, `bold`, and `useDefaultCursor`. **No `shape` prop** —
+  the system is rectangle-only.
+- The v1 tokens (`btn-*`) and v2 tokens (`btn-v2-*`) live in separate
+  Tailwind plugins so production CSS for v1 is unchanged.
+- Phase 2 will direct-wrap `BookmarkButton`, `UploadButton`,
+  `ToggleClickbaitShield`, and similar feature buttons.
+- Phase 3 will codemod raw `btn-*` call sites and promote `ButtonV2 →
+  Button`.
+
+---
+
+## Reviewing the proposal
+
+Two surfaces to review:
+
+1. **Storybook** → `Atoms/ButtonV2`. Use the `States` story for the
+   per-variant OLD vs NEW comparison.
+2. **Web app** → `/dev/buttons` (development only). Sticky controls let
+   you flip theme, size, state, and background to stress-test the tokens
+   in a real layout. No shape control — see "Shape — rectangle-only".
