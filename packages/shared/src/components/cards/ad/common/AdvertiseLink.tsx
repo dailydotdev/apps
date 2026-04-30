@@ -2,10 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useFeature } from '../../../GrowthBookProvider';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { combinedClicks } from '../../../../lib/click';
-import { featureAdReferralCta } from '../../../../lib/featureManagement';
 import { businessWebsiteUrl } from '../../../../lib/constants';
 import type { TargetId } from '../../../../lib/log';
 import { LogEvent, TargetType } from '../../../../lib/log';
@@ -18,26 +16,23 @@ type AdvertiseLinkProps = {
   size?: ButtonSize;
 };
 
+const advertiseHereLabel = 'Advertise here';
+
 export const AdvertiseLink = ({
   targetId,
   className,
   buttonStyle = false,
   size = ButtonSize.Medium,
-}: AdvertiseLinkProps): ReactElement | null => {
-  const isEnabled = useFeature(featureAdReferralCta);
+}: AdvertiseLinkProps): ReactElement => {
   const { logEvent } = useLogContext();
 
   useEffect(() => {
-    if (!isEnabled) {
-      return;
-    }
-
     logEvent({
       event_name: LogEvent.Impression,
       target_type: TargetType.AdvertiseHereCta,
       target_id: targetId,
     });
-  }, [isEnabled, logEvent, targetId]);
+  }, [logEvent, targetId]);
 
   const onClick = () =>
     logEvent({
@@ -46,17 +41,17 @@ export const AdvertiseLink = ({
       target_id: targetId,
     });
 
-  if (!isEnabled) {
-    return null;
-  }
+  const linkProps = {
+    href: businessWebsiteUrl,
+    target: '_blank',
+    rel: anchorDefaultRel,
+  };
 
   if (buttonStyle) {
     return (
       <Button
         tag="a"
-        href={businessWebsiteUrl}
-        target="_blank"
-        rel={anchorDefaultRel}
+        {...linkProps}
         variant={ButtonVariant.Float}
         size={size}
         className={classNames(
@@ -65,23 +60,21 @@ export const AdvertiseLink = ({
         )}
         onClick={onClick}
       >
-        Advertise here
+        {advertiseHereLabel}
       </Button>
     );
   }
 
   return (
     <a
-      href={businessWebsiteUrl}
-      target="_blank"
-      rel={anchorDefaultRel}
+      {...linkProps}
       className={classNames(
         'whitespace-nowrap text-text-quaternary no-underline typo-footnote',
         className,
       )}
       {...combinedClicks(onClick)}
     >
-      Advertise here
+      {advertiseHereLabel}
     </a>
   );
 };

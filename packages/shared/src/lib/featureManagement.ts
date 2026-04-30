@@ -33,6 +33,10 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
+export const featureMajorHeadlinesPush = new Feature(
+  'major_headlines_push',
+  false,
+);
 export const featurePostPageHighlights = new Feature(
   'post_page_highlights',
   false,
@@ -56,7 +60,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {

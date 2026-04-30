@@ -198,6 +198,8 @@ pnpm --filter extension build:chrome # Build Chrome extension
 
 **IMPORTANT**: For text truncation inside flex layouts, scope the ellipsis to the text element and make the nearest flex item shrinkable with `min-w-0` (and `flex-1` when it should consume remaining space). Do not rely on `truncate` on the whole row.
 
+**IMPORTANT**: In `flex-col items-center` layouts, sections and constrained content blocks need an explicit `w-full` alongside any `max-w-*` cap. `max-w-*` alone can leave the element shrink-to-content and cause width changes when child content expands.
+
 **IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
 
 ## Where Should I Put This Code?

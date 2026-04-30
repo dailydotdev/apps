@@ -231,7 +231,8 @@ export default function Feed<T>({
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
     getMarketingCta(MarketingCtaVariant.BriefCard) ||
-    getMarketingCta(MarketingCtaVariant.YearInReview);
+    getMarketingCta(MarketingCtaVariant.YearInReview) ||
+    getMarketingCta(MarketingCtaVariant.Video);
   const { plusEntryFeed } = usePlusEntry();
   const hasDismissBriefCta =
     isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);

@@ -31,7 +31,7 @@ export function DevCard({
   type = DevCardType.Vertical,
   data,
   isInteractive = true,
-}: DevCardProps): ReactElement {
+}: DevCardProps): ReactElement | null {
   const { devcard, isLoading, coverImage } = data ?? {};
 
   if (isLoading || !devcard) {
@@ -42,8 +42,19 @@ export function DevCard({
     return <DevCardTwitterCover {...data} />;
   }
 
-  const { theme, user, articlesRead, tags, sources, showBorder, streak } =
-    devcard;
+  const { theme, user } = devcard;
+
+  if (!user || !theme) {
+    return null;
+  }
+
+  const {
+    articlesRead = 0,
+    tags = [],
+    sources = [],
+    showBorder = false,
+    streak,
+  } = devcard;
   const isHorizontal = type === DevCardType.Horizontal;
   const isVertical = type === DevCardType.Vertical;
   const isIron = checkLowercaseEquality(theme, DevCardTheme.Iron);
@@ -58,10 +69,6 @@ export function DevCard({
       elementsClickable={isInteractive}
     />
   );
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <DevCardContainer
@@ -119,7 +126,7 @@ export function DevCard({
             <DevCardStats
               className="absolute bottom-0 left-0 translate-y-1/2"
               articlesRead={articlesRead}
-              maxStreak={streak?.max}
+              maxStreak={streak.max}
               user={user}
             />
           </div>
@@ -140,7 +147,7 @@ export function DevCard({
                 'font-bold',
                 isIron ? 'text-white' : 'text-raw-pepper-90',
                 isHorizontal
-                  ? 'line-clamp-2 typo-mega2'
+                  ? 'line-clamp-2 break-words typo-mega2'
                   : 'line-clamp-1 typo-title2',
               )}
             >
