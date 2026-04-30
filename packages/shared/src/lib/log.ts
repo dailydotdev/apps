@@ -465,6 +465,7 @@ export enum TargetType {
   Source = 'source',
   Tag = 'tag',
   Quest = 'quest',
+  IntroQuestModal = 'intro quest modal',
   // Settings
   Layout = 'layout',
   Theme = 'theme',

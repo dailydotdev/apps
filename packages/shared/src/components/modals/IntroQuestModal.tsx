@@ -25,10 +25,13 @@ import {
 } from '../quest/QuestRewardAnimations';
 import { ActionType } from '../../graphql/actions';
 import type { QuestType } from '../../graphql/quests';
+import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
-import { webappUrl } from '../../lib/constants';
+import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
+import { BrowserName, getCurrentBrowserName } from '../../lib/func';
+import { LogEvent, TargetType } from '../../lib/log';
 
 type IntroQuestFlightLayerState = {
   claimRotationId: string;
@@ -50,6 +53,28 @@ const introDestinationByEventType: Record<string, QuestDestination> = {
   },
 };
 
+const getExtensionIntroDestination = (
+  browserName: BrowserName,
+): QuestDestination | null => {
+  switch (browserName) {
+    case BrowserName.Edge:
+      return {
+        label: 'Edge Add-ons',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    case BrowserName.Chrome:
+    case BrowserName.Brave:
+      return {
+        label: 'Chrome Web Store',
+        href: downloadBrowserExtension,
+        openInNewTab: true,
+      };
+    default:
+      return null;
+  }
+};
+
 const padStep = (index: number): string =>
   `Step ${(index + 1).toString().padStart(2, '0')}`;
 
@@ -58,6 +83,8 @@ export const IntroQuestModal = ({
   ...props
 }: ModalProps): ReactElement => {
   const router = useRouter();
+  const browserName = getCurrentBrowserName();
+  const { logEvent } = useLogContext();
   const { completeAction } = useActions();
   const { data, isPending, isError } = useQuestDashboard();
   const {
@@ -82,6 +109,7 @@ export const IntroQuestModal = ({
   ] = useState<string[]>([]);
   const [deferredClaimedStampRotationIds, setDeferredClaimedStampRotationIds] =
     useState<string[]>([]);
+  const loggedImpressionRef = useRef(false);
   const claimedStampTimersRef = useRef<number[]>([]);
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
@@ -99,14 +127,37 @@ export const IntroQuestModal = ({
     () => new Set(deferredClaimedStampRotationIds),
     [deferredClaimedStampRotationIds],
   );
+  const introDestinations = useMemo<Record<string, QuestDestination | null>>(
+    () => ({
+      ...introDestinationByEventType,
+      extension_install: getExtensionIntroDestination(browserName),
+    }),
+    [browserName],
+  );
 
   useEffect(() => {
     if (!props.isOpen) {
       return;
     }
 
+    if (!loggedImpressionRef.current) {
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.IntroQuestModal,
+      });
+      loggedImpressionRef.current = true;
+    }
+
     completeAction(ActionType.ViewedIntroQuests);
-  }, [completeAction, props.isOpen]);
+  }, [completeAction, logEvent, props.isOpen]);
+
+  useEffect(() => {
+    if (props.isOpen) {
+      return;
+    }
+
+    loggedImpressionRef.current = false;
+  }, [props.isOpen]);
 
   const clearClaimedStampTimers = useCallback(() => {
     claimedStampTimersRef.current.forEach((timerId) => {
@@ -237,7 +288,18 @@ export const IntroQuestModal = ({
 
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
-      onRequestClose?.();
+      onRequestClose?.(undefined as never);
+
+      if ('href' in destination) {
+        if (destination.openInNewTab) {
+          window.open(destination.href, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        window.location.assign(destination.href);
+        return;
+      }
+
       await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [onRequestClose, router],
@@ -294,9 +356,7 @@ export const IntroQuestModal = ({
                 key={userQuest.rotationId}
                 quest={userQuest}
                 onClaim={handleClaim}
-                destination={
-                  introDestinationByEventType[userQuest.quest.eventType]
-                }
+                destination={introDestinations[userQuest.quest.eventType]}
                 onDestinationClick={handleDestinationClick}
                 showLevelSystem
                 isClaiming={claimingQuestId === userQuest.userQuestId}

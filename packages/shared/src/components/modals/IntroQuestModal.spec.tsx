@@ -3,6 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import ReactModal from 'react-modal';
 import { IntroQuestModal } from './IntroQuestModal';
 import { QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS } from '../quest/QuestCard';
+import { useLogContext } from '../../contexts/LogContext';
 import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
@@ -13,12 +14,17 @@ import {
   QuestType,
   type UserQuest,
 } from '../../graphql/quests';
+import { downloadBrowserExtension } from '../../lib/constants';
+import { BrowserName, getCurrentBrowserName } from '../../lib/func';
+import { LogEvent, TargetType } from '../../lib/log';
 
 ReactModal.setAppElement('body');
 
+const mockPush = jest.fn();
+
 jest.mock('next/router', () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush,
   }),
 }));
 
@@ -28,6 +34,15 @@ jest.mock('../../hooks/useQuestDashboard', () => ({
 
 jest.mock('../../hooks/useClaimQuestReward', () => ({
   useClaimQuestReward: jest.fn(),
+}));
+
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: jest.fn(),
+}));
+
+jest.mock('../../lib/func', () => ({
+  ...jest.requireActual('../../lib/func'),
+  getCurrentBrowserName: jest.fn(),
 }));
 
 jest.mock('../tooltip/Tooltip', () => ({
@@ -46,7 +61,10 @@ const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
+const mockUseLogContext = useLogContext as jest.Mock;
+const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 const completeAction = jest.fn();
+const logEvent = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   userQuestId: 'uq-1',
@@ -75,9 +93,15 @@ const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
 describe('IntroQuestModal', () => {
   beforeEach(() => {
     completeAction.mockReset();
+    logEvent.mockReset();
+    mockPush.mockReset();
     mockUseActions.mockReturnValue({
       completeAction,
     });
+    mockUseLogContext.mockReturnValue({
+      logEvent,
+    });
+    mockGetCurrentBrowserName.mockReturnValue(BrowserName.Chrome);
     mockUseViewSize.mockReturnValue(false);
     mockUseClaimQuestReward.mockReturnValue({
       mutate: jest.fn(),
@@ -118,6 +142,10 @@ describe('IntroQuestModal', () => {
 
     render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
 
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.IntroQuestModal,
+    });
     expect(completeAction).toHaveBeenCalledWith(ActionType.ViewedIntroQuests);
     expect(
       screen.getByRole('heading', { name: 'Intro quests', hidden: true }),
@@ -133,6 +161,12 @@ describe('IntroQuestModal', () => {
     expect(
       screen.getByRole('button', {
         name: 'Go to Notifications',
+        hidden: true,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Go to Chrome Web Store',
         hidden: true,
       }),
     ).toBeInTheDocument();
@@ -165,6 +199,69 @@ describe('IntroQuestModal', () => {
     expect(
       screen.queryByRole('button', {
         name: 'Go to Notifications',
+        hidden: true,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('opens the extension intro quest in the matching browser store', () => {
+    const onRequestClose = jest.fn();
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+
+    mockGetCurrentBrowserName.mockReturnValue(BrowserName.Edge);
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildIntroQuest({
+            status: QuestStatus.Completed,
+            progress: 1,
+          }),
+        ],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={onRequestClose} />);
+
+    screen
+      .getByRole('button', {
+        name: 'Go to Edge Add-ons',
+        hidden: true,
+      })
+      .click();
+
+    expect(openSpy).toHaveBeenCalledWith(
+      downloadBrowserExtension,
+      '_blank',
+      'noopener,noreferrer',
+    );
+    expect(onRequestClose).toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
+  });
+
+  it('does not render the extension destination button for unsupported browsers', () => {
+    mockGetCurrentBrowserName.mockReturnValue(BrowserName.Safari);
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildIntroQuest({
+            status: QuestStatus.Completed,
+            progress: 1,
+          }),
+        ],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
+
+    expect(
+      screen.queryByRole('button', {
+        name: /Go to /,
         hidden: true,
       }),
     ).not.toBeInTheDocument();

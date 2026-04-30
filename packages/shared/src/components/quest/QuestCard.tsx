@@ -16,10 +16,21 @@ type ClaimedStampMaskHole = {
   ry: number;
 };
 
-export type QuestDestination = {
+type QuestPathDestination = {
   label: string;
   path: string;
+  href?: never;
+  openInNewTab?: never;
 };
+
+type QuestHrefDestination = {
+  label: string;
+  href: string;
+  openInNewTab?: boolean;
+  path?: never;
+};
+
+export type QuestDestination = QuestPathDestination | QuestHrefDestination;
 
 export const QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS = 220;
 export const QUEST_CLAIMED_STAMP_ANIMATION_MS = 340;
