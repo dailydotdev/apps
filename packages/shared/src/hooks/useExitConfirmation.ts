@@ -49,7 +49,7 @@ export function useExitConfirmation({
       router.events.emit('routeChangeError');
       // Throwing a string (not an Error) is Next.js's documented way to abort a
       // route change without triggering the dev error overlay.
-      // eslint-disable-next-line no-throw-literal
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw 'Route change aborted by useExitConfirmation. Please ignore this error.';
     };
 

@@ -37,6 +37,24 @@ jest.mock('../dropdown/DropdownMenu', () => ({
   DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
+  DropdownMenuOptions: ({
+    options,
+  }: {
+    options: { label: string; action?: () => void; ariaLabel?: string }[];
+  }) => (
+    <div>
+      {options.map((option) => (
+        <button
+          key={option.label}
+          type="button"
+          aria-label={option.ariaLabel ?? option.label}
+          onClick={option.action}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  ),
   DropdownMenuItem: ({
     children,
     disabled,
