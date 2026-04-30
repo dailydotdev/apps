@@ -35,7 +35,6 @@ import usePlusEntry from '../../hooks/usePlusEntry';
 enum FeedNavTab {
   ForYou = 'For you',
   Popular = 'Popular',
-  HappeningNow = 'Happening Now',
   Explore = 'Explore',
   Tags = 'Tags',
   Sources = 'Sources',
@@ -96,23 +95,18 @@ function FeedNav(): ReactElement {
 
     const forYouTab = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
 
-    const urls = {
-      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
-      [forYouTab]: FeedNavTab.ForYou,
-      [`${webappUrl}posts`]: FeedNavTab.Popular,
-      [`${webappUrl}highlights`]: FeedNavTab.HappeningNow,
-      ...customFeeds,
-    };
-
     return {
-      ...urls,
+      [forYouTab]: FeedNavTab.ForYou,
+      ...customFeeds,
+      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
+      [`${webappUrl}feeds/new`]: FeedNavTab.NewFeed,
+      [`${webappUrl}history`]: FeedNavTab.History,
       [`${webappUrl}following`]: FeedNavTab.Following,
+      [`${webappUrl}posts`]: FeedNavTab.Popular,
       [`${webappUrl}${OtherFeedPage.Discussed}`]: FeedNavTab.Discussions,
       [`${webappUrl}tags`]: FeedNavTab.Tags,
       [`${webappUrl}sources`]: FeedNavTab.Sources,
       [`${webappUrl}users`]: FeedNavTab.Leaderboard,
-      [`${webappUrl}bookmarks`]: FeedNavTab.Bookmarks,
-      [`${webappUrl}history`]: FeedNavTab.History,
     };
   }, [
     sortedFeeds,

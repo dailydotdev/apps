@@ -6,24 +6,19 @@ import {
   AiIcon,
   BellIcon,
   HomeIcon,
-  JobIcon,
+  MegaphoneIcon,
   SourceIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { UseActiveNav } from '@dailydotdev/shared/src/hooks/useActiveNav';
 import useActiveNav from '@dailydotdev/shared/src/hooks/useActiveNav';
-import {
-  squadCategoriesPaths,
-  webappUrl,
-} from '@dailydotdev/shared/src/lib/constants';
+import { squadCategoriesPaths } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
-import { useLogOpportunityNudgeClick } from '@dailydotdev/shared/src/hooks/log/useLogOpportunityNudgeClick';
-import { useAlertsContext } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { FooterTab } from './common';
 import { blurClasses } from './common';
 import { FooterNavBarTabs } from './FooterNavBarTabs';
@@ -43,25 +38,6 @@ const Notifications = ({ active }: { active: boolean }): JSX.Element => {
   );
 };
 
-const Jobs = ({
-  active,
-  hasOpportunity,
-}: {
-  active: boolean;
-  hasOpportunity: boolean;
-}): ReactElement => {
-  return (
-    <div className="relative">
-      <JobIcon secondary={active} size={IconSize.Medium} />
-      {hasOpportunity && (
-        <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 cursor-pointer !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
-          1
-        </Bubble>
-      )}
-    </div>
-  );
-};
-
 const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   home: 'Home',
   explore: 'Explore',
@@ -70,20 +46,18 @@ const selectedMapToTitle: Record<keyof UseActiveNav, string> = {
   squads: 'Squads',
   profile: 'Profile',
   jobs: 'Jobs',
+  highlights: 'Headlines',
 };
 
 const MobileFooterNavbar = (): ReactElement => {
   const router = useRouter();
   const { user, squads } = useContext(AuthContext);
-  const { alerts } = useAlertsContext();
   const feedName = getFeedName(router.pathname, { hasUser: !!user });
   const activeNav = useActiveNav(feedName);
-  const hasOpportunity = alerts?.opportunityId;
   const hasSquads = squads?.length > 0;
   const squadsUrl = hasSquads
     ? squadCategoriesPaths['My Squads']
     : squadCategoriesPaths.discover;
-  const logOpportunityNudgeClick = useLogOpportunityNudgeClick();
 
   const tabs: (FooterTab | ReactNode)[] = useMemo(() => {
     return [
@@ -104,6 +78,14 @@ const MobileFooterNavbar = (): ReactElement => {
         ),
       },
       {
+        requiresLogin: false,
+        path: '/highlights',
+        title: 'Headlines',
+        icon: (active: boolean) => (
+          <MegaphoneIcon secondary={active} size={IconSize.Medium} />
+        ),
+      },
+      {
         requiresLogin: true,
         path: '/notifications',
         title: 'Activity',
@@ -116,16 +98,8 @@ const MobileFooterNavbar = (): ReactElement => {
           <SourceIcon secondary={active} size={IconSize.Medium} />
         ),
       },
-      {
-        path: `${webappUrl}jobs/${hasOpportunity || ''}`,
-        title: 'Jobs',
-        icon: (active: boolean) => (
-          <Jobs active={active} hasOpportunity={!!hasOpportunity} />
-        ),
-        onClick: logOpportunityNudgeClick,
-      },
     ];
-  }, [squadsUrl, logOpportunityNudgeClick, hasOpportunity]);
+  }, [squadsUrl]);
 
   const activeTab = useMemo(() => {
     const activeKey = Object.keys(activeNav).find((key) => activeNav[key]);

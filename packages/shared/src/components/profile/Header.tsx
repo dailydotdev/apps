@@ -7,7 +7,7 @@ import type {
   PublicProfile,
   UserShortProfile,
 } from '../../lib/user';
-import { BlockIcon, FlagIcon, GiftIcon, SettingsIcon } from '../icons';
+import { BlockIcon, FlagIcon, GiftIcon, JobIcon, SettingsIcon } from '../icons';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
@@ -36,6 +36,9 @@ import { AwardButton } from '../award/AwardButton';
 import { BuyCreditsButton } from '../credit/BuyCreditsButton';
 import { webappUrl } from '../../lib/constants';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useAlertsContext } from '../../contexts/AlertContext';
+import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
+import { Bubble } from '../tooltips/utils';
 import {
   useCanAwardUser,
   useCanPurchaseCores,
@@ -61,6 +64,10 @@ export function Header({
   style,
 }: HeaderProps): ReactElement {
   const { user: loggedUser } = useAuthContext();
+  const { alerts } = useAlertsContext();
+  const logOpportunityNudgeClick = useLogOpportunityNudgeClick(
+    TargetId.ProfilePage,
+  );
   const { openModal } = useLazyModal();
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -253,6 +260,29 @@ export function Header({
       </div>
       {isSameUser && (
         <>
+          <Link
+            href={`${webappUrl}jobs/${alerts?.opportunityId || ''}`}
+            passHref
+          >
+            <Button
+              tag="a"
+              className="ml-2 tablet:hidden"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={
+                <span className="relative">
+                  <JobIcon />
+                  {!!alerts?.opportunityId && (
+                    <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
+                      1
+                    </Bubble>
+                  )}
+                </span>
+              }
+              onClick={logOpportunityNudgeClick}
+              aria-label="Jobs"
+            />
+          </Link>
           <Button
             className="ml-2 laptop:hidden"
             variant={ButtonVariant.Float}
