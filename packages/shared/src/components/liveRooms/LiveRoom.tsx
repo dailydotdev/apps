@@ -97,30 +97,35 @@ const formatStreamDuration = (seconds: number): string => {
   return `${pad(minutes)}:${pad(secs)}`;
 };
 
-const useStreamDuration = (isLive: boolean): number => {
-  const startedAtRef = useRef<number | null>(null);
+const useStreamDuration = (
+  referenceTime: string | null | undefined,
+): number => {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    if (!isLive) {
-      startedAtRef.current = null;
+    if (!referenceTime) {
       setElapsed(0);
       return undefined;
     }
-    if (startedAtRef.current === null) {
-      startedAtRef.current = Date.now();
+
+    const referenceTimeMs = new Date(referenceTime).getTime();
+
+    if (Number.isNaN(referenceTimeMs)) {
+      setElapsed(0);
+      return undefined;
     }
+
     const tick = () => {
-      const start = startedAtRef.current;
-      if (start === null) {
-        return;
-      }
-      setElapsed(Math.floor((Date.now() - start) / 1000));
+      setElapsed(
+        Math.max(0, Math.floor((Date.now() - referenceTimeMs) / 1000)),
+      );
     };
+
     tick();
     const interval = window.setInterval(tick, 1000);
+
     return () => window.clearInterval(interval);
-  }, [isLive]);
+  }, [referenceTime]);
 
   return elapsed;
 };
@@ -995,7 +1000,11 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
-  const streamDuration = useStreamDuration(roomState?.status === 'live');
+  const streamDuration = useStreamDuration(
+    roomState?.status === 'live'
+      ? roomState?.createdAt ?? room?.createdAt ?? null
+      : null,
+  );
 
   const guardedModerationAction = async (
     key: string,

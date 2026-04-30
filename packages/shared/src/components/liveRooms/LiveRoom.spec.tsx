@@ -232,8 +232,13 @@ describe('LiveRoom', () => {
     mockUseLiveRoomQuery.mockReturnValue({
       data: {
         id: 'room-1',
+        createdAt: '2026-04-27T09:00:00.000Z',
+        updatedAt: '2026-04-27T09:00:00.000Z',
         topic: 'Queue changes',
+        mode: 'moderated',
         status: 'live',
+        startedAt: '2026-04-27T09:00:00.000Z',
+        endedAt: null,
         host: {
           id: 'host',
           username: 'host',
@@ -245,6 +250,10 @@ describe('LiveRoom', () => {
       error: null,
       isLoading: false,
     });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('lets the host promote a specific queued participant and remove a specific active speaker', async () => {
@@ -278,6 +287,17 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker1')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
+  });
+
+  it('uses the room creation time as the timer reference after refresh', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-04-27T09:05:07.000Z'));
+    mockUseLiveRoomConnection.mockReturnValue(createContextValue());
+
+    renderLiveRoom();
+
+    await waitFor(() => {
+      expect(screen.getByText('05:07')).toBeInTheDocument();
+    });
   });
 
   it('does not render a placeholder tile when only the host is visible on stage', () => {
