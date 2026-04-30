@@ -56,6 +56,7 @@ import { useDraftStorage } from './RichTextEditor/useDraftStorage';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import styles from './RichTextEditor/richtext.module.css';
 import type { UserShortProfile } from '../../lib/user';
+import { isAppleDevice } from '../../lib/func';
 
 const RecommendedEmojiTooltip = dynamic(
   () =>
@@ -196,6 +197,10 @@ function RichTextInput(
   const inputRef = useRef('');
   const [offset, setOffset] = useState([0, 0]);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
+  const [submitShortcut, setSubmitShortcut] = useState('Ctrl + Enter');
+  useEffect(() => {
+    setSubmitShortcut(isAppleDevice() ? '⌘ + Enter' : 'Ctrl + Enter');
+  }, []);
 
   const isUploadEnabled = enabledCommand[MarkdownCommand.Upload];
   const isMentionEnabled = enabledCommand[MarkdownCommand.Mention];
@@ -640,7 +645,6 @@ function RichTextInput(
       : null;
 
   const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;
-  const hasUploadHint = isUploadEnabled;
   const toolbarActions = (
     <>
       {isUploadEnabled && (
@@ -889,9 +893,9 @@ function RichTextInput(
       )}
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
-          {hasUploadHint && !isMarkdownMode && (
+          {shouldShowSubmit && !isMarkdownMode && (
             <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
-              Drag and drop images to attach
+              Press {submitShortcut} to send
             </span>
           )}
           {maxLength && remainingCharacters !== null && (
