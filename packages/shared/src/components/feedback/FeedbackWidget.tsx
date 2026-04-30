@@ -9,6 +9,7 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
+import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 
 const TEAM_MEMBERS = [
   {
@@ -66,7 +67,6 @@ const getDailyTrio = (): ReadonlyArray<(typeof TEAM_MEMBERS)[number]> => {
   const len = TEAM_MEMBERS.length;
   return [0, 1, 2].map((i) => TEAM_MEMBERS[(dayOfYear + i) % len]);
 };
-import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 
 export function FeedbackWidget(): ReactElement | null {
   const { user } = useAuthContext();
@@ -76,8 +76,11 @@ export function FeedbackWidget(): ReactElement | null {
   const dailyTrio = useMemo(getDailyTrio, []);
   const [isCompact, setIsCompact] = useState(false);
 
+  const { panelWidth } = useCustomizeNewTab();
+  // Only show for authenticated users on desktop when the setting is on.
+  // Mobile feedback is handled by FooterPlusButton. Hide during the
+  // panel rather than a competing pill in the corner.
   const isVisible = !!user && !isMobile && showFeedbackButton;
-  const { panelWidth, isFirstSession } = useCustomizeNewTab();
 
   useEffect(() => {
     if (!isVisible) {
@@ -94,11 +97,6 @@ export function FeedbackWidget(): ReactElement | null {
   }, [isVisible]);
 
   if (!isVisible) {
-  // Only show for authenticated users on desktop when the setting is on.
-  // Mobile feedback is handled by FooterPlusButton. Hide during the
-  // first-session welcome so the new user's eye lands on the customize
-  // panel rather than a competing pill in the corner.
-  if (!user || isMobile || !showFeedbackButton || isFirstSession) {
     return null;
   }
 
