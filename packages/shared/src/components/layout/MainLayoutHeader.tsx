@@ -11,6 +11,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useFeedName } from '../../hooks/feed/useFeedName';
+import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
@@ -42,6 +43,11 @@ function MainLayoutHeader({
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
   const { loadedSettings } = useSettingsContext();
+  // Header is `fixed` so it escapes the parent's `padding-right`. Read
+  // the customize sidebar width directly here and shrink the header to
+  // match — keeps it from sliding under the panel and lets it animate
+  // alongside the feed.
+  const { panelWidth } = useCustomizeNewTab();
   const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
   const isStreakLarge = (streak?.current ?? 0) > 99; // if we exceed 100, we need to display it differently in the UI
@@ -107,7 +113,14 @@ function MainLayoutHeader({
         !isMobileSearchPage && isSearchPage && 'mb-16 laptop:mb-0',
         !isMobileSearchPage && scrollClassName,
       )}
-      style={featureTheme ? featureTheme.navbar : undefined}
+      style={{
+        ...(featureTheme ? featureTheme.navbar : undefined),
+        right: panelWidth || undefined,
+        width: panelWidth ? `calc(100% - ${panelWidth}px)` : undefined,
+        transition: panelWidth
+          ? 'right 200ms ease-in-out, width 200ms ease-in-out'
+          : undefined,
+      }}
     >
       {isMobileSearchPage ? (
         <>

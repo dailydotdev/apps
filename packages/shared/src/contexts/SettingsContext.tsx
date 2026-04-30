@@ -60,13 +60,13 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   loadedSettings: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
-  updateFlag: (
-    flag: keyof SettingsFlags,
-    value: string | boolean,
+  updateFlag: <K extends keyof SettingsFlags>(
+    flag: K,
+    value: SettingsFlags[K],
   ) => Promise<unknown>;
-  updateFlagRemote: (
-    flag: keyof SettingsFlags,
-    value: string | boolean,
+  updateFlagRemote: <K extends keyof SettingsFlags>(
+    flag: K,
+    value: SettingsFlags[K],
   ) => Promise<unknown>;
   updatePromptFlag: (flag: string, value: boolean) => Promise<unknown>;
   syncSettings: (bootUserId?: string) => Promise<unknown>;
@@ -130,7 +130,11 @@ const defaultSettings: RemoteSettings = {
   optOutReadingStreak: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
-  optOutCompanion: false,
+  // Companion is opt-in: it injects a side panel into every article page,
+  // which only some users want. Default to off so new users see a clean
+  // feed and can flip the toggle in the customize sidebar's Widgets
+  // section if they want it.
+  optOutCompanion: true,
   autoDismissNotifications: true,
   sortCommentsBy: SortCommentsBy.OldestFirst,
   showFeedbackButton: true,
@@ -295,7 +299,10 @@ export const SettingsContextProvider = ({
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
         setSettings({ ...settings, sortCommentsBy }),
-      updateFlag: (flag: keyof SettingsFlags, value: string | boolean) =>
+      updateFlag: <K extends keyof SettingsFlags>(
+        flag: K,
+        value: SettingsFlags[K],
+      ) =>
         setSettings({
           ...settings,
           flags: {
@@ -303,7 +310,10 @@ export const SettingsContextProvider = ({
             [flag]: value,
           },
         }),
-      updateFlagRemote: (flag: keyof SettingsFlags, value: string | boolean) =>
+      updateFlagRemote: <K extends keyof SettingsFlags>(
+        flag: K,
+        value: SettingsFlags[K],
+      ) =>
         updateRemoteSettingsFn({
           ...settings,
           flags: {
