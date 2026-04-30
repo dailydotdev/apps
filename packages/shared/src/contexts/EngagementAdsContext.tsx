@@ -11,7 +11,6 @@ import {
   resolveCreative,
 } from '../lib/engagementAds';
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
-import { isProduction } from '../lib/constants';
 
 interface EngagementAdsContextValue {
   /** All creatives from boot, theme-resolved */
@@ -48,11 +47,6 @@ export const EngagementAdsProvider = ({
   const isLight = useIsLightTheme();
 
   const resolvedCreatives = useMemo(() => {
-    if (isProduction) {
-      // TODO enable when ready for prod launch
-      return [];
-    }
-
     return parseCreatives(rawCreatives).map((c) => resolveCreative(c, isLight));
   }, [rawCreatives, isLight]);
 
