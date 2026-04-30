@@ -1,13 +1,15 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProgressBar } from '../fields/ProgressBar';
 import { ArrowIcon, CoreIcon, TourIcon } from '../icons';
+import { ActionType } from '../../graphql/actions';
 import type { QuestReward, UserQuest } from '../../graphql/quests';
 import { QuestRewardType, QuestStatus } from '../../graphql/quests';
+import { useActions } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 
 type IntroQuestStatus = 'complete' | 'active';
@@ -167,8 +169,17 @@ export const IntroQuestModal = ({
   onRequestClose,
   ...props
 }: ModalProps): ReactElement => {
+  const { completeAction } = useActions();
   const { data, isPending, isError } = useQuestDashboard();
   const introQuests = data?.intro ?? [];
+
+  useEffect(() => {
+    if (!props.isOpen) {
+      return;
+    }
+
+    void completeAction(ActionType.ViewedIntroQuests);
+  }, [completeAction, props.isOpen]);
 
   return (
     <Modal

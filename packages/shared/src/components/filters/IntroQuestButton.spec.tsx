@@ -4,7 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useViewSize, ViewSize } from '../../hooks';
+import { ActionType } from '../../graphql/actions';
+import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { IntroQuestButton } from './IntroQuestButton';
@@ -32,6 +33,7 @@ jest.mock('../../hooks', () => ({
   ViewSize: {
     Laptop: 'laptop',
   },
+  useActions: jest.fn(),
   useViewSize: jest.fn(),
 }));
 
@@ -56,6 +58,7 @@ jest.mock('../tooltip/Tooltip', () => ({
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseLazyModal = useLazyModal as jest.Mock;
+const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
@@ -95,6 +98,11 @@ describe('IntroQuestButton', () => {
     mockUseLazyModal.mockReturnValue({
       openModal,
     });
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn(
+        (type: ActionType) => type !== ActionType.ViewedIntroQuests,
+      ),
+    });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
     mockUseConditionalFeature.mockReturnValue({ value: true });
     mockUseQuestDashboard.mockReturnValue({
@@ -121,14 +129,63 @@ describe('IntroQuestButton', () => {
     render(<IntroQuestButton />);
 
     expect(screen.getByText('1/4')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('intro-quest-attention-badge'),
+    ).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Open introduction quests (1/4)' }),
+      screen.getByRole('button', {
+        name: 'Open introduction quests (1/4), attention needed',
+      }),
     );
 
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.IntroQuests,
     });
+  });
+
+  it('hides the badge after intro quests have been viewed and none are claimable', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn(
+        (type: ActionType) => type === ActionType.ViewedIntroQuests,
+      ),
+    });
+
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.queryByTestId('intro-quest-attention-badge'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Open introduction quests (1/4)' }),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the badge when a viewed intro quest becomes claimable', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn(
+        (type: ActionType) => type === ActionType.ViewedIntroQuests,
+      ),
+    });
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildIntroQuest({
+            rotationId: 'rot-1',
+            status: QuestStatus.Completed,
+            progress: 1,
+            claimable: true,
+          }),
+          buildIntroQuest({ rotationId: 'rot-2' }),
+        ],
+      },
+    });
+
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.getByTestId('intro-quest-attention-badge'),
+    ).toBeInTheDocument();
   });
 
   it('does not render when auth is not ready', () => {

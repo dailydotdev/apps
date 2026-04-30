@@ -2,6 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ReactModal from 'react-modal';
 import { IntroQuestModal } from './IntroQuestModal';
+import { ActionType } from '../../graphql/actions';
+import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import {
   QuestRewardType,
@@ -16,7 +18,18 @@ jest.mock('../../hooks/useQuestDashboard', () => ({
   useQuestDashboard: jest.fn(),
 }));
 
+jest.mock('../../hooks', () => ({
+  ViewSize: {
+    MobileL: 'mobileL',
+  },
+  useActions: jest.fn(),
+  useViewSize: jest.fn(),
+}));
+
+const mockUseActions = useActions as jest.Mock;
+const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
+const completeAction = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   userQuestId: 'uq-1',
@@ -43,6 +56,14 @@ const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
 });
 
 describe('IntroQuestModal', () => {
+  beforeEach(() => {
+    completeAction.mockReset();
+    mockUseActions.mockReturnValue({
+      completeAction,
+    });
+    mockUseViewSize.mockReturnValue(false);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -75,8 +96,9 @@ describe('IntroQuestModal', () => {
 
     render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
 
+    expect(completeAction).toHaveBeenCalledWith(ActionType.ViewedIntroQuests);
     expect(
-      screen.getByRole('heading', { name: 'Intro quests' }),
+      screen.getByRole('heading', { name: 'Intro quests', hidden: true }),
     ).toBeInTheDocument();
     expect(
       screen.getByText('Install the browser extension'),
@@ -87,7 +109,10 @@ describe('IntroQuestModal', () => {
     expect(screen.getByText('Completed')).toBeInTheDocument();
     expect(screen.getByText('In progress')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: 'Go to Notifications' }),
+      screen.getByRole('link', {
+        name: 'Go to Notifications',
+        hidden: true,
+      }),
     ).toHaveAttribute('href', '/settings/notifications');
   });
 
@@ -116,7 +141,10 @@ describe('IntroQuestModal', () => {
     render(<IntroQuestModal isOpen onRequestClose={jest.fn()} />);
 
     expect(
-      screen.queryByRole('link', { name: 'Go to Notifications' }),
+      screen.queryByRole('link', {
+        name: 'Go to Notifications',
+        hidden: true,
+      }),
     ).not.toBeInTheDocument();
   });
 

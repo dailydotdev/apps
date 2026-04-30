@@ -3,8 +3,11 @@ import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TourIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
+import { Bubble } from '../tooltips/utils';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { ActionType } from '../../graphql/actions';
+import { useActions } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useViewSize, ViewSize } from '../../hooks';
 import { LazyModal } from '../modals/common/types';
@@ -18,12 +21,14 @@ export function IntroQuestButton(): ReactElement | null {
   const { loadedSettings } = useSettingsContext();
   const { openModal } = useLazyModal();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { checkHasCompleted } = useActions();
   const { value: isNewD1Experience } = useConditionalFeature({
     feature: featureNewD1Experience,
     shouldEvaluate: isAuthReady && isLoggedIn && loadedSettings,
   });
   const { data } = useQuestDashboard();
   const introQuests = data?.intro ?? [];
+  const hasViewedIntroQuests = checkHasCompleted(ActionType.ViewedIntroQuests);
 
   if (!isAuthReady || !loadedSettings || !isLoggedIn || !isNewD1Experience) {
     return null;
@@ -37,6 +42,8 @@ export function IntroQuestButton(): ReactElement | null {
     ({ status }) =>
       status === QuestStatus.Completed || status === QuestStatus.Claimed,
   ).length;
+  const hasClaimableIntroQuest = introQuests.some(({ claimable }) => claimable);
+  const showAttentionBadge = !hasViewedIntroQuests || hasClaimableIntroQuest;
   const buttonLabel = `${completed}/${introQuests.length}`;
 
   return (
@@ -46,9 +53,20 @@ export function IntroQuestButton(): ReactElement | null {
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
         size={ButtonSize.Medium}
         icon={<TourIcon />}
+        className="relative"
         onClick={() => openModal({ type: LazyModal.IntroQuests })}
-        aria-label={`Open introduction quests (${buttonLabel})`}
+        aria-label={`Open introduction quests (${buttonLabel})${
+          showAttentionBadge ? ', attention needed' : ''
+        }`}
       >
+        {showAttentionBadge && (
+          <Bubble
+            data-testid="intro-quest-attention-badge"
+            className="-right-1 -top-1 size-5 !min-h-5 !min-w-5 !rounded-full !bg-accent-onion-default p-0"
+          >
+            !
+          </Bubble>
+        )}
         {buttonLabel}
       </Button>
     </Tooltip>
