@@ -401,17 +401,14 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
-  const {
-    Component,
-    pageProps: { dehydratedState },
-    router,
-  } = props;
+  const { Component, pageProps, router } = props;
+  const { dehydratedState } = pageProps;
 
   if (isDevReviewRoute(router?.pathname)) {
     return (
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={dehydratedState}>
-          <Component {...props.pageProps} />
+          <Component {...pageProps} />
         </HydrationBoundary>
       </QueryClientProvider>
     );
