@@ -26,6 +26,7 @@ export interface RichTextToolbarProps {
   onLinkAdd: (url: string, label?: string) => void;
   inlineActions?: ReactNode;
   rightActions?: ReactNode;
+  allowBlockFormatting?: boolean;
 }
 
 export interface RichTextToolbarRef {
@@ -71,7 +72,13 @@ const ToolbarButton = ({
 };
 
 function RichTextToolbarComponent(
-  { editor, onLinkAdd, inlineActions, rightActions }: RichTextToolbarProps,
+  {
+    editor,
+    onLinkAdd,
+    inlineActions,
+    rightActions,
+    allowBlockFormatting = true,
+  }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
@@ -154,19 +161,23 @@ function RichTextToolbarComponent(
             isActive={editorState.isItalic}
             onClick={() => editor.chain().focus().toggleItalic().run()}
           />
-          <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
-          <ToolbarButton
-            tooltip="Bullet list (⌘⇧8)"
-            icon={<BulletListIcon />}
-            isActive={editorState.isBulletList}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          />
-          <ToolbarButton
-            tooltip="Numbered list (⌘⇧7)"
-            icon={<NumberedListIcon />}
-            isActive={editorState.isOrderedList}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          />
+          {allowBlockFormatting ? (
+            <>
+              <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
+              <ToolbarButton
+                tooltip="Bullet list (⌘⇧8)"
+                icon={<BulletListIcon />}
+                isActive={editorState.isBulletList}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              />
+              <ToolbarButton
+                tooltip="Numbered list (⌘⇧7)"
+                icon={<NumberedListIcon />}
+                isActive={editorState.isOrderedList}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              />
+            </>
+          ) : null}
           <div className="mx-1 h-4 w-px bg-border-subtlest-tertiary" />
           <ToolbarButton
             tooltip={editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)'}

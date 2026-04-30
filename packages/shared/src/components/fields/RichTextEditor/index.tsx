@@ -1,4 +1,4 @@
-import type { ReactElement, MutableRefObject } from 'react';
+import type { ForwardedRef, ReactElement } from 'react';
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -46,8 +46,8 @@ function RichTextEditorComponent(
     onFocus,
     className = {},
   }: RichTextEditorProps,
-  ref: MutableRefObject<RichTextRef>,
-): ReactElement {
+  ref: ForwardedRef<RichTextRef>,
+): ReactElement | null {
   const toolbarRef = useRef<RichTextToolbarRef>(null);
 
   // Create Cmd+K shortcut extension
@@ -72,6 +72,7 @@ function RichTextEditorComponent(
       StarterKit.configure({
         blockquote: false,
         horizontalRule: false,
+        link: false,
       }),
       Link.configure({
         openOnClick: false,
