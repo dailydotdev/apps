@@ -185,6 +185,7 @@ export const usePostToSquad = ({
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
     useMutation({
       mutationFn: (url: string) => getExternalLinkPreview(url, requestMethod),
+      retry: false,
       onSuccess: (data, url) => {
         const newPreview = { ...data, finalUrl: data.url, url };
         setPreview(newPreview);
