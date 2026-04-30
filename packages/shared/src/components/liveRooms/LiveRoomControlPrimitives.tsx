@@ -13,8 +13,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 import { ArrowIcon, VIcon } from '../icons';
 import { Switch } from '../fields/Switch';
 import {
@@ -179,55 +181,55 @@ export const SelectSettingRow = <TValue extends string>({
   value,
   options,
   onSelect,
-}: SelectSettingRowProps<TValue>): ReactElement => (
-  <div className="flex items-start justify-between gap-3 rounded-12 px-2 py-2">
-    <div className="min-w-0 flex-1">
-      <Typography type={TypographyType.Footnote} bold>
-        {label}
-      </Typography>
-      <Typography
-        type={TypographyType.Caption2}
-        color={TypographyColor.Tertiary}
-      >
-        {description}
-      </Typography>
-    </div>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Float}
-          className="!min-w-[8.5rem] shrink-0 !justify-between !px-3 !font-normal !typo-callout"
+}: SelectSettingRowProps<TValue>): ReactElement => {
+  const menuItems: MenuItemProps[] = options.map((option) => ({
+    label: option.label,
+    icon:
+      value === option.value ? (
+        <VIcon size={IconSize.Size16} secondary />
+      ) : (
+        <span aria-hidden className="size-4 shrink-0" />
+      ),
+    action: () => onSelect(option.value),
+  }));
+
+  return (
+    <div className="flex items-start justify-between gap-3 rounded-12 px-2 py-2">
+      <div className="min-w-0 flex-1">
+        <Typography type={TypographyType.Footnote} bold>
+          {label}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Tertiary}
         >
-          {options.find((option) => option.value === value)?.label}
-          <ArrowIcon className="ml-auto rotate-180" secondary />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="flex !min-w-[8.5rem] flex-col gap-1 !p-0"
-      >
-        {options.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => onSelect(option.value)}
-            className="!h-auto"
+          {description}
+        </Typography>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Float}
+            className="!min-w-[8.5rem] shrink-0 !justify-between !px-3 !font-normal !typo-callout"
           >
-            <div className="flex w-full items-center justify-between gap-3">
-              <Typography type={TypographyType.Footnote}>
-                {option.label}
-              </Typography>
-              {value === option.value ? (
-                <VIcon size={IconSize.Size16} secondary />
-              ) : null}
-            </div>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
-);
+            {options.find((option) => option.value === value)?.label}
+            <ArrowIcon className="ml-auto rotate-180" secondary />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          variant="field"
+          align="end"
+          sideOffset={10}
+          className="!min-w-[12rem]"
+        >
+          <DropdownMenuOptions options={menuItems} />
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
 
 interface DeviceSplitButtonProps {
   isOn: boolean;
