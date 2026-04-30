@@ -106,7 +106,7 @@ export function NewExploreLayoutBanner(): ReactElement | null {
       <div className="relative overflow-hidden rounded-16 px-px py-px">
         <div className="top-hero-panel-border absolute inset-0 rounded-16" />
         <div className="top-hero-glow pointer-events-none absolute -right-16 top-1/2 h-48 w-48 -translate-y-1/2 rounded-full blur-3xl" />
-        <div className="top-hero-glow pointer-events-none absolute -left-20 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full opacity-60 blur-3xl" />
+        <div className="top-hero-glow opacity-60 pointer-events-none absolute -left-20 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full blur-3xl" />
         <div className="relative overflow-hidden rounded-[0.9375rem] bg-raw-pepper-90 shadow-2">
           <div className="relative flex flex-col gap-4 p-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-6 tablet:p-5">
             <div className="flex min-w-0 flex-col gap-2">

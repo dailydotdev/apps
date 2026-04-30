@@ -544,7 +544,7 @@ const DailyQuestCard = ({
             aria-hidden
             className="pointer-events-none absolute inset-0 flex items-center justify-center"
           >
-            <div className="-rotate-12 rounded-8 border-4 border-double border-accent-avocado-default px-4 py-1 opacity-90 shadow-lg">
+            <div className="opacity-90 shadow-lg -rotate-12 rounded-8 border-4 border-double border-accent-avocado-default px-4 py-1">
               <span className="font-black uppercase tracking-[0.25em] text-accent-avocado-default typo-title2">
                 Claimed
               </span>

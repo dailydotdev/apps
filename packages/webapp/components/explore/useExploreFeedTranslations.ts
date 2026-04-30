@@ -86,7 +86,9 @@ export const useExploreFeedTranslations = (
             };
           });
         } finally {
-          postsToTranslate.forEach((post) => inFlightRef.current.delete(post.id));
+          postsToTranslate.forEach((post) =>
+            inFlightRef.current.delete(post.id),
+          );
         }
       })();
     });

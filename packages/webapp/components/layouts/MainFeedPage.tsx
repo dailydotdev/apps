@@ -8,14 +8,14 @@ import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities'
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import dynamic from 'next/dynamic';
-import { getLayout } from './FeedLayout';
-import { ExplorePageContent } from '../explore/ExplorePageContent';
 import {
   ExploreLayoutPreference,
   exploreLayoutPreferenceChangedEvent,
   getExploreLayoutPreference,
 } from '@dailydotdev/shared/src/lib/exploreLayoutPreference';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
+import { getLayout } from './FeedLayout';
+import { ExplorePageContent } from '../explore/ExplorePageContent';
 
 const MainFeedLayout = dynamic(
   () =>
@@ -136,7 +136,7 @@ export default function MainFeedPage({
   const shouldShowExploreMainLayout =
     router.pathname === '/' &&
     !!user &&
-    !Boolean(isCustomDefaultFeed) &&
+    !isCustomDefaultFeed &&
     exploreLayoutPreference === ExploreLayoutPreference.New;
 
   if (shouldShowExploreMainLayout) {

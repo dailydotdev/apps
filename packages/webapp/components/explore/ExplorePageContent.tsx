@@ -55,7 +55,12 @@ const getFeedQueryKey = (
   section: 'latest' | 'popular' | 'upvoted' | 'discussed',
   isLoggedIn: boolean,
 ) =>
-  ['explore', isLoggedIn ? 'logged-in' : 'anonymous', categoryId, section] as const;
+  [
+    'explore',
+    isLoggedIn ? 'logged-in' : 'anonymous',
+    categoryId,
+    section,
+  ] as const;
 
 const getHighlightsQuery = () =>
   gqlClient.request<{ postHighlights: PostHighlight[] }>(

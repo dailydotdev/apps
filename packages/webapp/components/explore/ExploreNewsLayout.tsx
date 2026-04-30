@@ -59,6 +59,11 @@ import { PostContentReminder } from '@dailydotdev/shared/src/components/post/com
 import PostTags from '@dailydotdev/shared/src/components/cards/common/PostTags';
 import { formatReadTime } from '@dailydotdev/shared/src/components/utilities';
 import { briefingUrl, plusUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  bookmarkProviderIcon,
+  bookmarkProviderText,
+  bookmarkProviderTextClassName,
+} from '@dailydotdev/shared/src/components/cards/common/BookmarkProviderHeader';
 import { AgentsHighlightsSection } from '../agents/AgentsHighlightsSection';
 import { AgentsLeaderboardSection } from '../agents/AgentsLeaderboardSection';
 import { ExploreSocialStrips } from './ExploreSocialStrips';
@@ -75,11 +80,6 @@ import type { ExploreStory } from './exploreTypes';
 import { ExploreTopCommentChip } from './ExploreTopCommentChip';
 import { ExploreTopNewsHeader } from './ExploreTopNewsHeader';
 import { NewExploreLayoutBanner } from './NewExploreLayoutBanner';
-import {
-  bookmarkProviderIcon,
-  bookmarkProviderText,
-  bookmarkProviderTextClassName,
-} from '@dailydotdev/shared/src/components/cards/common/BookmarkProviderHeader';
 
 export type { ExploreStory } from './exploreTypes';
 
@@ -413,11 +413,13 @@ const StoryRow = ({
   return (
     <article
       className={classNames(
+        // TODO new-explore-page
+        // eslint-disable-next-line no-nested-ternary
         shouldHighlightBookmarkedStory
           ? 'group -mx-3 flex items-start gap-3 rounded-16 border border-action-bookmark-active bg-action-bookmark-float px-3 py-2.5 hover:border-action-bookmark-default'
           : compactTopNews
-            ? 'group flex items-start gap-3 pb-2.5 pt-0 last:pb-0'
-            : 'group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5',
+          ? 'group flex items-start gap-3 pb-2.5 pt-0 last:pb-0'
+          : 'group flex items-start gap-3 border-b border-border-subtlest-tertiary py-2.5',
       )}
     >
       {hasStoryImage && (
@@ -1500,7 +1502,7 @@ export const ExploreNewsLayout = ({
       <NewExploreLayoutBanner />
       <section
         id="explore"
-        className="sticky top-16 z-rank isolate overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8"
+        className="sticky top-16 isolate z-rank overflow-hidden bg-background-default px-3 transition-colors duration-200 laptop:px-8"
       >
         <div className="relative">
           <div

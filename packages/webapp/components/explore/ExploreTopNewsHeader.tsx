@@ -68,7 +68,10 @@ export function ExploreTopNewsHeader({
         />
         <ToggleClickbaitShield
           origin={Origin.ExplorePage}
-          buttonProps={{ size: ButtonSize.Small, variant: ButtonVariant.Subtle }}
+          buttonProps={{
+            size: ButtonSize.Small,
+            variant: ButtonVariant.Subtle,
+          }}
         />
         <AchievementTrackerButton
           size={ButtonSize.Small}
