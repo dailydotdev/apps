@@ -1,8 +1,7 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { useQueries } from '@tanstack/react-query';
 import {
   Typography,
   TypographyColor,
@@ -11,70 +10,45 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
-import Markdown from '../Markdown';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
+import { LiveRoomChatPanel } from './LiveRoomChatPanel';
+import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
-  type LiveRoomChatEntry,
   useLiveRoom as useLiveRoomConnection,
   type LiveRoomReaction,
-  type RemoteMediaStream,
 } from '../../contexts/LiveRoomContext';
-import type { LiveRoomParticipantRecord } from '../../lib/liveRoom/protocol';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
+import { useLiveRoomParticipantProfiles } from '../../hooks/liveRooms/useLiveRoomParticipantProfiles';
+import { useLiveRoomParticipantStreams } from '../../hooks/liveRooms/useLiveRoomParticipantStreams';
+import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
-import { webappUrl } from '../../lib/constants';
-import type { UserShortProfile } from '../../lib/user';
-import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { Tooltip } from '../tooltip/Tooltip';
-import {
-  BlockIcon,
-  DiscussIcon,
-  LockIcon,
-  MenuIcon,
-  PlusUserIcon,
-  RemoveUserIcon,
-  TimerIcon,
-  TrashIcon,
-  UserIcon,
-} from '../icons';
-import { IconSize } from '../Icon';
-import { getUserShortInfo } from '../../graphql/users';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import { ONE_MINUTE } from '../../lib/time';
-import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
-import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
-import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
-import {
-  anonymousDisplayName,
-  anonymousHandle,
-} from '../../lib/liveRoom/anonymousName';
 import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
+import { TimerIcon, UserIcon } from '../icons';
+import { IconSize } from '../Icon';
+import type { UserShortProfile } from '../../lib/user';
+import {
+  buildDisplayProfile,
+  buildParticipantProfile,
+} from './liveRoomParticipants';
+import {
+  LiveRoomSidePanelTabs,
+  type LiveRoomSidePanelTab,
+} from './LiveRoomSidePanelTabs';
 
 interface LiveRoomProps {
   roomId: string;
 }
-
-type SidePanelTab = 'chat' | 'queue' | 'audience';
 
 const MAX_STAGE_TILES_PER_PAGE = 12;
 
 const getStageGridColumnCount = (count: number): number => {
   if (count <= 1) {
     return 1;
-  }
-  if (count === 2) {
-    return 2;
   }
   if (count <= 4) {
     return 2;
@@ -86,48 +60,17 @@ const getStageGridColumnCount = (count: number): number => {
 };
 
 const formatStreamDuration = (seconds: number): string => {
-  const safe = Math.max(0, Math.floor(seconds));
-  const hours = Math.floor(safe / 3600);
-  const minutes = Math.floor((safe % 3600) / 60);
-  const secs = safe % 60;
-  const pad = (n: number) => n.toString().padStart(2, '0');
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const remainingSeconds = safeSeconds % 60;
+  const pad = (value: number) => value.toString().padStart(2, '0');
+
   if (hours > 0) {
-    return `${hours}:${pad(minutes)}:${pad(secs)}`;
+    return `${hours}:${pad(minutes)}:${pad(remainingSeconds)}`;
   }
-  return `${pad(minutes)}:${pad(secs)}`;
-};
 
-const useStreamDuration = (
-  referenceTime: string | null | undefined,
-): number => {
-  const [elapsed, setElapsed] = useState(0);
-
-  useEffect(() => {
-    if (!referenceTime) {
-      setElapsed(0);
-      return undefined;
-    }
-
-    const referenceTimeMs = new Date(referenceTime).getTime();
-
-    if (Number.isNaN(referenceTimeMs)) {
-      setElapsed(0);
-      return undefined;
-    }
-
-    const tick = () => {
-      setElapsed(
-        Math.max(0, Math.floor((Date.now() - referenceTimeMs) / 1000)),
-      );
-    };
-
-    tick();
-    const interval = window.setInterval(tick, 1000);
-
-    return () => window.clearInterval(interval);
-  }, [referenceTime]);
-
-  return elapsed;
+  return `${pad(minutes)}:${pad(remainingSeconds)}`;
 };
 
 const AnimatedCount = ({ value }: { value: number }): ReactElement => (
@@ -135,48 +78,6 @@ const AnimatedCount = ({ value }: { value: number }): ReactElement => (
     {value}
   </span>
 );
-
-const buildParticipantStream = (
-  targetParticipantId: string | null | undefined,
-  remoteStreams: RemoteMediaStream[],
-  localStream: MediaStream | null,
-  participantId: string | null,
-): MediaStream | null => {
-  if (!targetParticipantId) {
-    return null;
-  }
-  if (targetParticipantId === participantId) {
-    return localStream;
-  }
-  const tracks: MediaStreamTrack[] = [];
-  remoteStreams
-    .filter((entry) => entry.participantId === targetParticipantId)
-    .forEach((entry) => {
-      entry.stream.getTracks().forEach((track) => tracks.push(track));
-    });
-  if (tracks.length === 0) {
-    return null;
-  }
-  return new MediaStream(tracks);
-};
-
-const userDisplayName = (user: Pick<UserShortProfile, 'username'>): string =>
-  `@${user.username}`;
-
-const buildParticipantProfile = (participantId: string): UserShortProfile => ({
-  id: participantId,
-  name: anonymousDisplayName(participantId),
-  username: anonymousHandle(participantId),
-  image: '',
-  createdAt: '',
-  reputation: 0,
-  permalink: '#',
-});
-
-const buildDisplayProfile = (user: UserShortProfile): UserShortProfile => ({
-  ...user,
-  name: userDisplayName(user),
-});
 
 const ReactionOverlay = ({
   reactions,
@@ -211,731 +112,7 @@ const ReactionOverlay = ({
   );
 };
 
-interface StageParticipantItemProps {
-  participantId: string;
-  profile?: UserShortProfile;
-  subtitle?: string;
-  leading?: ReactNode;
-  actions?: ReactNode;
-}
-
-const StageParticipantItem = ({
-  participantId,
-  profile,
-  subtitle,
-  leading,
-  actions,
-}: StageParticipantItemProps): ReactElement => {
-  const user = profile ?? buildParticipantProfile(participantId);
-
-  return (
-    <li className="flex min-w-0 items-center gap-3 rounded-12 border border-border-subtlest-tertiary px-3 py-2">
-      {leading}
-      <ProfilePicture user={user} size={ProfileImageSize.Small} />
-      <div className="min-w-0 flex-1">
-        <Typography type={TypographyType.Footnote} bold truncate>
-          {userDisplayName(user)}
-        </Typography>
-        {subtitle ? (
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-            truncate
-          >
-            {subtitle}
-          </Typography>
-        ) : null}
-      </div>
-      {actions}
-    </li>
-  );
-};
-
-interface SidePanelTabsProps {
-  active: SidePanelTab;
-  tabs: { id: SidePanelTab; label: string; count?: number }[];
-  onChange: (tab: SidePanelTab) => void;
-}
-
-const SidePanelTabs = ({
-  active,
-  tabs,
-  onChange,
-}: SidePanelTabsProps): ReactElement => {
-  return (
-    <div
-      role="tablist"
-      aria-label="Live room side panel"
-      className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-1"
-    >
-      {tabs.map((tab) => {
-        const isActive = tab.id === active;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(tab.id)}
-            className={classNames(
-              'flex flex-1 items-center justify-center gap-2 rounded-10 px-3 py-2 transition-colors typo-callout',
-              isActive
-                ? 'bg-surface-float font-bold text-text-primary'
-                : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
-            )}
-          >
-            {tab.label}
-            {tab.count !== undefined && tab.count > 0 ? (
-              <span
-                className={classNames(
-                  'rounded-full px-1.5 typo-caption2',
-                  isActive
-                    ? 'bg-action-upvote-float text-action-upvote-default'
-                    : 'bg-surface-float text-text-tertiary',
-                )}
-              >
-                {tab.count}
-              </span>
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
-  );
-};
-
-interface LiveRoomChatComposerProps {
-  canChat: boolean;
-  isLive: boolean;
-  isEnded: boolean;
-  isLoggedIn: boolean;
-  mentionSuggestions: UserShortProfile[];
-  onSendMessage: (body: string) => Promise<void>;
-  onRequestLogin: () => void;
-}
-
-const LiveRoomChatComposer = ({
-  canChat,
-  isLive,
-  isEnded,
-  isLoggedIn,
-  mentionSuggestions,
-  onSendMessage,
-  onRequestLogin,
-}: LiveRoomChatComposerProps): ReactElement => {
-  const inputRef = useRef<RichTextInputRef | null>(null);
-  const [isSending, setIsSending] = useState(false);
-  const [draft, setDraft] = useState('');
-
-  let disabledReason = 'The host disabled your chat access.';
-  if (!isLoggedIn) {
-    disabledReason = 'Sign in to join the chat.';
-  } else if (isEnded) {
-    disabledReason = 'Chat has ended for this room.';
-  } else if (!isLive) {
-    disabledReason = 'Chat opens when the room goes live.';
-  }
-
-  const handleSubmit = async (body: string): Promise<void> => {
-    const trimmed = body.trim();
-    if (!trimmed || isSending || !canChat) {
-      return;
-    }
-
-    setIsSending(true);
-    try {
-      await onSendMessage(trimmed);
-      setDraft('');
-      inputRef.current?.setInput('');
-      inputRef.current?.clearDraft();
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  if (!canChat) {
-    return (
-      <div className="border-t border-border-subtlest-tertiary p-2.5">
-        <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-2.5">
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {disabledReason}
-          </Typography>
-          {!isLoggedIn ? (
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Primary}
-              onClick={onRequestLogin}
-            >
-              Sign in to chat
-            </Button>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border-t border-border-subtlest-tertiary">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleSubmit(draft).catch(() => undefined);
-        }}
-      >
-        <RichTextInput
-          ref={inputRef}
-          className={{
-            container: '!rounded-none !bg-transparent',
-            input: '!p-2.5',
-          }}
-          showUserAvatar={false}
-          submitCopy="Send"
-          isLoading={isSending}
-          maxInputLength={1000}
-          allowBlockFormatting={false}
-          minHeightClassName="min-h-[3rem]"
-          mentionSuggestions={mentionSuggestions}
-          markdownToHtml={chatMarkdownToHtml}
-          enabledCommand={{
-            [MarkdownCommand.Upload]: true,
-            [MarkdownCommand.Mention]: true,
-            [MarkdownCommand.Gif]: true,
-          }}
-          textareaProps={{
-            name: 'chat-message',
-            placeholder: 'Write a message',
-            rows: 2,
-          }}
-          onValueUpdate={setDraft}
-          onSubmit={(event) =>
-            handleSubmit(event.currentTarget.value).catch(() => undefined)
-          }
-        />
-      </form>
-    </div>
-  );
-};
-
-interface LiveRoomChatPanelProps {
-  chatMessages: LiveRoomChatEntry[];
-  participantProfilesById: Map<string, UserShortProfile>;
-  mentionSuggestions: UserShortProfile[];
-  participantChatPermissions: Record<string, boolean>;
-  hostParticipantId: string;
-  canChat: boolean;
-  isLive: boolean;
-  isEnded: boolean;
-  isLoggedIn: boolean;
-  isHost: boolean;
-  onSendMessage: (body: string) => Promise<void>;
-  onDeleteMessage: (messageId: string) => Promise<void>;
-  onKickParticipant: (participantId: string) => Promise<void>;
-  onSetParticipantChatEnabled: (
-    targetParticipantId: string,
-    canChat: boolean,
-  ) => Promise<void>;
-  onRequestLogin: () => void;
-}
-
-const LiveRoomChatPanel = ({
-  chatMessages,
-  participantProfilesById,
-  mentionSuggestions,
-  participantChatPermissions,
-  hostParticipantId,
-  canChat,
-  isLive,
-  isEnded,
-  isLoggedIn,
-  isHost,
-  onSendMessage,
-  onDeleteMessage,
-  onKickParticipant,
-  onSetParticipantChatEnabled,
-  onRequestLogin,
-}: LiveRoomChatPanelProps): ReactElement => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const shouldAutoScrollRef = useRef(true);
-  const [moderationBusy, setModerationBusy] = useState<string | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const node = scrollRef.current;
-    if (!node || !shouldAutoScrollRef.current) {
-      return;
-    }
-
-    node.scrollTop = node.scrollHeight;
-  }, [chatMessages]);
-
-  const onScroll = (): void => {
-    const node = scrollRef.current;
-    if (!node) {
-      return;
-    }
-
-    const distanceFromBottom =
-      node.scrollHeight - node.scrollTop - node.clientHeight;
-    shouldAutoScrollRef.current = distanceFromBottom < 32;
-  };
-
-  return (
-    <div className="flex h-full flex-col">
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
-      >
-        {chatMessages.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-            <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
-              <DiscussIcon size={IconSize.Small} />
-            </span>
-            <Typography type={TypographyType.Footnote} bold>
-              No messages yet
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Chat is live and messages disappear when the room ends.
-            </Typography>
-          </div>
-        ) : (
-          chatMessages.map((message) => {
-            const sender =
-              participantProfilesById.get(message.participantId) ??
-              buildParticipantProfile(message.participantId);
-            const isSenderBlocked =
-              (participantChatPermissions[message.participantId] ?? true) ===
-              false;
-            const canModerateParticipant =
-              isHost &&
-              message.participantId !== hostParticipantId &&
-              message.participantId !== '';
-
-            return (
-              <article
-                key={message.messageId}
-                className="group flex items-start gap-2 px-1 py-1.5"
-              >
-                <ProfilePicture user={sender} size={ProfileImageSize.Small} />
-                <div className="min-w-0 flex-1">
-                  <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">
-                      {userDisplayName(sender)}
-                    </span>
-                    <Markdown
-                      className="inline !text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_code]:rounded-[0.375rem] [&_code]:bg-surface-hover [&_code]:px-1 [&_code]:py-0.5 [&_p]:inline [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.5]"
-                      content={chatMarkdownToHtml(message.body, {
-                        mentions: mentionSuggestions,
-                      })}
-                    />
-                  </div>
-                </div>
-                {isHost ? (
-                  <div
-                    className={classNames(
-                      'ml-2 shrink-0 pt-0.5 transition-opacity',
-                      openMenuId === message.messageId
-                        ? 'opacity-100'
-                        : 'opacity-0 group-hover:opacity-100',
-                    )}
-                  >
-                    <DropdownMenu
-                      open={openMenuId === message.messageId}
-                      onOpenChange={(open) =>
-                        setOpenMenuId(open ? message.messageId : null)
-                      }
-                    >
-                      <DropdownMenuTrigger
-                        tooltip={{ content: 'Chat moderation options' }}
-                        asChild
-                      >
-                        <Button
-                          type="button"
-                          size={ButtonSize.XSmall}
-                          variant={ButtonVariant.Tertiary}
-                          icon={<MenuIcon />}
-                          aria-label={`Chat moderation options for ${userDisplayName(
-                            sender,
-                          )}`}
-                          disabled={!!moderationBusy}
-                        />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          disabled={!!moderationBusy}
-                          onClick={() => {
-                            if (moderationBusy) {
-                              return;
-                            }
-
-                            setModerationBusy(`delete-${message.messageId}`);
-                            onDeleteMessage(message.messageId)
-                              .catch(() => undefined)
-                              .finally(() => {
-                                setModerationBusy(null);
-                                setOpenMenuId(null);
-                              });
-                          }}
-                        >
-                          <div className="flex items-center gap-2 typo-callout">
-                            <TrashIcon /> Delete message
-                          </div>
-                        </DropdownMenuItem>
-                        {canModerateParticipant ? (
-                          <DropdownMenuItem
-                            disabled={!!moderationBusy}
-                            onClick={() => {
-                              if (moderationBusy) {
-                                return;
-                              }
-
-                              setModerationBusy(
-                                `kick-${message.participantId}`,
-                              );
-                              onKickParticipant(message.participantId)
-                                .catch(() => undefined)
-                                .finally(() => {
-                                  setModerationBusy(null);
-                                  setOpenMenuId(null);
-                                });
-                            }}
-                          >
-                            <div className="flex items-center gap-2 typo-callout">
-                              <BlockIcon /> Kick user
-                            </div>
-                          </DropdownMenuItem>
-                        ) : null}
-                        {canModerateParticipant && !isSenderBlocked ? (
-                          <DropdownMenuItem
-                            disabled={!!moderationBusy}
-                            onClick={() => {
-                              if (moderationBusy) {
-                                return;
-                              }
-
-                              setModerationBusy(
-                                `toggle-${message.participantId}`,
-                              );
-                              onSetParticipantChatEnabled(
-                                message.participantId,
-                                false,
-                              )
-                                .catch(() => undefined)
-                                .finally(() => {
-                                  setModerationBusy(null);
-                                  setOpenMenuId(null);
-                                });
-                            }}
-                          >
-                            <div className="flex items-center gap-2 typo-callout">
-                              <LockIcon /> Revoke chat access
-                            </div>
-                          </DropdownMenuItem>
-                        ) : null}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                ) : null}
-              </article>
-            );
-          })
-        )}
-      </div>
-      <LiveRoomChatComposer
-        canChat={canChat}
-        isLive={isLive}
-        isEnded={isEnded}
-        isLoggedIn={isLoggedIn}
-        mentionSuggestions={mentionSuggestions}
-        onSendMessage={onSendMessage}
-        onRequestLogin={onRequestLogin}
-      />
-    </div>
-  );
-};
-
-interface LiveRoomQueuePanelProps {
-  tab: 'queue' | 'audience';
-  mode: 'moderated' | 'free_for_all';
-  activeSpeakerParticipantIds: string[];
-  queuedParticipantIds: string[];
-  audienceParticipantIds: string[];
-  participantsById: Record<string, LiveRoomParticipantRecord>;
-  participantProfilesById: Map<string, UserShortProfile>;
-  isHost: boolean;
-  stageLimit?: number | null;
-  moderationBusy: string | null;
-  guardedModerationAction: (
-    key: string,
-    fn: () => Promise<void>,
-  ) => Promise<void>;
-  promoteSpeaker: (targetParticipantId: string) => Promise<void>;
-  removeSpeaker: (targetParticipantId: string) => Promise<void>;
-  kickParticipant: (targetParticipantId: string) => Promise<void>;
-}
-
-const LiveRoomQueuePanel = ({
-  tab,
-  mode,
-  activeSpeakerParticipantIds,
-  queuedParticipantIds,
-  audienceParticipantIds,
-  participantsById,
-  participantProfilesById,
-  isHost,
-  stageLimit,
-  moderationBusy,
-  guardedModerationAction,
-  promoteSpeaker,
-  removeSpeaker,
-  kickParticipant,
-}: LiveRoomQueuePanelProps): ReactElement => {
-  const activeSpeakers = activeSpeakerParticipantIds
-    .map((id) => participantsById[id])
-    .filter(
-      (participant): participant is LiveRoomParticipantRecord => !!participant,
-    );
-  const audienceMembers = audienceParticipantIds
-    .map((id) => participantsById[id])
-    .filter(
-      (participant): participant is LiveRoomParticipantRecord => !!participant,
-    );
-  const isAudienceTab = tab === 'audience';
-  // Show On stage in the Queue tab (moderated) and in the Audience tab when
-  // there is no separate Queue tab (free-for-all has no queue).
-  const showStageSection = !isAudienceTab || mode === 'free_for_all';
-  const sectionTitle = isAudienceTab ? 'Audience' : 'Queue';
-  const sectionCount = isAudienceTab
-    ? audienceMembers.length
-    : queuedParticipantIds.length;
-  const listIds = isAudienceTab ? audienceParticipantIds : queuedParticipantIds;
-
-  return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
-        {showStageSection ? (
-          <section className="flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <Typography type={TypographyType.Footnote} bold>
-                On stage
-              </Typography>
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.Tertiary}
-              >
-                {stageLimit && mode === 'free_for_all'
-                  ? `${activeSpeakers.length}/${stageLimit}`
-                  : activeSpeakers.length}
-              </Typography>
-            </div>
-            {activeSpeakers.length === 0 ? (
-              <div className="flex items-center gap-3 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-4 text-text-tertiary">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-float">
-                  <UserIcon size={IconSize.Small} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <Typography type={TypographyType.Footnote} bold>
-                    No active speakers
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {mode === 'free_for_all'
-                      ? 'Audience members can hop on stage while seats are open.'
-                      : 'Promote someone from the queue to bring them on stage.'}
-                  </Typography>
-                </div>
-              </div>
-            ) : (
-              <ul className="flex flex-col gap-2">
-                {activeSpeakers.map((participant) => {
-                  const id = participant.participantId;
-                  return (
-                    <StageParticipantItem
-                      key={id}
-                      participantId={id}
-                      profile={participantProfilesById.get(id)}
-                      actions={
-                        isHost ? (
-                          <div className="flex shrink-0 items-center gap-1">
-                            <Tooltip
-                              content={`Remove ${userDisplayName(
-                                participantProfilesById.get(id) ??
-                                  buildParticipantProfile(id),
-                              )} from stage`}
-                            >
-                              <Button
-                                type="button"
-                                size={ButtonSize.XSmall}
-                                variant={ButtonVariant.Tertiary}
-                                icon={<RemoveUserIcon />}
-                                loading={moderationBusy === `remove-${id}`}
-                                disabled={!!moderationBusy}
-                                aria-label={`Remove ${userDisplayName(
-                                  participantProfilesById.get(id) ??
-                                    buildParticipantProfile(id),
-                                )}`}
-                                onClick={() =>
-                                  guardedModerationAction(`remove-${id}`, () =>
-                                    removeSpeaker(id),
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                            <Tooltip
-                              content={`Kick ${userDisplayName(
-                                participantProfilesById.get(id) ??
-                                  buildParticipantProfile(id),
-                              )} from room`}
-                            >
-                              <Button
-                                type="button"
-                                size={ButtonSize.XSmall}
-                                variant={ButtonVariant.Tertiary}
-                                icon={<BlockIcon />}
-                                loading={moderationBusy === `kick-${id}`}
-                                disabled={!!moderationBusy}
-                                aria-label={`Kick ${userDisplayName(
-                                  participantProfilesById.get(id) ??
-                                    buildParticipantProfile(id),
-                                )}`}
-                                onClick={() =>
-                                  guardedModerationAction(`kick-${id}`, () =>
-                                    kickParticipant(id),
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                          </div>
-                        ) : null
-                      }
-                    />
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-        ) : null}
-
-        <section className="flex min-h-0 flex-1 flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <Typography type={TypographyType.Footnote} bold>
-              {sectionTitle}
-            </Typography>
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-            >
-              {sectionCount}
-            </Typography>
-          </div>
-          {sectionCount === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary p-6 text-center">
-              <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
-                <UserIcon size={IconSize.Small} />
-              </span>
-              <Typography type={TypographyType.Footnote} bold>
-                {isAudienceTab ? 'Audience is quiet' : 'Queue is empty'}
-              </Typography>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                {isAudienceTab
-                  ? 'New listeners will show up here until they join the stage.'
-                  : 'Audience members can request to speak.'}
-              </Typography>
-            </div>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {listIds.map((id) => {
-                const participant = participantsById[id];
-                if (!participant) {
-                  return null;
-                }
-
-                const profile =
-                  participantProfilesById.get(id) ??
-                  buildParticipantProfile(id);
-                return (
-                  <StageParticipantItem
-                    key={id}
-                    participantId={id}
-                    profile={profile}
-                    actions={
-                      isHost ? (
-                        <div className="flex shrink-0 items-center gap-1">
-                          {!isAudienceTab && mode === 'moderated' ? (
-                            <Tooltip
-                              content={`Promote ${userDisplayName(
-                                profile,
-                              )} to speaker`}
-                            >
-                              <Button
-                                type="button"
-                                size={ButtonSize.XSmall}
-                                variant={ButtonVariant.Primary}
-                                icon={<PlusUserIcon />}
-                                loading={moderationBusy === `promote-${id}`}
-                                disabled={!!moderationBusy}
-                                aria-label={`Promote ${userDisplayName(
-                                  profile,
-                                )}`}
-                                onClick={() =>
-                                  guardedModerationAction(`promote-${id}`, () =>
-                                    promoteSpeaker(id),
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                          ) : null}
-                          <Tooltip
-                            content={`Kick ${userDisplayName(
-                              profile,
-                            )} from room`}
-                          >
-                            <Button
-                              type="button"
-                              size={ButtonSize.XSmall}
-                              variant={ButtonVariant.Tertiary}
-                              icon={<BlockIcon />}
-                              loading={moderationBusy === `kick-${id}`}
-                              disabled={!!moderationBusy}
-                              aria-label={`Kick ${userDisplayName(profile)}`}
-                              onClick={() =>
-                                guardedModerationAction(`kick-${id}`, () =>
-                                  kickParticipant(id),
-                                )
-                              }
-                            />
-                          </Tooltip>
-                        </div>
-                      ) : null
-                    }
-                  />
-                );
-              })}
-            </ul>
-          )}
-        </section>
-      </div>
-    </div>
-  );
-};
-
-interface LiveBadgeProps {
-  isLive: boolean;
-}
-
-const LiveBadge = ({ isLive }: LiveBadgeProps): ReactElement => (
+const LiveBadge = ({ isLive }: { isLive: boolean }): ReactElement => (
   <span
     className={classNames(
       'inline-flex items-center gap-1.5 rounded-8 px-2 py-0.5 typo-caption1',
@@ -991,33 +168,29 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     onValidateAction: () => status !== 'connected',
   });
 
+  const [moderationBusy, setModerationBusy] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
+  const [stagePage, setStagePage] = useState(0);
+
   const handleLeave = (): void => {
     onAskConfirmation(false);
     clearStoredLiveRoomResumeSession(roomId);
-    router.push(`${webappUrl}live`);
+    router.push('/live');
   };
-
-  const [moderationBusy, setModerationBusy] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<SidePanelTab>('chat');
-  const [stagePage, setStagePage] = useState(0);
-  const streamDuration = useStreamDuration(
-    roomState?.status === 'live'
-      ? roomState?.createdAt ?? room?.createdAt ?? null
-      : null,
-  );
 
   const guardedModerationAction = async (
     key: string,
-    fn: () => Promise<void>,
+    action: () => Promise<void>,
   ): Promise<void> => {
     if (moderationBusy) {
       return;
     }
+
     setModerationBusy(key);
     try {
-      await fn();
-    } catch (err) {
-      displayToast(err instanceof Error ? err.message : 'Action failed');
+      await action();
+    } catch (error) {
+      displayToast(error instanceof Error ? error.message : 'Action failed');
     } finally {
       setModerationBusy(null);
     }
@@ -1026,21 +199,17 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleSendChatMessage = async (body: string): Promise<void> => {
     try {
       await sendChatMessage(body);
-    } catch (err) {
-      displayToast(err instanceof Error ? err.message : 'Message failed');
+    } catch (error) {
+      displayToast(error instanceof Error ? error.message : 'Message failed');
     }
-  };
-
-  const handleChatLogin = (): void => {
-    showLogin({ trigger: AuthTriggers.MainButton });
   };
 
   const handleDeleteChatMessage = async (messageId: string): Promise<void> => {
     try {
       await deleteChatMessage(messageId);
-    } catch (err) {
+    } catch (error) {
       displayToast(
-        err instanceof Error ? err.message : 'Could not delete message',
+        error instanceof Error ? error.message : 'Could not delete message',
       );
     }
   };
@@ -1051,9 +220,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   ): Promise<void> => {
     try {
       await setParticipantChatEnabled(targetParticipantId, nextCanChat);
-    } catch (err) {
+    } catch (error) {
       displayToast(
-        err instanceof Error ? err.message : 'Could not update chat access',
+        error instanceof Error ? error.message : 'Could not update chat access',
       );
     }
   };
@@ -1063,61 +232,165 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   ): Promise<void> => {
     try {
       await kickParticipant(targetParticipantId);
-    } catch (err) {
-      displayToast(err instanceof Error ? err.message : 'Could not kick user');
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not kick user',
+      );
     }
+  };
+
+  const handleChatLogin = (): void => {
+    showLogin({ trigger: AuthTriggers.MainButton });
   };
 
   const participantIds = useMemo(() => {
     const ids = new Set<string>();
+    const hostId = room?.host.id;
 
     Object.keys(roomState?.participants ?? {}).forEach((id) => {
-      if (id && id !== room?.host.id) {
+      if (id && id !== hostId) {
         ids.add(id);
       }
     });
+
     chatMessages.forEach((message) => {
-      if (message.participantId && message.participantId !== room?.host.id) {
+      if (message.participantId && message.participantId !== hostId) {
         ids.add(message.participantId);
       }
     });
 
     return [...ids];
   }, [chatMessages, room?.host.id, roomState?.participants]);
-  const participantProfileQueries = useQueries({
-    queries: participantIds.map((id) => ({
-      queryKey: generateQueryKey(
-        RequestKey.Profile,
-        undefined,
-        'live-room-participant',
-        id,
-      ),
-      queryFn: () => getUserShortInfo(id),
-      staleTime: ONE_MINUTE,
-    })),
-  });
-  const participantProfilesById = new Map<string, UserShortProfile>();
-  participantIds.forEach((id, index) => {
-    const profile = participantProfileQueries[index]?.data;
-    if (profile) {
-      participantProfilesById.set(id, profile);
-    }
-  });
-  const isHostSelfHidden =
-    videoSettings.hideSelfView && room?.host.id === participantId;
-  const visibleActiveSpeakerCount =
+  const participantProfiles = useLiveRoomParticipantProfiles(participantIds);
+  const participantStreamsById = useLiveRoomParticipantStreams(
+    remoteStreams,
+    localStream,
+    participantId,
+  );
+  const isHost = role === 'host';
+  const isCreated = roomState?.status === 'created';
+  const isLive = roomState?.status === 'live';
+  const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
+  const roomMode = roomState?.mode ?? room?.mode ?? 'moderated';
+  const isFreeForAll = roomMode === 'free_for_all';
+  const streamTimerReference = isLive
+    ? roomState?.createdAt ?? room?.createdAt ?? null
+    : null;
+  const streamDuration = useStreamDuration(streamTimerReference);
+  const participantCount = roomState
+    ? Object.keys(roomState.participants).length
+    : room?.participantCount ?? 0;
+  const hostId = room?.host.id ?? '';
+  const activeSpeakerIds =
     roomState?.stage.activeSpeakerParticipantIds.filter(
-      (id) =>
-        !!roomState.participants[id] &&
-        id !== room?.host.id &&
-        (!videoSettings.hideSelfView || id !== participantId),
-    ).length ?? 0;
-  const visibleStageSpeakerCount =
-    (room?.host.id && !isHostSelfHidden ? 1 : 0) + visibleActiveSpeakerCount;
+      (id) => !!roomState.participants[id] && id !== hostId,
+    ) ?? [];
+  const queuedParticipantIds =
+    roomState?.stage.speakerQueueParticipantIds.filter(
+      (id) => !!roomState.participants[id],
+    ) ?? [];
+  const audienceParticipantIds = roomState
+    ? Object.values(roomState.participants)
+        .map((participant) => participant.participantId)
+        .filter(
+          (id) =>
+            id !== hostId &&
+            !activeSpeakerIds.includes(id) &&
+            !queuedParticipantIds.includes(id),
+        )
+    : [];
+  const stageLimit = roomState?.stage.speakerLimit ?? null;
+  const remainingSeats =
+    stageLimit === null
+      ? null
+      : Math.max(stageLimit - activeSpeakerIds.length, 0);
+  let waitingPrompt = 'Audience can join the queue';
+  if (isFreeForAll && remainingSeats !== null) {
+    waitingPrompt =
+      remainingSeats === 0
+        ? 'The stage is full right now'
+        : `${remainingSeats} open stage spots`;
+  } else if (queuedParticipantIds.length > 0) {
+    waitingPrompt = `${queuedParticipantIds.length} in queue`;
+  }
+  const participantProfilesById = useMemo(() => {
+    const nextProfiles = new Map(participantProfiles);
+
+    if (room?.host) {
+      nextProfiles.set(room.host.id, room.host);
+    }
+
+    return nextProfiles;
+  }, [participantProfiles, room?.host]);
+  const mentionSuggestions = useMemo(() => {
+    if (!room?.host) {
+      return [] as UserShortProfile[];
+    }
+
+    const suggestions: UserShortProfile[] = [room.host];
+
+    participantIds.forEach((id) => {
+      const profile = participantProfilesById.get(id);
+      if (profile) {
+        suggestions.push(profile);
+      }
+    });
+
+    return suggestions;
+  }, [participantIds, participantProfilesById, room?.host]);
+  const audioPublisherIds = new Set(
+    Object.values(roomState?.mediaPublications ?? {})
+      .filter((publication) => publication.kind === 'audio')
+      .map((publication) => publication.participantId),
+  );
+  const isParticipantMuted = (id: string, selfView: boolean): boolean =>
+    selfView ? !isMicOn : !audioPublisherIds.has(id);
+  const stageSpeakers = room?.host
+    ? [
+        {
+          id: room.host.id,
+          profile: buildDisplayProfile(room.host),
+          stream: participantStreamsById.get(room.host.id) ?? null,
+          selfView: room.host.id === participantId,
+          isHost: true,
+        },
+        ...activeSpeakerIds.map((id) => ({
+          id,
+          profile: buildDisplayProfile(
+            participantProfilesById.get(id) ?? buildParticipantProfile(id),
+          ),
+          stream: participantStreamsById.get(id) ?? null,
+          selfView: id === participantId,
+          isHost: false,
+        })),
+      ].map((speaker) => ({
+        ...speaker,
+        isMuted: isParticipantMuted(speaker.id, speaker.selfView),
+      }))
+    : [];
+  const visibleStageSpeakers = stageSpeakers.filter(
+    (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
+  );
   const stagePageCount = Math.max(
     1,
-    Math.ceil(visibleStageSpeakerCount / MAX_STAGE_TILES_PER_PAGE),
+    Math.ceil(visibleStageSpeakers.length / MAX_STAGE_TILES_PER_PAGE),
   );
+  const clampedStagePage = Math.min(stagePage, stagePageCount - 1);
+  const stagePageStart = clampedStagePage * MAX_STAGE_TILES_PER_PAGE;
+  const paginatedStageSpeakers = visibleStageSpeakers.slice(
+    stagePageStart,
+    stagePageStart + MAX_STAGE_TILES_PER_PAGE,
+  );
+  const stageGridColumnCount = getStageGridColumnCount(
+    paginatedStageSpeakers.length,
+  );
+  const showAudienceWaiting = isCreated && !isHost;
+
+  useEffect(() => {
+    if (isFreeForAll && activeTab === 'queue') {
+      setActiveTab('audience');
+    }
+  }, [activeTab, isFreeForAll]);
 
   useEffect(() => {
     setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
@@ -1180,122 +453,6 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       </div>
     );
   }
-
-  const isHost = role === 'host';
-  const isCreated = roomState?.status === 'created';
-  const isLive = roomState?.status === 'live';
-  const isEnded = roomState?.status === 'ended' || room.status === 'ended';
-  const roomMode = roomState?.mode ?? room.mode;
-  const isFreeForAll = roomMode === 'free_for_all';
-  const participantCount = roomState
-    ? Object.keys(roomState.participants).length
-    : 0;
-  const activeSpeakerIds =
-    roomState?.stage.activeSpeakerParticipantIds.filter(
-      (id) => !!roomState.participants[id] && id !== room.host.id,
-    ) ?? [];
-  const queuedParticipantIds =
-    roomState?.stage.speakerQueueParticipantIds.filter(
-      (id) => !!roomState.participants[id],
-    ) ?? [];
-  const audienceParticipantIds = roomState
-    ? Object.values(roomState.participants)
-        .map((participant) => participant.participantId)
-        .filter(
-          (id) =>
-            id !== room.host.id &&
-            !activeSpeakerIds.includes(id) &&
-            !queuedParticipantIds.includes(id),
-        )
-    : [];
-  const stageLimit = roomState?.stage.speakerLimit ?? null;
-  const remainingSeats =
-    stageLimit === null
-      ? null
-      : Math.max(stageLimit - activeSpeakerIds.length, 0);
-  let waitingPrompt = 'Audience can join the queue';
-  if (isFreeForAll) {
-    waitingPrompt =
-      remainingSeats === 0
-        ? 'The stage is full right now'
-        : `${remainingSeats ?? 0} open stage spots`;
-  } else if (queuedParticipantIds.length > 0) {
-    waitingPrompt = `${queuedParticipantIds.length} in queue`;
-  }
-  const hostProfile = room.host;
-  const hostDisplayProfile = buildDisplayProfile(room.host);
-  participantProfilesById.set(room.host.id, hostProfile);
-  const mentionSuggestions = [
-    hostProfile,
-    ...participantIds
-      .map((id) => participantProfilesById.get(id))
-      .filter((profile): profile is UserShortProfile => !!profile),
-  ];
-
-  const audioPublisherIds = new Set(
-    Object.values(roomState?.mediaPublications ?? {})
-      .filter((publication) => publication.kind === 'audio')
-      .map((publication) => publication.participantId),
-  );
-  const isParticipantMuted = (id: string, selfView: boolean): boolean =>
-    selfView ? !isMicOn : !audioPublisherIds.has(id);
-
-  const stageSpeakers: {
-    id: string;
-    profile: UserShortProfile;
-    stream: MediaStream | null;
-    selfView: boolean;
-    isHost: boolean;
-    isMuted: boolean;
-  }[] = [];
-  const hostStream = buildParticipantStream(
-    room.host.id,
-    remoteStreams,
-    localStream,
-    participantId,
-  );
-  const hostSelfView = room.host.id === participantId;
-  stageSpeakers.push({
-    id: room.host.id,
-    profile: hostDisplayProfile,
-    stream: hostStream,
-    selfView: hostSelfView,
-    isHost: true,
-    isMuted: isParticipantMuted(room.host.id, hostSelfView),
-  });
-  activeSpeakerIds.forEach((activeSpeakerId) => {
-    const speakerSelfView = activeSpeakerId === participantId;
-    stageSpeakers.push({
-      id: activeSpeakerId,
-      profile: buildDisplayProfile(
-        participantProfilesById.get(activeSpeakerId) ??
-          buildParticipantProfile(activeSpeakerId),
-      ),
-      stream: buildParticipantStream(
-        activeSpeakerId,
-        remoteStreams,
-        localStream,
-        participantId,
-      ),
-      selfView: speakerSelfView,
-      isHost: false,
-      isMuted: isParticipantMuted(activeSpeakerId, speakerSelfView),
-    });
-  });
-  const visibleStageSpeakers = stageSpeakers.filter(
-    (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
-  );
-  const clampedStagePage = Math.min(stagePage, stagePageCount - 1);
-  const stagePageStart = clampedStagePage * MAX_STAGE_TILES_PER_PAGE;
-  const paginatedStageSpeakers = visibleStageSpeakers.slice(
-    stagePageStart,
-    stagePageStart + MAX_STAGE_TILES_PER_PAGE,
-  );
-  const stageGridColumnCount = getStageGridColumnCount(
-    paginatedStageSpeakers.length,
-  );
-
-  const showAudienceWaiting = isCreated && !isHost;
 
   return (
     <div className="relative flex flex-1 flex-col gap-3 overflow-hidden p-3 tablet:p-4">
@@ -1383,6 +540,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             >
               {paginatedStageSpeakers.map((speaker) => {
                 const canModerate = isHost && !speaker.isHost;
+
                 return (
                   <div key={speaker.id} className="flex min-w-0">
                     <LiveRoomVideoTile
@@ -1475,7 +633,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           aria-label="Live room side panel"
           className="flex min-h-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
         >
-          <SidePanelTabs
+          <LiveRoomSidePanelTabs
             active={activeTab}
             tabs={[
               { id: 'chat', label: 'Chat' },

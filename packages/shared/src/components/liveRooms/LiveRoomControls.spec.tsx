@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
@@ -158,6 +164,18 @@ const renderLiveRoomControls = () => {
   );
 };
 
+const flushAsyncUpdates = async (): Promise<void> => {
+  await act(async () => {
+    await Promise.resolve();
+  });
+};
+
+const click = async (element: HTMLElement): Promise<void> => {
+  await act(async () => {
+    fireEvent.click(element);
+  });
+};
+
 describe('LiveRoomControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -167,15 +185,18 @@ describe('LiveRoomControls', () => {
     });
   });
 
-  it('lets an audience participant join the speaker queue', () => {
-    const joinSpeakerQueue = jest.fn().mockResolvedValue(undefined);
+  it('lets an audience participant join the speaker queue', async () => {
+    const joinSpeakerQueue = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(createContextValue({ joinSpeakerQueue }));
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Join queue' }));
+    await click(screen.getByRole('button', { name: 'Join queue' }));
+    await flushAsyncUpdates();
 
-    expect(joinSpeakerQueue).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(joinSpeakerQueue).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('shows queued audience state without requeueing', () => {
@@ -201,29 +222,35 @@ describe('LiveRoomControls', () => {
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
   });
 
-  it('sends emoji reactions through the live room command path', () => {
-    const sendReaction = jest.fn().mockResolvedValue(undefined);
+  it('sends emoji reactions through the live room command path', async () => {
+    const sendReaction = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
 
     renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
-    fireEvent.click(screen.getByRole('button', { name: 'React 🔥' }));
+    await click(screen.getByRole('button', { name: 'React 🔥' }));
+    await flushAsyncUpdates();
 
-    expect(sendReaction).toHaveBeenCalledWith('🔥');
+    await waitFor(() => {
+      expect(sendReaction).toHaveBeenCalledWith('🔥');
+    });
   });
 
-  it('sends custom emoji reactions through the emoji picker', () => {
-    const sendReaction = jest.fn().mockResolvedValue(undefined);
+  it('sends custom emoji reactions through the emoji picker', async () => {
+    const sendReaction = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
 
     renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     fireEvent.click(screen.getByRole('button', { name: 'Custom reaction' }));
-    fireEvent.click(screen.getByRole('button', { name: '⭐' }));
+    await click(screen.getByRole('button', { name: '⭐' }));
+    await flushAsyncUpdates();
 
-    expect(sendReaction).toHaveBeenCalledWith('⭐');
+    await waitFor(() => {
+      expect(sendReaction).toHaveBeenCalledWith('⭐');
+    });
   });
 
   it('prompts anonymous viewers to sign up instead of joining the queue', () => {
@@ -244,8 +271,8 @@ describe('LiveRoomControls', () => {
     });
   });
 
-  it('lets an audience participant join the stage in a free-for-all room', () => {
-    const joinStage = jest.fn().mockResolvedValue(undefined);
+  it('lets an audience participant join the stage in a free-for-all room', async () => {
+    const joinStage = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
         joinStage,
@@ -263,13 +290,16 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Join stage' }));
+    await click(screen.getByRole('button', { name: 'Join stage' }));
+    await flushAsyncUpdates();
 
-    expect(joinStage).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(joinStage).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('lets a speaker leave the stage in a free-for-all room', () => {
-    const leaveStage = jest.fn().mockResolvedValue(undefined);
+  it('lets a speaker leave the stage in a free-for-all room', async () => {
+    const leaveStage = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
         leaveStage,
@@ -298,9 +328,12 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Leave stage' }));
+    await click(screen.getByRole('button', { name: 'Leave stage' }));
+    await flushAsyncUpdates();
 
-    expect(leaveStage).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(leaveStage).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('keeps the leave-stage control visible while a reaction is pending', async () => {
@@ -341,11 +374,13 @@ describe('LiveRoomControls', () => {
     renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
-    fireEvent.click(screen.getByRole('button', { name: 'React 🔥' }));
+    await click(screen.getByRole('button', { name: 'React 🔥' }));
 
     expect(screen.getByRole('button', { name: 'Leave stage' })).toBeVisible();
 
-    resolveReaction?.();
+    await act(async () => {
+      resolveReaction?.();
+    });
 
     await waitFor(() => {
       expect(sendReaction).toHaveBeenCalledWith('🔥');
@@ -469,8 +504,8 @@ describe('LiveRoomControls', () => {
     expect(screen.getByLabelText('Keep my volume steady')).toBeInTheDocument();
   });
 
-  it('updates microphone settings from the mic menu', () => {
-    const setMicSetting = jest.fn().mockResolvedValue(undefined);
+  it('updates microphone settings from the mic menu', async () => {
+    const setMicSetting = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
         role: 'speaker',
@@ -482,9 +517,12 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByLabelText('Reduce background noise'));
+    await click(screen.getByLabelText('Reduce background noise'));
+    await flushAsyncUpdates();
 
-    expect(setMicSetting).toHaveBeenCalledWith('noiseSuppression', false);
+    await waitFor(() => {
+      expect(setMicSetting).toHaveBeenCalledWith('noiseSuppression', false);
+    });
   });
 
   it('updates the camera self-view setting from the video menu', () => {

@@ -139,6 +139,21 @@ export const LiveRoomVideoTile = ({
   const handleEnableAudio = (): void => {
     tryPlayAudio();
   };
+  const hasProfileLink = !!user.permalink && user.permalink !== '#';
+  const nameLabel = (
+    <Typography
+      tag={hasProfileLink ? TypographyTag.Link : TypographyTag.Span}
+      type={TypographyType.Footnote}
+      bold
+      truncate
+      className={classNames(
+        'min-w-0 !text-white',
+        hasProfileLink && 'pointer-events-auto hover:underline',
+      )}
+    >
+      {user.name}
+    </Typography>
+  );
 
   return (
     <div
@@ -200,17 +215,13 @@ export const LiveRoomVideoTile = ({
               className="shrink-0 text-status-error"
             />
           ) : null}
-          <Link href={user.permalink} passHref>
-            <Typography
-              tag={TypographyTag.Link}
-              type={TypographyType.Footnote}
-              bold
-              truncate
-              className="pointer-events-auto min-w-0 !text-white hover:underline"
-            >
-              {user.name}
-            </Typography>
-          </Link>
+          {hasProfileLink ? (
+            <Link href={user.permalink} passHref>
+              {nameLabel}
+            </Link>
+          ) : (
+            nameLabel
+          )}
           <LiveRoomTileActions
             user={user}
             onRemoveSpeaker={onRemoveSpeaker}

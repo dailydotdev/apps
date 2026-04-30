@@ -1,33 +1,9 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import classNames from 'classnames';
-import type { IconProps } from '../Icon';
-import { IconSize } from '../Icon';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-  type IconType,
-} from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EmojiPicker } from '../fields/EmojiPicker';
-import {
-  ArrowIcon,
-  CameraIcon,
-  MegaphoneIcon,
-  PhoneIcon,
-  PlusIcon,
-  VIcon,
-} from '../icons';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
-import type {
-  LiveRoomDeviceInfo,
-  LiveRoomMicSettings,
-} from '../../contexts/LiveRoomContext';
+import { CameraIcon, MegaphoneIcon, PhoneIcon, PlusIcon } from '../icons';
+import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
@@ -36,238 +12,23 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Switch } from '../fields/Switch';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import {
+  ControlGroup,
+  DeviceSplitButton,
+  Divider,
+  HIDE_SELF_VIEW_LABEL,
+  MIC_SETTING_ITEMS,
+  MicSettingRow,
+  SlashedIcon,
+} from './LiveRoomControlPrimitives';
 
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
-const HIDE_SELF_VIEW_LABEL = 'Hide my preview';
-
-const MIC_SETTING_ITEMS: {
-  key: keyof LiveRoomMicSettings;
-  label: string;
-  description: string;
-}[] = [
-  {
-    key: 'noiseSuppression',
-    label: 'Reduce background noise',
-    description: 'Cut steady background sounds from your mic.',
-  },
-  {
-    key: 'echoCancellation',
-    label: 'Prevent speaker echo',
-    description: 'Reduce echo when your speakers leak back into the mic.',
-  },
-  {
-    key: 'autoGainControl',
-    label: 'Keep my volume steady',
-    description: 'Automatically balance quiet and loud moments.',
-  },
-];
 
 interface LiveRoomControlsProps {
   onLeave: () => void;
 }
-
-const Divider = (): ReactElement => (
-  <span aria-hidden className="h-6 w-px shrink-0 bg-border-subtlest-tertiary" />
-);
-
-type SlashedIconProps = IconProps & {
-  icon: ReactElement<IconProps>;
-  slashed: boolean;
-};
-
-const SlashedIcon = ({
-  icon,
-  slashed,
-  className,
-  ...rest
-}: SlashedIconProps): ReactElement => (
-  <span
-    className={classNames(
-      'relative inline-flex items-center justify-center',
-      className,
-    )}
-  >
-    {React.cloneElement(icon, rest)}
-    {slashed ? (
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <span className="block h-[2px] w-[130%] rotate-45 rounded-max bg-status-error" />
-      </span>
-    ) : null}
-  </span>
-);
-
-const ControlGroup = ({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}): ReactElement => (
-  <div className={classNames('flex items-center gap-1.5', className)}>
-    {children}
-  </div>
-);
-
-interface MicSettingRowProps {
-  id: string;
-  label: string;
-  description: string;
-  checked: boolean;
-  disabled?: boolean;
-  onToggle: () => void;
-}
-
-const MicSettingRow = ({
-  id,
-  label,
-  description,
-  checked,
-  disabled,
-  onToggle,
-}: MicSettingRowProps): ReactElement => (
-  <div className="flex items-start justify-between gap-3 rounded-12 px-2 py-2">
-    <div className="min-w-0 flex-1">
-      <Typography type={TypographyType.Footnote} bold>
-        {label}
-      </Typography>
-      <Typography
-        type={TypographyType.Caption2}
-        color={TypographyColor.Tertiary}
-      >
-        {description}
-      </Typography>
-    </div>
-    <Switch
-      inputId={id}
-      name={id}
-      checked={checked}
-      disabled={disabled}
-      onToggle={onToggle}
-      aria-label={label}
-      className="shrink-0"
-    />
-  </div>
-);
-
-interface DeviceSplitButtonProps {
-  isOn: boolean;
-  isLoading: boolean;
-  toggleAriaLabel: string;
-  caretAriaLabel: string;
-  caretMenuLabel: string;
-  toggleIcon: IconType;
-  onToggle: () => void;
-  devices: LiveRoomDeviceInfo[];
-  selectedId: string | null;
-  onSelect: (deviceId: string) => void;
-  emptyLabel: string;
-  extra?: ReactNode;
-}
-
-const DeviceSplitButton = ({
-  isOn,
-  isLoading,
-  toggleAriaLabel,
-  caretAriaLabel,
-  caretMenuLabel,
-  toggleIcon,
-  onToggle,
-  devices,
-  selectedId,
-  onSelect,
-  emptyLabel,
-  extra,
-}: DeviceSplitButtonProps): ReactElement => {
-  const variant = isOn ? ButtonVariant.Primary : ButtonVariant.Secondary;
-  return (
-    <div className="flex items-center">
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={variant}
-        icon={toggleIcon}
-        loading={isLoading}
-        aria-label={toggleAriaLabel}
-        onClick={onToggle}
-        className="!rounded-r-none"
-      />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={variant}
-            icon={<ArrowIcon className="rotate-180" />}
-            aria-label={caretAriaLabel}
-            className="!w-6 !rounded-l-none !border-l-0 !px-0"
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="center"
-          side="top"
-          className="min-w-[18rem]"
-        >
-          <div className="flex flex-col gap-1 px-1.5 py-1.5">
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Tertiary}
-              className="px-2 py-1 uppercase tracking-wide"
-            >
-              {caretMenuLabel}
-            </Typography>
-            {devices.length === 0 ? (
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                className="px-2 py-2"
-              >
-                {emptyLabel}
-              </Typography>
-            ) : (
-              devices.map((device) => {
-                const isSelected = device.deviceId === selectedId;
-                return (
-                  <DropdownMenuItem
-                    key={device.deviceId}
-                    onClick={() => onSelect(device.deviceId)}
-                    aria-label={device.label}
-                  >
-                    <span className="inline-flex flex-1 items-center gap-2">
-                      <span
-                        aria-hidden
-                        className="flex size-4 shrink-0 items-center justify-center"
-                      >
-                        {isSelected ? (
-                          <VIcon
-                            size={IconSize.Size16}
-                            className="text-text-primary"
-                            secondary
-                          />
-                        ) : null}
-                      </span>
-                      <span className="truncate text-left">{device.label}</span>
-                    </span>
-                  </DropdownMenuItem>
-                );
-              })
-            )}
-            {extra ? (
-              <div className="border-t border-border-subtlest-tertiary px-2 pt-2">
-                {extra}
-              </div>
-            ) : null}
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
 
 export const LiveRoomControls = ({
   onLeave,
@@ -303,34 +64,66 @@ export const LiveRoomControls = ({
     setVideoSetting,
     localStream,
   } = useLiveRoom();
+  const { displayToast } = useToastNotification();
+  const [busyKeys, setBusyKeys] = useState<string[]>([]);
+  const [reactionsOpen, setReactionsOpen] = useState(false);
+
   const localAudioTrack = localStream?.getAudioTracks()[0] ?? null;
-  // Wrap the local audio track in its own MediaStream once per track so the
-  // meter's AudioContext doesn't churn on every render.
   const localAudioStream = useMemo(
     () => (localAudioTrack ? new MediaStream([localAudioTrack]) : null),
     [localAudioTrack],
   );
-  const { displayToast } = useToastNotification();
-  const [busyKeys, setBusyKeys] = useState<string[]>([]);
-  const [reactionsOpen, setReactionsOpen] = useState(false);
 
   const isBusy = (key: string): boolean => busyKeys.includes(key);
 
   const guarded = async (
     key: string,
-    fn: () => Promise<void>,
+    action: () => Promise<void>,
   ): Promise<void> => {
     if (isBusy(key)) {
       return;
     }
+
     setBusyKeys((current) => [...current, key]);
     try {
-      await fn();
-    } catch (err) {
-      displayToast(err instanceof Error ? err.message : 'Action failed');
+      await action();
+    } catch (error) {
+      displayToast(error instanceof Error ? error.message : 'Action failed');
     } finally {
       setBusyKeys((current) => current.filter((item) => item !== key));
     }
+  };
+
+  const promptSignup = (): void => {
+    showLogin({ trigger: AuthTriggers.MainButton });
+  };
+
+  const runAuthenticatedAction = (
+    key: string,
+    action: () => Promise<void>,
+  ): void => {
+    if (!user) {
+      promptSignup();
+      return;
+    }
+
+    guarded(key, action);
+  };
+
+  const switchCamera = (deviceId: string): void => {
+    selectCamera(deviceId).catch((error: unknown) =>
+      displayToast(
+        error instanceof Error ? error.message : 'Failed to switch camera',
+      ),
+    );
+  };
+
+  const switchMicrophone = (deviceId: string): void => {
+    selectMic(deviceId).catch((error: unknown) =>
+      displayToast(
+        error instanceof Error ? error.message : 'Failed to switch mic',
+      ),
+    );
   };
 
   const isHost = role === 'host';
@@ -357,61 +150,8 @@ export const LiveRoomControls = ({
     isFreeForAll && isSpeaker && roomState?.status === 'live';
   const showGoLive = isHost && roomState?.status === 'created';
 
-  const previewSuffix = (active: boolean, publishing: boolean) =>
+  const previewSuffix = (active: boolean, publishing: boolean): string =>
     active && !publishing ? ' (preview)' : '';
-
-  const promptSignup = (): void => {
-    showLogin({ trigger: AuthTriggers.MainButton });
-  };
-
-  const handleReactionsToggle = (): void => {
-    if (!user) {
-      promptSignup();
-      return;
-    }
-
-    setReactionsOpen((open) => !open);
-  };
-
-  const handleReaction = (emoji: string): void => {
-    if (!user) {
-      promptSignup();
-      return;
-    }
-
-    guarded(`reaction-${emoji}`, () => sendReaction(emoji));
-  };
-
-  const handleCustomReaction = (emoji: string): void => {
-    if (!user) {
-      promptSignup();
-      return;
-    }
-
-    guarded('reaction-custom', () => sendReaction(emoji));
-  };
-
-  const handleJoinQueue = (): void => {
-    if (!user) {
-      promptSignup();
-      return;
-    }
-
-    guarded('queue', joinSpeakerQueue);
-  };
-
-  const handleJoinStage = (): void => {
-    if (!user) {
-      promptSignup();
-      return;
-    }
-
-    guarded('join-stage', joinStage);
-  };
-
-  const handleLeaveStage = (): void => {
-    guarded('leave-stage', leaveStage);
-  };
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-4 z-2 flex justify-center px-3 tablet:bottom-6">
@@ -426,7 +166,11 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Float}
                 loading={isBusy(`reaction-${emoji}`)}
                 aria-label={`React ${emoji}`}
-                onClick={() => handleReaction(emoji)}
+                onClick={() =>
+                  runAuthenticatedAction(`reaction-${emoji}`, () =>
+                    sendReaction(emoji),
+                  )
+                }
               >
                 <span className="text-lg leading-none">{emoji}</span>
               </Button>
@@ -439,7 +183,9 @@ export const LiveRoomControls = ({
                   return;
                 }
 
-                handleCustomReaction(emoji);
+                runAuthenticatedAction('reaction-custom', () =>
+                  sendReaction(emoji),
+                );
               }}
               renderTrigger={({ isOpen, toggleOpen }) => (
                 <Button
@@ -451,7 +197,14 @@ export const LiveRoomControls = ({
                   aria-label="Custom reaction"
                   aria-expanded={isOpen}
                   disabled={isBusy('reaction-custom')}
-                  onClick={toggleOpen}
+                  onClick={() => {
+                    if (!user) {
+                      promptSignup();
+                      return;
+                    }
+
+                    toggleOpen();
+                  }}
                 />
               )}
             />
@@ -476,15 +229,7 @@ export const LiveRoomControls = ({
                 onToggle={() => guarded('mic', toggleMic)}
                 devices={microphones}
                 selectedId={selectedMicId}
-                onSelect={(id) => {
-                  selectMic(id).catch((err: unknown) =>
-                    displayToast(
-                      err instanceof Error
-                        ? err.message
-                        : 'Failed to switch mic',
-                    ),
-                  );
-                }}
+                onSelect={switchMicrophone}
                 emptyLabel="No microphones"
                 extra={
                   <div className="flex flex-col gap-3">
@@ -543,15 +288,7 @@ export const LiveRoomControls = ({
                 onToggle={() => guarded('camera', toggleCamera)}
                 devices={cameras}
                 selectedId={selectedCameraId}
-                onSelect={(id) => {
-                  selectCamera(id).catch((err: unknown) =>
-                    displayToast(
-                      err instanceof Error
-                        ? err.message
-                        : 'Failed to switch camera',
-                    ),
-                  );
-                }}
+                onSelect={switchCamera}
                 emptyLabel="No cameras"
                 extra={
                   <MicSettingRow
@@ -585,7 +322,14 @@ export const LiveRoomControls = ({
               }
               aria-label="Reactions"
               aria-expanded={reactionsOpen}
-              onClick={handleReactionsToggle}
+              onClick={() => {
+                if (!user) {
+                  promptSignup();
+                  return;
+                }
+
+                setReactionsOpen((open) => !open);
+              }}
             >
               <span className="text-base leading-none">😀</span>
             </Button>
@@ -599,7 +343,9 @@ export const LiveRoomControls = ({
                 icon={<MegaphoneIcon />}
                 loading={isBusy('queue')}
                 disabled={!canJoinQueue || isBusy('queue')}
-                onClick={handleJoinQueue}
+                onClick={() =>
+                  runAuthenticatedAction('queue', joinSpeakerQueue)
+                }
               >
                 {isQueued ? 'Queued' : 'Join queue'}
               </Button>
@@ -614,7 +360,7 @@ export const LiveRoomControls = ({
                 icon={<MegaphoneIcon />}
                 loading={isBusy('join-stage')}
                 disabled={!canJoinStage || isBusy('join-stage')}
-                onClick={handleJoinStage}
+                onClick={() => runAuthenticatedAction('join-stage', joinStage)}
               >
                 {isStageFull ? 'Stage full' : 'Join stage'}
               </Button>
@@ -626,7 +372,7 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Secondary}
                 icon={<PhoneIcon />}
                 loading={isBusy('leave-stage')}
-                onClick={handleLeaveStage}
+                onClick={() => guarded('leave-stage', leaveStage)}
               >
                 Leave stage
               </Button>
