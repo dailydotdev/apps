@@ -257,6 +257,27 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
+  // Standups
+  ViewStandup = 'view standup',
+  LeaveStandup = 'leave standup',
+  StartStandup = 'start standup',
+  EndStandup = 'end standup',
+  JoinStandupQueue = 'join standup queue',
+  JoinStandupStage = 'join standup stage',
+  LeaveStandupStage = 'leave standup stage',
+  OpenStandupSettings = 'open standup settings',
+  OpenStandupReactions = 'open standup reactions',
+  SwitchStandupPanelTab = 'switch standup panel tab',
+  SendStandupReaction = 'send standup reaction',
+  SendStandupChatMessage = 'send standup chat message',
+  DeleteStandupChatMessage = 'delete standup chat message',
+  UpdateStandupChatAccess = 'update standup chat access',
+  PromoteStandupSpeaker = 'promote standup speaker',
+  RemoveStandupSpeaker = 'remove standup speaker',
+  KickStandupParticipant = 'kick standup participant',
+  ChangeStandupSettings = 'change standup settings',
+  StandupError = 'standup error',
+  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',

@@ -11,6 +11,7 @@ import {
 } from '../icons';
 import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
 import {
@@ -20,6 +21,8 @@ import {
 } from '../typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
+import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { LogEvent } from '../../lib/log';
 import { Modal } from '../modals/common/Modal';
 import {
   AUDIO_ONLY_LABEL,
@@ -38,14 +41,18 @@ import {
 const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
 
 interface LiveRoomControlsProps {
+  roomId: string;
   onLeave: () => void;
 }
 
 export const LiveRoomControls = ({
+  roomId,
   onLeave,
 }: LiveRoomControlsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
+  const { logEvent } = useLogContext();
   const {
+    status,
     canPublish,
     isCameraOn,
     isMicOn,
@@ -85,6 +92,38 @@ export const LiveRoomControls = ({
     () => (localAudioTrack ? new MediaStream([localAudioTrack]) : null),
     [localAudioTrack],
   );
+  const buildStandupExtra = (extra: Record<string, unknown> = {}): string =>
+    buildStandupAnalyticsExtra(
+      {
+        roomId,
+        authKind: user ? 'authenticated' : 'anonymous',
+        role,
+        roomStatus: roomState?.status ?? null,
+        roomMode: roomState?.mode ?? null,
+        connectionStatus: status,
+        canPublish,
+        participantId,
+        selectedMicId,
+        selectedCameraId,
+        hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
+        hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
+        videoQuality: videoSettings.quality,
+        audioOnly: videoSettings.audioOnly,
+        hideSelfView: videoSettings.hideSelfView,
+      },
+      extra,
+    );
+  const logStandupAction = (
+    eventName: LogEvent,
+    targetId: string,
+    extra: Record<string, unknown> = {},
+  ): void => {
+    logEvent({
+      event_name: eventName,
+      target_id: targetId,
+      extra: buildStandupExtra(extra),
+    });
+  };
 
   const isBusy = (key: string): boolean => busyKeys.includes(key);
 
@@ -123,19 +162,33 @@ export const LiveRoomControls = ({
   };
 
   const switchCamera = (deviceId: string): void => {
-    selectCamera(deviceId).catch((error: unknown) =>
-      displayToast(
-        error instanceof Error ? error.message : 'Failed to switch camera',
-      ),
-    );
+    selectCamera(deviceId)
+      .then(() => {
+        logStandupAction(LogEvent.ChangeStandupSettings, 'selected_camera', {
+          surface: 'controls',
+          value: deviceId,
+        });
+      })
+      .catch((error: unknown) =>
+        displayToast(
+          error instanceof Error ? error.message : 'Failed to switch camera',
+        ),
+      );
   };
 
   const switchMicrophone = (deviceId: string): void => {
-    selectMic(deviceId).catch((error: unknown) =>
-      displayToast(
-        error instanceof Error ? error.message : 'Failed to switch mic',
-      ),
-    );
+    selectMic(deviceId)
+      .then(() => {
+        logStandupAction(LogEvent.ChangeStandupSettings, 'selected_mic', {
+          surface: 'controls',
+          value: deviceId,
+        });
+      })
+      .catch((error: unknown) =>
+        displayToast(
+          error instanceof Error ? error.message : 'Failed to switch mic',
+        ),
+      );
   };
 
   const isHost = role === 'host';
@@ -179,9 +232,12 @@ export const LiveRoomControls = ({
                 loading={isBusy(`reaction-${emoji}`)}
                 aria-label={`React ${emoji}`}
                 onClick={() =>
-                  runAuthenticatedAction(`reaction-${emoji}`, () =>
-                    sendReaction(emoji),
-                  )
+                  runAuthenticatedAction(`reaction-${emoji}`, async () => {
+                    await sendReaction(emoji);
+                    logStandupAction(LogEvent.SendStandupReaction, emoji, {
+                      surface: 'controls',
+                    });
+                  })
                 }
               >
                 <span className="text-lg leading-none">{emoji}</span>
@@ -195,9 +251,12 @@ export const LiveRoomControls = ({
                   return;
                 }
 
-                runAuthenticatedAction('reaction-custom', () =>
-                  sendReaction(emoji),
-                );
+                runAuthenticatedAction('reaction-custom', async () => {
+                  await sendReaction(emoji);
+                  logStandupAction(LogEvent.SendStandupReaction, emoji, {
+                    surface: 'controls',
+                  });
+                });
               }}
               renderTrigger={({ isOpen, toggleOpen }) => (
                 <Button
@@ -238,7 +297,15 @@ export const LiveRoomControls = ({
                 toggleIcon={
                   <SlashedIcon icon={<MegaphoneIcon />} slashed={!isMicOn} />
                 }
-                onToggle={() => guarded('mic', toggleMic)}
+                onToggle={() =>
+                  guarded('mic', async () => {
+                    await toggleMic();
+                    logStandupAction(LogEvent.ChangeStandupSettings, 'mic', {
+                      surface: 'controls',
+                      value: !isMicOn,
+                    });
+                  })
+                }
                 devices={microphones}
                 selectedId={selectedMicId}
                 onSelect={switchMicrophone}
@@ -273,9 +340,18 @@ export const LiveRoomControls = ({
                             isBusy(`mic-setting-${item.key}`)
                           }
                           onToggle={() => {
-                            guarded(`mic-setting-${item.key}`, () =>
-                              setMicSetting(item.key, !micSettings[item.key]),
-                            );
+                            guarded(`mic-setting-${item.key}`, async () => {
+                              const nextValue = !micSettings[item.key];
+                              await setMicSetting(item.key, nextValue);
+                              logStandupAction(
+                                LogEvent.ChangeStandupSettings,
+                                item.key,
+                                {
+                                  surface: 'controls',
+                                  value: nextValue,
+                                },
+                              );
+                            });
                           }}
                         />
                       ))}
@@ -297,7 +373,15 @@ export const LiveRoomControls = ({
                     slashed={!isCameraOn}
                   />
                 }
-                onToggle={() => guarded('camera', toggleCamera)}
+                onToggle={() =>
+                  guarded('camera', async () => {
+                    await toggleCamera();
+                    logStandupAction(LogEvent.ChangeStandupSettings, 'camera', {
+                      surface: 'controls',
+                      value: !isCameraOn,
+                    });
+                  })
+                }
                 devices={cameras}
                 selectedId={selectedCameraId}
                 onSelect={switchCamera}
@@ -311,9 +395,15 @@ export const LiveRoomControls = ({
                     disabled={isBusy('hide-self-view')}
                     onToggle={() =>
                       guarded('hide-self-view', async () => {
-                        setVideoSetting(
-                          'hideSelfView',
-                          !videoSettings.hideSelfView,
+                        const nextValue = !videoSettings.hideSelfView;
+                        setVideoSetting('hideSelfView', nextValue);
+                        logStandupAction(
+                          LogEvent.ChangeStandupSettings,
+                          'hide_self_view',
+                          {
+                            surface: 'controls',
+                            value: nextValue,
+                          },
                         );
                       })
                     }
@@ -340,7 +430,17 @@ export const LiveRoomControls = ({
                   return;
                 }
 
-                setReactionsOpen((open) => !open);
+                setReactionsOpen((open) => {
+                  const nextOpen = !open;
+                  if (nextOpen) {
+                    logStandupAction(
+                      LogEvent.OpenStandupReactions,
+                      'reactions',
+                      { surface: 'controls' },
+                    );
+                  }
+                  return nextOpen;
+                });
               }}
             >
               <span className="text-base leading-none">😀</span>
@@ -354,7 +454,12 @@ export const LiveRoomControls = ({
               icon={<SettingsIcon />}
               aria-label="Standup settings"
               aria-expanded={isSettingsOpen}
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={() => {
+                logStandupAction(LogEvent.OpenStandupSettings, 'settings', {
+                  surface: 'controls',
+                });
+                setIsSettingsOpen(true);
+              }}
             />
             {isModerated && isAudience ? (
               <Button
@@ -367,7 +472,12 @@ export const LiveRoomControls = ({
                 loading={isBusy('queue')}
                 disabled={!canJoinQueue || isBusy('queue')}
                 onClick={() =>
-                  runAuthenticatedAction('queue', joinSpeakerQueue)
+                  runAuthenticatedAction('queue', async () => {
+                    await joinSpeakerQueue();
+                    logStandupAction(LogEvent.JoinStandupQueue, roomId, {
+                      surface: 'controls',
+                    });
+                  })
                 }
               >
                 {isQueued ? 'Queued' : 'Join queue'}
@@ -383,7 +493,14 @@ export const LiveRoomControls = ({
                 icon={<MegaphoneIcon />}
                 loading={isBusy('join-stage')}
                 disabled={!canJoinStage || isBusy('join-stage')}
-                onClick={() => runAuthenticatedAction('join-stage', joinStage)}
+                onClick={() =>
+                  runAuthenticatedAction('join-stage', async () => {
+                    await joinStage();
+                    logStandupAction(LogEvent.JoinStandupStage, roomId, {
+                      surface: 'controls',
+                    });
+                  })
+                }
               >
                 {isStageFull ? 'Stage full' : 'Join stage'}
               </Button>
@@ -395,7 +512,14 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Secondary}
                 icon={<PhoneIcon />}
                 loading={isBusy('leave-stage')}
-                onClick={() => guarded('leave-stage', leaveStage)}
+                onClick={() =>
+                  guarded('leave-stage', async () => {
+                    await leaveStage();
+                    logStandupAction(LogEvent.LeaveStandupStage, roomId, {
+                      surface: 'controls',
+                    });
+                  })
+                }
               >
                 Leave stage
               </Button>
@@ -412,7 +536,14 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Primary}
                 className="live-room-go-live-button !border-transparent"
                 loading={isBusy('go-live')}
-                onClick={() => guarded('go-live', startRoom)}
+                onClick={() =>
+                  guarded('go-live', async () => {
+                    await startRoom();
+                    logStandupAction(LogEvent.StartStandup, roomId, {
+                      surface: 'controls',
+                    });
+                  })
+                }
               >
                 Go live
               </Button>
@@ -426,6 +557,9 @@ export const LiveRoomControls = ({
                 onClick={() =>
                   guarded('end', async () => {
                     await endRoom();
+                    logStandupAction(LogEvent.EndStandup, roomId, {
+                      surface: 'controls',
+                    });
                     onLeave();
                   })
                 }
@@ -439,7 +573,12 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Primary}
                 icon={<PhoneIcon />}
                 aria-label="Leave"
-                onClick={onLeave}
+                onClick={() => {
+                  logStandupAction(LogEvent.LeaveStandup, roomId, {
+                    surface: 'controls',
+                  });
+                  onLeave();
+                }}
               >
                 Leave
               </Button>
@@ -465,16 +604,31 @@ export const LiveRoomControls = ({
                 value: item.value,
                 label: item.label,
               }))}
-              onSelect={(quality) => setVideoSetting('quality', quality)}
+              onSelect={(quality) => {
+                setVideoSetting('quality', quality);
+                logStandupAction(
+                  LogEvent.ChangeStandupSettings,
+                  'video_quality',
+                  {
+                    surface: 'settings_modal',
+                    value: quality,
+                  },
+                );
+              }}
             />
             <MicSettingRow
               id="live-room-video-setting-audio-only"
               label={AUDIO_ONLY_LABEL}
               description="Hide remote video and keep the standup playing through audio."
               checked={videoSettings.audioOnly}
-              onToggle={() =>
-                setVideoSetting('audioOnly', !videoSettings.audioOnly)
-              }
+              onToggle={() => {
+                const nextValue = !videoSettings.audioOnly;
+                setVideoSetting('audioOnly', nextValue);
+                logStandupAction(LogEvent.ChangeStandupSettings, 'audio_only', {
+                  surface: 'settings_modal',
+                  value: nextValue,
+                });
+              }}
             />
           </Modal.Body>
         </Modal>

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -20,11 +20,15 @@ import {
   type LiveRoomReaction,
 } from '../../contexts/LiveRoomContext';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
+import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { LogEvent } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useLiveRoomParticipantProfiles } from '../../hooks/liveRooms/useLiveRoomParticipantProfiles';
 import { useLiveRoomParticipantStreams } from '../../hooks/liveRooms/useLiveRoomParticipantStreams';
 import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
+import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
 import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
@@ -137,12 +141,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { isAuthReady, showLogin, user } = useAuthContext();
+  const { logEvent } = useLogContext();
   const {
     status,
     errorMessage,
     roomState,
     role,
     participantId,
+    canPublish,
     sendChatMessage,
     deleteChatMessage,
     setParticipantChatEnabled,
@@ -152,6 +158,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     canChat,
     localStream,
     remoteStreams,
+    selectedCameraId,
+    selectedMicId,
     videoSettings,
     reactions,
     chatMessages,
@@ -171,11 +179,70 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
+  const buildStandupExtra = useCallback(
+    (extra: Record<string, unknown> = {}) =>
+      buildStandupAnalyticsExtra(
+        {
+          roomId,
+          authKind: user ? 'authenticated' : 'anonymous',
+          role,
+          roomStatus: roomState?.status ?? room?.status ?? null,
+          roomMode: roomState?.mode ?? room?.mode ?? null,
+          connectionStatus: status,
+          canPublish,
+          participantId,
+          selectedMicId,
+          selectedCameraId,
+          hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
+          hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
+          videoQuality: videoSettings.quality,
+          audioOnly: videoSettings.audioOnly,
+          hideSelfView: videoSettings.hideSelfView,
+        },
+        extra,
+      ),
+    [
+      roomId,
+      user,
+      role,
+      roomState?.status,
+      roomState?.mode,
+      room?.status,
+      room?.mode,
+      status,
+      canPublish,
+      participantId,
+      selectedMicId,
+      selectedCameraId,
+      localStream,
+      videoSettings.quality,
+      videoSettings.audioOnly,
+      videoSettings.hideSelfView,
+    ],
+  );
+  const logStandupAction = useCallback(
+    (
+      eventName: LogEvent,
+      targetId: string,
+      extra: Record<string, unknown> = {},
+    ) => {
+      logEvent({
+        event_name: eventName,
+        target_id: targetId,
+        extra: buildStandupExtra(extra),
+      });
+    },
+    [buildStandupExtra, logEvent],
+  );
 
   const handleLeave = (): void => {
     onAskConfirmation(false);
     clearStoredLiveRoomResumeSession(roomId);
     router.push('/standups');
+  };
+  const handleNavigateBack = (surface: string): void => {
+    logStandupAction(LogEvent.LeaveStandup, roomId, { surface });
+    handleLeave();
   };
 
   const guardedModerationAction = async (
@@ -199,6 +266,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleSendChatMessage = async (body: string): Promise<void> => {
     try {
       await sendChatMessage(body);
+      logStandupAction(LogEvent.SendStandupChatMessage, roomId, {
+        surface: 'chat',
+        messageLength: body.length,
+      });
     } catch (error) {
       displayToast(error instanceof Error ? error.message : 'Message failed');
     }
@@ -207,6 +278,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleDeleteChatMessage = async (messageId: string): Promise<void> => {
     try {
       await deleteChatMessage(messageId);
+      logStandupAction(LogEvent.DeleteStandupChatMessage, messageId, {
+        surface: 'chat',
+      });
     } catch (error) {
       displayToast(
         error instanceof Error ? error.message : 'Could not delete message',
@@ -220,6 +294,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   ): Promise<void> => {
     try {
       await setParticipantChatEnabled(targetParticipantId, nextCanChat);
+      logStandupAction(LogEvent.UpdateStandupChatAccess, targetParticipantId, {
+        surface: 'chat',
+        nextCanChat,
+      });
     } catch (error) {
       displayToast(
         error instanceof Error ? error.message : 'Could not update chat access',
@@ -232,6 +310,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   ): Promise<void> => {
     try {
       await kickParticipant(targetParticipantId);
+      logStandupAction(LogEvent.KickStandupParticipant, targetParticipantId, {
+        surface: 'chat',
+      });
     } catch (error) {
       displayToast(
         error instanceof Error ? error.message : 'Could not kick user',
@@ -242,6 +323,53 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleChatLogin = (): void => {
     showLogin({ trigger: AuthTriggers.MainButton });
   };
+  const handlePromoteSpeaker = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await promoteSpeaker(targetParticipantId);
+      logStandupAction(LogEvent.PromoteStandupSpeaker, targetParticipantId, {
+        surface,
+      });
+    },
+    [logStandupAction, promoteSpeaker],
+  );
+  const handleRemoveSpeaker = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await removeSpeaker(targetParticipantId);
+      logStandupAction(LogEvent.RemoveStandupSpeaker, targetParticipantId, {
+        surface,
+      });
+    },
+    [logStandupAction, removeSpeaker],
+  );
+  const handleKickParticipant = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await kickParticipant(targetParticipantId);
+      logStandupAction(LogEvent.KickStandupParticipant, targetParticipantId, {
+        surface,
+      });
+    },
+    [kickParticipant, logStandupAction],
+  );
+  const handleTabChange = (tab: LiveRoomSidePanelTab): void => {
+    if (tab === activeTab) {
+      return;
+    }
+
+    logStandupAction(LogEvent.SwitchStandupPanelTab, tab, {
+      surface: 'side_panel',
+      previousTab: activeTab,
+    });
+    setActiveTab(tab);
+  };
+
+  useLogEventOnce(
+    () => ({
+      event_name: LogEvent.ViewStandup,
+      target_id: roomId,
+      extra: buildStandupExtra({ surface: 'page' }),
+    }),
+    { condition: !!room && !roomError && !isRoomLoading && isAuthReady },
+  );
 
   const participantIds = useMemo(() => {
     const ids = new Set<string>();
@@ -407,6 +535,22 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
   }, [stagePageCount]);
 
+  useEffect(() => {
+    if (!roomError) {
+      return;
+    }
+
+    logEvent({
+      event_name: LogEvent.StandupError,
+      target_id: 'room query',
+      extra: buildStandupExtra({
+        surface: 'page',
+        source: 'room_query',
+        message: roomError.message,
+      }),
+    });
+  }, [buildStandupExtra, logEvent, roomError]);
+
   if (!isAuthReady || isRoomLoading) {
     return (
       <div className="flex flex-1 items-center justify-center py-10">
@@ -430,7 +574,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         <Button
           className="mt-2"
           variant={ButtonVariant.Primary}
-          onClick={handleLeave}
+          onClick={() => handleNavigateBack('load_error')}
         >
           Back to standups
         </Button>
@@ -457,7 +601,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         <Button
           className="mt-2"
           variant={ButtonVariant.Primary}
-          onClick={handleLeave}
+          onClick={() => handleNavigateBack('connection_error')}
         >
           Back to standups
         </Button>
@@ -569,7 +713,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                           ? () =>
                               guardedModerationAction(
                                 `tile-remove-${speaker.id}`,
-                                () => removeSpeaker(speaker.id),
+                                () =>
+                                  handleRemoveSpeaker(speaker.id, 'stage_tile'),
                               )
                           : undefined
                       }
@@ -578,7 +723,11 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                           ? () =>
                               guardedModerationAction(
                                 `tile-kick-${speaker.id}`,
-                                () => kickParticipant(speaker.id),
+                                () =>
+                                  handleKickParticipant(
+                                    speaker.id,
+                                    'stage_tile',
+                                  ),
                               )
                           : undefined
                       }
@@ -632,7 +781,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 <Typography type={TypographyType.Title3} bold>
                   This standup has ended
                 </Typography>
-                <Button variant={ButtonVariant.Primary} onClick={handleLeave}>
+                <Button
+                  variant={ButtonVariant.Primary}
+                  onClick={() => handleNavigateBack('ended_state')}
+                >
                   Back to standups
                 </Button>
               </div>
@@ -640,7 +792,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           ) : null}
 
           {roomState && !isEnded ? (
-            <LiveRoomControls onLeave={handleLeave} />
+            <LiveRoomControls roomId={roomId} onLeave={handleLeave} />
           ) : null}
         </section>
 
@@ -667,7 +819,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 count: audienceParticipantIds.length,
               },
             ]}
-            onChange={setActiveTab}
+            onChange={handleTabChange}
           />
           <div className="min-h-0 flex-1">
             {activeTab === 'chat' ? (
@@ -701,9 +853,15 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 stageLimit={stageLimit}
                 moderationBusy={moderationBusy}
                 guardedModerationAction={guardedModerationAction}
-                promoteSpeaker={promoteSpeaker}
-                removeSpeaker={removeSpeaker}
-                kickParticipant={kickParticipant}
+                promoteSpeaker={(targetParticipantId) =>
+                  handlePromoteSpeaker(targetParticipantId, 'queue_panel')
+                }
+                removeSpeaker={(targetParticipantId) =>
+                  handleRemoveSpeaker(targetParticipantId, 'queue_panel')
+                }
+                kickParticipant={(targetParticipantId) =>
+                  handleKickParticipant(targetParticipantId, 'queue_panel')
+                }
               />
             )}
           </div>
