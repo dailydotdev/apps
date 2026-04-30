@@ -16,12 +16,14 @@ type AdvertiseLinkProps = {
   size?: ButtonSize;
 };
 
+const advertiseHereLabel = 'Advertise here';
+
 export const AdvertiseLink = ({
   targetId,
   className,
   buttonStyle = false,
   size = ButtonSize.Medium,
-}: AdvertiseLinkProps): ReactElement | null => {
+}: AdvertiseLinkProps): ReactElement => {
   const { logEvent } = useLogContext();
 
   useEffect(() => {
@@ -39,13 +41,17 @@ export const AdvertiseLink = ({
       target_id: targetId,
     });
 
+  const linkProps = {
+    href: businessWebsiteUrl,
+    target: '_blank',
+    rel: anchorDefaultRel,
+  };
+
   if (buttonStyle) {
     return (
       <Button
         tag="a"
-        href={businessWebsiteUrl}
-        target="_blank"
-        rel={anchorDefaultRel}
+        {...linkProps}
         variant={ButtonVariant.Float}
         size={size}
         className={classNames(
@@ -54,23 +60,21 @@ export const AdvertiseLink = ({
         )}
         onClick={onClick}
       >
-        Advertise here
+        {advertiseHereLabel}
       </Button>
     );
   }
 
   return (
     <a
-      href={businessWebsiteUrl}
-      target="_blank"
-      rel={anchorDefaultRel}
+      {...linkProps}
       className={classNames(
         'whitespace-nowrap text-text-quaternary no-underline typo-footnote',
         className,
       )}
       {...combinedClicks(onClick)}
     >
-      Advertise here
+      {advertiseHereLabel}
     </a>
   );
 };
