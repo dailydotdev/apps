@@ -25,7 +25,7 @@ describe('getSocialTwitterMetadata', () => {
     const authorImage = 'https://example.com/author-avatar.png';
     const creatorTwitterImage = 'https://example.com/creator-avatar.png';
 
-    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata(({
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
       ...basePost,
       sharedPost: {
         ...basePost.sharedPost,
@@ -35,7 +35,7 @@ describe('getSocialTwitterMetadata', () => {
           image: authorImage,
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -43,7 +43,7 @@ describe('getSocialTwitterMetadata', () => {
   it('falls back to author image when creator twitter image is unavailable', () => {
     const authorImage = 'https://example.com/author-avatar.png';
 
-    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata(({
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
       ...basePost,
       sharedPost: {
         ...basePost.sharedPost,
@@ -53,7 +53,7 @@ describe('getSocialTwitterMetadata', () => {
           image: authorImage,
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(authorImage);
   });
@@ -62,7 +62,7 @@ describe('getSocialTwitterMetadata', () => {
     const creatorTwitterImage = 'https://example.com/creator-avatar.png';
     const sourceImage = 'https://example.com/source-logo.png';
 
-    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata(({
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
       ...basePost,
       sharedPost: {
         ...basePost.sharedPost,
@@ -77,7 +77,7 @@ describe('getSocialTwitterMetadata', () => {
           image: sourceImage,
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -85,7 +85,7 @@ describe('getSocialTwitterMetadata', () => {
   it('uses creator twitter image for unknown sources', () => {
     const creatorTwitterImage = 'https://example.com/creator-avatar.png';
 
-    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata(({
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
       ...basePost,
       sharedPost: {
         ...basePost.sharedPost,
@@ -100,7 +100,7 @@ describe('getSocialTwitterMetadata', () => {
           image: 'https://example.com/source-logo.png',
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -108,7 +108,7 @@ describe('getSocialTwitterMetadata', () => {
   it('falls back to source image when no author avatar is available', () => {
     const sourceImage = 'https://example.com/source-logo.png';
 
-    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata(({
+    const { embeddedTweetAvatarUser } = getSocialTwitterMetadata({
       ...basePost,
       sharedPost: {
         ...basePost.sharedPost,
@@ -122,13 +122,13 @@ describe('getSocialTwitterMetadata', () => {
           image: sourceImage,
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(sourceImage);
   });
 
   it('deduplicates handles case-insensitively', () => {
-    const { metadataHandles } = getSocialTwitterMetadata(({
+    const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,
       source: {
         ...basePost.source,
@@ -141,13 +141,13 @@ describe('getSocialTwitterMetadata', () => {
           handle: 'AnthropicAI',
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(metadataHandles).toEqual(['anthropicai']);
   });
 
   it('keeps different handles', () => {
-    const { metadataHandles } = getSocialTwitterMetadata(({
+    const { metadataHandles } = getSocialTwitterMetadata({
       ...basePost,
       source: {
         ...basePost.source,
@@ -160,7 +160,7 @@ describe('getSocialTwitterMetadata', () => {
           handle: 'claudeai',
         },
       },
-    } as unknown as Post));
+    } as unknown as Post);
 
     expect(metadataHandles).toEqual(['anthropicai', 'claudeai']);
   });

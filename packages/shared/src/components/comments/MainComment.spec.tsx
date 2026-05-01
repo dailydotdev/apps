@@ -76,7 +76,9 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`${comment.author!.username}'s profile`);
+  const el = await screen.findByAltText(
+    `${comment.author!.username}'s profile`,
+  );
   expect(el).toHaveAttribute('src', comment.author!.image);
 });
 

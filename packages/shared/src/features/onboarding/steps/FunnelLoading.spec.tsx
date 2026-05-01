@@ -44,9 +44,7 @@ describe('FunnelLoading', () => {
     render(
       <FunnelLoading
         {...defaultProps}
-        parameters={
-          {} as FunnelStepLoading['parameters']
-        }
+        parameters={{} as FunnelStepLoading['parameters']}
       />,
     );
 
