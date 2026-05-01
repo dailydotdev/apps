@@ -4,7 +4,7 @@ import type {
   IceParameters,
   RtpCapabilities,
   RtpParameters,
-} from 'mediasoup-client/lib/types';
+} from 'mediasoup-client/types';
 
 export type LiveRoomStatusValue = 'created' | 'live' | 'ended';
 export type LiveRoomModeValue = 'moderated' | 'free_for_all';

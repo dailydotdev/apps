@@ -9,11 +9,12 @@ import React, {
   useState,
 } from 'react';
 import type {
+  ConnectionState,
   Consumer,
   Device as MediasoupDevice,
   Producer,
   Transport,
-} from 'mediasoup-client/lib/types';
+} from 'mediasoup-client/types';
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../graphql/common';
 import {
@@ -735,16 +736,19 @@ export const LiveRoomProvider = ({
 
   const attachTransportHealthHandlers = useCallback(
     (direction: MediaTransportDirection, transport: Transport) => {
-      transport.on('connectionstatechange', (connectionState) => {
-        if (connectionState === 'disconnected') {
-          restartTransportIce(direction, transport.id).catch(() => undefined);
-          return;
-        }
+      transport.on(
+        'connectionstatechange',
+        (connectionState: ConnectionState) => {
+          if (connectionState === 'disconnected') {
+            restartTransportIce(direction, transport.id).catch(() => undefined);
+            return;
+          }
 
-        if (connectionState === 'failed' || connectionState === 'closed') {
-          queueMediaRebuild();
-        }
-      });
+          if (connectionState === 'failed' || connectionState === 'closed') {
+            queueMediaRebuild();
+          }
+        },
+      );
     },
     [queueMediaRebuild, restartTransportIce],
   );
