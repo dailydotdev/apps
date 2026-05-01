@@ -109,6 +109,14 @@ const nextConfig: NextConfig = {
     },
     env: {
       CURRENT_VERSION: version,
+      // If both CHROME and EDGE IDs are present (e.g. in a shared CI environment),
+      // Chrome silently takes precedence. Since the ID is baked into the build and
+      // getBrowserExtensionInstallId cannot distinguish the user's browser, this is expected.
+      NEXT_PUBLIC_DAILY_EXTENSION_ID:
+        process.env.NEXT_PUBLIC_DAILY_EXTENSION_ID ||
+        process.env.EXTENSION_ID_CHROME ||
+        process.env.EXTENSION_ID_EDGE ||
+        '',
     },
     assetPrefix: process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX,
     rewrites: async () => {

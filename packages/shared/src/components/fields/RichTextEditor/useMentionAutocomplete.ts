@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { Editor } from '@tiptap/react';
 import type { UserShortProfile } from '../../../lib/user';
@@ -16,6 +16,7 @@ interface UseMentionAutocompleteProps {
   sourceId?: string;
   userId?: string;
   onOffsetUpdate: (editor: Editor) => void;
+  suggestions?: UserShortProfile[];
 }
 
 export function useMentionAutocomplete({
@@ -24,12 +25,13 @@ export function useMentionAutocomplete({
   sourceId,
   userId,
   onOffsetUpdate,
+  suggestions,
 }: UseMentionAutocompleteProps) {
   const { requestMethod } = useRequestProtocol();
-  const [query, setQuery] = useState<string>(undefined);
+  const [query, setQuery] = useState<string | undefined>(undefined);
   const [selected, setSelected] = useState(0);
   const mentionRangeRef = useRef<EditorRange>(null);
-  const queryRef = useRef<string>(undefined);
+  const queryRef = useRef<string | undefined>(undefined);
   const selectedRef = useRef(0);
   const mentionsRef = useRef<UserShortProfile[]>([]);
 
@@ -43,12 +45,40 @@ export function useMentionAutocomplete({
           { postId, query, sourceId },
           { requestKey: JSON.stringify(key) },
         ),
-      enabled: !!userId && typeof query !== 'undefined',
+      enabled: !suggestions && !!userId && typeof query !== 'undefined',
       refetchOnWindowFocus: false,
       refetchOnMount: false,
     });
 
-  const mentions = data?.recommendedMentions;
+  const mentions = useMemo(() => {
+    if (!suggestions) {
+      return data?.recommendedMentions?.filter(
+        (mention) => mention.id !== userId,
+      );
+    }
+
+    if (typeof query === 'undefined') {
+      return [];
+    }
+
+    const normalizedQuery = query.trim().toLowerCase();
+    const filtered = suggestions.filter((suggestion) => {
+      if (suggestion.id === userId) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      return (
+        suggestion.username.toLowerCase().startsWith(normalizedQuery) ||
+        suggestion.name?.toLowerCase().startsWith(normalizedQuery) === true
+      );
+    });
+
+    return filtered.slice(0, 8);
+  }, [data?.recommendedMentions, query, suggestions, userId]);
 
   useEffect(() => {
     queryRef.current = query;

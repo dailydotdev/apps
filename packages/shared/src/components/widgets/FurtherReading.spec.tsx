@@ -44,7 +44,7 @@ const createFeedMock = (
     defaultFeedPage.edges[5].node,
     defaultFeedPage.edges[6].node,
   ],
-  variables: unknown = {
+  variables: Record<string, unknown> = {
     post: post.id,
     loggedIn: true,
     trendingFirst: 1,
@@ -88,6 +88,8 @@ const renderComponent = (
           tokenRefreshed: true,
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isLoggedIn: !!user,
+          closeLogin: jest.fn(),
         }}
       >
         <FurtherReading currentPost={{ ...post, ...postUpdate }} />

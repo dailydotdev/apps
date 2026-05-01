@@ -50,7 +50,8 @@ function isMentionLink(
 }
 
 function getTooltipOffset(element: HTMLAnchorElement): CaretOffset {
-  const topOffset = element.parentElement.offsetTop + element.offsetTop;
+  const parentOffsetTop = element.parentElement?.offsetTop ?? 0;
+  const topOffset = parentOffsetTop + element.offsetTop;
   const leftSpacing =
     TOOLTIP_HALF_WIDTH - element.getBoundingClientRect().width / 2;
   return [element.offsetLeft - leftSpacing, topOffset * -1 + TOOLTIP_SPACING];
@@ -104,6 +105,10 @@ export default function Markdown({
       }
 
       const { mentionId } = element.dataset;
+
+      if (!mentionId) {
+        return;
+      }
 
       cancelUserClearing();
       setOffset(getTooltipOffset(element));
