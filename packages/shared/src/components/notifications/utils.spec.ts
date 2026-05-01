@@ -1,13 +1,17 @@
 import { isMutingDigestCompletely, NotificationType } from './utils';
 import type { NotificationSettings } from './utils';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
+
+const muted = NotificationPreferenceStatus.Muted;
+const subscribed = NotificationPreferenceStatus.Subscribed;
 
 describe('isMutingDigestCompletely', () => {
   describe('with default BriefingReady type', () => {
     it('should return true when other channel is muted and current is subscribed', () => {
       const ns: NotificationSettings = {
         [NotificationType.BriefingReady]: {
-          email: 'muted',
-          inApp: 'subscribed',
+          email: muted,
+          inApp: subscribed,
         },
       };
 
@@ -17,8 +21,8 @@ describe('isMutingDigestCompletely', () => {
     it('should return false when other channel is subscribed', () => {
       const ns: NotificationSettings = {
         [NotificationType.BriefingReady]: {
-          email: 'subscribed',
-          inApp: 'subscribed',
+          email: subscribed,
+          inApp: subscribed,
         },
       };
 
@@ -28,8 +32,8 @@ describe('isMutingDigestCompletely', () => {
     it('should return false when current channel is already muted', () => {
       const ns: NotificationSettings = {
         [NotificationType.BriefingReady]: {
-          email: 'muted',
-          inApp: 'muted',
+          email: muted,
+          inApp: muted,
         },
       };
 
@@ -39,8 +43,8 @@ describe('isMutingDigestCompletely', () => {
     it('should return true when checking email channel with inApp muted', () => {
       const ns: NotificationSettings = {
         [NotificationType.BriefingReady]: {
-          email: 'subscribed',
-          inApp: 'muted',
+          email: subscribed,
+          inApp: muted,
         },
       };
 
@@ -52,8 +56,8 @@ describe('isMutingDigestCompletely', () => {
     it('should return true when other channel is muted and current is subscribed', () => {
       const ns: NotificationSettings = {
         [NotificationType.DigestReady]: {
-          email: 'muted',
-          inApp: 'subscribed',
+          email: muted,
+          inApp: subscribed,
         },
       };
 
@@ -65,8 +69,8 @@ describe('isMutingDigestCompletely', () => {
     it('should return false when other channel is subscribed', () => {
       const ns: NotificationSettings = {
         [NotificationType.DigestReady]: {
-          email: 'subscribed',
-          inApp: 'subscribed',
+          email: subscribed,
+          inApp: subscribed,
         },
       };
 
@@ -78,12 +82,12 @@ describe('isMutingDigestCompletely', () => {
     it('should not be affected by BriefingReady settings', () => {
       const ns: NotificationSettings = {
         [NotificationType.BriefingReady]: {
-          email: 'muted',
-          inApp: 'subscribed',
+          email: muted,
+          inApp: subscribed,
         },
         [NotificationType.DigestReady]: {
-          email: 'subscribed',
-          inApp: 'subscribed',
+          email: subscribed,
+          inApp: subscribed,
         },
       };
 
@@ -109,7 +113,7 @@ describe('isMutingDigestCompletely', () => {
         [NotificationType.BriefingReady]: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           email: undefined as any,
-          inApp: 'subscribed',
+          inApp: subscribed,
         },
       };
 

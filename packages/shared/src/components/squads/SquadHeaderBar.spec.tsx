@@ -78,7 +78,7 @@ describe('Analytics button', () => {
   it('should render analytics button when user has ViewAnalytics permission', () => {
     const squad = generateTestSquad({
       currentMember: {
-        ...mock.squad.currentMember,
+        ...mock.squad.currentMember!,
         permissions: [SourcePermissions.ViewAnalytics],
       },
     });
@@ -97,7 +97,7 @@ describe('Analytics button', () => {
   it('should not render analytics button when user does not have ViewAnalytics permission', () => {
     const squad = generateTestSquad({
       currentMember: {
-        ...mock.squad.currentMember,
+        ...mock.squad.currentMember!,
         permissions: [SourcePermissions.Post],
       },
     });
