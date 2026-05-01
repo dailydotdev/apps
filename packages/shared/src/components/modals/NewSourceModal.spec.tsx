@@ -43,7 +43,7 @@ const createSourceRequestAvailabilityMock = (userUpdate: {
     return {
       data: {
         sourceRequestAvailability: {
-          hasAccess: userUpdate?.reputation >= 250,
+          hasAccess: (userUpdate?.reputation ?? 0) >= 250,
         },
       },
     };
@@ -53,7 +53,9 @@ const createSourceRequestAvailabilityMock = (userUpdate: {
 const renderComponent = (
   userUpdate: LoggedUser | AnonymousUser = userWithReputation,
   mocks: MockedGraphQLResponse[] = [
-    createSourceRequestAvailabilityMock(userUpdate as unknown),
+    createSourceRequestAvailabilityMock(
+      userUpdate as unknown as { reputation?: number },
+    ),
   ],
 ): RenderResult => {
   const client = new QueryClient();

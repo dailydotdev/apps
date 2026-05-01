@@ -23,13 +23,13 @@ import Toast from '../../notifications/Toast';
 import { DayOfWeek } from '../../../lib/date';
 
 interface TestProps {
-  user?: LoggedUser | null;
+  user?: LoggedUser;
   alerts?: Alerts;
 }
 
 const defaultAlerts: Alerts = {
   filter: true,
-  rankLastSeen: null,
+  rankLastSeen: undefined,
   bootPopup: true,
 };
 
@@ -155,13 +155,13 @@ beforeEach(async () => {
 });
 
 it('should not render if user is not logged in', async () => {
-  renderComponent({ user: null, alerts: defaultAlerts });
+  renderComponent({ user: undefined, alerts: defaultAlerts });
   const popup = screen.queryByLabelText('Recover your streak');
   expect(popup).not.toBeInTheDocument();
 });
 
 it('should not render if not logged && "recoverStreak" is true from boot', async () => {
-  renderComponent({ user: null });
+  renderComponent({ user: undefined });
   await waitForNock();
 
   await waitFor(() => {

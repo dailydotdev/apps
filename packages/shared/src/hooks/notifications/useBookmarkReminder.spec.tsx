@@ -26,7 +26,7 @@ describe('useBookmarkReminder hook', () => {
   beforeEach(() => {
     mockedNow = new Date(2024, 6, 14, 15, 23, 0); // Sun Jul 14 2024 15:23:00
     client.clear();
-    jest.useFakeTimers('modern').setSystemTime(mockedNow);
+    jest.useFakeTimers().setSystemTime(mockedNow);
     jest.clearAllMocks();
   });
 
@@ -132,7 +132,7 @@ describe('useBookmarkReminder hook', () => {
 
   it('should throw error if we set later today and it is past 19:00', async () => {
     mockedNow = new Date(2024, 6, 14, 19, 0, 0); // Sun Jul 14 2024 19:00:00
-    jest.useFakeTimers('modern').setSystemTime(mockedNow);
+    jest.useFakeTimers().setSystemTime(mockedNow);
     const { result } = renderHook(() => useBookmarkReminder({ post }), {
       wrapper: Wrapper,
     });

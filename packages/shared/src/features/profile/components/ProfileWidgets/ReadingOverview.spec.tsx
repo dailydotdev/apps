@@ -116,7 +116,7 @@ describe('ReadingOverview component', () => {
   });
 
   it('should not render streaks section when streak data is null', () => {
-    renderComponent({ streak: null });
+    renderComponent({ streak: null as unknown as UserStreak });
 
     expect(screen.queryByText('Longest streak 🏆')).not.toBeInTheDocument();
     expect(screen.queryByText('Total reading days')).not.toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('ReadingOverview component', () => {
   });
 
   it('should not render tags section when mostReadTags is null', () => {
-    renderComponent({ mostReadTags: null });
+    renderComponent({ mostReadTags: null as unknown as MostReadTag[] });
 
     expect(
       screen.queryByText('Top tags by reading days'),
@@ -156,7 +156,7 @@ describe('ReadingOverview component', () => {
   });
 
   it('should display total reads as 0 when readHistory is null', () => {
-    renderComponent({ readHistory: null });
+    renderComponent({ readHistory: null as unknown as UserReadHistory[] });
 
     expect(
       screen.getByText('Posts read in the last months (0)'),

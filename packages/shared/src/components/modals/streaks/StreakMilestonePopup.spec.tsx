@@ -14,7 +14,7 @@ import { DayOfWeek } from '../../../lib/date';
 
 const defaultAlerts: Alerts = {
   filter: true,
-  rankLastSeen: null,
+  rankLastSeen: undefined,
   bootPopup: true,
   showStreakMilestone: true,
 };
@@ -33,6 +33,7 @@ const defaultStreak: ReadingStreakReturn = {
     max: 5,
     total: 5,
     weekStart: DayOfWeek.Monday,
+    lastViewAt: new Date(),
   },
   updateStreakConfig: jest.fn(),
   checkReadingStreak: jest.fn(),
@@ -110,7 +111,13 @@ it('should not open when streak is 0', async () => {
   const { queryClient } = renderComponent({
     streak: {
       ...defaultStreak,
-      streak: { current: 0, max: 5, total: 5, weekStart: DayOfWeek.Monday },
+      streak: {
+        current: 0,
+        max: 5,
+        total: 5,
+        weekStart: DayOfWeek.Monday,
+        lastViewAt: new Date(),
+      },
     },
   });
 
