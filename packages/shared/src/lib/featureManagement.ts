@@ -166,6 +166,16 @@ export const featureShortcutsExtensionPromo = new Feature(
   false,
 );
 
+export const featureShortcutsExtensionPromoCopy = new Feature(
+  'shortcuts_extension_promo_copy',
+  {
+    title: 'Want these shortcuts on every new tab?',
+    subtitle: 'Install the daily.dev extension to pin your most visited sites.',
+    cta: 'Install for {browser}',
+    dismiss: 'Skip for now',
+  },
+);
+
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
 export const featureNewTabCustomizer = new Feature(
