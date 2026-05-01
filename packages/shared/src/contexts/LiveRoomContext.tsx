@@ -13,7 +13,7 @@ import type {
   Device as MediasoupDevice,
   Producer,
   Transport,
-} from 'mediasoup-client/lib/types';
+} from 'mediasoup-client/types';
 import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../graphql/common';
 import {

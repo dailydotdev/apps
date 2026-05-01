@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import type { QueryClient, QueryKey } from '@tanstack/react-query/build/modern';
+import type { QueryClient, QueryKey } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {

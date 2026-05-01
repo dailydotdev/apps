@@ -28,7 +28,7 @@
     "@kickass-coderz/react": "^0.0.5",
     "@marsidev/react-turnstile": "1.1.0",
     "@paddle/paddle-js": "1.4.0",
-    "@serwist/turbopack": "^9.5.10",
+    "@serwist/turbopack": "9.5.7",
     "@tanstack/react-query": "^5.80.5",
     "@tanstack/react-query-devtools": "^5.80.5",
     "classnames": "^2.5.1",

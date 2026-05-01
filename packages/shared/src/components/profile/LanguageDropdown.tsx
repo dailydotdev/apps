@@ -37,12 +37,14 @@ export const LanguageDropdown = ({
   disabled = false,
 }: Props): ReactElement => {
   const [open, setOpen] = useState(false);
-  const validLanguages = useFeature(featureValidLanguages);
+  const validLanguages = useFeature(featureValidLanguages) as
+    | Record<string, string>
+    | undefined;
   const languageOptions = useMemo(() => {
-    return ['Original language', ...Object.values(validLanguages)];
+    return ['Original language', ...Object.values(validLanguages ?? {})];
   }, [validLanguages]);
   const values = useMemo(() => {
-    return [null, ...Object.keys(validLanguages)];
+    return [null, ...Object.keys(validLanguages ?? {})];
   }, [validLanguages]);
   const [selectedIndex, setSelectedIndex] = useState(
     defaultValue ? values.indexOf(defaultValue) : 0,
