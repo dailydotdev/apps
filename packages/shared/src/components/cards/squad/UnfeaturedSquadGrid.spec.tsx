@@ -24,7 +24,7 @@ import {
 const squads = [generateTestSquad()];
 const members = generateMembersList();
 const admin = generateTestAdmin();
-admin.source.members.edges = members;
+admin.source.members!.edges = members;
 admin.source.membersCount = members.length;
 
 beforeEach(async () => {
@@ -70,7 +70,7 @@ it('should render the component and member count when members are provided', () 
   renderComponent();
 
   const memberCount = screen.getByTestId('squad-members-count');
-  const { length } = admin.source.members.edges;
+  const { length } = admin.source.members!.edges;
 
   expect(memberCount).toBeInTheDocument();
   expect(memberCount.innerHTML).toEqual(`${length} members`);
