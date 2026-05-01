@@ -9,6 +9,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   BookmarkIcon,
@@ -19,7 +20,7 @@ import {
 import { MenuIcon as WrappingMenuIcon } from '../MenuIcon';
 import type { UseBookmarkPostRollback } from '../../hooks/useBookmarkPost';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import type { ReadHistoryPost } from '../../graphql/posts';
+import type { PostItem, ReadHistoryPost } from '../../graphql/posts';
 import type { QueryIndexes } from '../../hooks/useReadingHistory';
 import type {
   ReadHistoryData,
@@ -39,12 +40,21 @@ const updateReadingHistoryPost =
     client: QueryClient,
     queryKey: QueryKey,
     post: Partial<ReadHistoryPost>,
-    { page, edge }: QueryIndexes,
+    indexes: QueryIndexes | undefined,
   ): (() => UseBookmarkPostRollback) =>
   () => {
+    if (!indexes) {
+      return () => undefined;
+    }
+    const { page, edge } = indexes;
     const history = client.getQueryData<ReadHistoryInfiniteData>(queryKey);
-    const { node } = history?.pages[page].readHistory.edges[edge] || {};
-    const updated = { ...node, post: { ...node?.post, ...post } };
+    const updated: Partial<PostItem> = {
+      ...history?.pages[page].readHistory.edges[edge]?.node,
+      post: {
+        ...history?.pages[page].readHistory.edges[edge]?.node?.post,
+        ...post,
+      } as ReadHistoryPost,
+    };
 
     updateInfiniteCache<ReadHistoryData>({
       client,
@@ -113,11 +123,12 @@ export const ReadingHistoryOptionsMenu = ({
   const logOrigin = Origin.ReadingHistoryContextMenu;
   const { openSharePost } = useSharePost(logOrigin);
 
-  const options = [
+  const options: MenuItemProps[] = [
     {
       icon: <WrappingMenuIcon Icon={ShareIcon} />,
       label: 'Share post via...',
-      action: (e: React.MouseEvent) => {
+      action: (...args) => {
+        const [e] = args as [React.MouseEvent];
         e.preventDefault();
         setOpen(false);
         openSharePost({ post });
@@ -126,7 +137,8 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: getBookmarkIconAndMenuIcon(post?.bookmarked ?? false),
       label: post?.bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks',
-      action: (e: React.MouseEvent) => {
+      action: (...args) => {
+        const [e] = args as [React.MouseEvent];
         e.preventDefault();
         setOpen(false);
         onToggleBookmark();
@@ -135,7 +147,8 @@ export const ReadingHistoryOptionsMenu = ({
     {
       icon: <WrappingMenuIcon Icon={XIcon} />,
       label: 'Remove post',
-      action: (e: React.MouseEvent) => {
+      action: (...args) => {
+        const [e] = args as [React.MouseEvent];
         e.preventDefault();
         setOpen(false);
         onHide?.();

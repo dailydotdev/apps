@@ -18,7 +18,7 @@ type ClassName = {
 type Props = {
   className?: ClassName;
   defaultValue?: string;
-  onChange?: (value: string, index: number) => void;
+  onChange?: (value: string | undefined, index: number) => void;
   icon?: ReactElement<IconProps>;
   disabled?: boolean;
 } & Pick<BaseFieldProps, 'name' | 'valid' | 'hint' | 'saveHintSpace'>;
@@ -43,8 +43,8 @@ export const LanguageDropdown = ({
   const languageOptions = useMemo(() => {
     return ['Original language', ...Object.values(validLanguages ?? {})];
   }, [validLanguages]);
-  const values = useMemo(() => {
-    return [null, ...Object.keys(validLanguages ?? {})];
+  const values = useMemo<(string | undefined)[]>(() => {
+    return [undefined, ...Object.keys(validLanguages ?? {})];
   }, [validLanguages]);
   const [selectedIndex, setSelectedIndex] = useState(
     defaultValue ? values.indexOf(defaultValue) : 0,
