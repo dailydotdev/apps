@@ -208,7 +208,7 @@ const renderLiveRoomControls = () => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <LiveRoomControls onLeave={jest.fn()} />
+      <LiveRoomControls roomId="room-1" onLeave={jest.fn()} />
     </QueryClientProvider>,
   );
 };

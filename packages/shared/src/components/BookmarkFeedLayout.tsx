@@ -87,7 +87,7 @@ export default function BookmarkFeedLayout({
   folder,
   title = 'Bookmarks',
   isReminderOnly,
-}: BookmarkFeedLayoutProps): ReactElement {
+}: BookmarkFeedLayoutProps): ReactElement | null {
   const [isHydrated, setIsHydrated] = useState(false);
   const {
     shouldUseListFeedLayout,
@@ -234,7 +234,7 @@ export default function BookmarkFeedLayout({
             {isLaptop ? <span>Share bookmarks</span> : null}
           </ShareBookmarksButton>
         )}
-        {isFolderPage && !isReminderOnly && (
+        {folder && !isReminderOnly && (
           <BookmarkFolderContextMenu folder={folder} />
         )}
       </CustomFeedHeader>
