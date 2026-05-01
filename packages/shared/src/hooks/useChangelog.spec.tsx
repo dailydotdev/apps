@@ -15,14 +15,14 @@ const noop = jest.fn();
 const updateAlerts = jest.fn();
 const defaultAlerts: Alerts = {
   changelog: false,
-  lastChangelog: new Date(defaultPost.createdAt).toISOString(),
+  lastChangelog: new Date(defaultPost.createdAt!).toISOString(),
 };
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={null}
+        user={undefined}
         squads={[]}
         getRedirectUri={noop}
         updateUser={noop}
@@ -57,7 +57,7 @@ describe('useChangelog hook', () => {
   it('changelog should be available if post createdAt is greater then lastChangelog', async () => {
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    const lastChangelog = new Date(defaultAlerts.lastChangelog!);
     lastChangelog.setMonth(lastChangelog.getMonth() - 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
@@ -74,7 +74,7 @@ describe('useChangelog hook', () => {
   it('changelog should be NOT be available if post createdAt is less then lastChangelog', async () => {
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    const lastChangelog = new Date(defaultAlerts.lastChangelog!);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
@@ -89,7 +89,7 @@ describe('useChangelog hook', () => {
 
   it('changelog should be NOT be available when post is not defined', async () => {
     defaultAlerts.changelog = false;
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    const lastChangelog = new Date(defaultAlerts.lastChangelog!);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
@@ -115,7 +115,7 @@ describe('useChangelog hook', () => {
 
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    const lastChangelog = new Date(defaultAlerts.lastChangelog!);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 
@@ -140,7 +140,7 @@ describe('useChangelog hook', () => {
 
     client.setQueryData(['changelog', 'anonymous', 'latest-post'], defaultPost);
     defaultAlerts.changelog = true;
-    const lastChangelog = new Date(defaultAlerts.lastChangelog);
+    const lastChangelog = new Date(defaultAlerts.lastChangelog!);
     lastChangelog.setMonth(lastChangelog.getMonth() + 1);
     defaultAlerts.lastChangelog = lastChangelog.toISOString();
 

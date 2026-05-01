@@ -76,7 +76,7 @@ describe('Onboarding CookieConsent outside GDPR', () => {
     await act(() => fireEvent.click(button));
     await nextTick();
     const cookies = getCookies([GdprConsentKey.Necessary]);
-    expect(cookies.ilikecookies).toEqual('true');
+    expect(cookies!.ilikecookies).toEqual('true');
   });
 });
 
@@ -135,8 +135,8 @@ describe('Onboarding CookieConsent under GDPR', () => {
       GdprConsentKey.Necessary,
       GdprConsentKey.Marketing,
     ]);
-    expect(cookies.ilikecookies).toEqual('true');
-    expect(cookies.ilikecookies_marketing).toEqual('true');
+    expect(cookies!.ilikecookies).toEqual('true');
+    expect(cookies!.ilikecookies_marketing).toEqual('true');
   });
 
   it('should open the modal for detailed consent', async () => {

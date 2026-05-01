@@ -10,15 +10,15 @@ import SharePostContent, { CommonSharePostContent } from './SharePostContent';
 const socialTweetPost: Post = {
   ...sharePost,
   sharedPost: {
-    ...sharePost.sharedPost,
+    ...sharePost.sharedPost!,
     type: PostType.SocialTwitter,
     title: 'Embedded tweet body',
     image: 'https://pbs.twimg.com/media/embedded-tweet.jpg',
     source: {
-      ...sharePost.sharedPost.source,
+      ...sharePost.sharedPost!.source,
       handle: 'dailydotdev',
       name: 'daily.dev',
-    },
+    } as Post['source'],
   },
 };
 
@@ -35,7 +35,7 @@ describe('SharePostContent', () => {
 
     expect(screen.getByAltText('Post cover image')).toHaveAttribute(
       'src',
-      socialTweetPost.sharedPost.image,
+      socialTweetPost.sharedPost!.image,
     );
   });
 

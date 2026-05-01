@@ -27,14 +27,14 @@ jest.mock('../../hooks', () => {
 const date = new Date(2024, 6, 6, 12, 30, 30);
 
 beforeEach(() => {
-  jest.useFakeTimers('modern').setSystemTime(date);
+  jest.useFakeTimers().setSystemTime(date);
   jest.clearAllMocks();
   mockUseViewSize.mockImplementation(() => true);
 });
 
 const renderLayout = (
   props: Partial<MainCommentProps> = {},
-  user: LoggedUser = null,
+  user: LoggedUser | undefined = undefined,
 ): RenderResult => {
   const defaultProps: MainCommentProps = {
     post,
@@ -76,13 +76,13 @@ const renderLayout = (
 
 it('should show author profile image', async () => {
   renderLayout();
-  const el = await screen.findByAltText(`${comment.author.username}'s profile`);
-  expect(el).toHaveAttribute('src', comment.author.image);
+  const el = await screen.findByAltText(`${comment.author!.username}'s profile`);
+  expect(el).toHaveAttribute('src', comment.author!.image);
 });
 
 it('should show author name', async () => {
   renderLayout();
-  await screen.findByText(comment.author.name);
+  await screen.findByText(comment.author!.name);
 });
 
 it('should show formatted comment date', async () => {
