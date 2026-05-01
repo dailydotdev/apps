@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import type {
+  ConnectionState,
   Consumer,
   Device as MediasoupDevice,
   Producer,
@@ -735,7 +736,7 @@ export const LiveRoomProvider = ({
 
   const attachTransportHealthHandlers = useCallback(
     (direction: MediaTransportDirection, transport: Transport) => {
-      transport.on('connectionstatechange', (connectionState) => {
+      transport.on('connectionstatechange', (connectionState: ConnectionState) => {
         if (connectionState === 'disconnected') {
           restartTransportIce(direction, transport.id).catch(() => undefined);
           return;
