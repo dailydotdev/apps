@@ -26,7 +26,7 @@ interface BrandedTagProps {
  * When a tag is sponsored, it animates to show the brand association.
  *
  * Animation styles:
- * - 'suffix': "ai" -> "ai - powered by Copilot"
+ * - 'suffix': "ai" -> "ai - sponsored by Copilot"
  * - 'replace': "ai" -> "Copilot"
  * - 'arrow': "ai" -> "Copilot →"
  */
@@ -67,7 +67,7 @@ export const BrandedTag = ({
 
     switch (style) {
       case 'suffix':
-        return `#${tag} - powered by ${sponsorInfo.brandName}`;
+        return `#${tag} - sponsored by ${sponsorInfo.brandName}`;
       case 'replace':
         return `#${sponsorInfo.brandName}`;
       case 'arrow':
