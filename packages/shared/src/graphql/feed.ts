@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request';
 import { CUSTOM_FEED_FRAGMENT, FEED_POST_FRAGMENT } from './fragments';
-import { POST_HIGHLIGHT_FRAGMENT, type PostHighlight } from './highlights';
+import { POST_HIGHLIGHT_FEED_FRAGMENT, type PostHighlight } from './highlights';
 import type { Post } from './posts';
 import { PostType } from '../types';
 import type { Connection } from './common';
@@ -393,7 +393,7 @@ export const FEED_V2_QUERY = gql`
           ... on FeedHighlightsItem {
             feedMeta
             highlights {
-              ...PostHighlightCard
+              ...PostHighlightFeedCard
             }
           }
         }
@@ -402,7 +402,7 @@ export const FEED_V2_QUERY = gql`
   }
   ${FEED_POST_FRAGMENT}
   ${USER_POST_FRAGMENT}
-  ${POST_HIGHLIGHT_FRAGMENT}
+  ${POST_HIGHLIGHT_FEED_FRAGMENT}
 `;
 
 export const MOST_UPVOTED_FEED_QUERY = gql`

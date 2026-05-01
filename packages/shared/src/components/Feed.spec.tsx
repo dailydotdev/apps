@@ -428,10 +428,10 @@ describe('Feed logged in', () => {
     await waitForNock();
     expect(await screen.findByText('Happening Now')).toBeInTheDocument();
     expect(screen.getByText('The first highlight')).toBeInTheDocument();
-    expect(screen.getByText('Read all')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /view all/i })).toBeInTheDocument();
   });
 
-  it('should keep feedV2 highlights in the response order', async () => {
+  it('should pin feedV2 highlights to the top of the feed regardless of response order', async () => {
     renderComponent(
       [
         {
@@ -501,7 +501,7 @@ describe('Feed logged in', () => {
 
     expect(
       orderedItems.map((item) => item.getAttribute('data-testid')),
-    ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
+    ).toEqual(['highlightItem', 'postItem', 'postItem', 'postItem']);
   });
 
   it('should send upvote mutation', async () => {

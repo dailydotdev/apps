@@ -24,8 +24,15 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import { FeedItemType } from './cards/common/common';
+import { HighlightStrip } from './cards/highlight/HighlightStrip';
+import {
+  feedHighlightsLogEvent,
+  feedLogExtra,
+  postLogEvent,
+} from '../lib/feed';
+import { getHighlightIds } from '../graphql/highlights';
 import { useLogContext } from '../contexts/LogContext';
-import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
 import {
@@ -297,6 +304,19 @@ export default function Feed<T>({
     },
   );
   const canFetchMore = allowFetchMore ?? queryCanFetchMore;
+
+  const highlightStripData = useMemo(() => {
+    const highlightItem = items.find(
+      (item) => item.type === FeedItemType.Highlight,
+    );
+    if (!highlightItem || highlightItem.type !== FeedItemType.Highlight) {
+      return null;
+    }
+    return {
+      highlights: highlightItem.highlights,
+      feedMeta: highlightItem.feedMeta,
+    };
+  }, [items]);
   const [postModalIndex, setPostModalIndex] = useState<PostLocation | null>(
     null,
   );
@@ -636,6 +656,66 @@ export default function Feed<T>({
                   container: 'p-4 pt-0',
                 }}
               />
+            )}
+            {(highlightStripData ||
+              (isInitialLoading &&
+                (variables as { highlightsLimit?: number })
+                  ?.highlightsLimit)) && (
+              <div
+                className="z-20 relative"
+                style={{
+                  gridColumn: !shouldUseListFeedLayout
+                    ? `span ${virtualizedNumCards}`
+                    : undefined,
+                }}
+              >
+                <HighlightStrip
+                  highlights={highlightStripData?.highlights ?? []}
+                  isLoading={isInitialLoading && !highlightStripData}
+                  onReadAllClick={() => {
+                    if (!highlightStripData) {
+                      return;
+                    }
+                    logEvent(
+                      feedHighlightsLogEvent(LogEvent.Click, {
+                        columns: virtualizedNumCards,
+                        column: 0,
+                        row: 0,
+                        feedName,
+                        ranking,
+                        action: 'read_all_click',
+                        count: highlightStripData.highlights.length,
+                        highlightIds: getHighlightIds(
+                          highlightStripData.highlights,
+                        ),
+                        feedMeta: highlightStripData.feedMeta,
+                      }),
+                    );
+                  }}
+                  onHighlightClick={(highlight, position) => {
+                    if (!highlightStripData) {
+                      return;
+                    }
+                    logEvent(
+                      feedHighlightsLogEvent(LogEvent.Click, {
+                        columns: virtualizedNumCards,
+                        column: 0,
+                        row: 0,
+                        feedName,
+                        ranking,
+                        action: 'highlight_click',
+                        position,
+                        count: highlightStripData.highlights.length,
+                        clickedHighlight: highlight,
+                        highlightIds: getHighlightIds(
+                          highlightStripData.highlights,
+                        ),
+                        feedMeta: highlightStripData.feedMeta,
+                      }),
+                    );
+                  }}
+                />
+              </div>
             )}
             {items.map((item, index) => (
               <FeedCardContext.Provider

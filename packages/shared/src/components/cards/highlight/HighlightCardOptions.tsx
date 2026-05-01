@@ -59,10 +59,11 @@ const HighlightCardOptionsContent = ({
       <Button
         type="button"
         variant={ButtonVariant.Tertiary}
-        size={ButtonSize.Small}
+        size={ButtonSize.XSmall}
         icon={<Icon />}
         className={classNames(
-          'invisible my-auto group-hover:visible',
+          isSubscribed &&
+            'invisible group-focus-within:visible group-hover:visible',
           className,
         )}
         aria-label={label}

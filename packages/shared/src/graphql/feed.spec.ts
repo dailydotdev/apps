@@ -16,7 +16,7 @@ describe('normalizeFeedPage', () => {
     expect(FEED_V2_QUERY).toContain('$highlightsLimit: Int');
     expect(FEED_V2_QUERY).toContain('highlightsLimit: $highlightsLimit');
     expect(FEED_V2_QUERY).toContain('... on FeedHighlightsItem');
-    expect(FEED_V2_QUERY).toContain('...PostHighlightCard');
+    expect(FEED_V2_QUERY).toContain('...PostHighlightFeedCard');
     expect(FEED_V2_HIGHLIGHTS_LIMIT).toBe(5);
   });
 

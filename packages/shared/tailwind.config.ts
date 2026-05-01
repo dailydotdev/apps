@@ -241,6 +241,31 @@ export default {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'highlight-strip-enter': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateX(-32px) scale(0.94)',
+            boxShadow: '0 0 0 0 rgba(244, 68, 68, 0)',
+          },
+          '50%': {
+            opacity: '1',
+            transform: 'translateX(2px) scale(1.02)',
+            boxShadow: '0 0 0 4px rgba(244, 68, 68, 0.2)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateX(0) scale(1)',
+            boxShadow: '0 0 0 0 rgba(244, 68, 68, 0)',
+          },
+        },
+        'highlight-strip-flash': {
+          '0%, 100%': { opacity: '0' },
+          '40%': { opacity: '1' },
+        },
+        'highlight-strip-progress': {
+          '0%': { transform: 'scaleX(0)' },
+          '100%': { transform: 'scaleX(1)' },
+        },
         'highlight-fade': {
           '0%': {
             boxShadow: '0 0 0 3px var(--status-warning)',
@@ -257,6 +282,9 @@ export default {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
+        'highlight-strip-enter':
+          'highlight-strip-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'highlight-strip-flash': 'highlight-strip-flash 1.4s ease-out forwards',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
       },
     },

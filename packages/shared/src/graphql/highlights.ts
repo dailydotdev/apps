@@ -10,7 +10,14 @@ export interface PostHighlight {
   highlightedAt: string;
   post: {
     id: string;
+    type?: string;
     commentsPermalink: string;
+    summary?: string;
+    contentHtml?: string;
+    sharedPost?: {
+      summary?: string;
+      contentHtml?: string;
+    };
   };
 }
 

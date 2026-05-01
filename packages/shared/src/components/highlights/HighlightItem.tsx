@@ -53,7 +53,14 @@ export const HighlightItem = ({
   }, [highlight.post]);
 
   return (
-    <article ref={ref}>
+    <article
+      ref={ref}
+      className={classNames(
+        'relative transition-colors',
+        defaultExpanded &&
+          'animate-highlight-fade rounded-12 border border-accent-cabbage-default',
+      )}
+    >
       <button
         type="button"
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
