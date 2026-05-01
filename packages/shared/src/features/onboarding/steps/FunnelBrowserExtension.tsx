@@ -23,6 +23,9 @@ import { FunnelTargetId } from '../types/funnelEvents';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../lib/utils';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
+import { useConditionalFeature } from '../../../hooks';
+import { featureFunnelExtensionContent } from '../../../lib/featureManagement';
+import { PlusTrustReviews } from '../../../components/plus/PlusTrustReviews';
 
 const BrowserExtension = ({
   parameters: { headline, explainer },
@@ -31,10 +34,19 @@ const BrowserExtension = ({
   const { logEvent } = useLogContext();
   const { browserName } = useOnboardingExtension();
   const isEdge = browserName === BrowserName.Edge;
+  const { value: content } = useConditionalFeature({
+    feature: featureFunnelExtensionContent,
+    shouldEvaluate: true,
+  });
+  const browserLabel = isEdge ? 'Edge' : 'Chrome';
+  const ctaText = content.cta.replace('{browser}', browserLabel);
+  const imageOverride = isEdge ? content.image?.edge : content.image?.chrome;
   const imageUrls =
+    imageOverride ??
     cloudinaryOnboardingExtension[
       browserName as keyof typeof cloudinaryOnboardingExtension
     ];
+  const showReviews = content.showReviews && !isEdge;
 
   return (
     <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
@@ -45,9 +57,7 @@ const BrowserExtension = ({
           bold
           className="!px-0"
           dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(
-              headline || 'Transform every new tab into a learning powerhouse',
-            ),
+            __html: sanitizeMessage(headline || content.headline),
           }}
         />
         <Typography
@@ -56,10 +66,7 @@ const BrowserExtension = ({
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
           dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(
-              explainer ||
-                'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
-            ),
+            __html: sanitizeMessage(explainer || content.explainer),
           }}
         />
         <Button
@@ -81,15 +88,28 @@ const BrowserExtension = ({
           target="_blank"
           variant={ButtonVariant.Primary}
         >
-          <span>Get it for {isEdge ? 'Edge' : 'Chrome'}</span>
+          <span>{ctaText}</span>
         </Button>
+        {showReviews && (
+          <div className="flex flex-col items-center gap-1">
+            <PlusTrustReviews center />
+            <Typography
+              color={TypographyColor.Tertiary}
+              tag={TypographyTag.P}
+              type={TypographyType.Caption1}
+            >
+              Loved by millions of developers
+            </Typography>
+          </div>
+        )}
         <Typography
           color={TypographyColor.Secondary}
           tag={TypographyTag.P}
           type={TypographyType.Body}
-        >
-          Dare to skip? <strong>You might miss out</strong>.
-        </Typography>
+          dangerouslySetInnerHTML={{
+            __html: sanitizeMessage(content.skip),
+          }}
+        />
       </div>
       <figure className="pointer-events-none mx-auto w-full laptopL:w-2/3">
         <img
