@@ -154,6 +154,8 @@ const createContextValue = (
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+  sendChatMessageReaction: jest.fn(),
+  removeChatMessageReaction: jest.fn(),
   grantCoHost: jest.fn(),
   revokeCoHost: jest.fn(),
   setParticipantChatEnabled: jest.fn(),

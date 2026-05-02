@@ -155,6 +155,8 @@ const createContextValue = (
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+  sendChatMessageReaction: jest.fn(),
+  removeChatMessageReaction: jest.fn(),
   grantCoHost: jest.fn(),
   revokeCoHost: jest.fn(),
   setParticipantChatEnabled: jest.fn(),
@@ -485,6 +487,152 @@ describe('LiveRoom', () => {
     expect(screen.getByText('# heading')).toBeInTheDocument();
     expect(screen.getByText('hello')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  });
+
+  it('limits chat reaction shortcuts to the remaining slots when active reactions exist', async () => {
+    const sendChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    const removeChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        sendChatMessageReaction,
+        removeChatMessageReaction,
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+            reactions: [
+              {
+                messageId: 'message-1',
+                participantId: 'host',
+                key: '🔥',
+                createdAt: '2026-04-27T09:05:00.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '🔥',
+                createdAt: '2026-04-27T09:05:01.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '💡',
+                createdAt: '2026-04-27T09:05:02.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '😂',
+                createdAt: '2026-04-27T09:05:03.000Z',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove 🔥 reaction from message from @speaker1',
+      }),
+    ).toHaveTextContent('2');
+    expect(
+      screen.getAllByRole('button', {
+        name: /(?:React|Remove) .* (?:to|reaction from) message from @speaker1/,
+      }),
+    ).toHaveLength(5);
+    expect(
+      screen.getByRole('button', {
+        name: 'React 👏 to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'React 🤯 to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Custom reaction to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Remove 🔥 reaction from message from @speaker1',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(removeChatMessageReaction).toHaveBeenCalledWith('message-1', '🔥'),
+    );
+    expect(sendChatMessageReaction).not.toHaveBeenCalledWith('message-1', '🔥');
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'remove standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"active_chip"'),
+      }),
+    );
+  });
+
+  it('sends quick and custom chat reactions for messages without active reactions', async () => {
+    const sendChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        sendChatMessageReaction,
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'React 👏 to message from @speaker1',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '👏'),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'send standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"quick_shortcut"'),
+      }),
+    );
+
+    const customReactionButton = screen.getByRole('button', {
+      name: 'Custom reaction to message from @speaker1',
+    });
+    await waitFor(() => expect(customReactionButton).toBeEnabled());
+
+    fireEvent.click(customReactionButton);
+    fireEvent.click(screen.getByText('⭐'));
+
+    await waitFor(() =>
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '⭐'),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'send standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"custom_picker"'),
+      }),
+    );
   });
 
   it('shows host moderation controls for chat rows', async () => {

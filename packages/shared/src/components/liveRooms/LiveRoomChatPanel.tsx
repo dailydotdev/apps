@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { EmojiPicker } from '../fields/EmojiPicker';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
@@ -21,17 +22,61 @@ import {
   DiscussIcon,
   LockIcon,
   MenuIcon,
+  PlusIcon,
   TrashIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
 import type { LiveRoomChatEntry } from '../../contexts/LiveRoomContext';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
+import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import type { UserShortProfile } from '../../lib/user';
 import {
   buildParticipantProfile,
   userDisplayName,
 } from './liveRoomParticipants';
+
+export type ChatReactionSource =
+  | 'active_chip'
+  | 'quick_shortcut'
+  | 'custom_picker';
+
+export interface ChatReactionAnalytics {
+  source: ChatReactionSource;
+  activeReactionCount: number;
+  quickReactionCount: number;
+}
+
+interface ChatReactionGroup {
+  key: string;
+  count: number;
+  isReactedByCurrentParticipant: boolean;
+}
+
+const getChatReactionGroups = (
+  message: LiveRoomChatEntry,
+  currentParticipantId: string | null,
+): ChatReactionGroup[] => {
+  const groups = new Map<string, ChatReactionGroup>();
+
+  message.reactions?.forEach((reaction) => {
+    const group = groups.get(reaction.key) ?? {
+      key: reaction.key,
+      count: 0,
+      isReactedByCurrentParticipant: false,
+    };
+
+    groups.set(reaction.key, {
+      ...group,
+      count: group.count + 1,
+      isReactedByCurrentParticipant:
+        group.isReactedByCurrentParticipant ||
+        reaction.participantId === currentParticipantId,
+    });
+  });
+
+  return [...groups.values()];
+};
 
 interface LiveRoomChatComposerProps {
   canChat: boolean;
@@ -154,6 +199,7 @@ interface LiveRoomChatPanelProps {
   participantProfilesById: Map<string, UserShortProfile>;
   mentionSuggestions: UserShortProfile[];
   participantChatPermissions: Record<string, boolean>;
+  currentParticipantId: string | null;
   hostParticipantId: string;
   coHostParticipantIds: string[];
   canChat: boolean;
@@ -163,6 +209,16 @@ interface LiveRoomChatPanelProps {
   hasHostPrivileges: boolean;
   onSendMessage: (body: string) => Promise<void>;
   onDeleteMessage: (messageId: string) => Promise<void>;
+  onSendMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
+  onRemoveMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
   onKickParticipant: (participantId: string) => Promise<void>;
   onSetParticipantChatEnabled: (
     targetParticipantId: string,
@@ -176,6 +232,7 @@ export const LiveRoomChatPanel = ({
   participantProfilesById,
   mentionSuggestions,
   participantChatPermissions,
+  currentParticipantId,
   hostParticipantId,
   coHostParticipantIds,
   canChat,
@@ -185,6 +242,8 @@ export const LiveRoomChatPanel = ({
   hasHostPrivileges,
   onSendMessage,
   onDeleteMessage,
+  onSendMessageReaction,
+  onRemoveMessageReaction,
   onKickParticipant,
   onSetParticipantChatEnabled,
   onRequestLogin,
@@ -192,6 +251,7 @@ export const LiveRoomChatPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
+  const [reactionBusy, setReactionBusy] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -233,6 +293,26 @@ export const LiveRoomChatPanel = ({
       });
   };
 
+  const runReactionAction = (
+    messageId: string,
+    reactionKey: string,
+    analytics: ChatReactionAnalytics,
+    shouldRemove = false,
+  ): void => {
+    const key = `${messageId}-${reactionKey}`;
+    if (reactionBusy || !canChat) {
+      return;
+    }
+
+    setReactionBusy(key);
+    const action = shouldRemove
+      ? onRemoveMessageReaction
+      : onSendMessageReaction;
+    action(messageId, reactionKey, analytics)
+      .catch(() => undefined)
+      .finally(() => setReactionBusy(null));
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -271,6 +351,24 @@ export const LiveRoomChatPanel = ({
               hasHostPrivileges &&
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
+            const reactionGroups = getChatReactionGroups(
+              message,
+              currentParticipantId,
+            );
+            const reactionKeys = new Set(
+              reactionGroups.map((reaction) => reaction.key),
+            );
+            const quickReactionKeys = LIVE_ROOM_QUICK_REACTION_EMOJIS.filter(
+              (reactionKey) => !reactionKeys.has(reactionKey),
+            ).slice(0, Math.max(0, 5 - reactionGroups.length));
+            const showQuickReactions = canChat && quickReactionKeys.length > 0;
+            const showReactionRow =
+              canChat || showQuickReactions || reactionGroups.length > 0;
+            const senderName = userDisplayName(sender);
+            const baseReactionAnalytics = {
+              activeReactionCount: reactionGroups.length,
+              quickReactionCount: quickReactionKeys.length,
+            };
 
             return (
               <article
@@ -280,9 +378,7 @@ export const LiveRoomChatPanel = ({
                 <ProfilePicture user={sender} size={ProfileImageSize.Small} />
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">
-                      {userDisplayName(sender)}
-                    </span>
+                    <span className="mr-2 inline font-bold">{senderName}</span>
                     {isSenderHost ? (
                       <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
                         Host
@@ -300,6 +396,131 @@ export const LiveRoomChatPanel = ({
                       })}
                     />
                   </div>
+                  {showReactionRow ? (
+                    <div
+                      className={classNames(
+                        'mt-1 flex flex-wrap items-center gap-1 transition-opacity',
+                        reactionGroups.length === 0
+                          ? 'opacity-100 tablet:opacity-0 tablet:group-focus-within:opacity-100 tablet:group-hover:opacity-100'
+                          : 'opacity-100',
+                      )}
+                    >
+                      {reactionGroups.map((reaction) => {
+                        const busyKey = `${message.messageId}-${reaction.key}`;
+
+                        return (
+                          <button
+                            key={reaction.key}
+                            type="button"
+                            className="flex h-6 items-center gap-1 rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 text-xs leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+                            aria-label={`${
+                              reaction.isReactedByCurrentParticipant
+                                ? 'Remove'
+                                : 'React'
+                            } ${reaction.key} ${
+                              reaction.isReactedByCurrentParticipant
+                                ? 'reaction from'
+                                : 'to'
+                            } message from ${senderName}`}
+                            disabled={!canChat || !!reactionBusy}
+                            onClick={() =>
+                              runReactionAction(
+                                message.messageId,
+                                reaction.key,
+                                {
+                                  ...baseReactionAnalytics,
+                                  source: 'active_chip',
+                                },
+                                reaction.isReactedByCurrentParticipant,
+                              )
+                            }
+                          >
+                            <span>{reaction.key}</span>
+                            <span>{reaction.count}</span>
+                            {reactionBusy === busyKey ? (
+                              <span className="sr-only">Sending</span>
+                            ) : null}
+                          </button>
+                        );
+                      })}
+                      {showQuickReactions || canChat ? (
+                        <div
+                          className={classNames(
+                            'flex flex-wrap items-center gap-1 transition-opacity',
+                            reactionGroups.length > 0 &&
+                              'opacity-100 tablet:opacity-0 tablet:group-focus-within:opacity-100 tablet:group-hover:opacity-100',
+                          )}
+                        >
+                          {showQuickReactions
+                            ? quickReactionKeys.map((reactionKey) => {
+                                const busyKey = `${message.messageId}-${reactionKey}`;
+
+                                return (
+                                  <button
+                                    key={reactionKey}
+                                    type="button"
+                                    className="flex size-6 items-center justify-center rounded-8 border border-border-subtlest-tertiary bg-surface-float text-sm leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+                                    aria-label={`React ${reactionKey} to message from ${senderName}`}
+                                    disabled={!!reactionBusy}
+                                    onClick={() =>
+                                      runReactionAction(
+                                        message.messageId,
+                                        reactionKey,
+                                        {
+                                          ...baseReactionAnalytics,
+                                          source: 'quick_shortcut',
+                                        },
+                                      )
+                                    }
+                                  >
+                                    <span>{reactionKey}</span>
+                                    {reactionBusy === busyKey ? (
+                                      <span className="sr-only">Sending</span>
+                                    ) : null}
+                                  </button>
+                                );
+                              })
+                            : null}
+                          <EmojiPicker
+                            value=""
+                            label={null}
+                            className="shrink-0"
+                            onChange={(reactionKey) => {
+                              if (!reactionKey) {
+                                return;
+                              }
+
+                              runReactionAction(
+                                message.messageId,
+                                reactionKey,
+                                {
+                                  ...baseReactionAnalytics,
+                                  source: 'custom_picker',
+                                },
+                              );
+                            }}
+                            renderTrigger={({ isOpen, toggleOpen }) => (
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={
+                                  isOpen
+                                    ? ButtonVariant.Primary
+                                    : ButtonVariant.Float
+                                }
+                                className="!size-6 shrink-0"
+                                icon={<PlusIcon size={IconSize.Size16} />}
+                                aria-label={`Custom reaction to message from ${senderName}`}
+                                aria-expanded={isOpen}
+                                disabled={!!reactionBusy}
+                                onClick={toggleOpen}
+                              />
+                            )}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
                 {hasHostPrivileges ? (
                   <div
