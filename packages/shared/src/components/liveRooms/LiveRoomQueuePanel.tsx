@@ -7,7 +7,14 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { BlockIcon, PlusUserIcon, RemoveUserIcon, UserIcon } from '../icons';
+import {
+  BlockIcon,
+  PlusUserIcon,
+  RemoveUserIcon,
+  ShieldCheckIcon as ShieldCheckActionIcon,
+  ShieldIcon as ShieldActionIcon,
+  UserIcon,
+} from '../icons';
 import { IconSize } from '../Icon';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import type { LiveRoomParticipantRecord } from '../../lib/liveRoom/protocol';
@@ -22,6 +29,7 @@ interface StageParticipantItemProps {
   participantId: string;
   profile?: UserShortProfile;
   subtitle?: string;
+  badgeLabel?: string;
   leading?: ReactNode;
   actions?: ReactNode;
 }
@@ -30,6 +38,7 @@ const StageParticipantItem = ({
   participantId,
   profile,
   subtitle,
+  badgeLabel,
   leading,
   actions,
 }: StageParticipantItemProps): ReactElement => {
@@ -40,9 +49,21 @@ const StageParticipantItem = ({
       {leading}
       <ProfilePicture user={user} size={ProfileImageSize.Small} />
       <div className="min-w-0 flex-1">
-        <Typography type={TypographyType.Footnote} bold truncate>
-          {userDisplayName(user)}
-        </Typography>
+        <div className="flex min-w-0 items-center gap-2">
+          <Typography
+            type={TypographyType.Footnote}
+            bold
+            truncate
+            title={userDisplayName(user)}
+          >
+            {userDisplayName(user)}
+          </Typography>
+          {badgeLabel ? (
+            <span className="shrink-0 rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
+              {badgeLabel}
+            </span>
+          ) : null}
+        </div>
         {subtitle ? (
           <Typography
             type={TypographyType.Caption2}
@@ -66,13 +87,17 @@ interface LiveRoomQueuePanelProps {
   audienceParticipantIds: string[];
   participantsById: Record<string, LiveRoomParticipantRecord>;
   participantProfilesById: Map<string, UserShortProfile>;
-  isHost: boolean;
+  coHostParticipantIds: string[];
+  canModerate: boolean;
+  canManageCoHosts: boolean;
   stageLimit?: number | null;
   moderationBusy: string | null;
   guardedModerationAction: (
     key: string,
     fn: () => Promise<void>,
   ) => Promise<void>;
+  grantCoHost: (targetParticipantId: string) => Promise<void>;
+  revokeCoHost: (targetParticipantId: string) => Promise<void>;
   promoteSpeaker: (targetParticipantId: string) => Promise<void>;
   removeSpeaker: (targetParticipantId: string) => Promise<void>;
   kickParticipant: (targetParticipantId: string) => Promise<void>;
@@ -86,18 +111,18 @@ export const LiveRoomQueuePanel = ({
   audienceParticipantIds,
   participantsById,
   participantProfilesById,
-  isHost,
+  coHostParticipantIds,
+  canModerate,
+  canManageCoHosts,
   stageLimit,
   moderationBusy,
   guardedModerationAction,
+  grantCoHost,
+  revokeCoHost,
   promoteSpeaker,
   removeSpeaker,
   kickParticipant,
 }: LiveRoomQueuePanelProps): ReactElement => {
-  const getProfile = (participantId: string): UserShortProfile =>
-    participantProfilesById.get(participantId) ??
-    buildParticipantProfile(participantId);
-
   const activeSpeakers = activeSpeakerParticipantIds
     .map((participantId) => participantsById[participantId])
     .filter(
@@ -157,58 +182,113 @@ export const LiveRoomQueuePanel = ({
               <ul className="flex flex-col gap-2">
                 {activeSpeakers.map((participant) => {
                   const id = participant.participantId;
-                  const profile = getProfile(id);
+                  const profile = participantProfilesById.get(id);
+                  const displayProfile = profile ?? buildParticipantProfile(id);
+                  const isCoHost = coHostParticipantIds.includes(id);
 
                   return (
                     <StageParticipantItem
                       key={id}
                       participantId={id}
                       profile={profile}
+                      badgeLabel={isCoHost ? 'Co-host' : undefined}
                       actions={
-                        isHost ? (
+                        canModerate || canManageCoHosts ? (
                           <div className="flex shrink-0 items-center gap-1">
-                            <Tooltip
-                              content={`Remove ${userDisplayName(
-                                profile,
-                              )} from stage`}
-                            >
-                              <Button
-                                type="button"
-                                size={ButtonSize.XSmall}
-                                variant={ButtonVariant.Tertiary}
-                                icon={<RemoveUserIcon />}
-                                loading={moderationBusy === `remove-${id}`}
-                                disabled={!!moderationBusy}
-                                aria-label={`Remove ${userDisplayName(
-                                  profile,
-                                )}`}
-                                onClick={() =>
-                                  guardedModerationAction(`remove-${id}`, () =>
-                                    removeSpeaker(id),
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                            <Tooltip
-                              content={`Kick ${userDisplayName(
-                                profile,
-                              )} from room`}
-                            >
-                              <Button
-                                type="button"
-                                size={ButtonSize.XSmall}
-                                variant={ButtonVariant.Tertiary}
-                                icon={<BlockIcon />}
-                                loading={moderationBusy === `kick-${id}`}
-                                disabled={!!moderationBusy}
-                                aria-label={`Kick ${userDisplayName(profile)}`}
-                                onClick={() =>
-                                  guardedModerationAction(`kick-${id}`, () =>
-                                    kickParticipant(id),
-                                  )
-                                }
-                              />
-                            </Tooltip>
+                            {canModerate ? (
+                              <Tooltip
+                                content={`Remove ${userDisplayName(
+                                  displayProfile,
+                                )} from stage`}
+                              >
+                                <Button
+                                  type="button"
+                                  size={ButtonSize.XSmall}
+                                  variant={ButtonVariant.Tertiary}
+                                  icon={<RemoveUserIcon />}
+                                  loading={moderationBusy === `remove-${id}`}
+                                  disabled={!!moderationBusy}
+                                  aria-label={`Remove ${userDisplayName(
+                                    displayProfile,
+                                  )}`}
+                                  onClick={() =>
+                                    guardedModerationAction(
+                                      `remove-${id}`,
+                                      () => removeSpeaker(id),
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            ) : null}
+                            {canManageCoHosts ? (
+                              <Tooltip
+                                content={`${
+                                  isCoHost
+                                    ? 'Revoke co-host from'
+                                    : 'Grant co-host to'
+                                } ${userDisplayName(displayProfile)}`}
+                              >
+                                <Button
+                                  type="button"
+                                  size={ButtonSize.XSmall}
+                                  variant={ButtonVariant.Tertiary}
+                                  icon={
+                                    isCoHost ? (
+                                      <ShieldCheckActionIcon />
+                                    ) : (
+                                      <ShieldActionIcon />
+                                    )
+                                  }
+                                  loading={
+                                    moderationBusy ===
+                                    `${
+                                      isCoHost ? 'revoke' : 'grant'
+                                    }-cohost-${id}`
+                                  }
+                                  disabled={!!moderationBusy}
+                                  aria-label={`${
+                                    isCoHost
+                                      ? 'Revoke co-host from'
+                                      : 'Grant co-host to'
+                                  } ${userDisplayName(displayProfile)}`}
+                                  onClick={() =>
+                                    guardedModerationAction(
+                                      `${
+                                        isCoHost ? 'revoke' : 'grant'
+                                      }-cohost-${id}`,
+                                      () =>
+                                        isCoHost
+                                          ? revokeCoHost(id)
+                                          : grantCoHost(id),
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            ) : null}
+                            {canModerate ? (
+                              <Tooltip
+                                content={`Kick ${userDisplayName(
+                                  displayProfile,
+                                )} from room`}
+                              >
+                                <Button
+                                  type="button"
+                                  size={ButtonSize.XSmall}
+                                  variant={ButtonVariant.Tertiary}
+                                  icon={<BlockIcon />}
+                                  loading={moderationBusy === `kick-${id}`}
+                                  disabled={!!moderationBusy}
+                                  aria-label={`Kick ${userDisplayName(
+                                    displayProfile,
+                                  )}`}
+                                  onClick={() =>
+                                    guardedModerationAction(`kick-${id}`, () =>
+                                      kickParticipant(id),
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            ) : null}
                           </div>
                         ) : null
                       }
@@ -257,20 +337,26 @@ export const LiveRoomQueuePanel = ({
                   return null;
                 }
 
-                const profile = getProfile(participantId);
+                const profile = participantProfilesById.get(participantId);
+                const displayProfile =
+                  profile ?? buildParticipantProfile(participantId);
+                const isCoHost = coHostParticipantIds.includes(participantId);
 
                 return (
                   <StageParticipantItem
                     key={participantId}
                     participantId={participantId}
                     profile={profile}
+                    badgeLabel={isCoHost ? 'Co-host' : undefined}
                     actions={
-                      isHost ? (
+                      canModerate || canManageCoHosts ? (
                         <div className="flex shrink-0 items-center gap-1">
-                          {!isAudienceTab && mode === 'moderated' ? (
+                          {canModerate &&
+                          !isAudienceTab &&
+                          mode === 'moderated' ? (
                             <Tooltip
                               content={`Promote ${userDisplayName(
-                                profile,
+                                displayProfile,
                               )} to speaker`}
                             >
                               <Button
@@ -283,7 +369,7 @@ export const LiveRoomQueuePanel = ({
                                 }
                                 disabled={!!moderationBusy}
                                 aria-label={`Promote ${userDisplayName(
-                                  profile,
+                                  displayProfile,
                                 )}`}
                                 onClick={() =>
                                   guardedModerationAction(
@@ -294,29 +380,78 @@ export const LiveRoomQueuePanel = ({
                               />
                             </Tooltip>
                           ) : null}
-                          <Tooltip
-                            content={`Kick ${userDisplayName(
-                              profile,
-                            )} from room`}
-                          >
-                            <Button
-                              type="button"
-                              size={ButtonSize.XSmall}
-                              variant={ButtonVariant.Tertiary}
-                              icon={<BlockIcon />}
-                              loading={
-                                moderationBusy === `kick-${participantId}`
-                              }
-                              disabled={!!moderationBusy}
-                              aria-label={`Kick ${userDisplayName(profile)}`}
-                              onClick={() =>
-                                guardedModerationAction(
-                                  `kick-${participantId}`,
-                                  () => kickParticipant(participantId),
-                                )
-                              }
-                            />
-                          </Tooltip>
+                          {canManageCoHosts ? (
+                            <Tooltip
+                              content={`${
+                                isCoHost
+                                  ? 'Revoke co-host from'
+                                  : 'Grant co-host to'
+                              } ${userDisplayName(displayProfile)}`}
+                            >
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={ButtonVariant.Tertiary}
+                                icon={
+                                  isCoHost ? (
+                                    <ShieldCheckActionIcon />
+                                  ) : (
+                                    <ShieldActionIcon />
+                                  )
+                                }
+                                loading={
+                                  moderationBusy ===
+                                  `${
+                                    isCoHost ? 'revoke' : 'grant'
+                                  }-cohost-${participantId}`
+                                }
+                                disabled={!!moderationBusy}
+                                aria-label={`${
+                                  isCoHost
+                                    ? 'Revoke co-host from'
+                                    : 'Grant co-host to'
+                                } ${userDisplayName(displayProfile)}`}
+                                onClick={() =>
+                                  guardedModerationAction(
+                                    `${
+                                      isCoHost ? 'revoke' : 'grant'
+                                    }-cohost-${participantId}`,
+                                    () =>
+                                      isCoHost
+                                        ? revokeCoHost(participantId)
+                                        : grantCoHost(participantId),
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : null}
+                          {canModerate ? (
+                            <Tooltip
+                              content={`Kick ${userDisplayName(
+                                displayProfile,
+                              )} from room`}
+                            >
+                              <Button
+                                type="button"
+                                size={ButtonSize.XSmall}
+                                variant={ButtonVariant.Tertiary}
+                                icon={<BlockIcon />}
+                                loading={
+                                  moderationBusy === `kick-${participantId}`
+                                }
+                                disabled={!!moderationBusy}
+                                aria-label={`Kick ${userDisplayName(
+                                  displayProfile,
+                                )}`}
+                                onClick={() =>
+                                  guardedModerationAction(
+                                    `kick-${participantId}`,
+                                    () => kickParticipant(participantId),
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          ) : null}
                         </div>
                       ) : null
                     }

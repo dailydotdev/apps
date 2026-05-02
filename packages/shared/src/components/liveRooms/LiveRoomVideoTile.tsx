@@ -25,10 +25,15 @@ interface LiveRoomVideoTileProps {
   // When true, only video is shown (audio not rendered to avoid feedback for own preview).
   selfView?: boolean;
   isHost?: boolean;
+  isCoHost?: boolean;
   isMuted?: boolean;
   className?: string;
+  onGrantCoHost?: () => void;
+  onRevokeCoHost?: () => void;
   onRemoveSpeaker?: () => void;
   onKick?: () => void;
+  isGrantingCoHost?: boolean;
+  isRevokingCoHost?: boolean;
   isRemoving?: boolean;
   isKicking?: boolean;
   moderationDisabled?: boolean;
@@ -51,10 +56,15 @@ export const LiveRoomVideoTile = ({
   user,
   selfView = false,
   isHost = false,
+  isCoHost = false,
   isMuted = false,
   className,
+  onGrantCoHost,
+  onRevokeCoHost,
   onRemoveSpeaker,
   onKick,
+  isGrantingCoHost = false,
+  isRevokingCoHost = false,
   isRemoving = false,
   isKicking = false,
   moderationDisabled = false,
@@ -208,6 +218,15 @@ export const LiveRoomVideoTile = ({
               Host
             </Typography>
           ) : null}
+          {isCoHost ? (
+            <Typography
+              type={TypographyType.Caption2}
+              bold
+              className="shrink-0 uppercase tracking-wide !text-accent-water-bolder"
+            >
+              Co-host
+            </Typography>
+          ) : null}
           {isMuted ? (
             <VolumeOffIcon
               size={IconSize.XSmall}
@@ -224,8 +243,12 @@ export const LiveRoomVideoTile = ({
           )}
           <LiveRoomTileActions
             user={user}
+            onGrantCoHost={onGrantCoHost}
+            onRevokeCoHost={onRevokeCoHost}
             onRemoveSpeaker={onRemoveSpeaker}
             onKick={onKick}
+            isGrantingCoHost={isGrantingCoHost}
+            isRevokingCoHost={isRevokingCoHost}
             isRemoving={isRemoving}
             isKicking={isKicking}
             moderationDisabled={moderationDisabled}

@@ -29,6 +29,7 @@ import {
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
 import { buildStandupAnalyticsExtra } from '../lib/liveRoom/analytics';
+import { getLiveRoomPrivilegeState } from '../lib/liveRoom/privileges';
 import { LogEvent } from '../lib/log';
 import {
   clearStoredLiveRoomResumeSession,
@@ -130,6 +131,8 @@ export interface LiveRoomContextValue {
   sendReaction: (emoji: string) => Promise<void>;
   sendChatMessage: (body: string) => Promise<void>;
   deleteChatMessage: (messageId: string) => Promise<void>;
+  grantCoHost: (targetParticipantId: string) => Promise<void>;
+  revokeCoHost: (targetParticipantId: string) => Promise<void>;
   setParticipantChatEnabled: (
     targetParticipantId: string,
     canChat: boolean,
@@ -416,6 +419,11 @@ export const LiveRoomProvider = ({
   const mediaRebuildQueuedRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
+  const privilegeState = getLiveRoomPrivilegeState(
+    roomState,
+    participantId,
+    currentRole,
+  );
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
   const canChat =
     !!user &&
@@ -432,10 +440,8 @@ export const LiveRoomProvider = ({
           roomStatus: roomState?.status ?? null,
           roomMode: roomState?.mode ?? null,
           connectionStatus: status,
-          canPublish,
           participantId,
-          selectedMicId,
-          selectedCameraId,
+          isCoHost: privilegeState.isCoHost,
           hasLocalAudioTrack: !!localTracksRef.current.audio,
           hasLocalVideoTrack: !!localTracksRef.current.video,
           videoQuality: videoSettings.quality,
@@ -452,10 +458,8 @@ export const LiveRoomProvider = ({
       roomState?.status,
       roomState?.mode,
       status,
-      canPublish,
       participantId,
-      selectedMicId,
-      selectedCameraId,
+      privilegeState.isCoHost,
       videoSettings.quality,
       videoSettings.audioOnly,
       videoSettings.hideSelfView,
@@ -479,6 +483,22 @@ export const LiveRoomProvider = ({
     },
     [buildStandupExtra, logEvent],
   );
+  const logStandupErrorRef = useRef(logStandupError);
+  const sendTransportReadyRef = useRef(sendTransportReady);
+  const recvTransportReadyRef = useRef(recvTransportReady);
+
+  useEffect(() => {
+    logStandupErrorRef.current = logStandupError;
+  }, [logStandupError]);
+
+  useEffect(() => {
+    sendTransportReadyRef.current = sendTransportReady;
+  }, [sendTransportReady]);
+
+  useEffect(() => {
+    recvTransportReadyRef.current = recvTransportReady;
+  }, [recvTransportReady]);
+
   const sendConnectionCommand = useCallback(
     async <T,>(
       operation: string,
@@ -488,7 +508,7 @@ export const LiveRoomProvider = ({
       const connection = connectionRef.current;
       if (!connection) {
         const error = new Error('Not connected');
-        logStandupError('websocket command', error.message, {
+        logStandupErrorRef.current('websocket command', error.message, {
           source: 'command',
           operation,
           ...extra,
@@ -500,7 +520,7 @@ export const LiveRoomProvider = ({
         return await connection.send<T>(payload);
       } catch (error) {
         const message = getErrorMessage(error, `Failed to ${operation}`);
-        logStandupError('websocket command', message, {
+        logStandupErrorRef.current('websocket command', message, {
           source: 'command',
           operation,
           ...extra,
@@ -508,7 +528,7 @@ export const LiveRoomProvider = ({
         throw error instanceof Error ? error : new Error(message);
       }
     },
-    [logStandupError],
+    [],
   );
 
   const pushReaction = useCallback((event: ReactionSentEvent) => {
@@ -768,11 +788,11 @@ export const LiveRoomProvider = ({
     if (joinError) {
       setStatus('error');
       setErrorMessage(joinError.message);
-      logStandupError('join token fetch', joinError.message, {
+      logStandupErrorRef.current('join token fetch', joinError.message, {
         source: 'join_token',
       });
     }
-  }, [joinError, logStandupError]);
+  }, [joinError]);
 
   useEffect(() => {
     setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
@@ -816,13 +836,13 @@ export const LiveRoomProvider = ({
         return nextMics[0]?.deviceId ?? null;
       });
     } catch (error) {
-      logStandupError(
+      logStandupErrorRef.current(
         'device enumerate',
         getErrorMessage(error, 'Failed to enumerate devices'),
         { source: 'device_list' },
       );
     }
-  }, [logStandupError]);
+  }, []);
 
   // Enumerate devices on mount and when device list changes (plug/unplug).
   useEffect(() => {
@@ -886,7 +906,7 @@ export const LiveRoomProvider = ({
     if (!wsUrl) {
       setStatus('error');
       setErrorMessage('Standup websocket URL is not configured');
-      logStandupError(
+      logStandupErrorRef.current(
         'websocket config',
         'Standup websocket URL is not configured',
         { source: 'connection_config' },
@@ -954,7 +974,7 @@ export const LiveRoomProvider = ({
       }
       setStatus('error');
       setErrorMessage(error.message);
-      logStandupError('websocket error', error.message, {
+      logStandupErrorRef.current('websocket error', error.message, {
         source: 'connection',
       });
     });
@@ -975,7 +995,6 @@ export const LiveRoomProvider = ({
     };
   }, [
     joinToken,
-    logStandupError,
     pushChatMessage,
     pushReaction,
     removeChatMessage,
@@ -1041,6 +1060,13 @@ export const LiveRoomProvider = ({
     }
     const connection = connectionRef.current;
     if (!connection) {
+      return undefined;
+    }
+    if (
+      deviceRef.current ||
+      recvTransportRef.current ||
+      sendTransportRef.current
+    ) {
       return undefined;
     }
 
@@ -1143,11 +1169,11 @@ export const LiveRoomProvider = ({
       ) {
         return;
       }
-      logStandupError('media init', err.message, {
+      logStandupErrorRef.current('media init', err.message, {
         source: 'media_init',
         connectionGeneration,
-        recvTransportReady,
-        sendTransportReady,
+        recvTransportReady: recvTransportReadyRef.current,
+        sendTransportReady: sendTransportReadyRef.current,
       });
       setStatus('error');
       setErrorMessage(err.message);
@@ -1162,9 +1188,6 @@ export const LiveRoomProvider = ({
     canPublish,
     closeMediaSession,
     connectionGeneration,
-    logStandupError,
-    recvTransportReady,
-    sendTransportReady,
     status,
   ]);
 
@@ -1300,7 +1323,7 @@ export const LiveRoomProvider = ({
           closeConsumer?.();
           subscriptionsRef.current.delete(publication.publicationId);
           const message = getErrorMessage(err, 'Failed to subscribe to media');
-          logStandupError('media subscribe', message, {
+          logStandupErrorRef.current('media subscribe', message, {
             source: 'subscription_create',
             kind: publication.kind,
             publicationId: publication.publicationId,
@@ -1310,7 +1333,7 @@ export const LiveRoomProvider = ({
         }
       })();
     });
-  }, [logStandupError, roomState, participantId, recvTransportReady]);
+  }, [roomState, participantId, recvTransportReady]);
 
   useEffect(() => {
     const syncRemoteVideoSubscriptions = async () => {
@@ -1339,13 +1362,12 @@ export const LiveRoomProvider = ({
         err,
         'Failed to update remote video subscriptions',
       );
-      logStandupError('media settings sync', message, {
+      logStandupErrorRef.current('media settings sync', message, {
         source: 'remote_video_subscriptions',
       });
       setErrorMessage(message);
     });
   }, [
-    logStandupError,
     recvTransportReady,
     setRemoteSubscriptionPaused,
     setRemoteSubscriptionPreferredSpatialLayer,
@@ -1361,13 +1383,12 @@ export const LiveRoomProvider = ({
         err,
         'Failed to update remote video quality',
       );
-      logStandupError('media settings sync', message, {
+      logStandupErrorRef.current('media settings sync', message, {
         source: 'remote_video_quality',
       });
       setErrorMessage(message);
     });
   }, [
-    logStandupError,
     recvTransportReady,
     setRecvTransportOutgoingBitrateLimit,
     videoSettings.quality,
@@ -1412,14 +1433,14 @@ export const LiveRoomProvider = ({
         });
       } catch (err) {
         const message = getErrorMessage(err, `Failed to publish ${kind}`);
-        logStandupError(`media publish ${kind}`, message, {
+        logStandupErrorRef.current(`media publish ${kind}`, message, {
           source: 'publish_local_track',
           kind,
         });
         setErrorMessage(message);
       }
     },
-    [logStandupError, setPublishingFlag],
+    [setPublishingFlag],
   );
 
   const unpublishKind = useCallback(
@@ -1497,7 +1518,7 @@ export const LiveRoomProvider = ({
               err,
               `Failed to update ${kind} track`,
             );
-            logStandupError(`media replace ${kind}`, message, {
+            logStandupErrorRef.current(`media replace ${kind}`, message, {
               source: 'capture_replace',
               kind,
               requestedDeviceId: deviceId,
@@ -1537,7 +1558,7 @@ export const LiveRoomProvider = ({
         }
       } catch (error) {
         const message = getErrorMessage(error, `Failed to capture ${kind}`);
-        logStandupError(`media capture ${kind}`, message, {
+        logStandupErrorRef.current(`media capture ${kind}`, message, {
           source: 'capture',
           kind,
           requestedDeviceId: deviceId,
@@ -1551,7 +1572,6 @@ export const LiveRoomProvider = ({
       publishLocalTrack,
       unpublishKind,
       canPublish,
-      logStandupError,
       roomState?.status,
       micSettings,
       micSettingSupport,
@@ -1727,6 +1747,34 @@ export const LiveRoomProvider = ({
     [sendConnectionCommand],
   );
 
+  const grantCoHost = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'grant co-host',
+        {
+          type: 'room.cohost.grant',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const revokeCoHost = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'revoke co-host',
+        {
+          type: 'room.cohost.revoke',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
   const promoteSpeaker = useCallback(
     async (targetParticipantId: string) => {
       await sendConnectionCommand(
@@ -1784,6 +1832,8 @@ export const LiveRoomProvider = ({
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      grantCoHost,
+      revokeCoHost,
       setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,
@@ -1826,6 +1876,8 @@ export const LiveRoomProvider = ({
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      grantCoHost,
+      revokeCoHost,
       setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,

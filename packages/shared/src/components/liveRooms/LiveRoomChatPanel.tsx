@@ -155,11 +155,12 @@ interface LiveRoomChatPanelProps {
   mentionSuggestions: UserShortProfile[];
   participantChatPermissions: Record<string, boolean>;
   hostParticipantId: string;
+  coHostParticipantIds: string[];
   canChat: boolean;
   isLive: boolean;
   isEnded: boolean;
   isLoggedIn: boolean;
-  isHost: boolean;
+  hasHostPrivileges: boolean;
   onSendMessage: (body: string) => Promise<void>;
   onDeleteMessage: (messageId: string) => Promise<void>;
   onKickParticipant: (participantId: string) => Promise<void>;
@@ -176,11 +177,12 @@ export const LiveRoomChatPanel = ({
   mentionSuggestions,
   participantChatPermissions,
   hostParticipantId,
+  coHostParticipantIds,
   canChat,
   isLive,
   isEnded,
   isLoggedIn,
-  isHost,
+  hasHostPrivileges,
   onSendMessage,
   onDeleteMessage,
   onKickParticipant,
@@ -261,8 +263,12 @@ export const LiveRoomChatPanel = ({
             const isSenderBlocked =
               (participantChatPermissions[message.participantId] ?? true) ===
               false;
+            const isSenderHost = message.participantId === hostParticipantId;
+            const isSenderCoHost =
+              !isSenderHost &&
+              coHostParticipantIds.includes(message.participantId);
             const canModerateParticipant =
-              isHost &&
+              hasHostPrivileges &&
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
 
@@ -277,6 +283,16 @@ export const LiveRoomChatPanel = ({
                     <span className="mr-2 inline font-bold">
                       {userDisplayName(sender)}
                     </span>
+                    {isSenderHost ? (
+                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
+                        Host
+                      </span>
+                    ) : null}
+                    {isSenderCoHost ? (
+                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
+                        Co-host
+                      </span>
+                    ) : null}
                     <Markdown
                       className="inline !text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_code]:rounded-[0.375rem] [&_code]:bg-surface-hover [&_code]:px-1 [&_code]:py-0.5 [&_p]:inline [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.5]"
                       content={chatMarkdownToHtml(message.body, {
@@ -285,7 +301,7 @@ export const LiveRoomChatPanel = ({
                     />
                   </div>
                 </div>
-                {isHost ? (
+                {hasHostPrivileges ? (
                   <div
                     className={classNames(
                       'ml-2 shrink-0 pt-0.5 transition-opacity',

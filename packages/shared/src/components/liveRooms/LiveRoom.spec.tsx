@@ -10,6 +10,7 @@ import { LiveRoom } from './LiveRoom';
 
 const mockPush = jest.fn();
 const mockDisplayToast = jest.fn();
+const mockLogEvent = jest.fn();
 const mockUseLiveRoomConnection = jest.fn<LiveRoomContextValue, []>();
 const mockUseLiveRoomQuery = jest.fn();
 const mockUseAuthContext = jest.fn();
@@ -39,6 +40,10 @@ jest.mock('../../hooks/liveRooms/useLiveRoom', () => ({
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
+}));
+
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
 jest.mock('../../hooks/liveRooms/useLiveRoomParticipantStreams', () => ({
@@ -128,6 +133,7 @@ const createContextValue = (
         updatedAt: '2026-04-27T09:03:00.000Z',
       },
     },
+    coHostParticipantIds: [],
     chatPermissions: {},
     sessions: {},
     stage: {
@@ -149,6 +155,8 @@ const createContextValue = (
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+  grantCoHost: jest.fn(),
+  revokeCoHost: jest.fn(),
   setParticipantChatEnabled: jest.fn(),
   promoteSpeaker: jest.fn(),
   removeSpeaker: jest.fn(),
@@ -293,6 +301,24 @@ describe('LiveRoom', () => {
 
     await waitFor(() => {
       expect(removeSpeaker).toHaveBeenCalledWith('speaker1');
+    });
+  });
+
+  it('lets the original host grant co-host from the queue panel', async () => {
+    const grantCoHost = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({ grantCoHost }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Queue/ }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Grant co-host to @queued1' }),
+    );
+
+    await waitFor(() => {
+      expect(grantCoHost).toHaveBeenCalledWith('queued1');
     });
   });
 
@@ -488,6 +514,39 @@ describe('LiveRoom', () => {
     ).toBeInTheDocument();
   });
 
+  it('lets a co-host access host-only chat moderation controls', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'queued1',
+        roomState: {
+          ...createContextValue().roomState!,
+          coHostParticipantIds: ['queued1'],
+        },
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(
+      screen.getByRole('button', { name: /Delete message/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Kick user/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Revoke chat access/i }),
+    ).toBeInTheDocument();
+  });
+
   it('paginates stage tiles after the first 12 visible speakers', () => {
     const activeSpeakerParticipantIds = Array.from(
       { length: 12 },
@@ -532,5 +591,41 @@ describe('LiveRoom', () => {
 
     expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
+  });
+
+  it('logs a room query error only once for the same failure', () => {
+    let contextValue = createContextValue({ selectedMicId: 'mic-1' });
+
+    mockUseLiveRoomConnection.mockImplementation(() => contextValue);
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: undefined,
+      error: new Error('Room fetch failed'),
+      isLoading: false,
+    });
+
+    const queryClient = new QueryClient();
+    const { rerender } = render(
+      <QueryClientProvider client={queryClient}>
+        <LiveRoom roomId="room-1" />
+      </QueryClientProvider>,
+    );
+
+    expect(mockLogEvent).toHaveBeenCalledTimes(1);
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'standup error',
+        target_id: 'room query',
+      }),
+    );
+
+    contextValue = createContextValue({ selectedMicId: 'mic-2' });
+
+    rerender(
+      <QueryClientProvider client={queryClient}>
+        <LiveRoom roomId="room-1" />
+      </QueryClientProvider>,
+    );
+
+    expect(mockLogEvent).toHaveBeenCalledTimes(1);
   });
 });
