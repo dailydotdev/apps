@@ -272,6 +272,8 @@ export enum LogEvent {
   SendStandupChatMessage = 'send standup chat message',
   DeleteStandupChatMessage = 'delete standup chat message',
   UpdateStandupChatAccess = 'update standup chat access',
+  GrantStandupCoHost = 'grant standup co-host',
+  RevokeStandupCoHost = 'revoke standup co-host',
   PromoteStandupSpeaker = 'promote standup speaker',
   RemoveStandupSpeaker = 'remove standup speaker',
   KickStandupParticipant = 'kick standup participant',

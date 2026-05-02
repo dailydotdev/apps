@@ -50,6 +50,7 @@ export interface LiveRoomState {
   status: LiveRoomStatusValue;
   version: number;
   participants: Record<string, LiveRoomParticipantRecord>;
+  coHostParticipantIds: string[];
   chatPermissions: Record<string, boolean>;
   sessions: Record<string, LiveRoomSessionRecord>;
   stage: LiveRoomStageState;
@@ -161,6 +162,8 @@ export type LiveRoomCommand =
   | { type: 'connection.ping' }
   | { type: 'room.start' }
   | { type: 'room.end' }
+  | { type: 'room.cohost.grant'; targetParticipantId: string }
+  | { type: 'room.cohost.revoke'; targetParticipantId: string }
   | { type: 'chat.message.send'; body: string }
   | { type: 'chat.message.delete'; messageId: string }
   | {

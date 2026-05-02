@@ -22,6 +22,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent } from '../../lib/log';
 import { Modal } from '../modals/common/Modal';
 import {
@@ -86,6 +87,11 @@ export const LiveRoomControls = ({
   const [busyKeys, setBusyKeys] = useState<string[]>([]);
   const [reactionsOpen, setReactionsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const privilegeState = getLiveRoomPrivilegeState(
+    roomState,
+    participantId,
+    role,
+  );
 
   const localAudioTrack = localStream?.getAudioTracks()[0] ?? null;
   const localAudioStream = useMemo(
@@ -101,10 +107,8 @@ export const LiveRoomControls = ({
         roomStatus: roomState?.status ?? null,
         roomMode: roomState?.mode ?? null,
         connectionStatus: status,
-        canPublish,
         participantId,
-        selectedMicId,
-        selectedCameraId,
+        isCoHost: privilegeState.isCoHost,
         hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
         hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
         videoQuality: videoSettings.quality,
@@ -191,7 +195,6 @@ export const LiveRoomControls = ({
       );
   };
 
-  const isHost = role === 'host';
   const isAudience = role === 'audience';
   const isSpeaker = role === 'speaker';
   const isModerated = roomState?.mode === 'moderated';
@@ -213,7 +216,8 @@ export const LiveRoomControls = ({
     isFreeForAll && isAudience && roomState?.status === 'live' && !isStageFull;
   const canLeaveStage =
     isFreeForAll && isSpeaker && roomState?.status === 'live';
-  const showGoLive = isHost && roomState?.status === 'created';
+  const showGoLive =
+    privilegeState.hasHostPrivileges && roomState?.status === 'created';
 
   const previewSuffix = (active: boolean, publishing: boolean): string =>
     active && !publishing ? ' (preview)' : '';
@@ -548,7 +552,7 @@ export const LiveRoomControls = ({
                 Go live
               </Button>
             ) : null}
-            {isHost ? (
+            {privilegeState.hasHostPrivileges ? (
               <Button
                 type="button"
                 size={ButtonSize.Small}

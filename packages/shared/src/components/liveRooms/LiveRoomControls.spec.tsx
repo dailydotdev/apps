@@ -132,6 +132,7 @@ const createContextValue = (
         updatedAt: '2026-04-27T09:01:00.000Z',
       },
     },
+    coHostParticipantIds: [],
     chatPermissions: {},
     sessions: {},
     stage: {
@@ -153,6 +154,8 @@ const createContextValue = (
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+  grantCoHost: jest.fn(),
+  revokeCoHost: jest.fn(),
   setParticipantChatEnabled: jest.fn(),
   promoteSpeaker: jest.fn(),
   removeSpeaker: jest.fn(),
@@ -499,6 +502,46 @@ describe('LiveRoomControls', () => {
     expect(
       screen.queryByRole('button', { name: 'Join queue' }),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows host-only room controls for a co-host audience participant', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        roomState: {
+          ...createRoomState(),
+          coHostParticipantIds: ['audience'],
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(
+      screen.getByRole('button', { name: 'End standup' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Leave' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('lets a co-host start a room before it goes live', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        roomState: {
+          ...createRoomState(),
+          status: 'created',
+          coHostParticipantIds: ['audience'],
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    expect(screen.getByRole('button', { name: 'Go live' })).toBeInTheDocument();
   });
 
   it('shows media controls when the current participant becomes a speaker', () => {
