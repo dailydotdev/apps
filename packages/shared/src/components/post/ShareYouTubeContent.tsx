@@ -45,7 +45,10 @@ function ShareYouTubeContent({
       !!selection && selection.anchorOffset !== selection.focusOffset;
     if (hasSelection) {
       e.preventDefault();
+      return;
     }
+    e.stopPropagation();
+    onReadArticle();
   };
 
   return (
@@ -78,10 +81,7 @@ function ShareYouTubeContent({
             <h3 className="break-words font-bold typo-title3 tablet:typo-title2">
               {sharedPost.title}
             </h3>
-            <SharedPostMetaInfo
-              sharedPost={sharedPost}
-              readTimeUnit="watch"
-            />
+            <SharedPostMetaInfo sharedPost={sharedPost} readTimeUnit="watch" />
             {!!sharedPost.summary && (
               <p
                 className="select-text break-words text-text-secondary typo-markdown"

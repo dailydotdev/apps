@@ -51,8 +51,6 @@ export function PostHeaderActions({
   const { target: readTarget } = getPostReadTarget(post);
   const readHref = readTarget?.permalink ?? post.permalink;
   const isArticle = post?.type === PostType.Article;
-  // For Share posts, the whole shared-link card is the primary click target.
-  // Keep this button only when the fixed nav is active (user has scrolled past the card).
   const hideShareReadButton =
     post?.type === PostType.Share && !isFixedNavigation;
   const { value: isReaderModalEnabled } = useConditionalFeature({
