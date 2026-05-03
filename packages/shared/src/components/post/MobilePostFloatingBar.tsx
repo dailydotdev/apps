@@ -3,10 +3,13 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import {
   DiscussIcon as CommentIcon,
+  DiscussIconV2 as CommentIconV2,
   DownvoteIcon,
   LinkIcon,
   UpvoteIcon,
 } from '../icons';
+import { useFeature } from '../GrowthBookProvider';
+import { featureCommentFirstAction } from '../../lib/featureManagement';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -61,6 +64,8 @@ export function MobilePostFloatingBar({
   const { onClose, onShowPanel } = useBlockPostPanel(post);
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { toggleBookmark } = useBookmarkPost();
+  const isCommentFirst = useFeature(featureCommentFirstAction);
+  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   // Match the desktop `PostActions` copy flow: fetch the short URL imperatively
   // on click so anonymous users still get a usable (long) link instead of a no-op.
@@ -108,45 +113,67 @@ export function MobilePostFloatingBar({
     );
   }, [copyLink, getShortUrl, logEvent, origin, post]);
 
+  const upvoteButton = (
+    <QuaternaryButton
+      id="mobile-upvote-post-btn"
+      aria-label={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
+      pressed={isUpvoteActive}
+      onClick={onToggleUpvote}
+      icon={<UpvoteIcon secondary={isUpvoteActive} />}
+      variant={ButtonVariant.Tertiary}
+      color={ButtonColor.Avocado}
+      size={ButtonSize.Medium}
+    >
+      {upvoteCount > 0 && (
+        <InteractionCounter className={counterClasses} value={upvoteCount} />
+      )}
+    </QuaternaryButton>
+  );
+
+  const downvoteButton = (
+    <QuaternaryButton
+      id="mobile-downvote-post-btn"
+      aria-label={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
+      pressed={isDownvoteActive}
+      onClick={onToggleDownvote}
+      icon={<DownvoteIcon secondary={isDownvoteActive} />}
+      variant={ButtonVariant.Tertiary}
+      color={ButtonColor.Ketchup}
+      size={ButtonSize.Medium}
+    />
+  );
+
+  const commentButton = (
+    <QuaternaryButton
+      id="mobile-comment-post-btn"
+      aria-label="Comment"
+      pressed={post.commented}
+      onClick={() => onCommentClick(LogOrigin.PostCommentButton)}
+      icon={<CommentIconComponent secondary={post.commented} />}
+      size={ButtonSize.Medium}
+      className="btn-tertiary-blueCheese"
+    >
+      {commentCount > 0 && (
+        <InteractionCounter className={counterClasses} value={commentCount} />
+      )}
+    </QuaternaryButton>
+  );
+
   return (
     <div className={classNames(containerClasses, className)}>
-      <QuaternaryButton
-        id="mobile-upvote-post-btn"
-        aria-label={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
-        pressed={isUpvoteActive}
-        onClick={onToggleUpvote}
-        icon={<UpvoteIcon secondary={isUpvoteActive} />}
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Avocado}
-        size={ButtonSize.Medium}
-      >
-        {upvoteCount > 0 && (
-          <InteractionCounter className={counterClasses} value={upvoteCount} />
-        )}
-      </QuaternaryButton>
-      <QuaternaryButton
-        id="mobile-downvote-post-btn"
-        aria-label={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
-        pressed={isDownvoteActive}
-        onClick={onToggleDownvote}
-        icon={<DownvoteIcon secondary={isDownvoteActive} />}
-        variant={ButtonVariant.Tertiary}
-        color={ButtonColor.Ketchup}
-        size={ButtonSize.Medium}
-      />
-      <QuaternaryButton
-        id="mobile-comment-post-btn"
-        aria-label="Comment"
-        pressed={post.commented}
-        onClick={() => onCommentClick(LogOrigin.PostCommentButton)}
-        icon={<CommentIcon secondary={post.commented} />}
-        size={ButtonSize.Medium}
-        className="btn-tertiary-blueCheese"
-      >
-        {commentCount > 0 && (
-          <InteractionCounter className={counterClasses} value={commentCount} />
-        )}
-      </QuaternaryButton>
+      {isCommentFirst ? (
+        <>
+          {commentButton}
+          {upvoteButton}
+          {downvoteButton}
+        </>
+      ) : (
+        <>
+          {upvoteButton}
+          {downvoteButton}
+          {commentButton}
+        </>
+      )}
       <BookmarkButton
         post={post}
         iconSize={IconSize.Medium}

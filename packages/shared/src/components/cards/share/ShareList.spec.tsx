@@ -70,7 +70,7 @@ describe('ShareList', () => {
     );
 
     const previewText = await screen.findByText('Referenced tweet body');
-    const commentsButton = await screen.findByLabelText('Comment');
+    const commentsButton = await screen.findByLabelText('Reply');
 
     const position =
       // eslint-disable-next-line no-bitwise

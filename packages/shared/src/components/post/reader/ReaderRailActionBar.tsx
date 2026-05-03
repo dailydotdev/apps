@@ -5,11 +5,14 @@ import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import {
   DiscussIcon as CommentIcon,
+  DiscussIconV2 as CommentIconV2,
   DownvoteIcon,
   LinkIcon,
   MedalBadgeIcon,
   UpvoteIcon,
 } from '../../icons';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCommentFirstAction } from '../../../lib/featureManagement';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { BookmarkButton } from '../../buttons';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
@@ -45,9 +48,26 @@ export function ReaderRailActionBar({
     sendingUser: user,
     receivingUser: post.author as LoggedUser | undefined,
   });
+  const isCommentFirst = useFeature(featureCommentFirstAction);
+  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+
+  const commentButton = (
+    <Tooltip content="Reply">
+      <Button
+        id="reader-comment-btn"
+        type="button"
+        pressed={post.commented}
+        onClick={onCommentClick}
+        icon={<CommentIconComponent secondary={post.commented} />}
+        aria-label="Comment"
+        variant={ButtonVariant.Tertiary}
+        color={ButtonColor.BlueCheese}
+      />
+    </Tooltip>
+  );
 
   return (
     <div
@@ -58,6 +78,7 @@ export function ReaderRailActionBar({
       role="toolbar"
       aria-label="Post actions"
     >
+      {isCommentFirst && commentButton}
       <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
         <Button
           id="reader-upvote-btn"
@@ -93,18 +114,7 @@ export function ReaderRailActionBar({
           color={ButtonColor.Ketchup}
         />
       </Tooltip>
-      <Tooltip content="Comment">
-        <Button
-          id="reader-comment-btn"
-          type="button"
-          pressed={post.commented}
-          onClick={onCommentClick}
-          icon={<CommentIcon secondary={post.commented} />}
-          aria-label="Comment"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.BlueCheese}
-        />
-      </Tooltip>
+      {!isCommentFirst && commentButton}
       {canAward && (
         <ConditionalWrapper
           condition={post?.userState?.awarded ?? false}
