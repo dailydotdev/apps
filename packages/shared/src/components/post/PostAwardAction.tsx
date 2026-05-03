@@ -1,13 +1,12 @@
 import React from 'react';
-import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { QuaternaryButton } from '../buttons/QuaternaryButton';
+import { ButtonColor } from '../buttons/Button';
+import type { CardActionDensity } from '../buttons/CardAction';
+import { CardAction } from '../buttons/CardAction';
 import { IconSize, iconSizeToClassName } from '../Icon';
 import { MedalBadgeIcon } from '../icons';
-import InteractionCounter from '../InteractionCounter';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { Post } from '../../graphql/posts';
 import { Image } from '../image/Image';
@@ -17,10 +16,25 @@ import type { LoggedUser } from '../../lib/user';
 
 export interface PostAwardActionProps {
   post: Post;
+  /**
+   * Density passes through to `CardAction`. Default `compact` matches
+   * the feed-grid card width contract; overridable for surfaces where
+   * the bar is the comfortable 40 px row.
+   */
+  density?: CardActionDensity;
+  /**
+   * Optional fixed icon size for the featured-award `Image` thumbnail.
+   * Falls back to the density-derived default. Kept so feed cards can
+   * lock the medal at the same dimension as sibling icons.
+   */
   iconSize?: IconSize;
 }
 
-const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
+const PostAwardAction = ({
+  post,
+  density = 'compact',
+  iconSize,
+}: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = user?.id === post?.author?.id;
@@ -32,6 +46,7 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
   if (!canAward && !isSameUser) {
     return null;
   }
+
   const awardEntity = {
     id: post.id,
     receiver: post.author,
@@ -62,6 +77,21 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
     });
   };
 
+  // Featured-award thumbnail uses an explicit fixed size override
+  // (matches v1: 20 px square via `iconSizeToClassName[XSmall]`) so
+  // the medal asset doesn't get rescaled by the CardAction icon
+  // wrapper. Keeps parity with the previous QuaternaryButton behaviour.
+  const renderedIcon =
+    post.userState?.awarded && post.featuredAward?.award?.image ? (
+      <Image
+        src={post?.featuredAward?.award?.image}
+        alt={post?.featuredAward?.award?.name}
+        className={iconSizeToClassName[iconSize ?? IconSize.XSmall]}
+      />
+    ) : (
+      <MedalBadgeIcon size={iconSize} />
+    );
+
   return (
     <Tooltip
       content={
@@ -70,37 +100,24 @@ const PostAwardAction = ({ post, iconSize }: PostAwardActionProps) => {
           : 'Award this post'
       }
     >
-      <QuaternaryButton
+      <CardAction
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState?.awarded}
         onClick={openAwardModal}
-        size={ButtonSize.Small}
-        className="btn-tertiary-cabbage pointer-events-auto"
-        variant={ButtonVariant.Tertiary}
-        labelClassName="!pl-[1px]"
-        color={ButtonColor.Cabbage}
-        icon={
+        density={density}
+        icon={renderedIcon}
+        iconPressed={
           post.userState?.awarded && post.featuredAward?.award?.image ? (
-            <Image
-              src={post?.featuredAward?.award?.image}
-              alt={post?.featuredAward?.award?.name}
-              className={iconSizeToClassName[IconSize.XSmall]}
-            />
+            renderedIcon
           ) : (
             <MedalBadgeIcon secondary size={iconSize} />
           )
         }
-      >
-        {post?.numAwards > 0 && (
-          <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !post.numAwards && 'invisible',
-            )}
-            value={post.numAwards}
-          />
-        )}
-      </QuaternaryButton>
+        label="Award"
+        count={post?.numAwards}
+        color={ButtonColor.Cabbage}
+        buttonClassName="pointer-events-auto"
+      />
     </Tooltip>
   );
 };

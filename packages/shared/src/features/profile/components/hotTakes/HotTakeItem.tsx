@@ -8,15 +8,13 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
   ButtonColor,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
-import InteractionCounter from '../../../../components/InteractionCounter';
-import { IconSize } from '../../../../components/Icon';
-import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButton';
+import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
 interface HotTakeItemProps {
@@ -70,7 +68,7 @@ export function HotTakeItem({
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onEdit && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
@@ -79,7 +77,7 @@ export function HotTakeItem({
               />
             )}
             {onDelete && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<TrashIcon />}
@@ -94,28 +92,16 @@ export function HotTakeItem({
             content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}
             side="bottom"
           >
-            <QuaternaryButton
-              labelClassName="!pl-[1px]"
-              className="btn-tertiary-avocado"
+            <CardAction
+              density="compact"
               color={ButtonColor.Avocado}
               pressed={isUpvoteActive}
               onClick={() => onUpvoteClick(item)}
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={
-                <UpvoteIcon secondary={isUpvoteActive} size={IconSize.XSmall} />
-              }
-            >
-              {item.upvotes > 0 && (
-                <InteractionCounter
-                  className={classNames(
-                    'tabular-nums typo-footnote',
-                    !item.upvotes && 'invisible',
-                  )}
-                  value={item.upvotes}
-                />
-              )}
-            </QuaternaryButton>
+              icon={<UpvoteIcon />}
+              iconPressed={<UpvoteIcon secondary />}
+              label="Upvote"
+              count={item.upvotes}
+            />
           </Tooltip>
         )}
       </div>

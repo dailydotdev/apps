@@ -1,5 +1,5 @@
-import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import React from 'react';
+import type { HTMLAttributes, ReactElement, ReactNode, Ref } from 'react';
+import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 
 /**
@@ -70,15 +70,14 @@ export type CardActionBarProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
 };
 
-export function CardActionBar({
-  layout = 'default',
-  className,
-  children,
-  ...rest
-}: CardActionBarProps): ReactElement {
+function CardActionBarComponent(
+  { layout = 'default', className, children, ...rest }: CardActionBarProps,
+  ref?: Ref<HTMLDivElement>,
+): ReactElement {
   return (
     <div
       {...rest}
+      ref={ref}
       className={classNames(
         'flex items-center',
         layoutToClass[layout],
@@ -89,3 +88,5 @@ export function CardActionBar({
     </div>
   );
 }
+
+export const CardActionBar = forwardRef(CardActionBarComponent);

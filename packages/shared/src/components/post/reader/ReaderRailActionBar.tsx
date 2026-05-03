@@ -10,7 +10,9 @@ import {
   MedalBadgeIcon,
   UpvoteIcon,
 } from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/Button';
+import { CardAction } from '../../buttons/CardAction';
+import { CardActionBar } from '../../buttons/CardActionBar';
 import { BookmarkButton } from '../../buttons';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useVotePost } from '../../../hooks/vote/useVotePost';
@@ -48,38 +50,35 @@ export function ReaderRailActionBar({
 
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
+  const isAwarded = !!post?.userState?.awarded;
 
   return (
-    <div
-      className={classNames(
-        'flex w-full items-center justify-between',
-        className,
-      )}
+    <CardActionBar
+      layout="between"
+      className={className}
       role="toolbar"
       aria-label="Post actions"
     >
       <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'More like this'}>
-        <Button
+        <CardAction
           id="reader-upvote-btn"
-          type="button"
           pressed={isUpvoteActive}
           onClick={() => {
             toggleUpvote({ payload: post, origin: Origin.ReaderModal }).catch(
               () => {},
             );
           }}
-          icon={<UpvoteIcon secondary={isUpvoteActive} />}
-          aria-label="Upvote"
-          variant={ButtonVariant.Tertiary}
+          icon={<UpvoteIcon />}
+          iconPressed={<UpvoteIcon secondary />}
+          label={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           color={ButtonColor.Avocado}
         />
       </Tooltip>
       <Tooltip
         content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
       >
-        <Button
+        <CardAction
           id="reader-downvote-btn"
-          type="button"
           pressed={isDownvoteActive}
           onClick={() => {
             toggleDownvote({
@@ -87,27 +86,26 @@ export function ReaderRailActionBar({
               origin: Origin.ReaderModal,
             }).catch(() => {});
           }}
-          icon={<DownvoteIcon secondary={isDownvoteActive} />}
-          aria-label="Downvote"
-          variant={ButtonVariant.Tertiary}
+          icon={<DownvoteIcon />}
+          iconPressed={<DownvoteIcon secondary />}
+          label={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
           color={ButtonColor.Ketchup}
         />
       </Tooltip>
       <Tooltip content="Comment">
-        <Button
+        <CardAction
           id="reader-comment-btn"
-          type="button"
           pressed={post.commented}
           onClick={onCommentClick}
-          icon={<CommentIcon secondary={post.commented} />}
-          aria-label="Comment"
-          variant={ButtonVariant.Tertiary}
+          icon={<CommentIcon />}
+          iconPressed={<CommentIcon secondary />}
+          label="Comment"
           color={ButtonColor.BlueCheese}
         />
       </Tooltip>
       {canAward && (
         <ConditionalWrapper
-          condition={post?.userState?.awarded ?? false}
+          condition={isAwarded}
           wrapper={(children) => (
             <Tooltip content="You already awarded this post!">
               <div>{children}</div>
@@ -115,10 +113,9 @@ export function ReaderRailActionBar({
           )}
         >
           <Tooltip content="Award">
-            <Button
+            <CardAction
               id="reader-award-btn"
-              type="button"
-              pressed={post?.userState?.awarded}
+              pressed={isAwarded}
               onClick={() => {
                 if (!user) {
                   showLogin({ trigger: AuthTriggers.GiveAward });
@@ -140,42 +137,32 @@ export function ReaderRailActionBar({
                   },
                 });
               }}
-              icon={<MedalBadgeIcon secondary={!!post?.userState?.awarded} />}
-              aria-label="Award"
-              variant={ButtonVariant.Tertiary}
+              icon={<MedalBadgeIcon />}
+              iconPressed={<MedalBadgeIcon secondary />}
+              label="Award"
               color={ButtonColor.Cabbage}
-              className={classNames(
-                post?.userState?.awarded && 'pointer-events-none',
-              )}
+              buttonClassName={classNames(isAwarded && 'pointer-events-none')}
             />
           </Tooltip>
         </ConditionalWrapper>
       )}
       <BookmarkButton
         post={post}
-        buttonProps={{
-          id: 'reader-bookmark-btn',
-          type: 'button',
-          pressed: post.bookmarked,
-          onClick: () => {
-            toggleBookmark({ post, origin: Origin.ReaderModal }).catch(
-              () => {},
-            );
-          },
-          variant: ButtonVariant.Tertiary,
+        id="reader-bookmark-btn"
+        pressed={post.bookmarked}
+        onClick={() => {
+          toggleBookmark({ post, origin: Origin.ReaderModal }).catch(() => {});
         }}
       />
       <Tooltip content="Copy link">
-        <Button
+        <CardAction
           id="reader-copy-btn"
-          type="button"
           onClick={() => copyLink({ post })}
           icon={<LinkIcon />}
-          aria-label="Copy link"
-          variant={ButtonVariant.Tertiary}
+          label="Copy link"
           color={ButtonColor.Cabbage}
         />
       </Tooltip>
-    </div>
+    </CardActionBar>
   );
 }

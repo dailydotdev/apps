@@ -2,18 +2,17 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import InteractionCounter from '../../InteractionCounter';
-import { QuaternaryButton } from '../../buttons/QuaternaryButton';
+import { CardAction } from '../../buttons/CardAction';
+import { CardActionBar } from '../../buttons/CardActionBar';
 import {
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
-import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
@@ -38,24 +37,24 @@ export interface ActionButtonsProps {
   showAwardAction?: boolean;
 }
 
+// All three feed-card variants (grid, list, signal) ship at the
+// `compact` density per the CardAction width contract — the card
+// body lives inside the production 272-340 px clamp and 5+ actions
+// at the comfortable 40 px size overflow narrow grid cards.
+const FEED_CARD_DENSITY = 'compact';
+
 const variantConfig = {
   grid: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
     containerClassName: 'px-1 pb-1',
     showTagsPanel: false,
     useCommentLink: false,
   },
   list: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
     containerClassName: '',
     showTagsPanel: true,
     useCommentLink: true,
   },
   signal: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
     containerClassName: '',
     showTagsPanel: false,
     useCommentLink: true,
@@ -124,48 +123,33 @@ const ActionButtons = ({
       tooltip={{ content: 'Comment' }}
       href={post.commentsPermalink}
     >
-      <QuaternaryButton
-        labelClassName="!pl-0"
+      <CardAction
         id={`post-${post.id}-comment-btn`}
-        className="btn-tertiary-blueCheese pointer-events-auto"
-        color={ButtonColor.BlueCheese}
-        tag="a"
         href={post.commentsPermalink}
         pressed={post.commented}
-        variant={ButtonVariant.Tertiary}
-        size={config.buttonSize}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        density={FEED_CARD_DENSITY}
+        icon={<CommentIcon />}
+        iconPressed={<CommentIcon secondary />}
+        label="Comment"
+        count={commentCount}
+        color={ButtonColor.BlueCheese}
         onClick={() => onCommentClick?.(post)}
-      >
-        {commentCount > 0 && (
-          <InteractionCounter
-            className={classNames('tabular-nums', !commentCount && 'invisible')}
-            value={commentCount}
-          />
-        )}
-      </QuaternaryButton>
+        buttonClassName="pointer-events-auto"
+      />
     </LinkWithTooltip>
   ) : (
     <Tooltip content="Comments" side="bottom">
-      <QuaternaryButton
-        labelClassName="!pl-[1px]"
+      <CardAction
         id={`post-${post.id}-comment-btn`}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        density={FEED_CARD_DENSITY}
+        icon={<CommentIcon />}
+        iconPressed={<CommentIcon secondary />}
+        label="Comments"
+        count={commentCount}
         pressed={post.commented}
         onClick={() => onCommentClick?.(post)}
-        size={config.buttonSize}
-        className="btn-tertiary-blueCheese"
-      >
-        {commentCount > 0 && (
-          <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !commentCount && 'invisible',
-            )}
-            value={commentCount}
-          />
-        )}
-      </QuaternaryButton>
+        color={ButtonColor.BlueCheese}
+      />
     </Tooltip>
   );
 
@@ -177,97 +161,75 @@ const ActionButtons = ({
         className,
       )}
     >
-      <div className="flex flex-1 items-center justify-between">
+      <CardActionBar layout="feedCard">
         <Tooltip
           content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           side={variant === 'grid' ? 'bottom' : undefined}
         >
-          <QuaternaryButton
-            labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
-            className="btn-tertiary-avocado pointer-events-auto"
+          <CardAction
             id={`post-${post.id}-upvote-btn`}
+            density={FEED_CARD_DENSITY}
             color={ButtonColor.Avocado}
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
-            variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
-            icon={
-              <UpvoteButtonIcon
-                secondary={isUpvoteActive}
-                size={config.iconSize}
-                brandAnimation={brandAnimation}
-              />
+            icon={<UpvoteButtonIcon brandAnimation={brandAnimation} />}
+            iconPressed={
+              <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
             }
-          >
-            {upvoteCount > 0 && (
-              <InteractionCounter
-                className={classNames(
-                  'tabular-nums',
-                  variant === 'grid' && 'typo-footnote',
-                )}
-                value={upvoteCount}
-              />
-            )}
-          </QuaternaryButton>
+            label={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+            count={upvoteCount}
+            buttonClassName="pointer-events-auto"
+          />
         </Tooltip>
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
             side={variant === 'grid' ? 'bottom' : undefined}
           >
-            <QuaternaryButton
-              className="pointer-events-auto"
+            <CardAction
               id={`post-${post.id}-downvote-btn`}
+              density={FEED_CARD_DENSITY}
               color={ButtonColor.Ketchup}
-              icon={
-                <DownvoteIcon
-                  secondary={isDownvoteActive}
-                  size={config.iconSize}
-                />
-              }
+              icon={<DownvoteIcon />}
+              iconPressed={<DownvoteIcon secondary />}
+              label={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
-              variant={ButtonVariant.Tertiary}
-              size={config.buttonSize}
+              buttonClassName="pointer-events-auto"
             />
           </Tooltip>
         )}
         {commentButton}
         {showAwardAction && (
-          <PostAwardAction post={post} iconSize={config.iconSize} />
+          <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}
           post={post}
-          buttonProps={{
-            id: `post-${post.id}-bookmark-btn`,
-            onClick: onToggleBookmark,
-            size: config.buttonSize,
-            className: classNames(
-              'btn-tertiary-bun',
-              variant === 'list' && 'pointer-events-auto',
-            ),
-            ...(variant === 'list' && {
-              variant: ButtonVariant.Tertiary,
-            }),
-          }}
-          iconSize={config.iconSize}
+          density={FEED_CARD_DENSITY}
+          id={`post-${post.id}-bookmark-btn`}
+          onClick={onToggleBookmark}
+          buttonClassName={classNames(
+            variant === 'list' && 'pointer-events-auto',
+          )}
         />
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}
         >
-          <QuaternaryButton
+          <CardAction
             id="copy-post-btn"
-            size={config.buttonSize}
-            icon={<LinkIcon size={config.iconSize} />}
+            density={FEED_CARD_DENSITY}
+            icon={<LinkIcon />}
+            label="Copy link"
             onClick={onCopyLink}
-            variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
-            className={variant === 'list' ? 'pointer-events-auto' : undefined}
+            buttonClassName={classNames(
+              variant === 'list' && 'pointer-events-auto',
+            )}
           />
         </Tooltip>
-      </div>
+      </CardActionBar>
     </div>
   );
 

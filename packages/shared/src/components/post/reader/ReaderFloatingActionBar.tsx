@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import {
@@ -9,27 +8,20 @@ import {
   ShareIcon,
   UpvoteIcon,
 } from '../../icons';
-import { Button, ButtonVariant, ButtonColor } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/Button';
+import { CardAction } from '../../buttons/CardAction';
+import { CardActionBar } from '../../buttons/CardActionBar';
 import { BookmarkButton } from '../../buttons';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useVotePost } from '../../../hooks/vote/useVotePost';
 import { useSharePost } from '../../../hooks/useSharePost';
 import { Origin } from '../../../lib/log';
-import { largeNumberFormat } from '../../../lib/numberFormat';
 import { Tooltip } from '../../tooltip/Tooltip';
-import { IconSize } from '../../Icon';
 
 type ReaderFloatingActionBarProps = {
   post: Post;
   onCommentClick: () => void;
 };
-
-const FLOATING_ICON_SIZE = IconSize.XSmall;
-const countActionButtonClasses =
-  '!h-8 !min-w-0 !gap-1 !rounded-10 !px-2 !justify-center !font-normal';
-const iconActionButtonClasses =
-  '!h-8 !w-8 !min-w-8 !rounded-10 !p-0 !justify-center';
-const countClasses = 'text-text-tertiary typo-footnote tabular-nums';
 
 export function ReaderFloatingActionBar({
   post,
@@ -41,106 +33,89 @@ export function ReaderFloatingActionBar({
 
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
-  const upvotes = largeNumberFormat(post.numUpvotes ?? 0) ?? '0';
-  const comments = largeNumberFormat(post.numComments ?? 0) ?? '0';
+  const upvoteCount = post.numUpvotes ?? 0;
+  const commentCount = post.numComments ?? 0;
 
+  // Floating reader bar uses `density="compact"` so the chrome stays
+  // visually proportional to the small (32 px) icon ladder it shipped
+  // with under v1. The wrapper keeps the bar centered, blurred, and
+  // shadowed; CardActionBar `default` provides the gap-1 between
+  // children that v1 achieved with `gap-0.5`.
   return (
     <div
-      className="z-20 pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary bg-background-default p-0.5 shadow-3"
+      className="z-20 pointer-events-auto absolute bottom-4 left-1/2 -translate-x-1/2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-0.5 shadow-3"
       role="toolbar"
       aria-label="Post actions"
     >
-      <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-        <Button
-          type="button"
-          pressed={isUpvoteActive}
+      <CardActionBar layout="default">
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <CardAction
+            density="compact"
+            pressed={isUpvoteActive}
+            onClick={() => {
+              toggleUpvote({
+                payload: post,
+                origin: Origin.ReaderModal,
+              }).catch(() => {});
+            }}
+            icon={<UpvoteIcon />}
+            iconPressed={<UpvoteIcon secondary />}
+            label="Upvote"
+            count={upvoteCount}
+            color={ButtonColor.Avocado}
+          />
+        </Tooltip>
+        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
+          <CardAction
+            density="compact"
+            pressed={isDownvoteActive}
+            onClick={() => {
+              toggleDownvote({
+                payload: post,
+                origin: Origin.ReaderModal,
+              }).catch(() => {});
+            }}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            label="Downvote"
+            color={ButtonColor.Ketchup}
+          />
+        </Tooltip>
+        <Tooltip content="Comment">
+          <CardAction
+            density="compact"
+            pressed={post.commented}
+            onClick={onCommentClick}
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            label="Comment"
+            count={commentCount}
+            color={ButtonColor.BlueCheese}
+          />
+        </Tooltip>
+        <BookmarkButton
+          post={post}
+          density="compact"
+          pressed={post.bookmarked}
           onClick={() => {
-            toggleUpvote({ payload: post, origin: Origin.ReaderModal }).catch(
-              () => {},
-            );
-          }}
-          icon={
-            <UpvoteIcon secondary={isUpvoteActive} size={FLOATING_ICON_SIZE} />
-          }
-          aria-label="Upvote"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Avocado}
-          className={countActionButtonClasses}
-        >
-          <span className={countClasses}>{upvotes}</span>
-        </Button>
-      </Tooltip>
-      <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
-        <Button
-          type="button"
-          pressed={isDownvoteActive}
-          onClick={() => {
-            toggleDownvote({ payload: post, origin: Origin.ReaderModal }).catch(
-              () => {},
-            );
-          }}
-          icon={
-            <DownvoteIcon
-              secondary={isDownvoteActive}
-              size={FLOATING_ICON_SIZE}
-            />
-          }
-          aria-label="Downvote"
-          variant={ButtonVariant.Tertiary}
-          color={ButtonColor.Ketchup}
-          className={iconActionButtonClasses}
-        />
-      </Tooltip>
-      <Tooltip content="Comment">
-        <Button
-          type="button"
-          pressed={post.commented}
-          onClick={onCommentClick}
-          icon={
-            <CommentIcon secondary={post.commented} size={FLOATING_ICON_SIZE} />
-          }
-          aria-label="Comment"
-          variant={ButtonVariant.Tertiary}
-          className={classNames(
-            countActionButtonClasses,
-            'btn-tertiary-blueCheese',
-          )}
-        >
-          <span className={countClasses}>{comments}</span>
-        </Button>
-      </Tooltip>
-      <BookmarkButton
-        post={post}
-        iconSize={FLOATING_ICON_SIZE}
-        buttonProps={{
-          type: 'button',
-          pressed: post.bookmarked,
-          onClick: () => {
             toggleBookmark({ post, origin: Origin.ReaderModal }).catch(
               () => {},
             );
-          },
-          className: '!h-8 !w-8 !shrink-0',
-          buttonClassName: classNames(
-            iconActionButtonClasses,
-            'btn-tertiary-bun',
-          ),
-        }}
-      />
-      <Tooltip content="Share">
-        <Button
-          type="button"
-          onClick={() =>
-            openSharePost({
-              post,
-            })
-          }
-          icon={<ShareIcon size={FLOATING_ICON_SIZE} />}
-          aria-label="Share"
-          variant={ButtonVariant.Tertiary}
-          className={iconActionButtonClasses}
+          }}
         />
-      </Tooltip>
+        <Tooltip content="Share">
+          <CardAction
+            density="compact"
+            onClick={() =>
+              openSharePost({
+                post,
+              })
+            }
+            icon={<ShareIcon />}
+            label="Share"
+          />
+        </Tooltip>
+      </CardActionBar>
     </div>
   );
 }

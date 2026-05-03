@@ -1,17 +1,17 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-import type { QuaternaryButtonProps } from './QuaternaryButton';
-import { QuaternaryButton } from './QuaternaryButton';
+import type { CardActionDensity } from './CardAction';
+import { CardAction } from './CardAction';
 import { BookmarkIcon } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useBookmarkReminder } from '../../hooks/notifications';
-import { ButtonColor, ButtonIconPosition, ButtonVariant } from './Button';
+import type { ColorName } from '../../styles/colors';
+import { ColorName as ButtonColor } from '../../styles/colors';
 import type { TooltipProps } from '../tooltip/Tooltip';
 import { Tooltip } from '../tooltip/Tooltip';
-import type { IconSize } from '../Icon';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,29 +20,100 @@ import {
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
 
-interface BookmarkButtonProps {
-  buttonProps?: Omit<QuaternaryButtonProps<'button'>, 'icon'>;
-  contextMenuId?: string;
+/**
+ * `BookmarkButton` — engagement-bar bookmark affordance.
+ *
+ * Built on `CardAction` so it inherits the v2 engagement-bar contract
+ * (icon-to-button ratio, pressed-icon swap, density-aware sizing,
+ * counter slot inside the click target). When the post has an active
+ * reminder, the button becomes a `DropdownMenu` trigger that opens
+ * Edit reminder / Remove reminder / Remove bookmark — the reminder
+ * variant of the icon (`BookmarkReminderIcon`) replaces the default
+ * one so the surface communicates state at a glance.
+ */
+export interface BookmarkButtonProps {
   post: Post;
-  children?: ReactNode;
-  iconSize?: IconSize;
+  /**
+   * Density passes through to `CardAction`. Default `compact` matches
+   * the feed-grid card width contract; `comfortable` is for post-detail
+   * strip + sticky bottom bar.
+   */
+  density?: CardActionDensity;
+  /** Render the "Bookmark" label inline next to the icon. */
+  labelVisible?: boolean;
+  /** a11y label + inline label when `labelVisible`. */
+  label?: string;
+  /** Optional engagement counter (rare on bookmark, exposed for parity). */
+  count?: number | null;
+  /** Tertiary tint. Defaults to `Bun` (the bookmark color). */
+  color?: ColorName;
+  pressed?: boolean;
+  onClick?: MouseEventHandler<HTMLElement>;
+  className?: string;
+  buttonClassName?: string;
+  id?: string;
   tooltipSide?: TooltipProps['side'];
 }
 
 export function BookmarkButton({
-  buttonProps = {},
   post,
-  children,
-  iconSize,
+  density,
+  labelVisible,
+  label,
+  count,
+  color = ButtonColor.Bun,
+  pressed,
+  onClick,
+  className,
+  buttonClassName,
+  id,
   tooltipSide,
 }: BookmarkButtonProps): ReactElement {
+  const isBookmarked = pressed ?? post.bookmarked;
   const hasReminder = !!post.bookmark?.remindAt;
   const { openModal } = useLazyModal();
   const { onRemoveReminder } = useBookmarkReminder({ post });
-  const Icon = hasReminder ? BookmarkReminderIcon : BookmarkIcon;
-  const buttonIconPosition = children
-    ? ButtonIconPosition.Top
-    : ButtonIconPosition.Left;
+
+  const baseIcon = hasReminder ? <BookmarkReminderIcon /> : <BookmarkIcon />;
+  const pressedIcon = hasReminder ? (
+    <BookmarkReminderIcon secondary />
+  ) : (
+    <BookmarkIcon secondary />
+  );
+
+  // State-aware accessible name matches the v1 tooltip text contract,
+  // so screen readers + RTL `findByLabelText('Remove bookmark')` keep
+  // working without changing the aria surface area.
+  const resolvedLabel =
+    label ?? (isBookmarked ? 'Remove bookmark' : 'Bookmark');
+
+  const cardAction = (
+    <CardAction
+      id={id}
+      icon={baseIcon}
+      iconPressed={pressedIcon}
+      label={resolvedLabel}
+      count={count}
+      color={color}
+      pressed={isBookmarked}
+      density={density}
+      labelVisible={labelVisible}
+      className={className}
+      buttonClassName={buttonClassName}
+      onClick={onClick}
+    />
+  );
+
+  if (!hasReminder) {
+    return (
+      <Tooltip
+        content={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+        side={tooltipSide}
+      >
+        {cardAction}
+      </Tooltip>
+    );
+  }
 
   const dropdownOptions: MenuItemProps[] = [
     {
@@ -57,59 +128,35 @@ export function BookmarkButton({
     {
       label: 'Remove bookmark',
       action: (...args: unknown[]) =>
-        buttonProps.onClick?.(args[0] as React.MouseEvent<HTMLButtonElement>),
+        onClick?.(args[0] as React.MouseEvent<HTMLButtonElement>),
     },
   ];
 
-  if (hasReminder) {
-    const { onClick, ...buttonPropsWithoutOnClick } = buttonProps;
-
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          asChild
-          tooltip={{
-            content: post.bookmarked ? 'Remove bookmark' : 'Bookmark',
-          }}
-        >
-          <QuaternaryButton
-            color={ButtonColor.Bun}
-            variant={ButtonVariant.Tertiary}
-            {...buttonPropsWithoutOnClick}
-            type="button"
-            iconPosition={ButtonIconPosition.Left}
-            pressed={post.bookmarked}
-            icon={<Icon secondary={post.bookmarked} size={iconSize} />}
-          >
-            {children}
-          </QuaternaryButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuOptions options={dropdownOptions} />
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
-
   return (
-    <Tooltip
-      content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-      side={tooltipSide}
-    >
-      <QuaternaryButton
-        color={ButtonColor.Bun}
-        variant={ButtonVariant.Tertiary}
-        {...buttonProps}
-        type="button"
-        pressed={post.bookmarked}
-        iconPosition={buttonIconPosition}
-        onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-          buttonProps.onClick?.(e)
-        }
-        icon={<Icon secondary={post.bookmarked} size={iconSize} />}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        asChild
+        tooltip={{
+          content: isBookmarked ? 'Remove bookmark' : 'Bookmark',
+        }}
       >
-        {children}
-      </QuaternaryButton>
-    </Tooltip>
+        <CardAction
+          id={id}
+          icon={baseIcon}
+          iconPressed={pressedIcon}
+          label={resolvedLabel}
+          count={count}
+          color={color}
+          pressed={isBookmarked}
+          density={density}
+          labelVisible={labelVisible}
+          className={className}
+          buttonClassName={buttonClassName}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={dropdownOptions} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
