@@ -1231,16 +1231,19 @@ export function SmartComposerModal({
 
   return (
     <Modal
-      kind={ModalKind.FlexibleCenter}
+      kind={ModalKind.FlexibleTop}
       size={isExpanded ? ModalSize.XLarge : ModalSize.Medium}
       onRequestClose={handleClose}
       isDrawerOnMobile={!isLaptop}
       shouldCloseOnOverlayClick={false}
+      overlayClassName={
+        isExpanded ? '!pt-0' : 'tablet:!pt-16 laptop:!pt-12'
+      }
       className={classNames(
         'flex flex-col',
         isExpanded
-          ? '!h-[100vh] !max-h-[100vh] !w-[100vw] !max-w-[100vw] !rounded-none'
-          : '!max-h-[90vh] !max-w-[48.75rem] tablet:w-[48.75rem]',
+          ? '!mb-0 !mt-0 !h-[100vh] !max-h-[100vh] !w-[100vw] !max-w-[100vw] !rounded-none'
+          : '!min-h-[36rem] !max-w-[48.75rem] tablet:w-[48.75rem] tablet:!max-h-[calc(100vh-6rem)] laptop:!max-h-[calc(100vh-5rem)]',
       )}
       {...props}
     >
