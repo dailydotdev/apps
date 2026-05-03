@@ -55,7 +55,7 @@ export function ReaderRailActionBar({
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
 
   const commentButton = (
-    <Tooltip content="Comment">
+    <Tooltip content="Reply">
       <Button
         id="reader-comment-btn"
         type="button"

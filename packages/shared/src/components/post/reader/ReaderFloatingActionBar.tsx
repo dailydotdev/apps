@@ -50,7 +50,7 @@ export function ReaderFloatingActionBar({
   const comments = largeNumberFormat(post.numComments ?? 0) ?? '0';
 
   const commentButton = (
-    <Tooltip content="Comment">
+    <Tooltip content="Reply">
       <Button
         type="button"
         pressed={post.commented}

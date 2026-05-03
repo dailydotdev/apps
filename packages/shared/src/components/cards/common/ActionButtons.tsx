@@ -126,7 +126,7 @@ const ActionButtons = ({
 
   const commentButton = config.useCommentLink ? (
     <LinkWithTooltip
-      tooltip={{ content: 'Comment' }}
+      tooltip={{ content: 'Reply' }}
       href={post.commentsPermalink}
     >
       <QuaternaryButton
@@ -156,7 +156,7 @@ const ActionButtons = ({
       </QuaternaryButton>
     </LinkWithTooltip>
   ) : (
-    <Tooltip content="Comments" side="bottom">
+    <Tooltip content="Reply" side="bottom">
       <QuaternaryButton
         labelClassName="!pl-[1px]"
         id={`post-${post.id}-comment-btn`}
