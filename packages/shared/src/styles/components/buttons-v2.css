@@ -267,10 +267,10 @@
  * its container, `usePostActionsLabelVisibility` adds `.hidden` to
  * the `.card-action-content` wrapper to shrink the button back to
  * icon-only. Without this rule, the button still ships its
- * label-mode chrome (`px-4` / `px-3`, `gap-2` / `gap-1.5`) and
- * renders as a rectangle with empty space on the right of the icon
- * (e.g. 64 × 40 instead of 40 × 40 for comfortable, 56 × 32 instead
- * of 32 × 32 for compact).
+ * label-mode chrome (`px-4` / `px-3`, `gap-1`) and renders as a
+ * rectangle with empty space on the right of the icon (e.g. 56 × 40
+ * instead of 40 × 40 for comfortable, 48 × 32 instead of 32 × 32 for
+ * compact).
  *
  * `:has()` lets us key off the live state of the child wrapper, so
  * the same DOM the hook already mutates also drives the geometry of

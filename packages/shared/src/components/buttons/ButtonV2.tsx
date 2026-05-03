@@ -70,25 +70,37 @@ const IconOnlySizeToClassNameV2: Record<ButtonSize, string> = {
 };
 
 /**
- * Icon-to-label spacing per size. Replaces the v1 negative-margin
- * trick (`-ml-2 mr-1`) that was hardcoded to negate `px-2` and gave
- * Medium / Large / XLarge visibly asymmetric internal padding.
+ * Icon-to-label spacing per size.
  *
- * Spacing scales with the button — same convention as Linear, Notion,
- * Vercel, ChatGPT, Claude. Roughly ¼–⅓ of the side padding so the
- * icon-text pair reads as a unit, not as two separate siblings:
+ * v2 first-pass scaled the gap with button size (gap-1 → gap-2.5)
+ * following Linear / Notion's "modern, breathable" convention. On
+ * migration this read as visibly looser than v1 across every size:
+ * v1's `mr-1` (4 px) on the icon — combined with the now-retired
+ * `-ml-2` negative-margin trick — produced an *effective* 4 px gap
+ * between icon and label regardless of size. v2's 6 – 10 px gaps on
+ * Small / Medium / Large / XLarge made every icon+label button read
+ * as wider than its v1 sibling, with the worst case (XLarge) ~22 px
+ * wider. Toolbars and header strips that pack 3-5 buttons in a row
+ * (header rail, MyFeedHeading, FeedSettings strip) felt visibly
+ * looser than the v1 surfaces all the call sites were tuned for.
  *
- *   XSmall  px-2  + gap-1     (8 + 4 px)   — chip-tight
- *   Small   px-3  + gap-1.5   (12 + 6 px)
- *   Medium  px-4  + gap-2     (16 + 8 px)  — Linear / Notion default
- *   Large   px-6  + gap-2     (24 + 8 px)
- *   XLarge  px-7  + gap-2.5   (28 + 10 px) — hero CTA
+ * Restoring v1's flat 4 px gap (`gap-1`) on the most-common sizes
+ * (Small / Medium / XSmall) and a single-step bump on the largest
+ * sizes (Large / XLarge) keeps icon+label buttons visually identical
+ * to v1 on every toolbar surface while preserving a touch of extra
+ * breathing room on hero / emphasis CTAs.
+ *
+ *   XSmall  gap-1   (4 px)  — matches v1
+ *   Small   gap-1   (4 px)  — matches v1
+ *   Medium  gap-1   (4 px)  — matches v1
+ *   Large   gap-1.5 (6 px)  — slight bump for emphasis CTA
+ *   XLarge  gap-2   (8 px)  — slight bump for hero CTA
  */
 const SizeToGapV2: Record<ButtonSize, string> = {
-  [ButtonSize.XLarge]: 'gap-2.5',
-  [ButtonSize.Large]: 'gap-2',
-  [ButtonSize.Medium]: 'gap-2',
-  [ButtonSize.Small]: 'gap-1.5',
+  [ButtonSize.XLarge]: 'gap-2',
+  [ButtonSize.Large]: 'gap-1.5',
+  [ButtonSize.Medium]: 'gap-1',
+  [ButtonSize.Small]: 'gap-1',
   [ButtonSize.XSmall]: 'gap-1',
 };
 
