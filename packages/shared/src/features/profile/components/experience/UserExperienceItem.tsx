@@ -22,10 +22,10 @@ import { formatDateRange } from '../../../../lib/dateFormat';
 import { locationToString } from '../../../../lib/utils';
 import { currentPill } from './common';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { EditIcon, JobIcon, OpenLinkIcon } from '../../../../components/icons';
 import Link from '../../../../components/utilities/Link';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
@@ -161,7 +161,7 @@ export function UserExperienceItem({
           )}
         >
           <Link href={editUrl} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}

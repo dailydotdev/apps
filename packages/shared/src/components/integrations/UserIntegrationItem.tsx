@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { getIconForIntegration } from '../../lib/integrations';
 import type { UserIntegration } from '../../graphql/integrations';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonSize } from '../buttons/common';
 import { IconSize } from '../Icon';
 import { MenuIcon, TrashIcon, ArrowIcon } from '../icons';
@@ -57,7 +57,7 @@ export const UserIntegrationItem = ({
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button icon={<MenuIcon />} size={ButtonSize.Small} />
+              <ButtonV2 icon={<MenuIcon />} size={ButtonSize.Small} />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuOptions
@@ -76,7 +76,7 @@ export const UserIntegrationItem = ({
               />
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
+          <ButtonV2
             icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
             size={ButtonSize.Small}
             onClick={() => {

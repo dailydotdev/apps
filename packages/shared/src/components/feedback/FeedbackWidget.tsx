@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { getDayOfYear } from 'date-fns';
-import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonVariant, ButtonSize } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
@@ -101,7 +101,7 @@ export function FeedbackWidget(): ReactElement | null {
   }
 
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Primary}
       size={ButtonSize.Medium}
       className="group fixed bottom-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
@@ -143,7 +143,7 @@ export function FeedbackWidget(): ReactElement | null {
           />
         ))}
       </span>
-    </Button>
+    </ButtonV2>
   );
 }
 

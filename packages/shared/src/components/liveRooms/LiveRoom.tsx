@@ -14,7 +14,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Loader } from '../Loader';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
@@ -669,13 +669,13 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         >
           {roomError?.message ?? 'This standup may no longer be available.'}
         </Typography>
-        <Button
+        <ButtonV2
           className="mt-2"
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('load_error')}
         >
           Back to standups
-        </Button>
+        </ButtonV2>
       </div>
     );
   }
@@ -696,13 +696,13 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             {errorMessage}
           </Typography>
         ) : null}
-        <Button
+        <ButtonV2
           className="mt-2"
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('connection_error')}
         >
           Back to standups
-        </Button>
+        </ButtonV2>
       </div>
     );
   }
@@ -758,7 +758,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               >
                 Page {clampedStagePage + 1} / {stagePageCount}
               </Typography>
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}
@@ -768,8 +768,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 }
               >
                 Prev
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}
@@ -781,7 +781,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 }
               >
                 Next
-              </Button>
+              </ButtonV2>
             </div>
           ) : null}
           {paginatedStageSpeakers.length > 0 ? (
@@ -908,12 +908,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 <Typography type={TypographyType.Title3} bold>
                   This standup has ended
                 </Typography>
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Primary}
                   onClick={() => handleNavigateBack('ended_state')}
                 >
                   Back to standups
-                </Button>
+                </ButtonV2>
               </div>
             </div>
           ) : null}

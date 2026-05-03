@@ -2,10 +2,10 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import { FlexRow } from '../../../components/utilities';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 
 export const StepNavigation = ({
   onBack,
@@ -24,15 +24,15 @@ export const StepNavigation = ({
 }): ReactElement => {
   return (
     <FlexRow className="justify-between">
-      <Button
+      <ButtonV2
         size={ButtonSize.Large}
         variant={ButtonVariant.Tertiary}
         className="hidden laptop:flex"
         onClick={onBack}
       >
         {backLabel}
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         size={ButtonSize.Large}
         variant={ButtonVariant.Primary}
         className="w-full laptop:w-auto"
@@ -41,7 +41,7 @@ export const StepNavigation = ({
         loading={nextLoading}
       >
         {nextLabel}
-      </Button>
+      </ButtonV2>
     </FlexRow>
   );
 };

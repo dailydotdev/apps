@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { ButtonVariant } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/ButtonV2';
 import Logo from '../../Logo';
 import { AuthTriggers } from '../../../lib/auth';
 import type { AuthProps } from '../../auth/common';

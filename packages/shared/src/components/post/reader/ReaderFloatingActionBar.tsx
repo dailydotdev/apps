@@ -8,7 +8,7 @@ import {
   ShareIcon,
   UpvoteIcon,
 } from '../../icons';
-import { ButtonColor } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
 import { CardActionBar } from '../../buttons/CardActionBar';
 import { BookmarkButton } from '../../buttons';

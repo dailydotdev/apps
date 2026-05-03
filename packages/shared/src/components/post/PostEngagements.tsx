@@ -26,7 +26,7 @@ import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { AdAsComment } from '../comments/AdAsComment';
 import { Typography, TypographyType } from '../typography/Typography';
-import { Button, ButtonIconPosition, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonIconPosition, ButtonSize } from '../buttons/ButtonV2';
 import { TimeSortIcon } from '../icons/Sort/Time';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
@@ -129,7 +129,7 @@ function PostEngagements({
       {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-3 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
-        <Button
+        <ButtonV2
           className="ml-1 !px-0"
           iconPosition={ButtonIconPosition.Right}
           size={ButtonSize.Small}
@@ -150,7 +150,7 @@ function PostEngagements({
           {sortBy === SortCommentsBy.NewestFirst
             ? 'Newest first'
             : 'Oldest first'}
-        </Button>
+        </ButtonV2>
       </span>
       <NewComment
         className={{ container: 'mt-3 hidden tablet:flex' }}

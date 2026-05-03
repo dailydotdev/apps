@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import type { ToastNotification } from '../../hooks';
 import { TOAST_NOTIF_KEY } from '../../hooks';
 import classed from '../../lib/classed';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import styles from './Toast.module.css';
 import { MiniCloseIcon as XIcon } from '../icons';
 import { isTouchDevice } from '../../lib/tooltip';
@@ -135,7 +135,7 @@ const Toast = ({
       <NotifContent>
         <NotifMessage>{toast.message}</NotifMessage>
         {toast.action && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.XSmall}
             aria-label={toast.action.copy}
@@ -147,9 +147,9 @@ const Toast = ({
             onClick={onAction}
           >
             {toast.action.copy}
-          </Button>
+          </ButtonV2>
         )}
-        <Button
+        <ButtonV2
           className="shrink-0"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}

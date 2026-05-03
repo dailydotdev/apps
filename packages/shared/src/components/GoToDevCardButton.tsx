@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { Tooltip } from './tooltip/Tooltip';
 
 export type GoToDevCardButtonProps = {
@@ -17,7 +17,7 @@ export default function GoToDevCardButton({
   return (
     <Tooltip content={isLocked && 'Sign up to Unlock'}>
       <div className={className}>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           tag="a"
           size={ButtonSize.Small}
@@ -25,7 +25,7 @@ export default function GoToDevCardButton({
           disabled={isLocked}
         >
           {children}
-        </Button>
+        </ButtonV2>
       </div>
     </Tooltip>
   );

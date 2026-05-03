@@ -11,7 +11,7 @@ import {
 } from '../typography/Typography';
 import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { PlusTitle } from './PlusTitle';
 import { PaymentContextProvider } from '../../contexts/payment';
 import { usePaymentContext } from '../../contexts/payment/context';
@@ -246,14 +246,14 @@ export function GiftPlusModalComponent({
           is a one-time purchase, not a recurring subscription.
         </Typography>
         <Link href={`${plusUrl}?gift=${selected?.id}`} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             disabled={!selected}
             variant={ButtonVariant.Primary}
             onClick={() => onSelected?.(selected)}
           >
             Gift & Pay {giftOneYear?.price.formatted}
-          </Button>
+          </ButtonV2>
         </Link>
       </Modal.Body>
     </Modal>

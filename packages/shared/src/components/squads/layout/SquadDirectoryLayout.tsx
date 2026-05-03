@@ -2,8 +2,8 @@ import type { ComponentProps, PropsWithChildren, ReactElement } from 'react';
 import React, { useEffect, useId } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { BaseFeedPage } from '../../utilities';
 import { useSquadNavigation } from '../../../hooks';
 import { Origin } from '../../../lib/log';
@@ -18,7 +18,7 @@ import { squadCategoriesPaths } from '../../../lib/constants';
 type SquadDirectoryLayoutProps = PropsWithChildren & ComponentProps<'section'>;
 
 const NewSquadButton = (
-  props: Pick<ButtonProps<'button'>, 'variant' | 'icon'>,
+  props: Pick<ButtonV2Props<'button'>, 'variant' | 'icon'>,
 ) => {
   const { openNewSquad } = useSquadNavigation();
   const { variant = ButtonVariant.Secondary, icon } = props;
@@ -28,7 +28,7 @@ const NewSquadButton = (
   };
 
   return (
-    <Button
+    <ButtonV2
       type="button"
       icon={icon}
       onClick={onNewSquadClick}
@@ -37,7 +37,7 @@ const NewSquadButton = (
       variant={variant}
     >
       New Squad
-    </Button>
+    </ButtonV2>
   );
 };
 

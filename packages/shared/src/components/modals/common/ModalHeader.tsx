@@ -6,8 +6,8 @@ import type { ModalTabsProps } from './ModalTabs';
 import { ModalTabs } from './ModalTabs';
 import { ModalClose } from './ModalClose';
 import { ModalHeaderKind, ModalPropsContext } from './types';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { ArrowIcon } from '../../icons';
 import { ModalStepsWrapper } from './ModalStepsWrapper';
 import { ProgressBar } from '../../fields/ProgressBar';
@@ -65,7 +65,7 @@ export function ModalHeader({
       )}
     >
       {shouldShowClose && (
-        <Button
+        <ButtonV2
           type="button"
           size={ButtonSize.Small}
           className="mr-2 flex -rotate-90 tablet:hidden"
@@ -106,7 +106,7 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
   return (
     <ModalHeaderOuter className="h-auto flex-col items-start gap-2 border-b border-border-subtlest-tertiary tablet:h-14 tablet:flex-row tablet:items-center">
       {onRequestClose && (
-        <Button
+        <ButtonV2
           type="button"
           size={ButtonSize.Small}
           className="flex -rotate-90 tablet:hidden"
@@ -120,8 +120,8 @@ export function ModalHeaderTabs(props: ModalTabsProps): ReactElement {
   );
 }
 
-const ModalHeaderStepsButton = (props: ButtonProps<'button'>) => (
-  <Button
+const ModalHeaderStepsButton = (props: ButtonV2Props<'button'>) => (
+  <ButtonV2
     icon={<ArrowIcon className="-rotate-90" />}
     className="-ml-2 mr-2"
     variant={ButtonVariant.Tertiary}

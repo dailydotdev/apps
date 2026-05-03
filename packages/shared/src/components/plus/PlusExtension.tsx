@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { plusUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
 import { useLogContext } from '../../contexts/LogContext';
@@ -53,7 +53,7 @@ const PlusExtension = (): ReactElement => {
           showGiftButton={false}
           showTrustReviews={false}
         />
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           tag="a"
           href={`${plusUrl}/payment?pid=${selectedOption}`}
@@ -62,7 +62,7 @@ const PlusExtension = (): ReactElement => {
           onClick={handleClick}
         >
           {experiment?.cta ?? flags?.ctaText}
-        </Button>
+        </ButtonV2>
       </div>
       <PlusListModalSection
         items={experiment?.features}

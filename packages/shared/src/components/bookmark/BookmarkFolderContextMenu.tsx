@@ -13,7 +13,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import type { MenuItemProps } from '../dropdown/common';
 
 interface BookmarkFolderContextMenuProps {
@@ -67,7 +67,7 @@ export const BookmarkFolderContextMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-        <Button
+        <ButtonV2
           className="ml-3"
           size={ButtonSize.Medium}
           variant={ButtonVariant.Secondary}

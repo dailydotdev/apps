@@ -9,7 +9,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { BlockIcon, MenuIcon, SquadIcon } from '../icons';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { PromptOptions } from '../../hooks/usePrompt';
@@ -114,7 +114,7 @@ function SquadMemberItemOptionsButton({
   if (role === SourceMemberRole.Blocked) {
     return (
       <Tooltip content="Unblock">
-        <Button
+        <ButtonV2
           className="my-auto ml-2"
           variant={ButtonVariant.Tertiary}
           icon={<BlockIcon />}
@@ -128,7 +128,7 @@ function SquadMemberItemOptionsButton({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild tooltip={{ content: 'Member options' }}>
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             className="z-1 m-auto ml-2 mr-0"

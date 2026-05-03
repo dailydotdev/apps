@@ -14,7 +14,7 @@ import {
   TwitterIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
-import { ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { useGetShortUrl } from '../../hooks';
 
 interface SocialShareListProps {

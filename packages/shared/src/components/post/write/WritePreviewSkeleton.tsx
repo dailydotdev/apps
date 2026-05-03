@@ -9,7 +9,7 @@ import {
   WritePreviewContainer,
   WritePreviewContent,
 } from './common';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface WritePreviewSkeletonProps {
   link: string;
@@ -42,7 +42,7 @@ export function WritePreviewSkeleton({
           </div>
         </div>
         <div className={previewImageClass} />
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           icon={<OpenLinkIcon />}
           disabled

@@ -12,7 +12,7 @@ import {
 } from './common';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
 import { isSocialTwitterPost, PostType } from '../../../graphql/posts';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import {
   Typography,
@@ -145,7 +145,7 @@ export function WriteLinkPreview({
                 />
               )}
               {!isMinimized && (
-                <Button
+                <ButtonV2
                   icon={<OpenLinkIcon />}
                   variant={ButtonVariant.Tertiary}
                   type="button"
@@ -208,7 +208,7 @@ export function WriteLinkPreview({
                   </div>
 
                   <Link href={`${webappUrl}posts/${post.id}`} passHref>
-                    <Button
+                    <ButtonV2
                       tag="a"
                       target="_blank"
                       className="ml-auto"
@@ -216,7 +216,7 @@ export function WriteLinkPreview({
                       size={ButtonSize.Small}
                     >
                       View post
-                    </Button>
+                    </ButtonV2>
                   </Link>
                 </div>
               );

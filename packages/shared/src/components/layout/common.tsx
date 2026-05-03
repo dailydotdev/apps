@@ -10,7 +10,7 @@ import { SharedFeedPage } from '../utilities';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import type { DropdownProps } from '../fields/Dropdown';
 import { Dropdown } from '../fields/Dropdown';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import {
   CalendarIcon,
@@ -127,7 +127,7 @@ export const SearchControlHeader = ({
     !hasDismissedInstallExtension;
   const installExtensionButton = shouldShowInstallExtensionPrompt && (
     <React.Fragment key="install-extension">
-      <Button
+      <ButtonV2
         key="install-extension"
         tag="a"
         href={downloadBrowserExtension}
@@ -145,8 +145,8 @@ export const SearchControlHeader = ({
         }
       >
         Get it for {isEdge ? 'Edge' : 'Chrome'}
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={<ClearIcon secondary />}

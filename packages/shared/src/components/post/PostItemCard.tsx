@@ -15,11 +15,11 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { isSourceUserSource } from '../../graphql/sources';
 
 import { ReadingHistoryOptionsMenu } from '../history/ReadingHistoryOptionsMenu';
@@ -137,7 +137,7 @@ export default function PostItemCard({
             <div className="ml-4 mt-1 flex tablet:ml-0 tablet:mt-1">
               {showButtons && showVoteActions && (
                 <>
-                  <Button
+                  <ButtonV2
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
                     color={ButtonColor.Avocado}
@@ -154,7 +154,7 @@ export default function PostItemCard({
                       />
                     }
                   />
-                  <Button
+                  <ButtonV2
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
                     color={ButtonColor.Ketchup}
@@ -177,7 +177,7 @@ export default function PostItemCard({
                 </>
               )}
               {showButtons && !showVoteActions && onHide && (
-                <Button
+                <ButtonV2
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
                   className="hidden laptop:flex"

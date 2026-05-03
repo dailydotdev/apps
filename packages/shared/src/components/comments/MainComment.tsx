@@ -25,7 +25,7 @@ import usePersistentContext from '../../hooks/usePersistentContext';
 import { SQUAD_COMMENT_JOIN_BANNER_KEY } from '../../graphql/squads';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -177,7 +177,7 @@ export default function MainComment({
             isModalThread={isModalThread}
             threadRepliesControl={
               showThreadRepliesToggle && (
-                <Button
+                <ButtonV2
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
                   iconSecondaryOnHover

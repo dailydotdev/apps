@@ -4,11 +4,11 @@ import type { ReactElement } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { MiniCloseIcon, VIcon } from '../../../components/icons';
 import { opportunityUrl } from '../../../lib/constants';
 import Link from '../../../components/utilities/Link';
@@ -59,7 +59,7 @@ export const ResponseButtons = ({
       {(status === OpportunityMatchStatus.Pending ||
         status === OpportunityMatchStatus.CandidateRejected) && (
         <Link href={`${opportunityUrl}/${id}/decline`} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             className={className?.buttons}
             size={size}
@@ -69,13 +69,13 @@ export const ResponseButtons = ({
             onClick={() => handleClick(LogEvent.RejectOpportunityMatch)}
           >
             Not for me
-          </Button>
+          </ButtonV2>
         </Link>
       )}
       {(status === OpportunityMatchStatus.Pending ||
         status === OpportunityMatchStatus.CandidateAccepted) && (
         <Link href={`${opportunityUrl}/${id}/questions`} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             className={classNames(className?.buttons, '!text-white')}
             size={size}
@@ -86,7 +86,7 @@ export const ResponseButtons = ({
             onClick={() => handleClick(LogEvent.ApproveOpportunityMatch)}
           >
             Interested
-          </Button>
+          </ButtonV2>
         </Link>
       )}
     </div>

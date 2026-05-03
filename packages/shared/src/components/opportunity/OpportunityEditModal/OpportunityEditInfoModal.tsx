@@ -17,7 +17,7 @@ import {
 } from '../../typography/Typography';
 import { Dropdown } from '../../fields/Dropdown';
 import Textarea from '../../fields/Textarea';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import { labels } from '../../../lib';
 import { opportunityEditInfoSchema } from '../../../lib/schema/opportunity';
@@ -152,15 +152,15 @@ export const OpportunityEditInfoModal = ({
         <Modal.Header className="flex justify-between" showCloseButton={false}>
           <Modal.Title className="typo-title3">Role description</Modal.Title>
           <div className="flex items-center gap-4">
-            <Button
+            <ButtonV2
               type="text"
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               onClick={onRequestClose}
             >
               Discard
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               type="submit"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
@@ -168,7 +168,7 @@ export const OpportunityEditInfoModal = ({
               loading={isSubmitting}
             >
               Save
-            </Button>
+            </ButtonV2>
           </div>
         </Modal.Header>
         <Modal.Body className="gap-6 p-4">

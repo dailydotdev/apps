@@ -5,7 +5,7 @@ import { PlusInfo } from './PlusInfo';
 import { PlusCheckoutContainer } from './PlusCheckoutContainer';
 import { MarketingCtaVariant } from '../marketingCta/common';
 import { useBoot } from '../../hooks';
-import { ButtonVariant, Button } from '../buttons/Button';
+import { ButtonVariant, ButtonV2 } from '../buttons/ButtonV2';
 import PlusListModalSection from './PlusListModalSection';
 
 const PlusWebapp = (): ReactElement => {
@@ -41,13 +41,13 @@ const PlusWebapp = (): ReactElement => {
           showTrustReviews={false}
         />
         {!showCheckout && (
-          <Button
+          <ButtonV2
             onClick={() => setShowCheckout(true)}
             variant={ButtonVariant.Primary}
             className="mt-8"
           >
             {flags?.ctaText}
-          </Button>
+          </ButtonV2>
         )}
       </div>
       {showCheckout ? (

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { IconProps } from '../Icon';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonVariant, ButtonSize } from '../buttons/common';
 import {
   Typography,
@@ -43,13 +43,13 @@ export const NewUserIntegration = ({
         </Typography>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onConnect}
         >
           {buttonText}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

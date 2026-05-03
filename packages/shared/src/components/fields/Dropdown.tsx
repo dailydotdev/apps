@@ -21,7 +21,7 @@ import { ListDrawer } from '../drawers/ListDrawer';
 import type { SelectParams } from '../drawers/common';
 import { RootPortal } from '../tooltips/Portal';
 import type { DrawerProps } from '../drawers';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import type { IconProps } from '../Icon';
 import { Loader } from '../Loader';
 
@@ -135,7 +135,7 @@ export function Dropdown({
   }, [isVisible, wasVisible]);
 
   const renderButton = () => (
-    <Button
+    <ButtonV2
       type="button"
       ref={triggerRef}
       variant={buttonVariant}
@@ -186,7 +186,7 @@ export function Dropdown({
           />
         </>
       )}
-    </Button>
+    </ButtonV2>
   );
 
   return (
@@ -209,7 +209,7 @@ export function Dropdown({
                 onClose: () => setVisibility(false),
                 title: drawerProps?.title ? (
                   <>
-                    <Button
+                    <ButtonV2
                       size={ButtonSize.Small}
                       className="mr-2"
                       icon={<ArrowIcon className="-rotate-90" secondary />}

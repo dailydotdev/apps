@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { ButtonColor } from '../buttons/Button';
+import { ButtonColor } from '../buttons/ButtonV2';
 import type { CardActionDensity } from '../buttons/CardAction';
 import { CardAction } from '../buttons/CardAction';
 import { IconSize, iconSizeToClassName } from '../Icon';

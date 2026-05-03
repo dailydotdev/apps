@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { cloudinaryNotificationsBig } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Justify } from '../utilities';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -75,17 +75,17 @@ function PushNotificationModal(modalProps: ModalProps): ReactElement {
         </Modal.Text>
         <ModalImg />
       </Modal.Body>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         onClick={enableNotifications}
         className="m-4 mb-0 mt-5 flex tablet:hidden"
       >
         Enable notifications
-      </Button>
+      </ButtonV2>
       <Modal.Footer justify={Justify.Center}>
-        <Button variant={ButtonVariant.Primary} onClick={enableNotifications}>
+        <ButtonV2 variant={ButtonVariant.Primary} onClick={enableNotifications}>
           Enable notifications
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

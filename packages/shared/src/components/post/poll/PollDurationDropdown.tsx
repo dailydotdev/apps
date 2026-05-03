@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
 import { ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ArrowIcon } from '../../icons';
 import type { MenuItemProps } from '../../dropdown/common';
 
@@ -71,13 +71,13 @@ const PollDurationDropdown = () => {
       </Typography>
       <DropdownMenu>
         <DropdownMenuTrigger className="w-full tablet:w-52" asChild>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             className="!justify-between !px-3 !font-normal !typo-callout"
           >
             {options[selectedIndex].label}
             <ArrowIcon className="ml-auto rotate-180" secondary />
-          </Button>
+          </ButtonV2>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           variant="field"

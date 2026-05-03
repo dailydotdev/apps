@@ -10,7 +10,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import ControlledTextField from '../fields/ControlledTextField';
 import { TextField } from '../fields/TextField';
 import { type LiveRoomJoinToken, LiveRoomMode } from '../../graphql/liveRooms';
@@ -210,21 +210,21 @@ export const CreateLiveRoomModal = ({
         </FormProvider>
       </Modal.Body>
       <Modal.Footer>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Tertiary}
           onClick={onClose}
         >
           Cancel
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           form={CREATE_LIVE_ROOM_FORM_ID}
           type="submit"
           variant={ButtonVariant.Primary}
           loading={isPending}
         >
           Start standup
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

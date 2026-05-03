@@ -20,7 +20,7 @@ import {
 } from '../../graphql/contentPreference';
 import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
-import { ButtonVariant } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/ButtonV2';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 
 interface SquadPostAuthorProps {

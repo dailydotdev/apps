@@ -2,11 +2,11 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useState, useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from './buttons/Button';
+} from './buttons/ButtonV2';
 import { MoveToIcon } from './icons';
 import { IconSize } from './Icon';
 
@@ -84,7 +84,7 @@ export function ExpandableContent({
 
       {showSeeMore && !isExpanded && (
         <div className="mt-4 flex w-full items-center justify-center">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Medium}
             onClick={() => setIsExpanded(true)}
@@ -92,7 +92,7 @@ export function ExpandableContent({
             iconPosition={ButtonIconPosition.Right}
           >
             See More
-          </Button>
+          </ButtonV2>
         </div>
       )}
     </>

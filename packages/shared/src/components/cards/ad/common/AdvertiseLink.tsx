@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../../buttons/ButtonV2';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { combinedClicks } from '../../../../lib/click';
 import { businessWebsiteUrl } from '../../../../lib/constants';
@@ -49,7 +49,7 @@ export const AdvertiseLink = ({
 
   if (buttonStyle) {
     return (
-      <Button
+      <ButtonV2
         tag="a"
         {...linkProps}
         variant={ButtonVariant.Float}
@@ -61,7 +61,7 @@ export const AdvertiseLink = ({
         onClick={onClick}
       >
         {advertiseHereLabel}
-      </Button>
+      </ButtonV2>
     );
   }
 

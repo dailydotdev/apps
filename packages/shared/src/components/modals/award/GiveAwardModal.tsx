@@ -11,7 +11,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { ArrowIcon, CoreIcon } from '../../icons';
 import { Image } from '../../image/Image';
 import { featuredAwardImage } from '../../../lib/image';
@@ -55,7 +55,7 @@ const AwardItem = ({
   const { logAwardEvent } = useGiveAwardModalContext();
 
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Float}
       className="flex !h-auto flex-col items-center justify-center rounded-14 bg-surface-float !p-1"
       onClick={(event: React.MouseEvent<HTMLElement>) => {
@@ -79,7 +79,7 @@ const AwardItem = ({
           {item.value === 0 ? 'Free' : formatCoresCurrency(item.value)}
         </Typography>
       </div>
-    </Button>
+    </ButtonV2>
   );
 };
 
@@ -121,14 +121,14 @@ const IntroScreen = () => {
           onPlusClick={onBuyCores}
         />
         {isMobile ? (
-          <Button
+          <ButtonV2
             onClick={onRequestClose}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             className="mr-2"
           >
             Close
-          </Button>
+          </ButtonV2>
         ) : null}
       </Modal.Header>
       <Modal.Body className="gap-2 bg-gradient-to-t from-theme-overlay-to to-transparent tablet:rounded-b-16">
@@ -154,7 +154,7 @@ const IntroScreen = () => {
           </Typography>
         </div>
         {hasAwards && (
-          <Button
+          <ButtonV2
             className="mx-auto max-w-28"
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
@@ -181,7 +181,7 @@ const IntroScreen = () => {
             }}
           >
             Show all →
-          </Button>
+          </ButtonV2>
         )}
         <Typography
           type={TypographyType.Callout}
@@ -228,7 +228,7 @@ const IntroScreen = () => {
       {showBuyCores && !!product && (
         <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
           {canPurchaseCores && (
-            <Button
+            <ButtonV2
               className="w-full"
               variant={ButtonVariant.Primary}
               onClick={onBuyCores}
@@ -237,10 +237,14 @@ const IntroScreen = () => {
               {product.value === 0
                 ? 'Free'
                 : formatCoresCurrency(product.value)}
-            </Button>
+            </ButtonV2>
           )}
           {!canPurchaseCores && (
-            <Button className="w-full" variant={ButtonVariant.Primary} disabled>
+            <ButtonV2
+              className="w-full"
+              variant={ButtonVariant.Primary}
+              disabled
+            >
               <span className="inline-flex gap-1">
                 {' '}
                 Insufficient Cores
@@ -249,7 +253,7 @@ const IntroScreen = () => {
               {product.value === 0
                 ? 'Free'
                 : formatCoresCurrency(product.value)}
-            </Button>
+            </ButtonV2>
           )}
           <AwardFeesNote />
         </Modal.Footer>
@@ -307,7 +311,7 @@ const CommentScreen = () => {
   return (
     <>
       <Modal.Header title="Give an Award" showCloseButton={!isMobile}>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           onClick={() => setActiveStep({ screen: 'INTRO' })}
           size={ButtonSize.Small}
@@ -360,7 +364,7 @@ const CommentScreen = () => {
         </form>
       </Modal.Body>
       <Modal.Footer className="!h-auto flex-col" justify={Justify.Center}>
-        <Button
+        <ButtonV2
           loading={isPending}
           className="w-full"
           variant={ButtonVariant.Primary}
@@ -368,7 +372,7 @@ const CommentScreen = () => {
         >
           Send Award for <CoreIcon />{' '}
           {product.value === 0 ? 'Free' : formatCoresCurrency(product.value)}
-        </Button>
+        </ButtonV2>
         <AwardFeesNote />
       </Modal.Footer>
     </>
@@ -425,7 +429,7 @@ const SuccessScreen = () => {
         </div>
 
         {!isMobile && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             className="w-full"
             onClick={() => {
@@ -433,7 +437,7 @@ const SuccessScreen = () => {
             }}
           >
             Close
-          </Button>
+          </ButtonV2>
         )}
       </div>
     </Modal.Body>

@@ -14,11 +14,11 @@ import { useLogContext } from '../../contexts/LogContext';
 import { WidgetContainer } from './common';
 import { combinedClicks } from '../../lib/click';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { LogEvent } from '../../lib/log';
 
 export type BestDiscussionsProps = {
@@ -119,7 +119,7 @@ export default function BestDiscussions({
         prefetch={false}
         passHref
       >
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="mt-2 self-start"
           size={ButtonSize.Small}
@@ -129,7 +129,7 @@ export default function BestDiscussions({
           {...combinedClicks(onLucky)}
         >
           I&apos;m feeling lucky
-        </Button>
+        </ButtonV2>
       </Link>
     </BestDiscussionsContainer>
   );

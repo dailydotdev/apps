@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { EmojiPicker } from '../fields/EmojiPicker';
 import { IconSize } from '../Icon';
 import { PlusIcon } from '../icons';
@@ -419,7 +419,7 @@ export const LiveRoomChatReactions = ({
               });
             }}
             renderTrigger={({ isOpen, toggleOpen }) => (
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.XSmall}
                 variant={isOpen ? ButtonVariant.Primary : ButtonVariant.Float}

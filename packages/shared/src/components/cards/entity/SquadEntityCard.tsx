@@ -12,7 +12,7 @@ import { SquadActionButton } from '../../squads/SquadActionButton';
 import { SourceIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useSquad } from '../../../hooks';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/ButtonV2';
 import SquadHeaderMenu from '../../squads/SquadHeaderMenu';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';

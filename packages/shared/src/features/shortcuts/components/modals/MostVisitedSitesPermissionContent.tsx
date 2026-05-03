@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { LazyImage } from '../../../../components/LazyImage';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
 import { isFirefoxExtension } from '../../../../lib/func';
@@ -34,9 +37,9 @@ export function MostVisitedSitesPermissionContent({
         <Modal.Text className="text-center">{footerText}</Modal.Text>
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
-        <Button onClick={onGrant} variant={ButtonVariant.Primary}>
+        <ButtonV2 onClick={onGrant} variant={ButtonVariant.Primary}>
           {ctaLabel}
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </>
   );

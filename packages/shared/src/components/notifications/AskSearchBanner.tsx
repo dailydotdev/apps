@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import { MagicIcon } from '../icons';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -70,7 +70,7 @@ export function AskSearchBanner({
         content.
       </p>
       <div className="mt-3 flex items-center">
-        <Button
+        <ButtonV2
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
@@ -85,7 +85,7 @@ export function AskSearchBanner({
           }}
         >
           Try /daily-dev-ask
-        </Button>
+        </ButtonV2>
       </div>
       <CloseButton
         size={ButtonSize.XSmall}

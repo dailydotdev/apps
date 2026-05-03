@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonSize } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 
-type SocialShareButtonProps = ButtonProps<'a'> & {
+type SocialShareButtonProps = ButtonV2Props<'a'> & {
   icon: ReactElement;
   label: string;
 };
@@ -32,11 +32,11 @@ export const SocialShareButton = ({
       rel: 'noopener',
       target: 'blank',
       tag: 'a',
-    } as ButtonProps<'a'>);
+    } as ButtonV2Props<'a'>);
 
   return (
     <div className="group flex w-16 flex-col items-center">
-      <Button
+      <ButtonV2
         {...buttonProps}
         {...props}
         data-testid={`social-share-${label}`}

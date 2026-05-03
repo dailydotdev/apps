@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState, useCallback } from 'react';
-import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonVariant, ButtonSize } from '../buttons/ButtonV2';
 import { PlusIcon } from '../icons/Plus';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GearModal } from '../../features/profile/components/gear/GearModal';
@@ -38,14 +38,14 @@ export function GearCategoryNudge(): ReactElement {
   return (
     <>
       <div className="mt-4 flex justify-end border-t border-border-subtlest-tertiary pt-4">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<PlusIcon />}
           onClick={handleClick}
         >
           Add gear
-        </Button>
+        </ButtonV2>
       </div>
       {isModalOpen && (
         <GearModal

@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import React from 'react';
 import { webappUrl } from '../lib/constants';
 import Link from './utilities/Link';
-import { Button } from './buttons/Button';
+import { ButtonV2 } from './buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { ArrowIcon } from './icons';
 
@@ -27,14 +27,14 @@ export function NoSidebarLayout({
       {!hideBackButton && (
         <div className="flex h-12 items-center gap-2 border-b border-border-subtlest-tertiary px-4 laptop:hidden">
           <Link href={webappUrl} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<ArrowIcon className="-rotate-90" />}
             >
               Back
-            </Button>
+            </ButtonV2>
           </Link>
         </div>
       )}

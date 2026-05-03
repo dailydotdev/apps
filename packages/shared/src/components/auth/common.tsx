@@ -2,7 +2,7 @@ import type { MutableRefObject } from 'react';
 import React from 'react';
 import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
-import type { IconType, ButtonProps } from '../buttons/Button';
+import type { IconType, ButtonV2Props } from '../buttons/ButtonV2';
 import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
 import type { AnonymousUser, LoggedUser } from '../../lib/user';
 import type { AuthTriggersType } from '../../lib/auth';
@@ -129,7 +129,7 @@ export interface AuthOptionsProps {
   initialEmail?: string;
   targetId?: string;
   ignoreMessages?: boolean;
-  onboardingSignupButton?: ButtonProps<'button'>;
+  onboardingSignupButton?: ButtonV2Props<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
   autoTriggerProvider?: string;

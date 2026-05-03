@@ -11,10 +11,10 @@ import { EditIcon } from '../../../components/icons/Edit';
 import { PlusIcon } from '../../../components/icons/Plus';
 import { ShortcutsIcon } from '../../../components/icons/Shortcuts';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { isAppleDevice } from '../../../lib/func';
 import {
   Typography,
@@ -167,7 +167,7 @@ export const ShortcutsSection = (): ReactElement => {
               />
               {source === 'manual' ? (
                 <div className="flex min-w-0 items-center gap-2 px-1">
-                  <Button
+                  <ButtonV2
                     type="button"
                     variant={ButtonVariant.Float}
                     size={ButtonSize.Small}
@@ -179,7 +179,7 @@ export const ShortcutsSection = (): ReactElement => {
                     className="shrink-0"
                   >
                     {shortcutCount > 0 ? 'Edit' : 'Add'}
-                  </Button>
+                  </ButtonV2>
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}

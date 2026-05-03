@@ -5,11 +5,11 @@ import type { ClientError } from 'graphql-request';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import { ArrowIcon, AtIcon, CameraIcon, SlackIcon, SquadIcon } from '../icons';
 import Textarea from '../fields/Textarea';
@@ -245,7 +245,7 @@ export function SquadDetails({
                 }}
                 size="medium"
               />
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Small}
@@ -253,7 +253,7 @@ export function SquadDetails({
                 onClick={() => headerImageRef.current?.click()}
               >
                 Upload cover
-              </Button>
+              </ButtonV2>
               <input
                 ref={headerImageRef}
                 type="file"

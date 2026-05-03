@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import {
@@ -95,7 +95,7 @@ const ClickbaitShieldModal = ({
         </Switch>
 
         <Link href={plusUrl} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             type="button"
             variant={ButtonVariant.Primary}
@@ -118,7 +118,7 @@ const ClickbaitShieldModal = ({
             }}
           >
             {hasUsedFreeTrial ? plusCta : 'Try out Clickbait Shield'}
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     </Modal>

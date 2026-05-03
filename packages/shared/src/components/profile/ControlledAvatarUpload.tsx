@@ -1,7 +1,7 @@
 import React from 'react';
 import { CameraIcon, ClearIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { fallbackImages } from '../../lib/config';
 import { useControlledImageUpload } from '../../hooks/useControlledImageUpload';
 
@@ -47,7 +47,7 @@ const ControlledAvatarUpload = ({
         />
       </div>
       <div className="cursor:pointer absolute top-0 flex h-full w-full items-center justify-center gap-2 rounded-26">
-        <Button
+        <ButtonV2
           type="button"
           className="bg-shadow-shadow3"
           variant={ButtonVariant.Float}
@@ -55,7 +55,7 @@ const ControlledAvatarUpload = ({
           icon={<CameraIcon size={IconSize.Medium} />}
           onClick={onUploadClick}
         />
-        <Button
+        <ButtonV2
           type="button"
           className="bg-shadow-shadow3"
           variant={ButtonVariant.Float}

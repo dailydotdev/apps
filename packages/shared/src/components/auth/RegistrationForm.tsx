@@ -13,7 +13,7 @@ import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonVariant, ButtonSize } from '../buttons/ButtonV2';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, VIcon, AtIcon, ArrowIcon } from '../icons';
@@ -272,7 +272,7 @@ const RegistrationForm = ({
     <>
       {!isAuthenticating && (
         <div className="flex gap-4 pt-2">
-          <Button
+          <ButtonV2
             className="border-border-subtlest-tertiary text-text-secondary"
             data-funnel-track={FunnelTargetId.StepBack}
             icon={<ArrowIcon className="-rotate-90" />}
@@ -462,7 +462,7 @@ const RegistrationForm = ({
               title="Turnstile is taking too long to load. Please try again."
             />
           )}
-          <Button
+          <ButtonV2
             className="w-full"
             data-funnel-track={FunnelTargetId.StepCta}
             disabled={isCheckPending || !turnstileLoaded}
@@ -471,7 +471,7 @@ const RegistrationForm = ({
             variant={ButtonVariant.Primary}
           >
             Sign up
-          </Button>
+          </ButtonV2>
         </ConditionalWrapper>
       </AuthForm>
     </>

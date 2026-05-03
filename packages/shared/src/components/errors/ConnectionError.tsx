@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { RefreshIcon, TerminalIcon } from '../icons';
 import { statusPage } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -25,16 +25,16 @@ function ConnectionError({ onRetry }: { onRetry?: () => void }): ReactElement {
         connection and try again.
       </Typography>
       {onRetry && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Subtle}
           className="w-full"
           icon={<RefreshIcon />}
           onClick={onRetry}
         >
           Try again
-        </Button>
+        </ButtonV2>
       )}
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Subtle}
         className="w-full"
         icon={<TerminalIcon />}
@@ -44,7 +44,7 @@ function ConnectionError({ onRetry }: { onRetry?: () => void }): ReactElement {
         tag="a"
       >
         Check system status
-      </Button>
+      </ButtonV2>
     </div>
   );
 }

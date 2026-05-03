@@ -13,7 +13,7 @@ import Link from '../../../../components/utilities/Link';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import CloseButton from '../../../../components/CloseButton';
-import { ButtonSize } from '../../../../components/buttons/Button';
+import { ButtonSize } from '../../../../components/buttons/ButtonV2';
 import { useProfileCompletionIndicator } from '../../../../hooks/profile/useProfileCompletionIndicator';
 import {
   formatCompletionDescription,

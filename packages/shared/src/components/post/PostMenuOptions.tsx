@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
 import type { Origin } from '../../lib/log';
-import type { ButtonSize } from '../buttons/Button';
-import { ButtonVariant } from '../buttons/Button';
+import type { ButtonSize } from '../buttons/ButtonV2';
+import { ButtonVariant } from '../buttons/ButtonV2';
 import { PostOptionButton } from '../../features/posts/PostOptionButton';
 
 export interface PostMenuOptionsProps {

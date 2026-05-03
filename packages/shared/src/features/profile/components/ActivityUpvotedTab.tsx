@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import type { FeedProps } from '../../../components/Feed';
 import Link from '../../../components/utilities/Link';
 import { ButtonSize } from '../../../components/buttons/common';
@@ -85,9 +85,9 @@ export const ActivityUpvotedTab = ({
           )}
           passHref
         >
-          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
+          <ButtonV2 tag="a" variant={ButtonVariant.Subtle} className="w-full">
             Show More
-          </Button>
+          </ButtonV2>
         </Link>
       )}
     </>

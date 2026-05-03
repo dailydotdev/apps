@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -74,7 +74,7 @@ export const FunnelPaymentSuccessful = ({
           />
 
           <span className="flex flex-col gap-4">
-            <Button
+            <ButtonV2
               type="button"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
@@ -85,7 +85,7 @@ export const FunnelPaymentSuccessful = ({
               }
             >
               {cta}
-            </Button>
+            </ButtonV2>
           </span>
         </div>
       </div>

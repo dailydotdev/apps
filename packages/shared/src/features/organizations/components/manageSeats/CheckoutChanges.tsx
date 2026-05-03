@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { HorizontalSeparator } from '../../../../components/utilities';
-import { Button } from '../../../../components/buttons/Button';
+import { ButtonV2 } from '../../../../components/buttons/ButtonV2';
 import { useOrganization } from '../../hooks/useOrganization';
 import { Modal } from '../../../../components/modals/common/Modal';
 import type { PreviewOrganizationSubscriptionUpdate } from '../../hooks/useOrganizationSubscription';
@@ -41,7 +41,7 @@ export const CheckoutChanges = ({
 
   const checkoutButtons = (
     <div className="mt-auto flex flex-col gap-3 tablet:ml-auto tablet:flex-row-reverse">
-      <Button
+      <ButtonV2
         loading={isUpdatingSubscription}
         variant={ButtonVariant.Primary}
         disabled={!nextBilling}
@@ -53,14 +53,14 @@ export const CheckoutChanges = ({
         }}
       >
         Pay now
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         loading={isUpdatingSubscription}
         variant={isMobile ? ButtonVariant.Float : ButtonVariant.Secondary}
         onClick={goBack}
       >
         Cancel
-      </Button>
+      </ButtonV2>
     </div>
   );
 

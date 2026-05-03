@@ -7,7 +7,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../../buttons/ButtonV2';
 import { DevPlusIcon, MoveToIcon, TimerIcon } from '../../../icons';
 import { briefButtonBg } from '../../../../styles/custom';
 import { LogEvent, TargetId } from '../../../../lib/log';
@@ -114,7 +114,7 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         <div className="hidden tablet:block">{time}</div>
       </div>
       <div className="block tablet:hidden">{time}</div>
-      <Button
+      <ButtonV2
         data-testid="brief-banner-cta"
         tag="a"
         icon={<DevPlusIcon className="ml-0" aria-hidden />}
@@ -130,7 +130,7 @@ export const BriefBanner = (props: ComponentProps<'div'>) => {
         variant={ButtonVariant.Primary}
       >
         Generate your briefing
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   AddUserIcon,
   BlockIcon,
@@ -137,7 +137,7 @@ export const LiveRoomTileActions = ({
     >
       {showSocial ? (
         <Tooltip content={followLabel}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -152,7 +152,7 @@ export const LiveRoomTileActions = ({
       ) : null}
       {showSocial ? (
         <Tooltip content={`Award ${user.name}`}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -165,7 +165,7 @@ export const LiveRoomTileActions = ({
       ) : null}
       {showGrantCoHost ? (
         <Tooltip content={`Grant co-host to ${user.name}`}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -180,7 +180,7 @@ export const LiveRoomTileActions = ({
       ) : null}
       {showRevokeCoHost ? (
         <Tooltip content={`Revoke co-host from ${user.name}`}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -195,7 +195,7 @@ export const LiveRoomTileActions = ({
       ) : null}
       {showRemove ? (
         <Tooltip content={`Remove ${user.name} from stage`}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
@@ -210,7 +210,7 @@ export const LiveRoomTileActions = ({
       ) : null}
       {showKick ? (
         <Tooltip content={`Kick ${user.name} from room`}>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}

@@ -7,7 +7,7 @@ import {
   cloudinarySquadsTourBanner3,
   cloudinarySquadsTourBanner4V2,
 } from '../../lib/image';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -20,7 +20,7 @@ interface SquadTourProps {
   onClose: PopupCloseFunc;
 }
 
-const FooterButton = classed(Button, 'w-22');
+const FooterButton = classed(ButtonV2, 'w-22');
 
 function SquadTour({ onClose }: SquadTourProps): ReactElement {
   const [shouldShowCarousel, setShouldShowCarousel] = useState(false);

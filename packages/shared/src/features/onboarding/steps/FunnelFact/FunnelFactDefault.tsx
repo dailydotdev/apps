@@ -12,7 +12,7 @@ import {
   MoveToIcon,
 } from '../../../../components/icons';
 import { FunnelFactWrapper } from './FunnelFactWrapper';
-import { Button } from '../../../../components/buttons/Button';
+import { ButtonV2 } from '../../../../components/buttons/ButtonV2';
 import {
   ButtonVariant,
   ButtonIconPosition,
@@ -40,7 +40,7 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
     [transitions],
   );
   const skipButton = (
-    <Button
+    <ButtonV2
       className="w-fit"
       data-funnel-track={FunnelTargetId.StepCta}
       variant={ButtonVariant.Float}
@@ -50,7 +50,7 @@ export const FunnelFactDefault = (props: FunnelStepFact): ReactElement => {
       onClick={() => onTransition({ type: FunnelStepTransitionType.Skip })}
     >
       {skip?.cta ?? 'Skip'}
-    </Button>
+    </ButtonV2>
   );
 
   const badgeComponent = !badge?.cta ? null : (

@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyTag,
@@ -62,15 +62,15 @@ export default function ShortcutEditModal({
         />
       </Modal.Body>
       <Modal.Footer justify={Justify.End}>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
           onClick={close}
         >
           Cancel
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           type="submit"
           form={FORM_ID}
           variant={ButtonVariant.Primary}
@@ -78,7 +78,7 @@ export default function ShortcutEditModal({
           disabled={formState.isSubmitting || formState.isUploading}
         >
           {mode === 'add' ? 'Add' : 'Save'}
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

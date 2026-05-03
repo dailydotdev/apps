@@ -12,7 +12,7 @@ import {
 } from '../../typography/Typography';
 import { getTagPageLink } from '../../../lib';
 import Link from '../../utilities/Link';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { ButtonV2, ButtonSize } from '../../buttons/ButtonV2';
 import { PlusIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -89,7 +89,7 @@ const PostTagItem = ({
           role="separator"
         />
         <Tooltip content={`Follow #${tag}`}>
-          <Button
+          <ButtonV2
             icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
             onClick={() => onFollow(tag)}
             size={ButtonSize.XSmall}
@@ -131,7 +131,7 @@ const PostTagItem = ({
             role="separator"
           />
           <Tooltip content={`Follow #${tag}`}>
-            <Button
+            <ButtonV2
               icon={<PlusIcon aria-hidden size={IconSize.XSmall} />}
               onClick={() => onFollow(tag)}
               size={ButtonSize.XSmall}

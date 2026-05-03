@@ -30,10 +30,10 @@ import { useShareOrCopyLink } from '../../../../hooks/useShareOrCopyLink';
 import { LogEvent, TargetType } from '../../../../lib/log';
 import { useLogContext } from '../../../../contexts/LogContext';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { Divider } from '../../../../components/utilities/Divider';
 import { anchorDefaultRel } from '../../../../lib/strings';
@@ -136,7 +136,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
           </Typography>
         </div>
         <Tooltip content={copying ? 'Copied!' : 'Copy link'}>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
             icon={<CopyIcon secondary={copying} />}
@@ -157,7 +157,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
         </Typography>
         {socialShareConfig.map(({ icon, tooltip, href, provider }) => (
           <Tooltip content={tooltip} key={provider}>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={icon}
@@ -172,7 +172,7 @@ export const Share = ({ permalink, className }: ShareProps): ReactElement => {
         ))}
         {!!globalThis?.navigator?.share && (
           <Tooltip content="Share via...">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<MenuIcon className="rotate-90" />}

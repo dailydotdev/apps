@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { CameraIcon, ClearIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useControlledImageUpload } from '../../hooks/useControlledImageUpload';
 
 interface ControlledCoverUploadProps {
@@ -53,7 +53,7 @@ const ControlledCoverUpload = ({
         )}
       </div>
       <div className="absolute right-6 top-1/2 flex -translate-y-1/2 gap-2">
-        <Button
+        <ButtonV2
           type="button"
           className="bg-shadow-shadow3"
           variant={ButtonVariant.Float}
@@ -61,7 +61,7 @@ const ControlledCoverUpload = ({
           icon={<CameraIcon size={IconSize.Medium} />}
           onClick={onUploadClick}
         />
-        <Button
+        <ButtonV2
           type="button"
           className="bg-shadow-shadow3"
           variant={ButtonVariant.Float}

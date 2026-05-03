@@ -14,7 +14,7 @@ import type { TLocation } from '../../../../graphql/autocomplete';
 import { LocationDataset } from '../../../../graphql/autocomplete';
 import type { Opportunity } from '../../../../features/opportunity/types';
 import type { OpportunitySideBySideEditFormData } from '../hooks/useOpportunityEditForm';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../../buttons/ButtonV2';
 import { PlusIcon } from '../../../icons/Plus';
 import { TrashIcon } from '../../../icons/Trash';
 import { IconSize } from '../../../Icon';
@@ -183,7 +183,7 @@ export function RoleInfoSection({
               />
             </div>
             {fields.length > 1 && (
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
@@ -194,7 +194,7 @@ export function RoleInfoSection({
             )}
           </div>
         ))}
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
@@ -202,7 +202,7 @@ export function RoleInfoSection({
           onClick={handleAddLocation}
         >
           Add location
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

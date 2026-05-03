@@ -11,10 +11,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   PlusIcon,
   MiniCloseIcon,
@@ -147,7 +147,7 @@ export const LinksInput = ({
         }}
         fieldType="secondary"
         actionButton={
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
@@ -160,7 +160,7 @@ export const LinksInput = ({
             }
           >
             Add
-          </Button>
+          </ButtonV2>
         }
       />
 

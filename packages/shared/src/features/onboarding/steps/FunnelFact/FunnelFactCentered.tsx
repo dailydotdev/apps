@@ -6,7 +6,7 @@ import type { FunnelStepFact } from '../../types/funnel';
 import { FunnelStepTransitionType } from '../../types/funnel';
 import { LazyImage } from '../../../../components/LazyImage';
 import { FunnelFactWrapper } from './FunnelFactWrapper';
-import { Button } from '../../../../components/buttons/Button';
+import { ButtonV2 } from '../../../../components/buttons/ButtonV2';
 import {
   ButtonVariant,
   ButtonIconPosition,
@@ -44,7 +44,7 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
         className="flex flex-1 flex-col items-center justify-center gap-6 p-6 laptop:mb-10"
       >
         {skip?.placement === 'top' && (
-          <Button
+          <ButtonV2
             className="w-fit"
             data-funnel-track={FunnelTargetId.StepCta}
             variant={ButtonVariant.Float}
@@ -56,7 +56,7 @@ export const FunnelFactCentered = (props: FunnelStepFact): ReactElement => {
             }
           >
             {skip?.cta ?? 'Skip'}
-          </Button>
+          </ButtonV2>
         )}
         {image && (
           <>

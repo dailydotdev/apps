@@ -3,11 +3,11 @@ import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import {
   cloudinaryNotificationsBrowser,
@@ -149,7 +149,7 @@ export const EnableHighlightsAlerts = ({
       </div>
       <div className="mt-4 flex items-center justify-start">
         {!acceptedJustNow && (
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
@@ -159,7 +159,7 @@ export const EnableHighlightsAlerts = ({
             disabled={isPending || isLoading}
           >
             Notify me
-          </Button>
+          </ButtonV2>
         )}
       </div>
       <CloseButton

@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useState } from 'react';
 import type { RadioItemProps } from '../../fields/Radio';
 import { Radio } from '../../fields/Radio';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Justify } from '../../utilities';
@@ -94,13 +94,13 @@ export function ReasonSelectionModal<
         justify={footer && !isMobile ? Justify.Between : Justify.End}
       >
         {isMobile ? null : footer}
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           disabled={submitDisabled}
           onClick={(e: React.MouseEvent) => onReport(e, reason, note)}
         >
           Submit report
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

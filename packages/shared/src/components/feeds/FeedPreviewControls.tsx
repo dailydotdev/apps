@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import type { ReactElement } from 'react-markdown/lib/react-markdown';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonVariant, ButtonIconPosition } from '../buttons/common';
 import { ArrowIcon } from '../icons';
 import type { Origin } from '../../lib/log';
@@ -28,7 +28,7 @@ export const FeedPreviewControls = ({
   return (
     <div className="mt-10 flex items-center justify-center gap-10 text-text-quaternary typo-callout">
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         disabled={isDisabled}
         icon={<ArrowIcon className={classNames(!isOpen && 'rotate-180')} />}
@@ -46,7 +46,7 @@ export const FeedPreviewControls = ({
         }}
       >
         {isDisabled ? textDisabled : `${isOpen ? 'Hide' : 'Show'} feed preview`}
-      </Button>
+      </ButtonV2>
       <div className="h-px flex-1 bg-border-subtlest-tertiary" />
     </div>
   );

@@ -8,7 +8,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { briefButtonBg } from '../../styles/custom';
 import { ClickableCard } from '../cards/common/Card';
 import { useIsLightTheme } from '../../hooks/utils';
@@ -112,7 +112,7 @@ export const MarketingCtaBriefing = ({
         <div className="relative">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
+              <ButtonV2
                 aria-label="Show options menu"
                 className="my-auto"
                 icon={<MenuIcon />}
@@ -172,7 +172,7 @@ export const MarketingCtaBriefing = ({
             </span>
           ))}
         </Typography>
-        <Button
+        <ButtonV2
           className="w-full"
           href={ctaUrl}
           onClick={onClickCta}
@@ -183,7 +183,7 @@ export const MarketingCtaBriefing = ({
           target="_blank"
         >
           {ctaText}
-        </Button>
+        </ButtonV2>
       </footer>
     </ClickableCard>
   );

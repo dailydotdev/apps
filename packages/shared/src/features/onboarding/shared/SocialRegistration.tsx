@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { ButtonProps } from '../../../components/buttons/Button';
+import type { ButtonV2Props } from '../../../components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { isIOS } from '../../../lib/func';
 import { providerMap, SocialProvider } from '../../../components/auth/common';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -58,7 +58,7 @@ export function SocialRegistration({
     onClick(provider);
   };
 
-  const props: ButtonProps<'button'> = {
+  const props: ButtonV2Props<'button'> = {
     className: 'w-full',
     disabled: isDisabled,
     loading: isLoading,
@@ -68,7 +68,7 @@ export function SocialRegistration({
 
   return (
     <div className="flex flex-col gap-3">
-      <Button
+      <ButtonV2
         {...props}
         onClick={() => handleClick(firstProvider)}
         data-testid={`social-button-${firstProvider.toLowerCase()}`}
@@ -76,8 +76,8 @@ export function SocialRegistration({
         data-funnel-track={FunnelTargetId.SignupProvider}
       >
         Sign up with {providerMap[firstProvider].label}
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         {...props}
         onClick={() => handleClick(SocialProvider.GitHub)}
         data-testid="social-button-github"
@@ -85,7 +85,7 @@ export function SocialRegistration({
         data-funnel-track={FunnelTargetId.SignupProvider}
       >
         Sign up with {providerMap[SocialProvider.GitHub].label}
-      </Button>
+      </ButtonV2>
       <Typography
         className="mt-1 text-center"
         type={TypographyType.Caption2}

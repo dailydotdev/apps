@@ -27,7 +27,7 @@ import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
 import { labels } from '../../../lib';
 import { generateQueryKey } from '../../../lib/query';
-import { ButtonColor } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
 import { SharedFeedPage } from '../../utilities';
 import type {
   FeedSettingsEditContextValue,

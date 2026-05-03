@@ -11,10 +11,10 @@ import { useCampaignMutation } from './useCampaignMutation';
 import type { PromptOptions } from '../../hooks/usePrompt';
 import { usePrompt } from '../../hooks/usePrompt';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import { ArrowIcon } from '../../components/icons';
 import type { PostData } from '../../graphql/posts';
 import {
@@ -134,7 +134,7 @@ export function BoostedViewModal({
     >
       <Modal.Header className="flex flex-row gap-2">
         {!!onBack && (
-          <Button
+          <ButtonV2
             onClick={onBack}
             className="hidden tablet:flex"
             variant={ButtonVariant.Tertiary}

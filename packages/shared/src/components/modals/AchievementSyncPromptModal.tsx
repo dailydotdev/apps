@@ -3,7 +3,7 @@ import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -89,20 +89,20 @@ export const AchievementSyncPromptModal = ({
             choice!
           </Typography>
           <div className="flex w-full gap-3">
-            <Button
+            <ButtonV2
               className="flex-1"
               variant={ButtonVariant.Subtle}
               onClick={handleClose}
             >
               Skip
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               className="flex-1"
               variant={ButtonVariant.Primary}
               onClick={handleSync}
             >
               Sync
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       </div>

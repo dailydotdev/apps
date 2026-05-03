@@ -10,7 +10,10 @@ import type {
 } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { TextField } from '../../../../components/fields/TextField';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
 import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
@@ -148,14 +151,14 @@ export function HotTakeModal({
             />
 
             {!isMobile && (
-              <Button
+              <ButtonV2
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 loading={isSubmitting}
                 variant={ButtonVariant.Primary}
               >
                 {isEditing ? 'Save changes' : 'Add hot take'}
-              </Button>
+              </ButtonV2>
             )}
           </Modal.Body>
         </form>

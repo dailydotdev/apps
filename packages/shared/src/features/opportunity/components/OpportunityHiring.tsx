@@ -6,10 +6,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { AddUserIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import Link from '../../../components/utilities/Link';
@@ -40,7 +40,7 @@ export const OpportunityHiring = (): ReactElement => {
         </Typography>
       </div>
       <Link href={recruiterUrl} passHref>
-        <Button
+        <ButtonV2
           tag="a"
           size={ButtonSize.Large}
           variant={ButtonVariant.Subtle}
@@ -54,7 +54,7 @@ export const OpportunityHiring = (): ReactElement => {
           }}
         >
           Start hiring
-        </Button>
+        </ButtonV2>
       </Link>
     </div>
   );

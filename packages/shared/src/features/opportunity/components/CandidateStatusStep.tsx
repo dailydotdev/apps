@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import {
   ActivelyLookingIcon,
   PassiveIcon,
@@ -74,7 +74,7 @@ export const CandidateStatusStep = ({
         <ProgressStep currentStep={currentStep} totalSteps={totalSteps} />
         <FlexCol className="gap-2">
           {options.map(({ value, icon, title, description }) => (
-            <Button
+            <ButtonV2
               key={value}
               variant={ButtonVariant.Option}
               className={classNames(
@@ -103,7 +103,7 @@ export const CandidateStatusStep = ({
                   {description}
                 </Typography>
               </FlexCol>
-            </Button>
+            </ButtonV2>
           ))}
         </FlexCol>
         {skipButton}

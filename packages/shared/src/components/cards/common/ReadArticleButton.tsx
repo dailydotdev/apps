@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonIconPosition, ButtonSize } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import {
+  ButtonV2,
+  ButtonIconPosition,
+  ButtonSize,
+} from '../../buttons/ButtonV2';
 import { OpenLinkIcon, TwitterIcon } from '../../icons';
 import type { Post } from '../../../graphql/posts';
 import { isPostOrSharedPostTwitter } from '../../../graphql/posts';
@@ -16,7 +20,7 @@ export const getReadPostButtonIcon = (
     <OpenLinkIcon secondary />
   );
 
-type ReadArticleButtonProps = ButtonProps<'a'> & {
+type ReadArticleButtonProps = ButtonV2Props<'a'> & {
   content: string;
   href: string;
   openNewTab?: boolean;
@@ -28,7 +32,7 @@ export const ReadArticleButton = ({
   size = ButtonSize.Small,
   ...props
 }: ReadArticleButtonProps): ReactElement => (
-  <Button
+  <ButtonV2
     tag="a"
     size={size}
     icon={<OpenLinkIcon secondary />}
@@ -37,5 +41,5 @@ export const ReadArticleButton = ({
     {...props}
   >
     {content}
-  </Button>
+  </ButtonV2>
 );

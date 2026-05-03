@@ -12,7 +12,7 @@ import { getReadingStreak30Days } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useViewSize, ViewSize } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { SettingsIcon, VIcon, WarningIcon } from '../../icons';
 import { isWeekend, DayOfWeek } from '../../../lib/date';
 import {
@@ -304,14 +304,14 @@ export function ReadingStreakPopup({
             </Tooltip>
           </div>
           <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Float}
               icon={<SettingsIcon />}
               className={isMobile ? 'w-full' : 'ml-auto'}
             >
               {isMobile ? 'Settings' : null}
-            </Button>
+            </ButtonV2>
           </Link>
         </div>
       </div>
@@ -334,14 +334,14 @@ export function ReadingStreakPopup({
               </div>
 
               <div className="flex w-full justify-between gap-3">
-                <Button
+                <ButtonV2
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}
                   onClick={onTogglePush}
                 >
                   Enable notification
-                </Button>
-                <Button
+                </ButtonV2>
+                <ButtonV2
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
                   onClick={() => {
@@ -349,7 +349,7 @@ export function ReadingStreakPopup({
                   }}
                 >
                   Dismiss
-                </Button>
+                </ButtonV2>
               </div>
             </>
           )}

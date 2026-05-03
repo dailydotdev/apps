@@ -3,7 +3,7 @@ import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { BookmarkIcon, PlusIcon, VIcon, FolderIcon } from '../../icons';
 import {
   useBookmarkFolderList,
@@ -79,7 +79,7 @@ const MoveBookmarkModal = ({
     <Modal {...props}>
       <ModalHeader title="Choose a folder" />
       <Modal.Body>
-        <Button
+        <ButtonV2
           onClick={onClickCreateNewFolder}
           icon={
             <div className="flex  rounded-6 bg-background-subtle">
@@ -89,8 +89,8 @@ const MoveBookmarkModal = ({
           variant={ButtonVariant.Option}
         >
           New folder
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           onClick={() => handleMoveBookmark({ name: 'Quick saves' })}
           icon={<BookmarkIcon />}
           variant={ButtonVariant.Option}
@@ -103,10 +103,10 @@ const MoveBookmarkModal = ({
               <VIcon secondary aria-hidden />
             </span>
           )}
-        </Button>
+        </ButtonV2>
         {folders?.length > 0 &&
           folders.map((folder) => (
-            <Button
+            <ButtonV2
               loading={isPending}
               key={folder.id}
               onClick={() => handleMoveBookmark(folder)}
@@ -121,7 +121,7 @@ const MoveBookmarkModal = ({
                   <VIcon secondary aria-hidden />
                 </span>
               )}
-            </Button>
+            </ButtonV2>
           ))}
       </Modal.Body>
     </Modal>

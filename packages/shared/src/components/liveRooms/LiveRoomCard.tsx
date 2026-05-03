@@ -11,7 +11,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { IconSize } from '../Icon';
 import { UserIcon } from '../icons';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
@@ -109,14 +109,14 @@ export const LiveRoomCard = ({
             </Typography>
           </FlexCol>
         </FlexRow>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           onClick={() => onJoin(room)}
           loading={isJoining}
         >
           Join
-        </Button>
+        </ButtonV2>
       </FlexRow>
     </FlexCol>
   );

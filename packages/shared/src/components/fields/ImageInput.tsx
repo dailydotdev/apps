@@ -7,7 +7,7 @@ import { IconSize } from '../Icon';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import CloseButton from '../CloseButton';
 import { ACCEPTED_TYPES, acceptedTypesList } from '../../graphql/posts';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { useFileInput } from '../../hooks/utils/useFileInput';
 
 type Size = 'medium' | 'large' | 'cover';
@@ -161,7 +161,7 @@ function ImageInput({
         )}
       </button>
       {uploadButton && !viewOnly && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           onClick={onClick}
           onDragOver={onDragOver}
@@ -169,7 +169,7 @@ function ImageInput({
           type="button"
         >
           Upload image
-        </Button>
+        </ButtonV2>
       )}
       {image && closeable && (
         <CloseButton

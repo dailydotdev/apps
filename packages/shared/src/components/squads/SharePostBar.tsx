@@ -2,7 +2,7 @@ import type { FormEvent, ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LockIcon } from '../icons';
 import { Card } from '../cards/common/Card';
@@ -128,7 +128,7 @@ function SharePostBar({
             )}
           </div>
         </div>
-        <Button
+        <ButtonV2
           type="submit"
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
@@ -137,7 +137,7 @@ function SharePostBar({
           loading={isLoadingPreview}
         >
           Post
-        </Button>
+        </ButtonV2>
       </span>
       {isMobile && (
         <Divider className="mb-5 mt-3 bg-border-subtlest-tertiary" />

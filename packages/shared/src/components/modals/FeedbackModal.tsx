@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalSize } from './common/types';
-import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonVariant, ButtonSize } from '../buttons/ButtonV2';
 import Textarea from '../fields/Textarea';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { FeedbackCategory, submitFeedback } from '../../graphql/feedback';
@@ -256,7 +256,7 @@ const FeedbackModal = ({
           </Typography>
           <div className="flex flex-wrap gap-2">
             {categoryOptions.map((option) => (
-              <Button
+              <ButtonV2
                 key={option.value}
                 variant={
                   category === option.value
@@ -268,7 +268,7 @@ const FeedbackModal = ({
                 disabled={isOperationInProgress}
               >
                 {option.label}
-              </Button>
+              </ButtonV2>
             ))}
           </div>
         </div>
@@ -301,7 +301,7 @@ const FeedbackModal = ({
 
           {/* Screenshot buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={handleCaptureScreenshot}
@@ -309,8 +309,8 @@ const FeedbackModal = ({
               icon={<CameraIcon />}
             >
               {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={() => fileInputRef.current?.click()}
@@ -318,7 +318,7 @@ const FeedbackModal = ({
               icon={<ImageIcon />}
             >
               Upload Image
-            </Button>
+            </ButtonV2>
             <input
               ref={fileInputRef}
               type="file"
@@ -337,7 +337,7 @@ const FeedbackModal = ({
                 alt="Screenshot preview"
                 className="max-h-32 rounded-8 border border-border-subtlest-tertiary object-contain"
               />
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Float}
                 size={ButtonSize.XSmall}
                 onClick={handleRemoveScreenshot}
@@ -351,7 +351,7 @@ const FeedbackModal = ({
         </div>
 
         {/* Submit button */}
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={handleSubmit}
@@ -360,7 +360,7 @@ const FeedbackModal = ({
           className="w-full"
         >
           Submit Feedback
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button } from '../../components/buttons/Button';
+import { ButtonV2 } from '../../components/buttons/ButtonV2';
 import { ButtonVariant } from '../../components/buttons/common';
 import { OpenLinkIcon } from '../../components/icons';
 import {
@@ -47,7 +47,7 @@ export function CampaignListViewSquad({
         src={squad.image}
         className="ml-auto h-12 w-12 rounded-max object-cover"
       />
-      <Button
+      <ButtonV2
         icon={<OpenLinkIcon />}
         variant={ButtonVariant.Tertiary}
         tag="a"

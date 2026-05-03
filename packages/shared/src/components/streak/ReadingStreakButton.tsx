@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup/ReadingStreakPopup';
-import type { ButtonIconPosition } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { ButtonIconPosition } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ReadingStreakIcon, WarningIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
@@ -117,7 +117,7 @@ export function ReadingStreakButton({
           </Tooltip>
         )}
       >
-        <Button
+        <ButtonV2
           id="reading-streak-header-button"
           type="button"
           iconPosition={iconPosition}
@@ -142,7 +142,7 @@ export function ReadingStreakButton({
         >
           {streak?.current}
           {!compact && ' reading days'}
-        </Button>
+        </ButtonV2>
       </ConditionalWrapper>
 
       {isMobile && (

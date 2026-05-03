@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { SidebarArrowLeft, SidebarArrowRight } from '../icons';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
@@ -35,7 +35,7 @@ export const SidebarMenuIcon = (): ReactElement => {
         side="right"
         content={`${sidebarExpanded ? 'Collapse' : 'Expand'} sidebar`}
       >
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.XSmall}
           onClick={logAndToggleSidebarExpanded}

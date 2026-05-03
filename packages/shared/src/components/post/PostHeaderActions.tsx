@@ -10,7 +10,11 @@ import {
 } from '../../graphql/posts';
 import { getReadPostButtonIcon } from '../cards/common/ReadArticleButton';
 import classed from '../../lib/classed';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import {
+  ButtonV2,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import SettingsContext from '../../contexts/SettingsContext';
 import type { PostHeaderActionsProps } from './common';
 import { PostMenuOptions } from './PostMenuOptions';
@@ -66,7 +70,7 @@ export function PostHeaderActions({
           content={readButtonText}
           visible={!inlineActions}
         >
-          <Button
+          <ButtonV2
             variant={
               isFixedNavigation || isMobile
                 ? ButtonVariant.Tertiary
@@ -84,7 +88,7 @@ export function PostHeaderActions({
             size={buttonSize}
           >
             {!inlineActions ? readButtonText : undefined}
-          </Button>
+          </ButtonV2>
         </Tooltip>
       )}
       {isBoostButtonVisible && (

@@ -9,11 +9,11 @@ import type {
 } from 'react-markdown/lib/react-markdown';
 import styles from './markdown.module.css';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from './buttons/Button';
+} from './buttons/ButtonV2';
 import { ArrowIcon, CopyIcon } from './icons';
 import { useCopyText } from '../hooks/useCopy';
 import {
@@ -193,7 +193,7 @@ const RenderMarkdown = ({
                     {language || 'Code snippets'}
                   </Typography>
                   <div className="flex gap-2">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       icon={<CopyIcon />}
                       disabled={copying || isLoading}
@@ -245,7 +245,7 @@ const RenderMarkdown = ({
               )}
               {canExpand ? (
                 <div className="relative z-1 flex h-12 items-center justify-center bg-background-subtle">
-                  <Button
+                  <ButtonV2
                     onClick={() => setIsExpanded((prev) => !prev)}
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Small}
@@ -257,7 +257,7 @@ const RenderMarkdown = ({
                     iconPosition={ButtonIconPosition.Right}
                   >
                     {isExpanded ? 'Minimize' : 'Expand'}
-                  </Button>
+                  </ButtonV2>
                 </div>
               ) : undefined}
             </>

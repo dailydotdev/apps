@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { UserIcon, SitesIcon } from '../../../../components/icons';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
@@ -58,7 +58,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
           Shortcuts
         </Typography>
         <div className="ml-auto flex gap-2">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             onClick={() => {
@@ -66,15 +66,15 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
             }}
           >
             Cancel
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             form="shortcuts-modal"
             type="submit"
           >
             Save
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Header>
       <Modal.Body>
@@ -155,7 +155,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
           <LinksForm />
 
           {displayRevoke && (
-            <Button
+            <ButtonV2
               onClick={onRevokePermission}
               form="shortcuts-modal"
               variant={ButtonVariant.Primary}
@@ -165,7 +165,7 @@ export default function CustomLinksModal(props: ModalProps): ReactElement {
               className="self-start"
             >
               Revoke access
-            </Button>
+            </ButtonV2>
           )}
         </form>
       </Modal.Body>

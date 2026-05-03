@@ -1,6 +1,6 @@
 import type { KeyboardEvent, MouseEvent, ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { LazyImage } from '../LazyImage';
 import { Loader } from '../Loader';
@@ -213,12 +213,12 @@ export const AchievementCompletionModal = ({
                   </div>
                 </div>
 
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Primary}
                   onClick={() => setPhase('pickNext')}
                 >
                   Choose next goal
-                </Button>
+                </ButtonV2>
                 <Checkbox
                   name="disable_achievement_completion"
                   className="mt-2"
@@ -241,12 +241,12 @@ export const AchievementCompletionModal = ({
                 >
                   Let&apos;s pick your next goal.
                 </Typography>
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Primary}
                   onClick={() => setPhase('pickNext')}
                 >
                   Choose next goal
-                </Button>
+                </ButtonV2>
                 <Checkbox
                   name="disable_achievement_completion_fallback"
                   className="mt-2"
@@ -327,7 +327,7 @@ export const AchievementCompletionModal = ({
                             {userAchievement.achievement.description}
                           </Typography>
                         </div>
-                        <Button
+                        <ButtonV2
                           variant={
                             isTracked
                               ? ButtonVariant.Secondary
@@ -339,7 +339,7 @@ export const AchievementCompletionModal = ({
                           }
                         >
                           {isTracked ? 'Tracking' : 'Track'}
-                        </Button>
+                        </ButtonV2>
                       </div>
 
                       <div className="mt-2 flex items-center justify-between">

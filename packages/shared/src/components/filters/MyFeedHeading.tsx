@@ -3,11 +3,11 @@ import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { FilterIcon, PlusIcon } from '../icons';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -67,7 +67,7 @@ function MyFeedHeading({
         {!isMobile ? 'Feed settings' : null}
       </FeedSettingsButton>
       {showToggleShortcuts && (
-        <Button
+        <ButtonV2
           size={ButtonSize.Medium}
           variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
           className="mr-auto"
@@ -84,7 +84,7 @@ function MyFeedHeading({
           }
         >
           Shortcuts
-        </Button>
+        </ButtonV2>
       )}
     </>
   );

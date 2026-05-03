@@ -8,11 +8,11 @@ import RichTextInput from '../../fields/RichTextInput';
 import { WriteLinkPreview, WritePreviewSkeleton } from '../../post/write';
 import { usePostToSquad } from '../../../hooks';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { AtIcon } from '../../icons';
 import { Divider, Justify } from '../../utilities';
 import SourceButton from '../../cards/common/SourceButton';
@@ -77,7 +77,7 @@ export function CreateSharedPostModal({
 
   const footer = (
     <>
-      <Button
+      <ButtonV2
         icon={<AtIcon />}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
@@ -162,9 +162,9 @@ export function CreateSharedPostModal({
       </span>
       <Modal.Footer className="typo-caption1" justify={Justify.Start}>
         {footer}
-        <Button {...submitProps} className="ml-auto" form="share_post">
+        <ButtonV2 {...submitProps} className="ml-auto" form="share_post">
           Post
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

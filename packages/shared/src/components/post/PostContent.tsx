@@ -35,7 +35,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { PostArticlePreviewEmbed } from './PostArticlePreviewEmbed';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { EarthIcon } from '../icons';
 import { Drawer } from '../drawers/Drawer';
 import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
@@ -430,7 +430,7 @@ export function PostContentRaw({
             {!isTablet &&
               showArticlePreviewEmbed &&
               shouldShowArticlePreviewToggle && (
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}

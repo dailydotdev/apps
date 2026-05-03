@@ -4,7 +4,7 @@ import { FlexCentered } from '../utilities';
 import { MagicIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { Post } from '../../graphql/posts';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { TagLinks } from '../TagLinks';
 
 function SquadEmptyScreen({ post }: { post: Post }): ReactElement {

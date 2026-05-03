@@ -3,7 +3,7 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import type { DrawerRef, DrawerWrapperProps } from './Drawer';
 import { Drawer, DrawerPosition } from './Drawer';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import {
   Typography,
@@ -57,7 +57,7 @@ export function NavDrawer({
     >
       {header && (
         <div className="flex h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.XSmall}
             onClick={

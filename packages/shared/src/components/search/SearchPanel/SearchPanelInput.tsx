@@ -30,7 +30,7 @@ import { minSearchQueryLength } from '../../../graphql/search';
 import { SearchPanelInputCursor } from './SearchPanelInputCursor';
 import { useSearchProvider } from '../../../hooks/search';
 import { defaultSearchProvider, providerToLabelTextMap } from './common';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { ButtonV2, ButtonSize } from '../../buttons/ButtonV2';
 import { useSearchPanelAction } from './useSearchPanelAction';
 import { webappUrl } from '../../../lib/constants';
 import { useSearchContextProvider } from '../../../contexts/search/SearchContext';
@@ -232,7 +232,7 @@ export const SearchPanelInput = ({
             )}
           >
             {searchPanel.isActive && !!searchPanel.query && (
-              <Button
+              <ButtonV2
                 id="search-panel-input-clear-button"
                 type="button"
                 className="mr-2"
@@ -249,7 +249,7 @@ export const SearchPanelInput = ({
             )}
             {searchPanel.isActive && (
               <div className="flex h-full items-center border-l border-surface-float laptop:hidden">
-                <Button
+                <ButtonV2
                   type="button"
                   onClick={() => {
                     searchPanel.setActive({
@@ -258,7 +258,7 @@ export const SearchPanelInput = ({
                   }}
                 >
                   Cancel
-                </Button>
+                </ButtonV2>
               </div>
             )}
           </div>

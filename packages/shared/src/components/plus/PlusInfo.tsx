@@ -17,7 +17,7 @@ import { useConditionalFeature, usePlusSubscription } from '../../hooks';
 import { featurePlusApiLanding } from '../../lib/featureManagement';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { OpenCheckoutFn } from '../../contexts/payment/context';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { LogEvent, TargetId } from '../../lib/log';
 import { useGiftUserContext } from './GiftUserContext';
 import { PlusOptionRadio } from './PlusOptionRadio';
@@ -231,7 +231,7 @@ export const PlusInfo = ({
         </Typography>
 
         {showBuyAsAGiftButton && (
-          <Button
+          <ButtonV2
             icon={<GiftIcon />}
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Float}
@@ -254,7 +254,7 @@ export const PlusInfo = ({
             }}
           >
             Buy as a gift
-          </Button>
+          </ButtonV2>
         )}
       </div>
       {!!giftToUser && (
@@ -313,7 +313,7 @@ export const PlusInfo = ({
       </div>
       {onContinue ? (
         <div className="pt-6">
-          <Button
+          <ButtonV2
             size={ButtonSize.Medium}
             variant={ButtonVariant.Primary}
             className="w-full"
@@ -322,7 +322,7 @@ export const PlusInfo = ({
             loading={isContinueLoading}
           >
             Continue »
-          </Button>
+          </ButtonV2>
         </div>
       ) : undefined}
       {showPlusList && plusListContent}

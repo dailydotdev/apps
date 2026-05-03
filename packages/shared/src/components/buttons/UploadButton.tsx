@@ -3,11 +3,11 @@ import type { ReactElement } from 'react';
 import { useToastNotification } from '../../hooks';
 import { useFileValidation } from '../../features/fileUpload/hooks/useFileValidation';
 import { useFileInput } from '../../features/fileUpload/hooks/useFileInput';
-import type { ButtonProps } from './Button';
-import { Button } from './Button';
+import type { ButtonV2Props } from './ButtonV2';
+import { ButtonV2 } from './ButtonV2';
 import type { DragDropProps } from '../fields/DragDrop';
 
-export type UploadButtonProps = ButtonProps<'button'> &
+export type UploadButtonProps = ButtonV2Props<'button'> &
   Pick<DragDropProps, 'onFilesDrop' | 'validation' | 'errorMessages'>;
 
 export const UploadButton = ({
@@ -48,7 +48,7 @@ export const UploadButton = ({
   return (
     <>
       {input}
-      <Button onClick={openFileInput} disabled={disabled} {...buttonProps} />
+      <ButtonV2 onClick={openFileInput} disabled={disabled} {...buttonProps} />
     </>
   );
 };

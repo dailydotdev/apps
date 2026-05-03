@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
 import { Radio } from '../fields/Radio';
 import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { usePushNotificationMutation } from '../../hooks/notifications';
 import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
 import { usePersonalizedDigest } from '../../hooks';
@@ -136,16 +136,16 @@ export const ReadingReminder = ({
         </AlertParagraph>
       </Alert>
       <div className="mt-4 flex w-full flex-col-reverse gap-3 tablet:mt-10 tablet:w-auto tablet:flex-row tablet:gap-5">
-        <Button onClick={onSkip} variant={ButtonVariant.Secondary}>
+        <ButtonV2 onClick={onSkip} variant={ButtonVariant.Secondary}>
           I&apos;ll do it later
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           onClick={onSubmit}
           variant={ButtonVariant.Primary}
           loading={loading}
         >
           Submit
-        </Button>
+        </ButtonV2>
       </div>
     </>
   );

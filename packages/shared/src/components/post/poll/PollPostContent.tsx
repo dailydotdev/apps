@@ -25,7 +25,7 @@ import PostMetadata from '../../cards/common/PostMetadata';
 import { PostTagList } from '../tags/PostTagList';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { DiscussIcon } from '../../icons';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import type { Post } from '../../../graphql/posts';
 
 type PollPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
@@ -237,7 +237,7 @@ function PollPostContentRaw({
                     />
                     <Typography bold>Why did you vote this way?</Typography>
                   </div>
-                  <Button
+                  <ButtonV2
                     className="text-text-primary"
                     variant={ButtonVariant.Subtle}
                     size={ButtonSize.XSmall}
@@ -245,7 +245,7 @@ function PollPostContentRaw({
                     onClick={handleCommentClick}
                   >
                     Comment
-                  </Button>
+                  </ButtonV2>
                 </div>
               )}
             </div>

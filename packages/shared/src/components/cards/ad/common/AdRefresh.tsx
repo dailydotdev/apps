@@ -1,17 +1,17 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
-import type { AllowedTags, ButtonProps } from '../../../buttons/Button';
-import { Button } from '../../../buttons/Button';
+import type { AllowedTags, ButtonV2Props } from '../../../buttons/ButtonV2';
+import { ButtonV2 } from '../../../buttons/ButtonV2';
 import { RefreshIcon } from '../../../icons';
 
 export const AdRefresh = ({
   onClick,
   size = ButtonSize.Medium,
   ...props
-}: ButtonProps<AllowedTags>): ReactElement => {
+}: ButtonV2Props<AllowedTags>): ReactElement => {
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Float}
       size={size}
       icon={<RefreshIcon />}

@@ -8,10 +8,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { useIsLightTheme } from '../../../hooks/utils';
 import { briefButtonBg } from '../../../styles/custom';
 
@@ -62,20 +62,20 @@ export const AskHero = ({
         developers, instead of random web results.
       </Typography>
       <FlexRow className="mt-2 flex-wrap justify-center gap-3">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={onLearnClick}
         >
           I&apos;m learning to code
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Large}
           onClick={onDevClick}
         >
           I&apos;m already* developer
-        </Button>
+        </ButtonV2>
       </FlexRow>
     </FlexCol>
   );

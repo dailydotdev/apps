@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
 import type { ContentPreferenceType } from '../../graphql/contentPreference';
 import { ContentPreferenceStatus } from '../../graphql/contentPreference';
-import { ButtonVariant } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/ButtonV2';
 import { useContentPreference } from '../../hooks/contentPreference/useContentPreference';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import type { CopyType } from '../sources/SourceActions/SourceActionsFollow';

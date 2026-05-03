@@ -1,7 +1,7 @@
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface PostBlockedPanelProps {
   className?: string;
@@ -24,14 +24,14 @@ export function PostBlockedPanel({
       )}
     >
       {message}
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         className="absolute right-4"
         size={ButtonSize.Small}
         onClick={onActionClick}
       >
         {ctaCopy}
-      </Button>
+      </ButtonV2>
     </span>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MailIcon } from '../icons';
 import { TextField } from '../fields/TextField';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import useTimer from '../../hooks/useTimer';
 import { gqlClient } from '../../graphql/common';
 import {
@@ -182,7 +182,7 @@ function VerifyExperienceModal({
             value={workEmail}
             valueChanged={setWorkEmail}
             actionButton={
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 type="button"
                 disabled={!workEmail || timer > 0}
@@ -190,7 +190,7 @@ function VerifyExperienceModal({
                 size={ButtonSize.Small}
               >
                 {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
-              </Button>
+              </ButtonV2>
             }
           />
           {codeSent && (
@@ -208,7 +208,7 @@ function VerifyExperienceModal({
               onChange={() => hint && setHint('')}
             />
           )}
-          <Button
+          <ButtonV2
             data-testid="change_email_btn"
             className="mt-3 w-full"
             type="button"
@@ -217,7 +217,7 @@ function VerifyExperienceModal({
             onClick={() => verifyUserCompanyCode({ email: workEmail, code })}
           >
             Verify email
-          </Button>
+          </ButtonV2>
         </form>
       </ModalBody>
     </Modal>

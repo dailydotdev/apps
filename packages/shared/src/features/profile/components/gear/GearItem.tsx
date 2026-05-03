@@ -11,10 +11,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { TrashIcon } from '../../../../components/icons';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 
@@ -52,7 +52,7 @@ export function GearItem({
         </div>
         {isOwner && onDelete && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<TrashIcon />}

@@ -17,11 +17,11 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { ImageIcon, MarkdownIcon, LinkIcon, AtIcon } from '../../icons';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { RecommendedMentionTooltip } from '../../tooltips/RecommendedMentionTooltip';
 import type {
   UseMarkdownInput,
@@ -325,7 +325,7 @@ function MarkdownInput(
       {footer ?? (
         <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-3 px-4 text-text-tertiary laptop:justify-end laptop:border-t">
           {!!onUploadCommand && (
-            <Button
+            <ButtonV2
               size={actionButtonSizes}
               variant={ButtonVariant.Tertiary}
               color={uploadingCount ? ButtonColor.Cabbage : undefined}
@@ -343,7 +343,7 @@ function MarkdownInput(
                   uploadedCount={uploadedCount}
                 />
               )}
-            </Button>
+            </ButtonV2>
           )}
           <input
             type="file"
@@ -367,7 +367,7 @@ function MarkdownInput(
             )}
           >
             {!!onLinkCommand && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={actionButtonSizes}
                 icon={<LinkIcon secondary />}
@@ -376,7 +376,7 @@ function MarkdownInput(
               />
             )}
             {!!onMentionCommand && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={actionButtonSizes}
                 icon={<AtIcon />}
@@ -385,7 +385,7 @@ function MarkdownInput(
               />
             )}
             {showMarkdownGuide && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={actionButtonSizes}
                 icon={<MarkdownIcon />}
@@ -406,7 +406,7 @@ function MarkdownInput(
             textareaRef={textareaRef}
           />
           {shouldShowSubmit && (
-            <Button
+            <ButtonV2
               className="ml-auto"
               variant={ButtonVariant.Primary}
               color={ButtonColor.Cabbage}
@@ -415,7 +415,7 @@ function MarkdownInput(
               loading={isLoading}
             >
               {submitCopy}
-            </Button>
+            </ButtonV2>
           )}
         </span>
       )}

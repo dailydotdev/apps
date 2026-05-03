@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { FilterIcon } from '../icons';
 import { Checkbox } from '../fields/Checkbox';
 import useFeedSettings from '../../hooks/useFeedSettings';
@@ -44,7 +44,7 @@ const SearchFilterPostTypeButton = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Float}
           icon={<FilterIcon />}
           size={ButtonSize.Small}

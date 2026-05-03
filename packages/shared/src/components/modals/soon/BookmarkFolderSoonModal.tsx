@@ -11,7 +11,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { DevPlusIcon } from '../../icons';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { bookmarkFolderSoonImage } from '../../../lib/image';
@@ -79,7 +79,7 @@ const BookmarkFolderSoonModal = ({
               be among the first to experience it as soon as it launches!
             </Typography>
             <Link href={plusUrl} passHref>
-              <Button
+              <ButtonV2
                 className="w-full"
                 tag="a"
                 type="button"
@@ -94,7 +94,7 @@ const BookmarkFolderSoonModal = ({
                 }}
               >
                 {plusCta}
-              </Button>
+              </ButtonV2>
             </Link>
           </div>
         )}

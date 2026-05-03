@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import Link from './utilities/Link';
-import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import type { ButtonV2Props } from './buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { AlertDot, AlertColor } from './AlertDot';
 import { getTagPageLink } from '../lib/links';
 
@@ -11,7 +11,7 @@ interface TagLinkProps {
   tag: string;
   className?: string;
   isSelected?: boolean;
-  buttonProps?: ButtonProps<'a'>;
+  buttonProps?: ButtonV2Props<'a'>;
 }
 
 export function TagLink({
@@ -22,7 +22,7 @@ export function TagLink({
 }: TagLinkProps): ReactElement {
   return (
     <Link href={getTagPageLink(tag)} passHref key={tag} prefetch={false}>
-      <Button
+      <ButtonV2
         tag="a"
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Float}
@@ -36,7 +36,7 @@ export function TagLink({
             color={AlertColor.Cabbage}
           />
         )}
-      </Button>
+      </ButtonV2>
     </Link>
   );
 }

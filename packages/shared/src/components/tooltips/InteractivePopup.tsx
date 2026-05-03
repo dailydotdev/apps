@@ -6,7 +6,7 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import useSidebarRendered from '../../hooks/useSidebarRendered';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { MiniCloseIcon as CloseIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import type { DrawerOnMobileProps, PopupCloseFunc } from '../drawers';
 import { Drawer } from '../drawers';
@@ -143,7 +143,7 @@ function InteractivePopup({
         >
           {finalPosition !== InteractivePopupPosition.ProfileMenu &&
             onClose && (
-              <Button
+              <ButtonV2
                 size={buttonSize}
                 variant={buttonVariant}
                 className={classNames('absolute z-1', buttonPosition)}

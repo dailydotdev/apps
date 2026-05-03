@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ChromeIcon, EdgeIcon, PlusIcon } from '../icons';
 import {
   Typography,
@@ -102,10 +102,14 @@ const ShortcutsExtensionPromo = ({
         </ShortcutPlaceholder>
       </div>
       <div className="flex gap-4">
-        <Button type="button" variant={ButtonVariant.Float} onClick={onDismiss}>
+        <ButtonV2
+          type="button"
+          variant={ButtonVariant.Float}
+          onClick={onDismiss}
+        >
           Skip for now
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           tag="a"
           href={downloadBrowserExtension}
           target="_blank"
@@ -115,7 +119,7 @@ const ShortcutsExtensionPromo = ({
           onClick={handleInstallClick}
         >
           Install for {isEdge ? 'Edge' : 'Chrome'}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

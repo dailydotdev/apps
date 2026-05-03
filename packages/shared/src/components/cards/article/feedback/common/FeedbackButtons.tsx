@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonColor, ButtonVariant } from '../../../../buttons/Button';
+import {
+  ButtonV2,
+  ButtonColor,
+  ButtonVariant,
+} from '../../../../buttons/ButtonV2';
 import { UserVote } from '../../../../../graphql/posts';
 import { DownvoteIcon, UpvoteIcon } from '../../../../icons';
 import type { FeedbackProps } from './common';
@@ -12,7 +16,7 @@ export const FeedbackButtons = ({
 }: FeedbackProps): ReactElement => {
   return (
     <div className="relative flex items-center gap-3">
-      <Button
+      <ButtonV2
         id="upvote-post-btn"
         pressed={post?.userState?.vote === UserVote.Up}
         onClick={onUpvoteClick}
@@ -21,7 +25,7 @@ export const FeedbackButtons = ({
         color={ButtonColor.Avocado}
         aria-label="Upvote"
       />
-      <Button
+      <ButtonV2
         id="downvote-post-btn"
         pressed={post?.userState?.vote === UserVote.Down}
         onClick={onDownvoteClick}

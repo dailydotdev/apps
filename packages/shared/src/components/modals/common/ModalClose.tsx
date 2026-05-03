@@ -1,11 +1,11 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
 import CloseButton from '../../CloseButton';
 import { useModalContext } from './types';
 
-export type ModalCloseProps = ButtonProps<'button'> & {
+export type ModalCloseProps = ButtonV2Props<'button'> & {
   position?: 'absolute' | 'fixed' | 'relative' | 'sticky' | 'static';
   zIndex?: '0' | '1' | '2';
   right?: '0' | '1' | '2' | '3' | '4';

@@ -7,7 +7,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { EditIcon, PlusIcon, TrashIcon } from '../../icons';
 
 interface SourceStackItemProps {
@@ -59,7 +59,7 @@ export function SourceStackItem({
       {canEdit && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onEdit && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<EditIcon />}
@@ -68,7 +68,7 @@ export function SourceStackItem({
             />
           )}
           {onDelete && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<TrashIcon />}

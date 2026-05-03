@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonVariant } from './buttons/ButtonV2';
 import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import { TargetType } from '../lib/log';
@@ -47,20 +47,20 @@ export default function LoginButton({
 
   return (
     <span className={classNames('flex flex-row', className?.container)}>
-      <Button
+      <ButtonV2
         onClick={() => onClick(ButtonCopy.Login)}
         variant={ButtonVariant.Secondary}
         className={className?.button}
       >
         {ButtonCopy.Login}
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         onClick={() => onClick(ButtonCopy.Signup)}
         variant={ButtonVariant.Primary}
         className={className?.button}
       >
         {ButtonCopy.Signup}
-      </Button>
+      </ButtonV2>
     </span>
   );
 }

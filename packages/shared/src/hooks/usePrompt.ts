@@ -1,13 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
-import type { ButtonProps } from '../components/buttons/Button';
+import type { ButtonV2Props } from '../components/buttons/ButtonV2';
 import type { ModalSize } from '../components/modals/common/types';
 import { generateQueryKey, RequestKey } from '../lib/query';
 
 export const PROMPT_KEY = generateQueryKey(RequestKey.Prompt, undefined);
 
-export type PromptButtonProps = Omit<ButtonProps<'button'>, 'onClick'> & {
+export type PromptButtonProps = Omit<ButtonV2Props<'button'>, 'onClick'> & {
   title?: string;
 };
 

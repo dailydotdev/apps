@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { FeedSettingsEditContext } from './FeedSettingsEditContext';
 import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { Modal } from '../../modals/common/Modal';
 import { ModalPropsContext } from '../../modals/common/types';
@@ -34,7 +34,7 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
 
   if (isNewFeed) {
     return (
-      <Button
+      <ButtonV2
         type="submit"
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}
@@ -52,13 +52,13 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
         }}
       >
         Create feed
-      </Button>
+      </ButtonV2>
     );
   }
 
   if (activeView !== 'General' && activeView !== 'Filters') {
     return (
-      <Button
+      <ButtonV2
         type="submit"
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}
@@ -67,12 +67,12 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
         }}
       >
         Save
-      </Button>
+      </ButtonV2>
     );
   }
 
   return (
-    <Button
+    <ButtonV2
       type="submit"
       size={ButtonSize.Small}
       variant={ButtonVariant.Primary}
@@ -81,7 +81,7 @@ const SaveButton = ({ activeView }: { activeView: string }): ReactElement => {
       disabled={!isDirty}
     >
       Save
-    </Button>
+    </ButtonV2>
   );
 };
 
@@ -111,7 +111,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
     >
       <FeedSettingsTitle className="hidden tablet:flex" />
       <div className="flex w-full justify-between gap-2 tablet:w-auto tablet:justify-start">
-        <Button
+        <ButtonV2
           type="button"
           size={ButtonSize.Small}
           variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
@@ -130,9 +130,9 @@ export const FeedSettingsEditHeader = (): ReactElement => {
           }}
         >
           Cancel
-        </Button>
+        </ButtonV2>
         {!isPlus && feed?.type === FeedType.Custom ? (
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -147,7 +147,7 @@ export const FeedSettingsEditHeader = (): ReactElement => {
             }}
           >
             {plusCta}
-          </Button>
+          </ButtonV2>
         ) : (
           <SaveButton activeView={activeView} />
         )}

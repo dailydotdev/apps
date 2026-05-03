@@ -13,7 +13,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { Button } from '../../../components/buttons/Button';
+import { ButtonV2 } from '../../../components/buttons/ButtonV2';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { ChromeIcon, EdgeIcon } from '../../../components/icons';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -62,7 +62,7 @@ const BrowserExtension = ({
             ),
           }}
         />
-        <Button
+        <ButtonV2
           href={downloadBrowserExtension}
           icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
           data-funnel-track={FunnelTargetId.DownloadExtension}
@@ -82,7 +82,7 @@ const BrowserExtension = ({
           variant={ButtonVariant.Primary}
         >
           <span>Get it for {isEdge ? 'Edge' : 'Chrome'}</span>
-        </Button>
+        </ButtonV2>
         <Typography
           color={TypographyColor.Secondary}
           tag={TypographyTag.P}

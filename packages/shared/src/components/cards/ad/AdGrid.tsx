@@ -18,7 +18,7 @@ import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
@@ -60,7 +60,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
       <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
           {!!ad.callToAction && (
-            <Button
+            <ButtonV2
               tag="a"
               href={ad.link}
               target="_blank"
@@ -71,7 +71,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
               {...combinedClicks(() => onLinkClick?.(ad))}
             >
               {ad.callToAction}
-            </Button>
+            </ButtonV2>
           )}
           <AdvertiseLink
             targetId={TargetId.AdCard}

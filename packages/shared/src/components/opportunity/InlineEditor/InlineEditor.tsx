@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -126,7 +126,7 @@ export const InlineEditor = ({
           {/* Action buttons */}
           <div className="flex items-center justify-between border-t border-border-subtlest-tertiary pt-4">
             {onRemove ? (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 onClick={onRemove}
@@ -134,20 +134,20 @@ export const InlineEditor = ({
                 className="text-status-error"
               >
                 Remove section
-              </Button>
+              </ButtonV2>
             ) : (
               <div />
             )}
             <div className="flex items-center gap-3">
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 onClick={handleDiscard}
                 disabled={isSubmitting}
               >
                 Cancel
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 onClick={handleSave}
@@ -155,7 +155,7 @@ export const InlineEditor = ({
                 disabled={!isDirty}
               >
                 Save
-              </Button>
+              </ButtonV2>
             </div>
           </div>
         </div>

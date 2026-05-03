@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   EyeIcon,
   MiniCloseIcon as CloseIcon,
@@ -23,7 +23,7 @@ export function ReaderDiscussionToggleButton({
 }: ReaderDiscussionToggleButtonProps): ReactElement {
   return (
     <Tooltip content="Show discussion">
-      <Button
+      <ButtonV2
         icon={<SidebarArrowRight />}
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}
@@ -46,7 +46,7 @@ export function ReaderCloseButton({
 }: ReaderCloseButtonProps): ReactElement {
   return (
     <Tooltip side="bottom" content="Close">
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<CloseIcon />}
         size={ButtonSize.Small}
@@ -76,7 +76,7 @@ export function ReaderLegacyLayoutToggleButton({
         isClassicTarget ? 'Use classic post layout' : 'Use embedded reader'
       }
     >
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<EyeIcon />}
         size={ButtonSize.Small}

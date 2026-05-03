@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React from 'react';
-import type { AllowedTags, ButtonProps } from '../../buttons/Button';
-import { Button } from '../../buttons/Button';
+import type { AllowedTags, ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import {
   Typography,
@@ -16,8 +16,8 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { Image } from '../../image/Image';
 
 interface ActionSuccessModalProps<T extends AllowedTags> extends ModalProps {
-  cta?: ButtonProps<T> & { copy: string };
-  secondaryCta?: ButtonProps<T> & { copy: string };
+  cta?: ButtonV2Props<T> & { copy: string };
+  secondaryCta?: ButtonV2Props<T> & { copy: string };
   content: {
     title: string;
     description: string;
@@ -90,34 +90,34 @@ export function ActionSuccessModal<T extends AllowedTags>({
         </div>
         {body}
         {cta && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             className="w-full"
             type="button"
             {...cta}
           >
             {cta.copy}
-          </Button>
+          </ButtonV2>
         )}
         {secondaryCta && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             className="w-full"
             type="button"
             {...secondaryCta}
           >
             {secondaryCta.copy}
-          </Button>
+          </ButtonV2>
         )}
         {withCloseOnTablet && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             className="hidden w-full tablet:flex"
             type="button"
             onClick={props.onRequestClose}
           >
             Close
-          </Button>
+          </ButtonV2>
         )}
       </Modal.Body>
     </Modal>

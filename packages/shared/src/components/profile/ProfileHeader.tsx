@@ -13,7 +13,7 @@ import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -73,7 +73,7 @@ const ProfileHeader = ({
       />
       <div className="flex flex-col gap-3 px-6">
         <Link passHref href={`${webappUrl}settings/profile`}>
-          <Button
+          <ButtonV2
             className={classNames(
               'mb-4 ml-auto mt-2 text-text-secondary',
               !isSameUser && 'invisible',

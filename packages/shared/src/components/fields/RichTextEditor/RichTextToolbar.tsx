@@ -8,7 +8,7 @@ import React, {
 import { useEditorState } from '@tiptap/react';
 import type { Editor } from '@tiptap/react';
 import { getMarkRange } from '@tiptap/core';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   BoldIcon,
   ItalicIcon,
@@ -54,7 +54,7 @@ const ToolbarButton = ({
 
   return (
     <Tooltip content={tooltip}>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={React.cloneElement(icon, {

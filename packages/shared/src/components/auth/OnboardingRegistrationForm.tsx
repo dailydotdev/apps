@@ -6,8 +6,8 @@ import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
 import type { AuthTriggersType } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { isIOSNative } from '../../lib/func';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
@@ -35,7 +35,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   isReady: boolean;
   isSocialAuthLoading?: boolean;
   className?: ClassName;
-  onboardingSignupButton?: ButtonProps<'button'>;
+  onboardingSignupButton?: ButtonV2Props<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
 }
@@ -141,7 +141,7 @@ export const OnboardingRegistrationForm = ({
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
         {getSignupProviders().map((provider) => (
           <li key={provider.value}>
-            <Button
+            <ButtonV2
               aria-label={`Continue using ${provider.label}`}
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
@@ -154,7 +154,7 @@ export const OnboardingRegistrationForm = ({
               variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
             >
               Continue with {provider.label}
-            </Button>
+            </ButtonV2>
           </li>
         ))}
       </ul>
@@ -177,7 +177,7 @@ export const OnboardingRegistrationForm = ({
           />
         )}
         <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
-        <Button
+        <ButtonV2
           aria-label="Signup using email"
           className={compact ? 'mb-4' : 'mb-8'}
           data-funnel-track={FunnelTargetId.SignupProvider}
@@ -191,7 +191,7 @@ export const OnboardingRegistrationForm = ({
           variant={ButtonVariant.Float}
         >
           Continue with email
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

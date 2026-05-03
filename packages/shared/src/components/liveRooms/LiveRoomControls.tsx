@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { EmojiPicker } from '../fields/EmojiPicker';
 import {
   CameraIcon,
@@ -267,7 +267,7 @@ export const LiveRoomControls = ({
           <div className="flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-1.5 shadow-2">
             {LIVE_ROOM_QUICK_REACTION_EMOJIS.map((emoji) => (
               <TooltipButton key={emoji} tooltip={`React ${emoji}`}>
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Float}
@@ -283,7 +283,7 @@ export const LiveRoomControls = ({
                   }
                 >
                   <span className="text-lg leading-none">{emoji}</span>
-                </Button>
+                </ButtonV2>
               </TooltipButton>
             ))}
             <EmojiPicker
@@ -306,7 +306,7 @@ export const LiveRoomControls = ({
                   tooltip="Custom reaction"
                   wrapDisabled={isBusy('reaction-custom')}
                 >
-                  <Button
+                  <ButtonV2
                     type="button"
                     size={ButtonSize.Small}
                     variant={
@@ -467,7 +467,7 @@ export const LiveRoomControls = ({
 
           <ControlGroup>
             <TooltipButton tooltip={reactionTooltip}>
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={
@@ -497,14 +497,14 @@ export const LiveRoomControls = ({
                 }}
               >
                 <span className="text-base leading-none">😀</span>
-              </Button>
+              </ButtonV2>
             </TooltipButton>
             {canRaiseHand ? (
               <TooltipButton
                 tooltip={isHandRaised ? 'Lower hand' : 'Raise hand'}
                 wrapDisabled={isBusy('hand')}
               >
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={
@@ -543,7 +543,7 @@ export const LiveRoomControls = ({
               </TooltipButton>
             ) : null}
             <TooltipButton tooltip={settingsTooltip}>
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={
@@ -563,7 +563,7 @@ export const LiveRoomControls = ({
               />
             </TooltipButton>
             {isModerated && isAudience ? (
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={
@@ -582,14 +582,14 @@ export const LiveRoomControls = ({
                 }
               >
                 {queueTooltip}
-              </Button>
+              </ButtonV2>
             ) : null}
             {isFreeForAll && isAudience ? (
               <TooltipButton
                 tooltip={joinStageTooltip}
                 wrapDisabled={!canJoinStage || isBusy('join-stage')}
               >
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={
@@ -610,7 +610,7 @@ export const LiveRoomControls = ({
                   }
                 >
                   {joinStageTooltip}
-                </Button>
+                </ButtonV2>
               </TooltipButton>
             ) : null}
             {canLeaveStage ? (
@@ -618,7 +618,7 @@ export const LiveRoomControls = ({
                 tooltip="Leave stage"
                 wrapDisabled={isBusy('leave-stage')}
               >
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Secondary}
@@ -634,7 +634,7 @@ export const LiveRoomControls = ({
                   }
                 >
                   Leave stage
-                </Button>
+                </ButtonV2>
               </TooltipButton>
             ) : null}
           </ControlGroup>
@@ -644,7 +644,7 @@ export const LiveRoomControls = ({
           <ControlGroup>
             {showGoLive ? (
               <TooltipButton tooltip="Go live" wrapDisabled={isBusy('go-live')}>
-                <Button
+                <ButtonV2
                   type="button"
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Primary}
@@ -660,11 +660,11 @@ export const LiveRoomControls = ({
                   }
                 >
                   Go live
-                </Button>
+                </ButtonV2>
               </TooltipButton>
             ) : null}
             {privilegeState.hasHostPrivileges ? (
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Secondary}
@@ -680,9 +680,9 @@ export const LiveRoomControls = ({
                 }
               >
                 End standup
-              </Button>
+              </ButtonV2>
             ) : (
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
@@ -696,7 +696,7 @@ export const LiveRoomControls = ({
                 }}
               >
                 Leave
-              </Button>
+              </ButtonV2>
             )}
           </ControlGroup>
         </div>

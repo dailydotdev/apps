@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -73,14 +73,14 @@ export const DashboardView = ({
             <Typography type={TypographyType.Title2} bold>
               All Opportunities ({opportunities.length})
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={onAddNew}
             >
               Add New
-            </Button>
+            </ButtonV2>
           </div>
 
           {onStateFilterChange && (
@@ -114,13 +114,13 @@ export const DashboardView = ({
 
           {hasNextPage && (
             <div className="flex justify-center pt-4">
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Secondary}
                 onClick={onLoadMore}
                 loading={isLoadingMore}
               >
                 Load more
-              </Button>
+              </ButtonV2>
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import Link from './utilities/Link';
 import { PageContainer } from './utilities';
-import { Button, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonVariant } from './buttons/ButtonV2';
 import { useThemedAsset } from '../hooks/utils';
 
 interface Custom404Props {
@@ -25,9 +25,9 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
           You’re not supposed to be here.
         </p>
         <Link href="/" passHref>
-          <Button tag="a" variant={ButtonVariant.Primary}>
+          <ButtonV2 tag="a" variant={ButtonVariant.Primary}>
             Go home
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     </PageContainer>

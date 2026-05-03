@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useBuyCoresContext } from '../../contexts/BuyCoresContext/types';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -61,7 +61,7 @@ export const CoreOptionButton = ({
     selectedProduct,
   ]);
   return (
-    <Button
+    <ButtonV2
       className={classNames(
         'w-full',
         selectedProduct?.id === id
@@ -98,13 +98,13 @@ export const CoreOptionButton = ({
       >
         {priceFormatted}
       </Typography>
-    </Button>
+    </ButtonV2>
   );
 };
 
 export const CoreOptionButtonPlaceholder = (): ReactElement => {
   return (
-    <Button
+    <ButtonV2
       className="w-full"
       variant={ButtonVariant.Float}
       size={ButtonSize.Large}
@@ -115,6 +115,6 @@ export const CoreOptionButtonPlaceholder = (): ReactElement => {
         color={TypographyColor.Primary}
         bold
       />
-    </Button>
+    </ButtonV2>
   );
 };

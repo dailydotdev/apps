@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import type z from 'zod';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import type { recruiterOrganizationEditSchema } from '../../features/organizations/schema';
 import type { Organization } from '../../features/organizations/types';
 import { usePrompt } from '../../hooks/usePrompt';
@@ -122,22 +122,22 @@ export const OrganizationEditForm = ({
 
   const actionButtons = (
     <>
-      <Button
+      <ButtonV2
         type="button"
         variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
         onClick={handleCancel}
       >
         Cancel
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         type="submit"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
         loading={isSubmitting}
       >
         Save
-      </Button>
+      </ButtonV2>
     </>
   );
 

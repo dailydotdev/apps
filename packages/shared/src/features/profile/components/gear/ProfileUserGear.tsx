@@ -23,10 +23,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { PlusIcon, SettingsIcon } from '../../../../components/icons';
 import { SortableGearItem } from './GearItem';
 import { GearModal } from './GearModal';
@@ -141,14 +141,14 @@ export function ProfileUserGear({
           Gear
         </Typography>
         {isOwner && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
             onClick={handleOpenModal}
           >
             Add
-          </Button>
+          </ButtonV2>
         )}
       </div>
 
@@ -187,14 +187,14 @@ export function ProfileUserGear({
             >
               Share the gear you use with the community
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
               Add your first gear
-            </Button>
+            </ButtonV2>
           </div>
         )
       )}

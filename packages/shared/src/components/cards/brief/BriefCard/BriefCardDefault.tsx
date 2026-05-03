@@ -15,7 +15,7 @@ import {
 import type { BriefCardProps } from './BriefCard';
 import { BriefGradientIcon } from '../../../icons';
 import { IconSize } from '../../../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../../buttons/ButtonV2';
 import {
   BriefingType,
   getGenerateBriefingMutationOptions,
@@ -119,7 +119,7 @@ export const BriefCardDefault = ({
         {title}
       </Typography>
       {children}
-      <Button
+      <ButtonV2
         style={{
           background: briefButtonBg,
         }}
@@ -134,7 +134,7 @@ export const BriefCardDefault = ({
         }}
       >
         Deploy the agent
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

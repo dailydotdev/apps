@@ -14,7 +14,7 @@ import useFeedSettings from '../../../../hooks/useFeedSettings';
 import { useLanguage } from '../../../../hooks/useLanguage';
 import { plusUrl } from '../../../../lib/constants';
 import { LogEvent, TargetId, Origin } from '../../../../lib/log';
-import { Button } from '../../../buttons/Button';
+import { ButtonV2 } from '../../../buttons/ButtonV2';
 import { ButtonVariant, ButtonSize } from '../../../buttons/common';
 import ConditionalWrapper from '../../../ConditionalWrapper';
 import { DevPlusIcon, ShieldPlusIcon } from '../../../icons';
@@ -60,7 +60,7 @@ export const FeedSettingsAISection = (): ReactElement => {
               Upgrade and use daily.dev&apos;s AI Superpowers!
             </Typography>
             <Link href={plusUrl} passHref>
-              <Button
+              <ButtonV2
                 className="ml-auto w-fit"
                 tag="a"
                 type="button"
@@ -75,7 +75,7 @@ export const FeedSettingsAISection = (): ReactElement => {
                 }}
               >
                 {plusCta}
-              </Button>
+              </ButtonV2>
             </Link>
           </div>
           <Divider className="bg-border-subtlest-tertiary" />
@@ -162,7 +162,7 @@ export const FeedSettingsAISection = (): ReactElement => {
         >
           {!isPlus ? (
             <Link href={plusUrl} passHref>
-              <Button
+              <ButtonV2
                 tag="a"
                 variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
@@ -176,7 +176,7 @@ export const FeedSettingsAISection = (): ReactElement => {
                 }}
               >
                 {triesLeft}/{maxTries} uses left this month
-              </Button>
+              </ButtonV2>
             </Link>
           ) : undefined}
           <Switch

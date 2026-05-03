@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import type { UserShortProfile } from '../../lib/user';
 import { MegaphoneIcon, VolumeOffIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
@@ -282,14 +282,14 @@ export const LiveRoomVideoTile = ({
         ) : null}
       </div>
       {needsAudioGesture ? (
-        <Button
+        <ButtonV2
           className="absolute right-3 top-3"
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           onClick={handleEnableAudio}
         >
           Tap to unmute
-        </Button>
+        </ButtonV2>
       ) : null}
     </div>
   );

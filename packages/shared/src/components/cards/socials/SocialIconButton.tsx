@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import type { Post } from '../../../graphql/posts';
 import {
   LinkedInIcon,
@@ -93,7 +93,7 @@ const SocialIconButton = ({
   const linkData = queryClient.getQueryData<string | undefined>(linkKey);
 
   return (
-    <Button
+    <ButtonV2
       variant={variant}
       tag="a"
       onClick={() =>

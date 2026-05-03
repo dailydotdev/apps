@@ -1,10 +1,10 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { IconSize } from '../../../components/Icon';
 import { JobIcon } from '../../../components/icons';
 import Link from '../../../components/utilities/Link';
@@ -26,7 +26,7 @@ export const CandidatePreferenceButton = ({
   const { logEvent } = useLogContext();
   return (
     <Link href={`${settingsUrl}/job-preferences`} passHref>
-      <Button
+      <ButtonV2
         tag="a"
         size={ButtonSize.Large}
         variant={ButtonVariant.Subtle}
@@ -41,7 +41,7 @@ export const CandidatePreferenceButton = ({
         }}
       >
         {label}
-      </Button>
+      </ButtonV2>
     </Link>
   );
 };

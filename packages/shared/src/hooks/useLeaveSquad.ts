@@ -7,7 +7,7 @@ import { usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
-import { ButtonColor } from '../components/buttons/Button';
+import { ButtonColor } from '../components/buttons/ButtonV2';
 import { ContentPreferenceType } from '../graphql/contentPreference';
 import { generateQueryKey, RequestKey } from '../lib/query';
 import { useAuthContext } from '../contexts/AuthContext';

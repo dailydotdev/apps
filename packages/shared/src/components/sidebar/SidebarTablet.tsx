@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { SidebarAside } from './common';
 import { LogoPosition } from '../Logo';
 import Link from '../utilities/Link';
@@ -58,7 +58,7 @@ export const SidebarTablet = ({
   const { alerts } = useAlertsContext();
   const { user, isLoggedIn, squads } = useAuthContext();
   const { unreadCount } = useNotificationContext();
-  const buttonProps: ButtonProps<'a' | 'button'> = {
+  const buttonProps: ButtonV2Props<'a' | 'button'> = {
     variant: ButtonVariant.Tertiary,
     size: ButtonSize.Large,
     className:
@@ -97,7 +97,7 @@ export const SidebarTablet = ({
         className={classNames('h-10 pt-4')}
       />
       <Link href={`${webappUrl}`} prefetch={false} passHref>
-        <Button
+        <ButtonV2
           {...buttonProps}
           tag="a"
           icon={<HomeIcon secondary={activeNav.home} size={IconSize.Medium} />}
@@ -106,11 +106,11 @@ export const SidebarTablet = ({
           pressed={activeNav.home}
         >
           Home
-        </Button>
+        </ButtonV2>
       </Link>
 
       <Link href={`${webappUrl}posts`} prefetch={false} passHref>
-        <Button
+        <ButtonV2
           {...buttonProps}
           tag="a"
           icon={<AiIcon secondary={activeNav.explore} size={IconSize.Medium} />}
@@ -119,11 +119,11 @@ export const SidebarTablet = ({
           pressed={activeNav.explore}
         >
           Explore
-        </Button>
+        </ButtonV2>
       </Link>
 
       <Link href={`${webappUrl}highlights`} prefetch={false} passHref>
-        <Button
+        <ButtonV2
           {...buttonProps}
           tag="a"
           icon={
@@ -137,11 +137,11 @@ export const SidebarTablet = ({
           pressed={activeNav.highlights}
         >
           Headlines
-        </Button>
+        </ButtonV2>
       </Link>
 
       <Link href={`${webappUrl}notifications`} prefetch={false} passHref>
-        <Button
+        <ButtonV2
           {...buttonProps}
           tag="a"
           icon={
@@ -162,11 +162,11 @@ export const SidebarTablet = ({
           pressed={activeNav.notifications}
         >
           Activity
-        </Button>
+        </ButtonV2>
       </Link>
 
       <Link href={squadsUrl} prefetch={false} passHref>
-        <Button
+        <ButtonV2
           {...buttonProps}
           tag="a"
           icon={
@@ -177,7 +177,7 @@ export const SidebarTablet = ({
           pressed={activeNav.squads}
         >
           Squads
-        </Button>
+        </ButtonV2>
       </Link>
 
       <ConditionalWrapper
@@ -210,7 +210,7 @@ export const SidebarTablet = ({
             prefetch={false}
             passHref
           >
-            <Button
+            <ButtonV2
               {...buttonProps}
               tag="a"
               icon={
@@ -227,14 +227,14 @@ export const SidebarTablet = ({
                   1
                 </Bubble>
               )}
-            </Button>
+            </ButtonV2>
           </Link>
         </div>
       </ConditionalWrapper>
 
       {isLoggedIn && user && (
         <Link href={user.permalink} prefetch={false} passHref>
-          <Button
+          <ButtonV2
             {...buttonProps}
             tag="a"
             icon={
@@ -245,7 +245,7 @@ export const SidebarTablet = ({
             pressed={activeNav.profile}
           >
             Profile
-          </Button>
+          </ButtonV2>
         </Link>
       )}
 

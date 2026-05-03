@@ -9,7 +9,7 @@ import {
   AccordionHeader,
 } from '@radix-ui/react-accordion';
 import styles from './style.module.css';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 
 interface AccordionProps {
@@ -106,7 +106,7 @@ export function Accordion({
 
   return (
     <div className="flex w-full flex-col">
-      <Button
+      <ButtonV2
         aria-controls={contentId}
         aria-expanded={isOpenAndEnabled}
         className={classNames(
@@ -123,7 +123,7 @@ export function Accordion({
             'rotate-180': !isOpenAndEnabled,
           })}
         />
-      </Button>
+      </ButtonV2>
       <div
         aria-hidden={!isOpenAndEnabled}
         className={classNames(

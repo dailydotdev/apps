@@ -9,10 +9,10 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { TooltipArrow } from '../../svg/TooltipArrow';
@@ -45,7 +45,7 @@ export function BoostNewPostStrip({
           <strong className="mx-1">10k more devs</strong>
           <span>now!</span>
         </Typography>
-        <Button
+        <ButtonV2
           className="ml-auto tablet:ml-1"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}

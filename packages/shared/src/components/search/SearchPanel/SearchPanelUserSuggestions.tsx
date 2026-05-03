@@ -10,7 +10,7 @@ import { useSearchPanelAction } from './useSearchPanelAction';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { webappUrl } from '../../../lib/constants';
-import type { ButtonProps } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
 import { SearchPanelItem } from './SearchPanelItem';
 import { Image } from '../../image/Image';
 import {
@@ -27,7 +27,7 @@ export type SearchPanelUserSuggestionsProps = {
   title: string;
 };
 
-type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
+type PanelItemProps = Pick<ButtonV2Props<'a'>, 'onClick'> & {
   showFollow?: boolean;
   suggestion: SearchSuggestion;
 };

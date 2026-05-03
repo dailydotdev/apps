@@ -15,7 +15,7 @@ import {
   ShareIcon,
   TrendingIcon,
 } from '../../icons';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import type { Squad } from '../../../graphql/sources';
 import { useCampaignById } from '../../../graphql/campaigns';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -106,7 +106,7 @@ export function SquadOptionsButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           icon={<MenuIcon />}
           size={ButtonSize.Small}

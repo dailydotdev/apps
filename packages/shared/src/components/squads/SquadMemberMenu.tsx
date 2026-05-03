@@ -20,11 +20,11 @@ import type { UseSquadActions } from '../../hooks';
 import { usePlusSubscription, useToastNotification } from '../../hooks';
 import { verifyPermission } from '../../graphql/squads';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { LazyModal } from '../modals/common/types';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -255,7 +255,7 @@ export default function SquadMemberMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild tooltip={{ content: 'Member options' }}>
-        <Button
+        <ButtonV2
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
           className="z-1 m-auto ml-2 mr-0"

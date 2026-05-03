@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -56,7 +56,7 @@ const HighlightCardOptionsContent = ({
 
   return (
     <Tooltip content={label}>
-      <Button
+      <ButtonV2
         type="button"
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}

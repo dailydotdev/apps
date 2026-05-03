@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   ReminderPreference,
   useBookmarkReminder,
@@ -17,7 +17,7 @@ import { usePostActions } from '../../../hooks/post/usePostActions';
 interface PostReminderOptionsProps {
   post: Post;
   className?: string;
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
 }
 
 export function PostReminderOptions({
@@ -40,23 +40,23 @@ export function PostReminderOptions({
   };
   return (
     <span className={classNames('flex flex-row flex-wrap gap-3', className)}>
-      <Button
+      <ButtonV2
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
           runBookmarkReminder(ReminderPreference.LaterToday),
         )}
       >
         Later today
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
           runBookmarkReminder(ReminderPreference.Tomorrow),
         )}
       >
         Tomorrow
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         {...buttonProps}
         onClick={wrapStopPropagation(() =>
           openModal({
@@ -70,7 +70,7 @@ export function PostReminderOptions({
         )}
       >
         Other
-      </Button>
+      </ButtonV2>
     </span>
   );
 }

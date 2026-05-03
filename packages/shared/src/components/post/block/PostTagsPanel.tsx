@@ -7,11 +7,11 @@ import { isNullOrUndefined } from '../../../lib/func';
 import { PostBlockedPanel } from './PostBlockedPanel';
 import CloseButton from '../../CloseButton';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { SourceAvatar } from '../../profile/source';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import type { BlockTagSelection } from './common';
@@ -109,7 +109,7 @@ export function PostTagsPanel({
         className="mt-4 flex flex-1 flex-row flex-wrap content-start gap-2 overflow-auto"
         role="list"
       >
-        <Button
+        <ButtonV2
           variant={
             shouldBlockSource ? ButtonVariant.Primary : ButtonVariant.Float
           }
@@ -118,7 +118,7 @@ export function PostTagsPanel({
           onClick={() => setShouldBlockSource(!shouldBlockSource)}
         >
           {post.source.name}
-        </Button>
+        </ButtonV2>
         {post.tags.map((tag) => (
           <GenericTagButton
             key={tag}
@@ -131,13 +131,13 @@ export function PostTagsPanel({
         ))}
       </span>
       <span className="-mx-4 mt-4 flex flex-row gap-2 border-t border-border-subtlest-tertiary p-3">
-        <Button
+        <ButtonV2
           className="ml-auto"
           variant={ButtonVariant.Tertiary}
           onClick={onReport}
         >
           Report
-        </Button>
+        </ButtonV2>
         <ConditionalWrapper
           condition={isBlockDisabled}
           wrapper={(children: ReactElement) => (
@@ -146,14 +146,14 @@ export function PostTagsPanel({
             </Tooltip>
           )}
         >
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={() => onBlock(tags, shouldBlockSource)}
             disabled={isBlockDisabled}
           >
             Block
-          </Button>
+          </ButtonV2>
         </ConditionalWrapper>
       </span>
     </div>

@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { settingsUrl } from '../../../lib/constants';
 import type { Organization } from '../types';
 import Link from '../../../components/utilities/Link';
-import { Button, ButtonSize } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonSize } from '../../../components/buttons/ButtonV2';
 import { ArrowIcon } from '../../../components/icons';
 import { Image, ImageType } from '../../../components/image/Image';
 import {
@@ -21,7 +21,7 @@ export const OrganizationSidebarHeader = ({
   return (
     <div className="relative flex h-10 items-center gap-2">
       <Link href={`${settingsUrl}/organization`} passHref>
-        <Button
+        <ButtonV2
           tag="a"
           size={ButtonSize.XSmall}
           icon={<ArrowIcon className="-rotate-90" />}

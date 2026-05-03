@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { LazyModalCommonProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -62,22 +62,22 @@ export default function DirtyFormModal({
           </Typography>
         </div>
         <div className="flex w-full items-center justify-center gap-4">
-          <Button
+          <ButtonV2
             className="flex-1"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
             onClick={handleDiscard}
           >
             Discard
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             className="flex-1"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             onClick={handleSave}
           >
             Save changes
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Body>
     </Modal>

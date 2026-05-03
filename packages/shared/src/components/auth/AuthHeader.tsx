@@ -6,7 +6,7 @@ import type {
   ComponentProps,
 } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import { Modal } from '../modals/common/Modal';
 import { ModalHeaderKind } from '../modals/common/types';
@@ -42,7 +42,7 @@ function AuthHeader({
       title={title}
     >
       {onBack && (
-        <Button
+        <ButtonV2
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           className="mr-2"

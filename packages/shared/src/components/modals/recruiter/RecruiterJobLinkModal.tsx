@@ -9,7 +9,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 import { TextField } from '../../fields/TextField';
 import { MagicIcon, ShieldIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
@@ -261,7 +261,7 @@ export const RecruiterJobLinkModal = ({
             </Alert>
           )}
 
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={handleSubmit}
@@ -271,7 +271,7 @@ export const RecruiterJobLinkModal = ({
           >
             <MagicIcon />
             Analyze & find matches
-          </Button>
+          </ButtonV2>
 
           <div className="flex items-center justify-center gap-2">
             <ShieldIcon className="text-text-secondary" />

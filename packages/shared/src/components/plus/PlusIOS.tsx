@@ -21,7 +21,7 @@ import PlusListModalSection from './PlusListModalSection';
 import { PlusInfo } from './PlusInfo';
 import type { MarketingCtaFlags } from '../marketingCta/common';
 import { MarketingCtaVariant } from '../marketingCta/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { LogEvent } from '../../lib/log';
 
 const PlusTrustRefund = dynamic(() =>
@@ -176,13 +176,13 @@ export const PlusIOS = ({
         />
         {showModalSection ? (
           <>
-            <Button
+            <ButtonV2
               onClick={onContinue}
               variant={ButtonVariant.Primary}
               className="mt-8"
             >
               {ctaText}
-            </Button>
+            </ButtonV2>
           </>
         ) : (
           <>

@@ -1,8 +1,8 @@
 import type { MutableRefObject, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { PageHeader, PageHeaderTitle } from '../../layout/common';
 
 interface Copy {
@@ -19,8 +19,8 @@ export interface FormWrapperProps {
   className?: ClassName;
   form: string;
   copy?: Copy;
-  leftButtonProps?: ButtonProps<'button'>;
-  rightButtonProps?: ButtonProps<'button'>;
+  leftButtonProps?: ButtonV2Props<'button'>;
+  rightButtonProps?: ButtonV2Props<'button'>;
   title?: string | React.ReactNode;
   isHeaderTitle?: boolean;
   headerRef?: MutableRefObject<HTMLDivElement>;
@@ -59,18 +59,18 @@ export function FormWrapper({
         )}
         ref={headerRef}
       >
-        <Button {...leftButtonProps} variant={ButtonVariant.Tertiary}>
+        <ButtonV2 {...leftButtonProps} variant={ButtonVariant.Tertiary}>
           {isHeaderTitle ? null : left}
-        </Button>
+        </ButtonV2>
         {isHeaderTitle && title && titleElement}
-        <Button
+        <ButtonV2
           {...rightButtonProps}
           variant={ButtonVariant.Primary}
           form={form}
           className={classNames('ml-auto', rightButtonProps.className)}
         >
           {right}
-        </Button>
+        </ButtonV2>
       </PageHeader>
       {!isHeaderTitle && title && titleElement}
       {children}

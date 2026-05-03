@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Typography, TypographyType } from '../../typography/Typography';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { Checkbox } from '../../fields/Checkbox';
 import { ShieldIcon } from '../../icons';
 import Link from '../../utilities/Link';
@@ -112,14 +112,14 @@ export const RecruiterTrustModal = ({
             I agree to honor the trust developers have placed in daily.dev
           </Checkbox>
 
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             onClick={handleNext}
             disabled={!trustAgreed}
             className="w-full tablet:w-auto"
           >
             Agree
-          </Button>
+          </ButtonV2>
 
           <Link passHref href={stateOfTrust}>
             <a

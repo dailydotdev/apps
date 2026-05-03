@@ -7,7 +7,7 @@ import { useContentPreferenceStatusQuery } from '../../hooks/contentPreference/u
 import { NotificationAvatarType } from '../../graphql/notifications';
 import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { FollowButton } from '../contentPreference/FollowButton';
-import { ButtonVariant } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/ButtonV2';
 import { CopyType } from '../sources/SourceActions/SourceActionsFollow';
 import { Origin } from '../../lib/log';
 

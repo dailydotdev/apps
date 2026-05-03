@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../modals/common/Modal';
 import { Modal } from '../modals/common/Modal';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { CardCover } from '../cards/common/CardCover';
 import type { MarketingCta } from './common';
 import { CTAButton, Description, Header, Title } from './common';
@@ -59,7 +59,7 @@ export const MarketingCtaModal = ({
             buttonSize={ButtonSize.Medium}
           />
         ) : (
-          <Button
+          <ButtonV2
             className="absolute right-2 top-2"
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}

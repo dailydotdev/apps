@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Typography, TypographyType } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import Link from '../utilities/Link';
 import { settingsUrl, webappUrl } from '../../lib/constants';
 import { FilterIcon } from '../icons';
@@ -16,16 +16,16 @@ export const OpportunityHeader = (): ReactElement => {
       </Typography>
       <div className="flex gap-2">
         <Link href={howItWorksUrl} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
           >
             How it works
-          </Button>
+          </ButtonV2>
         </Link>
         <Link href={jobPreferenceUrl} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}

@@ -8,10 +8,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { PlusIcon } from '../../../../components/icons';
 import { HotTakeItem } from './HotTakeItem';
 import { HotTakeModal } from './HotTakeModal';
@@ -146,14 +146,14 @@ export function ProfileUserHotTakes({
           Hot Takes
         </Typography>
         {isOwner && canAddMore && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
             onClick={handleOpenModal}
           >
             Add
-          </Button>
+          </ButtonV2>
         )}
       </div>
       {hasItems ? (
@@ -190,14 +190,14 @@ export function ProfileUserHotTakes({
                 What are the opinions that define you as a developer?
               </Typography>
             </div>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
               Add your first hot take
-            </Button>
+            </ButtonV2>
           </div>
         )
       )}

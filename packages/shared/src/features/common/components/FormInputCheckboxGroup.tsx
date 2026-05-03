@@ -2,11 +2,11 @@ import type { ComponentProps, PropsWithChildren, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonSize,
-} from '../../../components/buttons/Button';
-import type { ButtonProps } from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
+import type { ButtonV2Props } from '../../../components/buttons/ButtonV2';
 import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
 
 type CheckboxValue = string;
@@ -78,7 +78,7 @@ const FormInputCheckbox = ({
   name,
   optionStyle,
   ...props
-}: ButtonProps<'button'> & {
+}: ButtonV2Props<'button'> & {
   isSelected: boolean;
   isVertical: boolean;
   name: string;
@@ -86,7 +86,7 @@ const FormInputCheckbox = ({
   optionStyle?: 'default' | 'simplified';
 }) => {
   return (
-    <Button
+    <ButtonV2
       aria-checked={isSelected}
       aria-label={item.label}
       className={classNames(isVertical ? '!h-auto typo-subhead' : 'typo-body', {
@@ -133,7 +133,7 @@ const FormInputCheckbox = ({
           {item.label}
         </span>
       </div>
-    </Button>
+    </ButtonV2>
   );
 };
 

@@ -15,10 +15,10 @@ import {
   TypographyColor,
 } from '../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import type { Company } from '../../../lib/userCompany';
 
 type ProfileCompanyProps = {
@@ -110,7 +110,7 @@ const ProfileCompany = ({
         </Typography>
       )}
       {company && companyId && (
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
@@ -118,7 +118,7 @@ const ProfileCompany = ({
           onClick={handleUnlink}
         >
           Unlink {entityLabel}
-        </Button>
+        </ButtonV2>
       )}
     </div>
   );

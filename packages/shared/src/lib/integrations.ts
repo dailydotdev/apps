@@ -4,7 +4,7 @@ import { AppIcon, SlackIcon } from '../components/icons';
 import { UserIntegrationType } from '../graphql/integrations';
 import type { PromptOptions } from '../hooks/usePrompt';
 import { labels } from './labels';
-import { ButtonColor } from '../components/buttons/Button';
+import { ButtonColor } from '../components/buttons/ButtonV2';
 
 const integrationTypeToIconMap: Record<
   UserIntegrationType,

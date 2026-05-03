@@ -16,7 +16,7 @@ import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import { ButtonColor } from '../buttons/Button';
+import { ButtonColor } from '../buttons/ButtonV2';
 import { CardAction } from '../buttons/CardAction';
 import { CardActionBar } from '../buttons/CardActionBar';
 import { BookmarkButton } from '../buttons';

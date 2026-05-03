@@ -13,7 +13,10 @@ import {
   Typography,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import ConditionalWrapper from '../../../../components/ConditionalWrapper';
 import { LockIcon, PlusIcon } from '../../../../components/icons';
 import { ModalHeader } from '../../../../components/modals/common/ModalHeader';
@@ -267,7 +270,7 @@ export function UserStackModal({
               </Typography>
               <div className="flex flex-wrap gap-2">
                 {SECTION_OPTIONS.map((opt) => (
-                  <Button
+                  <ButtonV2
                     key={opt}
                     type="button"
                     variant={
@@ -281,9 +284,9 @@ export function UserStackModal({
                     }}
                   >
                     {opt}
-                  </Button>
+                  </ButtonV2>
                 ))}
-                <Button
+                <ButtonV2
                   type="button"
                   variant={
                     isCustomSection
@@ -293,7 +296,7 @@ export function UserStackModal({
                   onClick={() => setValue('section', 'custom')}
                 >
                   Custom
-                </Button>
+                </ButtonV2>
               </div>
               {isCustomSection && (
                 <TextField
@@ -345,14 +348,14 @@ export function UserStackModal({
             </div>
 
             {!isMobile && (
-              <Button
+              <ButtonV2
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 loading={isSubmitting}
                 variant={ButtonVariant.Primary}
               >
                 {isEditing ? 'Save changes' : 'Add to stack'}
-              </Button>
+              </ButtonV2>
             )}
           </Modal.Body>
         </form>

@@ -4,7 +4,7 @@ import { PasswordField } from '../fields/PasswordField';
 import { Checkbox } from '../fields/Checkbox';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import type { UserExperienceLevel } from '../../lib/user';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import ImageInput from '../fields/ImageInput';
 import { useGenerateUsername } from '../../hooks';
 import { labels } from '../../lib';
@@ -218,14 +218,14 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       >
         I don&apos;t want to receive updates and promotions via email
       </Checkbox>
-      <Button
+      <ButtonV2
         className="w-full"
         type="submit"
         variant={ButtonVariant.Primary}
         disabled={disabled}
       >
         {submitLabel}
-      </Button>
+      </ButtonV2>
     </form>
   );
 };

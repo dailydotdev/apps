@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { TextField } from '../fields/TextField';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { MinusIcon, PlusIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
 import { usePlusSubscription } from '../../hooks';
@@ -90,7 +90,7 @@ export const PlusAdjustQuantity = ({
           focused
           onChange={({ target }) => onQuantityChange(Number(target.value))}
         />
-        <Button
+        <ButtonV2
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<MinusIcon />}
@@ -98,7 +98,7 @@ export const PlusAdjustQuantity = ({
           loading={checkoutItemsLoading}
           onClick={() => onQuantityChange(itemQuantity - 1)}
         />
-        <Button
+        <ButtonV2
           size={ButtonSize.Large}
           variant={ButtonVariant.Secondary}
           icon={<PlusIcon />}

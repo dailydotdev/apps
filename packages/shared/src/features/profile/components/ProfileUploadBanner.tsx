@@ -15,10 +15,10 @@ import {
   uploadCvBgTablet,
 } from '../../../lib/image';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { MiniCloseIcon } from '../../../components/icons';
 import { useToastNotification, useViewSize, ViewSize } from '../../../hooks';
 import { cvUploadBannerBg } from '../../../styles/custom';
@@ -151,7 +151,7 @@ export function ProfileUploadBanner({
         />
         <FeelingLazy />
       </div>
-      <Button
+      <ButtonV2
         className="absolute right-2 top-2"
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon />}

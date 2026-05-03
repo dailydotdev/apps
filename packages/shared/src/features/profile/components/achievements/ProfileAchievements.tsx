@@ -13,7 +13,10 @@ import {
 } from '../../../../components/typography/Typography';
 import { ProfileEmptyScreen } from '../../../../components/profile/ProfileEmptyScreen';
 import { MedalBadgeIcon } from '../../../../components/icons';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
 import { useAuthContext } from '../../../../contexts/AuthContext';
@@ -159,7 +162,7 @@ export function ProfileAchievements({
           </Typography>
         </div>
         {loggedUser && !isOwner && (
-          <Button
+          <ButtonV2
             className="mt-3"
             variant={ButtonVariant.Secondary}
             onClick={() =>
@@ -173,7 +176,7 @@ export function ProfileAchievements({
             }
           >
             Compare achievements
-          </Button>
+          </ButtonV2>
         )}
       </div>
       {shouldShowTrackingWidget && <AchievementTrackingWidget user={user} />}

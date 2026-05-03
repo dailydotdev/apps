@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import { webappUrl } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonVariant } from '../buttons/common';
 import {
   Typography,
@@ -81,7 +81,7 @@ export const FeaturedCoresWidget = ({
               );
             })}
       </div>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Float}
         onClick={() => onClick({ target_id: 'See more options', origin })}
         tag="a"
@@ -93,7 +93,7 @@ export const FeaturedCoresWidget = ({
         )}
       >
         See more options
-      </Button>
+      </ButtonV2>
     </WidgetContainer>
   );
 };

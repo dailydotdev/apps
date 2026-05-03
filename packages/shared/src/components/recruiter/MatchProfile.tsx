@@ -8,7 +8,7 @@ import {
 import { FlexCol, FlexRow } from '../utilities';
 import { LinkIcon, ReputationIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { largeNumberFormat } from '../../lib';
 import { getLastActivityDateFormat } from '../../lib/dateFormat';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -59,7 +59,7 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
         <FlexRow className="flex-1 justify-between gap-1">
           <Typography type={TypographyType.Body}>Profile details</Typography>
           {profile.cvUrl && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Option}
               size={ButtonSize.XSmall}
               icon={<LinkIcon />}
@@ -69,7 +69,7 @@ export const MatchProfile = ({ profile }: MatchProfileProps): ReactElement => {
               rel={anchorDefaultRel}
             >
               Show CV
-            </Button>
+            </ButtonV2>
           )}
         </FlexRow>
       </FlexRow>

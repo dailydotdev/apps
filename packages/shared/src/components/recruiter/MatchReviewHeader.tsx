@@ -6,11 +6,11 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { FlexCol, FlexRow } from '../utilities';
 import { ArrowIcon, MiniCloseIcon } from '../icons';
 
@@ -44,7 +44,7 @@ export const MatchReviewHeader = ({
       <FlexCol>
         {onReject && onApprove && (
           <FlexRow className="items-center gap-2">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<ArrowIcon className="-rotate-90" />}
@@ -59,7 +59,7 @@ export const MatchReviewHeader = ({
             >
               {currentMatch} of {totalMatches} for review
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<ArrowIcon className="rotate-90" />}
@@ -75,7 +75,7 @@ export const MatchReviewHeader = ({
       </FlexCol>
       <FlexRow className="gap-2">
         {onReject && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Secondary}
             icon={<MiniCloseIcon />}
             size={ButtonSize.Small}
@@ -83,10 +83,10 @@ export const MatchReviewHeader = ({
             disabled={disabled}
           >
             Reject
-          </Button>
+          </ButtonV2>
         )}
         {onApprove && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             color={ButtonColor.Cabbage}
@@ -94,7 +94,7 @@ export const MatchReviewHeader = ({
             disabled={disabled}
           >
             Approve &amp; Request intro
-          </Button>
+          </ButtonV2>
         )}
       </FlexRow>
     </FlexRow>

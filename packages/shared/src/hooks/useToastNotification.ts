@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ButtonProps } from '../components/buttons/Button';
+import type { ButtonV2Props } from '../components/buttons/ButtonV2';
 
 type AnyFunction = (() => Promise<unknown>) | (() => unknown);
 
@@ -25,7 +25,7 @@ export interface ToastNotification {
   onClose?: AnyFunction;
   action?: {
     onClick: AnyFunction;
-    buttonProps?: ButtonProps<'button'>;
+    buttonProps?: ButtonV2Props<'button'>;
     copy: string;
   };
 }

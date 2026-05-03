@@ -1,6 +1,6 @@
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { BlockIcon, VIcon } from '../../icons';
 
@@ -17,7 +17,7 @@ export function SquadModerationActions({
 }: SquadModerationActionsProps): ReactElement {
   return (
     <div className="flex w-full flex-row gap-4">
-      <Button
+      <ButtonV2
         size={ButtonSize.Small}
         className="flex-1"
         disabled={isLoading}
@@ -26,8 +26,8 @@ export function SquadModerationActions({
         onClick={onReject}
       >
         Decline
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         size={ButtonSize.Small}
         className="flex-1"
         disabled={isLoading}
@@ -36,7 +36,7 @@ export function SquadModerationActions({
         onClick={onApprove}
       >
         Approve
-      </Button>
+      </ButtonV2>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { usePostCodeSnippetsQuery } from '../../hooks/post/usePostCodeSnippets';
 import { RenderMarkdown } from '../RenderMarkdown';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import type { Post } from '../../graphql/posts';
 import { postLogEvent } from '../../lib/feed';
@@ -69,7 +69,7 @@ export const PostCodeSnippets = ({
 
   const NavigationButtons = (
     <>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         className="-rotate-90"
         icon={<ArrowIcon />}
@@ -77,7 +77,7 @@ export const PostCodeSnippets = ({
         size={ButtonSize.Small}
         onClick={prevSnippet}
       />
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         className="rotate-90"
         icon={<ArrowIcon />}

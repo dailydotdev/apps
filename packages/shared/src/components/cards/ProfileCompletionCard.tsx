@@ -7,7 +7,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import ProgressCircle from '../ProgressCircle';
 import CloseButton from '../CloseButton';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -196,7 +196,7 @@ export const ProfileCompletionCard = ({
             ))}
           </ul>
         </div>
-        <Button
+        <ButtonV2
           style={{
             background: profileCompletionButtonBg,
           }}
@@ -209,7 +209,7 @@ export const ProfileCompletionCard = ({
           onClick={handleCtaClick}
         >
           {firstIncompleteItem.cta}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

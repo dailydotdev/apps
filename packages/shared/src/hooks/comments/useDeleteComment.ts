@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { PromptOptions } from '../usePrompt';
 import { usePrompt } from '../usePrompt';
 import { ButtonVariant } from '../../components/buttons/common';
-import { ButtonColor } from '../../components/buttons/Button';
+import { ButtonColor } from '../../components/buttons/ButtonV2';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import { deleteComment } from '../../graphql/comments';

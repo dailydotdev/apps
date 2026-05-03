@@ -14,7 +14,7 @@ import type { Comment } from '../../../graphql/comments';
 import { formToJson } from '../../../lib/form';
 import type { Post } from '../../../graphql/posts';
 import { useWriteCommentContext } from '../../../contexts/WriteCommentContext';
-import { ButtonVariant } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/ButtonV2';
 
 export interface CommentClassName {
   container?: string;

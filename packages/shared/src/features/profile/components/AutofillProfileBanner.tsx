@@ -13,10 +13,10 @@ import { FeelingLazy } from './FeelingLazy';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { UploadIcon } from '../../../components/icons/Upload';
 import { useFileInput } from '../../fileUpload/hooks/useFileInput';
 import { useFileValidation } from '../../fileUpload/hooks/useFileValidation';
@@ -92,7 +92,7 @@ export function AutofillProfileBanner({
           Instantly import your details directly from your CV!
         </Typography>
         <div className="my-2 flex flex-row gap-3">
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
             icon={<UploadIcon />}
@@ -100,16 +100,16 @@ export function AutofillProfileBanner({
             disabled={isLoading}
           >
             Upload PDF
-          </Button>
+          </ButtonV2>
           {showManualButton && (
             <Link href={`${webappUrl}settings/profile`} passHref>
-              <Button
+              <ButtonV2
                 tag="a"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Subtle}
               >
                 Fill in manually
-              </Button>
+              </ButtonV2>
             </Link>
           )}
         </div>

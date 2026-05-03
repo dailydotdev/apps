@@ -6,7 +6,7 @@ import {
   TypographyColor,
 } from '../../typography/Typography';
 import { DevPlusIcon } from '../../icons';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 import type { MarketingCta } from '../../marketingCta/common';
 import CloseButton from '../../CloseButton';
 import { useBoot } from '../../../hooks';
@@ -109,7 +109,7 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
           </div>
         </div>
 
-        <Button
+        <ButtonV2
           tag="a"
           href={ctaUrl || '/plus'}
           variant={ButtonVariant.Primary}
@@ -117,7 +117,7 @@ const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
           onClick={handleClick}
         >
           {ctaText}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { useContentPreferenceStatusQuery } from '../../../hooks/contentPreference/useContentPreferenceStatusQuery';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import useShowFollowAction from '../../../hooks/useShowFollowAction';
-import { ButtonVariant } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/ButtonV2';
 import Link from '../../utilities/Link';
 import {
   Typography,

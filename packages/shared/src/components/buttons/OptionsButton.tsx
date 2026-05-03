@@ -2,12 +2,12 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { TooltipContentProps } from '@radix-ui/react-tooltip';
-import type { AllowedTags, ButtonProps } from './Button';
-import { Button, ButtonSize, ButtonVariant } from './Button';
+import type { AllowedTags, ButtonV2Props } from './ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './ButtonV2';
 import { MenuIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 
-type OptionsButtonProps = ButtonProps<AllowedTags> &
+type OptionsButtonProps = ButtonV2Props<AllowedTags> &
   Pick<TooltipContentProps, 'side'>;
 
 const OptionsButton = ({
@@ -18,7 +18,7 @@ const OptionsButton = ({
   ...props
 }: OptionsButtonProps): ReactElement => (
   <Tooltip side={side} content="Options">
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Tertiary}
       {...props}
       className={classNames('my-auto', className)}

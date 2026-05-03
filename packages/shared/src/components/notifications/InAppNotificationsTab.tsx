@@ -20,7 +20,7 @@ import {
 
 import { ButtonVariant } from '../buttons/common';
 import { ArrowIcon } from '../icons';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { usePushNotificationMutation } from '../../hooks/notifications';
@@ -117,7 +117,7 @@ const InAppNotificationsTab = (): ReactElement => {
             down for moderation notification settings.
           </Typography>
         </div>
-        <Button
+        <ButtonV2
           icon={<ArrowIcon className="m-auto rotate-90" />}
           variant={ButtonVariant.Option}
           onClick={() =>

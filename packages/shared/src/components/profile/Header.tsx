@@ -8,7 +8,7 @@ import type {
   UserShortProfile,
 } from '../../lib/user';
 import { BlockIcon, FlagIcon, GiftIcon, JobIcon, SettingsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import {
   getPathnameWithQuery,
@@ -179,14 +179,14 @@ export function Header({
       <div className="flex flex-row gap-2">
         {isSameUser && (
           <Link href={`${webappUrl}account/profile`}>
-            <Button
+            <ButtonV2
               tag="a"
               className="hidden laptop:flex"
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
             >
               Edit profile
-            </Button>
+            </ButtonV2>
           </Link>
         )}
         {!blocked && (
@@ -271,7 +271,7 @@ export function Header({
             }
             passHref
           >
-            <Button
+            <ButtonV2
               tag="a"
               className="ml-2 tablet:hidden"
               variant={ButtonVariant.Float}
@@ -290,7 +290,7 @@ export function Header({
               aria-label="Jobs"
             />
           </Link>
-          <Button
+          <ButtonV2
             className="ml-2 laptop:hidden"
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}

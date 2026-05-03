@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon, MiniCloseIcon as CloseIcon } from '../icons';
 import { PostHeaderActions } from './PostHeaderActions';
 import { PostPosition } from '../../hooks/usePostModalNavigation';
@@ -38,7 +38,7 @@ function PostNavigation({
     >
       {onPreviousPost && (
         <Tooltip content="Previous">
-          <Button
+          <ButtonV2
             className="-rotate-90"
             icon={<ArrowIcon />}
             size={ButtonSize.Small}
@@ -53,7 +53,7 @@ function PostNavigation({
       )}
       {onNextPost && (
         <Tooltip content="Next">
-          <Button
+          <ButtonV2
             className="rotate-90"
             icon={<ArrowIcon />}
             size={ButtonSize.Small}
@@ -81,7 +81,7 @@ function PostNavigation({
         )}
         {props?.onClose && (
           <Tooltip side="bottom" content="Close">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               icon={<CloseIcon />}
               size={ButtonSize.Small}

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import classed from '../../../lib/classed';
 import type { PostHeaderActionsProps } from '../common';
 import Link from '../../utilities/Link';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { ButtonV2, ButtonSize } from '../../buttons/ButtonV2';
 import { settingsUrl } from '../../../lib/constants';
 import { LinkIcon, SettingsIcon } from '../../icons';
 import { useSharePost } from '../../../hooks/useSharePost';
@@ -32,14 +32,14 @@ export const BriefPostHeaderActions = ({
     <Container {...props} className={classNames('gap-2', className)}>
       <div className="hidden laptop:block">
         {showShareButton && (
-          <Button
+          <ButtonV2
             icon={<LinkIcon />}
             size={ButtonSize.Medium}
             onClick={() => copyLink({ post })}
           />
         )}
         <Link passHref href={`${settingsUrl}/notifications`}>
-          <Button icon={<SettingsIcon />} tag="a" size={ButtonSize.Medium} />
+          <ButtonV2 icon={<SettingsIcon />} tag="a" size={ButtonSize.Medium} />
         </Link>
       </div>
     </Container>

@@ -1,7 +1,7 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
-import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import type { ButtonV2Props } from './buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { MiniCloseIcon as CloseIcon } from './icons';
 
 function CloseButtonComponent(
@@ -9,11 +9,11 @@ function CloseButtonComponent(
     size = ButtonSize.Medium,
     variant = ButtonVariant.Tertiary,
     ...props
-  }: ButtonProps<'button'>,
+  }: ButtonV2Props<'button'>,
   ref: Ref<HTMLButtonElement>,
 ): ReactElement {
   return (
-    <Button
+    <ButtonV2
       title="Close"
       {...props}
       size={size}

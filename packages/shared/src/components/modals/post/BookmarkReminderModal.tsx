@@ -6,7 +6,7 @@ import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
 import { ModalBody } from '../common/ModalBody';
 import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   getRemindAt,
   ReminderPreference,
@@ -70,7 +70,7 @@ const BookmarkReminderModalOption = (
     timeFormat && format(getRemindAt(now, value), timeFormat);
 
   return (
-    <Button
+    <ButtonV2
       aria-checked={isActive}
       aria-label={value}
       className="w-full"
@@ -87,7 +87,7 @@ const BookmarkReminderModalOption = (
           <span className="text-text-quaternary"> ({timeForOption})</span>
         )}
       </span>
-    </Button>
+    </ButtonV2>
   );
 };
 
@@ -144,12 +144,12 @@ export const BookmarkReminderModal = (
             ))}
           </div>
           <div className="mt-5 flex flex-row justify-center">
-            <Button
+            <ButtonV2
               className="w-full responsiveModalBreakpoint:w-auto"
               variant={ButtonVariant.Primary}
             >
               Set reminder
-            </Button>
+            </ButtonV2>
           </div>
         </form>
       </ModalBody>

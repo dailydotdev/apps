@@ -6,7 +6,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { anchorDefaultRel } from '../../lib/strings';
 import { plusPublicApiDocs } from '../../lib/constants';
 import type { IconProps } from '../Icon';
@@ -91,7 +91,7 @@ export const PlusApiShowcase = (): ReactElement => {
         ))}
       </div>
       <div className="mt-8 flex justify-center">
-        <Button
+        <ButtonV2
           tag="a"
           href={plusPublicApiDocs}
           target="_blank"
@@ -100,7 +100,7 @@ export const PlusApiShowcase = (): ReactElement => {
           variant={ButtonVariant.Secondary}
         >
           Read the API docs
-        </Button>
+        </ButtonV2>
       </div>
     </section>
   );

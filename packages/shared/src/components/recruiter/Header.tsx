@@ -6,7 +6,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { MoveToIcon } from '../icons';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import HeaderLogo from '../layout/HeaderLogo';
 
 export interface RecruiterHeaderButton {
@@ -46,7 +46,7 @@ export const RecruiterHeader = ({
         </div>
       </div>
       {headerButton && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           onClick={headerButton.onClick}
@@ -55,7 +55,7 @@ export const RecruiterHeader = ({
         >
           <span className="mr-1.5">{headerButton.text}</span>{' '}
           {headerButton.icon || <MoveToIcon />}
-        </Button>
+        </ButtonV2>
       )}
     </header>
   );

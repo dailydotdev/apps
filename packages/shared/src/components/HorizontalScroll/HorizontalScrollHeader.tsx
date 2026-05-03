@@ -2,7 +2,7 @@ import type { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import Link from '../utilities/Link';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ArrowIcon } from '../icons';
@@ -74,7 +74,7 @@ export function HorizontalScrollHeader({
           )}
       {canScroll && (
         <div className="hidden flex-row items-center gap-3 tablet:flex">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}
             disabled={isAtStart}
@@ -82,7 +82,7 @@ export function HorizontalScrollHeader({
             aria-label="Scroll left"
             size={buttonSize}
           />
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="rotate-90" />}
             disabled={isAtEnd}
@@ -99,14 +99,14 @@ export function HorizontalScrollHeader({
                 </Link>
               )}
             >
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 onClick={onClickSeeAll}
                 aria-label="See all"
                 tag={linkToSeeAll ? 'a' : 'button'}
               >
                 See all
-              </Button>
+              </ButtonV2>
             </ConditionalWrapper>
           )}
         </div>

@@ -26,7 +26,7 @@ import {
 import { KeywordSelection } from '../../../features/opportunity/components/KeywordSelection';
 import ProfileLocation from '../../profile/ProfileLocation';
 import { LocationDataset } from '../../../graphql/autocomplete';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { EditIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 
@@ -150,7 +150,7 @@ export const InlineRoleInfoEditor = ({
       <div className="relative">
         <div className="absolute right-0 top-0 flex items-center gap-1">
           {extraActions}
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<EditIcon size={IconSize.Small} />}
@@ -386,22 +386,22 @@ export const InlineRoleInfoEditor = ({
 
         {/* Action buttons */}
         <div className="flex items-center justify-end gap-3 border-t border-border-subtlest-tertiary pt-4">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             onClick={handleCancel}
             disabled={isPending}
           >
             Cancel
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             onClick={onSubmit}
             loading={isPending}
           >
             Save
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     </FormProvider>

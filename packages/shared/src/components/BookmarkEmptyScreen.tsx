@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { BookmarkIcon } from './icons';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import Link from './utilities/Link';
 import type { IconProps } from './Icon';
 import { IconSize } from './Icon';
@@ -41,9 +41,13 @@ export default function BookmarkEmptyScreen({
         {description}
       </p>
       <Link href="/" passHref>
-        <Button variant={ButtonVariant.Primary} tag="a" size={ButtonSize.Large}>
+        <ButtonV2
+          variant={ButtonVariant.Primary}
+          tag="a"
+          size={ButtonSize.Large}
+        >
           Back to feed
-        </Button>
+        </ButtonV2>
       </Link>
     </main>
   );

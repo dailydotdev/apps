@@ -3,7 +3,7 @@ import React from 'react';
 import type ReactModal from 'react-modal';
 import { Modal } from './common/Modal';
 import { ModalKind, ModalSize } from './common/types';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -72,14 +72,14 @@ export default function ContentModal({
               {description}
             </Typography>
           </div>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             className="mt-3 w-full"
             onClick={onRequestClose}
           >
             {buttonText}
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     </Modal>

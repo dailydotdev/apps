@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { OpenLinkIcon } from '../icons';
 
 interface SponsoredTagHeroProps {
@@ -114,7 +114,7 @@ export const SponsoredTagHero = ({
 
         {/* CTA button - white style */}
         {ctaUrl && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
             tag="a"
@@ -125,7 +125,7 @@ export const SponsoredTagHero = ({
           >
             {ctaText}
             <OpenLinkIcon className="ml-2" />
-          </Button>
+          </ButtonV2>
         )}
       </div>
 

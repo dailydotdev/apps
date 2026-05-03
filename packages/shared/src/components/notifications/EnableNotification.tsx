@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import {
   cloudinaryNotificationsBrowserEnabled,
@@ -114,14 +114,14 @@ function EnableNotification({
       >
         <BellNotifyIcon secondary className="mr-2" /> Never miss new posts from{' '}
         {label}
-        <Button
+        <ButtonV2
           className="ml-auto mr-14"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.XSmall}
           onClick={onEnable}
         >
           {buttonText}
-        </Button>
+        </ButtonV2>
         <CloseButton className="absolute right-3" onClick={onDismiss} />
       </span>
     );
@@ -182,7 +182,7 @@ function EnableNotification({
       </div>
       <div className="mt-4 flex items-center justify-start">
         {!acceptedJustNow && (
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
@@ -190,16 +190,16 @@ function EnableNotification({
             onClick={onEnable}
           >
             {buttonText}
-          </Button>
+          </ButtonV2>
         )}
         {showTextCloseButton && (
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             onClick={onDismiss}
           >
             Dismiss
-          </Button>
+          </ButtonV2>
         )}
         {!showTextCloseButton && !shouldUseTopRightCloseButton && (
           <CloseButton size={ButtonSize.XSmall} onClick={onDismiss} />

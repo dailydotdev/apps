@@ -9,10 +9,10 @@ import {
 import { DragDrop } from '../../../components/fields/DragDrop';
 import { fileValidation } from '../../profile/hooks/useUploadCv';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { UploadIcon } from '../../../components/icons/Upload';
 import { FeelingLazy } from '../../profile/components/FeelingLazy';
 import ConditionalWrapper from '../../../components/ConditionalWrapper';
@@ -91,7 +91,7 @@ export const CVOverlay = ({
         <CVUploadInfoBox />
         <div className="flex flex-col justify-between gap-4 tablet:flex-row">
           {backButton}
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
             onClick={() => {
@@ -101,7 +101,7 @@ export const CVOverlay = ({
             loading={isUploadPending}
           >
             Upload CV & Activate Filters
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     </ConditionalWrapper>

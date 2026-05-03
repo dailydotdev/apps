@@ -8,7 +8,7 @@ import {
   cloudinarySquadsPromotionSettings,
   cloudinarySquadsPromotionInvite,
 } from '../../lib/image';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { FlexCentered, Justify } from '../utilities';
 import Carousel from '../containers/Carousel';
 import { ModalFooter } from '../modals/common/ModalFooter';
@@ -30,7 +30,7 @@ interface PromotionTourProps {
 
 const bannerClass = 'h-60 bg-cover';
 
-const FooterButton = classed(Button, 'w-22');
+const FooterButton = classed(ButtonV2, 'w-22');
 const iconMap = {
   [SourceMemberRole.Moderator]: UserIcon,
   [SourceMemberRole.Admin]: StarIcon,

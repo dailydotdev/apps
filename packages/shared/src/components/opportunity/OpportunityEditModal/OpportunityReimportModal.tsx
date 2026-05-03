@@ -12,7 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 import { TextField } from '../../fields/TextField';
 import { UploadIcon } from '../../icons';
 import { DragDrop } from '../../fields/DragDrop';
@@ -165,7 +165,7 @@ export const OpportunityReimportModal = ({
             ctaLabelMobile="Browse files"
           />
 
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             onClick={handleSubmit}
@@ -180,7 +180,7 @@ export const OpportunityReimportModal = ({
                 Update Job Posting
               </>
             )}
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Body>
     </Modal>

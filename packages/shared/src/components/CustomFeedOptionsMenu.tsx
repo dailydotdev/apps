@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { HashtagIcon, MenuIcon as DotsIcon, ShareIcon } from './icons';
 import { MenuIcon } from './MenuIcon';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import type { UseShareOrCopyLinkProps } from '../hooks/useShareOrCopyLink';
 import { useShareOrCopyLink } from '../hooks/useShareOrCopyLink';
 import { useFeeds } from '../hooks';
@@ -76,7 +76,7 @@ const CustomFeedOptionsMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-        <Button
+        <ButtonV2
           className={classNames('justify-center', className?.button)}
           size={ButtonSize.Small}
           variant={buttonVariant}

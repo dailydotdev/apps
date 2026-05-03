@@ -12,7 +12,7 @@ import { UserVote } from '../../graphql/posts';
 import { CardAction } from '../buttons/CardAction';
 import { CardActionBar } from '../buttons/CardActionBar';
 import { BookmarkButton } from '../buttons';
-import { ButtonColor } from '../buttons/Button';
+import { ButtonColor } from '../buttons/ButtonV2';
 import { useVotePost } from '../../hooks/vote/useVotePost';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';

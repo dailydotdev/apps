@@ -7,7 +7,7 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { PlusIcon } from '../../icons';
 import { SourceStackItem } from './SourceStackItem';
 import { SourceStackModal } from './SourceStackModal';
@@ -130,14 +130,14 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
           Stack & Tools
         </Typography>
         {canEdit && canAddMore && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
             onClick={handleOpenModal}
           >
             Add
-          </Button>
+          </ButtonV2>
         )}
       </div>
 
@@ -153,14 +153,14 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
             />
           ))}
           {hiddenCount > 0 && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Medium}
               className="border border-border-subtlest-tertiary"
               onClick={() => setIsExpanded((prev) => !prev)}
             >
               {isExpanded ? 'Show less' : `+${hiddenCount}`}
-            </Button>
+            </ButtonV2>
           )}
         </div>
       ) : (
@@ -172,14 +172,14 @@ export function SquadStack({ squad }: SquadStackProps): ReactElement | null {
             >
               Share your squad&apos;s stack & tools
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
               Add your first item
-            </Button>
+            </ButtonV2>
           </div>
         )
       )}

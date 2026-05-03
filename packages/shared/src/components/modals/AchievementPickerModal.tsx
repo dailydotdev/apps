@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ProgressBar } from '../fields/ProgressBar';
 import { LazyImage } from '../LazyImage';
 import {
@@ -139,7 +139,7 @@ export const AchievementPickerModal = ({
                         {userAchievement.achievement.description}
                       </Typography>
                     </div>
-                    <Button
+                    <ButtonV2
                       variant={
                         isTracked ? ButtonVariant.Subtle : ButtonVariant.Primary
                       }
@@ -151,7 +151,7 @@ export const AchievementPickerModal = ({
                       }
                     >
                       {isTracked ? 'Stop tracking' : 'Track'}
-                    </Button>
+                    </ButtonV2>
                   </div>
 
                   <div className="mt-2 flex items-center justify-between">

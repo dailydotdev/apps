@@ -7,7 +7,7 @@ import { Modal } from '../../modals/common/Modal';
 
 import type { CreateFeedProps } from '../../../hooks';
 import { useActions, useFeeds, useToastNotification } from '../../../hooks';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { EmojiPicker } from '../../fields/EmojiPicker';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { TextField } from '../../fields/TextField';
@@ -184,15 +184,15 @@ export const FeedSettingsCreate = (): ReactElement => {
               <PlusUser />
             </div>
             <div className="flex w-full items-center justify-between gap-2 tablet:hidden">
-              <Button
+              <ButtonV2
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}
                 onClick={onRequestClose}
               >
                 Cancel
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 type="submit"
                 size={ButtonSize.Medium}
                 variant={ButtonVariant.Primary}
@@ -200,7 +200,7 @@ export const FeedSettingsCreate = (): ReactElement => {
                 disabled={!data.name}
               >
                 Create feed
-              </Button>
+              </ButtonV2>
             </div>
           </Modal.Header>
           <Modal.Body className="flex flex-col gap-4">
@@ -235,7 +235,7 @@ export const FeedSettingsCreate = (): ReactElement => {
               }
               label="Icon (optional)"
             />
-            <Button
+            <ButtonV2
               className="hidden tablet:flex"
               type="submit"
               size={ButtonSize.Medium}
@@ -244,7 +244,7 @@ export const FeedSettingsCreate = (): ReactElement => {
               disabled={!data.name}
             >
               Create feed
-            </Button>
+            </ButtonV2>
           </Modal.Body>
         </form>
       </Modal>

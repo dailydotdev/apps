@@ -2,7 +2,11 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import {
+  ButtonV2,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { BellIcon } from '../icons';
 import { Bubble } from '../tooltips/utils';
 import { getUnreadText, notificationsUrl } from './utils';
@@ -35,7 +39,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
     <Tooltip side="bottom" content="Notifications">
       <div>
         <Link href={`${webappUrl}notifications`} passHref>
-          <Button
+          <ButtonV2
             variant={isLaptop ? ButtonVariant.Float : mobileVariant}
             className="relative w-10 justify-center"
             tag="a"
@@ -54,7 +58,7 @@ function NotificationsBell({ compact }: { compact?: boolean }): ReactElement {
                 {getUnreadText(unreadCount)}
               </Bubble>
             )}
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     </Tooltip>

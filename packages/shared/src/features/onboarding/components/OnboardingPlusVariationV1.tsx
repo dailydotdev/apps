@@ -13,10 +13,10 @@ import { LogEvent, TargetType } from '../../../lib/log';
 import type { PlusItem } from '../../../components/plus/PlusListItem';
 import { PlusItemStatus } from '../../../components/plus/PlusListItem';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import Carousel from '../../../components/containers/Carousel';
 import { ArrowIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -212,7 +212,7 @@ export const OnboardingPlusVariationV1 = ({
           </a>
 
           <div className="mx-auto mt-8 flex flex-col items-center gap-1">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               className="w-full"
@@ -220,7 +220,7 @@ export const OnboardingPlusVariationV1 = ({
               data-funnel-track={FunnelTargetId.StepCta}
             >
               {plus?.cta || 'Continue with Plus'}
-            </Button>
+            </ButtonV2>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
@@ -238,14 +238,14 @@ export const OnboardingPlusVariationV1 = ({
           >
             {({ onSwipedLeft, onSwipedRight, index }, indicator) => (
               <div className="mx-auto mt-4 flex w-full flex-1 justify-between">
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="-rotate-90" />}
                   onClick={() => onSwipedRight(undefined as never)}
                   disabled={index === 0}
                 />
                 <span className="flex justify-center">{indicator}</span>
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Secondary}
                   icon={<ArrowIcon className="rotate-90" />}
                   onClick={() => onSwipedLeft(undefined as never)}

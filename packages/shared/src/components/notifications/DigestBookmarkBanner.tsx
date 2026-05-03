@@ -1,11 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import { MailIcon } from '../icons';
 import { LogEvent, TargetId } from '../../lib/log';
@@ -108,14 +108,14 @@ export function DigestBookmarkBanner(): ReactElement | null {
         straight to your inbox.
       </p>
       <div className="mt-3 flex items-center">
-        <Button
+        <ButtonV2
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           onClick={onEnable}
         >
           Enable digest
-        </Button>
+        </ButtonV2>
       </div>
       <CloseButton
         size={ButtonSize.XSmall}

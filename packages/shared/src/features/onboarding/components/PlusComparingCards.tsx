@@ -8,7 +8,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { DevPlusIcon, VIcon } from '../../../components/icons';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import {
   defaultFeatureList,
   plusFeatureList,
@@ -133,7 +133,7 @@ const PlusCard = ({
         </Typography>
       </div>
       {!isPaidPlan ? (
-        <Button
+        <ButtonV2
           className="my-4 block w-full"
           onClick={() => {
             logSubscriptionEvent({
@@ -148,9 +148,9 @@ const PlusCard = ({
           data-funnel-track={FunnelTargetId.StepSkip}
         >
           {copy?.cta || 'Join for free'}
-        </Button>
+        </ButtonV2>
       ) : (
-        <Button
+        <ButtonV2
           className="my-4 block w-full"
           onClick={() => {
             logSubscriptionEvent({
@@ -165,7 +165,7 @@ const PlusCard = ({
           data-funnel-track={FunnelTargetId.StepCta}
         >
           {copy?.cta || 'Get started'}
-        </Button>
+        </ButtonV2>
       )}
       <Typography
         className="mb-4 text-center"

@@ -7,7 +7,7 @@ import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { TopReaderBadge } from '../../badges/TopReaderBadge';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { DownloadIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { downloadUrl } from '../../../lib/blob';
@@ -106,7 +106,7 @@ const TopReaderBadgeModal = (
           issuedAt={topReader.issuedAt}
         />
 
-        <Button
+        <ButtonV2
           className={classNames('w-full', !isMobile && 'max-w-80')}
           variant={ButtonVariant.Primary}
           icon={<DownloadIcon secondary />}
@@ -115,7 +115,7 @@ const TopReaderBadgeModal = (
           onClick={() => onClickDownload()}
         >
           Download badge
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

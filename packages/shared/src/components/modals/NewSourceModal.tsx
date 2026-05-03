@@ -2,7 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Radio } from '../fields/Radio';
 import { formToJson } from '../../lib/form';
 import { apiUrl } from '../../lib/config';
@@ -67,7 +67,7 @@ type ScrapeSourceResponse =
 const getFeedLabel = (label: string, link: string) => (
   <span className="flex w-full flex-1 items-center justify-between">
     {label}
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Tertiary}
       tag="a"
       target="_blank"
@@ -362,7 +362,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                   {scrapeError}
                 </div>
                 {showContact && (
-                  <Button
+                  <ButtonV2
                     tag="a"
                     className="mb-6 mt-3 self-start"
                     variant={ButtonVariant.Secondary}
@@ -372,7 +372,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                     rel="noopener noreferrer"
                   >
                     Contact
-                  </Button>
+                  </ButtonV2>
                 )}
               </>
             )}
@@ -382,7 +382,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
       {isEnabled && (
         <Modal.Footer>
           {!feeds?.length && (
-            <Button
+            <ButtonV2
               form="submit-source"
               variant={ButtonVariant.Primary}
               type="submit"
@@ -390,11 +390,11 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
               loading={isScraping}
             >
               Check link
-            </Button>
+            </ButtonV2>
           )}
           {!!feeds?.length && (
             <>
-              <Button
+              <ButtonV2
                 className="mr-auto"
                 disabled={checkingIfExists || requestingSource}
                 onClick={() => {
@@ -402,8 +402,8 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 }}
               >
                 Back
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 form="select-feed"
                 variant={ButtonVariant.Primary}
                 type="submit"
@@ -411,7 +411,7 @@ export default function NewSourceModal(props: ModalProps): ReactElement {
                 loading={checkingIfExists || requestingSource}
               >
                 Submit for review
-              </Button>
+              </ButtonV2>
             </>
           )}
         </Modal.Footer>

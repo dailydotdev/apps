@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { PageHeader, PageHeaderTitle } from './common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import { TypographyType } from '../typography/Typography';
 
@@ -16,7 +16,7 @@ export function DefaultSquadHeader({
 }: DefaultSquadHeaderProps): ReactElement {
   return (
     <PageHeader className={className}>
-      <Button
+      <ButtonV2
         onClick={onClick}
         variant={ButtonVariant.Tertiary}
         icon={<ArrowIcon className="-rotate-90" />}

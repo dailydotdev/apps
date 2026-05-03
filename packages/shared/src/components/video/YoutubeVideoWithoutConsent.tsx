@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
 import { Typography, TypographyType } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { PlayIcon } from '../icons';
 import classed from '../../lib/classed';
 import type { Post } from '../../graphql/posts';
@@ -57,15 +57,15 @@ export function YoutubeVideoWithoutConsent({
             To play this video here on daily.dev, you’ll need to enable
             marketing cookies, or you can choose to watch it on YouTube.
           </Typography>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             icon={<PlayIcon />}
             onClick={() => onAcceptCookies()}
           >
             Watch and accept cookies
-          </Button>
+          </ButtonV2>
         </div>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="mx-auto w-fit"
           size={ButtonSize.Small}
@@ -76,7 +76,7 @@ export function YoutubeVideoWithoutConsent({
           rel={anchorDefaultRel}
         >
           Watch on YouTube
-        </Button>
+        </ButtonV2>
       </Background>
     </Container>
   );

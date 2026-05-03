@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { BrandColors, HighlightedWordConfig } from '../../lib/brand';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface SponsoredTooltipProps {
   config: HighlightedWordConfig;
@@ -62,16 +62,16 @@ export const SponsoredTooltip = ({
         {config.tooltipDescription}
       </p>
 
-      {/* CTA Button */}
+      {/* CTA ButtonV2 */}
       {config.ctaText && config.ctaUrl && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           onClick={handleCtaClick}
           className="mt-1 w-full"
         >
           {config.ctaText}
-        </Button>
+        </ButtonV2>
       )}
     </div>
   );

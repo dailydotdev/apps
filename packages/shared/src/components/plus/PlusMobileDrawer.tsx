@@ -8,7 +8,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { plusUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType, Origin, LogEvent } from '../../lib/log';
@@ -61,9 +61,13 @@ const PlusMobileDrawer = ({ onClose }: PlusMobileDrawerProps): ReactElement => {
           </Typography>
         </div>
         <Link href={plusUrl} passHref>
-          <Button onClick={handleClick} tag="a" variant={ButtonVariant.Primary}>
+          <ButtonV2
+            onClick={handleClick}
+            tag="a"
+            variant={ButtonVariant.Primary}
+          >
             {flags.ctaText}
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     </Drawer>

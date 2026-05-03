@@ -10,7 +10,7 @@ import {
 import type { SourceTooltip } from '../../../graphql/sources';
 import { largeNumberFormat } from '../../../lib';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import { ButtonVariant } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/ButtonV2';
 import { Separator } from '../common/common';
 import EntityDescription from './EntityDescription';
 import useSourceMenuProps from '../../../hooks/useSourceMenuProps';

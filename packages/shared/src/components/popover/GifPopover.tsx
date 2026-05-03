@@ -1,8 +1,8 @@
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import React, { useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import type { ButtonProps } from '../buttons/Button';
-import { Button } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { PopoverContent } from './Popover';
 import { TextField } from '../fields/TextField';
 import useDebounceFn from '../../hooks/useDebounceFn';
@@ -32,7 +32,7 @@ const searchSuggestions = [
 ];
 
 type GifPopoverProps = {
-  buttonProps: Pick<ButtonProps<'button'>, 'size' | 'variant' | 'icon'>;
+  buttonProps: Pick<ButtonV2Props<'button'>, 'size' | 'variant' | 'icon'>;
   onGifCommand?: (gifUrl: string, altText: string) => Promise<void>;
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement>;
 };
@@ -96,7 +96,7 @@ const GifPickerContent = ({
                 ref={idx === gifsToDisplay.length - 1 ? scrollRef : null}
               >
                 <div className="z-10 absolute right-2 top-2 rounded-16 bg-overlay-primary-pepper">
-                  <Button
+                  <ButtonV2
                     icon={
                       <StarIcon
                         secondary={favorites?.some((f) => f.id === gif.id)}
@@ -232,7 +232,7 @@ const GifPopover = ({
   if (!isTablet) {
     return (
       <>
-        <Button
+        <ButtonV2
           {...buttonProps}
           type="button"
           onClick={() => handleOpenChange(true)}
@@ -247,7 +247,7 @@ const GifPopover = ({
             <Typography type={TypographyType.Title3} bold>
               GIFs
             </Typography>
-            <Button
+            <ButtonV2
               icon={<MiniCloseIcon />}
               onClick={handleClose}
               aria-label="Close"
@@ -262,7 +262,7 @@ const GifPopover = ({
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button {...buttonProps} />
+        <ButtonV2 {...buttonProps} />
       </PopoverTrigger>
       <PopoverContent
         side="top"

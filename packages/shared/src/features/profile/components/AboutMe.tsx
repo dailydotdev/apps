@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import type { PublicProfile } from '../../../lib/user';
 import Markdown from '../../../components/Markdown';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyType,
@@ -62,7 +62,7 @@ export function AboutMe({
         <div className="flex flex-wrap items-center gap-2">
           {socialLinks.map((link) => (
             <SimpleTooltip key={link.id} content={link.label}>
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Subtle}
                 size={ButtonSize.Small}
                 tag="a"

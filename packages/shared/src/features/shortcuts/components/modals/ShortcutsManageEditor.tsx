@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import {
@@ -43,7 +43,7 @@ export function ShortcutsManageEditor({
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           {editing.mode === 'add' ? 'Add shortcut' : 'Edit shortcut'}
         </Typography>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Float}
           size={ButtonSize.Small}
@@ -51,7 +51,7 @@ export function ShortcutsManageEditor({
           onClick={onClose}
         >
           Back
-        </Button>
+        </ButtonV2>
       </Modal.Header>
       <Modal.Body>
         <ShortcutEditForm
@@ -62,15 +62,15 @@ export function ShortcutsManageEditor({
           onDone={onClose}
         />
         <div className="mt-4 flex justify-end gap-2">
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             onClick={onClose}
           >
             Cancel
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="submit"
             form={EDIT_FORM_ID}
             variant={ButtonVariant.Primary}
@@ -78,7 +78,7 @@ export function ShortcutsManageEditor({
             disabled={formState.isSubmitting || formState.isUploading}
           >
             {editing.mode === 'add' ? 'Add' : 'Save'}
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Body>
     </Modal>

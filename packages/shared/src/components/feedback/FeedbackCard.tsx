@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { format } from 'date-fns';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { OpenLinkIcon } from '../icons';
 import {
   Typography,
@@ -63,17 +63,17 @@ export const FeedbackCard = ({
       </Typography>
 
       {isLongDescription && (
-        <Button
+        <ButtonV2
           className="mt-2"
           variant={ButtonVariant.Tertiary}
           onClick={onToggleExpand}
         >
           {isExpanded ? 'Show less' : 'Show more'}
-        </Button>
+        </ButtonV2>
       )}
 
       {item.linearIssueUrl && (
-        <Button
+        <ButtonV2
           className="mt-3 w-fit"
           variant={ButtonVariant.Tertiary}
           tag="a"
@@ -83,7 +83,7 @@ export const FeedbackCard = ({
           icon={<OpenLinkIcon />}
         >
           Open in Linear
-        </Button>
+        </ButtonV2>
       )}
 
       {item.screenshotUrl && (

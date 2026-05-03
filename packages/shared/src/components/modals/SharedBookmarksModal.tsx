@@ -8,7 +8,7 @@ import {
   DiscordIcon,
   GitHubIcon,
 } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Switch } from '../fields/Switch';
 import type { BookmarksSharingData } from '../../graphql/bookmarksSharing';
 import {
@@ -85,7 +85,7 @@ export default function SharedBookmarksModal({
               autoComplete="off"
               fieldType="tertiary"
               actionButton={
-                <Button
+                <ButtonV2
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
                   icon={<CopyIcon />}
@@ -103,7 +103,7 @@ export default function SharedBookmarksModal({
             practices of integrating your bookmarks with other platforms.
           </p>
           <div className="mt-4 flex justify-between">
-            <Button
+            <ButtonV2
               rel="noopener noreferrer"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
@@ -112,7 +112,7 @@ export default function SharedBookmarksModal({
               target="_blank"
             >
               Explore tutorials
-            </Button>
+            </ButtonV2>
             <div className="flex h-8 items-center gap-2 text-2xl">
               <DiscordIcon size={IconSize.Medium} />
               <TwitterIcon size={IconSize.Medium} />

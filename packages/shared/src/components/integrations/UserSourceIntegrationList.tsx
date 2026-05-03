@@ -9,7 +9,11 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../typography/Typography';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import {
+  ButtonV2,
+  ButtonIconPosition,
+  ButtonVariant,
+} from '../buttons/ButtonV2';
 import { MiniCloseIcon } from '../icons';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
@@ -54,7 +58,7 @@ export const UserSourceIntegrationList = ({
             key={`${sourceIntegration.userIntegration.id}-${sourceIntegration.source.id}`}
             className="flex w-full items-center justify-center"
           >
-            <Button
+            <ButtonV2
               className="flex-1 pl-2 pr-3"
               variant={ButtonVariant.Tertiary}
               iconPosition={ButtonIconPosition.Right}
@@ -96,7 +100,7 @@ export const UserSourceIntegrationList = ({
                   </Typography>
                 </Typography>
               </div>
-            </Button>
+            </ButtonV2>
           </li>
         );
       })}

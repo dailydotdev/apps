@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { TerminalIcon, TwitterIcon } from '../icons';
 import { statusPage, twitter } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -42,7 +42,7 @@ function ServerError({
         Our team&apos;s on it! Try refreshing the page and cross your fingers,
         or send our engineers some good vibes on X (Twitter).
       </Typography>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Subtle}
         className="w-full"
         icon={<TerminalIcon />}
@@ -52,8 +52,8 @@ function ServerError({
         tag="a"
       >
         Check system status
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         variant={ButtonVariant.Subtle}
         className="w-full"
         icon={<TwitterIcon />}
@@ -63,7 +63,7 @@ function ServerError({
         tag="a"
       >
         Cheer our engineers
-      </Button>
+      </ButtonV2>
     </div>
   );
 }

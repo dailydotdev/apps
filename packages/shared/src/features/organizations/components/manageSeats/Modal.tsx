@@ -10,7 +10,7 @@ import { useViewSize, ViewSize } from '../../../../hooks';
 import { LogoWithPlus } from '../../../../components/Logo';
 import { ButtonSize } from '../../../../components/buttons/common';
 
-import { Button } from '../../../../components/buttons/Button';
+import { ButtonV2 } from '../../../../components/buttons/ButtonV2';
 import { IconSize } from '../../../../components/Icon';
 import { Tab, TabContainer } from '../../../../components/tabs/TabContainer';
 import { ArrowIcon } from '../../../../components/icons';
@@ -91,7 +91,7 @@ export const ManageSeatsModal = ({
       >
         {isMobile && <LogoWithPlus />}
         {isCheckout && (
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             className="mr-2 flex -rotate-90"
             icon={<ArrowIcon />}

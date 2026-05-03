@@ -7,7 +7,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { FlexCol } from '../utilities';
 import { useAlertsContext } from '../../contexts/AlertContext';
 import Link from '../utilities/Link';
@@ -35,7 +35,7 @@ export const NewOpportunityPopover = (): ReactElement => {
           Your next big move is here!
         </Typography>
         <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>
-          <Button
+          <ButtonV2
             size={ButtonSize.XSmall}
             onClick={logOpportunityNudgeClick}
             icon={
@@ -53,7 +53,7 @@ export const NewOpportunityPopover = (): ReactElement => {
           aligns with your experience and what you’ve been exploring lately.
         </Typography>
         <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XSmall}
@@ -61,7 +61,7 @@ export const NewOpportunityPopover = (): ReactElement => {
             className="mr-auto"
           >
             Let&#39;s check it out →
-          </Button>
+          </ButtonV2>
         </Link>
       </FlexCol>
     </FlexCol>

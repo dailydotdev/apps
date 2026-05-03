@@ -22,11 +22,11 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import {
   selectedPlanAtom,
   applyDiscountAtom,
@@ -69,7 +69,7 @@ const PricingSection = ({
         onChange={onPlanChange}
         perks={pricing.perks}
       />
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
         color={ButtonColor.Avocado}
@@ -77,7 +77,7 @@ const PricingSection = ({
         onClick={onProceedToCheckout}
       >
         {cta || 'Proceed to checkout →'}
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

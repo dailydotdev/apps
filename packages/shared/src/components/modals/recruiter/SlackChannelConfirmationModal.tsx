@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { FlexCol } from '../../utilities';
 import { TextField } from '../../fields/TextField';
 import { useCreateSharedSlackChannel } from '../../../hooks/integrations/slack/useCreateSharedSlackChannel';
@@ -99,15 +99,15 @@ export const SlackChannelConfirmationModal = ({
         </FlexCol>
       </Modal.Body>
       <Modal.Footer className="flex gap-3 p-6">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           onClick={() => onRequestClose(null)}
           disabled={isCreating}
           className="flex-1"
         >
           Cancel
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Primary}
           onClick={handleConfirm}
           loading={isCreating}
@@ -115,7 +115,7 @@ export const SlackChannelConfirmationModal = ({
           className="flex-1"
         >
           Connect Slack
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

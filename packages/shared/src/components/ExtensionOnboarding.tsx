@@ -4,7 +4,7 @@ import Link from './utilities/Link';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
 import { onboardingUrl } from '../lib/constants';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 
@@ -45,14 +45,14 @@ const ExtensionOnboarding = (): ReactElement => {
       </p>
 
       <Link href={onboarding} passHref>
-        <Button
+        <ButtonV2
           tag="a"
           className="z-1 w-full max-w-[18.75rem]"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
         >
           Continue ➔
-        </Button>
+        </ButtonV2>
       </Link>
 
       <img

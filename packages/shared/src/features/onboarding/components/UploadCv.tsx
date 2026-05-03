@@ -5,11 +5,11 @@ import { DragDrop } from '../../../components/fields/DragDrop';
 import { fileValidation } from '../../profile/hooks/useUploadCv';
 
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonIconPosition,
   ButtonSize,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { OpenLinkIcon } from '../../../components/icons';
 import {
   Typography,
@@ -101,7 +101,7 @@ export const UploadCv = ({
               <li key={step}>{step}</li>
             ))}
           </Typography>
-          <Button
+          <ButtonV2
             tag="a"
             href="https://linkedin.com/"
             target="_blank"
@@ -113,7 +113,7 @@ export const UploadCv = ({
             className="mt-4 w-fit"
           >
             {linkedin.cta}
-          </Button>
+          </ButtonV2>
         </div>
         <Image
           src={linkedin.image}

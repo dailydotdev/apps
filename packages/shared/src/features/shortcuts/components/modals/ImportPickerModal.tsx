@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
 import { Justify } from '../../../../components/utilities';
@@ -308,21 +311,21 @@ export default function ImportPickerModal({
         )}
       </Modal.Body>
       <Modal.Footer justify={Justify.End}>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Tertiary}
           onClick={handleCancel}
         >
           {returnTo ? 'Back' : 'Cancel'}
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Primary}
           onClick={handleImport}
           disabled={!selected.length}
         >
           {selected.length ? `Import ${selected.length}` : 'Import'}
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

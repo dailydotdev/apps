@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import CloseButton from '../CloseButton';
 import {
   Typography,
@@ -47,13 +47,13 @@ const ReadingReminderHero = ({
           {subtitle}
         </Typography>
         <div className="mt-3">
-          <Button
+          <ButtonV2
             className="w-full"
             variant={ButtonVariant.Primary}
             onClick={onEnable}
           >
             Enable reminder
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     </div>

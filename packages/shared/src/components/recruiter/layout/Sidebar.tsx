@@ -7,7 +7,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { CreditCardIcon, ExitIcon, PlusIcon, SettingsIcon } from '../../icons';
 import HeaderLogo from '../../layout/HeaderLogo';
 import { SidebarScrollWrapper } from '../../sidebar/common';
@@ -47,7 +47,7 @@ export const CompanyBadge = ({ name, image, editUrl }: CompanyBadgeProps) => (
       </Typography>
     </div>
     {editUrl && (
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
         size={ButtonSize.XSmall}
@@ -75,14 +75,14 @@ const Footer = () => {
           {user?.username || '@guestuser'}
         </Typography>
       </div>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<CreditCardIcon />}
         size={ButtonSize.XSmall}
         href={`${webappUrl}recruiter/billing`}
         tag="a"
       />
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<SettingsIcon />}
         size={ButtonSize.XSmall}
@@ -95,7 +95,7 @@ const Footer = () => {
         )}
         tag="a"
       />
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         icon={<ExitIcon />}
         size={ButtonSize.XSmall}
@@ -152,7 +152,7 @@ const StateSubsection = ({
         const isDraft = opportunity.state === OpportunityState.DRAFT;
         const path = isDraft ? 'edit' : 'matches';
         return (
-          <Button
+          <ButtonV2
             key={opportunity.id}
             tag="a"
             href={`${webappUrl}recruiter/${opportunity.id}/${path}`}
@@ -161,7 +161,7 @@ const StateSubsection = ({
             size={ButtonSize.Small}
           >
             {opportunity.title}
-          </Button>
+          </ButtonV2>
         );
       })}
     </div>
@@ -277,7 +277,7 @@ export const Sidebar = (): ReactElement => {
         >
           <nav className="flex flex-col gap-2 pb-2">
             <div className="px-2">
-              <Button
+              <ButtonV2
                 tag="a"
                 href={`${webappUrl}recruiter?openModal=joblink&closeable=1`}
                 variant={ButtonVariant.Option}
@@ -285,7 +285,7 @@ export const Sidebar = (): ReactElement => {
                 size={ButtonSize.Small}
               >
                 <PlusIcon /> New job
-              </Button>
+              </ButtonV2>
             </div>
             {isLoading && <Loader />}
             {Array.from(opportunitiesByOrg.values()).map((org) => (

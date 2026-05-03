@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { LockIcon } from '../icons';
 import { PageContainerCentered } from '../utilities';
 import { IconSize } from '../Icon';
@@ -32,7 +32,7 @@ function Unauthorized({
       </h1>
       <p className="px-10 text-center text-text-tertiary">{description}</p>
       {children}
-      <Button
+      <ButtonV2
         className="mt-6 w-fit"
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
@@ -40,7 +40,7 @@ function Unauthorized({
         href={webappUrl}
       >
         Back home
-      </Button>
+      </ButtonV2>
     </PageContainerCentered>
   );
 }

@@ -2,7 +2,7 @@ import type { FormEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { TextField } from '../fields/TextField';
 import { MailIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -73,13 +73,13 @@ function ForgotPasswordForm({
             We sent a password reset link to your email. Click the link in the
             email to reset your password.
           </AuthModalText>
-          <Button
+          <ButtonV2
             className="mt-6"
             variant={ButtonVariant.Secondary}
             onClick={() => setEmailSent(false)}
           >
             Didn&apos;t receive it? Try again
-          </Button>
+          </ButtonV2>
         </div>
         {simplified && onBack && (
           <AuthModalFooter
@@ -121,14 +121,14 @@ function ForgotPasswordForm({
           leftIcon={<MailIcon aria-hidden role="presentation" />}
           autoFocus
         />
-        <Button
+        <ButtonV2
           className="mt-6"
           variant={ButtonVariant.Primary}
           type="submit"
           disabled={isLoading}
         >
           Send reset link
-        </Button>
+        </ButtonV2>
       </AuthForm>
       {simplified && onBack && (
         <AuthModalFooter

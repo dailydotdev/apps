@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
-import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonVariant, ButtonSize } from '../buttons/ButtonV2';
 import { LazyImage } from '../LazyImage';
 import {
   Typography,
@@ -187,7 +187,7 @@ export const AchievementShowcaseModal = ({
           </div>
         )}
 
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
           className="w-full"
@@ -195,7 +195,7 @@ export const AchievementShowcaseModal = ({
           onClick={handleConfirm}
         >
           {isSetPending ? 'Saving...' : 'Confirm'}
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

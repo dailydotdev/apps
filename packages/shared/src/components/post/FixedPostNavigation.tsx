@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import PostNavigation from './PostNavigation';
 import type { PostNavigationProps } from './common';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 
 function FixedPostNavigation({
   onPreviousPost,

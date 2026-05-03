@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { HomeIcon } from '../icons';
 import Link from '../utilities/Link';
 
@@ -26,7 +26,7 @@ export function ArchiveBreadcrumbs({
     >
       <ol className="flex flex-1 items-center gap-0.5">
         <li className="flex flex-row items-center gap-0.5">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             icon={<HomeIcon secondary />}
             tag="a"

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation } from '@tanstack/react-query';
 import { OnboardingTitleGradient } from '../../../onboarding/common';
-import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../../buttons/ButtonV2';
 import { MiniCloseIcon } from '../../../icons';
 import { Radio } from '../../../fields/Radio';
 import type { AcquisitionChannel } from '../../../../graphql/users';
@@ -69,7 +69,7 @@ export const AcquisitionFormInner = ({
     <>
       <OnboardingTitleGradient className="flex w-full flex-row items-center whitespace-nowrap pb-1 typo-body">
         How did you hear about us?
-        <Button
+        <ButtonV2
           className="ml-auto"
           size={ButtonSize.Small}
           variant={ButtonVariant.Tertiary}
@@ -84,7 +84,7 @@ export const AcquisitionFormInner = ({
         options={shuffledOptions}
         value={value}
       />
-      <Button
+      <ButtonV2
         className={classNames('w-full', className?.button)}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Small}
@@ -93,7 +93,7 @@ export const AcquisitionFormInner = ({
         onClick={() => value && mutateAsync(value)}
       >
         Submit
-      </Button>
+      </ButtonV2>
     </>
   );
 };

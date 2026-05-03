@@ -12,11 +12,11 @@ import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
 import {
@@ -423,7 +423,7 @@ const QuestItem = ({
                 </p>
                 {shouldShowDestination && destination && (
                   <Tooltip content={`Go to ${destination.label}`}>
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       className="!flex-none"
@@ -493,7 +493,7 @@ const QuestItem = ({
             )}
 
             {canClaim && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 className="w-fit"
@@ -537,7 +537,7 @@ const QuestItem = ({
                 }}
               >
                 Claim
-              </Button>
+              </ButtonV2>
             )}
           </div>
         )}
@@ -702,7 +702,7 @@ export const QuestSection = ({
       </div>
 
       {canToggleExpanded && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           onClick={() => setIsExpanded((current) => !current)}
@@ -710,7 +710,7 @@ export const QuestSection = ({
           aria-expanded={isExpanded}
         >
           {isExpanded ? showLessLabel : showMoreLabel}
-        </Button>
+        </ButtonV2>
       )}
     </section>
   );
@@ -742,7 +742,7 @@ function QuestPlusUnlockButton(): ReactElement | null {
 
   return (
     <Link passHref href={plusUrl}>
-      <Button
+      <ButtonV2
         tag="a"
         size={ButtonSize.Small}
         color={ButtonColor.Avocado}
@@ -751,7 +751,7 @@ function QuestPlusUnlockButton(): ReactElement | null {
         onClick={onClick}
       >
         Unlock
-      </Button>
+      </ButtonV2>
     </Link>
   );
 }
@@ -1769,7 +1769,7 @@ export const QuestButton = ({
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <Tooltip content={triggerTooltipContent} side="bottom">
           <PopoverTrigger asChild>
-            <Button
+            <ButtonV2
               variant={triggerButtonVariant}
               size={triggerButtonSize}
               className={classNames(
@@ -1871,7 +1871,7 @@ export const QuestButton = ({
                   {claimableCount}
                 </Bubble>
               )}
-            </Button>
+            </ButtonV2>
           </PopoverTrigger>
         </Tooltip>
 

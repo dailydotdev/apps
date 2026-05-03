@@ -7,8 +7,8 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import type { ButtonProps, IconType } from '../buttons/Button';
-import { Button, ButtonVariant } from '../buttons/Button';
+import type { ButtonV2Props, IconType } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import type { MenuItemProps } from '../dropdown/common';
 
 type SelectProps = {
@@ -16,7 +16,7 @@ type SelectProps = {
   options: { value: string; label: string }[];
   placeholder?: string;
   icon?: IconType;
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
   onSelect?: (value: string) => void;
 };
 
@@ -49,7 +49,7 @@ const Select = ({
           <input type="hidden" {...field} />
           <DropdownMenu>
             <DropdownMenuTrigger className="w-full" asChild>
-              <Button
+              <ButtonV2
                 icon={icon}
                 variant={ButtonVariant.Float}
                 {...buttonProps}
@@ -57,7 +57,7 @@ const Select = ({
                 {options.find((opt) => opt.value === field.value?.toString())
                   ?.label || placeholder}
                 <ArrowIcon className="ml-auto rotate-180" secondary />
-              </Button>
+              </ButtonV2>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               variant="field"

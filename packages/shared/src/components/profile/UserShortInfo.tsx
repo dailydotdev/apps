@@ -24,7 +24,7 @@ import {
 } from '../typography/Typography';
 import { formatCoresCurrency } from '../../lib/utils';
 import { Image } from '../image/Image';
-import { ButtonVariant } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/ButtonV2';
 
 type PropsOf<Tag> = Tag extends keyof JSX.IntrinsicElements
   ? JSX.IntrinsicElements[Tag]

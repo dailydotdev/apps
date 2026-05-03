@@ -3,11 +3,11 @@ import React, { useContext } from 'react';
 import { LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/Button';
+} from './buttons/ButtonV2';
 import { WidgetContainer } from './widgets/common';
 import { postLogEvent } from '../lib/feed';
 import { ActiveFeedContext } from '../contexts';
@@ -47,7 +47,7 @@ export function ShareMobile({
 
   return (
     <WidgetContainer className="flex flex-col items-start gap-2 p-3 laptop:hidden">
-      <Button
+      <ButtonV2
         size={ButtonSize.Small}
         onClick={onCopyPostLink}
         pressed={copying}
@@ -56,8 +56,8 @@ export function ShareMobile({
         color={ButtonColor.Avocado}
       >
         {copying ? 'Copied!' : 'Copy link'}
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         size={ButtonSize.Small}
         onClick={onShare}
         icon={<ShareIcon />}
@@ -65,7 +65,7 @@ export function ShareMobile({
         color={ButtonColor.Cabbage}
       >
         Share with your friends
-      </Button>
+      </ButtonV2>
     </WidgetContainer>
   );
 }

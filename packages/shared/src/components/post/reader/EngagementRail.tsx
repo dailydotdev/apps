@@ -23,11 +23,11 @@ import { PostClickbaitShield } from '../common/PostClickbaitShield';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
 import ShowMoreContent from '../../cards/common/ShowMoreContent';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon, ArrowIcon } from '../../icons';
 import { PostMenuOptions } from '../PostMenuOptions';
@@ -138,7 +138,7 @@ export function EngagementRail({
           {onBackToFeed && (
             <div className={railHeaderGroupClasses} aria-label="Navigation">
               <Tooltip content="Back to feed">
-                <Button
+                <ButtonV2
                   icon={<ArrowIcon className="-rotate-90" />}
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
@@ -157,7 +157,7 @@ export function EngagementRail({
             >
               {onPreviousPost && (
                 <Tooltip content="Previous post">
-                  <Button
+                  <ButtonV2
                     icon={<ArrowIcon />}
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
@@ -176,7 +176,7 @@ export function EngagementRail({
               )}
               {onNextPost && (
                 <Tooltip content="Next post">
-                  <Button
+                  <ButtonV2
                     className={classNames('rotate-90', iconButtonClassName)}
                     icon={<ArrowIcon />}
                     size={ButtonSize.Small}
@@ -290,7 +290,7 @@ export function EngagementRail({
                 </Link>
               )}
             </div>
-            <Button
+            <ButtonV2
               type="button"
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Tertiary}
@@ -312,7 +312,7 @@ export function EngagementRail({
               className="!text-text-tertiary"
             >
               {isNewestFirst ? 'Newest first' : 'Oldest first'}
-            </Button>
+            </ButtonV2>
           </div>
           <NewComment
             post={post}

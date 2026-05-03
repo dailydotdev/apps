@@ -4,7 +4,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featurePostSignupWidget } from '../../lib/featureManagement';
 import { AuthTriggers } from '../../lib/auth';
-import { ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import AuthOptions from '../auth/AuthOptions';
 import { AuthDisplay } from '../auth/common';
 

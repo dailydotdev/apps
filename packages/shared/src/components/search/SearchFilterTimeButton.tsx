@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { VIcon } from '../icons';
 import { useSearchContextProvider } from '../../contexts/search/SearchContext';
 import { SearchTime } from '../../graphql/search';
@@ -18,13 +18,13 @@ const SearchFilterTimeButton = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
             aria-label="Open time filter menu"
           >
             {SearchTime[time as keyof typeof SearchTime]}
-          </Button>
+          </ButtonV2>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {Object.entries(SearchTime).map(([value, label]) => (

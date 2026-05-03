@@ -5,7 +5,7 @@ import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Dropdown } from '../../fields/Dropdown';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { Source } from '../../../graphql/sources';
 import { SourceAvatar } from '../../profile/source';
@@ -256,7 +256,7 @@ const SlackIntegrationModal = ({
               Read here
             </a>
           </Typography>
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Large}
@@ -268,8 +268,8 @@ const SlackIntegrationModal = ({
             loading={isSaving}
           >
             Save
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="button"
             variant={isMobile ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
@@ -284,7 +284,7 @@ const SlackIntegrationModal = ({
             }}
           >
             Remove integration
-          </Button>
+          </ButtonV2>
         </Modal.Body>
       )}
     </Modal>

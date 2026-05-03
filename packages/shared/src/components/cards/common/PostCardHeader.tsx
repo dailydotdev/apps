@@ -15,7 +15,7 @@ import {
   isInternalReadType,
   isSharedPostSquadPost,
 } from '../../../graphql/posts';
-import { ButtonVariant } from '../../buttons/Button';
+import { ButtonVariant } from '../../buttons/ButtonV2';
 import type { FlagProps } from './FeedItemContainer';
 import {
   BookmakProviderHeader,

@@ -23,7 +23,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
@@ -135,7 +135,7 @@ const NotificationOptionsButton = ({
           content: 'Options',
         }}
       >
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="invisible group-hover:visible"
           icon={<MenuIcon />}

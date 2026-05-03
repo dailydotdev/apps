@@ -10,7 +10,7 @@ import { Image } from '../image/Image';
 import { CardLink } from '../cards/common/Card';
 import { PlusIcon } from '../icons';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import {
   useJoinSquad,
   useToastNotification,
@@ -110,7 +110,7 @@ function SquadItem({
             {largeNumberFormat(squad.membersCount)} members
           </span>
           {showJoin && (
-            <Button
+            <ButtonV2
               className="z-1 ml-auto tablet:hidden"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.XSmall}
@@ -123,7 +123,7 @@ function SquadItem({
         </div>
       </div>
       {showJoin && (
-        <Button
+        <ButtonV2
           className="z-1 hidden tablet:flex"
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
@@ -131,7 +131,7 @@ function SquadItem({
           loading={isLoading}
         >
           Join
-        </Button>
+        </ButtonV2>
       )}
     </div>
   );
@@ -172,7 +172,7 @@ export function SquadsList({
   if (!edges.length) {
     return (
       <div className="flex gap-2 overflow-hidden pl-4">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
           tag="a"
@@ -192,13 +192,13 @@ export function SquadsList({
         <SquadItem key={node.source.id} membership={node} loading={loading} />
       ))}
       {isWide && (memberships?.edges.length ?? 0) > MAX_SQUADS && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={() => setShowMore(!showMore)}
         >
           {showMore ? 'Show less' : 'Show more Squads'}
-        </Button>
+        </ButtonV2>
       )}
     </div>
   );

@@ -15,7 +15,7 @@ import BaseFieldContainer, {
   getFieldLabelColor,
   getFieldPlaceholder,
 } from './BaseFieldContainer';
-import type { ButtonProps } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
 import useInputFieldFunctions from '../../hooks/useInputFieldFunctions';
 
 export interface TextFieldProps extends BaseFieldProps {
@@ -23,7 +23,7 @@ export interface TextFieldProps extends BaseFieldProps {
   leftIcon?: ReactNode;
   rightIcon?: React.ReactElement<IconProps>;
   hintIcon?: ReactElement<IconProps>;
-  actionButton?: React.ReactElement<ButtonProps<'button'>>;
+  actionButton?: React.ReactElement<ButtonV2Props<'button'>>;
   showMaxLength?: boolean;
   inputRef?: (input: HTMLInputElement) => void;
 }

@@ -2,7 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { MarketingCta } from './common';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { MiniCloseIcon, PlayIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -91,7 +91,7 @@ export function MarketingCtaVideo({
       )}
       <div className="absolute inset-0 bg-overlay-tertiary-black opacity-50" />
 
-      <Button
+      <ButtonV2
         className="absolute right-2 top-2 z-2"
         size={ButtonSize.Small}
         variant={ButtonVariant.Tertiary}

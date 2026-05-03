@@ -28,7 +28,7 @@ import Image from '@tiptap/extension-image';
 import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
 import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
 import { SavingLabel } from './MarkdownInput/SavingLabel';
@@ -648,7 +648,7 @@ function RichTextInput(
   const toolbarActions = (
     <>
       {isUploadEnabled && (
-        <Button
+        <ButtonV2
           size={headerActionSize}
           variant={ButtonVariant.Tertiary}
           icon={actionIcon}
@@ -659,7 +659,7 @@ function RichTextInput(
         />
       )}
       {isMentionEnabled && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={headerActionSize}
           icon={<AtIcon />}
@@ -750,7 +750,7 @@ function RichTextInput(
                 <div className="flex items-center gap-2">
                   {savingLabel}
                   <SimpleTooltip content="Switch to Rich Text Editor">
-                    <Button
+                    <ButtonV2
                       type="button"
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
@@ -808,7 +808,7 @@ function RichTextInput(
                   <div className="flex items-center gap-0">
                     {savingLabel}
                     <SimpleTooltip content="Switch to Markdown Editor">
-                      <Button
+                      <ButtonV2
                         type="button"
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
@@ -911,7 +911,7 @@ function RichTextInput(
             </span>
           )}
           {shouldShowSubmit && (
-            <Button
+            <ButtonV2
               size={ButtonSize.Small}
               className={
                 maxLength && remainingCharacters !== null ? '' : 'ml-auto'
@@ -922,7 +922,7 @@ function RichTextInput(
               loading={isLoading}
             >
               {submitCopy}
-            </Button>
+            </ButtonV2>
           )}
         </span>
       )}

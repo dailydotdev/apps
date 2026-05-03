@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   BookmarkIcon,
   MenuIcon,
@@ -159,7 +159,7 @@ export const ReadingHistoryOptionsMenu = ({
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           data-testid={`post-item-${post.id}`}
           icon={<MenuIcon />}

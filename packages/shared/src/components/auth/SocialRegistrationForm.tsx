@@ -9,7 +9,7 @@ import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, LockIcon, AtIcon } from '../icons';
@@ -265,7 +265,7 @@ export const SocialRegistrationForm = ({
         )}
       >
         <Modal.Footer>
-          <Button
+          <ButtonV2
             form="auth-form"
             type="submit"
             className="w-full"
@@ -273,7 +273,7 @@ export const SocialRegistrationForm = ({
             disabled={isLoading}
           >
             {user?.isPlus ? 'Continue' : 'Sign up'}
-          </Button>
+          </ButtonV2>
         </Modal.Footer>
       </ConditionalWrapper>
     </>

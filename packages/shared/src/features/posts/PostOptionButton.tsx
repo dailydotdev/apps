@@ -33,10 +33,10 @@ import {
   AnalyticsIcon,
 } from '../../components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -915,7 +915,7 @@ export const PostOptionButton = (
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
-        <Button
+        <ButtonV2
           variant={variant}
           icon={<RawMenuIcon />}
           size={size}

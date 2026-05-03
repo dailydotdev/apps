@@ -5,7 +5,7 @@ import { ownershipGuide } from '../../lib/constants';
 import { FeatherIcon } from '../icons';
 import styles from './AuthorOnboarding.module.css';
 import { IconSize } from '../Icon';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 
 interface AuthorOnboardingProps {
   onSignUp?: () => unknown;
@@ -49,11 +49,11 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
         }}
       >
         {onSignUp && (
-          <Button variant={ButtonVariant.Primary} onClick={onSignUp}>
+          <ButtonV2 variant={ButtonVariant.Primary} onClick={onSignUp}>
             Sign up
-          </Button>
+          </ButtonV2>
         )}
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           tag="a"
           href={ownershipGuide}
@@ -61,7 +61,7 @@ function AuthorOnboarding({ onSignUp }: AuthorOnboardingProps): ReactElement {
           rel="noopener"
         >
           Learn more
-        </Button>
+        </ButtonV2>
       </div>
     </section>
   );

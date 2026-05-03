@@ -7,13 +7,13 @@ import {
 } from '@radix-ui/react-popover';
 import classNames from 'classnames';
 import { PopoverContent } from '../../../components/popover/Popover';
-import type { ButtonProps } from '../../../components/buttons/Button';
+import type { ButtonV2Props } from '../../../components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { useToggle } from '../../../hooks/useToggle';
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -22,8 +22,8 @@ interface OptionsPopoverProps extends PropsWithChildren {
   className?: string;
   onReset?: () => void;
   onSubmit?: () => void;
-  resetProps?: ButtonProps<'button'>;
-  submitProps?: ButtonProps<'button'>;
+  resetProps?: ButtonV2Props<'button'>;
+  submitProps?: ButtonV2Props<'button'>;
   triggerChildren: ReactNode;
 }
 
@@ -42,7 +42,7 @@ export const PopoverFormContainer = ({
     <Popover open={isOpen} onOpenChange={togglePopover}>
       <PopoverAnchor asChild>
         <PopoverTrigger asChild>
-          <Button
+          <ButtonV2
             {...attrs}
             className={classNames('w-full justify-between', className)}
             iconPosition={ButtonIconPosition.Right}
@@ -60,7 +60,7 @@ export const PopoverFormContainer = ({
             variant={ButtonVariant.Float}
           >
             {triggerChildren}
-          </Button>
+          </ButtonV2>
         </PopoverTrigger>
       </PopoverAnchor>
       <PopoverContent
@@ -73,15 +73,15 @@ export const PopoverFormContainer = ({
           {children}
         </div>
         <div className="flex items-center justify-between border-t border-border-subtlest-tertiary px-4 py-2">
-          <Button
+          <ButtonV2
             {...resetProps}
             onClick={() => onReset?.()}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           >
             Reset
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             {...submitProps}
             onClick={() => {
               onSubmit?.();
@@ -91,7 +91,7 @@ export const PopoverFormContainer = ({
             variant={ButtonVariant.Primary}
           >
             Done
-          </Button>
+          </ButtonV2>
         </div>
       </PopoverContent>
     </Popover>

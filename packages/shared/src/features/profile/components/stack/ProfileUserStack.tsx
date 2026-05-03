@@ -25,10 +25,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { PlusIcon } from '../../../../components/icons';
 import { UserStackSection } from './UserStackSection';
 import { UserStackModal } from './UserStackModal';
@@ -255,14 +255,14 @@ export function ProfileUserStack({
           Stack & Tools
         </Typography>
         {isOwner && canAddMore && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
             onClick={handleOpenModal}
           >
             Add
-          </Button>
+          </ButtonV2>
         )}
       </div>
 
@@ -304,14 +304,14 @@ export function ProfileUserStack({
             >
               Share your stack & tools with the community
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
               Add your first item
-            </Button>
+            </ButtonV2>
           </div>
         )
       )}

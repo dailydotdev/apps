@@ -7,11 +7,11 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import {
-  Button,
-  ButtonGroup,
+  ButtonV2,
+  ButtonV2Group,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { MoonIcon, SunIcon } from '../../icons';
 import { ThemeAutoIcon } from '../../icons/ThemeAuto';
 import {
@@ -58,13 +58,13 @@ export const ThemeSection = ({
         Theme
       </Typography>
 
-      <ButtonGroup>
+      <ButtonV2Group>
         {themes.map((theme) => {
           const isActiveTheme = theme.value === themeMode;
           const Icon = ThemeIconMap[theme.value];
 
           return (
-            <Button
+            <ButtonV2
               key={theme.value}
               icon={<Icon secondary={isActiveTheme} />}
               variant={
@@ -76,7 +76,7 @@ export const ThemeSection = ({
             />
           );
         })}
-      </ButtonGroup>
+      </ButtonV2Group>
     </section>
   );
 };

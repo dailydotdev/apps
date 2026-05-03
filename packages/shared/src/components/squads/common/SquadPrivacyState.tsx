@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { EarthIcon, LockIcon, SourceIcon, SparkleIcon } from '../../icons';
 
 interface SquadPrivacyStateProps {
@@ -26,7 +26,7 @@ export function SquadPrivacyState({
   })();
 
   return (
-    <Button
+    <ButtonV2
       icon={props.icon}
       size={ButtonSize.Small}
       variant={isFeatured ? ButtonVariant.Secondary : ButtonVariant.Float}
@@ -43,6 +43,6 @@ export function SquadPrivacyState({
           <SparkleIcon className="absolute -bottom-2.5 left-0 animate-scale-down-pulse" />
         </>
       )}
-    </Button>
+    </ButtonV2>
   );
 }

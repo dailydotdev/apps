@@ -13,10 +13,10 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
@@ -164,7 +164,7 @@ export function AchievementCard({
       {!isUnlocked && isOwner && onTrack && (
         <div className="mt-3 flex min-h-8 items-center">
           {isTracked ? (
-            <Button
+            <ButtonV2
               className="self-start"
               size={ButtonSize.Small}
               variant={ButtonVariant.Subtle}
@@ -173,9 +173,9 @@ export function AchievementCard({
               onClick={() => onUntrack?.()}
             >
               Stop tracking
-            </Button>
+            </ButtonV2>
           ) : (
-            <Button
+            <ButtonV2
               className="self-start"
               size={ButtonSize.Small}
               variant={ButtonVariant.Secondary}
@@ -184,7 +184,7 @@ export function AchievementCard({
               onClick={() => onTrack(achievement.id)}
             >
               Track
-            </Button>
+            </ButtonV2>
           )}
         </div>
       )}

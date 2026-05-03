@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { ButtonColor, ButtonVariant, Button } from '../buttons/Button';
+import { ButtonColor, ButtonVariant, ButtonV2 } from '../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -85,7 +85,7 @@ const PlusMobileEntryBanner = ({
           </Typography>
         </div>
         <div className="flex flex-wrap justify-center">
-          <Button
+          <ButtonV2
             tag="a"
             href={ctaUrl || '/plus'}
             variant={ButtonVariant.Primary}
@@ -99,14 +99,14 @@ const PlusMobileEntryBanner = ({
             >
               {ctaText}
             </Typography>
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             className="flex-grow"
             variant={ButtonVariant.Float}
             onClick={handleClose}
           >
             Close
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     </div>

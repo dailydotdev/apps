@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -71,7 +71,7 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement {
             feature, install the daily.dev browser extension.
           </Typography>
           <div className="mt-1 flex w-full flex-col items-center gap-2">
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
@@ -83,7 +83,7 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement {
               onClick={onInstallClick}
             >
               {installButtonLabel}
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       </div>

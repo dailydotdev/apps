@@ -5,8 +5,8 @@ import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Squad } from '../../graphql/sources';
 import { SourceMemberRole } from '../../graphql/sources';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonVariant } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useJoinSquad, useLeaveSquad } from '../../hooks';
@@ -33,7 +33,7 @@ interface Copy {
   blockedTooltip: string;
 }
 
-interface SquadActionButtonProps extends Pick<ButtonProps<'button'>, 'size'> {
+interface SquadActionButtonProps extends Pick<ButtonV2Props<'button'>, 'size'> {
   className?: ClassName;
   squad: Squad;
   copy?: Partial<Copy>;
@@ -111,7 +111,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   origin,
   inviterMember,
   ...buttonProps
-}: SquadActionButtonProps & ButtonProps<T>): ReactElement => {
+}: SquadActionButtonProps & ButtonV2Props<T>): ReactElement => {
   const { logEvent } = useLogContext();
 
   useEffect(() => {
@@ -133,7 +133,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
   }, []);
 
   return (
-    <Button
+    <ButtonV2
       {...buttonProps}
       className={classNames(className)}
       onClick={(event: React.MouseEvent<HTMLElement>) => {
@@ -151,7 +151,7 @@ export const SimpleSquadJoinButton = <T extends 'a' | 'button'>({
       }}
     >
       {children}
-    </Button>
+    </ButtonV2>
   );
 };
 

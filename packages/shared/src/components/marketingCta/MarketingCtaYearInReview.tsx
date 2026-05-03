@@ -9,7 +9,7 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
 import Logo, { LogoPosition } from '../Logo';
 import { MiniCloseIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import {
   Typography,
   TypographyTag,
@@ -124,7 +124,7 @@ export function MarketingCtaYearInReview({
             style={{ '--theme-text-primary': '#FFFFFF' } as React.CSSProperties}
           >
             {/* Dismiss button */}
-            <Button
+            <ButtonV2
               className="absolute right-2 top-2 z-3"
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}

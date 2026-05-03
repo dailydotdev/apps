@@ -5,7 +5,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { CalendarIcon, MailIcon, WarningIcon } from '../icons';
 import { anchorDefaultRel } from '../../lib/strings';
 import { recruiterScheduleUrl } from '../../lib/constants';
@@ -44,7 +44,7 @@ function RecruiterErrorFallback(): ReactElement {
           </Typography>
         </div>
         <div className="flex w-full flex-col gap-3">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             className="w-full"
             icon={<CalendarIcon />}
@@ -54,16 +54,16 @@ function RecruiterErrorFallback(): ReactElement {
             tag="a"
           >
             Schedule a call with us
-          </Button>
+          </ButtonV2>
           {hasIntercom && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               className="w-full"
               icon={<MailIcon />}
               onClick={handleOpenIntercom}
             >
               Chat with support
-            </Button>
+            </ButtonV2>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { MiniCloseIcon } from '../icons';
 import { CardTitle } from '../cards/common/Card';
 import classed from '../../lib/classed';
@@ -85,7 +85,7 @@ export const Header = ({
       size={PillSize.Small}
       alignment={undefined}
     />
-    <Button
+    <ButtonV2
       className="ml-auto"
       size={buttonSize}
       variant={ButtonVariant.Tertiary}
@@ -114,7 +114,7 @@ export const CTAButton = ({
   buttonSize = ButtonSize.Small,
   buttonVariant = ButtonVariant.Primary,
 }: CTAButtonType): ReactElement => (
-  <Button
+  <ButtonV2
     tag="a"
     rel={anchorDefaultRel}
     href={ctaUrl}
@@ -125,5 +125,5 @@ export const CTAButton = ({
     target="_blank"
   >
     {ctaText}
-  </Button>
+  </ButtonV2>
 );

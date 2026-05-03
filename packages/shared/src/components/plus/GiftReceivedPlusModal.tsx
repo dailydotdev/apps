@@ -15,7 +15,7 @@ import CloseButton from '../CloseButton';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { cloudinaryGiftedPlusModalImage } from '../../lib/image';
 import { PlusList } from './PlusList';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { getPlusGifterUser } from '../../graphql/users';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -103,12 +103,12 @@ export function GiftReceivedPlusModal(props: ModalProps): ReactElement {
           />
           <PlusList className="overflow-clip !py-0" />
         </div>
-        <Button
+        <ButtonV2
           className="mt-4 w-full"
           href={`${webappUrl}squads/plus`}
           tag="a"
           variant={ButtonVariant.Primary}
-        >{`See what's inside`}</Button>
+        >{`See what's inside`}</ButtonV2>
       </Modal.Body>
     </Modal>
   );

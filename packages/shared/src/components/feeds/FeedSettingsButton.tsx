@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { FilterIcon } from '../icons';
@@ -34,7 +34,7 @@ export function FeedSettingsButton({
   onClick,
   children = 'Feed settings',
   ...props
-}: ButtonProps<'button'>): ReactElement {
+}: ButtonV2Props<'button'>): ReactElement {
   const { logEvent } = useLogContext();
   const { isPlus } = usePlusSubscription();
   const { feeds, deleteFeed } = useFeeds();
@@ -86,7 +86,7 @@ export function FeedSettingsButton({
   };
 
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Primary}
       size={ButtonSize.Small}
       icon={<FilterIcon />}
@@ -94,6 +94,6 @@ export function FeedSettingsButton({
       onClick={onButtonClick}
     >
       {children}
-    </Button>
+    </ButtonV2>
   );
 }

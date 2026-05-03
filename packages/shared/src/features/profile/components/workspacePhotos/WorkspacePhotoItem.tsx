@@ -5,10 +5,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { UserWorkspacePhoto } from '../../../../graphql/user/userWorkspacePhoto';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { TrashIcon } from '../../../../components/icons';
 
 interface WorkspacePhotoItemProps {
@@ -47,7 +47,7 @@ export function WorkspacePhotoItem({
       </button>
       {isOwner && onDelete && (
         <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             size={ButtonSize.XSmall}
             icon={<TrashIcon />}

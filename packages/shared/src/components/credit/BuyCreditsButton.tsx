@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { CoreIcon, PlusIcon } from '../icons';
 
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import Link from '../utilities/Link';
 import { walletUrl } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
@@ -50,7 +50,7 @@ export const BuyCreditsButton = ({
       )}
     >
       <Link href={walletUrl} passHref>
-        <Button
+        <ButtonV2
           tag="a"
           target={isInsideModal ? '_blank' : undefined}
           rel={anchorDefaultRel}
@@ -59,12 +59,12 @@ export const BuyCreditsButton = ({
           size={ButtonSize.Small}
         >
           {largeNumberFormat(user?.balance?.amount || 0)}
-        </Button>
+        </ButtonV2>
       </Link>
       {renderBuyButton ? (
         <>
           <div className="h-[1.375rem] w-px bg-border-subtlest-tertiary" />
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             icon={<PlusIcon />}
             size={ButtonSize.Small}

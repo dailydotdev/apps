@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { PlusIcon } from './icons';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/Button';
+} from './buttons/ButtonV2';
 import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 
@@ -44,7 +44,7 @@ export default function CreateMyFeedButton({
         <p className="ml-2 text-center transition-all typo-footnote tablet:text-left">
           {explainerCopy}
         </p>
-        <Button
+        <ButtonV2
           className="ml-0 mt-4 tablet:ml-8 tablet:mt-0"
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
@@ -53,7 +53,7 @@ export default function CreateMyFeedButton({
           onClick={onClick}
         >
           {buttonCopy}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

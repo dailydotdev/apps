@@ -10,10 +10,10 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { CoreIcon, PlusIcon } from '../../components/icons';
 import type { Post } from '../../graphql/posts';
@@ -180,7 +180,7 @@ export function BoostPostModal({
           Boost your post
         </Typography>
         <div className="ml-4 flex flex-row rounded-10 bg-surface-float">
-          <Button
+          <ButtonV2
             icon={<CoreIcon />}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
@@ -189,9 +189,9 @@ export function BoostPostModal({
             tag="a"
           >
             {largeNumberFormat(user.balance.amount)}
-          </Button>
+          </ButtonV2>
           <div className="my-1 border-l border-border-subtlest-tertiary" />
-          <Button
+          <ButtonV2
             icon={<PlusIcon />}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
@@ -297,7 +297,7 @@ export function BoostPostModal({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           className="w-full"
           type="button"
@@ -306,7 +306,7 @@ export function BoostPostModal({
         >
           Boost post for <CoreIcon className="mx-1" size={IconSize.Small} />
           {totalSpend}
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

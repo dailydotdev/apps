@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import type { ButtonProps } from './Button';
-import { Button, ButtonSize, ButtonVariant } from './Button';
+import type { ButtonV2Props } from './ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './ButtonV2';
 import {
   ShieldCheckIcon,
   ShieldIcon,
@@ -27,7 +27,7 @@ export const ToggleClickbaitShield = ({
   buttonProps = {},
 }: {
   origin: Origin;
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
@@ -40,7 +40,7 @@ export const ToggleClickbaitShield = ({
   const { maxTries, hasUsedFreeTrial, triesLeft } = useClickbaitTries();
   const isClickbaitShieldEnabled = flags?.clickbaitShieldEnabled ?? false;
 
-  const commonIconProps: ButtonProps<'button'> = {
+  const commonIconProps: ButtonV2Props<'button'> = {
     size: ButtonSize.Medium,
     variant: ButtonVariant.Float,
     iconSecondaryOnHover: true,
@@ -58,7 +58,7 @@ export const ToggleClickbaitShield = ({
         }
         className="max-w-64 text-center"
       >
-        <Button
+        <ButtonV2
           {...commonIconProps}
           icon={
             hasUsedFreeTrial ? (
@@ -77,7 +77,7 @@ export const ToggleClickbaitShield = ({
           }}
         >
           {triesLeft}/{maxTries}
-        </Button>
+        </ButtonV2>
       </Tooltip>
     );
   }
@@ -89,7 +89,7 @@ export const ToggleClickbaitShield = ({
         isClickbaitShieldEnabled ? 'off' : 'on'
       }`}
     >
-      <Button
+      <ButtonV2
         {...commonIconProps}
         icon={
           isClickbaitShieldEnabled ? (

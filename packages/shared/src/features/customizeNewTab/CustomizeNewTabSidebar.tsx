@@ -5,10 +5,10 @@ import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyType,
@@ -160,7 +160,7 @@ export const CustomizeNewTabSidebar = (): ReactElement | null => {
           <Typography type={TypographyType.Body} bold>
             {isFirstSession ? 'Welcome' : 'Customize'}
           </Typography>
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
@@ -187,22 +187,22 @@ export const CustomizeNewTabSidebar = (): ReactElement | null => {
           )}
         </div>
         <footer className="flex items-center justify-between gap-2 border-t border-border-subtlest-tertiary px-4 py-3">
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             onClick={handleReset}
           >
             Reset
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             onClick={() => handleClose('done')}
           >
             Done
-          </Button>
+          </ButtonV2>
         </footer>
       </aside>
     </>

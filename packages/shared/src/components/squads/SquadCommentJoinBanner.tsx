@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { Origin } from '../../lib/log';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import { SimpleSquadJoinButton } from './SquadActionButton';
 import type { Squad } from '../../graphql/sources';
 import usePersistentContext from '../../hooks/usePersistentContext';
@@ -86,14 +86,14 @@ export const SquadCommentJoinBanner = ({
           >
             Join squad
           </SimpleSquadJoinButton>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             onClick={() => {
               setJoinSquadBannerDismissed(true);
             }}
           >
             Dismiss
-          </Button>
+          </ButtonV2>
         </div>
       </div>
       <SourceButton

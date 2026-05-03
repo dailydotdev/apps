@@ -9,7 +9,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { plusUrl } from '../../lib/constants';
 import { DevPlusIcon } from '../icons';
 import { useConditionalFeature, usePlusSubscription } from '../../hooks';
@@ -77,7 +77,7 @@ export const PostUpgradeToPlus = ({
 
       <div className="mt-4 flex gap-2">
         <Link href={plusUrl} passHref>
-          <Button
+          <ButtonV2
             className="flex-1"
             tag="a"
             type="button"
@@ -92,16 +92,16 @@ export const PostUpgradeToPlus = ({
             }}
           >
             {plusCta}
-          </Button>
+          </ButtonV2>
         </Link>
-        <Button
+        <ButtonV2
           className="flex-1"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           onClick={onCloseClick}
         >
           Not now
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

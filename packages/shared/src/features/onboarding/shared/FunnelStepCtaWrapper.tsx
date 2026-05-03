@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../../../components/buttons/Button';
+import type { ButtonV2Props } from '../../../components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonSize,
   ButtonIconPosition,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { FunnelTargetId } from '../types/funnelEvents';
 import { MoveToIcon } from '../../../components/icons';
 import {
@@ -17,14 +17,14 @@ import {
 } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
 
-export type FunnelStepCtaWrapperProps = ButtonProps<'button'> & {
+export type FunnelStepCtaWrapperProps = ButtonV2Props<'button'> & {
   cta?: {
     label?: string;
     note?: string;
     animation?: string;
   };
   containerClassName?: string;
-  skip?: ButtonProps<'button'> & {
+  skip?: ButtonV2Props<'button'> & {
     cta?: string;
   };
 };
@@ -59,7 +59,7 @@ export function FunnelStepCtaWrapper({
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
       <div className="sticky mx-auto my-4 flex w-full max-w-md flex-col gap-4 px-4 bottom-safe-or-2">
         {note}
-        <Button
+        <ButtonV2
           className={classNames(className, cta?.animation, 'w-full')}
           data-funnel-track={FunnelTargetId.StepCta}
           size={ButtonSize.XLarge}
@@ -68,9 +68,9 @@ export function FunnelStepCtaWrapper({
           {...props}
         >
           {cta?.label ?? 'Next'}
-        </Button>
+        </ButtonV2>
         {skip && (
-          <Button
+          <ButtonV2
             data-funnel-track={FunnelTargetId.StepCta}
             variant={ButtonVariant.Tertiary}
             type="button"
@@ -79,7 +79,7 @@ export function FunnelStepCtaWrapper({
             {...skip}
           >
             {skip?.cta ?? 'Skip'}
-          </Button>
+          </ButtonV2>
         )}
       </div>
     </div>

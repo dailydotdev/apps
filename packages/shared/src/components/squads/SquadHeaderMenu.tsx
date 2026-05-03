@@ -35,7 +35,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import type { MenuItemProps } from '../dropdown/common';
 
 const IconWrapper = ({
@@ -198,7 +198,7 @@ export default function SquadHeaderMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger tooltip={{ content: 'Squad options' }} asChild>
-        <Button
+        <ButtonV2
           className={classNames('order-4 tablet:order-5', className?.button)}
           variant={ButtonVariant.Float}
           icon={<MenuIcon />}

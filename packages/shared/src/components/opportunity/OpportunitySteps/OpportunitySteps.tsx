@@ -7,8 +7,8 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { useOpportunityEditContext } from '../OpportunityEditContext';
 import ProgressCircle from '../../ProgressCircle';
 import { getPercentage } from '../../../lib/func';
@@ -20,7 +20,7 @@ export type OpportunityStepsProps = {
   step: number;
   totalSteps: number;
   ctaText: ReactNode;
-  ctaButtonProps?: ButtonProps<'button'>;
+  ctaButtonProps?: ButtonV2Props<'button'>;
   schema?: z.ZodType;
 };
 
@@ -55,7 +55,7 @@ export const OpportunitySteps = ({
           Step {step} of {totalSteps}
         </Typography>
       </div>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         {...ctaButtonProps}
         onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -94,7 +94,7 @@ export const OpportunitySteps = ({
         }}
       >
         {ctaText}
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

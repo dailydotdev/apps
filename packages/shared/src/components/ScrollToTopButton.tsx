@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import type { ButtonV2Props } from './buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { ArrowIcon } from './icons';
 import { useViewSize, ViewSize } from '../hooks';
 import { useSettingsContext } from '../contexts/SettingsContext';
@@ -44,7 +44,7 @@ export default function ScrollToTopButton(): ReactElement | null {
     return null;
   }
 
-  const props: ButtonProps<'button'> = {
+  const props: ButtonV2Props<'button'> = {
     icon: <ArrowIcon />,
     onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
   };
@@ -57,7 +57,7 @@ export default function ScrollToTopButton(): ReactElement | null {
   };
 
   return (
-    <Button
+    <ButtonV2
       aria-label="scroll to top"
       aria-hidden={!show}
       tabIndex={show ? 0 : -1}

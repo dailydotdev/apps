@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { VIcon } from '../../../components/icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
@@ -89,7 +89,7 @@ export const ShowInterestButton = ({
 
   return (
     <div className={className?.container}>
-      <Button
+      <ButtonV2
         className={classNames(className?.button, '!text-white')}
         size={size}
         icon={<VIcon />}
@@ -100,7 +100,7 @@ export const ShowInterestButton = ({
         loading={isPending}
       >
         Show interest
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { ButtonProps } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { MedalBadgeIcon } from '../icons';
 import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
@@ -27,7 +27,7 @@ type AwardButtonProps = {
   flags?: Record<string, string>;
   post?: Post;
   copy?: string;
-} & Pick<ButtonProps<'button'>, 'pressed' | 'variant'>;
+} & Pick<ButtonV2Props<'button'>, 'pressed' | 'variant'>;
 export const AwardButton = ({
   type,
   className,
@@ -70,7 +70,7 @@ export const AwardButton = ({
       }
     >
       <div>
-        <Button
+        <ButtonV2
           pressed={pressed}
           size={ButtonSize.Small}
           icon={<MedalBadgeIcon />}
@@ -80,7 +80,7 @@ export const AwardButton = ({
           onClick={openGiveAwardModal}
         >
           {copy}
-        </Button>
+        </ButtonV2>
       </div>
     </Tooltip>
   );

@@ -11,7 +11,7 @@ import { CopyType } from '../../../sources/SourceActions/SourceActionsFollow';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { FollowButton } from '../../../contentPreference/FollowButton';
 import type { UserShortProfile } from '../../../../lib/user';
-import { ButtonVariant } from '../../../buttons/Button';
+import { ButtonVariant } from '../../../buttons/ButtonV2';
 
 export const FollowingUserList = (): ReactElement | null => {
   const { user } = useAuthContext();

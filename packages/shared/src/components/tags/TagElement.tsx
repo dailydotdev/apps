@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { AlertDot, AlertColor } from '../AlertDot';
-import { Button, ButtonColor } from '../buttons/Button';
+import { ButtonV2, ButtonColor } from '../buttons/ButtonV2';
 import { ButtonVariant } from '../buttons/common';
 import type { Tag } from '../../graphql/feedSettings';
 import type { OnSelectTagProps } from './common';
@@ -37,7 +37,7 @@ export const TagElement = ({
 
   if (isSelected) {
     return (
-      <Button
+      <ButtonV2
         className={className}
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
@@ -45,18 +45,18 @@ export const TagElement = ({
         {...attrs}
       >
         {content}
-      </Button>
+      </ButtonV2>
     );
   }
 
   return (
-    <Button
+    <ButtonV2
       className={className}
       variant={ButtonVariant.Float}
       onClick={handleClick}
       {...attrs}
     >
       {content}
-    </Button>
+    </ButtonV2>
   );
 };

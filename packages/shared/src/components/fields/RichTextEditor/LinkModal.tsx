@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Modal } from '../../modals/common/Modal';
 import { ModalKind, ModalSize } from '../../modals/common/types';
 import { TextField } from '../TextField';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 
 export interface LinkModalProps {
   isOpen: boolean;
@@ -80,20 +80,20 @@ export const LinkModal = ({
           onChange={(e) => setLabel(e.target.value)}
         />
         <div className="flex justify-end gap-3">
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Tertiary}
             onClick={onClose}
           >
             Cancel
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="submit"
             variant={ButtonVariant.Primary}
             disabled={!url.trim()}
           >
             {initialUrl ? 'Save' : 'Add link'}
-          </Button>
+          </ButtonV2>
         </div>
       </form>
     </Modal>

@@ -1,19 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import type { AllowedTags, ButtonProps } from '../../../buttons/Button';
+import type { AllowedTags, ButtonV2Props } from '../../../buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../buttons/Button';
+} from '../../../buttons/ButtonV2';
 import { plusUrl } from '../../../../lib/constants';
 import Link from '../../../utilities/Link';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { usePlusSubscription } from '../../../../hooks';
 
-type Props = { iconOnly?: boolean } & ButtonProps<AllowedTags>;
+type Props = { iconOnly?: boolean } & ButtonV2Props<AllowedTags>;
 
 export const RemoveAd = ({
   className,
@@ -24,7 +24,7 @@ export const RemoveAd = ({
   const { logSubscriptionEvent } = usePlusSubscription();
   return (
     <Link passHref href={plusUrl}>
-      <Button
+      <ButtonV2
         tag="a"
         variant={ButtonVariant.Float}
         size={size}
@@ -39,7 +39,7 @@ export const RemoveAd = ({
         {...props}
       >
         {!iconOnly ? 'Remove' : undefined}
-      </Button>
+      </ButtonV2>
     </Link>
   );
 };

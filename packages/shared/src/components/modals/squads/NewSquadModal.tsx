@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalSize } from '../common/types';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { useSquadNavigation } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { useSlack } from '../../../hooks/integrations/slack/useSlack';
@@ -68,14 +68,14 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
           Create a group where you can learn and interact with other developers
           around topics that matter
         </Typography>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           onClick={onConnectSlack}
           icon={<SlackIcon />}
           className="w-full"
         >
           Quick start with Slack
-        </Button>
+        </ButtonV2>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Quaternary}
@@ -89,14 +89,14 @@ export default function NewSquadModal(props: ModalProps): ReactElement {
             border: 'bg-border-subtlest-secondary',
           }}
         />
-        <Button
+        <ButtonV2
           tag="a"
           href={newSquadUrl}
           variant={ButtonVariant.Primary}
           className="w-full"
         >
           Create manually
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

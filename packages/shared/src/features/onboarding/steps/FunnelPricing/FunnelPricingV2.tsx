@@ -28,11 +28,11 @@ import {
 import { PricingEmailSupport } from './common';
 import { LazyImage } from '../../../../components/LazyImage';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { ChecklistAIcon, ShieldCheckIcon } from '../../../../components/icons';
 import {
   Typography,
@@ -86,7 +86,7 @@ const PricingSelection = ({
       >
         {ctaMessage}
       </Typography>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
         color={ButtonColor.Cabbage}
@@ -95,7 +95,7 @@ const PricingSelection = ({
         onClick={() => onProceedToCheckout?.(selectedPlan)}
       >
         {cta || 'Get my plan'}
-      </Button>
+      </ButtonV2>
       <CreditCards>
         <Typography
           className="mb-4 flex gap-1 rounded-8 bg-surface-float px-2 py-0.5"
@@ -150,7 +150,7 @@ const Pricing = ({
           startDate={discountStartDate}
           variant={DiscountTimerVariant.WithSlot}
         >
-          <Button
+          <ButtonV2
             className=" bg-white text-black"
             href={`#${id}-plans`}
             size={ButtonSize.Medium}
@@ -158,7 +158,7 @@ const Pricing = ({
             variant={ButtonVariant.Float}
           >
             {plansBlock.cta}
-          </Button>
+          </ButtonV2>
         </DiscountTimer>
       )}
       <div className="flex flex-col gap-6 px-4 py-6">

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
 import { AuthEventNames } from '../../lib/auth';
@@ -163,14 +163,14 @@ function EmailCodeVerification({
           </button>
         </span>
       </div>
-      <Button
+      <ButtonV2
         className="w-full"
         type="submit"
         variant={ButtonVariant.Primary}
         loading={isVerifying}
       >
         Verify
-      </Button>
+      </ButtonV2>
     </AuthForm>
   );
 }

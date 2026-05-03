@@ -14,7 +14,7 @@ import { useLazyModal } from '../hooks/useLazyModal';
 import type { Squad } from '../graphql/sources';
 import { SocialShareButton } from './widgets/SocialShareButton';
 import { getShareableSquads, SquadsToShare } from './squads/SquadsToShare';
-import { Button } from './buttons/Button';
+import { ButtonV2 } from './buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from './buttons/common';
 import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
@@ -138,14 +138,14 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
         />
       </div>
       {shouldShowToggle && (
-        <Button
+        <ButtonV2
           className="mt-3 w-full"
           onClick={() => setIsExpanded((expanded) => !expanded)}
           size={ButtonSize.Small}
           variant={ButtonVariant.Subtle}
         >
           {isExpanded ? 'Show fewer options' : 'Show more options'}
-        </Button>
+        </ButtonV2>
       )}
     </WidgetContainer>
   );

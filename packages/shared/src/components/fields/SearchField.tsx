@@ -9,8 +9,8 @@ import classNames from 'classnames';
 import { useInputField } from '../../hooks/useInputField';
 import { BaseField, FieldInput } from './common';
 import { SearchIcon, MiniCloseIcon as CloseIcon, ArrowIcon } from '../icons';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { getFieldFontColor } from './BaseFieldContainer';
 import type { IconProps } from '../Icon';
 
@@ -40,7 +40,7 @@ export interface SearchFieldProps
   fieldSize?: 'large' | 'medium';
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
-  rightButtonProps?: ButtonProps<'button'> | false;
+  rightButtonProps?: ButtonV2Props<'button'> | false;
 }
 
 const ButtonIcon = ({
@@ -115,7 +115,7 @@ export const SearchField = forwardRef(function SearchField(
     >
       {!!showIcon &&
         (isSecondary && hasInput ? (
-          <Button
+          <ButtonV2
             aria-label="Clear input text"
             className="mr-2"
             size={ButtonSize.XSmall}
@@ -169,7 +169,7 @@ export const SearchField = forwardRef(function SearchField(
         required
       />
       {((hasInput && isPrimary) || isSecondary) && !!rightButtonProps && (
-        <Button
+        <ButtonV2
           {...rightButtonProps}
           variant={isSecondary ? ButtonVariant.Primary : ButtonVariant.Tertiary}
           size={rightButtonProps.size || ButtonSize.XSmall}

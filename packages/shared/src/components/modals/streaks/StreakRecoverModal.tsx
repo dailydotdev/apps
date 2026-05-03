@@ -11,8 +11,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import type { ButtonProps } from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import type { UseStreakRecoverReturn } from '../../../hooks/streaks/useStreakRecover';
 import { useStreakRecover } from '../../../hooks/streaks/useStreakRecover';
 import { Checkbox } from '../../fields/Checkbox';
@@ -111,12 +111,12 @@ const StreakRecoveryCopy = ({
 const StreakRecoverButton = ({
   recover,
   ...props
-}: { recover: UserStreakRecoverData } & ButtonProps<'button'>) => {
+}: { recover: UserStreakRecoverData } & ButtonV2Props<'button'>) => {
   const { user } = useAuthContext();
   const balance = user?.balance.amount ?? 0;
 
   return (
-    <Button
+    <ButtonV2
       {...props}
       className="relative gap-1"
       variant={ButtonVariant.Primary}
@@ -126,7 +126,7 @@ const StreakRecoverButton = ({
       {recover.cost > balance ? 'Buy Cores' : 'Restore my streak'}
       <CoreIcon />
       {recover.cost === 0 ? 'Free' : formatCoresCurrency(recover.cost)}
-    </Button>
+    </ButtonV2>
   );
 };
 

@@ -17,7 +17,7 @@ import {
 import { ProfileImageSize } from '../../ProfilePicture';
 import { cloudinarySquadsImageFallback } from '../../../lib/image';
 
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -288,7 +288,7 @@ export const MultipleSourceSelect = ({
               <Label>You can choose up to 3 squads</Label>
               <div className="my-1 flex flex-wrap gap-2">
                 {selectedSquads.map((squad) => (
-                  <Button
+                  <ButtonV2
                     key={squad.id}
                     onClick={() => toggleSource(squad.id)}
                     aria-label={`Remove ${squad.name} from selection`}
@@ -302,7 +302,7 @@ export const MultipleSourceSelect = ({
                     <TruncateText className="flex-1">
                       {squad?.name}
                     </TruncateText>
-                  </Button>
+                  </ButtonV2>
                 ))}
               </div>
             </>

@@ -1,6 +1,6 @@
 import React from 'react';
 import useRemoveExperience from '../../../../hooks/useRemoveExperience';
-import { Button, ButtonColor } from '../../../../components/buttons/Button';
+import { ButtonV2, ButtonColor } from '../../../../components/buttons/ButtonV2';
 import {
   ButtonVariant,
   ButtonSize,
@@ -59,7 +59,7 @@ const DeleteExperienceButton = ({
 
   return (
     <div className="mt-6">
-      <Button
+      <ButtonV2
         type="button"
         variant={ButtonVariant.Subtle}
         size={ButtonSize.Small}
@@ -68,7 +68,7 @@ const DeleteExperienceButton = ({
         onClick={handleDelete}
       >
         {buttonCopy}
-      </Button>
+      </ButtonV2>
     </div>
   );
 };

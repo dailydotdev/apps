@@ -2,8 +2,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { plusUrl } from '../../../lib/constants';
-import type { ButtonProps } from '../../../components/buttons/Button';
-import { Button } from '../../../components/buttons/Button';
+import type { ButtonV2Props } from '../../../components/buttons/ButtonV2';
+import { ButtonV2 } from '../../../components/buttons/ButtonV2';
 import { briefButtonBg } from '../../../styles/custom';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { LogEvent, TargetId } from '../../../lib/log';
@@ -15,7 +15,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 export const BriefPlusUpgradeCTA = ({
   className,
   ...attrs
-}: ButtonProps<'a'>): ReactElement => {
+}: ButtonV2Props<'a'>): ReactElement => {
   const { isAuthReady } = useAuthContext();
   const { logSubscriptionEvent, isPlus } = usePlusSubscription();
   const {
@@ -27,7 +27,7 @@ export const BriefPlusUpgradeCTA = ({
 
   return (
     <Link href={plusUrl} passHref>
-      <Button
+      <ButtonV2
         style={{
           background: briefButtonBg,
         }}
@@ -45,7 +45,7 @@ export const BriefPlusUpgradeCTA = ({
         {...attrs}
       >
         {plusCta}
-      </Button>
+      </ButtonV2>
     </Link>
   );
 };

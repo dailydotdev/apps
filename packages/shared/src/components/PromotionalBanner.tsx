@@ -2,11 +2,11 @@ import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from './buttons/Button';
+} from './buttons/ButtonV2';
 import { isTesting } from '../lib/constants';
 import type { BannerTheme } from '../graphql/banner';
 import { BannerCustomTheme } from '../graphql/banner';
@@ -97,7 +97,7 @@ export default function PromotionalBanner(): ReactElement {
         <span className="ml-0.5">{banner.subtitle}</span>
       </div>
       {banner.theme === BannerCustomTheme.WhitePepper ? (
-        <Button
+        <ButtonV2
           tag="a"
           href={banner.url}
           size={ButtonSize.XSmall}
@@ -107,9 +107,9 @@ export default function PromotionalBanner(): ReactElement {
           onClick={onCtaClick}
         >
           {banner.cta}
-        </Button>
+        </ButtonV2>
       ) : (
-        <Button
+        <ButtonV2
           tag="a"
           href={banner.url}
           size={ButtonSize.XSmall}
@@ -118,7 +118,7 @@ export default function PromotionalBanner(): ReactElement {
           onClick={onCtaClick}
         >
           {banner.cta}
-        </Button>
+        </ButtonV2>
       )}
       <CloseButton
         size={ButtonSize.XSmall}

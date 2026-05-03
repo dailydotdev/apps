@@ -9,7 +9,7 @@ import {
 import classed from '../../lib/classed';
 import { ClickableText } from '../buttons/ClickableText';
 import { PlayPauseIcon } from '../icons/PlayPause';
-import { Button, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonSize } from '../buttons/ButtonV2';
 
 const Card = classed(
   'div',
@@ -121,7 +121,7 @@ export const TipCard = ({
             className="h-full w-full rounded-8 object-cover"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-overlay-quaternary-onion">
-            <Button size={ButtonSize.XLarge} icon={<PlayPauseIcon />} />
+            <ButtonV2 size={ButtonSize.XLarge} icon={<PlayPauseIcon />} />
           </div>
         </div>
         <div className="flex items-center justify-between gap-4">

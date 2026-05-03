@@ -3,7 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import type { RadioItemProps } from '../../fields/Radio';
 import type { Post, ReadHistoryPost } from '../../../graphql/posts';
 import { Checkbox } from '../../fields/Checkbox';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import type { PostBootData } from '../../../lib/boot';
 import type { ModalProps } from '../common/Modal';
 import { FlexRow } from '../../utilities';
@@ -76,7 +76,7 @@ const reportReasonsMap: Partial<
             const isSelected = selectedTags.includes(tag);
 
             return (
-              <Button
+              <ButtonV2
                 key={tag}
                 variant={
                   isSelected ? ButtonVariant.Primary : ButtonVariant.Float
@@ -92,7 +92,7 @@ const reportReasonsMap: Partial<
                 }}
               >
                 #{tag}
-              </Button>
+              </ButtonV2>
             );
           })}
         </FlexRow>

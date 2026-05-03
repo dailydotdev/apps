@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { CopyIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { useCopyLink } from '../../../hooks/useCopy';
@@ -38,7 +38,7 @@ export function BrowserPreviewFrame({
             <span className="min-w-0 flex-1 truncate text-center text-xs text-text-tertiary">
               {url}
             </span>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               icon={<CopyIcon size={IconSize.XSmall} />}

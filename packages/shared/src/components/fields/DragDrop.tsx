@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ChecklistAIcon, ClearIcon, DocsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Loader } from '../Loader';
 import { IconSize } from '../Icon';
 import { useViewSize, ViewSize } from '../../hooks';
@@ -100,7 +100,7 @@ const LargeItem = ({
     </div>
     {getIcon(state)}
     {showRemove && (
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.XSmall}
         onClick={onRemove}
@@ -126,7 +126,7 @@ const CompactItem = ({
     </div>
     {getIcon(state)}
     {showRemove && (
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.XSmall}
         onClick={onRemove}
@@ -211,7 +211,7 @@ function DragDropComponent({
   if (!isLaptop) {
     const isProcessed = !isError && filenames?.length;
     const cta = renderCta?.(openFileInput) ?? (
-      <Button
+      <ButtonV2
         type="button"
         className={classNames('w-fit', className)}
         variant={ButtonVariant.Primary}
@@ -221,7 +221,7 @@ function DragDropComponent({
         disabled={disabled}
       >
         {ctaLabelMobile}
-      </Button>
+      </ButtonV2>
     );
 
     return (
@@ -253,7 +253,7 @@ function DragDropComponent({
         {dragDropDescription}
       </Typography>
       {renderCta?.(openFileInput) ?? (
-        <Button
+        <ButtonV2
           className="text-text-primary"
           variant={ButtonVariant.Subtle}
           size={ButtonSize.Small}
@@ -262,7 +262,7 @@ function DragDropComponent({
           disabled={disabled}
         >
           {ctaLabelDesktop}
-        </Button>
+        </ButtonV2>
       )}
     </span>
   );

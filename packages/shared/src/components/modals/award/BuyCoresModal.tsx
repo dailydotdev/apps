@@ -11,7 +11,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { ModalBody } from '../common/ModalBody';
 import { useBuyCoresContext } from '../../../contexts/BuyCoresContext/types';
 import { BuyCreditsButton } from '../../credit/BuyCreditsButton';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -153,13 +153,13 @@ const ProcessingCompleted = () => {
       >
         Success! Your Cores are now available in your balance.
       </Typography>
-      <Button
+      <ButtonV2
         onClick={onCompletion}
         variant={ButtonVariant.Primary}
         className="w-full"
       >
         Got it
-      </Button>
+      </ButtonV2>
     </>
   );
 };
@@ -182,7 +182,7 @@ const ProcessingError = () => {
           {description}
         </Typography>
       )}
-      <Button
+      <ButtonV2
         onClick={() => {
           onRequestClose?.();
         }}
@@ -190,7 +190,7 @@ const ProcessingError = () => {
         className="w-full"
       >
         Got it
-      </Button>
+      </ButtonV2>
     </>
   );
 };
@@ -455,14 +455,14 @@ const BuyFlow = ({
           onPlusClick={onPlusButtonClick}
         />
         {isMobile && (
-          <Button
+          <ButtonV2
             onClick={props.onRequestClose}
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             className="mr-2"
           >
             Close
-          </Button>
+          </ButtonV2>
         )}
       </Modal.Header>
       {isMobile ? (

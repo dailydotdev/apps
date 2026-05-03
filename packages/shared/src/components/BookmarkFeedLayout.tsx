@@ -21,8 +21,8 @@ import SearchEmptyScreen from './SearchEmptyScreen';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import BookmarkEmptyScreen from './BookmarkEmptyScreen';
-import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import type { ButtonV2Props } from './buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
@@ -64,11 +64,11 @@ const ShareBookmarksButton = ({
   children,
   ...props
 }: PropsWithChildren<
-  Pick<ButtonProps<'button'>, 'className' | 'onClick' | 'icon'>
+  Pick<ButtonV2Props<'button'>, 'className' | 'onClick' | 'icon'>
 >) => (
-  <Button variant={ButtonVariant.Secondary} {...props}>
+  <ButtonV2 variant={ButtonVariant.Secondary} {...props}>
     {children}
-  </Button>
+  </ButtonV2>
 );
 
 const bookmarkSortOptions = [

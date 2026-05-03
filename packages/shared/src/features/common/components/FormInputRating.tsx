@@ -1,7 +1,7 @@
 import type { ReactElement, PropsWithChildren, ComponentProps } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import { FunnelTargetId } from '../../onboarding/types/funnelEvents';
 import {
   Typography,
@@ -54,7 +54,7 @@ export const FormInputRating = ({
         {options.map((item, index) => {
           const isSelected = item.value === inputValue;
           return (
-            <Button
+            <ButtonV2
               aria-checked={isSelected}
               aria-label={`${item.label} stars`}
               aria-posinset={index + 1}
@@ -72,7 +72,7 @@ export const FormInputRating = ({
               variant={ButtonVariant.Quiz}
             >
               {index + 1}
-            </Button>
+            </ButtonV2>
           );
         })}
       </div>

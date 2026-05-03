@@ -19,10 +19,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -123,7 +123,7 @@ function ShortcutRow({
         </p>
       </div>
       <div className="[@media(hover:none)]:opacity-60 flex items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none [@media(hover:none)]:focus-within:opacity-100">
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
@@ -131,7 +131,7 @@ function ShortcutRow({
           aria-label={`Edit ${label}`}
           onClick={() => onEdit(shortcut)}
         />
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
@@ -210,7 +210,7 @@ export function ManualShortcutsSection({
           >
             Add one manually or import from Connections below.
           </Typography>
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -219,7 +219,7 @@ export function ManualShortcutsSection({
             className="mt-1"
           >
             Add shortcut
-          </Button>
+          </ButtonV2>
         </div>
       ) : (
         <div className="flex flex-col gap-0.5">

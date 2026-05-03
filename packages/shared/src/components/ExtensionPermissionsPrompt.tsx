@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import Logo, { LogoPosition } from './Logo';
 import { OnboardingTitleGradient } from './onboarding/common';
-import { Button, ButtonSize, ButtonVariant } from './buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from './buttons/ButtonV2';
 import { cloudinaryOnboardingGlow } from '../lib/image';
 import { useExtensionContext } from '../contexts/ExtensionContext';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
@@ -45,14 +45,14 @@ const ExtensionPermissionsPrompt = (): ReactElement => {
         here
       </p>
 
-      <Button
+      <ButtonV2
         className="z-1 w-full max-w-[18.75rem]"
         size={ButtonSize.Large}
         variant={ButtonVariant.Primary}
         onClick={handleRequestHostPermissions}
       >
         Enable access ➔
-      </Button>
+      </ButtonV2>
 
       <img
         className="absolute bottom-0 z-0 w-[33rem]"

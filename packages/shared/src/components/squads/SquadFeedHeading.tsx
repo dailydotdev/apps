@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useMemo } from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { PinIcon } from '../icons';
 import type { Squad } from '../../graphql/sources';
 import { ActiveFeedContext } from '../../contexts';
@@ -40,7 +40,7 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 px-6 pb-6 laptop:px-0">
       <span className="ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3">
         {isSquadMember && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             onClick={onClick}
             icon={<PinIcon />}
@@ -48,7 +48,7 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
             {collapsePinnedPosts
               ? `Show pinned posts (${pinnedPostsCount})`
               : 'Hide pinned posts'}
-          </Button>
+          </ButtonV2>
         )}
       </span>
     </div>

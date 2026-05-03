@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { search as emojiSearch } from 'node-emoji';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Typography, TypographyType } from '../typography/Typography';
 
 const COMMON_EMOJIS = [
@@ -213,14 +213,14 @@ export const EmojiPicker = ({
         ) : (
           <div className="flex items-center gap-2">
             {value && (
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Float}
                 onClick={clearValue}
                 className="!size-10 shrink-0"
               >
                 -
-              </Button>
+              </ButtonV2>
             )}
 
             {value && (
@@ -229,7 +229,7 @@ export const EmojiPicker = ({
               </div>
             )}
 
-            <Button
+            <ButtonV2
               type="button"
               variant={ButtonVariant.Float}
               onClick={toggleOpen}
@@ -238,7 +238,7 @@ export const EmojiPicker = ({
               {isOpen && 'Close'}
               {!isOpen && value && 'Change'}
               {!isOpen && !value && 'Pick emoji'}
-            </Button>
+            </ButtonV2>
           </div>
         )}
       </div>

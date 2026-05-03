@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from '../fields/Select';
 import { EmploymentType } from '../../features/opportunity/protobuf/opportunity';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { Typography, TypographyType } from '../typography/Typography';
 
 const employmentTypeOptions = [

@@ -15,7 +15,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { TextField } from '../../../components/fields/TextField';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import { LinkIcon } from '../../../components/icons';
 import { useCopyLink } from '../../../hooks/useCopy';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -67,7 +67,7 @@ export const InviteMemberModal = ({
               You don&apos;t have any available seats in your organization.
             </Typography>
 
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               className="self-start"
               onClick={() => {
@@ -88,7 +88,7 @@ export const InviteMemberModal = ({
               }}
             >
               Add more seats
-            </Button>
+            </ButtonV2>
 
             <HorizontalSeparator />
           </>
@@ -111,14 +111,14 @@ export const InviteMemberModal = ({
           readOnly
         />
 
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           icon={<LinkIcon />}
           pressed={isCopying}
           onClick={() => copyLink({ link: referralUrl })}
         >
           {isCopying ? 'Copied!' : 'Copy link'}
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

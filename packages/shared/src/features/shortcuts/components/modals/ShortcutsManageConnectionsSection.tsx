@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { Switch } from '../../../../components/fields/Switch';
 import {
   BookmarkIcon,
@@ -154,17 +154,17 @@ function ConnectionRow({
         {trailing ?? (
           <>
             {secondaryLabel && (
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 onClick={onSecondary}
               >
                 {secondaryLabel}
-              </Button>
+              </ButtonV2>
             )}
             {primaryLabel && (
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Float}
                 size={ButtonSize.XSmall}
@@ -172,7 +172,7 @@ function ConnectionRow({
                 onClick={onPrimary}
               >
                 {primaryLabel}
-              </Button>
+              </ButtonV2>
             )}
           </>
         )}

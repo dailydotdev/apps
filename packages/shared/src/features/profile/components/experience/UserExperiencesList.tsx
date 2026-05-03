@@ -11,11 +11,11 @@ import {
 import { UserExperienceItem } from './UserExperienceItem';
 import { UserExperiencesGroupedList } from './UserExperiencesGroupedList';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import {
   MoveToIcon,
   PlusIcon,
@@ -177,14 +177,14 @@ export function UserExperienceList<T extends UserExperience>({
             </Typography>
           </div>
           <Link href={addUrl} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
             >
               Add your first {config.label}
-            </Button>
+            </ButtonV2>
           </Link>
         </div>
       </div>
@@ -200,7 +200,7 @@ export function UserExperienceList<T extends UserExperience>({
           </Typography>
           {isOwner && (
             <Link href={settingsUrl} passHref>
-              <Button
+              <ButtonV2
                 tag="a"
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
@@ -244,7 +244,7 @@ export function UserExperienceList<T extends UserExperience>({
       </ul>
       {hasNextPage && showMoreUrl && loggedUser && (
         <Link href={showMoreUrl} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Medium}
@@ -253,7 +253,7 @@ export function UserExperienceList<T extends UserExperience>({
             className="w-full"
           >
             Show More
-          </Button>
+          </ButtonV2>
         </Link>
       )}
     </div>

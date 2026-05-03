@@ -3,11 +3,11 @@ import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import {
-  Button,
-  ButtonGroup,
+  ButtonV2,
+  ButtonV2Group,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { usePaymentContext } from '../../contexts/payment/context';
 import type { PurchaseType } from '../../graphql/paddle';
 import type { WithClassNameProps } from '../utilities';
@@ -49,11 +49,11 @@ export const PlusProductToggle = ({
   }, [options, query.type, setPriceType]);
 
   return (
-    <ButtonGroup className={className}>
+    <ButtonV2Group className={className}>
       {options.map((option) => {
         const isSelected = priceType === option.priceType;
         return (
-          <Button
+          <ButtonV2
             key={`plus-product-toggle-${option.priceType}`}
             variant={isSelected ? ButtonVariant.Float : ButtonVariant.Tertiary}
             size={ButtonSize.Small}
@@ -80,9 +80,9 @@ export const PlusProductToggle = ({
             })}
           >
             {option.label}
-          </Button>
+          </ButtonV2>
         );
       })}
-    </ButtonGroup>
+    </ButtonV2Group>
   );
 };

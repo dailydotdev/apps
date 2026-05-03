@@ -7,7 +7,7 @@ import {
   SEARCH_KEYWORDS_QUERY,
   SET_KEYWORD_AS_SYNONYM_MUTATION,
 } from '../../graphql/keywords';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { gqlClient } from '../../graphql/common';
@@ -63,21 +63,21 @@ export default function KeywordSynonymModal({
           <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
             {searchResults?.searchKeywords.hits.slice(0, 5).map((keyword) => (
               <li className="m-0 p-0" key={keyword.value}>
-                <Button
+                <ButtonV2
                   onClick={() => setSynonym(keyword.value)}
                   variant={ButtonVariant.Tertiary}
                 >
                   {keyword.value}
-                </Button>
+                </ButtonV2>
               </li>
             ))}
           </ul>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button className=" btn-primary" onClick={() => setSynonym(query)}>
+        <ButtonV2 className=" btn-primary" onClick={() => setSynonym(query)}>
           Create
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

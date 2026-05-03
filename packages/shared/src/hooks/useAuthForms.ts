@@ -3,7 +3,7 @@ import type React from 'react';
 import { useMemo, useRef, useState } from 'react';
 import type { PromptOptions } from './usePrompt';
 import { usePrompt } from './usePrompt';
-import { ButtonColor } from '../components/buttons/Button';
+import { ButtonColor } from '../components/buttons/ButtonV2';
 
 export type CloseAuthModalFunc = (
   e: React.MouseEvent | React.KeyboardEvent | React.FormEvent,

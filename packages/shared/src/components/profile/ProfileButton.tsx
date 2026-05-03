@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
 import { CoreIcon, SettingsIcon } from '../icons';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
 import { IconSize } from '../Icon';
@@ -200,7 +200,7 @@ export default function ProfileButton({
   return (
     <>
       {settingsIconOnly ? (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           icon={<SettingsIcon />}
@@ -230,7 +230,7 @@ export default function ProfileButton({
                 className="flex origin-center justify-center will-change-transform"
               >
                 <Link href={walletUrl} passHref>
-                  <Button
+                  <ButtonV2
                     data-reward-target={QuestRewardType.Cores}
                     icon={<CoreIcon />}
                     tag="a"
@@ -238,7 +238,7 @@ export default function ProfileButton({
                     size={ButtonSize.Small}
                   >
                     {largeNumberFormat(displayedBalance)}
-                  </Button>
+                  </ButtonV2>
                 </Link>
               </div>
             </Tooltip>

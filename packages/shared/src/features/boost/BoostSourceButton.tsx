@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import type { ButtonProps } from '../../components/buttons/Button';
+import type { ButtonV2Props } from '../../components/buttons/ButtonV2';
 import ConditionalWrapper from '../../components/ConditionalWrapper';
 import { MiniCloseIcon, SettingsIcon, VIcon } from '../../components/icons';
 import { LazyModal, ModalSize } from '../../components/modals/common/types';
@@ -45,7 +45,7 @@ export function BoostSourceButton({
   buttonProps = {},
 }: {
   squad: Squad;
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
 }): ReactElement {
   const { openModal } = useLazyModal();
   const { user } = useAuthContext();

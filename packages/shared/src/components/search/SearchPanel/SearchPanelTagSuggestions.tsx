@@ -12,14 +12,14 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { SearchPanelItemContainer } from './SearchPanelInputContainer';
 import { TagLink } from '../../TagLinks';
 import { webappUrl } from '../../../lib/constants';
-import type { ButtonProps } from '../../buttons/Button';
+import type { ButtonV2Props } from '../../buttons/ButtonV2';
 
 export type SearchPanelTagSuggestionsProps = {
   className?: string;
   title: string;
 };
 
-type PanelItemProps = Pick<ButtonProps<'a'>, 'onClick'> & {
+type PanelItemProps = Pick<ButtonV2Props<'a'>, 'onClick'> & {
   suggestion: SearchSuggestion;
 };
 

@@ -15,7 +15,7 @@ import styles from './InAppNotification.module.css';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { NotificationType } from './utils';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { ModalClose } from '../modals/common/ModalClose';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 

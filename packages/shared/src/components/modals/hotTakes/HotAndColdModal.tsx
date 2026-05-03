@@ -11,7 +11,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent, Origin } from '../../../lib/log';
 import { webappUrl } from '../../../lib/constants';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { HotIcon } from '../../icons/Hot';
 import {
   Typography,
@@ -819,7 +819,7 @@ const EmptyState = ({
       Share your own hot takes and let others vote on them.
     </Typography>
     {username && (
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Primary}
         size={ButtonSize.Large}
         tag="a"
@@ -829,7 +829,7 @@ const EmptyState = ({
         }}
       >
         Share your hot takes
-      </Button>
+      </ButtonV2>
     )}
   </div>
 );
@@ -1139,7 +1139,7 @@ const HotAndColdModal = ({
             </div>
 
             <div className="flex items-center justify-center gap-4 p-4 pt-3">
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
                 icon={
@@ -1152,7 +1152,7 @@ const HotAndColdModal = ({
                 className="!size-14 rounded-full"
                 aria-label="Cold take - downvote"
               />
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
                 icon={
@@ -1165,7 +1165,7 @@ const HotAndColdModal = ({
                 className="!size-12 rounded-full"
                 aria-label="Skip hot take"
               />
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Float}
                 size={ButtonSize.Large}
                 icon={
@@ -1182,7 +1182,7 @@ const HotAndColdModal = ({
 
             {user?.username && (
               <div className="px-4 pb-4">
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Tertiary}
                   size={ButtonSize.Medium}
                   tag="a"
@@ -1193,7 +1193,7 @@ const HotAndColdModal = ({
                   }}
                 >
                   Add your own hot take
-                </Button>
+                </ButtonV2>
               </div>
             )}
           </>

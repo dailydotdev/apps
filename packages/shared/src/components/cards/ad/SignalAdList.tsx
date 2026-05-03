@@ -13,7 +13,7 @@ import AdAttribution from './common/AdAttribution';
 import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import PostTags from '../common/PostTags';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { RemoveAd } from './common/RemoveAd';
 import { AdPixel } from './common/AdPixel';
@@ -110,7 +110,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
         ) : null}
         {!!ad.callToAction && (
           <div className="relative z-1 mt-2 flex items-center">
-            <Button
+            <ButtonV2
               tag="a"
               href={ad.link}
               target="_blank"
@@ -120,7 +120,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
               {...combinedClicks(() => onLinkClick?.(ad))}
             >
               {ad.callToAction}
-            </Button>
+            </ButtonV2>
           </div>
         )}
       </div>

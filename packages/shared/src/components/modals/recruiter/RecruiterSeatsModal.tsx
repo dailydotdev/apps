@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { TextField } from '../../fields/TextField';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { MinusIcon } from '../../icons/Minus';
 import { PlusIcon } from '../../icons/Plus';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -163,7 +163,7 @@ export const RecruiterSeatsModal = ({
                             ]);
                           }}
                         />
-                        <Button
+                        <ButtonV2
                           size={ButtonSize.Large}
                           variant={ButtonVariant.Secondary}
                           icon={<MinusIcon />}
@@ -185,7 +185,7 @@ export const RecruiterSeatsModal = ({
                             }
                           }}
                         />
-                        <Button
+                        <ButtonV2
                           size={ButtonSize.Large}
                           variant={ButtonVariant.Secondary}
                           icon={<PlusIcon />}
@@ -285,7 +285,7 @@ export const RecruiterSeatsModal = ({
                     subscription price.
                   </Typography>
                 </div>
-                <Button
+                <ButtonV2
                   className="mt-auto w-full"
                   variant={ButtonVariant.Primary}
                   onClick={onSubmit}
@@ -294,7 +294,7 @@ export const RecruiterSeatsModal = ({
                   loading={isPending}
                 >
                   Pay now
-                </Button>
+                </ButtonV2>
               </div>
             )}
             {!pricePlan && <Loader />}

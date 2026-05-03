@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { slackIntegration } from '../../../lib/constants';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import {
   Typography,
@@ -37,7 +37,7 @@ export const SlackIntegrationIntroBody = ({
       <Typography type={TypographyType.Body} color={TypographyColor.Tertiary}>
         {description}
       </Typography>
-      <Button
+      <ButtonV2
         className="w-full"
         type="button"
         variant={ButtonVariant.Primary}
@@ -45,8 +45,8 @@ export const SlackIntegrationIntroBody = ({
         onClick={onConnect}
       >
         Connect to Slack
-      </Button>
-      <Button
+      </ButtonV2>
+      <ButtonV2
         className="w-full"
         tag="a"
         type="button"
@@ -56,7 +56,7 @@ export const SlackIntegrationIntroBody = ({
         target="_blank"
       >
         Read more ➔
-      </Button>
+      </ButtonV2>
     </Modal.Body>
   );
 };

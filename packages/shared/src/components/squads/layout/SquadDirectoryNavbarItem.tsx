@@ -2,15 +2,15 @@ import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import Link from '../../utilities/Link';
-import type { ButtonProps, ButtonSize } from '../../buttons/Button';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import type { ButtonV2Props, ButtonSize } from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 
 interface SquadNavbarItemProps {
   buttonSize: ButtonSize;
   isActive: boolean;
   label: string;
   path?: string;
-  onClick?: ButtonProps<'a'>['onClick'];
+  onClick?: ButtonV2Props<'a'>['onClick'];
   elementProps?: Omit<ComponentProps<'li'>, 'onClick'>;
 }
 
@@ -23,7 +23,7 @@ export function SquadDirectoryNavbarItem({
   elementProps = {},
 }: SquadNavbarItemProps): ReactElement {
   const button = (
-    <Button
+    <ButtonV2
       aria-current={isActive ? 'page' : undefined}
       aria-label={`Navigate to ${label}'s directory page`}
       className="capitalize"
@@ -35,7 +35,7 @@ export function SquadDirectoryNavbarItem({
       variant={isActive ? ButtonVariant.Float : ButtonVariant.Tertiary}
     >
       {label}
-    </Button>
+    </ButtonV2>
   );
 
   return (

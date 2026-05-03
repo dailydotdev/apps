@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { AlertDot, AlertColor } from '../../AlertDot';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import {
   ButtonIconPosition,
   ButtonSize,
@@ -26,7 +26,7 @@ export const TagElement = ({
   isHighlighted = false,
 }: OnboardingTagProps): ReactElement => {
   return (
-    <Button
+    <ButtonV2
       className={classNames(
         {
           'btn-tag': !isSelected,
@@ -48,6 +48,6 @@ export const TagElement = ({
           color={AlertColor.Cabbage}
         />
       )}
-    </Button>
+    </ButtonV2>
   );
 };

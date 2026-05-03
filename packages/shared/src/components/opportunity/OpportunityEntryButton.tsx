@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import Link from '../utilities/Link';
 import { isTesting, webappUrl } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { JobIcon } from '../icons';
 import { Bubble } from '../tooltips/utils';
@@ -61,7 +61,7 @@ export const OpportunityEntryButton = () => {
           }`}
           passHref
         >
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             className="relative w-10 justify-center"
             tag="a"
@@ -75,7 +75,7 @@ export const OpportunityEntryButton = () => {
                 1
               </Bubble>
             )}
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     </RenderTooltip>

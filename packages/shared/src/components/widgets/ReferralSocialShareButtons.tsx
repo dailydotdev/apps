@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import {
   getFacebookShareLink,
   getTwitterShareLink,
@@ -51,7 +51,7 @@ const ReferralSocialShareButtons = ({
       {Object.values(socialShareButtonsDefaultConfig).map(
         ({ tooltip, icon, href, shareProvider }) => (
           <Tooltip content={tooltip} key={tooltip}>
-            <Button
+            <ButtonV2
               icon={icon}
               href={href}
               variant={ButtonVariant.Tertiary}

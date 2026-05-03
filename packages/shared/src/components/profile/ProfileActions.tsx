@@ -14,11 +14,11 @@ import {
   MenuIcon as DotsIcon,
 } from '../icons';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { ReferralCampaignKey } from '../../lib';
 import { FollowButton } from '../contentPreference/FollowButton';
 import {
@@ -124,18 +124,18 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
       <div className="flex h-12 items-center">
         <Tooltip content="For preview purposes only" delayDuration={0}>
           <div className="flex flex-row gap-2">
-            <Button variant={ButtonVariant.Primary} size={ButtonSize.Small}>
+            <ButtonV2 variant={ButtonVariant.Primary} size={ButtonSize.Small}>
               Follow
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               color={ButtonColor.Cabbage}
               icon={<MedalBadgeIcon />}
             >
               Award
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<DotsIcon />}

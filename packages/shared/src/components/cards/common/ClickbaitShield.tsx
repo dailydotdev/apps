@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Button, ButtonSize } from '../../buttons/Button';
+import { ButtonV2, ButtonSize } from '../../buttons/ButtonV2';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
   usePlusSubscription,
@@ -47,7 +47,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           )
         }
       >
-        <Button
+        <ButtonV2
           className="relative mr-2 text-accent-cheese-default"
           size={ButtonSize.XSmall}
           icon={
@@ -107,7 +107,7 @@ export const ClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           : 'Click to see the optimized title'
       }
     >
-      <Button
+      <ButtonV2
         className="relative mr-2"
         size={ButtonSize.XSmall}
         icon={

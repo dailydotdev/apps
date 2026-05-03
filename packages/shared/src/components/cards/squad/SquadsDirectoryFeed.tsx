@@ -12,7 +12,7 @@ import { UnfeaturedSquadGrid } from './UnfeaturedSquadGrid';
 import { SourceCardBorderColor, SquadGrid } from './SquadGrid';
 import { useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { SquadList } from './SquadList';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { PlaceholderSquadGridList } from './PlaceholderSquadGrid';
 import { PlaceholderSquadListList } from './PlaceholderSquadList';
 import Link from '../../utilities/Link';
@@ -135,13 +135,13 @@ export function SquadsDirectoryFeed({
         <header className="mb-2 flex flex-row items-center justify-between">
           <HorizontalScrollTitle {...title} />
           <Link href={linkToSeeAll} passHref>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               aria-label="See all"
               tag="a"
             >
               See all
-            </Button>
+            </ButtonV2>
           </Link>
         </header>
         {flatSources?.map(({ node }, index) => {

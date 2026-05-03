@@ -2,7 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Image } from '../image/Image';
 import Link from '../utilities/Link';
 import { opportunityUrl } from '../../lib/constants';
@@ -65,22 +65,22 @@ export const JobOpportunityModal = ({
             </Typography>
             <div className="flex w-full flex-col gap-3">
               <Link href={`${opportunityUrl}/${opportunityId}`} passHref>
-                <Button
+                <ButtonV2
                   tag="a"
                   className="w-full gap-2"
                   variant={ButtonVariant.Primary}
                   onClick={onClick}
                 >
                   Show me now <MoveToIcon />
-                </Button>
+                </ButtonV2>
               </Link>
-              <Button
+              <ButtonV2
                 className="w-full"
                 variant={ButtonVariant.Float}
                 onClick={onClick}
               >
                 Maybe later
-              </Button>
+              </ButtonV2>
             </div>
           </div>
         </Modal.Body>

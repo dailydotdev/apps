@@ -1,19 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
-import type { AllowedTags, ButtonProps } from '../buttons/Button';
+import type { AllowedTags, ButtonV2Props } from '../buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { EditIcon } from '../icons';
 import { useOpportunityEditContext } from './OpportunityEditContext';
 
 export type OpportunityEditButtonProps = {
   className?: string;
   children?: React.ReactNode;
-} & ButtonProps<AllowedTags>;
+} & ButtonV2Props<AllowedTags>;
 
 export const OpportunityEditButton = ({
   className,
@@ -31,7 +31,7 @@ export const OpportunityEditButton = ({
   }
 
   return (
-    <Button
+    <ButtonV2
       className={classNames('z-tooltip', className)}
       type="button"
       {...rest}
@@ -41,6 +41,6 @@ export const OpportunityEditButton = ({
       size={size}
     >
       {children}
-    </Button>
+    </ButtonV2>
   );
 };

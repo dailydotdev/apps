@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { BellAddIcon, BellSubscribedIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 
@@ -22,7 +22,7 @@ const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
 
   return (
     <Tooltip content={label}>
-      <Button
+      <ButtonV2
         aria-label={label}
         icon={icon}
         onClick={onClick}

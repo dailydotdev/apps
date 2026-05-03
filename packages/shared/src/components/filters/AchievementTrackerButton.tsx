@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { IconType } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { IconType } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { MedalBadgeIcon } from '../icons';
 import { AlertColor, AlertDot } from '../AlertDot';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -161,7 +161,7 @@ export function AchievementTrackerButton(): ReactElement | null {
 
   const buttonContent = (
     <div className="relative">
-      <Button
+      <ButtonV2
         size={ButtonSize.Medium}
         variant={isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary}
         icon={
@@ -186,7 +186,7 @@ export function AchievementTrackerButton(): ReactElement | null {
         }
       >
         {buttonLabel || undefined}
-      </Button>
+      </ButtonV2>
       {showAttentionDot && (
         <AlertDot
           color={AlertColor.Bun}

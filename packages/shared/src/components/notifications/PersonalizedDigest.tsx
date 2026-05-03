@@ -17,7 +17,7 @@ import {
   usePersonalizedDigest,
   usePlusSubscription,
 } from '../../hooks';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { LogEvent, NotificationCategory, TargetId } from '../../lib/log';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { useLogContext } from '../../contexts/LogContext';

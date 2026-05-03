@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { ArrowIcon } from '../icons';
 import type { UsePagination } from '../../hooks/utils';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 export type ExtendedPaginationProps = Pick<
   UsePagination,
@@ -31,14 +31,14 @@ export const PaginationActions = ({
         {current}/{max}
       </p>
       <div className="flex ">
-        <Button
+        <ButtonV2
           {...buttonProps}
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
           disabled={current === 1}
           onClick={onPrevious}
         />
-        <Button
+        <ButtonV2
           {...buttonProps}
           icon={<ArrowIcon className="rotate-90" />}
           variant={ButtonVariant.Tertiary}
@@ -64,14 +64,14 @@ export const InfinitePaginationActions = ({
 }: InfinitePaginationActionsProps): ReactElement => {
   return (
     <div className="flex items-center justify-end border-t border-border-subtlest-tertiary p-3">
-      <Button
+      <ButtonV2
         {...buttonProps}
         icon={<ArrowIcon className="-rotate-90" />}
         variant={ButtonVariant.Tertiary}
         disabled={!hasPrevious}
         onClick={onPrevious}
       />
-      <Button
+      <ButtonV2
         {...buttonProps}
         icon={<ArrowIcon className="rotate-90" />}
         variant={ButtonVariant.Tertiary}

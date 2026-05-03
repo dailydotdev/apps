@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { Switch } from '../../../../components/fields/Switch';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
 import { Modal } from '../../../../components/modals/common/Modal';
@@ -160,7 +160,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           Shortcuts
         </Typography>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
@@ -168,7 +168,7 @@ export default function ShortcutsManageModal(props: ModalProps): ReactElement {
           onClick={close}
         >
           Done
-        </Button>
+        </ButtonV2>
       </Modal.Header>
       <Modal.Body>
         <div className="flex flex-col divide-y divide-border-subtlest-tertiary [&>*:not(:first-child)]:pt-5 [&>*:not(:last-child)]:pb-5">

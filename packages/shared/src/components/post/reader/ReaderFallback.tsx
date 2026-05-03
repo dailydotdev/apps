@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { forwardRef, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
@@ -84,7 +84,7 @@ export const ReaderFallback = forwardRef<HTMLDivElement, ReaderFallbackProps>(
             {post.summary}
           </Typography>
         )}
-        <Button
+        <ButtonV2
           tag="a"
           href={post.permalink}
           target={openNewTab ? '_blank' : '_self'}
@@ -95,7 +95,7 @@ export const ReaderFallback = forwardRef<HTMLDivElement, ReaderFallbackProps>(
           onClick={onReadArticle}
         >
           Read on {hostname || 'source'}
-        </Button>
+        </ButtonV2>
       </div>
     );
   },

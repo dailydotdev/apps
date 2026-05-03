@@ -3,8 +3,8 @@ import type { ReactElement } from 'react';
 import React from 'react';
 
 import classed from '../lib/classed';
-import type { ButtonProps } from './buttons/Button';
-import { Button, ButtonVariant } from './buttons/Button';
+import type { ButtonV2Props } from './buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from './buttons/ButtonV2';
 
 export const EmptyScreenContainer = classed(
   'div',
@@ -23,14 +23,14 @@ export const EmptyScreenButton = ({
   children,
   variant = ButtonVariant.Primary,
   ...props
-}: ButtonProps<'a' | 'button'>): ReactElement => (
-  <Button
+}: ButtonV2Props<'a' | 'button'>): ReactElement => (
+  <ButtonV2
     variant={variant}
     className={classNames('mt-10', className)}
     {...props}
   >
     {children}
-  </Button>
+  </ButtonV2>
 );
 
 export const EmptyScreenIcon = {

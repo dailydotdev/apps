@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { useHorizontalScrollHeader } from '../../HorizontalScroll/useHorizontalScrollHeader';
 import { ArrowIcon } from '../../icons';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -35,7 +35,7 @@ export const SquadDirectoryNavbar = (
       {...attrs}
     >
       {!isAtStart && isOverflowing && isLaptop && (
-        <Button
+        <ButtonV2
           className="absolute right-full top-1/2 -translate-y-1/2"
           disabled={isAtStart}
           icon={<ArrowIcon className="-rotate-90" />}
@@ -51,7 +51,7 @@ export const SquadDirectoryNavbar = (
         {children}
       </ul>
       {!isAtEnd && isOverflowing && isLaptop && (
-        <Button
+        <ButtonV2
           className="absolute left-full top-1/2 -translate-y-1/2 translate-x-2"
           disabled={isAtEnd}
           icon={<ArrowIcon className="rotate-90" />}

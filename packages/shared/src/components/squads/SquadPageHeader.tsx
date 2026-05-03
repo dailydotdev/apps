@@ -8,7 +8,7 @@ import { SquadImage } from './SquadImage';
 import { FlexCentered, FlexCol, getRoleName } from '../utilities';
 import SharePostBar from './SharePostBar';
 import { verifyPermission } from '../../graphql/squads';
-import { Button, ButtonColor, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { link } from '../../lib/links';
@@ -174,7 +174,7 @@ export function SquadPageHeader({
           />
         ))}
         {privilegedLength > listMax && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             className="aspect-square border border-border-subtlest-tertiary"
             onClick={() =>
@@ -185,7 +185,7 @@ export function SquadPageHeader({
             }
           >
             +{privilegedLength - listMax}
-          </Button>
+          </ButtonV2>
         )}
       </div>
       {topMembers.length > 0 && (
@@ -208,7 +208,7 @@ export function SquadPageHeader({
               />
             ))}
             {topMembersLength > listMax && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 className="aspect-square border border-border-subtlest-tertiary"
                 onClick={() =>
@@ -219,7 +219,7 @@ export function SquadPageHeader({
                 }
               >
                 +{topMembersLength - listMax}
-              </Button>
+              </ButtonV2>
             )}
           </div>
         </>
@@ -245,7 +245,7 @@ export function SquadPageHeader({
                 <span className="absolute -left-6 flex h-px w-[calc(100%+3rem)] bg-border-subtlest-tertiary tablet:hidden" />
                 <span className="z-0 bg-background-default px-4">or</span>
               </FlexCentered>
-              <Button
+              <ButtonV2
                 tag="a"
                 href={`${link.post.create}?sid=${squad.handle}`}
                 variant={ButtonVariant.Primary}
@@ -253,7 +253,7 @@ export function SquadPageHeader({
                 className="w-full tablet:w-auto"
               >
                 New post
-              </Button>
+              </ButtonV2>
               <Divider />
             </>
           )}

@@ -12,7 +12,10 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../../components/typography/Typography';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import type { PublicProfile } from '../../../../lib/user';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useAchievementSync } from '../../../../hooks/profile/useAchievementSync';
@@ -224,7 +227,7 @@ export function AchievementsList({
       <div className="flex items-center justify-between">
         <div className="flex gap-2">
           {filters.map(({ type, label, count }) => (
-            <Button
+            <ButtonV2
               key={type}
               variant={
                 filter === type ? ButtonVariant.Primary : ButtonVariant.Subtle
@@ -238,18 +241,18 @@ export function AchievementsList({
               }}
             >
               {label} ({count})
-            </Button>
+            </ButtonV2>
           ))}
         </div>
         {shouldShowSync && syncStatus?.canSync && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Secondary}
             disabled={isSyncing || isStatusPending}
             onClick={() => handleSync('achievements_list')}
             title={syncButtonTitle}
           >
             {isSyncing ? 'Syncing...' : 'Sync'}
-          </Button>
+          </ButtonV2>
         )}
       </div>
 

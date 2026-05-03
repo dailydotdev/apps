@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { SidebarListItemProps } from './SidebarListItem';
 import SidebarListItem from './SidebarListItem';
-import { Button, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonSize } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import { useModalContext } from '../modals/common/types';
 
@@ -52,7 +52,7 @@ function SidebarList({
       )}
     >
       <span className="mb-6 flex w-full flex-row items-center border-b border-border-subtlest-tertiary p-2 px-4 tablet:hidden">
-        <Button
+        <ButtonV2
           size={ButtonSize.Small}
           className="flex -rotate-90 tablet:hidden"
           icon={<ArrowIcon />}

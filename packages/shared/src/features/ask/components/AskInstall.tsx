@@ -7,10 +7,10 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol } from '../../../components/utilities';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { CopyIcon, ArrowIcon } from '../../../components/icons';
 import Link from '../../../components/utilities/Link';
 import { useToastNotification } from '../../../hooks/useToastNotification';
@@ -210,7 +210,7 @@ export const AskInstall = (): ReactElement => {
                     >
                       {method.code}
                     </code>
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<CopyIcon />}

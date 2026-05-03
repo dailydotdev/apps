@@ -28,10 +28,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { CameraIcon, SettingsIcon } from '../../../../components/icons';
 import { SortableWorkspacePhotoItem } from './WorkspacePhotoItem';
 import { WorkspacePhotoUploadModal } from './WorkspacePhotoUploadModal';
@@ -232,23 +232,23 @@ export function ProfileUserWorkspacePhotos({
         {isOwner && (
           <div className="flex gap-2">
             {canAddMore && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 icon={<CameraIcon />}
                 onClick={handleOpenPhotoModal}
               >
                 Photo
-              </Button>
+              </ButtonV2>
             )}
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               icon={<SettingsIcon />}
               onClick={handleOpenGearModal}
             >
               Gear
-            </Button>
+            </ButtonV2>
           </div>
         )}
       </div>
@@ -318,22 +318,22 @@ export function ProfileUserWorkspacePhotos({
               </Typography>
             </div>
             <div className="flex gap-2">
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
                 icon={<CameraIcon />}
                 onClick={handleOpenPhotoModal}
               >
                 Add photo
-              </Button>
-              <Button
+              </ButtonV2>
+              <ButtonV2
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
                 icon={<SettingsIcon />}
                 onClick={handleOpenGearModal}
               >
                 Add gear
-              </Button>
+              </ButtonV2>
             </div>
           </div>
         )

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useMarketingCtas } from '../../hooks/useMarketingCtas';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons/Arrow';
 import { MiniCloseIcon } from '../icons/MiniClose';
 import { SparkleIcon } from '../icons/Sparkle';
@@ -260,7 +260,7 @@ function DetailCard({
     >
       <div className={styles.accentBar} />
 
-      <Button
+      <ButtonV2
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Tertiary}
         icon={<MiniCloseIcon />}
@@ -318,7 +318,7 @@ function DetailCard({
           )}
           {showNav && (
             <div className="ml-auto flex items-center gap-1">
-              <Button
+              <ButtonV2
                 size={ButtonSize.XSmall}
                 variant={ButtonVariant.Tertiary}
                 icon={<ArrowIcon className="-rotate-90" />}
@@ -328,7 +328,7 @@ function DetailCard({
               <span className="text-text-quaternary typo-caption1">
                 {activeIndex + 1}/{itemCount}
               </span>
-              <Button
+              <ButtonV2
                 size={ButtonSize.XSmall}
                 variant={ButtonVariant.Tertiary}
                 icon={<ArrowIcon className="rotate-90" />}

@@ -8,7 +8,7 @@ import { NotificationType } from '../../notifications/utils';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { BellDisabledIcon, BellIcon } from '../../icons';
 import type { Post } from '../../../graphql/posts';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { AuthTriggers } from '../../../lib/auth';
 import { useAuthContext } from '../../../contexts/AuthContext';
 
@@ -66,7 +66,7 @@ export const CollectionSubscribeButton = ({
   };
 
   return (
-    <Button
+    <ButtonV2
       variant={buttonVariant}
       size={ButtonSize.Small}
       icon={isSubscribed ? <BellDisabledIcon /> : <BellIcon />}
@@ -74,6 +74,6 @@ export const CollectionSubscribeButton = ({
       onClick={onClick}
     >
       {isSubscribed ? 'Unsubscribe' : 'Subscribe'}
-    </Button>
+    </ButtonV2>
   );
 };

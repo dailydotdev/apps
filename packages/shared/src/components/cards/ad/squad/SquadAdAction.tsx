@@ -5,7 +5,7 @@ import { SquadActionButton } from '../../../squads/SquadActionButton';
 import { Origin } from '../../../../lib/log';
 import { ButtonVariant } from '../../../buttons/common';
 import Link from '../../../utilities/Link';
-import { Button } from '../../../buttons/Button';
+import { ButtonV2 } from '../../../buttons/ButtonV2';
 import type { Squad } from '../../../../graphql/sources';
 
 interface SquadAdActionProps {
@@ -36,14 +36,14 @@ export function SquadAdAction({
 
   return (
     <Link href={squad.permalink}>
-      <Button
+      <ButtonV2
         tag="a"
         href={squad.permalink}
         variant={ButtonVariant.Subtle}
         className={classNames('mt-auto w-full', className)}
       >
         View Squad
-      </Button>
+      </ButtonV2>
     </Link>
   );
 }

@@ -3,11 +3,11 @@ import type { Squad } from '../../../../graphql/sources';
 import { useAuthContext } from '../../../../contexts/AuthContext';
 import { labels } from '../../../../lib';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonSize,
   ButtonIconPosition,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { StraightArrowIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 import { webappUrl } from '../../../../lib/constants';
@@ -111,7 +111,7 @@ export const ActiveOrRecomendedSquads = (
         </ul>
         <div className="mt-auto pt-3">
           {isShowingSuggestions && (
-            <Button
+            <ButtonV2
               className="w-full"
               href={`${webappUrl}squads/discover`}
               icon={
@@ -129,17 +129,17 @@ export const ActiveOrRecomendedSquads = (
               variant={ButtonVariant.Subtle}
             >
               {labels.profile.sources.viewAll}
-            </Button>
+            </ButtonV2>
           )}
           {showMore.isVisible && (
-            <Button
+            <ButtonV2
               className="w-full"
               onClick={() => showMore.toggle()}
               size={ButtonSize.Small}
               variant={ButtonVariant.Subtle}
             >
               {showMore.isActive ? 'Show less' : 'Show all Squads'}
-            </Button>
+            </ButtonV2>
           )}
         </div>
       </div>

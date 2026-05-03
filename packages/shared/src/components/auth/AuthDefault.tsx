@@ -13,7 +13,7 @@ import AuthContainer from './AuthContainer';
 import AuthHeader from './AuthHeader';
 import ConditionalWrapper from '../ConditionalWrapper';
 import OrDivider from './OrDivider';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 const AuthModalFooter = dynamic(
   () => import(/* webpackChunkName: "authModalFooter" */ './AuthModalFooter'),
@@ -158,7 +158,7 @@ const AuthDefault = ({
           role="list"
         >
           {providers.map(({ label, value, icon }, index) => (
-            <Button
+            <ButtonV2
               aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
               autoFocus={index === 0}
               disabled={!isReady || isSocialAuthLoading}
@@ -171,7 +171,7 @@ const AuthDefault = ({
               variant={ButtonVariant.Primary}
             >
               {label}
-            </Button>
+            </ButtonV2>
           ))}
         </div>
         {renderOrDivider && <OrDivider />}

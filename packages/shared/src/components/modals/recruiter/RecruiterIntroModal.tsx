@@ -3,7 +3,7 @@ import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { Typography, TypographyType } from '../../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 
 export interface RecruiterIntroModalProps extends ModalProps {
   onNext: () => void;
@@ -51,14 +51,14 @@ export const RecruiterIntroModal = ({
           />
         </div>
 
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           onClick={onNext}
           className="w-full"
           size={ButtonSize.Large}
         >
           Get started
-        </Button>
+        </ButtonV2>
       </Modal.Body>
     </Modal>
   );

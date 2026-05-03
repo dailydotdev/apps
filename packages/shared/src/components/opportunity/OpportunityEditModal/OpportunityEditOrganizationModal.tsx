@@ -5,7 +5,7 @@ import type { ModalProps } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { Loader } from '../../Loader';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { labels } from '../../../lib';
 import type { recruiterOrganizationEditSchema } from '../../../features/organizations/schema';
 import {
@@ -204,15 +204,15 @@ export const OpportunityEditOrganizationModal = ({
       <Modal.Header className="flex justify-between" showCloseButton={false}>
         <Modal.Title className="typo-title3">Company information</Modal.Title>
         <div className="flex items-center gap-4">
-          <Button
+          <ButtonV2
             type="text"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
             onClick={onRequestClose}
           >
             Discard
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="submit"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -220,7 +220,7 @@ export const OpportunityEditOrganizationModal = ({
             loading={isSubmitting}
           >
             Save
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Header>
       <Modal.Body className="gap-6 p-4">

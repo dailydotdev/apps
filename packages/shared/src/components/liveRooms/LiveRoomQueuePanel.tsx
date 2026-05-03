@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Tooltip } from '../tooltip/Tooltip';
 import {
   Typography,
@@ -201,7 +201,7 @@ export const LiveRoomQueuePanel = ({
                                   displayProfile,
                                 )} from stage`}
                               >
-                                <Button
+                                <ButtonV2
                                   type="button"
                                   size={ButtonSize.XSmall}
                                   variant={ButtonVariant.Tertiary}
@@ -228,7 +228,7 @@ export const LiveRoomQueuePanel = ({
                                     : 'Grant co-host to'
                                 } ${userDisplayName(displayProfile)}`}
                               >
-                                <Button
+                                <ButtonV2
                                   type="button"
                                   size={ButtonSize.XSmall}
                                   variant={ButtonVariant.Tertiary}
@@ -271,7 +271,7 @@ export const LiveRoomQueuePanel = ({
                                   displayProfile,
                                 )} from room`}
                               >
-                                <Button
+                                <ButtonV2
                                   type="button"
                                   size={ButtonSize.XSmall}
                                   variant={ButtonVariant.Tertiary}
@@ -359,7 +359,7 @@ export const LiveRoomQueuePanel = ({
                                 displayProfile,
                               )} to speaker`}
                             >
-                              <Button
+                              <ButtonV2
                                 type="button"
                                 size={ButtonSize.XSmall}
                                 variant={ButtonVariant.Primary}
@@ -388,7 +388,7 @@ export const LiveRoomQueuePanel = ({
                                   : 'Grant co-host to'
                               } ${userDisplayName(displayProfile)}`}
                             >
-                              <Button
+                              <ButtonV2
                                 type="button"
                                 size={ButtonSize.XSmall}
                                 variant={ButtonVariant.Tertiary}
@@ -431,7 +431,7 @@ export const LiveRoomQueuePanel = ({
                                 displayProfile,
                               )} from room`}
                             >
-                              <Button
+                              <ButtonV2
                                 type="button"
                                 size={ButtonSize.XSmall}
                                 variant={ButtonVariant.Tertiary}

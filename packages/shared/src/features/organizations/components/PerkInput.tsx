@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { TextField } from '../../../components/fields/TextField';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { PlusIcon } from '../../../components/icons';
 import { TagElement } from '../../../components/feeds/FeedSettings/TagElement';
 
@@ -54,7 +54,7 @@ export const PerkInput = ({ perks, onAdd, onRemove }: PerkInputProps) => {
         }}
         fieldType="secondary"
         actionButton={
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
@@ -62,7 +62,7 @@ export const PerkInput = ({ perks, onAdd, onRemove }: PerkInputProps) => {
             onClick={handleAddPerks}
           >
             Add
-          </Button>
+          </ButtonV2>
         }
       />
 

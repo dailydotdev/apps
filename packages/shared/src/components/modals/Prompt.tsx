@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import classed from '../../lib/classed';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -59,7 +59,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
         {content}
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
-            <Button
+            <ButtonV2
               variant={cancelButton.variant ?? ButtonVariant.Secondary}
               color={cancelButton.color}
               icon={cancelButton.icon}
@@ -72,10 +72,10 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
               )}
             >
               {cancelButton?.title ?? 'Cancel'}
-            </Button>
+            </ButtonV2>
           )}
           {okButton !== null && (
-            <Button
+            <ButtonV2
               variant={okButton.variant ?? ButtonVariant.Primary}
               color={okButton.color}
               icon={okButton.icon}
@@ -85,7 +85,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
               className={classNames('w-full tablet:w-auto', okButton.className)}
             >
               {okButton?.title ?? 'Ok'}
-            </Button>
+            </ButtonV2>
           )}
         </Buttons>
       </Modal.Body>

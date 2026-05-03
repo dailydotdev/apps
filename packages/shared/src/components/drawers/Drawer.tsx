@@ -9,7 +9,7 @@ import classNames from 'classnames';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { RootPortal } from '../tooltips/Portal';
 
 export type PopupEventType =
@@ -170,13 +170,13 @@ function BaseDrawer({
               className?.close,
             )}
           >
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Float}
               className="mt-3 w-full"
               onClick={(e: React.MouseEvent) => onClose(e.nativeEvent)}
             >
               Close
-            </Button>
+            </ButtonV2>
           </div>
         )}
       </div>

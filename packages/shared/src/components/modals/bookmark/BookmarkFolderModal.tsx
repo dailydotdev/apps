@@ -15,7 +15,7 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../typography/Typography';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { DevPlusIcon } from '../../icons';
 import { plusUrl } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
@@ -104,7 +104,7 @@ const BookmarkFolderModal = ({
             >
               To keep your bookmarks perfectly organized in folders, {` `}
               <Link href={plusUrl} passHref>
-                <Button
+                <ButtonV2
                   className="h-fit border-0 !p-0"
                   variant={ButtonVariant.Option}
                   tag="a"
@@ -125,7 +125,7 @@ const BookmarkFolderModal = ({
                   >
                     {plusCta}
                   </Typography>
-                </Button>
+                </ButtonV2>
               </Link>
             </Typography>
           )}
@@ -143,7 +143,7 @@ const BookmarkFolderModal = ({
           {!isMobile &&
             (shouldUpgrade ? (
               <Link href={plusUrl} passHref>
-                <Button
+                <ButtonV2
                   tag="a"
                   target="_blank"
                   rel={anchorDefaultRel}
@@ -159,16 +159,16 @@ const BookmarkFolderModal = ({
                     <DevPlusIcon className="text-action-plus-default" /> Upgrade
                     to plus
                   </span>
-                </Button>
+                </ButtonV2>
               </Link>
             ) : (
-              <Button
+              <ButtonV2
                 type="submit"
                 disabled={name.length === 0}
                 variant={ButtonVariant.Primary}
               >
                 {folder ? 'Update' : 'Create'} folder
-              </Button>
+              </ButtonV2>
             ))}
         </Modal.Body>
       </form>

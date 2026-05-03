@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import classNames from 'classnames';
 import Link from '../../../utilities/Link';
 import { FeedSettingsEditContext } from '../FeedSettingsEditContext';
-import { Button } from '../../../buttons/Button';
+import { ButtonV2 } from '../../../buttons/ButtonV2';
 import { ButtonSize, ButtonVariant } from '../../../buttons/common';
 import { LockIcon, StarIcon, TrashIcon, VIcon } from '../../../icons';
 import {
@@ -112,7 +112,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
           </Typography>
         </div>
         {isCustomFeed && (
-          <Button
+          <ButtonV2
             className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}
             type="button"
             pressed
@@ -132,7 +132,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             }
           >
             {isDefaultFeed ? 'Default feed set' : 'Make default'}
-          </Button>
+          </ButtonV2>
         )}
         {isMainFeed && (
           <Tooltip
@@ -141,7 +141,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             side="bottom"
           >
             <div className={classNames(isDefaultFeed ? 'w-44' : 'w-40')}>
-              <Button
+              <ButtonV2
                 type="button"
                 pressed
                 size={ButtonSize.Small}
@@ -162,7 +162,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
                 }}
               >
                 {isDefaultFeed ? 'Default feed set' : 'Make default'}
-              </Button>
+              </ButtonV2>
             </div>
           </Tooltip>
         )}
@@ -183,7 +183,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
                 cannot be undone.
               </Typography>
             </div>
-            <Button
+            <ButtonV2
               className="w-40"
               type="button"
               size={ButtonSize.Small}
@@ -192,7 +192,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
               onClick={onDelete}
             >
               Delete feed
-            </Button>
+            </ButtonV2>
           </div>
         </>
       )}

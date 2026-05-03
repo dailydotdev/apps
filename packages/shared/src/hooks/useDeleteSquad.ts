@@ -6,7 +6,7 @@ import { usePrompt } from './usePrompt';
 import { useBoot } from './useBoot';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent } from '../lib/log';
-import { ButtonColor } from '../components/buttons/Button';
+import { ButtonColor } from '../components/buttons/ButtonV2';
 
 interface UseDeleteSquadModal {
   onDeleteSquad: () => void;

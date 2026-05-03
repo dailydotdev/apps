@@ -7,7 +7,7 @@ import { ExitIcon } from '../icons';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { ButtonSize } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
 import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';

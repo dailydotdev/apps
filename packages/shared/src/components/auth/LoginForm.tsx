@@ -7,7 +7,7 @@ import type { LoginPasswordParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import { Origin } from '../../lib/log';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ClickableText } from '../buttons/ClickableText';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
@@ -167,7 +167,7 @@ function LoginForm({
             Forgot password?
           </ClickableText>
         )}
-        <Button
+        <ButtonV2
           className="flex-1"
           variant={ButtonVariant.Primary}
           type="submit"
@@ -175,7 +175,7 @@ function LoginForm({
           disabled={isLoading || (!!turnstileSiteKey && !turnstileLoaded)}
         >
           {loginButton}
-        </Button>
+        </ButtonV2>
       </span>
       {hint && hint === labels.auth.error.invalidEmailOrPassword && (
         <Alert className="mt-6" type={AlertType.Error} flexDirection="flex-row">

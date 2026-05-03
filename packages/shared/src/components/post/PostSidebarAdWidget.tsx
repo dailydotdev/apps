@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import EntityCard from '../cards/entity/EntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import AdAttribution from '../cards/ad/common/AdAttribution';
@@ -104,7 +104,7 @@ export function PostSidebarAdWidget({
         image: 'size-10 rounded-full',
       }}
       actionButtons={
-        <Button
+        <ButtonV2
           tag="a"
           href={ad.link}
           target="_blank"
@@ -115,7 +115,7 @@ export function PostSidebarAdWidget({
           onClick={() => onAdAction(AdActions.Click)}
         >
           Visit
-        </Button>
+        </ButtonV2>
       }
     >
       <a

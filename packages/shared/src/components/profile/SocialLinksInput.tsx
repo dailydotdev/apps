@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 import { TextField } from '../fields/TextField';
 import { Typography, TypographyType } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { PlusIcon, MiniCloseIcon, VIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { UserSocialLink } from '../../lib/user';
@@ -145,7 +145,7 @@ export function SocialLinksInput({
         }}
         fieldType="secondary"
         actionButton={
-          <Button
+          <ButtonV2
             type="button"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.XSmall}
@@ -154,7 +154,7 @@ export function SocialLinksInput({
             disabled={!url.trim()}
           >
             Add
-          </Button>
+          </ButtonV2>
         }
       />
 

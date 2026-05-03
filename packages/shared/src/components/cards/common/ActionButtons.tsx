@@ -9,7 +9,7 @@ import {
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import { ButtonColor } from '../../buttons/Button';
+import { ButtonColor } from '../../buttons/ButtonV2';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';

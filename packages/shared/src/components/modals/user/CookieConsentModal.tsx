@@ -15,7 +15,7 @@ import {
   GdprConsentKey,
   otherGdprConsents,
 } from '../../../hooks/useCookieBanner';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { CookieConsentItem } from './CookieConsentItem';
 
 interface CookieConsentModalProps extends ModalProps {
@@ -115,23 +115,23 @@ export const CookieConsentModal = ({
         </form>
       </Modal.Body>
       <Modal.Footer>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onAcceptAll}
           type="button"
         >
           Accept all
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Small}
           onClick={onRejectAll}
           type="button"
         >
           Reject all
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           onClick={onSavePreferences}
@@ -140,7 +140,7 @@ export const CookieConsentModal = ({
           type="submit"
         >
           Save preferences
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

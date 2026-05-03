@@ -13,7 +13,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -182,7 +182,7 @@ function NewCommentComponent(
         />
       )}
       <span className="text-text-tertiary typo-body">Share your thoughts</span>
-      <Button
+      <ButtonV2
         size={buttonSize[size]}
         className="ml-auto hidden text-text-primary tablet:flex"
         variant={ButtonVariant.Tertiary}
@@ -190,7 +190,7 @@ function NewCommentComponent(
         disabled
       >
         Post
-      </Button>
+      </ButtonV2>
     </button>
   );
 }

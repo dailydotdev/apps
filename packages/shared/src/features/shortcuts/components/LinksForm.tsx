@@ -21,10 +21,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { TextField } from '../../../components/fields/TextField';
 import { MenuIcon } from '../../../components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { useShortcutLinks } from '../hooks/useShortcutLinks';
 
 const limit = 8;
@@ -68,7 +68,7 @@ function SortableTextField({
         isDragging && 'opacity-50',
       )}
     >
-      <Button
+      <ButtonV2
         type="button"
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}

@@ -9,7 +9,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { Origin } from '../../lib/log';
 import { PlusIcon } from '../icons';
 import { useSquadNavigation } from '../../hooks';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ProfileImageSize } from '../ProfilePicture';
 
 interface SquadsToShareProps {

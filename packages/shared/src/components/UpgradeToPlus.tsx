@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import type { ButtonSize } from './buttons/Button';
-import { ButtonColor, Button, ButtonVariant } from './buttons/Button';
+import type { ButtonSize } from './buttons/ButtonV2';
+import { ButtonColor, ButtonV2, ButtonVariant } from './buttons/ButtonV2';
 import { DevPlusIcon } from './icons';
 import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
@@ -69,7 +69,7 @@ export const UpgradeToPlus = ({
 
   return (
     <Link passHref href={plusUrl}>
-      <Button
+      <ButtonV2
         tag="a"
         className={classNames(!iconOnly && 'flex-1', className)}
         icon={<DevPlusIcon />}
@@ -81,7 +81,7 @@ export const UpgradeToPlus = ({
         {...attrs}
       >
         {iconOnly ? null : content}
-      </Button>
+      </ButtonV2>
     </Link>
   );
 };

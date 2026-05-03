@@ -7,10 +7,10 @@ import {
   TypographyType,
 } from '../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '../../components/buttons/Button';
+} from '../../components/buttons/ButtonV2';
 import { CoreIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { DataTile } from '../../components/DataTile';
@@ -179,7 +179,7 @@ export function CampaignListView({
           {date.totalDays === 1 ? 'day' : 'days'}
         </Typography>
       </div>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Float}
         className={classNames('w-full', {
           'bg-action-downvote-float hover:bg-action-downvote-hover': isActive,
@@ -192,7 +192,7 @@ export function CampaignListView({
         loading={isLoading}
       >
         {isActive ? 'Stop campaign' : 'Boost again'}
-      </Button>
+      </ButtonV2>
     </div>
   );
 }

@@ -12,7 +12,7 @@ import { ProfilePictureWithIndicator } from '../profile/ProfilePictureWithIndica
 import HeaderLogo from '../layout/HeaderLogo';
 import { LogoPosition } from '../Logo';
 import { webappUrl } from '../../lib/constants';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 import { SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
@@ -50,7 +50,7 @@ export function MobileFeedActions(): ReactElement {
         <Divider className="bg-border-subtlest-tertiary" vertical />
         {user && (
           <>
-            <Button
+            <ButtonV2
               icon={<SettingsIcon />}
               variant={ButtonVariant.Tertiary}
               onClick={() => setIsMenuOpen(true)}

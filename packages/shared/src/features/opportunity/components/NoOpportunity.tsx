@@ -16,7 +16,7 @@ import {
 import Link from '../../../components/utilities/Link';
 import { webappUrl } from '../../../lib/constants';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
-import { Button } from '../../../components/buttons/Button';
+import { ButtonV2 } from '../../../components/buttons/ButtonV2';
 import { CandidatePreferenceButton } from './CandidatePreferenceButton';
 
 export const NoOpportunity = (): ReactElement => {
@@ -83,14 +83,14 @@ export const NoOpportunity = (): ReactElement => {
       )}
 
       <Link href={webappUrl} passHref>
-        <Button
+        <ButtonV2
           tag="a"
           className="w-full max-w-80"
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
         >
           Back to daily.dev
-        </Button>
+        </ButtonV2>
       </Link>
 
       <CandidatePreferenceButton

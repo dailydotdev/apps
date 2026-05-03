@@ -1,8 +1,8 @@
 import classNames from 'classnames';
 import type { HTMLAttributes, ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import type { AllowedTags, ButtonProps } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { AllowedTags, ButtonV2Props } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import SquadHeaderMenu from './SquadHeaderMenu';
 import type { SquadMemberShortListProps } from './SquadMemberShortList';
 import SquadMemberShortList from './SquadMemberShortList';
@@ -31,7 +31,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { BoostSourceButton } from '../../features/boost/BoostSourceButton';
 
 type SquadBarButtonProps<T extends AllowedTags> = Pick<
-  Partial<ButtonProps<T>>,
+  Partial<ButtonV2Props<T>>,
   'onClick' | 'disabled' | 'icon'
 > &
   Pick<SquadMemberShortListProps, 'squad'>;
@@ -71,14 +71,14 @@ const SquadSlackButton = <T extends AllowedTags>({
   }
 
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Secondary}
       icon={<SlackIcon />}
       size={ButtonSize.Small}
       {...props}
     >
       {slackButtonLabel}
-    </Button>
+    </ButtonV2>
   );
 };
 
@@ -125,14 +125,14 @@ const SquadInviteButton = <T extends AllowedTags>({
   }
 
   return (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Secondary}
       size={ButtonSize.Small}
       icon={<AddUserIcon />}
       {...props}
     >
       Invitation link
-    </Button>
+    </ButtonV2>
   );
 };
 
@@ -142,7 +142,7 @@ const SquadUserNotifications = ({
 }: SquadBarButtonProps<'button'>) => {
   return (
     <Tooltip side="bottom" content="Squad notifications settings">
-      <Button
+      <ButtonV2
         data-testid="squad-notification-button"
         className="order-3 tablet:order-4"
         variant={ButtonVariant.Float}
@@ -167,7 +167,7 @@ const SquadAnalyticsButton = ({
 
   return (
     <Tooltip content="Squad analytics">
-      <Button
+      <ButtonV2
         aria-label="Squad analytics"
         tag="a"
         href={`/squads/${squad.handle}/analytics`}
@@ -185,7 +185,7 @@ const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
   const postLabel = count === 1 ? 'post' : 'posts';
 
   return (
-    <Button
+    <ButtonV2
       aria-label={`Check ${count} pending ${postLabel}`}
       href={`/squads/moderate?handle=${squad.handle}`}
       icon={<TimerIcon aria-hidden role="presentation" />}
@@ -195,7 +195,7 @@ const SquadModerationButton = ({ squad }: SquadBarButtonProps<'a'>) => {
       variant={ButtonVariant.Subtle}
     >
       {count} Pending {postLabel}
-    </Button>
+    </ButtonV2>
   );
 };
 

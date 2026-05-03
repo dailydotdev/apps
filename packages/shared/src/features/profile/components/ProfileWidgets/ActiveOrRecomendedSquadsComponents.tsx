@@ -14,7 +14,7 @@ import {
 import { useToastNotification } from '../../../../hooks';
 import { SquadActionButton } from '../../../../components/squads/SquadActionButton';
 import { Origin } from '../../../../lib/log';
-import { ButtonSize } from '../../../../components/buttons/Button';
+import { ButtonSize } from '../../../../components/buttons/ButtonV2';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
 

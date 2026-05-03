@@ -13,7 +13,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { OpenLinkIcon } from '../../icons';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { webappUrl } from '../../../lib/constants';
 
 interface PostShortInfoProps {
@@ -100,7 +100,7 @@ export function PostShortInfo({
             />
           )}
           {showLinkIcon && postLink && (
-            <Button
+            <ButtonV2
               icon={<OpenLinkIcon />}
               variant={ButtonVariant.Tertiary}
               type="button"

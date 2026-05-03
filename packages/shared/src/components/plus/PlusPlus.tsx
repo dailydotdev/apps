@@ -7,7 +7,7 @@ import {
   Typography,
 } from '../typography/Typography';
 import { PlusUser } from '../PlusUser';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { IconSize } from '../Icon';
 import { managePlusUrl } from '../../lib/constants';
 import type { WithClassNameProps } from '../utilities/common';
@@ -68,7 +68,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
         </Typography>
       </div>
       {!gifter && (
-        <Button
+        <ButtonV2
           tag="a"
           className="max-w-48"
           size={ButtonSize.Small}
@@ -77,7 +77,7 @@ export const PlusPlus = ({ className }: PlusPlusProps): ReactElement => {
           target="_blank"
         >
           Manage subscription
-        </Button>
+        </ButtonV2>
       )}
     </Container>
   );

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { ShieldCheckIcon, ShieldIcon, ShieldWarningIcon } from '../../icons';
 import {
   useClickbaitTries,
@@ -43,7 +43,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
               'rounded-12 border border-border-subtlest-tertiary px-3 py-2',
           )}
         >
-          <Button
+          <ButtonV2
             className="relative mr-2 cursor-auto font-normal"
             size={ButtonSize.XSmall}
             icon={
@@ -66,7 +66,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
             ) : (
               <Typography type={TypographyType.Callout}>
                 This title could be clearer and more informative.
-                <Button
+                <ButtonV2
                   size={ButtonSize.XSmall}
                   variant={ButtonVariant.Option}
                   tag="a"
@@ -98,7 +98,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
                   {hasUsedFreeTrial
                     ? 'Enable Clickbait Shield.'
                     : 'Try out Clickbait Shield'}
-                </Button>
+                </ButtonV2>
                 {triesLeft > 0
                   ? `for free (${triesLeft} uses left this month).`
                   : undefined}
@@ -134,7 +134,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
           : 'Click to see the optimized title'
       }
     >
-      <Button
+      <ButtonV2
         className="relative mr-2 mt-4 !justify-start text-left font-normal"
         size={ButtonSize.XSmall}
         icon={
@@ -148,7 +148,7 @@ export const PostClickbaitShield = ({ post }: { post: Post }): ReactElement => {
         onClick={fetchSmartTitle}
       >
         {shieldActive ? 'Optimized title' : 'Clickbait Shield disabled'}
-      </Button>
+      </ButtonV2>
     </Tooltip>
   );
 };

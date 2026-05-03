@@ -3,7 +3,7 @@ import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import { ModalHeader } from '../common/ModalHeader';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { PlusIcon, HashtagIcon } from '../../icons';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { useFeeds, useToastNotification } from '../../../hooks';
@@ -45,7 +45,7 @@ const AddToCustomFeedModal = ({
     <Modal {...props}>
       <ModalHeader title="Add to custom feed" />
       <Modal.Body>
-        <Button
+        <ButtonV2
           onClick={onCreateNewFeed}
           icon={
             <div className="flex  rounded-6 bg-background-subtle">
@@ -55,10 +55,10 @@ const AddToCustomFeedModal = ({
           variant={ButtonVariant.Option}
         >
           Custom feed
-        </Button>
+        </ButtonV2>
         {feeds?.edges?.length > 0 &&
           feeds.edges.map((feed) => (
-            <Button
+            <ButtonV2
               loading={isPending}
               key={feed.node.id}
               onClick={() => handleAddToCustomFeed(feed.node)}
@@ -73,7 +73,7 @@ const AddToCustomFeedModal = ({
               role="radio"
             >
               {feed.node?.flags.name}
-            </Button>
+            </ButtonV2>
           ))}
       </Modal.Body>
     </Modal>

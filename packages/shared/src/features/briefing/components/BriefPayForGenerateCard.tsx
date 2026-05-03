@@ -14,10 +14,10 @@ import { ActionType } from '../../../graphql/actions';
 import { ClickableCard } from '../../../components/cards/common/Card';
 import { Radio, type RadioProps } from '../../../components/fields/Radio';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { BuyCoresModal } from '../../../components/modals/award/BuyCoresModal';
 import { useToggle } from '../../../hooks/useToggle';
 import { LogEvent, Origin } from '../../../lib/log';
@@ -176,7 +176,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
           />
         </div>
 
-        <Button
+        <ButtonV2
           disabled={!isActionsFetched}
           onClick={onClickGenerate}
           size={ButtonSize.Medium}
@@ -185,7 +185,7 @@ export const BriefPayForGenerateCard = withBriefContext(() => {
           Generate for
           {!isFree && <CoreIcon className="mx-1" aria-hidden />}
           {` ${isFree ? 'free' : price}`}
-        </Button>
+        </ButtonV2>
       </ClickableCard>
 
       <BuyCores

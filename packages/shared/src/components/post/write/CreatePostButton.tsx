@@ -9,9 +9,9 @@ import { SourcePermissions } from '../../../graphql/sources';
 import type {
   AllowedElements,
   AllowedTags,
-  ButtonProps,
-} from '../../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+  ButtonV2Props,
+} from '../../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { PlusIcon } from '../../icons';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -20,7 +20,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import Link from '../../utilities/Link';
 
 interface CreatePostButtonProps<Tag extends AllowedTags>
-  extends Pick<ButtonProps<Tag>, 'className' | 'onClick' | 'size'> {
+  extends Pick<ButtonV2Props<Tag>, 'className' | 'onClick' | 'size'> {
   compact?: boolean;
   showIcon?: boolean;
   sidebar?: boolean;
@@ -108,21 +108,21 @@ export function CreatePostButton<Tag extends AllowedTags>({
           You can now create polls!
         </Typography>
         <Link href={`${link.post.create}?poll=true`} passHref prefetch={false}>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
             className="border-surface-invert bg-surface-invert"
             tag="a"
           >
             Try it now!
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
     );
   };
 
   const button = (
-    <Button
+    <ButtonV2
       {...buttonProps}
       variant={sidebar || footer ? ButtonVariant.Float : ButtonVariant.Primary}
       className={className}
@@ -134,7 +134,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
       {...attrs}
     >
       {!shouldShowAsCompact ? 'New post' : null}
-    </Button>
+    </ButtonV2>
   );
 
   return (

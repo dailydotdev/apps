@@ -9,7 +9,7 @@ import {
 } from '../typography/Typography';
 import { EyeIcon, ReputationLightningIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { FlexCol, FlexRow } from '../utilities';
 import { BoostIcon } from '../icons/Boost';
 import Link from '../utilities/Link';
@@ -97,7 +97,7 @@ export const ConnectHeader = ({
           </Typography>
         </div>
         <FlexRow className="gap-4">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Subtle}
             icon={<EyeIcon />}
             size={ButtonSize.Small}
@@ -107,8 +107,8 @@ export const ConnectHeader = ({
             rel={anchorDefaultRel}
           >
             Job page
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             variant={ButtonVariant.Primary}
             icon={<BoostIcon />}
             size={ButtonSize.Small}
@@ -119,7 +119,7 @@ export const ConnectHeader = ({
             disabled={isBoosted}
           >
             {isBoosted ? 'Boosted' : 'Boost'}
-          </Button>
+          </ButtonV2>
         </FlexRow>
       </FlexRow>
       <FlexRow className="border-b border-border-subtlest-tertiary px-4">

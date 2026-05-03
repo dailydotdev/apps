@@ -9,7 +9,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { MiniCloseIcon } from '../icons';
-import { Button } from '../buttons/Button';
+import { ButtonV2 } from '../buttons/ButtonV2';
 
 export function MarketingCtaPopoverSmall({
   marketingCta,
@@ -98,7 +98,7 @@ export function MarketingCtaPopoverSmall({
             ctaText={ctaText}
           />
         )}
-        <Button
+        <ButtonV2
           size={isMobile ? ButtonSize.Medium : ButtonSize.Small}
           variant={isMobile ? ButtonVariant.Float : ButtonVariant.Primary}
           className={classNames(
@@ -108,7 +108,7 @@ export function MarketingCtaPopoverSmall({
           onClick={onCtaDismiss}
         >
           {isMobile ? 'Close' : null}
-        </Button>
+        </ButtonV2>
       </div>
     </article>
   );

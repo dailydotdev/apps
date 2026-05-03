@@ -14,7 +14,7 @@ import { SquadModerationActions } from './SquadModerationActions';
 import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import PostMetadata from '../../cards/common/PostMetadata';
 import { AlertPointerMessage } from '../../alert/common';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { capitalize } from '../../../lib/strings';
 import { TimerIcon, WarningIcon } from '../../icons';
 import { AlertColor } from '../../AlertDot';
@@ -111,7 +111,7 @@ export function SquadModerationItem(
         </div>
         {!user.isModerator && (
           <span className="ml-auto flex flex-row gap-2">
-            <Button
+            <ButtonV2
               icon={
                 <IconComponent
                   aria-hidden
@@ -124,7 +124,7 @@ export function SquadModerationItem(
               disabled
             >
               {capitalize(status)}
-            </Button>
+            </ButtonV2>
             <SquadModerationItemContextMenu
               id={data.id}
               onDelete={context.onDelete}

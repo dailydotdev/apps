@@ -15,11 +15,11 @@ import { useLogContext } from '../../contexts/LogContext';
 import { HotLabel } from '../utilities';
 import { combinedClicks } from '../../lib/click';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { PostEngagementCounts } from '../cards/SimilarPosts';
 import { LogEvent } from '../../lib/log';
 import { WidgetContainer } from './common';
@@ -153,7 +153,7 @@ export default function SimilarPosts({
         </>
       )}
       <Link href={moreButtonHref} passHref>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="mt-2 self-start"
           size={ButtonSize.Small}
@@ -162,7 +162,7 @@ export default function SimilarPosts({
           iconPosition={ButtonIconPosition.Right}
         >
           {moreButtonText}
-        </Button>
+        </ButtonV2>
       </Link>
     </WidgetContainer>
   );

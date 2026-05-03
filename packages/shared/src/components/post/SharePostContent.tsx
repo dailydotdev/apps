@@ -19,7 +19,7 @@ import SettingsContext, {
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
-import { ButtonVariant } from '../buttons/Button';
+import { ButtonVariant } from '../buttons/ButtonV2';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';

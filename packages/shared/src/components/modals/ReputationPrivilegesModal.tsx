@@ -2,7 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { ModalClose } from './common/ModalClose';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
@@ -48,7 +48,7 @@ export const ReputationPrivilegesModal = ({
             privileges and superpowers. Keep up the fantastic work!
           </p>
         </div>
-        <Button
+        <ButtonV2
           target="_blank"
           tag="a"
           rel={anchorDefaultRel}
@@ -58,7 +58,7 @@ export const ReputationPrivilegesModal = ({
           onClick={onClose}
         >
           Tell me more
-        </Button>
+        </ButtonV2>
       </div>
     </Modal>
   );

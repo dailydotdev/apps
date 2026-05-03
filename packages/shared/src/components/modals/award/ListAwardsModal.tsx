@@ -18,7 +18,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { formatCoresCurrency } from '../../../lib/utils';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 
 export interface ListAwardsModalProps extends ModalProps {
@@ -50,7 +50,7 @@ export const ListAwardsModal = ({
       header={
         typeof onBack === 'function' ? (
           <Modal.Header title={title} showCloseButton={!isMobile}>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Tertiary}
               onClick={onBack}
               size={ButtonSize.Small}

@@ -1,8 +1,8 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
-import type { ButtonProps } from '../../components/buttons/Button';
-import { Button, ButtonColor } from '../../components/buttons/Button';
+import type { ButtonV2Props } from '../../components/buttons/ButtonV2';
+import { ButtonV2, ButtonColor } from '../../components/buttons/ButtonV2';
 import { ButtonVariant } from '../../components/buttons/common';
 import { BoostIcon } from '../../components/icons/Boost';
 import { LazyModal } from '../../components/modals/common/types';
@@ -10,7 +10,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { useCampaignById } from '../../graphql/campaigns';
 
 interface BoostButtonProps {
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
   campaignId?: string;
 }
 
@@ -19,14 +19,14 @@ export function BoostButton({
   campaignId,
 }: BoostButtonProps): ReactElement {
   return (
-    <Button
+    <ButtonV2
       variant={campaignId ? ButtonVariant.Subtle : ButtonVariant.Primary}
       {...buttonProps}
       icon={<BoostIcon secondary />}
       color={ButtonColor.BlueCheese}
     >
       {campaignId ? 'Boosting' : 'Boost'}
-    </Button>
+    </ButtonV2>
   );
 }
 
@@ -35,7 +35,7 @@ export function BoostPostButton({
   buttonProps = {},
 }: {
   post: Post;
-  buttonProps?: ButtonProps<'button'>;
+  buttonProps?: ButtonV2Props<'button'>;
 }): ReactElement {
   const { openModal } = useLazyModal();
   const campaignId = post?.flags?.campaignId;

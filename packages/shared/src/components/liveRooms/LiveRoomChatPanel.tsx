@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
@@ -97,14 +97,14 @@ const LiveRoomChatComposer = ({
             {disabledReason}
           </Typography>
           {!isLoggedIn ? (
-            <Button
+            <ButtonV2
               type="button"
               size={ButtonSize.Small}
               variant={ButtonVariant.Primary}
               onClick={onRequestLogin}
             >
               Sign in to chat
-            </Button>
+            </ButtonV2>
           ) : null}
         </div>
       </div>
@@ -366,7 +366,7 @@ export const LiveRoomChatPanel = ({
                         tooltip={{ content: 'Chat moderation options' }}
                         asChild
                       >
-                        <Button
+                        <ButtonV2
                           type="button"
                           size={ButtonSize.XSmall}
                           variant={ButtonVariant.Tertiary}

@@ -9,7 +9,7 @@ import type {
 } from '../../modals/common/Modal';
 import { Modal } from '../../modals/common/Modal';
 import { TextField } from '../../fields/TextField';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { ModalHeader } from '../../modals/common/ModalHeader';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type {
@@ -175,14 +175,14 @@ export function SourceStackModal({
             </div>
 
             {!isMobile && (
-              <Button
+              <ButtonV2
                 type="submit"
                 disabled={!canSubmit || isSubmitting}
                 loading={isSubmitting}
                 variant={ButtonVariant.Primary}
               >
                 {isEditing ? 'Save changes' : 'Add to stack'}
-              </Button>
+              </ButtonV2>
             )}
           </Modal.Body>
         </form>

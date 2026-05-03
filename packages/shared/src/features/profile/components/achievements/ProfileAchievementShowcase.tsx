@@ -11,10 +11,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import { EditIcon, PlusIcon } from '../../../../components/icons';
 import { LazyImage } from '../../../../components/LazyImage';
 import HoverCard from '../../../../components/cards/common/HoverCard';
@@ -70,14 +70,14 @@ export function ProfileAchievementShowcase({
           Achievement Showcase
         </Typography>
         {isOwner && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={hasShowcase ? <EditIcon /> : <PlusIcon />}
             onClick={handleOpenModal}
           >
             {hasShowcase ? 'Edit' : 'Add'}
-          </Button>
+          </ButtonV2>
         )}
       </div>
 
@@ -133,14 +133,14 @@ export function ProfileAchievementShowcase({
             >
               Showcase your achievements on your profile
             </Typography>
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<PlusIcon />}
               onClick={handleOpenModal}
             >
               Add achievements
-            </Button>
+            </ButtonV2>
           </div>
         )
       )}

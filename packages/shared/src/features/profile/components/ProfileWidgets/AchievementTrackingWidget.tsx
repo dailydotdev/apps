@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { LazyImage } from '../../../../components/LazyImage';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import {
   Typography,
@@ -143,14 +146,14 @@ export const AchievementTrackingWidget = ({
           </div>
 
           <div className="flex gap-2">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               disabled={isBusy}
               onClick={openPicker}
             >
               Change
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Subtle}
               disabled={isBusy}
               onClick={async () => {
@@ -164,7 +167,7 @@ export const AchievementTrackingWidget = ({
               }}
             >
               Stop tracking
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       )}
@@ -180,13 +183,13 @@ export const AchievementTrackingWidget = ({
           >
             Pick an achievement to focus on.
           </Typography>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             disabled={isBusy || isAchievementsPending}
             onClick={openPicker}
           >
             Choose achievement
-          </Button>
+          </ButtonV2>
         </div>
       )}
     </ActivityContainer>

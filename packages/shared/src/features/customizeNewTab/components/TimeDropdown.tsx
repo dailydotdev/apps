@@ -2,7 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { Dropdown } from '../../../components/fields/Dropdown';
-import { ButtonSize, ButtonVariant } from '../../../components/buttons/Button';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/ButtonV2';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const MINUTES = [0, 15, 30, 45];

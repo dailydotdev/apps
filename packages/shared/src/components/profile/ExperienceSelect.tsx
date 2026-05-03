@@ -1,8 +1,8 @@
 import React from 'react';
 import Select from '../fields/Select';
 import { ExperienceLevelOptions } from '../../lib/user';
-import { ButtonSize } from '../buttons/Button';
-import type { IconType } from '../buttons/Button';
+import { ButtonSize } from '../buttons/ButtonV2';
+import type { IconType } from '../buttons/ButtonV2';
 
 type ExperienceSelectProps = {
   name: string;

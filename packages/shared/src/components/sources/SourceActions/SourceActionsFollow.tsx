@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 
 export enum CopyType {
   Main = 'main',
@@ -55,7 +55,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
   const copy = copyTypeToCopy[copyType];
 
   return (
-    <Button
+    <ButtonV2
       aria-label={`Toggle follow status, currently you are ${
         isSubscribed ? 'following' : 'not following'
       }`}
@@ -75,7 +75,7 @@ const SourceActionsFollow = (props: SourceActionsFollowProps): ReactElement => {
       <span className="hidden group-hover:block">
         {isSubscribed ? copy.unfollow : copy.follow}
       </span>
-    </Button>
+    </ButtonV2>
   );
 };
 

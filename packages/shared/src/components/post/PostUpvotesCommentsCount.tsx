@@ -11,7 +11,7 @@ import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { canViewPostAnalytics } from '../../lib/user';
 import { useAuthContext } from '../../contexts/AuthContext';
 import Link from '../utilities/Link';
-import { Button, ButtonSize } from '../buttons/Button';
+import { ButtonV2, ButtonSize } from '../buttons/ButtonV2';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
 
@@ -141,14 +141,14 @@ const PostUpvotesCommentsCountContent = ({
         })}
       {showPostAnalytics && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
-          <Button
+          <ButtonV2
             tag="a"
             size={ButtonSize.XSmall}
             className="font-normal text-text-link"
             icon={<AnalyticsIcon />}
           >
             Post analytics
-          </Button>
+          </ButtonV2>
         </Link>
       )}
     </div>

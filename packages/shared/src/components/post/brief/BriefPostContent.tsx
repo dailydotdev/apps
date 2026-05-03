@@ -40,11 +40,11 @@ import { ProfileImageSize } from '../../ProfilePicture';
 import { briefButtonBg, briefCardBg } from '../../../styles/custom';
 import { plusUrl } from '../../../lib/constants';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '../../buttons/Button';
+} from '../../buttons/ButtonV2';
 import { LogEvent, TargetId } from '../../../lib/log';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { LottieAnimation } from '../../LottieAnimation';
@@ -416,7 +416,7 @@ const BriefPostContentRaw = ({
                     icon={ChecklistAIcon}
                   />
                   <Link href={plusUrl} passHref>
-                    <Button
+                    <ButtonV2
                       style={{
                         background: briefButtonBg,
                       }}
@@ -433,7 +433,7 @@ const BriefPostContentRaw = ({
                       }}
                     >
                       {plusCta}
-                    </Button>
+                    </ButtonV2>
                   </Link>
                 </div>
               </div>
@@ -550,7 +550,7 @@ const BriefPostContentRaw = ({
                       Slack
                     </Typography>
                     <div>
-                      <Button
+                      <ButtonV2
                         type="text"
                         size={ButtonSize.Small}
                         variant={ButtonVariant.Subtle}
@@ -579,7 +579,7 @@ const BriefPostContentRaw = ({
                         }}
                       >
                         Manage integrations
-                      </Button>
+                      </ButtonV2>
                     </div>
                   </div>
                 </div>

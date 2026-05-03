@@ -11,10 +11,10 @@ import { useDndContext } from '../../../contexts/DndContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -227,14 +227,14 @@ export const FocusSection = (): ReactElement => {
                 </Typography>
               )}
             </div>
-            <Button
+            <ButtonV2
               type="button"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}
               onClick={handleResume}
             >
               Resume
-            </Button>
+            </ButtonV2>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">

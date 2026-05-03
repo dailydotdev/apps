@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import classNames from 'classnames';
 import type { PublicProfile } from '../../../lib/user';
-import { Button, ButtonVariant } from '../../../components/buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../../components/buttons/ButtonV2';
 import { USER_COMMENTS_QUERY } from '../../../graphql/comments';
 import type { CommentFeedData } from '../../../graphql/comments';
 import { Origin } from '../../../lib/log';
@@ -126,9 +126,9 @@ export const ActivityRepliesTab = ({
           )}
           passHref
         >
-          <Button tag="a" variant={ButtonVariant.Subtle} className="w-full">
+          <ButtonV2 tag="a" variant={ButtonVariant.Subtle} className="w-full">
             Show More
-          </Button>
+          </ButtonV2>
         </Link>
       )}
     </>

@@ -10,10 +10,10 @@ import {
   TypographyColor,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../../components/buttons/Button';
+} from '../../../../components/buttons/ButtonV2';
 import {
   EditIcon,
   MenuIcon,
@@ -179,7 +179,7 @@ function UserStackItemBody({
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onEdit && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<EditIcon />}
@@ -191,7 +191,7 @@ function UserStackItemBody({
               />
             )}
             {onDelete && (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.XSmall}
                 icon={<TrashIcon />}
@@ -260,7 +260,7 @@ export function SortableUserStackItem({
         className="touch-none"
         dragHandle={
           props.isOwner && isDraggable ? (
-            <Button
+            <ButtonV2
               ref={setActivatorNodeRef}
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}

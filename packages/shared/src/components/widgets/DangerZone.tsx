@@ -2,11 +2,11 @@ import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import { AlertBackground } from '../alert/common';
 
 interface DangerZoneProps {
@@ -53,7 +53,7 @@ export function DangerZone({
         {important}
       </div>
       {children}
-      <Button
+      <ButtonV2
         onClick={onClick}
         size={ButtonSize.Small}
         variant={ButtonVariant.Primary}
@@ -64,7 +64,7 @@ export function DangerZone({
         loading={buttonLoading}
       >
         {cta}
-      </Button>
+      </ButtonV2>
     </section>
   );
 }

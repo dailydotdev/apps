@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import PromotionTour from '../../squads/PromotionTour';
 import { useSquad } from '../../../hooks';
 import { ModalClose } from '../common/ModalClose';

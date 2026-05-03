@@ -5,7 +5,7 @@ import AuthForm from './AuthForm';
 import { TextField } from '../fields/TextField';
 import { MailIcon, ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 
 interface EmailSignupFormProps {
   onSubmit: (e: React.FormEvent) => unknown;
@@ -30,7 +30,7 @@ function EmailSignupForm({
     >
       <TextField
         actionButton={
-          <Button
+          <ButtonV2
             aria-label="Submit and sign me up, accepting terms and conditions"
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}

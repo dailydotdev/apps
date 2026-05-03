@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import { ButtonVariant, ButtonSize } from '../../buttons/common';
 import { VIcon } from '../../icons';
 import { useSourceModerationList } from '../../../hooks/squads/useSourceModerationList';
@@ -50,7 +50,7 @@ export function SquadModerationList({
     <div className="flex flex-col">
       {list.length > 1 && isModerator && (
         <span className="flex w-full flex-row justify-end border-b border-border-subtlest-tertiary px-4 py-3">
-          <Button
+          <ButtonV2
             icon={<VIcon secondary />}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -59,7 +59,7 @@ export function SquadModerationList({
             }
           >
             Approve all {list.length} posts
-          </Button>
+          </ButtonV2>
         </span>
       )}
       <InfiniteScrolling

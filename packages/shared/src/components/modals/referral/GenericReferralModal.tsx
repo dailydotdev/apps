@@ -7,7 +7,7 @@ import {
   cloudinaryReferralCampaignGenericSad,
 } from '../../../lib/image';
 import { ModalSize } from '../common/types';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { link } from '../../../lib/links';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { ReferralCampaignKey, useReferralCampaign } from '../../../hooks';

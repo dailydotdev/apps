@@ -13,7 +13,7 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { HorizontalSeparator } from '../../../../components/utilities';
-import { Button } from '../../../../components/buttons/Button';
+import { ButtonV2 } from '../../../../components/buttons/ButtonV2';
 import { PlusAdjustQuantity } from '../../../../components/plus/PlusAdjustQuantity';
 import { PlusPlanExtraLabel } from '../../../../components/plus/PlusPlanExtraLabel';
 import { IconSize } from '../../../../components/Icon';
@@ -56,7 +56,7 @@ export const PreviewChanges = ({
     quantity === seats.total || isQuantityLessThanSeats || !nextBilling;
 
   const continueButton = (
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Primary}
       disabled={disableContinueButton}
       loading={isLoading || isRefetching}
@@ -64,7 +64,7 @@ export const PreviewChanges = ({
       onClick={onContinue}
     >
       Continue
-    </Button>
+    </ButtonV2>
   );
 
   return (

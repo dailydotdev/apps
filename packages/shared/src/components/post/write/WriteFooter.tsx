@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Switch } from '../../fields/Switch';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import useSidebarRendered from '../../../hooks/useSidebarRendered';
-import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonColor, ButtonVariant } from '../../buttons/ButtonV2';
 import PollDurationDropdown from '../poll/PollDurationDropdown';
 
 interface WriteFooterProps {
@@ -46,7 +46,7 @@ export function WriteFooter({
           Receive updates whenever your Squad members engage with your post
         </Switch>
       )}
-      <Button
+      <ButtonV2
         type="submit"
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cabbage}
@@ -59,7 +59,7 @@ export function WriteFooter({
         onClick={onSubmitted}
       >
         Post
-      </Button>
+      </ButtonV2>
     </span>
   );
 }

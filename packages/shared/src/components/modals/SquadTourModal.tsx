@@ -3,7 +3,7 @@ import React from 'react';
 import SquadTour from '../squads/SquadTour';
 import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
-import { ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { useSquadTour } from '../../hooks/useSquadTour';
 import { ModalClose } from './common/ModalClose';
 

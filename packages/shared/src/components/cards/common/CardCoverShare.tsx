@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { ShareIcon } from '../../icons';
 import { useLoggedCopyPostLink } from '../../../hooks/post';
 import type { Post } from '../../../graphql/posts';
@@ -28,14 +28,14 @@ export function CardCoverShare({
   return (
     <CardCoverContainer title="Should anyone else see this post?">
       <span className="mt-2 flex flex-row flex-wrap justify-center gap-3 p-2">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           onClick={wrapStopPropagation(onClick)}
           loading={isLoading}
         >
           Copy link
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           icon={<ShareIcon />}
           onClick={wrapStopPropagation(onShare)}

@@ -11,7 +11,7 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../../dropdown/DropdownMenu';
-import { Button } from '../../buttons/Button';
+import { ButtonV2 } from '../../buttons/ButtonV2';
 import type { MenuItemProps } from '../../dropdown/common';
 
 interface SquadModerationItemContextMenuProps
@@ -58,7 +58,7 @@ export const SquadModerationItemContextMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="z-1 my-0"
           icon={<MenuIcon />}

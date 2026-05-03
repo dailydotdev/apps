@@ -6,8 +6,8 @@ import {
   DropdownMenuOptions,
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
-import type { IconType } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { IconType } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import type { MenuItemProps } from '../dropdown/common';
 
 const generateYearOptions = (): { label: string; value: string }[] => {
@@ -50,7 +50,7 @@ const YearSelect = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="w-full" asChild disabled={disabled}>
-        <Button
+        <ButtonV2
           icon={icon}
           variant={ButtonVariant.Float}
           size={ButtonSize.Large}
@@ -58,7 +58,7 @@ const YearSelect = ({
         >
           {selectedLabel || placeholder}
           <ArrowIcon className="ml-auto rotate-180" secondary />
-        </Button>
+        </ButtonV2>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         variant="field"

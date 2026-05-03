@@ -18,7 +18,7 @@ import {
   TypographyType,
 } from './typography/Typography';
 import { LogEvent, TargetId } from '../lib/log';
-import { Button } from './buttons/Button';
+import { ButtonV2 } from './buttons/ButtonV2';
 import { useConditionalFeature, usePlusSubscription } from '../hooks';
 import { IconSize } from './Icon';
 import { featurePlusApiLanding } from '../lib/featureManagement';
@@ -87,7 +87,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                 tailoring your content.`}
               </Typography>
               <Link href={plusUrl} passHref>
-                <Button
+                <ButtonV2
                   className="mt-10"
                   tag="a"
                   type="button"
@@ -102,7 +102,7 @@ export const CustomFeedEmptyScreen = (): ReactElement => {
                   }}
                 >
                   {plusCta}
-                </Button>
+                </ButtonV2>
               </Link>
             </>
           ) : (

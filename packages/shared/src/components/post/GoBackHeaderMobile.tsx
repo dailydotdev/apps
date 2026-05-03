@@ -2,7 +2,7 @@ import type { PropsWithChildren, ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { ArrowIcon } from '../icons';
 import type { WithClassNameProps } from '../utilities';
 import { isDevelopment } from '../../lib/constants';
@@ -47,7 +47,7 @@ export const GoBackButton = ({
   ) : null;
 
   return canGoBack ? (
-    <Button
+    <ButtonV2
       icon={<ArrowIcon className="-rotate-90" />}
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}

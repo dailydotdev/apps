@@ -2,10 +2,10 @@ import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { IconSize } from '../../../components/Icon';
 import { MoveToIcon } from '../../../components/icons';
 import Logo, { LogoPosition } from '../../../components/Logo';
@@ -41,7 +41,7 @@ export function Header({
     <div className={classNames('flex flex-col', className)}>
       <div className="relative mx-1 flex h-14 items-center">
         {showBackButton && !isFirstStep && (
-          <Button
+          <ButtonV2
             aria-label="Go back"
             data-funnel-track={FunnelTargetId.StepBack}
             icon={<MoveToIcon size={IconSize.Small} className="rotate-180" />}
@@ -58,7 +58,7 @@ export function Header({
         />
 
         {showSkipButton && (
-          <Button
+          <ButtonV2
             className="ml-auto font-normal"
             data-funnel-track={FunnelTargetId.StepSkip}
             disabled={isSkipDisabled}
@@ -67,7 +67,7 @@ export function Header({
             variant={ButtonVariant.Tertiary}
           >
             Skip
-          </Button>
+          </ButtonV2>
         )}
       </div>
 

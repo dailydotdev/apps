@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { BlockIcon } from '../../icons';
 
 interface SourceActionBlockProps {
@@ -15,7 +15,7 @@ const SourceActionsBlock = ({
   const label = isBlocked ? 'Unblock' : 'Block';
 
   return (
-    <Button
+    <ButtonV2
       aria-label={label}
       data-testid="blockButton"
       icon={<BlockIcon />}
@@ -24,7 +24,7 @@ const SourceActionsBlock = ({
       variant={ButtonVariant.Float}
     >
       {label}
-    </Button>
+    </ButtonV2>
   );
 };
 

@@ -5,7 +5,7 @@ import { TextField } from '../../fields/TextField';
 import { useWritePostContext } from '../../../contexts';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { WriteFooter } from '../write';
-import { Button, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonVariant } from '../../buttons/ButtonV2';
 import { PlusIcon } from '../../icons';
 import { ActionType } from '../../../graphql/actions';
 import { useActions } from '../../../hooks';
@@ -134,14 +134,14 @@ const CreatePoll = () => {
           />
         ))}
         {draft?.options && draft?.options.length < 4 && (
-          <Button
+          <ButtonV2
             type="button"
             icon={<PlusIcon />}
             onClick={onAddOption}
             variant={ButtonVariant.Subtle}
           >
             Add option
-          </Button>
+          </ButtonV2>
         )}
       </div>
       <WriteFooter isLoading={isPosting} isPoll />

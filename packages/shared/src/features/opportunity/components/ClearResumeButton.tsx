@@ -3,10 +3,10 @@ import type { ReactElement } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '../../../components/buttons/Button';
+} from '../../../components/buttons/ButtonV2';
 import { MiniCloseIcon } from '../../../components/icons';
 import { getCandidatePreferencesOptions } from '../queries';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -44,7 +44,7 @@ export const ClearResumeButton = (): ReactElement => {
 
   return (
     <Tooltip content="Remove uploaded CV">
-      <Button
+      <ButtonV2
         icon={<MiniCloseIcon />}
         className="ml-1"
         variant={ButtonVariant.Tertiary}

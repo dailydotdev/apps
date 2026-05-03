@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../../../../components/buttons/Button';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '../../../../components/buttons/ButtonV2';
 import { LazyImage } from '../../../../components/LazyImage';
 import { Loader } from '../../../../components/Loader';
 import type { ModalProps } from '../../../../components/modals/common/Modal';
@@ -394,9 +397,9 @@ export const AchievementSyncModal = ({
 
         {!isPending && (
           <div className="mt-2 flex justify-end">
-            <Button variant={ButtonVariant.Primary} onClick={onRequestClose}>
+            <ButtonV2 variant={ButtonVariant.Primary} onClick={onRequestClose}>
               Done
-            </Button>
+            </ButtonV2>
           </div>
         )}
       </Modal.Body>

@@ -9,7 +9,7 @@ import { Modal } from '../../modals/common/Modal';
 import { opportunityByIdOptions } from '../../../features/opportunity/queries';
 import { Loader } from '../../Loader';
 
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../../buttons/ButtonV2';
 import { labels } from '../../../lib';
 import { editOpportunityContentMutationOptions } from '../../../features/opportunity/mutations';
 import { ApiError } from '../../../graphql/common';
@@ -146,15 +146,15 @@ export const OpportunityEditContentModal = ({
       <Modal.Header className="flex justify-between" showCloseButton={false}>
         <Modal.Title className="typo-title3">{contentTitle}</Modal.Title>
         <div className="flex items-center gap-4">
-          <Button
+          <ButtonV2
             type="text"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
             onClick={onRequestClose}
           >
             Discard
-          </Button>
-          <Button
+          </ButtonV2>
+          <ButtonV2
             type="submit"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
@@ -162,7 +162,7 @@ export const OpportunityEditContentModal = ({
             loading={isSubmitting}
           >
             Save
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Header>
       <Modal.Body className="gap-6 p-4">
@@ -218,7 +218,7 @@ export const OpportunityEditContentModal = ({
           }}
         />
         <div className="max-w-36">
-          <Button
+          <ButtonV2
             type="submit"
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
@@ -231,7 +231,7 @@ export const OpportunityEditContentModal = ({
             loading={isSubmitting}
           >
             Remove section
-          </Button>
+          </ButtonV2>
         </div>
       </Modal.Body>
     </Modal>

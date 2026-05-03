@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import type { IconProps } from '../Icon';
 import { IconSize } from '../Icon';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
   type IconType,
-} from '../buttons/Button';
+} from '../buttons/ButtonV2';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -209,7 +209,7 @@ export const SelectSettingRow = <TValue extends string>({
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.Small}
             variant={ButtonVariant.Float}
@@ -217,7 +217,7 @@ export const SelectSettingRow = <TValue extends string>({
           >
             {options.find((option) => option.value === value)?.label}
             <ArrowIcon className="ml-auto rotate-180" secondary />
-          </Button>
+          </ButtonV2>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           variant="field"
@@ -266,7 +266,7 @@ export const DeviceSplitButton = ({
   return (
     <div className="flex items-center">
       <Tooltip content={toggleAriaLabel}>
-        <Button
+        <ButtonV2
           type="button"
           size={ButtonSize.Small}
           variant={variant}
@@ -282,7 +282,7 @@ export const DeviceSplitButton = ({
           asChild
           tooltip={{ content: caretAriaLabel, side: 'top' }}
         >
-          <Button
+          <ButtonV2
             type="button"
             size={ButtonSize.Small}
             variant={variant}
