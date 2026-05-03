@@ -12,9 +12,9 @@ const ExtensionOnboarding = (): ReactElement => {
   const { setCurrentPage } = useExtensionContext();
 
   useEffect(() => {
-    setCurrentPage('/hijacking');
+    setCurrentPage?.('/hijacking');
     return () => {
-      setCurrentPage('/');
+      setCurrentPage?.('/');
     };
   }, [setCurrentPage]);
 

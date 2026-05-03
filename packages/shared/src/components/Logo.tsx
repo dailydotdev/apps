@@ -100,9 +100,11 @@ export default function Logo({
   isRecruiter = false,
   href = webappUrl,
 }: LogoProps): ReactElement {
+  const resolvedHref = href || '/';
+
   return (
     <LinkWithTooltip
-      href={href}
+      href={resolvedHref}
       passHref
       prefetch={false}
       tooltip={{ placement: 'right', content: 'Home' }}
@@ -115,7 +117,7 @@ export default function Logo({
           className,
           linkDisabled && 'pointer-events-none',
         )}
-        href={href}
+        href={resolvedHref}
         onClick={onLogoClick}
       >
         <div className="relative">

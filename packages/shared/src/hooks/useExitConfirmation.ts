@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 interface ExitProps {
   message?: string;
   onValidateAction: () => boolean;
+  enabled?: boolean;
 }
 
 export interface UseExitConfirmation {
@@ -13,6 +14,7 @@ export interface UseExitConfirmation {
 export function useExitConfirmation({
   message = 'You have unsaved changes that will be lost if you leave the page',
   onValidateAction,
+  enabled = true,
 }: ExitProps): UseExitConfirmation {
   const confirmRef = useRef(true);
   const router = useRouter();
@@ -23,7 +25,7 @@ export function useExitConfirmation({
   );
 
   useEffect(() => {
-    if (!router.isReady) {
+    if (!enabled || !router.isReady) {
       return undefined;
     }
 
@@ -47,7 +49,10 @@ export function useExitConfirmation({
       }
 
       router.events.emit('routeChangeError');
-      throw new Error('Cancelling navigation');
+      // Throwing a string (not an Error) is Next.js's documented way to abort a
+      // route change without triggering the dev error overlay.
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
+      throw 'Route change aborted by useExitConfirmation. Please ignore this error.';
     };
 
     window.addEventListener('beforeunload', closeHandler);
@@ -57,7 +62,7 @@ export function useExitConfirmation({
       window.removeEventListener('beforeunload', closeHandler);
       router.events.off('routeChangeStart', routeHandler);
     };
-  }, [checkShouldAskConfirmation, message, router]);
+  }, [checkShouldAskConfirmation, enabled, message, router]);
 
   return {
     onAskConfirmation: (value) => {

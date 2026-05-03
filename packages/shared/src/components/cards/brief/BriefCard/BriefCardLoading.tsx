@@ -11,7 +11,13 @@ import { ProgressBar } from '../../../fields/ProgressBar';
 import { briefCardBg, briefCardBorder } from '../../../../styles/custom';
 import type { BriefCardProps } from './BriefCard';
 
-export type BriefCardLoadingProps = BriefCardProps;
+export type BriefCardLoadingProps = Omit<
+  BriefCardProps,
+  'animationSrc' | 'progressPercentage'
+> & {
+  animationSrc: string;
+  progressPercentage: number;
+};
 
 const rootStyle = {
   border: briefCardBorder,

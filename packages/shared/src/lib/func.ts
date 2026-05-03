@@ -168,6 +168,19 @@ export const getCurrentBrowserName = (): BrowserName => {
   return BrowserName.Other;
 };
 
+// Browsers we ship the daily.dev extension for — anything embed-extension
+// related (including GrowthBook enrollment for the reader experiment) should
+// gate on this so Firefox/Safari/Other users don't get dragged into a flow
+// that can never complete for them.
+export const isExtensionCapableBrowser = (): boolean => {
+  const name = getCurrentBrowserName();
+  return (
+    name === BrowserName.Chrome ||
+    name === BrowserName.Brave ||
+    name === BrowserName.Edge
+  );
+};
+
 export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = array.slice();
 

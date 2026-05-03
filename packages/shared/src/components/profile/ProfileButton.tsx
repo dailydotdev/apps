@@ -207,7 +207,7 @@ export default function ProfileButton({
         />
       ) : (
         <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
-          {isStreaksEnabled && (
+          {isStreaksEnabled && streak && (
             <ReadingStreakButton
               streak={streak}
               isLoading={isLoading}

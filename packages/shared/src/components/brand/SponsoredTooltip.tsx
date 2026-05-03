@@ -49,7 +49,7 @@ export const SponsoredTooltip = ({
         )}
         <div className="flex flex-col">
           <span className="text-xs font-medium text-text-quaternary">
-            Powered by
+            Sponsored by
           </span>
           <span className="font-bold text-text-primary">
             {config.tooltipTitle}

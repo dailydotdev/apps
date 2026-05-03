@@ -48,6 +48,7 @@ import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketingCta/MarketingCtaVideo';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
@@ -421,7 +422,9 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
+          onPostClick={(post: Post, event) =>
+            onPostClick(post, index, row, column, false, event)
+          }
           onPostAuxClick={(post: Post) =>
             onPostClick(post, index, row, column, true)
           }
@@ -484,6 +487,10 @@ function FeedItemComponent({
 
       if (item.marketingCta.variant === MarketingCtaVariant.YearInReview) {
         return <MarketingCtaYearInReview marketingCta={item.marketingCta} />;
+      }
+
+      if (item.marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={item.marketingCta} />;
       }
 
       return (

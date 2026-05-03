@@ -47,7 +47,7 @@ export const isTesting =
 export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
 export const isBrave = (): boolean => {
-  if (!window.Promise) {
+  if (typeof window === 'undefined' || !window.Promise) {
     return false;
   }
   return typeof navigator.brave?.isBrave === 'function';

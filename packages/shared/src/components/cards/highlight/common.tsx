@@ -5,6 +5,7 @@ import type { PostHighlight } from '../../../graphql/highlights';
 import { webappUrl } from '../../../lib/constants';
 import { RelativeTime } from '../../utilities/RelativeTime';
 import Link from '../../utilities/Link';
+import { HighlightCardOptions } from './HighlightCardOptions';
 
 export interface HighlightCardProps {
   highlights: PostHighlight[];
@@ -117,6 +118,7 @@ export const HighlightCardContent = ({
         >
           Happening Now
         </h3>
+        <HighlightCardOptions className="ml-auto" />
       </header>
       <div className={contentClassName}>
         {highlights.map((highlight, index) => (

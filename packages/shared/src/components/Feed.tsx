@@ -45,13 +45,15 @@ import {
   useFeedLayout,
   useFeedVotePost,
   useMutationSubscription,
+  useViewSize,
+  ViewSize,
 } from '../hooks';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketingCta/common';
-import { isNullOrUndefined } from '../lib/func';
+import { isExtensionCapableBrowser, isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
@@ -65,6 +67,7 @@ import {
   briefCardFeedFeature,
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
+  featureReaderModal,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -73,6 +76,7 @@ import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
 import { TopHero } from './banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
+import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -139,6 +143,13 @@ const SocialTwitterPostModal = dynamic(
   () =>
     import(
       /* webpackChunkName: "socialTwitterPostModal" */ './modals/SocialTwitterPostModal'
+    ),
+);
+
+const ReaderPostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
     ),
 );
 
@@ -219,7 +230,8 @@ export default function Feed<T>({
   const marketingCta =
     getMarketingCta(MarketingCtaVariant.Card) ||
     getMarketingCta(MarketingCtaVariant.BriefCard) ||
-    getMarketingCta(MarketingCtaVariant.YearInReview);
+    getMarketingCta(MarketingCtaVariant.YearInReview) ||
+    getMarketingCta(MarketingCtaVariant.Video);
   const { plusEntryFeed } = usePlusEntry();
   const hasDismissBriefCta =
     isActionsFetched && checkHasCompleted(ActionType.DisableBriefCardCta);
@@ -319,6 +331,41 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
+  // Only enroll users whose browser can install our extension into the
+  // reader-modal experiment — Firefox/Safari/Other can never complete the
+  // embedded-browsing flow, so pulling them into the test pollutes the stats.
+  const isExtensionBrowser = useMemo(() => isExtensionCapableBrowser(), []);
+  const {
+    value: readerModalFromGrowthBook,
+    isLoading: isReaderFeatureLoading,
+  } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: isExtensionBrowser,
+  });
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const isTabletViewport = useViewSize(ViewSize.Tablet);
+  const isReaderModalOn =
+    isExtensionBrowser &&
+    readerModalFromGrowthBook &&
+    !isLegacyLayoutOptedOut &&
+    isTabletViewport;
+  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  const readerEligiblePostTypes = useMemo(
+    () =>
+      new Set<PostType>([
+        PostType.Article,
+        PostType.Digest,
+        PostType.VideoYouTube,
+      ]),
+    [],
+  );
+  const isReaderEligiblePost = useCallback(
+    (post: Post): boolean =>
+      isReaderModalFeatureReady &&
+      isReaderModalOn &&
+      readerEligiblePostTypes.has(post.type),
+    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+  );
   const {
     adjustedHeroInsertIndex,
     shouldShowTopHero,
@@ -494,6 +541,25 @@ export default function Feed<T>({
     [openSharePost, virtualizedNumCards],
   );
 
+  const PostModal = useMemo(() => {
+    if (!selectedPost) {
+      return undefined;
+    }
+    const readerEligibleTypes = new Set([
+      PostType.Article,
+      PostType.Digest,
+      PostType.VideoYouTube,
+    ]);
+    if (
+      isReaderModalFeatureReady &&
+      isReaderModalOn &&
+      readerEligibleTypes.has(selectedPost.type)
+    ) {
+      return ReaderPostModal;
+    }
+    return PostModalMap[selectedPost.type];
+  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+
   if (!loadedSettings || isFallback) {
     return <></>;
   }
@@ -526,11 +592,23 @@ export default function Feed<T>({
     row,
     column,
     isAuxClick,
+    event,
   ) => {
+    const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
+    const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
+    const readerEligible = isReaderEligiblePost(post);
+    const shouldOpenModal =
+      !isAuxClick &&
+      !isMiddleClick &&
+      !isModifierClick &&
+      (!shouldUseListFeedLayout || readerEligible);
+    if (shouldOpenModal && shouldUseListFeedLayout && event) {
+      event.preventDefault();
+    }
     await onPostClick(post, index, row, column, {
       skipPostUpdate: true,
     });
-    if (!isAuxClick && !shouldUseListFeedLayout) {
+    if (shouldOpenModal) {
       onPostModalOpen({ index, row, column });
     }
   };
@@ -561,12 +639,10 @@ export default function Feed<T>({
         is_ad: isAd,
       }),
     );
-    if (!shouldUseListFeedLayout) {
+    if (!shouldUseListFeedLayout || isReaderEligiblePost(post)) {
       onPostModalOpen({ index, row, column });
     }
   };
-
-  const PostModal = selectedPost ? PostModalMap[selectedPost.type] : undefined;
 
   if (isError) {
     return <FeedErrorScreen error={feedError} />;
@@ -704,17 +780,20 @@ export default function Feed<T>({
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}
-            {!shouldUseListFeedLayout && selectedPost && PostModal && (
-              <PostModal
-                isOpen={!!selectedPost}
-                id={selectedPost.id}
-                onRequestClose={onPostModalClose}
-                onPreviousPost={onPrevious}
-                onNextPost={onNext}
-                postPosition={postPosition}
-                post={selectedPost}
-              />
-            )}
+            {selectedPost &&
+              PostModal &&
+              (!shouldUseListFeedLayout ||
+                isReaderEligiblePost(selectedPost)) && (
+                <PostModal
+                  isOpen={!!selectedPost}
+                  id={selectedPost.id}
+                  onRequestClose={onPostModalClose}
+                  onPreviousPost={onPrevious}
+                  onNextPost={onNext}
+                  postPosition={postPosition}
+                  post={selectedPost}
+                />
+              )}
           </>
         )}
       </FeedWrapperComponent>

@@ -29,3 +29,7 @@ interface Window {
 }
 
 declare module 'uuid';
+
+declare module 'mediasoup-client/types' {
+  export * from 'mediasoup-client/lib/types';
+}

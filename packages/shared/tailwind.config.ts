@@ -253,12 +253,27 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'reaction-burst': {
+          '0%': {
+            transform: 'translate(0, 0) scale(0.4)',
+            opacity: '0',
+          },
+          '15%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translate(var(--burst-tx), var(--burst-ty)) scale(1)',
+            opacity: '0',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'reaction-burst':
+          'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
       },
     },
     lineClamp: {

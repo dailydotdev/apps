@@ -219,7 +219,7 @@ export const MentionedToolsWidget = ({
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
                       >
-                        Powered by
+                        Sponsored by
                       </Typography>
                     )}
                     <Typography

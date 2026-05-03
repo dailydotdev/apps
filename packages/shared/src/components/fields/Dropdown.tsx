@@ -40,6 +40,7 @@ export interface DropdownProps {
   shouldIndicateSelected?: boolean;
   className?: DropdownClassName;
   style?: CSSProperties;
+  buttonAriaLabel?: string;
   selectedIndex: number;
   options: string[];
   onChange: (value: string, index: number) => unknown;
@@ -66,6 +67,7 @@ export function Dropdown({
   selectedIndex,
   options,
   onChange,
+  buttonAriaLabel,
   onOpenChange,
   shouldIndicateSelected,
   buttonSize = ButtonSize.Large,
@@ -88,7 +90,7 @@ export function Dropdown({
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isVisible, setVisibility] = useState(false);
   const wasVisible = usePrevious(`${isVisible}`);
-  const triggerRef = useRef<HTMLButtonElement>();
+  const triggerRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
 
   useEffect(() => {
     onOpenChange?.(isVisible);
@@ -147,6 +149,7 @@ export function Dropdown({
       onClick={fullScreen ? handleMenuTrigger : undefined}
       onKeyDown={handleKeyboard}
       tabIndex={0}
+      aria-label={buttonAriaLabel}
       aria-haspopup="true"
       aria-expanded={isVisible}
       aria-controls={(() => {
@@ -156,13 +159,14 @@ export function Dropdown({
         return fullScreen ? id : `${id}-content`;
       })()}
       icon={
-        icon &&
-        React.cloneElement(icon as ReactElement<IconProps>, {
-          'aria-hidden': true,
-          role: 'presentation',
-          secondary:
-            (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
-        })
+        icon
+          ? React.cloneElement(icon as ReactElement<IconProps>, {
+              'aria-hidden': true,
+              role: 'presentation',
+              secondary:
+                (icon as ReactElement<IconProps>).props.secondary ?? isVisible,
+            })
+          : undefined
       }
     >
       {iconOnly ? null : (

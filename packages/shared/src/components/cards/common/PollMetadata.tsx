@@ -19,7 +19,7 @@ export type PollMetadataProps = Pick<Post, 'endsAt' | 'numPollVotes'> & {
 const PollMetadata = ({
   endsAt,
   isAuthor,
-  numPollVotes,
+  numPollVotes = 0,
 }: PollMetadataProps) => {
   const shouldShowVotes = numPollVotes > MIN_VOTES_REQUIRED || isAuthor;
   const pollHasEnded = endsAt && isAfter(new Date(), new Date(endsAt));

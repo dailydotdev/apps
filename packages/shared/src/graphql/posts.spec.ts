@@ -241,7 +241,7 @@ describe('social twitter helpers', () => {
       type: PostType.SocialTwitter,
       subType: 'tweet',
       sharedPost: null,
-    } as Post;
+    } as unknown as Post;
 
     expect(getSocialTwitterPostType(post)).toBe(PostType.Freeform);
     expect(isSocialTwitterShareLike(post)).toBeFalsy();
@@ -253,7 +253,7 @@ describe('social twitter helpers', () => {
       type: PostType.SocialTwitter,
       subType: 'thread',
       sharedPost: null,
-    } as Post;
+    } as unknown as Post;
 
     expect(getSocialTwitterPostType(post)).toBe(PostType.Freeform);
     expect(isSocialTwitterShareLike(post)).toBeFalsy();

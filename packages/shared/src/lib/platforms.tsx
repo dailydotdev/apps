@@ -169,6 +169,13 @@ export const CORE_PLATFORMS = {
     icon: LinkIcon,
     urlBuilder: (u: string) => `https://medium.com/@${u}`,
   },
+  substack: {
+    id: 'substack',
+    label: 'Substack',
+    domains: ['substack.com'],
+    icon: LinkIcon,
+    urlBuilder: (u: string) => `https://substack.com/@${u}`,
+  },
 } satisfies Record<string, PlatformConfig>;
 
 /**
