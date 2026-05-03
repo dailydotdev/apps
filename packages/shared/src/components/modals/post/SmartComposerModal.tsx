@@ -175,6 +175,29 @@ interface AudienceChipProps {
 const isUserAudience = (squad: Squad | undefined): boolean =>
   (squad?.type as SourceType) === SourceType.User;
 
+const AudienceAvatarStack = ({
+  audiences,
+}: {
+  audiences: Squad[];
+}): ReactElement | null => {
+  const visible = audiences.slice(0, 3);
+  if (visible.length === 0) {
+    return null;
+  }
+  return (
+    <span className="flex shrink-0 items-center -space-x-1.5">
+      {visible.map((audience) => (
+        <SourceAvatar
+          key={audience.id}
+          source={audience}
+          size={ProfileImageSize.Small}
+          className="!mr-0 ring-2 ring-surface-float"
+        />
+      ))}
+    </span>
+  );
+};
+
 const AudienceChip = ({
   selectedIds,
   options,
@@ -196,11 +219,15 @@ const AudienceChip = ({
     return null;
   }
 
-  const primaryLabel = isUserAudience(primary) ? 'Everyone' : primary.name;
-  const remaining = selectedAudiences.length - 1;
-  const label = remaining > 0 ? `${primaryLabel} +${remaining}` : primaryLabel;
+  const isMulti = selectedAudiences.length > 1;
   const showChevron = options.length > 1 && !disabled;
-  const showAvatar = !isUserAudience(primary) && selectedAudiences.length === 1;
+  const triggerLabel = (() => {
+    if (!isMulti) {
+      return isUserAudience(primary) ? 'Everyone' : primary.name;
+    }
+    return `${selectedAudiences.length} audiences`;
+  })();
+  const showSingleAvatar = !isMulti && !isUserAudience(primary);
 
   const toggleOption = (option: Squad) => {
     const optionId = option.id;
@@ -228,12 +255,24 @@ const AudienceChip = ({
             disabled && 'cursor-default',
           )}
           disabled={disabled || options.length <= 1}
-          aria-label={`Posting to ${label}. Open audience menu.`}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={
+            isMulti
+              ? `Posting to ${selectedAudiences.length} audiences. Open audience menu.`
+              : `Posting to ${triggerLabel}. Open audience menu.`
+          }
         >
-          {showAvatar && (
-            <SourceAvatar source={primary} size={ProfileImageSize.Small} />
+          {isMulti ? (
+            <AudienceAvatarStack audiences={selectedAudiences} />
+          ) : (
+            showSingleAvatar && (
+              <SourceAvatar source={primary} size={ProfileImageSize.Small} />
+            )
           )}
-          <TruncateText className="max-w-48 font-bold">{label}</TruncateText>
+          <TruncateText className="max-w-48 font-bold">
+            {triggerLabel}
+          </TruncateText>
           {showChevron && (
             <ArrowIcon
               className={classNames(
@@ -245,55 +284,61 @@ const AudienceChip = ({
         </button>
       </DropdownMenuTrigger>
       {showChevron && (
-        <DropdownMenuContent align="start" variant="field" className="min-w-72">
-          <div className="px-3 pb-1 pt-2 text-text-tertiary typo-caption1">
+        <DropdownMenuContent align="start" variant="field" className="min-w-80">
+          <div className="px-3 pb-2 pt-3 text-text-tertiary typo-caption1">
             Post to (select one or more)
           </div>
-          {options.map((option) => {
-            const optionLabel = isUserAudience(option)
-              ? 'Everyone'
-              : option.name;
-            const isSelected = !!option.id && selectedIds.includes(option.id);
-            const isLastSelected = isSelected && selectedIds.length === 1;
-            return (
-              <DropdownMenuItem
-                key={option.id}
-                onSelect={(event) => {
-                  event.preventDefault();
-                  toggleOption(option);
-                }}
-                disabled={isLastSelected}
-                className="flex items-center gap-2"
-              >
-                <SourceAvatar source={option} size={ProfileImageSize.Small} />
-                <TruncateText
+          <div className="pb-1">
+            {options.map((option) => {
+              const optionLabel = isUserAudience(option)
+                ? 'Everyone'
+                : option.name;
+              const isSelected = !!option.id && selectedIds.includes(option.id);
+              const isLastSelected = isSelected && selectedIds.length === 1;
+              return (
+                <DropdownMenuItem
+                  key={option.id}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    toggleOption(option);
+                  }}
+                  disabled={isLastSelected}
+                  aria-checked={isSelected}
                   className={classNames(
-                    'flex-1',
-                    isSelected ? 'font-bold' : '',
+                    '!h-auto gap-3 !px-3 !py-2',
+                    isSelected && '!bg-surface-float',
                   )}
                 >
-                  {optionLabel}
-                </TruncateText>
-                <span
-                  aria-hidden
-                  className={classNames(
-                    'flex h-5 w-5 shrink-0 items-center justify-center rounded-6 border-2',
-                    isSelected
-                      ? 'border-accent-cabbage-default bg-accent-cabbage-default'
-                      : 'border-border-subtlest-primary',
-                  )}
-                >
-                  {isSelected && (
-                    <VIcon
-                      secondary
-                      size={IconSize.Size16}
-                      className="text-white"
-                    />
-                  )}
-                </span>
-              </DropdownMenuItem>
-            );
-          })}
+                  <SourceAvatar source={option} size={ProfileImageSize.Small} />
+                  <TruncateText
+                    className={classNames(
+                      'flex-1',
+                      isSelected ? 'font-bold text-text-primary' : '',
+                    )}
+                  >
+                    {optionLabel}
+                  </TruncateText>
+                  <span
+                    aria-hidden
+                    className={classNames(
+                      'flex h-5 w-5 shrink-0 items-center justify-center rounded-6 border-2 transition-colors',
+                      isSelected
+                        ? 'border-accent-cabbage-default bg-accent-cabbage-default'
+                        : 'border-border-subtlest-primary bg-transparent',
+                    )}
+                  >
+                    {isSelected && (
+                      <VIcon
+                        secondary
+                        size={IconSize.Size16}
+                        className="text-white"
+                      />
+                    )}
+                  </span>
+                </DropdownMenuItem>
+              );
+            })}
+          </div>
         </DropdownMenuContent>
       )}
     </DropdownMenu>
@@ -302,28 +347,15 @@ const AudienceChip = ({
 
 interface MoreMenuProps {
   onEscalate: () => void;
-  onAddCoverImage?: () => void;
-  hasCoverImage?: boolean;
-  isPollMode?: boolean;
 }
 
-const MoreMenu = ({
-  onEscalate,
-  onAddCoverImage,
-  hasCoverImage,
-  isPollMode,
-}: MoreMenuProps): ReactElement => {
+const MoreMenu = ({ onEscalate }: MoreMenuProps): ReactElement => {
   const [open, setOpen] = useState(false);
 
   const handleFull = useCallback(() => {
     onEscalate();
     setOpen(false);
   }, [onEscalate]);
-
-  const handleAddCover = useCallback(() => {
-    onAddCoverImage?.();
-    setOpen(false);
-  }, [onAddCoverImage]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -337,11 +369,6 @@ const MoreMenu = ({
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" variant="field" className="min-w-64">
-        {onAddCoverImage && !hasCoverImage && !isPollMode && (
-          <DropdownMenuItem onClick={handleAddCover} className="gap-2">
-            <CameraIcon /> Add cover image
-          </DropdownMenuItem>
-        )}
         <DropdownMenuItem onClick={handleFull} className="gap-2">
           <EditIcon /> Open in full editor
           <OpenLinkIcon
@@ -504,23 +531,49 @@ const useSubmitShortcutLabel = () => {
 interface CoverImageDisplayProps {
   src: string;
   onRemove: () => void;
+  onReplace?: () => void;
   isUploading?: boolean;
 }
+
+const ConditionalImageWrapper = ({
+  onReplace,
+  children,
+}: {
+  onReplace?: () => void;
+  children: ReactElement;
+}): ReactElement => {
+  if (!onReplace) {
+    return children;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onReplace}
+      aria-label="Replace cover image"
+      className="block w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default"
+    >
+      {children}
+    </button>
+  );
+};
 
 const CoverImageDisplay = ({
   src,
   onRemove,
+  onReplace,
   isUploading,
 }: CoverImageDisplayProps): ReactElement => (
-  <div className="group relative overflow-hidden rounded-16 bg-surface-float">
-    <img
-      src={src}
-      alt="Post cover"
-      className={classNames(
-        'max-h-72 w-full object-cover transition-opacity',
-        isUploading && 'opacity-50',
-      )}
-    />
+  <div className="group relative overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+    <ConditionalImageWrapper onReplace={onReplace}>
+      <img
+        src={src}
+        alt="Post cover"
+        className={classNames(
+          'max-h-56 w-full object-cover transition-opacity',
+          isUploading && 'opacity-50',
+        )}
+      />
+    </ConditionalImageWrapper>
     <Tooltip content="Remove image">
       <Button
         type="button"
@@ -576,6 +629,9 @@ export function SmartComposerModal({
   } | null>(null);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [selectedAudienceIds, setSelectedAudienceIds] = useState<string[]>([]);
+  const [dismissedPreviewUrl, setDismissedPreviewUrl] = useState<string | null>(
+    null,
+  );
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPollMode, setIsPollMode] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
@@ -1178,8 +1234,18 @@ export function SmartComposerModal({
     }
   }, []);
 
-  const showPreviewArea = !!detectedUrl && !coverImage && !isPollMode;
+  const showPreviewArea =
+    !!detectedUrl &&
+    !coverImage &&
+    !isPollMode &&
+    detectedUrl.url !== dismissedPreviewUrl;
   const showCoverArea = !!coverImage && !isPollMode;
+
+  const dismissPreview = useCallback(() => {
+    if (detectedUrl) {
+      setDismissedPreviewUrl(detectedUrl.url);
+    }
+  }, [detectedUrl]);
 
   const bodyPlaceholder = (() => {
     if (coverImage) {
@@ -1188,13 +1254,19 @@ export function SmartComposerModal({
     return BODY_PLACEHOLDER;
   })();
 
-  const moreMenu = (
-    <MoreMenu
-      isPollMode={isPollMode}
-      onEscalate={handleEscalate}
-      onAddCoverImage={() => fileInputRef.current?.click()}
-      hasCoverImage={!!coverImage}
-    />
+  const moreMenu = <MoreMenu onEscalate={handleEscalate} />;
+
+  const coverImageButton = !isPollMode && !coverImage && (
+    <Tooltip content="Add cover image">
+      <Button
+        type="button"
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        icon={<CameraIcon />}
+        onClick={() => fileInputRef.current?.click()}
+        aria-label="Add cover image"
+      />
+    </Tooltip>
   );
 
   const pollToggleButton = (
@@ -1214,6 +1286,13 @@ export function SmartComposerModal({
     </Tooltip>
   );
 
+  const inlineExtraActions = (
+    <>
+      {coverImageButton}
+      {pollToggleButton}
+    </>
+  );
+
   const postButton = (
     <Tooltip content={`Post (${submitShortcut})`}>
       <Button
@@ -1229,6 +1308,50 @@ export function SmartComposerModal({
     </Tooltip>
   );
 
+  const composerAttachments =
+    showCoverArea || showPreviewArea ? (
+      <div className="flex flex-col gap-2 px-5 pb-2">
+        {showCoverArea && (
+          <CoverImageDisplay
+            src={coverImage.base64}
+            onRemove={removeCover}
+            onReplace={() => fileInputRef.current?.click()}
+            isUploading={isUploadingCover}
+          />
+        )}
+        {showPreviewArea && (
+          <div className="animate-fade-in relative">
+            <Tooltip content="Remove link preview">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<MiniCloseIcon />}
+                onClick={dismissPreview}
+                aria-label="Remove link preview"
+                className="!bg-surface-invert/80 absolute right-2 top-2 z-1 !text-text-primary !shadow-2 backdrop-blur-sm hover:!bg-surface-invert"
+              />
+            </Tooltip>
+            {(() => {
+              if (isLoadingPreview) {
+                return <WritePreviewSkeleton link={detectedUrl.url} />;
+              }
+              if (!preview?.title) {
+                return null;
+              }
+              return (
+                <WriteLinkPreview
+                  preview={preview}
+                  link={detectedUrl.url}
+                  showPreviewLink={false}
+                />
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    ) : null;
+
   return (
     <Modal
       kind={ModalKind.FlexibleTop}
@@ -1236,14 +1359,12 @@ export function SmartComposerModal({
       onRequestClose={handleClose}
       isDrawerOnMobile={!isLaptop}
       shouldCloseOnOverlayClick={false}
-      overlayClassName={
-        isExpanded ? '!pt-0' : 'tablet:!pt-16 laptop:!pt-12'
-      }
+      overlayClassName={isExpanded ? '!pt-0' : 'tablet:!pt-16 laptop:!pt-12'}
       className={classNames(
         'flex flex-col',
         isExpanded
           ? '!mb-0 !mt-0 !h-[100vh] !max-h-[100vh] !w-[100vw] !max-w-[100vw] !rounded-none'
-          : '!min-h-[36rem] !max-w-[48.75rem] tablet:w-[48.75rem] tablet:!max-h-[calc(100vh-6rem)] laptop:!max-h-[calc(100vh-5rem)]',
+          : '!min-h-[36rem] !max-w-[48.75rem] tablet:!max-h-[calc(100vh-6rem)] tablet:w-[48.75rem] laptop:!max-h-[calc(100vh-5rem)]',
       )}
       {...props}
     >
@@ -1295,19 +1416,11 @@ export function SmartComposerModal({
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-5">
-          {renderTitleField()}
-
-          {showCoverArea && (
-            <CoverImageDisplay
-              src={coverImage.base64}
-              onRemove={removeCover}
-              isUploading={isUploadingCover}
-            />
-          )}
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="shrink-0 px-5 pb-2">{renderTitleField()}</div>
 
           {isPollMode ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pb-5">
               <PollOptionsEditor
                 options={pollOptions}
                 onChange={setPollOptions}
@@ -1316,7 +1429,7 @@ export function SmartComposerModal({
                 value={pollDuration}
                 onChange={setPollDuration}
               />
-              <div className="flex flex-row items-center gap-2 border-t border-border-subtlest-tertiary pt-3">
+              <div className="mt-auto flex flex-row items-center gap-2 border-t border-border-subtlest-tertiary pt-3">
                 <span className="text-text-tertiary typo-caption1">
                   Poll · {validPollOptions.length}/{MAX_POLL_OPTIONS} options
                 </span>
@@ -1348,7 +1461,8 @@ export function SmartComposerModal({
               minHeightClassName={isExpanded ? 'min-h-[50vh]' : 'min-h-[8rem]'}
               toolbarPosition="bottom"
               hideFooter
-              extraInlineActions={pollToggleButton}
+              extraInlineActions={inlineExtraActions}
+              aboveToolbar={composerAttachments}
               toolbarRightActions={
                 <>
                   {moreMenu}
@@ -1356,8 +1470,8 @@ export function SmartComposerModal({
                 </>
               }
               className={{
-                container: '!rounded-none !bg-transparent',
-                input: '!px-0 !pt-1',
+                container: '!min-h-0 !flex-1 !rounded-none !bg-transparent',
+                input: '!px-5 !pt-1',
               }}
             />
           )}
@@ -1369,26 +1483,6 @@ export function SmartComposerModal({
             className="hidden"
             onChange={onFileInputChange}
           />
-
-          {showPreviewArea && (
-            <div className="animate-fade-in">
-              {(() => {
-                if (isLoadingPreview) {
-                  return <WritePreviewSkeleton link={detectedUrl.url} />;
-                }
-                if (!preview?.title) {
-                  return null;
-                }
-                return (
-                  <WriteLinkPreview
-                    preview={preview}
-                    link={detectedUrl.url}
-                    showPreviewLink={false}
-                  />
-                );
-              })()}
-            </div>
-          )}
         </div>
       </form>
     </Modal>

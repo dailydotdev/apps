@@ -155,6 +155,15 @@ interface RichTextInputProps {
    */
   extraInlineActions?: ReactNode;
   /**
+   * Slot rendered between the editor body and the bottom toolbar.
+   * Useful for attaching media previews (cover image, link preview)
+   * directly above the action strip — Twitter/X-style — instead of
+   * after the toolbar.
+   *
+   * Only rendered when `toolbarPosition === 'bottom'`.
+   */
+  aboveToolbar?: ReactNode;
+  /**
    * Hide the built-in Markdown editor toggle in the toolbar. Useful when the
    * caller surfaces that affordance elsewhere (e.g. an overflow menu).
    */
@@ -202,6 +211,7 @@ function RichTextInput(
     toolbarPosition = 'top',
     toolbarRightActions,
     extraInlineActions,
+    aboveToolbar,
     hideMarkdownToggle = false,
     hideFooter = false,
   }: RichTextInputProps,
@@ -870,7 +880,7 @@ function RichTextInput(
                         onInput={upload.onUpload}
                       />
                     )}
-                    <div className="flex w-full flex-row">
+                    <div className="flex min-h-0 w-full flex-1 flex-row">
                       {showUserAvatar && user && (
                         <ProfilePicture
                           size={ProfileImageSize.Large}
@@ -888,7 +898,7 @@ function RichTextInput(
                         className={classNames(
                           styles.editor,
                           minHeightClassName,
-                          'min-w-0 flex-1 p-4',
+                          'min-w-0 flex-1 overflow-y-auto p-4',
                           showUserAvatar && user && 'ml-3 tablet:ml-0',
                           className?.input,
                         )}
@@ -901,6 +911,9 @@ function RichTextInput(
                   return (
                     <>
                       {editorBody}
+                      {aboveToolbar && (
+                        <div className="shrink-0">{aboveToolbar}</div>
+                      )}
                       {toolbar}
                     </>
                   );
