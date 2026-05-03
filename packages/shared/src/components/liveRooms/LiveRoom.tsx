@@ -18,10 +18,8 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
-import {
-  LiveRoomChatPanel,
-  type ChatReactionAnalytics,
-} from './LiveRoomChatPanel';
+import { LiveRoomChatPanel } from './LiveRoomChatPanel';
+import type { ChatReactionAnalytics } from './LiveRoomChatReactions';
 import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
