@@ -24,6 +24,7 @@ import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
 import { useHasAccessToCores } from '../../hooks/useCoresFeature';
 import { AnimatedAwardImage } from '../AnimatedAward';
 import { isSourceUserSource } from '../../graphql/sources';
+import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 
 interface ClassName extends CommentClassName {
   content?: string;
@@ -178,6 +179,7 @@ export default function CommentContainer({
           content={comment.contentHtml}
           appendTooltipTo={appendTooltipTo}
         />
+        <ContentEmbeds embeds={comment.contentEmbeds} variant="comment" />
         {actions}
       </div>
     </article>

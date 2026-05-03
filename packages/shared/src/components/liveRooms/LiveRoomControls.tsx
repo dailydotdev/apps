@@ -256,9 +256,7 @@ export const LiveRoomControls = ({
   const previewSuffix = (active: boolean, publishing: boolean): string =>
     active && !publishing ? ' (preview)' : '';
   const reactionTooltip = reactionsOpen ? 'Close reactions' : 'Reactions';
-  const settingsTooltip = isSettingsOpen
-    ? 'Standup settings open'
-    : 'Standup settings';
+  const settingsTooltip = 'Settings';
   const queueTooltip = isQueued ? 'Queued' : 'Join queue';
   const joinStageTooltip = isStageFull ? 'Stage full' : 'Join stage';
 
@@ -565,31 +563,26 @@ export const LiveRoomControls = ({
               />
             </TooltipButton>
             {isModerated && isAudience ? (
-              <TooltipButton
-                tooltip={queueTooltip}
-                wrapDisabled={!canJoinQueue || isBusy('queue')}
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={
+                  isQueued ? ButtonVariant.Secondary : ButtonVariant.Primary
+                }
+                icon={<MegaphoneIcon />}
+                loading={isBusy('queue')}
+                disabled={!canJoinQueue || isBusy('queue')}
+                onClick={() =>
+                  runAuthenticatedAction('queue', async () => {
+                    await joinSpeakerQueue();
+                    logStandupAction(LogEvent.JoinStandupQueue, roomId, {
+                      surface: 'controls',
+                    });
+                  })
+                }
               >
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={
-                    isQueued ? ButtonVariant.Secondary : ButtonVariant.Primary
-                  }
-                  icon={<MegaphoneIcon />}
-                  loading={isBusy('queue')}
-                  disabled={!canJoinQueue || isBusy('queue')}
-                  onClick={() =>
-                    runAuthenticatedAction('queue', async () => {
-                      await joinSpeakerQueue();
-                      logStandupAction(LogEvent.JoinStandupQueue, roomId, {
-                        surface: 'controls',
-                      });
-                    })
-                  }
-                >
-                  {queueTooltip}
-                </Button>
-              </TooltipButton>
+                {queueTooltip}
+              </Button>
             ) : null}
             {isFreeForAll && isAudience ? (
               <TooltipButton
@@ -671,43 +664,39 @@ export const LiveRoomControls = ({
               </TooltipButton>
             ) : null}
             {privilegeState.hasHostPrivileges ? (
-              <TooltipButton tooltip="End standup" wrapDisabled={isBusy('end')}>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Secondary}
-                  loading={isBusy('end')}
-                  onClick={() =>
-                    guarded('end', async () => {
-                      await endRoom();
-                      logStandupAction(LogEvent.EndStandup, roomId, {
-                        surface: 'controls',
-                      });
-                      onLeave();
-                    })
-                  }
-                >
-                  End standup
-                </Button>
-              </TooltipButton>
-            ) : (
-              <TooltipButton tooltip="Leave">
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Primary}
-                  icon={<PhoneIcon />}
-                  aria-label="Leave"
-                  onClick={() => {
-                    logStandupAction(LogEvent.LeaveStandup, roomId, {
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Secondary}
+                loading={isBusy('end')}
+                onClick={() =>
+                  guarded('end', async () => {
+                    await endRoom();
+                    logStandupAction(LogEvent.EndStandup, roomId, {
                       surface: 'controls',
                     });
                     onLeave();
-                  }}
-                >
-                  Leave
-                </Button>
-              </TooltipButton>
+                  })
+                }
+              >
+                End standup
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<PhoneIcon />}
+                aria-label="Leave"
+                onClick={() => {
+                  logStandupAction(LogEvent.LeaveStandup, roomId, {
+                    surface: 'controls',
+                  });
+                  onLeave();
+                }}
+              >
+                Leave
+              </Button>
             )}
           </ControlGroup>
         </div>
