@@ -47,11 +47,7 @@ export function TopRankBadge({ rankIndex }: TopRankBadgeProps): ReactElement {
         style={{ backgroundColor: rankStyle.glowColor }}
       />
       <span className="leaderboard-medal-wrapper relative transition-transform duration-300">
-        <MedalBadgeIcon
-          size={IconSize.Small}
-          secondary
-          className={rankStyle.iconColor}
-        />
+        <MedalBadgeIcon size={IconSize.Small} className={rankStyle.iconColor} />
         <span className="pointer-events-none absolute inset-0">
           {Array.from({ length: SPARK_COUNT }, (_, i) => (
             <span

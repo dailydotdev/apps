@@ -157,7 +157,7 @@ export const LiveRoomTileActions = ({
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             className="!text-white"
-            icon={<MedalBadgeIcon secondary />}
+            icon={<MedalBadgeIcon />}
             aria-label={`Award ${user.name}`}
             onClick={handleAward}
           />

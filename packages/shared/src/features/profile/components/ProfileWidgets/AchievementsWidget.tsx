@@ -145,7 +145,7 @@ export function AchievementsWidget({
           bold
           className="flex items-center gap-1"
         >
-          <MedalBadgeIcon className="size-4" />
+          <MedalBadgeIcon secondary className="size-4" />
           Achievements
         </Typography>
         <Link href={`/${user.username || user.id}/achievements`} passHref>

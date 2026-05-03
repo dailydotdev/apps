@@ -46,7 +46,7 @@ export const UserEngagementSections = ({
           </Typography>
           {recentlyRead.map((badge) => (
             <Chip key={badge.keyword.value} className="!my-0 gap-1.5">
-              <MedalBadgeIcon size={IconSize.XSmall} secondary />
+              <MedalBadgeIcon size={IconSize.XSmall} />
               <span>{formatKeyword(badge.keyword.value)}</span>
               <span className="text-text-quaternary">·</span>
               <span className="text-text-quaternary">

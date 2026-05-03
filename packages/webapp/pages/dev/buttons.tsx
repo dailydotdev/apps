@@ -852,7 +852,7 @@ const PostActionsV1Clone = ({
         <QuaternaryButton
           id="dev-award-post-btn"
           pressed={awarded}
-          icon={<MedalBadgeIcon secondary={!awarded} />}
+          icon={<MedalBadgeIcon secondary={awarded} />}
           variant={ButtonVariant.Tertiary}
           className="btn-tertiary-cabbage"
         >
@@ -929,8 +929,8 @@ const PostActionsV2 = ({
         />
         <CardAction
           pressed={awarded}
-          icon={<MedalBadgeIcon secondary={!awarded} />}
-          iconPressed={<MedalBadgeIcon />}
+          icon={<MedalBadgeIcon />}
+          iconPressed={<MedalBadgeIcon secondary />}
           label="Award"
           labelVisible
           color={ButtonColor.Cabbage}

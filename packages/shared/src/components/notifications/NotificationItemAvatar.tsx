@@ -67,11 +67,7 @@ function NotificationItemAvatar({
   if (type === NotificationAvatarType.TopReaderBadge) {
     return (
       <span className="rounded-8 bg-surface-float p-1">
-        <MedalBadgeIcon
-          secondary
-          size={IconSize.Small}
-          fill="url(#goldGradient)"
-        />
+        <MedalBadgeIcon size={IconSize.Small} fill="url(#goldGradient)" />
         <BadgeIconGoldGradient />
       </span>
     );

@@ -141,7 +141,7 @@ export function ProfileAchievements({
         </Typography>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <MedalBadgeIcon className="size-6 text-text-primary" />
+            <MedalBadgeIcon secondary className="size-6 text-text-primary" />
             <Typography
               type={TypographyType.Title3}
               tag={TypographyTag.H2}

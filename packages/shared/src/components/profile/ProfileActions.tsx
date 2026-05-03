@@ -131,7 +131,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               color={ButtonColor.Cabbage}
-              icon={<MedalBadgeIcon secondary />}
+              icon={<MedalBadgeIcon />}
             >
               Award
             </Button>

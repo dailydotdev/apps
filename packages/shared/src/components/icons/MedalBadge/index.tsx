@@ -6,5 +6,5 @@ import OutlinedIcon from './outlined.svg';
 import FilledIcon from './filled.svg';
 
 export const MedalBadgeIcon = (props: IconProps): ReactElement => (
-  <Icon {...props} IconPrimary={FilledIcon} IconSecondary={OutlinedIcon} />
+  <Icon {...props} IconPrimary={OutlinedIcon} IconSecondary={FilledIcon} />
 );

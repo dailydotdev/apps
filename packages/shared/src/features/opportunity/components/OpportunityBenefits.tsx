@@ -20,7 +20,7 @@ const benefits = [
       'No cold DMs from strangers. Only real roles from vetted teams, surfaced when there is a strong reason to talk.',
   },
   {
-    icon: <MedalBadgeIcon />,
+    icon: <MedalBadgeIcon secondary />,
     title: 'Private until you say yes',
     description:
       'You stay invisible until you choose to engage. You quietly review matches, and nothing moves without your clear approval.',

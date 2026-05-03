@@ -533,6 +533,7 @@ function GameCenterPage({
             info="Distinct subjects where you earned a top-reader badge."
             icon={
               <MedalBadgeIcon
+                secondary
                 size={IconSize.Small}
                 className="text-text-tertiary"
               />
@@ -639,6 +640,7 @@ function GameCenterPage({
             info="The number of distinct award designs in your collection."
             icon={
               <MedalBadgeIcon
+                secondary
                 size={IconSize.Small}
                 className="text-text-tertiary"
               />

@@ -140,7 +140,7 @@ export function ReaderRailActionBar({
                   },
                 });
               }}
-              icon={<MedalBadgeIcon secondary={!post?.userState?.awarded} />}
+              icon={<MedalBadgeIcon secondary={!!post?.userState?.awarded} />}
               aria-label="Award"
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cabbage}

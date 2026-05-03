@@ -106,7 +106,7 @@ export const CommentAwardActions = ({
         />
       )}
       {!comment.featuredAward?.award && (
-        <MedalBadgeIcon size={IconSize.Small} secondary />
+        <MedalBadgeIcon size={IconSize.Small} />
       )}
       <Typography
         className="ml-1 mr-3 flex items-center gap-1"

@@ -102,11 +102,7 @@ export function RankBadge({ rank, className }: RankBadgeProps): ReactElement {
         style={{ backgroundColor: style.glowColor }}
       />
       <div className="rank-badge-wrapper relative transition-transform duration-300">
-        <MedalBadgeIcon
-          size={IconSize.Small}
-          secondary
-          className={style.iconColor}
-        />
+        <MedalBadgeIcon size={IconSize.Small} className={style.iconColor} />
         <div className="pointer-events-none absolute inset-0">
           {Array.from({ length: SPARK_COUNT }, (_, i) => (
             <div

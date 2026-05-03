@@ -172,7 +172,7 @@ export function AchievementTrackerButton(): ReactElement | null {
               hasLabel={hasButtonLabel}
             />
           ) : (
-            <MedalBadgeIcon />
+            <MedalBadgeIcon secondary />
           )) as unknown as IconType
         }
         onClick={handleClick}

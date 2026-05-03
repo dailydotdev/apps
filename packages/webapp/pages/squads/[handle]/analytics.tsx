@@ -176,7 +176,7 @@ const SquadAnalyticsPage = (): ReactElement => {
       value: analytics?.bookmarks ?? 0,
     },
     {
-      icon: <MedalBadgeIcon secondary />,
+      icon: <MedalBadgeIcon />,
       label: 'Awards',
       value: analytics?.awards ?? 0,
     },

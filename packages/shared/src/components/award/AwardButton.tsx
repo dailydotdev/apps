@@ -73,7 +73,7 @@ export const AwardButton = ({
         <Button
           pressed={pressed}
           size={ButtonSize.Small}
-          icon={<MedalBadgeIcon secondary />}
+          icon={<MedalBadgeIcon />}
           className={classNames(className, pressed && 'pointer-events-none')}
           variant={variant}
           color={ButtonColor.Cabbage}

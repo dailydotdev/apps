@@ -287,7 +287,7 @@ const PostAnalyticsPage = ({
       value: postAnalytics?.bookmarks ?? 0,
     },
     {
-      icon: <MedalBadgeIcon secondary />,
+      icon: <MedalBadgeIcon />,
       label: 'Awards',
       value: postAnalytics?.awards ?? 0,
     },
