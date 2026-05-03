@@ -17,10 +17,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { HorizontalSeparator } from '@dailydotdev/shared/src/components/utilities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -168,7 +168,7 @@ const Page = (): ReactElement | null => {
       )}
 
       <section className="mt-auto flex flex-col gap-4 tablet:flex-row">
-        <Button
+        <ButtonV2
           size={ButtonSize.Small}
           variant={ButtonVariant.Primary}
           onClick={() => {
@@ -182,16 +182,16 @@ const Page = (): ReactElement | null => {
           disabled={!isOwner}
         >
           Manage seats
-        </Button>
+        </ButtonV2>
         <Link href={managePlusUrl} passHref>
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
             tag="a"
             disabled={!isOwner}
           >
             Manage subscription
-          </Button>
+          </ButtonV2>
         </Link>
       </section>
     </AccountPageContainer>

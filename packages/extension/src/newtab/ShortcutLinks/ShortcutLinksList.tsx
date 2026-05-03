@@ -8,10 +8,10 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { MenuIcon as WrappingMenuIcon } from '@dailydotdev/shared/src/components/MenuIcon';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 import classNames from 'classnames';
 
@@ -134,7 +134,7 @@ export function ShortcutLinksList({
           ))}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 icon={<MenuIcon className="rotate-90" secondary />}
@@ -157,7 +157,7 @@ export function ShortcutLinksList({
               onClick={onOptionsOpen}
             />
           ))}
-          <Button
+          <ButtonV2
             aria-label="Remove shortcuts"
             variant={ButtonVariant.Tertiary}
             onClick={toggleShowTopSites}

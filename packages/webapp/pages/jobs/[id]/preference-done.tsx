@@ -10,10 +10,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { MagicIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -106,7 +106,7 @@ const PreferenceDonePage = (): ReactElement => {
         </div>
         <FlexCol className="items-center gap-4">
           <Link href={webappUrl} passHref>
-            <Button
+            <ButtonV2
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
               className="w-full tablet:w-80"
@@ -115,7 +115,7 @@ const PreferenceDonePage = (): ReactElement => {
               href={webappUrl}
             >
               Back to daily.dev
-            </Button>
+            </ButtonV2>
           </Link>
         </FlexCol>
       </FlexCol>

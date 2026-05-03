@@ -19,10 +19,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -106,7 +106,7 @@ export default function SettingsLayout({
       {!isMobile && !isLaptop && (
         <div className="hidden h-14 items-center gap-2 border-b border-border-subtlest-tertiary px-4 tablet:flex laptop:hidden">
           <Link href={webappUrl} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.XSmall}

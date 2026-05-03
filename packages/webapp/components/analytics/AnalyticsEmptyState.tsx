@@ -7,9 +7,9 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { link } from '@dailydotdev/shared/src/lib';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 
@@ -34,9 +34,9 @@ export const AnalyticsEmptyState = (): ReactElement => {
         </Typography>
       </div>
       <Link href={link.post.create} prefetch={false}>
-        <Button variant={ButtonVariant.Primary} icon={<PlusIcon />} tag="a">
+        <ButtonV2 variant={ButtonVariant.Primary} icon={<PlusIcon />} tag="a">
           New post
-        </Button>
+        </ButtonV2>
       </Link>
     </div>
   );

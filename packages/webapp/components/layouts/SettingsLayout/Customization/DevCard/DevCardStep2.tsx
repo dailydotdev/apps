@@ -23,7 +23,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import {
   ButtonSize,
@@ -221,7 +221,7 @@ export const DevCardStep2 = ({
         </div>
 
         {!isNullOrUndefined(devcard) && (
-          <Button
+          <ButtonV2
             className="mx-auto mt-4 grow-0 self-start"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
@@ -232,14 +232,14 @@ export const DevCardStep2 = ({
             target={isMobile ? '_blank' : undefined}
           >
             Download DevCard
-          </Button>
+          </ButtonV2>
         )}
       </section>
 
       <section className="flex flex-col">
         <div className="sticky top-0 flex border-b border-border-subtlest-tertiary bg-background-default">
           <div className="p-2">
-            <Button
+            <ButtonV2
               size={ButtonSize.Medium}
               pressed={selectedTab === 0}
               variant={
@@ -248,11 +248,11 @@ export const DevCardStep2 = ({
               onClick={() => setSelectedTab(0)}
             >
               Embed
-            </Button>
+            </ButtonV2>
           </div>
 
           <div className="p-2">
-            <Button
+            <ButtonV2
               size={ButtonSize.Medium}
               pressed={selectedTab === 1}
               variant={
@@ -261,7 +261,7 @@ export const DevCardStep2 = ({
               onClick={() => setSelectedTab(1)}
             >
               Customize
-            </Button>
+            </ButtonV2>
           </div>
         </div>
 
@@ -315,7 +315,7 @@ export const DevCardStep2 = ({
                 >
                   {embedCode}
                 </Typography>
-                <Button
+                <ButtonV2
                   className="mt-4"
                   variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
@@ -327,7 +327,7 @@ export const DevCardStep2 = ({
                   }}
                 >
                   {!copyingEmbed ? 'Copy code' : 'Copied!'}
-                </Button>
+                </ButtonV2>
               </div>
 
               <div>
@@ -347,7 +347,7 @@ export const DevCardStep2 = ({
                 >
                   Download a header-sized version for your X profile.
                 </Typography>
-                <Button
+                <ButtonV2
                   className="mt-5"
                   variant={ButtonVariant.Secondary}
                   size={ButtonSize.Small}
@@ -357,7 +357,7 @@ export const DevCardStep2 = ({
                   disabled={downloading || isLoading}
                 >
                   Download X cover image
-                </Button>
+                </ButtonV2>
               </div>
             </>
           )}
@@ -474,7 +474,7 @@ export const DevCardStep2 = ({
                 </Switch>
               </div>
 
-              <Button
+              <ButtonV2
                 className="grow-0 self-start"
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Medium}
@@ -484,7 +484,7 @@ export const DevCardStep2 = ({
                 loading={isLoading}
               >
                 Save
-              </Button>
+              </ButtonV2>
             </>
           )}
         </div>

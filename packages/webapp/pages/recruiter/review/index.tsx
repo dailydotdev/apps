@@ -6,9 +6,9 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -31,7 +31,7 @@ const OpportunityCard = ({
   const { title, organization, id, tldr } = opportunity;
 
   return (
-    <Button
+    <ButtonV2
       tag="a"
       href={`${webappUrl}recruiter/review/${id}`}
       variant={ButtonVariant.Tertiary}
@@ -71,7 +71,7 @@ const OpportunityCard = ({
           {tldr}
         </Typography>
       )}
-    </Button>
+    </ButtonV2>
   );
 };
 

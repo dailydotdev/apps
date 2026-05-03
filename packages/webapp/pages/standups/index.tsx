@@ -8,9 +8,9 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   pageBorders,
@@ -83,13 +83,13 @@ const StandupsPage = (): ReactElement => {
             Hop into a moderated standup or open the stage to everyone.
           </Typography>
         </div>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           icon={<PlusIcon />}
           onClick={handleCreateClick}
         >
           New standup
-        </Button>
+        </ButtonV2>
       </header>
 
       {isLoading ? (
@@ -109,13 +109,13 @@ const StandupsPage = (): ReactElement => {
           >
             Be the first to start a standup.
           </Typography>
-          <Button
+          <ButtonV2
             className="mt-2"
             variant={ButtonVariant.Primary}
             onClick={handleCreateClick}
           >
             Start a standup
-          </Button>
+          </ButtonV2>
         </div>
       ) : null}
 

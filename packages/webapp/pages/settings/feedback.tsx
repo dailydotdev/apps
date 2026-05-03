@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/FeedbackCard';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
@@ -52,7 +52,7 @@ const AccountFeedbackPage = (): ReactElement => {
         <Typography type={TypographyType.Body}>
           No feedback submitted yet.
         </Typography>
-        <Button onClick={openFeedbackModal}>Submit feedback</Button>
+        <ButtonV2 onClick={openFeedbackModal}>Submit feedback</ButtonV2>
       </div>
     );
   } else {

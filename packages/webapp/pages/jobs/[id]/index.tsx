@@ -20,11 +20,11 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   BlueskyIcon,
   CodePenIcon,
@@ -694,7 +694,7 @@ const JobPage = ({
                 )}
               >
                 <Link href={`${opportunityUrl}/how-it-works`} passHref>
-                  <Button
+                  <ButtonV2
                     tag="a"
                     variant={ButtonVariant.Tertiary}
                     size={ButtonSize.Medium}
@@ -703,7 +703,7 @@ const JobPage = ({
                     className="w-full"
                   >
                     How it works
-                  </Button>
+                  </ButtonV2>
                 </Link>
               </FlexCol>
             )}
@@ -729,7 +729,7 @@ const JobPage = ({
 
                   {!!opportunity.organization?.website && (
                     <Link href={opportunity.organization.website} passHref>
-                      <Button
+                      <ButtonV2
                         tag="a"
                         target="_blank"
                         rel={anchorDefaultRel}
@@ -739,7 +739,7 @@ const JobPage = ({
                         iconPosition={ButtonIconPosition.Right}
                       >
                         Website
-                      </Button>
+                      </ButtonV2>
                     </Link>
                   )}
                 </div>
@@ -780,7 +780,7 @@ const JobPage = ({
                     {opportunity.organization.socialLinks.map(
                       ({ link, socialType }) => (
                         <Link key={link} href={link} passHref>
-                          <Button
+                          <ButtonV2
                             tag="a"
                             variant={ButtonVariant.Subtle}
                             size={ButtonSize.Small}
@@ -881,7 +881,7 @@ const JobPage = ({
                         {opportunity.organization.customLinks.map(
                           ({ link, title }) => (
                             <Link key={link} href={link} passHref>
-                              <Button
+                              <ButtonV2
                                 tag="a"
                                 target="_blank"
                                 rel={anchorDefaultRel}
@@ -896,7 +896,7 @@ const JobPage = ({
                                 className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
                               >
                                 {title}
-                              </Button>
+                              </ButtonV2>
                             </Link>
                           ),
                         )}
@@ -918,7 +918,7 @@ const JobPage = ({
                         {opportunity.organization.pressLinks.map(
                           ({ link, title }) => (
                             <Link key={link} href={link} passHref>
-                              <Button
+                              <ButtonV2
                                 tag="a"
                                 target="_blank"
                                 rel={anchorDefaultRel}
@@ -945,14 +945,14 @@ const JobPage = ({
                                 <span className="flex-1 truncate text-left">
                                   {title}
                                 </span>
-                              </Button>
+                              </ButtonV2>
                             </Link>
                           ),
                         )}
                       </div>
                     )}
 
-                    <Button
+                    <ButtonV2
                       aria-controls="company-show-more"
                       aria-expanded={showMore}
                       className="flex w-full flex-row !justify-center gap-1 rounded-none border-0 border-t border-border-subtlest-tertiary !px-4 py-2.5"
@@ -975,7 +975,7 @@ const JobPage = ({
                           },
                         )}
                       />
-                    </Button>
+                    </ButtonV2>
                   </>
                 )}
               </FlexCol>

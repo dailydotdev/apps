@@ -4,9 +4,9 @@ import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyType,
@@ -54,7 +54,7 @@ export function ProfileExperienceDetailPage({
       <div className="rounded-16 border border-border-subtlest-tertiary">
         <header className="flex h-14 items-center gap-1 border-b border-border-subtlest-tertiary px-4">
           <Link href={`${webappUrl}${user.username}`} passHref>
-            <Button
+            <ButtonV2
               size={ButtonSize.Small}
               icon={<MoveToIcon className="rotate-180" />}
             />

@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import { KeyIcon } from '@dailydotdev/shared/src/components/icons';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -108,7 +108,7 @@ export function AISearchInvite({
           both fine-tuned for developers and fully integrated into the daily.dev
           ecosystem.
         </p>
-        <Button
+        <ButtonV2
           icon={<KeyIcon secondary />}
           className="mt-12"
           variant={ButtonVariant.Primary}
@@ -117,7 +117,7 @@ export function AISearchInvite({
           disabled={isLoading || isSuccess}
         >
           Accept invitation ➔
-        </Button>
+        </ButtonV2>
       </div>
       <img
         src={cloudinaryReferralCampaignSearchBg}

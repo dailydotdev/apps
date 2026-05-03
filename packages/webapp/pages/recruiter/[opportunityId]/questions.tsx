@@ -33,9 +33,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import { opportunityEditStep2Schema } from '@dailydotdev/shared/src/lib/schema/opportunity';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -244,7 +244,7 @@ const QuestionsSetupPage = (): ReactElement => {
           </div>
         </div>
 
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           color={ButtonColor.Cabbage}
           onClick={handleNextStep}
@@ -252,7 +252,7 @@ const QuestionsSetupPage = (): ReactElement => {
         >
           <span className="mr-1.5">Submit for review</span>
           <MoveToIcon />
-        </Button>
+        </ButtonV2>
       </header>
 
       <RecruiterProgress activeStep={RecruiterProgressStep.PrepareAndLaunch} />
@@ -295,7 +295,7 @@ const QuestionsSetupPage = (): ReactElement => {
                 Let our AI generate screening questions based on your job
                 description.
               </Typography>
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Primary}
                 onClick={() => generateQuestions({ id: opportunity.id })}
@@ -303,7 +303,7 @@ const QuestionsSetupPage = (): ReactElement => {
                 icon={<MagicIcon />}
               >
                 Generate questions
-              </Button>
+              </ButtonV2>
             </div>
           )}
 
@@ -361,7 +361,7 @@ const QuestionsSetupPage = (): ReactElement => {
                 <Typography color={TypographyColor.Tertiary}>
                   New question
                 </Typography>
-                <Button
+                <ButtonV2
                   type="button"
                   variant={ButtonVariant.Secondary}
                   onClick={() => {
@@ -380,7 +380,7 @@ const QuestionsSetupPage = (): ReactElement => {
                   icon={<PlusIcon />}
                 >
                   Add
-                </Button>
+                </ButtonV2>
               </article>
             )}
           </div>

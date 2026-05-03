@@ -9,10 +9,10 @@ import {
 import { ChecklistAIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   plusDetailsUrl,
   webappUrl,
@@ -69,7 +69,7 @@ const PlusSuccessPage = (): ReactElement => {
             Success! Your payment is complete, you’re all set.
           </Typography>
           <span className="flex flex-col gap-4 tablet:flex-row">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               tag="a"
               href={plusDetailsUrl}
@@ -78,15 +78,15 @@ const PlusSuccessPage = (): ReactElement => {
               target="_blank"
             >
               See what&apos;s included in Plus
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               tag="a"
               href={webappUrl}
               size={ButtonSize.Large}
             >
               Back to feed
-            </Button>
+            </ButtonV2>
           </span>
         </div>
       </div>

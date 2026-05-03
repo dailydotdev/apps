@@ -10,10 +10,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
@@ -76,20 +76,20 @@ const PreferencePage = (): ReactElement => {
         <InnerPreferencePage
           buttons={
             <>
-              <Button
+              <ButtonV2
                 size={ButtonSize.Large}
                 variant={ButtonVariant.Tertiary}
                 className="hidden laptop:flex"
                 onClick={() => back()}
               >
                 Back
-              </Button>
+              </ButtonV2>
 
               <Link
                 href={`${opportunityUrl}/${opportunityId}/preference-done`}
                 passHref
               >
-                <Button
+                <ButtonV2
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Primary}
                   className="w-full laptop:w-auto"
@@ -97,7 +97,7 @@ const PreferencePage = (): ReactElement => {
                   href={`${opportunityUrl}/${opportunityId}/preference-done`}
                 >
                   Save preferences
-                </Button>
+                </ButtonV2>
               </Link>
             </>
           }

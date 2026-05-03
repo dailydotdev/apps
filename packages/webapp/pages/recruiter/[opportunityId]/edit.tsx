@@ -38,11 +38,11 @@ import {
   TypographyColor,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonSize,
   ButtonColor,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { RefreshIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
@@ -258,21 +258,21 @@ function EditPageContent(): ReactElement {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
                 onClick={handleUpdateFromUrl}
                 icon={<RefreshIcon size={IconSize.Small} />}
               >
                 Re-import
-              </Button>
+              </ButtonV2>
 
               <SimpleTooltip
                 content="Complete all required fields first"
                 show={hasIncompleteFields}
               >
                 <div>
-                  <Button
+                  <ButtonV2
                     variant={ButtonVariant.Primary}
                     color={ButtonColor.Cabbage}
                     size={ButtonSize.Small}
@@ -280,7 +280,7 @@ function EditPageContent(): ReactElement {
                     disabled={isSaveDisabled}
                   >
                     {getSaveButtonText()}
-                  </Button>
+                  </ButtonV2>
                 </div>
               </SimpleTooltip>
             </div>
@@ -360,7 +360,7 @@ function EditPageContent(): ReactElement {
             show={hasIncompleteFields}
           >
             <div>
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
@@ -368,7 +368,7 @@ function EditPageContent(): ReactElement {
                 disabled={isSaveDisabled}
               >
                 {getSaveButtonText()}
-              </Button>
+              </ButtonV2>
             </div>
           </SimpleTooltip>
         </header>

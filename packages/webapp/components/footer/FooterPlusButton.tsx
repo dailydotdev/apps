@@ -5,13 +5,13 @@ import type { DrawerRef } from '@dailydotdev/shared/src/components/drawers';
 import { Drawer } from '@dailydotdev/shared/src/components/drawers';
 import type {
   AllowedTags,
-  ButtonProps,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+  ButtonV2Props,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   EditIcon,
   LinkIcon,
@@ -25,10 +25,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 const ActionButton = <TagName extends AllowedTags>({
   children,
   ...props
-}: ButtonProps<TagName>) => {
+}: ButtonV2Props<TagName>) => {
   return (
     <div className="flex flex-1 flex-col items-center gap-2">
-      <Button
+      <ButtonV2
         {...props}
         size={ButtonSize.Large}
         variant={ButtonVariant.Float}
@@ -56,7 +56,7 @@ export function FooterPlusButton({
 
   return (
     <>
-      <Button
+      <ButtonV2
         {...props}
         icon={<PlusIcon />}
         variant={ButtonVariant.Primary}

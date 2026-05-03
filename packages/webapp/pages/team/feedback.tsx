@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import {
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { FeedbackCard } from '@dailydotdev/shared/src/components/feedback/FeedbackCard';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';

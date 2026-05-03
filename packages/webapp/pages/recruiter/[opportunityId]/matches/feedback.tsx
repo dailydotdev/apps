@@ -18,9 +18,9 @@ import {
 } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { boostOpportunityLink } from '@dailydotdev/shared/src/lib/constants';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import {
@@ -86,7 +86,7 @@ function RecruiterFeedbackPage(): ReactElement {
                 Upgrade your plan to unlock candidate feedback and improve your
                 listing.
               </Typography>
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 tag="a"
                 href={boostOpportunityLink}
@@ -94,7 +94,7 @@ function RecruiterFeedbackPage(): ReactElement {
                 rel={anchorDefaultRel}
               >
                 Upgrade plan
-              </Button>
+              </ButtonV2>
             </div>
           </div>
         </div>

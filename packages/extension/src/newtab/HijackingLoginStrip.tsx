@@ -2,9 +2,9 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -52,7 +52,7 @@ export default function HijackingLoginStrip(): ReactElement {
                     : 'You still have a few onboarding steps left. Finish them to unlock the full experience.'}
                 </p>
                 {isLoggedOut ? (
-                  <Button
+                  <ButtonV2
                     type="button"
                     variant={ButtonVariant.Primary}
                     className="mt-4 w-fit"
@@ -66,9 +66,9 @@ export default function HijackingLoginStrip(): ReactElement {
                     }}
                   >
                     Log in to continue
-                  </Button>
+                  </ButtonV2>
                 ) : (
-                  <Button
+                  <ButtonV2
                     tag="a"
                     href={onboardingHref}
                     variant={ButtonVariant.Primary}
@@ -76,7 +76,7 @@ export default function HijackingLoginStrip(): ReactElement {
                     onClick={logHijackingClick}
                   >
                     Continue onboarding
-                  </Button>
+                  </ButtonV2>
                 )}
               </div>
             </div>

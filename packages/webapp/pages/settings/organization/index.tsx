@@ -15,10 +15,10 @@ import {
   plusUrl,
 } from '@dailydotdev/shared/src/lib/constants';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   getRoleName,
   HorizontalSeparator,
@@ -118,13 +118,13 @@ const Page = (): ReactElement => {
       </section>
 
       <Link href={`${plusUrl}?type=team`} passHref>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
           className="self-start"
         >
           New organization
-        </Button>
+        </ButtonV2>
       </Link>
 
       <HorizontalSeparator />

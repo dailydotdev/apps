@@ -1,8 +1,8 @@
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import classed from '@dailydotdev/shared/src/lib/classed';
 import { companionExplainerVideo } from '@dailydotdev/shared/src/lib/constants';
 import type { ReactElement, Ref } from 'react';
@@ -37,7 +37,7 @@ const CompanionPermissionComponent = (
         >
           {description}
         </p>
-        <Button
+        <ButtonV2
           className="mt-1 w-[12.5rem]"
           onClick={() =>
             requestContentScripts({
@@ -48,7 +48,7 @@ const CompanionPermissionComponent = (
           variant={ButtonVariant.Primary}
         >
           {button}
-        </Button>
+        </ButtonV2>
       </CompanionSection>
       <CompanionSection>
         <a

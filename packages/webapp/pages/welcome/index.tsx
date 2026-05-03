@@ -27,10 +27,10 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import Logo, { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { cloudinaryWelcomePageHeaderMainImage } from '@dailydotdev/shared/src/lib/image';
 import classNames from 'classnames';
@@ -114,13 +114,13 @@ const DemoPage = (): ReactElement => {
         )}
       >
         <Logo position={LogoPosition.Relative} />
-        <Button
+        <ButtonV2
           onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
           variant={ButtonVariant.Primary}
           size={ButtonSize.Small}
         >
           Sign up
-        </Button>
+        </ButtonV2>
       </div>
       <div
         style={{
@@ -144,13 +144,13 @@ const DemoPage = (): ReactElement => {
           <h2 className="text-center font-bold text-text-primary typo-title1">
             Where developers suffer together
           </h2>
-          <Button
+          <ButtonV2
             onClick={() => showLogin({ trigger: AuthTriggers.WelcomePage })}
             variant={ButtonVariant.Primary}
             size={ButtonSize.Medium}
           >
             Sign up to continue ➔
-          </Button>
+          </ButtonV2>
         </div>
       )}
     </>

@@ -5,10 +5,10 @@ import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   useActions,
   useToastNotification,
@@ -349,14 +349,14 @@ const DeclinePage = (): ReactElement => {
   }
 
   const skipButton = (
-    <Button
+    <ButtonV2
       size={ButtonSize.Medium}
       variant={ButtonVariant.Tertiary}
       className="w-full"
       onClick={handleSkip}
     >
       I&apos;ll do this later
-    </Button>
+    </ButtonV2>
   );
 
   return (

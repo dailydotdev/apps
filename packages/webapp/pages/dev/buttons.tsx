@@ -1,12 +1,11 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { QuaternaryButton } from '@dailydotdev/shared/src/components/buttons/QuaternaryButton';
 import { CardAction } from '@dailydotdev/shared/src/components/buttons/CardAction';
 import { CardActionBar } from '@dailydotdev/shared/src/components/buttons/CardActionBar';
@@ -33,9 +32,9 @@ import {
 } from '../../components/devButtons/InspirationButtons';
 
 /**
- * /dev/buttons — internal review surface for the Button system overhaul.
+ * /dev/buttons — internal review surface for the ButtonV2 system overhaul.
  *
- * Side-by-side OLD `Button` vs NEW `ButtonV2` across every variant, color,
+ * Side-by-side OLD `ButtonV2` vs NEW `ButtonV2` across every variant, color,
  * size, and state. Sticky controls bar lets reviewers flip theme,
  * background, and state simultaneously across the page. No shape control
  * — the system is rectangle-only by house rule.
@@ -197,7 +196,7 @@ const ComparisonRow = ({
             bg,
           )} rounded-8 px-3 py-3`}
         >
-          <Button
+          <ButtonV2
             variant={variant}
             color={color as ButtonColor}
             size={size}
@@ -206,7 +205,7 @@ const ComparisonRow = ({
             className={stateProps.className}
           >
             {buttonLabel}
-          </Button>
+          </ButtonV2>
         </div>
       ) : null}
       <div
@@ -488,7 +487,7 @@ const MockFeedCard = ({
       <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
         {source}
       </span>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={<MenuIcon />}
@@ -548,7 +547,7 @@ const MockListCard = ({
         <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
           {source}
         </span>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}
           icon={<MenuIcon />}
@@ -576,7 +575,7 @@ const MockListCard = ({
 const V1EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
   <div className="flex flex-1 items-center justify-between text-text-tertiary typo-footnote">
     <span className="inline-flex items-center">
-      <Button
+      <ButtonV2
         pressed={pressed}
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
@@ -586,7 +585,7 @@ const V1EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
       />
       <span className="pl-1 tabular-nums">1.2K</span>
     </span>
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Tertiary}
       size={ButtonSize.Small}
       color={ButtonColor.Ketchup}
@@ -594,7 +593,7 @@ const V1EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
       aria-label="Downvote"
     />
     <span className="inline-flex items-center">
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         color={ButtonColor.BlueCheese}
@@ -603,14 +602,14 @@ const V1EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
       />
       <span className="pl-1 tabular-nums">42</span>
     </span>
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Tertiary}
       size={ButtonSize.Small}
       color={ButtonColor.Bun}
       icon={<BookmarkIcon />}
       aria-label="Bookmark"
     />
-    <Button
+    <ButtonV2
       variant={ButtonVariant.Tertiary}
       size={ButtonSize.Small}
       color={ButtonColor.Cabbage}
@@ -986,7 +985,7 @@ const ButtonsDevPage = (): ReactElement => {
         <div className="bg-background-default/95 sticky top-0 z-header border-b border-border-subtlest-tertiary px-6 py-3 backdrop-blur">
           <div className="flex flex-wrap items-center gap-4">
             <h1 className="font-bold typo-callout">
-              Button playground · OLD vs NEW
+              ButtonV2 playground · OLD vs NEW
             </h1>
             <div className="flex items-center gap-2">
               <span className="text-text-tertiary typo-caption1">Theme</span>
@@ -1085,8 +1084,9 @@ const ButtonsDevPage = (): ReactElement => {
             Live comparison of every variant × color in the current state (
             {state}). Use the controls above to flip theme, size, cell
             background, and which columns render. The OLD column shows
-            today&apos;s <code>Button</code>; the NEW column shows the proposed{' '}
-            <code>ButtonV2</code> with a fully size-coherent scale: radius{' '}
+            today&apos;s <code>ButtonV2</code>; the NEW column shows the
+            proposed <code>ButtonV2</code> with a fully size-coherent scale:
+            radius{' '}
             <code>
               8&nbsp;/&nbsp;10&nbsp;/&nbsp;12&nbsp;/&nbsp;14&nbsp;/&nbsp;16
             </code>{' '}
@@ -1157,7 +1157,7 @@ const ButtonsDevPage = (): ReactElement => {
 
           <Section
             title="Comparison table"
-            description="One row per variant × color. Same ButtonProps applied to OLD and NEW columns. The inspiration column renders the closest-feeling reference from Linear / Notion / ChatGPT / Claude (mapping shown in each cell)."
+            description="One row per variant × color. Same ButtonV2Props applied to OLD and NEW columns. The inspiration column renders the closest-feeling reference from Linear / Notion / ChatGPT / Claude (mapping shown in each cell)."
           >
             <div
               className="grid gap-px overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-border-subtlest-tertiary"
@@ -1181,7 +1181,7 @@ const ButtonsDevPage = (): ReactElement => {
               </div>
               {showOld ? (
                 <div className="bg-surface-float px-3 py-2 font-bold text-text-primary typo-footnote">
-                  OLD Button
+                  OLD ButtonV2
                 </div>
               ) : null}
               <div className="bg-surface-float px-3 py-2 font-bold text-text-primary typo-footnote">
@@ -1227,13 +1227,13 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex justify-end gap-2">
-                    <Button variant={ButtonVariant.Float}>Cancel</Button>
-                    <Button
+                    <ButtonV2 variant={ButtonVariant.Float}>Cancel</ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Primary}
                       color={ButtonColor.Cabbage}
                     >
                       Save changes
-                    </Button>
+                    </ButtonV2>
                   </div>
                 }
                 newNode={
@@ -1253,28 +1253,28 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex gap-1">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<UpvoteIcon />}
                     >
                       Upvote
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<ShareIcon />}
                     >
                       Share
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Bun}
                       icon={<BookmarkIcon />}
                     >
                       Bookmark
-                    </Button>
+                    </ButtonV2>
                   </div>
                 }
                 newNode={
@@ -1309,17 +1309,17 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex gap-1">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Float}
                       size={ButtonSize.Medium}
                       icon={<PlusIcon />}
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Float}
                       size={ButtonSize.Medium}
                       icon={<ShareIcon />}
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Float}
                       size={ButtonSize.Medium}
                       icon={<StarIcon />}
@@ -1353,7 +1353,7 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="flex flex-wrap gap-2">
                     {['React', 'TypeScript', 'Rust', 'AI', 'Frontend'].map(
                       (tag) => (
-                        <Button
+                        <ButtonV2
                           key={`old-${tag}`}
                           variant={ButtonVariant.Float}
                           size={ButtonSize.Small}
@@ -1361,7 +1361,7 @@ const ButtonsDevPage = (): ReactElement => {
                           iconPosition={ButtonIconPosition.Right}
                         >
                           {tag}
-                        </Button>
+                        </ButtonV2>
                       ),
                     )}
                   </div>
@@ -1398,28 +1398,28 @@ const ButtonsDevPage = (): ReactElement => {
                 oldNode={
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <div className="flex flex-1 items-center justify-between">
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         color={ButtonColor.Avocado}
                         icon={<UpvoteIcon />}
                         aria-label="Upvote"
                       />
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         color={ButtonColor.BlueCheese}
                         icon={<DiscussIcon />}
                         aria-label="Comment"
                       />
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         color={ButtonColor.Bun}
                         icon={<BookmarkIcon />}
                         aria-label="Bookmark"
                       />
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         icon={<ShareIcon />}
@@ -1467,7 +1467,7 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <div className="flex flex-1 items-center justify-between text-text-tertiary typo-footnote">
                       <span className="inline-flex items-center">
-                        <Button
+                        <ButtonV2
                           variant={ButtonVariant.Tertiary}
                           size={ButtonSize.Small}
                           color={ButtonColor.Avocado}
@@ -1477,7 +1477,7 @@ const ButtonsDevPage = (): ReactElement => {
                         <span className="pl-1 tabular-nums">1.2K</span>
                       </span>
                       <span className="inline-flex items-center">
-                        <Button
+                        <ButtonV2
                           variant={ButtonVariant.Tertiary}
                           size={ButtonSize.Small}
                           color={ButtonColor.BlueCheese}
@@ -1486,14 +1486,14 @@ const ButtonsDevPage = (): ReactElement => {
                         />
                         <span className="pl-1 tabular-nums">42</span>
                       </span>
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         color={ButtonColor.Bun}
                         icon={<BookmarkIcon />}
                         aria-label="Bookmark"
                       />
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         icon={<ShareIcon />}
@@ -1543,7 +1543,7 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <div className="flex flex-1 items-center justify-between text-text-tertiary typo-footnote">
                       <span className="inline-flex items-center">
-                        <Button
+                        <ButtonV2
                           pressed
                           variant={ButtonVariant.Tertiary}
                           size={ButtonSize.Small}
@@ -1554,7 +1554,7 @@ const ButtonsDevPage = (): ReactElement => {
                         <span className="pl-1 tabular-nums">1.2K</span>
                       </span>
                       <span className="inline-flex items-center">
-                        <Button
+                        <ButtonV2
                           variant={ButtonVariant.Tertiary}
                           size={ButtonSize.Small}
                           color={ButtonColor.BlueCheese}
@@ -1563,7 +1563,7 @@ const ButtonsDevPage = (): ReactElement => {
                         />
                         <span className="pl-1 tabular-nums">42</span>
                       </span>
-                      <Button
+                      <ButtonV2
                         pressed
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
@@ -1571,7 +1571,7 @@ const ButtonsDevPage = (): ReactElement => {
                         icon={<BookmarkIcon secondary />}
                         aria-label="Bookmarked"
                       />
-                      <Button
+                      <ButtonV2
                         variant={ButtonVariant.Tertiary}
                         size={ButtonSize.Small}
                         icon={<ShareIcon />}
@@ -1633,35 +1633,35 @@ const ButtonsDevPage = (): ReactElement => {
                           compact + feedCard, so swapping is layout-neutral
                         </div>
                         <div className="flex flex-1 items-center justify-between">
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Tertiary}
                             size={ButtonSize.Small}
                             color={ButtonColor.Avocado}
                             icon={<UpvoteIcon />}
                             aria-label="Upvote"
                           />
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Tertiary}
                             size={ButtonSize.Small}
                             color={ButtonColor.Ketchup}
                             icon={<DownvoteIcon />}
                             aria-label="Downvote"
                           />
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Tertiary}
                             size={ButtonSize.Small}
                             color={ButtonColor.BlueCheese}
                             icon={<DiscussIcon />}
                             aria-label="Comment"
                           />
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Tertiary}
                             size={ButtonSize.Small}
                             color={ButtonColor.Bun}
                             icon={<BookmarkIcon />}
                             aria-label="Bookmark"
                           />
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Tertiary}
                             size={ButtonSize.Small}
                             icon={<ShareIcon />}
@@ -1917,45 +1917,45 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex items-center justify-between rounded-16 border border-border-subtlest-tertiary p-2">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Avocado}
                       icon={<UpvoteIcon />}
                     >
                       Upvote
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.BlueCheese}
                       icon={<DiscussIcon />}
                     >
                       Comment
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Cabbage}
                       icon={<MedalBadgeIcon />}
                     >
                       Award
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Bun}
                       icon={<BookmarkIcon />}
                     >
                       Bookmark
-                    </Button>
-                    <Button
+                    </ButtonV2>
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<CopyIcon />}
                     >
                       Copy
-                    </Button>
+                    </ButtonV2>
                   </div>
                 }
                 newNode={
@@ -1998,27 +1998,27 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Avocado}
                       icon={<UpvoteIcon />}
                       aria-label="Upvote"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Ketchup}
                       icon={<DownvoteIcon />}
                       aria-label="Downvote"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<DiscussIcon />}
                       aria-label="Reply"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Cabbage}
@@ -2066,28 +2066,28 @@ const ButtonsDevPage = (): ReactElement => {
                 showOld={showOld}
                 oldNode={
                   <div className="flex items-center justify-around border-t border-border-subtlest-tertiary bg-background-default p-2">
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Avocado}
                       icon={<UpvoteIcon />}
                       aria-label="Upvote"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.BlueCheese}
                       icon={<DiscussIcon />}
                       aria-label="Comment"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       color={ButtonColor.Bun}
                       icon={<BookmarkIcon />}
                       aria-label="Bookmark"
                     />
-                    <Button
+                    <ButtonV2
                       variant={ButtonVariant.Tertiary}
                       size={ButtonSize.Small}
                       icon={<ShareIcon />}

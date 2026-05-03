@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { useRouter } from 'next/router';
-import type { ButtonColor } from '@dailydotdev/shared/src/components/buttons/Button';
+import type { ButtonColor } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyType,
@@ -141,7 +141,7 @@ const PricingPlan = ({
           {billingInfo}
         </Typography>
       </div>
-      <Button
+      <ButtonV2
         variant={ctaVariant}
         size={ButtonSize.Large}
         color={ctaColor}
@@ -149,7 +149,7 @@ const PricingPlan = ({
         className="z-10 relative w-full"
       >
         {ctaText}
-      </Button>
+      </ButtonV2>
       <div className="z-10 relative flex flex-col gap-1 pt-4">
         {features.map((feature) => (
           <div key={feature.text} className="flex items-start gap-2">
@@ -467,7 +467,7 @@ const RecruiterPlans = (): ReactElement => {
             internal requirements.
           </Typography>
         </div>
-        <Button
+        <ButtonV2
           tag="a"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
@@ -477,7 +477,7 @@ const RecruiterPlans = (): ReactElement => {
           rel={anchorDefaultRel}
         >
           Talk to sales
-        </Button>
+        </ButtonV2>
       </div>
 
       <div className="flex flex-col gap-6">

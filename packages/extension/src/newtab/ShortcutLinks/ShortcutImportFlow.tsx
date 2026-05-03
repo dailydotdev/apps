@@ -5,9 +5,9 @@ import { MostVisitedSitesPermissionContent } from '@dailydotdev/shared/src/featu
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { Modal } from '@dailydotdev/shared/src/components/modals/common/Modal';
 import { Justify } from '@dailydotdev/shared/src/components/utilities';
 import {
@@ -71,9 +71,13 @@ function BookmarksPermissionModal({
         </Modal.Text>
       </Modal.Body>
       <Modal.Footer justify={Justify.Center}>
-        <Button type="button" onClick={onGrant} variant={ButtonVariant.Primary}>
+        <ButtonV2
+          type="button"
+          onClick={onGrant}
+          variant={ButtonVariant.Primary}
+        >
           Import bookmarks
-        </Button>
+        </ButtonV2>
       </Modal.Footer>
     </Modal>
   );

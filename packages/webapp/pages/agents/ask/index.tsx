@@ -10,11 +10,11 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { DevPlusIcon } from '@dailydotdev/shared/src/components/icons';
 import { plusUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -163,7 +163,7 @@ const AskPage = (): ReactElement => {
                 daily-dev-ask requires a Plus subscription. Upgrade to get API
                 access and connect your AI tools.
               </Typography>
-              <Button
+              <ButtonV2
                 tag="a"
                 href={plusUrl}
                 variant={ButtonVariant.Primary}
@@ -183,7 +183,7 @@ const AskPage = (): ReactElement => {
                 }}
               >
                 Upgrade to Plus
-              </Button>
+              </ButtonV2>
             </div>
           )}
 

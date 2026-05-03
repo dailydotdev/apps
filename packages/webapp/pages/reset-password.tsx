@@ -5,9 +5,9 @@ import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import ChangePasswordForm from '@dailydotdev/shared/src/components/auth/ChangePasswordForm';
 import { AuthModalText } from '@dailydotdev/shared/src/components/auth/common';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 const ResetPassword = (): ReactElement | null => {
   const router = useRouter();
@@ -29,13 +29,13 @@ const ResetPassword = (): ReactElement | null => {
               ? 'This password reset link has expired or is invalid. Please request a new one.'
               : 'Invalid password reset link. Please request a new one.'}
           </AuthModalText>
-          <Button
+          <ButtonV2
             className="mt-6"
             variant={ButtonVariant.Primary}
             onClick={() => router.push('/')}
           >
             Go to homepage
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     );

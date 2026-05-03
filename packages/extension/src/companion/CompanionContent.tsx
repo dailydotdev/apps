@@ -9,10 +9,10 @@ import {
 import '@dailydotdev/shared/src/styles/globals.css';
 import type { PostBootData } from '@dailydotdev/shared/src/lib/boot';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useCopyLink } from '@dailydotdev/shared/src/hooks/useCopy';
 import { useUpvoteQuery } from '@dailydotdev/shared/src/hooks/useUpvoteQuery';
 import { postLogEvent } from '@dailydotdev/shared/src/lib/feed';
@@ -74,7 +74,7 @@ export default function CompanionContent({
           content="Copy link"
           className="whitespace-nowrap shadow-2"
         >
-          <Button
+          <ButtonV2
             icon={<CopyIcon />}
             variant={ButtonVariant.Tertiary}
             color={copying ? ButtonColor.Avocado : undefined}

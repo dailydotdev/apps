@@ -28,7 +28,7 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/common';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
@@ -149,7 +149,7 @@ const QuestionsSetupPage = (): ReactElement => {
               <Typography color={TypographyColor.Tertiary}>
                 New questions
               </Typography>
-              <Button
+              <ButtonV2
                 type="button"
                 variant={ButtonVariant.Secondary}
                 onClick={() => {
@@ -168,7 +168,7 @@ const QuestionsSetupPage = (): ReactElement => {
                 icon={<PlusIcon />}
               >
                 Add
-              </Button>
+              </ButtonV2>
             </article>
           )}
         </div>

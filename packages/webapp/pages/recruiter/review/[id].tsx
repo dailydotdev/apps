@@ -7,10 +7,10 @@ import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportu
 import { updateOpportunityStateOptions } from '@dailydotdev/shared/src/features/opportunity/mutations';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -129,13 +129,13 @@ const ReviewDetailPage = (): ReactElement | null => {
         <Typography type={TypographyType.Title1} bold>
           Job not found
         </Typography>
-        <Button
+        <ButtonV2
           tag="a"
           href={`${webappUrl}recruiter/review`}
           variant={ButtonVariant.Secondary}
         >
           Back to review queue
-        </Button>
+        </ButtonV2>
       </div>
     );
   }
@@ -148,13 +148,13 @@ const ReviewDetailPage = (): ReactElement | null => {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Link href={`${webappUrl}recruiter/review`}>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<ArrowIcon className="rotate-180" />}
           >
             Back to queue
-          </Button>
+          </ButtonV2>
         </Link>
       </div>
 
@@ -176,7 +176,7 @@ const ReviewDetailPage = (): ReactElement | null => {
           </Typography>
         </div>
         {opportunity.state === OpportunityState.IN_REVIEW && (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             icon={<VIcon />}
@@ -184,7 +184,7 @@ const ReviewDetailPage = (): ReactElement | null => {
             disabled={isPending}
           >
             Approve & Go Live
-          </Button>
+          </ButtonV2>
         )}
       </div>
 

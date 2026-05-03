@@ -34,9 +34,9 @@ import {
   UserIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -430,7 +430,7 @@ const PostAnalyticsPage = ({
       <LayoutHeader
         className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
       >
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Medium}
           icon={<ArrowIcon className="-rotate-90" />}
@@ -688,7 +688,7 @@ const PostAnalyticsPage = ({
                 )}
               </FlexRow>
             </div>
-            <Button
+            <ButtonV2
               icon={campaignCompleted && <RefreshIcon />}
               size={ButtonSize.Small}
               variant={
@@ -712,7 +712,7 @@ const PostAnalyticsPage = ({
               loading={isLoadingCancel}
             >
               {!campaignCompleted ? 'Stop boost' : 'Boost again'}
-            </Button>
+            </ButtonV2>
           </SectionContainer>
         )}
         {!!campaign && <Divider className={dividerClassName} />}

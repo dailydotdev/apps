@@ -8,10 +8,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PassiveIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -54,7 +54,7 @@ const PassiveDonePage = (): ReactElement => {
           </Typography>
         </FlexCol>
         <FlexCol className="items-center gap-4">
-          <Button
+          <ButtonV2
             size={ButtonSize.Large}
             variant={ButtonVariant.Primary}
             className="w-full tablet:w-80"
@@ -63,7 +63,7 @@ const PassiveDonePage = (): ReactElement => {
             href={webappUrl}
           >
             Back to daily.dev
-          </Button>
+          </ButtonV2>
           <CandidatePreferenceButton
             label="Update job preferences"
             targetId={TargetId.OpportunityPassiveDonePage}

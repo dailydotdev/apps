@@ -9,10 +9,10 @@ import {
   ShareIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -117,7 +117,7 @@ const RecruiterPaymentPage = (): ReactElement => {
     <div className="flex min-h-screen flex-col laptop:flex-row">
       <div className="flex flex-1 flex-col items-end bg-background-subtle p-10 px-20">
         <div className="flex w-full max-w-[30rem] gap-1">
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<MoveToIcon className="rotate-180" />}
@@ -245,14 +245,14 @@ const RecruiterPaymentPage = (): ReactElement => {
                     </Typography>
                   </FlexCol>
                 </div>
-                <Button
+                <ButtonV2
                   className="mt-4 w-full"
                   variant={ButtonVariant.Secondary}
                   icon={<ShareIcon />}
                   onClick={handleSharePaymentLink}
                 >
                   Copy payment link
-                </Button>
+                </ButtonV2>
               </div>
             </div>
           </div>

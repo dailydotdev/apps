@@ -32,12 +32,12 @@ import type {
   TopPostsData,
 } from '@dailydotdev/shared/src/graphql/feed';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { ButtonProps } from '@dailydotdev/shared/src/components/buttons/Button';
+import type { ButtonV2Props } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PageInfoHeader } from '@dailydotdev/shared/src/components/utilities';
 import useTagAndSource from '@dailydotdev/shared/src/hooks/useTagAndSource';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -349,7 +349,7 @@ const TagPage = ({
     return 'unfollowed';
   }, [feedSettings, tag]);
 
-  const followButtonProps: ButtonProps<'button'> = {
+  const followButtonProps: ButtonV2Props<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'followed' ? <XIcon /> : <PlusIcon />,
     onClick: async (): Promise<void> => {
@@ -365,7 +365,7 @@ const TagPage = ({
     },
   };
 
-  const blockButtonProps: ButtonProps<'button'> = {
+  const blockButtonProps: ButtonV2Props<'button'> = {
     size: ButtonSize.Small,
     icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
     onClick: async (): Promise<void> => {
@@ -403,22 +403,22 @@ const TagPage = ({
         </div>
         <div className="flex flex-row gap-3">
           {tagStatus !== 'blocked' && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               {...followButtonProps}
               aria-label={tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
             >
               {tagStatus === 'followed' ? 'Unfollow' : 'Follow'}
-            </Button>
+            </ButtonV2>
           )}
           {tagStatus !== 'followed' && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Float}
               {...blockButtonProps}
               aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
             >
               {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
-            </Button>
+            </ButtonV2>
           )}
           <CustomFeedOptionsMenu
             onCreateNewFeed={() =>
@@ -525,7 +525,7 @@ const TagPage = ({
                   By roadmap.sh
                 </p>
               </div>
-              <Button
+              <ButtonV2
                 icon={<OpenLinkIcon />}
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}

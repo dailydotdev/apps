@@ -12,9 +12,9 @@ import {
   PageHeaderTitle,
 } from '@dailydotdev/shared/src/components/layout/common';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useSquad } from '@dailydotdev/shared/src/hooks';
 import { useRouter } from 'next/router';
@@ -64,7 +64,7 @@ export default function ModerateSquadPage({
   return (
     <ManageSquadPageContainer>
       <PageHeader className="border-b-0">
-        <Button
+        <ButtonV2
           onClick={() =>
             handle ? router.push(`/squads/${handle}`) : router.back()
           }

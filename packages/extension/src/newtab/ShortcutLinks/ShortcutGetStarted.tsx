@@ -7,10 +7,10 @@ import {
 } from '@dailydotdev/shared/src/lib/image';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
 import { useThemedAsset } from '@dailydotdev/shared/src/hooks/utils';
@@ -75,20 +75,20 @@ export const ShortcutGetStarted = ({
         </ShortcutItemPlaceholder>
       </div>
       <div className="flex gap-4">
-        <Button
+        <ButtonV2
           onClick={() => completeActionThenFire(onCustomLinksClick)}
           size={ButtonSize.Medium}
           variant={ButtonVariant.Primary}
         >
           Add shortcuts
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           onClick={() => completeActionThenFire(onTopSitesClick)}
           size={ButtonSize.Medium}
           variant={ButtonVariant.Float}
         >
           Skip for now
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import LogoIcon from '@dailydotdev/shared/src/svg/LogoIcon';
 import classNames from 'classnames';
@@ -39,7 +39,7 @@ function CompanionToggle({
         content={companionState ? 'Close summary' : 'Open summary'}
         className={tooltipContainerClassName}
       >
-        <Button
+        <ButtonV2
           variant={
             companionState ? ButtonVariant.Secondary : ButtonVariant.Tertiary
           }

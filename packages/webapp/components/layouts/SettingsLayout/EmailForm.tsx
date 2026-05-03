@@ -1,7 +1,7 @@
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { PasswordFieldProps } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import { PasswordField } from '@dailydotdev/shared/src/components/fields/PasswordField';
 import type { TextFieldProps } from '@dailydotdev/shared/src/components/fields/TextField';
@@ -135,17 +135,17 @@ function EmailForm({
         valueChanged={setCode}
         onChange={() => codeHint && setCodeHint('')}
         actionButton={
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             name="getCode"
             className="w-[10.875rem]"
             disabled={!email || timer > 0}
           >
             {timer === 0 ? 'Send code' : `Resend code: ${timer}s`}
-          </Button>
+          </ButtonV2>
         }
       />
-      <Button
+      <ButtonV2
         data-testid="change_email_btn"
         className="mt-3 w-fit"
         name="changeEmail"
@@ -153,7 +153,7 @@ function EmailForm({
         variant={ButtonVariant.Primary}
       >
         Change email
-      </Button>
+      </ButtonV2>
     </form>
   );
 }

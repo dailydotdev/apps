@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -28,14 +28,14 @@ export const PlusHeader = (): ReactElement | null => {
 
   return (
     <header className="flex h-16 w-full items-center justify-center gap-4 border-b border-border-subtlest-tertiary bg-background-default px-4 tablet:bg-transparent laptop:justify-start">
-      <Button
+      <ButtonV2
         variant={isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float}
         icon={<ArrowIcon className="-rotate-90" />}
         onClick={onBackClick}
         className="absolute left-4 laptop:relative laptop:left-0"
       >
         {!isMobile ? 'Back' : undefined}
-      </Button>
+      </ButtonV2>
       <LogoWithPlus />
     </header>
   );

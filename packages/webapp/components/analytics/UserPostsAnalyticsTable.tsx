@@ -7,9 +7,9 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { BoostIcon } from '@dailydotdev/shared/src/components/icons/Boost';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib';
@@ -186,14 +186,14 @@ export const UserPostsAnalyticsTable = ({
         </div>
       </div>
       {hasNextPage && (
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           onClick={() => fetchNextPage()}
           loading={isFetchingNextPage}
           className="mx-auto"
         >
           Load more
-        </Button>
+        </ButtonV2>
       )}
     </div>
   );

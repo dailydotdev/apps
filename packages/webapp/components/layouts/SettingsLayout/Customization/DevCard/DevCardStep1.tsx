@@ -6,10 +6,10 @@ import { useMutation } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import DevCardPlaceholder from '@dailydotdev/shared/src/components/DevCardPlaceholder';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -53,14 +53,14 @@ export const DevCardStep1 = ({ onGenerateImage }: Step1Props): ReactElement => {
         your reading habits, top topics, and more.
       </Typography>
       <div className="mt-10 h-12">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={() => onGenerate()}
           loading={isLoading}
         >
           Generate now
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

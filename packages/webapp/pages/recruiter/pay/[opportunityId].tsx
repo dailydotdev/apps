@@ -5,10 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { NextSeo } from 'next-seo';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -82,13 +82,13 @@ const PaymentCompleteMessage = ({
           value={recruiterLink}
           className="flex-1 truncate rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-tertiary typo-callout"
         />
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Medium}
           onClick={handleCopyLink}
         >
           {copied ? 'Copied!' : 'Copy'}
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );
@@ -141,7 +141,7 @@ const PlanSelector = ({
     </Typography>
     <div className="flex gap-2">
       {prices.map((price) => (
-        <Button
+        <ButtonV2
           key={price.priceId}
           variant={
             selectedPriceId === price.priceId
@@ -152,7 +152,7 @@ const PlanSelector = ({
           onClick={() => onSelect(price.priceId)}
         >
           {price.metadata.title || 'Standard'}
-        </Button>
+        </ButtonV2>
       ))}
     </div>
   </div>

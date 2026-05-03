@@ -11,9 +11,9 @@ import type { NextSeoProps } from 'next-seo';
 
 import { useSquadPendingPosts } from '@dailydotdev/shared/src/hooks/squads/useSquadPendingPosts';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { TimerIcon } from '@dailydotdev/shared/src/components/icons';
 
 import {
@@ -38,7 +38,7 @@ function MySquadsPage(): ReactElement | null {
   return (
     <SquadDirectoryLayout className="gap-3">
       {isModeratorInAnySquad && count > 0 && (
-        <Button
+        <ButtonV2
           className="!px-0"
           tag="a"
           href={`${webappUrl}squads/moderate`}
@@ -53,7 +53,7 @@ function MySquadsPage(): ReactElement | null {
           >
             {count}
           </Typography>
-        </Button>
+        </ButtonV2>
       )}
       {squads?.map((squad) => (
         <SquadList key={squad.handle} squad={squad} shouldShowCount={false} />

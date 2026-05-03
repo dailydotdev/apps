@@ -5,9 +5,9 @@ import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PlusIcon, SitesIcon } from '@dailydotdev/shared/src/components/icons';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -107,14 +107,14 @@ const SourcesPage = ({
         <BreadCrumbs>
           <SitesIcon size={IconSize.XSmall} secondary /> Sources
         </BreadCrumbs>
-        <Button
+        <ButtonV2
           icon={<PlusIcon />}
           variant={isLaptop ? ButtonVariant.Secondary : ButtonVariant.Float}
           className="mb-6 ml-4 tablet:ml-0 laptop:float-right"
           onClick={() => openModal({ type: LazyModal.NewSource })}
         >
           Suggest new source
-        </Button>
+        </ButtonV2>
       </div>
       <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 laptopXL:grid-cols-4">
         <SourceTopList

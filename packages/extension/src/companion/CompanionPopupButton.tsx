@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
 import React, { useState, useEffect } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import SimpleTooltip from '@dailydotdev/shared/src/components/tooltips/SimpleTooltip';
 import { AppIcon as CompanionIcon } from '@dailydotdev/shared/src/components/icons';
 import { ExperimentWinner } from '@dailydotdev/shared/src/lib/featureValues';
@@ -67,7 +67,7 @@ export const CompanionPopupButton = (): ReactElement => {
       visible={showCompanionPermission}
       onClickOutside={closeCompanionPopupButton}
     >
-      <Button
+      <ButtonV2
         onClick={onButtonClick}
         variant={ButtonVariant.Float}
         className="hidden laptop:flex"

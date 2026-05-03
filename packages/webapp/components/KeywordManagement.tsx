@@ -12,10 +12,10 @@ import { NextSeo } from 'next-seo';
 import ActivitySection from '@dailydotdev/shared/src/components/profile/ActivitySection';
 import { smallPostImage } from '@dailydotdev/shared/src/lib/image';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { ResponsivePageContainer } from '@dailydotdev/shared/src/components/utilities';
 import dynamic from 'next/dynamic';
@@ -154,22 +154,22 @@ export default function KeywordManagement({
           styles.buttons,
         )}
       >
-        <Button
+        <ButtonV2
           loading={currentAction === 'allow'}
           onClick={onAllow}
           disabled={disableActions}
           variant={ButtonVariant.Primary}
         >
           Allow
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           disabled={disableActions}
           onClick={onSynonym}
           variant={ButtonVariant.Secondary}
         >
           Synonym
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           loading={currentAction === 'deny'}
           onClick={onDeny}
           disabled={disableActions}
@@ -177,7 +177,7 @@ export default function KeywordManagement({
           color={ButtonColor.Ketchup}
         >
           Deny
-        </Button>
+        </ButtonV2>
       </div>
       {(windowLoaded || currentAction === 'synonym') && (
         <KeywordSynonymModal

@@ -11,9 +11,9 @@ import {
   betterAuthVerifyEmailOTP,
 } from '@dailydotdev/shared/src/lib/betterAuth';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 const Verification = (): ReactElement | null => {
   const router = useRouter();
@@ -34,13 +34,13 @@ const Verification = (): ReactElement | null => {
           <AuthModalText className="text-center">
             Invalid verification link. Please request a new verification email.
           </AuthModalText>
-          <Button
+          <ButtonV2
             className="mt-6"
             variant={ButtonVariant.Primary}
             onClick={() => router.push('/')}
           >
             Go to homepage
-          </Button>
+          </ButtonV2>
         </div>
       </div>
     );

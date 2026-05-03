@@ -2,10 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
@@ -46,7 +46,7 @@ export const AccountPageContainer = ({
   return (
     <AccountPageContent className={classNames('relative', className.container)}>
       <AccountPageHeading className={classNames('sticky', className.heading)}>
-        <Button
+        <ButtonV2
           className={classNames('mr-2 flex tablet:hidden', { hidden: onBack })}
           icon={<ArrowIcon className="-rotate-90" />}
           variant={ButtonVariant.Tertiary}
@@ -54,7 +54,7 @@ export const AccountPageContainer = ({
           onClick={() => setIsOpen(true)}
         />
         {onBack && (
-          <Button
+          <ButtonV2
             className="mr-2"
             icon={<ArrowIcon className="-rotate-90" />}
             variant={ButtonVariant.Tertiary}

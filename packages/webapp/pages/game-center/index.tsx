@@ -62,10 +62,10 @@ import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { AchievementCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementCard';
 import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import {
@@ -833,7 +833,7 @@ function GameCenterPage({
                           }
                           side="top"
                         >
-                          <Button
+                          <ButtonV2
                             variant={ButtonVariant.Subtle}
                             size={ButtonSize.Small}
                             icon={

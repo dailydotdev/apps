@@ -1,8 +1,8 @@
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import ControlledTextField from '@dailydotdev/shared/src/components/fields/ControlledTextField';
@@ -44,7 +44,7 @@ const ProfileIndex = (): ReactElement => {
         <AccountPageContainer
           title="Profile"
           actions={
-            <Button
+            <ButtonV2
               type="submit"
               className="ml-auto"
               variant={ButtonVariant.Primary}
@@ -53,7 +53,7 @@ const ProfileIndex = (): ReactElement => {
               loading={isLoading}
             >
               Save
-            </Button>
+            </ButtonV2>
           }
         >
           <div className="flex flex-col gap-6">

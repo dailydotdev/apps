@@ -18,9 +18,9 @@ import {
   ImageType,
 } from '@dailydotdev/shared/src/components/image/Image';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useOrganization } from '@dailydotdev/shared/src/features/organizations/hooks/useOrganization';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -165,7 +165,7 @@ const Page = ({
               </Typography>
             </div>
 
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               disabled={seats.available <= 0}
               className="ml-auto"
@@ -173,7 +173,7 @@ const Page = ({
               loading={isJoiningOrganization}
             >
               Join
-            </Button>
+            </ButtonV2>
           </div>
 
           {seats.available <= 0 && (

@@ -10,10 +10,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { MailIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -141,7 +141,7 @@ const NotifyPage = (): ReactElement => {
         </FlexCol>
         <FlexRow className="justify-center">
           <Link href={`${opportunityUrl}/${opportunityId}/done`} passHref>
-            <Button
+            <ButtonV2
               tag="a"
               size={ButtonSize.Large}
               variant={ButtonVariant.Primary}
@@ -149,7 +149,7 @@ const NotifyPage = (): ReactElement => {
               onClick={handleClick}
             >
               Continue
-            </Button>
+            </ButtonV2>
           </Link>
         </FlexRow>
       </FlexCol>

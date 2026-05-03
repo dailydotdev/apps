@@ -17,7 +17,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   ButtonSize,
   ButtonVariant,
@@ -51,7 +51,7 @@ const JobsHowItWorksPage = (): ReactElement => {
       <div className="flex items-center gap-2 border-b border-border-subtlest-tertiary px-5 py-3">
         <div className="flex gap-2">
           <Link href={opportunityUrl}>
-            <Button
+            <ButtonV2
               tag="a"
               variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}

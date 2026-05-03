@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ModalClose } from '@dailydotdev/shared/src/components/modals/common/ModalClose';
 import { CookieIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -81,23 +81,23 @@ export default function CookieBanner({
           .
         </span>
         <div className="flex flex-row gap-2">
-          <Button
+          <ButtonV2
             onClick={onAcceptAll}
             size={ButtonSize.Small}
             variant={ButtonVariant.Primary}
             className="flex-1 tablet:flex-[unset]"
           >
             {isGdprCovered ? 'Accept all' : 'I understand'}
-          </Button>
+          </ButtonV2>
           {isGdprCovered && (
-            <Button
+            <ButtonV2
               onClick={onOpenModal}
               size={ButtonSize.Small}
               variant={ButtonVariant.Float}
               className="flex-1 tablet:flex-[unset]"
             >
               Customize
-            </Button>
+            </ButtonV2>
           )}
         </div>
       </div>

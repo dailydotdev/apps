@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 /**
  * InspirationButtons — visual references for the /dev/buttons review page.

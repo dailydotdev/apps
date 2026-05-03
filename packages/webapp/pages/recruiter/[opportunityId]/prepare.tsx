@@ -12,11 +12,11 @@ import {
   TypographyColor,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
   ButtonSize,
   ButtonColor,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { MoveToIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
@@ -125,7 +125,7 @@ function PreparePageContent(): ReactElement {
               show={hasIncompleteFields}
             >
               <div>
-                <Button
+                <ButtonV2
                   variant={ButtonVariant.Primary}
                   color={ButtonColor.Cabbage}
                   onClick={handleNextStep}
@@ -134,7 +134,7 @@ function PreparePageContent(): ReactElement {
                 >
                   <span className="mr-1.5">Outreach questions</span>
                   <MoveToIcon />
-                </Button>
+                </ButtonV2>
               </div>
             </SimpleTooltip>
           </header>
@@ -218,7 +218,7 @@ function PreparePageContent(): ReactElement {
             show={hasIncompleteFields}
           >
             <div>
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
                 size={ButtonSize.Small}
@@ -228,7 +228,7 @@ function PreparePageContent(): ReactElement {
               >
                 Next
                 <MoveToIcon size={IconSize.Small} className="ml-1" />
-              </Button>
+              </ButtonV2>
             </div>
           </SimpleTooltip>
         </header>

@@ -15,9 +15,9 @@ import {
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { PreferenceOptionsForm } from '@dailydotdev/shared/src/components/opportunity/PreferenceOptionsForm';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { FeelingLazy } from '@dailydotdev/shared/src/features/profile/components/FeelingLazy';
 import classNames from 'classnames';
 import {
@@ -158,7 +158,7 @@ const JobPreferencesPage = (): ReactElement => {
         {!modeDisabled && (
           <FlexCol className="gap-3">
             {options.map(({ key, icon, title, description }) => (
-              <Button
+              <ButtonV2
                 key={key}
                 variant={ButtonVariant.Option}
                 className={classNames(
@@ -194,7 +194,7 @@ const JobPreferencesPage = (): ReactElement => {
                     </Typography>
                   </FlexCol>
                 </div>
-              </Button>
+              </ButtonV2>
             ))}
           </FlexCol>
         )}

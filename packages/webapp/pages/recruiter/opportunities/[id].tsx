@@ -19,10 +19,10 @@ import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/p
 import { useRequirePayment } from '@dailydotdev/shared/src/features/opportunity/hooks/useRequirePayment';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -106,7 +106,7 @@ const CandidateCard = ({
                 </Typography>
               </div>
               <div className="flex gap-2">
-                <Button
+                <ButtonV2
                   tag="a"
                   href={profileUrl}
                   target="_blank"
@@ -117,7 +117,7 @@ const CandidateCard = ({
                 />
                 {user.socialLinks?.find((link) => link.platform === 'linkedin')
                   ?.url && (
-                  <Button
+                  <ButtonV2
                     tag="a"
                     href={
                       user.socialLinks.find(
@@ -188,7 +188,7 @@ const CandidateCard = ({
         {/* Links */}
         {cvUrl && (
           <div className="flex flex-wrap gap-3">
-            <Button
+            <ButtonV2
               tag="a"
               href={cvUrl}
               target="_blank"
@@ -197,7 +197,7 @@ const CandidateCard = ({
               size={ButtonSize.Small}
             >
               Download CV
-            </Button>
+            </ButtonV2>
           </div>
         )}
 
@@ -265,7 +265,7 @@ const CandidateCard = ({
         {/* Action Buttons */}
         {status === 'candidate_accepted' && (
           <div className="flex gap-3">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               onClick={() => onApprove(user.id)}
@@ -273,8 +273,8 @@ const CandidateCard = ({
               icon={<VIcon />}
             >
               Approve
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Medium}
               onClick={() => onReject(user.id)}
@@ -282,7 +282,7 @@ const CandidateCard = ({
               icon={<MiniCloseIcon />}
             >
               Reject
-            </Button>
+            </ButtonV2>
           </div>
         )}
 

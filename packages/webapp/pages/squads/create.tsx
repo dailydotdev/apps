@@ -41,9 +41,9 @@ import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { SettingsIcon } from '@dailydotdev/shared/src/components/icons';
 import { LinkWithTooltip } from '@dailydotdev/shared/src/components/tooltips/LinkWithTooltip';
 import { getSquadsCreatePrefillState } from '../../lib/squadsCreatePrefill';
@@ -296,7 +296,7 @@ function CreatePost(): ReactElement {
                 href={`${settingsUrl}/composition`}
                 passHref
               >
-                <Button
+                <ButtonV2
                   icon={<SettingsIcon />}
                   size={ButtonSize.Small}
                   className="ml-auto mr-3 self-center text-text-quaternary"

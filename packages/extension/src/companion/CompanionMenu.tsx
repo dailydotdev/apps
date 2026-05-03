@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   BookmarkIcon,
   DiscussIcon as CommentIcon,
@@ -363,7 +363,7 @@ export default function CompanionMenu({
           }
           className={tooltipContainerClassName}
         >
-          <Button
+          <ButtonV2
             icon={
               <UpvoteIcon secondary={post?.userState?.vote === UserVote.Up} />
             }
@@ -378,7 +378,7 @@ export default function CompanionMenu({
           content="Add comment"
           className={tooltipContainerClassName}
         >
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.BlueCheese}
             pressed={post?.commented}
@@ -402,7 +402,7 @@ export default function CompanionMenu({
           content={`${post?.bookmarked ? 'Remove from' : 'Save to'} bookmarks`}
           className={tooltipContainerClassName}
         >
-          <Button
+          <ButtonV2
             icon={<BookmarkIcon secondary={post?.bookmarked} />}
             pressed={post?.bookmarked}
             onClick={toggleBookmark}
@@ -415,7 +415,7 @@ export default function CompanionMenu({
           content="Share post"
           className={tooltipContainerClassName}
         >
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
             onClick={onShare}
@@ -427,7 +427,7 @@ export default function CompanionMenu({
             tooltip={{ content: 'More options', side: 'left' }}
             asChild
           >
-            <Button variant={ButtonVariant.Tertiary} icon={<MenuIcon />} />
+            <ButtonV2 variant={ButtonVariant.Tertiary} icon={<MenuIcon />} />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuOptions options={options} />

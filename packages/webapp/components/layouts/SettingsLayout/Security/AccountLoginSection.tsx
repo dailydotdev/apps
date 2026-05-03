@@ -1,8 +1,8 @@
 import type { Provider } from '@dailydotdev/shared/src/components/auth/common';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
@@ -56,7 +56,7 @@ function AccountLoginSection({
         )}
       >
         {providers.map(({ label, value, icon }) => (
-          <Button
+          <ButtonV2
             key={value}
             icon={icon}
             className={className?.button}
@@ -69,7 +69,7 @@ function AccountLoginSection({
             }
           >
             {providerLabel[providerActionType]} {label}
-          </Button>
+          </ButtonV2>
         ))}
         {children}
       </div>

@@ -40,10 +40,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -131,7 +131,7 @@ const AccountInvitePage = (): ReactElement => {
               superpowers to supercharge their daily.dev journey.
             </Typography>
           </div>
-          <Button
+          <ButtonV2
             icon={<GiftIcon size={IconSize.Small} secondary />}
             variant={ButtonVariant.Secondary}
             color={ButtonColor.Bacon}
@@ -147,7 +147,7 @@ const AccountInvitePage = (): ReactElement => {
             className="max-w-fit border-action-plus-default text-action-plus-default"
           >
             Buy as gift
-          </Button>
+          </ButtonV2>
         </div>
       )}
       <InviteLinkInput

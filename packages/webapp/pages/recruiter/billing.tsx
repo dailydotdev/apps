@@ -6,10 +6,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { managePlusUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   getLayout,
@@ -32,7 +32,7 @@ function RecruiterBillingPage(): ReactElement {
             change your plan through our billing portal.
           </Typography>
         </div>
-        <Button
+        <ButtonV2
           tag="a"
           href={managePlusUrl}
           target="_blank"
@@ -40,7 +40,7 @@ function RecruiterBillingPage(): ReactElement {
           size={ButtonSize.Small}
         >
           Manage subscription
-        </Button>
+        </ButtonV2>
       </div>
     </div>
   );

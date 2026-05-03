@@ -21,9 +21,9 @@ import { opportunityLiveIllustration } from '@dailydotdev/shared/src/lib/image';
 import { Portal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { recruiterLayoutHeaderClassName } from '@dailydotdev/shared/src/features/opportunity/types';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { OpportunityFooter } from '@dailydotdev/shared/src/components/opportunity/OpportunityFooter';
 import {
   defaultOpenGraph,
@@ -45,7 +45,7 @@ const ApprovedPage = (): ReactElement => {
   const router = useRouter();
 
   const buttonElement = (
-    <Button
+    <ButtonV2
       className="w-full"
       variant={ButtonVariant.Primary}
       onClick={() => {
@@ -53,7 +53,7 @@ const ApprovedPage = (): ReactElement => {
       }}
     >
       Back to daily.dev
-    </Button>
+    </ButtonV2>
   );
 
   return (

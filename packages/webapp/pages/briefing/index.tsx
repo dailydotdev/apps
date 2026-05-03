@@ -10,10 +10,10 @@ import { BriefListItem } from '@dailydotdev/shared/src/components/brief/BriefLis
 import { BriefListHeading } from '@dailydotdev/shared/src/components/brief/BriefListHeading';
 import { BriefListSection } from '@dailydotdev/shared/src/components/brief/BriefListSection';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   ArrowIcon,
   MagicIcon,
@@ -156,7 +156,7 @@ const Page = (): ReactElement => {
         <main className="relative flex flex-1 flex-col gap-6">
           <header className="flex items-center gap-2 border-b border-border-subtlest-tertiary p-4 laptop:border-none laptop:pb-0 laptop:pt-6">
             <Link href={`${webappUrl}bookmarks`}>
-              <Button
+              <ButtonV2
                 className="laptop:hidden"
                 tag="a"
                 icon={<ArrowIcon className="-rotate-90" />}
@@ -169,15 +169,15 @@ const Page = (): ReactElement => {
             </Typography>
             <div className="ml-auto flex items-center gap-2">
               {isNotPlus && !emptyFeed && !hasTodayBrief && (
-                <Button
+                <ButtonV2
                   icon={<MagicIcon aria-hidden />}
                   onClick={() => router.push('/briefing/generate')}
                   variant={ButtonVariant.Primary}
                 >
                   Generate Brief
-                </Button>
+                </ButtonV2>
               )}
-              <Button
+              <ButtonV2
                 icon={<SettingsIcon className="text-text-secondary" />}
                 onClick={() => {
                   router?.push(`${settingsUrl}/notifications`);

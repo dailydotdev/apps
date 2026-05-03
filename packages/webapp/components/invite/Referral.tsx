@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ProfileImageLink } from '@dailydotdev/shared/src/components/profile/ProfileImageLink';
 import {
   cloudinaryReferralCampaignGenericReferralBackgroundDark,
@@ -84,7 +84,7 @@ export function Referral({
           Personalized news feed, dev communities and search, much better than
           what’s out there. Maybe 😉
         </p>
-        <Button
+        <ButtonV2
           size={ButtonSize.Large}
           variant={ButtonVariant.Primary}
           // important has been used is some classnames to override the default styles as agreed on [thread](https://dailydotdev.slack.com/archives/C05P9ET7S9K/p1699023366663489?thread_ts=1699011522.350609&cid=C05P9ET7S9K)
@@ -100,7 +100,7 @@ export function Referral({
             <BrowsersIcon className="h-[1.9rem] w-[3.7rem] text-text-primary tablet:h-10 tablet:w-20" />
             Try it now - It&apos;s free
           </FlexCentered>
-        </Button>
+        </ButtonV2>
       </div>
       <div className="laptop:initial fixed -bottom-1/2 flex h-full w-full flex-auto laptop:bottom-[unset]">
         <div className="relative z-1 m-auto mx-2 flex w-fit justify-center self-center laptop:absolute laptop:right-[-7.5rem] laptop:w-[initial] laptopL:-right-24">

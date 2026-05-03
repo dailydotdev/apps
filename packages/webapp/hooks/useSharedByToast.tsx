@@ -15,7 +15,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyTag,
@@ -81,7 +81,7 @@ const useSharedByToast = (): void => {
             </a>
           </Link>
           {showFollow && (
-            <Button
+            <ButtonV2
               onClick={() => {
                 follow({
                   entity: ContentPreferenceType.User,
@@ -93,7 +93,7 @@ const useSharedByToast = (): void => {
               size={ButtonSize.Small}
             >
               Follow
-            </Button>
+            </ButtonV2>
           )}
         </div>,
       );

@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import {
   DropdownMenu,
@@ -95,7 +95,7 @@ export function ShortcutLinksHubMenu({
   return (
     <DropdownMenu open={menuOpen} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button
+        <ButtonV2
           type="button"
           variant={ButtonVariant.Tertiary}
           size={ButtonSize.Small}

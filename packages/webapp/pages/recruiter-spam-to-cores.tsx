@@ -28,7 +28,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { UploadIcon } from '@dailydotdev/shared/src/components/icons/Upload';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useCopyText } from '@dailydotdev/shared/src/hooks/useCopy';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { defaultSeo } from '../next-seo';
@@ -180,7 +180,7 @@ const HowItWorksSection = (): ReactElement => {
               Click to copy and paste into your LinkedIn reply
             </Typography>
           </FlexCol>
-          <Button
+          <ButtonV2
             icon={<CopyIcon />}
             variant={ButtonVariant.Tertiary}
             className="ml-auto"
@@ -265,14 +265,14 @@ const GetStartedSection = (): ReactElement => {
       <Typography center type={TypographyType.Title3} bold>
         Stop deleting recruiter spam. Start farming it!
       </Typography>
-      <Button
+      <ButtonV2
         tag="a"
         href={`${formLink}#user_id=${user?.id}`}
         target="_blank"
         variant={ButtonVariant.Primary}
       >
         I want my Cores
-      </Button>
+      </ButtonV2>
     </FlexCol>
   );
 };

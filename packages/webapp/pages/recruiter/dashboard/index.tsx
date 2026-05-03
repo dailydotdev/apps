@@ -7,9 +7,9 @@ import { getOpportunitiesOptions } from '@dailydotdev/shared/src/features/opport
 import type { Opportunity } from '@dailydotdev/shared/src/features/opportunity/types';
 import { OpportunityState } from '@dailydotdev/shared/src/features/opportunity/protobuf/opportunity';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyColor,
@@ -31,7 +31,7 @@ const OpportunityCard = ({
   const { title, organization, id } = opportunity;
 
   return (
-    <Button
+    <ButtonV2
       tag="a"
       href={`${webappUrl}recruiter/opportunities/${id}`}
       variant={ButtonVariant.Tertiary}
@@ -59,7 +59,7 @@ const OpportunityCard = ({
           Live
         </span>
       </div>
-    </Button>
+    </ButtonV2>
   );
 };
 

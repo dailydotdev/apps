@@ -4,10 +4,10 @@ import type { NextSeoProps } from 'next-seo';
 import type { WithClassNameProps } from '@dailydotdev/shared/src/components/utilities';
 import { PageWidgets } from '@dailydotdev/shared/src/components/utilities';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   Typography,
   TypographyType,
@@ -192,7 +192,7 @@ const Wallet = (): ReactElement => {
               Core wallet
             </Typography>
             {canPurchaseCores && (
-              <Button
+              <ButtonV2
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
                 onClick={() => onBuyCoresClick({ target_id: 'Buy Cores' })}
@@ -205,7 +205,7 @@ const Wallet = (): ReactElement => {
                 )}
               >
                 Buy Cores
-              </Button>
+              </ButtonV2>
             )}
           </header>
           <div className="flex flex-col gap-6 p-6">
@@ -335,7 +335,7 @@ const Wallet = (): ReactElement => {
           )}
           <WidgetContainer className="flex flex-col">
             <div className="flex justify-around p-4">
-              <Button
+              <ButtonV2
                 tag="a"
                 target="_blank"
                 rel="noopener"
@@ -345,9 +345,9 @@ const Wallet = (): ReactElement => {
                 size={ButtonSize.Small}
               >
                 Docs
-              </Button>
+              </ButtonV2>
               <ListCardDivider className="mx-3" />
-              <Button
+              <ButtonV2
                 tag="a"
                 target="_blank"
                 rel="noopener"
@@ -357,7 +357,7 @@ const Wallet = (): ReactElement => {
                 size={ButtonSize.Small}
               >
                 Terms
-              </Button>
+              </ButtonV2>
             </div>
           </WidgetContainer>
         </PageWidgets>

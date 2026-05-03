@@ -13,11 +13,11 @@ import { useOrganization } from '@dailydotdev/shared/src/features/organizations/
 import { useRouter } from 'next/router';
 
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
@@ -110,14 +110,14 @@ const Page = (): ReactElement | null => {
       className={{ section: 'gap-6' }}
       actions={
         <>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Small}
             form="organization"
             loading={isUpdatingOrganization}
           >
             Save changes
-          </Button>
+          </ButtonV2>
         </>
       }
     >
@@ -200,7 +200,7 @@ const Page = (): ReactElement | null => {
           with any questions.
         </Typography>
 
-        <Button
+        <ButtonV2
           disabled={disableDeletion}
           loading={isDeletingOrganization}
           variant={ButtonVariant.Primary}
@@ -209,7 +209,7 @@ const Page = (): ReactElement | null => {
           onClick={onDeleteOrganization}
         >
           Delete organization
-        </Button>
+        </ButtonV2>
       </div>
     </AccountPageContainer>
   );

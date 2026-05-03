@@ -14,10 +14,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import {
   postWebKitMessage,
@@ -87,7 +87,7 @@ const PlusInfo = (): ReactElement => {
       </div>
 
       <div className="flex gap-3">
-        <Button
+        <ButtonV2
           tag="a"
           size={ButtonSize.Small}
           variant={ButtonVariant.Secondary}
@@ -119,8 +119,8 @@ const PlusInfo = (): ReactElement => {
           }}
         >
           Manage subscription
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           size={ButtonSize.Small}
           variant={ButtonVariant.Secondary}
           onClick={() => {
@@ -134,7 +134,7 @@ const PlusInfo = (): ReactElement => {
           }}
         >
           Gift Plus
-        </Button>
+        </ButtonV2>
       </div>
     </>
   );

@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import type { ModalProps } from '@dailydotdev/shared/src/components/modals/common/Modal';
@@ -101,20 +101,23 @@ export default function DndModal({
       <Modal.Footer justify={!isActive ? Justify.End : Justify.Between}>
         {isActive ? (
           <>
-            <Button variant={ButtonVariant.Secondary} onClick={onRequestClose}>
+            <ButtonV2
+              variant={ButtonVariant.Secondary}
+              onClick={onRequestClose}
+            >
               Keep paused
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Primary}
               onClick={() => onDndSettings(null)}
             >
               Unpause now
-            </Button>
+            </ButtonV2>
           </>
         ) : (
-          <Button variant={ButtonVariant.Primary} onClick={handleSubmit}>
+          <ButtonV2 variant={ButtonVariant.Primary} onClick={handleSubmit}>
             Done
-          </Button>
+          </ButtonV2>
         )}
       </Modal.Footer>
     </Modal>

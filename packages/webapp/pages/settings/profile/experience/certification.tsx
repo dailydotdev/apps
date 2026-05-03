@@ -1,10 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { PlusIcon } from '@dailydotdev/shared/src/components/icons';
 import type { NextSeoProps } from 'next-seo';
 import { UserExperienceType } from '@dailydotdev/shared/src/graphql/user/profile';
@@ -29,13 +29,13 @@ const CertificationsPage = (): ReactElement => {
         <Link
           href={`${webappUrl}settings/profile/experience/edit?type=${UserExperienceType.Certification}`}
         >
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
           >
             Add
-          </Button>
+          </ButtonV2>
         </Link>
       }
     >

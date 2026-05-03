@@ -1,9 +1,9 @@
 import AlertBanner from '@dailydotdev/shared/src/components/alert/AlertBanner';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
@@ -31,14 +31,14 @@ function EmailSentSection({
       </p>
       {onCancel && (
         <span className="mt-4 flex flex-row gap-4">
-          <Button
+          <ButtonV2
             onClick={onCancel}
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Secondary}
             className="w-fit"
           >
             Cancel Request
-          </Button>
+          </ButtonV2>
         </span>
       )}
     </AlertBanner>

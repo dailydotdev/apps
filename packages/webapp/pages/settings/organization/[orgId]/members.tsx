@@ -21,10 +21,10 @@ import {
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { isPrivilegedOrganizationRole } from '@dailydotdev/shared/src/features/organizations/utils';
 import type { OrganizationMember } from '@dailydotdev/shared/src/features/organizations/types';
@@ -158,7 +158,7 @@ const OrganizationOptionsMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Tertiary}
           className="my-auto"
           icon={<MenuIcon />}
@@ -369,17 +369,17 @@ const Page = (): ReactElement | null => {
       actions={
         <>
           {!isOwner && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               disabled={isLeavingOrganization}
               onClick={onLeaveClick}
             >
               Leave organization
-            </Button>
+            </ButtonV2>
           )}
           {isOwner && (
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Subtle}
               size={ButtonSize.Small}
               onClick={() => {
@@ -392,7 +392,7 @@ const Page = (): ReactElement | null => {
               }}
             >
               Manage seats
-            </Button>
+            </ButtonV2>
           )}
         </>
       }
@@ -412,7 +412,7 @@ const Page = (): ReactElement | null => {
                 Team members
               </Typography>
 
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Small}
                 icon={<AddUserIcon secondary />}
@@ -426,7 +426,7 @@ const Page = (): ReactElement | null => {
                 }}
               >
                 Invite member
-              </Button>
+              </ButtonV2>
             </div>
 
             {!isMobile && (

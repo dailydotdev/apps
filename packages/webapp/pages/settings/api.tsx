@@ -18,10 +18,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   PlusIcon,
   CopyIcon,
@@ -278,14 +278,14 @@ const CreateTokenModal = ({
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Medium}
           onClick={onClose}
         >
           Cancel
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
           onClick={handleCreate}
@@ -293,7 +293,7 @@ const CreateTokenModal = ({
           disabled={!name.trim()}
         >
           Create token
-        </Button>
+        </ButtonV2>
       </ModalFooter>
     </Modal>
   );
@@ -335,7 +335,7 @@ const TokenCreatedModal = ({
         </div>
         <div className="flex items-center gap-2 rounded-12 bg-surface-float p-3">
           <code className="flex-1 break-all text-text-primary">{token}</code>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<CopyIcon />}
@@ -344,13 +344,13 @@ const TokenCreatedModal = ({
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Medium}
           onClick={onClose}
         >
           I&apos;ve copied my token
-        </Button>
+        </ButtonV2>
       </ModalFooter>
     </Modal>
   );
@@ -404,7 +404,7 @@ const TokenListItem = ({
           )}
         </div>
       </div>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={<TrashIcon />}
@@ -435,7 +435,7 @@ const CopyableCodeBlock = ({
       >
         {text}
       </code>
-      <Button
+      <ButtonV2
         variant={ButtonVariant.Tertiary}
         size={ButtonSize.Small}
         icon={<CopyIcon />}
@@ -495,14 +495,14 @@ const ApiAccessPage = (): ReactElement => {
       title="API Access"
       actions={
         isPlus ? (
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Primary}
             size={ButtonSize.Small}
             icon={<PlusIcon />}
             onClick={() => setShowCreateModal(true)}
           >
             {isMobile ? undefined : 'Create token'}
-          </Button>
+          </ButtonV2>
         ) : undefined
       }
     >
@@ -556,23 +556,23 @@ const ApiAccessPage = (): ReactElement => {
               {tokenEmptyStateText}
             </Typography>
             {isPlus ? (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
                 icon={<PlusIcon />}
                 onClick={() => setShowCreateModal(true)}
               >
                 Create your first token
-              </Button>
+              </ButtonV2>
             ) : (
-              <Button
+              <ButtonV2
                 variant={ButtonVariant.Secondary}
                 size={ButtonSize.Small}
                 tag="a"
                 href="/plus"
               >
                 Upgrade to Plus
-              </Button>
+              </ButtonV2>
             )}
           </div>
         )}
@@ -708,7 +708,7 @@ const ApiAccessPage = (): ReactElement => {
             Learn how to use the API and explore available endpoints.
           </Typography>
           <div className="flex flex-wrap gap-2">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<DocsIcon />}
@@ -717,8 +717,8 @@ const ApiAccessPage = (): ReactElement => {
               target="_blank"
             >
               API Docs
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Small}
               icon={<DocsIcon />}
@@ -727,7 +727,7 @@ const ApiAccessPage = (): ReactElement => {
               target="_blank"
             >
               OpenAPI Reference
-            </Button>
+            </ButtonV2>
           </div>
         </div>
       </div>

@@ -9,10 +9,10 @@ import UserProjectExperienceForm from '@dailydotdev/shared/src/features/profile/
 import DeleteExperienceButton from '@dailydotdev/shared/src/features/profile/components/experience/DeleteExperienceButton';
 import UserVolunteeringExperienceForm from '@dailydotdev/shared/src/features/profile/components/experience/forms/UserVolunteeringExperienceForm';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import type { UserExperience } from '@dailydotdev/shared/src/graphql/user/profile';
 import useUserExperienceForm from '@dailydotdev/shared/src/hooks/useUserExperienceForm';
 import {
@@ -197,7 +197,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
             titleCopy[experience.type]
           }`}
           actions={
-            <Button
+            <ButtonV2
               type="submit"
               className="ml-auto"
               variant={ButtonVariant.Primary}
@@ -206,7 +206,7 @@ const Page = ({ experience }: PageProps): ReactElement => {
               loading={isPending}
             >
               Save
-            </Button>
+            </ButtonV2>
           }
         >
           {renderExperienceForm(experience?.type, experience)}

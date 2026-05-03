@@ -2,10 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useState } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import classNames from 'classnames';
 import { FormErrorMessage } from '@dailydotdev/shared/src/components/utilities';
@@ -76,13 +76,13 @@ const Step1 = ({ onGenerateImage, error }: StepProps): ReactElement => {
             onChange={(_, index) => setThemeIndex(index)}
           />
         </div>
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={onClick}
         >
           Roast me - I&apos;m ready
-        </Button>
+        </ButtonV2>
         {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
       </div>
     </>
@@ -117,21 +117,21 @@ const Step2 = ({ roast, error }: StepProps): ReactElement => {
         eager
       />
       <div className="flex flex-row justify-center gap-4">
-        <Button
+        <ButtonV2
           variant={ButtonVariant.Secondary}
           size={ButtonSize.Large}
           onClick={() => window.location.reload()}
         >
           Start over
-        </Button>
-        <Button
+        </ButtonV2>
+        <ButtonV2
           variant={ButtonVariant.Primary}
           size={ButtonSize.Large}
           onClick={downloadImage}
           loading={isLoading}
         >
           Download image
-        </Button>
+        </ButtonV2>
       </div>
       {error && <FormErrorMessage role="alert">{error}</FormErrorMessage>}
     </div>

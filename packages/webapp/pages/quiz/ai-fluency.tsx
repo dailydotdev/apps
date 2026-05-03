@@ -2,10 +2,10 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
-  Button,
+  ButtonV2,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import {
   ProfileImageSize,
   ProfilePicture,
@@ -409,14 +409,14 @@ const AiFluencyQuizPage = (): ReactElement => {
             </p>
           </div>
           <div className="mt-6">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
               onClick={onStart}
               disabled={!isAuthReady}
             >
               {startButtonLabel}
-            </Button>
+            </ButtonV2>
           </div>
         </section>
       )}
@@ -466,22 +466,22 @@ const AiFluencyQuizPage = (): ReactElement => {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Medium}
               onClick={onBack}
               disabled={currentQuestionIndex === 0}
             >
               Back
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               onClick={onNext}
               disabled={!currentAnswer}
             >
               {isLastQuestion ? 'See result' : 'Next'}
-            </Button>
+            </ButtonV2>
           </div>
         </section>
       )}
@@ -606,21 +606,21 @@ const AiFluencyQuizPage = (): ReactElement => {
           )}
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button
+            <ButtonV2
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               onClick={onShareResult}
               disabled={!shareLink}
             >
               {copyingShareLink ? 'Copied' : 'Share'}
-            </Button>
-            <Button
+            </ButtonV2>
+            <ButtonV2
               variant={ButtonVariant.Secondary}
               size={ButtonSize.Medium}
               onClick={onRetake}
             >
               Retake quiz
-            </Button>
+            </ButtonV2>
           </div>
         </section>
       )}

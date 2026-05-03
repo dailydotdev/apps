@@ -2,11 +2,11 @@ import React from 'react';
 import type { FormEvent, MutableRefObject, ReactElement } from 'react';
 import { providerMap } from '@dailydotdev/shared/src/components/auth/common';
 import {
-  Button,
+  ButtonV2,
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { LockIcon, MailIcon } from '@dailydotdev/shared/src/components/icons';
 import AccountDangerZone from '@dailydotdev/shared/src/components/profile/AccountDangerZone';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -178,14 +178,14 @@ function AccountSecurityDefault({
           />
         </Tooltip>
         {hasPassword && (
-          <Button
+          <ButtonV2
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
             className="mt-6 w-fit"
             onClick={() => onSwitchDisplay(Display.ChangeEmail)}
           >
             Change email
-          </Button>
+          </ButtonV2>
         )}
       </AccountContentSection>
       <AccountLoginSection
@@ -226,14 +226,14 @@ function AccountSecurityDefault({
             label="Password"
             name="password"
           />
-          <Button
+          <ButtonV2
             type="submit"
             size={ButtonSize.Small}
             variant={ButtonVariant.Secondary}
             className="mt-6 w-fit"
           >
             Set password
-          </Button>
+          </ButtonV2>
         </form>
       </AccountContentSection>
       <AccountContentSection title="🚨 Danger zone">
