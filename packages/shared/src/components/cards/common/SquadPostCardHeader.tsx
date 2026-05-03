@@ -15,14 +15,11 @@ import type { UserShortProfile } from '../../../lib/user';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import { isSourceUserSource } from '../../../graphql/sources';
 import type { SourceTooltip } from '../../../graphql/sources';
+import HoverCard from './HoverCard';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
     import('../entity/UserEntityCard'),
-);
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
 );
 
 type SquadPostCardHeaderProps = { post: Post; enableSourceHeader?: boolean };

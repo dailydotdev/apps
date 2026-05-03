@@ -26,10 +26,7 @@ import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
 import type { UserShortProfile } from '../../../lib/user';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
-);
+import HoverCard from './HoverCard';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>

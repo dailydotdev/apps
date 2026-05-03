@@ -19,10 +19,7 @@ import { ProfileImageLink } from '../../../profile/ProfileImageLink';
 import type { UserShortProfile } from '../../../../lib/user';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
 import { isSourceUserSource } from '../../../../graphql/sources';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
-);
+import HoverCard from '../HoverCard';
 
 const UserEntityCard = dynamic(
   /* webpackChunkName: "userEntityCard" */ () =>
