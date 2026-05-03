@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -122,6 +122,7 @@ describe('IntroQuestButton', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
@@ -142,6 +143,23 @@ describe('IntroQuestButton', () => {
     expect(openModal).toHaveBeenCalledWith({
       type: LazyModal.IntroQuests,
     });
+  });
+
+  it('shows a CTA on load and retracts it after 2 seconds', () => {
+    jest.useFakeTimers();
+
+    render(<IntroQuestButton />);
+
+    const cta = screen.getByTestId('intro-quest-cta');
+
+    expect(cta).toHaveTextContent('Get the most out of daily.dev');
+    expect(cta).toHaveAttribute('data-expanded', 'true');
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    expect(cta).toHaveAttribute('data-expanded', 'false');
   });
 
   it('hides the badge after intro quests have been viewed and none are claimable', () => {
@@ -214,6 +232,33 @@ describe('IntroQuestButton', () => {
   it('does not render when there are no intro quests', () => {
     mockUseQuestDashboard.mockReturnValue({
       data: { intro: [] },
+    });
+
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.queryByRole('button', { name: /Open introduction quests/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render when all intro quests are claimed', () => {
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [
+          buildIntroQuest({
+            rotationId: 'rot-1',
+            status: QuestStatus.Claimed,
+            completedAt: '2026-05-03T10:00:00.000Z',
+            claimedAt: '2026-05-03T10:05:00.000Z',
+          }),
+          buildIntroQuest({
+            rotationId: 'rot-2',
+            status: QuestStatus.Claimed,
+            completedAt: '2026-05-03T10:10:00.000Z',
+            claimedAt: '2026-05-03T10:15:00.000Z',
+          }),
+        ],
+      },
     });
 
     render(<IntroQuestButton />);
