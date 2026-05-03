@@ -41,6 +41,7 @@ export interface LiveRoomMediaPublicationRecord {
 export interface LiveRoomStageState {
   speakerQueueParticipantIds: string[];
   activeSpeakerParticipantIds: string[];
+  raisedHandParticipantIds: string[];
   speakerLimit?: number | null;
 }
 
@@ -202,6 +203,8 @@ export type LiveRoomCommand =
       canChat: boolean;
     }
   | { type: 'stage.queue.join' }
+  | { type: 'stage.hand.raise' }
+  | { type: 'stage.hand.remove' }
   | { type: 'stage.reaction.send'; key: string }
   | { type: 'stage.speaker.join' }
   | { type: 'stage.speaker.leave' }
