@@ -58,6 +58,7 @@ interface LiveRoomProps {
 }
 
 const MAX_STAGE_TILES_PER_PAGE = 12;
+const EMPTY_PARTICIPANT_IDS: string[] = [];
 
 const getStageGridColumnCount = (count: number): number => {
   if (count <= 1) {
@@ -494,6 +495,22 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     roomState?.stage.speakerQueueParticipantIds.filter(
       (id) => !!roomState.participants[id],
     ) ?? [];
+  const raisedHandParticipantIds =
+    roomState?.stage.raisedHandParticipantIds ?? EMPTY_PARTICIPANT_IDS;
+  const raisedHandQueuePositions = useMemo(() => {
+    const positions = new Map<string, number>();
+    if (!roomState) {
+      return positions;
+    }
+
+    raisedHandParticipantIds.forEach((id) => {
+      if (roomState.participants[id]) {
+        positions.set(id, positions.size + 1);
+      }
+    });
+
+    return positions;
+  }, [raisedHandParticipantIds, roomState]);
   const audienceParticipantIds = roomState
     ? Object.values(roomState.participants)
         .map((participant) => participant.participantId)
@@ -559,6 +576,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           selfView: room.host.id === participantId,
           isHost: true,
           isCoHost: false,
+          raisedHandQueuePosition: raisedHandQueuePositions.get(room.host.id),
         },
         ...activeSpeakerIds.map((id) => ({
           id,
@@ -569,6 +587,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           selfView: id === participantId,
           isHost: false,
           isCoHost: coHostParticipantIds.includes(id),
+          raisedHandQueuePosition: raisedHandQueuePositions.get(id),
         })),
       ].map((speaker) => ({
         ...speaker,
@@ -788,6 +807,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       selfView={speaker.selfView}
                       isHost={speaker.isHost}
                       isCoHost={speaker.isCoHost}
+                      raisedHandQueuePosition={speaker.raisedHandQueuePosition}
                       isMuted={speaker.isMuted}
                       onGrantCoHost={
                         canManageCoHosts && !speaker.isCoHost

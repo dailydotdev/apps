@@ -263,6 +263,8 @@ export enum LogEvent {
   StartStandup = 'start standup',
   EndStandup = 'end standup',
   JoinStandupQueue = 'join standup queue',
+  RaiseStandupHand = 'raise standup hand',
+  RemoveStandupHand = 'remove standup hand',
   JoinStandupStage = 'join standup stage',
   LeaveStandupStage = 'leave standup stage',
   OpenStandupSettings = 'open standup settings',

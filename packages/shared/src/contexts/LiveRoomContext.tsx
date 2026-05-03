@@ -132,6 +132,8 @@ export interface LiveRoomContextValue {
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
+  raiseHand: () => Promise<void>;
+  removeHand: () => Promise<void>;
   joinStage: () => Promise<void>;
   leaveStage: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
@@ -1755,6 +1757,14 @@ export const LiveRoomProvider = ({
     });
   }, [sendConnectionCommand]);
 
+  const raiseHand = useCallback(async () => {
+    await sendConnectionCommand('raise hand', { type: 'stage.hand.raise' });
+  }, [sendConnectionCommand]);
+
+  const removeHand = useCallback(async () => {
+    await sendConnectionCommand('remove hand', { type: 'stage.hand.remove' });
+  }, [sendConnectionCommand]);
+
   const joinStage = useCallback(async () => {
     await sendConnectionCommand('join stage', { type: 'stage.speaker.join' });
   }, [sendConnectionCommand]);
@@ -1913,6 +1923,8 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
@@ -1959,6 +1971,8 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
