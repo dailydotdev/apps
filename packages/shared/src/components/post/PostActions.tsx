@@ -216,7 +216,7 @@ export function PostActions({
               iconPressed={
                 <UpvoteButtonIcon secondary brandAnimation={brandAnimation} />
               }
-              label={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+              label="Upvote"
               color={ButtonColor.Avocado}
             />
           </Tooltip>
@@ -229,7 +229,7 @@ export function PostActions({
               onClick={onToggleDownvote}
               icon={<DownvoteIcon />}
               iconPressed={<DownvoteIcon secondary />}
-              label={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+              label="Downvote"
               color={ButtonColor.Ketchup}
             />
           </Tooltip>

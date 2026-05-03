@@ -70,7 +70,7 @@ export function ReaderRailActionBar({
           }}
           icon={<UpvoteIcon />}
           iconPressed={<UpvoteIcon secondary />}
-          label={isUpvoteActive ? 'Remove upvote' : 'More like this'}
+          label="Upvote"
           color={ButtonColor.Avocado}
         />
       </Tooltip>
@@ -88,7 +88,7 @@ export function ReaderRailActionBar({
           }}
           icon={<DownvoteIcon />}
           iconPressed={<DownvoteIcon secondary />}
-          label={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
+          label="Downvote"
           color={ButtonColor.Ketchup}
         />
       </Tooltip>
