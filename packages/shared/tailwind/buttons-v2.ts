@@ -558,11 +558,25 @@ const variations: Record<string, VariationFn> = {
             ? `${palette[color]['40']}33`
             : 'var(--theme-surface-active)',
         },
+        // Pressed (toggled-on) state intentionally carries NO background
+        // for the ghost ladder — same contract as v1 `Quaternary`. The
+        // pressed cue is communicated by the text/icon colour and (for
+        // CardAction consumers) the outline → secondary icon swap. If
+        // pressed shipped the same bg as hover (12% alpha) the user
+        // perceives the hover bg as "stuck" after clicking and moving
+        // away (engagement-bar Upvote / Bookmark / Award): the pseudo
+        // `:hover` releases on `mouseleave` but the identical pressed
+        // bg keeps showing. Reference platforms (Twitter / X, Reddit,
+        // YouTube, dev.to) all rely on icon swap + colour, not bg, for
+        // the pressed cue on engagement icons.
+        //
+        // Background is explicitly `none` (not omitted) so the
+        // `&[aria-pressed="true"] { --button-v2-background: var(...) }`
+        // cascade resolves to a real value rather than relying on
+        // CSS custom-property fallback semantics.
         pressed: {
           color: ghostDark.hover,
-          background: color
-            ? `${palette[color]['40']}1F`
-            : 'var(--theme-surface-hover)',
+          background: 'none',
         },
         disabled: {
           color: 'var(--theme-text-disabled)',
@@ -589,9 +603,7 @@ const variations: Record<string, VariationFn> = {
         },
         pressed: {
           color: ghostLight.hover,
-          background: color
-            ? `${palette[color]['60']}1F`
-            : 'var(--theme-surface-hover)',
+          background: 'none',
         },
         disabled: {
           color: 'var(--theme-text-disabled)',
