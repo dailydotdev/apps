@@ -1,1 +1,1 @@
-export const LIVE_ROOM_QUICK_REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
+export const LIVE_ROOM_QUICK_REACTION_EMOJIS = ['🔥', '👀', '🚀', '💀', '😬'];

@@ -547,12 +547,12 @@ describe('LiveRoom', () => {
     ).toHaveLength(5);
     expect(
       screen.getByRole('button', {
-        name: 'React 👏 to message from @speaker1',
+        name: 'React 👀 to message from @speaker1',
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: 'React 🤯 to message from @speaker1',
+        name: 'React 🚀 to message from @speaker1',
       }),
     ).toBeInTheDocument();
     expect(
@@ -600,12 +600,12 @@ describe('LiveRoom', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'React 👏 to message from @speaker1',
+        name: 'React 🔥 to message from @speaker1',
       }),
     );
 
     await waitFor(() =>
-      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '👏'),
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '🔥'),
     );
     expect(mockLogEvent).toHaveBeenCalledWith(
       expect.objectContaining({

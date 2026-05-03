@@ -314,6 +314,7 @@ export const LiveRoomChatReactions = ({
     (reactionKey) => !reactionKeys.has(reactionKey),
   ).slice(0, Math.max(0, MAX_REACTION_SLOTS - reactionGroups.length));
   const showQuickReactions = canChat && quickReactionKeys.length > 0;
+  const hasActiveReactions = reactionGroups.length > 0;
   const baseReactionAnalytics = {
     activeReactionCount: reactionGroups.length,
     quickReactionCount: quickReactionKeys.length,
@@ -327,7 +328,7 @@ export const LiveRoomChatReactions = ({
     <div
       className={classNames(
         'relative mt-1 flex flex-wrap items-center gap-1 transition-opacity',
-        reactionGroups.length === 0
+        !hasActiveReactions
           ? 'opacity-100 tablet:opacity-0 tablet:group-focus-within:opacity-100 tablet:group-hover:opacity-100'
           : 'opacity-100',
       )}
@@ -370,9 +371,10 @@ export const LiveRoomChatReactions = ({
       })}
       {showQuickReactions || canChat ? (
         <div
+          key={hasActiveReactions ? 'active-reactions' : 'empty-reactions'}
           className={classNames(
             'flex flex-wrap items-center gap-1 transition-opacity',
-            reactionGroups.length > 0 &&
+            hasActiveReactions &&
               'opacity-100 tablet:opacity-0 tablet:group-focus-within:opacity-100 tablet:group-hover:opacity-100',
           )}
         >
