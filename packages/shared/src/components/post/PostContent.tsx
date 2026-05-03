@@ -366,7 +366,7 @@ export function PostContentRaw({
   }, []);
 
   const containerClass = classNames(
-    'tablet:flex-row tablet:pb-0',
+    'laptop:flex-row laptop:pb-0',
     className?.container,
   );
 
