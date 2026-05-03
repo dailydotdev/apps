@@ -109,7 +109,7 @@ it('should link the comment action to the post page', async () => {
     onCommentClick,
   });
 
-  const commentLink = screen.getByRole('link', { name: /comment/i });
+  const commentLink = screen.getByRole('link', { name: /reply/i });
 
   expect(commentLink).toHaveAttribute('href', basePost.commentsPermalink);
 
