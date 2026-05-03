@@ -213,9 +213,13 @@ export const LiveRoomVideoTile = ({
       {raisedHandQueuePosition ? (
         <span
           aria-label={`Hand raised, position ${raisedHandQueuePosition}`}
-          className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1 rounded-10 bg-accent-cheese-default px-2 py-1 text-raw-pepper-90 shadow-2"
+          className="pointer-events-none absolute left-3 top-3 inline-flex animate-raise-hand-pop items-center gap-1 rounded-10 bg-accent-cheese-default px-2 py-1 text-raw-pepper-90 shadow-2"
         >
-          <RaiseHandIcon size={IconSize.Size16} secondary />
+          <RaiseHandIcon
+            size={IconSize.Size16}
+            secondary
+            className="origin-bottom animate-raise-hand-wave"
+          />
           <span className="font-bold tabular-nums typo-caption1">
             #{raisedHandQueuePosition}
           </span>

@@ -265,6 +265,18 @@ export default {
             opacity: '0',
           },
         },
+        'raise-hand-pop': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '60%': { transform: 'scale(1.08)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'raise-hand-wave': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-18deg)' },
+          '40%': { transform: 'rotate(14deg)' },
+          '60%': { transform: 'rotate(-10deg)' },
+          '80%': { transform: 'rotate(6deg)' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -273,6 +285,9 @@ export default {
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
         'reaction-burst':
           'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
+        'raise-hand-pop':
+          'raise-hand-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'raise-hand-wave': 'raise-hand-wave 700ms ease-in-out 240ms both',
       },
     },
     lineClamp: {
