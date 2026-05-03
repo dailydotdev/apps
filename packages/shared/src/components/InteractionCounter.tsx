@@ -6,7 +6,7 @@ import { largeNumberFormat } from '../lib';
 
 export type InteractionCounterProps = {
   className?: string;
-  value: number | null;
+  value: number;
 };
 
 export default function InteractionCounter({

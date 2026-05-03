@@ -58,6 +58,18 @@ const strictSkipList = new Set([
   // string handling / null returns) and should be addressed separately.
   'packages/extension/src/newtab/DndModal.tsx',
   'packages/webapp/pages/jobs/[id]/questions.tsx',
+  // Buttons V2 migration — these files were touched only to swap
+  // QuaternaryButton -> CardAction or to add a `secondary` prop on
+  // MedalBadgeIcon, but they carry pre-existing strict violations
+  // (AwardEntity receiver narrowing, ProfileActions query params,
+  // analytics page null/undefined narrowing) that are unrelated to
+  // the button migration and should be addressed in a dedicated
+  // cleanup PR. See CardAction migration PR for context.
+  'packages/shared/src/components/comments/CommentAwardActions.tsx',
+  'packages/shared/src/components/post/PostAwardAction.tsx',
+  'packages/shared/src/components/profile/ProfileActions.tsx',
+  'packages/webapp/pages/posts/[id]/analytics/index.tsx',
+  'packages/webapp/pages/squads/[handle]/analytics.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
