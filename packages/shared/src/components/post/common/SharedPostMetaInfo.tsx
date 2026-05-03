@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { SharedPost } from '../../../graphql/posts';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
@@ -37,10 +38,18 @@ export const SharedPostMetaInfo = ({
         <span className="font-medium text-text-secondary">{sourceName}</span>
       )}
       {sharedPost.domain && (
-        <>
+        // When a named source is present, hide "From {domain}" on mobile to
+        // keep the meta line uncluttered. `display: contents` keeps the
+        // children as direct flex items of the parent on tablet+.
+        <span
+          className={classNames(
+            'contents',
+            hasNamedSource && 'hidden tablet:contents',
+          )}
+        >
           {hasNamedSource && <Separator />}
           <span>From {sharedPost.domain}</span>
-        </>
+        </span>
       )}
       {sharedPost.createdAt && (
         <>
