@@ -31,14 +31,18 @@ export default function InteractionCounter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const elementClassName = classNames(
-    'flex h-5 min-w-[1ch] flex-col overflow-hidden',
-    className,
-  );
-
+  // Static (non-animating) render uses inline-flex + items-center so the
+  // text vertically centers inside the 20 px box. The animated render
+  // keeps flex-col so the two stacked numbers can slide on the y-axis.
   if (shownValue === value) {
     return (
-      <span className={elementClassName} {...props}>
+      <span
+        className={classNames(
+          'inline-flex h-5 min-w-[1ch] items-center justify-start leading-none',
+          className,
+        )}
+        {...props}
+      >
         {largeNumberFormat(shownValue)}
       </span>
     );
@@ -50,10 +54,16 @@ export default function InteractionCounter({
   };
 
   const childClassName =
-    'h-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
+    'h-5 inline-flex items-center leading-none transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
 
   return (
-    <span className={elementClassName} {...props}>
+    <span
+      className={classNames(
+        'flex h-5 min-w-[1ch] flex-col overflow-hidden',
+        className,
+      )}
+      {...props}
+    >
       <span
         className={classNames(
           childClassName,

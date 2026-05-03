@@ -76,7 +76,12 @@ const PostUpvotesCommentsCountContent = ({
     }
 
     return (
-      <ClickableText key={key} onClick={onClick}>
+      <ClickableText
+        key={key}
+        onClick={onClick}
+        defaultTypo={false}
+        className="!text-text-secondary"
+      >
         {children}
       </ClickableText>
     );
@@ -85,10 +90,10 @@ const PostUpvotesCommentsCountContent = ({
   return (
     <div
       className={classNames(
-        'flex flex-wrap items-center text-text-tertiary',
+        'flex flex-wrap items-center font-medium text-text-secondary',
         compact
-          ? 'mb-0 gap-x-3 gap-y-1 !leading-5 typo-caption1'
-          : 'mb-3 gap-x-4 !leading-7 typo-callout',
+          ? 'mb-0 gap-x-3 gap-y-1 typo-caption1'
+          : 'mb-3 gap-x-4 gap-y-1 typo-footnote',
         className,
       )}
       data-testid="statsBar"

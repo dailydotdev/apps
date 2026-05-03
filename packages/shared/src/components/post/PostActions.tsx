@@ -203,7 +203,7 @@ export function PostActions({
         <CardActionBar
           ref={actionsRef}
           layout="between"
-          className="overflow-hidden py-2 pl-4 pr-6"
+          className="overflow-hidden p-2"
         >
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
