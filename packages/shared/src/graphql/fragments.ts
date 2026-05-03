@@ -92,6 +92,50 @@ export const USER_AUTHOR_FRAGMENT = gql`
   ${USER_SHORT_INFO_TOP_READER_FRAGMENT}
 `;
 
+export const CONTENT_EMBED_FRAGMENT = gql`
+  fragment ContentEmbedFragment on ContentEmbed {
+    id
+    referenceType
+    url
+    sortOrder
+    post {
+      title
+      image
+      createdAt
+      readTime
+      numUpvotes
+      numComments
+      numAwards
+      numReposts
+      analytics {
+        impressions
+      }
+      numCollectionSources
+      numPollVotes
+      endsAt
+      featuredAward {
+        award {
+          name
+          image
+        }
+      }
+      type
+      sharedPost {
+        type
+      }
+      commentsPermalink
+      source {
+        handle
+        name
+        image
+      }
+      author {
+        id
+      }
+    }
+  }
+`;
+
 export const USER_BASIC_INFO = gql`
   fragment UserBasicInfo on User {
     id
@@ -418,6 +462,9 @@ export const COMMENT_FRAGMENT = gql`
   fragment CommentFragment on Comment {
     id
     contentHtml
+    contentEmbeds {
+      ...ContentEmbedFragment
+    }
     createdAt
     lastUpdatedAt
     permalink
@@ -441,6 +488,7 @@ export const COMMENT_FRAGMENT = gql`
       }
     }
   }
+  ${CONTENT_EMBED_FRAGMENT}
   ${USER_AUTHOR_FRAGMENT}
   ${FEATURED_AWARD_FRAGMENT}
 `;
