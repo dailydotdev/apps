@@ -380,6 +380,15 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   );
 }
 
+/**
+ * Pages under `/dev/*` are internal review surfaces that don't need the
+ * full app shell (BootDataProvider, Serwist offline page, auth, etc.).
+ * They hit production APIs that won't accept localhost cookies, so we
+ * short-circuit to a minimal QueryClient-only tree.
+ */
+const isDevReviewRoute = (pathname: string | undefined): boolean =>
+  !!pathname && pathname.startsWith('/dev/');
+
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
 ): ReactElement {
@@ -392,9 +401,18 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
-  const {
-    pageProps: { dehydratedState },
-  } = props;
+  const { Component, pageProps, router } = props;
+  const { dehydratedState } = pageProps;
+
+  if (isDevReviewRoute(router?.pathname)) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <Component {...pageProps} />
+        </HydrationBoundary>
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <ProgressiveEnhancementContextProvider>
