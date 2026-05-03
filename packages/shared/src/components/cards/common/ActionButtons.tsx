@@ -82,6 +82,17 @@ const ActionButtons = ({
   const { getUpvoteAnimation } = useBrandSponsorship();
   const isCommentFirst = useFeature(featureCommentFirstAction);
   const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
+  const useCommentLink = isCommentFirst || config.useCommentLink;
+  const commentHref = isCommentFirst
+    ? `${post.commentsPermalink}${
+        post.commentsPermalink.includes('?') ? '&' : '?'
+      }comment=true`
+    : post.commentsPermalink;
+  // Skip the feed-level callback so the desktop post modal doesn't open
+  // alongside the link navigation when the comment-first link is used.
+  const handleCommentClick = isCommentFirst
+    ? undefined
+    : () => onCommentClick?.(post);
 
   const {
     isUpvoteActive,
@@ -124,18 +135,15 @@ const ActionButtons = ({
   const commentCount = post.numComments ?? 0;
   const upvoteCount = post.numUpvotes ?? 0;
 
-  const commentButton = config.useCommentLink ? (
-    <LinkWithTooltip
-      tooltip={{ content: 'Reply' }}
-      href={post.commentsPermalink}
-    >
+  const commentButton = useCommentLink ? (
+    <LinkWithTooltip tooltip={{ content: 'Reply' }} href={commentHref}>
       <QuaternaryButton
         labelClassName="!pl-0"
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
         tag="a"
-        href={post.commentsPermalink}
+        href={commentHref}
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
         size={config.buttonSize}
@@ -145,7 +153,7 @@ const ActionButtons = ({
             size={config.iconSize}
           />
         }
-        onClick={() => onCommentClick?.(post)}
+        onClick={handleCommentClick}
       >
         {commentCount > 0 && (
           <InteractionCounter
