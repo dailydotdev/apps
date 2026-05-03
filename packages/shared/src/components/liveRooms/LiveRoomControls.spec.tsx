@@ -10,11 +10,13 @@ import React from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import { LiveRoomControls } from './LiveRoomControls';
 import { AuthTriggers } from '../../lib/auth';
+import { LogEvent } from '../../lib/log';
 
 const mockUseLiveRoom = jest.fn<LiveRoomContextValue, []>();
 const mockDisplayToast = jest.fn();
 const mockShowLogin = jest.fn();
 const mockUseAuthContext = jest.fn();
+const mockLogEvent = jest.fn();
 
 jest.mock('../../contexts/LiveRoomContext', () => ({
   useLiveRoom: () => mockUseLiveRoom(),
@@ -22,6 +24,10 @@ jest.mock('../../contexts/LiveRoomContext', () => ({
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
+}));
+
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
@@ -138,6 +144,7 @@ const createContextValue = (
     stage: {
       speakerQueueParticipantIds: [],
       activeSpeakerParticipantIds: [],
+      raisedHandParticipantIds: [],
     },
     mediaPublications: {},
     mediaRuntimeOwner: null,
@@ -149,6 +156,8 @@ const createContextValue = (
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
+  raiseHand: jest.fn(),
+  removeHand: jest.fn(),
   joinStage: jest.fn(),
   leaveStage: jest.fn(),
   sendReaction: jest.fn(),
@@ -263,6 +272,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: ['audience'],
             activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
           },
         },
       }),
@@ -274,6 +284,99 @@ describe('LiveRoomControls', () => {
     expect(queuedButton).toBeDisabled();
     fireEvent.click(queuedButton);
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
+  });
+
+  it('logs when speakers raise their hand from the controls', async () => {
+    const raiseHand = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'speaker',
+        participantId: 'audience',
+        raiseHand,
+        roomState: {
+          ...createRoomState(),
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              ...createRoomState().participants.audience,
+              role: 'speaker',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    await click(screen.getByRole('button', { name: 'Raise hand' }));
+    await flushAsyncUpdates();
+
+    await waitFor(() => {
+      expect(raiseHand).toHaveBeenCalledTimes(1);
+    });
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.RaiseStandupHand,
+        target_id: 'room-1',
+      }),
+    );
+    expect(JSON.parse(mockLogEvent.mock.calls[0][0].extra)).toMatchObject({
+      roomId: 'room-1',
+      role: 'speaker',
+      participantId: 'audience',
+      surface: 'controls',
+      handQueuePosition: 1,
+      raisedHandCount: 1,
+    });
+  });
+
+  it('logs when co-hosts with a raised hand lower it from the controls', async () => {
+    const removeHand = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        removeHand,
+        roomState: {
+          ...createRoomState(),
+          coHostParticipantIds: ['audience'],
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: ['host', 'audience'],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    await click(screen.getByRole('button', { name: 'Lower hand' }));
+    await flushAsyncUpdates();
+
+    await waitFor(() => {
+      expect(removeHand).toHaveBeenCalledTimes(1);
+    });
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.RemoveStandupHand,
+        target_id: 'room-1',
+      }),
+    );
+    expect(JSON.parse(mockLogEvent.mock.calls[0][0].extra)).toMatchObject({
+      roomId: 'room-1',
+      role: 'audience',
+      participantId: 'audience',
+      isCoHost: true,
+      surface: 'controls',
+      handQueuePosition: 2,
+      raisedHandCount: 1,
+    });
   });
 
   it('sends emoji reactions through the live room command path', async () => {
@@ -336,6 +439,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
             speakerLimit: 4,
           },
         },
@@ -374,6 +478,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
             speakerLimit: 4,
           },
         },
@@ -419,6 +524,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
             speakerLimit: 4,
           },
         },
@@ -452,6 +558,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['speaker-1', 'speaker-2'],
+            raisedHandParticipantIds: [],
             speakerLimit: 2,
           },
         },
@@ -564,6 +671,7 @@ describe('LiveRoomControls', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
           },
         },
       }),

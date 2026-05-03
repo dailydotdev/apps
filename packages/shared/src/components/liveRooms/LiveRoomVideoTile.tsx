@@ -11,6 +11,7 @@ import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { UserShortProfile } from '../../lib/user';
 import { MegaphoneIcon, VolumeOffIcon } from '../icons';
+import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import {
@@ -26,6 +27,7 @@ interface LiveRoomVideoTileProps {
   selfView?: boolean;
   isHost?: boolean;
   isCoHost?: boolean;
+  raisedHandQueuePosition?: number;
   isMuted?: boolean;
   className?: string;
   onGrantCoHost?: () => void;
@@ -57,6 +59,7 @@ export const LiveRoomVideoTile = ({
   selfView = false,
   isHost = false,
   isCoHost = false,
+  raisedHandQueuePosition,
   isMuted = false,
   className,
   onGrantCoHost,
@@ -206,6 +209,21 @@ export const LiveRoomVideoTile = ({
       {audioStream ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <audio ref={audioRef} autoPlay />
+      ) : null}
+      {raisedHandQueuePosition ? (
+        <span
+          aria-label={`Hand raised, position ${raisedHandQueuePosition}`}
+          className="pointer-events-none absolute left-3 top-3 inline-flex animate-raise-hand-pop items-center gap-1 rounded-10 bg-accent-cheese-default px-2 py-1 text-raw-pepper-90 shadow-2"
+        >
+          <RaiseHandIcon
+            size={IconSize.Size16}
+            secondary
+            className="origin-bottom animate-raise-hand-wave"
+          />
+          <span className="font-bold tabular-nums typo-caption1">
+            #{raisedHandQueuePosition}
+          </span>
+        </span>
       ) : null}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
         <div className="flex min-w-0 items-center gap-2 rounded-12 bg-overlay-dark-dark3 px-2.5 py-1 backdrop-blur transition-[padding] duration-200 ease-out group-hover:pr-1">

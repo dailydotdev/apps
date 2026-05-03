@@ -60,8 +60,19 @@ jest.mock('../../graphql/users', () => ({
 }));
 
 jest.mock('./LiveRoomVideoTile', () => ({
-  LiveRoomVideoTile: ({ user }: { user: { username: string } }) => (
-    <div data-testid="live-room-tile">{`tile-${user.username}`}</div>
+  LiveRoomVideoTile: ({
+    user,
+    raisedHandQueuePosition,
+  }: {
+    user: { username: string };
+    raisedHandQueuePosition?: number;
+  }) => (
+    <div data-testid="live-room-tile">
+      {`tile-${user.username}`}
+      {raisedHandQueuePosition ? (
+        <span>{`hand-${user.username}-${raisedHandQueuePosition}`}</span>
+      ) : null}
+    </div>
   ),
 }));
 
@@ -139,6 +150,7 @@ const createContextValue = (
     stage: {
       speakerQueueParticipantIds: ['queued1'],
       activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+      raisedHandParticipantIds: [],
     },
     mediaPublications: {},
     mediaRuntimeOwner: null,
@@ -150,6 +162,8 @@ const createContextValue = (
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
+  raiseHand: jest.fn(),
+  removeHand: jest.fn(),
   joinStage: jest.fn(),
   leaveStage: jest.fn(),
   sendReaction: jest.fn(),
@@ -334,6 +348,27 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
   });
 
+  it('passes raised hand queue positions to matching stage tiles', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          stage: {
+            speakerQueueParticipantIds: ['queued1'],
+            activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+            raisedHandParticipantIds: ['speaker2', 'host'],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByText('hand-speaker2-1')).toBeInTheDocument();
+    expect(screen.getByText('hand-host-2')).toBeInTheDocument();
+    expect(screen.queryByText('hand-speaker1-')).not.toBeInTheDocument();
+  });
+
   it('uses the room creation time as the timer reference after refresh', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-04-27T09:05:07.000Z'));
     mockUseLiveRoomConnection.mockReturnValue(createContextValue());
@@ -353,6 +388,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: ['queued1'],
             activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
           },
         },
       }),
@@ -439,6 +475,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['speaker1'],
+            raisedHandParticipantIds: [],
             speakerLimit: 4,
           },
         },
@@ -720,6 +757,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds,
+            raisedHandParticipantIds: [],
           },
         },
       }),
