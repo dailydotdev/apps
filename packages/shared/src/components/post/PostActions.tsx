@@ -4,10 +4,13 @@ import type { QueryKey } from '@tanstack/react-query';
 import classNames from 'classnames';
 import {
   DiscussIcon as CommentIcon,
+  DiscussIconV2 as CommentIconV2,
   DownvoteIcon,
   LinkIcon,
   MedalBadgeIcon,
 } from '../icons';
+import { useFeature } from '../GrowthBookProvider';
+import { featureCommentFirstAction } from '../../lib/featureManagement';
 import type { Post } from '../../graphql/posts';
 import { UserVote } from '../../graphql/posts';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
@@ -58,6 +61,8 @@ export function PostActions({
     receivingUser: post.author as LoggedUser | undefined,
   });
   const { getUpvoteAnimation } = useBrandSponsorship();
+  const isCommentFirst = useFeature(featureCommentFirstAction);
+  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
@@ -210,6 +215,19 @@ export function PostActions({
     // for labels is executed after the DOM is updated with the new state.
   }, [post?.userState?.awarded, canAward]);
 
+  const commentButton = (
+    <QuaternaryButton
+      id="comment-post-btn"
+      pressed={post.commented}
+      onClick={onComment}
+      icon={<CommentIconComponent secondary={post.commented} />}
+      aria-label="Comment"
+      className="btn-tertiary-blueCheese"
+    >
+      Comment
+    </QuaternaryButton>
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center rounded-16 border border-border-subtlest-tertiary">
@@ -217,6 +235,7 @@ export function PostActions({
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
+          {isCommentFirst && commentButton}
           <Tooltip
             content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
           >
@@ -248,16 +267,7 @@ export function PostActions({
               color={ButtonColor.Ketchup}
             />
           </Tooltip>
-          <QuaternaryButton
-            id="comment-post-btn"
-            pressed={post.commented}
-            onClick={onComment}
-            icon={<CommentIcon secondary={post.commented} />}
-            aria-label="Comment"
-            className="btn-tertiary-blueCheese"
-          >
-            Comment
-          </QuaternaryButton>
+          {!isCommentFirst && commentButton}
           {canAward && (
             <ConditionalWrapper
               condition={post?.userState?.awarded ?? false}

@@ -5,10 +5,13 @@ import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import {
   DiscussIcon as CommentIcon,
+  DiscussIconV2 as CommentIconV2,
   DownvoteIcon,
   ShareIcon,
   UpvoteIcon,
 } from '../../icons';
+import { useFeature } from '../../GrowthBookProvider';
+import { featureCommentFirstAction } from '../../../lib/featureManagement';
 import { Button, ButtonVariant, ButtonColor } from '../../buttons/Button';
 import { BookmarkButton } from '../../buttons';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
@@ -38,11 +41,37 @@ export function ReaderFloatingActionBar({
   const { toggleBookmark } = useBookmarkPost();
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { openSharePost } = useSharePost(Origin.ReaderModal);
+  const isCommentFirst = useFeature(featureCommentFirstAction);
+  const CommentIconComponent = isCommentFirst ? CommentIconV2 : CommentIcon;
 
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const upvotes = largeNumberFormat(post.numUpvotes ?? 0) ?? '0';
   const comments = largeNumberFormat(post.numComments ?? 0) ?? '0';
+
+  const commentButton = (
+    <Tooltip content="Comment">
+      <Button
+        type="button"
+        pressed={post.commented}
+        onClick={onCommentClick}
+        icon={
+          <CommentIconComponent
+            secondary={post.commented}
+            size={FLOATING_ICON_SIZE}
+          />
+        }
+        aria-label="Comment"
+        variant={ButtonVariant.Tertiary}
+        className={classNames(
+          countActionButtonClasses,
+          'btn-tertiary-blueCheese',
+        )}
+      >
+        <span className={countClasses}>{comments}</span>
+      </Button>
+    </Tooltip>
+  );
 
   return (
     <div
@@ -50,6 +79,7 @@ export function ReaderFloatingActionBar({
       role="toolbar"
       aria-label="Post actions"
     >
+      {isCommentFirst && commentButton}
       <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
         <Button
           type="button"
@@ -91,24 +121,7 @@ export function ReaderFloatingActionBar({
           className={iconActionButtonClasses}
         />
       </Tooltip>
-      <Tooltip content="Comment">
-        <Button
-          type="button"
-          pressed={post.commented}
-          onClick={onCommentClick}
-          icon={
-            <CommentIcon secondary={post.commented} size={FLOATING_ICON_SIZE} />
-          }
-          aria-label="Comment"
-          variant={ButtonVariant.Tertiary}
-          className={classNames(
-            countActionButtonClasses,
-            'btn-tertiary-blueCheese',
-          )}
-        >
-          <span className={countClasses}>{comments}</span>
-        </Button>
-      </Tooltip>
+      {!isCommentFirst && commentButton}
       <BookmarkButton
         post={post}
         iconSize={FLOATING_ICON_SIZE}

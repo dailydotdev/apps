@@ -172,3 +172,8 @@ export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
   false,
 );
+
+export const featureCommentFirstAction = new Feature(
+  'comment_first_action',
+  false,
+);
