@@ -8,11 +8,10 @@ import { LockIcon } from '../icons';
 import { Card } from '../cards/common/Card';
 import { IconSize } from '../Icon';
 import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { useSmartComposerEnabled } from '../../hooks/post/useSmartComposerEnabled';
 import { ClickableText } from '../buttons/ClickableText';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
-import { featureSmartComposer } from '../../lib/featureManagement';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
 import { Divider } from '../utilities';
@@ -37,8 +36,7 @@ function SharePostBar({
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [urlFocused, toggleUrlFocus] = useState(false);
-  const { value: isSmartComposerEnabled } = useConditionalFeature({
-    feature: featureSmartComposer,
+  const { value: isSmartComposerEnabled } = useSmartComposerEnabled({
     shouldEvaluate: !!user && isLaptop,
   });
   const useSmartComposer = isSmartComposerEnabled && isLaptop;

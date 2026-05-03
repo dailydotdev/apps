@@ -27,6 +27,7 @@ import {
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { SmartComposerHotkey } from './post/SmartComposerHotkey';
+import { SmartComposerDevToggle } from './post/SmartComposerDevToggle';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
@@ -187,6 +188,7 @@ function MainLayoutComponent({
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
       <SmartComposerHotkey />
+      <SmartComposerDevToggle />
       <StreakMilestonePopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner

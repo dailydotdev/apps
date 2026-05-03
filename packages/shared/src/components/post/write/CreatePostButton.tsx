@@ -4,10 +4,9 @@ import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useSquad, useViewSize, ViewSize } from '../../../hooks';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useSmartComposerEnabled } from '../../../hooks/post/useSmartComposerEnabled';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import { featureSmartComposer } from '../../../lib/featureManagement';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import type {
@@ -48,8 +47,7 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
   const { openModal } = useLazyModal();
-  const { value: isSmartComposerEnabled } = useConditionalFeature({
-    feature: featureSmartComposer,
+  const { value: isSmartComposerEnabled } = useSmartComposerEnabled({
     shouldEvaluate: !!user && isLaptop,
   });
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';

@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSmartComposerEnabled } from '../../hooks/post/useSmartComposerEnabled';
 import { useViewSize, ViewSize } from '../../hooks';
 import { LazyModal } from '../modals/common/types';
-import { featureSmartComposer } from '../../lib/featureManagement';
 
 /**
  * Global `c` keyboard shortcut to open the Smart Composer popup.
@@ -21,8 +20,7 @@ export const SmartComposerHotkey = (): null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
   const { openModal } = useLazyModal();
-  const { value: isEnabled } = useConditionalFeature({
-    feature: featureSmartComposer,
+  const { value: isEnabled } = useSmartComposerEnabled({
     shouldEvaluate: !!user && isLaptop,
   });
 
