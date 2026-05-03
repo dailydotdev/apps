@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { NavDrawer } from '@dailydotdev/shared/src/components/drawers/NavDrawer';
 import {
   AddUserIcon,
@@ -57,9 +57,9 @@ export const Drawer: Story = {
 
     return (
       <>
-        <Button variant={ButtonVariant.Primary} onClick={() => setIsOpen(true)}>
+        <ButtonV2 variant={ButtonVariant.Primary} onClick={() => setIsOpen(true)}>
           Trigger
-        </Button>
+        </ButtonV2>
         <NavDrawer
           {...props}
           drawerProps={{

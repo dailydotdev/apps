@@ -144,7 +144,7 @@ export const BlockedWords = (): ReactElement => {
           <GenericTagButton
             showHashtag={false}
             key={word.referenceId}
-            className="group btn-tagBlocked"
+            className="group text-text-secondary hover:text-text-primary [&_.icon]:text-text-secondary hover:[&_.icon]:text-status-error active:[&_.icon]:text-status-error"
             icon={
               <>
                 <BlockIcon className="ml-2 text-xl transition-transform group-hover:hidden" />

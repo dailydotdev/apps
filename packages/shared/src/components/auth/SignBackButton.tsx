@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import type { MouseEventHandler, ReactElement } from 'react';
 import React from 'react';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -23,9 +24,10 @@ export function SignBackButton({
   return (
     <button
       aria-busy={disabled}
-      className={`btn-signback btn-primary ${
-        disabled ? 'opacity-60 pointer-events-none' : ''
-      }`}
+      className={classNames(
+        'flex h-[3.25rem] w-full flex-row items-center rounded-12 bg-text-primary px-3 py-2 transition-colors hover:bg-text-secondary',
+        disabled && 'opacity-60 pointer-events-none',
+      )}
       type="button"
       disabled={disabled}
       onClick={onClick}

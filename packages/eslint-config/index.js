@@ -11,7 +11,13 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:react-hooks/recommended',
   ],
-  plugins: ['prettier', 'tailwindcss', 'react-hooks', 'unused-imports'],
+  plugins: [
+    'prettier',
+    'tailwindcss',
+    'react-hooks',
+    'unused-imports',
+    '@dailydotdev/daily-dev-eslint-rules',
+  ],
   parserOptions: {
     project: './tsconfig.eslint.json',
     ecmaVersion: 2020,
@@ -172,5 +178,24 @@ module.exports = {
       },
     ],
     '@typescript-eslint/explicit-module-boundary-types': "off",
+    '@dailydotdev/daily-dev-eslint-rules/no-raw-button-class': 'error',
   },
+  overrides: [
+    {
+      // The button source itself + the Tailwind plugin that defines the
+      // tokens are the only places allowed to spell out raw `btn-*` /
+      // `btn-v2-*` class names.
+      files: [
+        '**/components/buttons/ButtonV2.tsx',
+        '**/components/buttons/CardAction.tsx',
+        '**/components/buttons/CardActionBar.tsx',
+        '**/components/buttons/common.ts',
+        '**/components/buttons/Buttons.mdx',
+        '**/tailwind/buttons-v2.ts',
+      ],
+      rules: {
+        '@dailydotdev/daily-dev-eslint-rules/no-raw-button-class': 'off',
+      },
+    },
+  ],
 };

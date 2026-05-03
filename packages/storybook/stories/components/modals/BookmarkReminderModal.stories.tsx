@@ -2,7 +2,7 @@ import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-vite';
 import { BookmarkReminderModal } from '@dailydotdev/shared/src/components/modals/post/BookmarkReminderModal';
 import ExtensionProviders from '../../extension/_providers';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useToggle } from '@dailydotdev/shared/src/hooks/useToggle';
 import { fn } from 'storybook/test';
 import post from '@dailydotdev/shared/__tests__/fixture/post';
@@ -21,7 +21,7 @@ const meta: Meta<typeof BookmarkReminderModal> = {
 
     return (
       <ExtensionProviders>
-        <Button onClick={() => toggle()}>Toggle modal</Button>
+        <ButtonV2 onClick={() => toggle()}>Toggle modal</ButtonV2>
         <div className={'py-20'}>
           <BookmarkReminderModal
             {...props}

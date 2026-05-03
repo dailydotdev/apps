@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { AlertDot, AlertColor } from '../../AlertDot';
@@ -27,12 +26,7 @@ export const TagElement = ({
 }: OnboardingTagProps): ReactElement => {
   return (
     <ButtonV2
-      className={classNames(
-        {
-          'btn-tag': !isSelected,
-        },
-        'relative',
-      )}
+      className="relative"
       variant={isSelected ? ButtonVariant.Primary : ButtonVariant.Float}
       iconPosition={ButtonIconPosition.Right}
       icon={isSelected ? <MiniCloseIcon /> : <PlusIcon />}

@@ -31,7 +31,7 @@ export function ModalTabs({
             disabled={disabled}
             key={tabTitle}
             className={classNames(
-              'btn relative h-8 rounded-10 px-3 py-1.5 text-center typo-callout',
+              'relative h-8 rounded-10 px-3 py-1.5 text-center transition-colors typo-callout',
               disabled && 'opacity-64',
               tab === activeView
                 ? 'bg-theme-active font-bold'

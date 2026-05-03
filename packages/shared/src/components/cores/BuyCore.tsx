@@ -49,7 +49,7 @@ export const BuyCore = ({
     <Link href={href}>
       <a
         href={href}
-        className="btn btn-tertiaryFloat flex flex-1 flex-col items-center rounded-14 p-2"
+        className="flex flex-1 flex-col items-center rounded-14 bg-surface-float p-2 transition-colors hover:bg-surface-hover"
         onClick={() => onBuyCoresClick({ amount, origin })}
       >
         <CoreIcon size={IconSize.XLarge} className="mb-1" />

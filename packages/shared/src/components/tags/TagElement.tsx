@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { AlertDot, AlertColor } from '../AlertDot';
@@ -21,7 +20,7 @@ export const TagElement = ({
   isHighlighted = false,
   ...attrs
 }: OnboardingTagProps): ReactElement => {
-  const className = classNames({ 'btn-tag': !isSelected }, 'relative');
+  const className = 'relative';
   const handleClick = () => onClick({ tag });
   const content = (
     <>

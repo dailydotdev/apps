@@ -8,7 +8,6 @@ import colors from './tailwind/colors';
 import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
 import typography from './tailwind/typography';
-import buttons from './tailwind/buttons';
 import buttonsV2 from './tailwind/buttons-v2';
 import background from './tailwind/colors/background';
 import accent from './tailwind/colors/accent';
@@ -304,7 +303,7 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, buttonsV2, safeArea, containerQueries],
+  plugins: [caret, typography, buttonsV2, safeArea, containerQueries],
   corePlugins: {
     invert: false,
   },

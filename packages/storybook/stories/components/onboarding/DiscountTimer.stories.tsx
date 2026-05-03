@@ -6,7 +6,7 @@ import {
 } from '@dailydotdev/shared/src/features/onboarding/shared/DiscountTimer';
 import { DISCOUNT_LOCAL_STORAGE_KEY } from '@dailydotdev/shared/src/features/onboarding/store/funnel.store';
 import { ButtonSize, ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
-import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 const meta: Meta<typeof DiscountTimer> = {
   title: 'Components/Onboarding/Shared/DiscountTimer',
@@ -70,13 +70,13 @@ export const WithSlot: Story = {
     isActive: true,
     className: "bg-brand-default text-white",
     children: (
-      <Button
+      <ButtonV2
         className=" bg-white text-black"
         size={ButtonSize.Medium}
         variant={ButtonVariant.Float}
       >
         Get my plan
-      </Button>
+      </ButtonV2>
     )
   },
 };

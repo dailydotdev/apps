@@ -161,7 +161,7 @@ function LoginForm({
         {onForgotPassword && (
           <ClickableText
             type="button"
-            className="btn-primary flex-1 grow-[2] underline"
+            className="flex-1 grow-[2] underline"
             onClick={() => onForgotPassword(innerEmail)}
           >
             Forgot password?

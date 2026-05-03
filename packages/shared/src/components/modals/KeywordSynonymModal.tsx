@@ -75,7 +75,10 @@ export default function KeywordSynonymModal({
         )}
       </Modal.Body>
       <Modal.Footer>
-        <ButtonV2 className=" btn-primary" onClick={() => setSynonym(query)}>
+        <ButtonV2
+          variant={ButtonVariant.Primary}
+          onClick={() => setSynonym(query)}
+        >
           Create
         </ButtonV2>
       </Modal.Footer>

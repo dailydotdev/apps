@@ -630,10 +630,7 @@ function RichTextInput(
     upload.queueCount === 0 ? (
       <ImageIcon />
     ) : (
-      <Loader
-        className="btn-loader"
-        innerClassName="before:border-t-accent-cabbage-default after:border-accent-cabbage-default"
-      />
+      <Loader innerClassName="before:border-t-accent-cabbage-default after:border-accent-cabbage-default" />
     );
 
   const remainingCharacters =

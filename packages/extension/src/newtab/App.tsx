@@ -28,6 +28,10 @@ import { useExtensionContext } from '@dailydotdev/shared/src/contexts/ExtensionC
 import { useConsoleLogo } from '@dailydotdev/shared/src/hooks/useConsoleLogo';
 import { DndContextProvider } from '@dailydotdev/shared/src/contexts/DndContext';
 import { structuredCloneJsonPolyfill } from '@dailydotdev/shared/src/lib/structuredClone';
+import {
+  ButtonV2,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { useCheckCoresRole } from '@dailydotdev/shared/src/hooks/useCheckCoresRole';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
@@ -57,13 +61,13 @@ const feedErrorFallback: ReactElement = (
   <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 px-6 text-center">
     <h1 className="typo-title2">Something went wrong</h1>
     <p className="text-text-tertiary">Please reload this page to continue.</p>
-    <button
+    <ButtonV2
       type="button"
-      className="btn-primary px-5 py-2"
+      variant={ButtonVariant.Primary}
       onClick={() => window.location.reload()}
     >
       Reload
-    </button>
+    </ButtonV2>
   </div>
 );
 

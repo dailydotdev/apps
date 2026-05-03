@@ -1,12 +1,11 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  Button,
+  ButtonV2,
   ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import { ButtonV2 } from '@dailydotdev/shared/src/components/buttons/ButtonV2';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 import { ColorName as ButtonColor } from '@dailydotdev/shared/src/styles/colors';
 import {
   PlusIcon,
@@ -108,12 +107,10 @@ const ColumnHeader = ({ children }: { children: React.ReactNode }) => (
 );
 
 /**
- * Headline story — every variant in every state, OLD next to NEW.
- *
- * Reads top-to-bottom so design/PM can scan diffs in one column.
+ * Headline story — every variant in every state.
  */
 export const States: Story = {
-  name: 'States — OLD vs NEW per variant',
+  name: 'States per variant',
   render: () => (
     <div className="flex flex-col gap-8">
       {Object.values(ButtonVariant).map((variant) => (
@@ -125,17 +122,14 @@ export const States: Story = {
             <h3 className="typo-callout font-bold text-text-primary">
               {variant}
             </h3>
-            <span className="typo-caption1 text-text-tertiary">
-              variant
-            </span>
+            <span className="typo-caption1 text-text-tertiary">variant</span>
           </header>
-          <div className="grid grid-cols-[120px_1fr_1fr] gap-1">
+          <div className="grid grid-cols-[120px_1fr] gap-1">
             <RowHeader>State</RowHeader>
-            <ColumnHeader>OLD `Button`</ColumnHeader>
-            <ColumnHeader>NEW `ButtonV2`</ColumnHeader>
+            <ColumnHeader>`ButtonV2`</ColumnHeader>
             {STATE_LABELS.map((state) => {
               const sp = stateProps[state];
-              const oldClasses = [
+              const classes = [
                 sp.hoverClass && 'hover',
                 sp.activeClass && 'active',
                 sp.focusClass && 'focus-visible',
@@ -146,22 +140,12 @@ export const States: Story = {
                 <React.Fragment key={state}>
                   <RowHeader>{state}</RowHeader>
                   <Cell>
-                    <Button
-                      variant={variant}
-                      disabled={sp.disabled}
-                      loading={sp.loading}
-                      className={oldClasses || undefined}
-                    >
-                      {state}
-                    </Button>
-                  </Cell>
-                  <Cell>
                     <ButtonV2
                       variant={variant}
                       disabled={sp.disabled}
                       inactive={sp.inactive}
                       loading={sp.loading}
-                      className={oldClasses || undefined}
+                      className={classes || undefined}
                     >
                       {state}
                     </ButtonV2>
@@ -286,7 +270,6 @@ export const Hierarchy: Story = {
   name: 'Hierarchy — real layout vignettes',
   render: () => (
     <div className="space-y-6">
-      {/* Modal footer — Primary + Secondary */}
       <section className="rounded-12 border border-border-subtlest-tertiary bg-background-default p-4">
         <header className="mb-3 typo-caption1 text-text-tertiary">
           Modal footer
@@ -302,7 +285,6 @@ export const Hierarchy: Story = {
         </div>
       </section>
 
-      {/* Card actions — Tertiary icon row */}
       <section className="rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4">
         <header className="mb-3 typo-caption1 text-text-tertiary">
           Card actions
@@ -325,7 +307,6 @@ export const Hierarchy: Story = {
         </div>
       </section>
 
-      {/* Toolbar — Float icon-only */}
       <section className="rounded-12 border border-border-subtlest-tertiary bg-background-default p-4">
         <header className="mb-3 typo-caption1 text-text-tertiary">
           Toolbar (icon-only Float)
@@ -357,8 +338,8 @@ export const InspirationAnchors: Story = {
   render: () => (
     <div className="space-y-4">
       <p className="typo-callout text-text-secondary">
-        Each row shows the same idea translated to our system.
-        Use these as the visual North Stars when reviewing.
+        Each row shows the same idea translated to our system. Use these as
+        the visual North Stars when reviewing.
       </p>
       <table className="w-full table-fixed border-separate border-spacing-y-3">
         <thead>
@@ -370,9 +351,7 @@ export const InspirationAnchors: Story = {
         </thead>
         <tbody>
           <tr>
-            <td className="typo-callout font-bold text-text-primary">
-              Linear
-            </td>
+            <td className="typo-callout font-bold text-text-primary">Linear</td>
             <td className="typo-callout text-text-secondary">
               Tight 6 px radius, ring + subtle lift on hover, ghost is
               first-class.
@@ -382,9 +361,7 @@ export const InspirationAnchors: Story = {
             </td>
           </tr>
           <tr>
-            <td className="typo-callout font-bold text-text-primary">
-              Notion
-            </td>
+            <td className="typo-callout font-bold text-text-primary">Notion</td>
             <td className="typo-callout text-text-secondary">
               8 px radius, warm hover bg, no transform — restraint.
             </td>
@@ -397,10 +374,9 @@ export const InspirationAnchors: Story = {
               ChatGPT
             </td>
             <td className="typo-callout text-text-secondary">
-              Quiet ghost defaults; semantic intents map to our food
-              palette. We keep ChatGPT&apos;s restraint but stay
-              rectangular — no oval pills, just a generous radius at
-              small sizes.
+              Quiet ghost defaults; semantic intents map to our food palette.
+              We keep ChatGPT&apos;s restraint but stay rectangular — no oval
+              pills, just a generous radius at small sizes.
             </td>
             <td>
               <div className="flex gap-2">
@@ -418,12 +394,10 @@ export const InspirationAnchors: Story = {
             </td>
           </tr>
           <tr>
-            <td className="typo-callout font-bold text-text-primary">
-              Claude
-            </td>
+            <td className="typo-callout font-bold text-text-primary">Claude</td>
             <td className="typo-callout text-text-secondary">
-              Sequential color ladder (60 → 70 → 80) for default → hover
-              → active; per-variant focus ring.
+              Sequential color ladder (60 → 70 → 80) for default → hover →
+              active; per-variant focus ring.
             </td>
             <td>
               <ButtonV2

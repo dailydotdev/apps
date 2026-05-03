@@ -6,9 +6,9 @@ import {
   DrawerPosition,
 } from '@dailydotdev/shared/src/components/drawers/Drawer';
 import {
-  Button,
+  ButtonV2,
   ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+} from '@dailydotdev/shared/src/components/buttons/ButtonV2';
 
 const meta: Meta<typeof DrawerComponent> = {
   title: 'Components/Drawers/Drawer',
@@ -51,20 +51,20 @@ export const Drawer: Story = {
 
     return (
       <>
-        <Button variant={ButtonVariant.Primary} onClick={() => setIsOpen(true)}>
+        <ButtonV2 variant={ButtonVariant.Primary} onClick={() => setIsOpen(true)}>
           Trigger
-        </Button>
+        </ButtonV2>
         <DrawerComponent {...props} ref={ref} isOpen={isOpen} onClose={() => setIsOpen(false)}>
           <Container>Test</Container>
           <Container>Test</Container>
           <Container>Test</Container>
           <Container>Test</Container>
-          <Button
+          <ButtonV2
             variant={ButtonVariant.Float}
             onClick={() => ref.current.onClose()}
           >
             Close
-          </Button>
+          </ButtonV2>
         </DrawerComponent>
         <p className="mt-4 typo-footnote text-text-tertiary">One thing to note:<br/>When implementing a custom "Close" button,you will have to utilize injecting a `ref` object which you will use when closing the drawer to keep the exit animation. <br/>The sample code here does that.</p>
       </>
