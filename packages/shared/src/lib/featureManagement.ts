@@ -172,3 +172,8 @@ export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
   false,
 );
+
+// NOTE: defaulted to `true` during the experiment build-out so the popup is
+// visible locally without GrowthBook config. Flip back to `false` before the
+// experiment goes live so GrowthBook controls exposure.
+export const featureSmartComposer = new Feature('smart_composer', false);

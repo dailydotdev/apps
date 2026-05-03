@@ -8,9 +8,11 @@ import { LockIcon } from '../icons';
 import { Card } from '../cards/common/Card';
 import { IconSize } from '../Icon';
 import { usePostToSquad, useViewSize, ViewSize } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { ClickableText } from '../buttons/ClickableText';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { featureSmartComposer } from '../../lib/featureManagement';
 import type { Squad } from '../../graphql/sources';
 import type { ExternalLinkPreview } from '../../graphql/posts';
 import { Divider } from '../utilities';
@@ -33,7 +35,14 @@ function SharePostBar({
   const { openModal } = useLazyModal();
   const [url, setUrl] = useState<string>('');
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const [urlFocused, toggleUrlFocus] = useState(false);
+  const { value: isSmartComposerEnabled } = useConditionalFeature({
+    feature: featureSmartComposer,
+    shouldEvaluate: !!user && isLaptop,
+  });
+  const useSmartComposer = isSmartComposerEnabled && isLaptop;
+
   const onSharedSuccessfully = () => {
     inputRef.current.value = '';
     setUrl('');
@@ -41,7 +50,20 @@ function SharePostBar({
 
   const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
-  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) =>
+  const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) => {
+    if (useSmartComposer) {
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: {
+          initialUrl: link ?? preview?.url,
+          initialSquadHandle: squad?.handle,
+          preview: { ...preview, url: link ?? preview?.url },
+        },
+      });
+      onSharedSuccessfully();
+      return;
+    }
+
     openModal({
       type: LazyModal.CreateSharedPost,
       props: {
@@ -50,6 +72,7 @@ function SharePostBar({
         onSharedSuccessfully,
       },
     });
+  };
 
   const onOpenHistory = () =>
     openModal({
@@ -66,6 +89,18 @@ function SharePostBar({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (useSmartComposer) {
+      // Skip preview fetch — let the popup handle it
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: {
+          initialUrl: url,
+          initialSquadHandle: squad?.handle,
+        },
+      });
+      onSharedSuccessfully();
+      return;
+    }
     await getLinkPreview(url);
   };
 

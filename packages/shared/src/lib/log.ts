@@ -106,6 +106,18 @@ export enum LogEvent {
   CommentPost = 'comment post',
   CommentsClick = 'comments click',
   StartSubmitArticle = 'start submit article',
+  // smart composer experiment - start
+  OpenSmartComposer = 'open smart composer',
+  SubmitSmartComposer = 'submit smart composer',
+  DismissSmartComposer = 'dismiss smart composer',
+  EscalateSmartComposer = 'escalate smart composer',
+  ExpandSmartComposer = 'expand smart composer',
+  AttachCoverSmartComposer = 'attach cover smart composer',
+  ChangeAudienceSmartComposer = 'change audience smart composer',
+  ToggleModeSmartComposer = 'toggle mode smart composer',
+  StartTitleSmartComposer = 'start title smart composer',
+  StartBodySmartComposer = 'start body smart composer',
+  // smart composer experiment - end
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',

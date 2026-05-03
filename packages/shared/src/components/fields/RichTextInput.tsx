@@ -146,6 +146,24 @@ interface RichTextInputProps {
   allowBlockFormatting?: boolean;
   minHeightClassName?: string;
   markdownToHtml?: (markdown: string) => string;
+  toolbarPosition?: 'top' | 'bottom';
+  toolbarRightActions?: ReactNode;
+  /**
+   * Extra buttons rendered after the auto-built inline actions (upload,
+   * mention, gif). Use this when the surrounding UI needs to inject
+   * primary affordances next to the editor's built-in inline actions.
+   */
+  extraInlineActions?: ReactNode;
+  /**
+   * Hide the built-in Markdown editor toggle in the toolbar. Useful when the
+   * caller surfaces that affordance elsewhere (e.g. an overflow menu).
+   */
+  hideMarkdownToggle?: boolean;
+  /**
+   * Suppress the default footer (submit hint + remaining-character counter).
+   * Use this when the surrounding UI provides its own status row.
+   */
+  hideFooter?: boolean;
 }
 
 export interface RichTextInputRef {
@@ -181,6 +199,11 @@ function RichTextInput(
     allowBlockFormatting = true,
     minHeightClassName = 'min-h-[8rem]',
     markdownToHtml = markdownToHtmlBasic,
+    toolbarPosition = 'top',
+    toolbarRightActions,
+    extraInlineActions,
+    hideMarkdownToggle = false,
+    hideFooter = false,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -311,8 +334,8 @@ function RichTextInput(
         orderedList: allowBlockFormatting ? undefined : false,
         listItem: allowBlockFormatting ? undefined : false,
         codeBlock: allowBlockFormatting ? undefined : false,
+        horizontalRule: allowBlockFormatting ? undefined : false,
         blockquote: false,
-        horizontalRule: false,
         link: false,
       }),
       Link.configure({
@@ -644,7 +667,8 @@ function RichTextInput(
           : editor?.storage.characterCount?.characters?.() ?? input.length)
       : null;
 
-  const hasToolbarActions = isUploadEnabled || isMentionEnabled || isGifEnabled;
+  const hasToolbarActions =
+    isUploadEnabled || isMentionEnabled || isGifEnabled || !!extraInlineActions;
   const toolbarActions = (
     <>
       {isUploadEnabled && (
@@ -683,6 +707,7 @@ function RichTextInput(
           onGifCommand={onGifCommand}
         />
       )}
+      {extraInlineActions}
     </>
   );
 
@@ -780,79 +805,114 @@ function RichTextInput(
             </>
           ) : (
             <>
-              <RichTextToolbar
-                ref={toolbarRef}
-                editor={editor}
-                allowBlockFormatting={allowBlockFormatting}
-                onLinkAdd={(url, label) => {
-                  if (!editor) {
-                    return;
-                  }
-                  if (!editor.state.selection.empty) {
-                    editor.chain().focus().setLink({ href: url }).run();
-                    return;
-                  }
-                  const linkText = label || url;
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContent({
-                      type: 'text',
-                      text: linkText,
-                      marks: [{ type: 'link', attrs: { href: url } }],
-                    })
-                    .run();
-                }}
-                inlineActions={hasToolbarActions ? toolbarActions : null}
-                rightActions={
-                  <div className="flex items-center gap-0">
-                    {savingLabel}
-                    <SimpleTooltip content="Switch to Markdown Editor">
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.Small}
-                        icon={<MarkdownIcon />}
-                        onClick={switchToMarkdownMode}
-                      />
-                    </SimpleTooltip>
-                    {onClose && (
-                      <CloseButton size={ButtonSize.Small} onClick={onClose} />
-                    )}
-                  </div>
-                }
-              />
-              {isUploadEnabled && (
-                <input
-                  type="file"
-                  className="hidden"
-                  name="content_upload"
-                  ref={upload.uploadRef}
-                  accept={allowedContentImage.join(',')}
-                  onInput={upload.onUpload}
-                />
-              )}
-              <div className="flex w-full flex-row">
-                {showUserAvatar && user && (
-                  <ProfilePicture
-                    size={ProfileImageSize.Large}
-                    className={classNames('ml-3 mt-3', className?.profile)}
-                    user={user}
-                    nativeLazyLoading
-                    fetchPriority="low"
+              {(() => {
+                const toolbar = (
+                  <RichTextToolbar
+                    ref={toolbarRef}
+                    editor={editor}
+                    allowBlockFormatting={allowBlockFormatting}
+                    borderless={toolbarPosition === 'bottom'}
+                    onLinkAdd={(url, label) => {
+                      if (!editor) {
+                        return;
+                      }
+                      if (!editor.state.selection.empty) {
+                        editor.chain().focus().setLink({ href: url }).run();
+                        return;
+                      }
+                      const linkText = label || url;
+                      editor
+                        .chain()
+                        .focus()
+                        .insertContent({
+                          type: 'text',
+                          text: linkText,
+                          marks: [{ type: 'link', attrs: { href: url } }],
+                        })
+                        .run();
+                    }}
+                    inlineActions={hasToolbarActions ? toolbarActions : null}
+                    rightActions={
+                      <div className="flex items-center gap-1">
+                        {savingLabel}
+                        {!hideMarkdownToggle && (
+                          <SimpleTooltip content="Switch to Markdown Editor">
+                            <Button
+                              type="button"
+                              variant={ButtonVariant.Tertiary}
+                              size={ButtonSize.Small}
+                              icon={<MarkdownIcon />}
+                              onClick={switchToMarkdownMode}
+                            />
+                          </SimpleTooltip>
+                        )}
+                        {toolbarRightActions}
+                        {onClose && (
+                          <CloseButton
+                            size={ButtonSize.Small}
+                            onClick={onClose}
+                          />
+                        )}
+                      </div>
+                    }
                   />
-                )}
-                <EditorContent
-                  editor={editor}
-                  className={classNames(
-                    styles.editor,
-                    minHeightClassName,
-                    'min-w-0 flex-1 p-4',
-                    showUserAvatar && user && 'ml-3 tablet:ml-0',
-                    className?.input,
-                  )}
-                />
-              </div>
+                );
+
+                const editorBody = (
+                  <>
+                    {isUploadEnabled && (
+                      <input
+                        type="file"
+                        className="hidden"
+                        name="content_upload"
+                        ref={upload.uploadRef}
+                        accept={allowedContentImage.join(',')}
+                        onInput={upload.onUpload}
+                      />
+                    )}
+                    <div className="flex w-full flex-row">
+                      {showUserAvatar && user && (
+                        <ProfilePicture
+                          size={ProfileImageSize.Large}
+                          className={classNames(
+                            'ml-3 mt-3',
+                            className?.profile,
+                          )}
+                          user={user}
+                          nativeLazyLoading
+                          fetchPriority="low"
+                        />
+                      )}
+                      <EditorContent
+                        editor={editor}
+                        className={classNames(
+                          styles.editor,
+                          minHeightClassName,
+                          'min-w-0 flex-1 p-4',
+                          showUserAvatar && user && 'ml-3 tablet:ml-0',
+                          className?.input,
+                        )}
+                      />
+                    </div>
+                  </>
+                );
+
+                if (toolbarPosition === 'bottom') {
+                  return (
+                    <>
+                      {editorBody}
+                      {toolbar}
+                    </>
+                  );
+                }
+
+                return (
+                  <>
+                    {toolbar}
+                    {editorBody}
+                  </>
+                );
+              })()}
             </>
           )}
           {textareaProps.name && (
@@ -891,41 +951,43 @@ function RichTextInput(
           onClickOutside={emoji.clearEmoji}
         />
       )}
-      {footer ?? (
-        <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
-          {shouldShowSubmit && !isMarkdownMode && (
-            <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
-              Press {submitShortcut} to send
-            </span>
-          )}
-          {maxLength && remainingCharacters !== null && (
-            <span
-              className={classNames(
-                'ml-auto font-bold typo-callout',
-                remainingCharacters < 100
-                  ? 'text-status-warning'
-                  : 'text-text-tertiary',
+      {hideFooter
+        ? null
+        : footer ?? (
+            <span className="flex flex-row items-center gap-3 border-border-subtlest-tertiary p-2 px-3 text-text-tertiary laptop:border-t">
+              {shouldShowSubmit && !isMarkdownMode && (
+                <span className="hidden text-text-quaternary typo-caption1 tablet:inline">
+                  Press {submitShortcut} to send
+                </span>
               )}
-            >
-              {remainingCharacters}
+              {maxLength && remainingCharacters !== null && (
+                <span
+                  className={classNames(
+                    'ml-auto font-bold typo-callout',
+                    remainingCharacters < 100
+                      ? 'text-status-warning'
+                      : 'text-text-tertiary',
+                  )}
+                >
+                  {remainingCharacters}
+                </span>
+              )}
+              {shouldShowSubmit && (
+                <Button
+                  size={ButtonSize.Small}
+                  className={
+                    maxLength && remainingCharacters !== null ? '' : 'ml-auto'
+                  }
+                  variant={submitButtonVariant}
+                  type="submit"
+                  disabled={isLoading || disabledSubmit || isInputEmpty}
+                  loading={isLoading}
+                >
+                  {submitCopy}
+                </Button>
+              )}
             </span>
           )}
-          {shouldShowSubmit && (
-            <Button
-              size={ButtonSize.Small}
-              className={
-                maxLength && remainingCharacters !== null ? '' : 'ml-auto'
-              }
-              variant={submitButtonVariant}
-              type="submit"
-              disabled={isLoading || disabledSubmit || isInputEmpty}
-              loading={isLoading}
-            >
-              {submitCopy}
-            </Button>
-          )}
-        </span>
-      )}
     </div>
   );
 }

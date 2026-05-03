@@ -4,6 +4,10 @@ import { useRouter } from 'next/router';
 import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useSquad, useViewSize, ViewSize } from '../../../hooks';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { LazyModal } from '../../modals/common/types';
+import { featureSmartComposer } from '../../../lib/featureManagement';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
 import type {
@@ -43,6 +47,11 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
+  const { openModal } = useLazyModal();
+  const { value: isSmartComposerEnabled } = useConditionalFeature({
+    feature: featureSmartComposer,
+    shouldEvaluate: !!user && isLaptop,
+  });
   const handle = route === '/squads/[handle]' ? (query.handle as string) : '';
   const { squad } = useSquad({ handle });
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
@@ -87,12 +96,33 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const href =
     link.post.create + (squad && allowedToPost ? `?sid=${squad.handle}` : '');
 
+  const useSmartComposer = isSmartComposerEnabled && isLaptop && !onClick;
+  const handleSmartComposerOpen = (
+    e: React.MouseEvent<AllowedElements, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    openModal({
+      type: LazyModal.SmartComposer,
+      props: {
+        initialSquadHandle: squad && allowedToPost ? squad.handle : undefined,
+      },
+    });
+  };
+
   const buttonProps: {
     tag?: AllowedTags;
     onClick?: (e: React.MouseEvent<AllowedElements, MouseEvent>) => void;
-  } = onClick ? { onClick } : { tag: 'a' };
+  } = (() => {
+    if (useSmartComposer) {
+      return { onClick: handleSmartComposerOpen };
+    }
+    if (onClick) {
+      return { onClick };
+    }
+    return { tag: 'a' };
+  })();
 
-  const shouldUseLink = !onClick;
+  const shouldUseLink = !onClick && !useSmartComposer;
 
   const shouldShowAsCompact =
     compact !== false && ((isLaptop && !isLaptopL) || compact);
