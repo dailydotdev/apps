@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -76,6 +76,129 @@ const getChatReactionGroups = (
   });
 
   return [...groups.values()];
+};
+
+const reactionPopKeyframes: Keyframe[] = [
+  { transform: 'scale(1)' },
+  { transform: 'scale(1.18)' },
+  { transform: 'scale(1)' },
+];
+
+const reactionPopOptions: KeyframeAnimationOptions = {
+  duration: 260,
+  easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+};
+
+const FIRST_REACTION_PARTICLE_COUNT = 6;
+const FIRST_REACTION_BURST_DURATION_MS = 720;
+const FIRST_REACTION_PARTICLE_MAX_DELAY_MS = 90;
+const FIRST_REACTION_BURST_CLEAR_DELAY_MS =
+  FIRST_REACTION_BURST_DURATION_MS + FIRST_REACTION_PARTICLE_MAX_DELAY_MS;
+
+interface FirstReactionBurstProps {
+  emoji: string;
+  signal: number;
+}
+
+const FirstReactionBurst = ({
+  emoji,
+  signal,
+}: FirstReactionBurstProps): ReactElement | null => {
+  const particles = useMemo(() => {
+    if (!signal) {
+      return [];
+    }
+
+    const arcSpan = Math.PI * 0.9;
+    const baseAngle = -Math.PI / 2 - arcSpan / 2;
+    const step = arcSpan / Math.max(1, FIRST_REACTION_PARTICLE_COUNT - 1);
+
+    return Array.from({ length: FIRST_REACTION_PARTICLE_COUNT }, (_, index) => {
+      const angle = baseAngle + step * index + (Math.random() - 0.5) * 0.25;
+      const distance = 26 + Math.random() * 18;
+      return {
+        tx: Math.round(Math.cos(angle) * distance),
+        ty: Math.round(Math.sin(angle) * distance),
+        delay: Math.round(Math.random() * FIRST_REACTION_PARTICLE_MAX_DELAY_MS),
+      };
+    });
+  }, [signal]);
+
+  if (!signal) {
+    return null;
+  }
+
+  return (
+    <span
+      key={signal}
+      aria-hidden
+      className="z-10 pointer-events-none absolute left-2 top-0 block size-0"
+    >
+      {particles.map((particle, index) => (
+        <span
+          // eslint-disable-next-line react/no-array-index-key
+          key={index}
+          className="absolute left-0 top-0 block animate-reaction-burst text-sm leading-none opacity-0"
+          style={
+            {
+              '--burst-tx': `${particle.tx}px`,
+              '--burst-ty': `${particle.ty}px`,
+              animationDelay: `${particle.delay}ms`,
+            } as React.CSSProperties
+          }
+        >
+          {emoji}
+        </span>
+      ))}
+    </span>
+  );
+};
+
+interface ChatReactionChipProps {
+  emoji: string;
+  count: number;
+  ariaLabel: string;
+  disabled: boolean;
+  isSending: boolean;
+  pulseSignal: number;
+  onClick: () => void;
+}
+
+const ChatReactionChip = ({
+  emoji,
+  count,
+  ariaLabel,
+  disabled,
+  isSending,
+  pulseSignal,
+  onClick,
+}: ChatReactionChipProps): ReactElement => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const lastPulseRef = useRef(pulseSignal);
+
+  useEffect(() => {
+    if (pulseSignal === lastPulseRef.current) {
+      return;
+    }
+
+    lastPulseRef.current = pulseSignal;
+    ref.current?.animate?.(reactionPopKeyframes, reactionPopOptions);
+  }, [pulseSignal]);
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className="flex h-6 items-center gap-1 rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 text-xs leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <span>{emoji}</span>
+      <span>{count}</span>
+      {isSending ? <span className="sr-only">Sending</span> : null}
+    </button>
+  );
 };
 
 interface LiveRoomChatComposerProps {
@@ -253,6 +376,117 @@ export const LiveRoomChatPanel = ({
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [reactionBusy, setReactionBusy] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [reactionPulseSignals, setReactionPulseSignals] = useState<
+    Map<string, number>
+  >(() => new Map());
+  const [firstReactionBursts, setFirstReactionBursts] = useState<
+    Map<string, { emoji: string; signal: number }>
+  >(() => new Map());
+  const previousReactionCountsRef = useRef<Map<string, number>>(new Map());
+  const previousMessagesWithReactionsRef = useRef<Set<string>>(new Set());
+  const hasInitializedReactionsRef = useRef(false);
+  const firstReactionBurstTimeoutsRef = useRef<
+    Map<string, ReturnType<typeof setTimeout>>
+  >(new Map());
+
+  useEffect(() => {
+    const firstReactionBurstTimeouts = firstReactionBurstTimeoutsRef.current;
+
+    return () => {
+      firstReactionBurstTimeouts.forEach(clearTimeout);
+      firstReactionBurstTimeouts.clear();
+    };
+  }, []);
+
+  useEffect(() => {
+    const nextCounts = new Map<string, number>();
+    const messagesWithReactions = new Set<string>();
+    const firstReactionEmojiByMessage = new Map<string, string>();
+
+    chatMessages.forEach((message) => {
+      message.reactions?.forEach((reaction) => {
+        const key = `${message.messageId}-${reaction.key}`;
+        nextCounts.set(key, (nextCounts.get(key) ?? 0) + 1);
+        messagesWithReactions.add(message.messageId);
+        if (!firstReactionEmojiByMessage.has(message.messageId)) {
+          firstReactionEmojiByMessage.set(message.messageId, reaction.key);
+        }
+      });
+    });
+
+    if (hasInitializedReactionsRef.current) {
+      const newlyIncreased: string[] = [];
+      nextCounts.forEach((count, key) => {
+        const previousCount = previousReactionCountsRef.current.get(key) ?? 0;
+        if (count > previousCount) {
+          newlyIncreased.push(key);
+        }
+      });
+
+      if (newlyIncreased.length > 0) {
+        setReactionPulseSignals((current) => {
+          const next = new Map(current);
+          newlyIncreased.forEach((key) => {
+            next.set(key, (next.get(key) ?? 0) + 1);
+          });
+          return next;
+        });
+      }
+
+      const newlyReactedMessageIds: { messageId: string; emoji: string }[] = [];
+      messagesWithReactions.forEach((messageId) => {
+        if (previousMessagesWithReactionsRef.current.has(messageId)) {
+          return;
+        }
+        const emoji = firstReactionEmojiByMessage.get(messageId);
+        if (!emoji) {
+          return;
+        }
+        newlyReactedMessageIds.push({ messageId, emoji });
+      });
+
+      if (newlyReactedMessageIds.length > 0) {
+        setFirstReactionBursts((current) => {
+          const next = new Map(current);
+          newlyReactedMessageIds.forEach(({ messageId, emoji }) => {
+            const previous = next.get(messageId);
+            next.set(messageId, {
+              emoji,
+              signal: (previous?.signal ?? 0) + 1,
+            });
+          });
+          return next;
+        });
+
+        newlyReactedMessageIds.forEach(({ messageId }) => {
+          const currentTimeout =
+            firstReactionBurstTimeoutsRef.current.get(messageId);
+          if (currentTimeout) {
+            clearTimeout(currentTimeout);
+          }
+
+          const timeout = setTimeout(() => {
+            setFirstReactionBursts((activeBursts) => {
+              const activeBurst = activeBursts.get(messageId);
+              if (!activeBurst) {
+                return activeBursts;
+              }
+
+              const remainingBursts = new Map(activeBursts);
+              remainingBursts.delete(messageId);
+              return remainingBursts;
+            });
+            firstReactionBurstTimeoutsRef.current.delete(messageId);
+          }, FIRST_REACTION_BURST_CLEAR_DELAY_MS);
+          firstReactionBurstTimeoutsRef.current.set(messageId, timeout);
+        });
+      }
+    }
+
+    previousReactionCountsRef.current = nextCounts;
+    previousMessagesWithReactionsRef.current = messagesWithReactions;
+    hasInitializedReactionsRef.current = true;
+  }, [chatMessages]);
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -369,6 +603,9 @@ export const LiveRoomChatPanel = ({
               activeReactionCount: reactionGroups.length,
               quickReactionCount: quickReactionKeys.length,
             };
+            const firstReactionBurst = firstReactionBursts.get(
+              message.messageId,
+            );
 
             return (
               <article
@@ -399,21 +636,27 @@ export const LiveRoomChatPanel = ({
                   {showReactionRow ? (
                     <div
                       className={classNames(
-                        'mt-1 flex flex-wrap items-center gap-1 transition-opacity',
+                        'relative mt-1 flex flex-wrap items-center gap-1 transition-opacity',
                         reactionGroups.length === 0
                           ? 'opacity-100 tablet:opacity-0 tablet:group-focus-within:opacity-100 tablet:group-hover:opacity-100'
                           : 'opacity-100',
                       )}
                     >
+                      {firstReactionBurst ? (
+                        <FirstReactionBurst
+                          emoji={firstReactionBurst.emoji}
+                          signal={firstReactionBurst.signal}
+                        />
+                      ) : null}
                       {reactionGroups.map((reaction) => {
-                        const busyKey = `${message.messageId}-${reaction.key}`;
+                        const reactionKey = `${message.messageId}-${reaction.key}`;
 
                         return (
-                          <button
+                          <ChatReactionChip
                             key={reaction.key}
-                            type="button"
-                            className="flex h-6 items-center gap-1 rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 text-xs leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50"
-                            aria-label={`${
+                            emoji={reaction.key}
+                            count={reaction.count}
+                            ariaLabel={`${
                               reaction.isReactedByCurrentParticipant
                                 ? 'Remove'
                                 : 'React'
@@ -423,6 +666,10 @@ export const LiveRoomChatPanel = ({
                                 : 'to'
                             } message from ${senderName}`}
                             disabled={!canChat || !!reactionBusy}
+                            isSending={reactionBusy === reactionKey}
+                            pulseSignal={
+                              reactionPulseSignals.get(reactionKey) ?? 0
+                            }
                             onClick={() =>
                               runReactionAction(
                                 message.messageId,
@@ -434,13 +681,7 @@ export const LiveRoomChatPanel = ({
                                 reaction.isReactedByCurrentParticipant,
                               )
                             }
-                          >
-                            <span>{reaction.key}</span>
-                            <span>{reaction.count}</span>
-                            {reactionBusy === busyKey ? (
-                              <span className="sr-only">Sending</span>
-                            ) : null}
-                          </button>
+                          />
                         );
                       })}
                       {showQuickReactions || canChat ? (
