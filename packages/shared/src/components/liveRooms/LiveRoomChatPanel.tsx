@@ -32,6 +32,10 @@ import {
   buildParticipantProfile,
   userDisplayName,
 } from './liveRoomParticipants';
+import {
+  LiveRoomChatReactions,
+  type ChatReactionAnalytics,
+} from './LiveRoomChatReactions';
 
 interface LiveRoomChatComposerProps {
   canChat: boolean;
@@ -154,6 +158,7 @@ interface LiveRoomChatPanelProps {
   participantProfilesById: Map<string, UserShortProfile>;
   mentionSuggestions: UserShortProfile[];
   participantChatPermissions: Record<string, boolean>;
+  currentParticipantId: string | null;
   hostParticipantId: string;
   coHostParticipantIds: string[];
   canChat: boolean;
@@ -163,6 +168,16 @@ interface LiveRoomChatPanelProps {
   hasHostPrivileges: boolean;
   onSendMessage: (body: string) => Promise<void>;
   onDeleteMessage: (messageId: string) => Promise<void>;
+  onSendMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
+  onRemoveMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
   onKickParticipant: (participantId: string) => Promise<void>;
   onSetParticipantChatEnabled: (
     targetParticipantId: string,
@@ -176,6 +191,7 @@ export const LiveRoomChatPanel = ({
   participantProfilesById,
   mentionSuggestions,
   participantChatPermissions,
+  currentParticipantId,
   hostParticipantId,
   coHostParticipantIds,
   canChat,
@@ -185,6 +201,8 @@ export const LiveRoomChatPanel = ({
   hasHostPrivileges,
   onSendMessage,
   onDeleteMessage,
+  onSendMessageReaction,
+  onRemoveMessageReaction,
   onKickParticipant,
   onSetParticipantChatEnabled,
   onRequestLogin,
@@ -192,6 +210,7 @@ export const LiveRoomChatPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
+  const [reactionBusy, setReactionBusy] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -233,6 +252,26 @@ export const LiveRoomChatPanel = ({
       });
   };
 
+  const runReactionAction = (
+    messageId: string,
+    reactionKey: string,
+    analytics: ChatReactionAnalytics,
+    shouldRemove = false,
+  ): void => {
+    const key = `${messageId}-${reactionKey}`;
+    if (reactionBusy || !canChat) {
+      return;
+    }
+
+    setReactionBusy(key);
+    const action = shouldRemove
+      ? onRemoveMessageReaction
+      : onSendMessageReaction;
+    action(messageId, reactionKey, analytics)
+      .catch(() => undefined)
+      .finally(() => setReactionBusy(null));
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -271,6 +310,7 @@ export const LiveRoomChatPanel = ({
               hasHostPrivileges &&
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
+            const senderName = userDisplayName(sender);
 
             return (
               <article
@@ -280,9 +320,7 @@ export const LiveRoomChatPanel = ({
                 <ProfilePicture user={sender} size={ProfileImageSize.Small} />
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">
-                      {userDisplayName(sender)}
-                    </span>
+                    <span className="mr-2 inline font-bold">{senderName}</span>
                     {isSenderHost ? (
                       <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
                         Host
@@ -300,6 +338,14 @@ export const LiveRoomChatPanel = ({
                       })}
                     />
                   </div>
+                  <LiveRoomChatReactions
+                    message={message}
+                    currentParticipantId={currentParticipantId}
+                    canChat={canChat}
+                    senderName={senderName}
+                    reactionBusy={reactionBusy}
+                    onReactionAction={runReactionAction}
+                  />
                 </div>
                 {hasHostPrivileges ? (
                   <div

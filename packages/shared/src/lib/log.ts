@@ -269,6 +269,8 @@ export enum LogEvent {
   OpenStandupReactions = 'open standup reactions',
   SwitchStandupPanelTab = 'switch standup panel tab',
   SendStandupReaction = 'send standup reaction',
+  SendStandupChatReaction = 'send standup chat reaction',
+  RemoveStandupChatReaction = 'remove standup chat reaction',
   SendStandupChatMessage = 'send standup chat message',
   DeleteStandupChatMessage = 'delete standup chat message',
   UpdateStandupChatAccess = 'update standup chat access',

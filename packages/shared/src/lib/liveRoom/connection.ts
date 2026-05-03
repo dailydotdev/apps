@@ -1,5 +1,7 @@
 import type {
   ChatMessageDeletedEvent,
+  ChatMessageReactionRemovedEvent,
+  ChatMessageReactionSentEvent,
   ChatMessageSentEvent,
   LiveRoomCommand,
   LiveRoomServerEvent,
@@ -66,6 +68,14 @@ export class LiveRoomConnection {
 
   private readonly chatDeletedListeners = new Set<
     Listener<ChatMessageDeletedEvent>
+  >();
+
+  private readonly chatReactionListeners = new Set<
+    Listener<ChatMessageReactionSentEvent>
+  >();
+
+  private readonly chatReactionRemovedListeners = new Set<
+    Listener<ChatMessageReactionRemovedEvent>
   >();
 
   private readonly closeListeners = new Set<
@@ -214,6 +224,20 @@ export class LiveRoomConnection {
     return () => this.chatDeletedListeners.delete(listener);
   }
 
+  onChatMessageReaction(
+    listener: Listener<ChatMessageReactionSentEvent>,
+  ): () => void {
+    this.chatReactionListeners.add(listener);
+    return () => this.chatReactionListeners.delete(listener);
+  }
+
+  onChatMessageReactionRemoved(
+    listener: Listener<ChatMessageReactionRemovedEvent>,
+  ): () => void {
+    this.chatReactionRemovedListeners.add(listener);
+    return () => this.chatReactionRemovedListeners.delete(listener);
+  }
+
   onClose(listener: Listener<{ code: number; reason: string }>): () => void {
     this.closeListeners.add(listener);
     return () => this.closeListeners.delete(listener);
@@ -259,6 +283,16 @@ export class LiveRoomConnection {
       }
       case 'chat.message.deleted': {
         this.chatDeletedListeners.forEach((listener) => listener(parsed));
+        return;
+      }
+      case 'chat.message.reaction.sent': {
+        this.chatReactionListeners.forEach((listener) => listener(parsed));
+        return;
+      }
+      case 'chat.message.reaction.removed': {
+        this.chatReactionRemovedListeners.forEach((listener) =>
+          listener(parsed),
+        );
         return;
       }
       case 'command.succeeded': {

@@ -23,6 +23,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
+import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import { LogEvent } from '../../lib/log';
 import { Modal } from '../modals/common/Modal';
 import {
@@ -38,8 +39,6 @@ import {
   VIDEO_QUALITY_ITEMS,
   VIDEO_QUALITY_LABEL,
 } from './LiveRoomControlPrimitives';
-
-const REACTION_EMOJIS = ['👏', '🔥', '💡', '😂', '🤯'];
 
 interface LiveRoomControlsProps {
   roomId: string;
@@ -227,7 +226,7 @@ export const LiveRoomControls = ({
       <div className="pointer-events-auto relative flex w-full max-w-[42rem] flex-col items-center gap-2">
         {reactionsOpen ? (
           <div className="flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-1.5 shadow-2">
-            {REACTION_EMOJIS.map((emoji) => (
+            {LIVE_ROOM_QUICK_REACTION_EMOJIS.map((emoji) => (
               <Button
                 key={emoji}
                 type="button"

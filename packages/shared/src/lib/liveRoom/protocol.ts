@@ -67,6 +67,20 @@ export interface LiveRoomChatMessage {
   createdAt: string;
 }
 
+export interface LiveRoomChatMessageReaction {
+  messageId: string;
+  participantId: string;
+  key: string;
+  createdAt: string;
+}
+
+export interface LiveRoomRemovedChatMessageReaction {
+  messageId: string;
+  participantId: string;
+  key: string;
+  removedAt: string;
+}
+
 export interface SessionReadyEvent {
   type: 'session.ready';
   roomId: string;
@@ -110,6 +124,18 @@ export interface ChatMessageDeletedEvent {
   deletedAt: string;
 }
 
+export interface ChatMessageReactionSentEvent {
+  type: 'chat.message.reaction.sent';
+  roomId: string;
+  messageReaction: LiveRoomChatMessageReaction;
+}
+
+export interface ChatMessageReactionRemovedEvent {
+  type: 'chat.message.reaction.removed';
+  roomId: string;
+  messageReaction: LiveRoomRemovedChatMessageReaction;
+}
+
 export interface CommandSucceededEvent {
   type: 'command.succeeded';
   requestId: string;
@@ -129,6 +155,8 @@ export type LiveRoomServerEvent =
   | ReactionSentEvent
   | ChatMessageSentEvent
   | ChatMessageDeletedEvent
+  | ChatMessageReactionSentEvent
+  | ChatMessageReactionRemovedEvent
   | CommandSucceededEvent
   | CommandFailedEvent;
 
@@ -166,6 +194,8 @@ export type LiveRoomCommand =
   | { type: 'room.cohost.revoke'; targetParticipantId: string }
   | { type: 'chat.message.send'; body: string }
   | { type: 'chat.message.delete'; messageId: string }
+  | { type: 'chat.message.reaction.send'; messageId: string; key: string }
+  | { type: 'chat.message.reaction.remove'; messageId: string; key: string }
   | {
       type: 'chat.privilege.set';
       targetParticipantId: string;

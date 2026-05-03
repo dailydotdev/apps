@@ -19,6 +19,7 @@ import { Loader } from '../Loader';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomChatPanel } from './LiveRoomChatPanel';
+import type { ChatReactionAnalytics } from './LiveRoomChatReactions';
 import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
@@ -28,6 +29,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
+import { isDevelopment } from '../../lib/constants';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent } from '../../lib/log';
@@ -157,6 +159,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     participantId,
     sendChatMessage,
     deleteChatMessage,
+    sendChatMessageReaction,
+    removeChatMessageReaction,
     grantCoHost,
     revokeCoHost,
     setParticipantChatEnabled,
@@ -184,6 +188,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
   const { onAskConfirmation } = useExitConfirmation({
     message: 'Leave the standup? You will disconnect from the stream.',
+    enabled: !isDevelopment,
     onValidateAction: () => status !== 'connected',
   });
 
@@ -292,6 +297,44 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     } catch (error) {
       displayToast(
         error instanceof Error ? error.message : 'Could not delete message',
+      );
+    }
+  };
+
+  const handleSendChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await sendChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.SendStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not react to message',
+      );
+    }
+  };
+
+  const handleRemoveChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await removeChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.RemoveStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not remove reaction',
       );
     }
   };
@@ -892,6 +935,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 participantProfilesById={participantProfilesById}
                 mentionSuggestions={mentionSuggestions}
                 participantChatPermissions={roomState?.chatPermissions ?? {}}
+                currentParticipantId={participantId}
                 hostParticipantId={room.host.id}
                 coHostParticipantIds={coHostParticipantIds}
                 canChat={canChat}
@@ -901,6 +945,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 hasHostPrivileges={hasHostPrivileges}
                 onSendMessage={handleSendChatMessage}
                 onDeleteMessage={handleDeleteChatMessage}
+                onSendMessageReaction={handleSendChatMessageReaction}
+                onRemoveMessageReaction={handleRemoveChatMessageReaction}
                 onKickParticipant={handleKickChatParticipant}
                 onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
                 onRequestLogin={handleChatLogin}
