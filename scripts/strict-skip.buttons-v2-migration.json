@@ -151,6 +151,7 @@
   "packages/webapp/pages/wallet.tsx",
   "packages/webapp/pages/welcome/index.tsx",
   "packages/shared/src/hooks/feed/useFollowPostTags.ts",
-  "packages/webapp/pages/tags/index.tsx"
+  "packages/webapp/pages/tags/index.tsx",
+  "packages/shared/src/lib/featureManagement.ts"
   ]
 }

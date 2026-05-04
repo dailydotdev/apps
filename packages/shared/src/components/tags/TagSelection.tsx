@@ -3,13 +3,22 @@ import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { QueryFilters } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import useFeedSettings from '../../hooks/useFeedSettings';
+import useFeedSettings, {
+  getFeedSettingsQueryKey,
+} from '../../hooks/useFeedSettings';
 import { RequestKey, generateQueryKey } from '../../lib/query';
-import type { TagsData } from '../../graphql/feedSettings';
+import type {
+  AllTagCategoriesData,
+  TagsData,
+} from '../../graphql/feedSettings';
+import { useAuthContext } from '../../contexts/AuthContext';
 import {
   GET_ONBOARDING_TAGS_QUERY,
   GET_RECOMMENDED_TAGS_QUERY,
+  ONBOARDING_RECOMMEND_TAGS_MUTATION,
 } from '../../graphql/feedSettings';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingTagRecommender } from '../../lib/featureManagement';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -64,10 +73,15 @@ export function TagSelection({
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
+  const { user } = useAuthContext();
   const { feedSettings } = useFeedSettings({ feedId });
   const selectedTags = useMemo(() => {
     return new Set(feedSettings?.includeTags || []);
   }, [feedSettings?.includeTags]);
+  const { value: isTagRecommenderEnabled } = useConditionalFeature({
+    feature: featureOnboardingTagRecommender,
+    shouldEvaluate: origin === Origin.Onboarding,
+  });
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin,
     shouldUpdateAlerts,
@@ -132,22 +146,69 @@ export function TagSelection({
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation({
     mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
-      const result = await gqlClient.request<{
-        recommendedTags: TagsData;
-      }>(GET_RECOMMENDED_TAGS_QUERY, {
-        tags: [tag.name],
-        excludedTags,
-      });
+      const tagName = tag.name;
+      if (!tagName) {
+        return new Set<string>();
+      }
+
+      let recommended: TagsData['tags'];
+
+      if (isTagRecommenderEnabled) {
+        // Read the freshest selection from the cache rather than the closure-bound
+        // memo: collaborative-filtering quality depends on an accurate input set.
+        // onFollowTags runs after recommendTags, so the just-clicked tag isn't
+        // yet in the cache. Append it to satisfy the [String!]! min-1 constraint.
+        const cached = queryClient.getQueryData<AllTagCategoriesData>(
+          getFeedSettingsQueryKey(user, feedId),
+        );
+        const currentSelection = cached?.feedSettings?.includeTags ?? [];
+        const selectedForMutation = currentSelection.includes(tagName)
+          ? currentSelection
+          : [...currentSelection, tagName];
+
+        const result = await gqlClient.request<{
+          onboardingRecommendTags: { tags: string[] };
+        }>(ONBOARDING_RECOMMEND_TAGS_MUTATION, {
+          selectedTags: selectedForMutation,
+          n: 10,
+        });
+
+        recommended = result.onboardingRecommendTags.tags.map((name) => ({
+          name,
+        }));
+      } else {
+        const result = await gqlClient.request<{
+          recommendedTags: TagsData;
+        }>(GET_RECOMMENDED_TAGS_QUERY, {
+          tags: [tagName],
+          excludedTags,
+        });
+        recommended = result.recommendedTags.tags;
+      }
 
       const recommendedTagsSet = new Set(
-        result.recommendedTags.tags.map((item) => item.name),
+        recommended
+          .map((item) => item.name)
+          .filter((name): name is string => !!name),
       );
 
       queryClient.setQueryData<TagsData>(onboardingTagsQueryKey, (current) => {
-        const newTags = [...current.tags];
-        const insertIndex = newTags.findIndex((item) => item.name === tag.name);
+        if (!current) {
+          return current;
+        }
+        const existingNames = new Set(current.tags.map((item) => item.name));
+        const newRecommended = recommended.filter(
+          (item) => item.name && !existingNames.has(item.name),
+        );
 
-        newTags.splice(insertIndex + 1, 0, ...result.recommendedTags.tags);
+        if (!newRecommended.length) {
+          return current;
+        }
+
+        const newTags = [...current.tags];
+        const insertIndex = newTags.findIndex((item) => item.name === tagName);
+
+        newTags.splice(insertIndex + 1, 0, ...newRecommended);
 
         return {
           tags: newTags,
@@ -159,15 +220,22 @@ export function TagSelection({
   });
 
   const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
+    const tagName = tag.name;
+    if (!tagName) {
+      return;
+    }
     const isSearchMode = !!searchQuery;
-    const isSelected = selectedTags.has(tag.name);
+    const isSelected = selectedTags.has(tagName);
 
     if (!isSelected) {
       if (isSearchMode) {
         queryClient.setQueryData<TagsData>(
           onboardingTagsQueryKey,
           (current) => {
-            if (!excludedTags.includes(tag.name)) {
+            if (!current) {
+              return current;
+            }
+            if (!excludedTags.includes(tagName)) {
               return {
                 ...current,
                 tags: [...current.tags, tag],
@@ -181,9 +249,9 @@ export function TagSelection({
 
       recommendTags({ tag });
 
-      await onFollowTags({ tags: [tag.name] });
+      await onFollowTags({ tags: [tagName] });
     } else {
-      await onUnfollowTags({ tags: [tag.name] });
+      await onUnfollowTags({ tags: [tagName] });
     }
 
     if (onClickTag) {
@@ -194,7 +262,7 @@ export function TagSelection({
   };
 
   const tags = searchQuery ? searchTags : onboardingTags;
-  const renderedTags = {};
+  const renderedTags: Record<string, boolean> = {};
 
   return (
     <div className={classNames(className, 'flex w-full flex-col items-center')}>
@@ -227,16 +295,20 @@ export function TagSelection({
         )}
         {!isPending &&
           tags?.map((tag) => {
-            const isSelected = selectedTags.has(tag.name);
-            renderedTags[tag.name] = true;
+            if (!tag.name) {
+              return null;
+            }
+            const tagName = tag.name;
+            const isSelected = selectedTags.has(tagName);
+            renderedTags[tagName] = true;
 
             return (
               <TagElement
-                key={`tag-${tag.name}`}
+                key={`tag-${tagName}`}
                 tag={tag}
                 onClick={handleClickTag}
                 isSelected={isSelected}
-                isHighlighted={!searchQuery && !!recommendedTags?.has(tag.name)}
+                isHighlighted={!searchQuery && !!recommendedTags?.has(tagName)}
                 data-funnel-track={FunnelTargetId.FeedTag}
               />
             );

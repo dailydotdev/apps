@@ -190,3 +190,11 @@ export const GET_RECOMMENDED_TAGS_QUERY = gql`
     }
   }
 `;
+
+export const ONBOARDING_RECOMMEND_TAGS_MUTATION = gql`
+  mutation OnboardingRecommendTags($selectedTags: [String!]!, $n: Int) {
+    onboardingRecommendTags(selectedTags: $selectedTags, n: $n) {
+      tags
+    }
+  }
+`;
