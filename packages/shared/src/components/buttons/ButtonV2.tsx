@@ -71,30 +71,33 @@ const HorizontalPaddingV2: Record<ButtonSize, string> = {
 
 /**
  * Asymmetric horizontal padding for buttons that pair an icon with a
- * label — the icon side gets one step tighter so the icon's visual
- * weight doesn't push the content off-center.
+ * label — the icon side is roughly **half** the label side so the
+ * icon's visual mass doesn't push the content off-center.
  *
- * Why: a 24 px icon + `px-4` (16 px) on the icon side reads as
- * 16 + 24 = 40 px of "stuff" on that edge, while the label side only
- * has its own padding. The button looks visually right-heavy (or
- * left-heavy). Reference platforms (Material 3, Apple HIG, GitHub
- * Primer, Linear, Notion) all tighten the icon side by ~25 % to
- * compensate.
+ * Why: a 16 – 24 px icon + the symmetric `px-4` (16 px) on the icon
+ * side reads as 32 – 40 px of "stuff" on that edge while the label
+ * side only carries its own padding. Reference platforms converge on
+ * an icon-side : label-side ratio of about **1 : 2**:
  *
- * Concrete steps (matches `HorizontalPaddingV2` minus one):
+ *   - Material 3 (Medium 40 px button)  → 12 / 24 px
+ *   - Apple HIG (medium control)        → 12 / 20 px
+ *   - GitHub Primer (Small 28 px)       → 8  / 12 px
+ *   - Linear / Notion / Vercel          → matches Primer
  *
- *   XSmall  px-2 → pl-1.5 / pr-1.5
- *   Small   px-3 → pl-2   / pr-2
- *   Medium  px-4 → pl-3   / pr-3
- *   Large   px-6 → pl-5   / pr-5
- *   XLarge  px-7 → pl-6   / pr-6
+ * Concrete steps (icon side ≈ ½ of `HorizontalPaddingV2`):
+ *
+ *   XSmall  px-2 → pl-1   / pr-2     (4  / 8  px)
+ *   Small   px-3 → pl-1.5 / pr-3     (6  / 12 px)
+ *   Medium  px-4 → pl-2   / pr-4     (8  / 16 px)
+ *   Large   px-6 → pl-4   / pr-6     (16 / 24 px)
+ *   XLarge  px-7 → pl-5   / pr-7     (20 / 28 px)
  */
 const IconSidePaddingV2: Record<ButtonSize, { left: string; right: string }> = {
-  [ButtonSize.XLarge]: { left: 'pl-6 pr-7', right: 'pl-7 pr-6' },
-  [ButtonSize.Large]: { left: 'pl-5 pr-6', right: 'pl-6 pr-5' },
-  [ButtonSize.Medium]: { left: 'pl-3 pr-4', right: 'pl-4 pr-3' },
-  [ButtonSize.Small]: { left: 'pl-2 pr-3', right: 'pl-3 pr-2' },
-  [ButtonSize.XSmall]: { left: 'pl-1.5 pr-2', right: 'pl-2 pr-1.5' },
+  [ButtonSize.XLarge]: { left: 'pl-5 pr-7', right: 'pl-7 pr-5' },
+  [ButtonSize.Large]: { left: 'pl-4 pr-6', right: 'pl-6 pr-4' },
+  [ButtonSize.Medium]: { left: 'pl-2 pr-4', right: 'pl-4 pr-2' },
+  [ButtonSize.Small]: { left: 'pl-1.5 pr-3', right: 'pl-3 pr-1.5' },
+  [ButtonSize.XSmall]: { left: 'pl-1 pr-2', right: 'pl-2 pr-1' },
 };
 
 /**
