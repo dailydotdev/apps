@@ -16,7 +16,7 @@ import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
-import { ButtonColor, ButtonIconPosition } from '../buttons/ButtonV2';
+import { ButtonColor } from '../buttons/ButtonV2';
 import { CardAction } from '../buttons/CardAction';
 import { CardActionBar } from '../buttons/CardActionBar';
 import { BookmarkButton } from '../buttons';
@@ -218,7 +218,6 @@ export function PostActions({
               }
               label="Upvote"
               color={ButtonColor.Avocado}
-              iconPosition={ButtonIconPosition.Right}
             />
           </Tooltip>
           <Tooltip
@@ -232,7 +231,6 @@ export function PostActions({
               iconPressed={<DownvoteIcon secondary />}
               label="Downvote"
               color={ButtonColor.Ketchup}
-              iconPosition={ButtonIconPosition.Right}
             />
           </Tooltip>
           <CardAction
@@ -244,7 +242,6 @@ export function PostActions({
             label="Comment"
             labelVisible
             color={ButtonColor.BlueCheese}
-            iconPosition={ButtonIconPosition.Right}
           />
           {canAward && (
             <ConditionalWrapper
@@ -260,7 +257,6 @@ export function PostActions({
               <CardAction
                 id="award-post-btn"
                 pressed={isAwarded}
-                iconPosition={ButtonIconPosition.Right}
                 onClick={() => {
                   if (!user) {
                     showLogin({ trigger: AuthTriggers.GiveAward });
@@ -300,7 +296,6 @@ export function PostActions({
             onClick={onToggleBookmark}
             label="Bookmark"
             labelVisible
-            iconPosition={ButtonIconPosition.Right}
           />
           <CardAction
             id="copy-post-btn-post"
@@ -309,7 +304,6 @@ export function PostActions({
             label="Copy"
             labelVisible
             color={ButtonColor.Cabbage}
-            iconPosition={ButtonIconPosition.Right}
           />
         </CardActionBar>
       </div>

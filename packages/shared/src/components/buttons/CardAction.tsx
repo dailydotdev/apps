@@ -180,15 +180,6 @@ type CardActionBaseProps = CardActionPassthroughProps & {
    * icon-only with the label living in the `aria-label`.
    */
   labelVisible?: boolean;
-  /**
-   * Side the icon sits on relative to the inline `label` / `count`
-   * children. Defaults to `Left` to match every engagement-bar
-   * surface (feed card, comment row, mobile sticky bar). Pass
-   * `Right` on the post-detail strip to align with the
-   * `[label] [icon]` hierarchy used by the Read article button on
-   * feed cards.
-   */
-  iconPosition?: ButtonIconPosition;
   className?: string;
   buttonClassName?: string;
   onClick?: MouseEventHandler<HTMLElement>;
@@ -211,7 +202,6 @@ function CardActionComponent(
     disabled,
     density = 'comfortable',
     labelVisible,
-    iconPosition = ButtonIconPosition.Left,
     className,
     buttonClassName,
     onClick,
@@ -245,7 +235,7 @@ function CardActionComponent(
       loading={loading}
       disabled={disabled}
       icon={renderIcon}
-      iconPosition={iconPosition}
+      iconPosition={ButtonIconPosition.Left}
       onClick={onClick}
       aria-label={label}
       className={classNames(
