@@ -6,6 +6,14 @@ const escapeAttribute = (value: string): string =>
 
 const normalizeText = (value: string): string => value.replace(/\u00a0/g, ' ');
 
+const unescapeMarkdownText = (value: string): string =>
+  value.replace(/\\([\\`*_[\]{}()#+\-.!~>])/g, '$1');
+
+const escapeParagraphListMarkers = (value: string): string =>
+  value
+    .replace(/^([ \t]*)([-+*])\s+/gm, '$1\\$2 ')
+    .replace(/^([ \t]*)(\d+)\.\s+/gm, '$1$2\\. ');
+
 const applyInlineTextFormatting = (value: string): string => {
   let result = value;
 
@@ -36,7 +44,9 @@ const inlineMarkdownToHtml = (value: string): string => {
   return result
     .split(/(<[^>]+>)/g)
     .map((part) =>
-      part.startsWith('<') ? part : applyInlineTextFormatting(part),
+      part.startsWith('<')
+        ? part
+        : applyInlineTextFormatting(unescapeMarkdownText(part)),
     )
     .join('');
 };
@@ -116,7 +126,7 @@ export const markdownToHtmlBasic = (markdown: string): string => {
       return;
     }
 
-    const unorderedMatch = /^[-*]\s+(.+)$/.exec(trimmed);
+    const unorderedMatch = /^[-+*]\s+(.+)$/.exec(trimmed);
     const orderedMatch = /^(\d+)\.\s+(.+)$/.exec(trimmed);
     const headingMatch = /^(#{1,6})\s+(.+)$/.exec(trimmed);
 
@@ -300,7 +310,7 @@ export const htmlToMarkdownBasic = (html: string): string => {
       switch (tagName) {
         case 'p': {
           const content = serializeChildren(node).trim();
-          return content;
+          return escapeParagraphListMarkers(content);
         }
         case 'pre': {
           const code = node.textContent ?? '';

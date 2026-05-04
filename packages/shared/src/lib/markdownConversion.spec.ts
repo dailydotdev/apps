@@ -172,4 +172,52 @@ describe('markdownConversion', () => {
 
     expect(markdown).toBe('__EMPTY_PARAGRAPH__\n\nnext');
   });
+
+  it('should escape dash-prefixed paragraph text in html to markdown', () => {
+    const markdown = htmlToMarkdownBasic('<p>- text</p>');
+
+    expect(markdown).toBe('\\- text');
+  });
+
+  it('should escape asterisk-prefixed paragraph text in html to markdown', () => {
+    const markdown = htmlToMarkdownBasic('<p>* text</p>');
+
+    expect(markdown).toBe('\\* text');
+  });
+
+  it('should escape plus-prefixed paragraph text in html to markdown', () => {
+    const markdown = htmlToMarkdownBasic('<p>+ text</p>');
+
+    expect(markdown).toBe('\\+ text');
+  });
+
+  it('should escape ordered-list-prefixed paragraph text in html to markdown', () => {
+    const markdown = htmlToMarkdownBasic('<p>1. text</p>');
+
+    expect(markdown).toBe('1\\. text');
+  });
+
+  it('should keep escaped dash-prefixed markdown as a paragraph', () => {
+    const html = markdownToHtmlBasic('\\- text');
+
+    expect(html).toBe('<p>- text</p>');
+  });
+
+  it('should preserve dash-prefixed paragraph text across round-trips', () => {
+    const initialHtml = '<p>- text</p>';
+    const markdown = htmlToMarkdownBasic(initialHtml);
+    const html = markdownToHtmlBasic(markdown);
+
+    expect(markdown).toBe('\\- text');
+    expect(html).toBe(initialHtml);
+  });
+
+  it('should preserve bullet lists across round-trips', () => {
+    const initialHtml = '<ul><li>text</li></ul>';
+    const markdown = htmlToMarkdownBasic(initialHtml);
+    const html = markdownToHtmlBasic(markdown);
+
+    expect(markdown).toBe('- text');
+    expect(html).toBe(initialHtml);
+  });
 });
