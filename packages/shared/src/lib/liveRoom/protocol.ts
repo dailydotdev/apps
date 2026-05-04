@@ -41,6 +41,7 @@ export interface LiveRoomMediaPublicationRecord {
 export interface LiveRoomStageState {
   speakerQueueParticipantIds: string[];
   activeSpeakerParticipantIds: string[];
+  raisedHandParticipantIds: string[];
   speakerLimit?: number | null;
 }
 
@@ -65,6 +66,20 @@ export interface LiveRoomChatMessage {
   participantId: string;
   body: string;
   createdAt: string;
+}
+
+export interface LiveRoomChatMessageReaction {
+  messageId: string;
+  participantId: string;
+  key: string;
+  createdAt: string;
+}
+
+export interface LiveRoomRemovedChatMessageReaction {
+  messageId: string;
+  participantId: string;
+  key: string;
+  removedAt: string;
 }
 
 export interface SessionReadyEvent {
@@ -110,6 +125,18 @@ export interface ChatMessageDeletedEvent {
   deletedAt: string;
 }
 
+export interface ChatMessageReactionSentEvent {
+  type: 'chat.message.reaction.sent';
+  roomId: string;
+  messageReaction: LiveRoomChatMessageReaction;
+}
+
+export interface ChatMessageReactionRemovedEvent {
+  type: 'chat.message.reaction.removed';
+  roomId: string;
+  messageReaction: LiveRoomRemovedChatMessageReaction;
+}
+
 export interface CommandSucceededEvent {
   type: 'command.succeeded';
   requestId: string;
@@ -129,6 +156,8 @@ export type LiveRoomServerEvent =
   | ReactionSentEvent
   | ChatMessageSentEvent
   | ChatMessageDeletedEvent
+  | ChatMessageReactionSentEvent
+  | ChatMessageReactionRemovedEvent
   | CommandSucceededEvent
   | CommandFailedEvent;
 
@@ -166,12 +195,16 @@ export type LiveRoomCommand =
   | { type: 'room.cohost.revoke'; targetParticipantId: string }
   | { type: 'chat.message.send'; body: string }
   | { type: 'chat.message.delete'; messageId: string }
+  | { type: 'chat.message.reaction.send'; messageId: string; key: string }
+  | { type: 'chat.message.reaction.remove'; messageId: string; key: string }
   | {
       type: 'chat.privilege.set';
       targetParticipantId: string;
       canChat: boolean;
     }
   | { type: 'stage.queue.join' }
+  | { type: 'stage.hand.raise' }
+  | { type: 'stage.hand.remove' }
   | { type: 'stage.reaction.send'; key: string }
   | { type: 'stage.speaker.join' }
   | { type: 'stage.speaker.leave' }

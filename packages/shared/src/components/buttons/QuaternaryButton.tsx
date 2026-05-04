@@ -92,4 +92,12 @@ function QuaternaryButtonComponent<TagName extends AllowedTags>(
   );
 }
 
+/**
+ * @deprecated Prefer `CardAction` from `./CardAction` for engagement-bar
+ * patterns (icon + counter + pressed-state swap on cards / comment rows
+ * / post detail). `CardAction` ships an a11y-correct primitive with
+ * density (40 px / 32 px), pressed-icon swap, and built-in counter
+ * integration. v1 `QuaternaryButton` remains for call sites that haven't
+ * migrated yet.
+ */
 export const QuaternaryButton = forwardRef(QuaternaryButtonComponent);

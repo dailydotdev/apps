@@ -259,19 +259,26 @@ export enum LogEvent {
   // End settings
   // Standups
   ViewStandup = 'view standup',
+  CreateStandup = 'create standup',
   LeaveStandup = 'leave standup',
   StartStandup = 'start standup',
   EndStandup = 'end standup',
   JoinStandupQueue = 'join standup queue',
+  RaiseStandupHand = 'raise standup hand',
+  RemoveStandupHand = 'remove standup hand',
   JoinStandupStage = 'join standup stage',
   LeaveStandupStage = 'leave standup stage',
   OpenStandupSettings = 'open standup settings',
   OpenStandupReactions = 'open standup reactions',
   SwitchStandupPanelTab = 'switch standup panel tab',
   SendStandupReaction = 'send standup reaction',
+  SendStandupChatReaction = 'send standup chat reaction',
+  RemoveStandupChatReaction = 'remove standup chat reaction',
   SendStandupChatMessage = 'send standup chat message',
   DeleteStandupChatMessage = 'delete standup chat message',
   UpdateStandupChatAccess = 'update standup chat access',
+  SubscribeStandup = 'subscribe standup',
+  UnsubscribeStandup = 'unsubscribe standup',
   GrantStandupCoHost = 'grant standup co-host',
   RevokeStandupCoHost = 'revoke standup co-host',
   PromoteStandupSpeaker = 'promote standup speaker',
@@ -666,6 +673,7 @@ export enum NotificationPromptSource {
   MajorHeadlinesSettings = 'major headlines settings',
   MajorHeadlinesPage = 'major headlines page',
   MajorHeadlinesCard = 'major headlines card',
+  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

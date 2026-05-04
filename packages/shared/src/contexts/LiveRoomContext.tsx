@@ -42,9 +42,12 @@ import {
 import { storageWrapper } from '../lib/storageWrapper';
 import type {
   ChatMessageDeletedEvent,
+  ChatMessageReactionRemovedEvent,
+  ChatMessageReactionSentEvent,
   ChatMessageSentEvent,
   LiveRoomCommand,
   LiveRoomChatMessage,
+  LiveRoomChatMessageReaction,
   LiveRoomParticipantRoleValue,
   LiveRoomState,
   MediaCapabilitiesPayload,
@@ -102,7 +105,9 @@ export interface LiveRoomReaction {
   lane: number;
 }
 
-export type LiveRoomChatEntry = LiveRoomChatMessage;
+export type LiveRoomChatEntry = LiveRoomChatMessage & {
+  reactions?: LiveRoomChatMessageReaction[];
+};
 
 interface RemoteSubscriptionHandle {
   kind: 'audio' | 'video';
@@ -127,11 +132,15 @@ export interface LiveRoomContextValue {
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
+  raiseHand: () => Promise<void>;
+  removeHand: () => Promise<void>;
   joinStage: () => Promise<void>;
   leaveStage: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
   sendChatMessage: (body: string) => Promise<void>;
   deleteChatMessage: (messageId: string) => Promise<void>;
+  sendChatMessageReaction: (messageId: string, key: string) => Promise<void>;
+  removeChatMessageReaction: (messageId: string, key: string) => Promise<void>;
   grantCoHost: (targetParticipantId: string) => Promise<void>;
   revokeCoHost: (targetParticipantId: string) => Promise<void>;
   setParticipantChatEnabled: (
@@ -428,7 +437,8 @@ export const LiveRoomProvider = ({
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
   const canChat =
     !!user &&
-    roomState?.status === 'live' &&
+    !!roomState &&
+    roomState.status !== 'ended' &&
     !!participantId &&
     (roomState.chatPermissions[participantId] ?? true);
   const buildStandupExtra = useCallback(
@@ -555,7 +565,7 @@ export const LiveRoomProvider = ({
 
   const pushChatMessage = useCallback((event: ChatMessageSentEvent) => {
     setChatMessages((current) => {
-      const next = [...current, event.message];
+      const next = [...current, { ...event.message, reactions: [] }];
 
       if (next.length <= CHAT_HISTORY_LIMIT) {
         return next;
@@ -570,6 +580,47 @@ export const LiveRoomProvider = ({
       current.filter((message) => message.messageId !== event.messageId),
     );
   }, []);
+
+  const pushChatMessageReaction = useCallback(
+    (event: ChatMessageReactionSentEvent) => {
+      setChatMessages((current) =>
+        current.map((message) => {
+          if (message.messageId !== event.messageReaction.messageId) {
+            return message;
+          }
+
+          return {
+            ...message,
+            reactions: [...(message.reactions ?? []), event.messageReaction],
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const removeChatMessageReactionFromState = useCallback(
+    (event: ChatMessageReactionRemovedEvent) => {
+      setChatMessages((current) =>
+        current.map((message) => {
+          if (message.messageId !== event.messageReaction.messageId) {
+            return message;
+          }
+
+          return {
+            ...message,
+            reactions: (message.reactions ?? []).filter(
+              (reaction) =>
+                reaction.participantId !==
+                  event.messageReaction.participantId ||
+                reaction.key !== event.messageReaction.key,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
 
   useEffect(() => {
     setChatMessages([]);
@@ -961,6 +1012,14 @@ export const LiveRoomProvider = ({
     const offChatDeleted = connection.onChatMessageDeleted((event) => {
       removeChatMessage(event);
     });
+    const offChatReaction = connection.onChatMessageReaction((event) => {
+      pushChatMessageReaction(event);
+    });
+    const offChatReactionRemoved = connection.onChatMessageReactionRemoved(
+      (event) => {
+        removeChatMessageReactionFromState(event);
+      },
+    );
     const offClose = connection.onClose(({ reason }) => {
       if (openingWithResume && !sessionReady) {
         clearStoredLiveRoomResumeSession(roomId);
@@ -992,6 +1051,8 @@ export const LiveRoomProvider = ({
       offReaction();
       offChatMessage();
       offChatDeleted();
+      offChatReaction();
+      offChatReactionRemoved();
       offClose();
       offError();
       connection.close();
@@ -1000,8 +1061,10 @@ export const LiveRoomProvider = ({
   }, [
     joinToken,
     pushChatMessage,
+    pushChatMessageReaction,
     pushReaction,
     removeChatMessage,
+    removeChatMessageReactionFromState,
     roomId,
     storedResumeSession,
   ]);
@@ -1695,6 +1758,14 @@ export const LiveRoomProvider = ({
     });
   }, [sendConnectionCommand]);
 
+  const raiseHand = useCallback(async () => {
+    await sendConnectionCommand('raise hand', { type: 'stage.hand.raise' });
+  }, [sendConnectionCommand]);
+
+  const removeHand = useCallback(async () => {
+    await sendConnectionCommand('remove hand', { type: 'stage.hand.remove' });
+  }, [sendConnectionCommand]);
+
   const joinStage = useCallback(async () => {
     await sendConnectionCommand('join stage', { type: 'stage.speaker.join' });
   }, [sendConnectionCommand]);
@@ -1731,6 +1802,28 @@ export const LiveRoomProvider = ({
         'delete chat message',
         { type: 'chat.message.delete', messageId },
         { messageId },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const sendChatMessageReaction = useCallback(
+    async (messageId: string, key: string) => {
+      await sendConnectionCommand(
+        'send chat message reaction',
+        { type: 'chat.message.reaction.send', messageId, key },
+        { messageId, key },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const removeChatMessageReaction = useCallback(
+    async (messageId: string, key: string) => {
+      await sendConnectionCommand(
+        'remove chat message reaction',
+        { type: 'chat.message.reaction.remove', messageId, key },
+        { messageId, key },
       );
     },
     [sendConnectionCommand],
@@ -1831,11 +1924,15 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      sendChatMessageReaction,
+      removeChatMessageReaction,
       grantCoHost,
       revokeCoHost,
       setParticipantChatEnabled,
@@ -1875,11 +1972,15 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      sendChatMessageReaction,
+      removeChatMessageReaction,
       grantCoHost,
       revokeCoHost,
       setParticipantChatEnabled,

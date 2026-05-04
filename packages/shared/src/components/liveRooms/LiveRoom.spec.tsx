@@ -15,6 +15,11 @@ const mockUseLiveRoomConnection = jest.fn<LiveRoomContextValue, []>();
 const mockUseLiveRoomQuery = jest.fn();
 const mockUseAuthContext = jest.fn();
 const mockUseLiveRoomParticipantStreams = jest.fn();
+const mockUseLiveRoomSubscription = jest.fn();
+const mockUsePushNotificationContext = jest.fn();
+const mockSubscribeToLiveRoom = jest.fn();
+const mockUnsubscribeFromLiveRoom = jest.fn();
+const mockEnablePush = jest.fn();
 const mockUseQueries = useQueries as jest.Mock;
 
 jest.mock('@tanstack/react-query', () => {
@@ -51,6 +56,19 @@ jest.mock('../../hooks/liveRooms/useLiveRoomParticipantStreams', () => ({
     mockUseLiveRoomParticipantStreams(...args),
 }));
 
+jest.mock('../../hooks/liveRooms/useLiveRoomSubscription', () => ({
+  useLiveRoomSubscription: (...args: unknown[]) =>
+    mockUseLiveRoomSubscription(...args),
+}));
+
+jest.mock('../../contexts/PushNotificationContext', () => ({
+  usePushNotificationContext: () => mockUsePushNotificationContext(),
+}));
+
+jest.mock('../../hooks/notifications/usePushNotificationMutation', () => ({
+  usePushNotificationMutation: () => ({ onEnablePush: mockEnablePush }),
+}));
+
 jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
@@ -60,8 +78,19 @@ jest.mock('../../graphql/users', () => ({
 }));
 
 jest.mock('./LiveRoomVideoTile', () => ({
-  LiveRoomVideoTile: ({ user }: { user: { username: string } }) => (
-    <div data-testid="live-room-tile">{`tile-${user.username}`}</div>
+  LiveRoomVideoTile: ({
+    user,
+    raisedHandQueuePosition,
+  }: {
+    user: { username: string };
+    raisedHandQueuePosition?: number;
+  }) => (
+    <div data-testid="live-room-tile">
+      {`tile-${user.username}`}
+      {raisedHandQueuePosition ? (
+        <span>{`hand-${user.username}-${raisedHandQueuePosition}`}</span>
+      ) : null}
+    </div>
   ),
 }));
 
@@ -139,6 +168,7 @@ const createContextValue = (
     stage: {
       speakerQueueParticipantIds: ['queued1'],
       activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+      raisedHandParticipantIds: [],
     },
     mediaPublications: {},
     mediaRuntimeOwner: null,
@@ -150,11 +180,15 @@ const createContextValue = (
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
+  raiseHand: jest.fn(),
+  removeHand: jest.fn(),
   joinStage: jest.fn(),
   leaveStage: jest.fn(),
   sendReaction: jest.fn(),
   sendChatMessage: jest.fn(),
   deleteChatMessage: jest.fn(),
+  sendChatMessageReaction: jest.fn(),
+  removeChatMessageReaction: jest.fn(),
   grantCoHost: jest.fn(),
   revokeCoHost: jest.fn(),
   setParticipantChatEnabled: jest.fn(),
@@ -224,6 +258,25 @@ describe('LiveRoom', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseLiveRoomParticipantStreams.mockReturnValue(new Map());
+    mockSubscribeToLiveRoom.mockResolvedValue({});
+    mockUnsubscribeFromLiveRoom.mockResolvedValue({});
+    mockEnablePush.mockResolvedValue(true);
+    mockUseLiveRoomSubscription.mockReturnValue({
+      subscribe: { mutateAsync: mockSubscribeToLiveRoom, isPending: false },
+      unsubscribe: {
+        mutateAsync: mockUnsubscribeFromLiveRoom,
+        isPending: false,
+      },
+    });
+    mockUsePushNotificationContext.mockReturnValue({
+      isPushSupported: true,
+      isInitialized: true,
+      isSubscribed: false,
+      isLoading: false,
+      shouldOpenPopup: jest.fn(),
+      subscribe: jest.fn(),
+      unsubscribe: jest.fn(),
+    });
     mockUseQueries.mockImplementation(({ queries }) =>
       queries.map(({ queryKey }: { queryKey: readonly unknown[] }) => {
         const participantId = queryKey[queryKey.length - 1] as string;
@@ -256,6 +309,11 @@ describe('LiveRoom', () => {
         status: 'live',
         startedAt: '2026-04-27T09:00:00.000Z',
         endedAt: null,
+        scheduledStart: null,
+        description: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
         host: {
           id: 'host',
           username: 'host',
@@ -332,6 +390,27 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
   });
 
+  it('passes raised hand queue positions to matching stage tiles', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          stage: {
+            speakerQueueParticipantIds: ['queued1'],
+            activeSpeakerParticipantIds: ['speaker1', 'speaker2'],
+            raisedHandParticipantIds: ['speaker2', 'host'],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByText('hand-speaker2-1')).toBeInTheDocument();
+    expect(screen.getByText('hand-host-2')).toBeInTheDocument();
+    expect(screen.queryByText('hand-speaker1-')).not.toBeInTheDocument();
+  });
+
   it('uses the room creation time as the timer reference after refresh', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-04-27T09:05:07.000Z'));
     mockUseLiveRoomConnection.mockReturnValue(createContextValue());
@@ -343,6 +422,131 @@ describe('LiveRoom', () => {
     });
   });
 
+  it('renders the scheduled lobby description instead of speaker tiles', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-05-04T09:00:00.000Z'));
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'user-1',
+        canPublish: false,
+        roomState: {
+          ...createContextValue().roomState!,
+          status: 'created',
+          participants: {
+            host: createParticipant('host', 'host'),
+            'user-1': createParticipant('user-1', 'audience'),
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-05-04T08:55:00.000Z',
+        updatedAt: '2026-05-04T08:55:00.000Z',
+        topic: 'Lobby launch',
+        mode: 'moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: '2026-05-04T11:00:00.000Z',
+        description: 'Review launch notes',
+        descriptionHtml: '<p>Review launch notes</p>',
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    expect(screen.getByText('Review launch notes')).toBeInTheDocument();
+    expect(screen.getByText('2:00:00')).toBeInTheDocument();
+    expect(screen.queryByTestId('live-room-tile')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Notify me' }));
+
+    await waitFor(() => {
+      expect(mockSubscribeToLiveRoom).toHaveBeenCalledTimes(1);
+    });
+    expect(mockEnablePush).toHaveBeenCalledWith('standup lobby');
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'subscribe standup',
+        target_id: 'room-1',
+        extra: expect.stringContaining('"pushEnabled":true'),
+      }),
+    );
+  });
+
+  it('lets subscribed users unsubscribe from a scheduled lobby', async () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'user-1',
+        canPublish: false,
+        roomState: {
+          ...createContextValue().roomState!,
+          status: 'created',
+        },
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-05-04T08:55:00.000Z',
+        updatedAt: '2026-05-04T08:55:00.000Z',
+        topic: 'Lobby launch',
+        mode: 'moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: '2026-05-04T11:00:00.000Z',
+        description: null,
+        descriptionHtml: null,
+        subscribed: true,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
+
+    await waitFor(() => {
+      expect(mockUnsubscribeFromLiveRoom).toHaveBeenCalledTimes(1);
+    });
+    expect(mockEnablePush).not.toHaveBeenCalled();
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'unsubscribe standup',
+        target_id: 'room-1',
+      }),
+    );
+  });
+
   it('does not render a placeholder tile when only the host is visible on stage', () => {
     mockUseLiveRoomConnection.mockReturnValue(
       createContextValue({
@@ -351,6 +555,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: ['queued1'],
             activeSpeakerParticipantIds: [],
+            raisedHandParticipantIds: [],
           },
         },
       }),
@@ -437,6 +642,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds: ['speaker1'],
+            raisedHandParticipantIds: [],
             speakerLimit: 4,
           },
         },
@@ -485,6 +691,152 @@ describe('LiveRoom', () => {
     expect(screen.getByText('# heading')).toBeInTheDocument();
     expect(screen.getByText('hello')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  });
+
+  it('limits chat reaction shortcuts to the remaining slots when active reactions exist', async () => {
+    const sendChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    const removeChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        sendChatMessageReaction,
+        removeChatMessageReaction,
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+            reactions: [
+              {
+                messageId: 'message-1',
+                participantId: 'host',
+                key: '🔥',
+                createdAt: '2026-04-27T09:05:00.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '🔥',
+                createdAt: '2026-04-27T09:05:01.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '💡',
+                createdAt: '2026-04-27T09:05:02.000Z',
+              },
+              {
+                messageId: 'message-1',
+                participantId: 'speaker2',
+                key: '😂',
+                createdAt: '2026-04-27T09:05:03.000Z',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove 🔥 reaction from message from @speaker1',
+      }),
+    ).toHaveTextContent('2');
+    expect(
+      screen.getAllByRole('button', {
+        name: /(?:React|Remove) .* (?:to|reaction from) message from @speaker1/,
+      }),
+    ).toHaveLength(5);
+    expect(
+      screen.getByRole('button', {
+        name: 'React 👀 to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'React 🚀 to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Custom reaction to message from @speaker1',
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Remove 🔥 reaction from message from @speaker1',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(removeChatMessageReaction).toHaveBeenCalledWith('message-1', '🔥'),
+    );
+    expect(sendChatMessageReaction).not.toHaveBeenCalledWith('message-1', '🔥');
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'remove standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"active_chip"'),
+      }),
+    );
+  });
+
+  it('sends quick and custom chat reactions for messages without active reactions', async () => {
+    const sendChatMessageReaction = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        sendChatMessageReaction,
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'React 🔥 to message from @speaker1',
+      }),
+    );
+
+    await waitFor(() =>
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '🔥'),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'send standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"quick_shortcut"'),
+      }),
+    );
+
+    const customReactionButton = screen.getByRole('button', {
+      name: 'Custom reaction to message from @speaker1',
+    });
+    await waitFor(() => expect(customReactionButton).toBeEnabled());
+
+    fireEvent.click(customReactionButton);
+    fireEvent.click(screen.getByText('⭐'));
+
+    await waitFor(() =>
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '⭐'),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'send standup chat reaction',
+        target_id: 'message-1',
+        extra: expect.stringContaining('"source":"custom_picker"'),
+      }),
+    );
   });
 
   it('shows host moderation controls for chat rows', async () => {
@@ -572,6 +924,7 @@ describe('LiveRoom', () => {
           stage: {
             speakerQueueParticipantIds: [],
             activeSpeakerParticipantIds,
+            raisedHandParticipantIds: [],
           },
         },
       }),
