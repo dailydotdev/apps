@@ -84,7 +84,7 @@ describe('MentionedToolsWidget', () => {
 
   it('lists each tool from the matching creative', () => {
     renderWidget({ postTags: ['ai'], creatives: [creative] });
-    expect(screen.getByText('Mentioned tools')).toBeInTheDocument();
+    expect(screen.getByText('Sponsored tools')).toBeInTheDocument();
     expect(screen.getByText('VSCode')).toBeInTheDocument();
     expect(screen.getByText('GitHub')).toBeInTheDocument();
   });

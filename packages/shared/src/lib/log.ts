@@ -606,6 +606,7 @@ export enum TargetId {
   AskUpsellSearch = 'ask upsell search',
   // Onboarding v2
   GitHub = 'github',
+  Google = 'google',
   AI = 'ai',
   Install = 'install',
   Dismiss = 'dismiss',

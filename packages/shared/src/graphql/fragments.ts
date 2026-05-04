@@ -290,6 +290,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       username
       permalink
       reputation
+      createdAt
       bio
       companies {
         name

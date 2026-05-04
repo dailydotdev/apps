@@ -187,3 +187,8 @@ export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
   false,
 );
+
+export const featureCompanionDemoWidget = new Feature(
+  'companion_demo_widget',
+  false,
+);

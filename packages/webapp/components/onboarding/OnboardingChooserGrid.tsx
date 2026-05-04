@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { GitHubIcon } from '@dailydotdev/shared/src/components/icons/GitHub';
+import { GoogleIcon } from '@dailydotdev/shared/src/components/icons/Google';
 import { MagicIcon } from '@dailydotdev/shared/src/components/icons/Magic';
 import { TerminalIcon } from '@dailydotdev/shared/src/components/icons/Terminal';
 import { NewTabIcon } from '@dailydotdev/shared/src/components/icons/NewTab';
@@ -69,6 +70,7 @@ type Props = {
   onAiPromptChange: (value: string) => void;
   canStartAiFlow: boolean;
   onGithubClick: () => void;
+  onGoogleClick: () => void;
   onAiSubmit: () => void;
   origin: string;
   isImporting?: boolean;
@@ -79,6 +81,7 @@ export function OnboardingChooserGrid({
   onAiPromptChange,
   canStartAiFlow,
   onGithubClick,
+  onGoogleClick,
   onAiSubmit,
   origin,
   isImporting,
@@ -90,7 +93,7 @@ export function OnboardingChooserGrid({
       <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
         {/* Animated orb */}
         <div
-          className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+          className="relative -mx-6 -mt-6 mb-0 flex h-24 items-center justify-center tablet:h-32"
           style={{ width: 'calc(100% + 3rem)' }}
         >
           <div
@@ -101,7 +104,7 @@ export function OnboardingChooserGrid({
               opacity: 0.22,
             }}
           />
-          <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-32 w-52 rounded-full blur-3xl" />
+          <div className="ghub-orb-glow bg-accent-cabbage-default/15 pointer-events-none absolute h-24 w-52 rounded-full blur-3xl tablet:h-32" />
           <svg
             className="ghub-ring pointer-events-none absolute"
             style={{ width: '11rem', height: '11rem' }}
@@ -181,7 +184,7 @@ export function OnboardingChooserGrid({
           Connect GitHub and let our AI do the rest.
         </p>
 
-        <div className="mb-5 flex w-full flex-col items-center gap-3">
+        <div className="flex w-full flex-col items-center gap-1 tablet:mb-5 tablet:gap-3">
           {STEPS.map(({ text, icon }) => (
             <div
               key={text}
@@ -215,7 +218,7 @@ export function OnboardingChooserGrid({
           ))}
         </div>
 
-        <div className="bg-border-subtlest-tertiary/30 mb-5 h-px w-full" />
+        <div className="bg-border-subtlest-tertiary/30 mb-5 hidden h-px w-full tablet:flex" />
 
         <div className="relative mt-auto w-full pt-4">
           <div className="onb-btn-glow pointer-events-none absolute -inset-2 rounded-16 bg-white/[0.04] blur-lg" />
@@ -263,7 +266,7 @@ export function OnboardingChooserGrid({
       {/* ── Path B: AI ── */}
       <div className="onb-glass flex h-full min-h-[24rem] flex-1 flex-col items-center overflow-hidden rounded-16 border border-white/[0.06] p-6 transition-all duration-700 ease-out tablet:min-h-[26rem] tablet:self-stretch">
         <div
-          className="relative -mx-6 -mt-6 mb-0 flex h-32 items-center justify-center"
+          className="relative -mx-6 -mt-6 mb-0 flex h-24 items-center justify-center tablet:h-32"
           style={{ width: 'calc(100% + 3rem)' }}
         >
           <div
@@ -277,6 +280,33 @@ export function OnboardingChooserGrid({
           <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-surface-float">
             <MagicIcon secondary size={IconSize.Small} className="text-white" />
           </div>
+        </div>
+
+        <button
+          type="button"
+          disabled={isImporting}
+          onClick={() => {
+            logEvent({
+              event_name: LogEvent.Click,
+              target_type: TargetType.SignupChooser,
+              target_id: TargetId.Google,
+              extra: JSON.stringify({ origin }),
+            });
+            onGoogleClick();
+          }}
+          className={classNames(
+            'onb-btn-shine focus-visible:ring-white/20 group relative mb-4 flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-14 bg-white px-5 py-3.5 font-bold text-black transition-all duration-300 typo-callout hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] focus-visible:outline-none focus-visible:ring-2',
+            isImporting && 'opacity-60 cursor-not-allowed',
+          )}
+        >
+          <GoogleIcon secondary size={IconSize.XSmall} />
+          Continue with Google
+        </button>
+
+        <div className="mb-4 flex w-full items-center gap-3 text-text-quaternary typo-caption2">
+          <span className="bg-border-subtlest-tertiary/30 h-px flex-1" />
+          or describe your stack
+          <span className="bg-border-subtlest-tertiary/30 h-px flex-1" />
         </div>
 
         <h4 className="mb-1.5 break-words text-center font-bold text-text-primary typo-title3">
