@@ -192,23 +192,26 @@ export function UserExperienceItem({
             </Typography>
             {!grouped && !endedAt && currentPill}
             {shouldShowVerifyButton && (
-              <button
+              <ButtonV2
                 type="button"
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.XSmall}
                 className={classNames(
-                  'my-auto flex cursor-pointer items-center gap-1 rounded-4 px-1.5 py-[1px]',
+                  '!h-auto !rounded-4 !py-[1px] !typo-caption2',
                   'bg-overlay-float-water text-text-link',
                   'hover:bg-accent-water-flat',
-                  'typo-caption2',
                 )}
+                icon={
+                  <JobIcon size={IconSize.Size16} className="text-text-link" />
+                }
                 onClick={() =>
                   openModal({
                     type: LazyModal.VerifyExperience,
                   })
                 }
               >
-                <JobIcon size={IconSize.Size16} className="text-text-link" />
-                <span>Verify company</span>
-              </button>
+                Verify company
+              </ButtonV2>
             )}
             {shouldShowVerifiedBadge && <VerifiedBadge />}
             {(url || repository?.url) && (
@@ -288,13 +291,20 @@ export function UserExperienceItem({
               />
             ))}
             {!showMoreSkills && skills.length > MAX_SKILLS && (
-              <button type="button" onClick={() => setShowMoreSkills(true)}>
+              <ButtonV2
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                className="!p-0"
+                onClick={() => setShowMoreSkills(true)}
+                aria-label={`Show ${skills.length - MAX_SKILLS} more skills`}
+              >
                 <Pill
                   label={`+${skills.length - MAX_SKILLS}`}
                   size={PillSize.Small}
                   className="border border-border-subtlest-tertiary text-text-quaternary"
                 />
-              </button>
+              </ButtonV2>
             )}
           </div>
         )}

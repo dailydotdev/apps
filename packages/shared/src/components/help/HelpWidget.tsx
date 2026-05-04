@@ -151,18 +151,19 @@ export function HelpWidget({
   const showNav = itemCount > 1;
 
   const trigger = (
-    <button
+    <ButtonV2
       type="button"
+      variant={ButtonVariant.Tertiary}
       onClick={() => setPopoverOpen((open) => !open)}
       aria-label="Help guide"
       aria-expanded={popoverOpen}
       className={classNames(
-        'relative mx-1 flex w-[calc(100%-0.5rem)] items-center rounded-10 transition-colors duration-150',
-        'h-10 typo-callout laptop:h-9',
-        'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',
+        'relative mx-1 w-[calc(100%-0.5rem)] !justify-start !rounded-10',
+        '!h-10 !typo-callout laptop:!h-9',
+        'text-text-tertiary hover:text-text-primary',
         sidebarExpanded
-          ? 'pl-2 pr-5 laptop:pl-0 laptop:pr-3'
-          : 'justify-center',
+          ? '!pl-2 !pr-5 laptop:!pl-0 laptop:!pr-3'
+          : '!justify-center !px-0',
       )}
     >
       <span className="relative flex size-9 flex-shrink-0 items-center justify-center">
@@ -183,7 +184,7 @@ export function HelpWidget({
       >
         Help guide
       </span>
-    </button>
+    </ButtonV2>
   );
 
   return (

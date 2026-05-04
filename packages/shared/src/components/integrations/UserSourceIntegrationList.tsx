@@ -9,12 +9,9 @@ import {
   TypographyColor,
   TypographyTag,
 } from '../typography/Typography';
-import {
-  ButtonV2,
-  ButtonIconPosition,
-  ButtonVariant,
-} from '../buttons/ButtonV2';
+import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
 import { MiniCloseIcon } from '../icons';
+import { Tooltip } from '../tooltip/Tooltip';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useIntegration } from '../../hooks/integrations/useIntegration';
@@ -59,14 +56,8 @@ export const UserSourceIntegrationList = ({
             className="flex w-full items-center justify-center"
           >
             <ButtonV2
-              className="flex-1 pl-2 pr-3"
+              className="flex-1 pl-2"
               variant={ButtonVariant.Tertiary}
-              iconPosition={ButtonIconPosition.Right}
-              icon={
-                <button type="button" onClick={onClick}>
-                  <MiniCloseIcon />
-                </button>
-              }
               onClick={() => {
                 openModal({
                   type: LazyModal.SlackIntegration,
@@ -101,6 +92,16 @@ export const UserSourceIntegrationList = ({
                 </Typography>
               </div>
             </ButtonV2>
+            <Tooltip content="Disconnect source">
+              <ButtonV2
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
+                icon={<MiniCloseIcon />}
+                onClick={onClick}
+                aria-label="Disconnect source"
+              />
+            </Tooltip>
           </li>
         );
       })}

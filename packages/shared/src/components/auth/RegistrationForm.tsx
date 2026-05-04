@@ -341,13 +341,15 @@ const RegistrationForm = ({
           >
             <AlertParagraph className="!mt-0 flex-1">
               Email is taken. Existing user?{' '}
-              <button
+              <ButtonV2
                 type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.XSmall}
                 onClick={() => onExistingEmailLoginClick?.()}
-                className="font-bold underline"
+                className="!h-auto !p-0 font-bold underline"
               >
                 Log in.
-              </button>
+              </ButtonV2>
             </AlertParagraph>
           </Alert>
         )}

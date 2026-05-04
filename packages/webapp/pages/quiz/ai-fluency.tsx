@@ -448,19 +448,17 @@ const AiFluencyQuizPage = (): ReactElement => {
               const selected = currentAnswer === option.id;
 
               return (
-                <button
+                <ButtonV2
                   key={option.id}
                   type="button"
+                  variant={ButtonVariant.Quiz}
+                  size={ButtonSize.Medium}
+                  pressed={selected}
                   onClick={() => onSelectAnswer(currentQuestion.id, option.id)}
-                  className={classNames(
-                    'rounded-12 border px-4 py-3 text-left transition-colors',
-                    selected
-                      ? 'border-brand-default bg-brand-float text-text-primary'
-                      : 'border-border-subtlest-tertiary bg-background-default text-text-secondary hover:bg-background-default hover:text-text-primary',
-                  )}
+                  className="!h-auto !justify-start !rounded-12 !px-4 !py-3 text-left !typo-body"
                 >
-                  <span className="typo-body">{option.label}</span>
-                </button>
+                  {option.label}
+                </ButtonV2>
               );
             })}
           </div>

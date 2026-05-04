@@ -142,13 +142,14 @@ function SharePostBar({
       {isMobile && (
         <Divider className="mb-5 mt-3 bg-border-subtlest-tertiary" />
       )}
-      <button
-        className="flex w-full items-center justify-center border-border-subtlest-tertiary font-bold text-text-tertiary typo-callout tablet:hidden"
+      <ButtonV2
         type="button"
+        variant={ButtonVariant.Tertiary}
+        className="w-full font-bold text-text-tertiary tablet:hidden"
         onClick={onOpenHistory}
       >
         Choose from reading history
-      </button>
+      </ButtonV2>
     </form>
   );
 }

@@ -13,7 +13,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../ProfilePicture';
-import { ButtonV2, ButtonSize, ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonV2, ButtonVariant } from '../buttons/ButtonV2';
 import { Image } from '../image/Image';
 import { fallbackImages } from '../../lib/config';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -38,11 +38,6 @@ interface NewCommentProps extends CommentMarkdownInputProps {
   onComposerOpenChange?: (isOpen: boolean) => void;
   renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
-
-const buttonSize: Partial<Record<ProfileImageSize, ButtonSize>> = {
-  large: ButtonSize.Medium,
-  medium: ButtonSize.Small,
-};
 
 export interface NewCommentRef {
   onShowInput: (origin: Origin) => void;
@@ -150,10 +145,11 @@ function NewCommentComponent(
   const pictureClasses = 'hidden tablet:flex';
 
   return (
-    <button
+    <ButtonV2
       type="button"
+      variant={ButtonVariant.Subtle}
       className={classNames(
-        'flex w-full items-center gap-2 !rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:p-1',
+        '!h-auto w-full !justify-start gap-2 !rounded-16 border border-border-subtlest-tertiary bg-surface-float !p-3 !typo-callout hover:border-border-subtlest-primary hover:bg-surface-hover tablet:!p-1',
         className?.container,
       )}
       onClick={() => onCommentClick(Origin.StartDiscussion)}
@@ -182,16 +178,15 @@ function NewCommentComponent(
         />
       )}
       <span className="text-text-tertiary typo-body">Share your thoughts</span>
-      <ButtonV2
-        size={buttonSize[size]}
-        className="ml-auto hidden text-text-primary tablet:flex"
-        variant={ButtonVariant.Tertiary}
-        tag="a"
-        disabled
+      <span
+        className={classNames(
+          'ml-auto hidden items-center text-text-primary tablet:flex',
+          'pointer-events-none rounded-10 px-3 py-1 typo-footnote',
+        )}
       >
         Post
-      </ButtonV2>
-    </button>
+      </span>
+    </ButtonV2>
   );
 }
 

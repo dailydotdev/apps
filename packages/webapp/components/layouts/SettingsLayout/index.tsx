@@ -135,19 +135,21 @@ export default function SettingsLayout({
         </div>
       )}
       {router.query.redirectTo && router.query.redirectCopy && (
-        <button
+        <ButtonV2
           type="button"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Small}
+          icon={<ArrowIcon className="-rotate-90 text-text-tertiary" />}
           onClick={() => router.push(router.query.redirectTo as string)}
-          className="flex w-full items-center justify-center gap-2 border-b border-border-subtlest-tertiary bg-surface-float px-6 py-3 text-left transition-colors hover:bg-surface-hover"
+          className="!h-auto w-full !rounded-none border-b border-border-subtlest-tertiary bg-surface-float !px-6 !py-3 text-left transition-colors hover:bg-surface-hover"
         >
-          <ArrowIcon className="-rotate-90 text-text-tertiary" />
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
           >
             {router.query.redirectCopy}
           </Typography>
-        </button>
+        </ButtonV2>
       )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
         <h1 className="sr-only">Settings</h1>
