@@ -49,6 +49,7 @@ import Markdown from '../Markdown';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 import { useLiveRoomSubscription } from '../../hooks/liveRooms/useLiveRoomSubscription';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
 import {
   buildDisplayProfile,
   buildParticipantProfile,
@@ -212,7 +213,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { isAuthReady, showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
-  const pushNotifications = usePushNotificationContext();
+  const { isPushSupported, isSubscribed: isPushEnabled } =
+    usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
   const {
     status,
     errorMessage,
@@ -515,17 +518,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       }
 
       await subscribe.mutateAsync();
-      const shouldRequestPush =
-        pushNotifications.isPushSupported && !pushNotifications.isSubscribed;
-      let pushEnabled = pushNotifications.isSubscribed;
+      const shouldRequestPush = isPushSupported && !isPushEnabled;
+      let pushEnabled = isPushEnabled;
       if (shouldRequestPush) {
-        pushEnabled = await pushNotifications.subscribe(
-          NotificationPromptSource.StandupLobby,
-        );
-        logStandupAction(LogEvent.EnableStandupPush, roomId, {
-          surface: 'header',
-          enabled: pushEnabled,
-        });
+        pushEnabled = await onEnablePush(NotificationPromptSource.StandupLobby);
       }
 
       logStandupAction(LogEvent.SubscribeStandup, roomId, {
@@ -1028,12 +1024,19 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           ) : null}
 
           {isEnded ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-overlay-base-tertiary backdrop-blur">
-              <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-background-default p-6">
+              <div className="flex flex-col items-center gap-3 text-center">
                 <Typography type={TypographyType.Title3} bold>
                   This standup has ended
                 </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  Thanks for joining — catch the next one soon.
+                </Typography>
                 <Button
+                  className="mt-2"
                   variant={ButtonVariant.Primary}
                   onClick={() => handleNavigateBack('ended_state')}
                 >

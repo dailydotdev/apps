@@ -65,6 +65,10 @@ jest.mock('../../contexts/PushNotificationContext', () => ({
   usePushNotificationContext: () => mockUsePushNotificationContext(),
 }));
 
+jest.mock('../../hooks/notifications/usePushNotificationMutation', () => ({
+  usePushNotificationMutation: () => ({ onEnablePush: mockEnablePush }),
+}));
+
 jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
@@ -270,7 +274,7 @@ describe('LiveRoom', () => {
       isSubscribed: false,
       isLoading: false,
       shouldOpenPopup: jest.fn(),
-      subscribe: mockEnablePush,
+      subscribe: jest.fn(),
       unsubscribe: jest.fn(),
     });
     mockUseQueries.mockImplementation(({ queries }) =>
@@ -418,7 +422,7 @@ describe('LiveRoom', () => {
     });
   });
 
-  it('renders the scheduled lobby agenda instead of speaker tiles', async () => {
+  it('renders the scheduled lobby description instead of speaker tiles', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-05-04T09:00:00.000Z'));
     mockUseLiveRoomConnection.mockReturnValue(
       createContextValue({
