@@ -20,6 +20,7 @@ const mockUsePushNotificationContext = jest.fn();
 const mockSubscribeToLiveRoom = jest.fn();
 const mockUnsubscribeFromLiveRoom = jest.fn();
 const mockEnablePush = jest.fn();
+const mockUseViewSize = jest.fn<boolean, [unknown]>(() => true);
 const mockUseQueries = useQueries as jest.Mock;
 
 jest.mock('@tanstack/react-query', () => {
@@ -72,6 +73,14 @@ jest.mock('../../hooks/notifications/usePushNotificationMutation', () => ({
 jest.mock('../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({ displayToast: mockDisplayToast }),
 }));
+
+jest.mock('../../hooks', () => {
+  const actual = jest.requireActual('../../hooks');
+  return {
+    ...actual,
+    useViewSize: (size: unknown) => mockUseViewSize(size),
+  };
+});
 
 jest.mock('../../graphql/users', () => ({
   getUserShortInfo: jest.fn(),
@@ -257,6 +266,7 @@ const createParticipant = (
 describe('LiveRoom', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseViewSize.mockReturnValue(true);
     mockUseLiveRoomParticipantStreams.mockReturnValue(new Map());
     mockSubscribeToLiveRoom.mockResolvedValue({});
     mockUnsubscribeFromLiveRoom.mockResolvedValue({});
@@ -944,6 +954,49 @@ describe('LiveRoom', () => {
 
     expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
+  });
+
+  it('limits stage pagination to four visible speakers on mobile', () => {
+    mockUseViewSize.mockReturnValue(false);
+    const activeSpeakerParticipantIds = Array.from(
+      { length: 12 },
+      (_, index) => `speaker-${index + 1}`,
+    );
+    const participants = activeSpeakerParticipantIds.reduce<
+      NonNullable<LiveRoomContextValue['roomState']>['participants']
+    >(
+      (acc, participantId) => ({
+        ...acc,
+        [participantId]: createParticipant(participantId),
+      }),
+      {
+        host: createParticipant('host', 'host'),
+      },
+    );
+
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        roomState: {
+          ...createContextValue().roomState!,
+          participants,
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds,
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    expect(screen.getByText('Page 1 / 4')).toBeInTheDocument();
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(4);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(screen.getByText('Page 2 / 4')).toBeInTheDocument();
+    expect(screen.getAllByTestId('live-room-tile')).toHaveLength(4);
   });
 
   it('logs a room query error only once for the same failure', () => {

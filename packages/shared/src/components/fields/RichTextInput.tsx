@@ -146,6 +146,7 @@ interface RichTextInputProps {
   allowBlockFormatting?: boolean;
   minHeightClassName?: string;
   markdownToHtml?: (markdown: string) => string;
+  hideToolbar?: boolean;
 }
 
 export interface RichTextInputRef {
@@ -181,6 +182,7 @@ function RichTextInput(
     allowBlockFormatting = true,
     minHeightClassName = 'min-h-[8rem]',
     markdownToHtml = markdownToHtmlBasic,
+    hideToolbar = false,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -780,48 +782,53 @@ function RichTextInput(
             </>
           ) : (
             <>
-              <RichTextToolbar
-                ref={toolbarRef}
-                editor={editor}
-                allowBlockFormatting={allowBlockFormatting}
-                onLinkAdd={(url, label) => {
-                  if (!editor) {
-                    return;
+              {hideToolbar ? null : (
+                <RichTextToolbar
+                  ref={toolbarRef}
+                  editor={editor}
+                  allowBlockFormatting={allowBlockFormatting}
+                  onLinkAdd={(url, label) => {
+                    if (!editor) {
+                      return;
+                    }
+                    if (!editor.state.selection.empty) {
+                      editor.chain().focus().setLink({ href: url }).run();
+                      return;
+                    }
+                    const linkText = label || url;
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContent({
+                        type: 'text',
+                        text: linkText,
+                        marks: [{ type: 'link', attrs: { href: url } }],
+                      })
+                      .run();
+                  }}
+                  inlineActions={hasToolbarActions ? toolbarActions : null}
+                  rightActions={
+                    <div className="flex items-center gap-0">
+                      {savingLabel}
+                      <SimpleTooltip content="Switch to Markdown Editor">
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Tertiary}
+                          size={ButtonSize.Small}
+                          icon={<MarkdownIcon />}
+                          onClick={switchToMarkdownMode}
+                        />
+                      </SimpleTooltip>
+                      {onClose && (
+                        <CloseButton
+                          size={ButtonSize.Small}
+                          onClick={onClose}
+                        />
+                      )}
+                    </div>
                   }
-                  if (!editor.state.selection.empty) {
-                    editor.chain().focus().setLink({ href: url }).run();
-                    return;
-                  }
-                  const linkText = label || url;
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContent({
-                      type: 'text',
-                      text: linkText,
-                      marks: [{ type: 'link', attrs: { href: url } }],
-                    })
-                    .run();
-                }}
-                inlineActions={hasToolbarActions ? toolbarActions : null}
-                rightActions={
-                  <div className="flex items-center gap-0">
-                    {savingLabel}
-                    <SimpleTooltip content="Switch to Markdown Editor">
-                      <Button
-                        type="button"
-                        variant={ButtonVariant.Tertiary}
-                        size={ButtonSize.Small}
-                        icon={<MarkdownIcon />}
-                        onClick={switchToMarkdownMode}
-                      />
-                    </SimpleTooltip>
-                    {onClose && (
-                      <CloseButton size={ButtonSize.Small} onClick={onClose} />
-                    )}
-                  </div>
-                }
-              />
+                />
+              )}
               {isUploadEnabled && (
                 <input
                   type="file"
