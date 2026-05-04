@@ -157,6 +157,11 @@ export const sharedPostPreviewFeature = new Feature(
 
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
 
+export const featureOnboardingTagRecommender = new Feature(
+  'onboarding_tag_recommender',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal', false);
