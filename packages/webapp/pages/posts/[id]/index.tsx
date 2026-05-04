@@ -50,6 +50,7 @@ import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { featureReaderModal } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -339,6 +340,7 @@ export const PostPage = ({
             />
           )}
           {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+          <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>
