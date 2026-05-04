@@ -5,7 +5,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser, PublicProfile } from '../../../../lib/user';
 import AuthContext from '../../../../contexts/AuthContext';
 import { ProfileWidgets } from './ProfileWidgets';
-import type { ProfileReadingData } from '../../../../graphql/users';
+import type {
+  ProfileReadingData,
+  UserReadHistory,
+} from '../../../../graphql/users';
 import type { Connection } from '../../../../graphql/common';
 import type { SourceMember, Squad } from '../../../../graphql/sources';
 import { SourceMemberRole, SourceType } from '../../../../graphql/sources';
@@ -101,7 +104,7 @@ const defaultProfile: PublicProfile = {
 };
 
 const defaultMemberships: Connection<SourceMember> = {
-  pageInfo: null,
+  pageInfo: {},
   edges: [
     {
       node: {
@@ -159,7 +162,7 @@ const logEvent = jest.fn();
 
 const renderComponent = (
   profile: Partial<PublicProfile> = {},
-  sources?: Connection<SourceMember>,
+  sources: Connection<SourceMember> = defaultMemberships,
   options: {
     readingHistory?: typeof defaultReadingHistory | null;
     tokenRefreshed?: boolean;
@@ -271,7 +274,7 @@ it('should render ReadingOverview even when userReadHistory is missing', async (
   renderComponent({}, undefined, {
     readingHistory: {
       ...defaultReadingHistory,
-      userReadHistory: undefined,
+      userReadHistory: undefined as unknown as UserReadHistory[],
     },
   });
 

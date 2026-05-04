@@ -8,7 +8,7 @@ import type { LogContextData } from '../hooks/log/useLogContextData';
 import type { SettingsContextData } from './SettingsContext';
 import { ThemeMode } from './SettingsContext';
 import type { AuthContextData } from './AuthContext';
-import type { AnonymousUser } from '../lib/user';
+import type { LoggedUser, AnonymousUser } from '../lib/user';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import type { Visit } from '../lib/boot';
 import { BootApp } from '../lib/boot';
@@ -27,7 +27,7 @@ beforeEach(() => {
   queryClient = new QueryClient();
 });
 
-const settings: SettingsContextData = {
+const settings = {
   spaciness: 'roomy',
   loadedSettings: true,
   setTheme: jest.fn(),
@@ -40,7 +40,7 @@ const settings: SettingsContextData = {
   toggleOpenNewTab: jest.fn(),
   toggleShowTopSites: jest.fn(),
   toggleSidebarExpanded: jest.fn(),
-};
+} as unknown as SettingsContextData;
 
 const LogContextTester = ({
   callback,
@@ -161,7 +161,7 @@ it('should add relevant properties when user is signed-in', async () => {
           image: 'https://image.com',
           name: 'U',
           providers: ['github'],
-        },
+        } as unknown as LoggedUser,
         tokenRefreshed: true,
       }}
     >

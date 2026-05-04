@@ -24,6 +24,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
+import { Tooltip } from '../tooltip/Tooltip';
 import type {
   LiveRoomDeviceInfo,
   LiveRoomMicSettings,
@@ -264,18 +265,23 @@ export const DeviceSplitButton = ({
 
   return (
     <div className="flex items-center">
-      <Button
-        type="button"
-        size={ButtonSize.Small}
-        variant={variant}
-        icon={toggleIcon}
-        loading={isLoading}
-        aria-label={toggleAriaLabel}
-        onClick={onToggle}
-        className="!rounded-r-none"
-      />
+      <Tooltip content={toggleAriaLabel}>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={variant}
+          icon={toggleIcon}
+          loading={isLoading}
+          aria-label={toggleAriaLabel}
+          onClick={onToggle}
+          className="!rounded-r-none"
+        />
+      </Tooltip>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger
+          asChild
+          tooltip={{ content: caretAriaLabel, side: 'top' }}
+        >
           <Button
             type="button"
             size={ButtonSize.Small}

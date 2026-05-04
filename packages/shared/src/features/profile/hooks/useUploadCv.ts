@@ -72,7 +72,7 @@ export const useUploadCv = ({
     },
     onError: (data: ApiErrorResult) => {
       const error = data?.response?.errors?.[0]?.message;
-      displayToast(error || 'An error occured, please try again');
+      displayToast(error || 'An error occurred, please try again');
     },
   });
 

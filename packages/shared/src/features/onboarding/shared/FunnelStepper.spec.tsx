@@ -263,7 +263,7 @@ describe('FunnelStepper component', () => {
         explainer: 'Test explainer',
       },
       transitions: [],
-    } as FunnelStepQuiz;
+    } as unknown as FunnelStepQuiz;
 
     const factStep: FunnelStep = {
       id: 'step2',
@@ -276,7 +276,7 @@ describe('FunnelStepper component', () => {
         visualUrl: 'https://example.com/image.jpg',
       },
       transitions: [],
-    } as FunnelStep;
+    } as unknown as FunnelStep;
 
     const mockFunnelWithMultipleSteps: FunnelJSON = {
       id: 'test-funnel',

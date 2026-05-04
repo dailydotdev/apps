@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -13,6 +19,7 @@ import { Loader } from '../Loader';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomChatPanel } from './LiveRoomChatPanel';
+import type { ChatReactionAnalytics } from './LiveRoomChatReactions';
 import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
@@ -22,7 +29,9 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
+import { isDevelopment } from '../../lib/constants';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useLiveRoomParticipantProfiles } from '../../hooks/liveRooms/useLiveRoomParticipantProfiles';
@@ -49,6 +58,7 @@ interface LiveRoomProps {
 }
 
 const MAX_STAGE_TILES_PER_PAGE = 12;
+const EMPTY_PARTICIPANT_IDS: string[] = [];
 
 const getStageGridColumnCount = (count: number): number => {
   if (count <= 1) {
@@ -148,9 +158,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     roomState,
     role,
     participantId,
-    canPublish,
     sendChatMessage,
     deleteChatMessage,
+    sendChatMessageReaction,
+    removeChatMessageReaction,
+    grantCoHost,
+    revokeCoHost,
     setParticipantChatEnabled,
     promoteSpeaker,
     removeSpeaker,
@@ -158,13 +171,16 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     canChat,
     localStream,
     remoteStreams,
-    selectedCameraId,
-    selectedMicId,
     videoSettings,
     reactions,
     chatMessages,
     isMicOn,
   } = useLiveRoomConnection();
+  const privilegeState = getLiveRoomPrivilegeState(
+    roomState,
+    participantId,
+    role,
+  );
   const {
     data: room,
     error: roomError,
@@ -173,12 +189,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
   const { onAskConfirmation } = useExitConfirmation({
     message: 'Leave the standup? You will disconnect from the stream.',
+    enabled: !isDevelopment,
     onValidateAction: () => status !== 'connected',
   });
 
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
+  const lastLoggedRoomErrorRef = useRef<string | null>(null);
   const buildStandupExtra = useCallback(
     (extra: Record<string, unknown> = {}) =>
       buildStandupAnalyticsExtra(
@@ -189,10 +207,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           roomStatus: roomState?.status ?? room?.status ?? null,
           roomMode: roomState?.mode ?? room?.mode ?? null,
           connectionStatus: status,
-          canPublish,
           participantId,
-          selectedMicId,
-          selectedCameraId,
+          isCoHost: privilegeState.isCoHost,
           hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
           hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
           videoQuality: videoSettings.quality,
@@ -210,10 +226,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       room?.status,
       room?.mode,
       status,
-      canPublish,
       participantId,
-      selectedMicId,
-      selectedCameraId,
+      privilegeState.isCoHost,
       localStream,
       videoSettings.quality,
       videoSettings.audioOnly,
@@ -288,6 +302,44 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     }
   };
 
+  const handleSendChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await sendChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.SendStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not react to message',
+      );
+    }
+  };
+
+  const handleRemoveChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await removeChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.RemoveStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not remove reaction',
+      );
+    }
+  };
+
   const handleSetParticipantChatEnabled = async (
     targetParticipantId: string,
     nextCanChat: boolean,
@@ -350,6 +402,24 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [kickParticipant, logStandupAction],
   );
+  const handleGrantCoHost = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await grantCoHost(targetParticipantId);
+      logStandupAction(LogEvent.GrantStandupCoHost, targetParticipantId, {
+        surface,
+      });
+    },
+    [grantCoHost, logStandupAction],
+  );
+  const handleRevokeCoHost = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await revokeCoHost(targetParticipantId);
+      logStandupAction(LogEvent.RevokeStandupCoHost, targetParticipantId, {
+        surface,
+      });
+    },
+    [logStandupAction, revokeCoHost],
+  );
   const handleTabChange = (tab: LiveRoomSidePanelTab): void => {
     if (tab === activeTab) {
       return;
@@ -402,7 +472,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     localStream,
     participantId,
   );
-  const isHost = role === 'host';
+  const { hasHostPrivileges, isHost } = privilegeState;
   const isCreated = roomState?.status === 'created';
   const isLive = roomState?.status === 'live';
   const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
@@ -416,6 +486,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     ? Object.keys(roomState.participants).length
     : room?.participantCount ?? 0;
   const hostId = room?.host.id ?? '';
+  const coHostParticipantIds = roomState?.coHostParticipantIds ?? [];
   const activeSpeakerIds =
     roomState?.stage.activeSpeakerParticipantIds.filter(
       (id) => !!roomState.participants[id] && id !== hostId,
@@ -424,6 +495,22 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     roomState?.stage.speakerQueueParticipantIds.filter(
       (id) => !!roomState.participants[id],
     ) ?? [];
+  const raisedHandParticipantIds =
+    roomState?.stage.raisedHandParticipantIds ?? EMPTY_PARTICIPANT_IDS;
+  const raisedHandQueuePositions = useMemo(() => {
+    const positions = new Map<string, number>();
+    if (!roomState) {
+      return positions;
+    }
+
+    raisedHandParticipantIds.forEach((id) => {
+      if (roomState.participants[id]) {
+        positions.set(id, positions.size + 1);
+      }
+    });
+
+    return positions;
+  }, [raisedHandParticipantIds, roomState]);
   const audienceParticipantIds = roomState
     ? Object.values(roomState.participants)
         .map((participant) => participant.participantId)
@@ -488,6 +575,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stream: participantStreamsById.get(room.host.id) ?? null,
           selfView: room.host.id === participantId,
           isHost: true,
+          isCoHost: false,
+          raisedHandQueuePosition: raisedHandQueuePositions.get(room.host.id),
         },
         ...activeSpeakerIds.map((id) => ({
           id,
@@ -497,6 +586,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stream: participantStreamsById.get(id) ?? null,
           selfView: id === participantId,
           isHost: false,
+          isCoHost: coHostParticipantIds.includes(id),
+          raisedHandQueuePosition: raisedHandQueuePositions.get(id),
         })),
       ].map((speaker) => ({
         ...speaker,
@@ -523,7 +614,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     1,
     Math.ceil(paginatedStageSpeakers.length / stageGridColumnCount),
   );
-  const showAudienceWaiting = isCreated && !isHost;
+  const showAudienceWaiting = isCreated && !hasHostPrivileges;
 
   useEffect(() => {
     if (isFreeForAll && activeTab === 'queue') {
@@ -537,8 +628,15 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
   useEffect(() => {
     if (!roomError) {
+      lastLoggedRoomErrorRef.current = null;
       return;
     }
+
+    const errorKey = `${roomId}:${roomError.message}`;
+    if (lastLoggedRoomErrorRef.current === errorKey) {
+      return;
+    }
+    lastLoggedRoomErrorRef.current = errorKey;
 
     logEvent({
       event_name: LogEvent.StandupError,
@@ -549,7 +647,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         message: roomError.message,
       }),
     });
-  }, [buildStandupExtra, logEvent, roomError]);
+  }, [buildStandupExtra, logEvent, roomError, roomId]);
 
   if (!isAuthReady || isRoomLoading) {
     return (
@@ -695,7 +793,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               }}
             >
               {paginatedStageSpeakers.map((speaker) => {
-                const canModerate = isHost && !speaker.isHost;
+                const canModerate = hasHostPrivileges && !speaker.isHost;
+                const canManageCoHosts = isHost && !speaker.isHost;
 
                 return (
                   <div
@@ -707,7 +806,29 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       user={speaker.profile}
                       selfView={speaker.selfView}
                       isHost={speaker.isHost}
+                      isCoHost={speaker.isCoHost}
+                      raisedHandQueuePosition={speaker.raisedHandQueuePosition}
                       isMuted={speaker.isMuted}
+                      onGrantCoHost={
+                        canManageCoHosts && !speaker.isCoHost
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-grant-cohost-${speaker.id}`,
+                                () =>
+                                  handleGrantCoHost(speaker.id, 'stage_tile'),
+                              )
+                          : undefined
+                      }
+                      onRevokeCoHost={
+                        canManageCoHosts && speaker.isCoHost
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-revoke-cohost-${speaker.id}`,
+                                () =>
+                                  handleRevokeCoHost(speaker.id, 'stage_tile'),
+                              )
+                          : undefined
+                      }
                       onRemoveSpeaker={
                         canModerate
                           ? () =>
@@ -733,6 +854,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       }
                       isRemoving={
                         moderationBusy === `tile-remove-${speaker.id}`
+                      }
+                      isGrantingCoHost={
+                        moderationBusy === `tile-grant-cohost-${speaker.id}`
+                      }
+                      isRevokingCoHost={
+                        moderationBusy === `tile-revoke-cohost-${speaker.id}`
                       }
                       isKicking={moderationBusy === `tile-kick-${speaker.id}`}
                       moderationDisabled={!!moderationBusy}
@@ -828,14 +955,18 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 participantProfilesById={participantProfilesById}
                 mentionSuggestions={mentionSuggestions}
                 participantChatPermissions={roomState?.chatPermissions ?? {}}
+                currentParticipantId={participantId}
                 hostParticipantId={room.host.id}
+                coHostParticipantIds={coHostParticipantIds}
                 canChat={canChat}
                 isLive={!!isLive}
                 isEnded={!!isEnded}
                 isLoggedIn={!!user}
-                isHost={isHost}
+                hasHostPrivileges={hasHostPrivileges}
                 onSendMessage={handleSendChatMessage}
                 onDeleteMessage={handleDeleteChatMessage}
+                onSendMessageReaction={handleSendChatMessageReaction}
+                onRemoveMessageReaction={handleRemoveChatMessageReaction}
                 onKickParticipant={handleKickChatParticipant}
                 onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
                 onRequestLogin={handleChatLogin}
@@ -849,10 +980,18 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 audienceParticipantIds={audienceParticipantIds}
                 participantsById={roomState?.participants ?? {}}
                 participantProfilesById={participantProfilesById}
-                isHost={isHost}
+                coHostParticipantIds={coHostParticipantIds}
+                canModerate={hasHostPrivileges}
+                canManageCoHosts={isHost}
                 stageLimit={stageLimit}
                 moderationBusy={moderationBusy}
                 guardedModerationAction={guardedModerationAction}
+                grantCoHost={(targetParticipantId) =>
+                  handleGrantCoHost(targetParticipantId, 'queue_panel')
+                }
+                revokeCoHost={(targetParticipantId) =>
+                  handleRevokeCoHost(targetParticipantId, 'queue_panel')
+                }
                 promoteSpeaker={(targetParticipantId) =>
                   handlePromoteSpeaker(targetParticipantId, 'queue_panel')
                 }

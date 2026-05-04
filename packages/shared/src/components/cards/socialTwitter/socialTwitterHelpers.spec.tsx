@@ -8,15 +8,17 @@ import {
   getSocialTwitterMetadataLabel,
 } from './socialTwitterHelpers';
 
-const basePost: Post = {
+type SharedPost = NonNullable<Post['sharedPost']>;
+
+const basePost = {
   ...sharePost,
   type: PostType.SocialTwitter,
   subType: 'quote',
   sharedPost: {
-    ...sharePost.sharedPost,
+    ...sharePost.sharedPost!,
     type: PostType.SocialTwitter,
-  },
-};
+  } as unknown as SharedPost,
+} as Post & { sharedPost: SharedPost };
 
 describe('getSocialTwitterMetadata', () => {
   it('prefers creator twitter image over author image when both are available', () => {
@@ -33,7 +35,7 @@ describe('getSocialTwitterMetadata', () => {
           image: authorImage,
         },
       },
-    });
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -51,7 +53,7 @@ describe('getSocialTwitterMetadata', () => {
           image: authorImage,
         },
       },
-    });
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(authorImage);
   });
@@ -75,7 +77,7 @@ describe('getSocialTwitterMetadata', () => {
           image: sourceImage,
         },
       },
-    });
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -98,7 +100,7 @@ describe('getSocialTwitterMetadata', () => {
           image: 'https://example.com/source-logo.png',
         },
       },
-    });
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(creatorTwitterImage);
   });
@@ -120,7 +122,7 @@ describe('getSocialTwitterMetadata', () => {
           image: sourceImage,
         },
       },
-    });
+    } as unknown as Post);
 
     expect(embeddedTweetAvatarUser.image).toBe(sourceImage);
   });
@@ -139,7 +141,7 @@ describe('getSocialTwitterMetadata', () => {
           handle: 'AnthropicAI',
         },
       },
-    });
+    } as unknown as Post);
 
     expect(metadataHandles).toEqual(['anthropicai']);
   });
@@ -158,7 +160,7 @@ describe('getSocialTwitterMetadata', () => {
           handle: 'claudeai',
         },
       },
-    });
+    } as unknown as Post);
 
     expect(metadataHandles).toEqual(['anthropicai', 'claudeai']);
   });
