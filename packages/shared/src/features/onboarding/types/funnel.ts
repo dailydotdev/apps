@@ -342,11 +342,11 @@ export type FunnelExtensionImage = { default: string; retina: string };
 
 export interface FunnelStepBrowserExtension
   extends FunnelStepCommon<{
-    headline: string;
-    explainer: string;
-    cta: string;
-    skip: string;
-    showReviews: boolean;
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    skip?: string;
+    showReviews?: boolean;
     image?: {
       chrome?: FunnelExtensionImage;
       edge?: FunnelExtensionImage;
