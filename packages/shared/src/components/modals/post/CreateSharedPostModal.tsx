@@ -1,6 +1,6 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
-import type { ModalProps } from '../common/Modal';
+import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
 import type { RichTextInputRef } from '../../fields/RichTextInput';
@@ -23,7 +23,7 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import { ProfileImageSize } from '../../ProfilePicture';
 
-export interface CreateSharedPostModalProps extends ModalProps {
+export interface CreateSharedPostModalProps extends LazyModalCommonProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully?: (enableNotification?: boolean) => void;
   squad: Squad;
@@ -43,7 +43,7 @@ export function CreateSharedPostModal({
   const onSuccess = () => {
     onSharedSuccessfully?.();
     onSubmitted();
-    onRequestClose?.(undefined as never);
+    onRequestClose();
   };
   const {
     getLinkPreview,

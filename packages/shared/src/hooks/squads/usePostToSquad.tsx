@@ -134,6 +134,8 @@ export const usePostToSquad = ({
     [onComplete, onPostSuccess],
   );
 
+  const handleComplete = useCallback((): void => onComplete?.(), [onComplete]);
+
   const {
     mutateAsync: onCreatePost,
     isPending: isLoadingFreeform,
@@ -206,7 +208,7 @@ export const usePostToSquad = ({
     onSuccess: (data) => {
       completeAction(ActionType.SquadFirstPost);
       onSourcePostModerationSuccess?.(data);
-      onComplete?.();
+      handleComplete();
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);
@@ -297,7 +299,7 @@ export const usePostToSquad = ({
         throw new Error('Missing external link url in usePostToSquad');
       }
       onExternalLinkSuccess?.(preview, url);
-      onComplete?.();
+      handleComplete();
     },
     onError: (err: ApiErrorResult) => {
       const rateLimited = getApiError(err, ApiError.RateLimited);
