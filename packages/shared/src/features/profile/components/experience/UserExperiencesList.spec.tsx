@@ -161,7 +161,7 @@ describe('UserExperiencesList', () => {
         company: {
           id: 'comp1',
           name: 'Awesome Corp',
-          image: null,
+          image: '',
           createdAt: new Date('2019-01-01'),
           updatedAt: new Date('2019-01-01'),
         },
@@ -217,7 +217,7 @@ describe('UserExperiencesList', () => {
           company: {
             id: 'comp1',
             name: 'Company A',
-            image: null,
+            image: '',
             createdAt: new Date('2019-01-01'),
             updatedAt: new Date('2019-01-01'),
           },
@@ -228,7 +228,7 @@ describe('UserExperiencesList', () => {
           company: {
             id: 'comp2',
             name: 'Company B',
-            image: null,
+            image: '',
             createdAt: new Date('2019-01-01'),
             updatedAt: new Date('2019-01-01'),
           },
@@ -281,7 +281,7 @@ describe('UserExperiencesList', () => {
         company: {
           id: 'comp1',
           name: 'Official Name',
-          image: null,
+          image: '',
           createdAt: new Date('2019-01-01'),
           updatedAt: new Date('2019-01-01'),
         },
@@ -607,7 +607,7 @@ describe('UserExperiencesList', () => {
           company: {
             id: 'comp1',
             name: 'Company A',
-            image: null,
+            image: '',
             createdAt: new Date('2019-01-01'),
             updatedAt: new Date('2019-01-01'),
           },
@@ -618,7 +618,7 @@ describe('UserExperiencesList', () => {
           company: {
             id: 'comp2',
             name: 'Company B',
-            image: null,
+            image: '',
             createdAt: new Date('2019-01-01'),
             updatedAt: new Date('2019-01-01'),
           },
@@ -629,7 +629,7 @@ describe('UserExperiencesList', () => {
           company: {
             id: 'comp3',
             name: 'Company C',
-            image: null,
+            image: '',
             createdAt: new Date('2019-01-01'),
             updatedAt: new Date('2019-01-01'),
           },
@@ -712,7 +712,7 @@ describe('UserExperiencesList', () => {
       mockUseAuthContext.mockReturnValue({
         user: null,
         isLoggedIn: false,
-      } as ReturnType<typeof useAuthContext>);
+      } as unknown as ReturnType<typeof useAuthContext>);
 
       const user = createUser();
       const experience = createExperience();

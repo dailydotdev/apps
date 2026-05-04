@@ -58,12 +58,7 @@ export const defaultSteps = [
 
 describe('useChecklist hook', () => {
   let queryClient = new QueryClient();
-  const wrapper = ({
-    children,
-  }: {
-    steps: ChecklistStepType[];
-    children: ReactNode;
-  }) => {
+  const wrapper = ({ children }: { children: ReactNode }) => {
     return (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
@@ -91,7 +86,7 @@ describe('useChecklist hook', () => {
     expect(result.current.activeStep).toBeUndefined();
     expect(result.current.openStep).toBeNull();
 
-    steps = updateStep(steps, 0, { action: { completedAt: null } });
+    steps = updateStep(steps, 0, { action: { completedAt: undefined } });
     rerender({ steps });
 
     expect(result.current.isDone).toBe(false);
@@ -117,7 +112,7 @@ describe('useChecklist hook', () => {
 
     expect(result.current.completedSteps).toHaveLength(3);
 
-    steps = updateStep(steps, 0, { action: { completedAt: null } });
+    steps = updateStep(steps, 0, { action: { completedAt: undefined } });
     rerender({ steps });
 
     expect(result.current.completedSteps).toHaveLength(2);
@@ -126,7 +121,7 @@ describe('useChecklist hook', () => {
   it('should return first not completed step as active step', () => {
     const steps = [...defaultSteps].reduce(
       (acc, _, index) =>
-        updateStep(acc, index, { action: { completedAt: null } }),
+        updateStep(acc, index, { action: { completedAt: undefined } }),
       defaultSteps,
     );
 
@@ -147,7 +142,7 @@ describe('useChecklist hook', () => {
   it('should update active step after current active step is completed', () => {
     let steps = [...defaultSteps].reduce(
       (acc, _, index) =>
-        updateStep(acc, index, { action: { completedAt: null } }),
+        updateStep(acc, index, { action: { completedAt: undefined } }),
       defaultSteps,
     );
 
@@ -173,7 +168,7 @@ describe('useChecklist hook', () => {
   it('should return first not completed step as open step', async () => {
     const steps = [...defaultSteps].reduce(
       (acc, _, index) =>
-        updateStep(acc, index, { action: { completedAt: null } }),
+        updateStep(acc, index, { action: { completedAt: undefined } }),
       defaultSteps,
     );
 

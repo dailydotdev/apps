@@ -11,6 +11,8 @@ import {
   resolveCreative,
 } from '../lib/engagementAds';
 import { useIsLightTheme } from '../hooks/utils/useThemedAsset';
+import { useAuthContext } from './AuthContext';
+import { isProduction } from '../lib/constants';
 
 interface EngagementAdsContextValue {
   /** All creatives from boot, theme-resolved */
@@ -45,10 +47,15 @@ export const EngagementAdsProvider = ({
   rawCreatives,
 }: EngagementAdsProviderProps): ReactElement => {
   const isLight = useIsLightTheme();
+  const { user } = useAuthContext();
 
   const resolvedCreatives = useMemo(() => {
+    if (isProduction && user?.isPlus) {
+      return [];
+    }
+
     return parseCreatives(rawCreatives).map((c) => resolveCreative(c, isLight));
-  }, [rawCreatives, isLight]);
+  }, [rawCreatives, isLight, user?.isPlus]);
 
   const getCreativeForTags = useCallback(
     (tags: string[]) => findCreativeForTags(resolvedCreatives, tags),

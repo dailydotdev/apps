@@ -13,6 +13,7 @@ export interface UseActiveNav {
   explore: boolean;
   squads: boolean;
   jobs: boolean;
+  highlights: boolean;
 }
 
 export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
@@ -53,6 +54,7 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
   ];
   const isProfileActive = router.pathname?.includes('/[userId]');
   const isJobsActive = router.pathname?.startsWith('/jobs');
+  const isHighlightsActive = router.pathname?.startsWith('/highlights');
   const isExploreActive = explorePages.includes(activeFeed);
   const bookmarksPages: AllFeedPages[] = [
     OtherFeedPage.Bookmarks,
@@ -71,5 +73,6 @@ export default function useActiveNav(activeFeed: AllFeedPages): UseActiveNav {
     explore: isExploreActive,
     squads: isSquadsActive,
     jobs: isJobsActive,
+    highlights: isHighlightsActive,
   };
 }

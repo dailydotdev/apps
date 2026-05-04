@@ -11,7 +11,7 @@ interface RecommendedTagsProps {
 export const RecommendedTags = ({
   isLoading,
   tags,
-}: RecommendedTagsProps): ReactElement => {
+}: RecommendedTagsProps): ReactElement | null => {
   if (isLoading) {
     return (
       <div>
@@ -33,9 +33,11 @@ export const RecommendedTags = ({
     <div>
       <p className="mb-3 text-text-tertiary typo-caption1">Related tags:</p>
       <div className="no-scrollbar flex gap-2 overflow-x-auto">
-        {tags.map((relatedTag) => (
-          <TagLink key={relatedTag.name} tag={relatedTag.name} />
-        ))}
+        {tags.map((relatedTag) =>
+          relatedTag.name ? (
+            <TagLink key={relatedTag.name} tag={relatedTag.name} />
+          ) : null,
+        )}
       </div>
     </div>
   );

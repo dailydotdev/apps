@@ -38,7 +38,7 @@ export function MobileFeedActions(): ReactElement {
         onLogoClick={() => router.push('/')}
       />
       <span className="flex flex-row items-center gap-2">
-        {isStreaksEnabled && (
+        {isStreaksEnabled && streak && (
           <ReadingStreakButton
             isLoading={isLoading}
             streak={streak}

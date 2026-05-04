@@ -30,6 +30,7 @@ import {
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
 import { buildStandupAnalyticsExtra } from '../lib/liveRoom/analytics';
+import { getLiveRoomPrivilegeState } from '../lib/liveRoom/privileges';
 import { LogEvent } from '../lib/log';
 import {
   clearStoredLiveRoomResumeSession,
@@ -41,9 +42,12 @@ import {
 import { storageWrapper } from '../lib/storageWrapper';
 import type {
   ChatMessageDeletedEvent,
+  ChatMessageReactionRemovedEvent,
+  ChatMessageReactionSentEvent,
   ChatMessageSentEvent,
   LiveRoomCommand,
   LiveRoomChatMessage,
+  LiveRoomChatMessageReaction,
   LiveRoomParticipantRoleValue,
   LiveRoomState,
   MediaCapabilitiesPayload,
@@ -101,7 +105,9 @@ export interface LiveRoomReaction {
   lane: number;
 }
 
-export type LiveRoomChatEntry = LiveRoomChatMessage;
+export type LiveRoomChatEntry = LiveRoomChatMessage & {
+  reactions?: LiveRoomChatMessageReaction[];
+};
 
 interface RemoteSubscriptionHandle {
   kind: 'audio' | 'video';
@@ -126,11 +132,17 @@ export interface LiveRoomContextValue {
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
   joinSpeakerQueue: () => Promise<void>;
+  raiseHand: () => Promise<void>;
+  removeHand: () => Promise<void>;
   joinStage: () => Promise<void>;
   leaveStage: () => Promise<void>;
   sendReaction: (emoji: string) => Promise<void>;
   sendChatMessage: (body: string) => Promise<void>;
   deleteChatMessage: (messageId: string) => Promise<void>;
+  sendChatMessageReaction: (messageId: string, key: string) => Promise<void>;
+  removeChatMessageReaction: (messageId: string, key: string) => Promise<void>;
+  grantCoHost: (targetParticipantId: string) => Promise<void>;
+  revokeCoHost: (targetParticipantId: string) => Promise<void>;
   setParticipantChatEnabled: (
     targetParticipantId: string,
     canChat: boolean,
@@ -417,6 +429,11 @@ export const LiveRoomProvider = ({
   const mediaRebuildQueuedRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
+  const privilegeState = getLiveRoomPrivilegeState(
+    roomState,
+    participantId,
+    currentRole,
+  );
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
   const canChat =
     !!user &&
@@ -433,10 +450,8 @@ export const LiveRoomProvider = ({
           roomStatus: roomState?.status ?? null,
           roomMode: roomState?.mode ?? null,
           connectionStatus: status,
-          canPublish,
           participantId,
-          selectedMicId,
-          selectedCameraId,
+          isCoHost: privilegeState.isCoHost,
           hasLocalAudioTrack: !!localTracksRef.current.audio,
           hasLocalVideoTrack: !!localTracksRef.current.video,
           videoQuality: videoSettings.quality,
@@ -453,10 +468,8 @@ export const LiveRoomProvider = ({
       roomState?.status,
       roomState?.mode,
       status,
-      canPublish,
       participantId,
-      selectedMicId,
-      selectedCameraId,
+      privilegeState.isCoHost,
       videoSettings.quality,
       videoSettings.audioOnly,
       videoSettings.hideSelfView,
@@ -480,6 +493,22 @@ export const LiveRoomProvider = ({
     },
     [buildStandupExtra, logEvent],
   );
+  const logStandupErrorRef = useRef(logStandupError);
+  const sendTransportReadyRef = useRef(sendTransportReady);
+  const recvTransportReadyRef = useRef(recvTransportReady);
+
+  useEffect(() => {
+    logStandupErrorRef.current = logStandupError;
+  }, [logStandupError]);
+
+  useEffect(() => {
+    sendTransportReadyRef.current = sendTransportReady;
+  }, [sendTransportReady]);
+
+  useEffect(() => {
+    recvTransportReadyRef.current = recvTransportReady;
+  }, [recvTransportReady]);
+
   const sendConnectionCommand = useCallback(
     async <T,>(
       operation: string,
@@ -489,7 +518,7 @@ export const LiveRoomProvider = ({
       const connection = connectionRef.current;
       if (!connection) {
         const error = new Error('Not connected');
-        logStandupError('websocket command', error.message, {
+        logStandupErrorRef.current('websocket command', error.message, {
           source: 'command',
           operation,
           ...extra,
@@ -501,7 +530,7 @@ export const LiveRoomProvider = ({
         return await connection.send<T>(payload);
       } catch (error) {
         const message = getErrorMessage(error, `Failed to ${operation}`);
-        logStandupError('websocket command', message, {
+        logStandupErrorRef.current('websocket command', message, {
           source: 'command',
           operation,
           ...extra,
@@ -509,7 +538,7 @@ export const LiveRoomProvider = ({
         throw error instanceof Error ? error : new Error(message);
       }
     },
-    [logStandupError],
+    [],
   );
 
   const pushReaction = useCallback((event: ReactionSentEvent) => {
@@ -535,7 +564,7 @@ export const LiveRoomProvider = ({
 
   const pushChatMessage = useCallback((event: ChatMessageSentEvent) => {
     setChatMessages((current) => {
-      const next = [...current, event.message];
+      const next = [...current, { ...event.message, reactions: [] }];
 
       if (next.length <= CHAT_HISTORY_LIMIT) {
         return next;
@@ -550,6 +579,47 @@ export const LiveRoomProvider = ({
       current.filter((message) => message.messageId !== event.messageId),
     );
   }, []);
+
+  const pushChatMessageReaction = useCallback(
+    (event: ChatMessageReactionSentEvent) => {
+      setChatMessages((current) =>
+        current.map((message) => {
+          if (message.messageId !== event.messageReaction.messageId) {
+            return message;
+          }
+
+          return {
+            ...message,
+            reactions: [...(message.reactions ?? []), event.messageReaction],
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const removeChatMessageReactionFromState = useCallback(
+    (event: ChatMessageReactionRemovedEvent) => {
+      setChatMessages((current) =>
+        current.map((message) => {
+          if (message.messageId !== event.messageReaction.messageId) {
+            return message;
+          }
+
+          return {
+            ...message,
+            reactions: (message.reactions ?? []).filter(
+              (reaction) =>
+                reaction.participantId !==
+                  event.messageReaction.participantId ||
+                reaction.key !== event.messageReaction.key,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
 
   useEffect(() => {
     setChatMessages([]);
@@ -772,11 +842,11 @@ export const LiveRoomProvider = ({
     if (joinError) {
       setStatus('error');
       setErrorMessage(joinError.message);
-      logStandupError('join token fetch', joinError.message, {
+      logStandupErrorRef.current('join token fetch', joinError.message, {
         source: 'join_token',
       });
     }
-  }, [joinError, logStandupError]);
+  }, [joinError]);
 
   useEffect(() => {
     setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
@@ -820,13 +890,13 @@ export const LiveRoomProvider = ({
         return nextMics[0]?.deviceId ?? null;
       });
     } catch (error) {
-      logStandupError(
+      logStandupErrorRef.current(
         'device enumerate',
         getErrorMessage(error, 'Failed to enumerate devices'),
         { source: 'device_list' },
       );
     }
-  }, [logStandupError]);
+  }, []);
 
   // Enumerate devices on mount and when device list changes (plug/unplug).
   useEffect(() => {
@@ -890,7 +960,7 @@ export const LiveRoomProvider = ({
     if (!wsUrl) {
       setStatus('error');
       setErrorMessage('Standup websocket URL is not configured');
-      logStandupError(
+      logStandupErrorRef.current(
         'websocket config',
         'Standup websocket URL is not configured',
         { source: 'connection_config' },
@@ -941,6 +1011,14 @@ export const LiveRoomProvider = ({
     const offChatDeleted = connection.onChatMessageDeleted((event) => {
       removeChatMessage(event);
     });
+    const offChatReaction = connection.onChatMessageReaction((event) => {
+      pushChatMessageReaction(event);
+    });
+    const offChatReactionRemoved = connection.onChatMessageReactionRemoved(
+      (event) => {
+        removeChatMessageReactionFromState(event);
+      },
+    );
     const offClose = connection.onClose(({ reason }) => {
       if (openingWithResume && !sessionReady) {
         clearStoredLiveRoomResumeSession(roomId);
@@ -958,7 +1036,7 @@ export const LiveRoomProvider = ({
       }
       setStatus('error');
       setErrorMessage(error.message);
-      logStandupError('websocket error', error.message, {
+      logStandupErrorRef.current('websocket error', error.message, {
         source: 'connection',
       });
     });
@@ -972,6 +1050,8 @@ export const LiveRoomProvider = ({
       offReaction();
       offChatMessage();
       offChatDeleted();
+      offChatReaction();
+      offChatReactionRemoved();
       offClose();
       offError();
       connection.close();
@@ -979,10 +1059,11 @@ export const LiveRoomProvider = ({
     };
   }, [
     joinToken,
-    logStandupError,
     pushChatMessage,
+    pushChatMessageReaction,
     pushReaction,
     removeChatMessage,
+    removeChatMessageReactionFromState,
     roomId,
     storedResumeSession,
   ]);
@@ -1045,6 +1126,13 @@ export const LiveRoomProvider = ({
     }
     const connection = connectionRef.current;
     if (!connection) {
+      return undefined;
+    }
+    if (
+      deviceRef.current ||
+      recvTransportRef.current ||
+      sendTransportRef.current
+    ) {
       return undefined;
     }
 
@@ -1147,11 +1235,11 @@ export const LiveRoomProvider = ({
       ) {
         return;
       }
-      logStandupError('media init', err.message, {
+      logStandupErrorRef.current('media init', err.message, {
         source: 'media_init',
         connectionGeneration,
-        recvTransportReady,
-        sendTransportReady,
+        recvTransportReady: recvTransportReadyRef.current,
+        sendTransportReady: sendTransportReadyRef.current,
       });
       setStatus('error');
       setErrorMessage(err.message);
@@ -1166,9 +1254,6 @@ export const LiveRoomProvider = ({
     canPublish,
     closeMediaSession,
     connectionGeneration,
-    logStandupError,
-    recvTransportReady,
-    sendTransportReady,
     status,
   ]);
 
@@ -1304,7 +1389,7 @@ export const LiveRoomProvider = ({
           closeConsumer?.();
           subscriptionsRef.current.delete(publication.publicationId);
           const message = getErrorMessage(err, 'Failed to subscribe to media');
-          logStandupError('media subscribe', message, {
+          logStandupErrorRef.current('media subscribe', message, {
             source: 'subscription_create',
             kind: publication.kind,
             publicationId: publication.publicationId,
@@ -1314,7 +1399,7 @@ export const LiveRoomProvider = ({
         }
       })();
     });
-  }, [logStandupError, roomState, participantId, recvTransportReady]);
+  }, [roomState, participantId, recvTransportReady]);
 
   useEffect(() => {
     const syncRemoteVideoSubscriptions = async () => {
@@ -1343,13 +1428,12 @@ export const LiveRoomProvider = ({
         err,
         'Failed to update remote video subscriptions',
       );
-      logStandupError('media settings sync', message, {
+      logStandupErrorRef.current('media settings sync', message, {
         source: 'remote_video_subscriptions',
       });
       setErrorMessage(message);
     });
   }, [
-    logStandupError,
     recvTransportReady,
     setRemoteSubscriptionPaused,
     setRemoteSubscriptionPreferredSpatialLayer,
@@ -1365,13 +1449,12 @@ export const LiveRoomProvider = ({
         err,
         'Failed to update remote video quality',
       );
-      logStandupError('media settings sync', message, {
+      logStandupErrorRef.current('media settings sync', message, {
         source: 'remote_video_quality',
       });
       setErrorMessage(message);
     });
   }, [
-    logStandupError,
     recvTransportReady,
     setRecvTransportOutgoingBitrateLimit,
     videoSettings.quality,
@@ -1416,14 +1499,14 @@ export const LiveRoomProvider = ({
         });
       } catch (err) {
         const message = getErrorMessage(err, `Failed to publish ${kind}`);
-        logStandupError(`media publish ${kind}`, message, {
+        logStandupErrorRef.current(`media publish ${kind}`, message, {
           source: 'publish_local_track',
           kind,
         });
         setErrorMessage(message);
       }
     },
-    [logStandupError, setPublishingFlag],
+    [setPublishingFlag],
   );
 
   const unpublishKind = useCallback(
@@ -1501,7 +1584,7 @@ export const LiveRoomProvider = ({
               err,
               `Failed to update ${kind} track`,
             );
-            logStandupError(`media replace ${kind}`, message, {
+            logStandupErrorRef.current(`media replace ${kind}`, message, {
               source: 'capture_replace',
               kind,
               requestedDeviceId: deviceId,
@@ -1541,7 +1624,7 @@ export const LiveRoomProvider = ({
         }
       } catch (error) {
         const message = getErrorMessage(error, `Failed to capture ${kind}`);
-        logStandupError(`media capture ${kind}`, message, {
+        logStandupErrorRef.current(`media capture ${kind}`, message, {
           source: 'capture',
           kind,
           requestedDeviceId: deviceId,
@@ -1555,7 +1638,6 @@ export const LiveRoomProvider = ({
       publishLocalTrack,
       unpublishKind,
       canPublish,
-      logStandupError,
       roomState?.status,
       micSettings,
       micSettingSupport,
@@ -1675,6 +1757,14 @@ export const LiveRoomProvider = ({
     });
   }, [sendConnectionCommand]);
 
+  const raiseHand = useCallback(async () => {
+    await sendConnectionCommand('raise hand', { type: 'stage.hand.raise' });
+  }, [sendConnectionCommand]);
+
+  const removeHand = useCallback(async () => {
+    await sendConnectionCommand('remove hand', { type: 'stage.hand.remove' });
+  }, [sendConnectionCommand]);
+
   const joinStage = useCallback(async () => {
     await sendConnectionCommand('join stage', { type: 'stage.speaker.join' });
   }, [sendConnectionCommand]);
@@ -1716,6 +1806,28 @@ export const LiveRoomProvider = ({
     [sendConnectionCommand],
   );
 
+  const sendChatMessageReaction = useCallback(
+    async (messageId: string, key: string) => {
+      await sendConnectionCommand(
+        'send chat message reaction',
+        { type: 'chat.message.reaction.send', messageId, key },
+        { messageId, key },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const removeChatMessageReaction = useCallback(
+    async (messageId: string, key: string) => {
+      await sendConnectionCommand(
+        'remove chat message reaction',
+        { type: 'chat.message.reaction.remove', messageId, key },
+        { messageId, key },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
   const setParticipantChatEnabled = useCallback(
     async (targetParticipantId: string, nextCanChat: boolean) => {
       await sendConnectionCommand(
@@ -1726,6 +1838,34 @@ export const LiveRoomProvider = ({
           canChat: nextCanChat,
         },
         { targetParticipantId, nextCanChat },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const grantCoHost = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'grant co-host',
+        {
+          type: 'room.cohost.grant',
+          targetParticipantId,
+        },
+        { targetParticipantId },
+      );
+    },
+    [sendConnectionCommand],
+  );
+
+  const revokeCoHost = useCallback(
+    async (targetParticipantId: string) => {
+      await sendConnectionCommand(
+        'revoke co-host',
+        {
+          type: 'room.cohost.revoke',
+          targetParticipantId,
+        },
+        { targetParticipantId },
       );
     },
     [sendConnectionCommand],
@@ -1783,11 +1923,17 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      sendChatMessageReaction,
+      removeChatMessageReaction,
+      grantCoHost,
+      revokeCoHost,
       setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,
@@ -1825,11 +1971,17 @@ export const LiveRoomProvider = ({
       startRoom,
       endRoom,
       joinSpeakerQueue,
+      raiseHand,
+      removeHand,
       joinStage,
       leaveStage,
       sendReaction,
       sendChatMessage,
       deleteChatMessage,
+      sendChatMessageReaction,
+      removeChatMessageReaction,
+      grantCoHost,
+      revokeCoHost,
       setParticipantChatEnabled,
       promoteSpeaker,
       removeSpeaker,

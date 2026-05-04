@@ -52,7 +52,7 @@ describe('BrandedTag', () => {
 
   it('renders brand name and logo when the tag is sponsored', () => {
     renderTag('ai', [creative]);
-    expect(screen.getByText('#ai - powered by Copilot')).toBeInTheDocument();
+    expect(screen.getByText('#ai - sponsored by Copilot')).toBeInTheDocument();
     // Don't pin the theme: either dark or light resolution is acceptable
     expect(screen.getByAltText('Copilot')).toHaveAttribute(
       'src',
@@ -69,6 +69,6 @@ describe('BrandedTag', () => {
       </TestBootProvider>,
     );
     expect(screen.getByText('#ai')).toBeInTheDocument();
-    expect(screen.queryByText(/powered by/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/sponsored by/)).not.toBeInTheDocument();
   });
 });

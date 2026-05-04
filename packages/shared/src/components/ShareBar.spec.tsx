@@ -56,7 +56,7 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={loggedIn ? loggedUser : null}
+        user={loggedIn ? loggedUser : undefined}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
@@ -75,7 +75,7 @@ const renderComponent = (
 
 describe('ShareBar Test Suite:', () => {
   const mockWindowOpen = jest.fn();
-  let origWindowOpen: typeof window.open | null = null;
+  let origWindowOpen: typeof window.open = window.open;
 
   beforeEach(() => {
     origWindowOpen = window.open;

@@ -109,7 +109,9 @@ const renderComponent = (
   return render(
     <QueryClientProvider client={queryClient}>
       <FunnelUploadCv
-        parameters={parameters}
+        parameters={
+          parameters as Parameters<typeof FunnelUploadCv>[0]['parameters']
+        }
         onTransition={onTransition}
         type={FunnelStepType.UploadCv}
         id="test-id"
@@ -138,7 +140,7 @@ describe('FunnelUploadCv', () => {
       isSuccess: false,
       isPending: false,
       shouldShow: false,
-      onCloseBanner: undefined,
+      onCloseBanner: jest.fn(),
     });
     mockUseAuthContext.mockReturnValue({
       user: {
@@ -194,7 +196,7 @@ describe('FunnelUploadCv', () => {
         isSuccess: true,
         isPending: false,
         shouldShow: false,
-        onCloseBanner: undefined,
+        onCloseBanner: jest.fn(),
       });
 
       renderComponent(defaultParameters, mockOnTransition);
@@ -210,7 +212,7 @@ describe('FunnelUploadCv', () => {
         isSuccess: true,
         isPending: false,
         shouldShow: false,
-        onCloseBanner: undefined,
+        onCloseBanner: jest.fn(),
       });
 
       renderComponent(defaultParameters, mockOnTransition);
