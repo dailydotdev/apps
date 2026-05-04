@@ -127,6 +127,7 @@
     "@tiptap/react": "^3.14.0",
     "@tiptap/starter-kit": "^3.14.0",
     "check-password-strength": "^2.0.10",
+    "cmdk": "^1.0.0",
     "fetch-event-stream": "^0.1.6",
     "graphql-ws": "^5.5.5",
     "jotai": "^2.12.2",

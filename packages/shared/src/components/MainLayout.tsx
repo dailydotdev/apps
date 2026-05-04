@@ -36,6 +36,8 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+import { SpotlightProvider } from './spotlight/SpotlightContext';
+import { SpotlightHost } from './spotlight/SpotlightHost';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -189,6 +191,7 @@ function MainLayoutComponent({
       <BootPopups />
       <SmartComposerHotkey />
       <SmartComposerDevToggle />
+      <SpotlightHost />
       <StreakMilestonePopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
@@ -234,7 +237,9 @@ function MainLayoutComponent({
 const MainLayout = (props: MainLayoutProps): ReactElement => (
   <ActiveFeedNameContextProvider>
     <SearchProvider>
-      <MainLayoutComponent {...props} />
+      <SpotlightProvider>
+        <MainLayoutComponent {...props} />
+      </SpotlightProvider>
     </SearchProvider>
   </ActiveFeedNameContextProvider>
 );

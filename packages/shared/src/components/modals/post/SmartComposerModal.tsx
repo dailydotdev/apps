@@ -108,6 +108,11 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialBody?: string;
   initialSquadHandle?: string;
+  /**
+   * Seed the kind picker. Used by the Spotlight "Create poll" / "Start
+   * standup" commands so the modal opens directly in the right mode.
+   */
+  initialKind?: ComposerKind;
   preview?: ExternalLinkPreview;
 }
 
@@ -670,6 +675,7 @@ export function SmartComposerModal({
   initialUrl,
   initialBody,
   initialSquadHandle,
+  initialKind,
   preview: initialPreview,
   ...props
 }: SmartComposerModalProps): ReactElement {
@@ -713,7 +719,7 @@ export function SmartComposerModal({
     useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMarkdownEditorMode, setIsMarkdownEditorMode] = useState(false);
-  const [kind, setKind] = useState<ComposerKind>('text');
+  const [kind, setKind] = useState<ComposerKind>(initialKind ?? 'text');
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState<number | undefined>(
     DEFAULT_POLL_DURATION_DAYS,

@@ -278,6 +278,34 @@ export default {
           '60%': { transform: 'rotate(-10deg)' },
           '80%': { transform: 'rotate(6deg)' },
         },
+        'spotlight-scrim-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'spotlight-scrim-out': {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        'spotlight-panel-in': {
+          from: {
+            opacity: '0',
+            transform: 'translateY(-8px) scale(0.98)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+        },
+        'spotlight-panel-out': {
+          from: {
+            opacity: '1',
+            transform: 'translateY(0) scale(1)',
+          },
+          to: {
+            opacity: '0',
+            transform: 'scale(0.98)',
+          },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -289,6 +317,11 @@ export default {
         'raise-hand-pop':
           'raise-hand-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'raise-hand-wave': 'raise-hand-wave 700ms ease-in-out 240ms both',
+        'spotlight-scrim-in': 'spotlight-scrim-in 150ms ease-out both',
+        'spotlight-scrim-out': 'spotlight-scrim-out 100ms ease-in both',
+        'spotlight-panel-in':
+          'spotlight-panel-in 155ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'spotlight-panel-out': 'spotlight-panel-out 110ms ease-in both',
       },
     },
     lineClamp: {

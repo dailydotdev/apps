@@ -38,6 +38,6 @@ const renderComponent = (layout = getLayout): RenderResult => {
 
 it('should render the search page', async () => {
   renderComponent(undefined);
-  const text = await screen.findByTestId('search-panel');
-  expect(text).toBeInTheDocument();
+  const trigger = await screen.findByTestId('spotlight-trigger');
+  expect(trigger).toBeInTheDocument();
 });

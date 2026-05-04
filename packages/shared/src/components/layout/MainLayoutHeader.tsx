@@ -16,6 +16,7 @@ import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
+import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -23,13 +24,6 @@ export interface MainLayoutHeaderProps {
   additionalButtons?: ReactNode;
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
-
-const SearchPanel = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
-    ),
-);
 
 const HeaderButtons = dynamic(
   () => import(/* webpackChunkName: "headerButtons" */ './HeaderButtons'),
@@ -73,24 +67,25 @@ function MainLayoutHeader({
     setHasHydrated(true);
   }, []);
 
-  const renderSearchPanel = useCallback(
-    () =>
-      shouldUseLoadedSettings && (
-        <SearchPanel
-          className={{
-            container: classNames(
-              'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
-              isSearchPage
-                ? 'relative right-0 tablet:!left-0 laptop:top-0'
-                : 'hidden laptop:flex',
-              hasBanner && 'tablet:top-18',
-            ),
-            field: 'mx-2 laptop:mx-auto',
-          }}
-        />
-      ),
-    [shouldUseLoadedSettings, isSearchPage, hasBanner],
-  );
+  const renderSpotlightTrigger = useCallback(() => {
+    if (!shouldUseLoadedSettings) {
+      return null;
+    }
+    return (
+      <div
+        className={classNames(
+          'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
+          isSearchPage
+            ? 'relative right-0 tablet:!left-0 laptop:top-0'
+            : 'hidden laptop:flex',
+          hasBanner && 'tablet:top-18',
+          'mx-2 flex laptop:mx-auto',
+        )}
+      >
+        <SpotlightTrigger className="w-full" />
+      </div>
+    );
+  }, [shouldUseLoadedSettings, isSearchPage, hasBanner]);
 
   if (shouldRenderFeedNav) {
     return (
@@ -124,7 +119,7 @@ function MainLayoutHeader({
     >
       {isMobileSearchPage ? (
         <>
-          {renderSearchPanel()}
+          {renderSpotlightTrigger()}
           {!isSearch && <MobileExploreHeader path={activeFeedName} />}
         </>
       ) : (
@@ -140,7 +135,7 @@ function MainLayoutHeader({
                 onLogoClick={onLogoClick}
               />
             </div>
-            {renderSearchPanel()}
+            {renderSpotlightTrigger()}
             <HeaderButtons additionalButtons={additionalButtons} />
           </>
         )

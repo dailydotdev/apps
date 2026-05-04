@@ -562,6 +562,7 @@ export enum TargetId {
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',
   SearchActivation = 'search activation',
+  SpotlightOpen = 'spotlight open',
   // Referral campaign
   GenericReferralPopup = 'generic referral popup',
   ProfilePage = 'profile page',
