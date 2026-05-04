@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -18,8 +18,6 @@ import { BreadCrumbs } from '@dailydotdev/shared/src/components/header';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { questsFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -60,40 +58,13 @@ const LeaderboardDetailPage = ({
   userItems,
   companyItems,
 }: PageProps): ReactElement => {
-  const router = useRouter();
-  const { isFallback: isLoading } = router;
-  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
-    useConditionalFeature({
-      feature: questsFeature,
-    });
+  const { isFallback: isLoading } = useRouter();
 
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
 
-  useEffect(() => {
-    if (
-      !isLevelLeaderboard ||
-      isQuestsFeatureLoading ||
-      isQuestsFeatureEnabled === true
-    ) {
-      return;
-    }
-
-    router.replace('/users');
-  }, [
-    isLevelLeaderboard,
-    isQuestsFeatureEnabled,
-    isQuestsFeatureLoading,
-    router,
-  ]);
-
-  if (
-    isLoading ||
-    !title ||
-    (isLevelLeaderboard &&
-      (isQuestsFeatureLoading || isQuestsFeatureEnabled !== true))
-  ) {
+  if (isLoading || !title) {
     return <></>;
   }
 

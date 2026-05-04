@@ -16,7 +16,7 @@ it('should send trackQuestEvent mutation', async () => {
     request: {
       query: TRACK_QUEST_EVENT_MUTATION,
       variables: {
-        eventType: ClientQuestEventType.VisitArena,
+        eventType: ClientQuestEventType.VisitExplorePage,
       },
     },
     result: () => {
@@ -32,7 +32,7 @@ it('should send trackQuestEvent mutation', async () => {
     },
   });
 
-  await trackQuestClientEvent(ClientQuestEventType.VisitArena);
+  await trackQuestClientEvent(ClientQuestEventType.VisitExplorePage);
 
   expect(queryCalled).toBe(true);
 });

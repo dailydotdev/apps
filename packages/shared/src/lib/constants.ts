@@ -47,7 +47,7 @@ export const isTesting =
 export const isGBDevMode = process.env.NEXT_PUBLIC_GB_DEV_MODE === 'true';
 
 export const isBrave = (): boolean => {
-  if (!window.Promise) {
+  if (typeof window === 'undefined' || !window.Promise) {
     return false;
   }
   return typeof navigator.brave?.isBrave === 'function';
@@ -57,6 +57,7 @@ export const isChrome = (): boolean =>
   /Google Inc/.test(globalThis?.navigator?.vendor);
 
 export const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL as string;
+export const gameCenterMilestoneSectionId = 'milestone-quests';
 export const onboardingUrl = `${webappUrl}onboarding`;
 export const plusUrl = `${webappUrl}plus`;
 export const managePlusUrl = 'https://r.daily.dev/billing';

@@ -42,10 +42,13 @@ import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
+import { findCreativeForTags } from '../lib/engagementAds';
+import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketingCta/common';
 import { MarketingCtaBriefing } from './marketingCta/MarketingCtaBriefing';
 import { MarketingCtaYearInReview } from './marketingCta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketingCta/MarketingCtaVideo';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
@@ -192,6 +195,7 @@ export const withFeedLogExtraContext = (
     props: FeedItemComponentProps,
   ): ReactElement | null => {
     const { item } = props;
+    const { creatives } = useEngagementAdsContext();
 
     if ([FeedItemType.Ad, FeedItemType.Post].includes(item?.type)) {
       return (
@@ -213,6 +217,17 @@ export const withFeedLogExtraContext = (
               extraData.referrer_target_type = post?.id
                 ? TargetType.Post
                 : undefined;
+
+              if (
+                item.type === FeedItemType.Post &&
+                post?.tags &&
+                creatives.length > 0
+              ) {
+                const creative = findCreativeForTags(creatives, post.tags);
+                if (creative) {
+                  extraData.gen_id = creative.genId;
+                }
+              }
             }
 
             if (isBoostedSquadAd(item)) {
@@ -407,7 +422,9 @@ function FeedItemComponent({
               },
             });
           }}
-          onPostClick={(post: Post) => onPostClick(post, index, row, column)}
+          onPostClick={(post: Post, event) =>
+            onPostClick(post, index, row, column, false, event)
+          }
           onPostAuxClick={(post: Post) =>
             onPostClick(post, index, row, column, true)
           }
@@ -470,6 +487,10 @@ function FeedItemComponent({
 
       if (item.marketingCta.variant === MarketingCtaVariant.YearInReview) {
         return <MarketingCtaYearInReview marketingCta={item.marketingCta} />;
+      }
+
+      if (item.marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={item.marketingCta} />;
       }
 
       return (

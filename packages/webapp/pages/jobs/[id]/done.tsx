@@ -68,7 +68,7 @@ const options = [
         </Typography>
       </IconWrapper>
     ),
-    title: 'We reach out to the recruiter',
+    title: "We'll reach out to the recruiter",
     description: (
       <>We&apos;ll confirm mutual interest before making an introduction.</>
     ),

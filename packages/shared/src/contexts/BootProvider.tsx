@@ -28,6 +28,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
 import { isConnectionError } from '../lib/errors';
+import { EngagementAdsProvider } from './EngagementAdsContext';
 
 const ServerError = dynamic(
   () =>
@@ -385,28 +386,30 @@ export const BootDataProvider = ({
           loadedSettings={loadedFromCache}
           updateSettings={updateSettings}
         >
-          <AlertContextProvider
-            alerts={alerts}
-            isFetched={isBootReady}
-            updateAlerts={updateAlerts}
-            loadedAlerts={loadedFromCache}
-          >
-            <LogContextProvider
-              app={app}
-              version={version}
-              getPage={getPage}
-              deviceId={deviceId}
+          <EngagementAdsProvider rawCreatives={remoteData?.engagementCreatives}>
+            <AlertContextProvider
+              alerts={alerts}
+              isFetched={isBootReady}
+              updateAlerts={updateAlerts}
+              loadedAlerts={loadedFromCache}
             >
-              <ErrorBoundary>
-                <NotificationsContextProvider
-                  isNotificationsReady={isBootReady}
-                  unreadCount={notifications?.unreadNotificationsCount}
-                >
-                  {children}
-                </NotificationsContextProvider>
-              </ErrorBoundary>
-            </LogContextProvider>
-          </AlertContextProvider>
+              <LogContextProvider
+                app={app}
+                version={version}
+                getPage={getPage}
+                deviceId={deviceId}
+              >
+                <ErrorBoundary>
+                  <NotificationsContextProvider
+                    isNotificationsReady={isBootReady}
+                    unreadCount={notifications?.unreadNotificationsCount}
+                  >
+                    {children}
+                  </NotificationsContextProvider>
+                </ErrorBoundary>
+              </LogContextProvider>
+            </AlertContextProvider>
+          </EngagementAdsProvider>
         </SettingsContextProvider>
       </AuthContextProvider>
     </GrowthBookProvider>

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -28,16 +28,14 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeature';
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { shouldShowAchievementTracker } from '@dailydotdev/shared/src/lib/achievements';
+import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
 import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
-import {
-  achievementTrackingWidgetFeature,
-  questsFeature,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
 import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
@@ -89,7 +87,6 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import ProtectedPage from '../../components/ProtectedPage';
-import Custom404Seo from '../404';
 import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
@@ -241,11 +238,6 @@ function GameCenterPage({
   const router = useRouter();
   const { user } = useAuthContext();
   const { optOutLevelSystem } = useSettingsContext();
-  const { value: isQuestsFeatureEnabled, isLoading: isQuestsFeatureLoading } =
-    useConditionalFeature({
-      feature: questsFeature,
-      shouldEvaluate: !!user,
-    });
   const { value: isAchievementTrackingEnabled } = useConditionalFeature({
     feature: achievementTrackingWidgetFeature,
     shouldEvaluate: !!user,
@@ -285,6 +277,10 @@ function GameCenterPage({
   const milestoneQuests = useMemo(
     () => questDashboard?.milestone ?? [],
     [questDashboard?.milestone],
+  );
+  const claimableMilestoneCount = useMemo(
+    () => milestoneQuests.filter((quest) => quest.claimable).length,
+    [milestoneQuests],
   );
   const claimingMilestoneQuestId = isClaimQuestPending
     ? claimQuestVariables?.userQuestId
@@ -345,6 +341,7 @@ function GameCenterPage({
   );
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
+  const milestoneHash = `#${gameCenterMilestoneSectionId}`;
   let mostEarnedBadgeSubtitle =
     'Read in a topic more than once to see a favorite';
 
@@ -399,6 +396,20 @@ function GameCenterPage({
     [claimQuestReward],
   );
 
+  useEffect(() => {
+    if (!router.isReady || claimableMilestoneCount === 0) {
+      return;
+    }
+
+    if (!router.asPath?.includes(milestoneHash)) {
+      return;
+    }
+
+    document
+      .getElementById(gameCenterMilestoneSectionId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [claimableMilestoneCount, milestoneHash, router.asPath, router.isReady]);
+
   let milestoneQuestContent: ReactElement;
 
   if (isQuestPending) {
@@ -414,9 +425,6 @@ function GameCenterPage({
         title="Milestones"
         quests={milestoneQuests}
         layout="grid"
-        initialVisibleCount={4}
-        showMoreLabel="Show more"
-        showLessLabel="Show less"
         showLevelSystem={showLevelSystem}
         onDestinationClick={handleMilestoneDestinationClick}
         claimingQuestId={claimingMilestoneQuestId}
@@ -695,10 +703,7 @@ function GameCenterPage({
   }
 
   return (
-    <ProtectedPage
-      shouldFallback={isQuestsFeatureLoading || isQuestsFeatureEnabled !== true}
-      fallback={isQuestsFeatureLoading ? <></> : <Custom404Seo />}
-    >
+    <ProtectedPage>
       <div className="mx-auto w-full max-w-[72rem]">
         <LayoutHeader
           className={classNames('!mb-0 gap-2 border-b px-4', pageBorders)}
@@ -885,7 +890,7 @@ function GameCenterPage({
               </div>
 
               <div className="bg-background-default/70 flex min-w-[14rem] flex-col items-start justify-center gap-4 rounded-20 border border-border-subtlest-tertiary p-5 backdrop-blur-sm">
-                {isQuestsFeatureEnabled === true && questDashboard ? (
+                {questDashboard ? (
                   <>
                     <div className="flex items-center gap-4">
                       <QuestLevelProgressCircle
@@ -954,7 +959,10 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section className="flex flex-col gap-4">
+          <section
+            id={gameCenterMilestoneSectionId}
+            className="flex scroll-mt-16 flex-col gap-4"
+          >
             <SectionHeader
               title="Milestone quests"
               description="Longer-running quest goals that track your progress until they are ready to claim."

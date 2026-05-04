@@ -88,6 +88,7 @@ const useRegistration = ({
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
+            provider: 'password',
             error: res.error,
             origin: 'betterauth signup error',
           }),
@@ -102,6 +103,7 @@ const useRegistration = ({
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
+            provider: 'password',
             error: BETTER_AUTH_SIGNUP_FALLBACK_ERROR,
             origin: 'betterauth signup fallback error',
           }),
@@ -155,6 +157,7 @@ const useRegistration = ({
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
+            provider,
             error: result.error,
             origin: 'betterauth native id token registration',
           }),
@@ -167,6 +170,7 @@ const useRegistration = ({
           logEvent({
             event_name: AuthEventNames.RegistrationError,
             extra: JSON.stringify({
+              provider,
               error: 'Missing user after Better Auth social registration',
               origin: 'betterauth native id token registration boot',
             }),
@@ -178,6 +182,7 @@ const useRegistration = ({
         logEvent({
           event_name: AuthEventNames.RegistrationError,
           extra: JSON.stringify({
+            provider,
             error: getBetterAuthErrorMessage(
               error,
               'Failed to refresh Better Auth registration state',
@@ -202,6 +207,7 @@ const useRegistration = ({
       logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
+          provider,
           error: 'Missing social registration redirect handler',
           origin: 'betterauth social url registration',
         }),
@@ -210,6 +216,7 @@ const useRegistration = ({
       logEvent({
         event_name: AuthEventNames.RegistrationError,
         extra: JSON.stringify({
+          provider,
           error: error || 'Failed to get social registration URL',
           origin: 'betterauth social url registration',
         }),

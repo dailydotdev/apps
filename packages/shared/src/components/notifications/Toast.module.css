@@ -1,22 +1,26 @@
 .toastContainer {
   z-index: 1000;
-  transform: translate(-50%, 5rem);
+  /* Slides down from above on every breakpoint so the toast never overlaps
+     bottom-anchored chrome (mobile floating bars, footer nav). Mirrors the
+     existing tablet+ behaviour, just applied to mobile too.
+     Adds --safe-area-top so the toast clears the iOS status bar when running
+     as a PWA / native iOS app (otherwise it renders behind the system clock,
+     signal, and battery icons and is unreadable). */
+  transform: translate(-50%, -5rem);
   transition: transform 0.14s ease-in-out;
   max-width: calc(100vw - 2rem);
   max-height: unset;
   min-height: unset;
   width: 100%;
-  bottom: 4rem;
+  top: calc(1rem + var(--safe-area-top, 0px));
 
   @screen tablet {
-    top: 2rem;
-    bottom: unset;
+    top: calc(2rem + var(--safe-area-top, 0px));
     width: fit-content;
     min-width: 12.5rem;
     max-width: 80vw;
     min-height: 2.75rem;
     max-height: 4.125rem;
-    transform: translate(-50%, -5rem);
   }
 
   &:global(.slide-in) {

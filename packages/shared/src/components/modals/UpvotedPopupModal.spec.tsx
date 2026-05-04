@@ -7,7 +7,7 @@ import AuthContext from '../../contexts/AuthContext';
 import { COMMENT_UPVOTES_BY_ID_QUERY } from '../../graphql/comments';
 import type { MockedGraphQLResponse } from '../../../__tests__/helpers/graphql';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
-import type { RequestQuery, UpvotesData } from '../../graphql/common';
+import type { RequestQuery, Upvote, UpvotesData } from '../../graphql/common';
 import { DEFAULT_UPVOTES_PER_PAGE } from '../../graphql/common';
 import { POST_UPVOTES_BY_ID_QUERY } from '../../graphql/posts';
 import type { UpvotedPopupModalProps } from './UpvotedPopupModal';
@@ -44,7 +44,7 @@ const fetchUpvotesMock = ({
   params,
 }: Partial<RequestQuery<UpvotesData>>): MockedGraphQLResponse<UpvotesData> => ({
   request: {
-    query,
+    query: query!,
     variables: params,
   },
   result: {
@@ -55,8 +55,8 @@ const fetchUpvotesMock = ({
           {
             node: {
               createdAt: new Date(),
-              user,
-            },
+              user: user as unknown as Upvote['user'],
+            } as unknown as Upvote,
           },
         ],
       },
@@ -86,6 +86,7 @@ const renderComponent = (
           closeLogin: jest.fn(),
           getRedirectUri: jest.fn(),
           isAuthReady: true,
+          isLoggedIn: !!user,
         }}
       >
         <UpvotedPopupModal {...upvotedPostQueryAsDefault} {...props} />
@@ -120,7 +121,7 @@ it('should show name', async () => {
 
 it('should show bio', async () => {
   renderComponent();
-  await screen.findByText(user.bio);
+  await screen.findByText(user.bio!);
 });
 
 it('should show permalink', async () => {

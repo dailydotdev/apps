@@ -44,12 +44,20 @@ export function Section({
   const { flags, updateFlag } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const shouldAlwaysBeVisible = isAlwaysOpenOnMobile && !sidebarRendered;
-  const isVisible = useRef(
-    isNullOrUndefined(flags?.[flag]) ? true : flags[flag],
-  );
+  const currentFlagValue = flag ? flags?.[flag] : undefined;
+  const initialIsVisible = isNullOrUndefined(currentFlagValue)
+    ? true
+    : currentFlagValue;
+  const isVisible = useRef(initialIsVisible);
+
   const toggleFlag = () => {
-    updateFlag(flag, !isVisible.current);
-    isVisible.current = !isVisible.current;
+    const nextIsVisible = !isVisible.current;
+
+    if (flag) {
+      updateFlag(flag, nextIsVisible);
+    }
+
+    isVisible.current = nextIsVisible;
   };
 
   return (
@@ -121,21 +129,23 @@ export function Section({
       <div
         id={flag ? `section-${flag}` : undefined}
         className={classNames(
-          'flex flex-col overflow-hidden transition-all duration-300',
+          'grid transition-[grid-template-rows,opacity] duration-300',
           isVisible.current || shouldAlwaysBeVisible
-            ? 'max-h-[2000px] opacity-100'
-            : 'max-h-0 opacity-0',
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0',
         )}
       >
-        {items.map((item) => (
-          <SidebarItem
-            key={`${item.title}-${item.path}`}
-            item={item}
-            activePage={activePage}
-            isItemsButton={isItemsButton}
-            shouldShowLabel={shouldShowLabel}
-          />
-        ))}
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          {items.map((item) => (
+            <SidebarItem
+              key={`${item.title}-${item.path}`}
+              item={item}
+              activePage={activePage}
+              isItemsButton={isItemsButton}
+              shouldShowLabel={shouldShowLabel}
+            />
+          ))}
+        </div>
       </div>
     </NavSection>
   );

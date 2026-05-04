@@ -19,6 +19,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
+import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
@@ -32,7 +33,6 @@ import { useNotificationContext } from '@dailydotdev/shared/src/contexts/Notific
 import { getUnreadText } from '@dailydotdev/shared/src/components/notifications/utils';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { defaultQueryClientConfig } from '@dailydotdev/shared/src/lib/query';
 import { useWebVitals } from '@dailydotdev/shared/src/hooks/useWebVitals';
 import { LazyModalElement } from '@dailydotdev/shared/src/components/modals/LazyModalElement';
@@ -65,6 +65,15 @@ const CookieBanner = dynamic(
       /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
     ),
 );
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() =>
+        import('@tanstack/react-query-devtools').then(
+          (mod) => mod.ReactQueryDevtools,
+        ),
+      )
+    : (): null => null;
 
 interface ComponentGetLayout {
   getLayout?: (
@@ -329,6 +338,12 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 
           <link rel="preconnect" href="https://api.daily.dev" />
           <link rel="preconnect" href="https://media.daily.dev" />
+          <link rel="dns-prefetch" href="https://connect.facebook.net" />
+          <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+          <link rel="dns-prefetch" href="https://static.hotjar.com" />
+          <link rel="dns-prefetch" href="https://static.ads-twitter.com" />
+          <link rel="dns-prefetch" href="https://www.redditstatic.com" />
+          <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
         </Head>
         <DefaultSeo
           {...Seo}
@@ -365,6 +380,15 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   );
 }
 
+/**
+ * Pages under `/dev/*` are internal review surfaces that don't need the
+ * full app shell (BootDataProvider, Serwist offline page, auth, etc.).
+ * They hit production APIs that won't accept localhost cookies, so we
+ * short-circuit to a minimal QueryClient-only tree.
+ */
+const isDevReviewRoute = (pathname: string | undefined): boolean =>
+  !!pathname && pathname.startsWith('/dev/');
+
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
 ): ReactElement {
@@ -377,9 +401,18 @@ export default function App(
   useManualScrollRestoration();
   useScrollbarWidth();
 
-  const {
-    pageProps: { dehydratedState },
-  } = props;
+  const { Component, pageProps, router } = props;
+  const { dehydratedState } = pageProps;
+
+  if (isDevReviewRoute(router?.pathname)) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <HydrationBoundary state={dehydratedState}>
+          <Component {...pageProps} />
+        </HydrationBoundary>
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <ProgressiveEnhancementContextProvider>
@@ -396,7 +429,9 @@ export default function App(
               <PushNotificationContextProvider>
                 <SubscriptionContextProvider>
                   <PostReferrerContextProvider>
-                    <InternalApp {...props} />
+                    <ShortcutsProvider>
+                      <InternalApp {...props} />
+                    </ShortcutsProvider>
                   </PostReferrerContextProvider>
                 </SubscriptionContextProvider>
               </PushNotificationContextProvider>

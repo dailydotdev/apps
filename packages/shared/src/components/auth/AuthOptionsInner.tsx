@@ -21,14 +21,9 @@ import {
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
 } from '../../lib/betterAuth';
-import {
-  webappUrl,
-  broadcastChannel,
-  isTesting,
-  isBrave,
-} from '../../lib/constants';
+import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { isIOSNative, isMobile } from '../../lib/func';
+import { shouldUseSocialAuthPopup } from '../../lib/func';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
@@ -432,6 +427,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error: callbackError,
           origin: 'betterauth social auth callback',
           data:
@@ -450,6 +446,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error: getBetterAuthErrorMessage(
             error,
             'Failed to refresh Better Auth social auth state',
@@ -468,6 +465,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
+          provider: chosenProvider,
           error:
             'Could not find authenticated user after social authentication',
           origin: 'betterauth social auth boot',
@@ -546,6 +544,7 @@ function AuthOptionsInner({
         logEvent({
           event_name: authErrorEventName,
           extra: JSON.stringify({
+            provider,
             error: result.error,
             origin: 'betterauth native id token',
           }),
@@ -558,9 +557,9 @@ function AuthOptionsInner({
       await handleLoginMessage();
       return;
     }
-    const isIOSApp = isIOSNative();
+    const shouldUsePopup = shouldUseSocialAuthPopup();
     onAuthStateUpdate?.({ isLoading: true });
-    if (!isIOSApp) {
+    if (shouldUsePopup) {
       windowPopup.current = window.open();
     }
     const callbackURL = `${webappUrl}callback?login=true`;
@@ -574,6 +573,7 @@ function AuthOptionsInner({
       logEvent({
         event_name: authErrorEventName,
         extra: JSON.stringify({
+          provider,
           error: error || 'Failed to get social login URL',
           origin: 'betterauth social url',
         }),
@@ -585,21 +585,8 @@ function AuthOptionsInner({
       onAuthStateUpdate?.({ isLoading: false });
       return;
     }
-    if (isIOSApp || (isBrave() && isMobile())) {
-      window.location.href = socialUrl;
-      return;
-    }
     if (!windowPopup.current) {
-      logEvent({
-        event_name: authErrorEventName,
-        extra: JSON.stringify({
-          error: 'Failed to open social login window',
-          origin: 'betterauth social popup',
-        }),
-      });
-      setIsSocialAuthLoading(false);
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-      onAuthStateUpdate?.({ isLoading: false });
+      window.location.href = socialUrl;
       return;
     }
     windowPopup.current.location.href = socialUrl;

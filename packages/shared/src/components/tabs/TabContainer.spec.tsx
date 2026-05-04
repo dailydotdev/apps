@@ -61,6 +61,43 @@ describe('tab container component', () => {
     await screen.findByText('Test');
   });
 
+  it('should drag-scroll the tab list on desktop when enabled', () => {
+    renderComponent({
+      className: { header: 'overflow-x-auto' },
+      tabListProps: { dragScroll: true },
+    });
+
+    const list = screen.getByRole('list');
+    const scrollableParent = list.parentElement as HTMLElement;
+
+    Object.defineProperty(scrollableParent, 'scrollWidth', {
+      configurable: true,
+      value: 400,
+    });
+    Object.defineProperty(scrollableParent, 'clientWidth', {
+      configurable: true,
+      value: 200,
+    });
+    Object.defineProperty(scrollableParent, 'scrollLeft', {
+      configurable: true,
+      value: 100,
+      writable: true,
+    });
+
+    fireEvent.mouseDown(list, {
+      button: 0,
+      clientX: 100,
+    });
+    fireEvent.mouseMove(window, {
+      clientX: 60,
+    });
+    fireEvent.mouseUp(window, {
+      clientX: 60,
+    });
+
+    expect(scrollableParent.scrollLeft).toBe(140);
+  });
+
   it('should mount tabs if shouldMountInactive is true but hidden', async () => {
     renderComponent({ shouldMountInactive: true });
     await screen.findByText('First');
@@ -112,6 +149,60 @@ describe('tab container component', () => {
       expect(routerPush).toHaveBeenCalledWith('/first', undefined, {
         shallow: false,
       });
+    });
+
+    it('should not redirect after a drag gesture', async () => {
+      renderUrlComponent({
+        className: { header: 'overflow-x-auto' },
+        shouldMountInactive: true,
+        tabListProps: { dragScroll: true },
+      });
+
+      const list = screen.getByRole('list');
+      const first = await screen.findByText('First');
+      const scrollableParent = list.parentElement as HTMLElement;
+
+      Object.defineProperty(scrollableParent, 'scrollWidth', {
+        configurable: true,
+        value: 400,
+      });
+      Object.defineProperty(scrollableParent, 'clientWidth', {
+        configurable: true,
+        value: 200,
+      });
+      Object.defineProperty(scrollableParent, 'scrollLeft', {
+        configurable: true,
+        value: 100,
+        writable: true,
+      });
+
+      fireEvent.mouseDown(list, {
+        button: 0,
+        clientX: 100,
+      });
+      fireEvent.mouseMove(window, {
+        clientX: 60,
+      });
+      fireEvent.mouseUp(window, {
+        clientX: 60,
+      });
+      fireEvent.click(first);
+
+      expect(routerPush).not.toHaveBeenCalledWith('/first', undefined, {
+        shallow: false,
+      });
+    });
+
+    it('should disable native anchor dragging when drag scroll is enabled', async () => {
+      renderUrlComponent({
+        shouldMountInactive: true,
+        tabListProps: { dragScroll: true },
+        tabTag: 'a',
+      });
+
+      const first = await screen.findByRole('link', { name: 'First' });
+
+      expect(first.draggable).toBe(false);
     });
   });
 });

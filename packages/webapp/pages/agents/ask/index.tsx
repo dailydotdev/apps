@@ -21,6 +21,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { agentsHighlightsUrl } from '@dailydotdev/shared/src/lib/links';
 import { AskHero } from '@dailydotdev/shared/src/features/ask/components/AskHero';
 import { AskProblem } from '@dailydotdev/shared/src/features/ask/components/AskProblem';
 import { AskHowItWorks } from '@dailydotdev/shared/src/features/ask/components/AskHowItWorks';
@@ -78,8 +79,8 @@ const getAskBreadcrumbJsonLd = (): string =>
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Agentic Hub',
-        item: 'https://app.daily.dev/agents',
+        name: 'Happening Now',
+        item: agentsHighlightsUrl,
       },
       {
         '@type': 'ListItem',

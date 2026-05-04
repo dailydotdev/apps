@@ -9,6 +9,7 @@ import {
   POST_CODE_SNIPPET_FRAGMENT,
   RELATED_POST_FRAGMENT,
   SHARED_POST_INFO_FRAGMENT,
+  CONTENT_EMBED_FRAGMENT,
   USER_AUTHOR_FRAGMENT,
 } from './fragments';
 import type { Bookmark, BookmarkFolder } from './bookmarks';
@@ -171,6 +172,42 @@ type PostFlags = {
   ad?: DigestPostAd | null;
 };
 
+export type ContentEmbedPost = {
+  __typename?: string;
+  title?: string;
+  image?: string;
+  source?: Pick<Source, 'handle' | 'name' | 'image'>;
+  author?: Pick<Author, 'id'>;
+  createdAt?: string;
+  readTime?: number;
+  numUpvotes?: number;
+  numComments?: number;
+  numAwards?: number;
+  numReposts?: number;
+  numCollectionSources?: number;
+  numPollVotes?: number;
+  endsAt?: string;
+  analytics?: Partial<Pick<PostAnalytics, 'impressions'>>;
+  featuredAward?: {
+    award?: Pick<FeaturedAward, 'name' | 'image'>;
+  };
+  type: PostType;
+  sharedPost?: { type: PostType };
+  commentsPermalink?: string;
+};
+
+export type ContentEmbed = {
+  __typename?: string;
+  id: string;
+  url: string;
+  sortOrder: number;
+  startOffset?: number;
+  endOffset?: number;
+  referenceType: string;
+  referenceId?: string;
+  post?: ContentEmbedPost | null;
+};
+
 export enum UserVote {
   Up = 1,
   None = 0,
@@ -197,6 +234,7 @@ export interface Post {
   image: string;
   content?: string;
   contentHtml?: string;
+  contentEmbeds?: ContentEmbed[];
   createdAt?: string;
   pinnedAt?: Date | string;
   readTime?: number;
@@ -327,6 +365,9 @@ export const POST_BY_ID_QUERY = gql`
       trending
       content
       contentHtml
+      contentEmbeds {
+        ...ContentEmbedFragment
+      }
       pinnedAt
       bookmarkList {
         id
@@ -368,6 +409,7 @@ export const POST_BY_ID_QUERY = gql`
   }
   ${SHARED_POST_INFO_FRAGMENT}
   ${RELATED_POST_FRAGMENT}
+  ${CONTENT_EMBED_FRAGMENT}
 `;
 
 export const getPostById = (id: string) =>

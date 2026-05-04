@@ -33,6 +33,14 @@ export const discussedFeedVersion = new Feature('discussed_feed_version', 2);
 export const latestFeedVersion = new Feature('latest_feed_version', 2);
 export const customFeedVersion = new Feature('custom_feed_version', 2);
 export const featureFeedV2Highlights = new Feature('feed_v2_highlights', false);
+export const featureMajorHeadlinesPush = new Feature(
+  'major_headlines_push',
+  false,
+);
+export const featurePostPageHighlights = new Feature(
+  'post_page_highlights',
+  false,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -52,7 +60,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
-export const featureAdReferralCta = new Feature('ad_referral_cta', false);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
   default: {
@@ -138,8 +145,6 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const questsFeature = new Feature('quests', false);
-
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',
   false,
@@ -152,9 +157,33 @@ export const sharedPostPreviewFeature = new Feature(
 
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
 
+export const featureOnboardingTagRecommender = new Feature(
+  'onboarding_tag_recommender',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
+
+export const featureReaderModal = new Feature('reader_modal', false);
 
 export const featureShortcutsExtensionPromo = new Feature(
   'shortcuts_extension_promo',
+  false,
+);
+
+export const featureShortcutsExtensionPromoCopy = new Feature(
+  'shortcuts_extension_promo_copy',
+  {
+    title: 'Want these shortcuts on every new tab?',
+    subtitle: 'Install the daily.dev extension to pin your most visited sites.',
+    cta: 'Install for {browser}',
+    dismiss: 'Skip for now',
+  },
+);
+
+export const featureShortcutsHub = new Feature('shortcuts_hub', false);
+
+export const featureNewTabCustomizer = new Feature(
+  'extension_newtab_customizer',
   false,
 );

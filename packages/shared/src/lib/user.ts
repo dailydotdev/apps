@@ -301,7 +301,7 @@ export const canViewPostAnalytics = ({
   post,
 }: {
   user?: Pick<LoggedUser, 'id' | 'isTeamMember'>;
-  post?: Pick<Post, 'author'>;
+  post?: { author?: Pick<NonNullable<Post['author']>, 'id'> };
 }): boolean => {
   if (user?.isTeamMember) {
     return true;

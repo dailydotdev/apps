@@ -45,6 +45,8 @@ export const postWindowMessage = (
 
 export const checkIsExtension = (): boolean => !!process.env.TARGET_BROWSER;
 export const isExtension = !!process.env.TARGET_BROWSER;
+export const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
+export const isChromeExtension = process.env.TARGET_BROWSER === 'chrome';
 
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
@@ -166,6 +168,19 @@ export const getCurrentBrowserName = (): BrowserName => {
   return BrowserName.Other;
 };
 
+// Browsers we ship the daily.dev extension for — anything embed-extension
+// related (including GrowthBook enrollment for the reader experiment) should
+// gate on this so Firefox/Safari/Other users don't get dragged into a flow
+// that can never complete for them.
+export const isExtensionCapableBrowser = (): boolean => {
+  const name = getCurrentBrowserName();
+  return (
+    name === BrowserName.Chrome ||
+    name === BrowserName.Brave ||
+    name === BrowserName.Edge
+  );
+};
+
 export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = array.slice();
 
@@ -215,6 +230,18 @@ export const isMobile = (): boolean =>
 
 export const shouldUseNativeShare = (): boolean =>
   'share' in globalThis?.navigator && isMobile();
+
+export const shouldUseSocialAuthPopup = (): boolean => {
+  if (isIOSNative()) {
+    return false;
+  }
+
+  if (isBrave() && isMobile()) {
+    return false;
+  }
+
+  return true;
+};
 
 interface BroadcastMessage {
   eventKey: string;

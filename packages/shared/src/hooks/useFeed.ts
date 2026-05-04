@@ -393,28 +393,6 @@ export default function useFeed<T>(
       newItems = feedQuery.data.pages.reduce<FeedItem[]>(
         (acc, { page }, pageIndex) => {
           page.edges.forEach(({ node }, index: number) => {
-            if (node.itemType === 'highlight') {
-              if (!node.highlights.length) {
-                return;
-              }
-
-              acc.push({
-                type: FeedItemType.Highlight,
-                highlights: node.highlights,
-                feedMeta: node.feedMeta ?? null,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-
-              return;
-            }
-
-            const { post } = node;
-
-            if (seenPostIds.has(post.id)) {
-              return;
-            }
-            seenPostIds.add(post.id);
-
             const adIndex = acc.length;
             const adItem = getAd({ index: adIndex });
 
@@ -451,6 +429,28 @@ export default function useFeed<T>(
                 acc.push(adItem);
               }
             }
+
+            if (node.itemType === 'highlight') {
+              if (!node.highlights.length) {
+                return;
+              }
+
+              acc.push({
+                type: FeedItemType.Highlight,
+                highlights: node.highlights,
+                feedMeta: node.feedMeta ?? null,
+                dataUpdatedAt: feedQuery.dataUpdatedAt,
+              });
+
+              return;
+            }
+
+            const { post } = node;
+
+            if (seenPostIds.has(post.id)) {
+              return;
+            }
+            seenPostIds.add(post.id);
 
             acc.push({
               type: FeedItemType.Post,

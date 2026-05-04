@@ -377,6 +377,7 @@ function Page(props: PageProps) {
     return (
       <ErrorBoundary feature="onboarding">
         <OnboardingV2 />
+        <HotJarTracking hotjarId="3871311" />
         <Toast autoDismissNotifications={autoDismissNotifications} />
       </ErrorBoundary>
     );

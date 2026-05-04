@@ -13,6 +13,7 @@ import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './banners/ReadingReminderHero';
 import ShortcutsExtensionPromo from './banners/ShortcutsExtensionPromo';
+import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './notifications/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
@@ -178,6 +179,8 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
+  hideFeedActionButtons?: boolean;
+  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -217,6 +220,8 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
+  hideFeedActionButtons,
+  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
@@ -475,7 +480,7 @@ export default function MainFeedLayout({
           feedName: SharedFeedPage.Custom,
         },
         emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-        actionButtons: feedWithActions && (
+        actionButtons: feedWithActions && !hideFeedActionButtons && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
             feedName={feedName}
@@ -554,7 +559,7 @@ export default function MainFeedLayout({
       query: config.query,
       variables,
       emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-      actionButtons: feedWithActions && (
+      actionButtons: feedWithActions && !hideFeedActionButtons && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
@@ -589,6 +594,7 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
+    hideFeedActionButtons,
   ]);
 
   useEffect(() => {
@@ -690,6 +696,9 @@ export default function MainFeedLayout({
           onDismiss={onDismiss}
         />
       )}
+      {!checkIsExtension() && isHomePage && (
+        <WebappShortcutsRow className="px-4 pb-2" />
+      )}
       {shouldShowShortcutsPromo && (
         <ShortcutsExtensionPromo
           className="px-4 pb-2"
@@ -720,6 +729,7 @@ export default function MainFeedLayout({
           <Feed
             {...feedProps}
             shortcuts={shortcuts}
+            disableBriefCard={disableBriefCard}
             className={classNames(
               shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
             )}

@@ -116,7 +116,7 @@ export const useFeedLayout = ({
   feedRelated = true,
 }: UseFeedLayoutProps = {}): UseFeedLayoutReturn => {
   const isLaptopSize = useViewSize(ViewSize.Laptop);
-  const isLaptop = typeof window === 'undefined' || isLaptopSize;
+  const isLaptop = isLaptopSize;
   const { feedName } = useActiveFeedNameContext();
   const { insaneMode } = useContext(SettingsContext);
   const { isSearchPageLaptop } = useSearchResultsLayout();

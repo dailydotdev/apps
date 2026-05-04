@@ -1,6 +1,11 @@
 import { gql } from 'graphql-request';
 import type { SortCommentsBy } from './comments';
 import type { WriteFormTab } from '../components/fields/form/common';
+import type {
+  ShortcutMeta,
+  ShortcutsAppearance,
+  ShortcutsMode,
+} from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
 export type RemoteTheme = 'darcula' | 'bright' | 'auto';
@@ -9,6 +14,28 @@ export enum CampaignCtaPlacement {
   Header = 'header',
   ProfileMenu = 'profileMenu',
 }
+
+export type NewTabMode = 'discover' | 'focus';
+
+export type FocusScheduleWindow = {
+  start: number;
+  end: number;
+  enabled: boolean;
+};
+
+export type FocusScheduleWeekday =
+  | 'mon'
+  | 'tue'
+  | 'wed'
+  | 'thu'
+  | 'fri'
+  | 'sat'
+  | 'sun';
+
+export type FocusSchedule = {
+  pauseUntil?: number | null;
+  windows?: Partial<Record<FocusScheduleWeekday, FocusScheduleWindow | null>>;
+};
 
 export type SettingsFlags = {
   sidebarSquadExpanded: boolean;
@@ -20,7 +47,16 @@ export type SettingsFlags = {
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
+  legacyPostLayoutOptOut?: boolean;
+  shortcutMeta?: Record<string, ShortcutMeta>;
+  shortcutsMode?: ShortcutsMode;
+  shortcutsAppearance?: ShortcutsAppearance;
+  showShortcutsOnWebapp?: boolean;
+  newTabMode?: NewTabMode;
+  focusSchedule?: FocusSchedule;
 };
+
+export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
