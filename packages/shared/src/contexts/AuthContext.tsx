@@ -33,6 +33,7 @@ export interface LoginState {
   onLoginSuccess?: () => void;
   onRegistrationSuccess?: (user?: LoggedUser | AnonymousUser) => void;
   isLogin?: boolean;
+  afterAuth?: string;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
@@ -186,6 +187,8 @@ export const AuthContextProvider = ({
               setLoginState({ ...options, trigger });
               if (isExtension) {
                 params.delete(AFTER_AUTH_PARAM);
+              } else if (options.afterAuth) {
+                params.set(AFTER_AUTH_PARAM, options.afterAuth);
               } else if (!params.get(AFTER_AUTH_PARAM)) {
                 params.set(AFTER_AUTH_PARAM, window.location.pathname);
               }
