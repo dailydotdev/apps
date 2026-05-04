@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { NextRouter } from 'next/router';
-import { HashtagIcon, SearchIcon, SourceIcon, UserIcon } from '../../icons';
+import { HashtagIcon, OpenLinkIcon, SearchIcon } from '../../icons';
 import {
   SearchProviderEnum,
   getSearchUrl,
@@ -8,7 +8,11 @@ import {
 } from '../../../graphql/search';
 import { useSearchProviderSuggestions } from '../../../hooks/search';
 import { webappUrl } from '../../../lib/constants';
-import { SpotlightGroup, type SpotlightCommand } from '../types';
+import {
+  SpotlightGroup,
+  SpotlightScope,
+  type SpotlightCommand,
+} from '../types';
 
 interface SearchCommandsContext {
   router: Pick<NextRouter, 'push'>;
@@ -34,6 +38,11 @@ const buildPostCommand = (
   subtitle: hit.subtitle,
   icon: SearchIcon,
   group: SpotlightGroup.Search,
+  meta: {
+    kind: 'post',
+    sourceImage: hit.image,
+    sourceName: hit.subtitle,
+  },
   perform: () => {
     if (hit.id) {
       router.push(`${webappUrl}posts/${hit.id}`);
@@ -50,10 +59,11 @@ const buildTagCommand = (
   router: SearchCommandsContext['router'],
 ): SpotlightCommand => ({
   id: `search.tag.${hit.id ?? hit.title}`,
-  title: `#${hit.title}`,
+  title: hit.title,
   subtitle: hit.subtitle,
   icon: HashtagIcon,
   group: SpotlightGroup.Search,
+  meta: { kind: 'tag', tagName: hit.title },
   perform: () => {
     router.push(`${webappUrl}tags/${hit.title}`);
   },
@@ -65,9 +75,14 @@ const buildSourceCommand = (
 ): SpotlightCommand => ({
   id: `search.source.${hit.id ?? hit.title}`,
   title: hit.title,
-  subtitle: hit.subtitle ?? 'Source',
-  icon: SourceIcon,
+  subtitle: hit.subtitle,
+  icon: SearchIcon,
   group: SpotlightGroup.Search,
+  meta: {
+    kind: 'source',
+    image: hit.image,
+    handle: hit.subtitle,
+  },
   perform: () => {
     if (!hit.id) {
       return;
@@ -83,8 +98,13 @@ const buildUserCommand = (
   id: `search.user.${hit.id ?? hit.title}`,
   title: hit.title,
   subtitle: hit.subtitle,
-  icon: UserIcon,
+  icon: SearchIcon,
   group: SpotlightGroup.Search,
+  meta: {
+    kind: 'user',
+    image: hit.image,
+    handle: hit.subtitle,
+  },
   perform: () => {
     if (!hit.subtitle) {
       return;
@@ -94,6 +114,37 @@ const buildUserCommand = (
       ? hit.subtitle.slice(1)
       : hit.subtitle;
     router.push(`${webappUrl}${handle}`);
+  },
+});
+
+type SeeAllScope = Exclude<SpotlightScope, SpotlightScope.All>;
+
+const seeAllProvider: Record<SeeAllScope, SearchProviderEnum> = {
+  [SpotlightScope.Posts]: SearchProviderEnum.Posts,
+  [SpotlightScope.Squads]: SearchProviderEnum.Sources,
+  [SpotlightScope.People]: SearchProviderEnum.Users,
+  [SpotlightScope.Tags]: SearchProviderEnum.Tags,
+};
+
+const seeAllLabel: Record<SeeAllScope, string> = {
+  [SpotlightScope.Posts]: 'posts',
+  [SpotlightScope.Squads]: 'squads',
+  [SpotlightScope.People]: 'people',
+  [SpotlightScope.Tags]: 'tags',
+};
+
+const buildSeeAllCommand = (
+  scope: SeeAllScope,
+  query: string,
+  router: SearchCommandsContext['router'],
+): SpotlightCommand => ({
+  id: `search.see-all.${scope}`,
+  title: `See all ${seeAllLabel[scope]} for "${query}"`,
+  icon: OpenLinkIcon,
+  group: SpotlightGroup.Search,
+  meta: { kind: 'see-all', scope },
+  perform: () => {
+    router.push(getSearchUrl({ query, provider: seeAllProvider[scope] }));
   },
 });
 
@@ -152,16 +203,35 @@ export const useSpotlightSearchCommands = ({
     });
 
   return useMemo(() => {
+    const posts = (postHits?.hits ?? []).map((hit) =>
+      buildPostCommand(hit, router),
+    );
+    const tags = (tagHits?.hits ?? []).map((hit) =>
+      buildTagCommand(hit, router),
+    );
+    const sources = (sourceHits?.hits ?? []).map((hit) =>
+      buildSourceCommand(hit, router),
+    );
+    const users = (userHits?.hits ?? []).map((hit) =>
+      buildUserCommand(hit, router),
+    );
+
+    const withSeeAll = (
+      scope: SeeAllScope,
+      items: SpotlightCommand[],
+    ): SpotlightCommand[] =>
+      items.length > 0 && trimmed
+        ? [...items, buildSeeAllCommand(scope, trimmed, router)]
+        : items;
+
     return {
       isLoading:
         !!trimmed &&
         (postsLoading || tagsLoading || sourcesLoading || usersLoading),
-      posts: (postHits?.hits ?? []).map((hit) => buildPostCommand(hit, router)),
-      tags: (tagHits?.hits ?? []).map((hit) => buildTagCommand(hit, router)),
-      sources: (sourceHits?.hits ?? []).map((hit) =>
-        buildSourceCommand(hit, router),
-      ),
-      users: (userHits?.hits ?? []).map((hit) => buildUserCommand(hit, router)),
+      posts: withSeeAll(SpotlightScope.Posts, posts),
+      tags: withSeeAll(SpotlightScope.Tags, tags),
+      sources: withSeeAll(SpotlightScope.Squads, sources),
+      users: withSeeAll(SpotlightScope.People, users),
       fallthrough: buildFallthrough(trimmed, router),
     };
   }, [

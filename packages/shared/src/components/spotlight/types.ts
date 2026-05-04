@@ -55,6 +55,18 @@ export interface SpotlightContextEnv {
   isMobile: boolean;
 }
 
+/**
+ * Discriminated metadata that lets the UI render typed result rows
+ * (post / source / user / tag / see-all) instead of a single generic
+ * row layout. Pure data — never read by `perform`.
+ */
+export type SpotlightCommandMeta =
+  | { kind: 'post'; sourceImage?: string; sourceName?: string }
+  | { kind: 'source'; image?: string; handle?: string }
+  | { kind: 'user'; image?: string; handle?: string }
+  | { kind: 'tag'; tagName: string }
+  | { kind: 'see-all'; scope: Exclude<SpotlightScope, SpotlightScope.All> };
+
 export interface SpotlightCommand {
   id: string;
   title: string;
@@ -79,6 +91,11 @@ export interface SpotlightCommand {
   requiresAuth?: boolean;
   /** Show a "Plus" badge instead of hiding the row when not Plus. */
   plusBadge?: boolean;
+  /**
+   * Optional typed metadata. When present the modal renders a custom row
+   * for that entity kind (avatar, handle, hashtag glyph, see-all CTA).
+   */
+  meta?: SpotlightCommandMeta;
   /** Action to execute. May be async. */
   perform: () => void | Promise<void>;
 }
