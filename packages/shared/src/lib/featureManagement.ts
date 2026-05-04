@@ -172,27 +172,3 @@ export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
   false,
 );
-
-export type FunnelExtensionImage = { default: string; retina: string };
-
-export type FunnelExtensionContent = {
-  headline: string;
-  explainer: string;
-  cta: string;
-  skip: string;
-  showReviews: boolean;
-  image?: {
-    chrome?: FunnelExtensionImage;
-    edge?: FunnelExtensionImage;
-  };
-};
-
-export const featureFunnelExtensionContent =
-  new Feature<FunnelExtensionContent>('funnel_extension_content', {
-    headline: 'Transform every new tab into a learning powerhouse',
-    explainer:
-      'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
-    cta: 'Get it for {browser}',
-    skip: 'Dare to skip? <strong>You might miss out</strong>.',
-    showReviews: false,
-  });

@@ -23,30 +23,31 @@ import { FunnelTargetId } from '../types/funnelEvents';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../lib/utils';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
-import { useConditionalFeature } from '../../../hooks';
-import { featureFunnelExtensionContent } from '../../../lib/featureManagement';
 import { PlusTrustReviews } from '../../../components/plus/PlusTrustReviews';
 
 const BrowserExtension = ({
-  parameters: { headline, explainer },
+  parameters: {
+    headline,
+    explainer,
+    cta,
+    skip,
+    showReviews: showReviewsParam,
+    image,
+  },
   onTransition,
 }: FunnelStepBrowserExtension): ReactElement => {
   const { logEvent } = useLogContext();
   const { browserName } = useOnboardingExtension();
   const isEdge = browserName === BrowserName.Edge;
-  const { value: content } = useConditionalFeature({
-    feature: featureFunnelExtensionContent,
-    shouldEvaluate: true,
-  });
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
-  const ctaText = content.cta.replace('{browser}', browserLabel);
-  const imageOverride = isEdge ? content.image?.edge : content.image?.chrome;
+  const ctaText = cta.replace('{browser}', browserLabel);
+  const imageOverride = isEdge ? image?.edge : image?.chrome;
   const imageUrls =
     imageOverride ??
     cloudinaryOnboardingExtension[
       browserName as keyof typeof cloudinaryOnboardingExtension
     ];
-  const showReviews = content.showReviews && !isEdge;
+  const showReviews = showReviewsParam && !isEdge;
 
   return (
     <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
@@ -57,7 +58,7 @@ const BrowserExtension = ({
           bold
           className="!px-0"
           dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(headline || content.headline),
+            __html: sanitizeMessage(headline),
           }}
         />
         <Typography
@@ -66,7 +67,7 @@ const BrowserExtension = ({
           tag={TypographyTag.H2}
           type={TypographyType.Title3}
           dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(explainer || content.explainer),
+            __html: sanitizeMessage(explainer),
           }}
         />
         <Button
@@ -107,7 +108,7 @@ const BrowserExtension = ({
           tag={TypographyTag.P}
           type={TypographyType.Body}
           dangerouslySetInnerHTML={{
-            __html: sanitizeMessage(content.skip),
+            __html: sanitizeMessage(skip),
           }}
         />
       </div>
