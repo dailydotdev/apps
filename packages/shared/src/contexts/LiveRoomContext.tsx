@@ -437,7 +437,8 @@ export const LiveRoomProvider = ({
   const canPublish = !!currentRole && PUBLISH_ROLES.includes(currentRole);
   const canChat =
     !!user &&
-    roomState?.status === 'live' &&
+    !!roomState &&
+    roomState.status !== 'ended' &&
     !!participantId &&
     (roomState.chatPermissions[participantId] ?? true);
   const buildStandupExtra = useCallback(
