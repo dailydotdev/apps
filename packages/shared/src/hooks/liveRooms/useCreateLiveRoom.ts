@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   CREATE_LIVE_ROOM_MUTATION,
   type CreateLiveRoomData,
@@ -6,19 +6,16 @@ import {
   LiveRoomMode,
 } from '../../graphql/liveRooms';
 import { gqlClient } from '../../graphql/common';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { getActiveLiveRoomsKey } from './useActiveLiveRooms';
 
 export interface CreateLiveRoomInput {
   topic: string;
   mode?: LiveRoomMode;
   speakerLimit?: number;
+  scheduledStart?: string;
+  description?: string;
 }
 
 export const useCreateLiveRoom = () => {
-  const { user } = useAuthContext();
-  const client = useQueryClient();
-
   return useMutation<LiveRoomJoinToken, Error, CreateLiveRoomInput>({
     mutationFn: async (input) => {
       const data = await gqlClient.request<CreateLiveRoomData>(
@@ -28,13 +25,12 @@ export const useCreateLiveRoom = () => {
             topic: input.topic,
             mode: input.mode ?? LiveRoomMode.Moderated,
             speakerLimit: input.speakerLimit,
+            scheduledStart: input.scheduledStart,
+            description: input.description,
           },
         },
       );
       return data.createLiveRoom;
-    },
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: getActiveLiveRoomsKey(user) });
     },
   });
 };
