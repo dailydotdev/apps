@@ -254,7 +254,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    await click(screen.getByRole('button', { name: 'Join queue' }));
+    await click(screen.getByRole('button', { name: 'Ask to speak' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
@@ -280,7 +280,9 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    const queuedButton = screen.getByRole('button', { name: 'Queued' });
+    const queuedButton = screen.getByRole('button', {
+      name: 'Waiting to speak',
+    });
     expect(queuedButton).toBeDisabled();
     fireEvent.click(queuedButton);
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
@@ -420,7 +422,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Join queue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ask to speak' }));
 
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
     expect(mockShowLogin).toHaveBeenCalledWith({
@@ -448,7 +450,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    await click(screen.getByRole('button', { name: 'Join stage' }));
+    await click(screen.getByRole('button', { name: 'Join as speaker' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
@@ -487,7 +489,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    await click(screen.getByRole('button', { name: 'Leave stage' }));
+    await click(screen.getByRole('button', { name: 'Stop speaking' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
@@ -536,7 +538,7 @@ describe('LiveRoomControls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     await click(screen.getByRole('button', { name: 'React 🔥' }));
 
-    expect(screen.getByRole('button', { name: 'Leave stage' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Stop speaking' })).toBeVisible();
 
     await act(async () => {
       resolveReaction?.();
@@ -567,7 +569,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    const fullButton = screen.getByRole('button', { name: 'Stage full' });
+    const fullButton = screen.getByRole('button', { name: 'Speakers full' });
     expect(fullButton).toBeDisabled();
     fireEvent.click(fullButton);
     expect(joinStage).not.toHaveBeenCalled();
@@ -609,7 +611,7 @@ describe('LiveRoomControls', () => {
       screen.getByRole('button', { name: 'End standup' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Join queue' }),
+      screen.queryByRole('button', { name: 'Ask to speak' }),
     ).not.toBeInTheDocument();
   });
 
@@ -635,7 +637,7 @@ describe('LiveRoomControls', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('lets a co-host start a room before it goes live', () => {
+  it('keeps go-live as a host-only action for co-hosts', () => {
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
         role: 'audience',
@@ -650,7 +652,12 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    expect(screen.getByRole('button', { name: 'Go live' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Go live' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'End standup' }),
+    ).toBeInTheDocument();
   });
 
   it('shows media controls when the current participant becomes a speaker', () => {
@@ -684,7 +691,7 @@ describe('LiveRoomControls', () => {
       screen.getByRole('button', { name: 'Camera off' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Join queue' }),
+      screen.queryByRole('button', { name: 'Ask to speak' }),
     ).not.toBeInTheDocument();
   });
 
