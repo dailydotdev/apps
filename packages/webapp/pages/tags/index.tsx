@@ -71,7 +71,7 @@ const TagsPage = ({
   const { isFallback: isLoading } = useRouter();
 
   const { feedSettings } = useFeedSettings();
-  const { onFollowTags, onUnfollowTags } = useTagAndSource({
+  const { onFollowTags } = useTagAndSource({
     origin: Origin.TagsFilter,
   });
   const followedSet = useMemo(
@@ -178,9 +178,6 @@ const TagsPage = ({
                     isFollowed={followedSet.has(tag.value)}
                     onFollow={(name) =>
                       onFollowTags({ tags: [name], requireLogin: true })
-                    }
-                    onUnfollow={(name) =>
-                      onUnfollowTags({ tags: [name], requireLogin: true })
                     }
                   />
                 ))}

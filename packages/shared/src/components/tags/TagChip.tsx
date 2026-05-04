@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ButtonV2, ButtonSize } from '../buttons/ButtonV2';
-import { MiniCloseIcon, PlusIcon } from '../icons';
+import { PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
@@ -18,17 +18,21 @@ import {
  * Tag chip — a single, unified design for `#tag` chips across the
  * product (article post / modal, tags directory, search results).
  *
- * Anatomy: `[ #tag ] [ vertical separator ] [ + or × button ]`
+ * Two visual states, intentionally distinct:
+ *
+ *   - **Followed** → plain bordered link chip, no action button.
+ *     This is the "stable" treatment: a tag the user already follows
+ *     should read as a passive label, not as an interactive control.
+ *     Unfollow lives on the tag page itself, not inline.
+ *
+ *   - **Not followed** → filled chip + vertical separator + `+` action
+ *     button. The `+` is the call-to-action; without it the chip would
+ *     look identical to the followed state.
  *
  * Sizes follow the v2 button scale:
  *   - "sm"   → 24 px chip (XSmall)         — article tag list, in-card chips
  *   - "md"   → 32 px chip (Small)          — tags directory, search panels
  *   - "lg"   → 40 px chip (Medium)         — featured / hero placements
- *
- * The action button (follow / unfollow) is always present so a chip
- * never looks visually different just because it happens to be already
- * followed. If a callsite truly does not want the action, it should
- * use the plain `TagLink` instead.
  */
 export type TagChipSize = 'sm' | 'md' | 'lg';
 
@@ -36,7 +40,6 @@ interface TagChipProps {
   tag: string;
   isFollowed?: boolean;
   onFollow?: (tag: string) => void;
-  onUnfollow?: (tag: string) => void;
   size?: TagChipSize;
   className?: string;
 }
@@ -45,7 +48,8 @@ const SizeMap: Record<
   TagChipSize,
   {
     height: string;
-    horizontal: string;
+    horizontalAction: string;
+    horizontalPlain: string;
     typography: TypographyType;
     button: ButtonSize;
     icon: IconSize;
@@ -55,7 +59,8 @@ const SizeMap: Record<
 > = {
   sm: {
     height: 'h-6',
-    horizontal: 'pl-2 pr-1',
+    horizontalAction: 'pl-2 pr-1',
+    horizontalPlain: 'px-2',
     typography: TypographyType.Caption1,
     button: ButtonSize.XSmall,
     icon: IconSize.XSmall,
@@ -64,7 +69,8 @@ const SizeMap: Record<
   },
   md: {
     height: 'h-8',
-    horizontal: 'pl-3 pr-1.5',
+    horizontalAction: 'pl-3 pr-1.5',
+    horizontalPlain: 'px-3',
     typography: TypographyType.Footnote,
     button: ButtonSize.Small,
     icon: IconSize.Size16,
@@ -73,7 +79,8 @@ const SizeMap: Record<
   },
   lg: {
     height: 'h-10',
-    horizontal: 'pl-4 pr-2',
+    horizontalAction: 'pl-4 pr-2',
+    horizontalPlain: 'px-4',
     typography: TypographyType.Callout,
     button: ButtonSize.Medium,
     icon: IconSize.Size16,
@@ -82,19 +89,53 @@ const SizeMap: Record<
   },
 };
 
+const TagLabel = ({
+  tag,
+  type,
+}: {
+  tag: string;
+  type: TypographyType;
+}): ReactElement => (
+  <Link href={getTagPageLink(tag)} passHref prefetch={false}>
+    <Typography
+      tag={TypographyTag.Link}
+      type={type}
+      color={TypographyColor.Tertiary}
+      className="cursor-pointer no-underline transition-colors hover:text-text-primary"
+      title={`Check all #${tag} posts`}
+    >
+      #{tag}
+    </Typography>
+  </Link>
+);
+
 export const TagChip = ({
   tag,
   isFollowed = false,
   onFollow,
-  onUnfollow,
   size = 'sm',
   className,
 }: TagChipProps): ReactElement => {
   const cfg = SizeMap[size];
-  const action = isFollowed ? onUnfollow : onFollow;
-  const showAction = !!action;
-  const actionLabel = isFollowed ? `Unfollow #${tag}` : `Follow #${tag}`;
-  const ActionIcon = isFollowed ? MiniCloseIcon : PlusIcon;
+
+  if (isFollowed) {
+    return (
+      <span
+        role="listitem"
+        className={classNames(
+          'inline-flex items-center border border-border-subtlest-tertiary transition-colors hover:bg-border-subtlest-tertiary',
+          cfg.height,
+          cfg.radius,
+          cfg.horizontalPlain,
+          className,
+        )}
+      >
+        <TagLabel tag={tag} type={cfg.typography} />
+      </span>
+    );
+  }
+
+  const showAction = !!onFollow;
 
   return (
     <span
@@ -103,21 +144,11 @@ export const TagChip = ({
         'inline-flex items-center bg-surface-float',
         cfg.height,
         cfg.radius,
-        showAction ? cfg.horizontal : 'px-2',
+        showAction ? cfg.horizontalAction : cfg.horizontalPlain,
         className,
       )}
     >
-      <Link href={getTagPageLink(tag)} passHref prefetch={false}>
-        <Typography
-          tag={TypographyTag.Link}
-          type={cfg.typography}
-          color={TypographyColor.Tertiary}
-          className="cursor-pointer no-underline transition-colors hover:text-text-primary"
-          title={`Check all #${tag} posts`}
-        >
-          #{tag}
-        </Typography>
-      </Link>
+      <TagLabel tag={tag} type={cfg.typography} />
       {showAction && (
         <>
           <span
@@ -128,13 +159,13 @@ export const TagChip = ({
               cfg.separatorHeight,
             )}
           />
-          <Tooltip content={actionLabel}>
+          <Tooltip content={`Follow #${tag}`}>
             <ButtonV2
               type="button"
               size={cfg.button}
-              icon={<ActionIcon aria-hidden size={cfg.icon} />}
-              onClick={() => action?.(tag)}
-              aria-label={actionLabel}
+              icon={<PlusIcon aria-hidden size={cfg.icon} />}
+              onClick={() => onFollow?.(tag)}
+              aria-label={`Follow #${tag}`}
             />
           </Tooltip>
         </>

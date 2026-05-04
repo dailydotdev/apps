@@ -78,7 +78,7 @@ const BrandedTagChip = ({
 );
 
 const PostTagListInner = ({ post }: PostTagListProps): ReactElement => {
-  const { onFollowTag, onUnfollowTag, tags } = useFollowPostTags({ post });
+  const { onFollowTag, tags } = useFollowPostTags({ post });
   const { isTagSponsored } = useBrandSponsorship();
 
   const firstSponsoredTag = useMemo(
@@ -117,7 +117,6 @@ const PostTagListInner = ({ post }: PostTagListProps): ReactElement => {
             size="sm"
             isFollowed={isFollowed}
             onFollow={onFollowTag}
-            onUnfollow={onUnfollowTag}
           />
         );
       })}
