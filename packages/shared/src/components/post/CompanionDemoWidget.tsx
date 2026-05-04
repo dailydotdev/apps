@@ -31,7 +31,9 @@ import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isNullOrUndefined,
 } from '../../lib/func';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
 
@@ -56,11 +58,20 @@ const StripIcon = ({
 
 export function CompanionDemoWidget(): ReactElement | null {
   const { logEvent } = useLogContext();
+  const { user, isAuthReady } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
   const hasDismissed = checkHasCompleted(ActionType.DismissCompanionDemoWidget);
+  const hasNeverUsedExtension = isNullOrUndefined(
+    user?.flags?.lastExtensionUse,
+  );
   const canEvaluate =
-    isLaptop && !checkIsExtension() && isActionsFetched && !hasDismissed;
+    isLaptop &&
+    !checkIsExtension() &&
+    isAuthReady &&
+    isActionsFetched &&
+    !hasDismissed &&
+    hasNeverUsedExtension;
   const { value: isFeatureOn } = useConditionalFeature({
     feature: featureCompanionDemoWidget,
     shouldEvaluate: canEvaluate,
