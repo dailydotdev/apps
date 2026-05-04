@@ -3,6 +3,7 @@ import React from 'react';
 import type { Post } from '../../graphql/posts';
 import type { CardActionDensity } from './CardAction';
 import { CardAction } from './CardAction';
+import type { ButtonIconPosition } from './ButtonV2';
 import { BookmarkIcon } from '../icons';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
 import { useLazyModal } from '../../hooks/useLazyModal';
@@ -41,6 +42,8 @@ export interface BookmarkButtonProps {
   density?: CardActionDensity;
   /** Render the "Bookmark" label inline next to the icon. */
   labelVisible?: boolean;
+  /** Pass-through to underlying `CardAction`. */
+  iconPosition?: ButtonIconPosition;
   /** a11y label + inline label when `labelVisible`. */
   label?: string;
   /** Optional engagement counter (rare on bookmark, exposed for parity). */
@@ -59,6 +62,7 @@ export function BookmarkButton({
   post,
   density,
   labelVisible,
+  iconPosition,
   label,
   count,
   color = ButtonColor.Bun,
@@ -98,6 +102,7 @@ export function BookmarkButton({
       pressed={isBookmarked}
       density={density}
       labelVisible={labelVisible}
+      iconPosition={iconPosition}
       className={className}
       buttonClassName={buttonClassName}
       onClick={onClick}
@@ -150,6 +155,7 @@ export function BookmarkButton({
           pressed={isBookmarked}
           density={density}
           labelVisible={labelVisible}
+          iconPosition={iconPosition}
           className={className}
           buttonClassName={buttonClassName}
         />
