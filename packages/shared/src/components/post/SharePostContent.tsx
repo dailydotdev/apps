@@ -19,7 +19,7 @@ import SettingsContext, {
 import { combinedClicks } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
-import { ButtonVariant } from '../buttons/ButtonV2';
+import { ButtonIconPosition, ButtonVariant } from '../buttons/ButtonV2';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { ProfileImageSize } from '../ProfilePicture';
 import { TruncateText } from '../utilities';
@@ -106,6 +106,7 @@ const PrivatePost = ({
         rel="noopener"
         {...combinedClicks(openArticle)}
         icon={getReadPostButtonIcon(post)}
+        iconPosition={ButtonIconPosition.Left}
       />
     </div>
   </SharedLinkContainer>
@@ -215,6 +216,7 @@ export function CommonSharePostContent({
             rel="noopener"
             {...combinedClicks(openArticle)}
             icon={getReadPostButtonIcon(sharedPost)}
+            iconPosition={ButtonIconPosition.Left}
           />
         </div>
 
