@@ -12,6 +12,7 @@ interface UseFollowPostTagsProps {
 
 interface UseFollowPostTags {
   onFollowTag: (tag: string) => void;
+  onUnfollowTag: (tag: string) => void;
   tags: Record<'all' | 'followed' | 'notFollowed', string[]>;
 }
 
@@ -51,7 +52,7 @@ export const useFollowPostTags = ({
     );
   }, [feedSettings?.includeTags, isLoggedIn, isModerationItem, post?.tags]);
 
-  const { onFollowTags } = useTagAndSource({
+  const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin: Origin.PostTags,
     postId: post?.id,
     feedId,
@@ -67,8 +68,18 @@ export const useFollowPostTags = ({
     [onFollowTags],
   );
 
+  const onUnfollowTag = useCallback(
+    (tag: string) =>
+      onUnfollowTags({
+        tags: [tag],
+        requireLogin: true,
+      }),
+    [onUnfollowTags],
+  );
+
   return {
     onFollowTag,
+    onUnfollowTag,
     tags,
   };
 };
