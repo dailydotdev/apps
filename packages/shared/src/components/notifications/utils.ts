@@ -95,6 +95,7 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   MajorHeadlineAdded = 'major_headline_added',
+  LiveRoomStarted = 'live_room_started',
 }
 
 export enum NotificationIconType {
