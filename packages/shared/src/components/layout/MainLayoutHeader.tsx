@@ -17,6 +17,7 @@ import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
+import { SpotlightQuickActions } from '../spotlight/SpotlightQuickActions';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -74,7 +75,7 @@ function MainLayoutHeader({
     return (
       <div
         className={classNames(
-          'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
+          'left-0 top-0 z-header items-center gap-2 py-3 tablet:left-16 laptop:left-0',
           isSearchPage
             ? 'relative right-0 tablet:!left-0 laptop:top-0'
             : 'hidden laptop:flex',
@@ -82,7 +83,8 @@ function MainLayoutHeader({
           'mx-2 flex laptop:mx-auto',
         )}
       >
-        <SpotlightTrigger className="w-full" />
+        <SpotlightTrigger />
+        <SpotlightQuickActions />
       </div>
     );
   }, [shouldUseLoadedSettings, isSearchPage, hasBanner]);

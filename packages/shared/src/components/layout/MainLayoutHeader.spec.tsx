@@ -3,7 +3,9 @@ import { screen } from '@testing-library/react';
 import { hydrateRoot } from 'react-dom/client';
 import type { Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MainLayoutHeader from './MainLayoutHeader';
+import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useActiveFeedNameContext } from '../../contexts';
 import { useViewSize } from '../../hooks';
@@ -91,9 +93,20 @@ describe('MainLayoutHeader', () => {
   it('keeps the same banner element during mobile explore hydration', async () => {
     mockUseSettingsContext.mockReturnValue({ loadedSettings: false });
 
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = (
+      <QueryClientProvider client={queryClient}>
+        <SpotlightProvider>
+          <MainLayoutHeader />
+        </SpotlightProvider>
+      </QueryClientProvider>
+    );
+
     const container = document.createElement('div');
     document.body.append(container);
-    container.innerHTML = renderToString(<MainLayoutHeader />);
+    container.innerHTML = renderToString(wrapper);
 
     const initialHeader = screen.getByRole('banner');
 
@@ -106,7 +119,7 @@ describe('MainLayoutHeader', () => {
     let root: Root;
 
     await act(async () => {
-      root = hydrateRoot(container, <MainLayoutHeader />, {
+      root = hydrateRoot(container, wrapper, {
         onRecoverableError: (error) => recoverableErrors.push(error),
       });
     });

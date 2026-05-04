@@ -1,5 +1,6 @@
 import type { ComponentType, ReactElement } from 'react';
 import type { IconProps } from '../Icon';
+import { SearchProviderEnum } from '../../graphql/search';
 
 /**
  * Verb-prefix convention for command titles (Linear pattern):
@@ -64,6 +65,12 @@ export interface SpotlightCommand {
   group: SpotlightGroup;
   /** Optional global hotkey to display on the right of the row, e.g. `'c'`. */
   shortcut?: string;
+  /**
+   * Apple-Tahoe-style 2-letter mnemonic. Typing the key + space at the
+   * start of an empty input fires the command immediately. Must be exactly
+   * two lowercase ASCII chars to keep dispatch unambiguous.
+   */
+  quickKey?: string;
   /** Predicate to hide the command when env doesn't match. */
   when?: (env: SpotlightContextEnv) => boolean;
   /** Mark commands that require an inline confirm before `perform` runs. */
@@ -75,6 +82,71 @@ export interface SpotlightCommand {
   /** Action to execute. May be async. */
   perform: () => void | Promise<void>;
 }
+
+/**
+ * Apple-Tahoe browse-mode equivalent. When the modal is in a non-`All` scope,
+ * only the matching entity-search results are visible and the placeholder
+ * adapts. Backspace on an empty input pops back to `All`.
+ */
+export enum SpotlightScope {
+  All = 'all',
+  Posts = 'posts',
+  Squads = 'squads',
+  People = 'people',
+  Tags = 'tags',
+}
+
+export interface ScopeMetaEntry {
+  label: string;
+  /** Used for tooltips and ARIA labels on the trigger icon buttons. */
+  triggerLabel: string;
+  /** Used as Command.Input placeholder while the scope is active. */
+  placeholder: string;
+  /** Single-letter index for Alt+1..4 dispatch (1-based). */
+  shortcutIndex: number;
+  searchProvider: SearchProviderEnum;
+}
+
+export const scopeOrder: Array<Exclude<SpotlightScope, SpotlightScope.All>> = [
+  SpotlightScope.Posts,
+  SpotlightScope.Squads,
+  SpotlightScope.People,
+  SpotlightScope.Tags,
+];
+
+export const scopeMeta: Record<
+  Exclude<SpotlightScope, SpotlightScope.All>,
+  ScopeMetaEntry
+> = {
+  [SpotlightScope.Posts]: {
+    label: 'Posts',
+    triggerLabel: 'Search posts',
+    placeholder: 'Search posts...',
+    shortcutIndex: 1,
+    searchProvider: SearchProviderEnum.Posts,
+  },
+  [SpotlightScope.Squads]: {
+    label: 'Squads',
+    triggerLabel: 'Search squads',
+    placeholder: 'Search squads...',
+    shortcutIndex: 2,
+    searchProvider: SearchProviderEnum.Sources,
+  },
+  [SpotlightScope.People]: {
+    label: 'People',
+    triggerLabel: 'Search people',
+    placeholder: 'Search people...',
+    shortcutIndex: 3,
+    searchProvider: SearchProviderEnum.Users,
+  },
+  [SpotlightScope.Tags]: {
+    label: 'Tags',
+    triggerLabel: 'Search tags',
+    placeholder: 'Search tags...',
+    shortcutIndex: 4,
+    searchProvider: SearchProviderEnum.Tags,
+  },
+};
 
 export interface RecentCommandEntry {
   commandId: string;

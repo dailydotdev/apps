@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Command } from 'cmdk';
 import ReactModal from 'react-modal';
-import { ClearIcon, ClickIcon, SearchIcon } from '../icons';
+import { ClearIcon, ClickIcon, SearchIcon, SparkleIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -28,13 +28,24 @@ import {
 import {
   groupLabels,
   groupOrder,
+  scopeMeta,
+  scopeOrder,
   type SpotlightCommand,
   SpotlightGroup,
+  SpotlightScope,
 } from './types';
 import { useSpotlight } from './useSpotlight';
 import { useRecentCommands } from './useRecentCommands';
 import { useSpotlightCommands } from './useSpotlightCommands';
 import { useSpotlightSearchCommands } from './commands/search';
+import { ScopeBreadcrumbs } from './ScopeBreadcrumbs';
+import { useQuickKeyDispatch } from './useQuickKeyDispatch';
+
+const groupHeadingClass =
+  '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-2 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.06em] [&_[cmdk-group-heading]]:text-text-tertiary';
+
+const firstHeadingNoTopPaddingClass =
+  '[&_[cmdk-group]:first-child_[cmdk-group-heading]]:pt-0';
 
 const SUGGESTED_COMMAND_IDS = [
   'create.compose-text',
@@ -80,47 +91,59 @@ const SpotlightRow = ({
       onSelect={() => onSelect(command)}
       aria-keyshortcuts={command.shortcut}
       className={classNames(
-        'group/spotlight-row flex cursor-pointer items-center gap-3 rounded-12 border-l-2 border-transparent px-3 text-left',
-        isMobile ? 'h-[52px]' : 'h-11',
-        'data-[selected=true]:border-l-accent-cabbage-default data-[selected=true]:bg-surface-hover',
+        'group/spotlight-row mx-2 flex cursor-pointer items-center gap-2.5 rounded-10 px-2.5 text-left',
+        'motion-safe:animate-spotlight-row-in',
+        isMobile ? 'h-12' : 'h-9',
+        'data-[selected=true]:bg-surface-hover data-[selected=true]:ring-1 data-[selected=true]:ring-inset data-[selected=true]:ring-border-subtlest-tertiary',
         'aria-disabled:cursor-not-allowed aria-disabled:opacity-40',
         command.destructive && 'data-[selected=true]:text-status-error',
       )}
     >
       <span
         className={classNames(
-          'flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float text-text-tertiary',
+          'flex size-7 shrink-0 items-center justify-center rounded-8 text-text-tertiary',
+          'group-data-[selected=true]/spotlight-row:text-text-primary',
           command.destructive &&
             'group-data-[selected=true]/spotlight-row:bg-status-error/10 group-data-[selected=true]/spotlight-row:text-status-error',
         )}
       >
         <Icon size={IconSize.Small} aria-hidden />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-text-primary typo-callout">
+      <span className="flex min-w-0 flex-1 items-baseline gap-2">
+        <span className="shrink-0 truncate text-text-primary typo-callout">
           {command.title}
         </span>
         {command.subtitle && (
-          <span className="truncate text-text-tertiary typo-footnote">
+          <span className="hidden min-w-0 flex-1 truncate text-text-quaternary typo-footnote tablet:block">
             {command.subtitle}
           </span>
         )}
       </span>
       {isAuthGated && (
-        <span className="rounded-6 border border-border-subtlest-tertiary px-2 py-0.5 text-text-tertiary typo-caption2">
+        <span className="rounded-6 border border-border-subtlest-tertiary px-1.5 py-0.5 text-text-tertiary typo-caption2">
           Sign in
         </span>
       )}
       {isPlusGated && (
-        <span className="rounded-6 bg-accent-bacon-subtler px-2 py-0.5 text-text-primary typo-caption2">
+        <span className="rounded-6 bg-accent-bacon-subtler px-1.5 py-0.5 text-text-primary typo-caption2">
           Plus
         </span>
       )}
       {isPending && <Loader className="text-text-tertiary" />}
-      {!isPending && command.shortcut && (
+      {!isPending && command.quickKey && (
         <kbd
           aria-hidden
-          className="rounded-6 border border-border-subtlest-tertiary bg-surface-float px-1.5 py-0.5 text-text-tertiary typo-caption2"
+          title={`Quick Key: ${command.quickKey} + space`}
+          className="border-accent-cabbage-default/40 flex items-center gap-1 rounded-6 border bg-overlay-active-cabbage px-1.5 py-0.5 text-accent-cabbage-default typo-caption1"
+        >
+          <span className="opacity-70">QK</span>
+          <span className="font-mono font-bold">{command.quickKey}</span>
+        </kbd>
+      )}
+      {!isPending && !command.quickKey && command.shortcut && (
+        <kbd
+          aria-hidden
+          className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 text-text-primary typo-caption1"
         >
           {command.shortcut}
         </kbd>
@@ -159,18 +182,15 @@ const renderRows = ({
   ));
 
 const SkeletonRows = ({ count = 3 }: { count?: number }) => (
-  <div className="flex flex-col gap-1 px-3 py-1">
+  <div className="flex flex-col gap-0.5 px-2 py-1">
     {Array.from({ length: count }).map((_, i) => (
       <div
         // eslint-disable-next-line react/no-array-index-key
         key={i}
-        className="flex h-11 items-center gap-3 px-3"
+        className="flex h-9 items-center gap-2.5 px-2.5"
       >
-        <ElementPlaceholder className="size-8 rounded-10" />
-        <div className="flex flex-1 flex-col gap-1">
-          <ElementPlaceholder className="h-3 w-1/2 rounded-6" />
-          <ElementPlaceholder className="h-2 w-1/3 rounded-6" />
-        </div>
+        <ElementPlaceholder className="size-7 rounded-8" />
+        <ElementPlaceholder className="h-3 w-1/2 rounded-6" />
       </div>
     ))}
   </div>
@@ -241,12 +261,14 @@ interface SpotlightDialogProps {
 interface ShortcutsHelpScreenProps {
   cmdShortcutLabel: string;
   visibleGroupLabels: string[];
+  quickKeys: Array<{ key: string; label: string }>;
   onClose: () => void;
 }
 
 const ShortcutsHelpScreen = ({
   cmdShortcutLabel,
   visibleGroupLabels,
+  quickKeys,
   onClose,
 }: ShortcutsHelpScreenProps): ReactElement => {
   const groupShortcuts = visibleGroupLabels.slice(0, 9).map((label, idx) => ({
@@ -259,6 +281,8 @@ const ShortcutsHelpScreen = ({
     { combo: '↑ ↓', label: 'Move selection between commands' },
     { combo: 'Tab', label: 'Cycle to the next group' },
     { combo: 'Shift+Tab', label: 'Cycle to the previous group' },
+    { combo: 'Alt+1..4', label: 'Jump to a search scope' },
+    { combo: 'Backspace', label: 'Clear the active scope (when input empty)' },
     { combo: 'Esc', label: 'Close Spotlight or cancel a confirm' },
     ...groupShortcuts,
   ];
@@ -266,7 +290,7 @@ const ShortcutsHelpScreen = ({
     <div
       role="dialog"
       aria-label="Spotlight keyboard shortcuts"
-      className="flex flex-col gap-3 px-5 py-6"
+      className="flex flex-col gap-4 px-5 py-6"
     >
       <div className="flex items-center justify-between">
         <h3 className="font-bold text-text-primary typo-callout">
@@ -282,19 +306,43 @@ const ShortcutsHelpScreen = ({
           Back
         </Button>
       </div>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-1.5">
         {rows.map((row) => (
           <li
             key={row.combo}
-            className="flex items-center justify-between gap-3 rounded-12 px-3 py-2 text-text-secondary typo-footnote hover:bg-surface-hover"
+            className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
           >
             <span className="text-text-primary">{row.label}</span>
-            <kbd className="rounded-6 border border-border-subtlest-tertiary bg-surface-secondary px-2 py-0.5 text-text-tertiary typo-caption2">
+            <kbd className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-2 py-0.5 text-text-primary typo-caption1">
               {row.combo}
             </kbd>
           </li>
         ))}
       </ul>
+      {quickKeys.length > 0 && (
+        <div>
+          <h4 className="mb-2 font-bold text-text-primary typo-callout">
+            Quick Keys
+          </h4>
+          <p className="mb-3 text-text-tertiary typo-footnote">
+            Type two letters then space to run instantly.
+          </p>
+          <ul className="flex flex-col gap-1.5">
+            {quickKeys.map((qk) => (
+              <li
+                key={qk.key}
+                className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
+              >
+                <span className="text-text-primary">{qk.label}</span>
+                <kbd className="border-accent-cabbage-default/40 flex items-center gap-1 rounded-6 border bg-overlay-active-cabbage px-2 py-0.5 text-accent-cabbage-default typo-caption1">
+                  <span className="font-mono font-bold">{qk.key}</span>
+                  <span className="opacity-70">+ space</span>
+                </kbd>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
@@ -303,11 +351,11 @@ const Hint = ({ label, combo }: { label: string; combo: string }) => (
   <span className="flex items-center gap-1.5">
     <kbd
       aria-hidden
-      className="rounded-6 border border-border-subtlest-tertiary bg-surface-secondary px-1.5 py-0.5"
+      className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 text-text-primary typo-caption1"
     >
       {combo}
     </kbd>
-    <span>{label}</span>
+    <span className="text-text-secondary">{label}</span>
   </span>
 );
 
@@ -354,9 +402,32 @@ export const Spotlight = ({
     push: pushRecent,
   } = useRecentCommands();
   const spotlight = useSpotlight();
-  const { query, setQuery, pendingConfirmId, requestConfirm, clearConfirm } =
-    spotlight;
+  const {
+    query,
+    setQuery,
+    pendingConfirmId,
+    requestConfirm,
+    clearConfirm,
+    scope,
+    pushScope,
+    popScope,
+    clearScope,
+  } = spotlight;
   const search = useSpotlightSearchCommands({ router, query });
+  useQuickKeyDispatch({
+    query,
+    setQuery,
+    commands,
+    scope,
+    onDispatch: (command) => {
+      onCommandRun?.(command);
+      pushRecent(command.id);
+      Promise.resolve(command.perform()).finally(() => {
+        clearConfirm();
+        onClose();
+      });
+    },
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -576,8 +647,8 @@ export const Spotlight = ({
         className={classNames(
           'flex flex-col overflow-hidden',
           isMobile
-            ? 'h-full w-full'
-            : 'w-[640px] min-w-[320px] max-w-[calc(100vw-32px)] rounded-16 border border-border-subtlest-tertiary bg-surface-float shadow-2 motion-safe:animate-spotlight-panel-in',
+            ? 'h-full w-full bg-background-default'
+            : 'w-[640px] min-w-[320px] max-w-[calc(100vw-32px)] rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-3 motion-safe:animate-spotlight-panel-in',
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
@@ -593,6 +664,21 @@ export const Spotlight = ({
               clearConfirm();
               return;
             }
+          }
+          if (
+            event.altKey &&
+            event.key >= '1' &&
+            event.key <= '4' &&
+            !pendingConfirmId
+          ) {
+            const idx = Number(event.key) - 1;
+            const targetScope = scopeOrder[idx];
+            if (targetScope) {
+              event.preventDefault();
+              event.stopPropagation();
+              pushScope(targetScope);
+            }
+            return;
           }
           if (
             (event.metaKey || event.ctrlKey) &&
@@ -620,45 +706,79 @@ export const Spotlight = ({
         }}
       >
         {!pendingCommand && (
-          <div
-            data-cmdk-input-wrapper=""
-            className="flex h-16 items-center gap-3 border-b border-border-subtlest-tertiary px-5"
-          >
-            <SearchIcon
-              size={IconSize.Small}
-              className="text-text-tertiary"
-              aria-hidden
-            />
-            <Command.Input
-              ref={inputRef}
-              value={query}
-              onValueChange={setQuery}
-              placeholder="Search or jump to..."
-              autoFocus
-              className="h-full flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-tertiary"
-              aria-labelledby="spotlight-title"
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && isFiltering && resultCount === 0) {
-                  event.preventDefault();
-                  handleFallthroughEnter();
+          <>
+            <div
+              data-cmdk-input-wrapper=""
+              className="flex h-12 items-center gap-3 px-4"
+            >
+              {query.length > 0 ? (
+                <SearchIcon
+                  size={IconSize.Small}
+                  className="text-text-tertiary"
+                  aria-hidden
+                />
+              ) : (
+                <SparkleIcon
+                  size={IconSize.Small}
+                  className="text-accent-cabbage-default motion-safe:animate-pulse"
+                  aria-hidden
+                />
+              )}
+              <Command.Input
+                ref={inputRef}
+                value={query}
+                onValueChange={setQuery}
+                placeholder={
+                  scope === SpotlightScope.All
+                    ? 'Search posts, squads, people, or pick an action...'
+                    : scopeMeta[scope].placeholder
                 }
-              }}
-            />
-            {search.isLoading && <Loader className="text-text-tertiary" />}
-            {query && (
-              <button
-                type="button"
-                aria-label="Clear search"
-                onClick={() => {
-                  setQuery('');
-                  inputRef.current?.focus();
+                autoFocus
+                className="h-full flex-1 bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-tertiary"
+                aria-labelledby="spotlight-title"
+                onKeyDown={(event) => {
+                  if (
+                    event.key === 'Backspace' &&
+                    query.length === 0 &&
+                    scope !== SpotlightScope.All
+                  ) {
+                    event.preventDefault();
+                    popScope();
+                    return;
+                  }
+                  if (
+                    event.key === 'Enter' &&
+                    isFiltering &&
+                    resultCount === 0
+                  ) {
+                    event.preventDefault();
+                    handleFallthroughEnter();
+                  }
                 }}
-                className="text-text-tertiary transition-colors hover:text-text-primary"
-              >
-                <ClearIcon size={IconSize.XSmall} />
-              </button>
-            )}
-          </div>
+              />
+              {search.isLoading && <Loader className="text-text-tertiary" />}
+              {query && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() => {
+                    setQuery('');
+                    inputRef.current?.focus();
+                  }}
+                  className="text-text-tertiary transition-colors hover:text-text-primary"
+                >
+                  <ClearIcon size={IconSize.XSmall} />
+                </button>
+              )}
+            </div>
+            <div className="border-b border-border-subtlest-tertiary">
+              <ScopeBreadcrumbs
+                scope={scope}
+                onSelect={pushScope}
+                onClear={clearScope}
+              />
+            </div>
+          </>
         )}
 
         {pendingCommand && (
@@ -675,15 +795,22 @@ export const Spotlight = ({
             visibleGroupLabels={visibleGroups.map(
               (group) => groupLabels[group],
             )}
+            quickKeys={commands
+              .filter((cmd): cmd is SpotlightCommand & { quickKey: string } =>
+                Boolean(cmd.quickKey),
+              )
+              .map((cmd) => ({ key: cmd.quickKey, label: cmd.title }))}
             onClose={() => setShowHelp(false)}
           />
         )}
 
         {!pendingCommand && !showHelp && (
           <Command.List
+            key={`spotlight-list-${scope}`}
             className={classNames(
-              'overflow-y-auto px-2 py-2',
-              isMobile ? 'flex-1' : 'max-h-[min(560px,55vh)]',
+              'overflow-y-auto py-1 motion-safe:animate-spotlight-list-fade',
+              firstHeadingNoTopPaddingClass,
+              isMobile ? 'flex-1' : 'max-h-[min(640px,60vh)]',
             )}
             onScroll={() => {
               // No-op: cmdk handles selection sync automatically.
@@ -697,57 +824,109 @@ export const Spotlight = ({
               setResultCount(items.length);
             }}
           >
-            {!isFiltering && suggested.length > 0 && (
+            {scope !== SpotlightScope.All && search.isLoading && (
+              <Command.Group heading={scopeMeta[scope].label}>
+                <SkeletonRows count={4} />
+              </Command.Group>
+            )}
+
+            {scope !== SpotlightScope.All && !search.isLoading && (
               <Command.Group
-                heading={groupLabels[SpotlightGroup.Suggested]}
-                data-spotlight-group={SpotlightGroup.Suggested}
-                className="[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-surface-float [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-text-tertiary [&_[cmdk-group-heading]]:typo-caption2"
+                heading={scopeMeta[scope].label}
+                data-spotlight-group={SpotlightGroup.Search}
+                className={groupHeadingClass}
               >
-                {renderRows({ ...commonRowProps, commands: suggested })}
+                {renderRows({
+                  ...commonRowProps,
+                  commands: (() => {
+                    if (scope === SpotlightScope.Posts) {
+                      return search.posts;
+                    }
+                    if (scope === SpotlightScope.Squads) {
+                      return search.sources;
+                    }
+                    if (scope === SpotlightScope.People) {
+                      return search.users;
+                    }
+                    return search.tags;
+                  })(),
+                })}
               </Command.Group>
             )}
 
-            {!isFiltering && recentCommands.length > 0 && (
-              <Command.Group
-                heading={groupLabels[SpotlightGroup.Recent]}
-                data-spotlight-group={SpotlightGroup.Recent}
-                className="[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-surface-float [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-text-tertiary [&_[cmdk-group-heading]]:typo-caption2"
-              >
-                {renderRows({ ...commonRowProps, commands: recentCommands })}
-              </Command.Group>
-            )}
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
+              suggested.length > 0 && (
+                <Command.Group
+                  heading={groupLabels[SpotlightGroup.Suggested]}
+                  data-spotlight-group={SpotlightGroup.Suggested}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: suggested })}
+                </Command.Group>
+              )}
 
-            {groupOrder
-              .filter(
-                (group) =>
-                  group !== SpotlightGroup.Suggested &&
-                  group !== SpotlightGroup.Recent &&
-                  group !== SpotlightGroup.Search,
-              )
-              .map((group) => {
-                const items = grouped[group];
-                if (!items.length) {
-                  return null;
-                }
-                return (
-                  <Command.Group
-                    key={group}
-                    heading={groupLabels[group]}
-                    data-spotlight-group={group}
-                    className="[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-surface-float [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-text-tertiary [&_[cmdk-group-heading]]:typo-caption2"
-                  >
-                    {renderRows({ ...commonRowProps, commands: items })}
-                  </Command.Group>
-                );
-              })}
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
+              recentCommands.length > 0 && (
+                <Command.Group
+                  heading={groupLabels[SpotlightGroup.Recent]}
+                  data-spotlight-group={SpotlightGroup.Recent}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: recentCommands })}
+                </Command.Group>
+              )}
 
-            {isFiltering && search.isLoading && (
-              <Command.Group heading="Posts">
-                <SkeletonRows count={3} />
-              </Command.Group>
-            )}
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
+              suggested.length === 0 &&
+              recentCommands.length === 0 && (
+                <div
+                  className="px-4 py-8 text-center text-text-tertiary typo-footnote"
+                  aria-hidden
+                >
+                  <p>Type to search posts, squads, people, tags</p>
+                  <p className="mt-1">or pick a scope above with Alt+1..4</p>
+                </div>
+              )}
 
-            {isFiltering &&
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              groupOrder
+                .filter(
+                  (group) =>
+                    group !== SpotlightGroup.Suggested &&
+                    group !== SpotlightGroup.Recent &&
+                    group !== SpotlightGroup.Search,
+                )
+                .map((group) => {
+                  const items = grouped[group];
+                  if (!items.length) {
+                    return null;
+                  }
+                  return (
+                    <Command.Group
+                      key={group}
+                      heading={groupLabels[group]}
+                      data-spotlight-group={group}
+                      className={groupHeadingClass}
+                    >
+                      {renderRows({ ...commonRowProps, commands: items })}
+                    </Command.Group>
+                  );
+                })}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              search.isLoading && (
+                <Command.Group heading="Posts">
+                  <SkeletonRows count={3} />
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
               !search.isLoading &&
               (search.posts.length > 0 ||
                 search.tags.length > 0 ||
@@ -756,7 +935,7 @@ export const Spotlight = ({
                 <Command.Group
                   heading={groupLabels[SpotlightGroup.Search]}
                   data-spotlight-group={SpotlightGroup.Search}
-                  className="[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-surface-float [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-text-tertiary [&_[cmdk-group-heading]]:typo-caption2"
+                  className={groupHeadingClass}
                 >
                   {renderRows({
                     ...commonRowProps,
@@ -770,14 +949,16 @@ export const Spotlight = ({
                 </Command.Group>
               )}
 
-            {isFiltering && search.fallthrough.length > 0 && (
-              <Command.Group>
-                {renderRows({
-                  ...commonRowProps,
-                  commands: search.fallthrough,
-                })}
-              </Command.Group>
-            )}
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              search.fallthrough.length > 0 && (
+                <Command.Group>
+                  {renderRows({
+                    ...commonRowProps,
+                    commands: search.fallthrough,
+                  })}
+                </Command.Group>
+              )}
 
             <Command.Empty className="flex flex-col items-center gap-2 py-12 text-center">
               <SearchIcon
@@ -808,26 +989,26 @@ export const Spotlight = ({
           </Command.List>
         )}
 
-        <div className="flex h-9 items-center justify-between border-t border-border-subtlest-tertiary bg-surface-float px-5 text-text-tertiary typo-caption2">
+        <div className="flex h-9 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-5 text-text-tertiary typo-caption2">
           <span className="flex items-center gap-3">
             <Hint label="Open" combo="↵" />
             <Hint label="Navigate" combo="↑↓" />
             <Hint label="Close" combo="esc" />
           </span>
-          <span className="hidden items-center gap-2 laptop:flex">
+          <span className="hidden items-center gap-1.5 laptop:flex">
             <kbd
               aria-hidden
-              className="rounded-6 border border-border-subtlest-tertiary bg-surface-secondary px-1.5 py-0.5"
+              className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 text-text-primary typo-caption1"
             >
               {cmdLabel}
             </kbd>
             <kbd
               aria-hidden
-              className="rounded-6 border border-border-subtlest-tertiary bg-surface-secondary px-1.5 py-0.5"
+              className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-1.5 py-0.5 text-text-primary typo-caption1"
             >
               K
             </kbd>
-            <span>Toggle</span>
+            <span className="text-text-secondary">Toggle</span>
           </span>
         </div>
       </Command>
@@ -844,7 +1025,7 @@ export const Spotlight = ({
         className={{
           drawer: 'p-0',
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-surface-float p-0',
+            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default p-0',
         }}
       >
         {paletteBody}
@@ -860,7 +1041,7 @@ export const Spotlight = ({
       shouldCloseOnEsc
       shouldReturnFocusAfterClose
       className="outline-none"
-      overlayClassName="fixed inset-0 z-modal flex justify-center items-start pt-[15vh] bg-overlay-quaternary-onion backdrop-blur-sm motion-safe:animate-spotlight-scrim-in"
+      overlayClassName="fixed inset-0 z-modal flex justify-center items-start pt-[15vh] bg-overlay-quaternary-onion motion-safe:animate-spotlight-scrim-in"
       contentLabel="Spotlight command palette"
       ariaHideApp={!isExtension}
     >

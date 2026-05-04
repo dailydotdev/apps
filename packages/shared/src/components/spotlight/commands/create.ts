@@ -34,6 +34,7 @@ export const getCreateCommands = ({
     keywords: ['write', 'post', 'share', 'link', 'compose'],
     group: SpotlightGroup.Create,
     shortcut: 'c',
+    quickKey: 'np',
     requiresAuth: true,
     perform: () => {
       openModal({
@@ -101,6 +102,7 @@ export const getCreateCommands = ({
     icon: BookmarkIcon,
     keywords: ['folder', 'organize bookmarks'],
     group: SpotlightGroup.Create,
+    quickKey: 'nb',
     requiresAuth: true,
     perform: () => {
       router.push(`${webappUrl}bookmarks?createFolder=1`);
@@ -124,6 +126,7 @@ export const getCreateCommands = ({
     icon: FeedbackIcon,
     keywords: ['report', 'bug', 'idea', 'suggestion'],
     group: SpotlightGroup.Create,
+    quickKey: 'fb',
     requiresAuth: true,
     perform: () => {
       openModal({ type: LazyModal.Feedback });

@@ -58,6 +58,24 @@ const strictSkipList = new Set([
   // in a dedicated cleanup PR.
   'packages/shared/src/components/post/write/CreatePostButton.tsx',
   'packages/shared/src/components/squads/SharePostBar.tsx',
+  // Smart-composer-experiment branch — rich-text editor toolbar icons
+  // generated from SVGs. They have no .d.ts for the corresponding .svg
+  // files yet (svgr declarations live in a separate cleanup PR). The
+  // spotlight branch is rebased on top of smart-composer so these files
+  // surface in the strict diff against origin/main.
+  'packages/shared/src/components/icons/CodeBlock/index.tsx',
+  'packages/shared/src/components/icons/Heading1/index.tsx',
+  'packages/shared/src/components/icons/Heading2/index.tsx',
+  'packages/shared/src/components/icons/Heading3/index.tsx',
+  'packages/shared/src/components/icons/HorizontalRule/index.tsx',
+  'packages/shared/src/components/icons/InlineCode/index.tsx',
+  'packages/shared/src/components/icons/Maximize/index.tsx',
+  'packages/shared/src/components/icons/Minimize/index.tsx',
+  'packages/shared/src/components/icons/Strikethrough/index.tsx',
+  // featureManagement.ts surfaces a missing @growthbook/growthbook
+  // declaration file under strict mode. Pre-existing on the
+  // smart-composer base; tracked for cleanup.
+  'packages/shared/src/lib/featureManagement.ts',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

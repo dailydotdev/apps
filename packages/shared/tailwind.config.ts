@@ -306,6 +306,14 @@ export default {
             transform: 'scale(0.98)',
           },
         },
+        'spotlight-row-in': {
+          from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'spotlight-list-fade': {
+          from: { opacity: '0.5' },
+          to: { opacity: '1' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -322,6 +330,9 @@ export default {
         'spotlight-panel-in':
           'spotlight-panel-in 155ms cubic-bezier(0.16, 1, 0.3, 1) both',
         'spotlight-panel-out': 'spotlight-panel-out 110ms ease-in both',
+        'spotlight-row-in':
+          'spotlight-row-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'spotlight-list-fade': 'spotlight-list-fade 160ms ease-out both',
       },
     },
     lineClamp: {

@@ -76,6 +76,7 @@ export const getSettingsCommands = ({
       icon: themeIcon,
       keywords: ['dark mode', 'light mode', 'theme', 'appearance'],
       group: SpotlightGroup.Settings,
+      quickKey: 'tt',
       perform: () => {
         settings.setTheme(nextTheme());
       },
@@ -89,6 +90,7 @@ export const getSettingsCommands = ({
       icon: settings.insaneMode ? CardLayoutIcon : LayoutIcon,
       keywords: ['cards', 'list', 'layout', 'view', 'density'],
       group: SpotlightGroup.Settings,
+      quickKey: 'dd',
       perform: () => {
         settings.toggleInsaneMode(!settings.insaneMode);
       },
@@ -99,6 +101,7 @@ export const getSettingsCommands = ({
       icon: HamburgerIcon,
       keywords: ['sidebar', 'collapse', 'expand'],
       group: SpotlightGroup.Settings,
+      quickKey: 'sb',
       perform: settings.toggleSidebarExpanded,
     },
     {

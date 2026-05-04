@@ -35,6 +35,7 @@ export const getActionsCommands = ({
       icon: EyeIcon,
       keywords: ['history', 'recently read'],
       group: SpotlightGroup.Actions,
+      quickKey: 'hi',
       requiresAuth: true,
       perform: () => {
         router.push(`${webappUrl}history`);
@@ -88,6 +89,7 @@ export const getActionsCommands = ({
     icon: PowerIcon,
     keywords: ['sign out', 'logout'],
     group: SpotlightGroup.Actions,
+    quickKey: 'lo',
     destructive: true,
     requiresAuth: true,
     perform: async () => {
