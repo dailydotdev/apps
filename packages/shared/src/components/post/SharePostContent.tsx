@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useContext } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import PostSourceInfo from './PostSourceInfo';
 import {
   ReadArticleButton,
   getReadPostButtonIcon,
@@ -9,20 +8,13 @@ import {
 import type { Post, SharedPost } from '../../graphql/posts';
 import {
   getReadPostButtonText,
-  isInternalReadType,
   isSocialTwitterPost,
-  isSharedPostSquadPost,
 } from '../../graphql/posts';
-import SettingsContext, {
-  useSettingsContext,
-} from '../../contexts/SettingsContext';
-import { combinedClicks } from '../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import { ButtonVariant } from '../buttons/Button';
 import { ElementPlaceholder } from '../ElementPlaceholder';
-import { ProfileImageSize } from '../ProfilePicture';
-import { TruncateText } from '../utilities';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { SharePostTitle } from './share/SharePostTitle';
@@ -36,6 +28,7 @@ import { DeletedPostId } from '../../lib/constants';
 import { IconSize } from '../Icon';
 import { SourceType } from '../../graphql/sources';
 import { EmbeddedTweetPreview } from '../cards/socialTwitter/EmbeddedTweetPreview';
+import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
 
 export interface CommonSharePostContentProps {
   sharedPost?: SharedPost;
@@ -48,13 +41,11 @@ export interface CommonSharePostContentProps {
 const SharePostContentSkeleton = () => (
   <>
     <ElementPlaceholder className="mt-6 h-6 w-2/4 rounded-10" />
-    <div className="mb-5 mt-8 rounded-16 border border-border-subtlest-tertiary">
-      <div className="flex max-w-full flex-col p-4 pt-5 laptop:flex-row">
-        <div className="flex flex-1 flex-col gap-9">
-          <ElementPlaceholder className="h-6 w-20 rounded-10" />
-          <ElementPlaceholder className="h-6 w-20 rounded-10" />
-        </div>
-        <ElementPlaceholder className="ml-2 h-36 w-70 rounded-16" />
+    <div className="mb-5 mt-8 overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+      <ElementPlaceholder className="w-full pt-[40%]" />
+      <div className="flex flex-col gap-3 p-4 tablet:gap-4 tablet:p-5">
+        <ElementPlaceholder className="h-7 w-3/4 rounded-10 tablet:h-8" />
+        <ElementPlaceholder className="h-5 w-24 rounded-10" />
       </div>
     </div>
   </>
@@ -118,8 +109,6 @@ export function CommonSharePostContent({
   isCompactSpacing,
   showTweetImage = false,
 }: CommonSharePostContentProps): ReactElement {
-  const { sidebarExpanded } = useSettingsContext();
-  const { openNewTab } = useContext(SettingsContext);
   const openArticle = (e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
@@ -128,9 +117,6 @@ export function CommonSharePostContent({
   if (!sharedPost) {
     return <SharePostContentSkeleton />;
   }
-
-  const shouldUseInternalLink =
-    isSharedPostSquadPost({ sharedPost }) || isInternalReadType(sharedPost);
 
   const isDeleted = sharedPost.id === DeletedPostId;
   const { private: isPrivate, source: sharedPostSource } = sharedPost;
@@ -166,74 +152,40 @@ export function CommonSharePostContent({
 
   return (
     <SharedLinkContainer
-      post={sharedPost}
-      summary={sharedPost.summary}
-      className={classNames(sharedContainerClassName, 'min-w-0 max-w-full')}
+      className={classNames(
+        sharedContainerClassName,
+        'min-w-0 max-w-full overflow-hidden',
+      )}
     >
-      <div
-        className={classNames(
-          'flex min-w-0 max-w-full flex-col gap-2 p-4 pt-5',
-          sidebarExpanded ? 'laptopL:flex-row' : 'laptop:flex-row',
-        )}
+      <SharedPostLink
+        source={source}
+        sharedPost={sharedPost}
+        onGoToLinkProps={combinedClicks(withSelectionGuard(openArticle))}
+        className="block w-full cursor-pointer"
       >
-        <div
-          className={classNames(
-            'mb-5 flex min-w-0 max-w-full flex-1 flex-col truncate',
-            sidebarExpanded ? 'laptopL:mb-0' : 'laptop:mb-0',
+        <LazyImage
+          imgSrc={sharedPost.image}
+          imgAlt="Post cover image"
+          ratio="40%"
+          eager
+          fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+          fetchPriority="high"
+        />
+        <div className="flex min-w-0 max-w-full flex-col gap-3 p-4 tablet:gap-4 tablet:p-5">
+          <h3 className="break-words font-bold typo-title3 tablet:typo-title2">
+            {sharedPost.title}
+          </h3>
+          <SharedPostMetaInfo sharedPost={sharedPost} />
+          {!!sharedPost.summary && (
+            <p
+              className="select-text break-words text-text-secondary typo-markdown"
+              data-testid="tldr-container"
+            >
+              {sharedPost.summary}
+            </p>
           )}
-        >
-          <SharedPostLink
-            source={source}
-            sharedPost={sharedPost}
-            onGoToLinkProps={combinedClicks(openArticle)}
-            className="mb-4 mt-0 flex flex-wrap font-bold typo-body"
-          >
-            <TruncateText>{sharedPost.title}</TruncateText>
-          </SharedPostLink>
-          <PostSourceInfo
-            date={
-              sharedPost.readTime
-                ? `${sharedPost.readTime}m read time`
-                : undefined
-            }
-            post={sharedPost}
-            onReadArticle={onReadArticle}
-            size={ProfileImageSize.Small}
-            showActions={false}
-          />
-          <ReadArticleButton
-            content={getReadPostButtonText(sharedPost)}
-            className="mt-5 w-fit"
-            variant={ButtonVariant.Secondary}
-            href={
-              shouldUseInternalLink
-                ? sharedPost.commentsPermalink
-                : sharedPost.permalink ?? sharedPost.commentsPermalink
-            }
-            openNewTab={shouldUseInternalLink ? false : openNewTab}
-            title="Go to post"
-            rel="noopener"
-            {...combinedClicks(openArticle)}
-            icon={getReadPostButtonIcon(sharedPost)}
-          />
         </div>
-
-        <SharedPostLink
-          source={source}
-          sharedPost={sharedPost}
-          onGoToLinkProps={combinedClicks(openArticle)}
-          className="mx-auto block h-fit w-full max-w-70 shrink-0 cursor-pointer overflow-hidden rounded-16"
-        >
-          <LazyImage
-            imgSrc={sharedPost.image}
-            imgAlt="Post cover image"
-            ratio="52%"
-            eager
-            fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-            fetchPriority="high"
-          />
-        </SharedPostLink>
-      </div>
+      </SharedPostLink>
     </SharedLinkContainer>
   );
 }
