@@ -17,7 +17,7 @@ export const getReadPostButtonIcon = (
   isPostOrSharedPostTwitter(post) ? (
     <TwitterIcon size={IconSize.Size16} />
   ) : (
-    <OpenLinkIcon secondary />
+    <OpenLinkIcon />
   );
 
 type ReadArticleButtonProps = ButtonV2Props<'a'> & {
@@ -35,7 +35,7 @@ export const ReadArticleButton = ({
   <ButtonV2
     tag="a"
     size={size}
-    icon={<OpenLinkIcon secondary />}
+    icon={<OpenLinkIcon />}
     iconPosition={ButtonIconPosition.Right}
     target={openNewTab ? '_blank' : '_self'}
     {...props}
