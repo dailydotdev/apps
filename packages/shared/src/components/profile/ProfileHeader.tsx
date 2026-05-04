@@ -80,7 +80,7 @@ const ProfileHeader = ({
             )}
             tag="a"
             disabled={!isSameUser}
-            type={ButtonVariant.Float}
+            variant={ButtonVariant.Float}
             icon={<EditIcon />}
             aria-label="Edit profile"
           />
