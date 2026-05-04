@@ -21,6 +21,8 @@ import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import { downloadBrowserExtension } from '../../lib/constants';
 import { anchorDefaultRel } from '../../lib/strings';
+import { useConditionalFeature } from '../../hooks';
+import { featureShortcutsExtensionPromoCopy } from '../../lib/featureManagement';
 
 interface ShortcutsExtensionPromoProps {
   className?: string;
@@ -46,6 +48,12 @@ const ShortcutsExtensionPromo = ({
   const { logEvent } = useLogContext();
   const browserName = getCurrentBrowserName();
   const isEdge = browserName === BrowserName.Edge;
+  const browserLabel = isEdge ? 'Edge' : 'Chrome';
+
+  const { value: copy } = useConditionalFeature({
+    feature: featureShortcutsExtensionPromoCopy,
+    shouldEvaluate: true,
+  });
 
   useLogEventOnce(() => ({
     event_name: LogEvent.Impression,
@@ -68,6 +76,8 @@ const ShortcutsExtensionPromo = ({
     onInstall?.();
   };
 
+  const ctaLabel = copy.cta.replace('{browser}', browserLabel);
+
   return (
     <div
       className={classNames(
@@ -77,13 +87,13 @@ const ShortcutsExtensionPromo = ({
     >
       <div className="flex flex-col items-center gap-1 text-center">
         <Typography type={TypographyType.Title3} bold>
-          Want these shortcuts on every new tab?
+          {copy.title}
         </Typography>
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Install the daily.dev extension to pin your most visited sites.
+          {copy.subtitle}
         </Typography>
       </div>
       <div className="flex gap-4">
@@ -103,7 +113,7 @@ const ShortcutsExtensionPromo = ({
       </div>
       <div className="flex gap-4">
         <Button type="button" variant={ButtonVariant.Float} onClick={onDismiss}>
-          Skip for now
+          {copy.dismiss}
         </Button>
         <Button
           tag="a"
@@ -114,7 +124,7 @@ const ShortcutsExtensionPromo = ({
           icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
           onClick={handleInstallClick}
         >
-          Install for {isEdge ? 'Edge' : 'Chrome'}
+          {ctaLabel}
         </Button>
       </div>
     </div>
