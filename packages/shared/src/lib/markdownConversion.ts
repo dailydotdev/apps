@@ -6,13 +6,15 @@ const escapeAttribute = (value: string): string =>
 
 const normalizeText = (value: string): string => value.replace(/\u00a0/g, ' ');
 
-const unescapeMarkdownText = (value: string): string =>
-  value.replace(/\\([\\`*_[\]{}()#+\-.!~>])/g, '$1');
-
 const escapeParagraphListMarkers = (value: string): string =>
   value
     .replace(/^([ \t]*)([-+*])\s+/gm, '$1\\$2 ')
     .replace(/^([ \t]*)(\d+)\.\s+/gm, '$1$2\\. ');
+
+const unescapeParagraphListMarkers = (value: string): string =>
+  value
+    .replace(/^([ \t]*)\\([-+*])\s+/gm, '$1$2 ')
+    .replace(/^([ \t]*)(\d+)\\\.\s+/gm, '$1$2. ');
 
 const applyInlineTextFormatting = (value: string): string => {
   let result = value;
@@ -44,9 +46,7 @@ const inlineMarkdownToHtml = (value: string): string => {
   return result
     .split(/(<[^>]+>)/g)
     .map((part) =>
-      part.startsWith('<')
-        ? part
-        : applyInlineTextFormatting(unescapeMarkdownText(part)),
+      part.startsWith('<') ? part : applyInlineTextFormatting(part),
     )
     .join('');
 };
@@ -179,7 +179,9 @@ export const markdownToHtmlBasic = (markdown: string): string => {
 
     flushList();
     flushPendingEmptyParagraphs();
-    htmlParts.push(`<p>${inlineMarkdownToHtml(line)}</p>`);
+    htmlParts.push(
+      `<p>${inlineMarkdownToHtml(unescapeParagraphListMarkers(line))}</p>`,
+    );
     hasRenderedBlock = true;
   });
 
