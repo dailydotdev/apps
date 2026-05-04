@@ -18,19 +18,11 @@ import {
   ArrowIcon,
   BoldIcon,
   BulletListIcon,
-  CodeBlockIcon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  HorizontalRuleIcon,
-  InlineCodeIcon,
   ItalicIcon,
   NumberedListIcon,
   RedoIcon,
-  StrikethroughIcon,
   UndoIcon,
 } from '../../icons';
-import { LinkIcon } from '../../icons/Link';
 import { Tooltip } from '../../tooltip/Tooltip';
 import {
   DropdownMenu,
@@ -44,6 +36,12 @@ export interface RichTextToolbarProps {
   editor: Editor;
   onLinkAdd: (url: string, label?: string) => void;
   inlineActions?: ReactNode;
+  /**
+   * Slot rendered before any inline actions and formatting buttons. Useful for
+   * a leading control (e.g. a post-type picker) that should sit at the start
+   * of the toolbar with a visual divider after it.
+   */
+  inlineActionsLeading?: ReactNode;
   rightActions?: ReactNode;
   allowBlockFormatting?: boolean;
   /**
@@ -66,7 +64,19 @@ interface ToolbarItem {
   onClick: () => void;
   disabled?: boolean;
   priority: number;
+  /**
+   * Visual group identifier — items in the same group render adjacent to each
+   * other; a divider is drawn whenever the rendered group changes.
+   */
+  group: string;
 }
+
+const ToolbarDivider = (): ReactElement => (
+  <span
+    aria-hidden
+    className="mx-1.5 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
+  />
+);
 
 interface ToolbarButtonProps {
   tooltip: string;
@@ -156,6 +166,7 @@ function RichTextToolbarComponent(
     editor,
     onLinkAdd,
     inlineActions,
+    inlineActionsLeading,
     rightActions,
     allowBlockFormatting = true,
     borderless = false,
@@ -218,35 +229,21 @@ function RichTextToolbarComponent(
     selector: ({ editor: currentEditor }) => ({
       isBold: currentEditor.isActive('bold'),
       isItalic: currentEditor.isActive('italic'),
-      isStrike: currentEditor.isActive('strike'),
-      isCode: currentEditor.isActive('code'),
-      isCodeBlock: currentEditor.isActive('codeBlock'),
-      isHeading1: currentEditor.isActive('heading', { level: 1 }),
-      isHeading2: currentEditor.isActive('heading', { level: 2 }),
-      isHeading3: currentEditor.isActive('heading', { level: 3 }),
       isBulletList: currentEditor.isActive('bulletList'),
       isOrderedList: currentEditor.isActive('orderedList'),
-      isLink: currentEditor.isActive('link'),
       canUndo: currentEditor.can().undo(),
       canRedo: currentEditor.can().redo(),
     }),
   });
 
-  // Priority: 0 = always inline, higher = drops out first under width pressure.
+  // Priority: lower = stays inline, higher = drops to overflow first.
+  // Group: visual grouping for the separator-between-groups layout.
   const formattingItems = useMemo<ToolbarItem[]>(() => {
     const baseItems: ToolbarItem[] = [
       {
-        id: 'link',
-        priority: 0,
-        label: editorState.isLink ? 'Edit link' : 'Add link',
-        tooltip: editorState.isLink ? 'Edit link (⌘K)' : 'Add link (⌘K)',
-        icon: <LinkIcon />,
-        isActive: editorState.isLink,
-        onClick: openLinkModal,
-      },
-      {
         id: 'bold',
         priority: 0,
+        group: 'format',
         label: 'Bold',
         tooltip: 'Bold (⌘B)',
         icon: <BoldIcon />,
@@ -256,85 +253,21 @@ function RichTextToolbarComponent(
       {
         id: 'italic',
         priority: 0,
+        group: 'format',
         label: 'Italic',
         tooltip: 'Italic (⌘I)',
         icon: <ItalicIcon />,
         isActive: editorState.isItalic,
         onClick: () => editor.chain().focus().toggleItalic().run(),
       },
-      {
-        id: 'strike',
-        priority: 1,
-        label: 'Strikethrough',
-        tooltip: 'Strikethrough (⌘⇧S)',
-        icon: <StrikethroughIcon />,
-        isActive: editorState.isStrike,
-        onClick: () => editor.chain().focus().toggleStrike().run(),
-      },
     ];
 
     if (allowBlockFormatting) {
       baseItems.push(
         {
-          id: 'h1',
-          priority: 2,
-          label: 'Heading 1',
-          tooltip: 'Heading 1 (⌘⌥1)',
-          icon: <Heading1Icon />,
-          isActive: editorState.isHeading1,
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run(),
-        },
-        {
-          id: 'h2',
-          priority: 2,
-          label: 'Heading 2',
-          tooltip: 'Heading 2 (⌘⌥2)',
-          icon: <Heading2Icon />,
-          isActive: editorState.isHeading2,
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run(),
-        },
-        {
-          id: 'h3',
-          priority: 2,
-          label: 'Heading 3',
-          tooltip: 'Heading 3 (⌘⌥3)',
-          icon: <Heading3Icon />,
-          isActive: editorState.isHeading3,
-          onClick: () =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run(),
-        },
-        {
-          id: 'inline-code',
-          priority: 3,
-          label: 'Inline code',
-          tooltip: 'Inline code (⌘E)',
-          icon: <InlineCodeIcon />,
-          isActive: editorState.isCode,
-          onClick: () => editor.chain().focus().toggleCode().run(),
-        },
-        {
-          id: 'hr',
-          priority: 3,
-          label: 'Horizontal rule',
-          tooltip: 'Horizontal rule',
-          icon: <HorizontalRuleIcon />,
-          isActive: false,
-          onClick: () => editor.chain().focus().setHorizontalRule().run(),
-        },
-        {
-          id: 'code-block',
-          priority: 3,
-          label: 'Code block',
-          tooltip: 'Code block (⌘⌥C)',
-          icon: <CodeBlockIcon />,
-          isActive: editorState.isCodeBlock,
-          onClick: () => editor.chain().focus().toggleCodeBlock().run(),
-        },
-        {
           id: 'bullet-list',
           priority: 4,
+          group: 'list',
           label: 'Bullet list',
           tooltip: 'Bullet list (⌘⇧8)',
           icon: <BulletListIcon />,
@@ -344,6 +277,7 @@ function RichTextToolbarComponent(
         {
           id: 'numbered-list',
           priority: 4,
+          group: 'list',
           label: 'Numbered list',
           tooltip: 'Numbered list (⌘⇧7)',
           icon: <NumberedListIcon />,
@@ -351,22 +285,13 @@ function RichTextToolbarComponent(
           onClick: () => editor.chain().focus().toggleOrderedList().run(),
         },
       );
-    } else {
-      baseItems.push({
-        id: 'inline-code',
-        priority: 3,
-        label: 'Inline code',
-        tooltip: 'Inline code (⌘E)',
-        icon: <InlineCodeIcon />,
-        isActive: editorState.isCode,
-        onClick: () => editor.chain().focus().toggleCode().run(),
-      });
     }
 
     baseItems.push(
       {
         id: 'undo',
         priority: 5,
+        group: 'history',
         label: 'Undo',
         tooltip: 'Undo (⌘Z)',
         icon: <UndoIcon />,
@@ -377,6 +302,7 @@ function RichTextToolbarComponent(
       {
         id: 'redo',
         priority: 5,
+        group: 'history',
         label: 'Redo',
         tooltip: 'Redo (⌘⇧Z)',
         icon: <RedoIcon />,
@@ -387,7 +313,7 @@ function RichTextToolbarComponent(
     );
 
     return baseItems;
-  }, [allowBlockFormatting, editor, editorState, openLinkModal]);
+  }, [allowBlockFormatting, editor, editorState]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inlineActionsRef = useRef<HTMLDivElement>(null);
@@ -451,34 +377,58 @@ function RichTextToolbarComponent(
     [formattingItems, visibleIds],
   );
 
+  const renderedFormattingItems = (() => {
+    const nodes: ReactElement[] = [];
+    let lastGroup: string | undefined;
+    visibleItems.forEach((item) => {
+      if (lastGroup !== undefined && item.group !== lastGroup) {
+        nodes.push(<ToolbarDivider key={`divider-${lastGroup}-${item.id}`} />);
+      }
+      nodes.push(
+        <ToolbarButton
+          key={item.id}
+          tooltip={item.tooltip}
+          icon={item.icon}
+          isActive={item.isActive}
+          onClick={item.onClick}
+          disabled={item.disabled}
+        />,
+      );
+      lastGroup = item.group;
+    });
+    return nodes;
+  })();
+
   return (
     <>
       <div
         ref={containerRef}
         className={classNames(
-          'flex h-10 min-h-10 w-full flex-row flex-nowrap items-center gap-0 px-2',
+          'flex w-full flex-row flex-nowrap items-center gap-0 px-5 pb-5 pt-2',
           !borderless && 'border-b border-border-subtlest-tertiary',
         )}
       >
         <div className="flex flex-1 flex-nowrap items-center gap-0 overflow-hidden">
-          {inlineActions && (
-            <div
-              ref={inlineActionsRef}
-              className="flex shrink-0 items-center gap-0"
-            >
-              {inlineActions}
-            </div>
+          {inlineActionsLeading && (
+            <>
+              <div className="flex shrink-0 items-center gap-0">
+                {inlineActionsLeading}
+              </div>
+              <ToolbarDivider />
+            </>
           )}
-          {visibleItems.map((item) => (
-            <ToolbarButton
-              key={item.id}
-              tooltip={item.tooltip}
-              icon={item.icon}
-              isActive={item.isActive}
-              onClick={item.onClick}
-              disabled={item.disabled}
-            />
-          ))}
+          {inlineActions && (
+            <>
+              <div
+                ref={inlineActionsRef}
+                className="flex shrink-0 items-center gap-0"
+              >
+                {inlineActions}
+              </div>
+              {visibleItems.length > 0 && <ToolbarDivider />}
+            </>
+          )}
+          {renderedFormattingItems}
           <OverflowMenu items={overflowItems} />
         </div>
         {rightActions && (

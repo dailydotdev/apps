@@ -28,6 +28,7 @@ import Image from '@tiptap/extension-image';
 import { ImageIcon, AtIcon, MarkdownIcon } from '../icons';
 import { EditIcon } from '../icons/Edit';
 import { GifIcon } from '../icons/Gif';
+import { LinkIcon } from '../icons/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { RecommendedMentionTooltip } from '../tooltips/RecommendedMentionTooltip';
 import { SimpleTooltip } from '../tooltips/SimpleTooltip';
@@ -155,6 +156,11 @@ interface RichTextInputProps {
    */
   extraInlineActions?: ReactNode;
   /**
+   * Slot rendered before any inline actions, at the very start of the
+   * formatting toolbar. A divider is inserted after it.
+   */
+  inlineActionsLeading?: ReactNode;
+  /**
    * Slot rendered between the editor body and the bottom toolbar.
    * Useful for attaching media previews (cover image, link preview)
    * directly above the action strip — Twitter/X-style — instead of
@@ -169,6 +175,18 @@ interface RichTextInputProps {
    */
   hideMarkdownToggle?: boolean;
   /**
+   * Hide the in-editor "Markdown editor" header row that appears when the
+   * editor is in markdown mode. Use when the parent UI already communicates
+   * that the editor is in markdown mode and exposes its own switch back.
+   */
+  hideMarkdownHeader?: boolean;
+  /**
+   * Notified whenever the editor switches between rich and markdown modes.
+   * Use together with `toggleMarkdownMode` (via ref) to render an external
+   * toggle button that stays in sync with the editor's internal mode.
+   */
+  onMarkdownModeChange?: (isMarkdownMode: boolean) => void;
+  /**
    * Suppress the default footer (submit hint + remaining-character counter).
    * Use this when the surrounding UI provides its own status row.
    */
@@ -180,6 +198,8 @@ export interface RichTextInputRef {
   clearDraft: () => void;
   setInput: (value: string) => void;
   focus: () => void;
+  toggleMarkdownMode: () => void;
+  isMarkdownMode: () => boolean;
 }
 
 function RichTextInput(
@@ -211,9 +231,12 @@ function RichTextInput(
     toolbarPosition = 'top',
     toolbarRightActions,
     extraInlineActions,
+    inlineActionsLeading,
     aboveToolbar,
     hideMarkdownToggle = false,
+    hideMarkdownHeader = false,
     hideFooter = false,
+    onMarkdownModeChange,
   }: RichTextInputProps,
   ref: ForwardedRef<RichTextInputRef>,
 ): ReactElement {
@@ -230,6 +253,9 @@ function RichTextInput(
   const inputRef = useRef('');
   const [offset, setOffset] = useState([0, 0]);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
+  useEffect(() => {
+    onMarkdownModeChange?.(isMarkdownMode);
+  }, [isMarkdownMode, onMarkdownModeChange]);
   const [submitShortcut, setSubmitShortcut] = useState('Ctrl + Enter');
   useEffect(() => {
     setSubmitShortcut(isAppleDevice() ? '⌘ + Enter' : 'Ctrl + Enter');
@@ -539,12 +565,29 @@ function RichTextInput(
     setIsMarkdownMode(false);
   }, [markdownToHtml]);
 
+  const adjustMarkdownHeight = useCallback(() => {
+    const node = markdownTextareaRef.current;
+    if (!node) {
+      return;
+    }
+    node.style.minHeight = '0px';
+    node.style.minHeight = `${node.scrollHeight}px`;
+  }, []);
+
+  useEffect(() => {
+    if (!isMarkdownMode) {
+      return;
+    }
+    adjustMarkdownHeight();
+  }, [isMarkdownMode, input, adjustMarkdownHeight]);
+
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
       const { value } = event.currentTarget;
       updateInput(value);
+      adjustMarkdownHeight();
     },
-    [updateInput],
+    [updateInput, adjustMarkdownHeight],
   );
 
   const onMarkdownKeyDown = useCallback(
@@ -634,6 +677,14 @@ function RichTextInput(
 
       editor?.commands.focus();
     },
+    toggleMarkdownMode: () => {
+      if (isMarkdownMode) {
+        switchToRichMode();
+        return;
+      }
+      switchToMarkdownMode();
+    },
+    isMarkdownMode: () => isMarkdownMode,
   }));
 
   useEffect(() => {
@@ -677,8 +728,9 @@ function RichTextInput(
           : editor?.storage.characterCount?.characters?.() ?? input.length)
       : null;
 
-  const hasToolbarActions =
-    isUploadEnabled || isMentionEnabled || isGifEnabled || !!extraInlineActions;
+  // Link button is always present in inline actions, so the slot is always
+  // populated.
+  const hasToolbarActions = true;
   const toolbarActions = (
     <>
       {isUploadEnabled && (
@@ -692,6 +744,17 @@ function RichTextInput(
           type="button"
         />
       )}
+      <SimpleTooltip content="Add link (⌘K)">
+        <Button
+          variant={ButtonVariant.Tertiary}
+          size={headerActionSize}
+          icon={<LinkIcon />}
+          onClick={() => toolbarRef.current?.openLinkModal()}
+          onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+          aria-label="Add link"
+          type="button"
+        />
+      </SimpleTooltip>
       {isMentionEnabled && (
         <Button
           variant={ButtonVariant.Tertiary}
@@ -768,7 +831,10 @@ function RichTextInput(
         )}
       >
         <div
-          className="flex flex-1 flex-col"
+          className={classNames(
+            'flex min-h-0 flex-1 flex-col',
+            isMarkdownMode && 'overflow-y-auto',
+          )}
           ref={editorContainerRef}
           onDrop={isMarkdownMode ? undefined : upload.handleDrop}
           onDragOver={
@@ -778,34 +844,37 @@ function RichTextInput(
         >
           {isMarkdownMode ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
-                <span className="px-2 text-text-tertiary typo-caption1">
-                  Markdown editor
-                </span>
-                <div className="flex items-center gap-2">
-                  {savingLabel}
-                  <SimpleTooltip content="Switch to Rich Text Editor">
-                    <Button
-                      type="button"
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
-                      icon={<EditIcon />}
-                      onClick={switchToRichMode}
-                    />
-                  </SimpleTooltip>
-                  {onClose && (
-                    <CloseButton size={ButtonSize.Small} onClick={onClose} />
-                  )}
+              {!hideMarkdownHeader && (
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtlest-tertiary p-2">
+                  <span className="px-2 text-text-tertiary typo-caption1">
+                    Markdown editor
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {savingLabel}
+                    <SimpleTooltip content="Switch to Rich Text Editor">
+                      <Button
+                        type="button"
+                        variant={ButtonVariant.Tertiary}
+                        size={ButtonSize.Small}
+                        icon={<EditIcon />}
+                        onClick={switchToRichMode}
+                      />
+                    </SimpleTooltip>
+                    {onClose && (
+                      <CloseButton size={ButtonSize.Small} onClick={onClose} />
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
               <textarea
                 {...textareaProps}
                 name={undefined}
                 ref={markdownTextareaRef}
                 value={input}
+                rows={1}
                 className={classNames(
                   minHeightClassName,
-                  'resize-y bg-transparent p-4 outline-none',
+                  'min-w-0 flex-1 resize-none overflow-hidden bg-transparent p-4 outline-none',
                   className?.input,
                 )}
                 onInput={onMarkdownInput}
@@ -842,6 +911,7 @@ function RichTextInput(
                         .run();
                     }}
                     inlineActions={hasToolbarActions ? toolbarActions : null}
+                    inlineActionsLeading={inlineActionsLeading}
                     rightActions={
                       <div className="flex items-center gap-1">
                         {savingLabel}
