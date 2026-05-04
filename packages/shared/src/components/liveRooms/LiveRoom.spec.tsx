@@ -658,10 +658,10 @@ describe('LiveRoom', () => {
     await waitFor(() => expect(customReactionButton).toBeEnabled());
 
     fireEvent.click(customReactionButton);
-    fireEvent.click(screen.getByText('⭐'));
+    fireEvent.click(screen.getByTitle('grinning face'));
 
     await waitFor(() =>
-      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '⭐'),
+      expect(sendChatMessageReaction).toHaveBeenCalledWith('message-1', '😀'),
     );
     expect(mockLogEvent).toHaveBeenCalledWith(
       expect.objectContaining({

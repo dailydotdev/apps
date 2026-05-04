@@ -9,6 +9,17 @@ import { EngagementAdsProvider } from '../../contexts/EngagementAdsContext';
 import { MentionedToolsWidget } from './MentionedToolsWidget';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 
+const mockAddToStack = jest.fn();
+const mockRemoveFromStack = jest.fn();
+
+jest.mock('../../features/profile/hooks/useUserStack', () => ({
+  useUserStack: jest.fn(() => ({
+    stackItems: [],
+    add: mockAddToStack,
+    remove: mockRemoveFromStack,
+  })),
+}));
+
 const creative: EngagementCreative = {
   gen_id: 'c1',
   promoted_name: 'Copilot',

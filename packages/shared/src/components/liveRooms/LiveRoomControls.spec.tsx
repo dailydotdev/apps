@@ -402,11 +402,11 @@ describe('LiveRoomControls', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     fireEvent.click(screen.getByRole('button', { name: 'Custom reaction' }));
-    await click(screen.getByRole('button', { name: '⭐' }));
+    await click(screen.getByRole('button', { name: '😀' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
-      expect(sendReaction).toHaveBeenCalledWith('⭐');
+      expect(sendReaction).toHaveBeenCalledWith('😀');
     });
   });
 
