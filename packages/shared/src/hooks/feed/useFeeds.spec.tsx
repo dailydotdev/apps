@@ -202,9 +202,9 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(feed).toBeTruthy();
-    expect(feed.flags.name).toBe('New feed');
+    expect(feed!.flags!.name).toBe('New feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed.id),
+      result.current.feeds.edges.find((f) => f.node.id === feed!.id),
     ).toBeTruthy();
   });
 
@@ -225,9 +225,9 @@ describe('useFeeds hook', () => {
     rerender();
 
     expect(feed).toBeTruthy();
-    expect(feed.flags.name).toBe('Updated feed');
+    expect(feed!.flags!.name).toBe('Updated feed');
     expect(
-      result.current.feeds.edges.find((f) => f.node.id === feed.id),
+      result.current.feeds.edges.find((f) => f.node.id === feed!.id),
     ).toBeTruthy();
   });
 

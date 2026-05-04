@@ -7,6 +7,8 @@ import {
   BlockIcon,
   MedalBadgeIcon,
   RemoveUserIcon,
+  ShieldCheckIcon,
+  ShieldIcon,
   VIcon,
 } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -25,8 +27,12 @@ import type { UserShortProfile } from '../../lib/user';
 interface LiveRoomTileActionsProps {
   user: UserShortProfile;
   className?: string;
+  onGrantCoHost?: () => void;
+  onRevokeCoHost?: () => void;
   onRemoveSpeaker?: () => void;
   onKick?: () => void;
+  isGrantingCoHost?: boolean;
+  isRevokingCoHost?: boolean;
   isRemoving?: boolean;
   isKicking?: boolean;
   moderationDisabled?: boolean;
@@ -35,8 +41,12 @@ interface LiveRoomTileActionsProps {
 export const LiveRoomTileActions = ({
   user,
   className,
+  onGrantCoHost,
+  onRevokeCoHost,
   onRemoveSpeaker,
   onKick,
+  isGrantingCoHost = false,
+  isRevokingCoHost = false,
   isRemoving = false,
   isKicking = false,
   moderationDisabled = false,
@@ -55,9 +65,15 @@ export const LiveRoomTileActions = ({
     followPreference?.status === ContentPreferenceStatus.Follow ||
     followPreference?.status === ContentPreferenceStatus.Subscribed;
 
+  const showGrantCoHost = !!onGrantCoHost;
+  const showRevokeCoHost = !!onRevokeCoHost;
   const showRemove = !!onRemoveSpeaker;
   const showKick = !!onKick;
-  const moderationCount = (showRemove ? 1 : 0) + (showKick ? 1 : 0);
+  const moderationCount =
+    (showGrantCoHost ? 1 : 0) +
+    (showRevokeCoHost ? 1 : 0) +
+    (showRemove ? 1 : 0) +
+    (showKick ? 1 : 0);
 
   if (isSelf && moderationCount === 0) {
     return null;
@@ -114,7 +130,7 @@ export const LiveRoomTileActions = ({
   return (
     <div
       className={classNames(
-        'pointer-events-auto flex max-w-0 items-center gap-1 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover:max-w-[7rem] group-hover:opacity-100',
+        'pointer-events-auto flex max-w-0 items-center gap-1 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover:max-w-[14rem] group-hover:opacity-100',
         '-translate-x-1 group-hover:translate-x-0',
         className,
       )}
@@ -144,6 +160,36 @@ export const LiveRoomTileActions = ({
             icon={<MedalBadgeIcon secondary />}
             aria-label={`Award ${user.name}`}
             onClick={handleAward}
+          />
+        </Tooltip>
+      ) : null}
+      {showGrantCoHost ? (
+        <Tooltip content={`Grant co-host to ${user.name}`}>
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            className="!text-white"
+            icon={<ShieldIcon />}
+            loading={isGrantingCoHost}
+            disabled={moderationDisabled || isGrantingCoHost}
+            aria-label={`Grant co-host to ${user.name}`}
+            onClick={onGrantCoHost}
+          />
+        </Tooltip>
+      ) : null}
+      {showRevokeCoHost ? (
+        <Tooltip content={`Revoke co-host from ${user.name}`}>
+          <Button
+            type="button"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            className="!text-white"
+            icon={<ShieldCheckIcon />}
+            loading={isRevokingCoHost}
+            disabled={moderationDisabled || isRevokingCoHost}
+            aria-label={`Revoke co-host from ${user.name}`}
+            onClick={onRevokeCoHost}
           />
         </Tooltip>
       ) : null}

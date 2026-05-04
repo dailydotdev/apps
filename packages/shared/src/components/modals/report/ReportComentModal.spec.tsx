@@ -36,14 +36,14 @@ const onRequestClose = jest.fn();
 const renderComponent = (
   loggedIn = true,
   hasSquads = true,
-  comment?: string,
+  comment: typeof defaultComment = defaultComment,
 ): RenderResult => {
   const client = new QueryClient();
 
   return render(
     <QueryClientProvider client={client}>
       <AuthContextProvider
-        user={loggedIn ? loggedUser : null}
+        user={loggedIn ? loggedUser : undefined}
         updateUser={jest.fn()}
         tokenRefreshed
         getRedirectUri={jest.fn()}
@@ -54,7 +54,7 @@ const renderComponent = (
         <LazyModalElement />
         <ReportCommentModal
           onReport={onReport}
-          comment={comment || defaultComment}
+          comment={comment}
           isOpen
           onRequestClose={onRequestClose}
           post={defaultPost}

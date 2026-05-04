@@ -25,6 +25,15 @@ describe('detectPlatformFromUrl', () => {
     ).toBe('mastodon');
   });
 
+  it('should detect substack.com as substack, not mastodon', () => {
+    expect(
+      detectPlatformFromUrl('https://substack.com/@devnp2007', USER_PLATFORMS),
+    ).toBe('substack');
+    expect(
+      detectPlatformFromUrl('https://www.substack.com/@user', USER_PLATFORMS),
+    ).toBe('substack');
+  });
+
   it('should return null for unknown URLs', () => {
     expect(
       detectPlatformFromUrl('https://example.com/profile', USER_PLATFORMS),

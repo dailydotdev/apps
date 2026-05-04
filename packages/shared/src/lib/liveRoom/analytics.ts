@@ -5,10 +5,8 @@ export interface StandupAnalyticsContext {
   roomStatus?: string | null;
   roomMode?: string | null;
   connectionStatus?: string | null;
-  canPublish?: boolean;
   participantId?: string | null;
-  selectedMicId?: string | null;
-  selectedCameraId?: string | null;
+  isCoHost?: boolean;
   hasLocalAudioTrack?: boolean;
   hasLocalVideoTrack?: boolean;
   videoQuality?: string | null;
@@ -17,26 +15,35 @@ export interface StandupAnalyticsContext {
   isResuming?: boolean;
 }
 
+const compactStandupExtra = (
+  payload: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(payload).filter(
+      ([, value]) => value !== null && value !== undefined,
+    ),
+  );
+
 export const buildStandupAnalyticsExtra = (
   context: StandupAnalyticsContext,
   extra: Record<string, unknown> = {},
 ): string =>
-  JSON.stringify({
-    roomId: context.roomId,
-    authKind: context.authKind,
-    role: context.role,
-    roomStatus: context.roomStatus,
-    roomMode: context.roomMode,
-    connectionStatus: context.connectionStatus,
-    canPublish: context.canPublish,
-    participantId: context.participantId,
-    selectedMicId: context.selectedMicId,
-    selectedCameraId: context.selectedCameraId,
-    hasLocalAudioTrack: context.hasLocalAudioTrack,
-    hasLocalVideoTrack: context.hasLocalVideoTrack,
-    videoQuality: context.videoQuality,
-    audioOnly: context.audioOnly,
-    hideSelfView: context.hideSelfView,
-    isResuming: context.isResuming,
-    ...extra,
-  });
+  JSON.stringify(
+    compactStandupExtra({
+      roomId: context.roomId,
+      authKind: context.authKind,
+      role: context.role,
+      roomStatus: context.roomStatus,
+      roomMode: context.roomMode,
+      connectionStatus: context.connectionStatus,
+      participantId: context.participantId,
+      isCoHost: context.isCoHost,
+      hasLocalAudioTrack: context.hasLocalAudioTrack,
+      hasLocalVideoTrack: context.hasLocalVideoTrack,
+      videoQuality: context.videoQuality,
+      audioOnly: context.audioOnly,
+      hideSelfView: context.hideSelfView,
+      isResuming: context.isResuming,
+      ...extra,
+    }),
+  );

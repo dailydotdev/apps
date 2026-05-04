@@ -37,13 +37,13 @@ const squads = [generateTestSquad()];
 const renderComponent = (
   loggedIn = true,
   hasSquads = true,
-  comment?: string,
+  comment?: typeof defaultComment,
 ): RenderResult => {
   return render(
     <TestBootProvider
       client={client}
       auth={{
-        user: loggedIn ? loggedUser : null,
+        user: loggedIn ? loggedUser : undefined,
         squads: hasSquads ? squads : [],
       }}
     >
@@ -61,7 +61,7 @@ const renderComponent = (
 
 describe('ShareModal Test Suite:', () => {
   const mockWindowOpen = jest.fn();
-  let origWindowOpen: typeof window.open | null = null;
+  let origWindowOpen: typeof window.open = window.open;
 
   beforeEach(() => {
     origWindowOpen = window.open;

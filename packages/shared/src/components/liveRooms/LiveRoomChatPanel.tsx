@@ -32,6 +32,10 @@ import {
   buildParticipantProfile,
   userDisplayName,
 } from './liveRoomParticipants';
+import {
+  LiveRoomChatReactions,
+  type ChatReactionAnalytics,
+} from './LiveRoomChatReactions';
 
 interface LiveRoomChatComposerProps {
   canChat: boolean;
@@ -62,7 +66,7 @@ const LiveRoomChatComposer = ({
   } else if (isEnded) {
     disabledReason = 'Chat has ended for this standup.';
   } else if (!isLive) {
-    disabledReason = 'Chat opens when the standup goes live.';
+    disabledReason = 'Join the lobby to chat before the standup goes live.';
   }
 
   const handleSubmit = async (body: string): Promise<void> => {
@@ -154,14 +158,26 @@ interface LiveRoomChatPanelProps {
   participantProfilesById: Map<string, UserShortProfile>;
   mentionSuggestions: UserShortProfile[];
   participantChatPermissions: Record<string, boolean>;
+  currentParticipantId: string | null;
   hostParticipantId: string;
+  coHostParticipantIds: string[];
   canChat: boolean;
   isLive: boolean;
   isEnded: boolean;
   isLoggedIn: boolean;
-  isHost: boolean;
+  hasHostPrivileges: boolean;
   onSendMessage: (body: string) => Promise<void>;
   onDeleteMessage: (messageId: string) => Promise<void>;
+  onSendMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
+  onRemoveMessageReaction: (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ) => Promise<void>;
   onKickParticipant: (participantId: string) => Promise<void>;
   onSetParticipantChatEnabled: (
     targetParticipantId: string,
@@ -175,14 +191,18 @@ export const LiveRoomChatPanel = ({
   participantProfilesById,
   mentionSuggestions,
   participantChatPermissions,
+  currentParticipantId,
   hostParticipantId,
+  coHostParticipantIds,
   canChat,
   isLive,
   isEnded,
   isLoggedIn,
-  isHost,
+  hasHostPrivileges,
   onSendMessage,
   onDeleteMessage,
+  onSendMessageReaction,
+  onRemoveMessageReaction,
   onKickParticipant,
   onSetParticipantChatEnabled,
   onRequestLogin,
@@ -190,6 +210,7 @@ export const LiveRoomChatPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
+  const [reactionBusy, setReactionBusy] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -231,6 +252,26 @@ export const LiveRoomChatPanel = ({
       });
   };
 
+  const runReactionAction = (
+    messageId: string,
+    reactionKey: string,
+    analytics: ChatReactionAnalytics,
+    shouldRemove = false,
+  ): void => {
+    const key = `${messageId}-${reactionKey}`;
+    if (reactionBusy || !canChat) {
+      return;
+    }
+
+    setReactionBusy(key);
+    const action = shouldRemove
+      ? onRemoveMessageReaction
+      : onSendMessageReaction;
+    action(messageId, reactionKey, analytics)
+      .catch(() => undefined)
+      .finally(() => setReactionBusy(null));
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -250,7 +291,9 @@ export const LiveRoomChatPanel = ({
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
             >
-              Chat is live and messages disappear when the standup ends.
+              {isLive
+                ? 'Chat is live and messages disappear when the standup ends.'
+                : 'Chat is available while everyone waits in the lobby.'}
             </Typography>
           </div>
         ) : (
@@ -261,10 +304,15 @@ export const LiveRoomChatPanel = ({
             const isSenderBlocked =
               (participantChatPermissions[message.participantId] ?? true) ===
               false;
+            const isSenderHost = message.participantId === hostParticipantId;
+            const isSenderCoHost =
+              !isSenderHost &&
+              coHostParticipantIds.includes(message.participantId);
             const canModerateParticipant =
-              isHost &&
+              hasHostPrivileges &&
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
+            const senderName = userDisplayName(sender);
 
             return (
               <article
@@ -274,9 +322,17 @@ export const LiveRoomChatPanel = ({
                 <ProfilePicture user={sender} size={ProfileImageSize.Small} />
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">
-                      {userDisplayName(sender)}
-                    </span>
+                    <span className="mr-2 inline font-bold">{senderName}</span>
+                    {isSenderHost ? (
+                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
+                        Host
+                      </span>
+                    ) : null}
+                    {isSenderCoHost ? (
+                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
+                        Co-host
+                      </span>
+                    ) : null}
                     <Markdown
                       className="inline !text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_code]:rounded-[0.375rem] [&_code]:bg-surface-hover [&_code]:px-1 [&_code]:py-0.5 [&_p]:inline [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.5]"
                       content={chatMarkdownToHtml(message.body, {
@@ -284,8 +340,16 @@ export const LiveRoomChatPanel = ({
                       })}
                     />
                   </div>
+                  <LiveRoomChatReactions
+                    message={message}
+                    currentParticipantId={currentParticipantId}
+                    canChat={canChat}
+                    senderName={senderName}
+                    reactionBusy={reactionBusy}
+                    onReactionAction={runReactionAction}
+                  />
                 </div>
-                {isHost ? (
+                {hasHostPrivileges ? (
                   <div
                     className={classNames(
                       'ml-2 shrink-0 pt-0.5 transition-opacity',

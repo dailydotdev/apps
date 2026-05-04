@@ -159,4 +159,11 @@ function ButtonComponent<TagName extends AllowedTags>(
   );
 }
 
+/**
+ * @deprecated Prefer `ButtonV2` from `./ButtonV2` for new work. v1 `Button`
+ * stays for back-compat with existing call sites and will be removed once
+ * the v2 button system migration is complete. See
+ * `packages/shared/src/components/buttons/Buttons.mdx` for the migration
+ * guide and per-variant differences.
+ */
 export const Button = forwardRef(ButtonComponent);

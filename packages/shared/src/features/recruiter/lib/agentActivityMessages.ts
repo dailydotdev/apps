@@ -56,7 +56,7 @@ export function hashCode(str: string): number {
  * These will be cycled through with each keyword from the opportunity.
  */
 const SKILL_MESSAGE_TEMPLATES = [
-  'Matching {keyword} interest to your role...',
+  'Matching interest in {keyword} to your role...',
   'Reviewing {keyword} engagement patterns...',
 ];
 

@@ -182,7 +182,7 @@ export const MentionedToolsWidget = ({
           color={TypographyColor.Primary}
           bold
         >
-          Mentioned tools
+          Sponsored tools
         </Typography>
 
         <div className="flex flex-col gap-2">
@@ -219,7 +219,7 @@ export const MentionedToolsWidget = ({
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
                       >
-                        Powered by
+                        Sponsored by
                       </Typography>
                     )}
                     <Typography

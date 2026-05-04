@@ -157,6 +157,11 @@ export const sharedPostPreviewFeature = new Feature(
 
 export const featureOnboardingV2 = new Feature('onboarding_v2', false);
 
+export const featureOnboardingTagRecommender = new Feature(
+  'onboarding_tag_recommender',
+  false,
+);
+
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureReaderModal = new Feature('reader_modal', false);
@@ -166,9 +171,24 @@ export const featureShortcutsExtensionPromo = new Feature(
   false,
 );
 
+export const featureShortcutsExtensionPromoCopy = new Feature(
+  'shortcuts_extension_promo_copy',
+  {
+    title: 'Want these shortcuts on every new tab?',
+    subtitle: 'Install the daily.dev extension to pin your most visited sites.',
+    cta: 'Install for {browser}',
+    dismiss: 'Skip for now',
+  },
+);
+
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
 export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
+  false,
+);
+
+export const featureCompanionDemoWidget = new Feature(
+  'companion_demo_widget',
   false,
 );

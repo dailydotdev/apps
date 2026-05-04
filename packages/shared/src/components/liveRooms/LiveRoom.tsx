@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
 import {
@@ -13,6 +19,7 @@ import { Loader } from '../Loader';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomChatPanel } from './LiveRoomChatPanel';
+import type { ChatReactionAnalytics } from './LiveRoomChatReactions';
 import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
@@ -22,8 +29,11 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
+import { isDevelopment } from '../../lib/constants';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
-import { LogEvent } from '../../lib/log';
+import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
+import { LogEvent, NotificationPromptSource } from '../../lib/log';
+import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
 import { useLiveRoomParticipantProfiles } from '../../hooks/liveRooms/useLiveRoomParticipantProfiles';
 import { useLiveRoomParticipantStreams } from '../../hooks/liveRooms/useLiveRoomParticipantStreams';
@@ -32,9 +42,14 @@ import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
 import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
-import { TimerIcon, UserIcon } from '../icons';
+import { UserIcon } from '../icons';
 import { IconSize } from '../Icon';
 import type { UserShortProfile } from '../../lib/user';
+import Markdown from '../Markdown';
+import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
+import { useLiveRoomSubscription } from '../../hooks/liveRooms/useLiveRoomSubscription';
+import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
+import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
 import {
   buildDisplayProfile,
   buildParticipantProfile,
@@ -43,12 +58,14 @@ import {
   LiveRoomSidePanelTabs,
   type LiveRoomSidePanelTab,
 } from './LiveRoomSidePanelTabs';
+import { Separator } from '../cards/common/common';
 
 interface LiveRoomProps {
   roomId: string;
 }
 
 const MAX_STAGE_TILES_PER_PAGE = 12;
+const EMPTY_PARTICIPANT_IDS: string[] = [];
 
 const getStageGridColumnCount = (count: number): number => {
   if (count <= 1) {
@@ -116,25 +133,79 @@ const ReactionOverlay = ({
   );
 };
 
+const useCountdownSeconds = (target: string | null | undefined): number => {
+  const [seconds, setSeconds] = useState(() => {
+    if (!target) {
+      return 0;
+    }
+
+    return Math.max(
+      0,
+      Math.ceil((new Date(target).getTime() - Date.now()) / 1000),
+    );
+  });
+
+  useEffect(() => {
+    if (!target) {
+      setSeconds(0);
+      return undefined;
+    }
+
+    const update = (): void => {
+      setSeconds(
+        Math.max(
+          0,
+          Math.ceil((new Date(target).getTime() - Date.now()) / 1000),
+        ),
+      );
+    };
+    update();
+    const interval = window.setInterval(update, 1000);
+    return () => window.clearInterval(interval);
+  }, [target]);
+
+  return seconds;
+};
+
 const LiveBadge = ({ isLive }: { isLive: boolean }): ReactElement => (
   <span
     className={classNames(
       'inline-flex items-center gap-1.5 rounded-8 px-2 py-0.5 typo-caption1',
       isLive
         ? 'bg-accent-ketchup-default text-white'
-        : 'bg-surface-float text-text-tertiary',
+        : 'bg-accent-bacon-default text-white',
     )}
   >
-    <span
-      className={classNames(
-        'size-1.5 rounded-full',
-        isLive ? 'animate-pulse bg-white' : 'bg-text-quaternary',
-      )}
-    />
+    <span className="size-1.5 animate-pulse rounded-full bg-white" />
     <span className="font-bold uppercase tracking-wide">
-      {isLive ? 'Live' : 'Setup'}
+      {isLive ? 'Live' : 'Lobby'}
     </span>
   </span>
+);
+
+const LiveRoomLobbyContent = ({
+  room,
+}: {
+  room: LiveRoomModel;
+}): ReactElement => (
+  <div className="min-h-0 flex-1 overflow-y-auto p-1.5 pb-24 tablet:pb-28">
+    <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-5">
+      {room.descriptionHtml ? (
+        <Markdown
+          content={room.descriptionHtml}
+          className="break-words text-text-primary"
+        />
+      ) : (
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
+          No agenda has been added yet.
+        </Typography>
+      )}
+      <ContentEmbeds embeds={room.contentEmbeds} variant="post" />
+    </article>
+  </div>
 );
 
 const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
@@ -142,15 +213,21 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { isAuthReady, showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { isPushSupported, isSubscribed: isPushEnabled } =
+    usePushNotificationContext();
+  const { onEnablePush } = usePushNotificationMutation();
   const {
     status,
     errorMessage,
     roomState,
     role,
     participantId,
-    canPublish,
     sendChatMessage,
     deleteChatMessage,
+    sendChatMessageReaction,
+    removeChatMessageReaction,
+    grantCoHost,
+    revokeCoHost,
     setParticipantChatEnabled,
     promoteSpeaker,
     removeSpeaker,
@@ -158,27 +235,34 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     canChat,
     localStream,
     remoteStreams,
-    selectedCameraId,
-    selectedMicId,
     videoSettings,
     reactions,
     chatMessages,
     isMicOn,
   } = useLiveRoomConnection();
+  const privilegeState = getLiveRoomPrivilegeState(
+    roomState,
+    participantId,
+    role,
+  );
   const {
     data: room,
     error: roomError,
     isLoading: isRoomLoading,
   } = useLiveRoomQuery(roomId);
+  const { subscribe, unsubscribe } = useLiveRoomSubscription(roomId);
+  const lobbyCountdown = useCountdownSeconds(room?.scheduledStart);
 
   const { onAskConfirmation } = useExitConfirmation({
     message: 'Leave the standup? You will disconnect from the stream.',
+    enabled: !isDevelopment,
     onValidateAction: () => status !== 'connected',
   });
 
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
+  const lastLoggedRoomErrorRef = useRef<string | null>(null);
   const buildStandupExtra = useCallback(
     (extra: Record<string, unknown> = {}) =>
       buildStandupAnalyticsExtra(
@@ -189,10 +273,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           roomStatus: roomState?.status ?? room?.status ?? null,
           roomMode: roomState?.mode ?? room?.mode ?? null,
           connectionStatus: status,
-          canPublish,
           participantId,
-          selectedMicId,
-          selectedCameraId,
+          isCoHost: privilegeState.isCoHost,
           hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
           hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
           videoQuality: videoSettings.quality,
@@ -210,10 +292,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       room?.status,
       room?.mode,
       status,
-      canPublish,
       participantId,
-      selectedMicId,
-      selectedCameraId,
+      privilegeState.isCoHost,
       localStream,
       videoSettings.quality,
       videoSettings.audioOnly,
@@ -238,7 +318,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const handleLeave = (): void => {
     onAskConfirmation(false);
     clearStoredLiveRoomResumeSession(roomId);
-    router.push('/standups');
+    router.push('/');
   };
   const handleNavigateBack = (surface: string): void => {
     logStandupAction(LogEvent.LeaveStandup, roomId, { surface });
@@ -284,6 +364,44 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     } catch (error) {
       displayToast(
         error instanceof Error ? error.message : 'Could not delete message',
+      );
+    }
+  };
+
+  const handleSendChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await sendChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.SendStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not react to message',
+      );
+    }
+  };
+
+  const handleRemoveChatMessageReaction = async (
+    messageId: string,
+    key: string,
+    analytics: ChatReactionAnalytics,
+  ): Promise<void> => {
+    try {
+      await removeChatMessageReaction(messageId, key);
+      logStandupAction(LogEvent.RemoveStandupChatReaction, messageId, {
+        surface: 'chat',
+        reaction: key,
+        ...analytics,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Could not remove reaction',
       );
     }
   };
@@ -350,6 +468,24 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [kickParticipant, logStandupAction],
   );
+  const handleGrantCoHost = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await grantCoHost(targetParticipantId);
+      logStandupAction(LogEvent.GrantStandupCoHost, targetParticipantId, {
+        surface,
+      });
+    },
+    [grantCoHost, logStandupAction],
+  );
+  const handleRevokeCoHost = useCallback(
+    async (targetParticipantId: string, surface: string): Promise<void> => {
+      await revokeCoHost(targetParticipantId);
+      logStandupAction(LogEvent.RevokeStandupCoHost, targetParticipantId, {
+        surface,
+      });
+    },
+    [logStandupAction, revokeCoHost],
+  );
   const handleTabChange = (tab: LiveRoomSidePanelTab): void => {
     if (tab === activeTab) {
       return;
@@ -360,6 +496,47 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       previousTab: activeTab,
     });
     setActiveTab(tab);
+  };
+  const handleToggleSubscription = async (): Promise<void> => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.MainButton });
+      return;
+    }
+
+    if (!room?.scheduledStart) {
+      return;
+    }
+
+    try {
+      if (room.subscribed) {
+        await unsubscribe.mutateAsync();
+        logStandupAction(LogEvent.UnsubscribeStandup, roomId, {
+          surface: 'header',
+        });
+        displayToast('Lobby reminder removed');
+        return;
+      }
+
+      await subscribe.mutateAsync();
+      const shouldRequestPush = isPushSupported && !isPushEnabled;
+      let pushEnabled = isPushEnabled;
+      if (shouldRequestPush) {
+        pushEnabled = await onEnablePush(NotificationPromptSource.StandupLobby);
+      }
+
+      logStandupAction(LogEvent.SubscribeStandup, roomId, {
+        surface: 'header',
+        pushEnabled,
+        pushPermissionRequested: shouldRequestPush,
+      });
+      displayToast(
+        pushEnabled
+          ? "We'll notify you when the standup goes live"
+          : 'Reminder saved. Enable browser notifications to get a push.',
+      );
+    } catch (error) {
+      displayToast(error instanceof Error ? error.message : 'Action failed');
+    }
   };
 
   useLogEventOnce(
@@ -402,20 +579,19 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     localStream,
     participantId,
   );
-  const isHost = role === 'host';
-  const isCreated = roomState?.status === 'created';
-  const isLive = roomState?.status === 'live';
+  const { hasHostPrivileges, isHost } = privilegeState;
+  const isCreated = (roomState?.status ?? room?.status) === 'created';
+  const isLive = (roomState?.status ?? room?.status) === 'live';
   const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
   const roomMode = roomState?.mode ?? room?.mode ?? 'moderated';
   const isFreeForAll = roomMode === 'free_for_all';
-  const streamTimerReference = isLive
-    ? roomState?.createdAt ?? room?.createdAt ?? null
-    : null;
+  const streamTimerReference = isLive ? room?.startedAt ?? null : null;
   const streamDuration = useStreamDuration(streamTimerReference);
   const participantCount = roomState
     ? Object.keys(roomState.participants).length
     : room?.participantCount ?? 0;
   const hostId = room?.host.id ?? '';
+  const coHostParticipantIds = roomState?.coHostParticipantIds ?? [];
   const activeSpeakerIds =
     roomState?.stage.activeSpeakerParticipantIds.filter(
       (id) => !!roomState.participants[id] && id !== hostId,
@@ -424,6 +600,22 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     roomState?.stage.speakerQueueParticipantIds.filter(
       (id) => !!roomState.participants[id],
     ) ?? [];
+  const raisedHandParticipantIds =
+    roomState?.stage.raisedHandParticipantIds ?? EMPTY_PARTICIPANT_IDS;
+  const raisedHandQueuePositions = useMemo(() => {
+    const positions = new Map<string, number>();
+    if (!roomState) {
+      return positions;
+    }
+
+    raisedHandParticipantIds.forEach((id) => {
+      if (roomState.participants[id]) {
+        positions.set(id, positions.size + 1);
+      }
+    });
+
+    return positions;
+  }, [raisedHandParticipantIds, roomState]);
   const audienceParticipantIds = roomState
     ? Object.values(roomState.participants)
         .map((participant) => participant.participantId)
@@ -488,6 +680,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stream: participantStreamsById.get(room.host.id) ?? null,
           selfView: room.host.id === participantId,
           isHost: true,
+          isCoHost: false,
+          raisedHandQueuePosition: raisedHandQueuePositions.get(room.host.id),
         },
         ...activeSpeakerIds.map((id) => ({
           id,
@@ -497,6 +691,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stream: participantStreamsById.get(id) ?? null,
           selfView: id === participantId,
           isHost: false,
+          isCoHost: coHostParticipantIds.includes(id),
+          raisedHandQueuePosition: raisedHandQueuePositions.get(id),
         })),
       ].map((speaker) => ({
         ...speaker,
@@ -523,7 +719,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     1,
     Math.ceil(paginatedStageSpeakers.length / stageGridColumnCount),
   );
-  const showAudienceWaiting = isCreated && !isHost;
+  const canSubscribeToLobby =
+    isCreated && !!room?.scheduledStart && user?.id !== room?.host.id;
+  const subscriptionBusy = subscribe.isPending || unsubscribe.isPending;
 
   useEffect(() => {
     if (isFreeForAll && activeTab === 'queue') {
@@ -537,8 +735,15 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
   useEffect(() => {
     if (!roomError) {
+      lastLoggedRoomErrorRef.current = null;
       return;
     }
+
+    const errorKey = `${roomId}:${roomError.message}`;
+    if (lastLoggedRoomErrorRef.current === errorKey) {
+      return;
+    }
+    lastLoggedRoomErrorRef.current = errorKey;
 
     logEvent({
       event_name: LogEvent.StandupError,
@@ -549,7 +754,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         message: roomError.message,
       }),
     });
-  }, [buildStandupExtra, logEvent, roomError]);
+  }, [buildStandupExtra, logEvent, roomError, roomId]);
 
   if (!isAuthReady || isRoomLoading) {
     return (
@@ -576,7 +781,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('load_error')}
         >
-          Back to standups
+          Back home
         </Button>
       </div>
     );
@@ -603,7 +808,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('connection_error')}
         >
-          Back to standups
+          Back home
         </Button>
       </div>
     );
@@ -626,25 +831,52 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             {room.topic}
           </Typography>
         </div>
-        {roomState ? (
-          <div className="flex items-center gap-4 text-text-tertiary typo-caption1">
-            {isLive ? (
-              <span className="inline-flex items-center gap-1.5">
-                <TimerIcon size={IconSize.XSmall} />
-                <span className="tabular-nums text-text-secondary">
+        <div className="flex flex-wrap items-center justify-end gap-3 text-text-tertiary typo-caption1">
+          {canSubscribeToLobby ? (
+            <Button
+              type="button"
+              size={ButtonSize.Small}
+              variant={
+                room.subscribed
+                  ? ButtonVariant.Secondary
+                  : ButtonVariant.Primary
+              }
+              loading={subscriptionBusy}
+              disabled={subscriptionBusy}
+              onClick={() => handleToggleSubscription()}
+            >
+              {room.subscribed ? 'Unsubscribe' : 'Notify me'}
+            </Button>
+          ) : null}
+          {roomState || room.scheduledStart ? (
+            <span className="inline-flex flex-wrap items-center">
+              {isLive ? (
+                <span className="font-bold tabular-nums text-text-primary">
                   {formatStreamDuration(streamDuration)}
                 </span>
-              </span>
-            ) : null}
-            <span className="inline-flex items-center gap-1.5">
-              <UserIcon size={IconSize.XSmall} />
-              <span className="font-bold text-text-primary">
-                <AnimatedCount value={participantCount} />
-              </span>
-              <span>watching</span>
+              ) : null}
+              {isCreated && room.scheduledStart ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span>Starting in</span>
+                  <span className="font-bold tabular-nums text-text-primary">
+                    {formatStreamDuration(lobbyCountdown)}
+                  </span>
+                </span>
+              ) : null}
+              {roomState && (isLive || (isCreated && room.scheduledStart)) ? (
+                <Separator className="mx-2" />
+              ) : null}
+              {roomState ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="font-bold text-text-primary">
+                    <AnimatedCount value={participantCount} />
+                  </span>
+                  <span>watching</span>
+                </span>
+              ) : null}
             </span>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
@@ -652,7 +884,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           aria-label="Speakers"
           className="relative flex min-h-0 flex-col"
         >
-          {stagePageCount > 1 ? (
+          {!isCreated && stagePageCount > 1 ? (
             <div className="flex items-center justify-end gap-2 px-1.5 pb-3">
               <Typography
                 type={TypographyType.Caption1}
@@ -686,7 +918,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               </Button>
             </div>
           ) : null}
-          {paginatedStageSpeakers.length > 0 ? (
+          {isCreated ? <LiveRoomLobbyContent room={room} /> : null}
+          {!isCreated && paginatedStageSpeakers.length > 0 ? (
             <div
               className="grid min-h-0 flex-1 gap-3 overflow-hidden p-1.5 pb-24 tablet:pb-28"
               style={{
@@ -695,7 +928,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
               }}
             >
               {paginatedStageSpeakers.map((speaker) => {
-                const canModerate = isHost && !speaker.isHost;
+                const canModerate = hasHostPrivileges && !speaker.isHost;
+                const canManageCoHosts = isHost && !speaker.isHost;
 
                 return (
                   <div
@@ -707,7 +941,29 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       user={speaker.profile}
                       selfView={speaker.selfView}
                       isHost={speaker.isHost}
+                      isCoHost={speaker.isCoHost}
+                      raisedHandQueuePosition={speaker.raisedHandQueuePosition}
                       isMuted={speaker.isMuted}
+                      onGrantCoHost={
+                        canManageCoHosts && !speaker.isCoHost
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-grant-cohost-${speaker.id}`,
+                                () =>
+                                  handleGrantCoHost(speaker.id, 'stage_tile'),
+                              )
+                          : undefined
+                      }
+                      onRevokeCoHost={
+                        canManageCoHosts && speaker.isCoHost
+                          ? () =>
+                              guardedModerationAction(
+                                `tile-revoke-cohost-${speaker.id}`,
+                                () =>
+                                  handleRevokeCoHost(speaker.id, 'stage_tile'),
+                              )
+                          : undefined
+                      }
                       onRemoveSpeaker={
                         canModerate
                           ? () =>
@@ -734,6 +990,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       isRemoving={
                         moderationBusy === `tile-remove-${speaker.id}`
                       }
+                      isGrantingCoHost={
+                        moderationBusy === `tile-grant-cohost-${speaker.id}`
+                      }
+                      isRevokingCoHost={
+                        moderationBusy === `tile-revoke-cohost-${speaker.id}`
+                      }
                       isKicking={moderationBusy === `tile-kick-${speaker.id}`}
                       moderationDisabled={!!moderationBusy}
                     />
@@ -741,7 +1003,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 );
               })}
             </div>
-          ) : (
+          ) : null}
+          {!isCreated && paginatedStageSpeakers.length === 0 ? (
             <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
               <div className="flex flex-col items-center gap-2">
                 <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
@@ -754,38 +1017,30 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                   type={TypographyType.Caption1}
                   color={TypographyColor.Tertiary}
                 >
-                  {showAudienceWaiting
-                    ? 'The host will bring people on stage when the standup starts.'
-                    : waitingPrompt}
+                  {waitingPrompt}
                 </Typography>
               </div>
-            </div>
-          )}
-
-          {showAudienceWaiting ? (
-            <div className="absolute inset-x-0 top-0 flex justify-center p-3">
-              <span className="rounded-10 bg-overlay-base-tertiary px-3 py-1.5 backdrop-blur">
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  Waiting for the host to start the standup…
-                </Typography>
-              </span>
             </div>
           ) : null}
 
           {isEnded ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-overlay-base-tertiary backdrop-blur">
-              <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-center">
+            <div className="absolute inset-0 flex items-center justify-center bg-background-default p-6">
+              <div className="flex flex-col items-center gap-3 text-center">
                 <Typography type={TypographyType.Title3} bold>
                   This standup has ended
                 </Typography>
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  Thanks for joining — catch the next one soon.
+                </Typography>
                 <Button
+                  className="mt-2"
                   variant={ButtonVariant.Primary}
                   onClick={() => handleNavigateBack('ended_state')}
                 >
-                  Back to standups
+                  Back home
                 </Button>
               </div>
             </div>
@@ -828,14 +1083,18 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 participantProfilesById={participantProfilesById}
                 mentionSuggestions={mentionSuggestions}
                 participantChatPermissions={roomState?.chatPermissions ?? {}}
+                currentParticipantId={participantId}
                 hostParticipantId={room.host.id}
+                coHostParticipantIds={coHostParticipantIds}
                 canChat={canChat}
                 isLive={!!isLive}
                 isEnded={!!isEnded}
                 isLoggedIn={!!user}
-                isHost={isHost}
+                hasHostPrivileges={hasHostPrivileges}
                 onSendMessage={handleSendChatMessage}
                 onDeleteMessage={handleDeleteChatMessage}
+                onSendMessageReaction={handleSendChatMessageReaction}
+                onRemoveMessageReaction={handleRemoveChatMessageReaction}
                 onKickParticipant={handleKickChatParticipant}
                 onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
                 onRequestLogin={handleChatLogin}
@@ -849,10 +1108,18 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 audienceParticipantIds={audienceParticipantIds}
                 participantsById={roomState?.participants ?? {}}
                 participantProfilesById={participantProfilesById}
-                isHost={isHost}
+                coHostParticipantIds={coHostParticipantIds}
+                canModerate={hasHostPrivileges}
+                canManageCoHosts={isHost}
                 stageLimit={stageLimit}
                 moderationBusy={moderationBusy}
                 guardedModerationAction={guardedModerationAction}
+                grantCoHost={(targetParticipantId) =>
+                  handleGrantCoHost(targetParticipantId, 'queue_panel')
+                }
+                revokeCoHost={(targetParticipantId) =>
+                  handleRevokeCoHost(targetParticipantId, 'queue_panel')
+                }
                 promoteSpeaker={(targetParticipantId) =>
                   handlePromoteSpeaker(targetParticipantId, 'queue_panel')
                 }

@@ -10,6 +10,7 @@ import { LazyImage, LazyVideo } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostClickbaitShield } from './common/PostClickbaitShield';
+import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 
 interface MarkdownPostContentProps {
   post: Post;
@@ -41,7 +42,8 @@ function MarkdownPostContent({
   isCompactSpacing,
 }: MarkdownPostContentProps): ReactElement {
   const { title } = useSmartTitle(post);
-  const hasVideo = !!post.flags?.coverVideo;
+  const coverVideo = post.flags?.coverVideo;
+  const hasVideo = !!coverVideo;
   const headerClassName = isCompactSpacing ? 'my-4' : 'my-6';
   const mediaMarginClassName = isCompactSpacing ? 'mb-7' : 'mb-10';
 
@@ -77,7 +79,7 @@ function MarkdownPostContent({
             <LazyVideo
               eager
               ratio="52%"
-              videoSrc={post.flags.coverVideo}
+              videoSrc={coverVideo}
               poster={post.image}
               className={classNames(
                 mediaMarginClassName,
@@ -88,11 +90,16 @@ function MarkdownPostContent({
         </>
       )}
       <Markdown
-        content={post.contentHtml}
+        content={post.contentHtml ?? ''}
         className={classNames(
           'break-words',
           post.type !== PostType.Welcome && 'mb-5',
         )}
+      />
+      <ContentEmbeds
+        embeds={post.contentEmbeds}
+        variant="post"
+        className={post.type !== PostType.Welcome ? 'mb-5' : undefined}
       />
       {post.type === PostType.Welcome && post.image && (
         <MarkdownPostImage imgSrc={post.image} className="mb-5 mt-8" />

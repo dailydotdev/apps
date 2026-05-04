@@ -6,49 +6,33 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
-import { search as emojiSearch } from 'node-emoji';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { Typography, TypographyType } from '../typography/Typography';
-
-const COMMON_EMOJIS = [
-  '⭐',
-  '🚀',
-  '💻',
-  '🔥',
-  '💡',
-  '🎯',
-  '✨',
-  '🛠️',
-  '📱',
-  '🌐',
-  '🔧',
-  '⚡',
-  '🎨',
-  '📊',
-  '🔒',
-  '☁️',
-  '🤖',
-  '📦',
-  '🧪',
-  '🎮',
-  '📝',
-  '💾',
-  '🔍',
-  '📈',
-  '🏗️',
-  '⚙️',
-  '🌟',
-  '💪',
-  '🎉',
-  '❤️',
-];
+import type {
+  EmojiCategory,
+  EmojiCategoryId,
+  EmojiOption,
+} from '../../lib/emojis';
+import {
+  emojiCategories,
+  findEmojiOption,
+  getRecentEmojis,
+  saveRecentEmoji,
+  searchEmojis,
+} from '../../lib/emojis';
 
 const DROPDOWN_GAP = 4;
 const VIEWPORT_MARGIN = 12;
-const MIN_DROPDOWN_WIDTH = 300;
+const MIN_DROPDOWN_WIDTH = 280;
 const MIN_DROPDOWN_HEIGHT = 160;
-const FALLBACK_DROPDOWN_HEIGHT = 320;
+const FALLBACK_DROPDOWN_HEIGHT = 360;
+
+const recentEmojiCategoryMeta = {
+  id: 'recent',
+  label: 'Recently used',
+  icon: '🕘',
+} as const;
 
 type EmojiPickerProps = {
   value: string;
@@ -72,16 +56,20 @@ export const EmojiPicker = ({
 }: EmojiPickerProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [recentEmojis, setRecentEmojis] = useState(getRecentEmojis);
   const [dropdownPosition, setDropdownPosition] = useState({
     top: 0,
     left: 0,
     width: 0,
-    maxHeight: FALLBACK_DROPDOWN_HEIGHT,
+    height: FALLBACK_DROPDOWN_HEIGHT,
   });
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const categorySectionRefs = useRef<
+    Partial<Record<EmojiCategoryId, HTMLDivElement>>
+  >({});
 
   const updateDropdownPosition = useCallback(() => {
     if (triggerRef.current) {
@@ -105,15 +93,16 @@ export const EmojiPicker = ({
         shouldOpenAbove ? availableAbove : availableBelow,
         MIN_DROPDOWN_HEIGHT,
       );
+      const height = Math.min(maxHeight, FALLBACK_DROPDOWN_HEIGHT);
       const top = shouldOpenAbove
         ? Math.max(
             VIEWPORT_MARGIN,
-            rect.top - Math.min(dropdownHeight, maxHeight) - DROPDOWN_GAP,
+            rect.top - Math.min(dropdownHeight, height) - DROPDOWN_GAP,
           )
         : Math.min(
             rect.bottom + DROPDOWN_GAP,
             window.innerHeight -
-              Math.min(dropdownHeight, maxHeight) -
+              Math.min(dropdownHeight, height) -
               VIEWPORT_MARGIN,
           );
 
@@ -121,7 +110,7 @@ export const EmojiPicker = ({
         top,
         left,
         width,
-        maxHeight,
+        height,
       });
     }
   }, []);
@@ -166,6 +155,7 @@ export const EmojiPicker = ({
   const handleSelect = useCallback(
     (emoji: string) => {
       onChange(emoji);
+      setRecentEmojis(saveRecentEmoji(emoji));
       setIsOpen(false);
       setSearchQuery('');
     },
@@ -183,14 +173,86 @@ export const EmojiPicker = ({
   }, []);
 
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return [];
-    }
-    return emojiSearch(searchQuery.toLowerCase()).slice(0, 30);
+    return searchEmojis(searchQuery);
   }, [searchQuery]);
 
   const emojisToShow = searchQuery.trim() ? searchResults : [];
-  const showCommon = !searchQuery.trim();
+  const recentEmojiOptions = useMemo(() => {
+    return recentEmojis
+      .map(findEmojiOption)
+      .filter((item): item is EmojiOption => !!item);
+  }, [recentEmojis]);
+  const categoriesToShow = useMemo<EmojiCategory[]>(() => {
+    if (recentEmojiOptions.length === 0) {
+      return emojiCategories;
+    }
+
+    return [
+      {
+        ...recentEmojiCategoryMeta,
+        emojis: recentEmojiOptions,
+      },
+      ...emojiCategories,
+    ];
+  }, [recentEmojiOptions]);
+  const showCategories = !searchQuery.trim();
+
+  const scrollToCategory = useCallback((categoryId: EmojiCategoryId) => {
+    categorySectionRefs.current[categoryId]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+  const setCategorySectionRef = useCallback(
+    (categoryId: EmojiCategoryId) => (element: HTMLDivElement | null) => {
+      if (!element) {
+        delete categorySectionRefs.current[categoryId];
+        return;
+      }
+
+      categorySectionRefs.current[categoryId] = element;
+    },
+    [],
+  );
+
+  const renderEmojiButton = useCallback(
+    (emoji: EmojiOption): ReactElement => (
+      <button
+        key={emoji.emoji}
+        type="button"
+        onClick={() => handleSelect(emoji.emoji)}
+        className={classNames(
+          'flex size-8 items-center justify-center rounded-8 text-lg leading-none transition-colors hover:bg-surface-hover',
+          'font-[Apple_Color_Emoji,Segoe_UI_Emoji,Noto_Color_Emoji,sans-serif]',
+          value === emoji.emoji && 'bg-surface-active',
+        )}
+        title={emoji.label}
+      >
+        {emoji.emoji}
+      </button>
+    ),
+    [handleSelect, value],
+  );
+
+  const renderCategorySection = useCallback(
+    (category: EmojiCategory) => {
+      return (
+        <div key={category.id} ref={setCategorySectionRef(category.id)}>
+          <Typography
+            type={TypographyType.Footnote}
+            className="mb-2 text-text-tertiary"
+          >
+            {category.label}
+          </Typography>
+          <div className="grid grid-cols-7 gap-1">
+            {category.emojis.map(renderEmojiButton)}
+          </div>
+        </div>
+      );
+    },
+    [renderEmojiButton, setCategorySectionRef],
+  );
 
   return (
     <div
@@ -246,76 +308,72 @@ export const EmojiPicker = ({
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="fixed z-[100] max-h-80 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 shadow-2"
+          className="fixed z-[100] flex overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-2"
           style={{
             top: `${dropdownPosition.top}px`,
             left: `${dropdownPosition.left}px`,
             width: `${dropdownPosition.width}px`,
-            maxHeight: `${dropdownPosition.maxHeight}px`,
+            height: `${dropdownPosition.height}px`,
           }}
         >
-          <input
-            ref={inputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search emojis..."
-            className="mb-3 w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
-          />
+          <div className="flex min-h-0 w-full flex-col">
+            <div className="border-b border-border-subtlest-tertiary p-2">
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search emojis..."
+                className="w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
+              />
 
-          {showCommon && (
-            <div>
-              <Typography
-                type={TypographyType.Footnote}
-                className="mb-2 text-text-tertiary"
-              >
-                Popular
-              </Typography>
-              <div className="flex flex-wrap gap-1">
-                {COMMON_EMOJIS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => handleSelect(emoji)}
-                    className={classNames(
-                      'flex size-9 items-center justify-center rounded-8 text-xl transition-colors hover:bg-surface-hover',
-                      value === emoji && 'bg-surface-active',
-                    )}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {!showCommon && emojisToShow.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {emojisToShow.map((result) => (
-                <button
-                  key={result.name}
-                  type="button"
-                  onClick={() => handleSelect(result.emoji)}
-                  className={classNames(
-                    'flex size-9 items-center justify-center rounded-8 text-xl transition-colors hover:bg-surface-hover',
-                    value === result.emoji && 'bg-surface-active',
-                  )}
-                  title={result.name}
+              {showCategories && (
+                <div
+                  className="mt-2 flex items-center justify-between gap-0.5"
+                  aria-label="Emoji categories"
                 >
-                  {result.emoji}
-                </button>
-              ))}
+                  {categoriesToShow.map((category) => (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => scrollToCategory(category.id)}
+                      className={classNames(
+                        'flex size-7 items-center justify-center rounded-8 text-base leading-none transition-colors hover:bg-surface-hover',
+                        'font-[Apple_Color_Emoji,Segoe_UI_Emoji,Noto_Color_Emoji,sans-serif]',
+                      )}
+                      title={category.label}
+                      aria-label={category.label}
+                    >
+                      {category.icon}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
 
-          {!showCommon && emojisToShow.length === 0 && (
-            <Typography
-              type={TypographyType.Callout}
-              className="py-4 text-center text-text-tertiary"
-            >
-              No emojis found
-            </Typography>
-          )}
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+              {showCategories && (
+                <div className="flex flex-col gap-3">
+                  {categoriesToShow.map(renderCategorySection)}
+                </div>
+              )}
+
+              {!showCategories && emojisToShow.length > 0 && (
+                <div className="grid grid-cols-7 gap-1">
+                  {emojisToShow.map(renderEmojiButton)}
+                </div>
+              )}
+
+              {!showCategories && emojisToShow.length === 0 && (
+                <Typography
+                  type={TypographyType.Callout}
+                  className="py-4 text-center text-text-tertiary"
+                >
+                  No emojis found
+                </Typography>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

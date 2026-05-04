@@ -334,15 +334,12 @@ export const OnboardingV2 = (): ReactElement => {
     setStep('auth');
   }, [setSignupContext]);
 
-  const closeImportFlow = useCallback(() => {
-    clearImportTimers();
-    setStep('hero');
-    setImportExiting(false);
-    setSelectedExperienceLevel(null);
-    setImportProgress(0);
-    setImportPhase('idle');
-    setImportFlowSource('github');
-  }, [clearImportTimers]);
+  const initiateGoogleAuth = useCallback(() => {
+    setSignupContext('ai');
+    setAutoTriggerProvider('google');
+    setAuthDisplay(AuthDisplay.OnboardingSignup);
+    setStep('auth');
+  }, [setSignupContext]);
 
   const startAiProcessing = useCallback(() => {
     startImportFlow('ai');
@@ -438,6 +435,7 @@ export const OnboardingV2 = (): ReactElement => {
       (
         [
           'auth',
+          'prompt',
           'importing',
           'tags',
           'extension',
@@ -505,8 +503,12 @@ export const OnboardingV2 = (): ReactElement => {
       return;
     }
 
-    if (isLoggedIn && signupContext === 'ai' && aiPrompt) {
-      startAiProcessing();
+    if (isLoggedIn && signupContext === 'ai') {
+      if (aiPrompt?.trim()) {
+        startAiProcessing();
+      } else {
+        setStep('prompt');
+      }
       return;
     }
 
@@ -553,10 +555,6 @@ export const OnboardingV2 = (): ReactElement => {
     setStep('complete');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [setExtensionSeen]);
-  const closeSignupChooser = useCallback(() => {
-    setSignupContext(null);
-    setStep('hero');
-  }, [setSignupContext]);
   const closeAuthSignup = useCallback(() => {
     setAutoTriggerProvider(undefined);
     setSignupContext(null);
@@ -669,13 +667,6 @@ export const OnboardingV2 = (): ReactElement => {
             >
               Log in
             </button>
-            <button
-              type="button"
-              onClick={() => setStep('chooser')}
-              className="hover:opacity-90 h-10 rounded-14 bg-white px-5 font-bold text-black transition-opacity duration-200 typo-callout"
-            >
-              Sign up
-            </button>
           </div>
         )}
       </header>
@@ -708,13 +699,6 @@ export const OnboardingV2 = (): ReactElement => {
                 className="rounded-10 border border-white/[0.14] bg-white/[0.02] px-3 py-1.5 text-text-secondary transition-colors duration-200 typo-footnote hover:bg-white/[0.08]"
               >
                 Log in
-              </button>
-              <button
-                type="button"
-                onClick={() => setStep('chooser')}
-                className="hover:opacity-90 rounded-10 bg-white px-3 py-1.5 font-semibold text-black transition-opacity duration-200 typo-footnote"
-              >
-                Sign up
               </button>
             </div>
           )}
@@ -765,10 +749,10 @@ export const OnboardingV2 = (): ReactElement => {
           >
             <h1 className="mx-auto max-w-[22rem] font-bold leading-[1.3] tracking-tight typo-title1 tablet:max-w-[48rem] tablet:leading-[1.22] tablet:typo-large-title">
               <span className="text-text-primary">
-                Staying sharp shouldn&apos;t be hard
+                The homepage developers deserve
               </span>
               <br />
-              <span className="onb-gradient-text bg-clip-text text-transparent">
+              <span className="onb-gradient-text bg-clip-text text-transparent typo-title3 tablet:typo-title1">
                 A dev feed built around your stack
               </span>
             </h1>
@@ -796,6 +780,18 @@ export const OnboardingV2 = (): ReactElement => {
                     startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
+                  }
+                }}
+                onGoogleClick={() => {
+                  if (isLoggedIn) {
+                    if (aiPrompt?.trim()) {
+                      startAiProcessing();
+                    } else {
+                      setSignupContext('ai');
+                      setStep('prompt');
+                    }
+                  } else {
+                    initiateGoogleAuth();
                   }
                 }}
                 onAiSubmit={() => {
@@ -1120,22 +1116,9 @@ export const OnboardingV2 = (): ReactElement => {
           aria-modal="true"
           aria-label="Choose personalization setup"
         >
-          <div
-            className="absolute inset-0"
-            onClick={closeSignupChooser}
-            role="presentation"
-          />
+          <div className="absolute inset-0" aria-hidden />
 
           <div className="onb-modal-enter onb-glass relative z-1 flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-24 border border-white/[0.08] bg-background-default shadow-[0_32px_90px_rgba(0,0,0,0.58)] tablet:max-w-[58rem] tablet:rounded-24">
-            <button
-              type="button"
-              onClick={closeSignupChooser}
-              className="z-10 absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
-              aria-label="Close"
-            >
-              <MiniCloseIcon size={IconSize.Size16} />
-            </button>
-
             <div className="px-4 pb-5 pt-8 tablet:px-8 tablet:pb-8">
               <div className="mb-6 text-center tablet:mb-8">
                 <p className="mb-2 text-text-secondary typo-body">
@@ -1158,6 +1141,19 @@ export const OnboardingV2 = (): ReactElement => {
                     startImportFlowGithub();
                   } else {
                     initiateGithubAuth();
+                  }
+                }}
+                onGoogleClick={() => {
+                  if (isLoggedIn) {
+                    if (aiPrompt?.trim()) {
+                      setStep('hero');
+                      startAiProcessing();
+                    } else {
+                      setSignupContext('ai');
+                      setStep('prompt');
+                    }
+                  } else {
+                    initiateGoogleAuth();
                   }
                 }}
                 onAiSubmit={() => {
@@ -1245,7 +1241,11 @@ export const OnboardingV2 = (): ReactElement => {
                   if (signupContext === 'github') {
                     startImportFlowGithub();
                   } else if (signupContext === 'ai') {
-                    startAiProcessing();
+                    if (aiPrompt?.trim()) {
+                      startAiProcessing();
+                    } else {
+                      setStep('prompt');
+                    }
                   } else {
                     closeAuthSignup();
                   }
@@ -1553,8 +1553,7 @@ export const OnboardingV2 = (): ReactElement => {
               'bg-black/70 absolute inset-0 backdrop-blur-md',
               importExiting ? 'onb-modal-backdrop-exit' : 'onb-modal-backdrop',
             )}
-            onClick={closeImportFlow}
-            role="presentation"
+            aria-hidden
           />
 
           {/* Centered content */}
@@ -1564,14 +1563,6 @@ export const OnboardingV2 = (): ReactElement => {
               importExiting && 'onb-modal-exit',
             )}
           >
-            <button
-              type="button"
-              onClick={closeImportFlow}
-              className="z-10 absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
-              aria-label="Close"
-            >
-              <MiniCloseIcon size={IconSize.Size16} />
-            </button>
             {/* ── Animated orb — full-width energy field ── */}
             <div
               className="pointer-events-none relative -mx-5 -mt-6 mb-0 flex h-32 items-center justify-center overflow-hidden tablet:-mx-6"
@@ -2034,24 +2025,10 @@ export const OnboardingV2 = (): ReactElement => {
           role="dialog"
           aria-modal="true"
         >
-          <div
-            className="absolute inset-0"
-            onClick={closeSignupChooser}
-            role="presentation"
-          />
+          <div className="absolute inset-0" aria-hidden />
 
           {/* Modal */}
           <div className="onb-modal-enter onb-glass relative flex max-h-[100dvh] w-full flex-col overflow-y-auto rounded-t-20 border border-white/[0.08] bg-background-default shadow-[0_24px_80px_rgba(0,0,0,0.5)] tablet:max-w-[26rem] tablet:rounded-20">
-            {/* Close */}
-            <button
-              type="button"
-              onClick={closeSignupChooser}
-              className="z-10 absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-10 text-text-quaternary transition-all duration-200 hover:rotate-90 hover:bg-white/[0.06] hover:text-text-secondary"
-              aria-label="Close"
-            >
-              <MiniCloseIcon size={IconSize.Size16} />
-            </button>
-
             {/* Content */}
             <div className="px-5 pb-6 pt-8 tablet:px-7 tablet:pb-7">
               {/* ── GitHub context ── */}
