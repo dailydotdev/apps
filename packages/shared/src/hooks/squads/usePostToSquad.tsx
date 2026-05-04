@@ -75,6 +75,7 @@ interface UsePostToSquad {
 
 interface UsePostToSquadProps {
   onPostSuccess?: (post: Post, url: string) => void;
+  onComplete?: () => void;
   onSourcePostModerationSuccess?: (data: SourcePostModeration) => void;
   onExternalLinkSuccess?: (data: ExternalLinkPreview, url: string) => void;
   getSharedPostSuccessToast?: (params: {
@@ -95,6 +96,7 @@ const getSquadIdOrThrow = (squad: Squad): string => {
 
 export const usePostToSquad = ({
   onPostSuccess,
+  onComplete,
   onMutate,
   onError,
   onExternalLinkSuccess,
@@ -126,13 +128,10 @@ export const usePostToSquad = ({
 
   const handlePostSuccess = useCallback(
     (post: Post): void => {
-      if (!onPostSuccess) {
-        return;
-      }
-
-      onPostSuccess(post, post?.permalink ?? '');
+      onPostSuccess?.(post, post?.permalink ?? '');
+      onComplete?.();
     },
-    [onPostSuccess],
+    [onComplete, onPostSuccess],
   );
 
   const {
@@ -207,6 +206,7 @@ export const usePostToSquad = ({
     onSuccess: (data) => {
       completeAction(ActionType.SquadFirstPost);
       onSourcePostModerationSuccess?.(data);
+      onComplete?.();
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);
@@ -297,6 +297,7 @@ export const usePostToSquad = ({
         throw new Error('Missing external link url in usePostToSquad');
       }
       onExternalLinkSuccess?.(preview, url);
+      onComplete?.();
     },
     onError: (err: ApiErrorResult) => {
       const rateLimited = getApiError(err, ApiError.RateLimited);
