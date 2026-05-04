@@ -7,7 +7,7 @@ import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import { SharedPostMetaInfo } from './common/SharedPostMetaInfo';
 import YoutubeVideo from '../video/YoutubeVideo';
-import { combinedClicks } from '../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../lib/click';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
 interface ShareYouTubeContentProps {
@@ -39,17 +39,10 @@ function ShareYouTubeContent({
   if (!sharedPost?.id || !videoId) {
     return <ShareYouTubeSkeleton />;
   }
-  const onCardClick = (e: React.MouseEvent) => {
-    const selection = globalThis?.window?.getSelection();
-    const hasSelection =
-      !!selection && selection.anchorOffset !== selection.focusOffset;
-    if (hasSelection) {
-      e.preventDefault();
-      return;
-    }
+  const onCardClick = withSelectionGuard((e: React.MouseEvent) => {
     e.stopPropagation();
     onReadArticle();
-  };
+  });
 
   return (
     <>

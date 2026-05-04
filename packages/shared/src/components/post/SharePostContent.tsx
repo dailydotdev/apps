@@ -10,7 +10,7 @@ import {
   getReadPostButtonText,
   isSocialTwitterPost,
 } from '../../graphql/posts';
-import { combinedClicks } from '../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../lib/click';
 import { SharedLinkContainer } from './common/SharedLinkContainer';
 import { SharedPostLink } from './common/SharedPostLink';
 import { ButtonVariant } from '../buttons/Button';
@@ -150,17 +150,6 @@ export function CommonSharePostContent({
     );
   }
 
-  const onCardClick = (e: React.MouseEvent) => {
-    const selection = globalThis?.window?.getSelection();
-    const hasSelection =
-      !!selection && selection.anchorOffset !== selection.focusOffset;
-    if (hasSelection) {
-      e.preventDefault();
-      return;
-    }
-    openArticle(e);
-  };
-
   return (
     <SharedLinkContainer
       className={classNames(
@@ -171,7 +160,7 @@ export function CommonSharePostContent({
       <SharedPostLink
         source={source}
         sharedPost={sharedPost}
-        onGoToLinkProps={combinedClicks(onCardClick)}
+        onGoToLinkProps={combinedClicks(withSelectionGuard(openArticle))}
         className="block w-full cursor-pointer"
       >
         <LazyImage
