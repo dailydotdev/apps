@@ -295,11 +295,11 @@ export const IntroQuestModal = ({
 
       if ('href' in destination) {
         if (destination.openInNewTab) {
-          window.open(destination.href, '_blank', 'noopener,noreferrer');
+          window.open(destination.href!, '_blank', 'noopener,noreferrer');
           return;
         }
 
-        window.location.assign(destination.href);
+        window.location.assign(destination.href!);
         return;
       }
 

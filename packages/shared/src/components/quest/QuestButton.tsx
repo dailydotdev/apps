@@ -60,6 +60,7 @@ import {
   QuestRewardFlightLayer,
   buildQuestRewardFlights,
   getQuestRewardHitAt,
+  QUEST_REWARD_LAYER_Z_INDEX,
   type QuestRewardFlight,
   type QuestRewardSource,
 } from './QuestRewardAnimations';
@@ -1187,11 +1188,11 @@ export const QuestButton = ({
 
       if ('href' in destination) {
         if (destination.openInNewTab) {
-          window.open(destination.href, '_blank', 'noopener,noreferrer');
+          window.open(destination.href!, '_blank', 'noopener,noreferrer');
           return;
         }
 
-        window.location.assign(destination.href);
+        window.location.assign(destination.href!);
         return;
       }
 
