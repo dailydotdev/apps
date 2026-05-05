@@ -24,7 +24,7 @@ const StandupPage = (): ReactElement => {
   const { id } = router.query;
 
   return (
-    <main className="relative flex w-full flex-col px-safe h-dvh-safe laptop:h-[calc(100dvh-4rem)] laptop:px-0">
+    <main className="relative flex h-[calc(100dvh-var(--safe-area-top))] w-full flex-col px-safe laptop:h-[calc(100dvh-4rem)] laptop:px-0">
       {typeof id === 'string' ? (
         <LiveRoom roomId={id} />
       ) : (
