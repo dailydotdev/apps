@@ -31,7 +31,7 @@ import Link from '../utilities/Link';
 import { LogEvent } from '../../lib/log';
 import styles from './CreateLiveRoomForm.module.css';
 
-const DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT = 4;
+const DEFAULT_FREE_FOR_ALL_SPEAKER_LIMIT = 100;
 const DEFAULT_SCHEDULE_DELAY_MS = 30 * 60 * 1000;
 const DESCRIPTION_MAX_LENGTH = 4000;
 

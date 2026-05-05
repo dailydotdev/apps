@@ -291,6 +291,14 @@ export const LiveRoomVideoTile = ({
           onClick={handleFocusButtonClick}
         />
       ) : null}
+      {isFocused ? (
+        <button
+          type="button"
+          aria-label={`Close enlarged ${user.name}`}
+          className="focus-outline absolute inset-0 cursor-zoom-out"
+          onClick={() => onUnfocus?.()}
+        />
+      ) : null}
       {raisedHandQueuePosition ? (
         <span
           aria-label={`Hand raised, position ${raisedHandQueuePosition}`}

@@ -243,7 +243,10 @@ export const LiveRoomChatPanel = ({
   const [pickerMessageId, setPickerMessageId] = useState<string | null>(null);
   const longPressHandlers = useTouchLongPress<string>({
     enabled: isMobile && canChat,
-    onLongPress: setPickerMessageId,
+    onLongPress: (messageId) => {
+      window.getSelection()?.removeAllRanges();
+      setPickerMessageId(messageId);
+    },
   });
 
   const pickerMessage = pickerMessageId
@@ -350,7 +353,7 @@ export const LiveRoomChatPanel = ({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
+        className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2"
       >
         {chatMessages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -370,7 +373,7 @@ export const LiveRoomChatPanel = ({
             </Typography>
           </div>
         ) : (
-          chatMessages.map((message) => {
+          chatMessages.map((message, messageIndex) => {
             const sender =
               participantProfilesById.get(message.participantId) ??
               buildParticipantProfile(message.participantId);
@@ -391,7 +394,7 @@ export const LiveRoomChatPanel = ({
               <article
                 key={message.messageId}
                 className={classNames(
-                  'group flex items-start gap-2 px-1 py-1.5',
+                  'group relative flex items-start gap-2 px-1 py-1',
                   isMobile && 'select-none [-webkit-touch-callout:none]',
                 )}
                 onTouchStart={(event) =>
@@ -434,6 +437,9 @@ export const LiveRoomChatPanel = ({
                     senderName={senderName}
                     reactionBusy={reactionBusy}
                     hideQuickReactions={isMobile}
+                    floatingTrayPlacement={
+                      messageIndex === 0 ? 'below' : 'above'
+                    }
                     onReactionAction={runReactionAction}
                   />
                 </div>
