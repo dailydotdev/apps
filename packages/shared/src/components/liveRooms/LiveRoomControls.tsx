@@ -6,18 +6,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { EmojiPicker } from '../fields/EmojiPicker';
-import {
-  CameraIcon,
-  ExitIcon,
-  MegaphoneIcon,
-  PlusIcon,
-  SettingsIcon,
-} from '../icons';
+import { CameraIcon, ExitIcon, MegaphoneIcon, SettingsIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
-import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
 import {
@@ -25,60 +16,35 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import { AuthTriggers } from '../../lib/auth';
-import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
-import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import { LogEvent } from '../../lib/log';
-import { Modal } from '../modals/common/Modal';
+import { useLiveRoomStandupAnalytics } from '../../hooks/liveRooms/useLiveRoomStandupAnalytics';
 import {
-  AUDIO_ONLY_LABEL,
   ControlGroup,
   DeviceSplitButton,
   Divider,
   HIDE_SELF_VIEW_LABEL,
   MIC_SETTING_ITEMS,
   MicSettingRow,
-  SelectSettingRow,
   SlashedIcon,
-  VIDEO_QUALITY_ITEMS,
-  VIDEO_QUALITY_LABEL,
 } from './LiveRoomControlPrimitives';
+import { LiveRoomSettingsModal } from './LiveRoomSettingsModal';
+import { LiveRoomReactionsToolbar } from './LiveRoomReactionsToolbar';
+import { LiveRoomTooltipButton } from './LiveRoomTooltipButton';
 
 interface LiveRoomControlsProps {
   roomId: string;
   onLeave: () => void;
 }
 
-const TooltipButton = ({
-  tooltip,
-  children,
-  wrapDisabled = false,
-}: {
-  tooltip: string;
-  children: ReactElement;
-  wrapDisabled?: boolean;
-}): ReactElement => {
-  if (wrapDisabled) {
-    return (
-      <Tooltip content={tooltip}>
-        <span className="inline-flex">{children}</span>
-      </Tooltip>
-    );
-  }
-
-  return <Tooltip content={tooltip}>{children}</Tooltip>;
-};
-
 export const LiveRoomControls = ({
   roomId,
   onLeave,
 }: LiveRoomControlsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
-  const { logEvent } = useLogContext();
   const isTablet = useViewSize(ViewSize.Tablet);
   const {
     status,
@@ -128,36 +94,18 @@ export const LiveRoomControls = ({
     () => (localAudioTrack ? new MediaStream([localAudioTrack]) : null),
     [localAudioTrack],
   );
-  const buildStandupExtra = (extra: Record<string, unknown> = {}): string =>
-    buildStandupAnalyticsExtra(
-      {
-        roomId,
-        authKind: user ? 'authenticated' : 'anonymous',
-        role,
-        roomStatus: roomState?.status ?? null,
-        roomMode: roomState?.mode ?? null,
-        connectionStatus: status,
-        participantId,
-        isCoHost: privilegeState.isCoHost,
-        hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
-        hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
-        videoQuality: videoSettings.quality,
-        audioOnly: videoSettings.audioOnly,
-        hideSelfView: videoSettings.hideSelfView,
-      },
-      extra,
-    );
-  const logStandupAction = (
-    eventName: LogEvent,
-    targetId: string,
-    extra: Record<string, unknown> = {},
-  ): void => {
-    logEvent({
-      event_name: eventName,
-      target_id: targetId,
-      extra: buildStandupExtra(extra),
-    });
-  };
+  const { logStandupAction } = useLiveRoomStandupAnalytics({
+    roomId,
+    user,
+    role,
+    roomStatus: roomState?.status ?? null,
+    roomMode: roomState?.mode ?? null,
+    connectionStatus: status,
+    participantId,
+    isCoHost: privilegeState.isCoHost,
+    localStream,
+    videoSettings,
+  });
 
   const isBusy = (key: string): boolean => busyKeys.includes(key);
 
@@ -269,72 +217,19 @@ export const LiveRoomControls = ({
     <div className="pointer-events-none absolute inset-x-0 bottom-2 z-2 px-1.5 tablet:bottom-6">
       <div className="pointer-events-auto relative mx-auto flex w-full max-w-[42rem] flex-col items-center gap-1.5 tablet:gap-2">
         {reactionsOpen && isLive ? (
-          <div className="flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-1.5 shadow-2">
-            {LIVE_ROOM_QUICK_REACTION_EMOJIS.map((emoji) => (
-              <TooltipButton key={emoji} tooltip={`React ${emoji}`}>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
-                  loading={isBusy(`reaction-${emoji}`)}
-                  aria-label={`React ${emoji}`}
-                  onClick={() =>
-                    runAuthenticatedAction(`reaction-${emoji}`, async () => {
-                      await sendReaction(emoji);
-                      logStandupAction(LogEvent.SendStandupReaction, emoji, {
-                        surface: 'controls',
-                      });
-                    })
-                  }
-                >
-                  <span className="text-lg leading-none">{emoji}</span>
-                </Button>
-              </TooltipButton>
-            ))}
-            <EmojiPicker
-              value=""
-              label={null}
-              onChange={(emoji) => {
-                if (!emoji) {
-                  return;
-                }
-
-                runAuthenticatedAction('reaction-custom', async () => {
-                  await sendReaction(emoji);
-                  logStandupAction(LogEvent.SendStandupReaction, emoji, {
-                    surface: 'controls',
-                  });
+          <LiveRoomReactionsToolbar
+            isBusy={isBusy}
+            isAuthenticated={!!user}
+            onRequestLogin={promptSignup}
+            onSendReaction={(key, emoji) =>
+              runAuthenticatedAction(key, async () => {
+                await sendReaction(emoji);
+                logStandupAction(LogEvent.SendStandupReaction, emoji, {
+                  surface: 'controls',
                 });
-              }}
-              renderTrigger={({ isOpen, toggleOpen }) => (
-                <TooltipButton
-                  tooltip="Custom reaction"
-                  wrapDisabled={isBusy('reaction-custom')}
-                >
-                  <Button
-                    type="button"
-                    size={ButtonSize.Small}
-                    variant={
-                      isOpen ? ButtonVariant.Primary : ButtonVariant.Float
-                    }
-                    className="!w-9 shrink-0"
-                    icon={<PlusIcon size={IconSize.Size16} />}
-                    aria-label="Custom reaction"
-                    aria-expanded={isOpen}
-                    disabled={isBusy('reaction-custom')}
-                    onClick={() => {
-                      if (!user) {
-                        promptSignup();
-                        return;
-                      }
-
-                      toggleOpen();
-                    }}
-                  />
-                </TooltipButton>
-              )}
-            />
-          </div>
+              })
+            }
+          />
         ) : null}
 
         <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1 shadow-2 backdrop-blur tablet:gap-2 tablet:rounded-16 tablet:p-1.5">
@@ -473,7 +368,7 @@ export const LiveRoomControls = ({
           {showLiveInteractionControls ? (
             <>
               <ControlGroup>
-                <TooltipButton tooltip={reactionTooltip}>
+                <LiveRoomTooltipButton tooltip={reactionTooltip}>
                   <Button
                     type="button"
                     size={ButtonSize.Small}
@@ -505,9 +400,9 @@ export const LiveRoomControls = ({
                   >
                     <span className="text-base leading-none">😀</span>
                   </Button>
-                </TooltipButton>
+                </LiveRoomTooltipButton>
                 {canRaiseHand ? (
-                  <TooltipButton
+                  <LiveRoomTooltipButton
                     tooltip={isHandRaised ? 'Lower hand' : 'Raise hand'}
                     wrapDisabled={isBusy('hand')}
                   >
@@ -551,9 +446,9 @@ export const LiveRoomControls = ({
                         })
                       }
                     />
-                  </TooltipButton>
+                  </LiveRoomTooltipButton>
                 ) : null}
-                <TooltipButton tooltip={settingsTooltip}>
+                <LiveRoomTooltipButton tooltip={settingsTooltip}>
                   <Button
                     type="button"
                     size={ButtonSize.Small}
@@ -576,7 +471,7 @@ export const LiveRoomControls = ({
                       setIsSettingsOpen(true);
                     }}
                   />
-                </TooltipButton>
+                </LiveRoomTooltipButton>
                 {isModerated && isAudience ? (
                   <Button
                     type="button"
@@ -599,7 +494,7 @@ export const LiveRoomControls = ({
                   </Button>
                 ) : null}
                 {isFreeForAll && isAudience ? (
-                  <TooltipButton
+                  <LiveRoomTooltipButton
                     tooltip={joinStageTooltip}
                     wrapDisabled={!canJoinStage || isBusy('join-stage')}
                   >
@@ -624,10 +519,10 @@ export const LiveRoomControls = ({
                     >
                       {joinStageTooltip}
                     </Button>
-                  </TooltipButton>
+                  </LiveRoomTooltipButton>
                 ) : null}
                 {canLeaveStage ? (
-                  <TooltipButton
+                  <LiveRoomTooltipButton
                     tooltip="Stop speaking"
                     wrapDisabled={isBusy('leave-stage')}
                   >
@@ -647,7 +542,7 @@ export const LiveRoomControls = ({
                     >
                       Stop speaking
                     </Button>
-                  </TooltipButton>
+                  </LiveRoomTooltipButton>
                 ) : null}
               </ControlGroup>
 
@@ -657,7 +552,10 @@ export const LiveRoomControls = ({
 
           <ControlGroup>
             {showGoLive ? (
-              <TooltipButton tooltip="Go live" wrapDisabled={isBusy('go-live')}>
+              <LiveRoomTooltipButton
+                tooltip="Go live"
+                wrapDisabled={isBusy('go-live')}
+              >
                 <Button
                   type="button"
                   size={ButtonSize.Small}
@@ -675,7 +573,7 @@ export const LiveRoomControls = ({
                 >
                   Go live
                 </Button>
-              </TooltipButton>
+              </LiveRoomTooltipButton>
             ) : null}
             {privilegeState.hasHostPrivileges ? (
               <Button
@@ -720,52 +618,17 @@ export const LiveRoomControls = ({
         </div>
       </div>
       {isSettingsOpen ? (
-        <Modal
-          isOpen
-          kind={Modal.Kind.FixedCenter}
-          size={Modal.Size.Small}
-          isDrawerOnMobile
-          drawerProps={{ appendOnRoot: true }}
-          onRequestClose={() => setIsSettingsOpen(false)}
-        >
-          <Modal.Header title="Standup settings" />
-          <Modal.Body className="gap-1">
-            <SelectSettingRow
-              label={VIDEO_QUALITY_LABEL}
-              description="Choose how aggressively remote video should use your connection."
-              value={videoSettings.quality}
-              options={VIDEO_QUALITY_ITEMS.map((item) => ({
-                value: item.value,
-                label: item.label,
-              }))}
-              onSelect={(quality) => {
-                setVideoSetting('quality', quality);
-                logStandupAction(
-                  LogEvent.ChangeStandupSettings,
-                  'video_quality',
-                  {
-                    surface: 'settings_modal',
-                    value: quality,
-                  },
-                );
-              }}
-            />
-            <MicSettingRow
-              id="live-room-video-setting-audio-only"
-              label={AUDIO_ONLY_LABEL}
-              description="Hide remote video and keep the standup playing through audio."
-              checked={videoSettings.audioOnly}
-              onToggle={() => {
-                const nextValue = !videoSettings.audioOnly;
-                setVideoSetting('audioOnly', nextValue);
-                logStandupAction(LogEvent.ChangeStandupSettings, 'audio_only', {
-                  surface: 'settings_modal',
-                  value: nextValue,
-                });
-              }}
-            />
-          </Modal.Body>
-        </Modal>
+        <LiveRoomSettingsModal
+          videoSettings={videoSettings}
+          setVideoSetting={setVideoSetting}
+          onClose={() => setIsSettingsOpen(false)}
+          onTrackSettingChange={(targetId, surface, value) => {
+            logStandupAction(LogEvent.ChangeStandupSettings, targetId, {
+              surface,
+              value,
+            });
+          }}
+        />
       ) : null}
     </div>
   );
