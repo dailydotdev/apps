@@ -36,22 +36,10 @@ interface SquadSectionProps {
   title: string;
 }
 
-const getCurrentMemberRole = (squad: Squad): SourceMemberRole => {
+const isPrivilegedSquad = (squad: Squad): boolean => {
   const role = squad.currentMember?.role;
 
-  if (!role) {
-    throw new Error(
-      `Missing current member role for joined squad "${squad.handle}"`,
-    );
-  }
-
-  return role;
-};
-
-const isPrivilegedSquad = (squad: Squad): boolean => {
-  const role = getCurrentMemberRole(squad);
-
-  return [SourceMemberRole.Admin, SourceMemberRole.Moderator].includes(role);
+  return role === SourceMemberRole.Admin || role === SourceMemberRole.Moderator;
 };
 
 const SquadSection = ({ squads, title }: SquadSectionProps): ReactElement => {
