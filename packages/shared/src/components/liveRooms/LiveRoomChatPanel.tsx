@@ -98,7 +98,7 @@ const LiveRoomChatComposer = ({
 
   if (!canChat) {
     return (
-      <div className="border-t border-border-subtlest-tertiary p-1.5 tablet:p-2.5">
+      <div className="border-t border-border-subtlest-tertiary p-1.5 pb-safe-offset-1.5 pl-safe-offset-1.5 pr-safe-offset-1.5 tablet:p-2.5">
         <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-2 py-1.5 tablet:px-3 tablet:py-2.5">
           <Typography
             type={TypographyType.Caption1}
@@ -122,7 +122,7 @@ const LiveRoomChatComposer = ({
   }
 
   return (
-    <div className="border-t border-border-subtlest-tertiary pb-2 pl-1.5 pr-2 pt-1.5 tablet:p-0">
+    <div className="border-t border-border-subtlest-tertiary pt-1.5 pb-safe-offset-2 pl-safe-offset-1.5 pr-safe-offset-2 tablet:p-0">
       <form
         onSubmit={(event) => {
           event.preventDefault();
