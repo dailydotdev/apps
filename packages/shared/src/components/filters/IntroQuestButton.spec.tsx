@@ -99,9 +99,7 @@ describe('IntroQuestButton', () => {
       openModal,
     });
     mockUseActions.mockReturnValue({
-      checkHasCompleted: jest.fn(
-        (type: ActionType) => type !== ActionType.ViewedIntroQuests,
-      ),
+      checkHasCompleted: jest.fn(() => false),
     });
     mockUseViewSize.mockImplementation((size) => size === ViewSize.Laptop);
     mockUseConditionalFeature.mockReturnValue({ value: true });
@@ -248,17 +246,31 @@ describe('IntroQuestButton', () => {
           buildIntroQuest({
             rotationId: 'rot-1',
             status: QuestStatus.Claimed,
-            completedAt: '2026-05-03T10:00:00.000Z',
-            claimedAt: '2026-05-03T10:05:00.000Z',
+            completedAt: new Date('2026-05-03T10:00:00.000Z'),
+            claimedAt: new Date('2026-05-03T10:05:00.000Z'),
           }),
           buildIntroQuest({
             rotationId: 'rot-2',
             status: QuestStatus.Claimed,
-            completedAt: '2026-05-03T10:10:00.000Z',
-            claimedAt: '2026-05-03T10:15:00.000Z',
+            completedAt: new Date('2026-05-03T10:10:00.000Z'),
+            claimedAt: new Date('2026-05-03T10:15:00.000Z'),
           }),
         ],
       },
+    });
+
+    render(<IntroQuestButton />);
+
+    expect(
+      screen.queryByRole('button', { name: /Open introduction quests/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render when intro quests have been permanently hidden', () => {
+    mockUseActions.mockReturnValue({
+      checkHasCompleted: jest.fn(
+        (type: ActionType) => type === ActionType.IntroQuestsCompleted,
+      ),
     });
 
     render(<IntroQuestButton />);
