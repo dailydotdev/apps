@@ -878,17 +878,23 @@ export const LiveRoomProvider = ({
         .map(toDeviceInfo);
       setCameras(nextCameras);
       setMicrophones(nextMics);
+      const pickDefaultDeviceId = (
+        devices: LiveRoomDeviceInfo[],
+      ): string | null => {
+        const systemDefault = devices.find((d) => d.deviceId === 'default');
+        return systemDefault?.deviceId ?? devices[0]?.deviceId ?? null;
+      };
       setSelectedCameraId((prev) => {
         if (prev && nextCameras.some((d) => d.deviceId === prev)) {
           return prev;
         }
-        return nextCameras[0]?.deviceId ?? null;
+        return pickDefaultDeviceId(nextCameras);
       });
       setSelectedMicId((prev) => {
         if (prev && nextMics.some((d) => d.deviceId === prev)) {
           return prev;
         }
-        return nextMics[0]?.deviceId ?? null;
+        return pickDefaultDeviceId(nextMics);
       });
     } catch (error) {
       logStandupErrorRef.current(
