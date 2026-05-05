@@ -168,7 +168,7 @@ export function CompanionDemoWidget(): ReactElement | null {
             />
           </div>
           <Typography type={TypographyType.Title3} bold className="mt-4">
-            Want this on every article?
+            You&#39;re reading this article blind
           </Typography>
           <Typography
             type={TypographyType.Callout}
