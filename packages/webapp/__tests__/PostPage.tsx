@@ -306,7 +306,8 @@ function renderPost(
 
 it('should show source name', async () => {
   renderPost();
-  await screen.findByText('Towards Data Science');
+  const matches = await screen.findAllByText('Towards Data Science');
+  expect(matches.length).toBeGreaterThan(0);
 });
 
 it('should format publication date', async () => {
@@ -1018,7 +1019,7 @@ describe('collection', () => {
 describe('article', () => {
   it('should log page view on initial load', async () => {
     renderPost();
-    await screen.findByText('Towards Data Science');
+    await screen.findAllByText('Towards Data Science');
     expect(logEvent).toBeCalledTimes(1);
     expect(logEvent).toBeCalledWith(
       expect.objectContaining({

@@ -18,7 +18,7 @@ export const LiveRoomSidePanelTabs = ({
   <div
     role="tablist"
     aria-label="Standup side panel"
-    className="flex items-center gap-1 border-b border-border-subtlest-tertiary p-1"
+    className="flex items-center gap-0.5 border-b border-border-subtlest-tertiary p-0.5 tablet:gap-1 tablet:p-1"
   >
     {tabs.map((tab) => {
       const isActive = tab.id === active;
@@ -31,7 +31,7 @@ export const LiveRoomSidePanelTabs = ({
           aria-selected={isActive}
           onClick={() => onChange(tab.id)}
           className={classNames(
-            'flex flex-1 items-center justify-center gap-2 rounded-10 px-3 py-2 transition-colors typo-callout',
+            'flex flex-1 items-center justify-center gap-1.5 rounded-8 px-2 py-1 transition-colors typo-footnote tablet:gap-2 tablet:rounded-10 tablet:px-3 tablet:py-2 tablet:typo-callout',
             isActive
               ? 'bg-surface-float font-bold text-text-primary'
               : 'text-text-tertiary hover:bg-surface-hover hover:text-text-primary',

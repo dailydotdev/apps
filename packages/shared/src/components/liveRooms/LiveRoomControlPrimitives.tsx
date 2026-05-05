@@ -274,7 +274,7 @@ export const DeviceSplitButton = ({
           loading={isLoading}
           aria-label={toggleAriaLabel}
           onClick={onToggle}
-          className="!rounded-r-none"
+          className="tablet:!rounded-r-none"
         />
       </Tooltip>
       <DropdownMenu>
@@ -288,7 +288,7 @@ export const DeviceSplitButton = ({
             variant={variant}
             icon={<ArrowIcon className="rotate-180" />}
             aria-label={caretAriaLabel}
-            className="!w-6 !rounded-l-none !border-l-0 !px-0"
+            className="hidden !w-6 !rounded-l-none !border-l-0 !px-0 tablet:inline-flex"
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent

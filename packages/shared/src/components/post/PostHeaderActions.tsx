@@ -51,6 +51,8 @@ export function PostHeaderActions({
   const { target: readTarget } = getPostReadTarget(post);
   const readHref = readTarget?.permalink ?? post.permalink;
   const isArticle = post?.type === PostType.Article;
+  const hideShareReadButton =
+    post?.type === PostType.Share && !isFixedNavigation;
   const { value: isReaderModalEnabled } = useConditionalFeature({
     feature: featureReaderModal,
     shouldEvaluate: isArticle,
@@ -60,33 +62,36 @@ export function PostHeaderActions({
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isPoll && !isInternalReadTyped && !!onReadArticle && (
-        <Tooltip
-          side="bottom"
-          content={readButtonText}
-          visible={!inlineActions}
-        >
-          <Button
-            variant={
-              isFixedNavigation || isMobile
-                ? ButtonVariant.Tertiary
-                : ButtonVariant.Secondary
-            }
-            tag="a"
-            href={readHref}
-            target={openNewTab ? '_blank' : '_self'}
-            icon={getReadPostButtonIcon(post)}
-            iconPosition={
-              isTwitter ? ButtonIconPosition.Right : (undefined as never)
-            }
-            onClick={onReadArticle}
-            data-testid="postActionsRead"
-            size={buttonSize}
+      {!isPoll &&
+        !isInternalReadTyped &&
+        !hideShareReadButton &&
+        !!onReadArticle && (
+          <Tooltip
+            side="bottom"
+            content={readButtonText}
+            visible={!inlineActions}
           >
-            {!inlineActions ? readButtonText : undefined}
-          </Button>
-        </Tooltip>
-      )}
+            <Button
+              variant={
+                isFixedNavigation || isMobile
+                  ? ButtonVariant.Tertiary
+                  : ButtonVariant.Secondary
+              }
+              tag="a"
+              href={readHref}
+              target={openNewTab ? '_blank' : '_self'}
+              icon={getReadPostButtonIcon(post)}
+              iconPosition={
+                isTwitter ? ButtonIconPosition.Right : (undefined as never)
+              }
+              onClick={onReadArticle}
+              data-testid="postActionsRead"
+              size={buttonSize}
+            >
+              {!inlineActions ? readButtonText : undefined}
+            </Button>
+          </Tooltip>
+        )}
       {isBoostButtonVisible && (
         <BoostPostButton post={post} buttonProps={{ size: buttonSize }} />
       )}

@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
 import {
   Typography,
   TypographyColor,
@@ -41,6 +42,7 @@ import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
+import { useViewSize, ViewSize } from '../../hooks';
 import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
 import { UserIcon } from '../icons';
 import { IconSize } from '../Icon';
@@ -65,11 +67,15 @@ interface LiveRoomProps {
 }
 
 const MAX_STAGE_TILES_PER_PAGE = 12;
+const MOBILE_MAX_STAGE_TILES_PER_PAGE = 4;
 const EMPTY_PARTICIPANT_IDS: string[] = [];
 
-const getStageGridColumnCount = (count: number): number => {
+const getStageGridColumnCount = (count: number, isMobile: boolean): number => {
   if (count <= 1) {
     return 1;
+  }
+  if (isMobile) {
+    return 2;
   }
   if (count <= 4) {
     return 2;
@@ -170,13 +176,13 @@ const useCountdownSeconds = (target: string | null | undefined): number => {
 const LiveBadge = ({ isLive }: { isLive: boolean }): ReactElement => (
   <span
     className={classNames(
-      'inline-flex items-center gap-1.5 rounded-8 px-2 py-0.5 typo-caption1',
+      'inline-flex items-center gap-1 rounded-8 px-1.5 py-px typo-caption2 tablet:gap-1.5 tablet:px-2 tablet:py-0.5 tablet:typo-caption1',
       isLive
         ? 'bg-accent-ketchup-default text-white'
         : 'bg-accent-bacon-default text-white',
     )}
   >
-    <span className="size-1.5 animate-pulse rounded-full bg-white" />
+    <span className="size-1 animate-pulse rounded-full bg-white tablet:size-1.5" />
     <span className="font-bold uppercase tracking-wide">
       {isLive ? 'Live' : 'Lobby'}
     </span>
@@ -188,7 +194,7 @@ const LiveRoomLobbyContent = ({
 }: {
   room: LiveRoomModel;
 }): ReactElement => (
-  <div className="min-h-0 flex-1 overflow-y-auto p-1.5 pb-24 tablet:pb-28">
+  <div className="min-h-0 flex-1 overflow-y-auto px-3 py-1.5 pb-20 tablet:p-1.5 tablet:pb-28">
     <article className="mx-auto flex w-full max-w-[42rem] flex-col gap-5">
       {room.descriptionHtml ? (
         <Markdown
@@ -213,6 +219,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { isAuthReady, showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
   const { isPushSupported, isSubscribed: isPushEnabled } =
     usePushNotificationContext();
   const { onEnablePush } = usePushNotificationMutation();
@@ -262,6 +270,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
+  const [focusedSpeakerIndex, setFocusedSpeakerIndex] = useState<number | null>(
+    null,
+  );
   const lastLoggedRoomErrorRef = useRef<string | null>(null);
   const buildStandupExtra = useCallback(
     (extra: Record<string, unknown> = {}) =>
@@ -486,7 +497,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [logStandupAction, revokeCoHost],
   );
-  const handleTabChange = (tab: LiveRoomSidePanelTab): void => {
+  const handleTabChange = (
+    tab: LiveRoomSidePanelTab,
+    source: 'tab_click' | 'swipe' = 'tab_click',
+  ): void => {
     if (tab === activeTab) {
       return;
     }
@@ -494,6 +508,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     logStandupAction(LogEvent.SwitchStandupPanelTab, tab, {
       surface: 'side_panel',
       previousTab: activeTab,
+      source,
     });
     setActiveTab(tab);
   };
@@ -702,18 +717,22 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const visibleStageSpeakers = stageSpeakers.filter(
     (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
   );
+  const stageTilesPerPage = isMobile
+    ? MOBILE_MAX_STAGE_TILES_PER_PAGE
+    : MAX_STAGE_TILES_PER_PAGE;
   const stagePageCount = Math.max(
     1,
-    Math.ceil(visibleStageSpeakers.length / MAX_STAGE_TILES_PER_PAGE),
+    Math.ceil(visibleStageSpeakers.length / stageTilesPerPage),
   );
   const clampedStagePage = Math.min(stagePage, stagePageCount - 1);
-  const stagePageStart = clampedStagePage * MAX_STAGE_TILES_PER_PAGE;
+  const stagePageStart = clampedStagePage * stageTilesPerPage;
   const paginatedStageSpeakers = visibleStageSpeakers.slice(
     stagePageStart,
-    stagePageStart + MAX_STAGE_TILES_PER_PAGE,
+    stagePageStart + stageTilesPerPage,
   );
   const stageGridColumnCount = getStageGridColumnCount(
     paginatedStageSpeakers.length,
+    isMobile,
   );
   const stageGridRowCount = Math.max(
     1,
@@ -732,6 +751,99 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   useEffect(() => {
     setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
   }, [stagePageCount]);
+
+  useEffect(() => {
+    if (
+      focusedSpeakerIndex !== null &&
+      focusedSpeakerIndex >= paginatedStageSpeakers.length
+    ) {
+      setFocusedSpeakerIndex(null);
+    }
+  }, [focusedSpeakerIndex, paginatedStageSpeakers.length]);
+
+  const focusSpeaker = (index: number): void => {
+    const speaker = paginatedStageSpeakers[index];
+    if (!speaker) {
+      return;
+    }
+    logStandupAction(LogEvent.FocusStandupSpeaker, speaker.id, {
+      surface: 'stage_tile',
+      action: 'open',
+      source: 'tap',
+      isSelf: !!speaker.selfView,
+      position: index,
+      totalSpeakers: paginatedStageSpeakers.length,
+    });
+    setFocusedSpeakerIndex(index);
+  };
+  const unfocusSpeaker = (): void => {
+    if (focusedSpeakerIndex === null) {
+      return;
+    }
+    const speaker = paginatedStageSpeakers[focusedSpeakerIndex];
+    logStandupAction(LogEvent.FocusStandupSpeaker, speaker?.id ?? '', {
+      surface: 'stage_tile',
+      action: 'close',
+      source: 'backdrop',
+      position: focusedSpeakerIndex,
+      totalSpeakers: paginatedStageSpeakers.length,
+    });
+    setFocusedSpeakerIndex(null);
+  };
+  const handleSpeakerFocusNavigate = (delta: 1 | -1): void => {
+    if (focusedSpeakerIndex === null || paginatedStageSpeakers.length === 0) {
+      return;
+    }
+    const total = paginatedStageSpeakers.length;
+    const nextIndex = (((focusedSpeakerIndex + delta) % total) + total) % total;
+    const nextSpeaker = paginatedStageSpeakers[nextIndex];
+    logStandupAction(LogEvent.FocusStandupSpeaker, nextSpeaker?.id ?? '', {
+      surface: 'stage_tile',
+      action: 'navigate',
+      source: delta === 1 ? 'swipe_next' : 'swipe_prev',
+      isSelf: !!nextSpeaker?.selfView,
+      position: nextIndex,
+      totalSpeakers: total,
+    });
+    setFocusedSpeakerIndex(nextIndex);
+  };
+
+  const sidePanelTabs: {
+    id: LiveRoomSidePanelTab;
+    label: string;
+    count?: number;
+  }[] = [
+    { id: 'chat', label: 'Chat' },
+    ...(isFreeForAll
+      ? []
+      : [
+          {
+            id: 'queue' as const,
+            label: 'Queue',
+            count: queuedParticipantIds.length,
+          },
+        ]),
+    {
+      id: 'audience',
+      label: 'Audience',
+      count: audienceParticipantIds.length,
+    },
+  ];
+  const sidePanelTabIds = sidePanelTabs.map((tab) => tab.id);
+  const activeTabIndex = sidePanelTabIds.indexOf(activeTab);
+  const navigateSidePanelTab = (delta: 1 | -1): void => {
+    const nextIndex = activeTabIndex + delta;
+    if (nextIndex < 0 || nextIndex >= sidePanelTabIds.length) {
+      return;
+    }
+    handleTabChange(sidePanelTabIds[nextIndex], 'swipe');
+  };
+  const sidePanelSwipeHandlers = useSwipeable({
+    onSwipedLeft: () => navigateSidePanelTab(1),
+    onSwipedRight: () => navigateSidePanelTab(-1),
+    trackTouch: true,
+    trackMouse: false,
+  });
 
   useEffect(() => {
     if (!roomError) {
@@ -815,10 +927,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   }
 
   return (
-    <div className="relative flex flex-1 flex-col gap-3 overflow-hidden p-3 tablet:p-4">
+    <div className="relative flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
       <ReactionOverlay reactions={reactions} />
 
-      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-0.5 rounded-none border-x-0 border-b border-t-0 border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 tablet:gap-x-4 tablet:gap-y-2 tablet:rounded-16 tablet:border-x tablet:border-t tablet:px-4 tablet:py-3">
         <div className="flex min-w-0 items-center gap-3">
           <LiveBadge isLive={!!isLive} />
           <Typography
@@ -879,7 +991,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[1fr_auto] tablet:grid-rows-none tablet:gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
         <section
           aria-label="Speakers"
           className="relative flex min-h-0 flex-col"
@@ -927,7 +1039,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                 gridTemplateRows: `repeat(${stageGridRowCount}, minmax(0, 1fr))`,
               }}
             >
-              {paginatedStageSpeakers.map((speaker) => {
+              {paginatedStageSpeakers.map((speaker, index) => {
                 const canModerate = hasHostPrivileges && !speaker.isHost;
                 const canManageCoHosts = isHost && !speaker.isHost;
 
@@ -944,6 +1056,11 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                       isCoHost={speaker.isCoHost}
                       raisedHandQueuePosition={speaker.raisedHandQueuePosition}
                       isMuted={speaker.isMuted}
+                      isFocused={focusedSpeakerIndex === index}
+                      onFocus={() => focusSpeaker(index)}
+                      onUnfocus={unfocusSpeaker}
+                      onSwipeNext={() => handleSpeakerFocusNavigate(1)}
+                      onSwipePrev={() => handleSpeakerFocusNavigate(-1)}
                       onGrantCoHost={
                         canManageCoHosts && !speaker.isCoHost
                           ? () =>
@@ -1053,30 +1170,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
         <aside
           aria-label="Standup side panel"
-          className="flex min-h-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
+          className="flex h-[40dvh] min-h-0 flex-col overflow-hidden rounded-none border-x-0 border-b-0 border-t border-border-subtlest-tertiary bg-surface-float tablet:h-auto tablet:rounded-16 tablet:border-x tablet:border-b"
         >
           <LiveRoomSidePanelTabs
             active={activeTab}
-            tabs={[
-              { id: 'chat', label: 'Chat' },
-              ...(isFreeForAll
-                ? []
-                : [
-                    {
-                      id: 'queue' as const,
-                      label: 'Queue',
-                      count: queuedParticipantIds.length,
-                    },
-                  ]),
-              {
-                id: 'audience',
-                label: 'Audience',
-                count: audienceParticipantIds.length,
-              },
-            ]}
+            tabs={sidePanelTabs}
             onChange={handleTabChange}
           />
-          <div className="min-h-0 flex-1">
+          <div {...sidePanelSwipeHandlers} className="min-h-0 flex-1">
             {activeTab === 'chat' ? (
               <LiveRoomChatPanel
                 chatMessages={chatMessages}

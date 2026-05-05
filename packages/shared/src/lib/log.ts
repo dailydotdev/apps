@@ -286,6 +286,7 @@ export enum LogEvent {
   KickStandupParticipant = 'kick standup participant',
   ChangeStandupSettings = 'change standup settings',
   StandupError = 'standup error',
+  FocusStandupSpeaker = 'focus standup speaker',
   // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
@@ -604,8 +605,10 @@ export enum TargetId {
   HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  HackathonPage = 'hackathon page',
   // Onboarding v2
   GitHub = 'github',
+  Google = 'google',
   AI = 'ai',
   Install = 'install',
   Dismiss = 'dismiss',
