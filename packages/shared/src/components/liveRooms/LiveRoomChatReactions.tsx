@@ -359,7 +359,9 @@ export const LiveRoomChatReactions = ({
                 ariaLabel={`${
                   reaction.isReactedByCurrentParticipant ? 'Remove' : 'React'
                 } ${reaction.key} ${
-                  reaction.isReactedByCurrentParticipant ? 'reaction from' : 'to'
+                  reaction.isReactedByCurrentParticipant
+                    ? 'reaction from'
+                    : 'to'
                 } message from ${senderName}`}
                 disabled={!canChat || !!reactionBusy}
                 isSending={reactionBusy === reactionKey}
@@ -389,75 +391,77 @@ export const LiveRoomChatReactions = ({
           }
         >
           <div className="flex items-center gap-0.5 rounded-12 border border-border-subtlest-tertiary bg-background-default p-0.5 shadow-2">
-          {showQuickReactions
-            ? quickReactionKeys.map((reactionKey) => {
-                const busyKey = `${message.messageId}-${reactionKey}`;
-                const isReacted = myReactionKeys.has(reactionKey);
+            {showQuickReactions
+              ? quickReactionKeys.map((reactionKey) => {
+                  const busyKey = `${message.messageId}-${reactionKey}`;
+                  const isReacted = myReactionKeys.has(reactionKey);
 
-                return (
-                  <button
-                    key={reactionKey}
-                    type="button"
-                    className={
-                      isReacted
-                        ? 'flex size-6 items-center justify-center rounded-8 bg-action-upvote-float text-sm leading-none text-action-upvote-default hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50'
-                        : 'flex size-6 items-center justify-center rounded-8 text-sm leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50'
-                    }
-                    aria-label={`${
-                      isReacted ? 'Remove' : 'React'
-                    } ${reactionKey} ${
-                      isReacted ? 'reaction from' : 'to'
-                    } message from ${senderName}`}
-                    aria-pressed={isReacted}
-                    disabled={!!reactionBusy}
-                    onClick={() =>
-                      onReactionAction(
-                        message.messageId,
-                        reactionKey,
-                        {
-                          ...baseReactionAnalytics,
-                          source: 'quick_shortcut',
-                        },
-                        isReacted,
-                      )
-                    }
-                  >
-                    <span>{reactionKey}</span>
-                    {reactionBusy === busyKey ? (
-                      <span className="sr-only">Sending</span>
-                    ) : null}
-                  </button>
-                );
-              })
-            : null}
-          <EmojiPicker
-            value=""
-            label={null}
-            className="shrink-0"
-            onChange={(reactionKey) => {
-              if (!reactionKey) {
-                return;
-              }
+                  return (
+                    <button
+                      key={reactionKey}
+                      type="button"
+                      className={
+                        isReacted
+                          ? 'flex size-6 items-center justify-center rounded-8 bg-action-upvote-float text-sm leading-none text-action-upvote-default hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50'
+                          : 'flex size-6 items-center justify-center rounded-8 text-sm leading-none text-text-secondary hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-50'
+                      }
+                      aria-label={`${
+                        isReacted ? 'Remove' : 'React'
+                      } ${reactionKey} ${
+                        isReacted ? 'reaction from' : 'to'
+                      } message from ${senderName}`}
+                      aria-pressed={isReacted}
+                      disabled={!!reactionBusy}
+                      onClick={() =>
+                        onReactionAction(
+                          message.messageId,
+                          reactionKey,
+                          {
+                            ...baseReactionAnalytics,
+                            source: 'quick_shortcut',
+                          },
+                          isReacted,
+                        )
+                      }
+                    >
+                      <span>{reactionKey}</span>
+                      {reactionBusy === busyKey ? (
+                        <span className="sr-only">Sending</span>
+                      ) : null}
+                    </button>
+                  );
+                })
+              : null}
+            <EmojiPicker
+              value=""
+              label={null}
+              className="shrink-0"
+              onChange={(reactionKey) => {
+                if (!reactionKey) {
+                  return;
+                }
 
-              onReactionAction(message.messageId, reactionKey, {
-                ...baseReactionAnalytics,
-                source: 'custom_picker',
-              });
-            }}
-            renderTrigger={({ isOpen, toggleOpen }) => (
-              <Button
-                type="button"
-                size={ButtonSize.XSmall}
-                variant={isOpen ? ButtonVariant.Primary : ButtonVariant.Tertiary}
-                className="!size-6 shrink-0"
-                icon={<PlusIcon size={IconSize.Size16} />}
-                aria-label={`Custom reaction to message from ${senderName}`}
-                aria-expanded={isOpen}
-                disabled={!!reactionBusy}
-                onClick={toggleOpen}
-              />
-            )}
-          />
+                onReactionAction(message.messageId, reactionKey, {
+                  ...baseReactionAnalytics,
+                  source: 'custom_picker',
+                });
+              }}
+              renderTrigger={({ isOpen, toggleOpen }) => (
+                <Button
+                  type="button"
+                  size={ButtonSize.XSmall}
+                  variant={
+                    isOpen ? ButtonVariant.Primary : ButtonVariant.Tertiary
+                  }
+                  className="!size-6 shrink-0"
+                  icon={<PlusIcon size={IconSize.Size16} />}
+                  aria-label={`Custom reaction to message from ${senderName}`}
+                  aria-expanded={isOpen}
+                  disabled={!!reactionBusy}
+                  onClick={toggleOpen}
+                />
+              )}
+            />
           </div>
         </div>
       ) : null}
