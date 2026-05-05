@@ -65,6 +65,8 @@ import {
   type QuestRewardSource,
 } from './QuestRewardAnimations';
 
+export type { QuestDestination } from './QuestCard';
+
 const getLevelProgress = (level: QuestLevel) => {
   const totalForLevel = level.xpInLevel + level.xpToNextLevel;
 
