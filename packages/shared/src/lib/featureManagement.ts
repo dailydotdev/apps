@@ -111,7 +111,7 @@ export const briefCardFeedFeature = new Feature(
 
 export const profileCompletionCardFeature = new Feature(
   'profile_completion_card',
-  false,
+  isDevelopment,
 );
 
 export const briefGeneratePricing = new Feature<Record<BriefingType, number>>(
@@ -144,6 +144,13 @@ export const featureProfileCompletionIndicator = new Feature(
   'profile_completion_indicator',
   0,
 );
+
+export const featureNewD1Experience = new Feature(
+  'new_d1_experience',
+  isDevelopment,
+);
+
+export const questsFeature = new Feature('quests', true);
 
 export const achievementTrackingWidgetFeature = new Feature(
   'achievement_tracking_widget',

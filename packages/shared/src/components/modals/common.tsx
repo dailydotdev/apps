@@ -476,6 +476,10 @@ const AchievementShowcaseModal = dynamic(
     ),
 );
 
+const IntroQuestModal = dynamic(
+  () => import(/* webpackChunkName: "introQuestModal" */ './IntroQuestModal'),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -553,6 +557,7 @@ export const modals = {
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
+  [LazyModal.IntroQuests]: IntroQuestModal,
 };
 
 type GetComponentProps<T> = T extends
