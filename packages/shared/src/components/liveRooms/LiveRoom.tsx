@@ -377,7 +377,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     waitingPrompt,
     stagePageCount,
     clampedStagePage,
+    visibleStageSpeakers,
     paginatedStageSpeakers,
+    stagePageStart,
+    stageTilesPerPage,
     stageGridColumnCount,
     stageGridRowCount,
   } = useLiveRoomStageModel({
@@ -409,14 +412,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   useEffect(() => {
     if (
       focusedSpeakerIndex !== null &&
-      focusedSpeakerIndex >= paginatedStageSpeakers.length
+      focusedSpeakerIndex >= visibleStageSpeakers.length
     ) {
       setFocusedSpeakerIndex(null);
     }
-  }, [focusedSpeakerIndex, paginatedStageSpeakers.length]);
+  }, [focusedSpeakerIndex, visibleStageSpeakers.length]);
 
-  const focusSpeaker = (index: number): void => {
-    const speaker = paginatedStageSpeakers[index];
+  const focusSpeaker = (globalIndex: number): void => {
+    const speaker = visibleStageSpeakers[globalIndex];
     if (!speaker) {
       return;
     }
@@ -425,32 +428,32 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       action: 'open',
       source: 'tap',
       isSelf: !!speaker.selfView,
-      position: index,
-      totalSpeakers: paginatedStageSpeakers.length,
+      position: globalIndex,
+      totalSpeakers: visibleStageSpeakers.length,
     });
-    setFocusedSpeakerIndex(index);
+    setFocusedSpeakerIndex(globalIndex);
   };
   const unfocusSpeaker = (): void => {
     if (focusedSpeakerIndex === null) {
       return;
     }
-    const speaker = paginatedStageSpeakers[focusedSpeakerIndex];
+    const speaker = visibleStageSpeakers[focusedSpeakerIndex];
     logStandupAction(LogEvent.FocusStandupSpeaker, speaker?.id ?? '', {
       surface: 'stage_tile',
       action: 'close',
       source: 'backdrop',
       position: focusedSpeakerIndex,
-      totalSpeakers: paginatedStageSpeakers.length,
+      totalSpeakers: visibleStageSpeakers.length,
     });
     setFocusedSpeakerIndex(null);
   };
   const handleSpeakerFocusNavigate = (delta: 1 | -1): void => {
-    if (focusedSpeakerIndex === null || paginatedStageSpeakers.length === 0) {
+    if (focusedSpeakerIndex === null || visibleStageSpeakers.length === 0) {
       return;
     }
-    const total = paginatedStageSpeakers.length;
+    const total = visibleStageSpeakers.length;
     const nextIndex = (((focusedSpeakerIndex + delta) % total) + total) % total;
-    const nextSpeaker = paginatedStageSpeakers[nextIndex];
+    const nextSpeaker = visibleStageSpeakers[nextIndex];
     logStandupAction(LogEvent.FocusStandupSpeaker, nextSpeaker?.id ?? '', {
       surface: 'stage_tile',
       action: 'navigate',
@@ -459,6 +462,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       position: nextIndex,
       totalSpeakers: total,
     });
+    setStagePage(Math.floor(nextIndex / stageTilesPerPage));
     setFocusedSpeakerIndex(nextIndex);
   };
 
@@ -607,6 +611,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stageGridColumnCount={stageGridColumnCount}
           stageGridRowCount={stageGridRowCount}
           speakers={paginatedStageSpeakers}
+          stagePageStart={stagePageStart}
           focusedSpeakerIndex={focusedSpeakerIndex}
           waitingPrompt={waitingPrompt}
           hasHostPrivileges={hasHostPrivileges}

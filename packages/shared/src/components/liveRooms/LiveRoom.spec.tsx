@@ -942,17 +942,21 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
+    expect(screen.getByText('1/2')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(
+      screen.getByRole('tab', { name: 'Go to stage page 2 of 2' }),
+    );
 
-    expect(screen.getByText('Page 2 / 2')).toBeInTheDocument();
+    expect(screen.getByText('2/2')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
+    fireEvent.click(
+      screen.getByRole('tab', { name: 'Go to stage page 1 of 2' }),
+    );
 
-    expect(screen.getByText('Page 1 / 2')).toBeInTheDocument();
+    expect(screen.getByText('1/2')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(12);
   });
 
@@ -990,12 +994,14 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    expect(screen.getByText('Page 1 / 4')).toBeInTheDocument();
+    expect(screen.getByText('1/4')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(4);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(
+      screen.getByRole('tab', { name: 'Go to stage page 2 of 4' }),
+    );
 
-    expect(screen.getByText('Page 2 / 4')).toBeInTheDocument();
+    expect(screen.getByText('2/4')).toBeInTheDocument();
     expect(screen.getAllByTestId('live-room-tile')).toHaveLength(4);
   });
 
