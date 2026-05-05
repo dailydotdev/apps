@@ -1,6 +1,8 @@
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import React, { useCallback } from 'react';
+import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
+import { Button, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
   TypographyColor,
@@ -12,6 +14,7 @@ import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
 import type { UserShortProfile } from '../../lib/user';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomLobbyContent } from './LiveRoomLobbyContent';
+import { LiveRoomStagePager } from './LiveRoomStagePager';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 
 export interface LiveRoomStageSpeaker {
@@ -36,6 +39,7 @@ interface LiveRoomStageProps {
   stageGridColumnCount: number;
   stageGridRowCount: number;
   speakers: LiveRoomStageSpeaker[];
+  stagePageStart: number;
   focusedSpeakerIndex: number | null;
   waitingPrompt: string;
   hasHostPrivileges: boolean;
@@ -80,6 +84,7 @@ export const LiveRoomStage = ({
   stageGridColumnCount,
   stageGridRowCount,
   speakers,
+  stagePageStart,
   focusedSpeakerIndex,
   waitingPrompt,
   hasHostPrivileges,
@@ -96,167 +101,181 @@ export const LiveRoomStage = ({
   onNavigateBack,
   showControls,
   onLeave,
-}: LiveRoomStageProps): ReactElement => (
-  <section aria-label="Speakers" className="relative flex min-h-0 flex-col">
-    {!isCreated && stagePageCount > 1 ? (
-      <div className="flex items-center justify-end gap-2 px-1.5 pb-3">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          Page {clampedStagePage + 1} / {stagePageCount}
-        </Typography>
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          disabled={clampedStagePage === 0}
-          onClick={() =>
-            setStagePage((currentPage) => Math.max(0, currentPage - 1))
-          }
-        >
-          Prev
-        </Button>
-        <Button
-          type="button"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          disabled={clampedStagePage >= stagePageCount - 1}
-          onClick={() =>
-            setStagePage((currentPage) =>
-              Math.min(stagePageCount - 1, currentPage + 1),
-            )
-          }
-        >
-          Next
-        </Button>
-      </div>
-    ) : null}
-    {isCreated ? <LiveRoomLobbyContent room={room} /> : null}
-    {!isCreated && speakers.length > 0 ? (
-      <div
-        className="grid min-h-0 flex-1 gap-3 overflow-hidden p-1.5 pb-24 tablet:pb-28"
-        style={{
-          gridTemplateColumns: `repeat(${stageGridColumnCount}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${stageGridRowCount}, minmax(0, 1fr))`,
-        }}
-      >
-        {speakers.map((speaker, index) => {
-          const canModerate = hasHostPrivileges && !speaker.isHost;
-          const canManageCoHosts = isHost && !speaker.isHost;
+}: LiveRoomStageProps): ReactElement => {
+  const hasMultiplePages = !isCreated && stagePageCount > 1;
+  const goToPage = useCallback(
+    (page: number) => {
+      setStagePage(() => Math.max(0, Math.min(stagePageCount - 1, page)));
+    },
+    [setStagePage, stagePageCount],
+  );
+  const goToPrevPage = useCallback(() => {
+    setStagePage((currentPage) => Math.max(0, currentPage - 1));
+  }, [setStagePage]);
+  const goToNextPage = useCallback(() => {
+    setStagePage((currentPage) =>
+      Math.min(stagePageCount - 1, currentPage + 1),
+    );
+  }, [setStagePage, stagePageCount]);
 
-          return (
-            <div
-              key={speaker.id}
-              className="flex min-h-0 min-w-0 items-center justify-center"
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (hasMultiplePages && focusedSpeakerIndex === null) {
+        goToNextPage();
+      }
+    },
+    onSwipedRight: () => {
+      if (hasMultiplePages && focusedSpeakerIndex === null) {
+        goToPrevPage();
+      }
+    },
+    trackTouch: true,
+    trackMouse: false,
+  });
+
+  return (
+    <section aria-label="Speakers" className="relative flex min-h-0 flex-col">
+      {isCreated ? <LiveRoomLobbyContent room={room} /> : null}
+      {!isCreated && speakers.length > 0 ? (
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <div
+            {...swipeHandlers}
+            className={classNames(
+              'grid min-h-0 flex-1 gap-3 overflow-hidden p-1.5',
+              hasMultiplePages ? 'pb-32 tablet:pb-36' : 'pb-24 tablet:pb-28',
+            )}
+            style={{
+              gridTemplateColumns: `repeat(${stageGridColumnCount}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${stageGridRowCount}, minmax(0, 1fr))`,
+            }}
+          >
+            {speakers.map((speaker, index) => {
+              const canModerate = hasHostPrivileges && !speaker.isHost;
+              const canManageCoHosts = isHost && !speaker.isHost;
+              const globalIndex = stagePageStart + index;
+
+              return (
+                <div
+                  key={speaker.id}
+                  className="flex min-h-0 min-w-0 items-center justify-center"
+                >
+                  <LiveRoomVideoTile
+                    stream={speaker.stream}
+                    user={speaker.profile}
+                    selfView={speaker.selfView}
+                    isHost={speaker.isHost}
+                    isCoHost={speaker.isCoHost}
+                    raisedHandQueuePosition={speaker.raisedHandQueuePosition}
+                    isMuted={speaker.isMuted}
+                    isFocused={focusedSpeakerIndex === globalIndex}
+                    onFocus={() => onFocusSpeaker(globalIndex)}
+                    onUnfocus={onUnfocusSpeaker}
+                    onSwipeNext={() => onSpeakerFocusNavigate(1)}
+                    onSwipePrev={() => onSpeakerFocusNavigate(-1)}
+                    onGrantCoHost={
+                      canManageCoHosts && !speaker.isCoHost
+                        ? () =>
+                            guardedModerationAction(
+                              `tile-grant-cohost-${speaker.id}`,
+                              () => onGrantCoHost(speaker.id, 'stage_tile'),
+                            )
+                        : undefined
+                    }
+                    onRevokeCoHost={
+                      canManageCoHosts && speaker.isCoHost
+                        ? () =>
+                            guardedModerationAction(
+                              `tile-revoke-cohost-${speaker.id}`,
+                              () => onRevokeCoHost(speaker.id, 'stage_tile'),
+                            )
+                        : undefined
+                    }
+                    onRemoveSpeaker={
+                      canModerate
+                        ? () =>
+                            guardedModerationAction(
+                              `tile-remove-${speaker.id}`,
+                              () => onRemoveSpeaker(speaker.id, 'stage_tile'),
+                            )
+                        : undefined
+                    }
+                    onKick={
+                      canModerate
+                        ? () =>
+                            guardedModerationAction(
+                              `tile-kick-${speaker.id}`,
+                              () => onKickParticipant(speaker.id, 'stage_tile'),
+                            )
+                        : undefined
+                    }
+                    isRemoving={moderationBusy === `tile-remove-${speaker.id}`}
+                    isGrantingCoHost={
+                      moderationBusy === `tile-grant-cohost-${speaker.id}`
+                    }
+                    isRevokingCoHost={
+                      moderationBusy === `tile-revoke-cohost-${speaker.id}`
+                    }
+                    isKicking={moderationBusy === `tile-kick-${speaker.id}`}
+                    moderationDisabled={!!moderationBusy}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <LiveRoomStagePager
+            pageCount={stagePageCount}
+            currentPage={clampedStagePage}
+            onPageSelect={goToPage}
+            onPrev={goToPrevPage}
+            onNext={goToNextPage}
+          />
+        </div>
+      ) : null}
+      {!isCreated && speakers.length === 0 ? (
+        <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
+              <UserIcon size={IconSize.Small} />
+            </span>
+            <Typography type={TypographyType.Footnote} bold>
+              No visible speakers
+            </Typography>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
             >
-              <LiveRoomVideoTile
-                stream={speaker.stream}
-                user={speaker.profile}
-                selfView={speaker.selfView}
-                isHost={speaker.isHost}
-                isCoHost={speaker.isCoHost}
-                raisedHandQueuePosition={speaker.raisedHandQueuePosition}
-                isMuted={speaker.isMuted}
-                isFocused={focusedSpeakerIndex === index}
-                onFocus={() => onFocusSpeaker(index)}
-                onUnfocus={onUnfocusSpeaker}
-                onSwipeNext={() => onSpeakerFocusNavigate(1)}
-                onSwipePrev={() => onSpeakerFocusNavigate(-1)}
-                onGrantCoHost={
-                  canManageCoHosts && !speaker.isCoHost
-                    ? () =>
-                        guardedModerationAction(
-                          `tile-grant-cohost-${speaker.id}`,
-                          () => onGrantCoHost(speaker.id, 'stage_tile'),
-                        )
-                    : undefined
-                }
-                onRevokeCoHost={
-                  canManageCoHosts && speaker.isCoHost
-                    ? () =>
-                        guardedModerationAction(
-                          `tile-revoke-cohost-${speaker.id}`,
-                          () => onRevokeCoHost(speaker.id, 'stage_tile'),
-                        )
-                    : undefined
-                }
-                onRemoveSpeaker={
-                  canModerate
-                    ? () =>
-                        guardedModerationAction(
-                          `tile-remove-${speaker.id}`,
-                          () => onRemoveSpeaker(speaker.id, 'stage_tile'),
-                        )
-                    : undefined
-                }
-                onKick={
-                  canModerate
-                    ? () =>
-                        guardedModerationAction(`tile-kick-${speaker.id}`, () =>
-                          onKickParticipant(speaker.id, 'stage_tile'),
-                        )
-                    : undefined
-                }
-                isRemoving={moderationBusy === `tile-remove-${speaker.id}`}
-                isGrantingCoHost={
-                  moderationBusy === `tile-grant-cohost-${speaker.id}`
-                }
-                isRevokingCoHost={
-                  moderationBusy === `tile-revoke-cohost-${speaker.id}`
-                }
-                isKicking={moderationBusy === `tile-kick-${speaker.id}`}
-                moderationDisabled={!!moderationBusy}
-              />
-            </div>
-          );
-        })}
-      </div>
-    ) : null}
-    {!isCreated && speakers.length === 0 ? (
-      <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
-            <UserIcon size={IconSize.Small} />
-          </span>
-          <Typography type={TypographyType.Footnote} bold>
-            No visible speakers
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-          >
-            {waitingPrompt}
-          </Typography>
+              {waitingPrompt}
+            </Typography>
+          </div>
         </div>
-      </div>
-    ) : null}
+      ) : null}
 
-    {isEnded ? (
-      <div className="absolute inset-0 flex items-center justify-center bg-background-default p-6">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Typography type={TypographyType.Title3} bold>
-            This standup has ended
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            Thanks for joining — catch the next one soon.
-          </Typography>
-          <Button
-            className="mt-2"
-            variant={ButtonVariant.Primary}
-            onClick={() => onNavigateBack('ended_state')}
-          >
-            Back home
-          </Button>
+      {isEnded ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-background-default p-6">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Typography type={TypographyType.Title3} bold>
+              This standup has ended
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Tertiary}
+            >
+              Thanks for joining — catch the next one soon.
+            </Typography>
+            <Button
+              className="mt-2"
+              variant={ButtonVariant.Primary}
+              onClick={() => onNavigateBack('ended_state')}
+            >
+              Back home
+            </Button>
+          </div>
         </div>
-      </div>
-    ) : null}
+      ) : null}
 
-    {showControls && !isEnded ? (
-      <LiveRoomControls roomId={roomId} onLeave={onLeave} />
-    ) : null}
-  </section>
-);
+      {showControls && !isEnded ? (
+        <LiveRoomControls roomId={roomId} onLeave={onLeave} />
+      ) : null}
+    </section>
+  );
+};

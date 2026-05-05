@@ -241,7 +241,10 @@ export const useLiveRoomStageModel = ({
     waitingPrompt,
     stagePageCount,
     clampedStagePage,
+    visibleStageSpeakers,
     paginatedStageSpeakers,
+    stagePageStart,
+    stageTilesPerPage,
     stageGridColumnCount,
     stageGridRowCount,
   };
