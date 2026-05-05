@@ -25,7 +25,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
       return {};
     }
 
-    if (isLaptop || !hasSquad) {
+    if (!hasSquad) {
       delete path['My Squads'];
     }
 
@@ -39,7 +39,7 @@ export const useSquadDirectoryLayout = (): SquadDirectoryLayoutReturn => {
       }),
       path,
     );
-  }, [hasSquad, isLaptop, categories, isFetched]);
+  }, [hasSquad, categories, isFetched]);
 
   return {
     hasSquad,
