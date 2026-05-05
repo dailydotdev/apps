@@ -252,9 +252,25 @@ const click = async (element: HTMLElement): Promise<void> => {
   });
 };
 
+const getEmojiButton = (
+  container: HTMLElement,
+  label: string,
+): HTMLButtonElement => {
+  const button = container.querySelector<HTMLButtonElement>(
+    `button[title="${label}"]`,
+  );
+
+  if (!button) {
+    throw new Error(`Could not find ${label} emoji button`);
+  }
+
+  return button;
+};
+
 describe('LiveRoomControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
     mockUseAuthContext.mockReturnValue({
       user: { id: 'viewer-1' },
       showLogin: mockShowLogin,
@@ -413,11 +429,17 @@ describe('LiveRoomControls', () => {
     const sendReaction = jest.fn(() => new Promise<void>(() => undefined));
     mockUseLiveRoom.mockReturnValue(createContextValue({ sendReaction }));
 
-    renderLiveRoomControls();
+    const { container } = renderLiveRoomControls();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     fireEvent.click(screen.getByRole('button', { name: 'Custom reaction' }));
-    await click(screen.getByRole('button', { name: '😀' }));
+    fireEvent.change(await screen.findByPlaceholderText('Search emojis...'), {
+      target: { value: 'grinning face' },
+    });
+    await waitFor(() => {
+      expect(getEmojiButton(container, 'grinning face')).toBeInTheDocument();
+    });
+    await click(getEmojiButton(container, 'grinning face'));
     await flushAsyncUpdates();
 
     await waitFor(() => {
