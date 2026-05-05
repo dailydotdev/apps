@@ -145,7 +145,10 @@ export const featureProfileCompletionIndicator = new Feature(
   0,
 );
 
-export const featureNewD1Experience = new Feature('new_d1_experience', true);
+export const featureNewD1Experience = new Feature(
+  'new_d1_experience',
+  isDevelopment,
+);
 
 export const questsFeature = new Feature('quests', true);
 

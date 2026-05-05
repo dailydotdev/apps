@@ -309,6 +309,12 @@ export const IntroQuestModal = ({
   );
 
   const handleHideIntroQuests = useCallback(async (): Promise<void> => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.IntroQuestModal,
+      target_id: 'hide',
+    });
+
     const shouldHide = await showPrompt({
       title: 'Hide intro quests?',
       description:
@@ -324,7 +330,7 @@ export const IntroQuestModal = ({
 
     await completeAction(ActionType.IntroQuestsCompleted);
     onRequestClose?.(undefined as never);
-  }, [completeAction, onRequestClose, showPrompt]);
+  }, [completeAction, logEvent, onRequestClose, showPrompt]);
 
   useEffect(() => {
     return () => {

@@ -218,6 +218,11 @@ describe('IntroQuestModal', () => {
         title: 'Yes, hide it',
       },
     });
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
+      target_type: TargetType.IntroQuestModal,
+      target_id: 'hide',
+    });
     expect(completeAction).toHaveBeenCalledWith(
       ActionType.IntroQuestsCompleted,
     );
@@ -244,6 +249,11 @@ describe('IntroQuestModal', () => {
       }),
     );
 
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.Click,
+      target_type: TargetType.IntroQuestModal,
+      target_id: 'hide',
+    });
     expect(completeAction).toHaveBeenCalledTimes(1);
     expect(completeAction).toHaveBeenCalledWith(ActionType.ViewedIntroQuests);
     expect(onRequestClose).not.toHaveBeenCalled();
