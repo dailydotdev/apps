@@ -703,7 +703,7 @@ describe('LiveRoom', () => {
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
   });
 
-  it('limits chat reaction shortcuts to the remaining slots when active reactions exist', async () => {
+  it('always shows all quick reactions and toggles a reacted emoji off when clicked', async () => {
     const sendChatMessageReaction = jest.fn().mockResolvedValue(undefined);
     const removeChatMessageReaction = jest.fn().mockResolvedValue(undefined);
     mockUseLiveRoomConnection.mockReturnValue(
@@ -749,16 +749,11 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    expect(
-      screen.getByRole('button', {
-        name: 'Remove 🔥 reaction from message from @speaker1',
-      }),
-    ).toHaveTextContent('2');
-    expect(
-      screen.getAllByRole('button', {
-        name: /(?:React|Remove) .* (?:to|reaction from) message from @speaker1/,
-      }),
-    ).toHaveLength(5);
+    const fireRemoveButtons = screen.getAllByRole('button', {
+      name: 'Remove 🔥 reaction from message from @speaker1',
+    });
+    expect(fireRemoveButtons).toHaveLength(2);
+    expect(fireRemoveButtons[0]).toHaveTextContent('2');
     expect(
       screen.getByRole('button', {
         name: 'React 👀 to message from @speaker1',
@@ -775,11 +770,7 @@ describe('LiveRoom', () => {
       }),
     ).toBeInTheDocument();
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Remove 🔥 reaction from message from @speaker1',
-      }),
-    );
+    fireEvent.click(fireRemoveButtons[0]);
 
     await waitFor(() =>
       expect(removeChatMessageReaction).toHaveBeenCalledWith('message-1', '🔥'),
