@@ -49,7 +49,7 @@ export default function DndModal({
     const date = format(dndSettings.expiration, 'MM/dd/yy');
     const time = format(dndSettings.expiration, 'hh:mm a');
 
-    return `daily.dev in a new tab is paused, it will resume on ${date} at ${time}`;
+    return `daily.dev in a new tab is paused. It will resume on ${date} at ${time}.`;
   };
 
   return (

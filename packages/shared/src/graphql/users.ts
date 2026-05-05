@@ -34,6 +34,30 @@ export const CHECK_LOCATION_QUERY = gql`
   }
 `;
 
+export const JOIN_HACKATHON_MUTATION = gql`
+  mutation JoinHackathon {
+    joinHackathon {
+      _
+    }
+  }
+`;
+
+export const HACKATHON_PARTICIPATION_QUERY = gql`
+  query HackathonParticipation {
+    whoami {
+      id
+      isHackathonParticipant
+    }
+  }
+`;
+
+export type HackathonParticipationData = {
+  whoami: {
+    id: string;
+    isHackathonParticipant: boolean;
+  };
+};
+
 export const USER_BY_ID_STATIC_FIELDS_QUERY = `
   query User($id: ID!) {
     user(id: $id) {

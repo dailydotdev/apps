@@ -1,6 +1,6 @@
 import type { FormEventHandler, ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
-import type { ModalProps } from '../common/Modal';
+import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
 import type { RichTextInputRef } from '../../fields/RichTextInput';
@@ -23,7 +23,7 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import { Switch } from '../../fields/Switch';
 import { ProfileImageSize } from '../../ProfilePicture';
 
-export interface CreateSharedPostModalProps extends ModalProps {
+export interface CreateSharedPostModalProps extends LazyModalCommonProps {
   preview: ExternalLinkPreview;
   onSharedSuccessfully?: (enableNotification?: boolean) => void;
   squad: Squad;
@@ -36,14 +36,14 @@ export function CreateSharedPostModal({
   onRequestClose,
   ...props
 }: CreateSharedPostModalProps): ReactElement {
-  const richTextRef = useRef<RichTextInputRef>();
+  const richTextRef = useRef<RichTextInputRef | null>(null);
   const [link, setLink] = useState(preview?.permalink ?? preview?.url ?? '');
   const { shouldShowCta, isEnabled, onToggle, onSubmitted } =
     useNotificationToggle();
   const onSuccess = () => {
     onSharedSuccessfully?.();
     onSubmitted();
-    onRequestClose(null);
+    onRequestClose();
   };
   const {
     getLinkPreview,
@@ -53,8 +53,7 @@ export function CreateSharedPostModal({
     onSubmitPost,
   } = usePostToSquad({
     initialPreview: preview,
-    onPostSuccess: onSuccess,
-    onSourcePostModerationSuccess: onSuccess,
+    onComplete: onSuccess,
   });
 
   const onFormSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -65,8 +64,15 @@ export function CreateSharedPostModal({
   };
 
   const links = [updatedPreview?.url, updatedPreview?.permalink];
-  const [checkUrl] = useDebouncedUrl(getLinkPreview, (value) =>
-    links.every((url) => url !== value),
+  const [checkUrl] = useDebouncedUrl(
+    (value) => {
+      if (!value) {
+        return undefined;
+      }
+
+      return getLinkPreview(value);
+    },
+    (value) => links.every((url) => url !== value),
   );
 
   const onInput: FormEventHandler<HTMLInputElement> = (e) => {

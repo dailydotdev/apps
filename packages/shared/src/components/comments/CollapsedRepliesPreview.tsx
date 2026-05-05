@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Edge } from '../../graphql/common';
-import type { Comment } from '../../graphql/comments';
+import type { Author, Comment } from '../../graphql/comments';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 
 export interface CollapsedRepliesPreviewProps {
@@ -27,7 +27,7 @@ export default function CollapsedRepliesPreview({
 
     const seen = new Set<string>();
 
-    return replies.reduce<Comment['author'][]>((authors, { node }) => {
+    return replies.reduce<Author[]>((authors, { node }) => {
       if (
         authors.length < MAX_AVATARS &&
         node.author &&

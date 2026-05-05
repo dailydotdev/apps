@@ -100,7 +100,7 @@ export const SponsoredTagHero = ({
           )}
 
           <div className="flex w-full flex-1 flex-col gap-1">
-            <span className="text-white typo-callout">Powered by</span>
+            <span className="text-white typo-callout">Sponsored by</span>
             <span className="font-bold text-white typo-title3">
               {sponsorInfo.brandName}
             </span>

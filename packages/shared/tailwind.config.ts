@@ -9,6 +9,7 @@ import boxShadow from './tailwind/boxShadow';
 import caret from './tailwind/caret';
 import typography from './tailwind/typography';
 import buttons from './tailwind/buttons';
+import buttonsV2 from './tailwind/buttons-v2';
 import background from './tailwind/colors/background';
 import accent from './tailwind/colors/accent';
 import brand from './tailwind/colors/brand';
@@ -252,12 +253,42 @@ export default {
             backgroundColor: 'transparent',
           },
         },
+        'reaction-burst': {
+          '0%': {
+            transform: 'translate(0, 0) scale(0.4)',
+            opacity: '0',
+          },
+          '15%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translate(var(--burst-tx), var(--burst-ty)) scale(1)',
+            opacity: '0',
+          },
+        },
+        'raise-hand-pop': {
+          '0%': { transform: 'scale(0.5)', opacity: '0' },
+          '60%': { transform: 'scale(1.08)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'raise-hand-wave': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%': { transform: 'rotate(-18deg)' },
+          '40%': { transform: 'rotate(14deg)' },
+          '60%': { transform: 'rotate(-10deg)' },
+          '80%': { transform: 'rotate(6deg)' },
+        },
       },
       animation: {
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
         'highlight-fade': 'highlight-fade 2.5s ease-out forwards',
+        'reaction-burst':
+          'reaction-burst 720ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards',
+        'raise-hand-pop':
+          'raise-hand-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'raise-hand-wave': 'raise-hand-wave 700ms ease-in-out 240ms both',
       },
     },
     lineClamp: {
@@ -273,7 +304,7 @@ export default {
     },
   },
   // eslint-disable-next-line global-require
-  plugins: [caret, typography, buttons, safeArea, containerQueries],
+  plugins: [caret, typography, buttons, buttonsV2, safeArea, containerQueries],
   corePlugins: {
     invert: false,
   },

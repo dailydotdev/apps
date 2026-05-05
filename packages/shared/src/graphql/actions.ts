@@ -66,6 +66,9 @@ export enum ActionType {
   DigestUpsell = 'digest_upsell',
   AskUpsellSearch = 'ask_upsell_search',
   DismissedMajorHeadlinesAlertsBanner = 'dismissed_major_headlines_alerts_banner',
+  DismissedNewTabCustomizer = 'dismissed_new_tab_customizer',
+  SeenKeepItOverlay = 'seen_keep_it_overlay',
+  DismissCompanionDemoWidget = 'dismiss_companion_demo_widget',
 }
 
 export const cvActions = [

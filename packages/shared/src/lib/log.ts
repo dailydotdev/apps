@@ -5,6 +5,7 @@ export enum Origin {
   ReadingHistoryContextMenu = 'reading history context menu',
   ArticlePage = 'article page',
   ArticleModal = 'article modal',
+  ReaderModal = 'reader modal',
   Companion = 'companion',
   Feed = 'feed',
   CommentFeed = 'comment feed',
@@ -256,6 +257,37 @@ export enum LogEvent {
   // Settings
   ChangeSettings = 'change settings',
   // End settings
+  // Standups
+  ViewStandup = 'view standup',
+  CreateStandup = 'create standup',
+  LeaveStandup = 'leave standup',
+  StartStandup = 'start standup',
+  EndStandup = 'end standup',
+  JoinStandupQueue = 'join standup queue',
+  RaiseStandupHand = 'raise standup hand',
+  RemoveStandupHand = 'remove standup hand',
+  JoinStandupStage = 'join standup stage',
+  LeaveStandupStage = 'leave standup stage',
+  OpenStandupSettings = 'open standup settings',
+  OpenStandupReactions = 'open standup reactions',
+  SwitchStandupPanelTab = 'switch standup panel tab',
+  SendStandupReaction = 'send standup reaction',
+  SendStandupChatReaction = 'send standup chat reaction',
+  RemoveStandupChatReaction = 'remove standup chat reaction',
+  SendStandupChatMessage = 'send standup chat message',
+  DeleteStandupChatMessage = 'delete standup chat message',
+  UpdateStandupChatAccess = 'update standup chat access',
+  SubscribeStandup = 'subscribe standup',
+  UnsubscribeStandup = 'unsubscribe standup',
+  GrantStandupCoHost = 'grant standup co-host',
+  RevokeStandupCoHost = 'revoke standup co-host',
+  PromoteStandupSpeaker = 'promote standup speaker',
+  RemoveStandupSpeaker = 'remove standup speaker',
+  KickStandupParticipant = 'kick standup participant',
+  ChangeStandupSettings = 'change standup settings',
+  StandupError = 'standup error',
+  FocusStandupSpeaker = 'focus standup speaker',
+  // End standups
   // Integrations
   StartAddingWorkspace = 'start adding workspace',
   StartAddingIntegration = 'start adding integration',
@@ -425,6 +457,16 @@ export enum LogEvent {
   QuestClaimable = 'quest claimable',
   ClaimQuest = 'claim quest',
   Dismiss = 'dismiss',
+  // Reader modal
+  ImpressionReaderModal = 'impression reader modal',
+  CloseReaderModal = 'close reader modal',
+  ToggleEmbeddedReader = 'toggle embedded reader',
+  ImpressionReaderInstallPrompt = 'impression reader install prompt',
+  ClickReaderInstallExtension = 'click reader install extension',
+  ImpressionReaderFallback = 'impression reader fallback',
+  ReaderEmbedReady = 'reader embed ready',
+  ReaderEmbedPermissionRequired = 'reader embed permission required',
+  ReaderEmbedError = 'reader embed error',
 }
 
 export enum TargetType {
@@ -503,6 +545,7 @@ export enum TargetType {
   MarketingOptOut = 'marketing opt out',
   OnboardingComplete = 'onboarding complete',
   MobileAppDownload = 'mobile app download',
+  CustomizeNewTab = 'customize new tab',
 }
 
 export enum TargetId {
@@ -563,8 +606,10 @@ export enum TargetId {
   HighlightsCard = 'highlights card',
   AskPage = 'ask page',
   AskUpsellSearch = 'ask upsell search',
+  HackathonPage = 'hackathon page',
   // Onboarding v2
   GitHub = 'github',
+  Google = 'google',
   AI = 'ai',
   Install = 'install',
   Dismiss = 'dismiss',
@@ -632,6 +677,7 @@ export enum NotificationPromptSource {
   MajorHeadlinesSettings = 'major headlines settings',
   MajorHeadlinesPage = 'major headlines page',
   MajorHeadlinesCard = 'major headlines card',
+  StandupLobby = 'standup lobby',
 }
 
 export enum ShortcutsSourceType {

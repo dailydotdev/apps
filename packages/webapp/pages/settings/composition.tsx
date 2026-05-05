@@ -40,7 +40,11 @@ const PostingSettingsPage = (): ReactElement => {
           options={defaultWriteTabs}
           value={flags?.defaultWriteTab}
           onChange={(value) => {
-            updateFlag('defaultWriteTab', value);
+            // Radio's generic defaults to `string`, so `value` is widened
+            // even though every option originates from `WriteFormTab`.
+            // `updateFlag` is now typed per-flag (was `string | boolean`),
+            // so narrow the argument to keep the call site honest.
+            updateFlag('defaultWriteTab', value as WriteFormTab);
           }}
           className={{
             content: 'w-full justify-between !pr-0',

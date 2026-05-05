@@ -11,6 +11,13 @@ import {
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { SourcePermissions } from '../../graphql/sources';
 
+jest.mock('../../hooks/integrations/useSourceIntegrationQuery', () => ({
+  useSourceIntegrationQuery: jest.fn(() => ({
+    data: null,
+    isPending: false,
+  })),
+}));
+
 const client = new QueryClient();
 const mock = {
   squad: generateTestSquad(),
@@ -78,7 +85,7 @@ describe('Analytics button', () => {
   it('should render analytics button when user has ViewAnalytics permission', () => {
     const squad = generateTestSquad({
       currentMember: {
-        ...mock.squad.currentMember,
+        ...mock.squad.currentMember!,
         permissions: [SourcePermissions.ViewAnalytics],
       },
     });
@@ -97,7 +104,7 @@ describe('Analytics button', () => {
   it('should not render analytics button when user does not have ViewAnalytics permission', () => {
     const squad = generateTestSquad({
       currentMember: {
-        ...mock.squad.currentMember,
+        ...mock.squad.currentMember!,
         permissions: [SourcePermissions.Post],
       },
     });

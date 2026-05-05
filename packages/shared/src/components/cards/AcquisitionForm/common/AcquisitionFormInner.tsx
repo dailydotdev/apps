@@ -20,7 +20,9 @@ interface Props {
     button?: string;
   };
 }
-export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
+export const AcquisitionFormInner = ({
+  className,
+}: Props): ReactElement | null => {
   const { logEvent } = useLogContext();
   const [value, setValue] = useState<AcquisitionChannel>();
   const [shuffledOptions] = useState(() =>
@@ -88,7 +90,7 @@ export const AcquisitionFormInner = ({ className }: Props): ReactElement => {
         size={ButtonSize.Small}
         loading={isLoading}
         disabled={!value}
-        onClick={() => mutateAsync(value)}
+        onClick={() => value && mutateAsync(value)}
       >
         Submit
       </Button>

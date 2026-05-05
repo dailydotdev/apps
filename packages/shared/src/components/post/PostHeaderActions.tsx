@@ -20,6 +20,10 @@ import { useViewSizeClient, ViewSize } from '../../hooks';
 import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
+import { ReaderLegacyLayoutToggleButton } from './reader/ReaderHeaderActionButtons';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureReaderModal } from '../../lib/featureManagement';
+import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -46,41 +50,58 @@ export function PostHeaderActions({
   const isPoll = post?.type === PostType.Poll;
   const { target: readTarget } = getPostReadTarget(post);
   const readHref = readTarget?.permalink ?? post.permalink;
+  const isArticle = post?.type === PostType.Article;
+  const hideShareReadButton =
+    post?.type === PostType.Share && !isFixedNavigation;
+  const { value: isReaderModalEnabled } = useConditionalFeature({
+    feature: featureReaderModal,
+    shouldEvaluate: isArticle,
+  });
+  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const showReaderToggle = isArticle && isReaderModalEnabled;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
-      {!isPoll && !isInternalReadTyped && !!onReadArticle && (
-        <Tooltip
-          side="bottom"
-          content={readButtonText}
-          visible={!inlineActions}
-        >
-          <Button
-            variant={
-              isFixedNavigation || isMobile
-                ? ButtonVariant.Tertiary
-                : ButtonVariant.Secondary
-            }
-            tag="a"
-            href={readHref}
-            target={openNewTab ? '_blank' : '_self'}
-            icon={getReadPostButtonIcon(post)}
-            iconPosition={
-              isTwitter ? ButtonIconPosition.Right : (undefined as never)
-            }
-            onClick={onReadArticle}
-            data-testid="postActionsRead"
-            size={buttonSize}
+      {!isPoll &&
+        !isInternalReadTyped &&
+        !hideShareReadButton &&
+        !!onReadArticle && (
+          <Tooltip
+            side="bottom"
+            content={readButtonText}
+            visible={!inlineActions}
           >
-            {!inlineActions ? readButtonText : undefined}
-          </Button>
-        </Tooltip>
-      )}
+            <Button
+              variant={
+                isFixedNavigation || isMobile
+                  ? ButtonVariant.Tertiary
+                  : ButtonVariant.Secondary
+              }
+              tag="a"
+              href={readHref}
+              target={openNewTab ? '_blank' : '_self'}
+              icon={getReadPostButtonIcon(post)}
+              iconPosition={
+                isTwitter ? ButtonIconPosition.Right : (undefined as never)
+              }
+              onClick={onReadArticle}
+              data-testid="postActionsRead"
+              size={buttonSize}
+            >
+              {!inlineActions ? readButtonText : undefined}
+            </Button>
+          </Tooltip>
+        )}
       {isBoostButtonVisible && (
         <BoostPostButton post={post} buttonProps={{ size: buttonSize }} />
       )}
       {isCollection && !hideSubscribeAction && (
         <CollectionSubscribeButton post={post} />
+      )}
+      {showReaderToggle && (
+        <ReaderLegacyLayoutToggleButton
+          target={isLegacyLayoutOptedOut ? 'reader' : 'classic'}
+        />
       )}
       <PostMenuOptions
         post={post}

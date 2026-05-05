@@ -597,15 +597,18 @@ function AuthOptionsInner({
     clearPopupCheck();
     const popup = windowPopup.current;
     popupCheckIntervalRef.current = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearPopupCheck();
-        if (!authFlowCompletedRef.current) {
-          setIsSocialAuthLoading(false);
-          onAuthStateUpdate?.({ isLoading: false });
-          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-        }
-        windowPopup.current = null;
+      if (popup && !popup.closed) {
+        return;
       }
+      clearPopupCheck();
+      windowPopup.current = null;
+      if (authFlowCompletedRef.current) {
+        return;
+      }
+      // Popup closed without delivering a completion message. The user may
+      // still be authenticated (session cookies set even when postMessage is
+      // missed/dropped); verify via boot before surfacing an error toast.
+      handleLoginMessage();
     }, 500);
   };
 

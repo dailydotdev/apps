@@ -103,10 +103,15 @@ export const getPathnameWithQuery = (
   pathname: string,
   params: URLSearchParams | string,
 ): string => {
-  const searchParams = new URLSearchParams(params);
-  const queryString = searchParams.toString();
+  const [basePath, existingQuery] = pathname.split('?');
+  const merged = new URLSearchParams(existingQuery?.trim());
+  const overrides = new URLSearchParams(params);
+  overrides.forEach((value, key) => {
+    merged.set(key, value);
+  });
+  const queryString = merged.toString();
 
-  return `${pathname}${queryString ? `?${queryString}` : ''}`;
+  return `${basePath}${queryString ? `?${queryString}` : ''}`;
 };
 
 export const agentsHighlightsPath = '/highlights/vibes';

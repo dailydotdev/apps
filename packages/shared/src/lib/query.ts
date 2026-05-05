@@ -270,6 +270,9 @@ export enum RequestKey {
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
   MarketingCtas = 'marketing_ctas',
+  HackathonParticipation = 'hackathon_participation',
+  BrowserExtensionInstalled = 'browser_extension_installed',
+  LiveRooms = 'live_rooms',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
@@ -593,7 +596,7 @@ type QueryKeyReturnType = ReturnType<typeof generateQueryKey>;
 
 interface GenerateCommentsQueryKeyProps {
   postId: string;
-  sortBy: SortCommentsBy;
+  sortBy?: SortCommentsBy;
 }
 
 export const generateCommentsQueryKey = ({
