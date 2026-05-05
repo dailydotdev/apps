@@ -70,7 +70,7 @@ interface RowProps {
 }
 
 const rowBaseClass =
-  'group/spotlight-row mx-2 flex cursor-pointer items-center gap-3 rounded-10 px-3 text-left motion-safe:animate-spotlight-row-in aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
+  'group/spotlight-row mx-2 flex cursor-pointer items-center gap-3 rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
 const TypedAvatar = ({
   src,
@@ -634,6 +634,60 @@ export const Spotlight = ({
       .filter((cmd): cmd is SpotlightCommand => !!cmd);
   }, [recent, commandById, isFiltering]);
 
+  /**
+   * Single merged "Suggested actions" bucket when filtering. We keep the
+   * generic command rows (nav/create/settings/actions/help) under one
+   * heading at the end so entity results lead and actions trail — the
+   * order users requested. cmdk still does fuzzy filtering.
+   */
+  const filterableActionCommands = useMemo(() => {
+    if (!isFiltering) {
+      return [];
+    }
+    return [
+      ...grouped[SpotlightGroup.Navigate],
+      ...grouped[SpotlightGroup.Create],
+      ...grouped[SpotlightGroup.Settings],
+      ...grouped[SpotlightGroup.Actions],
+      ...grouped[SpotlightGroup.Help],
+    ];
+  }, [grouped, isFiltering]);
+
+  /**
+   * Which scope chips to surface below the input. Apple Spotlight pattern:
+   * tabs only appear when there's something to filter through (i.e. a
+   * query with multi-type results). Idle modal renders nothing here.
+   */
+  const availableScopes = useMemo(() => {
+    if (scope !== SpotlightScope.All) {
+      return [];
+    }
+    if (!isFiltering) {
+      return [];
+    }
+    const out: Array<Exclude<SpotlightScope, SpotlightScope.All>> = [];
+    if (search.users.length > 0) {
+      out.push(SpotlightScope.People);
+    }
+    if (search.sources.length > 0) {
+      out.push(SpotlightScope.Squads);
+    }
+    if (search.tags.length > 0) {
+      out.push(SpotlightScope.Tags);
+    }
+    if (search.posts.length > 0) {
+      out.push(SpotlightScope.Posts);
+    }
+    return out;
+  }, [
+    scope,
+    isFiltering,
+    search.users.length,
+    search.sources.length,
+    search.tags.length,
+    search.posts.length,
+  ]);
+
   const handleSelect = useCallback(
     (command: SpotlightCommand) => {
       if (command.requiresAuth && !isLoggedIn) {
@@ -882,13 +936,19 @@ export const Spotlight = ({
                 </button>
               )}
             </div>
-            <div className="border-b border-border-subtlest-tertiary">
-              <ScopeBreadcrumbs
-                scope={scope}
-                onSelect={pushScope}
-                onClear={clearScope}
-              />
-            </div>
+            {(scope !== SpotlightScope.All || availableScopes.length > 0) && (
+              <div className="border-b border-border-subtlest-tertiary">
+                <ScopeBreadcrumbs
+                  scope={scope}
+                  availableScopes={availableScopes}
+                  onSelect={pushScope}
+                  onClear={clearScope}
+                />
+              </div>
+            )}
+            {scope === SpotlightScope.All && availableScopes.length === 0 && (
+              <div className="border-b border-border-subtlest-tertiary" />
+            )}
           </>
         )}
 
@@ -997,41 +1057,17 @@ export const Spotlight = ({
                   className="px-4 py-8 text-center text-text-tertiary typo-footnote"
                   aria-hidden
                 >
-                  <p>Type to search posts, squads, people, tags</p>
-                  <p className="mt-1">or pick a scope above with Alt+1..4</p>
+                  <p>Type to search posts, squads, people, tags…</p>
                 </div>
               )}
 
             {scope === SpotlightScope.All &&
               isFiltering &&
-              groupOrder
-                .filter(
-                  (group) =>
-                    group !== SpotlightGroup.Suggested &&
-                    group !== SpotlightGroup.Recent &&
-                    group !== SpotlightGroup.Search,
-                )
-                .map((group) => {
-                  const items = grouped[group];
-                  if (!items.length) {
-                    return null;
-                  }
-                  return (
-                    <Command.Group
-                      key={group}
-                      heading={groupLabels[group]}
-                      data-spotlight-group={group}
-                      className={groupHeadingClass}
-                    >
-                      {renderRows({ ...commonRowProps, commands: items })}
-                    </Command.Group>
-                  );
-                })}
-
-            {scope === SpotlightScope.All &&
-              isFiltering &&
               search.isLoading && (
-                <Command.Group heading="Posts">
+                <Command.Group
+                  heading="Searching"
+                  className={groupHeadingClass}
+                >
                   <SkeletonRows count={3} />
                 </Command.Group>
               )}
@@ -1039,23 +1075,66 @@ export const Spotlight = ({
             {scope === SpotlightScope.All &&
               isFiltering &&
               !search.isLoading &&
-              (search.posts.length > 0 ||
-                search.tags.length > 0 ||
-                search.sources.length > 0 ||
-                search.users.length > 0) && (
+              search.users.length > 0 && (
                 <Command.Group
-                  heading={groupLabels[SpotlightGroup.Search]}
+                  heading="People"
                   data-spotlight-group={SpotlightGroup.Search}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: search.users })}
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              !search.isLoading &&
+              search.sources.length > 0 && (
+                <Command.Group
+                  heading="Squads & sources"
+                  data-spotlight-group={SpotlightGroup.Search}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: search.sources })}
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              !search.isLoading &&
+              search.tags.length > 0 && (
+                <Command.Group
+                  heading="Tags"
+                  data-spotlight-group={SpotlightGroup.Search}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: search.tags })}
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              !search.isLoading &&
+              search.posts.length > 0 && (
+                <Command.Group
+                  heading="Posts"
+                  data-spotlight-group={SpotlightGroup.Search}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: search.posts })}
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              isFiltering &&
+              filterableActionCommands.length > 0 && (
+                <Command.Group
+                  heading="Actions"
+                  data-spotlight-group={SpotlightGroup.Actions}
                   className={groupHeadingClass}
                 >
                   {renderRows({
                     ...commonRowProps,
-                    commands: [
-                      ...search.posts,
-                      ...search.tags,
-                      ...search.sources,
-                      ...search.users,
-                    ],
+                    commands: filterableActionCommands,
                   })}
                 </Command.Group>
               )}

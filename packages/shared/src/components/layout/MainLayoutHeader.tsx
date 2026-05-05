@@ -17,7 +17,6 @@ import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
-import { SpotlightQuickActions } from '../spotlight/SpotlightQuickActions';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -84,7 +83,6 @@ function MainLayoutHeader({
         )}
       >
         <SpotlightTrigger />
-        <SpotlightQuickActions />
       </div>
     );
   }, [shouldUseLoadedSettings, isSearchPage, hasBanner]);

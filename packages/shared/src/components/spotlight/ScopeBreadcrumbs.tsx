@@ -15,6 +15,9 @@ import { scopeMeta, scopeOrder, SpotlightScope } from './types';
 
 interface ScopeBreadcrumbsProps {
   scope: SpotlightScope;
+  /** When `scope === All`, only chips for these scopes render (Apple-style
+   *  context tabs). Pass an empty array to render no chips. */
+  availableScopes?: Array<Exclude<SpotlightScope, SpotlightScope.All>>;
   onSelect: (scope: SpotlightScope) => void;
   onClear: () => void;
 }
@@ -40,9 +43,10 @@ const scopeIcons: Record<
  */
 export const ScopeBreadcrumbs = ({
   scope,
+  availableScopes,
   onSelect,
   onClear,
-}: ScopeBreadcrumbsProps): ReactElement => {
+}: ScopeBreadcrumbsProps): ReactElement | null => {
   if (scope !== SpotlightScope.All) {
     const meta = scopeMeta[scope];
     const Icon = scopeIcons[scope];
@@ -68,13 +72,23 @@ export const ScopeBreadcrumbs = ({
     );
   }
 
+  // In `All` scope only render chips for scopes we've been told are
+  // available (i.e. have current results). Stay quiet otherwise.
+  const chips = availableScopes ?? [];
+  if (chips.length === 0) {
+    return null;
+  }
+
+  // Preserve canonical order regardless of the order callers pass.
+  const ordered = scopeOrder.filter((s) => chips.includes(s));
+
   return (
     <div
       role="navigation"
-      aria-label="Search scopes"
+      aria-label="Filter results by type"
       className="flex items-center gap-1 overflow-x-auto px-3 pb-1.5 pt-1"
     >
-      {scopeOrder.map((s) => {
+      {ordered.map((s) => {
         const meta = scopeMeta[s];
         const Icon = scopeIcons[s];
         return (
