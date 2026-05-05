@@ -725,6 +725,7 @@ export const LiveRoomControls = ({
           kind={Modal.Kind.FixedCenter}
           size={Modal.Size.Small}
           isDrawerOnMobile
+          drawerProps={{ appendOnRoot: true }}
           onRequestClose={() => setIsSettingsOpen(false)}
         >
           <Modal.Header title="Standup settings" />
