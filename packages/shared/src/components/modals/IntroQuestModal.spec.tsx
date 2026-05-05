@@ -1,5 +1,6 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ReactModal from 'react-modal';
 import { IntroQuestModal } from './IntroQuestModal';
 import { QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS } from '../quest/QuestCard';
@@ -8,6 +9,7 @@ import { ActionType } from '../../graphql/actions';
 import { useActions, useViewSize } from '../../hooks';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { usePrompt } from '../../hooks/usePrompt';
 import {
   QuestRewardType,
   QuestStatus,
@@ -36,6 +38,10 @@ jest.mock('../../hooks/useClaimQuestReward', () => ({
   useClaimQuestReward: jest.fn(),
 }));
 
+jest.mock('../../hooks/usePrompt', () => ({
+  usePrompt: jest.fn(),
+}));
+
 jest.mock('../../contexts/LogContext', () => ({
   useLogContext: jest.fn(),
 }));
@@ -61,10 +67,12 @@ const mockUseActions = useActions as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
+const mockUsePrompt = usePrompt as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
 const completeAction = jest.fn();
 const logEvent = jest.fn();
+const showPrompt = jest.fn();
 
 const buildIntroQuest = (overrides: Partial<UserQuest> = {}): UserQuest => ({
   userQuestId: 'uq-1',
@@ -95,8 +103,12 @@ describe('IntroQuestModal', () => {
     completeAction.mockReset();
     logEvent.mockReset();
     mockPush.mockReset();
+    showPrompt.mockReset();
     mockUseActions.mockReturnValue({
       completeAction,
+    });
+    mockUsePrompt.mockReturnValue({
+      showPrompt,
     });
     mockUseLogContext.mockReturnValue({
       logEvent,
@@ -170,6 +182,71 @@ describe('IntroQuestModal', () => {
         hidden: true,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: "Don't show me this again",
+        hidden: true,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('confirms before hiding intro quests from the modal', async () => {
+    const onRequestClose = jest.fn();
+    showPrompt.mockResolvedValue(true);
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [buildIntroQuest()],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={onRequestClose} />);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: "Don't show me this again",
+        hidden: true,
+      }),
+    );
+
+    expect(showPrompt).toHaveBeenCalledWith({
+      title: 'Hide intro quests?',
+      description:
+        'Are you sure you want to permanently hide the intro quests button?',
+      okButton: {
+        title: 'Yes, hide it',
+      },
+    });
+    expect(completeAction).toHaveBeenCalledWith(
+      ActionType.IntroQuestsCompleted,
+    );
+    await waitFor(() => expect(onRequestClose).toHaveBeenCalled());
+  });
+
+  it('keeps the modal open when hiding intro quests is cancelled', async () => {
+    const onRequestClose = jest.fn();
+    showPrompt.mockResolvedValue(false);
+    mockUseQuestDashboard.mockReturnValue({
+      data: {
+        intro: [buildIntroQuest()],
+      },
+      isPending: false,
+      isError: false,
+    });
+
+    render(<IntroQuestModal isOpen onRequestClose={onRequestClose} />);
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: "Don't show me this again",
+        hidden: true,
+      }),
+    );
+
+    expect(completeAction).toHaveBeenCalledTimes(1);
+    expect(completeAction).toHaveBeenCalledWith(ActionType.ViewedIntroQuests);
+    expect(onRequestClose).not.toHaveBeenCalled();
   });
 
   it('does not render destination button for completed quests', () => {

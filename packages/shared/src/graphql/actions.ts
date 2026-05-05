@@ -45,6 +45,7 @@ export enum ActionType {
   CompletedOnboarding = 'completed_onboarding',
   GeneratedBrief = 'generated_brief',
   ViewedIntroQuests = 'viewed_intro_quests',
+  IntroQuestsCompleted = 'intro_quests_completed',
   ClosedProfileBanner = 'closed_profile_banner',
   UploadedCV = 'uploaded_cv',
   DisableBriefCardCta = 'disable_brief_card_cta',

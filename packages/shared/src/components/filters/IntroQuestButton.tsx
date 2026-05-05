@@ -35,6 +35,9 @@ export function IntroQuestButton(): ReactElement | null {
     introQuests.length > 0 &&
     introQuests.every(({ status }) => status === QuestStatus.Claimed);
   const hasViewedIntroQuests = checkHasCompleted(ActionType.ViewedIntroQuests);
+  const hasCompletedIntroQuests = checkHasCompleted(
+    ActionType.IntroQuestsCompleted,
+  );
   const [isIntroCtaVisible, setIsIntroCtaVisible] = useState(false);
   const hasShownIntroCta = useRef(false);
   const shouldRenderButton =
@@ -43,7 +46,8 @@ export function IntroQuestButton(): ReactElement | null {
     isLoggedIn &&
     isNewD1Experience &&
     introQuests.length > 0 &&
-    !allIntroQuestsClaimed;
+    !allIntroQuestsClaimed &&
+    !hasCompletedIntroQuests;
   const showIntroCta =
     shouldRenderButton && (!hasShownIntroCta.current || isIntroCtaVisible);
 

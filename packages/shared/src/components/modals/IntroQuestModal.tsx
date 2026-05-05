@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { TourIcon } from '../icons';
 import {
   QuestCard,
@@ -28,6 +29,7 @@ import type { QuestType } from '../../graphql/quests';
 import { useLogContext } from '../../contexts/LogContext';
 import { useActions } from '../../hooks';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import { usePrompt } from '../../hooks/usePrompt';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { downloadBrowserExtension, webappUrl } from '../../lib/constants';
 import { BrowserName, getCurrentBrowserName } from '../../lib/func';
@@ -86,6 +88,7 @@ export const IntroQuestModal = ({
   const browserName = getCurrentBrowserName();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
+  const { showPrompt } = usePrompt();
   const { data, isPending, isError } = useQuestDashboard();
   const {
     mutate: claimQuestReward,
@@ -305,6 +308,24 @@ export const IntroQuestModal = ({
     [onRequestClose, router],
   );
 
+  const handleHideIntroQuests = useCallback(async (): Promise<void> => {
+    const shouldHide = await showPrompt({
+      title: 'Hide intro quests?',
+      description:
+        'Are you sure you want to permanently hide the intro quests button?',
+      okButton: {
+        title: 'Yes, hide it',
+      },
+    });
+
+    if (!shouldHide) {
+      return;
+    }
+
+    await completeAction(ActionType.IntroQuestsCompleted);
+    onRequestClose?.(undefined as never);
+  }, [completeAction, onRequestClose, showPrompt]);
+
   useEffect(() => {
     return () => {
       clearClaimedStampTimers();
@@ -350,32 +371,44 @@ export const IntroQuestModal = ({
         )}
 
         {introQuests.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {introQuests.map((userQuest, index) => (
-              <QuestCard
-                key={userQuest.rotationId}
-                quest={userQuest}
-                onClaim={handleClaim}
-                destination={introDestinations[userQuest.quest.eventType]}
-                onDestinationClick={handleDestinationClick}
-                showLevelSystem
-                isClaiming={claimingQuestId === userQuest.userQuestId}
-                isClaimAnimating={animatingClaimRotationIdSet.has(
-                  userQuest.rotationId,
-                )}
-                showClaimedStamp={claimedStampRotationIdSet.has(
-                  userQuest.rotationId,
-                )}
-                animateClaimedStamp={animatingClaimedStampRotationIdSet.has(
-                  userQuest.rotationId,
-                )}
-                suppressPersistedClaimedStamp={deferredClaimedStampRotationIdSet.has(
-                  userQuest.rotationId,
-                )}
-                eyebrow={padStep(index)}
-                showLockIcon={false}
-              />
-            ))}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              {introQuests.map((userQuest, index) => (
+                <QuestCard
+                  key={userQuest.rotationId}
+                  quest={userQuest}
+                  onClaim={handleClaim}
+                  destination={introDestinations[userQuest.quest.eventType]}
+                  onDestinationClick={handleDestinationClick}
+                  showLevelSystem
+                  isClaiming={claimingQuestId === userQuest.userQuestId}
+                  isClaimAnimating={animatingClaimRotationIdSet.has(
+                    userQuest.rotationId,
+                  )}
+                  showClaimedStamp={claimedStampRotationIdSet.has(
+                    userQuest.rotationId,
+                  )}
+                  animateClaimedStamp={animatingClaimedStampRotationIdSet.has(
+                    userQuest.rotationId,
+                  )}
+                  suppressPersistedClaimedStamp={deferredClaimedStampRotationIdSet.has(
+                    userQuest.rotationId,
+                  )}
+                  eyebrow={padStep(index)}
+                  showLockIcon={false}
+                />
+              ))}
+            </div>
+            <div className="flex justify-center border-t border-border-subtlest-tertiary pt-2">
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={handleHideIntroQuests}
+              >
+                Don&apos;t show me this again
+              </Button>
+            </div>
           </div>
         )}
       </Modal.Body>
