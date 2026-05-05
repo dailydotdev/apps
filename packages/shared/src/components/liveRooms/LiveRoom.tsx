@@ -104,6 +104,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const [focusedSpeakerIndex, setFocusedSpeakerIndex] = useState<number | null>(
     null,
   );
+  const [hasUnseenQueueJoins, setHasUnseenQueueJoins] = useState(false);
+  const previousQueueLengthRef = useRef<number | null>(null);
   const lastLoggedRoomErrorRef = useRef<string | null>(null);
   const { buildStandupExtra, logStandupAction } = useLiveRoomStandupAnalytics({
     roomId,
@@ -406,6 +408,45 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   }, [activeTab, isFreeForAll]);
 
   useEffect(() => {
+    if (!roomState) {
+      return;
+    }
+    const queueLength = queuedParticipantIds.length;
+    const previousLength = previousQueueLengthRef.current;
+    previousQueueLengthRef.current = queueLength;
+
+    if (queueLength === 0) {
+      setHasUnseenQueueJoins(false);
+      return;
+    }
+    if (previousLength === null) {
+      return;
+    }
+    if (!hasHostPrivileges || isFreeForAll) {
+      return;
+    }
+    if (activeTab === 'queue') {
+      return;
+    }
+    if (queueLength <= previousLength) {
+      return;
+    }
+    setHasUnseenQueueJoins(true);
+  }, [
+    roomState,
+    queuedParticipantIds.length,
+    hasHostPrivileges,
+    isFreeForAll,
+    activeTab,
+  ]);
+
+  useEffect(() => {
+    if (activeTab === 'queue') {
+      setHasUnseenQueueJoins(false);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
   }, [stagePageCount]);
 
@@ -638,6 +679,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             active={activeTab}
             tabs={sidePanelTabs}
             onChange={handleTabChange}
+            attentionTabId="queue"
+            hasAttention={hasUnseenQueueJoins}
           />
           <div {...sidePanelSwipeHandlers} className="min-h-0 flex-1">
             {activeTab === 'chat' ? (

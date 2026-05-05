@@ -278,6 +278,17 @@ export default {
           '60%': { transform: 'rotate(-10deg)' },
           '80%': { transform: 'rotate(6deg)' },
         },
+        'queue-attention': {
+          '0%': { boxShadow: '0 0 0 0 var(--status-warning)' },
+          '70%': { boxShadow: '0 0 0 8px transparent' },
+          '100%': { boxShadow: '0 0 0 0 transparent' },
+        },
+        'queue-attention-wave': {
+          '0%, 60%, 100%': { transform: 'rotate(0deg)' },
+          '15%': { transform: 'rotate(-18deg)' },
+          '30%': { transform: 'rotate(14deg)' },
+          '45%': { transform: 'rotate(-8deg)' },
+        },
       },
       animation: {
         'scale-down-pulse':
@@ -289,6 +300,10 @@ export default {
         'raise-hand-pop':
           'raise-hand-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         'raise-hand-wave': 'raise-hand-wave 700ms ease-in-out 240ms both',
+        'queue-attention':
+          'queue-attention 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'queue-attention-wave':
+          'queue-attention-wave 1.6s ease-in-out infinite',
       },
     },
     lineClamp: {
