@@ -7,7 +7,13 @@ import {
   ButtonVariant,
 } from '../buttons/Button';
 import { EmojiPicker } from '../fields/EmojiPicker';
-import { CameraIcon, MegaphoneIcon, PlusIcon, SettingsIcon } from '../icons';
+import {
+  CameraIcon,
+  ExitIcon,
+  MegaphoneIcon,
+  PlusIcon,
+  SettingsIcon,
+} from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
@@ -21,6 +27,7 @@ import {
 } from '../typography/Typography';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useViewSize, ViewSize } from '../../hooks';
 import { AuthTriggers } from '../../lib/auth';
 import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
@@ -72,6 +79,7 @@ export const LiveRoomControls = ({
 }: LiveRoomControlsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { logEvent } = useLogContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const {
     status,
     canPublish,
@@ -258,8 +266,8 @@ export const LiveRoomControls = ({
   const joinStageTooltip = isStageFull ? 'Speakers full' : 'Join as speaker';
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-2 px-1.5 tablet:bottom-6">
-      <div className="pointer-events-auto relative mx-auto flex w-full max-w-[42rem] flex-col items-center gap-2">
+    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-2 px-1.5 tablet:bottom-6">
+      <div className="pointer-events-auto relative mx-auto flex w-full max-w-[42rem] flex-col items-center gap-1.5 tablet:gap-2">
         {reactionsOpen && isLive ? (
           <div className="flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-1.5 shadow-2">
             {LIVE_ROOM_QUICK_REACTION_EMOJIS.map((emoji) => (
@@ -329,7 +337,7 @@ export const LiveRoomControls = ({
           </div>
         ) : null}
 
-        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-1.5 shadow-2 backdrop-blur">
+        <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1 shadow-2 backdrop-blur tablet:gap-2 tablet:rounded-16 tablet:p-1.5">
           {showMediaControls ? (
             <ControlGroup>
               <DeviceSplitButton
@@ -676,6 +684,8 @@ export const LiveRoomControls = ({
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Ketchup}
                 loading={isBusy('end')}
+                icon={isTablet ? undefined : <ExitIcon />}
+                aria-label="End standup"
                 onClick={() =>
                   guarded('end', async () => {
                     await endRoom();
@@ -686,7 +696,7 @@ export const LiveRoomControls = ({
                   })
                 }
               >
-                End standup
+                {isTablet ? 'End standup' : null}
               </Button>
             ) : (
               <Button
@@ -694,6 +704,8 @@ export const LiveRoomControls = ({
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Ketchup}
+                icon={isTablet ? undefined : <ExitIcon />}
+                aria-label="Leave"
                 onClick={() => {
                   logStandupAction(LogEvent.LeaveStandup, roomId, {
                     surface: 'controls',
@@ -701,7 +713,7 @@ export const LiveRoomControls = ({
                   onLeave();
                 }}
               >
-                Leave
+                {isTablet ? 'Leave' : null}
               </Button>
             )}
           </ControlGroup>
@@ -713,6 +725,7 @@ export const LiveRoomControls = ({
           kind={Modal.Kind.FixedCenter}
           size={Modal.Size.Small}
           isDrawerOnMobile
+          drawerProps={{ appendOnRoot: true }}
           onRequestClose={() => setIsSettingsOpen(false)}
         >
           <Modal.Header title="Standup settings" />

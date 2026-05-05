@@ -11,7 +11,9 @@ import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 export type ChatReactionSource =
   | 'active_chip'
   | 'quick_shortcut'
-  | 'custom_picker';
+  | 'custom_picker'
+  | 'long_press_quick'
+  | 'long_press_picker';
 
 export interface ChatReactionAnalytics {
   source: ChatReactionSource;
@@ -53,7 +55,7 @@ const FIRST_REACTION_BURST_CLEAR_DELAY_MS =
   FIRST_REACTION_BURST_DURATION_MS + FIRST_REACTION_PARTICLE_MAX_DELAY_MS;
 const MAX_REACTION_SLOTS = 5;
 
-const getChatReactionGroups = (
+export const getChatReactionGroups = (
   message: LiveRoomChatEntry,
   currentParticipantId: string | null,
 ): ChatReactionGroup[] => {
@@ -290,6 +292,7 @@ interface LiveRoomChatReactionsProps {
   canChat: boolean;
   senderName: string;
   reactionBusy: string | null;
+  hideQuickReactions?: boolean;
   onReactionAction: (
     messageId: string,
     reactionKey: string,
@@ -304,6 +307,7 @@ export const LiveRoomChatReactions = ({
   canChat,
   senderName,
   reactionBusy,
+  hideQuickReactions = false,
   onReactionAction,
 }: LiveRoomChatReactionsProps): ReactElement | null => {
   const { firstReactionBurst, getPulseSignal } =
@@ -320,9 +324,15 @@ export const LiveRoomChatReactions = ({
     quickReactionCount: quickReactionKeys.length,
   };
 
+  if (hideQuickReactions && reactionGroups.length === 0) {
+    return null;
+  }
+
   if (!canChat && reactionGroups.length === 0) {
     return null;
   }
+
+  const renderQuickReactionsTray = !hideQuickReactions;
 
   return (
     <div
@@ -369,7 +379,7 @@ export const LiveRoomChatReactions = ({
           />
         );
       })}
-      {showQuickReactions || canChat ? (
+      {renderQuickReactionsTray && (showQuickReactions || canChat) ? (
         <div
           key={hasActiveReactions ? 'active-reactions' : 'empty-reactions'}
           className={classNames(

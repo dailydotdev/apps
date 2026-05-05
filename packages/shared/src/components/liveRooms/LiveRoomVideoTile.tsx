@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
 import {
   Typography,
   TypographyColor,
@@ -19,6 +20,10 @@ import {
   useLiveRoomAudioLevel,
 } from './useLiveRoomAudioLevel';
 import { LiveRoomTileActions } from './LiveRoomTileActions';
+import { Drawer } from '../drawers';
+import { RootPortal } from '../tooltips/Portal';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
@@ -39,6 +44,11 @@ interface LiveRoomVideoTileProps {
   isRemoving?: boolean;
   isKicking?: boolean;
   moderationDisabled?: boolean;
+  isFocused?: boolean;
+  onFocus?: () => void;
+  onUnfocus?: () => void;
+  onSwipeNext?: () => void;
+  onSwipePrev?: () => void;
 }
 
 const pickLiveTrack = (
@@ -71,10 +81,54 @@ export const LiveRoomVideoTile = ({
   isRemoving = false,
   isKicking = false,
   moderationDisabled = false,
+  isFocused = false,
+  onFocus,
+  onUnfocus,
+  onSwipeNext,
+  onSwipePrev,
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [needsAudioGesture, setNeedsAudioGesture] = useState(false);
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const longPressFiredRef = useRef(false);
+  const longPressHandlers = useTouchLongPress<undefined>({
+    enabled: isMobile && !selfView,
+    onLongPress: () => {
+      longPressFiredRef.current = true;
+      setActionsOpen(true);
+    },
+  });
+  const handlePressStart = (event: React.TouchEvent): void => {
+    longPressFiredRef.current = false;
+    longPressHandlers.onTouchStart(event, undefined);
+  };
+  const handleFocusButtonClick = (): void => {
+    if (longPressFiredRef.current) {
+      longPressFiredRef.current = false;
+      return;
+    }
+    if (isFocused) {
+      return;
+    }
+    onFocus?.();
+  };
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (isFocused) {
+        onSwipeNext?.();
+      }
+    },
+    onSwipedRight: () => {
+      if (isFocused) {
+        onSwipePrev?.();
+      }
+    },
+    trackTouch: true,
+    trackMouse: false,
+  });
 
   // Pick stable track references based on the source stream so identity
   // changes only when the underlying track changes.
@@ -160,7 +214,7 @@ export const LiveRoomVideoTile = ({
       bold
       truncate
       className={classNames(
-        'min-w-0 !text-white',
+        'min-w-0 !text-white !typo-caption2 tablet:!typo-footnote',
         hasProfileLink && 'pointer-events-auto hover:underline',
       )}
     >
@@ -168,15 +222,34 @@ export const LiveRoomVideoTile = ({
     </Typography>
   );
 
+  const gestureHandlers = isFocused
+    ? swipeHandlers
+    : {
+        onTouchStart: handlePressStart,
+        onTouchEnd: longPressHandlers.onTouchEnd,
+        onTouchMove: longPressHandlers.onTouchMove,
+        onTouchCancel: longPressHandlers.onTouchCancel,
+      };
+
   return (
     <div
+      {...gestureHandlers}
       className={classNames(
-        'group relative flex h-full max-h-full w-full max-w-full items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        'group flex items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        isFocused
+          ? 'fixed left-1/2 top-1/2 z-modal h-[80vh] max-h-[90vh] w-[90vw] max-w-[64rem] -translate-x-1/2 -translate-y-1/2'
+          : 'relative h-full max-h-full w-full max-w-full cursor-zoom-in',
         isSpeaking
           ? 'border-accent-avocado-default shadow-[0_0_0_3px_var(--theme-accent-avocado-subtle)]'
           : 'border-border-subtlest-tertiary',
+        isMobile && 'select-none [-webkit-touch-callout:none]',
         className,
       )}
+      onContextMenu={(event) => {
+        if (isMobile) {
+          event.preventDefault();
+        }
+      }}
     >
       {videoStream ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -210,6 +283,14 @@ export const LiveRoomVideoTile = ({
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <audio ref={audioRef} autoPlay />
       ) : null}
+      {!isFocused && onFocus ? (
+        <button
+          type="button"
+          aria-label={`Enlarge ${user.name}`}
+          className="focus-outline absolute inset-0 cursor-zoom-in"
+          onClick={handleFocusButtonClick}
+        />
+      ) : null}
       {raisedHandQueuePosition ? (
         <span
           aria-label={`Hand raised, position ${raisedHandQueuePosition}`}
@@ -225,13 +306,21 @@ export const LiveRoomVideoTile = ({
           </span>
         </span>
       ) : null}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
-        <div className="flex min-w-0 items-center gap-2 rounded-12 bg-overlay-dark-dark3 px-2.5 py-1 backdrop-blur transition-[padding] duration-200 ease-out group-hover:pr-1">
+      {isMuted ? (
+        <span
+          aria-label="Muted"
+          className="pointer-events-none absolute right-3 top-3 inline-flex size-7 items-center justify-center rounded-10 bg-overlay-dark-dark3 backdrop-blur"
+        >
+          <VolumeOffIcon size={IconSize.XSmall} className="text-status-error" />
+        </span>
+      ) : null}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 pb-3 pl-1.5 pr-3 pt-3 tablet:pl-3">
+        <div className="flex min-h-8 min-w-0 items-center gap-1.5 rounded-12 bg-overlay-dark-dark3 px-2 py-1 backdrop-blur transition-[padding] duration-200 ease-out tablet:gap-2 tablet:px-2.5 tablet:group-hover:pr-1">
           {isHost ? (
             <Typography
               type={TypographyType.Caption2}
               bold
-              className="shrink-0 uppercase tracking-wide !text-accent-bun-default"
+              className="hidden shrink-0 uppercase tracking-wide !text-accent-bun-default tablet:inline"
             >
               Host
             </Typography>
@@ -240,17 +329,10 @@ export const LiveRoomVideoTile = ({
             <Typography
               type={TypographyType.Caption2}
               bold
-              className="shrink-0 uppercase tracking-wide !text-accent-water-bolder"
+              className="hidden shrink-0 uppercase tracking-wide !text-accent-water-bolder tablet:inline"
             >
               Co-host
             </Typography>
-          ) : null}
-          {isMuted ? (
-            <VolumeOffIcon
-              size={IconSize.XSmall}
-              aria-label="Muted"
-              className="shrink-0 text-status-error"
-            />
           ) : null}
           {hasProfileLink ? (
             <Link href={user.permalink} passHref>
@@ -291,6 +373,36 @@ export const LiveRoomVideoTile = ({
           Tap to unmute
         </Button>
       ) : null}
+      <RootPortal>
+        <Drawer
+          isOpen={actionsOpen}
+          onClose={() => setActionsOpen(false)}
+          displayCloseButton={false}
+        >
+          <LiveRoomTileActions
+            user={user}
+            variant="drawer"
+            onGrantCoHost={onGrantCoHost}
+            onRevokeCoHost={onRevokeCoHost}
+            onRemoveSpeaker={onRemoveSpeaker}
+            onKick={onKick}
+            isGrantingCoHost={isGrantingCoHost}
+            isRevokingCoHost={isRevokingCoHost}
+            isRemoving={isRemoving}
+            isKicking={isKicking}
+            moderationDisabled={moderationDisabled}
+            onActionComplete={() => setActionsOpen(false)}
+          />
+        </Drawer>
+        {isFocused ? (
+          <button
+            type="button"
+            aria-label="Close enlarged tile"
+            className="fixed inset-0 z-popup cursor-zoom-out bg-overlay-quaternary-onion backdrop-blur"
+            onClick={() => onUnfocus?.()}
+          />
+        ) : null}
+      </RootPortal>
     </div>
   );
 };

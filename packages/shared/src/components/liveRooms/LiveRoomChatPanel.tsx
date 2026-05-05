@@ -11,6 +11,10 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
+import { Drawer } from '../drawers';
+import { RootPortal } from '../tooltips/Portal';
+import { EmojiPicker } from '../fields/EmojiPicker';
+import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import {
   Typography,
   TypographyColor,
@@ -21,11 +25,15 @@ import {
   DiscussIcon,
   LockIcon,
   MenuIcon,
+  PlusIcon,
+  SendAirplaneIcon,
   TrashIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
 import type { LiveRoomChatEntry } from '../../contexts/LiveRoomContext';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
 import type { UserShortProfile } from '../../lib/user';
 import {
@@ -34,6 +42,7 @@ import {
 } from './liveRoomParticipants';
 import {
   LiveRoomChatReactions,
+  getChatReactionGroups,
   type ChatReactionAnalytics,
 } from './LiveRoomChatReactions';
 
@@ -59,6 +68,7 @@ const LiveRoomChatComposer = ({
   const inputRef = useRef<RichTextInputRef | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [draft, setDraft] = useState('');
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   let disabledReason = 'The host disabled your chat access.';
   if (!isLoggedIn) {
@@ -88,8 +98,8 @@ const LiveRoomChatComposer = ({
 
   if (!canChat) {
     return (
-      <div className="border-t border-border-subtlest-tertiary p-2.5">
-        <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-2.5">
+      <div className="border-t border-border-subtlest-tertiary p-1.5 tablet:p-2.5">
+        <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-2 py-1.5 tablet:px-3 tablet:py-2.5">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
@@ -112,7 +122,7 @@ const LiveRoomChatComposer = ({
   }
 
   return (
-    <div className="border-t border-border-subtlest-tertiary">
+    <div className="border-t border-border-subtlest-tertiary pb-2 pl-1.5 pr-2 pt-1.5 tablet:p-0">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -122,15 +132,18 @@ const LiveRoomChatComposer = ({
         <RichTextInput
           ref={inputRef}
           className={{
-            container: '!rounded-none !bg-transparent',
-            input: '!p-2.5',
+            container:
+              '!flex-row !items-end !gap-1 !rounded-none !bg-transparent tablet:!flex-col tablet:!items-stretch tablet:!gap-0 [&>*:first-child]:min-w-0',
+            input:
+              'max-h-[2.75rem] overflow-y-auto break-words !p-1.5 tablet:max-h-none tablet:overflow-visible tablet:!p-2.5 [&_.ProseMirror]:!min-h-[1.5rem] tablet:[&_.ProseMirror]:!min-h-[6rem]',
           }}
           showUserAvatar={false}
           submitCopy="Send"
           isLoading={isSending}
           maxInputLength={1000}
           allowBlockFormatting={false}
-          minHeightClassName="min-h-[3rem]"
+          hideToolbar={!isTablet}
+          minHeightClassName="min-h-[2rem] tablet:min-h-[3rem]"
           mentionSuggestions={mentionSuggestions}
           markdownToHtml={chatMarkdownToHtml}
           enabledCommand={{
@@ -141,8 +154,21 @@ const LiveRoomChatComposer = ({
           textareaProps={{
             name: 'chat-message',
             placeholder: 'Write a message',
-            rows: 2,
+            rows: isTablet ? 2 : 1,
           }}
+          footer={
+            isTablet ? undefined : (
+              <Button
+                type="submit"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<SendAirplaneIcon />}
+                aria-label="Send"
+                disabled={isSending || !draft.trim()}
+                loading={isSending}
+              />
+            )
+          }
           onValueUpdate={setDraft}
           onSubmit={(event) =>
             handleSubmit(event.currentTarget.value).catch(() => undefined)
@@ -212,6 +238,39 @@ export const LiveRoomChatPanel = ({
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [reactionBusy, setReactionBusy] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
+  const [pickerMessageId, setPickerMessageId] = useState<string | null>(null);
+  const longPressHandlers = useTouchLongPress<string>({
+    enabled: isMobile && canChat,
+    onLongPress: setPickerMessageId,
+  });
+
+  const pickerMessage = pickerMessageId
+    ? chatMessages.find((m) => m.messageId === pickerMessageId) ?? null
+    : null;
+  const pickerReactionKeysSet = new Set(
+    pickerMessage
+      ? getChatReactionGroups(pickerMessage, currentParticipantId).map(
+          (r) => r.key,
+        )
+      : [],
+  );
+  const pickerQuickReactionKeys = LIVE_ROOM_QUICK_REACTION_EMOJIS.filter(
+    (key) => !pickerReactionKeysSet.has(key),
+  );
+  const pickerBaseAnalytics = {
+    activeReactionCount: pickerReactionKeysSet.size,
+    quickReactionCount: pickerQuickReactionKeys.length,
+  };
+
+  const closePicker = (): void => setPickerMessageId(null);
+
+  useEffect(() => {
+    if (pickerMessageId && !pickerMessage) {
+      closePicker();
+    }
+  }, [pickerMessage, pickerMessageId]);
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
@@ -272,6 +331,20 @@ export const LiveRoomChatPanel = ({
       .finally(() => setReactionBusy(null));
   };
 
+  const applyLongPressReaction = (
+    reactionKey: string,
+    source: 'long_press_quick' | 'long_press_picker',
+  ): void => {
+    if (!pickerMessageId) {
+      return;
+    }
+    runReactionAction(pickerMessageId, reactionKey, {
+      ...pickerBaseAnalytics,
+      source,
+    });
+    closePicker();
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -317,7 +390,21 @@ export const LiveRoomChatPanel = ({
             return (
               <article
                 key={message.messageId}
-                className="group flex items-start gap-2 px-1 py-1.5"
+                className={classNames(
+                  'group flex items-start gap-2 px-1 py-1.5',
+                  isMobile && 'select-none [-webkit-touch-callout:none]',
+                )}
+                onTouchStart={(event) =>
+                  longPressHandlers.onTouchStart(event, message.messageId)
+                }
+                onTouchEnd={longPressHandlers.onTouchEnd}
+                onTouchMove={longPressHandlers.onTouchMove}
+                onTouchCancel={longPressHandlers.onTouchCancel}
+                onContextMenu={(event) => {
+                  if (isMobile) {
+                    event.preventDefault();
+                  }
+                }}
               >
                 <ProfilePicture user={sender} size={ProfileImageSize.Small} />
                 <div className="min-w-0 flex-1">
@@ -346,6 +433,7 @@ export const LiveRoomChatPanel = ({
                     canChat={canChat}
                     senderName={senderName}
                     reactionBusy={reactionBusy}
+                    hideQuickReactions={isMobile}
                     onReactionAction={runReactionAction}
                   />
                 </div>
@@ -445,6 +533,61 @@ export const LiveRoomChatPanel = ({
         onSendMessage={onSendMessage}
         onRequestLogin={onRequestLogin}
       />
+      <RootPortal>
+        <Drawer
+          isOpen={!!pickerMessageId}
+          onClose={closePicker}
+          title="Add reaction"
+          displayCloseButton={false}
+          className={{
+            wrapper: '!overflow-hidden',
+            title: 'sticky top-0 z-1 bg-background-default',
+          }}
+        >
+          <div className="overflow-y-auto">
+            <div className="flex flex-wrap items-center justify-center gap-2 px-3 py-2">
+              {pickerQuickReactionKeys.map((emoji) => (
+                <Button
+                  key={emoji}
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  aria-label={`React ${emoji}`}
+                  onClick={() =>
+                    applyLongPressReaction(emoji, 'long_press_quick')
+                  }
+                >
+                  <span className="text-base leading-none">{emoji}</span>
+                </Button>
+              ))}
+              <EmojiPicker
+                value=""
+                label={null}
+                className="shrink-0"
+                onChange={(reactionKey) => {
+                  if (!reactionKey) {
+                    return;
+                  }
+                  applyLongPressReaction(reactionKey, 'long_press_picker');
+                }}
+                renderTrigger={({ isOpen, toggleOpen }) => (
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={
+                      isOpen ? ButtonVariant.Primary : ButtonVariant.Float
+                    }
+                    icon={<PlusIcon />}
+                    aria-label="Custom reaction"
+                    aria-expanded={isOpen}
+                    onClick={toggleOpen}
+                  />
+                )}
+              />
+            </div>
+          </div>
+        </Drawer>
+      </RootPortal>
     </div>
   );
 };

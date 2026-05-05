@@ -27,6 +27,7 @@ import type { UserShortProfile } from '../../lib/user';
 interface LiveRoomTileActionsProps {
   user: UserShortProfile;
   className?: string;
+  variant?: 'inline' | 'drawer';
   onGrantCoHost?: () => void;
   onRevokeCoHost?: () => void;
   onRemoveSpeaker?: () => void;
@@ -36,11 +37,23 @@ interface LiveRoomTileActionsProps {
   isRemoving?: boolean;
   isKicking?: boolean;
   moderationDisabled?: boolean;
+  onActionComplete?: () => void;
+}
+
+interface LiveRoomTileActionItem {
+  key: string;
+  drawerLabel: string;
+  ariaLabel: string;
+  icon: ReactElement;
+  loading?: boolean;
+  disabled?: boolean;
+  onClick: () => void | Promise<void>;
 }
 
 export const LiveRoomTileActions = ({
   user,
   className,
+  variant = 'inline',
   onGrantCoHost,
   onRevokeCoHost,
   onRemoveSpeaker,
@@ -50,6 +63,7 @@ export const LiveRoomTileActions = ({
   isRemoving = false,
   isKicking = false,
   moderationDisabled = false,
+  onActionComplete,
 }: LiveRoomTileActionsProps): ReactElement | null => {
   const { user: viewer, showLogin } = useAuthContext();
   const { follow, unfollow } = useContentPreference();
@@ -127,102 +141,131 @@ export const LiveRoomTileActions = ({
     ? `Unfollow ${user.name}`
     : `Follow ${user.name}`;
 
+  const actionItems: LiveRoomTileActionItem[] = [];
+
+  if (showSocial) {
+    actionItems.push(
+      {
+        key: 'follow',
+        drawerLabel: followLabel,
+        ariaLabel: followLabel,
+        icon: isFollowing ? <VIcon secondary /> : <AddUserIcon />,
+        loading: followBusy,
+        disabled: followBusy,
+        onClick: handleFollow,
+      },
+      {
+        key: 'award',
+        drawerLabel: `Award ${user.name}`,
+        ariaLabel: `Award ${user.name}`,
+        icon: <MedalBadgeIcon secondary />,
+        onClick: handleAward,
+      },
+    );
+  }
+
+  if (showGrantCoHost) {
+    actionItems.push({
+      key: 'grant',
+      drawerLabel: 'Grant co-host',
+      ariaLabel: `Grant co-host to ${user.name}`,
+      icon: <ShieldIcon />,
+      loading: isGrantingCoHost,
+      disabled: moderationDisabled || isGrantingCoHost,
+      onClick: () => onGrantCoHost?.(),
+    });
+  }
+
+  if (showRevokeCoHost) {
+    actionItems.push({
+      key: 'revoke',
+      drawerLabel: 'Revoke co-host',
+      ariaLabel: `Revoke co-host from ${user.name}`,
+      icon: <ShieldCheckIcon />,
+      loading: isRevokingCoHost,
+      disabled: moderationDisabled || isRevokingCoHost,
+      onClick: () => onRevokeCoHost?.(),
+    });
+  }
+
+  if (showRemove) {
+    actionItems.push({
+      key: 'remove',
+      drawerLabel: 'Remove from stage',
+      ariaLabel: `Remove ${user.name} from stage`,
+      icon: <RemoveUserIcon />,
+      loading: isRemoving,
+      disabled: moderationDisabled || isRemoving,
+      onClick: () => onRemoveSpeaker?.(),
+    });
+  }
+
+  if (showKick) {
+    actionItems.push({
+      key: 'kick',
+      drawerLabel: 'Kick from room',
+      ariaLabel: `Kick ${user.name} from room`,
+      icon: <BlockIcon />,
+      loading: isKicking,
+      disabled: moderationDisabled || isKicking,
+      onClick: () => onKick?.(),
+    });
+  }
+
+  if (actionItems.length === 0) {
+    return null;
+  }
+
+  const runDrawerAction = (handler: () => void | Promise<void>) => () => {
+    handler();
+    onActionComplete?.();
+  };
+
+  if (variant === 'drawer') {
+    return (
+      <div className={classNames('flex flex-col gap-1 p-2', className)}>
+        {actionItems.map((item) => (
+          <Button
+            key={item.key}
+            type="button"
+            size={ButtonSize.Medium}
+            variant={ButtonVariant.Tertiary}
+            icon={item.icon}
+            loading={item.loading}
+            disabled={item.disabled}
+            className="!justify-start"
+            onClick={runDrawerAction(item.onClick)}
+          >
+            {item.drawerLabel}
+          </Button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div
       className={classNames(
-        'pointer-events-auto flex max-w-0 items-center gap-1 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover:max-w-[14rem] group-hover:opacity-100',
+        'pointer-events-auto hidden max-w-0 items-center gap-1 overflow-hidden opacity-0 transition-[max-width,opacity,transform] duration-200 ease-out group-hover:max-w-[14rem] group-hover:opacity-100 tablet:flex',
         '-translate-x-1 group-hover:translate-x-0',
         className,
       )}
     >
-      {showSocial ? (
-        <Tooltip content={followLabel}>
+      {actionItems.map((item) => (
+        <Tooltip key={item.key} content={item.ariaLabel}>
           <Button
             type="button"
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             className="!text-white"
-            icon={isFollowing ? <VIcon secondary /> : <AddUserIcon />}
-            loading={followBusy}
-            disabled={followBusy}
-            aria-label={followLabel}
-            onClick={handleFollow}
+            icon={item.icon}
+            loading={item.loading}
+            disabled={item.disabled}
+            aria-label={item.ariaLabel}
+            onClick={item.onClick}
           />
         </Tooltip>
-      ) : null}
-      {showSocial ? (
-        <Tooltip content={`Award ${user.name}`}>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            className="!text-white"
-            icon={<MedalBadgeIcon secondary />}
-            aria-label={`Award ${user.name}`}
-            onClick={handleAward}
-          />
-        </Tooltip>
-      ) : null}
-      {showGrantCoHost ? (
-        <Tooltip content={`Grant co-host to ${user.name}`}>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            className="!text-white"
-            icon={<ShieldIcon />}
-            loading={isGrantingCoHost}
-            disabled={moderationDisabled || isGrantingCoHost}
-            aria-label={`Grant co-host to ${user.name}`}
-            onClick={onGrantCoHost}
-          />
-        </Tooltip>
-      ) : null}
-      {showRevokeCoHost ? (
-        <Tooltip content={`Revoke co-host from ${user.name}`}>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            className="!text-white"
-            icon={<ShieldCheckIcon />}
-            loading={isRevokingCoHost}
-            disabled={moderationDisabled || isRevokingCoHost}
-            aria-label={`Revoke co-host from ${user.name}`}
-            onClick={onRevokeCoHost}
-          />
-        </Tooltip>
-      ) : null}
-      {showRemove ? (
-        <Tooltip content={`Remove ${user.name} from stage`}>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            className="!text-white"
-            icon={<RemoveUserIcon />}
-            loading={isRemoving}
-            disabled={moderationDisabled || isRemoving}
-            aria-label={`Remove ${user.name} from stage`}
-            onClick={onRemoveSpeaker}
-          />
-        </Tooltip>
-      ) : null}
-      {showKick ? (
-        <Tooltip content={`Kick ${user.name} from room`}>
-          <Button
-            type="button"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Tertiary}
-            className="!text-white"
-            icon={<BlockIcon />}
-            loading={isKicking}
-            disabled={moderationDisabled || isKicking}
-            aria-label={`Kick ${user.name} from room`}
-            onClick={onKick}
-          />
-        </Tooltip>
-      ) : null}
+      ))}
     </div>
   );
 };

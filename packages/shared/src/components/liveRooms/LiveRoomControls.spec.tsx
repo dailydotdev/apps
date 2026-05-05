@@ -92,8 +92,21 @@ jest.mock('../modals/common/Modal', () => {
     return <div>{children}</div>;
   }
 
-  function MockModal({ children }: { children: React.ReactNode }) {
-    return <div role="dialog">{children}</div>;
+  function MockModal({
+    children,
+    drawerProps,
+  }: {
+    children: React.ReactNode;
+    drawerProps?: { appendOnRoot?: boolean };
+  }) {
+    return (
+      <div
+        role="dialog"
+        data-append-on-root={drawerProps?.appendOnRoot ? 'true' : 'false'}
+      >
+        {children}
+      </div>
+    );
   }
 
   Object.assign(MockModal, {
@@ -772,6 +785,25 @@ describe('LiveRoomControls', () => {
     expect(screen.getByLabelText('Audio only')).toBeInTheDocument();
     expect(screen.queryByLabelText('Hide my preview')).not.toBeInTheDocument();
     expect(setVideoSetting).not.toHaveBeenCalled();
+  });
+
+  it('renders mobile room settings drawer outside the controls hit area', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        canPublish: false,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Standup settings' }));
+
+    expect(screen.getByRole('dialog')).toHaveAttribute(
+      'data-append-on-root',
+      'true',
+    );
   });
 
   it('updates the audio only setting from the room settings modal', () => {
