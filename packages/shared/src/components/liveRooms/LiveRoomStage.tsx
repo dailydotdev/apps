@@ -10,10 +10,8 @@ import {
 } from '../typography/Typography';
 import { UserIcon } from '../icons';
 import { IconSize } from '../Icon';
-import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
 import type { UserShortProfile } from '../../lib/user';
 import { LiveRoomControls } from './LiveRoomControls';
-import { LiveRoomLobbyContent } from './LiveRoomLobbyContent';
 import { LiveRoomStagePager } from './LiveRoomStagePager';
 import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 
@@ -29,9 +27,7 @@ export interface LiveRoomStageSpeaker {
 }
 
 interface LiveRoomStageProps {
-  room: LiveRoomModel;
   roomId: string;
-  isCreated: boolean;
   isEnded: boolean;
   stagePageCount: number;
   clampedStagePage: number;
@@ -74,9 +70,7 @@ interface LiveRoomStageProps {
 }
 
 export const LiveRoomStage = ({
-  room,
   roomId,
-  isCreated,
   isEnded,
   stagePageCount,
   clampedStagePage,
@@ -102,7 +96,7 @@ export const LiveRoomStage = ({
   showControls,
   onLeave,
 }: LiveRoomStageProps): ReactElement => {
-  const hasMultiplePages = !isCreated && stagePageCount > 1;
+  const hasMultiplePages = stagePageCount > 1;
   const goToPage = useCallback(
     (page: number) => {
       setStagePage(() => Math.max(0, Math.min(stagePageCount - 1, page)));
@@ -135,8 +129,7 @@ export const LiveRoomStage = ({
 
   return (
     <section aria-label="Speakers" className="relative flex min-h-0 flex-col">
-      {isCreated ? <LiveRoomLobbyContent room={room} /> : null}
-      {!isCreated && speakers.length > 0 ? (
+      {speakers.length > 0 ? (
         <div className="relative flex min-h-0 flex-1 flex-col">
           <div
             {...swipeHandlers}
@@ -231,7 +224,7 @@ export const LiveRoomStage = ({
           />
         </div>
       ) : null}
-      {!isCreated && speakers.length === 0 ? (
+      {speakers.length === 0 ? (
         <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
           <div className="flex flex-col items-center gap-2">
             <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">

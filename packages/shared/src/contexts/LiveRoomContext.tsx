@@ -30,6 +30,7 @@ import {
   LiveRoomConnection,
 } from '../lib/liveRoom/connection';
 import { buildStandupAnalyticsExtra } from '../lib/liveRoom/analytics';
+import { getSnapshotChatMessages } from '../lib/liveRoom/protocol';
 import { getLiveRoomPrivilegeState } from '../lib/liveRoom/privileges';
 import { LogEvent } from '../lib/log';
 import {
@@ -1005,6 +1006,11 @@ export const LiveRoomProvider = ({
     });
     const offSnapshot = connection.onSnapshot((event) => {
       setRoomState(event.room);
+      if (event.chat) {
+        setChatMessages(
+          getSnapshotChatMessages(event.chat, CHAT_HISTORY_LIMIT),
+        );
+      }
     });
     const offUpdated = connection.onRoomUpdated((event) => {
       setRoomState(event.room);

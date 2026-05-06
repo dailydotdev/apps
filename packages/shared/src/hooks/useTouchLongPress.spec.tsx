@@ -35,7 +35,7 @@ describe('useTouchLongPress', () => {
       result.current.onTouchStart(createTouchEvent(), 'message-1');
     });
 
-    expect(document.documentElement.style.userSelect).toBe('none');
+    expect(document.documentElement).toHaveStyle({ userSelect: 'none' });
 
     act(() => {
       result.current.onTouchEnd();
@@ -64,7 +64,7 @@ describe('useTouchLongPress', () => {
     });
 
     expect(onLongPress).toHaveBeenCalledWith('message-1');
-    expect(document.documentElement.style.userSelect).toBe('none');
+    expect(document.documentElement).toHaveStyle({ userSelect: 'none' });
 
     act(() => {
       result.current.onTouchEnd();
@@ -89,6 +89,7 @@ describe('useTouchLongPress', () => {
     });
 
     expect(onLongPress).not.toHaveBeenCalled();
+    // eslint-disable-next-line jest-dom/prefer-to-have-style
     expect(document.documentElement.style.userSelect).toBe('');
   });
 });
