@@ -484,10 +484,13 @@ describe('LiveRoom', () => {
     renderLiveRoom();
 
     expect(screen.getByText('Review launch notes')).toBeInTheDocument();
-    expect(screen.getByText('2:00:00')).toBeInTheDocument();
+    expect(screen.getByRole('timer')).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('02 hours 00 minutes 00 seconds'),
+    );
     expect(screen.queryByTestId('live-room-tile')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Notify me' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remind me' }));
 
     await waitFor(() => {
       expect(mockSubscribeToLiveRoom).toHaveBeenCalledTimes(1);
@@ -543,7 +546,7 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Unsubscribe' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Reminder set' }));
 
     await waitFor(() => {
       expect(mockUnsubscribeFromLiveRoom).toHaveBeenCalledTimes(1);
