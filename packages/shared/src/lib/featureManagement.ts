@@ -195,6 +195,11 @@ export const featureNewTabCustomizer = new Feature(
   false,
 );
 
+export const featureExtensionInHouseDnd = new Feature(
+  'extension_in_house_dnd',
+  true,
+);
+
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
