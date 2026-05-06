@@ -20,6 +20,8 @@ const mockUsePushNotificationContext = jest.fn();
 const mockSubscribeToLiveRoom = jest.fn();
 const mockUnsubscribeFromLiveRoom = jest.fn();
 const mockEnablePush = jest.fn();
+const mockShareOrCopyStandup = jest.fn();
+const mockUseShareOrCopyLink = jest.fn();
 const mockUseViewSize = jest.fn<boolean, [unknown]>(() => true);
 const mockUseQueries = useQueries as jest.Mock;
 
@@ -68,6 +70,10 @@ jest.mock('../../contexts/PushNotificationContext', () => ({
 
 jest.mock('../../hooks/notifications/usePushNotificationMutation', () => ({
   usePushNotificationMutation: () => ({ onEnablePush: mockEnablePush }),
+}));
+
+jest.mock('../../hooks/useShareOrCopyLink', () => ({
+  useShareOrCopyLink: (...args: unknown[]) => mockUseShareOrCopyLink(...args),
 }));
 
 jest.mock('../../hooks/useToastNotification', () => ({
@@ -271,6 +277,8 @@ describe('LiveRoom', () => {
     mockSubscribeToLiveRoom.mockResolvedValue({});
     mockUnsubscribeFromLiveRoom.mockResolvedValue({});
     mockEnablePush.mockResolvedValue(true);
+    mockShareOrCopyStandup.mockResolvedValue(undefined);
+    mockUseShareOrCopyLink.mockReturnValue([false, mockShareOrCopyStandup]);
     mockUseLiveRoomSubscription.mockReturnValue({
       subscribe: { mutateAsync: mockSubscribeToLiveRoom, isPending: false },
       unsubscribe: {
@@ -500,6 +508,13 @@ describe('LiveRoom', () => {
       expect.objectContaining({
         event_name: 'subscribe standup',
         target_id: 'room-1',
+        extra: expect.stringContaining('"surface":"lobby_hero"'),
+      }),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'subscribe standup',
+        target_id: 'room-1',
         extra: expect.stringContaining('"pushEnabled":true'),
       }),
     );
@@ -556,6 +571,63 @@ describe('LiveRoom', () => {
       expect.objectContaining({
         event_name: 'unsubscribe standup',
         target_id: 'room-1',
+        extra: expect.stringContaining('"surface":"lobby_hero"'),
+      }),
+    );
+  });
+
+  it('uses the shared share action without logging a duplicate event locally', () => {
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'user-1',
+        canPublish: false,
+        roomState: {
+          ...createContextValue().roomState!,
+          status: 'created',
+        },
+      }),
+    );
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        createdAt: '2026-05-04T08:55:00.000Z',
+        updatedAt: '2026-05-04T08:55:00.000Z',
+        topic: 'Lobby launch',
+        mode: 'moderated',
+        status: 'created',
+        startedAt: null,
+        endedAt: null,
+        scheduledStart: '2026-05-04T11:00:00.000Z',
+        description: null,
+        descriptionHtml: null,
+        subscribed: false,
+        contentEmbeds: [],
+        host: {
+          id: 'host',
+          username: 'host',
+          name: 'Host',
+          image: '',
+          permalink: '#',
+        },
+      },
+      error: null,
+      isLoading: false,
+    });
+
+    renderLiveRoom();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+
+    expect(mockShareOrCopyStandup).toHaveBeenCalledTimes(1);
+    expect(mockUseShareOrCopyLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        link: 'http://localhost/standups/room-1',
+      }),
+    );
+    expect(mockLogEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: 'share standup',
       }),
     );
   });

@@ -20,6 +20,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isDevelopment, webappUrl } from '../../lib/constants';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { isValidHttpUrl } from '../../lib/links';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
@@ -310,20 +311,33 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     });
     setActiveTab(tab);
   };
-  const standupShareLink = `${webappUrl}standups/${roomId}`;
+  const standupShareBase =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://daily.dev';
+  const standupShareOrigin =
+    typeof window === 'undefined' && isValidHttpUrl(webappUrl)
+      ? webappUrl
+      : standupShareBase;
+  const standupShareLink = new URL(
+    `/standups/${roomId}`,
+    standupShareOrigin,
+  ).toString();
   const standupShareText = room
     ? `Join me for "${room.topic}", a live developer standup on daily.dev`
     : 'Join this developer standup on daily.dev';
   const [, shareOrCopyStandup] = useShareOrCopyLink({
     link: standupShareLink,
     text: standupShareText,
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareStandup,
+      target_id: roomId,
+      extra: buildStandupExtra({
+        surface: 'lobby_hero',
+        provider,
+      }),
+    }),
   });
-  const handleShareStandup = async (): Promise<void> => {
-    await shareOrCopyStandup();
-    logStandupAction(LogEvent.ShareStandup, roomId, {
-      surface: 'lobby_hero',
-    });
-  };
   const handleToggleSubscription = async (): Promise<void> => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.MainButton });
@@ -338,7 +352,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       if (room.subscribed) {
         await unsubscribe.mutateAsync();
         logStandupAction(LogEvent.UnsubscribeStandup, roomId, {
-          surface: 'header',
+          surface: 'lobby_hero',
         });
         displayToast('Lobby reminder removed');
         return;
@@ -352,7 +366,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       }
 
       logStandupAction(LogEvent.SubscribeStandup, roomId, {
-        surface: 'header',
+        surface: 'lobby_hero',
         pushEnabled,
         pushPermissionRequested: shouldRequestPush,
       });
@@ -693,7 +707,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           onToggleSubscription={handleToggleSubscription}
           isHost={isHost}
           onNavigateBack={handleNavigateBack}
-          onShare={handleShareStandup}
+          onShare={shareOrCopyStandup}
           audienceParticipantIds={audienceParticipantIds}
           participantProfilesById={participantProfilesById}
           chatPanel={chatPanelNode}
