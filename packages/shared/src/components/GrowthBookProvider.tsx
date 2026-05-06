@@ -104,15 +104,34 @@ export const GrowthBookProvider = ({
   );
 
   useEffect(() => {
-    if (gb && experimentation?.features) {
+    if (!gb) {
+      return;
+    }
+
+    if (experimentation?.features) {
       const currentFeats = gb.getFeatures?.();
       // Do not update when the features are already set
       if (!currentFeats || !Object.keys(currentFeats).length) {
         gb.setFeatures?.(experimentation.features);
-        setReady(true);
       }
+      setReady(true);
+      return;
     }
-  }, [experimentation?.features, gb]);
+
+    // Boot resolved but features couldn't be decrypted (typically a dev env
+    // without a matching `NEXT_PUBLIC_EXPERIMENTATION_KEY`). Seed GrowthBook
+    // with an empty feature set so its own `ready` flag flips to true and
+    // consumers like MainLayout — which short-circuit to `null` while
+    // `growthbook.ready` is false — render with default flag values
+    // instead of leaving the app stuck on a blank page.
+    if (experimentation) {
+      const currentFeats = gb.getFeatures?.();
+      if (!currentFeats || !Object.keys(currentFeats).length) {
+        gb.setFeatures?.({});
+      }
+      setReady(true);
+    }
+  }, [experimentation, experimentation?.features, gb]);
 
   useEffect(() => {
     callback.current = async (experiment, result) => {

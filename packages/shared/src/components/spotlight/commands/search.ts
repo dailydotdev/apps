@@ -117,7 +117,10 @@ const buildUserCommand = (
   },
 });
 
-type SeeAllScope = Exclude<SpotlightScope, SpotlightScope.All>;
+type SeeAllScope = Exclude<
+  SpotlightScope,
+  SpotlightScope.All | SpotlightScope.Actions
+>;
 
 const seeAllProvider: Record<SeeAllScope, SearchProviderEnum> = {
   [SpotlightScope.Posts]: SearchProviderEnum.Posts,

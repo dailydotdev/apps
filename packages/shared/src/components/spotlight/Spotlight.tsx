@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { Command } from 'cmdk';
 import ReactModal from 'react-modal';
-import { ClearIcon, ClickIcon, SearchIcon } from '../icons';
+import { ArrowIcon, ClearIcon, ClickIcon, SearchIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { ElementPlaceholder } from '../ElementPlaceholder';
@@ -40,7 +40,12 @@ import { useRecentCommands } from './useRecentCommands';
 import { useSpotlightCommands } from './useSpotlightCommands';
 import { useSpotlightSearchCommands } from './commands/search';
 import { ScopeBreadcrumbs } from './ScopeBreadcrumbs';
+import { ScopeFilterPill } from './ScopeFilterPill';
 import { useQuickKeyDispatch } from './useQuickKeyDispatch';
+import {
+  spotlightCommandFilter,
+  SPOTLIGHT_PASSTHROUGH_KEYWORD,
+} from './spotlightFilter';
 
 const groupHeadingClass =
   '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-text-quaternary';
@@ -166,6 +171,12 @@ const SpotlightRow = ({
   const value = `${command.title} ${command.subtitle ?? ''} ${(
     command.keywords ?? []
   ).join(' ')}`.toLowerCase();
+  // Backend-driven entity rows (posts/sources/users/tags) and the
+  // "see all in <scope>" CTA opt out of cmdk's local filter via this
+  // marker keyword. The API already ranked them — re-filtering locally
+  // would drop perfectly relevant results when the title doesn't share
+  // characters with the query (e.g. tag aliases, handle vs display name).
+  const cmdKeywords = meta ? [SPOTLIGHT_PASSTHROUGH_KEYWORD] : undefined;
 
   let leading: ReactElement;
   let body: ReactElement;
@@ -240,6 +251,7 @@ const SpotlightRow = ({
   return (
     <Command.Item
       value={value}
+      keywords={cmdKeywords}
       data-command-id={command.id}
       onSelect={() => onSelect(command)}
       aria-keyshortcuts={command.shortcut}
@@ -384,6 +396,7 @@ interface ShortcutsHelpScreenProps {
   cmdShortcutLabel: string;
   visibleGroupLabels: string[];
   quickKeys: Array<{ key: string; label: string }>;
+  isMobile?: boolean;
   onClose: () => void;
 }
 
@@ -391,8 +404,13 @@ const ShortcutsHelpScreen = ({
   cmdShortcutLabel,
   visibleGroupLabels,
   quickKeys,
+  isMobile,
   onClose,
 }: ShortcutsHelpScreenProps): ReactElement => {
+  const backButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    backButtonRef.current?.focus();
+  }, []);
   const groupShortcuts = visibleGroupLabels.slice(0, 9).map((label, idx) => ({
     combo: `${cmdShortcutLabel}+${idx + 1}`,
     label: `Jump to ${label}`,
@@ -403,7 +421,7 @@ const ShortcutsHelpScreen = ({
     { combo: '↑ ↓', label: 'Move selection between commands' },
     { combo: 'Tab', label: 'Cycle to the next group' },
     { combo: 'Shift+Tab', label: 'Cycle to the previous group' },
-    { combo: 'Alt+1..4', label: 'Jump to a search scope' },
+    { combo: 'Alt+1..5', label: 'Jump to a search scope' },
     { combo: 'Backspace', label: 'Clear the active scope (when input empty)' },
     { combo: 'Esc', label: 'Close Spotlight or cancel a confirm' },
     ...groupShortcuts,
@@ -412,59 +430,72 @@ const ShortcutsHelpScreen = ({
     <div
       role="dialog"
       aria-label="Spotlight keyboard shortcuts"
-      className="flex flex-col gap-4 px-5 py-6"
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="font-bold text-text-primary typo-callout">
-          Keyboard shortcuts
-        </h3>
-        <Button
-          type="button"
-          variant={ButtonVariant.Tertiary}
-          size={ButtonSize.Small}
-          onClick={onClose}
-          autoFocus
-        >
-          Back
-        </Button>
-      </div>
-      <ul className="flex flex-col gap-1.5">
-        {rows.map((row) => (
-          <li
-            key={row.combo}
-            className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
-          >
-            <span className="text-text-primary">{row.label}</span>
-            <kbd className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-2 py-0.5 text-text-primary typo-caption1">
-              {row.combo}
-            </kbd>
-          </li>
-        ))}
-      </ul>
-      {quickKeys.length > 0 && (
-        <div>
-          <h4 className="mb-2 font-bold text-text-primary typo-callout">
-            Quick Keys
-          </h4>
-          <p className="mb-3 text-text-tertiary typo-footnote">
-            Type two letters then space to run instantly.
-          </p>
-          <ul className="flex flex-col gap-1.5">
-            {quickKeys.map((qk) => (
-              <li
-                key={qk.key}
-                className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
-              >
-                <span className="text-text-primary">{qk.label}</span>
-                <kbd className="border-accent-cabbage-default/40 flex items-center gap-1 rounded-6 border bg-overlay-active-cabbage px-2 py-0.5 text-accent-cabbage-default typo-caption1">
-                  <span className="font-mono font-bold">{qk.key}</span>
-                  <span className="opacity-70">+ space</span>
-                </kbd>
-              </li>
-            ))}
-          </ul>
-        </div>
+      className={classNames(
+        'flex flex-col',
+        isMobile ? 'flex-1' : 'max-h-[min(640px,60vh)]',
       )}
+    >
+      <button
+        type="button"
+        ref={backButtonRef}
+        onClick={onClose}
+        aria-label="Back to search"
+        className={classNames(
+          'group/help-back flex h-14 shrink-0 items-center gap-3 border-b border-border-subtlest-tertiary px-4 text-left transition-colors',
+          'hover:bg-surface-hover focus-visible:bg-surface-hover focus-visible:outline-none',
+        )}
+      >
+        <ArrowIcon
+          size={IconSize.Small}
+          className="-rotate-90 text-text-tertiary transition-colors group-hover/help-back:text-text-primary"
+          aria-hidden
+        />
+        <span className="flex-1 text-text-tertiary typo-body group-hover/help-back:text-text-primary">
+          Back to search
+        </span>
+        <span className="hidden text-text-quaternary typo-caption1 laptop:inline">
+          Esc
+        </span>
+      </button>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-6">
+        <ul className="flex flex-col gap-1.5">
+          {rows.map((row) => (
+            <li
+              key={row.combo}
+              className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
+            >
+              <span className="text-text-primary">{row.label}</span>
+              <kbd className="bg-surface-invert/[0.08] rounded-6 border border-border-subtlest-secondary px-2 py-0.5 text-text-primary typo-caption1">
+                {row.combo}
+              </kbd>
+            </li>
+          ))}
+        </ul>
+        {quickKeys.length > 0 && (
+          <div>
+            <h4 className="mb-2 font-bold text-text-primary typo-callout">
+              Quick Keys
+            </h4>
+            <p className="mb-3 text-text-tertiary typo-footnote">
+              Type two letters then space to run instantly.
+            </p>
+            <ul className="flex flex-col gap-1.5">
+              {quickKeys.map((qk) => (
+                <li
+                  key={qk.key}
+                  className="flex items-center justify-between gap-3 rounded-10 px-3 py-1.5 text-text-secondary typo-footnote hover:bg-surface-hover"
+                >
+                  <span className="text-text-primary">{qk.label}</span>
+                  <kbd className="border-accent-cabbage-default/40 flex items-center gap-1 rounded-6 border bg-overlay-active-cabbage px-2 py-0.5 text-accent-cabbage-default typo-caption1">
+                    <span className="font-mono font-bold">{qk.key}</span>
+                    <span className="opacity-70">+ space</span>
+                  </kbd>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -505,9 +536,11 @@ export const Spotlight = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = !isLaptop;
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const [resultCount, setResultCount] = useState<number | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [groupCursor, setGroupCursor] = useState(0);
+  const [cmdValue, setCmdValue] = useState('');
   const handleShowShortcutsHelp = useCallback(() => {
     setShowHelp(true);
     showShortcutsHelp();
@@ -591,6 +624,47 @@ export const Spotlight = ({
     onQueryChange?.(query);
   }, [query, onQueryChange]);
 
+  // When the query changes or async search results land, anchor the list
+  // back to the top AND move cmdk's selection onto the new first item.
+  // Without this:
+  //  - the browser's default `overflow-anchor: auto` keeps the previously-
+  //    selected (synchronous) Action row in view, scrolling People / Squads
+  //    / Tags / Posts results below the fold the instant they arrive;
+  //  - cmdk preserves selection on the old Action row, so arrow keys feel
+  //    "stuck at the bottom" while the visible top is the entity hits.
+  useEffect(() => {
+    if (showHelp) {
+      return;
+    }
+    if (!listRef.current) {
+      return;
+    }
+    listRef.current.scrollTop = 0;
+    const firstItem = listRef.current.querySelector('[cmdk-item]');
+    const nextValue = firstItem?.getAttribute('data-value') ?? '';
+    setCmdValue(nextValue);
+  }, [
+    query,
+    scope,
+    showHelp,
+    search.isLoading,
+    search.users.length,
+    search.sources.length,
+    search.tags.length,
+    search.posts.length,
+  ]);
+
+  // When the user dismisses the shortcuts help screen, the input wrapper
+  // re-mounts and steals focus from whatever was focused. Pull focus
+  // back to the search input so they can keep typing without an extra
+  // click — matches Linear / Raycast behavior.
+  useEffect(() => {
+    if (showHelp) {
+      return;
+    }
+    inputRef.current?.focus();
+  }, [showHelp]);
+
   const commandById = useMemo(() => {
     const map = new Map<string, SpotlightCommand>();
     commands.forEach((cmd) => map.set(cmd.id, cmd));
@@ -654,40 +728,23 @@ export const Spotlight = ({
   }, [grouped, isFiltering]);
 
   /**
+   * Categories rendered by the Actions browse-mode (Apple-Finder
+   * equivalent). Order mirrors `groupOrder` so the list matches the
+   * mental model used elsewhere in the palette.
+   */
+  const actionScopeGroups: SpotlightGroup[] = [
+    SpotlightGroup.Navigate,
+    SpotlightGroup.Create,
+    SpotlightGroup.Settings,
+    SpotlightGroup.Actions,
+    SpotlightGroup.Help,
+  ];
+
+  /**
    * Which scope chips to surface below the input. Apple Spotlight pattern:
    * tabs only appear when there's something to filter through (i.e. a
    * query with multi-type results). Idle modal renders nothing here.
    */
-  const availableScopes = useMemo(() => {
-    if (scope !== SpotlightScope.All) {
-      return [];
-    }
-    if (!isFiltering) {
-      return [];
-    }
-    const out: Array<Exclude<SpotlightScope, SpotlightScope.All>> = [];
-    if (search.users.length > 0) {
-      out.push(SpotlightScope.People);
-    }
-    if (search.sources.length > 0) {
-      out.push(SpotlightScope.Squads);
-    }
-    if (search.tags.length > 0) {
-      out.push(SpotlightScope.Tags);
-    }
-    if (search.posts.length > 0) {
-      out.push(SpotlightScope.Posts);
-    }
-    return out;
-  }, [
-    scope,
-    isFiltering,
-    search.users.length,
-    search.sources.length,
-    search.tags.length,
-    search.posts.length,
-  ]);
-
   const handleSelect = useCallback(
     (command: SpotlightCommand) => {
       if (command.requiresAuth && !isLoggedIn) {
@@ -757,11 +814,11 @@ export const Spotlight = ({
       return filterGroups;
     }
     const out: SpotlightGroup[] = [];
-    if (suggested.length > 0) {
-      out.push(SpotlightGroup.Suggested);
-    }
     if (recentCommands.length > 0) {
       out.push(SpotlightGroup.Recent);
+    }
+    if (suggested.length > 0) {
+      out.push(SpotlightGroup.Suggested);
     }
     groupOrder.forEach((group) => {
       if (
@@ -817,6 +874,9 @@ export const Spotlight = ({
         label="Spotlight command palette"
         loop
         shouldFilter={!pendingCommand}
+        filter={spotlightCommandFilter}
+        value={cmdValue}
+        onValueChange={setCmdValue}
         className={classNames(
           'flex flex-col overflow-hidden',
           isMobile
@@ -841,7 +901,7 @@ export const Spotlight = ({
           if (
             event.altKey &&
             event.key >= '1' &&
-            event.key <= '4' &&
+            event.key <= '5' &&
             !pendingConfirmId
           ) {
             const idx = Number(event.key) - 1;
@@ -878,24 +938,27 @@ export const Spotlight = ({
           }
         }}
       >
-        {!pendingCommand && (
+        {!pendingCommand && !showHelp && (
           <>
             <div
               data-cmdk-input-wrapper=""
-              className="flex h-14 items-center gap-3 px-4"
+              className="flex h-14 items-center gap-3 border-b border-border-subtlest-tertiary px-4"
             >
               <SearchIcon
                 size={IconSize.Small}
                 className="text-text-tertiary transition-colors group-focus-within/spotlight:text-text-primary"
                 aria-hidden
               />
+              {scope !== SpotlightScope.All && (
+                <ScopeFilterPill scope={scope} onRemove={clearScope} />
+              )}
               <Command.Input
                 ref={inputRef}
                 value={query}
                 onValueChange={setQuery}
                 placeholder={
                   scope === SpotlightScope.All
-                    ? 'Search posts, squads, people, tags…'
+                    ? 'Search posts, squads, people, tags, or actions…'
                     : scopeMeta[scope].placeholder
                 }
                 autoFocus
@@ -936,18 +999,8 @@ export const Spotlight = ({
                 </button>
               )}
             </div>
-            {(scope !== SpotlightScope.All || availableScopes.length > 0) && (
-              <div className="border-b border-border-subtlest-tertiary">
-                <ScopeBreadcrumbs
-                  scope={scope}
-                  availableScopes={availableScopes}
-                  onSelect={pushScope}
-                  onClear={clearScope}
-                />
-              </div>
-            )}
-            {scope === SpotlightScope.All && availableScopes.length === 0 && (
-              <div className="border-b border-border-subtlest-tertiary" />
+            {scope === SpotlightScope.All && (
+              <ScopeBreadcrumbs scope={scope} onSelect={pushScope} />
             )}
           </>
         )}
@@ -971,6 +1024,7 @@ export const Spotlight = ({
                 Boolean(cmd.quickKey),
               )
               .map((cmd) => ({ key: cmd.quickKey, label: cmd.title }))}
+            isMobile={isMobile}
             onClose={() => setShowHelp(false)}
           />
         )}
@@ -979,14 +1033,12 @@ export const Spotlight = ({
           <Command.List
             key={`spotlight-list-${scope}`}
             className={classNames(
-              'overflow-y-auto py-1 motion-safe:animate-spotlight-list-fade',
+              'overflow-y-auto pb-1 [overflow-anchor:none] motion-safe:animate-spotlight-list-fade [&_*]:[overflow-anchor:none]',
               firstHeadingNoTopPaddingClass,
               isMobile ? 'flex-1' : 'max-h-[min(640px,60vh)]',
             )}
-            onScroll={() => {
-              // No-op: cmdk handles selection sync automatically.
-            }}
             ref={(node) => {
+              listRef.current = node;
               if (!node) {
                 setResultCount(null);
                 return;
@@ -995,47 +1047,58 @@ export const Spotlight = ({
               setResultCount(items.length);
             }}
           >
-            {scope !== SpotlightScope.All && search.isLoading && (
-              <Command.Group heading={scopeMeta[scope].label}>
-                <SkeletonRows count={4} />
-              </Command.Group>
-            )}
-
-            {scope !== SpotlightScope.All && !search.isLoading && (
-              <Command.Group
-                heading={scopeMeta[scope].label}
-                data-spotlight-group={SpotlightGroup.Search}
-                className={groupHeadingClass}
-              >
-                {renderRows({
-                  ...commonRowProps,
-                  commands: (() => {
-                    if (scope === SpotlightScope.Posts) {
-                      return search.posts;
-                    }
-                    if (scope === SpotlightScope.Squads) {
-                      return search.sources;
-                    }
-                    if (scope === SpotlightScope.People) {
-                      return search.users;
-                    }
-                    return search.tags;
-                  })(),
-                })}
-              </Command.Group>
-            )}
-
-            {scope === SpotlightScope.All &&
-              !isFiltering &&
-              suggested.length > 0 && (
-                <Command.Group
-                  heading={groupLabels[SpotlightGroup.Suggested]}
-                  data-spotlight-group={SpotlightGroup.Suggested}
-                  className={groupHeadingClass}
-                >
-                  {renderRows({ ...commonRowProps, commands: suggested })}
+            {scope !== SpotlightScope.All &&
+              scope !== SpotlightScope.Actions &&
+              search.isLoading && (
+                <Command.Group heading={scopeMeta[scope].label}>
+                  <SkeletonRows count={4} />
                 </Command.Group>
               )}
+
+            {scope !== SpotlightScope.All &&
+              scope !== SpotlightScope.Actions &&
+              !search.isLoading && (
+                <Command.Group
+                  heading={scopeMeta[scope].label}
+                  data-spotlight-group={SpotlightGroup.Search}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({
+                    ...commonRowProps,
+                    commands: (() => {
+                      if (scope === SpotlightScope.Posts) {
+                        return search.posts;
+                      }
+                      if (scope === SpotlightScope.Squads) {
+                        return search.sources;
+                      }
+                      if (scope === SpotlightScope.People) {
+                        return search.users;
+                      }
+                      return search.tags;
+                    })(),
+                  })}
+                </Command.Group>
+              )}
+
+            {/*
+              Actions browse-mode (Apple-Finder "All Apps" equivalent).
+              Renders every visible action command grouped by category;
+              cmdk's strict filter narrows the list as the user types.
+              Empty query = full catalog of actions, exactly what the
+              user asked for ("see all the options in the product").
+            */}
+            {scope === SpotlightScope.Actions &&
+              actionScopeGroups.map((group) => (
+                <Command.Group
+                  key={group}
+                  heading={groupLabels[group]}
+                  data-spotlight-group={group}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: grouped[group] })}
+                </Command.Group>
+              ))}
 
             {scope === SpotlightScope.All &&
               !isFiltering &&
@@ -1051,13 +1114,28 @@ export const Spotlight = ({
 
             {scope === SpotlightScope.All &&
               !isFiltering &&
+              suggested.length > 0 && (
+                <Command.Group
+                  heading={groupLabels[SpotlightGroup.Suggested]}
+                  data-spotlight-group={SpotlightGroup.Suggested}
+                  className={groupHeadingClass}
+                >
+                  {renderRows({ ...commonRowProps, commands: suggested })}
+                </Command.Group>
+              )}
+
+            {scope === SpotlightScope.All &&
+              !isFiltering &&
               suggested.length === 0 &&
               recentCommands.length === 0 && (
                 <div
                   className="px-4 py-8 text-center text-text-tertiary typo-footnote"
                   aria-hidden
                 >
-                  <p>Type to search posts, squads, people, tags…</p>
+                  <p>
+                    Type to search posts, squads, people, tags, or browse all
+                    actions.
+                  </p>
                 </div>
               )}
 

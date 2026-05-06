@@ -37,8 +37,8 @@ export const groupLabels: Record<SpotlightGroup, string> = {
 };
 
 export const groupOrder: SpotlightGroup[] = [
-  SpotlightGroup.Suggested,
   SpotlightGroup.Recent,
+  SpotlightGroup.Suggested,
   SpotlightGroup.Navigate,
   SpotlightGroup.Create,
   SpotlightGroup.Settings,
@@ -65,7 +65,13 @@ export type SpotlightCommandMeta =
   | { kind: 'source'; image?: string; handle?: string }
   | { kind: 'user'; image?: string; handle?: string }
   | { kind: 'tag'; tagName: string }
-  | { kind: 'see-all'; scope: Exclude<SpotlightScope, SpotlightScope.All> };
+  | {
+      kind: 'see-all';
+      scope: Exclude<
+        SpotlightScope,
+        SpotlightScope.All | SpotlightScope.Actions
+      >;
+    };
 
 export interface SpotlightCommand {
   id: string;
@@ -107,6 +113,7 @@ export interface SpotlightCommand {
  */
 export enum SpotlightScope {
   All = 'all',
+  Actions = 'actions',
   Posts = 'posts',
   Squads = 'squads',
   People = 'people',
@@ -119,12 +126,14 @@ export interface ScopeMetaEntry {
   triggerLabel: string;
   /** Used as Command.Input placeholder while the scope is active. */
   placeholder: string;
-  /** Single-letter index for Alt+1..4 dispatch (1-based). */
+  /** Single-letter index for Alt+1..N dispatch (1-based). */
   shortcutIndex: number;
-  searchProvider: SearchProviderEnum;
+  /** Optional — only entity scopes hit a backend search provider. */
+  searchProvider?: SearchProviderEnum;
 }
 
 export const scopeOrder: Array<Exclude<SpotlightScope, SpotlightScope.All>> = [
+  SpotlightScope.Actions,
   SpotlightScope.Posts,
   SpotlightScope.Squads,
   SpotlightScope.People,
@@ -135,32 +144,38 @@ export const scopeMeta: Record<
   Exclude<SpotlightScope, SpotlightScope.All>,
   ScopeMetaEntry
 > = {
+  [SpotlightScope.Actions]: {
+    label: 'Actions',
+    triggerLabel: 'Browse all actions',
+    placeholder: 'Browse actions and settings...',
+    shortcutIndex: 1,
+  },
   [SpotlightScope.Posts]: {
     label: 'Posts',
     triggerLabel: 'Search posts',
     placeholder: 'Search posts...',
-    shortcutIndex: 1,
+    shortcutIndex: 2,
     searchProvider: SearchProviderEnum.Posts,
   },
   [SpotlightScope.Squads]: {
     label: 'Squads',
     triggerLabel: 'Search squads',
     placeholder: 'Search squads...',
-    shortcutIndex: 2,
+    shortcutIndex: 3,
     searchProvider: SearchProviderEnum.Sources,
   },
   [SpotlightScope.People]: {
     label: 'People',
     triggerLabel: 'Search people',
     placeholder: 'Search people...',
-    shortcutIndex: 3,
+    shortcutIndex: 4,
     searchProvider: SearchProviderEnum.Users,
   },
   [SpotlightScope.Tags]: {
     label: 'Tags',
     triggerLabel: 'Search tags',
     placeholder: 'Search tags...',
-    shortcutIndex: 4,
+    shortcutIndex: 5,
     searchProvider: SearchProviderEnum.Tags,
   },
 };

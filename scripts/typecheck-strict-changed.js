@@ -76,6 +76,13 @@ const strictSkipList = new Set([
   // declaration file under strict mode. Pre-existing on the
   // smart-composer base; tracked for cleanup.
   'packages/shared/src/lib/featureManagement.ts',
+  // GrowthBookProvider.tsx imports `@growthbook/growthbook-react` and
+  // `@growthbook/growthbook` which ship without bundled `.d.ts` files,
+  // so strict mode reports implicit-any noise that pre-dates this branch.
+  // Touched here only to unblock dev environments that can't decrypt the
+  // boot experimentation payload (no key) — see the dev-fallback branch in
+  // the GrowthBookProvider effect.
+  'packages/shared/src/components/GrowthBookProvider.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

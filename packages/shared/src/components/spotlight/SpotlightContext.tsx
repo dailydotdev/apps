@@ -89,7 +89,10 @@ export const SpotlightProvider = ({
   }, []);
 
   const pushScope = useCallback((next: SpotlightScope) => {
-    setQueryState('');
+    // Keep the active query when narrowing scope. The chip is a filter, not
+    // a fresh search — clearing the query here would empty the entity lists
+    // (search hooks return nothing without a query) and the user would see
+    // a blank list right after clicking the very chip that promised matches.
     setPages((prev) => {
       if (next === SpotlightScope.All) {
         return [];
@@ -102,12 +105,10 @@ export const SpotlightProvider = ({
   }, []);
 
   const popScope = useCallback(() => {
-    setQueryState('');
     setPages((prev) => prev.slice(0, -1));
   }, []);
 
   const clearScope = useCallback(() => {
-    setQueryState('');
     setPages([]);
   }, []);
 
