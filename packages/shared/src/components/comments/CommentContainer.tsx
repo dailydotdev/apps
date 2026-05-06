@@ -133,14 +133,14 @@ export default function CommentContainer({
           />
         )}
         <div className="ml-3 flex min-w-0 flex-1 flex-col typo-callout">
-          <FlexRow className="items-center gap-1 text-text-quaternary">
+          <FlexRow className="h-5 items-center gap-1 text-text-quaternary">
             <CommentAuthor author={author} appendTooltipTo={appendTooltipTo} />
             {!!author?.isPlus && <PlusUserBadge user={author} />}
             {author && authorHandle && (
-              <div className="flex min-w-0 shrink items-center">
+              <div className="flex h-5 min-w-0 shrink items-center">
                 <ProfileLink href={author.permalink}>
                   <TruncateText
-                    className="text-text-tertiary typo-footnote"
+                    className="!leading-5 text-text-tertiary typo-footnote"
                     title={authorHandle}
                   >
                     {authorHandle}
@@ -148,8 +148,8 @@ export default function CommentContainer({
                 </ProfileLink>
               </div>
             )}
-            <Separator className="!mx-0" />
-            <CommentPublishDate comment={comment} />
+            <Separator className="!mx-0 !h-5 !leading-5" />
+            <CommentPublishDate className="!h-5 !leading-5" comment={comment} />
           </FlexRow>
           <FlexRow className="gap-1">
             {author && <ReputationUserBadge user={author} />}
