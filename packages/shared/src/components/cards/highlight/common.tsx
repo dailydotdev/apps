@@ -83,7 +83,7 @@ const HighlightRow = ({
         <RelativeTime
           dateTime={highlight.highlightedAt}
           maxHoursAgo={72}
-          className="text-text-tertiary typo-footnote"
+          className="mt-0.5 text-text-tertiary typo-footnote"
         />
       </a>
     </Link>
