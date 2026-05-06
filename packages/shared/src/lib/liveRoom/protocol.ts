@@ -75,6 +75,15 @@ export interface LiveRoomChatMessageReaction {
   createdAt: string;
 }
 
+export interface LiveRoomChatHistoryMessage extends LiveRoomChatMessage {
+  reactions: LiveRoomChatMessageReaction[];
+}
+
+export interface LiveRoomChatSnapshot {
+  messages: LiveRoomChatHistoryMessage[];
+  upToSequence: number;
+}
+
 export interface LiveRoomRemovedChatMessageReaction {
   messageId: string;
   participantId: string;
@@ -95,6 +104,7 @@ export interface SessionReadyEvent {
 export interface SnapshotEvent {
   type: 'snapshot';
   room: LiveRoomState;
+  chat?: LiveRoomChatSnapshot;
 }
 
 export interface RoomUpdatedEvent {
@@ -160,6 +170,17 @@ export type LiveRoomServerEvent =
   | ChatMessageReactionRemovedEvent
   | CommandSucceededEvent
   | CommandFailedEvent;
+
+export const getSnapshotChatMessages = (
+  snapshot: LiveRoomChatSnapshot,
+  limit?: number,
+): LiveRoomChatHistoryMessage[] => {
+  if (limit === undefined || snapshot.messages.length <= limit) {
+    return snapshot.messages;
+  }
+
+  return snapshot.messages.slice(snapshot.messages.length - limit);
+};
 
 export type MediaCapabilitiesPayload = RtpCapabilities;
 

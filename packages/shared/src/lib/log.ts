@@ -279,6 +279,7 @@ export enum LogEvent {
   UpdateStandupChatAccess = 'update standup chat access',
   SubscribeStandup = 'subscribe standup',
   UnsubscribeStandup = 'unsubscribe standup',
+  ShareStandup = 'share standup',
   GrantStandupCoHost = 'grant standup co-host',
   RevokeStandupCoHost = 'revoke standup co-host',
   PromoteStandupSpeaker = 'promote standup speaker',

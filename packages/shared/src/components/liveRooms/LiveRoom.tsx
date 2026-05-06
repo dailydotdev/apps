@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { useSwipeable } from 'react-swipeable';
 import {
@@ -19,6 +25,7 @@ import {
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isDevelopment } from '../../lib/constants';
+import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
@@ -38,7 +45,10 @@ import {
   LiveRoomSidePanelTabs,
   type LiveRoomSidePanelTab,
 } from './LiveRoomSidePanelTabs';
+import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomHeader } from './LiveRoomHeader';
+import { LiveRoomLobby } from './LiveRoomLobby';
+import lobbyStyles from './LiveRoomLobby.module.css';
 import { LiveRoomReactionOverlay } from './LiveRoomReactionOverlay';
 import { LiveRoomStage } from './LiveRoomStage';
 
@@ -306,6 +316,28 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     });
     setActiveTab(tab);
   };
+  const standupShareLink = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return `${window.location.origin}/standups/${roomId}`;
+  }, [roomId]);
+  const standupShareText = room
+    ? `Join me for "${room.topic}", a live developer standup on daily.dev`
+    : 'Join this developer standup on daily.dev';
+  const [, shareOrCopyStandup] = useShareOrCopyLink({
+    link: standupShareLink,
+    text: standupShareText,
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareStandup,
+      target_id: roomId,
+      extra: buildStandupExtra({
+        surface: 'lobby_hero',
+        provider,
+      }),
+    }),
+  });
   const handleToggleSubscription = async (): Promise<void> => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.MainButton });
@@ -320,7 +352,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       if (room.subscribed) {
         await unsubscribe.mutateAsync();
         logStandupAction(LogEvent.UnsubscribeStandup, roomId, {
-          surface: 'header',
+          surface: 'lobby_hero',
         });
         displayToast('Lobby reminder removed');
         return;
@@ -334,7 +366,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       }
 
       logStandupAction(LogEvent.SubscribeStandup, roomId, {
-        surface: 'header',
+        surface: 'lobby_hero',
         pushEnabled,
         pushPermissionRequested: shouldRequestPush,
       });
@@ -621,6 +653,74 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     );
   }
 
+  const chatPanelNode = (
+    <LiveRoomChatPanel
+      chatMessages={chatMessages}
+      participantProfilesById={participantProfilesById}
+      mentionSuggestions={mentionSuggestions}
+      participantChatPermissions={roomState?.chatPermissions ?? {}}
+      currentParticipantId={participantId}
+      hostParticipantId={room.host.id}
+      coHostParticipantIds={coHostParticipantIds}
+      canChat={canChat}
+      isLive={!!isLive}
+      isEnded={!!isEnded}
+      isLoggedIn={!!user}
+      hasHostPrivileges={hasHostPrivileges}
+      onSendMessage={handleSendChatMessage}
+      onDeleteMessage={handleDeleteChatMessage}
+      onSendMessageReaction={handleSendChatMessageReaction}
+      onRemoveMessageReaction={handleRemoveChatMessageReaction}
+      onKickParticipant={handleKickChatParticipant}
+      onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
+      onRequestLogin={handleChatLogin}
+    />
+  );
+
+  if (isCreated) {
+    return (
+      <div className="relative isolate flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
+        <span aria-hidden="true" className={lobbyStyles.lobbyBackground}>
+          <span className={lobbyStyles.pulseRing} />
+          <span
+            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay1}`}
+          />
+          <span
+            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay2}`}
+          />
+          <span
+            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay3}`}
+          />
+          <span
+            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay4}`}
+          />
+        </span>
+        <LiveRoomReactionOverlay reactions={reactions} />
+        <LiveRoomLobby
+          room={room}
+          lobbyCountdown={lobbyCountdown}
+          participantCount={participantCount}
+          showParticipantCount={!!roomState}
+          canSubscribeToLobby={canSubscribeToLobby}
+          subscribed={room.subscribed}
+          subscriptionBusy={subscriptionBusy}
+          onToggleSubscription={handleToggleSubscription}
+          isHost={isHost}
+          onNavigateBack={handleNavigateBack}
+          onShare={shareOrCopyStandup}
+          audienceParticipantIds={audienceParticipantIds}
+          participantProfilesById={participantProfilesById}
+          chatPanel={chatPanelNode}
+          hostControls={
+            hasHostPrivileges && roomState ? (
+              <LiveRoomControls roomId={roomId} onLeave={handleLeave} />
+            ) : null
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
       <LiveRoomReactionOverlay reactions={reactions} />
@@ -642,9 +742,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
 
       <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[1fr_auto] tablet:grid-rows-none tablet:gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
         <LiveRoomStage
-          room={room}
           roomId={roomId}
-          isCreated={!!isCreated}
           isEnded={!!isEnded}
           stagePageCount={stagePageCount}
           clampedStagePage={clampedStagePage}
@@ -684,27 +782,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           />
           <div {...sidePanelSwipeHandlers} className="min-h-0 flex-1">
             {activeTab === 'chat' ? (
-              <LiveRoomChatPanel
-                chatMessages={chatMessages}
-                participantProfilesById={participantProfilesById}
-                mentionSuggestions={mentionSuggestions}
-                participantChatPermissions={roomState?.chatPermissions ?? {}}
-                currentParticipantId={participantId}
-                hostParticipantId={room.host.id}
-                coHostParticipantIds={coHostParticipantIds}
-                canChat={canChat}
-                isLive={!!isLive}
-                isEnded={!!isEnded}
-                isLoggedIn={!!user}
-                hasHostPrivileges={hasHostPrivileges}
-                onSendMessage={handleSendChatMessage}
-                onDeleteMessage={handleDeleteChatMessage}
-                onSendMessageReaction={handleSendChatMessageReaction}
-                onRemoveMessageReaction={handleRemoveChatMessageReaction}
-                onKickParticipant={handleKickChatParticipant}
-                onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
-                onRequestLogin={handleChatLogin}
-              />
+              chatPanelNode
             ) : (
               <LiveRoomQueuePanel
                 tab={activeTab}
