@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useSwipeable } from 'react-swipeable';
 import {
@@ -9,7 +15,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { UserShortProfile } from '../../lib/user';
 import { MegaphoneIcon, VolumeOffIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
@@ -24,6 +29,8 @@ import { Drawer } from '../drawers';
 import { RootPortal } from '../tooltips/Portal';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
+
+export type LiveRoomTileAudioPlaybackState = 'none' | 'blocked' | 'playing';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
@@ -49,6 +56,8 @@ interface LiveRoomVideoTileProps {
   onUnfocus?: () => void;
   onSwipeNext?: () => void;
   onSwipePrev?: () => void;
+  onAudioPlaybackStateChange?: (state: LiveRoomTileAudioPlaybackState) => void;
+  onRegisterAudioRetry?: (retry: (() => void) | null) => void;
 }
 
 const pickLiveTrack = (
@@ -86,10 +95,11 @@ export const LiveRoomVideoTile = ({
   onUnfocus,
   onSwipeNext,
   onSwipePrev,
+  onAudioPlaybackStateChange,
+  onRegisterAudioRetry,
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [needsAudioGesture, setNeedsAudioGesture] = useState(false);
   const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = !isTablet;
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -164,19 +174,21 @@ export const LiveRoomVideoTile = ({
   const level = useLiveRoomAudioLevel(levelStream);
   const isSpeaking = level >= SPEAKING_LEVEL_THRESHOLD;
 
-  const tryPlayAudio = (): void => {
+  const tryPlayAudio = useCallback((): void => {
     const node = audioRef.current;
     if (!node) {
+      onAudioPlaybackStateChange?.('none');
       return;
     }
     const playPromise = node.play();
     if (!playPromise) {
+      onAudioPlaybackStateChange?.('playing');
       return;
     }
     playPromise
-      .then(() => setNeedsAudioGesture(false))
-      .catch(() => setNeedsAudioGesture(true));
-  };
+      .then(() => onAudioPlaybackStateChange?.('playing'))
+      .catch(() => onAudioPlaybackStateChange?.('blocked'));
+  }, [onAudioPlaybackStateChange]);
 
   useEffect(() => {
     const node = videoRef.current;
@@ -191,6 +203,7 @@ export const LiveRoomVideoTile = ({
   useEffect(() => {
     const node = audioRef.current;
     if (!node) {
+      onAudioPlaybackStateChange?.('none');
       return;
     }
     if (node.srcObject !== audioStream) {
@@ -199,13 +212,23 @@ export const LiveRoomVideoTile = ({
     if (audioStream) {
       tryPlayAudio();
     } else {
-      setNeedsAudioGesture(false);
+      onAudioPlaybackStateChange?.('none');
     }
-  }, [audioStream]);
+  }, [audioStream, onAudioPlaybackStateChange, tryPlayAudio]);
 
-  const handleEnableAudio = (): void => {
-    tryPlayAudio();
-  };
+  useEffect(() => {
+    if (!audioStream) {
+      onRegisterAudioRetry?.(null);
+      return undefined;
+    }
+
+    onRegisterAudioRetry?.(tryPlayAudio);
+
+    return () => {
+      onRegisterAudioRetry?.(null);
+    };
+  }, [audioStream, onRegisterAudioRetry, tryPlayAudio]);
+
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
   const nameLabel = (
     <Typography
@@ -371,16 +394,6 @@ export const LiveRoomVideoTile = ({
           </span>
         ) : null}
       </div>
-      {needsAudioGesture ? (
-        <Button
-          className="absolute right-3 top-3"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          onClick={handleEnableAudio}
-        >
-          Tap to unmute
-        </Button>
-      ) : null}
       <RootPortal>
         <Drawer
           isOpen={actionsOpen}

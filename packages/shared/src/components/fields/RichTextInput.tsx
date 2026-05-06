@@ -606,14 +606,6 @@ function RichTextInput(
   }));
 
   useEffect(() => {
-    if (!editor) {
-      return;
-    }
-
-    editor.commands.focus('end');
-  }, [editor]);
-
-  useEffect(() => {
     if (dirtyRef.current) {
       return;
     }
