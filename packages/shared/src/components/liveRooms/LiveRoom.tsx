@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { useSwipeable } from 'react-swipeable';
 import {
@@ -18,9 +24,8 @@ import {
 } from '../../contexts/LiveRoomContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isDevelopment, webappUrl } from '../../lib/constants';
+import { isDevelopment } from '../../lib/constants';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
-import { isValidHttpUrl } from '../../lib/links';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent, NotificationPromptSource } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
@@ -311,18 +316,13 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     });
     setActiveTab(tab);
   };
-  const standupShareBase =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : 'https://daily.dev';
-  const standupShareOrigin =
-    typeof window === 'undefined' && isValidHttpUrl(webappUrl)
-      ? webappUrl
-      : standupShareBase;
-  const standupShareLink = new URL(
-    `/standups/${roomId}`,
-    standupShareOrigin,
-  ).toString();
+  const standupShareLink = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return `${window.location.origin}/standups/${roomId}`;
+  }, [roomId]);
   const standupShareText = room
     ? `Join me for "${room.topic}", a live developer standup on daily.dev`
     : 'Join this developer standup on daily.dev';
