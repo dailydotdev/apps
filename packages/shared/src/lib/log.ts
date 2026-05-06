@@ -97,6 +97,7 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
+  GuessWhoQuiz = 'guess who quiz',
 }
 
 export enum LogEvent {
@@ -322,6 +323,11 @@ export enum LogEvent {
   StartAiFluencyQuiz = 'start ai fluency quiz',
   CompleteAiFluencyQuiz = 'complete ai fluency quiz',
   ShareAiFluencyQuiz = 'share ai fluency quiz',
+  // Guess who quiz
+  StartGuessWhoQuiz = 'start guess who quiz',
+  AnswerGuessWhoQuestion = 'answer guess who question',
+  AnswerGuessWhoLlmQuestion = 'answer guess who llm question',
+  CompleteGuessWhoQuiz = 'complete guess who quiz',
   // Plus subscription
   UpgradeSubscription = 'upgrade subscription',
   ManageSubscription = 'manage subscription',
