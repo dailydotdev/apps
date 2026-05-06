@@ -10,7 +10,7 @@ import { getCompanionWrapper } from '@dailydotdev/shared/src/lib/extension';
 import type { CompanionData } from './App';
 import App from './App';
 
-let root: ReturnType<typeof createRoot>;
+let root: ReturnType<typeof createRoot> | undefined;
 
 const renderApp = (props: CompanionData) => {
   setOnError((e) => {
@@ -41,11 +41,16 @@ browser.runtime.onMessage.addListener((props) => {
     return;
   }
 
-  const container = getCompanionWrapper();
-
   if (postData) {
     renderApp(props);
-  } else if (container && root) {
+    return;
+  }
+
+  if (root) {
+    // Clear the reference so the next render creates a fresh root; reusing an
+    // unmounted root causes "removeChild: node is not a child" reconciliation
+    // errors when React's fiber points at DOM nodes that have already been torn down.
     root.unmount();
+    root = undefined;
   }
 });
