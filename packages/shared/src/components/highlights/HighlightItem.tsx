@@ -67,7 +67,7 @@ export const HighlightItem = ({
           <RelativeTime
             dateTime={highlight.highlightedAt}
             maxHoursAgo={72}
-            className="text-text-quaternary typo-footnote"
+            className="mt-0.5 text-text-quaternary typo-footnote"
           />
         </div>
         <ArrowIcon
