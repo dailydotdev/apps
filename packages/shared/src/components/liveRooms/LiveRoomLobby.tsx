@@ -275,9 +275,7 @@ export const LiveRoomLobby = ({
 }: LiveRoomLobbyProps): ReactElement => {
   const hasScheduledStart = !!room.scheduledStart;
   const isStartingNow = hasScheduledStart && lobbyCountdown <= 0;
-  const countdownLabel = isStartingNow
-    ? 'Starting any moment'
-    : 'Goes live in';
+  const countdownLabel = isStartingNow ? 'Starting any moment' : 'Goes live in';
   const countdownParts = getCountdownParts(lobbyCountdown);
   const hasEmbeds = !!room.contentEmbeds && room.contentEmbeds.length > 0;
   const audienceProfiles = audienceParticipantIds
@@ -289,205 +287,205 @@ export const LiveRoomLobby = ({
       <div className="relative flex min-h-0 flex-col">
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-28 pt-3 tablet:px-1 tablet:pb-32 tablet:pt-0">
           <div className="mx-auto flex w-full max-w-[44rem] flex-col gap-4 tablet:gap-6">
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              icon={<ArrowIcon className="-rotate-90" />}
-              onClick={() => onNavigateBack('lobby_back')}
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                icon={<ArrowIcon className="-rotate-90" />}
+                onClick={() => onNavigateBack('lobby_back')}
+              >
+                Back
+              </Button>
+            </div>
+
+            <section
+              aria-label="Standup countdown"
+              className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
             >
-              Back
-            </Button>
-          </div>
-
-          <section
-            aria-label="Standup countdown"
-            className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle"
-          >
-            <div className="flex flex-col gap-5 p-5 tablet:gap-7 tablet:p-8">
-              <div className="flex flex-col gap-3">
-                <Typography
-                  tag={TypographyTag.H1}
-                  type={TypographyType.LargeTitle}
-                  bold
-                  className="break-words"
-                >
-                  {room.topic}
-                </Typography>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <Link href={room.host.permalink}>
-                    <a className="-m-1 inline-flex min-w-0 items-center gap-2 rounded-12 p-1 transition-colors hover:bg-surface-hover">
-                      <ProfilePicture
-                        user={room.host}
-                        size={ProfileImageSize.Medium}
-                      />
-                      <div className="flex min-w-0 flex-col">
-                        <Typography
-                          type={TypographyType.Caption2}
-                          color={TypographyColor.Tertiary}
-                          className="font-bold uppercase tracking-[0.18em]"
-                        >
-                          Hosted by
-                        </Typography>
-                        <Typography
-                          type={TypographyType.Footnote}
-                          bold
-                          truncate
-                          className="min-w-0"
-                        >
-                          {room.host.name}
-                        </Typography>
-                      </div>
-                    </a>
-                  </Link>
-                  {hasScheduledStart ? (
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      className="inline-flex items-center gap-1.5"
-                    >
-                      <CalendarIcon size={IconSize.XSmall} secondary />
-                      {formatScheduledStart(room.scheduledStart as string)}
-                    </Typography>
-                  ) : null}
+              <div className="flex flex-col gap-5 p-5 tablet:gap-7 tablet:p-8">
+                <div className="flex flex-col gap-3">
+                  <Typography
+                    tag={TypographyTag.H1}
+                    type={TypographyType.LargeTitle}
+                    bold
+                    className="break-words"
+                  >
+                    {room.topic}
+                  </Typography>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <Link href={room.host.permalink}>
+                      <a className="-m-1 inline-flex min-w-0 items-center gap-2 rounded-12 p-1 transition-colors hover:bg-surface-hover">
+                        <ProfilePicture
+                          user={room.host}
+                          size={ProfileImageSize.Medium}
+                        />
+                        <div className="flex min-w-0 flex-col">
+                          <Typography
+                            type={TypographyType.Caption2}
+                            color={TypographyColor.Tertiary}
+                            className="font-bold uppercase tracking-[0.18em]"
+                          >
+                            Hosted by
+                          </Typography>
+                          <Typography
+                            type={TypographyType.Footnote}
+                            bold
+                            truncate
+                            className="min-w-0"
+                          >
+                            {room.host.name}
+                          </Typography>
+                        </div>
+                      </a>
+                    </Link>
+                    {hasScheduledStart ? (
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className="inline-flex items-center gap-1.5"
+                      >
+                        <CalendarIcon size={IconSize.XSmall} secondary />
+                        {formatScheduledStart(room.scheduledStart as string)}
+                      </Typography>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-2 tablet:gap-3">
-                {canSubscribeToLobby ? (
+                <div className="flex flex-wrap items-center gap-2 tablet:gap-3">
+                  {canSubscribeToLobby ? (
+                    <Button
+                      type="button"
+                      variant={
+                        subscribed
+                          ? ButtonVariant.Secondary
+                          : ButtonVariant.Primary
+                      }
+                      icon={<BellIcon secondary={subscribed} />}
+                      loading={subscriptionBusy}
+                      disabled={subscriptionBusy}
+                      onClick={onToggleSubscription}
+                      className="flex-1 tablet:flex-none"
+                    >
+                      {subscribed ? 'Reminder set' : 'Remind me'}
+                    </Button>
+                  ) : null}
                   <Button
                     type="button"
-                    variant={
-                      subscribed
-                        ? ButtonVariant.Secondary
-                        : ButtonVariant.Primary
+                    variant={ButtonVariant.Secondary}
+                    icon={<ShareIcon />}
+                    onClick={onShare}
+                    className={
+                      canSubscribeToLobby
+                        ? 'flex-none'
+                        : 'flex-1 tablet:flex-none'
                     }
-                    icon={<BellIcon secondary={subscribed} />}
-                    loading={subscriptionBusy}
-                    disabled={subscriptionBusy}
-                    onClick={onToggleSubscription}
-                    className="flex-1 tablet:flex-none"
                   >
-                    {subscribed ? 'Reminder set' : 'Remind me'}
+                    Share
                   </Button>
-                ) : null}
-                <Button
-                  type="button"
-                  variant={ButtonVariant.Secondary}
-                  icon={<ShareIcon />}
-                  onClick={onShare}
-                  className={
-                    canSubscribeToLobby
-                      ? 'flex-none'
-                      : 'flex-1 tablet:flex-none'
-                  }
-                >
-                  Share
-                </Button>
-              </div>
-
-              <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-5 tablet:gap-5 tablet:pt-7">
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="font-bold uppercase tracking-[0.18em]"
-                >
-                  {countdownLabel}
-                </Typography>
-
-                {hasScheduledStart ? (
-                  <CountdownDisplay
-                    parts={countdownParts}
-                    ariaLabel={`${countdownLabel} ${
-                      countdownParts.hasHours
-                        ? `${countdownParts.hours} hours `
-                        : ''
-                    }${countdownParts.minutes} minutes ${
-                      countdownParts.seconds
-                    } seconds`}
-                  />
-                ) : (
-                  <Typography
-                    type={TypographyType.Title2}
-                    bold
-                    color={TypographyColor.Primary}
-                  >
-                    Awaiting host
-                  </Typography>
-                )}
-
-                {showParticipantCount && participantCount > 0 ? (
-                  <AudienceStack
-                    profiles={audienceProfiles}
-                    totalCount={participantCount}
-                  />
-                ) : null}
-              </div>
-
-              {isHost ? (
-                <div className="rounded-12 border border-dashed border-accent-bacon-subtler bg-accent-bacon-bolder/5 px-3 py-2 text-text-secondary typo-footnote">
-                  You&apos;re the host. When you&apos;re ready, tap{' '}
-                  <span className="font-bold text-text-primary">Go live</span>{' '}
-                  from the controls below to start streaming.
                 </div>
-              ) : null}
-            </div>
-          </section>
 
-          <section
-            aria-label="What we'll cover"
-            className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-5"
-          >
-            <SectionLabel>What we&apos;ll cover</SectionLabel>
-            {room.descriptionHtml ? (
-              <Markdown
-                content={room.descriptionHtml}
-                className="break-words text-text-primary"
-              />
-            ) : (
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Tertiary}
-              >
-                The host hasn&apos;t shared an agenda yet. Drop into the chat
-                to ask what&apos;s on the docket.
-              </Typography>
-            )}
-            {hasEmbeds ? (
-              <ContentEmbeds embeds={room.contentEmbeds} variant="post" />
-            ) : null}
-          </section>
+                <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-5 tablet:gap-5 tablet:pt-7">
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                    className="font-bold uppercase tracking-[0.18em]"
+                  >
+                    {countdownLabel}
+                  </Typography>
 
-          <section
-            aria-label="First standup?"
-            className="flex flex-col gap-3"
-          >
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="px-1 font-bold uppercase tracking-[0.18em]"
+                  {hasScheduledStart ? (
+                    <CountdownDisplay
+                      parts={countdownParts}
+                      ariaLabel={`${countdownLabel} ${
+                        countdownParts.hasHours
+                          ? `${countdownParts.hours} hours `
+                          : ''
+                      }${countdownParts.minutes} minutes ${
+                        countdownParts.seconds
+                      } seconds`}
+                    />
+                  ) : (
+                    <Typography
+                      type={TypographyType.Title2}
+                      bold
+                      color={TypographyColor.Primary}
+                    >
+                      Awaiting host
+                    </Typography>
+                  )}
+
+                  {showParticipantCount && participantCount > 0 ? (
+                    <AudienceStack
+                      profiles={audienceProfiles}
+                      totalCount={participantCount}
+                    />
+                  ) : null}
+                </div>
+
+                {isHost ? (
+                  <div className="bg-accent-bacon-bolder/5 rounded-12 border border-dashed border-accent-bacon-subtler px-3 py-2 text-text-secondary typo-footnote">
+                    You&apos;re the host. When you&apos;re ready, tap{' '}
+                    <span className="font-bold text-text-primary">Go live</span>{' '}
+                    from the controls below to start streaming.
+                  </div>
+                ) : null}
+              </div>
+            </section>
+
+            <section
+              aria-label="What we'll cover"
+              className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 tablet:p-5"
             >
-              First standup?
-            </Typography>
-            <div className="grid grid-cols-1 gap-3 tablet:grid-cols-3">
-              <StepCard
-                icon={<MegaphoneIcon size={IconSize.Small} secondary />}
-                title="Tune in live"
-                description="Engineers thinking out loud, unscripted. Drop in any time the room is live and follow the conversation in real time."
-              />
-              <StepCard
-                icon={<RaiseHandIcon size={IconSize.Small} secondary />}
-                title="Take the mic"
-                description="The best discussions need your voice. Raise your hand and the host can invite you on stage with mic and camera."
-              />
-              <StepCard
-                icon={<DiscussIcon size={IconSize.Small} secondary />}
-                title="Bring your questions"
-                description="Chat runs the whole standup. Ask anything, share a link, drop a reaction. The host weaves the best stuff into the room."
-              />
-            </div>
-          </section>
+              <SectionLabel>What we&apos;ll cover</SectionLabel>
+              {room.descriptionHtml ? (
+                <Markdown
+                  content={room.descriptionHtml}
+                  className="break-words text-text-primary"
+                />
+              ) : (
+                <Typography
+                  type={TypographyType.Callout}
+                  color={TypographyColor.Tertiary}
+                >
+                  The host hasn&apos;t shared an agenda yet. Drop into the chat
+                  to ask what&apos;s on the docket.
+                </Typography>
+              )}
+              {hasEmbeds ? (
+                <ContentEmbeds embeds={room.contentEmbeds} variant="post" />
+              ) : null}
+            </section>
+
+            <section
+              aria-label="First standup?"
+              className="flex flex-col gap-3"
+            >
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="px-1 font-bold uppercase tracking-[0.18em]"
+              >
+                First standup?
+              </Typography>
+              <div className="grid grid-cols-1 gap-3 tablet:grid-cols-3">
+                <StepCard
+                  icon={<MegaphoneIcon size={IconSize.Small} secondary />}
+                  title="Tune in live"
+                  description="Engineers thinking out loud, unscripted. Drop in any time the room is live and follow the conversation in real time."
+                />
+                <StepCard
+                  icon={<RaiseHandIcon size={IconSize.Small} secondary />}
+                  title="Take the mic"
+                  description="The best discussions need your voice. Raise your hand and the host can invite you on stage with mic and camera."
+                />
+                <StepCard
+                  icon={<DiscussIcon size={IconSize.Small} secondary />}
+                  title="Bring your questions"
+                  description="Chat runs the whole standup. Ask anything, share a link, drop a reaction. The host weaves the best stuff into the room."
+                />
+              </div>
+            </section>
           </div>
         </div>
         {hostControls}
