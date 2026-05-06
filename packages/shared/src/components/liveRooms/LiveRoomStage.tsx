@@ -1,5 +1,11 @@
 import type { Dispatch, ReactElement, SetStateAction } from 'react';
-import React, { useCallback } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import classNames from 'classnames';
 import { useSwipeable } from 'react-swipeable';
 import { Button, ButtonVariant } from '../buttons/Button';
@@ -13,7 +19,10 @@ import { IconSize } from '../Icon';
 import type { UserShortProfile } from '../../lib/user';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomStagePager } from './LiveRoomStagePager';
-import { LiveRoomVideoTile } from './LiveRoomVideoTile';
+import {
+  LiveRoomVideoTile,
+  type LiveRoomTileAudioPlaybackState,
+} from './LiveRoomVideoTile';
 
 export interface LiveRoomStageSpeaker {
   id: string;
@@ -96,7 +105,15 @@ export const LiveRoomStage = ({
   showControls,
   onLeave,
 }: LiveRoomStageProps): ReactElement => {
+  const [speakerAudioStates, setSpeakerAudioStates] = useState<
+    Record<string, LiveRoomTileAudioPlaybackState>
+  >({});
+  const audioRetryHandlersRef = useRef(new Map<string, () => void>());
   const hasMultiplePages = stagePageCount > 1;
+  const visibleSpeakerIds = useMemo(
+    () => new Set(speakers.map((speaker) => speaker.id)),
+    [speakers],
+  );
   const goToPage = useCallback(
     (page: number) => {
       setStagePage(() => Math.max(0, Math.min(stagePageCount - 1, page)));
@@ -127,8 +144,81 @@ export const LiveRoomStage = ({
     trackMouse: false,
   });
 
+  useEffect(() => {
+    setSpeakerAudioStates((current) =>
+      Object.fromEntries(
+        Object.entries(current).filter(([speakerId]) =>
+          visibleSpeakerIds.has(speakerId),
+        ),
+      ),
+    );
+
+    audioRetryHandlersRef.current.forEach((_, speakerId) => {
+      if (!visibleSpeakerIds.has(speakerId)) {
+        audioRetryHandlersRef.current.delete(speakerId);
+      }
+    });
+  }, [visibleSpeakerIds]);
+
+  const handleSpeakerAudioPlaybackStateChange = useCallback(
+    (speakerId: string, state: LiveRoomTileAudioPlaybackState): void => {
+      setSpeakerAudioStates((current) => {
+        if (state === 'none') {
+          if (!(speakerId in current)) {
+            return current;
+          }
+
+          const next = { ...current };
+          delete next[speakerId];
+          return next;
+        }
+
+        if (current[speakerId] === state) {
+          return current;
+        }
+
+        return { ...current, [speakerId]: state };
+      });
+    },
+    [],
+  );
+
+  const registerSpeakerAudioRetry = useCallback(
+    (speakerId: string, retry: (() => void) | null): void => {
+      if (retry) {
+        audioRetryHandlersRef.current.set(speakerId, retry);
+        return;
+      }
+
+      audioRetryHandlersRef.current.delete(speakerId);
+    },
+    [],
+  );
+
+  const hasBlockedAudio = speakers.some(
+    (speaker) => speakerAudioStates[speaker.id] === 'blocked',
+  );
+  const hasPlayingAudio = speakers.some(
+    (speaker) => speakerAudioStates[speaker.id] === 'playing',
+  );
+  const showAudioPrompt = hasBlockedAudio && !hasPlayingAudio;
+
+  const retrySpeakerAudioPlayback = (): void => {
+    audioRetryHandlersRef.current.forEach((retry) => retry());
+  };
+
   return (
     <section aria-label="Speakers" className="relative flex min-h-0 flex-col">
+      {showAudioPrompt ? (
+        <Button
+          type="button"
+          className="absolute right-3 top-3 z-1"
+          variant={ButtonVariant.Primary}
+          onClick={retrySpeakerAudioPlayback}
+        >
+          Tap to unmute
+        </Button>
+      ) : null}
       {speakers.length > 0 ? (
         <div className="relative flex min-h-0 flex-1 flex-col">
           <div
@@ -165,6 +255,12 @@ export const LiveRoomStage = ({
                     onUnfocus={onUnfocusSpeaker}
                     onSwipeNext={() => onSpeakerFocusNavigate(1)}
                     onSwipePrev={() => onSpeakerFocusNavigate(-1)}
+                    onAudioPlaybackStateChange={(state) =>
+                      handleSpeakerAudioPlaybackStateChange(speaker.id, state)
+                    }
+                    onRegisterAudioRetry={(retry) =>
+                      registerSpeakerAudioRetry(speaker.id, retry)
+                    }
                     onGrantCoHost={
                       canManageCoHosts && !speaker.isCoHost
                         ? () =>

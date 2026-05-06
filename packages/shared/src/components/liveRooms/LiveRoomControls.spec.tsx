@@ -532,6 +532,43 @@ describe('LiveRoomControls', () => {
     });
   });
 
+  it('lets a speaker leave the stage in a moderated room', async () => {
+    const leaveStage = jest.fn(() => new Promise<void>(() => undefined));
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        leaveStage,
+        role: 'speaker',
+        roomState: {
+          ...createRoomState(),
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    await click(screen.getByRole('button', { name: 'Stop speaking' }));
+    await flushAsyncUpdates();
+
+    await waitFor(() => {
+      expect(leaveStage).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('keeps the leave-stage control visible while a reaction is pending', async () => {
     let resolveReaction: (() => void) | undefined;
     const sendReaction = jest.fn(

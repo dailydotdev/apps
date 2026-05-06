@@ -199,7 +199,7 @@ export const LiveRoomControls = ({
     activeSpeakerCount >= speakerLimit;
   const canJoinQueue = isModerated && isAudience && isLive && !isQueued;
   const canJoinStage = isFreeForAll && isAudience && isLive && !isStageFull;
-  const canLeaveStage = isFreeForAll && isSpeaker && isLive;
+  const canLeaveStage = isSpeaker && isLive;
   const canRaiseHand =
     isLive && (isSpeaker || privilegeState.hasHostPrivileges);
   const showGoLive = privilegeState.isHost && roomState?.status === 'created';
