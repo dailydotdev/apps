@@ -406,6 +406,9 @@ export const LiveRoomProvider = ({
   const [resumeSessionTtlMs, setResumeSessionTtlMs] = useState<number | null>(
     null,
   );
+  const [joinTokenRequestId, setJoinTokenRequestId] = useState(0);
+  const [remoteSubscriptionGeneration, setRemoteSubscriptionGeneration] =
+    useState(0);
 
   const connectionRef = useRef<LiveRoomConnection | null>(null);
   const deviceRef = useRef<MediasoupDevice | null>(null);
@@ -829,7 +832,13 @@ export const LiveRoomProvider = ({
     LiveRoomJoinToken,
     Error
   >({
-    queryKey: generateQueryKey(RequestKey.LiveRooms, user, 'join', roomId),
+    queryKey: generateQueryKey(
+      RequestKey.LiveRooms,
+      user,
+      'join',
+      roomId,
+      joinTokenRequestId,
+    ),
     queryFn: () => fetchJoinToken(roomId),
     enabled: isAuthReady && !!roomId && !storedResumeSession,
     retry: false,
@@ -852,6 +861,15 @@ export const LiveRoomProvider = ({
 
   useEffect(() => {
     setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
+  }, [roomId]);
+
+  const requestFreshJoinToken = useCallback(() => {
+    clearStoredLiveRoomResumeSession(roomId);
+    setStoredResumeSession(null);
+    setResumeSessionTtlMs(null);
+    setJoinTokenRequestId((current) => current + 1);
+    setStatus('connecting');
+    setErrorMessage(null);
   }, [roomId]);
 
   const refreshLocalStream = useCallback(() => {
@@ -1032,12 +1050,13 @@ export const LiveRoomProvider = ({
         removeChatMessageReactionFromState(event);
       },
     );
-    const offClose = connection.onClose(({ reason }) => {
+    const offClose = connection.onClose(({ code, reason }) => {
       if (openingWithResume && !sessionReady) {
-        clearStoredLiveRoomResumeSession(roomId);
-        setStoredResumeSession(null);
-        setStatus('idle');
-        setErrorMessage(null);
+        requestFreshJoinToken();
+        return;
+      }
+      if (code === 1008 && sessionReady && connection.resumeToken) {
+        requestFreshJoinToken();
         return;
       }
       setStatus('closed');
@@ -1079,6 +1098,7 @@ export const LiveRoomProvider = ({
     removeChatMessageReactionFromState,
     roomId,
     storedResumeSession,
+    requestFreshJoinToken,
   ]);
 
   useEffect(() => {
@@ -1337,12 +1357,17 @@ export const LiveRoomProvider = ({
             streamId: `${publication.participantId}-audio-video`,
           });
           const removeSubscription = () => {
-            subscriptionsRef.current.delete(publication.publicationId);
+            const deleted = subscriptionsRef.current.delete(
+              publication.publicationId,
+            );
             setRemoteStreams((prev) =>
               prev.filter(
                 (entry) => entry.publicationId !== publication.publicationId,
               ),
             );
+            if (deleted) {
+              setRemoteSubscriptionGeneration((current) => current + 1);
+            }
           };
           closeConsumer = () => consumer.close();
           consumer.on('transportclose', removeSubscription);
@@ -1412,7 +1437,12 @@ export const LiveRoomProvider = ({
         }
       })();
     });
-  }, [roomState, participantId, recvTransportReady]);
+  }, [
+    participantId,
+    recvTransportReady,
+    remoteSubscriptionGeneration,
+    roomState,
+  ]);
 
   useEffect(() => {
     const syncRemoteVideoSubscriptions = async () => {
