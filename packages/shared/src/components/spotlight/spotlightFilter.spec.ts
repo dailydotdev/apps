@@ -22,17 +22,21 @@ describe('scoreActionMatch', () => {
   });
 
   it('matches multi-word queries when every token is a substring', () => {
-    expect(scoreActionMatch('go to settings preferences account', 'set acc'))
-      .toBeGreaterThan(0);
+    expect(
+      scoreActionMatch('go to settings preferences account', 'set acc'),
+    ).toBeGreaterThan(0);
   });
 
   it('rejects fuzzy false-positives that the cmdk default would accept', () => {
-    expect(scoreActionMatch('go to history reading history visited', 'react'))
-      .toBe(0);
-    expect(scoreActionMatch('switch to list layout view density', 'react'))
-      .toBe(0);
-    expect(scoreActionMatch('open profile details settings preferences', 'react'))
-      .toBe(0);
+    expect(
+      scoreActionMatch('go to history reading history visited', 'react'),
+    ).toBe(0);
+    expect(
+      scoreActionMatch('switch to list layout view density', 'react'),
+    ).toBe(0);
+    expect(
+      scoreActionMatch('open profile details settings preferences', 'react'),
+    ).toBe(0);
   });
 
   it('still matches a real "react" query against a real "react" target', () => {
@@ -43,11 +47,9 @@ describe('scoreActionMatch', () => {
 describe('spotlightCommandFilter', () => {
   it('lets passthrough rows (entity hits) through unconditionally', () => {
     expect(
-      spotlightCommandFilter(
-        'tomer aberbach @tomer',
-        'react',
-        [SPOTLIGHT_PASSTHROUGH_KEYWORD],
-      ),
+      spotlightCommandFilter('tomer aberbach @tomer', 'react', [
+        SPOTLIGHT_PASSTHROUGH_KEYWORD,
+      ]),
     ).toBe(1);
   });
 
