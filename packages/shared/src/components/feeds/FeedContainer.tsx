@@ -22,7 +22,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import {
   uploadCvBgLaptop,
   uploadCvBgTablet,

@@ -8,7 +8,7 @@ import { useBoot, useViewSize, ViewSize } from '../../hooks';
 import { ModalClose } from '../modals/common/ModalClose';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { PaymentContextProvider } from '../../contexts/payment';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { ModalSize } from '../modals/common/types';

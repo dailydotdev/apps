@@ -9,7 +9,7 @@ import { decrypt } from '../components/crypto';
 import type {
   MarketingCta,
   MarketingCtaVariant,
-} from '../components/marketingCta/common';
+} from '../components/marketing/cta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';

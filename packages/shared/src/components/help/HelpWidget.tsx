@@ -17,8 +17,8 @@ import {
   Description,
   MarketingCtaVariant,
   Title,
-} from '../marketingCta/common';
-import type { MarketingCta } from '../marketingCta/common';
+} from '../marketing/cta/common';
+import type { MarketingCta } from '../marketing/cta/common';
 import styles from './HelpWidget.module.css';
 
 const tagColorMap: Record<string, string> = {

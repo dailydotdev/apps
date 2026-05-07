@@ -7,7 +7,7 @@ import {
 } from '../../typography/Typography';
 import { DevPlusIcon } from '../../icons';
 import { Button, ButtonColor, ButtonVariant } from '../../buttons/Button';
-import type { MarketingCta } from '../../marketingCta/common';
+import type { MarketingCta } from '../../marketing/cta/common';
 import CloseButton from '../../CloseButton';
 import { useBoot } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';

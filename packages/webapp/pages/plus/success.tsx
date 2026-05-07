@@ -19,7 +19,7 @@ import {
 } from '@dailydotdev/shared/src/lib/constants';
 import { NextSeo } from 'next-seo';
 import { useBoot } from '@dailydotdev/shared/src/hooks';
-import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketingCta/common';
+import { MarketingCtaVariant } from '@dailydotdev/shared/src/components/marketing/cta/common';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 

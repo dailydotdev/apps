@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { MarketingCtaVariant } from '../components/marketingCta/common';
-import type { MarketingCta } from '../components/marketingCta/common';
+import { MarketingCtaVariant } from '../components/marketing/cta/common';
+import type { MarketingCta } from '../components/marketing/cta/common';
 import { featurePlusEntryMobile } from '../lib/featureManagement';
 import { useBoot } from './useBoot';
 import { useConditionalFeature } from './useConditionalFeature';

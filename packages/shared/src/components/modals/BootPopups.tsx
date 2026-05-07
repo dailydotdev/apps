@@ -6,7 +6,7 @@ import { useActions, useBoot } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { LazyModal } from './common/types';
 import AlertContext from '../../contexts/AlertContext';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import { useReadingStreak } from '../../hooks/streaks';
@@ -14,7 +14,7 @@ import type { InteractivePopupProps } from '../tooltips/InteractivePopup';
 import InteractivePopup, {
   InteractivePopupPosition,
 } from '../tooltips/InteractivePopup';
-import { MarketingCtaPopoverSmall } from '../marketingCta/MarketingCtaPopoverSmall';
+import { MarketingCtaPopoverSmall } from '../marketing/cta/MarketingCtaPopoverSmall';
 import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';

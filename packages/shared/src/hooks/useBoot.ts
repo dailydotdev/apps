@@ -6,8 +6,8 @@ import type { Boot } from '../lib/boot';
 import {
   isMarketingCtaTarget,
   MarketingCtaVariant,
-} from '../components/marketingCta/common';
-import type { MarketingCta } from '../components/marketingCta/common';
+} from '../components/marketing/cta/common';
+import type { MarketingCta } from '../components/marketing/cta/common';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
 import { webappUrl } from '../lib/constants';

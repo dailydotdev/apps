@@ -22,7 +22,7 @@ import {
   StaleTime,
   updateCachedPagePost,
 } from '../lib/query';
-import type { MarketingCta } from '../components/marketingCta/common';
+import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';

@@ -7,12 +7,12 @@ import {
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { briefButtonBg } from '../../styles/custom';
-import { ClickableCard } from '../cards/common/Card';
-import { useIsLightTheme } from '../../hooks/utils';
-import { IconSize } from '../Icon';
+} from '../../typography/Typography';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { briefButtonBg } from '../../../styles/custom';
+import { ClickableCard } from '../../cards/common/Card';
+import { useIsLightTheme } from '../../../hooks/utils';
+import { IconSize } from '../../Icon';
 import {
   AnalyticsIcon,
   BellDisabledIcon,
@@ -20,18 +20,18 @@ import {
   EyeIcon,
   MenuIcon,
   TimerIcon,
-} from '../icons';
+} from '../../icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuOptions,
   DropdownMenuTrigger,
-} from '../dropdown/DropdownMenu';
-import { useActions, useBoot } from '../../hooks';
-import { ActionType } from '../../graphql/actions';
-import { LogEvent, TargetType } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { anchorDefaultRel } from '../../lib/strings';
+} from '../../dropdown/DropdownMenu';
+import { useActions, useBoot } from '../../../hooks';
+import { ActionType } from '../../../graphql/actions';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { anchorDefaultRel } from '../../../lib/strings';
 
 const stats = [
   {
