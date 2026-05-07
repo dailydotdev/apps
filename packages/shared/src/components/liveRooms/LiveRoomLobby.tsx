@@ -194,6 +194,8 @@ const formatScheduledStart = (value: string): string => {
   })} at ${time}`;
 };
 
+export type AddToCalendarProvider = 'google' | 'outlook' | 'ics';
+
 interface LiveRoomLobbyProps {
   room: LiveRoomModel;
   lobbyCountdown: number;
@@ -206,6 +208,7 @@ interface LiveRoomLobbyProps {
   isHost: boolean;
   onNavigateBack: (surface: string) => void;
   onShare: () => void;
+  onAddToCalendar: (provider: AddToCalendarProvider) => void;
   audienceParticipantIds: string[];
   participantProfilesById: Map<string, UserShortProfile>;
   chatPanel: ReactNode;
@@ -400,6 +403,7 @@ export const LiveRoomLobby = ({
   isHost,
   onNavigateBack,
   onShare,
+  onAddToCalendar,
   audienceParticipantIds,
   participantProfilesById,
   chatPanel,
@@ -426,6 +430,7 @@ export const LiveRoomLobby = ({
         {
           icon: <MenuIcon Icon={GoogleIcon} />,
           label: 'Google Calendar',
+          action: () => onAddToCalendar('google'),
           anchorProps: {
             href: buildGoogleCalendarUrl(calendarEvent),
             target: '_blank',
@@ -435,6 +440,7 @@ export const LiveRoomLobby = ({
         {
           icon: <MenuIcon Icon={MicrosoftIcon} />,
           label: 'Outlook',
+          action: () => onAddToCalendar('outlook'),
           anchorProps: {
             href: buildOutlookCalendarUrl(calendarEvent),
             target: '_blank',
@@ -444,7 +450,10 @@ export const LiveRoomLobby = ({
         {
           icon: <MenuIcon Icon={AppleIcon} />,
           label: 'Apple Calendar (.ics)',
-          action: () => downloadIcs(calendarEvent),
+          action: () => {
+            onAddToCalendar('ics');
+            downloadIcs(calendarEvent);
+          },
         },
       ]
     : [];
