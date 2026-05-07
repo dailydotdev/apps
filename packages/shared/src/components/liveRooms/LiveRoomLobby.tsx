@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { addDays, isSameDay } from 'date-fns';
 import {
@@ -13,23 +13,38 @@ import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 import {
+  AppleIcon,
   ArrowIcon,
   BellIcon,
   CalendarIcon,
   DiscussIcon,
+  GoogleIcon,
   MegaphoneIcon,
+  MicrosoftIcon,
   ShareIcon,
 } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
+import { MenuIcon } from '../MenuIcon';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import type { MenuItemProps } from '../dropdown/common';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
-import { anchorDefaultRel } from '../../lib/strings';
+import { anchorDefaultRel, stripHtmlTags } from '../../lib/strings';
 import type { UserShortProfile } from '../../lib/user';
 
 const padNumber = (value: number): string => value.toString().padStart(2, '0');
 
+const STANDUP_DURATION_MINUTES = 20;
+
 interface CountdownParts {
+  hasDays: boolean;
   hasHours: boolean;
+  days: string;
   hours: string;
   minutes: string;
   seconds: string;
@@ -37,15 +52,125 @@ interface CountdownParts {
 
 const getCountdownParts = (totalSeconds: number): CountdownParts => {
   const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-  const hours = Math.floor(safeSeconds / 3600);
+  const days = Math.floor(safeSeconds / 86400);
+  const hours = Math.floor((safeSeconds % 86400) / 3600);
   const minutes = Math.floor((safeSeconds % 3600) / 60);
   const seconds = safeSeconds % 60;
   return {
-    hasHours: hours > 0,
+    hasDays: days > 0,
+    hasHours: hours > 0 || days > 0,
+    days: padNumber(days),
     hours: padNumber(hours),
     minutes: padNumber(minutes),
     seconds: padNumber(seconds),
   };
+};
+
+const formatCalendarDate = (date: Date): string => {
+  return `${date.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`;
+};
+
+const escapeIcsText = (value: string): string =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
+
+interface CalendarEvent {
+  title: string;
+  description: string;
+  location: string;
+  start: Date;
+  end: Date;
+  id: string;
+}
+
+const buildCalendarEvent = (
+  room: LiveRoomModel,
+  standupUrl: string,
+): CalendarEvent | null => {
+  if (!room.scheduledStart) {
+    return null;
+  }
+  const start = new Date(room.scheduledStart);
+  if (Number.isNaN(start.getTime())) {
+    return null;
+  }
+  const end = new Date(start.getTime() + STANDUP_DURATION_MINUTES * 60 * 1000);
+  const plainDescription = room.description
+    ? stripHtmlTags(room.description).trim()
+    : '';
+  return {
+    title: `daily.dev Standup: ${room.topic}`,
+    description:
+      plainDescription || `Join the standup on daily.dev: ${standupUrl}`,
+    location: standupUrl,
+    start,
+    end,
+    id: room.id,
+  };
+};
+
+const buildGoogleCalendarUrl = (event: CalendarEvent): string => {
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title,
+    dates: `${formatCalendarDate(event.start)}/${formatCalendarDate(event.end)}`,
+    details: event.description,
+    location: event.location,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
+const buildOutlookCalendarUrl = (event: CalendarEvent): string => {
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    startdt: event.start.toISOString(),
+    enddt: event.end.toISOString(),
+    subject: event.title,
+    body: event.description,
+    location: event.location,
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+};
+
+const buildIcsContent = (event: CalendarEvent): string =>
+  [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//daily.dev//Standup//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:standup-${event.id}@daily.dev`,
+    `DTSTAMP:${formatCalendarDate(new Date())}`,
+    `DTSTART:${formatCalendarDate(event.start)}`,
+    `DTEND:${formatCalendarDate(event.end)}`,
+    `SUMMARY:${escapeIcsText(event.title)}`,
+    `DESCRIPTION:${escapeIcsText(event.description)}`,
+    `LOCATION:${escapeIcsText(event.location)}`,
+    `URL:${event.location}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+const downloadIcs = (event: CalendarEvent): void => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  const blob = new Blob([buildIcsContent(event)], {
+    type: 'text/calendar;charset=utf-8',
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `daily-dev-standup-${event.id}.ics`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
 };
 
 const formatScheduledStart = (value: string): string => {
@@ -120,11 +245,16 @@ const CountdownDisplay = ({
   ariaLabel,
 }: CountdownDisplayProps): ReactElement => {
   const segments = [
+    ...(parts.hasDays
+      ? [{ key: 'days', value: parts.days, label: 'Days' }]
+      : []),
     ...(parts.hasHours
       ? [{ key: 'hours', value: parts.hours, label: 'Hours' }]
       : []),
     { key: 'minutes', value: parts.minutes, label: 'Minutes' },
-    { key: 'seconds', value: parts.seconds, label: 'Seconds' },
+    ...(parts.hasDays
+      ? []
+      : [{ key: 'seconds', value: parts.seconds, label: 'Seconds' }]),
   ];
 
   return (
@@ -278,6 +408,44 @@ export const LiveRoomLobby = ({
   const countdownLabel = isStartingNow ? 'Starting any moment' : 'Goes live in';
   const countdownParts = getCountdownParts(lobbyCountdown);
   const hasEmbeds = !!room.contentEmbeds && room.contentEmbeds.length > 0;
+  const standupFullUrl = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+    return `${window.location.origin}/standups/${room.id}`;
+  }, [room.id]);
+  const calendarEvent =
+    hasScheduledStart && standupFullUrl
+      ? buildCalendarEvent(room, standupFullUrl)
+      : null;
+  const [calendarMenuOpen, setCalendarMenuOpen] = useState(false);
+  const calendarOptions: MenuItemProps[] = calendarEvent
+    ? [
+        {
+          icon: <MenuIcon Icon={GoogleIcon} />,
+          label: 'Google Calendar',
+          anchorProps: {
+            href: buildGoogleCalendarUrl(calendarEvent),
+            target: '_blank',
+            rel: anchorDefaultRel,
+          },
+        },
+        {
+          icon: <MenuIcon Icon={MicrosoftIcon} />,
+          label: 'Outlook',
+          anchorProps: {
+            href: buildOutlookCalendarUrl(calendarEvent),
+            target: '_blank',
+            rel: anchorDefaultRel,
+          },
+        },
+        {
+          icon: <MenuIcon Icon={AppleIcon} />,
+          label: 'Apple Calendar (.ics)',
+          action: () => downloadIcs(calendarEvent),
+        },
+      ]
+    : [];
   const audienceProfiles = audienceParticipantIds
     .map((id) => participantProfilesById.get(id))
     .filter((profile): profile is UserShortProfile => !!profile);
@@ -305,6 +473,12 @@ export const LiveRoomLobby = ({
             >
               <div className="flex flex-col gap-5 p-5 tablet:gap-7 tablet:p-8">
                 <div className="flex flex-col gap-3">
+                  <Typography
+                    type={TypographyType.Caption1}
+                    className="font-bold uppercase tracking-[0.18em] text-accent-bacon-default"
+                  >
+                    daily.dev Standup
+                  </Typography>
                   <Typography
                     tag={TypographyTag.H1}
                     type={TypographyType.LargeTitle}
@@ -368,7 +542,6 @@ export const LiveRoomLobby = ({
                       loading={subscriptionBusy}
                       disabled={subscriptionBusy}
                       onClick={onToggleSubscription}
-                      className="flex-1 tablet:flex-none"
                     >
                       {subscribed ? 'Reminder set' : 'Remind me'}
                     </Button>
@@ -378,14 +551,30 @@ export const LiveRoomLobby = ({
                     variant={ButtonVariant.Secondary}
                     icon={<ShareIcon />}
                     onClick={onShare}
-                    className={
-                      canSubscribeToLobby
-                        ? 'flex-none'
-                        : 'flex-1 tablet:flex-none'
-                    }
                   >
                     Share
                   </Button>
+                  {calendarEvent ? (
+                    <DropdownMenu
+                      open={calendarMenuOpen}
+                      onOpenChange={setCalendarMenuOpen}
+                    >
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant={ButtonVariant.Secondary}
+                          icon={<CalendarIcon secondary />}
+                        >
+                          Add to calendar
+                        </Button>
+                      </DropdownMenuTrigger>
+                      {calendarMenuOpen ? (
+                        <DropdownMenuContent>
+                          <DropdownMenuOptions options={calendarOptions} />
+                        </DropdownMenuContent>
+                      ) : null}
+                    </DropdownMenu>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-col gap-4 border-t border-border-subtlest-tertiary pt-5 tablet:gap-5 tablet:pt-7">
@@ -401,12 +590,18 @@ export const LiveRoomLobby = ({
                     <CountdownDisplay
                       parts={countdownParts}
                       ariaLabel={`${countdownLabel} ${
+                        countdownParts.hasDays
+                          ? `${countdownParts.days} days `
+                          : ''
+                      }${
                         countdownParts.hasHours
                           ? `${countdownParts.hours} hours `
                           : ''
-                      }${countdownParts.minutes} minutes ${
-                        countdownParts.seconds
-                      } seconds`}
+                      }${countdownParts.minutes} minutes${
+                        countdownParts.hasDays
+                          ? ''
+                          : ` ${countdownParts.seconds} seconds`
+                      }`}
                     />
                   ) : (
                     <Typography
