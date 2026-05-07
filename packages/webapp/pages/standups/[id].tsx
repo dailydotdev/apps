@@ -4,6 +4,11 @@ import { useRouter } from 'next/router';
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
 import type { ClientError } from 'graphql-request';
+import {
+  type DehydratedState,
+  QueryClient,
+  dehydrate,
+} from '@tanstack/react-query';
 import { Loader } from '@dailydotdev/shared/src/components/Loader';
 import { LiveRoom } from '@dailydotdev/shared/src/components/liveRooms/LiveRoom';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
@@ -14,7 +19,11 @@ import {
   type LiveRoomData,
 } from '@dailydotdev/shared/src/graphql/liveRooms';
 import { stripHtmlTags } from '@dailydotdev/shared/src/lib/strings';
-import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import {
+  RequestKey,
+  StaleTime,
+  generateQueryKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import type { DynamicSeoProps } from '../../components/common';
@@ -30,6 +39,7 @@ interface StandupPageParams {
 
 interface StandupPageProps extends DynamicSeoProps {
   id?: string;
+  dehydratedState?: DehydratedState;
 }
 
 const StandupPage = (): ReactElement => {
@@ -181,10 +191,16 @@ export async function getServerSideProps({
       id,
     });
     const url = `${getAppOrigin()}/standups/${id}`;
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(
+      generateQueryKey(RequestKey.LiveRooms, undefined, 'detail', id),
+      data.liveRoom,
+    );
     return {
       props: {
         id,
         seo: buildStandupSeo(data.liveRoom, url),
+        dehydratedState: dehydrate(queryClient),
       },
     };
   } catch (err) {
