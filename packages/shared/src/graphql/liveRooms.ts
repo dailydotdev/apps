@@ -30,7 +30,6 @@ export interface LiveRoom {
   startedAt: string | null;
   endedAt: string | null;
   scheduledStart: string | null;
-  description: string | null;
   descriptionHtml?: string | null;
   subscribed: boolean;
   contentEmbeds?: ContentEmbed[];
@@ -79,7 +78,6 @@ export const LIVE_ROOM_FRAGMENT = gql`
     startedAt
     endedAt
     scheduledStart
-    description
     subscribed
     host {
       ...UserShortInfo

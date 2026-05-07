@@ -63,7 +63,6 @@ const createJoinToken = () => ({
     startedAt: null,
     endedAt: null,
     scheduledStart: null,
-    description: null,
     descriptionHtml: null,
     subscribed: false,
     contentEmbeds: [],
