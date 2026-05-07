@@ -19,7 +19,7 @@ import {
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import FirstNotification from '@dailydotdev/shared/src/components/notifications/FirstNotification';
 import EnableNotification from '@dailydotdev/shared/src/components/notifications/EnableNotification';
-import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/notifications/DigestUpsellBanner';
+import { DigestUpsellBanner } from '@dailydotdev/shared/src/components/marketing/banners/DigestUpsellBanner';
 import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
 import InfiniteScrolling, {
   checkFetchMore,
