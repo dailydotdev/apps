@@ -20,15 +20,6 @@ const seo: NextSeoProps = {
 
 const GuessWhoPage = (): ReactElement => (
   <main className="page mx-auto flex min-h-page w-full flex-col items-center justify-center px-6 py-10">
-    <header className="mb-8 flex flex-col items-center gap-2 text-center">
-      <h1 className="font-bold text-text-primary typo-mega3">
-        Guess who you are
-      </h1>
-      <p className="max-w-[32rem] text-text-tertiary typo-body">
-        Five quick questions and we&apos;ll take a (very humble) guess at your
-        developer persona.
-      </p>
-    </header>
     <GuessWhoQuiz />
   </main>
 );

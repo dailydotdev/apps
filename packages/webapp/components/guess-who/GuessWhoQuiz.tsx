@@ -1,8 +1,11 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { QuestionCard } from './QuestionCard';
+import classNames from 'classnames';
+import { AnimatePresence, motion } from 'framer-motion';
+import { DailyDjinnFigure } from './DailyDjinnFigure';
+import { DailyDjinnLanding } from './DailyDjinnLanding';
 import { ResultPlaceholder } from './ResultPlaceholder';
+import { ThemedQuestion } from './ThemedQuestion';
 import {
   FIRST_QUESTION_ID,
   TOTAL_VISIBLE_STEPS,
@@ -10,17 +13,25 @@ import {
   questions,
 } from './questions';
 
+type Phase = 'landing' | 'quiz';
+
 export const GuessWhoQuiz = (): ReactElement => {
+  const [phase, setPhase] = useState<Phase>('landing');
   const [currentId, setCurrentId] = useState<string>(FIRST_QUESTION_ID);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [history, setHistory] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(false);
 
   const reset = useCallback(() => {
+    setPhase('landing');
     setCurrentId(FIRST_QUESTION_ID);
     setAnswers({});
     setHistory([]);
     setIsComplete(false);
+  }, []);
+
+  const handleStart = useCallback(() => {
+    setPhase('quiz');
   }, []);
 
   const handleSelect = useCallback(
@@ -57,18 +68,24 @@ export const GuessWhoQuiz = (): ReactElement => {
     });
   }, []);
 
-  if (isComplete) {
-    return <ResultPlaceholder answers={answers} onRestart={reset} />;
-  }
+  const renderRightColumn = (): ReactElement | null => {
+    if (phase === 'landing') {
+      return <DailyDjinnLanding key="landing" onStart={handleStart} />;
+    }
 
-  const currentQuestion = questions[currentId];
-  if (!currentQuestion) {
-    throw new Error(`Unknown question id "${currentId}"`);
-  }
+    if (isComplete) {
+      return (
+        <ResultPlaceholder key="result" answers={answers} onRestart={reset} />
+      );
+    }
 
-  return (
-    <AnimatePresence mode="wait">
-      <QuestionCard
+    const currentQuestion = questions[currentId];
+    if (!currentQuestion) {
+      throw new Error(`Unknown question id "${currentId}"`);
+    }
+
+    return (
+      <ThemedQuestion
         key={currentQuestion.id}
         question={currentQuestion}
         selectedOptionId={answers[currentId]}
@@ -77,6 +94,26 @@ export const GuessWhoQuiz = (): ReactElement => {
         onSelect={handleSelect}
         onBack={history.length > 0 ? handleBack : undefined}
       />
-    </AnimatePresence>
+    );
+  };
+
+  const isQuiz = phase === 'quiz';
+
+  return (
+    <motion.div
+      layout
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={classNames(
+        'relative flex w-full',
+        isQuiz
+          ? 'max-w-[64rem] flex-col items-center gap-10 laptop:flex-row laptop:items-center laptop:gap-12'
+          : 'max-w-[36rem] flex-col items-center gap-8',
+      )}
+    >
+      <DailyDjinnFigure compact={isQuiz} />
+      <div className="z-10 relative flex w-full flex-1 flex-col">
+        <AnimatePresence mode="wait">{renderRightColumn()}</AnimatePresence>
+      </div>
+    </motion.div>
   );
 };

@@ -10,7 +10,7 @@ import {
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons/Arrow';
 import type { Question } from './questions';
 
-interface QuestionCardProps {
+interface ThemedQuestionProps {
   question: Question;
   selectedOptionId?: string;
   step: number;
@@ -19,21 +19,21 @@ interface QuestionCardProps {
   onBack?: () => void;
 }
 
-export const QuestionCard = ({
+export const ThemedQuestion = ({
   question,
   selectedOptionId,
   step,
   totalSteps,
   onSelect,
   onBack,
-}: QuestionCardProps): ReactElement => (
+}: ThemedQuestionProps): ReactElement => (
   <motion.section
     key={question.id}
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -12 }}
-    transition={{ duration: 0.18, ease: 'easeOut' }}
-    className="flex w-full max-w-[36rem] flex-col rounded-16 border border-border-subtlest-secondary bg-background-subtle p-6 laptop:p-8"
+    initial={{ opacity: 0, x: 24 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: -24 }}
+    transition={{ duration: 0.22, ease: 'easeOut' }}
+    className="djinn-question z-10 relative flex w-full flex-col"
   >
     <header className="mb-6 flex items-center gap-3">
       <p className="text-text-tertiary typo-footnote">
@@ -45,10 +45,8 @@ export const QuestionCard = ({
             <span
               key={`step-${index}`}
               className={classNames(
-                'h-1.5 flex-1 rounded-4 transition-colors',
-                index < step
-                  ? 'bg-brand-default'
-                  : 'bg-border-subtlest-tertiary',
+                'djinn-progress-tick h-1.5 flex-1 rounded-4 transition-colors',
+                index < step && 'djinn-progress-tick--active',
               )}
             />
           ),
@@ -56,7 +54,7 @@ export const QuestionCard = ({
       </div>
     </header>
 
-    <h2 className="mb-6 text-center font-bold text-text-primary typo-title2">
+    <h2 className="mb-6 font-bold text-text-primary typo-title2">
       {question.prompt}
     </h2>
 
@@ -69,10 +67,8 @@ export const QuestionCard = ({
             type="button"
             onClick={() => onSelect(option.id)}
             className={classNames(
-              'flex items-center gap-3 rounded-12 border px-4 py-3 text-left transition-colors',
-              selected
-                ? 'border-brand-default bg-brand-float text-text-primary'
-                : 'border-border-subtlest-tertiary bg-background-default text-text-secondary hover:border-text-tertiary hover:text-text-primary',
+              'djinn-option flex items-center gap-3 rounded-12 px-4 py-3 text-left',
+              selected && 'djinn-option--selected',
             )}
           >
             {option.emoji && (
@@ -80,7 +76,7 @@ export const QuestionCard = ({
                 {option.emoji}
               </span>
             )}
-            <span className="typo-body">{option.label}</span>
+            <span className="text-text-primary typo-body">{option.label}</span>
           </button>
         );
       })}

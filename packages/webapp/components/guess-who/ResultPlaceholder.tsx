@@ -35,10 +35,11 @@ export const ResultPlaceholder = ({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="flex w-full max-w-[36rem] flex-col items-center gap-6 rounded-16 border border-border-subtlest-secondary bg-background-subtle p-6 laptop:p-8"
+      initial={{ opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -24 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
+      className="z-10 relative flex w-full flex-col items-center gap-6"
     >
       <Loader />
       <div className="flex flex-col items-center gap-2 text-center">
@@ -56,7 +57,7 @@ export const ResultPlaceholder = ({
           {recap.map(({ prompt, answer }) => (
             <li
               key={prompt}
-              className="flex flex-col gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default px-4 py-3"
+              className="djinn-option flex flex-col gap-1 rounded-12 px-4 py-3"
             >
               <span className="text-text-tertiary typo-footnote">{prompt}</span>
               <span className="text-text-primary typo-callout">{answer}</span>
