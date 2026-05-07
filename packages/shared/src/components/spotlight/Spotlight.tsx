@@ -75,7 +75,7 @@ interface RowProps {
 }
 
 const rowBaseClass =
-  'group/spotlight-row mx-2 flex cursor-pointer items-center gap-3 rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
+  'group/spotlight-row mx-2 flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-10 px-3 text-left aria-disabled:cursor-not-allowed aria-disabled:opacity-40 data-[selected=true]:bg-surface-hover';
 
 const TypedAvatar = ({
   src,
@@ -1033,7 +1033,7 @@ export const Spotlight = ({
           <Command.List
             key={`spotlight-list-${scope}`}
             className={classNames(
-              'overflow-y-auto pb-1 [overflow-anchor:none] motion-safe:animate-spotlight-list-fade [&_*]:[overflow-anchor:none]',
+              'overflow-y-auto overflow-x-hidden pb-1 [overflow-anchor:none] motion-safe:animate-spotlight-list-fade [&_*]:[overflow-anchor:none]',
               firstHeadingNoTopPaddingClass,
               isMobile ? 'flex-1' : 'max-h-[min(640px,60vh)]',
             )}
