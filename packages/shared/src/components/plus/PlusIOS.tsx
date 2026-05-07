@@ -19,8 +19,8 @@ import Toast from '../notifications/Toast';
 import { stringToBoolean } from '../../lib/utils';
 import PlusListModalSection from './PlusListModalSection';
 import { PlusInfo } from './PlusInfo';
-import type { MarketingCtaFlags } from '../marketingCta/common';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import type { MarketingCtaFlags } from '../marketing/cta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { LogEvent } from '../../lib/log';
 

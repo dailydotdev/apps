@@ -2,14 +2,14 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { MarketingCta } from './common';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { MiniCloseIcon, PlayIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { useBoot, useFeedLayout } from '../../hooks';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
-import { anchorDefaultRel } from '../../lib/strings';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { MiniCloseIcon, PlayIcon } from '../../icons';
+import { IconSize } from '../../Icon';
+import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
+import { useBoot, useFeedLayout } from '../../../hooks';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { anchorDefaultRel } from '../../../lib/strings';
 import styles from './MarketingCtaVideo.module.css';
 
 export function MarketingCtaVideo({

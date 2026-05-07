@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { MiniCloseIcon } from '../icons';
-import { CardTitle } from '../cards/common/Card';
-import classed from '../../lib/classed';
-import { anchorDefaultRel } from '../../lib/strings';
-import { Pill, PillSize } from '../Pill';
-import { isExtension, isIOSNative, isNullOrUndefined } from '../../lib/func';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { MiniCloseIcon } from '../../icons';
+import { CardTitle } from '../../cards/common/Card';
+import classed from '../../../lib/classed';
+import { anchorDefaultRel } from '../../../lib/strings';
+import { Pill, PillSize } from '../../Pill';
+import { isExtension, isIOSNative, isNullOrUndefined } from '../../../lib/func';
 
 export type MarketingCtaFlags = {
   title: string;

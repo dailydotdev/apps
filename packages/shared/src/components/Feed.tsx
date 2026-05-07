@@ -52,7 +52,7 @@ import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionC
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
-import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaVariant } from './marketing/cta/common';
 import { isExtensionCapableBrowser, isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';

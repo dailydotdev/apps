@@ -5,7 +5,7 @@ import { plusUrl } from '../../lib/constants';
 import { PlusInfo } from './PlusInfo';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { useBoot } from '../../hooks';
 import PlusListModalSection from './PlusListModalSection';
 import { useFeature } from '../GrowthBookProvider';

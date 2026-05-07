@@ -1,15 +1,15 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { CardCover } from '../cards/common/CardCover';
+import { CardCover } from '../../cards/common/CardCover';
 import type { MarketingCta } from './common';
 import { CTAButton, Description, Title } from './common';
-import { ViewSize, useBoot, useViewSize } from '../../hooks';
-import { useLogContext } from '../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../lib/log';
-import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { MiniCloseIcon } from '../icons';
-import { Button } from '../buttons/Button';
+import { ViewSize, useBoot, useViewSize } from '../../../hooks';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { MiniCloseIcon } from '../../icons';
+import { Button } from '../../buttons/Button';
 
 export function MarketingCtaPopoverSmall({
   marketingCta,

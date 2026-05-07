@@ -9,10 +9,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { PlusEntryArrow } from '../../icons';
-import type {
-  MarketingCta,
-  MarketingCtaFlags,
-} from '../../marketingCta/common';
+import type { MarketingCta, MarketingCtaFlags } from '../cta/common';
 import type { TargetType } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';

@@ -78,7 +78,7 @@ import { checkIsExtension, isNullOrUndefined } from '../lib/func';
 import { useActions } from '../hooks/useActions';
 import { ActionType } from '../graphql/actions';
 import { useBoot } from '../hooks/useBoot';
-import { MarketingCtaVariant } from './marketingCta/common';
+import { MarketingCtaVariant } from './marketing/cta/common';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
