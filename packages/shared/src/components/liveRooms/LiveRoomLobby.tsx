@@ -35,6 +35,13 @@ import {
 import type { MenuItemProps } from '../dropdown/common';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
 import { anchorDefaultRel, stripHtmlTags } from '../../lib/strings';
+import {
+  buildGoogleCalendarUrl,
+  buildOutlookCalendarUrl,
+  downloadIcs,
+  type AddToCalendarProvider,
+  type CalendarEvent,
+} from '../../lib/calendar';
 import type { UserShortProfile } from '../../lib/user';
 
 const padNumber = (value: number): string => value.toString().padStart(2, '0');
@@ -66,27 +73,7 @@ const getCountdownParts = (totalSeconds: number): CountdownParts => {
   };
 };
 
-const formatCalendarDate = (date: Date): string => {
-  return `${date.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`;
-};
-
-const escapeIcsText = (value: string): string =>
-  value
-    .replace(/\\/g, '\\\\')
-    .replace(/\n/g, '\\n')
-    .replace(/,/g, '\\,')
-    .replace(/;/g, '\\;');
-
-interface CalendarEvent {
-  title: string;
-  description: string;
-  location: string;
-  start: Date;
-  end: Date;
-  id: string;
-}
-
-const buildCalendarEvent = (
+const buildStandupCalendarEvent = (
   room: LiveRoomModel,
   standupUrl: string,
 ): CalendarEvent | null => {
@@ -108,71 +95,8 @@ const buildCalendarEvent = (
     location: standupUrl,
     start,
     end,
-    id: room.id,
+    id: `standup-${room.id}`,
   };
-};
-
-const buildGoogleCalendarUrl = (event: CalendarEvent): string => {
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: event.title,
-    dates: `${formatCalendarDate(event.start)}/${formatCalendarDate(
-      event.end,
-    )}`,
-    details: event.description,
-    location: event.location,
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-};
-
-const buildOutlookCalendarUrl = (event: CalendarEvent): string => {
-  const params = new URLSearchParams({
-    path: '/calendar/action/compose',
-    rru: 'addevent',
-    startdt: event.start.toISOString(),
-    enddt: event.end.toISOString(),
-    subject: event.title,
-    body: event.description,
-    location: event.location,
-  });
-  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
-};
-
-const buildIcsContent = (event: CalendarEvent): string =>
-  [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//daily.dev//Standup//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
-    'BEGIN:VEVENT',
-    `UID:standup-${event.id}@daily.dev`,
-    `DTSTAMP:${formatCalendarDate(new Date())}`,
-    `DTSTART:${formatCalendarDate(event.start)}`,
-    `DTEND:${formatCalendarDate(event.end)}`,
-    `SUMMARY:${escapeIcsText(event.title)}`,
-    `DESCRIPTION:${escapeIcsText(event.description)}`,
-    `LOCATION:${escapeIcsText(event.location)}`,
-    `URL:${event.location}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ].join('\r\n');
-
-const downloadIcs = (event: CalendarEvent): void => {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const blob = new Blob([buildIcsContent(event)], {
-    type: 'text/calendar;charset=utf-8',
-  });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = `daily-dev-standup-${event.id}.ics`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
 };
 
 const formatScheduledStart = (value: string): string => {
@@ -193,8 +117,6 @@ const formatScheduledStart = (value: string): string => {
     day: 'numeric',
   })} at ${time}`;
 };
-
-export type AddToCalendarProvider = 'google' | 'outlook' | 'ics';
 
 interface LiveRoomLobbyProps {
   room: LiveRoomModel;
@@ -422,7 +344,7 @@ export const LiveRoomLobby = ({
   }, [room.id]);
   const calendarEvent =
     hasScheduledStart && standupFullUrl
-      ? buildCalendarEvent(room, standupFullUrl)
+      ? buildStandupCalendarEvent(room, standupFullUrl)
       : null;
   const [calendarMenuOpen, setCalendarMenuOpen] = useState(false);
   const calendarOptions: MenuItemProps[] = calendarEvent
