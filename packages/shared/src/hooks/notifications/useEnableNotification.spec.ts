@@ -1,5 +1,4 @@
 import { act, renderHook } from '@testing-library/react';
-import * as React from 'react';
 import { NotificationPromptSource } from '../../lib/log';
 import { useEnableNotification } from './useEnableNotification';
 
@@ -34,15 +33,11 @@ jest.mock('../../lib/func', () => ({
   checkIsExtension: () => false,
 }));
 
-type DismissedMap = Partial<Record<NotificationPromptSource, boolean>>;
-
-let dismissedStore: DismissedMap = {};
-const setIsDismissed = jest.fn();
-
 describe('useEnableNotification', () => {
+  const setIsDismissed = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
-    dismissedStore = {};
 
     mockUsePushNotificationContext.mockReturnValue({
       isInitialized: true,
@@ -57,15 +52,7 @@ describe('useEnableNotification', () => {
       onEnablePush: jest.fn(() => Promise.resolve(true)),
     });
 
-    mockPersistentContext.mockImplementation(() => {
-      const [value, setValue] = React.useState<DismissedMap>(dismissedStore);
-      const persistentSetter = (next: DismissedMap) => {
-        dismissedStore = next;
-        setIsDismissed(next);
-        setValue(next);
-      };
-      return [value, persistentSetter, true];
-    });
+    mockPersistentContext.mockReturnValue([false, setIsDismissed, true]);
   });
 
   it('should show CTA for NewComment source when not dismissed', () => {
@@ -113,7 +100,7 @@ describe('useEnableNotification', () => {
     );
   });
 
-  it('should write the dismissed source flag to persistent storage', () => {
+  it('should still write to persistent storage when dismissed for NewComment', () => {
     const { result } = renderHook(() =>
       useEnableNotification({
         source: NotificationPromptSource.NewComment,
@@ -124,56 +111,7 @@ describe('useEnableNotification', () => {
       result.current.onDismiss();
     });
 
-    expect(setIsDismissed).toHaveBeenCalledWith(
-      expect.objectContaining({
-        [NotificationPromptSource.NewComment]: true,
-      }),
-    );
-  });
-
-  it('should keep CTA hidden for NewComment source after remount', () => {
-    const { result, unmount } = renderHook(() =>
-      useEnableNotification({
-        source: NotificationPromptSource.NewComment,
-      }),
-    );
-
-    act(() => {
-      result.current.onDismiss();
-    });
-
-    expect(result.current.shouldShowCta).toBe(false);
-    unmount();
-
-    const { result: resultAfterRemount } = renderHook(() =>
-      useEnableNotification({
-        source: NotificationPromptSource.NewComment,
-      }),
-    );
-
-    expect(resultAfterRemount.current.shouldShowCta).toBe(false);
-  });
-
-  it('should not affect other sources when one source is dismissed', () => {
-    const { result: newCommentResult } = renderHook(() =>
-      useEnableNotification({
-        source: NotificationPromptSource.NewComment,
-      }),
-    );
-
-    act(() => {
-      newCommentResult.current.onDismiss();
-    });
-
-    expect(newCommentResult.current.shouldShowCta).toBe(false);
-
-    const { result: notificationsPageResult } = renderHook(() =>
-      useEnableNotification({
-        source: NotificationPromptSource.NotificationsPage,
-      }),
-    );
-
-    expect(notificationsPageResult.current.shouldShowCta).toBe(true);
+    expect(setIsDismissed).toHaveBeenCalledWith(true);
   });
 
   it('should hide CTA for SquadPage source after onDismiss is called', () => {
@@ -192,8 +130,8 @@ describe('useEnableNotification', () => {
     expect(result.current.shouldShowCta).toBe(false);
   });
 
-  it('should hide CTA for NotificationsPage when its persistent flag is true', () => {
-    dismissedStore = { [NotificationPromptSource.NotificationsPage]: true };
+  it('should hide CTA for NotificationsPage when persistent dismiss is true', () => {
+    mockPersistentContext.mockReturnValue([true, setIsDismissed, true]);
 
     const { result } = renderHook(() =>
       useEnableNotification({

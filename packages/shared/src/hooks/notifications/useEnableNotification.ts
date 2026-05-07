@@ -65,17 +65,17 @@ export const useEnableNotification = ({
       runEnableAction().catch(() => null);
     },
   });
-  const [dismissedBySource, setDismissedBySource, isLoaded] =
-    usePersistentContext<Partial<Record<NotificationPromptSource, boolean>>>(
-      DISMISS_PERMISSION_BANNER,
-      {},
-    );
-  const isDismissed = !!dismissedBySource?.[source];
-  const setIsDismissed = useCallback(
-    (value: boolean) =>
-      setDismissedBySource({ ...(dismissedBySource ?? {}), [source]: value }),
-    [dismissedBySource, setDismissedBySource, source],
+  const [isDismissed, setIsDismissed, isLoaded] = usePersistentContext(
+    DISMISS_PERMISSION_BANNER,
+    false,
   );
+  const [isSessionDismissed, setIsSessionDismissed] = useState(false);
+  const shouldIgnoreDismissStateForSource =
+    source === NotificationPromptSource.NewComment ||
+    source === NotificationPromptSource.SquadPage;
+  const effectiveIsDismissed = shouldIgnoreDismissStateForSource
+    ? isSessionDismissed
+    : isDismissed;
   useEffect(() => {
     setHasCompletedEnableAction(!onEnableAction);
   }, [onEnableAction]);
@@ -89,6 +89,7 @@ export const useEnableNotification = ({
       source,
       placement,
     });
+    setIsSessionDismissed(true);
     setIsDismissed(true);
   }, [logDismiss, placement, setIsDismissed, source]);
 
@@ -123,7 +124,7 @@ export const useEnableNotification = ({
       (conditions.every(Boolean) ||
         (enabledJustNow &&
           source !== NotificationPromptSource.SquadPostModal)) &&
-      !isDismissed
+      !effectiveIsDismissed
     );
   };
 
