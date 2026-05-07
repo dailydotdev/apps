@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -19,7 +20,6 @@ import type { UserShortProfile } from '../../lib/user';
 import { MegaphoneIcon, VolumeOffIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
-import Link from '../utilities/Link';
 import {
   SPEAKING_LEVEL_THRESHOLD,
   useLiveRoomAudioLevel,
@@ -29,6 +29,7 @@ import { Drawer } from '../drawers';
 import { RootPortal } from '../tooltips/Portal';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export type LiveRoomTileAudioPlaybackState = 'none' | 'blocked' | 'playing';
 
@@ -42,6 +43,7 @@ interface LiveRoomVideoTileProps {
   raisedHandQueuePosition?: number;
   isMuted?: boolean;
   className?: string;
+  onToggleSelfMute?: () => void | Promise<void>;
   onGrantCoHost?: () => void;
   onRevokeCoHost?: () => void;
   onRemoveSpeaker?: () => void;
@@ -81,6 +83,7 @@ export const LiveRoomVideoTile = ({
   raisedHandQueuePosition,
   isMuted = false,
   className,
+  onToggleSelfMute,
   onGrantCoHost,
   onRevokeCoHost,
   onRemoveSpeaker,
@@ -100,9 +103,11 @@ export const LiveRoomVideoTile = ({
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const mutedNoticeId = useId();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = !isTablet;
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [isMutedNoticeOpen, setIsMutedNoticeOpen] = useState(false);
   const longPressFiredRef = useRef(false);
   const longPressHandlers = useTouchLongPress<undefined>({
     enabled: isMobile && !selfView,
@@ -232,7 +237,7 @@ export const LiveRoomVideoTile = ({
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
   const nameLabel = (
     <Typography
-      tag={hasProfileLink ? TypographyTag.Link : TypographyTag.Span}
+      tag={TypographyTag.Span}
       type={TypographyType.Footnote}
       bold
       truncate
@@ -253,6 +258,28 @@ export const LiveRoomVideoTile = ({
         onTouchMove: longPressHandlers.onTouchMove,
         onTouchCancel: longPressHandlers.onTouchCancel,
       };
+  const mutedBadgeCopy = 'Muted by user';
+  const isSelfMutedTile = selfView && !!onToggleSelfMute;
+  const handleMutedBadgeClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (isSelfMutedTile) {
+      onToggleSelfMute?.();
+      return;
+    }
+
+    setIsMutedNoticeOpen((current) => !current);
+  };
+  const closeMutedNotice = (): void => {
+    if (isSelfMutedTile) {
+      return;
+    }
+
+    setIsMutedNoticeOpen(false);
+  };
 
   return (
     <div
@@ -338,12 +365,37 @@ export const LiveRoomVideoTile = ({
         </span>
       ) : null}
       {isMuted ? (
-        <span
-          aria-label="Muted"
-          className="pointer-events-none absolute right-3 top-3 inline-flex size-7 items-center justify-center rounded-10 bg-overlay-dark-dark3 backdrop-blur"
+        <button
+          type="button"
+          aria-label={isSelfMutedTile ? 'Unmute yourself' : mutedBadgeCopy}
+          aria-controls={!isSelfMutedTile ? mutedNoticeId : undefined}
+          aria-expanded={!isSelfMutedTile ? isMutedNoticeOpen : undefined}
+          className="hover:bg-overlay-dark-dark4 absolute right-3 top-3 z-1 inline-flex items-center justify-end rounded-10 bg-overlay-dark-dark3 px-1 py-1 text-white backdrop-blur transition-colors"
+          onClick={handleMutedBadgeClick}
+          onMouseLeave={closeMutedNotice}
+          onBlur={closeMutedNotice}
         >
-          <VolumeOffIcon size={IconSize.XSmall} className="text-status-error" />
-        </span>
+          {!isSelfMutedTile ? (
+            <span
+              id={mutedNoticeId}
+              aria-hidden={!isMutedNoticeOpen}
+              className={classNames(
+                'overflow-hidden whitespace-nowrap text-left text-status-error transition-[max-width,opacity,transform,margin,padding] duration-200 ease-out typo-caption1',
+                isMutedNoticeOpen
+                  ? 'mr-1.5 max-w-[7.5rem] translate-x-0 pl-1 opacity-100'
+                  : 'max-w-0 -translate-x-1 pl-0 opacity-0',
+              )}
+            >
+              {mutedBadgeCopy}
+            </span>
+          ) : null}
+          <span className="flex size-5 items-center justify-center">
+            <VolumeOffIcon
+              size={IconSize.XSmall}
+              className="text-status-error"
+            />
+          </span>
+        </button>
       ) : null}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 pb-3 pl-1.5 pr-3 pt-3 tablet:pl-3">
         <div className="flex min-h-8 min-w-0 items-center gap-1.5 rounded-12 bg-overlay-dark-dark3 px-2 py-1 backdrop-blur transition-[padding] duration-200 ease-out tablet:gap-2 tablet:px-2.5 tablet:group-hover:pr-1">
@@ -366,9 +418,14 @@ export const LiveRoomVideoTile = ({
             </Typography>
           ) : null}
           {hasProfileLink ? (
-            <Link href={user.permalink} passHref>
+            <a
+              href={user.permalink}
+              target="_blank"
+              rel={anchorDefaultRel}
+              className="pointer-events-auto min-w-0"
+            >
               {nameLabel}
-            </Link>
+            </a>
           ) : (
             nameLabel
           )}

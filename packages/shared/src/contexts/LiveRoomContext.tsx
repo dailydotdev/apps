@@ -123,6 +123,12 @@ interface RemoteSubscriptionHandle {
 
 type MediaTransportDirection = 'send' | 'recv';
 
+interface CachedMutedAudioTrack {
+  track: MediaStreamTrack;
+  deviceId: string | null;
+  micSettingsSignature: string;
+}
+
 export interface LiveRoomContextValue {
   status: LiveRoomConnectionStatus;
   errorMessage: string | null;
@@ -325,6 +331,9 @@ const buildAudioConstraints = (
   return constraints;
 };
 
+const getMicSettingsSignature = (micSettings: LiveRoomMicSettings): string =>
+  JSON.stringify(micSettings);
+
 const buildConstraints = (
   kind: 'audio' | 'video',
   deviceId: string | null,
@@ -419,6 +428,7 @@ export const LiveRoomProvider = ({
     audio: MediaStreamTrack | null;
     video: MediaStreamTrack | null;
   }>({ audio: null, video: null });
+  const mutedAudioTrackRef = useRef<CachedMutedAudioTrack | null>(null);
   const subscriptionsRef = useRef<Map<string, RemoteSubscriptionHandle>>(
     new Map(),
   );
@@ -661,6 +671,8 @@ export const LiveRoomProvider = ({
   }, []);
 
   const stopLocalCapture = useCallback(() => {
+    mutedAudioTrackRef.current?.track.stop();
+    mutedAudioTrackRef.current = null;
     localTracksRef.current.audio?.stop();
     localTracksRef.current.video?.stop();
     localTracksRef.current.audio = null;
@@ -1606,6 +1618,10 @@ export const LiveRoomProvider = ({
         if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
           throw new Error('Media devices are not available');
         }
+        if (kind === 'audio') {
+          mutedAudioTrackRef.current?.track.stop();
+          mutedAudioTrackRef.current = null;
+        }
         const stream = await navigator.mediaDevices.getUserMedia(
           buildConstraints(kind, deviceId, nextMicSettings, micSettingSupport),
         );
@@ -1712,13 +1728,61 @@ export const LiveRoomProvider = ({
 
   const toggleMic = useCallback(async () => {
     if (isMicOn) {
-      await stopCapture('audio');
+      const track = localTracksRef.current.audio;
+      await unpublishKind('audio');
+      if (track) {
+        mutedAudioTrackRef.current?.track.stop();
+        track.enabled = false;
+        mutedAudioTrackRef.current = {
+          track,
+          deviceId: selectedMicId,
+          micSettingsSignature: getMicSettingsSignature(micSettings),
+        };
+        localTracksRef.current.audio = null;
+      }
+      refreshLocalStream();
       setIsMicOn(false);
       return;
     }
+
+    const cachedTrack = mutedAudioTrackRef.current;
+    const canReuseMutedTrack =
+      !!cachedTrack &&
+      cachedTrack.track.readyState === 'live' &&
+      cachedTrack.deviceId === selectedMicId &&
+      cachedTrack.micSettingsSignature === getMicSettingsSignature(micSettings);
+
+    if (canReuseMutedTrack && cachedTrack) {
+      mutedAudioTrackRef.current = null;
+      cachedTrack.track.enabled = true;
+      localTracksRef.current.audio = cachedTrack.track;
+      refreshLocalStream();
+      if (
+        sendTransportRef.current &&
+        roomState?.status === 'live' &&
+        canPublish
+      ) {
+        await publishLocalTrack('audio');
+      }
+      setIsMicOn(true);
+      return;
+    }
+
+    cachedTrack?.track.stop();
+    mutedAudioTrackRef.current = null;
     await startCapture('audio', selectedMicId);
     setIsMicOn(true);
-  }, [isMicOn, selectedMicId, startCapture, stopCapture]);
+  }, [
+    canPublish,
+    isMicOn,
+    micSettings,
+    publishLocalTrack,
+    refreshLocalStream,
+    roomState?.status,
+    selectedMicId,
+    startCapture,
+    unpublishKind,
+  ]);
 
   const selectCamera = useCallback(
     async (deviceId: string) => {
@@ -1732,6 +1796,8 @@ export const LiveRoomProvider = ({
 
   const selectMic = useCallback(
     async (deviceId: string) => {
+      mutedAudioTrackRef.current?.track.stop();
+      mutedAudioTrackRef.current = null;
       setSelectedMicId(deviceId);
       if (isMicOn) {
         await startCapture('audio', deviceId);
@@ -1752,6 +1818,8 @@ export const LiveRoomProvider = ({
         [setting]: enabled,
       };
       setMicSettings(nextSettings);
+      mutedAudioTrackRef.current?.track.stop();
+      mutedAudioTrackRef.current = null;
 
       if (!isMicOn) {
         return;

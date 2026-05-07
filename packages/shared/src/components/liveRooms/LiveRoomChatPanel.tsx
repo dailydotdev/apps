@@ -236,7 +236,7 @@ export const LiveRoomChatPanel = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
-  const [reactionBusy, setReactionBusy] = useState<string | null>(null);
+  const [reactionBusyKeys, setReactionBusyKeys] = useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = !isTablet;
@@ -321,17 +321,21 @@ export const LiveRoomChatPanel = ({
     shouldRemove = false,
   ): void => {
     const key = `${messageId}-${reactionKey}`;
-    if (reactionBusy || !canChat) {
+    if (reactionBusyKeys.includes(key) || !canChat) {
       return;
     }
 
-    setReactionBusy(key);
+    setReactionBusyKeys((current) => [...current, key]);
     const action = shouldRemove
       ? onRemoveMessageReaction
       : onSendMessageReaction;
     action(messageId, reactionKey, analytics)
       .catch(() => undefined)
-      .finally(() => setReactionBusy(null));
+      .finally(() =>
+        setReactionBusyKeys((current) =>
+          current.filter((busyKey) => busyKey !== key),
+        ),
+      );
   };
 
   const applyLongPressReaction = (
@@ -428,6 +432,7 @@ export const LiveRoomChatPanel = ({
                       content={chatMarkdownToHtml(message.body, {
                         mentions: mentionSuggestions,
                       })}
+                      openLinksInNewTab
                     />
                   </div>
                   <LiveRoomChatReactions
@@ -435,7 +440,7 @@ export const LiveRoomChatPanel = ({
                     currentParticipantId={currentParticipantId}
                     canChat={canChat}
                     senderName={senderName}
-                    reactionBusy={reactionBusy}
+                    reactionBusyKeys={reactionBusyKeys}
                     hideQuickReactions={isMobile}
                     floatingTrayPlacement={
                       messageIndex === 0 ? 'below' : 'above'

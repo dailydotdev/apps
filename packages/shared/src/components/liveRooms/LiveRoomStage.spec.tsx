@@ -103,6 +103,7 @@ const renderStage = () =>
       onRevokeCoHost={jest.fn()}
       onRemoveSpeaker={jest.fn()}
       onKickParticipant={jest.fn()}
+      onToggleSelfMute={jest.fn()}
       onNavigateBack={jest.fn()}
       showControls={false}
       onLeave={jest.fn()}
