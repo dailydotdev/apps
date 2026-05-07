@@ -733,6 +733,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           isHost={isHost}
           onNavigateBack={handleNavigateBack}
           onShare={shareOrCopyStandup}
+          onAddToCalendar={(provider) =>
+            logStandupAction(LogEvent.AddStandupToCalendar, roomId, {
+              surface: 'lobby_hero',
+              provider,
+            })
+          }
           audienceParticipantIds={audienceParticipantIds}
           participantProfilesById={participantProfilesById}
           chatPanel={chatPanelNode}

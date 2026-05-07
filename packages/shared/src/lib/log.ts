@@ -280,6 +280,7 @@ export enum LogEvent {
   SubscribeStandup = 'subscribe standup',
   UnsubscribeStandup = 'unsubscribe standup',
   ShareStandup = 'share standup',
+  AddStandupToCalendar = 'add standup to calendar',
   GrantStandupCoHost = 'grant standup co-host',
   RevokeStandupCoHost = 'revoke standup co-host',
   PromoteStandupSpeaker = 'promote standup speaker',
