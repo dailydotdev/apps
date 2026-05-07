@@ -27,7 +27,7 @@ import { ShareIcon, SortIcon } from './icons';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
-import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import { DigestBookmarkBanner } from './notifications/DigestBookmarkBanner';
 import {
   Typography,

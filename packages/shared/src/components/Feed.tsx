@@ -75,7 +75,7 @@ import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
 import { ActionType } from '../graphql/actions';
-import { TopHero } from './banners/HeroBottomBanner';
+import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
 

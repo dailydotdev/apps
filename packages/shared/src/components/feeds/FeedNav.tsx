@@ -29,7 +29,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
-import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 

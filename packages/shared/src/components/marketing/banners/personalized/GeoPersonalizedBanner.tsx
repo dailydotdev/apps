@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { geoToCountry, geoToEmoji } from '../../../lib/geo';
-import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
+import { geoToCountry, geoToEmoji } from '../../../../lib/geo';
+import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
 
 const GeoPersonalizedBanner = ({
   geo,

@@ -6,7 +6,7 @@ import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { authGradientBg, BottomBannerContainer } from '../banners';
+import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
 import { ButtonVariant } from '../buttons/common';
 import { Image } from '../image/Image';
 import {

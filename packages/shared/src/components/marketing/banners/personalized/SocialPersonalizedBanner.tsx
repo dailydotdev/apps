@@ -1,16 +1,16 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
+import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
 import {
   socialCTA,
   socialGradient,
   socialIcon,
   SocialIconType,
-} from '../../../lib/socialMedia';
-import type { SupportedSocialReferrer } from '../../../lib/socialMedia';
-import { capitalize } from '../../../lib/strings';
-import { IconSize } from '../../Icon';
+} from '../../../../lib/socialMedia';
+import type { SupportedSocialReferrer } from '../../../../lib/socialMedia';
+import { capitalize } from '../../../../lib/strings';
+import { IconSize } from '../../../Icon';
 
 const SocialPersonalizedBanner = ({
   site,

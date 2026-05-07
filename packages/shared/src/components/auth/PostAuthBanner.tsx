@@ -9,18 +9,18 @@ import { useAuthContext } from '../../contexts/AuthContext';
 const UserPersonalizedBanner = dynamic(
   () =>
     import(
-      /* webpackChunkName: "userPersonalizedBanner" */ '../banners/personalized/UserPersonalizedBanner'
+      /* webpackChunkName: "userPersonalizedBanner" */ '../marketing/banners/personalized/UserPersonalizedBanner'
     ),
 );
 
 const SocialPersonalizedBanner = dynamic(
   /* webpackChunkName: "socialPersonalizedBanner" */ () =>
-    import('../banners/personalized/SocialPersonalizedBanner'),
+    import('../marketing/banners/personalized/SocialPersonalizedBanner'),
 );
 
 const GeoPersonalizedBanner = dynamic(
   /* webpackChunkName: "geoPersonalizedBanner" */
-  () => import('../banners/personalized/GeoPersonalizedBanner'),
+  () => import('../marketing/banners/personalized/GeoPersonalizedBanner'),
 );
 
 interface PostAuthBannerProps {

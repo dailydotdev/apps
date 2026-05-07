@@ -1,28 +1,28 @@
 import classNames from 'classnames';
 import type { PropsWithChildren, ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
-import { ChromeIcon, EdgeIcon, PlusIcon } from '../icons';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import { ChromeIcon, EdgeIcon, PlusIcon } from '../../icons';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../typography/Typography';
+} from '../../typography/Typography';
 import {
   cloudinaryShortcutsIconsGmail,
   cloudinaryShortcutsIconsOpenai,
   cloudinaryShortcutsIconsReddit,
   cloudinaryShortcutsIconsStackoverflow,
-} from '../../lib/image';
-import { useThemedAsset } from '../../hooks/utils/useThemedAsset';
-import { useLogContext } from '../../contexts/LogContext';
-import useLogEventOnce from '../../hooks/log/useLogEventOnce';
-import { LogEvent, Origin, TargetType } from '../../lib/log';
-import { BrowserName, getCurrentBrowserName } from '../../lib/func';
-import { downloadBrowserExtension } from '../../lib/constants';
-import { anchorDefaultRel } from '../../lib/strings';
-import { useConditionalFeature } from '../../hooks';
-import { featureShortcutsExtensionPromoCopy } from '../../lib/featureManagement';
+} from '../../../lib/image';
+import { useThemedAsset } from '../../../hooks/utils/useThemedAsset';
+import { useLogContext } from '../../../contexts/LogContext';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { BrowserName, getCurrentBrowserName } from '../../../lib/func';
+import { downloadBrowserExtension } from '../../../lib/constants';
+import { anchorDefaultRel } from '../../../lib/strings';
+import { useConditionalFeature } from '../../../hooks';
+import { featureShortcutsExtensionPromoCopy } from '../../../lib/featureManagement';
 
 interface ShortcutsExtensionPromoProps {
   className?: string;
