@@ -116,7 +116,9 @@ const buildGoogleCalendarUrl = (event: CalendarEvent): string => {
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: event.title,
-    dates: `${formatCalendarDate(event.start)}/${formatCalendarDate(event.end)}`,
+    dates: `${formatCalendarDate(event.start)}/${formatCalendarDate(
+      event.end,
+    )}`,
     details: event.description,
     location: event.location,
   });
