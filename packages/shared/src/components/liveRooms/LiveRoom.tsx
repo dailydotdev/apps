@@ -45,6 +45,7 @@ import {
   LiveRoomSidePanelTabs,
   type LiveRoomSidePanelTab,
 } from './LiveRoomSidePanelTabs';
+import { LiveRoomAgendaPanel } from './LiveRoomAgendaPanel';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomHeader } from './LiveRoomHeader';
 import { LiveRoomLobby } from './LiveRoomLobby';
@@ -407,6 +408,9 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const isCreated = (roomState?.status ?? room?.status) === 'created';
   const isLive = (roomState?.status ?? room?.status) === 'live';
   const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
+  const hasAgendaContent =
+    !!room?.descriptionHtml ||
+    (!!room?.contentEmbeds && room.contentEmbeds.length > 0);
   const streamTimerReference = isLive ? room?.startedAt ?? null : null;
   const streamDuration = useStreamDuration(streamTimerReference);
   const participantCount = roomState
@@ -452,6 +456,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       setActiveTab('audience');
     }
   }, [activeTab, isFreeForAll]);
+
+  useEffect(() => {
+    if (activeTab === 'agenda' && !hasAgendaContent) {
+      setActiveTab('chat');
+    }
+  }, [activeTab, hasAgendaContent]);
 
   useEffect(() => {
     if (!roomState) {
@@ -573,6 +583,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
       label: 'Audience',
       count: audienceParticipantIds.length,
     },
+    ...(hasAgendaContent ? [{ id: 'agenda' as const, label: 'Agenda' }] : []),
   ];
   const sidePanelTabIds = sidePanelTabs.map((tab) => tab.id);
   const activeTabIndex = sidePanelTabIds.indexOf(activeTab);
@@ -796,9 +807,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
             hasAttention={hasUnseenQueueJoins}
           />
           <div {...sidePanelSwipeHandlers} className="min-h-0 flex-1">
-            {activeTab === 'chat' ? (
-              chatPanelNode
-            ) : (
+            {activeTab === 'chat' ? chatPanelNode : null}
+            {activeTab === 'agenda' ? (
+              <LiveRoomAgendaPanel
+                descriptionHtml={room.descriptionHtml}
+                contentEmbeds={room.contentEmbeds}
+              />
+            ) : null}
+            {activeTab === 'queue' || activeTab === 'audience' ? (
               <LiveRoomQueuePanel
                 tab={activeTab}
                 mode={roomMode}
@@ -829,7 +845,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                   handleKickParticipant(targetParticipantId, 'queue_panel')
                 }
               />
-            )}
+            ) : null}
           </div>
         </aside>
       </div>

@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
 
-export type LiveRoomSidePanelTab = 'chat' | 'queue' | 'audience';
+export type LiveRoomSidePanelTab = 'chat' | 'queue' | 'audience' | 'agenda';
 
 interface LiveRoomSidePanelTabsProps {
   active: LiveRoomSidePanelTab;
