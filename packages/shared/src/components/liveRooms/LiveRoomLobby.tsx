@@ -254,7 +254,7 @@ const AudienceStack = ({
       ) : null}
       <div className="flex min-w-0 flex-col">
         <Typography type={TypographyType.Title3} bold className="tabular-nums">
-          {`${totalCount} ${word} in the lobby`}
+          {`${totalCount} ${word} here right now`}
         </Typography>
         <Typography
           type={TypographyType.Footnote}
