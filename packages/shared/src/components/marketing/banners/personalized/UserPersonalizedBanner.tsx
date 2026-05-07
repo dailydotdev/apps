@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { getBasicUserInfo } from '../../../graphql/users';
-import { AuthenticationBanner, OnboardingHeadline } from '../../auth';
-import { ProfilePicture } from '../../ProfilePicture';
-import { generateQueryKey, RequestKey } from '../../../lib/query';
+import { getBasicUserInfo } from '../../../../graphql/users';
+import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
+import { ProfilePicture } from '../../../ProfilePicture';
+import { generateQueryKey, RequestKey } from '../../../../lib/query';
 
 const UserPersonalizedBanner = ({
   userId,

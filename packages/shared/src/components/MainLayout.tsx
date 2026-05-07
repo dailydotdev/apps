@@ -29,7 +29,7 @@ import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
-import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { FeedbackWidget } from './feedback';

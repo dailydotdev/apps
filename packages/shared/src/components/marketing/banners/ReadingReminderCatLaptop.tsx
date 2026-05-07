@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { cloudinaryReadingReminderCat } from '../../lib/image';
+import { cloudinaryReadingReminderCat } from '../../../lib/image';
 
 interface ReadingReminderCatLaptopProps {
   className?: string;

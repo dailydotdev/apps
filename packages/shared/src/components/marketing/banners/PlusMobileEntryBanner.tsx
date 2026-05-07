@@ -1,21 +1,24 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { ButtonColor, ButtonVariant, Button } from '../buttons/Button';
+import { ButtonColor, ButtonVariant, Button } from '../../buttons/Button';
 import {
   Typography,
   TypographyColor,
   TypographyTag,
   TypographyType,
-} from '../typography/Typography';
-import { PlusEntryArrow } from '../icons';
-import type { MarketingCta, MarketingCtaFlags } from '../marketingCta/common';
-import type { TargetType } from '../../lib/log';
-import { LogEvent } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { useBoot } from '../../hooks';
-import { useFeature } from '../GrowthBookProvider';
-import { featurePlusApiLanding } from '../../lib/featureManagement';
+} from '../../typography/Typography';
+import { PlusEntryArrow } from '../../icons';
+import type {
+  MarketingCta,
+  MarketingCtaFlags,
+} from '../../marketingCta/common';
+import type { TargetType } from '../../../lib/log';
+import { LogEvent } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useBoot } from '../../../hooks';
+import { useFeature } from '../../GrowthBookProvider';
+import { featurePlusApiLanding } from '../../../lib/featureManagement';
 
 type PlusBannerProps = Omit<MarketingCta, 'flags'> & {
   targetType: TargetType;

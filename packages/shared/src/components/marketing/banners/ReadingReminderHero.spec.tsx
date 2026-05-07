@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import ReadingReminderHero from './ReadingReminderHero';
-import useLogEventOnce from '../../hooks/log/useLogEventOnce';
-import { LogEvent, TargetType } from '../../lib/log';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent, TargetType } from '../../../lib/log';
 
-jest.mock('../../hooks/log/useLogEventOnce', () => jest.fn());
+jest.mock('../../../hooks/log/useLogEventOnce', () => jest.fn());
 
 describe('ReadingReminderHero', () => {
   beforeEach(() => {

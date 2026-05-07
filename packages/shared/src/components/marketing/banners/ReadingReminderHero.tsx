@@ -1,15 +1,15 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Button, ButtonVariant } from '../buttons/Button';
-import CloseButton from '../CloseButton';
+import { Button, ButtonVariant } from '../../buttons/Button';
+import CloseButton from '../../CloseButton';
 import {
   Typography,
   TypographyColor,
   TypographyType,
-} from '../typography/Typography';
-import useLogEventOnce from '../../hooks/log/useLogEventOnce';
-import { LogEvent, TargetType } from '../../lib/log';
+} from '../../typography/Typography';
+import useLogEventOnce from '../../../hooks/log/useLogEventOnce';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 interface ReadingReminderHeroProps {
   className?: string;
