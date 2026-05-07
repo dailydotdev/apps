@@ -34,7 +34,10 @@ import {
 } from '../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../dropdown/common';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
-import { anchorDefaultRel, stripHtmlTags } from '../../lib/strings';
+import {
+  anchorDefaultRel,
+  getPlainTextFromRichContent,
+} from '../../lib/strings';
 import {
   buildGoogleCalendarUrl,
   buildOutlookCalendarUrl,
@@ -85,9 +88,9 @@ const buildStandupCalendarEvent = (
     return null;
   }
   const end = new Date(start.getTime() + STANDUP_DURATION_MINUTES * 60 * 1000);
-  const plainDescription = room.description
-    ? stripHtmlTags(room.description).trim()
-    : '';
+  const plainDescription = getPlainTextFromRichContent({
+    html: room.descriptionHtml,
+  });
   return {
     title: `daily.dev Standup: ${room.topic}`,
     description:

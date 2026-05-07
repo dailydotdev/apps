@@ -18,7 +18,7 @@ import {
   type LiveRoom as LiveRoomModel,
   type LiveRoomData,
 } from '@dailydotdev/shared/src/graphql/liveRooms';
-import { stripHtmlTags } from '@dailydotdev/shared/src/lib/strings';
+import { getPlainTextFromRichContent } from '@dailydotdev/shared/src/lib/strings';
 import {
   RequestKey,
   StaleTime,
@@ -103,9 +103,9 @@ const buildStandupSeo = (room: LiveRoomModel, url: string): NextSeoProps => {
   };
   const openGraphTitle = `${ogTopicByStatus[room.status] ?? topic} | daily.dev`;
 
-  const baseDescription = room.description
-    ? stripHtmlTags(room.description)
-    : '';
+  const baseDescription = getPlainTextFromRichContent({
+    html: room.descriptionHtml,
+  });
   const scheduledLine =
     room.status === LiveRoomStatus.Created && room.scheduledStart
       ? `Starts ${formatScheduledTime(room.scheduledStart)}.`
