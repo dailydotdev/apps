@@ -51,10 +51,15 @@ export const SpotlightTrigger = ({
       aria-keyshortcuts={`${shortcutKeys.join('+')}`}
       onClick={open}
       className={classNames(
+        // Sizing, color, and shape match the production SearchPanel field.
         'relative flex h-12 w-full items-center overflow-hidden rounded-12 border border-transparent bg-background-subtle px-3 text-left transition-colors',
         'hover:bg-surface-hover',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2',
-        'laptop:py-1 laptop:backdrop-blur-[3.75rem]',
+        // Same compact desktop width used by SearchPanelInput in production
+        // (26.25rem default, capped at 29.5rem on laptop and 35rem on
+        // laptopL). Without this the trigger stretches edge-to-edge,
+        // which read as a different field even though the styling matched.
+        'laptop:w-[26.25rem] laptop:max-w-[29.5rem] laptop:py-1 laptop:backdrop-blur-[3.75rem] laptopL:max-w-[35rem]',
         className,
       )}
     >
