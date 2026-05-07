@@ -2,23 +2,23 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AskSearchBanner } from './AskSearchBanner';
-import { LogEvent, TargetId } from '../../lib/log';
-import { ActionType } from '../../graphql/actions';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { ActionType } from '../../../graphql/actions';
 
 const mockLogEvent = jest.fn();
 const mockCompleteAction = jest.fn().mockResolvedValue(undefined);
 const mockCheckHasCompleted = jest.fn();
 const mockUseAuthContext = jest.fn();
 
-jest.mock('../../contexts/LogContext', () => ({
+jest.mock('../../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-jest.mock('../../contexts/AuthContext', () => ({
+jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
 }));
 
-jest.mock('../../hooks/useActions', () => ({
+jest.mock('../../../hooks/useActions', () => ({
   useActions: () => ({
     checkHasCompleted: mockCheckHasCompleted,
     completeAction: mockCompleteAction,
@@ -26,7 +26,7 @@ jest.mock('../../hooks/useActions', () => ({
   }),
 }));
 
-jest.mock('../../lib/constants', () => ({
+jest.mock('../../../lib/constants', () => ({
   webappUrl: 'http://localhost/',
 }));
 

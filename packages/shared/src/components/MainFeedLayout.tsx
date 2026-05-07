@@ -14,7 +14,7 @@ import Feed from './Feed';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
 import ShortcutsExtensionPromo from './marketing/banners/ShortcutsExtensionPromo';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { AskSearchBanner } from './notifications/AskSearchBanner';
+import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';

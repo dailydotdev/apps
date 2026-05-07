@@ -1,10 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DigestUpsellBanner } from './DigestUpsellBanner';
-import { LogEvent, TargetId } from '../../lib/log';
-import { UserPersonalizedDigestType } from '../../graphql/users';
-import { ActionType } from '../../graphql/actions';
+import { DigestBookmarkBanner } from './DigestBookmarkBanner';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { UserPersonalizedDigestType } from '../../../graphql/users';
+import { ActionType } from '../../../graphql/actions';
 
 const mockLogEvent = jest.fn();
 const mockGetPersonalizedDigest = jest.fn();
@@ -15,19 +15,19 @@ const mockUsePlusSubscription = jest.fn();
 const mockSetNotificationStatuses = jest.fn();
 const mockDisplayToast = jest.fn();
 
-jest.mock('../../contexts/LogContext', () => ({
+jest.mock('../../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-jest.mock('../../contexts/AuthContext', () => ({
+jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: () => ({ isAuthReady: true }),
 }));
 
-jest.mock('../../hooks/usePlusSubscription', () => ({
+jest.mock('../../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: () => mockUsePlusSubscription(),
 }));
 
-jest.mock('../../hooks/usePersonalizedDigest', () => ({
+jest.mock('../../../hooks/usePersonalizedDigest', () => ({
   usePersonalizedDigest: () => ({
     getPersonalizedDigest: mockGetPersonalizedDigest,
     subscribePersonalizedDigest: mockSubscribePersonalizedDigest,
@@ -35,7 +35,7 @@ jest.mock('../../hooks/usePersonalizedDigest', () => ({
   SendType: { Workdays: 'workdays', Daily: 'daily', Weekly: 'weekly' },
 }));
 
-jest.mock('../../hooks/useActions', () => ({
+jest.mock('../../../hooks/useActions', () => ({
   useActions: () => ({
     checkHasCompleted: mockCheckHasCompleted,
     completeAction: mockCompleteAction,
@@ -43,14 +43,14 @@ jest.mock('../../hooks/useActions', () => ({
   }),
 }));
 
-jest.mock('../../hooks/notifications/useNotificationSettings', () => ({
+jest.mock('../../../hooks/notifications/useNotificationSettings', () => ({
   __esModule: true,
   default: () => ({
     setNotificationStatusBulk: mockSetNotificationStatuses,
   }),
 }));
 
-jest.mock('../../hooks/useToastNotification', () => ({
+jest.mock('../../../hooks/useToastNotification', () => ({
   useToastNotification: () => ({
     displayToast: mockDisplayToast,
   }),
@@ -61,11 +61,11 @@ const client = new QueryClient();
 const renderComponent = () =>
   render(
     <QueryClientProvider client={client}>
-      <DigestUpsellBanner />
+      <DigestBookmarkBanner />
     </QueryClientProvider>,
   );
 
-describe('DigestUpsellBanner', () => {
+describe('DigestBookmarkBanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUsePlusSubscription.mockReturnValue({ isPlus: false });
@@ -77,7 +77,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.getByText('Get the must-read posts delivered daily'),
+      screen.getByText('Not sure what to read? Let us pick for you'),
     ).toBeInTheDocument();
     expect(screen.getByText('Enable digest')).toBeInTheDocument();
   });
@@ -88,7 +88,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get the must-read posts delivered daily'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -107,7 +107,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get the must-read posts delivered daily'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -117,7 +117,7 @@ describe('DigestUpsellBanner', () => {
     renderComponent();
 
     expect(
-      screen.queryByText('Get the must-read posts delivered daily'),
+      screen.queryByText('Not sure what to read? Let us pick for you'),
     ).not.toBeInTheDocument();
   });
 
@@ -126,7 +126,7 @@ describe('DigestUpsellBanner', () => {
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Impression,
-      target_id: TargetId.DigestUpsell,
+      target_id: TargetId.DigestUpsellBookmarks,
     });
   });
 
@@ -138,7 +138,7 @@ describe('DigestUpsellBanner', () => {
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Click,
-      target_id: TargetId.DigestUpsell,
+      target_id: TargetId.DigestUpsellBookmarks,
     });
 
     await waitFor(() => {
@@ -172,7 +172,7 @@ describe('DigestUpsellBanner', () => {
 
     expect(mockLogEvent).toHaveBeenCalledWith({
       event_name: LogEvent.Click,
-      target_id: TargetId.DigestUpsell,
+      target_id: TargetId.DigestUpsellBookmarks,
       extra: JSON.stringify({ action: 'dismiss' }),
     });
     await waitFor(() => {

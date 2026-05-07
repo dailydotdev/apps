@@ -5,26 +5,26 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
-import CloseButton from '../CloseButton';
-import { MailIcon } from '../icons';
-import { LogEvent, TargetId } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+} from '../../buttons/Button';
+import CloseButton from '../../CloseButton';
+import { MailIcon } from '../../icons';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
 import {
   usePersonalizedDigest,
   SendType,
-} from '../../hooks/usePersonalizedDigest';
-import { UserPersonalizedDigestType } from '../../graphql/users';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
-import useNotificationSettings from '../../hooks/notifications/useNotificationSettings';
-import { NotificationType } from './utils';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
-import { useToastNotification } from '../../hooks/useToastNotification';
+} from '../../../hooks/usePersonalizedDigest';
+import { UserPersonalizedDigestType } from '../../../graphql/users';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
+import useNotificationSettings from '../../../hooks/notifications/useNotificationSettings';
+import { NotificationType } from '../../notifications/utils';
+import { NotificationPreferenceStatus } from '../../../graphql/notifications';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 
-export function DigestUpsellBanner(): ReactElement | null {
+export function DigestBookmarkBanner(): ReactElement | null {
   const { logEvent } = useLogContext();
   const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
@@ -45,7 +45,7 @@ export function DigestUpsellBanner(): ReactElement | null {
       impressionLogged.current = true;
       logEvent({
         event_name: LogEvent.Impression,
-        target_id: TargetId.DigestUpsell,
+        target_id: TargetId.DigestUpsellBookmarks,
       });
     }
   }, [showBanner, logEvent]);
@@ -57,7 +57,7 @@ export function DigestUpsellBanner(): ReactElement | null {
   const onEnable = async () => {
     logEvent({
       event_name: LogEvent.Click,
-      target_id: TargetId.DigestUpsell,
+      target_id: TargetId.DigestUpsellBookmarks,
     });
 
     try {
@@ -91,21 +91,21 @@ export function DigestUpsellBanner(): ReactElement | null {
   const onDismiss = async () => {
     logEvent({
       event_name: LogEvent.Click,
-      target_id: TargetId.DigestUpsell,
+      target_id: TargetId.DigestUpsellBookmarks,
       extra: JSON.stringify({ action: 'dismiss' }),
     });
     await completeAction(ActionType.DigestUpsell);
   };
 
   return (
-    <div className="relative w-full overflow-hidden border-l border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout">
+    <div className="relative mx-4 mb-4 overflow-hidden rounded-16 border border-accent-cabbage-default bg-surface-float px-6 py-4 typo-callout laptop:mx-auto laptop:max-w-[40rem]">
       <span className="flex flex-row items-center font-bold">
         <MailIcon className="mr-2" />
-        Get the must-read posts delivered daily
+        Not sure what to read? Let us pick for you
       </span>
       <p className="mt-2 text-text-tertiary">
-        A personalized digest with top posts from your favorite topics, straight
-        to your inbox.
+        Get a daily digest with the best posts from your favorite topics,
+        straight to your inbox.
       </p>
       <div className="mt-3 flex items-center">
         <Button

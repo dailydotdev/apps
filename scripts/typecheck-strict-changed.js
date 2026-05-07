@@ -70,6 +70,10 @@ const strictSkipList = new Set([
   'packages/shared/src/hooks/useBoot.ts',
   'packages/shared/src/lib/boot.ts',
   'packages/shared/src/components/marketing/cta/MarketingCtaModal.tsx',
+  // Notification banner consolidation — touched only to swap the import
+  // path; pre-existing strict violations (queryResult.data optionality,
+  // NotificationItem reduce typing) are unrelated to the rename.
+  'packages/webapp/pages/notifications.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

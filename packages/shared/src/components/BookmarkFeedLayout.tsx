@@ -28,7 +28,7 @@ import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BookmarkSection } from './sidebar/sections/BookmarkSection';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
-import { DigestBookmarkBanner } from './notifications/DigestBookmarkBanner';
+import { DigestBookmarkBanner } from './marketing/banners/DigestBookmarkBanner';
 import {
   Typography,
   TypographyTag,

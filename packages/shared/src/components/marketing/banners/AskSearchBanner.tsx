@@ -6,15 +6,15 @@ import {
   ButtonColor,
   ButtonSize,
   ButtonVariant,
-} from '../buttons/Button';
-import CloseButton from '../CloseButton';
-import { MagicIcon } from '../icons';
-import { LogEvent, TargetId } from '../../lib/log';
-import { useLogContext } from '../../contexts/LogContext';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useActions } from '../../hooks/useActions';
-import { ActionType } from '../../graphql/actions';
-import { webappUrl } from '../../lib/constants';
+} from '../../buttons/Button';
+import CloseButton from '../../CloseButton';
+import { MagicIcon } from '../../icons';
+import { LogEvent, TargetId } from '../../../lib/log';
+import { useLogContext } from '../../../contexts/LogContext';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { useActions } from '../../../hooks/useActions';
+import { ActionType } from '../../../graphql/actions';
+import { webappUrl } from '../../../lib/constants';
 
 interface AskSearchBannerProps {
   className?: string;
