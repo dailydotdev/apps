@@ -10,7 +10,6 @@ import {
 } from '../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import Link from '../utilities/Link';
 import Markdown from '../Markdown';
 import { ContentEmbeds } from '../contentEmbeds/ContentEmbeds';
 import {
@@ -24,6 +23,7 @@ import {
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
+import { anchorDefaultRel } from '../../lib/strings';
 import type { UserShortProfile } from '../../lib/user';
 
 const padNumber = (value: number): string => value.toString().padStart(2, '0');
@@ -314,31 +314,34 @@ export const LiveRoomLobby = ({
                     {room.topic}
                   </Typography>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <Link href={room.host.permalink}>
-                      <a className="-m-1 inline-flex min-w-0 items-center gap-2 rounded-12 p-1 transition-colors hover:bg-surface-hover">
-                        <ProfilePicture
-                          user={room.host}
-                          size={ProfileImageSize.Medium}
-                        />
-                        <div className="flex min-w-0 flex-col">
-                          <Typography
-                            type={TypographyType.Caption2}
-                            color={TypographyColor.Tertiary}
-                            className="font-bold uppercase tracking-[0.18em]"
-                          >
-                            Hosted by
-                          </Typography>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            bold
-                            truncate
-                            className="min-w-0"
-                          >
-                            {room.host.name}
-                          </Typography>
-                        </div>
-                      </a>
-                    </Link>
+                    <a
+                      href={room.host.permalink}
+                      target="_blank"
+                      rel={anchorDefaultRel}
+                      className="-m-1 inline-flex min-w-0 items-center gap-2 rounded-12 p-1 transition-colors hover:bg-surface-hover"
+                    >
+                      <ProfilePicture
+                        user={room.host}
+                        size={ProfileImageSize.Medium}
+                      />
+                      <div className="flex min-w-0 flex-col">
+                        <Typography
+                          type={TypographyType.Caption2}
+                          color={TypographyColor.Tertiary}
+                          className="font-bold uppercase tracking-[0.18em]"
+                        >
+                          Hosted by
+                        </Typography>
+                        <Typography
+                          type={TypographyType.Footnote}
+                          bold
+                          truncate
+                          className="min-w-0"
+                        >
+                          {room.host.name}
+                        </Typography>
+                      </div>
+                    </a>
                     {hasScheduledStart ? (
                       <Typography
                         type={TypographyType.Footnote}
@@ -442,6 +445,7 @@ export const LiveRoomLobby = ({
                 <Markdown
                   content={room.descriptionHtml}
                   className="break-words text-text-primary"
+                  openLinksInNewTab
                 />
               ) : (
                 <Typography

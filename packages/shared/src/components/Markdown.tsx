@@ -36,6 +36,7 @@ interface MarkdownProps {
   className?: string;
   content: string;
   appendTooltipTo?: () => HTMLElement;
+  openLinksInNewTab?: boolean;
 }
 
 const TOOLTIP_SPACING = 8;
@@ -61,6 +62,7 @@ export default function Markdown({
   className,
   content,
   appendTooltipTo,
+  openLinksInNewTab = false,
 }: MarkdownProps): ReactElement {
   const purify = useDomPurify();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,7 +93,24 @@ export default function Markdown({
       img.setAttribute('role', 'button');
       img.setAttribute('aria-label', 'Open image in new tab');
     });
-  }, [content]);
+  });
+
+  useEffect(() => {
+    if (!openLinksInNewTab) {
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const links = container.querySelectorAll('a[href]');
+    links.forEach((link) => {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    });
+  });
 
   const onHoverHandler: MouseEventHandler<HTMLDivElement> = useCallback(
     (e) => {

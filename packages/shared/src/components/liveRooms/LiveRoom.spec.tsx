@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import {
   QueryClient,
   QueryClientProvider,
@@ -756,7 +762,7 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
   });
 
-  it('renders chat messages with sanitized markdown and send controls', () => {
+  it('renders chat messages with sanitized markdown and send controls', async () => {
     mockUseLiveRoomConnection.mockReturnValue(
       createContextValue({
         chatMessages: [
@@ -775,7 +781,65 @@ describe('LiveRoom', () => {
     expect(screen.getByText('@speaker1')).toBeInTheDocument();
     expect(screen.getByText('# heading')).toBeInTheDocument();
     expect(screen.getByText('hello')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'daily' })).toHaveAttribute(
+        'target',
+        '_blank',
+      ),
+    );
     expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  });
+
+  it('keeps other chat reactions clickable while one reaction is still pending', async () => {
+    let resolveFirstReaction = (): void => undefined;
+    const firstReactionPromise = new Promise<void>((resolve) => {
+      resolveFirstReaction = resolve;
+    });
+    const sendChatMessageReaction = jest
+      .fn()
+      .mockImplementation(() => firstReactionPromise);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        sendChatMessageReaction,
+        chatMessages: [
+          {
+            messageId: 'message-1',
+            participantId: 'speaker1',
+            body: 'hello',
+            createdAt: '2026-04-27T09:04:00.000Z',
+          },
+        ],
+      }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'React 🔥 to message from @speaker1',
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'React 👀 to message from @speaker1',
+      }),
+    );
+
+    expect(sendChatMessageReaction).toHaveBeenNthCalledWith(
+      1,
+      'message-1',
+      '🔥',
+    );
+    expect(sendChatMessageReaction).toHaveBeenNthCalledWith(
+      2,
+      'message-1',
+      '👀',
+    );
+
+    await act(async () => {
+      resolveFirstReaction();
+      await firstReactionPromise;
+    });
   });
 
   it('always shows all quick reactions and toggles a reacted emoji off when clicked', async () => {

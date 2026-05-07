@@ -65,6 +65,15 @@ it('should keep comment embeds compact while showing engagement stats', () => {
   expect(screen.getByText('3 Comments')).toBeInTheDocument();
 });
 
+it('should open embedded post links in a new tab', () => {
+  render(renderComponent());
+
+  expect(screen.getByRole('link', { name: /Embedded post/i })).toHaveAttribute(
+    'target',
+    '_blank',
+  );
+});
+
 it('should reuse collection metadata for source count', () => {
   render(
     renderComponent({

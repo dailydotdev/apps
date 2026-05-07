@@ -73,6 +73,7 @@ interface LiveRoomStageProps {
     targetParticipantId: string,
     surface: string,
   ) => Promise<void>;
+  onToggleSelfMute: () => Promise<void>;
   onNavigateBack: (surface: string) => void;
   showControls: boolean;
   onLeave: () => void;
@@ -101,6 +102,7 @@ export const LiveRoomStage = ({
   onRevokeCoHost,
   onRemoveSpeaker,
   onKickParticipant,
+  onToggleSelfMute,
   onNavigateBack,
   showControls,
   onLeave,
@@ -250,6 +252,9 @@ export const LiveRoomStage = ({
                     isCoHost={speaker.isCoHost}
                     raisedHandQueuePosition={speaker.raisedHandQueuePosition}
                     isMuted={speaker.isMuted}
+                    onToggleSelfMute={
+                      speaker.selfView ? onToggleSelfMute : undefined
+                    }
                     isFocused={focusedSpeakerIndex === globalIndex}
                     onFocus={() => onFocusSpeaker(globalIndex)}
                     onUnfocus={onUnfocusSpeaker}

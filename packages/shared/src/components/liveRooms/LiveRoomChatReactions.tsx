@@ -289,7 +289,7 @@ interface LiveRoomChatReactionsProps {
   currentParticipantId: string | null;
   canChat: boolean;
   senderName: string;
-  reactionBusy: string | null;
+  reactionBusyKeys: string[];
   hideQuickReactions?: boolean;
   floatingTrayPlacement?: 'above' | 'below';
   onReactionAction: (
@@ -305,7 +305,7 @@ export const LiveRoomChatReactions = ({
   currentParticipantId,
   canChat,
   senderName,
-  reactionBusy,
+  reactionBusyKeys,
   hideQuickReactions = false,
   floatingTrayPlacement = 'above',
   onReactionAction,
@@ -350,6 +350,7 @@ export const LiveRoomChatReactions = ({
           ) : null}
           {reactionGroups.map((reaction) => {
             const reactionKey = `${message.messageId}-${reaction.key}`;
+            const isBusy = reactionBusyKeys.includes(reactionKey);
 
             return (
               <ChatReactionChip
@@ -363,8 +364,8 @@ export const LiveRoomChatReactions = ({
                     ? 'reaction from'
                     : 'to'
                 } message from ${senderName}`}
-                disabled={!canChat || !!reactionBusy}
-                isSending={reactionBusy === reactionKey}
+                disabled={!canChat || isBusy}
+                isSending={isBusy}
                 pulseSignal={getPulseSignal(reaction.key)}
                 onClick={() =>
                   onReactionAction(
@@ -395,6 +396,7 @@ export const LiveRoomChatReactions = ({
               ? quickReactionKeys.map((reactionKey) => {
                   const busyKey = `${message.messageId}-${reactionKey}`;
                   const isReacted = myReactionKeys.has(reactionKey);
+                  const isBusy = reactionBusyKeys.includes(busyKey);
 
                   return (
                     <button
@@ -411,7 +413,7 @@ export const LiveRoomChatReactions = ({
                         isReacted ? 'reaction from' : 'to'
                       } message from ${senderName}`}
                       aria-pressed={isReacted}
-                      disabled={!!reactionBusy}
+                      disabled={isBusy}
                       onClick={() =>
                         onReactionAction(
                           message.messageId,
@@ -425,9 +427,7 @@ export const LiveRoomChatReactions = ({
                       }
                     >
                       <span>{reactionKey}</span>
-                      {reactionBusy === busyKey ? (
-                        <span className="sr-only">Sending</span>
-                      ) : null}
+                      {isBusy ? <span className="sr-only">Sending</span> : null}
                     </button>
                   );
                 })
@@ -457,7 +457,6 @@ export const LiveRoomChatReactions = ({
                   icon={<PlusIcon size={IconSize.Size16} />}
                   aria-label={`Custom reaction to message from ${senderName}`}
                   aria-expanded={isOpen}
-                  disabled={!!reactionBusy}
                   onClick={toggleOpen}
                 />
               )}

@@ -88,6 +88,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     reactions,
     chatMessages,
     isMicOn,
+    toggleMic,
   } = useLiveRoomConnection();
   const privilegeState = getLiveRoomPrivilegeState(
     roomState,
@@ -283,6 +284,19 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [kickParticipant, logStandupAction],
   );
+  const handleToggleSelfTileMute = useCallback(async (): Promise<void> => {
+    try {
+      await toggleMic();
+      logStandupAction(LogEvent.ChangeStandupSettings, 'mic', {
+        surface: 'stage_tile',
+        value: !isMicOn,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Failed to update mic',
+      );
+    }
+  }, [displayToast, isMicOn, logStandupAction, toggleMic]);
   const handleGrantCoHost = useCallback(
     async (targetParticipantId: string, surface: string): Promise<void> => {
       await grantCoHost(targetParticipantId);
@@ -764,6 +778,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           onRevokeCoHost={handleRevokeCoHost}
           onRemoveSpeaker={handleRemoveSpeaker}
           onKickParticipant={handleKickParticipant}
+          onToggleSelfMute={handleToggleSelfTileMute}
           onNavigateBack={handleNavigateBack}
           showControls={!!roomState}
           onLeave={handleLeave}
