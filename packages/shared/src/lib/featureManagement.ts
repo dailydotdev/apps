@@ -59,6 +59,8 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 
 export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
 
+export const featureLuckyButton = new Feature('lucky_button', true);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {

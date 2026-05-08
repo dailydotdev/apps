@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
+import classNames from 'classnames';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import { SparkleIcon } from '../icons';
@@ -9,34 +10,54 @@ import { gqlClient } from '../../graphql/common';
 import { LUCKY_POST_QUERY } from '../../graphql/luckyPost';
 import type { LuckyPostData } from '../../graphql/luckyPost';
 import { useLogContext } from '../../contexts/LogContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { LogEvent } from '../../lib/log';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureLuckyButton } from '../../lib/featureManagement';
+import { useToastNotification } from '../../hooks/useToastNotification';
 import { Tooltip } from '../tooltip/Tooltip';
 
-export const LuckyButton = (): ReactElement => {
-  const router = useRouter();
+export const LuckyButton = (): ReactElement | null => {
+  const { isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { displayToast } = useToastNotification();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const [isLoading, setIsLoading] = useState(false);
+  const { value: isEnabled } = useConditionalFeature({
+    feature: featureLuckyButton,
+    shouldEvaluate: isAuthReady,
+  });
 
-  const onClick = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
+  const { mutate: pickLuckyPost, isPending } = useMutation({
+    mutationFn: async () => {
       const data = await gqlClient.request<LuckyPostData>(LUCKY_POST_QUERY);
       const post = data.randomTrendingPosts?.[0];
       if (!post?.commentsPermalink) {
-        return;
+        throw new Error('No lucky post available');
       }
-      logEvent({
-        event_name: LogEvent.Click,
-        target_id: post.id,
-        extra: JSON.stringify({ origin: 'lucky button' }),
-      });
-      router.push(post.commentsPermalink);
-    } finally {
-      setIsLoading(false);
+      return post;
+    },
+    onSuccess: (post) => {
+      window.location.assign(post.commentsPermalink);
+    },
+    onError: () => {
+      displayToast('Bad luck — try again in a moment.');
+    },
+  });
+
+  if (!isEnabled) {
+    return null;
+  }
+
+  const onClick = () => {
+    if (isPending) {
+      return;
     }
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: 'lucky button',
+    });
+    pickLuckyPost();
   };
 
   return (
@@ -48,11 +69,17 @@ export const LuckyButton = (): ReactElement => {
         icon={
           <SparkleIcon
             size={IconSize.Medium}
-            className={isLoading ? 'animate-spin' : undefined}
+            className={classNames(
+              'transition-transform duration-300 ease-out motion-reduce:transition-none',
+              isPending
+                ? 'animate-spin'
+                : 'group-hover:rotate-[20deg] group-hover:scale-110',
+            )}
           />
         }
+        className="group"
         onClick={onClick}
-        disabled={isLoading}
+        disabled={isPending}
         aria-label="Feeling lucky"
       />
     </Tooltip>
