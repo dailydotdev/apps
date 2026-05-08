@@ -78,12 +78,11 @@ function MainLayoutHeader({
       shouldUseLoadedSettings && (
         <div
           className={classNames(
-            'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
+            'left-0 top-0 z-header mx-2 items-center py-3 tablet:left-16 laptop:left-0',
             isSearchPage
               ? 'relative right-0 tablet:!left-0 laptop:top-0'
               : 'hidden laptop:flex',
             hasBanner && 'tablet:top-18',
-            'mx-2 laptop:mx-auto',
           )}
         >
           <SpotlightTrigger />
