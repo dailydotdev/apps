@@ -24,10 +24,10 @@ export interface MainLayoutHeaderProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
 }
 
-const SearchPanel = dynamic(
+const SpotlightTrigger = dynamic(
   () =>
     import(
-      /* webpackChunkName: "searchPanel" */ '../search/SearchPanel/SearchPanel'
+      /* webpackChunkName: "spotlightTrigger" */ '../spotlight/SpotlightTrigger'
     ),
 );
 
@@ -76,18 +76,18 @@ function MainLayoutHeader({
   const renderSearchPanel = useCallback(
     () =>
       shouldUseLoadedSettings && (
-        <SearchPanel
-          className={{
-            container: classNames(
-              'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
-              isSearchPage
-                ? 'relative right-0 tablet:!left-0 laptop:top-0'
-                : 'hidden laptop:flex',
-              hasBanner && 'tablet:top-18',
-            ),
-            field: 'mx-2 laptop:mx-auto',
-          }}
-        />
+        <div
+          className={classNames(
+            'left-0 top-0 z-header items-center py-3 tablet:left-16 laptop:left-0',
+            isSearchPage
+              ? 'relative right-0 tablet:!left-0 laptop:top-0'
+              : 'hidden laptop:flex',
+            hasBanner && 'tablet:top-18',
+            'mx-2 laptop:mx-auto',
+          )}
+        >
+          <SpotlightTrigger />
+        </div>
       ),
     [shouldUseLoadedSettings, isSearchPage, hasBanner],
   );
