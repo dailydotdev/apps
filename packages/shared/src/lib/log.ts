@@ -472,6 +472,8 @@ export enum LogEvent {
 }
 
 export enum TargetType {
+  Spotlight = 'spotlight',
+  SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
   EnableNotifications = 'enable notifications',
@@ -553,6 +555,7 @@ export enum TargetType {
 export enum TargetId {
   On = 'on',
   Off = 'off',
+  SpotlightOpen = 'spotlight open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

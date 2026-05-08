@@ -32,6 +32,8 @@ import { AuthTriggers } from '../lib/auth';
 import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
+import { SpotlightProvider } from './spotlight/SpotlightContext';
+import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 
@@ -185,6 +187,7 @@ function MainLayoutComponent({
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
+      <SpotlightHost />
       <StreakMilestonePopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
@@ -230,7 +233,9 @@ function MainLayoutComponent({
 const MainLayout = (props: MainLayoutProps): ReactElement => (
   <ActiveFeedNameContextProvider>
     <SearchProvider>
-      <MainLayoutComponent {...props} />
+      <SpotlightProvider>
+        <MainLayoutComponent {...props} />
+      </SpotlightProvider>
     </SearchProvider>
   </ActiveFeedNameContextProvider>
 );
