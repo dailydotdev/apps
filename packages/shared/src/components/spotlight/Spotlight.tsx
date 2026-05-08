@@ -27,7 +27,6 @@ import {
   scopeMeta,
   scopeOrder,
   type SpotlightCommand,
-  type SpotlightCommandResult,
   SpotlightGroup,
   SpotlightScope,
 } from './types';
@@ -453,7 +452,7 @@ export const Spotlight = ({
       onCommandRun?.(command);
       pushRecent(command.id);
       Promise.resolve(command.perform()).then(
-        (result: SpotlightCommandResult | undefined) => {
+        (result) => {
           clearConfirm();
           if (!result?.keepOpen) {
             onClose();
