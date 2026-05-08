@@ -454,7 +454,9 @@ export const Spotlight = ({
       Promise.resolve(command.perform()).then(
         (result) => {
           clearConfirm();
-          if (!result?.keepOpen) {
+          const keepOpen =
+            !!result && typeof result === 'object' && result.keepOpen === true;
+          if (!keepOpen) {
             onClose();
           }
         },

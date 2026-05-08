@@ -39,5 +39,5 @@ const renderComponent = (layout = getLayout): RenderResult => {
 it('should render the search page', async () => {
   renderComponent(undefined);
   const text = await screen.findByText('Ready to dive in?');
-  expect(text).toBeInTheDocument();
+  expect(text).toBeTruthy();
 });
