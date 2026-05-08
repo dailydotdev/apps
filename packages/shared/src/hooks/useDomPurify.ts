@@ -1,13 +1,13 @@
 import { useEffect, useState, useMemo } from 'react';
-import createDOMPurify from 'dompurify';
+import createDOMPurify, { type DOMPurify } from 'dompurify';
 
-export const useDomPurify = (): DOMPurify.DOMPurifyI => {
-  const [purify, setPurify] = useState<DOMPurify.DOMPurifyI>(
-    undefined as unknown as DOMPurify.DOMPurifyI,
+export const useDomPurify = (): DOMPurify => {
+  const [purify, setPurify] = useState<DOMPurify>(
+    undefined as unknown as DOMPurify,
   );
 
   useEffect(() => {
-    setPurify(createDOMPurify(globalThis.window));
+    setPurify(() => createDOMPurify(globalThis.window));
   }, []);
 
   return purify;
@@ -29,10 +29,10 @@ export const useObjectPurify = <T extends PurifyObject>(
   props: UseObjectPurifyOptionalProps<T> = {},
 ): UseObjectPurify<T> => {
   const { filters = [], defaultValue } = props;
-  const [purify, setPurify] = useState<DOMPurify.DOMPurifyI>();
+  const [purify, setPurify] = useState<DOMPurify>();
 
   useEffect(() => {
-    setPurify(createDOMPurify(globalThis.window));
+    setPurify(() => createDOMPurify(globalThis.window));
   }, []);
 
   const reduced = (keys: (keyof T)[]) =>
