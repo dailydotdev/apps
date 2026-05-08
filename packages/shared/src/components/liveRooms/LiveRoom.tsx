@@ -41,6 +41,7 @@ import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessi
 import { useLiveRoomSubscription } from '../../hooks/liveRooms/useLiveRoomSubscription';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
+import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import {
   LiveRoomSidePanelTabs,
   type LiveRoomSidePanelTab,
@@ -117,6 +118,8 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     null,
   );
   const [hasUnseenQueueJoins, setHasUnseenQueueJoins] = useState(false);
+  const [disableAnimatedLobbyBackground, setDisableAnimatedLobbyBackground] =
+    useState(false);
   const previousQueueLengthRef = useRef<number | null>(null);
   const lastLoggedRoomErrorRef = useRef<string | null>(null);
   const { buildStandupExtra, logStandupAction } = useLiveRoomStandupAnalytics({
@@ -452,6 +455,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const subscriptionBusy = subscribe.isPending || unsubscribe.isPending;
 
   useEffect(() => {
+    // Safari can retain rasterized layers for the infinitely scaled pulse
+    // rings, so keep the static halo but disable the animated overlay there.
+    setDisableAnimatedLobbyBackground(
+      getCurrentBrowserName() === BrowserName.Safari,
+    );
+  }, []);
+
+  useEffect(() => {
     if (isFreeForAll && activeTab === 'queue') {
       setActiveTab('audience');
     }
@@ -706,19 +717,23 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     return (
       <div className="relative isolate flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
         <span aria-hidden="true" className={lobbyStyles.lobbyBackground}>
-          <span className={lobbyStyles.pulseRing} />
-          <span
-            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay1}`}
-          />
-          <span
-            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay2}`}
-          />
-          <span
-            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay3}`}
-          />
-          <span
-            className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay4}`}
-          />
+          {!disableAnimatedLobbyBackground ? (
+            <>
+              <span className={lobbyStyles.pulseRing} />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay1}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay2}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay3}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay4}`}
+              />
+            </>
+          ) : null}
         </span>
         <LiveRoomReactionOverlay reactions={reactions} />
         <LiveRoomLobby
