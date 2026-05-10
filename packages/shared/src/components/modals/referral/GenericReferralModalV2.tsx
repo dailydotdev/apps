@@ -56,7 +56,7 @@ function GenericReferralModalV2({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Small}
       overlayClassName="modal-backdrop-rays"
-      className="isolate z-50 !border-border-subtlest-primary tablet:!border-2 tablet:ring-1 tablet:ring-inset tablet:ring-white/10 tablet:!shadow-[0_40px_80px_-10px_rgba(0,0,0,0.85),0_15px_40px_-10px_rgba(0,0,0,0.6)]"
+      className="z-50 tablet:ring-white/10 isolate !border-border-subtlest-primary tablet:!border-2 tablet:!shadow-[0_40px_80px_-10px_rgba(0,0,0,0.85),0_15px_40px_-10px_rgba(0,0,0,0.6)] tablet:ring-1 tablet:ring-inset"
     >
       <ReferralCelebrationParticles ref={particlesRef} />
       <ModalClose

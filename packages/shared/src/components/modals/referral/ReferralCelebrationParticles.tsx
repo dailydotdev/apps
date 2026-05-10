@@ -97,146 +97,145 @@ const drawParticle = (ctx: CanvasRenderingContext2D, p: Particle): void => {
   ctx.fill();
 };
 
-export const ReferralCelebrationParticles = forwardRef<
-  ReferralCelebrationParticlesHandle
->((_, ref): ReactElement => {
-  const anchorRef = useRef<HTMLSpanElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const rafRef = useRef<number | null>(null);
-  const sizeRef = useRef({ width: 0, height: 0 });
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+export const ReferralCelebrationParticles =
+  forwardRef<ReferralCelebrationParticlesHandle>((_, ref): ReactElement => {
+    const anchorRef = useRef<HTMLSpanElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const particlesRef = useRef<Particle[]>([]);
+    const rafRef = useRef<number | null>(null);
+    const sizeRef = useRef({ width: 0, height: 0 });
+    const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  const resize = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const dpr = window.devicePixelRatio || 1;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    const ctx = canvas.getContext('2d');
-    ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
-    sizeRef.current = { width, height };
-  }, []);
-
-  const tick = useCallback(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) {
-      return;
-    }
-    const { width, height } = sizeRef.current;
-    ctx.clearRect(0, 0, width, height);
-
-    particlesRef.current.forEach((p) => {
-      const next = p;
-
-      const speedMultiplier = 1 + next.energy * SPEED_BOOST;
-      next.vx = next.baseVx * speedMultiplier;
-      next.vy = next.baseVy * speedMultiplier;
-
-      if (next.energy > 0) {
-        next.vx += random(-JITTER_STRENGTH, JITTER_STRENGTH) * next.energy;
-        next.vy += random(-JITTER_STRENGTH, JITTER_STRENGTH) * next.energy;
-        next.rotation += next.rotationSpeed;
-        next.energy *= ENERGY_DECAY;
+    const resize = useCallback(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        return;
       }
+      const dpr = window.devicePixelRatio || 1;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      const ctx = canvas.getContext('2d');
+      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sizeRef.current = { width, height };
+    }, []);
 
-      next.x += next.vx;
-      next.y += next.vy;
-
-      next.size = next.baseSize * (1 + next.energy * 0.6);
-      next.alpha = Math.min(1, next.baseAlpha + next.energy * 0.3);
-
-      if (next.y < -10) {
-        next.x = Math.random() * width;
-        next.y = height + 10;
-      } else if (next.y > height + 20) {
-        next.x = Math.random() * width;
-        next.y = -10;
+    const tick = useCallback(() => {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!canvas || !ctx) {
+        return;
       }
-      if (next.x < -10) {
-        next.x = width + 10;
-      } else if (next.x > width + 10) {
-        next.x = -10;
+      const { width, height } = sizeRef.current;
+      ctx.clearRect(0, 0, width, height);
+
+      particlesRef.current.forEach((p) => {
+        const next = p;
+
+        const speedMultiplier = 1 + next.energy * SPEED_BOOST;
+        next.vx = next.baseVx * speedMultiplier;
+        next.vy = next.baseVy * speedMultiplier;
+
+        if (next.energy > 0) {
+          next.vx += random(-JITTER_STRENGTH, JITTER_STRENGTH) * next.energy;
+          next.vy += random(-JITTER_STRENGTH, JITTER_STRENGTH) * next.energy;
+          next.rotation += next.rotationSpeed;
+          next.energy *= ENERGY_DECAY;
+        }
+
+        next.x += next.vx;
+        next.y += next.vy;
+
+        next.size = next.baseSize * (1 + next.energy * 0.6);
+        next.alpha = Math.min(1, next.baseAlpha + next.energy * 0.3);
+
+        if (next.y < -10) {
+          next.x = Math.random() * width;
+          next.y = height + 10;
+        } else if (next.y > height + 20) {
+          next.x = Math.random() * width;
+          next.y = -10;
+        }
+        if (next.x < -10) {
+          next.x = width + 10;
+        } else if (next.x > width + 10) {
+          next.x = -10;
+        }
+
+        drawParticle(ctx, next);
+      });
+
+      rafRef.current = requestAnimationFrame(tick);
+    }, []);
+
+    useEffect(() => {
+      const overlay = anchorRef.current?.closest<HTMLElement>(
+        '.ReactModal__Overlay',
+      );
+      if (!overlay) {
+        setPortalTarget(document.body);
+        return undefined;
       }
+      const wrapper = document.createElement('div');
+      wrapper.dataset.particlesPortal = 'true';
+      overlay.prepend(wrapper);
+      setPortalTarget(wrapper);
+      return () => {
+        wrapper.remove();
+      };
+    }, []);
 
-      drawParticle(ctx, next);
-    });
+    useEffect(() => {
+      if (!portalTarget) {
+        return undefined;
+      }
+      resize();
+      const { width, height } = sizeRef.current;
+      particlesRef.current = Array.from({ length: AMBIENT_COUNT }, () =>
+        createAmbientParticle(width, height),
+      );
+      rafRef.current = requestAnimationFrame(tick);
+      window.addEventListener('resize', resize);
+      return () => {
+        window.removeEventListener('resize', resize);
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current);
+        }
+      };
+    }, [portalTarget, resize, tick]);
 
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  useEffect(() => {
-    const overlay = anchorRef.current?.closest<HTMLElement>(
-      '.ReactModal__Overlay',
+    useImperativeHandle(
+      ref,
+      () => ({
+        celebrate: () => {
+          particlesRef.current.forEach((p) => {
+            const next = p;
+            next.energy = 1;
+            next.partyColor = pick(PARTY_COLORS);
+            next.rotationSpeed = random(-0.4, 0.4);
+          });
+        },
+      }),
+      [],
     );
-    if (!overlay) {
-      setPortalTarget(document.body);
-      return undefined;
-    }
-    const wrapper = document.createElement('div');
-    wrapper.dataset.particlesPortal = 'true';
-    overlay.prepend(wrapper);
-    setPortalTarget(wrapper);
-    return () => {
-      wrapper.remove();
-    };
-  }, []);
 
-  useEffect(() => {
-    if (!portalTarget) {
-      return undefined;
-    }
-    resize();
-    const { width, height } = sizeRef.current;
-    particlesRef.current = Array.from({ length: AMBIENT_COUNT }, () =>
-      createAmbientParticle(width, height),
+    const canvas = (
+      <canvas
+        ref={canvasRef}
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-[1]"
+      />
     );
-    rafRef.current = requestAnimationFrame(tick);
-    window.addEventListener('resize', resize);
-    return () => {
-      window.removeEventListener('resize', resize);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, [portalTarget, resize, tick]);
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      celebrate: () => {
-        particlesRef.current.forEach((p) => {
-          const next = p;
-          next.energy = 1;
-          next.partyColor = pick(PARTY_COLORS);
-          next.rotationSpeed = random(-0.4, 0.4);
-        });
-      },
-    }),
-    [],
-  );
-
-  const canvas = (
-    <canvas
-      ref={canvasRef}
-      aria-hidden
-      className="pointer-events-none fixed inset-0 z-[1]"
-    />
-  );
-
-  return (
-    <>
-      <span ref={anchorRef} aria-hidden className="hidden" />
-      {portalTarget ? createPortal(canvas, portalTarget) : null}
-    </>
-  );
-});
+    return (
+      <>
+        <span ref={anchorRef} aria-hidden className="hidden" />
+        {portalTarget ? createPortal(canvas, portalTarget) : null}
+      </>
+    );
+  });
 
 ReferralCelebrationParticles.displayName = 'ReferralCelebrationParticles';
