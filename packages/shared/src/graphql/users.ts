@@ -91,6 +91,7 @@ export const USER_BY_ID_STATIC_FIELDS_QUERY = `
         status
       }
       coresRole
+      noindex
     }
   }
 `;
