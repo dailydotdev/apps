@@ -4,6 +4,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import {
   QueryClient,
@@ -564,7 +565,16 @@ describe('LiveRoom', () => {
 
     renderLiveRoom();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reminder set' }));
+    const reminderButton = screen.getByRole('button', { name: 'Reminder set' });
+
+    expect(
+      within(reminderButton).getByTestId('standup-reminder-set-icon'),
+    ).toBeVisible();
+    expect(
+      within(reminderButton).queryByTestId('standup-remind-icon'),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(reminderButton);
 
     await waitFor(() => {
       expect(mockUnsubscribeFromLiveRoom).toHaveBeenCalledTimes(1);
