@@ -100,6 +100,7 @@ export * from './MedalBadge';
 export * from './Megaphone';
 export * from './Menu';
 export * from './Merge';
+export * from './Microphone';
 export * from './Microsoft';
 export * from './MiniClose';
 export * from './Minus';
