@@ -18,6 +18,8 @@ import { MarketingCtaPopoverSmall } from '../marketing/cta/MarketingCtaPopoverSm
 import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureGenericReferralPopupV2 } from '../../lib/featureManagement';
 
 const REP_TRESHOLD = 250;
 
@@ -193,16 +195,24 @@ export const BootPopups = (): ReactElement => {
     }
   }, [marketingCtaPopoverSmall]);
 
+  const shouldShowGenericReferral = alerts?.showGenericReferral === true;
+  const { value: isGenericReferralV2 } = useConditionalFeature({
+    feature: featureGenericReferralPopupV2,
+    shouldEvaluate: shouldShowGenericReferral,
+  });
+
   /** *
    * Boot popup for generic referral campaign
    */
   useEffect(() => {
-    if (alerts?.showGenericReferral !== true) {
+    if (!shouldShowGenericReferral) {
       return;
     }
 
     addBootPopup({
-      type: LazyModal.GenericReferral,
+      type: isGenericReferralV2
+        ? LazyModal.GenericReferralV2
+        : LazyModal.GenericReferral,
       props: {
         onAfterOpen: () => {
           updateLastBootPopup();
@@ -210,7 +220,7 @@ export const BootPopups = (): ReactElement => {
         isDrawerOnMobile: true,
       },
     });
-  }, [alerts?.showGenericReferral, updateLastBootPopup]);
+  }, [shouldShowGenericReferral, isGenericReferralV2, updateLastBootPopup]);
 
   /**
    * Streak recovery modal

@@ -91,6 +91,13 @@ const GenericReferralModal = dynamic(
     ),
 );
 
+const GenericReferralModalV2 = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "genericReferralModalV2" */ './referral/GenericReferralModalV2'
+    ),
+);
+
 const NewStreakModal = dynamic(
   () =>
     import(/* webpackChunkName: "newStreakModal" */ './streaks/NewStreakModal'),
@@ -494,6 +501,7 @@ export const modals = {
   [LazyModal.NewSource]: NewSource,
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
+  [LazyModal.GenericReferralV2]: GenericReferralModalV2,
   [LazyModal.Video]: VideoModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
