@@ -103,7 +103,7 @@ export default function ProfileLayout({
   const { user: viewer } = useAuthContext();
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
-  const { referrerPost } = usePostReferrerContext();
+  const referrerPost = usePostReferrerContext()?.referrerPost;
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.ViewUserProfile,
     enabled: !!user && !!viewer?.id && viewer.id !== user.id,
@@ -149,12 +149,14 @@ export default function ProfileLayout({
         {children}
       </main>
       <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
-        <ProfileWidgets
-          user={user}
-          userStats={userStats}
-          sources={sources}
-          className="w-full"
-        />
+        {userStats && sources && (
+          <ProfileWidgets
+            user={user}
+            userStats={userStats}
+            sources={sources}
+            className="w-full"
+          />
+        )}
       </aside>
     </div>
   );
@@ -165,7 +167,7 @@ export const getLayout = (
   props: ProfileLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
       screenCentered: false,
       customBanner: <CustomAuthBanner />,
     }),
@@ -184,7 +186,13 @@ export async function getStaticProps({
 }: GetStaticPropsContext<ProfileParams>): Promise<
   GetStaticPropsResult<Omit<ProfileLayoutProps, 'children'>>
 > {
-  const { userId } = params;
+  const userId = params?.userId;
+  if (!userId) {
+    return {
+      props: { noindex: true },
+      revalidate: 60,
+    };
+  }
   try {
     const user = await getProfile(userId);
     if (!user) {
