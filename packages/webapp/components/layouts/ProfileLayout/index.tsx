@@ -199,7 +199,7 @@ export async function getStaticProps({
       props: {
         user,
         ...data,
-        noindex: user.reputation <= 10,
+        noindex: !!user.noindex,
       },
       revalidate: 60,
     };
