@@ -1093,3 +1093,54 @@ meter::-webkit-meter-bar {
     }
   }
 }
+
+.modal-backdrop-rays {
+  isolation: isolate;
+}
+
+.modal-backdrop-rays::before {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent) 18deg,
+    transparent 40deg 80deg,
+    color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent) 100deg,
+    transparent 120deg 170deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent) 190deg,
+    transparent 215deg 270deg,
+    color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent) 290deg,
+    transparent 320deg 360deg
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 18%,
+    black 35%,
+    black 70%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 18%,
+    black 35%,
+    black 70%,
+    transparent 100%
+  );
+  animation: modal-backdrop-rays-spin 30s linear infinite;
+}
+
+@keyframes modal-backdrop-rays-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-rays::before {
+    animation: none;
+  }
+}
