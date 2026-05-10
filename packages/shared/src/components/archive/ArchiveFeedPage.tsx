@@ -94,7 +94,7 @@ export function ArchiveFeedPage({
     scopeType,
     scopeId,
   } as ArchiveScopeInfo);
-  const items = archive?.items ?? [];
+  const items = (archive?.items ?? []).filter((item) => item.post);
 
   return (
     <div
