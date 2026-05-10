@@ -18,6 +18,7 @@ import {
   AnalyticsIcon,
   JobIcon,
   MagicIcon,
+  MegaphoneIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -116,6 +117,7 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
+  Megaphone = 'Megaphone',
 }
 
 export const notificationIcon: Record<
@@ -139,6 +141,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
+  [NotificationIconType.Megaphone]: MegaphoneIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -164,6 +167,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
+  [NotificationIconType.Megaphone]: 'text-brand-default',
 };
 
 export const notificationIconStyle: Record<
@@ -187,6 +191,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
+  [NotificationIconType.Megaphone]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
