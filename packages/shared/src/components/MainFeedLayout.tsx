@@ -12,7 +12,6 @@ import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
 import ReadingReminderHero from './marketing/banners/ReadingReminderHero';
-import ShortcutsExtensionPromo from './marketing/banners/ShortcutsExtensionPromo';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
 import AuthContext from '../contexts/AuthContext';
@@ -55,7 +54,6 @@ import {
   discussedFeedVersion,
   feature,
   featureFeedV2Highlights,
-  featureShortcutsExtensionPromo,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -74,11 +72,7 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
-import { useActions } from '../hooks/useActions';
-import { ActionType } from '../graphql/actions';
-import { useBoot } from '../hooks/useBoot';
-import { MarketingCtaVariant } from './marketing/cta/common';
+import { checkIsExtension } from '../lib/func';
 import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
@@ -609,32 +603,6 @@ export default function MainFeedLayout({
   const shouldShowReadingReminderOnHomepage =
     shouldEvaluateReminderPlacement && isControlVariation;
 
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const { getMarketingCta } = useBoot();
-  const hasDismissedShortcutsPromo = checkHasCompleted(
-    ActionType.DismissShortcutsExtensionPromo,
-  );
-  const hasFeedBannerMarketingCta = !!getMarketingCta(
-    MarketingCtaVariant.FeedBanner,
-  );
-  const hasUploadedCv = checkHasCompleted(ActionType.UploadedCV);
-  const willShowCvUploadBanner =
-    hasFeedBannerMarketingCta && isActionsFetched && !hasUploadedCv;
-  const canShowShortcutsPromo =
-    !!user &&
-    isHomePage &&
-    isLaptop &&
-    !checkIsExtension() &&
-    isActionsFetched &&
-    !hasDismissedShortcutsPromo &&
-    !shouldShowReadingReminderOnHomepage &&
-    !willShowCvUploadBanner &&
-    isNullOrUndefined(user?.flags?.lastExtensionUse);
-  const { value: shouldShowShortcutsPromo } = useConditionalFeature({
-    feature: featureShortcutsExtensionPromo,
-    shouldEvaluate: canShowShortcutsPromo,
-  });
-
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && checkIsExtension()) {
@@ -698,17 +666,6 @@ export default function MainFeedLayout({
       )}
       {!checkIsExtension() && isHomePage && (
         <WebappShortcutsRow className="px-4 pb-2" />
-      )}
-      {shouldShowShortcutsPromo && (
-        <ShortcutsExtensionPromo
-          className="px-4 pb-2"
-          onDismiss={() =>
-            completeAction(ActionType.DismissShortcutsExtensionPromo)
-          }
-          onInstall={() =>
-            completeAction(ActionType.DismissShortcutsExtensionPromo)
-          }
-        />
       )}
       {shouldUseCommentFeedLayout ? (
         <CommentFeed
