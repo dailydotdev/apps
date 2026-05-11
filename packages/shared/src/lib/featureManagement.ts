@@ -180,6 +180,11 @@ export const featureShortcutsExtensionPromo = new Feature(
   false,
 );
 
+export const featureGenericReferralPopupV2 = new Feature(
+  'generic_referral_popup_v2',
+  isDevelopment,
+);
+
 export const featureShortcutsExtensionPromoCopy = new Feature(
   'shortcuts_extension_promo_copy',
   {

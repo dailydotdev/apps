@@ -17,7 +17,7 @@ import {
 } from '../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import type { UserShortProfile } from '../../lib/user';
-import { MegaphoneIcon, VolumeOffIcon } from '../icons';
+import { MicrophoneIcon, VolumeOffIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
 import {
@@ -447,7 +447,7 @@ export const LiveRoomVideoTile = ({
             aria-label="Speaking"
             className="pointer-events-none flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-white"
           >
-            <MegaphoneIcon size={IconSize.XSmall} />
+            <MicrophoneIcon size={IconSize.XSmall} />
           </span>
         ) : null}
       </div>

@@ -6,7 +6,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../buttons/Button';
-import { CameraIcon, ExitIcon, MegaphoneIcon, SettingsIcon } from '../icons';
+import { CameraIcon, ExitIcon, MicrophoneIcon, SettingsIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -245,7 +245,7 @@ export const LiveRoomControls = ({
                 caretAriaLabel="Microphone devices"
                 caretMenuLabel="Microphone"
                 toggleIcon={
-                  <SlashedIcon icon={<MegaphoneIcon />} slashed={!isMicOn} />
+                  <SlashedIcon icon={<MicrophoneIcon />} slashed={!isMicOn} />
                 }
                 onToggle={() =>
                   guarded('mic', async () => {

@@ -22,6 +22,7 @@ import {
   MegaphoneIcon,
   MicrosoftIcon,
   ShareIcon,
+  VIcon,
 } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
@@ -474,7 +475,16 @@ export const LiveRoomLobby = ({
                           ? ButtonVariant.Secondary
                           : ButtonVariant.Primary
                       }
-                      icon={<BellIcon secondary={subscribed} />}
+                      icon={
+                        subscribed ? (
+                          <VIcon
+                            secondary
+                            data-testid="standup-reminder-set-icon"
+                          />
+                        ) : (
+                          <BellIcon data-testid="standup-remind-icon" />
+                        )
+                      }
                       loading={subscriptionBusy}
                       disabled={subscriptionBusy}
                       onClick={onToggleSubscription}
