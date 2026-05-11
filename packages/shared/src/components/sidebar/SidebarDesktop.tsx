@@ -277,7 +277,7 @@ export const SidebarDesktop = ({
                 onClick={() => onSelectCategory(category.id)}
                 className={classNames(
                   railButtonClass,
-                  isSelected && 'bg-surface-float text-text-primary',
+                  isSelected && 'bg-background-default text-text-primary',
                 )}
               >
                 {category.icon(isSelected)}
