@@ -21,12 +21,21 @@ import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
 import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { Tooltip } from '../../../tooltip/Tooltip';
-import { Switch } from '../../../fields/Switch';
+import { Dropdown } from '../../../fields/Dropdown';
 import { useSettingsContext } from '../../../../contexts/SettingsContext';
-import { SidebarSettingsFlags } from '../../../../graphql/settings';
+import {
+  HighlightsPlacement,
+  SidebarSettingsFlags,
+} from '../../../../graphql/settings';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent, Origin, TargetId } from '../../../../lib/log';
+import { LogEvent, Origin } from '../../../../lib/log';
 import { labels } from '../../../../lib';
+
+const highlightsPlacementOptions = [
+  { value: HighlightsPlacement.Default, label: 'Default' },
+  { value: HighlightsPlacement.Pinned, label: 'Pin to top' },
+  { value: HighlightsPlacement.Disabled, label: 'Disabled' },
+];
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -180,43 +189,44 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
-            Pin Happening Now to top
+            Happening Now placement
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            When Happening Now appears in your feed, show it in the first
-            position. Otherwise it&apos;s placed somewhere near the top.
+            Choose where the Happening Now card appears in your feed, or hide it
+            entirely.
           </Typography>
         </div>
-        <Switch
-          inputId="highlights-first-switch"
-          name="highlights_first"
-          compact={false}
-          checked={flags?.highlightsFirstEnabled ?? false}
-          onClick={async () => {
-            const newState = !(flags?.highlightsFirstEnabled ?? false);
-            await updateFlag(
-              SidebarSettingsFlags.HighlightsFirstEnabled,
-              newState,
-            );
+        <Dropdown
+          className={{ container: 'w-full tablet:max-w-70' }}
+          selectedIndex={Math.max(
+            highlightsPlacementOptions.findIndex(
+              (option) =>
+                option.value ===
+                (flags?.highlightsPlacement ?? HighlightsPlacement.Default),
+            ),
+            0,
+          )}
+          options={highlightsPlacementOptions.map((option) => option.label)}
+          onChange={async (_, index) => {
+            const next = highlightsPlacementOptions[index].value;
+            await updateFlag(SidebarSettingsFlags.Highlights, next);
 
             displayToast(
-              labels.feed.settings.globalPreferenceNotice.highlightsFirst,
+              labels.feed.settings.globalPreferenceNotice.highlightsPlacement,
             );
 
             logEvent({
-              event_name: LogEvent.ToggleHighlightsFirst,
-              target_id: newState ? TargetId.On : TargetId.Off,
+              event_name: LogEvent.SetHighlightsPlacement,
+              target_id: next,
               extra: JSON.stringify({
                 origin: Origin.Settings,
               }),
             });
           }}
-        >
-          Pin Happening Now to first position
-        </Switch>
+        />
       </div>
       {isCustomFeed && (
         <>
