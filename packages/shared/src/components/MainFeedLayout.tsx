@@ -239,6 +239,7 @@ export default function MainFeedLayout({
     onEnable,
     onDismiss,
   } = useReadingReminderHero();
+  const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
   const shouldEvaluateReminderPlacement =
     isHomePage && shouldShowReadingReminder;
@@ -605,7 +606,7 @@ export default function MainFeedLayout({
 
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
-      if (clickedTab === ExploreTabs.BestOf && checkIsExtension()) {
+      if (clickedTab === ExploreTabs.BestOf && isExtension) {
         window.open(`${webappUrl}posts/best-of`, '_blank', 'noopener');
         return;
       }
@@ -616,7 +617,7 @@ export default function MainFeedLayout({
 
       setTab(clickedTab);
     },
-    [onNavTabClick],
+    [isExtension, onNavTabClick],
   );
 
   const FeedExploreComponent = useCallback(() => {
@@ -664,7 +665,7 @@ export default function MainFeedLayout({
           onDismiss={onDismiss}
         />
       )}
-      {!checkIsExtension() && isHomePage && (
+      {!isExtension && isHomePage && (
         <WebappShortcutsRow className="px-4 pb-2" />
       )}
       {shouldUseCommentFeedLayout ? (
