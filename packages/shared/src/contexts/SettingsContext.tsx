@@ -15,6 +15,7 @@ import type {
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
+  SidebarSelectedCategory,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import { WriteFormTab } from '../components/fields/form/common';
@@ -146,6 +147,7 @@ const defaultSettings: RemoteSettings = {
     sidebarOtherExpanded: true,
     sidebarResourcesExpanded: true,
     sidebarBookmarksExpanded: true,
+    sidebarSelectedCategory: SidebarSelectedCategory.Main,
     clickbaitShieldEnabled: true,
     defaultWriteTab: WriteFormTab.NewPost,
   },

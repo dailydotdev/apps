@@ -24,7 +24,6 @@ import {
   ActiveFeedNameContextProvider,
   useActiveFeedNameContext,
 } from '../contexts';
-import { useFeedLayout, useViewSize, ViewSize } from '../hooks';
 import { BootPopups } from './modals/BootPopups';
 import { SmartComposerHotkey } from './post/SmartComposerHotkey';
 import { SmartComposerDevToggle } from './post/SmartComposerDevToggle';
@@ -76,7 +75,6 @@ function MainLayoutComponent({
   isNavItemsButton,
   customBanner,
   additionalButtons,
-  screenCentered = true,
   showSidebar = true,
   className,
   onLogoClick,
@@ -98,8 +96,6 @@ function MainLayoutComponent({
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
   const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
   const { plusEntryAnnouncementBar } = usePlusEntry();
-  const isLaptopXL = useViewSize(ViewSize.LaptopXL);
-  const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
   useNotificationParams();
 
@@ -177,9 +173,6 @@ function MainLayoutComponent({
     return null;
   }
 
-  const isScreenCentered =
-    isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
-
   return (
     <div className="antialiased">
       {canGoBack && <GoBackHeaderMobile />}
@@ -203,19 +196,16 @@ function MainLayoutComponent({
 
       <MainLayoutHeader
         hasBanner={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
+        sidebarRendered={showSidebar && sidebarRendered}
         additionalButtons={additionalButtons}
         onLogoClick={onLogoClick}
       />
       <main
         className={classNames(
           'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
-          showSidebar && 'tablet:pl-16 laptop:pl-11',
+          showSidebar && 'tablet:pl-16 laptop:pl-16',
           className,
-          isAuthReady &&
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
+          isAuthReady && showSidebar && sidebarExpanded && 'laptop:!pl-[19rem]',
           isBannerAvailable && 'laptop:pt-24',
         )}
       >
@@ -227,7 +217,16 @@ function MainLayoutComponent({
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {children}
+        <div
+          className={classNames(
+            'flex min-h-0 flex-1 flex-col',
+            showSidebar &&
+              isAuthReady &&
+              'laptop:m-4 laptop:min-h-[calc(100vh-5rem)] laptop:rounded-24 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-surface-float laptop:shadow-2',
+          )}
+        >
+          {children}
+        </div>
       </main>
       {!hideFeedbackWidget && <FeedbackWidget />}
     </div>

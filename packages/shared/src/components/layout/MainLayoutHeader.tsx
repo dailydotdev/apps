@@ -36,7 +36,7 @@ function MainLayoutHeader({
   additionalButtons,
   onLogoClick,
 }: MainLayoutHeaderProps): ReactElement {
-  const { loadedSettings } = useSettingsContext();
+  const { loadedSettings, sidebarExpanded } = useSettingsContext();
   // Header is `fixed` so it escapes the parent's `padding-right`. Read
   // the customize sidebar width directly here and shrink the header to
   // match — keeps it from sliding under the panel and lets it animate
@@ -62,6 +62,12 @@ function MainLayoutHeader({
     shouldUseLoadedSettings && isMobile && isSearchPage;
   const shouldRenderFeedNav =
     shouldUseLoadedSettings && isMobile && !isSearchPage;
+  const sidebarWidth = sidebarRendered
+    ? sidebarExpanded
+      ? '19rem'
+      : '4rem'
+    : undefined;
+  const customizerWidth = panelWidth ? `${panelWidth}px` : '0px';
 
   useEffect(() => {
     setHasHydrated(true);
@@ -110,11 +116,16 @@ function MainLayoutHeader({
       )}
       style={{
         ...(featureTheme ? featureTheme.navbar : undefined),
+        left: sidebarWidth,
         right: panelWidth || undefined,
-        width: panelWidth ? `calc(100% - ${panelWidth}px)` : undefined,
-        transition: panelWidth
-          ? 'right 200ms ease-in-out, width 200ms ease-in-out'
-          : undefined,
+        width:
+          sidebarWidth || panelWidth
+            ? `calc(100% - ${sidebarWidth ?? '0rem'} - ${customizerWidth})`
+            : undefined,
+        transition:
+          sidebarWidth || panelWidth
+            ? 'left 300ms ease-in-out, right 200ms ease-in-out, width 300ms ease-in-out'
+            : undefined,
       }}
     >
       {isMobileSearchPage ? (

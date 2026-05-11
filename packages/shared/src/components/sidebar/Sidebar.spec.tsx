@@ -95,10 +95,16 @@ const renderComponent = (
 
 it('should render the sidebar as open by default', async () => {
   renderComponent();
-  const section = await screen.findByText('Discover');
+  const categoryRail = await screen.findByRole('tablist', {
+    name: 'Sidebar categories',
+  });
+  expect(categoryRail).toBeInTheDocument();
+  const section = await screen.findByText('Main');
   expect(section).toBeInTheDocument();
-  const sectionTwo = await screen.findByText('Squads');
-  expect(sectionTwo).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'Main' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
 });
 
 it('should toggle the sidebar on button click', async () => {
@@ -113,8 +119,8 @@ it('should show the sidebar as closed if user has this set', async () => {
   const trigger = await screen.findByLabelText('Open sidebar');
   expect(trigger).toBeInTheDocument();
 
-  const section = await screen.findByText('Discover');
-  expect(section).toHaveClass('opacity-0');
+  const panel = await screen.findByRole('tabpanel', { hidden: true });
+  expect(panel).toHaveClass('opacity-0');
 });
 
 it('should show the For You items if the user has filters', async () => {
@@ -149,6 +155,9 @@ it('should require login before opening following for anonymous users', async ()
 
 const sidebarItems = [
   ['Explore', '/posts'],
+];
+
+const discoverItems = [
   ['Discussions', '/discussed'],
   ['Tags', '/tags'],
   ['Sources', '/sources'],
@@ -161,6 +170,19 @@ describe('sidebar items', () => {
     async (name, href) => {
       renderComponent();
       waitForNock();
+      const el = await screen.findByText(name);
+      expect(el).toBeInTheDocument();
+      // eslint-disable-next-line testing-library/no-node-access
+      expect(el.closest('a')).toHaveAttribute('href', href);
+    },
+  );
+
+  it.each(discoverItems.map((item) => [item[0], item[1]]))(
+    'it should expect %s to exist in discover',
+    async (name, href) => {
+      renderComponent();
+      waitForNock();
+      fireEvent.click(await screen.findByRole('tab', { name: 'Discover' }));
       const el = await screen.findByText(name);
       expect(el).toBeInTheDocument();
       // eslint-disable-next-line testing-library/no-node-access

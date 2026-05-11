@@ -105,8 +105,8 @@ const replaceDigitsWithIncrement = (str: string, increment: number): string => {
   return str.replace(match[0], `${parseInt(match[0], 10) + increment}`);
 };
 
-const sidebarRenderedWidth = 44;
-const sidebarOpenWidth = 240;
+const sidebarRenderedWidth = 64;
+const sidebarOpenWidth = 304;
 
 const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
