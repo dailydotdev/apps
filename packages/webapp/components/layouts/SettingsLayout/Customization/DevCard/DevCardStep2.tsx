@@ -51,10 +51,12 @@ import {
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { ContextualReferralLink } from '@dailydotdev/shared/src/components/referral/ContextualReferralLink';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
-import { ReferralGrowthSurface } from '@dailydotdev/shared/src/lib/referralGrowth';
+import {
+  featureReferralGrowthLoops,
+  ReferralGrowthSurface,
+} from '@dailydotdev/shared/src/lib/referralGrowth';
 import { addLogQueryParams } from '@dailydotdev/shared/src/lib/share';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureReferralGrowthLoops } from '@dailydotdev/shared/src/lib/featureManagement';
 import { GENERATE_DEVCARD_MUTATION } from '../../../../../graphql/devcard';
 import type { GenerateDevCardParams } from '../../../../../graphql/devcard';
 

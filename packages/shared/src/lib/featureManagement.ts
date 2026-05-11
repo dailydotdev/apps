@@ -195,16 +195,6 @@ export const featureShortcutsExtensionPromoCopy = new Feature(
 
 export const featureShortcutsHub = new Feature('shortcuts_hub', false);
 
-export const featureReferralGrowthLoops = new Feature(
-  'referral_growth_loops',
-  false,
-);
-
-export const featureExtensionStoreReviewPrompt = new Feature(
-  'extension_store_review_prompt',
-  false,
-);
-
 export const featureNewTabCustomizer = new Feature(
   'extension_newtab_customizer',
   false,

@@ -20,10 +20,12 @@ import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
 import { ContextualReferralLink } from '../../referral/ContextualReferralLink';
 import { ReferralCampaignKey } from '../../../lib/referral';
-import { ReferralGrowthSurface } from '../../../lib/referralGrowth';
+import {
+  featureReferralGrowthLoops,
+  ReferralGrowthSurface,
+} from '../../../lib/referralGrowth';
 import { webappUrl } from '../../../lib/constants';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureReferralGrowthLoops } from '../../../lib/featureManagement';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 

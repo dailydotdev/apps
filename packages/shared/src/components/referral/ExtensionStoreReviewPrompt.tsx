@@ -11,7 +11,7 @@ import { useActions } from '../../hooks/useActions';
 import { ActionType } from '../../graphql/actions';
 import { isExtension } from '../../lib/func';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureExtensionStoreReviewPrompt } from '../../lib/featureManagement';
+import { featureExtensionStoreReviewPrompt } from '../../lib/referralGrowth';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../lib/log';
 import { chromeWebStoreReviewUrl } from '../../lib/constants';

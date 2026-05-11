@@ -1,5 +1,15 @@
 import { ReferralCampaignKey } from './referral';
 
+export const featureReferralGrowthLoops = {
+  id: 'referral_growth_loops',
+  defaultValue: false,
+};
+
+export const featureExtensionStoreReviewPrompt = {
+  id: 'extension_store_review_prompt',
+  defaultValue: false,
+};
+
 export enum ReferralGrowthSurface {
   PostUpvote = 'post_upvote',
   StreakMilestone = 'streak_milestone',

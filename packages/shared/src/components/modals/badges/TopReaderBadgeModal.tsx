@@ -19,10 +19,12 @@ import { useTopReader } from '../../../hooks/useTopReader';
 import { ModalClose } from '../common/ModalClose';
 import { ContextualReferralLink } from '../../referral/ContextualReferralLink';
 import { ReferralCampaignKey } from '../../../lib/referral';
-import { ReferralGrowthSurface } from '../../../lib/referralGrowth';
+import {
+  featureReferralGrowthLoops,
+  ReferralGrowthSurface,
+} from '../../../lib/referralGrowth';
 import { webappUrl } from '../../../lib/constants';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import { featureReferralGrowthLoops } from '../../../lib/featureManagement';
 
 type TopReaderBadgeModalProps = {
   badgeId?: string;
