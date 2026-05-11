@@ -96,7 +96,14 @@ export function addLogQueryParams({
     return link;
   }
 
-  const url = new URL(link);
+  let url: URL;
+
+  try {
+    url = new URL(link);
+  } catch {
+    return link;
+  }
+
   url.searchParams.set('userid', userId);
   url.searchParams.set('cid', cid);
 

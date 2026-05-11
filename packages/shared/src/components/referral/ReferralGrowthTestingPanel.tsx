@@ -49,15 +49,28 @@ const demoSurfaces = [
   },
 ];
 
+const getWebappUrl = (): string => {
+  if (webappUrl) {
+    return webappUrl;
+  }
+
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return `${window.location.origin}/`;
+};
+
 export function ReferralGrowthTestingPanel(): ReactElement {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedSurface, setSelectedSurface] = useState(demoSurfaces[0]);
   const [showReviewStep, setShowReviewStep] = useState(false);
+  const qaWebappUrl = getWebappUrl();
   const profileUrl = user?.username
-    ? `${webappUrl}${user.username}`
-    : webappUrl;
+    ? `${qaWebappUrl}${user.username}`
+    : qaWebappUrl;
 
   if (isCollapsed) {
     return (
@@ -119,7 +132,7 @@ export function ReferralGrowthTestingPanel(): ReactElement {
         </Button>
         <Button
           tag="a"
-          href={`${webappUrl}squads/new`}
+          href={`${qaWebappUrl}squads/new`}
           size={ButtonSize.Small}
           variant={ButtonVariant.Secondary}
         >
