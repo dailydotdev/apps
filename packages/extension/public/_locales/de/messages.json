@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "daily.dev | Entwickler-News, richtig gemacht, in jedem neuen Tab",
+    "description": "Extension name shown in browser extension surfaces and Chrome Web Store metadata."
+  },
+  "extensionShortName": {
+    "message": "daily.dev",
+    "description": "Short extension name shown when space is limited."
+  },
+  "extensionDescription": {
+    "message": "Entwickler-News, personalisiert für Ihren Stack, in jedem neuen Tab. Schließen Sie sich über 400.000 Entwicklern an. Kostenlos und Open Source.",
+    "description": "Short extension description shown in browser extension surfaces and Chrome Web Store metadata."
+  }
+}
