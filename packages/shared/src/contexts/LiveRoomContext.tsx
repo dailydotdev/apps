@@ -884,6 +884,18 @@ export const LiveRoomProvider = ({
     setErrorMessage(null);
   }, [roomId]);
 
+  useEffect(() => {
+    if (
+      !storedResumeSession ||
+      !user?.id ||
+      storedResumeSession.participantId === user.id
+    ) {
+      return;
+    }
+
+    requestFreshJoinToken();
+  }, [requestFreshJoinToken, storedResumeSession, user?.id]);
+
   const refreshLocalStream = useCallback(() => {
     const tracks: MediaStreamTrack[] = [];
     if (localTracksRef.current.audio) {
@@ -990,6 +1002,14 @@ export const LiveRoomProvider = ({
 
   // Open the websocket once we have a fresh join token or a cached resume token.
   useEffect(() => {
+    if (
+      storedResumeSession &&
+      user?.id &&
+      storedResumeSession.participantId !== user.id
+    ) {
+      return undefined;
+    }
+
     if (!storedResumeSession && !joinToken) {
       return undefined;
     }
@@ -1111,6 +1131,7 @@ export const LiveRoomProvider = ({
     roomId,
     storedResumeSession,
     requestFreshJoinToken,
+    user?.id,
   ]);
 
   useEffect(() => {
