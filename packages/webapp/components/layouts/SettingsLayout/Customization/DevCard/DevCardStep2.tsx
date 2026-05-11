@@ -22,7 +22,7 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import {
@@ -37,7 +37,7 @@ import {
   TwitterIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { DevCardFetchWrapper } from '@dailydotdev/shared/src/components/profile/devcard/DevCardFetchWrapper';
-import { devCard } from '@dailydotdev/shared/src/lib/constants';
+import { devCard, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { checkLowercaseEquality } from '@dailydotdev/shared/src/lib/strings';
 import classNames from 'classnames';
 import { isNullOrUndefined } from '@dailydotdev/shared/src/lib/func';
@@ -49,6 +49,12 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { ContextualReferralLink } from '@dailydotdev/shared/src/components/referral/ContextualReferralLink';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
+import { ReferralGrowthSurface } from '@dailydotdev/shared/src/lib/referralGrowth';
+import { addLogQueryParams } from '@dailydotdev/shared/src/lib/share';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureReferralGrowthLoops } from '@dailydotdev/shared/src/lib/featureManagement';
 import { GENERATE_DEVCARD_MUTATION } from '../../../../../graphql/devcard';
 import type { GenerateDevCardParams } from '../../../../../graphql/devcard';
 
@@ -61,7 +67,11 @@ export const DevCardStep2 = ({
 }: Step2Props): ReactElement => {
   const [type, setType] = useState(DevCardType.Vertical);
   const { user } = useAuthContext();
-  const { devcard } = useDevCard(user?.id);
+  const userId = user?.id ?? '';
+  const username = user?.username ?? '';
+  const userName = user?.name ?? username;
+  const reputation = user?.reputation ?? 0;
+  const { devcard } = useDevCard(userId);
   const { theme, showBorder, isProfileCover } = devcard ?? {
     theme: DevCardTheme.Default,
     showBorder: true,
@@ -72,23 +82,32 @@ export const DevCardStep2 = ({
 
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
-      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${user.id}.png?type=default&r=${randomStr}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/devcards/v2/${userId}.png?type=default&r=${randomStr}`,
   );
 
   const client = useQueryClient();
   const { logEvent } = useLogContext();
   const key = useMemo(
-    () => generateQueryKey(RequestKey.DevCard, { id: user?.id }),
-    [user],
+    () => generateQueryKey(RequestKey.DevCard, { id: userId }),
+    [userId],
   );
+  const profileUrl = username ? `${webappUrl}${username}` : webappUrl;
+  const trackedProfileUrl =
+    addLogQueryParams({
+      link: profileUrl,
+      userId,
+      cid: ReferralCampaignKey.ShareProfile,
+    }) ?? profileUrl;
+  const { value: showReferralGrowthLoop } = useConditionalFeature({
+    feature: featureReferralGrowthLoops,
+    shouldEvaluate: !!userId,
+  });
   const embedCode = useMemo(
     () =>
-      `<a href="https://app.daily.dev/${
-        user?.username
-      }"><img src="${devCardSrc}" width="${
+      `<a href="${trackedProfileUrl}"><img src="${devCardSrc}" width="${
         type === DevCardType.Horizontal ? 652 : 356
-      }" alt="${user?.name}'s Dev Card"/></a>`,
-    [user?.name, user?.username, devCardSrc, type],
+      }" alt="${userName}'s Dev Card"/></a>`,
+    [userName, devCardSrc, trackedProfileUrl, type],
   );
   const [copyingEmbed, copyEmbed] = useCopyLink(() => embedCode);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -98,7 +117,7 @@ export const DevCardStep2 = ({
 
   const downloadImage = async (url?: string): Promise<void> => {
     const finalUrl = url ?? devCardSrc;
-    await onDownloadUrl({ url: finalUrl, filename: `${user.username}.png` });
+    await onDownloadUrl({ url: finalUrl, filename: `${username}.png` });
   };
 
   const { mutateAsync: onGenerate, isPending: isLoading } = useMutation({
@@ -111,7 +130,7 @@ export const DevCardStep2 = ({
     },
 
     onSuccess: (data, vars) => {
-      if (!data?.devCard?.imageUrl || vars.type === DevCardType.Twitter) {
+      if (!data?.devCard?.imageUrl || vars?.type === DevCardType.Twitter) {
         return;
       }
 
@@ -158,7 +177,10 @@ export const DevCardStep2 = ({
       logEvent({
         event_name: LogEvent.DownloadDevcard,
         extra: JSON.stringify({
-          format: devcardTypeToEventFormat[type],
+          format:
+            devcardTypeToEventFormat[
+              type as keyof typeof devcardTypeToEventFormat
+            ],
         }),
       });
     }
@@ -213,7 +235,7 @@ export const DevCardStep2 = ({
             style={{ transformStyle: 'preserve-3d' }}
           >
             <DevCardFetchWrapper
-              userId={user.id}
+              userId={userId}
               type={type}
               isInteractive={false}
             />
@@ -275,6 +297,17 @@ export const DevCardStep2 = ({
                 Add your DevCard to GitHub, your website, or use it as your X
                 header image.
               </Typography>
+              {showReferralGrowthLoop && (
+                <ContextualReferralLink
+                  url={profileUrl}
+                  campaignKey={ReferralCampaignKey.ShareProfile}
+                  surface={ReferralGrowthSurface.DevCard}
+                  origin={Origin.Settings}
+                  title="Turn your DevCard into an invite"
+                  description="Share your developer card so friends can see your profile and build their own."
+                  buttonText="Copy DevCard invite"
+                />
+              )}
 
               <div>
                 <Typography
@@ -376,13 +409,14 @@ export const DevCardStep2 = ({
 
                 <div className="flex flex-row flex-wrap">
                   {Object.keys(themeToLinearGradient).map((value) => {
-                    const isLocked = user?.reputation < requiredPoints[value];
+                    const themeValue = value as DevCardTheme;
+                    const isLocked = reputation < requiredPoints[themeValue];
                     return (
                       <Tooltip
                         key={value}
                         content={
                           isLocked ? (
-                            `Earn ${requiredPoints[value]} reputation points to unlock ${value} theme`
+                            `Earn ${requiredPoints[themeValue]} reputation points to unlock ${value} theme`
                           ) : (
                             <span className="capitalize">{value}</span>
                           )
@@ -396,11 +430,13 @@ export const DevCardStep2 = ({
                             className={classNames(
                               'h-10 w-10 rounded-full',
                               isLocked && 'opacity-32',
-                              checkLowercaseEquality(theme, value) &&
-                                'border-4 border-accent-cabbage-default',
+                              checkLowercaseEquality(
+                                theme ?? DevCardTheme.Default,
+                                value,
+                              ) && 'border-4 border-accent-cabbage-default',
                             )}
                             style={{
-                              background: themeToLinearGradient[value],
+                              background: themeToLinearGradient[themeValue],
                             }}
                             onClick={() =>
                               onUpdatePreference({
@@ -441,7 +477,7 @@ export const DevCardStep2 = ({
                 </RadioItem>
 
                 <RadioItem
-                  disabled={isLoading || !user.cover}
+                  disabled={isLoading || !user?.cover}
                   name="profileCover"
                   checked={isProfileCover}
                   onChange={() => onUpdatePreference({ isProfileCover: true })}

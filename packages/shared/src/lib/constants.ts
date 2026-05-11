@@ -29,6 +29,8 @@ export const firstNotificationLink = 'https://r.daily.dev/notifications';
 export const reportSquadMember = 'https://r.daily.dev/report-squad-member';
 export const squadFeedback = 'https://r.daily.dev/squad-feedback';
 export const downloadBrowserExtension = 'https://r.daily.dev/extension';
+export const chromeWebStoreReviewUrl =
+  'https://chromewebstore.google.com/detail/dailydev-where-developers/jlmpjdjjbgclbocgajdjefcidcncaied/reviews';
 export const twitter = 'https://r.daily.dev/twitter';
 export const slackIntegration = 'https://r.daily.dev/slack';
 export const statusPage = 'https://r.daily.dev/status';

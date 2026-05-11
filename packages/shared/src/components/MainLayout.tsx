@@ -36,6 +36,7 @@ import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+import { ExtensionStoreReviewPrompt } from './referral/ExtensionStoreReviewPrompt';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -186,6 +187,7 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <ExtensionStoreReviewPrompt />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />

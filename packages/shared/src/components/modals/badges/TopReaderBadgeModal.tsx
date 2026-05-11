@@ -17,6 +17,12 @@ import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import { useTopReader } from '../../../hooks/useTopReader';
 import { ModalClose } from '../common/ModalClose';
+import { ContextualReferralLink } from '../../referral/ContextualReferralLink';
+import { ReferralCampaignKey } from '../../../lib/referral';
+import { ReferralGrowthSurface } from '../../../lib/referralGrowth';
+import { webappUrl } from '../../../lib/constants';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureReferralGrowthLoops } from '../../../lib/featureManagement';
 
 type TopReaderBadgeModalProps = {
   badgeId?: string;
@@ -25,15 +31,24 @@ type TopReaderBadgeModalProps = {
 
 const TopReaderBadgeModal = (
   props: ModalProps & TopReaderBadgeModalProps,
-): ReactElement => {
+): ReactElement | null => {
   const { onRequestClose, onAfterOpen, onAfterClose, badgeId, origin } = props;
 
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const isMobile = useViewSize(ViewSize.MobileL);
 
-  const { data: topReaders } = useTopReader({ user, limit: 1, badgeId });
+  const { data: topReaders } = useTopReader({
+    user: user!,
+    limit: 1,
+    badgeId,
+  });
   const topReader = topReaders?.[0];
+  const { value: showReferralGrowthLoop } = useConditionalFeature({
+    feature: featureReferralGrowthLoops,
+    shouldEvaluate: !!user?.id,
+  });
+  const profileUrl = user?.username ? `${webappUrl}${user.username}` : '';
 
   const { mutateAsync: onDownloadUrl, isPending: downloading } = useMutation({
     mutationFn: downloadUrl,
@@ -55,7 +70,7 @@ const TopReaderBadgeModal = (
   );
 
   const onClickDownload = useCallback(async () => {
-    if (!topReader) {
+    if (!topReader?.image) {
       return;
     }
 
@@ -101,7 +116,7 @@ const TopReaderBadgeModal = (
           You&apos;ve earned the top reader badge!
         </h1>
         <TopReaderBadge
-          user={user}
+          user={user!}
           keyword={topReader.keyword}
           issuedAt={topReader.issuedAt}
         />
@@ -116,6 +131,17 @@ const TopReaderBadgeModal = (
         >
           Download badge
         </Button>
+        {showReferralGrowthLoop && (
+          <ContextualReferralLink
+            className={classNames('w-full', !isMobile && 'max-w-80')}
+            url={profileUrl}
+            campaignKey={ReferralCampaignKey.ShareProfile}
+            surface={ReferralGrowthSurface.TopReaderBadge}
+            origin={origin ?? 'top reader badge modal'}
+            title="Let other devs see your badge"
+            description="Share your profile so friends can check your reader status and get their own."
+          />
+        )}
       </Modal.Body>
     </Modal>
   );

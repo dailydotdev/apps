@@ -42,7 +42,7 @@ const SquadSlackButton = <T extends AllowedTags>({
 }: SquadBarButtonProps<T>) => {
   const { user } = useAuthContext();
   const { data: sourceIntegration, isPending } = useSourceIntegrationQuery({
-    sourceId: squad.id,
+    sourceId: squad.id!,
     userIntegrationType: UserIntegrationType.Slack,
   });
 
@@ -59,7 +59,7 @@ const SquadSlackButton = <T extends AllowedTags>({
       return 'Connect to Slack';
     }
 
-    if (sourceIntegration?.userIntegration.userId === user.id) {
+    if (sourceIntegration?.userIntegration.userId === user?.id) {
       return 'Manage';
     }
 
@@ -87,7 +87,7 @@ const SquadAwardButton = ({
 }: Pick<SquadMemberShortListProps, 'squad'>) => {
   const { user } = useAuthContext();
   const eligibleAdmin = useGetSquadAwardAdmin({
-    sendingUser: user,
+    sendingUser: user!,
     squad,
   });
   const canAwardSquad = !!eligibleAdmin;
@@ -99,11 +99,11 @@ const SquadAwardButton = ({
     <AwardButton
       type="SQUAD"
       entity={{
-        id: squad.id,
+        id: squad.id!,
         receiver: {
           ...eligibleAdmin,
           name: squad.name,
-          image: squad.image,
+          image: squad.image!,
         } as LoggedUser,
       }}
       variant={ButtonVariant.Float}
@@ -131,7 +131,7 @@ const SquadInviteButton = <T extends AllowedTags>({
       icon={<AddUserIcon />}
       {...props}
     >
-      Invitation link
+      Invite colleagues
     </Button>
   );
 };

@@ -5,6 +5,7 @@ import { LogEvent } from '../lib/log';
 import type { Squad } from '../graphql/sources';
 import { useActions } from './useActions';
 import { ActionType } from '../graphql/actions';
+import { ReferralGrowthSurface } from '../lib/referralGrowth';
 
 export interface UseSquadInvitationProps {
   squad: Squad;
@@ -30,7 +31,11 @@ export const useSquadInvitation = ({
   const logAndCopyLink = () => {
     logEvent({
       event_name: LogEvent.ShareSquadInvitation,
-      extra: JSON.stringify({ origin, squad: squad.id }),
+      extra: JSON.stringify({
+        origin,
+        squad: squad.id,
+        surface: ReferralGrowthSurface.Squad,
+      }),
     });
 
     completeAction(ActionType.SquadInvite);

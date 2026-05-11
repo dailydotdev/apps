@@ -12,12 +12,18 @@ import {
 } from '../../../lib/image';
 import type { StreakModalProps } from './common';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
+import { ContextualReferralLink } from '../../referral/ContextualReferralLink';
+import { ReferralCampaignKey } from '../../../lib/referral';
+import { ReferralGrowthSurface } from '../../../lib/referralGrowth';
+import { webappUrl } from '../../../lib/constants';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureReferralGrowthLoops } from '../../../lib/featureManagement';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -37,6 +43,11 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
+  const { value: showReferralGrowthLoop } = useConditionalFeature({
+    feature: featureReferralGrowthLoops,
+    shouldEvaluate: !!user?.id,
+  });
+  const profileUrl = user?.username ? `${webappUrl}${user.username}` : '';
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -120,9 +131,20 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
+        {showReferralGrowthLoop && (
+          <ContextualReferralLink
+            className="mt-6"
+            url={profileUrl}
+            campaignKey={ReferralCampaignKey.ShareProfile}
+            surface={ReferralGrowthSurface.StreakMilestone}
+            origin={Origin.PostContent}
+            title="Challenge a friend to keep up"
+            description={`${currentStreak} ${daysPlural} strong. Share your profile and invite someone to build the habit with you.`}
+          />
+        )}
         <Checkbox
           name="show_streaks"
-          className="mt-10"
+          className={showReferralGrowthLoop ? 'mt-6' : 'mt-10'}
           checked={isStreakModalDisabled}
           onToggleCallback={handleOptOut}
         >

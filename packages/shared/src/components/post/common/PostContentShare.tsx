@@ -9,6 +9,7 @@ import { ReferralCampaignKey, useGetShortUrl } from '../../../hooks';
 import { PostContentWidget } from './PostContentWidget';
 import { useActiveFeedContext } from '../../../contexts';
 import { postLogEvent } from '../../../lib/feed';
+import { ReferralGrowthSurface } from '../../../lib/referralGrowth';
 
 interface PostContentShareProps {
   post: Post;
@@ -34,7 +35,7 @@ export function PostContentShare({
   return (
     <PostContentWidget
       className="mt-6"
-      title="Should anyone else see this post?"
+      title="Know a developer who should see this?"
     >
       <InviteLinkInput
         className={{ container: 'w-full flex-1' }}
@@ -44,6 +45,7 @@ export function PostContentShare({
           extra: {
             provider: ShareProvider.CopyLink,
             origin: Origin.PostContent,
+            surface: ReferralGrowthSurface.PostUpvote,
           },
           ...(logOpts && logOpts),
         })}

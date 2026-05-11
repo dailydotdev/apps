@@ -204,6 +204,13 @@ export enum LogEvent {
   // Referral campaign
   CopyReferralLink = 'copy referral link',
   InviteReferral = 'invite referral',
+  ReferralPromptImpression = 'impression referral prompt',
+  ReferralPromptClick = 'click referral prompt',
+  StoreReviewPromptImpression = 'impression store review prompt',
+  StoreReviewPromptPositive = 'positive store review prompt',
+  StoreReviewPromptNegative = 'negative store review prompt',
+  StoreReviewPromptClick = 'click store review prompt',
+  StoreReviewPromptDismiss = 'dismiss store review prompt',
   // Shortcuts
   RevokeShortcutAccess = 'revoke shortcut access',
   SaveShortcutAccess = 'save shortcut access',
@@ -491,6 +498,8 @@ export enum TargetType {
   InviteFriendsPage = 'invite friends page',
   ProfilePage = 'profile page',
   GenericReferralPopup = 'generic referral popup',
+  ReferralPrompt = 'referral prompt',
+  StoreReviewPrompt = 'store review prompt',
   Shortcuts = 'shortcuts',
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',

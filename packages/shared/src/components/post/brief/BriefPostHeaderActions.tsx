@@ -35,8 +35,11 @@ export const BriefPostHeaderActions = ({
           <Button
             icon={<LinkIcon />}
             size={ButtonSize.Medium}
+            aria-label="Share this brief with a colleague"
             onClick={() => copyLink({ post })}
-          />
+          >
+            Share brief
+          </Button>
         )}
         <Link passHref href={`${settingsUrl}/notifications`}>
           <Button icon={<SettingsIcon />} tag="a" size={ButtonSize.Medium} />
