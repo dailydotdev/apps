@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "__firefox__manifest_version": 2,
   "version": "0.0.0",
-  "name": "daily.dev | The homepage developers deserve",
+  "name": "daily.dev — Developer News Done Right, in Every New Tab",
   "short_name": "daily.dev",
-  "description": "Turn every new tab into your personalized developer feed. Trusted by 400,000+ devs. AI-powered & open source.",
+  "description": "Developer news, personalized to your stack, in every new tab. Join 1,000,000+ developers. Free and open source.",
   "homepage_url": "https://daily.dev",
   "icons": {
     "16": "icons/16.png",
