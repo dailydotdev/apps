@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "daily.dev | The homepage developers deserve",
+    "description": "Extension name shown in browser extension surfaces and Chrome Web Store metadata."
+  },
+  "extensionShortName": {
+    "message": "daily.dev",
+    "description": "Short extension name shown when space is limited."
+  },
+  "extensionDescription": {
+    "message": "Turn every new tab into your personalized developer feed. Trusted by 400,000+ devs. AI-powered & open source.",
+    "description": "Short extension description shown in browser extension surfaces and Chrome Web Store metadata."
+  }
+}
