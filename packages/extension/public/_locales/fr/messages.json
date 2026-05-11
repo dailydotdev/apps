@@ -1,14 +1,11 @@
 {
   "extensionName": {
-    "message": "daily.dev | L'actualité des développeurs, bien présentée, dans chaque nouvel onglet",
-    "description": "Extension name shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "daily.dev | L'actualité des développeurs, bien présentée, dans chaque nouvel onglet"
   },
   "extensionShortName": {
-    "message": "daily.dev",
-    "description": "Short extension name shown when space is limited."
+    "message": "daily.dev"
   },
   "extensionDescription": {
-    "message": "Des actualités pour les développeurs, personnalisées en fonction de votre stack, dans chaque nouvel onglet. Rejoignez plus de 400 000 développeurs. Gratuit et open source.",
-    "description": "Short extension description shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "Des actualités pour les développeurs, personnalisées en fonction de votre stack, dans chaque nouvel onglet. Rejoignez plus de 400 000 développeurs. Gratuit et open source."
   }
 }

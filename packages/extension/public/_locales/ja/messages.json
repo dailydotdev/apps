@@ -1,14 +1,11 @@
 {
   "extensionName": {
-    "message": "daily.dev | 開発者向けニュースを、新しいタブごとに適切に提供",
-    "description": "Extension name shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "daily.dev | 開発者向けニュースを、新しいタブごとに適切に提供"
   },
   "extensionShortName": {
-    "message": "daily.dev",
-    "description": "Short extension name shown when space is limited."
+    "message": "daily.dev"
   },
   "extensionDescription": {
-    "message": "開発者向けニュースを、お使いのスタックに合わせてパーソナライズ。新しいタブを開くたびに表示されます。40万人以上の開発者の仲間入りをしましょう。無料でオープンソース。",
-    "description": "Short extension description shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "開発者向けニュースを、お使いのスタックに合わせてパーソナライズ。新しいタブを開くたびに表示されます。40万人以上の開発者の仲間入りをしましょう。無料でオープンソース。"
   }
 }

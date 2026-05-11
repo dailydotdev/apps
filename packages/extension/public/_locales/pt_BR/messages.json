@@ -1,14 +1,11 @@
 {
   "extensionName": {
-    "message": "daily.dev | Notícias para desenvolvedores do jeito certo, em cada nova guia",
-    "description": "Extension name shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "daily.dev | Notícias para desenvolvedores do jeito certo, em cada nova guia"
   },
   "extensionShortName": {
-    "message": "daily.dev",
-    "description": "Short extension name shown when space is limited."
+    "message": "daily.dev"
   },
   "extensionDescription": {
-    "message": "Notícias para desenvolvedores, personalizadas para a sua tecnologia, em cada nova guia. Junte-se a mais de 400.000 desenvolvedores. Grátis e de código aberto.",
-    "description": "Short extension description shown in browser extension surfaces and Chrome Web Store metadata."
+    "message": "Notícias para desenvolvedores, personalizadas para a sua tecnologia, em cada nova guia. Junte-se a mais de 400.000 desenvolvedores. Grátis e de código aberto."
   }
 }
