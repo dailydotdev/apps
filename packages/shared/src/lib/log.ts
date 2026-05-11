@@ -339,6 +339,7 @@ export enum LogEvent {
   ToggleClickbaitShield = 'toggle clickbait shield',
   ClickbaitShieldTitle = 'clickbait shield title',
   // End Clickbait Shield
+  ToggleHighlightsFirst = 'toggle highlights first',
   InstallPWA = 'install pwa',
   // Start Share
   ShareProfile = 'share profile',
