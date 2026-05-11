@@ -236,7 +236,7 @@ export const SidebarDesktop = ({
     <SidebarAside
       data-testid="sidebar-aside"
       className={classNames(
-        'laptop:flex-row laptop:border-r-0 laptop:bg-surface-float',
+        'laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
         sidebarExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
         // No global header on laptop with the dual sidebar, so the rail
         // can hug the very top of the viewport. The banner still offsets
@@ -277,7 +277,7 @@ export const SidebarDesktop = ({
                 onClick={() => onSelectCategory(category.id)}
                 className={classNames(
                   railButtonClass,
-                  isSelected && 'bg-background-default text-text-primary',
+                  isSelected && 'bg-surface-float text-text-primary',
                 )}
               >
                 {category.icon(isSelected)}
