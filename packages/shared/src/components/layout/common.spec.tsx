@@ -8,7 +8,11 @@ import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useReadingStreak } from '../../hooks/streaks';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useQueryState } from '../../hooks/utils/useQueryState';
-import { checkIsExtension, getCurrentBrowserName } from '../../lib/func';
+import {
+  checkIsExtension,
+  getCurrentBrowserName,
+  isExtensionCapableBrowser,
+} from '../../lib/func';
 import { ActionType } from '../../graphql/actions';
 import { SharedFeedPage } from '../utilities';
 import { SearchControlHeader } from './common';
@@ -52,6 +56,7 @@ jest.mock('../../lib/func', () => ({
   ...jest.requireActual('../../lib/func'),
   checkIsExtension: jest.fn(),
   getCurrentBrowserName: jest.fn(),
+  isExtensionCapableBrowser: jest.fn(),
 }));
 
 jest.mock('../filters/MyFeedHeading', () => ({
@@ -98,6 +103,7 @@ const mockUseFeedName = useFeedName as jest.Mock;
 const mockUseQueryState = useQueryState as jest.Mock;
 const mockCheckIsExtension = checkIsExtension as jest.Mock;
 const mockGetCurrentBrowserName = getCurrentBrowserName as jest.Mock;
+const mockIsExtensionCapableBrowser = isExtensionCapableBrowser as jest.Mock;
 
 const createActionsState = ({
   dismissedInstallExtension = false,
@@ -146,6 +152,7 @@ describe('SearchControlHeader', () => {
     mockUseQueryState.mockReturnValue([0, jest.fn()]);
     mockCheckIsExtension.mockReturnValue(false);
     mockGetCurrentBrowserName.mockReturnValue('Chrome');
+    mockIsExtensionCapableBrowser.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -179,6 +186,17 @@ describe('SearchControlHeader', () => {
   it('does not render the install extension prompt for extension users', () => {
     mockUseActions.mockReturnValue(createActionsState());
     mockCheckIsExtension.mockReturnValue(true);
+
+    renderComponent();
+
+    expect(
+      screen.queryByRole('link', { name: 'Get it for Chrome' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render the install extension prompt on browsers without an extension build', () => {
+    mockUseActions.mockReturnValue(createActionsState());
+    mockIsExtensionCapableBrowser.mockReturnValue(false);
 
     renderComponent();
 
