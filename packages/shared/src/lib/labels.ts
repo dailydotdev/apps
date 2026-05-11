@@ -89,7 +89,7 @@ export const labels = {
         clickbaitShield: 'Clickbait shield has been applied for all feeds',
         contentLanguage: 'New language preferences set for all feeds',
         highlightsFirst:
-          'Highlights pinning preference applied to all your feeds',
+          'Happening Now pinning preference applied to all your feeds',
       },
     },
   },
