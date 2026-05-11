@@ -29,18 +29,11 @@ const ProfileMenu = dynamic(
 interface ProfileButtonProps {
   className?: string;
   settingsIconOnly?: boolean;
-  /**
-   * Renders the trigger as just the user's avatar (clickable, opens the
-   * profile menu). Used in places like the sidebar rail where the full
-   * streak/cores/reputation pill doesn't fit.
-   */
-  compact?: boolean;
 }
 
 export default function ProfileButton({
   className,
   settingsIconOnly,
-  compact,
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
   const { user, isAuthReady } = useAuthContext();
@@ -202,27 +195,6 @@ export default function ProfileButton({
 
   if (!isAuthReady || !user) {
     return <></>;
-  }
-
-  if (compact) {
-    return (
-      <>
-        <Tooltip side="right" content="Profile settings">
-          <button
-            type="button"
-            aria-label="Profile settings"
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
-            className={classNames(
-              'focus-outline flex h-10 w-10 items-center justify-center rounded-12 transition-colors hover:bg-surface-hover',
-              className,
-            )}
-          >
-            <ProfilePictureWithIndicator user={user} />
-          </button>
-        </Tooltip>
-        {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
-      </>
-    );
   }
 
   return (
