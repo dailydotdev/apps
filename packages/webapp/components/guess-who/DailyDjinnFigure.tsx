@@ -8,8 +8,9 @@ interface DailyDjinnFigureProps {
   className?: string;
 }
 
-const PUPIL_TRAVEL_X = 16;
-const PUPIL_TRAVEL_Y = 4;
+const PUPIL_TRAVEL_X = 22;
+const PUPIL_TRAVEL_Y_UP = 6;
+const PUPIL_TRAVEL_Y_DOWN = 16;
 
 export const DailyDjinnFigure = ({
   compact = false,
@@ -52,8 +53,9 @@ export const DailyDjinnFigure = ({
       const cy = rect.top + rect.height / 2;
       const dx = mouseX - cx;
       const dy = mouseY - cy;
+      const travelY = dy >= 0 ? PUPIL_TRAVEL_Y_DOWN : PUPIL_TRAVEL_Y_UP;
       const normX = dx / PUPIL_TRAVEL_X;
-      const normY = dy / PUPIL_TRAVEL_Y;
+      const normY = dy / travelY;
       const r = Math.hypot(normX, normY);
       const scale = r === 0 ? 0 : Math.min(1, 1 / r);
       pupil.style.transform = `translate3d(${dx * scale}px, ${
@@ -135,15 +137,19 @@ export const DailyDjinnFigure = ({
       >
         <div
           ref={leftEyeRef}
-          className="djinn-eye relative flex h-10 w-16 items-center justify-center overflow-hidden rounded-[50%]"
+          className="djinn-eye relative flex h-10 w-16 items-center justify-center rounded-[50%]"
         >
-          <div ref={leftPupilRef} className="djinn-pupil djinn-iris" />
+          <div ref={leftPupilRef} className="djinn-pupil">
+            <div className="djinn-iris" />
+          </div>
         </div>
         <div
           ref={rightEyeRef}
-          className="djinn-eye relative flex h-10 w-16 items-center justify-center overflow-hidden rounded-[50%]"
+          className="djinn-eye relative flex h-10 w-16 items-center justify-center rounded-[50%]"
         >
-          <div ref={rightPupilRef} className="djinn-pupil djinn-iris" />
+          <div ref={rightPupilRef} className="djinn-pupil">
+            <div className="djinn-iris" />
+          </div>
         </div>
       </div>
 
@@ -266,28 +272,8 @@ export const DailyDjinnFigure = ({
         }
 
         .djinn-eye {
-          background: radial-gradient(
-            ellipse at center,
-            color-mix(in srgb, var(--theme-accent-onion-bolder) 38%, #000) 0%,
-            color-mix(in srgb, var(--theme-accent-onion-bolder) 18%, #000) 38%,
-            rgba(5, 1, 8, 0.7) 65%,
-            rgba(5, 1, 8, 0.25) 85%,
-            transparent 100%
-          );
-          box-shadow: 0 0 36px
-              color-mix(
-                in srgb,
-                var(--theme-accent-cabbage-default) 55%,
-                transparent
-              ),
-            0 0 90px
-              color-mix(
-                in srgb,
-                var(--theme-accent-onion-bolder) 40%,
-                transparent
-              ),
-            0 0 140px
-              color-mix(in srgb, var(--theme-text-primary) 22%, transparent);
+          position: relative;
+          background: transparent;
         }
 
         .djinn-pupil {
@@ -295,30 +281,47 @@ export const DailyDjinnFigure = ({
           will-change: transform;
         }
         .djinn-iris {
-          position: relative;
-          width: 2rem;
-          height: 2rem;
+          width: 1.5rem;
+          height: 1.5rem;
           border-radius: 9999px;
           background: radial-gradient(
             circle at 50% 50%,
-            #000 0%,
-            #000 14%,
-            color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, #000)
-              26%,
-            color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, #000)
-              50%,
-            color-mix(in srgb, var(--theme-accent-cabbage-default) 50%, #000)
-              70%,
-            color-mix(in srgb, var(--theme-accent-onion-bolder) 50%, #000) 90%,
-            #000 100%
-          );
-          box-shadow: 0 0 12px
-              color-mix(
+            color-mix(in srgb, var(--theme-accent-cabbage-default) 95%, #fff) 0%,
+            color-mix(
                 in srgb,
                 var(--theme-accent-cabbage-default) 70%,
                 transparent
+              )
+              30%,
+            color-mix(
+                in srgb,
+                var(--theme-accent-cabbage-default) 30%,
+                transparent
+              )
+              60%,
+            transparent 85%
+          );
+          filter: blur(2.5px);
+          box-shadow: 0 0 18px
+              color-mix(
+                in srgb,
+                var(--theme-accent-cabbage-default) 80%,
+                transparent
               ),
-            inset 0 0 6px rgba(0, 0, 0, 0.55);
+            0 0 44px
+              color-mix(
+                in srgb,
+                var(--theme-accent-cabbage-default) 45%,
+                transparent
+              ),
+            0 0 80px
+              color-mix(
+                in srgb,
+                var(--theme-accent-onion-bolder) 35%,
+                transparent
+              );
+          will-change: transform, opacity, filter;
+          animation: djinn-ember-pulse 4.5s ease-in-out infinite;
         }
 
         @keyframes djinn-drift-core {
@@ -381,6 +384,25 @@ export const DailyDjinnFigure = ({
           }
         }
 
+        @keyframes djinn-ember-pulse {
+          0%,
+          100% {
+            opacity: 0.88;
+            transform: scale(1) rotate(0deg);
+            filter: blur(2.5px);
+          }
+          35% {
+            opacity: 1;
+            transform: scale(1.08) rotate(2deg);
+            filter: blur(3px);
+          }
+          70% {
+            opacity: 0.95;
+            transform: scale(0.95) rotate(-1.5deg);
+            filter: blur(3.5px);
+          }
+        }
+
         @keyframes djinn-pupil-idle {
           0%,
           100% {
@@ -390,7 +412,7 @@ export const DailyDjinnFigure = ({
             transform: translate3d(${PUPIL_TRAVEL_X}px, 0, 0);
           }
           50% {
-            transform: translate3d(0, ${PUPIL_TRAVEL_Y}px, 0);
+            transform: translate3d(0, ${PUPIL_TRAVEL_Y_DOWN}px, 0);
           }
           75% {
             transform: translate3d(-${PUPIL_TRAVEL_X}px, 0, 0);
@@ -405,7 +427,8 @@ export const DailyDjinnFigure = ({
 
         @media (prefers-reduced-motion: reduce) {
           .djinn-smoke,
-          .djinn-pupil {
+          .djinn-pupil,
+          .djinn-iris {
             animation: none !important;
           }
           .djinn-pupil {
