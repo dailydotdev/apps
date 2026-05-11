@@ -1,11 +1,8 @@
 {
   "extensionName": {
-    "message": "daily.dev | L'actualité des développeurs, bien présentée, dans chaque nouvel onglet"
-  },
-  "extensionShortName": {
-    "message": "daily.dev"
+    "message": "daily.dev | L'actualité dev, bien présentée, à chaque nouvel onglet"
   },
   "extensionDescription": {
-    "message": "Des actualités pour les développeurs, personnalisées en fonction de votre stack, dans chaque nouvel onglet. Rejoignez plus de 400 000 développeurs. Gratuit et open source."
+    "message": "L'actualité des développeurs, personnalisée selon votre stack, dans chaque nouvel onglet. +400 000 devs. Gratuit et open source."
   }
 }

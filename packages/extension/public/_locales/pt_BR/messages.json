@@ -2,10 +2,7 @@
   "extensionName": {
     "message": "daily.dev | Notícias para desenvolvedores do jeito certo, em cada nova guia"
   },
-  "extensionShortName": {
-    "message": "daily.dev"
-  },
   "extensionDescription": {
-    "message": "Notícias para desenvolvedores, personalizadas para a sua tecnologia, em cada nova guia. Junte-se a mais de 400.000 desenvolvedores. Grátis e de código aberto."
+    "message": "Notícias para desenvolvedores, personalizadas para sua tecnologia, em cada nova guia. +400.000 devs. Grátis e open source."
   }
 }

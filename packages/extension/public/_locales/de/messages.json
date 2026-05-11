@@ -2,10 +2,7 @@
   "extensionName": {
     "message": "daily.dev | Entwickler-News, richtig gemacht, in jedem neuen Tab"
   },
-  "extensionShortName": {
-    "message": "daily.dev"
-  },
   "extensionDescription": {
-    "message": "Entwickler-News, personalisiert für Ihren Stack, in jedem neuen Tab. Schließen Sie sich über 400.000 Entwicklern an. Kostenlos und Open Source."
+    "message": "Entwickler-News, personalisiert für Ihren Stack, in jedem neuen Tab. Über 400.000 Entwickler. Kostenlos und Open Source."
   }
 }

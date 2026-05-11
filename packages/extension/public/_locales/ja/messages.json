@@ -2,9 +2,6 @@
   "extensionName": {
     "message": "daily.dev | 開発者向けニュースを、新しいタブごとに適切に提供"
   },
-  "extensionShortName": {
-    "message": "daily.dev"
-  },
   "extensionDescription": {
     "message": "開発者向けニュースを、お使いのスタックに合わせてパーソナライズ。新しいタブを開くたびに表示されます。40万人以上の開発者の仲間入りをしましょう。無料でオープンソース。"
   }

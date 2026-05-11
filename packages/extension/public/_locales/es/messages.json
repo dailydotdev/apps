@@ -1,11 +1,8 @@
 {
   "extensionName": {
-    "message": "daily.dev | Noticias para desarrolladores bien hechas, en cada pestaña nueva"
-  },
-  "extensionShortName": {
-    "message": "daily.dev"
+    "message": "daily.dev | Noticias para devs bien hechas, en cada pestaña nueva"
   },
   "extensionDescription": {
-    "message": "Noticias para desarrolladores, personalizadas según tu pila tecnológica, en cada pestaña nueva. Únete a más de 400 000 de desarrolladores. Gratuito y de código abierto."
+    "message": "Noticias para desarrolladores, personalizadas según tu stack, en cada pestaña nueva. +400.000 devs. Gratis y open source."
   }
 }

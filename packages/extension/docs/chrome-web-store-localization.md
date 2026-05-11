@@ -2,8 +2,8 @@
 
 The Chrome Web Store listing has two localization layers:
 
-1. Extension package metadata: `name`, `short_name`, and `description` come from `public/_locales/<locale>/messages.json` and are referenced from `src/manifest.json`.
-2. Store listing copy: the long description, category, screenshots, promo text, and other listing fields are managed in the Chrome Web Store developer dashboard per language.
+1. Extension package metadata: `name` and `description` come from `public/_locales/<locale>/messages.json` and are referenced from `src/manifest.json`.
+2. Store listing copy: the long description, localized screenshots, and localized promo video are managed in the Chrome Web Store developer dashboard per language.
 
 ## Supported locales
 
@@ -37,7 +37,7 @@ For each language, prepare:
 - Short description
 - Detailed description
 - Screenshot captions or translated screenshots, if used
-- Promotional tile text, if used
+- Localized promo video URL, if used
 - Any support or policy text shown on the listing
 
 The dashboard work is manual; these longer listing fields are not stored in the extension package.

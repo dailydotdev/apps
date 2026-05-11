@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "default_locale": "en",
   "name": "__MSG_extensionName__",
-  "short_name": "__MSG_extensionShortName__",
+  "short_name": "daily.dev",
   "description": "__MSG_extensionDescription__",
   "homepage_url": "https://daily.dev",
   "icons": {
