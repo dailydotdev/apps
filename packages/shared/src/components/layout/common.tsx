@@ -41,6 +41,7 @@ import {
   BrowserName,
   checkIsExtension,
   getCurrentBrowserName,
+  isExtensionCapableBrowser,
   isNullOrUndefined,
 } from '../../lib/func';
 import { downloadBrowserExtension } from '../../lib/constants';
@@ -104,7 +105,9 @@ export const SearchControlHeader = ({
     ActionType.DismissInstallExtension,
   );
   const canInstallExtension =
-    !checkIsExtension() && isNullOrUndefined(user?.flags?.lastExtensionUse);
+    !checkIsExtension() &&
+    isExtensionCapableBrowser() &&
+    isNullOrUndefined(user?.flags?.lastExtensionUse);
   const shouldEvaluateInstallExtensionPrompt =
     hasFeedActions &&
     isActionsFetched &&
