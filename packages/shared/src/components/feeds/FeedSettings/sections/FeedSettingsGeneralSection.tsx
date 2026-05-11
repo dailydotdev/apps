@@ -180,14 +180,14 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <Typography bold type={TypographyType.Body}>
-            Pin highlights to top
+            Pin Happening Now to top
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Tertiary}
           >
-            When highlights appear in your feed, show them in the first
-            position. Otherwise they&apos;re placed somewhere near the top.
+            When Happening Now appears in your feed, show it in the first
+            position. Otherwise it&apos;s placed somewhere near the top.
           </Typography>
         </div>
         <Switch
@@ -215,7 +215,7 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             });
           }}
         >
-          Pin highlights to first position
+          Pin Happening Now to first position
         </Switch>
       </div>
       {isCustomFeed && (
