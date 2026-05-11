@@ -19,8 +19,14 @@ import { useAuthContext } from '../../../../contexts/AuthContext';
 import { ColorName } from '../../../../styles/colors';
 import useProfileForm from '../../../../hooks/useProfileForm';
 import { FeedType } from '../../../../graphql/feed';
-import { usePlusSubscription } from '../../../../hooks';
+import { usePlusSubscription, useToastNotification } from '../../../../hooks';
 import { Tooltip } from '../../../tooltip/Tooltip';
+import { Switch } from '../../../fields/Switch';
+import { useSettingsContext } from '../../../../contexts/SettingsContext';
+import { SidebarSettingsFlags } from '../../../../graphql/settings';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin, TargetId } from '../../../../lib/log';
+import { labels } from '../../../../lib';
 
 export const FeedSettingsGeneralSection = (): ReactElement => {
   const { setData, data, feed, onDelete, editFeedSettings } = useContext(
@@ -31,6 +37,9 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
   const isMainFeed = feed?.type === FeedType.Main;
   const isCustomFeed = feed?.type === FeedType.Custom;
   const { isPlus } = usePlusSubscription();
+  const { flags, updateFlag } = useSettingsContext();
+  const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
 
   const isDefaultFeed = isMainFeed
     ? user.defaultFeedId === null
@@ -166,6 +175,48 @@ export const FeedSettingsGeneralSection = (): ReactElement => {
             </div>
           </Tooltip>
         )}
+      </div>
+      <Divider className="my-1 bg-border-subtlest-tertiary" />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography bold type={TypographyType.Body}>
+            Pin Happening Now to top
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Tertiary}
+          >
+            When Happening Now appears in your feed, show it in the first
+            position. Otherwise it&apos;s placed somewhere near the top.
+          </Typography>
+        </div>
+        <Switch
+          inputId="highlights-first-switch"
+          name="highlights_first"
+          compact={false}
+          checked={flags?.highlightsFirstEnabled ?? false}
+          onClick={async () => {
+            const newState = !(flags?.highlightsFirstEnabled ?? false);
+            await updateFlag(
+              SidebarSettingsFlags.HighlightsFirstEnabled,
+              newState,
+            );
+
+            displayToast(
+              labels.feed.settings.globalPreferenceNotice.highlightsFirst,
+            );
+
+            logEvent({
+              event_name: LogEvent.ToggleHighlightsFirst,
+              target_id: newState ? TargetId.On : TargetId.Off,
+              extra: JSON.stringify({
+                origin: Origin.Settings,
+              }),
+            });
+          }}
+        >
+          Pin Happening Now to first position
+        </Switch>
       </div>
       {isCustomFeed && (
         <>
