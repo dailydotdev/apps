@@ -236,7 +236,7 @@ export const SidebarDesktop = ({
     <SidebarAside
       data-testid="sidebar-aside"
       className={classNames(
-        'laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
+        'laptop:flex-row laptop:border-r-0 laptop:bg-surface-float',
         sidebarExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
         // No global header on laptop with the dual sidebar, so the rail
         // can hug the very top of the viewport. The banner still offsets
@@ -277,7 +277,7 @@ export const SidebarDesktop = ({
                 onClick={() => onSelectCategory(category.id)}
                 className={classNames(
                   railButtonClass,
-                  isSelected && 'bg-surface-float text-text-primary',
+                  isSelected && 'bg-surface-active text-text-primary',
                 )}
               >
                 {category.icon(isSelected)}
@@ -303,9 +303,7 @@ export const SidebarDesktop = ({
             <div className="flex h-10 w-10 items-center justify-center">
               <NotificationsBell />
             </div>
-            <div className="flex h-10 w-10 items-center justify-center">
-              <ProfileButton settingsIconOnly />
-            </div>
+            <ProfileButton compact />
           </>
         )}
         <Tooltip
@@ -350,9 +348,14 @@ export const SidebarDesktop = ({
         </SidebarScrollWrapper>
 
         {isLoggedIn && (
-          <div className="flex items-center justify-end gap-1 border-t border-border-subtlest-tertiary px-2 py-2">
-            <OpportunityEntryButton />
-            <QuestHeaderButton compact />
+          <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary px-2 py-2">
+            <div className="flex items-center justify-end gap-1">
+              <OpportunityEntryButton />
+              <QuestHeaderButton compact />
+            </div>
+            <div className="flex justify-end">
+              <ProfileButton />
+            </div>
           </div>
         )}
 

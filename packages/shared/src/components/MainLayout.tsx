@@ -223,15 +223,7 @@ function MainLayoutComponent({
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        <div
-          className={classNames(
-            'flex min-h-0 flex-1 flex-col',
-            sidebarOwnsHeader &&
-              'laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-hidden laptop:rounded-24 laptop:bg-surface-float laptop:shadow-2',
-          )}
-        >
-          {children}
-        </div>
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </main>
       {!hideFeedbackWidget && <FeedbackWidget />}
     </div>
