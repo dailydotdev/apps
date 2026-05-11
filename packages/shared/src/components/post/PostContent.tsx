@@ -1,9 +1,15 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
-import { isVideoPost, PostType } from '../../graphql/posts';
+import { getReadArticleHref, isVideoPost, PostType } from '../../graphql/posts';
 import { isEmbeddableSiteTarget } from '../../features/extensionEmbed/common';
 import PostMetadata from '../cards/common/PostMetadata';
 import { PostWidgets } from './PostWidgets';
@@ -22,11 +28,11 @@ import type { PostContentProps, PostNavigationProps } from './common';
 import { PostContainer } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
 import { useAuthContext } from '../../contexts/AuthContext';
+import SettingsContext from '../../contexts/SettingsContext';
 import { useViewPost } from '../../hooks/post';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
-import { feature, featureReaderModal } from '../../lib/featureManagement';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { feature } from '../../lib/featureManagement';
 import { LazyImage } from '../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { withPostById } from './withPostById';
@@ -39,6 +45,7 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { EarthIcon } from '../icons';
 import { Drawer } from '../drawers/Drawer';
 import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -110,6 +117,8 @@ export function PostContentRaw({
     post,
   });
   const { onCopyPostLink, onReadArticle } = engagementActions;
+  const { openNewTab } = useContext(SettingsContext);
+  const readArticleHref = getReadArticleHref(post);
   const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
@@ -134,14 +143,13 @@ export function PostContentRaw({
     post.permalink && isEmbeddableSiteTarget(post.permalink)
       ? post.permalink
       : null;
+  const { isEligible: isReaderEligible, isReaderModalEnabled } =
+    useReaderModalEligibility();
 
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const { value: isReaderModalEnabled } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: true,
-  });
   const showArticlePreviewEmbed =
     isPreviewHydrated &&
+    isReaderEligible &&
     isReaderModalEnabled &&
     !isLegacyLayoutOptedOut &&
     !isVideoType &&
@@ -621,6 +629,9 @@ export function PostContentRaw({
                   previewHost={post.domain ?? undefined}
                   onPreviewUnavailable={onPreviewUnavailable}
                   forceUnavailable={isArticlePreviewUnavailable}
+                  targetHref={readArticleHref}
+                  onTargetLinkClick={onReadArticle}
+                  targetLinkInNewTab={openNewTab}
                 />
               )}
             </div>
@@ -640,6 +651,9 @@ export function PostContentRaw({
                 previewHost={post.domain ?? undefined}
                 onPreviewUnavailable={onPreviewUnavailable}
                 forceUnavailable={isArticlePreviewUnavailable}
+                targetHref={readArticleHref}
+                onTargetLinkClick={onReadArticle}
+                targetLinkInNewTab={openNewTab}
               />
             </div>
           )}
@@ -659,6 +673,9 @@ export function PostContentRaw({
               onPreviewUnavailable={onPreviewUnavailable}
               forceUnavailable={isArticlePreviewUnavailable}
               className="!flex"
+              targetHref={readArticleHref}
+              onTargetLinkClick={onReadArticle}
+              targetLinkInNewTab={openNewTab}
             />
           </Drawer>
         </div>

@@ -1,11 +1,19 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { getReadArticleHref } from '../../../graphql/posts';
 import type { PostPosition } from '../../../hooks/usePostModalNavigation';
 import { ActivePostContextProvider } from '../../../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../../../contexts/LogExtraContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import SettingsContext from '../../../contexts/SettingsContext';
 import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { ReaderContextProvider } from './ReaderContext';
 import { ReaderChrome } from './ReaderChrome';
@@ -51,8 +59,10 @@ export function ReaderPostLayout({
 }: ReaderPostLayoutProps): ReactElement {
   const { targetUrl, isEmbeddable } = useIframeEmbed(post.permalink);
   const { logEvent } = useLogContext();
+  const { openNewTab } = useContext(SettingsContext);
   const surface = isPostPage ? Origin.ArticlePage : Origin.ArticleModal;
   const onReadArticle = useReadArticle({ post, origin: surface });
+  const readArticleHref = getReadArticleHref(post);
   const hasEmbed = !!targetUrl && isEmbeddable;
 
   useEffect(() => {
@@ -73,9 +83,9 @@ export function ReaderPostLayout({
   // same as clicking "Read article" in the classic flow. Fire the same click
   // handler — reading-streak credit, read-cache update, and the server view
   // event (the iframe loads the redirector permalink which calls notifyView
-  // server-side) — but only once the iframe actually reaches `ready`. Firing
-  // on mount would credit reads even when the install prompt or permission
-  // gate is showing in place of the article.
+  // server-side) — but only once the target document reports DOM ready.
+  // Firing on mount would credit reads even when the install prompt or
+  // permission gate is showing in place of the article.
   // The fallback path keeps the external "Read on host" link, which wires
   // streak credit at click time in `ReaderFallback`.
   const hasCreditedReadRef = useRef(false);
@@ -210,6 +220,9 @@ export function ReaderPostLayout({
                     isPostPage={isPostPage}
                     contentTopOffsetPx={CHROME_TOP_OFFSET_PX}
                     onEmbedReady={onEmbedReady}
+                    targetHref={readArticleHref}
+                    onTargetLinkClick={onReadArticle}
+                    targetLinkInNewTab={openNewTab}
                   />
                   {!hasEmbeddedReaderHeader && (
                     <ReaderChrome

@@ -16,6 +16,9 @@ type ArticleReaderFrameProps = {
   fallbackScrollRef?: Ref<HTMLDivElement>;
   contentTopOffsetPx?: number;
   onEmbedReady?: () => void;
+  targetHref?: string;
+  onTargetLinkClick?: () => void;
+  targetLinkInNewTab?: boolean;
 };
 
 export function ArticleReaderFrame({
@@ -28,6 +31,9 @@ export function ArticleReaderFrame({
   fallbackScrollRef,
   contentTopOffsetPx = 0,
   onEmbedReady,
+  targetHref,
+  onTargetLinkClick,
+  targetLinkInNewTab,
 }: ArticleReaderFrameProps): ReactElement {
   const isFallback = !targetUrl || !isEmbeddable;
 
@@ -65,6 +71,9 @@ export function ArticleReaderFrame({
         collapseOnUnavailable={false}
         className="!flex min-h-0 flex-1"
         onEmbedReady={onEmbedReady}
+        targetHref={targetHref}
+        onTargetLinkClick={onTargetLinkClick}
+        targetLinkInNewTab={targetLinkInNewTab}
       />
     </div>
   );

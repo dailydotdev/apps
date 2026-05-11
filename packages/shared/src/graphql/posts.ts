@@ -120,6 +120,16 @@ export const getPostReadTarget = <
   };
 };
 
+/**
+ * Resolve the external URL the "Read post" affordance should navigate to.
+ * For shared posts that falls through to the original article's permalink;
+ * otherwise the post's own permalink.
+ */
+export const getReadArticleHref = (
+  post: Pick<Post, 'type' | 'subType' | 'sharedPost' | 'permalink'>,
+): string | undefined =>
+  getPostReadTarget(post).target?.permalink ?? post.permalink;
+
 export const getReadPostButtonText = (post: Post): string => {
   if (isVideoPost(post)) {
     return 'Watch video';
