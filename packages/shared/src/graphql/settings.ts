@@ -44,6 +44,7 @@ export type SettingsFlags = {
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
   clickbaitShieldEnabled: boolean;
+  highlightsFirstEnabled?: boolean;
   timezoneMismatchIgnore?: string;
   prompt?: Record<string, boolean>;
   defaultWriteTab?: WriteFormTab;
@@ -65,6 +66,7 @@ export enum SidebarSettingsFlags {
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
+  HighlightsFirstEnabled = 'highlightsFirstEnabled',
 }
 
 export type RemoteSettings = {

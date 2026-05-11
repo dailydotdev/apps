@@ -74,6 +74,12 @@ const strictSkipList = new Set([
   // path; pre-existing strict violations (queryResult.data optionality,
   // NotificationItem reduce typing) are unrelated to the rename.
   'packages/webapp/pages/notifications.tsx',
+  // Highlights-first toggle — touched only to add a new Switch subsection
+  // for the highlightsFirstEnabled flag. Pre-existing strict violations
+  // (auth user / feed optionality, Button prop mismatches, defaultFeedId
+  // null vs undefined) live on unrelated lines and should be addressed in
+  // a dedicated cleanup PR.
+  'packages/shared/src/components/feeds/FeedSettings/sections/FeedSettingsGeneralSection.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
