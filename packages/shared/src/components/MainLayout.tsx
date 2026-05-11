@@ -37,6 +37,7 @@ import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
 import { ExtensionStoreReviewPrompt } from './referral/ExtensionStoreReviewPrompt';
+import { ReferralGrowthTestingPanel } from './referral/ReferralGrowthTestingPanel';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -187,6 +188,7 @@ function MainLayoutComponent({
       <InAppNotificationElement />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <ReferralGrowthTestingPanel />
       <ExtensionStoreReviewPrompt />
       <BootPopups />
       <SpotlightHost />
