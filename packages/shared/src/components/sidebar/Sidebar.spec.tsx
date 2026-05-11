@@ -16,7 +16,33 @@ import { waitForNock } from '../../../__tests__/helpers/utilities';
 import ProgressiveEnhancementContext from '../../contexts/ProgressiveEnhancementContext';
 import type { Alerts } from '../../graphql/alerts';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
+import { SpotlightProvider } from '../spotlight/SpotlightContext';
 import { SidebarDesktop } from './SidebarDesktop';
+
+jest.mock('../notifications/NotificationsBell', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../profile/ProfileButton', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+jest.mock('../opportunity/OpportunityEntryButton', () => ({
+  __esModule: true,
+  OpportunityEntryButton: () => null,
+}));
+jest.mock('../header/QuestHeaderButton', () => ({
+  __esModule: true,
+  QuestHeaderButton: () => null,
+}));
+jest.mock('../help/HelpWidget', () => ({
+  __esModule: true,
+  HelpWidget: () => null,
+}));
+jest.mock('../layout/HeaderLogo', () => ({
+  __esModule: true,
+  default: () => null,
+}));
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -80,11 +106,13 @@ const renderComponent = (
             }}
           >
             <SettingsContext.Provider value={settingsContext}>
-              <SidebarDesktop
-                activePage="my-feed"
-                onNavTabClick={jest.fn()}
-                isNavButtons={false}
-              />
+              <SpotlightProvider>
+                <SidebarDesktop
+                  activePage="my-feed"
+                  onNavTabClick={jest.fn()}
+                  isNavButtons={false}
+                />
+              </SpotlightProvider>
             </SettingsContext.Provider>
           </ProgressiveEnhancementContext.Provider>
         </AuthContext.Provider>

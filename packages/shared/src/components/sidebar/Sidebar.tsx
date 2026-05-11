@@ -52,6 +52,7 @@ export const Sidebar = ({
         featureTheme={featureTheme}
         isNavButtons={isNavButtons}
         onNavTabClick={onNavTabClick}
+        onLogoClick={onLogoClick}
       />
     );
   }

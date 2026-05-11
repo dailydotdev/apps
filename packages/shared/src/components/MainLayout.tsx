@@ -84,12 +84,17 @@ function MainLayoutComponent({
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, showLogin } = useAuthContext();
+  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { sidebarExpanded, autoDismissNotifications } =
     useContext(SettingsContext);
+  // The dual-sidebar layout takes ownership of the global header chrome
+  // (logo + search + user actions) for authenticated users on laptop+.
+  // When that's the case we hide the global header and switch the main
+  // content over to the floating card treatment.
+  const sidebarOwnsHeader = isLoggedIn && showSidebar && sidebarRendered;
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
@@ -202,11 +207,12 @@ function MainLayoutComponent({
       />
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
+          'flex flex-col transition-[padding] duration-300 ease-in-out',
           showSidebar && 'tablet:pl-16 laptop:pl-16',
+          !sidebarOwnsHeader && 'laptop:pt-16',
+          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
           className,
           isAuthReady && showSidebar && sidebarExpanded && 'laptop:!pl-[19rem]',
-          isBannerAvailable && 'laptop:pt-24',
         )}
       >
         {isAuthReady && showSidebar && (
@@ -220,9 +226,8 @@ function MainLayoutComponent({
         <div
           className={classNames(
             'flex min-h-0 flex-1 flex-col',
-            showSidebar &&
-              isAuthReady &&
-              'laptop:m-4 laptop:min-h-[calc(100vh-5rem)] laptop:rounded-24 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-surface-float laptop:shadow-2',
+            sidebarOwnsHeader &&
+              'laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-hidden laptop:rounded-24 laptop:bg-surface-float laptop:shadow-2',
           )}
         >
           {children}

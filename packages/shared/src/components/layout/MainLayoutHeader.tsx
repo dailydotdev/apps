@@ -17,6 +17,7 @@ import FeedNav from '../feeds/FeedNav';
 import { MobileExploreHeader } from '../header/MobileExploreHeader';
 import useActiveNav from '../../hooks/useActiveNav';
 import { SpotlightTrigger } from '../spotlight/SpotlightTrigger';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -35,12 +36,8 @@ function MainLayoutHeader({
   sidebarRendered,
   additionalButtons,
   onLogoClick,
-}: MainLayoutHeaderProps): ReactElement {
-  const { loadedSettings, sidebarExpanded } = useSettingsContext();
-  // Header is `fixed` so it escapes the parent's `padding-right`. Read
-  // the customize sidebar width directly here and shrink the header to
-  // match — keeps it from sliding under the panel and lets it animate
-  // alongside the feed.
+}: MainLayoutHeaderProps): ReactElement | null {
+  const { loadedSettings } = useSettingsContext();
   const { panelWidth } = useCustomizeNewTab();
   const [hasHydrated, setHasHydrated] = useState(false);
   const { streak, isStreaksEnabled } = useReadingStreak();
@@ -62,11 +59,13 @@ function MainLayoutHeader({
     shouldUseLoadedSettings && isMobile && isSearchPage;
   const shouldRenderFeedNav =
     shouldUseLoadedSettings && isMobile && !isSearchPage;
-  const sidebarWidth = sidebarRendered
-    ? sidebarExpanded
-      ? '19rem'
-      : '4rem'
-    : undefined;
+  const { isLoggedIn } = useAuthContext();
+  // The dual-sidebar layout owns the logo, search, and action buttons on
+  // laptop+ for authenticated users. Skip the global header entirely so
+  // chrome isn't duplicated and the content card can sit flush to the top.
+  // Logged-out users still see the header because the sidebar doesn't
+  // surface a login control.
+  const shouldHideForSidebar = isLaptop && !!sidebarRendered && isLoggedIn;
   const customizerWidth = panelWidth ? `${panelWidth}px` : '0px';
 
   useEffect(() => {
@@ -93,6 +92,10 @@ function MainLayoutHeader({
     );
   }, [shouldUseLoadedSettings, isSearchPage, hasBanner]);
 
+  if (shouldHideForSidebar) {
+    return null;
+  }
+
   if (shouldRenderFeedNav) {
     return (
       <>
@@ -116,16 +119,11 @@ function MainLayoutHeader({
       )}
       style={{
         ...(featureTheme ? featureTheme.navbar : undefined),
-        left: sidebarWidth,
         right: panelWidth || undefined,
-        width:
-          sidebarWidth || panelWidth
-            ? `calc(100% - ${sidebarWidth ?? '0rem'} - ${customizerWidth})`
-            : undefined,
-        transition:
-          sidebarWidth || panelWidth
-            ? 'left 300ms ease-in-out, right 200ms ease-in-out, width 300ms ease-in-out'
-            : undefined,
+        width: panelWidth ? `calc(100% - ${customizerWidth})` : undefined,
+        transition: panelWidth
+          ? 'right 200ms ease-in-out, width 300ms ease-in-out'
+          : undefined,
       }}
     >
       {isMobileSearchPage ? (
