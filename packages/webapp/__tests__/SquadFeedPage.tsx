@@ -464,7 +464,7 @@ describe('squad header bar', () => {
       permissions: [SourcePermissions.Invite],
     };
     renderComponent();
-    const invite = await screen.findByText('Invitation link');
+    const invite = await screen.findByText('Invite colleagues');
 
     mockGraphQL({
       request: {
@@ -494,7 +494,7 @@ describe('squad header bar', () => {
       createBasicSourceMembersMock(),
       createTopMembersBySquadMock(),
     ]);
-    const invite = await screen.findByText('Invitation link');
+    const invite = await screen.findByText('Invite colleagues');
 
     mockGraphQL({
       request: {

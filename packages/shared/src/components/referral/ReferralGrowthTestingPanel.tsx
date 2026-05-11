@@ -11,6 +11,7 @@ import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import {
   chromeWebStoreReviewUrl,
+  isTesting,
   settingsUrl,
   webappUrl,
 } from '../../lib/constants';
@@ -61,7 +62,7 @@ const getWebappUrl = (): string => {
   return `${window.location.origin}/`;
 };
 
-export function ReferralGrowthTestingPanel(): ReactElement {
+export function ReferralGrowthTestingPanel(): ReactElement | null {
   const { user } = useAuthContext();
   const { openModal } = useLazyModal();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -71,6 +72,10 @@ export function ReferralGrowthTestingPanel(): ReactElement {
   const profileUrl = user?.username
     ? `${qaWebappUrl}${user.username}`
     : qaWebappUrl;
+
+  if (isTesting) {
+    return null;
+  }
 
   if (isCollapsed) {
     return (
