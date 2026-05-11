@@ -16,6 +16,7 @@ import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
   BookmarkIcon,
+  CoreIcon,
   HashtagIcon,
   HomeIcon,
   HotIcon,
@@ -38,6 +39,13 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import ProfileButton from '../profile/ProfileButton';
+import { ReputationUserBadge } from '../ReputationUserBadge';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
+import { useHasAccessToCores } from '../../hooks/useCoresFeature';
+import Link from '../utilities/Link';
+import { walletUrl } from '../../lib/constants';
+import { largeNumberFormat } from '../../lib';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -112,6 +120,73 @@ const getSidebarCategoryForPath = (
 
 const railButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
+
+const SidebarProfileSummary = (): ReactElement | null => {
+  const { user } = useAuthContext();
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+  const hasCoresAccess = useHasAccessToCores();
+
+  if (!user) {
+    return null;
+  }
+
+  const shouldShowStats = (isStreaksEnabled && streak) || hasCoresAccess;
+
+  return (
+    <div className="rounded-16 bg-surface-primary p-2">
+      <div className="flex min-w-0 items-center gap-2">
+        <ProfileButton compact className="shrink-0" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-bold text-text-primary typo-callout">
+            {user.name || user.username}
+          </p>
+          <div className="mt-0.5 flex items-center text-text-tertiary">
+            <ReputationUserBadge
+              className="!typo-caption1"
+              user={{ reputation: user.reputation ?? 0 }}
+              iconProps={{ size: IconSize.XSmall }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {shouldShowStats && (
+        <div className="mt-2 flex min-w-0 items-center gap-1.5">
+          {isStreaksEnabled && streak && (
+            <ReadingStreakButton
+              streak={streak}
+              isLoading={isLoading}
+              compact
+              className="min-w-0 rounded-10 bg-surface-active px-2"
+            />
+          )}
+          {hasCoresAccess && (
+            <Tooltip
+              content={
+                <>
+                  Wallet
+                  <br />
+                  {largeNumberFormat(user.balance.amount)} Cores
+                </>
+              }
+            >
+              <div className="min-w-0">
+                <Link href={walletUrl} passHref>
+                  <a className="focus-outline flex h-8 min-w-0 items-center gap-1.5 rounded-10 bg-surface-active px-2 text-text-tertiary transition-colors hover:text-text-primary">
+                    <CoreIcon size={IconSize.Size16} />
+                    <span className="truncate typo-caption1">
+                      {largeNumberFormat(user.balance.amount)}
+                    </span>
+                  </a>
+                </Link>
+              </div>
+            </Tooltip>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -348,13 +423,11 @@ export const SidebarDesktop = ({
         </SidebarScrollWrapper>
 
         {isLoggedIn && (
-          <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary px-2 py-2">
-            <div className="flex items-center justify-end gap-1">
+          <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary px-3 py-3">
+            <SidebarProfileSummary />
+            <div className="flex items-center justify-end gap-1 px-0.5">
               <OpportunityEntryButton />
               <QuestHeaderButton compact />
-            </div>
-            <div className="flex justify-end">
-              <ProfileButton />
             </div>
           </div>
         )}
