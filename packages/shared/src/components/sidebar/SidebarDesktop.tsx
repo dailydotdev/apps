@@ -475,9 +475,6 @@ export const SidebarDesktop = ({
               </React.Fragment>
             );
           })}
-        </div>
-
-        <div className="mt-auto flex flex-col items-center gap-1">
           {profileHref && (
             <Tooltip side="right" content="Profile">
               <div>
@@ -499,7 +496,9 @@ export const SidebarDesktop = ({
               </div>
             </Tooltip>
           )}
+        </div>
 
+        <div className="mt-auto flex flex-col items-center gap-1">
           <Tooltip side="right" content="Settings">
             <div>
               <Link href={settingsUrl} passHref>
