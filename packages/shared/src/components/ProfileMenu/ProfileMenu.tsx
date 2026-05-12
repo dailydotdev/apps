@@ -15,10 +15,11 @@ import { TargetId } from '../../lib/log';
 import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
+import { ProfileMenuStats } from './ProfileMenuStats';
 import { HorizontalSeparator } from '../utilities';
+import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 
 import { ProfileSection } from './ProfileSection';
-import { ResourceSection } from './sections/ResourceSection';
 import { AccountSection } from './sections/AccountSection';
 import { MainSection } from './sections/MainSection';
 import { ThemeSection } from './sections/ThemeSection';
@@ -35,10 +36,12 @@ const ExtensionSection = dynamic(() =>
 
 interface ProfileMenuProps {
   onClose: () => void;
+  position?: InteractivePopupPosition;
 }
 
 export default function ProfileMenu({
   onClose,
+  position = InteractivePopupPosition.ProfileMenu,
 }: ProfileMenuProps): ReactElement | null {
   const { events } = useRouter();
   const { user, logout } = useAuthContext();
@@ -62,11 +65,13 @@ export default function ProfileMenu({
     <InteractivePopup
       onClose={onClose}
       closeOutsideClick
-      position={InteractivePopupPosition.ProfileMenu}
+      position={position}
       className="flex max-h-[calc(100vh-4rem)] w-full max-w-80 flex-col gap-3 overflow-y-auto !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
     >
       {showProfileCompletion && <ProfileCompletion />}
       <ProfileMenuHeader />
+      <ProfileMenuStats />
+      <OpportunityEntryButton variant="profileMenu" />
 
       <UpgradeToPlus
         target={TargetId.ProfileDropdown}
@@ -91,7 +96,6 @@ export default function ProfileMenu({
 
         <HorizontalSeparator />
 
-        <ResourceSection />
         <FeedbackButtonSection className="px-1" />
 
         <HorizontalSeparator />

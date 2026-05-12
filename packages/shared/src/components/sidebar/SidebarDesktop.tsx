@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
@@ -10,34 +10,44 @@ import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { CreatePostButton } from '../post/write';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
 import {
   BookmarkIcon,
-  HashtagIcon,
+  FeedbackIcon,
   HomeIcon,
-  HotIcon,
-  SourceIcon,
   SearchIcon,
+  SettingsIcon,
   SidebarArrowLeft,
   SidebarArrowRight,
+  SquadIcon,
 } from '../icons';
+import { fromCDN } from '../../lib/links';
 import { IconSize } from '../Icon';
 import {
   SidebarSelectedCategory,
   SidebarSettingsFlags,
 } from '../../graphql/settings';
 import { Tooltip } from '../tooltip/Tooltip';
-import HeaderLogo from '../layout/HeaderLogo';
-import { LogoPosition } from '../Logo';
 import { useSpotlight } from '../spotlight/useSpotlight';
 import { useAuthContext } from '../../contexts/AuthContext';
 import NotificationsBell from '../notifications/NotificationsBell';
-import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import ProfileButton from '../profile/ProfileButton';
+import { HighlightPostSidebarWidget } from '../cards/highlight/HighlightPostSidebarWidget';
+import { ReadingStreakButton } from '../streak/ReadingStreakButton';
+import { useReadingStreak } from '../../hooks/streaks';
+import Link from '../utilities/Link';
+import { settingsUrl, webappUrl } from '../../lib/constants';
+import { FeedbackWidget } from '../feedback';
+import { isAppleDevice } from '../../lib/func';
+import InteractivePopup, {
+  InteractivePopupPosition,
+} from '../tooltips/InteractivePopup';
+import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
+import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -48,23 +58,21 @@ type SidebarCategoryConfig = {
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
     id: SidebarSelectedCategory.Main,
-    label: 'Main',
+    label: 'Home',
     icon: (active) => (
-      <HomeIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
-  },
-  {
-    id: SidebarSelectedCategory.Feeds,
-    label: 'Feeds',
-    icon: (active) => (
-      <HashtagIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <HomeIcon
+        secondary={active}
+        size={IconSize.Small}
+        aria-hidden
+        className={active ? '[&_path]:!fill-current' : undefined}
+      />
     ),
   },
   {
     id: SidebarSelectedCategory.Squads,
     label: 'Squads',
     icon: (active) => (
-      <SourceIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <SquadIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
   {
@@ -72,13 +80,6 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Saved',
     icon: (active) => (
       <BookmarkIcon secondary={active} size={IconSize.Small} aria-hidden />
-    ),
-  },
-  {
-    id: SidebarSelectedCategory.Discover,
-    label: 'Discover',
-    icon: (active) => (
-      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
 ];
@@ -94,24 +95,82 @@ const getSidebarCategoryForPath = (
     return SidebarSelectedCategory.Squads;
   }
 
-  if (activePage.includes('/feeds/')) {
-    return SidebarSelectedCategory.Feeds;
+  return SidebarSelectedCategory.Main;
+};
+
+const normalizeSidebarCategory = (
+  category?: SidebarSelectedCategory,
+): SidebarSelectedCategory => {
+  if (!category) {
+    return SidebarSelectedCategory.Main;
   }
 
   if (
-    activePage.includes('/tags') ||
-    activePage.includes('/sources') ||
-    activePage.includes('/users') ||
-    activePage.includes('/discussed')
+    category === SidebarSelectedCategory.Feeds ||
+    category === SidebarSelectedCategory.Discover
   ) {
-    return SidebarSelectedCategory.Discover;
+    return SidebarSelectedCategory.Main;
   }
 
-  return SidebarSelectedCategory.Main;
+  return category;
 };
 
 const railButtonClass =
   'flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline';
+const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
+
+const SidebarSupportButton = (): ReactElement => {
+  const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
+
+  return (
+    <>
+      <Tooltip side="right" content="Support">
+        <button
+          type="button"
+          aria-label="Support"
+          aria-expanded={isOpen}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+          className={classNames(
+            railButtonClass,
+            isOpen && 'bg-background-default text-text-primary',
+          )}
+        >
+          <FeedbackIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
+        </button>
+      </Tooltip>
+      {isOpen && (
+        <InteractivePopup
+          closeOutsideClick
+          onClose={() => onUpdate(false)}
+          position={InteractivePopupPosition.SidebarSupportMenu}
+          className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
+        >
+          <ResourceSection />
+        </InteractivePopup>
+      )}
+    </>
+  );
+};
+
+const SidebarStreakButton = (): ReactElement | null => {
+  const { streak, isLoading, isStreaksEnabled } = useReadingStreak();
+
+  if (!isStreaksEnabled || !streak) {
+    return null;
+  }
+
+  return (
+    <ReadingStreakButton
+      streak={streak}
+      isLoading={isLoading}
+      compact
+      iconPosition={ButtonIconPosition.Right}
+      iconSize={IconSize.Size16}
+      appendTooltipToBody
+      className="h-7 rounded-10 px-2 hover:bg-surface-hover"
+    />
+  );
+};
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -120,15 +179,19 @@ type SidebarDesktopProps = {
     logoText?: string;
   };
   isNavButtons?: boolean;
+  showFeedbackWidget?: boolean;
   onNavTabClick?: (tab: string) => void;
   onLogoClick?: (e: React.MouseEvent) => unknown;
+  additionalButtons?: ReactNode;
 };
 export const SidebarDesktop = ({
   activePage: activePageProp,
   featureTheme,
   isNavButtons,
+  showFeedbackWidget,
   onNavTabClick,
   onLogoClick,
+  additionalButtons,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
   const { flags, sidebarExpanded, toggleSidebarExpanded, updateFlag } =
@@ -138,19 +201,29 @@ export const SidebarDesktop = ({
   const { open: openSpotlight } = useSpotlight();
   const { isLoggedIn } = useAuthContext();
   const activePage = activePageProp || router.asPath || router.pathname;
+  const isFeedPage = activePage.includes('/feeds/');
   const [selectedCategory, setSelectedCategory] = useState(
-    flags?.sidebarSelectedCategory ?? getSidebarCategoryForPath(activePage),
+    isFeedPage
+      ? SidebarSelectedCategory.Main
+      : normalizeSidebarCategory(
+          flags?.sidebarSelectedCategory ?? getSidebarCategoryForPath(activePage),
+        ),
   );
 
   useEffect(() => {
     const activeCategory = getSidebarCategoryForPath(activePage);
 
+    if (isFeedPage) {
+      setSelectedCategory(SidebarSelectedCategory.Main);
+      return;
+    }
+
     setSelectedCategory(
       activeCategory === SidebarSelectedCategory.Main
-        ? flags?.sidebarSelectedCategory ?? activeCategory
+        ? normalizeSidebarCategory(flags?.sidebarSelectedCategory)
         : activeCategory,
     );
-  }, [activePage, flags?.sidebarSelectedCategory]);
+  }, [activePage, flags?.sidebarSelectedCategory, isFeedPage]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -177,17 +250,6 @@ export const SidebarDesktop = ({
   }, [logEvent, sidebarExpanded, toggleSidebarExpanded]);
 
   const renderSelectedSection = (): ReactElement => {
-    if (selectedCategory === SidebarSelectedCategory.Feeds) {
-      return (
-        <CustomFeedSection
-          {...defaultRenderSectionProps}
-          onNavTabClick={onNavTabClick}
-          title="Feeds"
-          isItemsButton={false}
-        />
-      );
-    }
-
     if (selectedCategory === SidebarSelectedCategory.Squads) {
       return (
         <NetworkSection
@@ -208,23 +270,25 @@ export const SidebarDesktop = ({
       );
     }
 
-    if (selectedCategory === SidebarSelectedCategory.Discover) {
-      return (
+    return (
+      <>
+        <MainSection
+          {...defaultRenderSectionProps}
+          onNavTabClick={onNavTabClick}
+          isItemsButton={isNavButtons ?? false}
+        />
+        <CustomFeedSection
+          {...defaultRenderSectionProps}
+          onNavTabClick={onNavTabClick}
+          title="Feeds"
+          isItemsButton={false}
+        />
         <DiscoverSection
           {...defaultRenderSectionProps}
           title="Discover"
           isItemsButton={isNavButtons ?? false}
         />
-      );
-    }
-
-    return (
-      <MainSection
-        {...defaultRenderSectionProps}
-        title="Main"
-        onNavTabClick={onNavTabClick}
-        isItemsButton={isNavButtons ?? false}
-      />
+      </>
     );
   };
 
@@ -236,7 +300,7 @@ export const SidebarDesktop = ({
     <SidebarAside
       data-testid="sidebar-aside"
       className={classNames(
-        'laptop:flex-row laptop:border-r-0 laptop:bg-surface-float',
+        'laptop:bottom-0 laptop:h-dvh laptop:min-h-dvh laptop:flex-row laptop:border-r-0 laptop:bg-transparent',
         sidebarExpanded ? 'laptop:w-[19rem]' : 'laptop:w-16',
         // No global header on laptop with the dual sidebar, so the rail
         // can hug the very top of the viewport. The banner still offsets
@@ -248,82 +312,130 @@ export const SidebarDesktop = ({
         featureTheme && 'bg-transparent',
       )}
     >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-16 hidden border-r border-border-subtlest-quaternary laptop:block"
+      />
       <nav
-        role="tablist"
-        aria-label="Sidebar categories"
-        className="flex h-full w-16 shrink-0 flex-col items-center gap-1 px-3 py-3"
+        aria-label="Primary navigation"
+        className="flex h-dvh min-h-dvh w-16 shrink-0 flex-col items-center gap-1 px-3 py-3"
       >
-        <div className="mb-1 flex h-10 w-10 items-center justify-center">
-          <HeaderLogo
-            compact
-            position={LogoPosition.Empty}
-            onLogoClick={onLogoClick}
-          />
-        </div>
-        <div className="mb-2 h-px w-6 bg-border-subtlest-tertiary" />
-
-        {sidebarCategories.map((category) => {
-          const isSelected = selectedCategory === category.id;
-
-          return (
-            <Tooltip key={category.id} side="right" content={category.label}>
-              <button
-                type="button"
-                role="tab"
-                id={`sidebar-category-${category.id}`}
-                aria-controls="sidebar-context-panel"
-                aria-label={category.label}
-                aria-selected={isSelected}
-                onClick={() => onSelectCategory(category.id)}
-                className={classNames(
-                  railButtonClass,
-                  isSelected && 'bg-background-default text-text-primary',
-                )}
+        <Tooltip side="right" content="Home">
+          <div>
+            <Link href={webappUrl} passHref prefetch={false}>
+              <a
+                aria-label="Home"
+                className="focus-outline flex size-10 items-center justify-center overflow-hidden rounded-12 transition-opacity hover:opacity-80"
+                onClick={onLogoClick}
               >
-                {category.icon(isSelected)}
-              </button>
-            </Tooltip>
-          );
-        })}
-
-        <div className="flex-1" />
+                <img
+                  src={fromCDN('/assets/sidebar-app-icon.png')}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              </a>
+            </Link>
+          </div>
+        </Tooltip>
 
         <Tooltip side="right" content="Search">
           <button
             type="button"
             aria-label="Search"
             onClick={openSpotlight}
-            className={railButtonClass}
+            className="flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline"
           >
             <SearchIcon size={IconSize.Small} aria-hidden />
           </button>
         </Tooltip>
-        {isLoggedIn && (
-          <>
-            <div className="flex h-10 w-10 items-center justify-center">
-              <NotificationsBell />
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center">
-              <ProfileButton settingsIconOnly />
-            </div>
-          </>
-        )}
-        <Tooltip
-          side="right"
-          content={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
+        <div
+          aria-hidden
+          className="-mt-1 flex items-center gap-0.5 text-text-quaternary typo-caption2"
         >
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            onClick={onToggleExpanded}
-            aria-label={sidebarExpanded ? 'Close sidebar' : 'Open sidebar'}
-            icon={
-              sidebarExpanded ? <SidebarArrowLeft /> : <SidebarArrowRight />
-            }
-            className="text-text-quaternary hover:text-text-primary"
-          />
-        </Tooltip>
+          {shortcutKeys.map((key) => (
+            <kbd key={key} className="font-sans">
+              {key}
+            </kbd>
+          ))}
+        </div>
+
+        <div
+          aria-hidden
+          className="my-2 h-px w-6 bg-border-subtlest-quaternary"
+        />
+
+        <div
+          role="tablist"
+          aria-label="Sidebar categories"
+          className="flex flex-col items-center gap-1"
+        >
+          {sidebarCategories.map((category) => {
+            const isSelected = selectedCategory === category.id;
+
+            return (
+              <React.Fragment key={category.id}>
+                {category.id === SidebarSelectedCategory.Saved &&
+                  isLoggedIn && <NotificationsBell rail />}
+                <Tooltip side="right" content={category.label}>
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`sidebar-category-${category.id}`}
+                    aria-controls="sidebar-context-panel"
+                    aria-label={category.label}
+                    aria-selected={isSelected}
+                    onClick={() => onSelectCategory(category.id)}
+                    className={classNames(
+                      railButtonClass,
+                      isSelected && 'bg-background-default text-text-primary',
+                    )}
+                  >
+                    {category.icon(isSelected)}
+                  </button>
+                </Tooltip>
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        <div className="mt-auto flex flex-col items-center gap-1">
+          <Tooltip side="right" content="Settings">
+            <div>
+              <Link href={settingsUrl} passHref>
+                <a
+                  aria-label="Settings"
+                  className={classNames(
+                    railButtonClass,
+                    activePage.includes('/settings') &&
+                      'bg-background-default text-text-primary',
+                  )}
+                >
+                  <SettingsIcon
+                    secondary={activePage.includes('/settings')}
+                    size={IconSize.Small}
+                    aria-hidden
+                  />
+                </a>
+              </Link>
+            </div>
+          </Tooltip>
+
+          <SidebarSupportButton />
+        </div>
       </nav>
+
+      {!sidebarExpanded && (
+        <Tooltip side="right" content="Open sidebar">
+          <button
+            type="button"
+            onClick={onToggleExpanded}
+            aria-label="Open sidebar"
+            className="focus-outline absolute left-16 top-4 z-1 hidden size-6 -translate-x-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-background-default text-text-tertiary shadow-1 transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
+          >
+            <SidebarArrowRight size={IconSize.XSmall} aria-hidden />
+          </button>
+        </Tooltip>
+      )}
 
       <section
         id="sidebar-context-panel"
@@ -331,13 +443,36 @@ export const SidebarDesktop = ({
         aria-labelledby={`sidebar-category-${selectedCategory}`}
         aria-label={`${selectedLabel ?? selectedCategory} navigation`}
         className={classNames(
-          'flex min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
+          'relative flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden transition-[opacity,width] duration-300',
           sidebarExpanded
             ? 'w-60 opacity-100'
             : 'pointer-events-none w-0 opacity-0',
         )}
       >
-        <div className="px-3 pt-4">
+        <div className="flex items-center justify-between gap-1 px-2 pt-3">
+          {isLoggedIn ? (
+            <ProfileButton compact className="max-w-[calc(100%-5.25rem)]" />
+          ) : (
+            <div className="flex-1" />
+          )}
+
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            {isLoggedIn && <SidebarStreakButton />}
+
+            <Tooltip side="bottom" content="Close sidebar">
+              <button
+                type="button"
+                onClick={onToggleExpanded}
+                aria-label="Close sidebar"
+                className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+              >
+                <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
+              </button>
+            </Tooltip>
+          </div>
+        </div>
+
+        <div className="px-3 pt-2">
           <CreatePostButton
             className="!flex w-full justify-start whitespace-nowrap"
             size={ButtonSize.Small}
@@ -345,18 +480,35 @@ export const SidebarDesktop = ({
           />
         </div>
 
-        <SidebarScrollWrapper className="!h-auto mt-2 min-h-0 flex-1">
-          <Nav>{renderSelectedSection()}</Nav>
-        </SidebarScrollWrapper>
-
         {isLoggedIn && (
-          <div className="flex items-center justify-end gap-1 border-t border-border-subtlest-tertiary px-2 py-2">
-            <OpportunityEntryButton />
-            <QuestHeaderButton compact />
-          </div>
+          <>
+            <div className="mt-2 flex items-center gap-1 px-3">
+              <QuestHeaderButton compact />
+              {additionalButtons}
+            </div>
+          </>
         )}
 
+        <SidebarScrollWrapper
+          className={classNames(
+            'mt-2 min-h-0 flex-1',
+            showFeedbackWidget && 'pb-16',
+          )}
+        >
+          <Nav>{renderSelectedSection()}</Nav>
+          {selectedCategory === SidebarSelectedCategory.Main && (
+            <div className="px-3 pb-3">
+              <HighlightPostSidebarWidget />
+            </div>
+          )}
+        </SidebarScrollWrapper>
+
         <HelpWidget sidebarExpanded />
+        {showFeedbackWidget && (
+          <div className="absolute inset-x-3 bottom-3">
+            <FeedbackWidget placement="sidebar" />
+          </div>
+        )}
       </section>
     </SidebarAside>
   );

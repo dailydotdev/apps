@@ -179,7 +179,7 @@ function MainLayoutComponent({
   }
 
   return (
-    <div className="antialiased">
+    <div className="antialiased laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]">
       {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
@@ -217,7 +217,9 @@ function MainLayoutComponent({
       >
         {isAuthReady && showSidebar && (
           <Sidebar
+            additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
+            showFeedbackWidget={!hideFeedbackWidget}
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
@@ -227,13 +229,13 @@ function MainLayoutComponent({
           className={classNames(
             'flex min-h-0 flex-1 flex-col',
             sidebarOwnsHeader &&
-              'laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-hidden laptop:rounded-24 laptop:bg-background-default laptop:shadow-2',
+              'laptop:my-3 laptop:ml-1 laptop:mr-3 laptop:min-h-[calc(100vh-1.5rem)] laptop:overflow-hidden laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-2 laptop:shadow-2',
           )}
         >
           {children}
         </div>
       </main>
-      {!hideFeedbackWidget && <FeedbackWidget />}
+      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
     </div>
   );
 }

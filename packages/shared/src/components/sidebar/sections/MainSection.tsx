@@ -9,12 +9,12 @@ import {
   HomeIcon,
   HotIcon,
   JoystickIcon,
+  MagicIcon,
   SquadIcon,
   MegaphoneIcon,
   YearInReviewIcon,
 } from '../../icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { ProfileImageSize, ProfilePicture } from '../../ProfilePicture';
 import { OtherFeedPage } from '../../../lib/query';
 import type { SidebarSectionProps } from './common';
 import {
@@ -74,8 +74,8 @@ export const MainSection = ({
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: () => (
-            <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <MagicIcon secondary={active} />} />
           ),
         }
       : {

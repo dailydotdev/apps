@@ -11,6 +11,10 @@ import { LazyModal } from '../modals/common/types';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import { useCustomizeNewTab } from '../../features/customizeNewTab/CustomizeNewTabContext';
 
+interface FeedbackWidgetProps {
+  placement?: 'fixed' | 'sidebar';
+}
+
 const TEAM_MEMBERS = [
   {
     username: 'idoshamun',
@@ -68,7 +72,9 @@ const getDailyTrio = (): ReadonlyArray<(typeof TEAM_MEMBERS)[number]> => {
   return [0, 1, 2].map((i) => TEAM_MEMBERS[(dayOfYear + i) % len]);
 };
 
-export function FeedbackWidget(): ReactElement | null {
+export function FeedbackWidget({
+  placement = 'fixed',
+}: FeedbackWidgetProps): ReactElement | null {
   const { user } = useAuthContext();
   const { showFeedbackButton } = useSettingsContext();
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -98,6 +104,39 @@ export function FeedbackWidget(): ReactElement | null {
 
   if (!isVisible) {
     return null;
+  }
+
+  if (placement === 'sidebar') {
+    return (
+      <Button
+        variant={ButtonVariant.Tertiary}
+        size={ButtonSize.Small}
+        className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
+        onClick={() => openModal({ type: LazyModal.Feedback })}
+        aria-label="Send feedback. Real people reply."
+      >
+        <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
+          <span>Feedback</span>
+          <span className="opacity-80 font-normal typo-caption2">
+            Real people reply
+          </span>
+        </span>
+        <span className="ml-3 flex shrink-0">
+          {dailyTrio.map((member, index) => (
+            <ProfilePicture
+              key={member.username}
+              user={member}
+              size={ProfileImageSize.Small}
+              rounded="full"
+              className={classNames(
+                'border-2 border-background-default group-hover:border-surface-hover',
+                index !== 0 && '-ml-3',
+              )}
+            />
+          ))}
+        </span>
+      </Button>
+    );
   }
 
   return (

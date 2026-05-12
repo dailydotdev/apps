@@ -4,7 +4,6 @@ import { ProfileSection } from '../ProfileSection';
 import {
   CreditCardIcon,
   InviteIcon,
-  SettingsIcon,
   TrendingIcon,
   OrganizationIcon,
 } from '../../icons';
@@ -16,9 +15,9 @@ import type { ProfileSectionItemProps } from '../ProfileSectionItem';
 
 type AccountSectionProps = {
   /**
-   * Optional item rendered at the top of the section, above "Settings".
+   * Optional item rendered at the top of the section.
    * Used by ProfileMenu to surface the "Customize new tab" entry inline
-   * so it sits inside the same visual block as Settings instead of in a
+   * so it sits inside the same visual block as account links instead of in a
    * separate section.
    */
   prepended?: ProfileSectionItemProps | null;
@@ -32,11 +31,6 @@ export const AccountSection = ({
 
   const items: ProfileSectionItemProps[] = [
     ...(prepended ? [prepended] : []),
-    {
-      title: 'Settings',
-      href: `${settingsUrl}/profile`,
-      icon: SettingsIcon,
-    },
     {
       title: 'Subscriptions',
       href: `${settingsUrl}/subscription`,

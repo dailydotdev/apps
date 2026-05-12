@@ -2,8 +2,12 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import classnames from 'classnames';
 import { ReadingStreakPopup } from './popup/ReadingStreakPopup';
-import type { ButtonIconPosition } from '../buttons/Button';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import { ReadingStreakIcon, WarningIcon } from '../icons';
 import { SimpleTooltip } from '../tooltips';
 import type { UserStreak } from '../../graphql/users';
@@ -17,7 +21,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import { IconWrapper } from '../Icon';
+import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {
@@ -25,6 +29,8 @@ interface ReadingStreakButtonProps {
   isLoading: boolean;
   compact?: boolean;
   iconPosition?: ButtonIconPosition;
+  iconSize?: IconSize;
+  appendTooltipToBody?: boolean;
   className?: string;
 }
 
@@ -34,6 +40,7 @@ interface CustomStreaksTooltipProps {
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
   placement: TooltipPosition;
+  appendTooltipToBody?: boolean;
 }
 
 function CustomStreaksTooltip({
@@ -42,6 +49,7 @@ function CustomStreaksTooltip({
   shouldShowStreaks,
   setShouldShowStreaks,
   placement,
+  appendTooltipToBody,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -50,6 +58,8 @@ function CustomStreaksTooltip({
       placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
+      appendTo={appendTooltipToBody ? () => document.body : undefined}
+      zIndex={1000}
       container={{
         paddingClassName: 'p-0',
         bgClassName: 'bg-accent-pepper-subtlest',
@@ -57,7 +67,7 @@ function CustomStreaksTooltip({
         className: 'border border-border-subtlest-tertiary rounded-16',
       }}
       content={<ReadingStreakPopup streak={streak} />}
-      onClickOutside={() => setShouldShowStreaks(false)}
+      onClickOutside={() => setShouldShowStreaks?.(false)}
     >
       {children}
     </SimpleTooltip>
@@ -68,9 +78,11 @@ export function ReadingStreakButton({
   streak,
   isLoading,
   compact,
-  iconPosition,
+  iconPosition = ButtonIconPosition.Left,
+  iconSize,
+  appendTooltipToBody,
   className,
-}: ReadingStreakButtonProps): ReactElement {
+}: ReadingStreakButtonProps): ReactElement | null {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -78,6 +90,7 @@ export function ReadingStreakButton({
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
+    user &&
     isSameDayInTimezone(new Date(streak.lastViewAt), new Date(), user.timezone);
   const isTimezoneOk = useStreakTimezoneOk();
 
@@ -105,15 +118,16 @@ export function ReadingStreakButton({
     <>
       <ConditionalWrapper
         condition={!isMobile}
-        wrapper={(children: ReactElement) => (
+        wrapper={(children) => (
           <Tooltip
             content="Current streak"
             streak={streak}
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
             placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
+            appendTooltipToBody={appendTooltipToBody}
           >
-            {children}
+            {children as ReactElement}
           </Tooltip>
         )}
       >
@@ -122,7 +136,10 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper wrapperClassName="relative flex items-center gap-2">
+            <IconWrapper
+              size={iconSize}
+              wrapperClassName="relative flex items-center gap-2"
+            >
               <ReadingStreakIcon secondary={hasReadToday} />
               {!isTimezoneOk && (
                 <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />

@@ -43,6 +43,10 @@ jest.mock('../layout/HeaderLogo', () => ({
   __esModule: true,
   default: () => null,
 }));
+jest.mock('../cards/highlight/HighlightPostSidebarWidget', () => ({
+  __esModule: true,
+  HighlightPostSidebarWidget: () => null,
+}));
 
 let client: QueryClient;
 const updateAlerts = jest.fn();
@@ -127,9 +131,8 @@ it('should render the sidebar as open by default', async () => {
     name: 'Sidebar categories',
   });
   expect(categoryRail).toBeInTheDocument();
-  const section = await screen.findByText('Main');
-  expect(section).toBeInTheDocument();
-  expect(screen.getByRole('tab', { name: 'Main' })).toHaveAttribute(
+  expect(await screen.findByText('Explore')).toBeInTheDocument();
+  expect(screen.getByRole('tab', { name: 'Home' })).toHaveAttribute(
     'aria-selected',
     'true',
   );
@@ -206,11 +209,10 @@ describe('sidebar items', () => {
   );
 
   it.each(discoverItems.map((item) => [item[0], item[1]]))(
-    'it should expect %s to exist in discover',
+    'it should expect %s to exist in home',
     async (name, href) => {
       renderComponent();
       waitForNock();
-      fireEvent.click(await screen.findByRole('tab', { name: 'Discover' }));
       const el = await screen.findByText(name);
       expect(el).toBeInTheDocument();
       // eslint-disable-next-line testing-library/no-node-access

@@ -4,7 +4,9 @@ import classNames from 'classnames';
 import dynamic from 'next/dynamic';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ProfilePictureWithIndicator } from './ProfilePictureWithIndicator';
-import { CoreIcon, SettingsIcon } from '../icons';
+import { ProfileImageSize } from '../ProfilePicture';
+import { ArrowIcon, CoreIcon, SettingsIcon } from '../icons';
+import { InteractivePopupPosition } from '../tooltips/InteractivePopup';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ReputationUserBadge } from '../ReputationUserBadge';
@@ -28,11 +30,15 @@ const ProfileMenu = dynamic(
 
 interface ProfileButtonProps {
   className?: string;
+  avatarOnly?: boolean;
+  compact?: boolean;
   settingsIconOnly?: boolean;
 }
 
 export default function ProfileButton({
+  avatarOnly,
   className,
+  compact,
   settingsIconOnly,
 }: ProfileButtonProps): ReactElement {
   const { isOpen, onUpdate, wrapHandler } = useInteractivePopup();
@@ -205,6 +211,52 @@ export default function ProfileButton({
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           icon={<SettingsIcon />}
         />
+      ) : avatarOnly ? (
+        <button
+          type="button"
+          aria-label="Profile settings"
+          className={classNames(
+            'focus-outline cursor-pointer border-none p-0 no-underline',
+            className ?? 'flex',
+          )}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+        >
+          <Tooltip side="right" content="Profile settings">
+            <div className="flex items-center">
+              <ProfilePictureWithIndicator
+                user={user}
+                size={ProfileImageSize.Large}
+              />
+            </div>
+          </Tooltip>
+        </button>
+      ) : compact ? (
+        <button
+          type="button"
+          aria-label="Profile settings"
+          aria-expanded={isOpen}
+          className={classNames(
+            'focus-outline flex w-fit max-w-full cursor-pointer items-center gap-1.5 rounded-10 border-none bg-transparent p-1 text-left transition-colors hover:bg-surface-hover',
+            className,
+          )}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+        >
+          <ProfilePictureWithIndicator
+            user={user}
+            size={ProfileImageSize.Small}
+          />
+          <span className="min-w-0 truncate font-bold text-text-primary typo-footnote">
+            {user.name?.split(' ')[0] ?? user.username}
+          </span>
+          <ArrowIcon
+            size={IconSize.Size16}
+            aria-hidden
+            className={classNames(
+              'shrink-0 text-text-tertiary transition-transform',
+              !isOpen && 'rotate-180',
+            )}
+          />
+        </button>
       ) : (
         <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
           {isStreaksEnabled && streak && (
@@ -273,7 +325,16 @@ export default function ProfileButton({
           </button>
         </div>
       )}
-      {isOpen && <ProfileMenu onClose={() => onUpdate(false)} />}
+      {isOpen && (
+        <ProfileMenu
+          onClose={() => onUpdate(false)}
+          position={
+            compact
+              ? InteractivePopupPosition.SidebarProfileMenu
+              : InteractivePopupPosition.ProfileMenu
+          }
+        />
+      )}
     </>
   );
 }
