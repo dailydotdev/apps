@@ -12,7 +12,10 @@ const createProfile = (id: string): UserShortProfile => ({
   permalink: `/${id}`,
 });
 
-const createMessage = (participantId: string, messageId: string): LiveRoomChatEntry => ({
+const createMessage = (
+  participantId: string,
+  messageId: string,
+): LiveRoomChatEntry => ({
   messageId,
   participantId,
   body: messageId,

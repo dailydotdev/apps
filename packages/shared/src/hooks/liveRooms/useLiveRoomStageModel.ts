@@ -53,17 +53,16 @@ export const getLiveRoomMentionSuggestions = ({
   for (let index = chatMessages.length - 1; index >= 0; index -= 1) {
     const senderId = chatMessages[index]?.participantId;
 
-    if (
-      !senderId ||
-      senderId === host.id ||
-      suggestionIds.has(senderId) ||
-      recentSenderIds.length >= INITIAL_CHAT_MENTION_RECENT_SENDER_COUNT
-    ) {
-      continue;
-    }
+    const shouldIncludeSender =
+      !!senderId &&
+      senderId !== host.id &&
+      !suggestionIds.has(senderId) &&
+      recentSenderIds.length < INITIAL_CHAT_MENTION_RECENT_SENDER_COUNT;
 
-    recentSenderIds.push(senderId);
-    suggestionIds.add(senderId);
+    if (shouldIncludeSender) {
+      recentSenderIds.push(senderId);
+      suggestionIds.add(senderId);
+    }
   }
 
   recentSenderIds.forEach((id) => {
