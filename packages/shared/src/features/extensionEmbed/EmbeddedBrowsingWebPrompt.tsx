@@ -22,13 +22,19 @@ import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
 
+type EmbeddedBrowsingWebPromptProps = {
+  onOptOut?: () => void;
+};
+
 /**
  * Webapp prompt shown when the daily.dev extension isn't installed in this
  * browser. The "extension installed but permission not granted" case is
  * handled inside the iframe itself (`packages/extension/src/frame/render.ts`)
  * so the Enable click carries the user gesture Chrome requires.
  */
-export function EmbeddedBrowsingWebPrompt(): ReactElement | null {
+export function EmbeddedBrowsingWebPrompt({
+  onOptOut,
+}: EmbeddedBrowsingWebPromptProps = {}): ReactElement | null {
   const { logEvent } = useLogContext();
   // Defensive: callers already gate on `isExtensionCapableBrowser` so this
   // shouldn't render on unsupported browsers, but bail just in case.
@@ -99,6 +105,16 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement | null {
             >
               {installButtonLabel}
             </Button>
+            {onOptOut ? (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={onOptOut}
+              >
+                I&apos;d rather not read inside daily.dev
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

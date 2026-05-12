@@ -58,6 +58,17 @@ type PostArticlePreviewEmbedProps = {
   targetHref?: string;
   onTargetLinkClick?: () => void;
   targetLinkInNewTab?: boolean;
+  /**
+   * Opt-out action shown inside the "install the extension" prompt. When
+   * provided, the prompt surfaces an "I'd rather not read inside daily.dev"
+   * button below the Install CTA.
+   */
+  onInstallPromptOptOut?: () => void;
+  /**
+   * Opt-out action shown inside the in-iframe permission screen rendered by
+   * the extension's frame. Bridged from the iframe via `postMessage`.
+   */
+  onPermissionScreenOptOut?: () => void;
 };
 
 export function PostArticlePreviewEmbed({
@@ -73,6 +84,8 @@ export function PostArticlePreviewEmbed({
   targetHref,
   onTargetLinkClick,
   targetLinkInNewTab = true,
+  onInstallPromptOptOut,
+  onPermissionScreenOptOut,
 }: PostArticlePreviewEmbedProps): ReactElement | null {
   const [extensionId, setExtensionId] = useState(() =>
     getBrowserExtensionInstallId(),
@@ -565,7 +578,7 @@ export function PostArticlePreviewEmbed({
           ) : null}
         </div>
         {shouldPromptInstall ? (
-          <EmbeddedBrowsingWebPrompt />
+          <EmbeddedBrowsingWebPrompt onOptOut={onInstallPromptOptOut} />
         ) : (
           <div className="relative flex min-h-0 flex-1 flex-col">
             <ExtensionSiteEmbed
@@ -578,6 +591,7 @@ export function PostArticlePreviewEmbed({
               targetFrameTitle="Article preview"
               onTargetDomReady={onTargetDomReady}
               onTargetFrameLoad={onTargetFrameLoad}
+              onOptOutRequested={onPermissionScreenOptOut}
               onStateChange={onEmbedStateChange}
               renderState={renderEmbedChrome}
             />

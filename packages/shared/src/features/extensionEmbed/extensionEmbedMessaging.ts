@@ -67,6 +67,7 @@ type HandleExtensionSiteEmbedMessageOptions = {
   onPermissionsReady: () => void;
   onEmbeddingReady: () => void;
   onReloadRequested: () => void;
+  onOptOutRequested: () => void;
   onMissingPermission: () => void;
   onError: (payload: { message: string; reason?: string }) => void;
 };
@@ -78,6 +79,7 @@ export const handleExtensionSiteEmbedMessage = ({
   onPermissionsReady,
   onEmbeddingReady,
   onReloadRequested,
+  onOptOutRequested,
   onMissingPermission,
   onError,
 }: HandleExtensionSiteEmbedMessageOptions): void => {
@@ -103,6 +105,11 @@ export const handleExtensionSiteEmbedMessage = ({
 
   if (message.type === extensionSiteEmbedFrameEvent.ReloadRequested) {
     onReloadRequested();
+    return;
+  }
+
+  if (message.type === extensionSiteEmbedFrameEvent.OptOutRequested) {
+    onOptOutRequested();
     return;
   }
 
