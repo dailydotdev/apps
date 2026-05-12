@@ -43,6 +43,7 @@ export type SettingsFlags = {
   sidebarOtherExpanded: boolean;
   sidebarResourcesExpanded: boolean;
   sidebarBookmarksExpanded: boolean;
+  sidebarRecentExpanded: boolean;
   sidebarSelectedCategory?: SidebarSelectedCategory;
   clickbaitShieldEnabled: boolean;
   timezoneMismatchIgnore?: string;
@@ -65,6 +66,7 @@ export enum SidebarSettingsFlags {
   OtherExpanded = 'sidebarOtherExpanded',
   ResourcesExpanded = 'sidebarResourcesExpanded',
   BookmarksExpanded = 'sidebarBookmarksExpanded',
+  RecentExpanded = 'sidebarRecentExpanded',
   SelectedCategory = 'sidebarSelectedCategory',
   ClickbaitShieldEnabled = 'clickbaitShieldEnabled',
 }

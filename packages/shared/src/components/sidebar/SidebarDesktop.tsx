@@ -9,6 +9,7 @@ import { useBanner } from '../../hooks/useBanner';
 import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
+import { RecentSection } from './sections/RecentSection';
 import { CreatePostButton } from '../post/write';
 import { ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
@@ -54,6 +55,7 @@ import { InnerProfileSettingsMenu } from '../profile/ProfileSettingsMenu';
 import { QuestButton } from '../quest/QuestButton';
 import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { Typography, TypographyType } from '../typography/Typography';
+import { useRecentPagesTracker } from '../../hooks/feed/useRecentPages';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -235,6 +237,7 @@ export const SidebarDesktop = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { isLoggedIn, user } = useAuthContext();
+  useRecentPagesTracker();
   const activePage = activePageProp || router.asPath || router.pathname;
   const profileHref = user?.username ? `${webappUrl}${user.username}` : null;
   const isProfileActive =
@@ -340,6 +343,11 @@ export const SidebarDesktop = ({
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
           isItemsButton={isNavButtons ?? false}
+        />
+        <RecentSection
+          {...defaultRenderSectionProps}
+          title="Recent"
+          isItemsButton={false}
         />
         <CustomFeedSection
           {...defaultRenderSectionProps}
