@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { gqlClient } from '../graphql/common';
 import {
   LIVE_ROOM_JOIN_TOKEN_MUTATION,
+  LiveRoomStatus,
   type LiveRoomJoinToken,
   type LiveRoomJoinTokenData,
 } from '../graphql/liveRooms';
@@ -58,6 +59,7 @@ import type {
   MediaTransportCreatePayload,
   ReactionSentEvent,
 } from '../lib/liveRoom/protocol';
+import { useLiveRoom as useLiveRoomQuery } from '../hooks/liveRooms/useLiveRoom';
 
 export type LiveRoomConnectionStatus =
   | 'idle'
@@ -379,6 +381,7 @@ export const LiveRoomProvider = ({
   children,
 }: LiveRoomProviderProps): ReactElement => {
   const { user, isAuthReady } = useAuthContext();
+  const { data: room, isLoading: isRoomLoading } = useLiveRoomQuery(roomId);
   const { logEvent } = useLogContext();
   const [status, setStatus] = useState<LiveRoomConnectionStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -852,7 +855,13 @@ export const LiveRoomProvider = ({
       joinTokenRequestId,
     ),
     queryFn: () => fetchJoinToken(roomId),
-    enabled: isAuthReady && !!roomId && !storedResumeSession,
+    enabled:
+      isAuthReady &&
+      !!roomId &&
+      !storedResumeSession &&
+      !!room &&
+      !isRoomLoading &&
+      room?.status !== LiveRoomStatus.Ended,
     retry: false,
     staleTime: Infinity,
     gcTime: 0,
@@ -874,6 +883,18 @@ export const LiveRoomProvider = ({
   useEffect(() => {
     setStoredResumeSession(readStoredLiveRoomResumeSession(roomId));
   }, [roomId]);
+
+  useEffect(() => {
+    if (room?.status !== LiveRoomStatus.Ended) {
+      return;
+    }
+
+    clearStoredLiveRoomResumeSession(roomId);
+    setStoredResumeSession(null);
+    setResumeSessionTtlMs(null);
+    setErrorMessage(null);
+    setStatus('idle');
+  }, [room?.status, roomId]);
 
   const requestFreshJoinToken = useCallback(() => {
     clearStoredLiveRoomResumeSession(roomId);
@@ -1002,6 +1023,10 @@ export const LiveRoomProvider = ({
 
   // Open the websocket once we have a fresh join token or a cached resume token.
   useEffect(() => {
+    if (isRoomLoading || !room || room.status === LiveRoomStatus.Ended) {
+      return undefined;
+    }
+
     if (
       storedResumeSession &&
       user?.id &&
@@ -1122,6 +1147,7 @@ export const LiveRoomProvider = ({
       connectionRef.current = null;
     };
   }, [
+    isRoomLoading,
     joinToken,
     pushChatMessage,
     pushChatMessageReaction,
@@ -1131,6 +1157,7 @@ export const LiveRoomProvider = ({
     roomId,
     storedResumeSession,
     requestFreshJoinToken,
+    room,
     user?.id,
   ]);
 
