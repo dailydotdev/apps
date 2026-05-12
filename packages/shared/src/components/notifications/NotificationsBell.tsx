@@ -44,10 +44,12 @@ function NotificationsBell({
         <div>
           <Link href={`${webappUrl}notifications`} passHref>
             <a
+              href={`${webappUrl}notifications`}
               aria-label="Notifications"
               className={classNames(
                 'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                atNotificationsPage && 'bg-background-default text-text-primary',
+                atNotificationsPage &&
+                  'bg-background-default text-text-primary',
               )}
               onClick={onNavigateNotifications}
             >

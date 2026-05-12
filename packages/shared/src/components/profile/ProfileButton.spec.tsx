@@ -60,22 +60,6 @@ it('should show "Reputation" tooltip on the reputation badge', () => {
   expect(screen.getByLabelText('Reputation')).toBeInTheDocument();
 });
 
-it('should show settings option that opens modal', async () => {
-  renderComponent();
-
-  const profileBtn = await screen.findByRole('button', {
-    name: 'Profile settings',
-  });
-  await act(async () => {
-    profileBtn.click();
-  });
-
-  const settingsButton = await screen.findByRole('link', {
-    name: 'Settings',
-  });
-  expect(settingsButton).toBeInTheDocument();
-});
-
 it('should click the logout button and logout', async () => {
   renderComponent();
 

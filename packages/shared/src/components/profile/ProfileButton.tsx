@@ -203,15 +203,19 @@ export default function ProfileButton({
     return <></>;
   }
 
-  return (
-    <>
-      {settingsIconOnly ? (
+  const renderTrigger = (): ReactElement => {
+    if (settingsIconOnly) {
+      return (
         <Button
           variant={ButtonVariant.Tertiary}
           onClick={wrapHandler(() => onUpdate(!isOpen))}
           icon={<SettingsIcon />}
         />
-      ) : avatarOnly ? (
+      );
+    }
+
+    if (avatarOnly) {
+      return (
         <button
           type="button"
           aria-label="Profile settings"
@@ -230,7 +234,11 @@ export default function ProfileButton({
             </div>
           </Tooltip>
         </button>
-      ) : compact ? (
+      );
+    }
+
+    if (compact) {
+      return (
         <button
           type="button"
           aria-label="Profile settings"
@@ -257,74 +265,82 @@ export default function ProfileButton({
             )}
           />
         </button>
-      ) : (
-        <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
-          {isStreaksEnabled && streak && (
-            <ReadingStreakButton
-              streak={streak}
-              isLoading={isLoading}
-              compact
-              className="pl-4"
-            />
-          )}
-          {hasCoresAccess && (
-            <Tooltip
-              content={
-                <>
-                  Wallet
-                  <br />
-                  {preciseBalance} Cores
-                </>
-              }
-            >
-              <div
-                ref={coresCounterRef}
-                className="flex origin-center justify-center will-change-transform"
-              >
-                <Link href={walletUrl} passHref>
-                  <Button
-                    data-reward-target={QuestRewardType.Cores}
-                    icon={<CoreIcon />}
-                    tag="a"
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Small}
-                  >
-                    {largeNumberFormat(displayedBalance)}
-                  </Button>
-                </Link>
-              </div>
-            </Tooltip>
-          )}
-          <button
-            type="button"
-            aria-label="Profile settings"
-            className={classNames(
-              'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
-              className ?? 'flex',
-            )}
-            onClick={wrapHandler(() => onUpdate(!isOpen))}
+      );
+    }
+
+    return (
+      <div className="flex h-10 items-center rounded-12 bg-surface-float px-1">
+        {isStreaksEnabled && streak && (
+          <ReadingStreakButton
+            streak={streak}
+            isLoading={isLoading}
+            compact
+            className="pl-4"
+          />
+        )}
+        {hasCoresAccess && (
+          <Tooltip
+            content={
+              <>
+                Wallet
+                <br />
+                {preciseBalance} Cores
+              </>
+            }
           >
-            <span
-              ref={reputationCounterRef}
-              className="inline-flex items-center"
-              data-reward-target={QuestRewardType.Reputation}
+            <div
+              ref={coresCounterRef}
+              className="flex origin-center justify-center will-change-transform"
             >
-              <ReputationUserBadge
-                className="ml-1 !typo-subhead"
-                user={{ reputation: displayedReputation ?? 0 }}
-                iconProps={{
-                  size: IconSize.Small,
-                }}
-              />
-            </span>
-            <Tooltip side="bottom" content="Profile settings">
-              <div className="flex items-center">
-                <ProfilePictureWithIndicator user={user} />
-              </div>
-            </Tooltip>
-          </button>
-        </div>
-      )}
+              <Link href={walletUrl} passHref>
+                <Button
+                  data-reward-target={QuestRewardType.Cores}
+                  icon={<CoreIcon />}
+                  tag="a"
+                  variant={ButtonVariant.Tertiary}
+                  size={ButtonSize.Small}
+                >
+                  {largeNumberFormat(displayedBalance)}
+                </Button>
+              </Link>
+            </div>
+          </Tooltip>
+        )}
+        <button
+          type="button"
+          aria-label="Profile settings"
+          className={classNames(
+            'focus-outline cursor-pointer items-center gap-2 border-none p-0 font-bold text-text-primary no-underline typo-subhead',
+            className ?? 'flex',
+          )}
+          onClick={wrapHandler(() => onUpdate(!isOpen))}
+        >
+          <span
+            ref={reputationCounterRef}
+            className="inline-flex items-center"
+            data-reward-target={QuestRewardType.Reputation}
+          >
+            <ReputationUserBadge
+              className="ml-1 !typo-subhead"
+              user={{ reputation: displayedReputation ?? 0 }}
+              iconProps={{
+                size: IconSize.Small,
+              }}
+            />
+          </span>
+          <Tooltip side="bottom" content="Profile settings">
+            <div className="flex items-center">
+              <ProfilePictureWithIndicator user={user} />
+            </div>
+          </Tooltip>
+        </button>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {renderTrigger()}
       {isOpen && (
         <ProfileMenu
           onClose={() => onUpdate(false)}

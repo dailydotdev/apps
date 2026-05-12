@@ -21,7 +21,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import { IconSize, IconWrapper } from '../Icon';
+import type { IconSize } from '../Icon';
+import { IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
 
 interface ReadingStreakButtonProps {

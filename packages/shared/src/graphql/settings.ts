@@ -81,7 +81,8 @@ export const CLIENT_ONLY_SETTINGS_FLAGS = [
   'sidebarRecentExpanded',
 ] as const satisfies ReadonlyArray<keyof SettingsFlags>;
 
-export type ClientOnlySettingsFlag = (typeof CLIENT_ONLY_SETTINGS_FLAGS)[number];
+export type ClientOnlySettingsFlag =
+  (typeof CLIENT_ONLY_SETTINGS_FLAGS)[number];
 
 export enum SidebarSelectedCategory {
   Main = 'main',

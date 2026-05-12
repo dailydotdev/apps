@@ -264,44 +264,35 @@ export const SidebarDesktop = ({
   const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
   useRecentPagesTracker();
-  const activePage = activePageProp || router.asPath || router.pathname;
+  const activePage = activePageProp || router.asPath || router.pathname || '';
   const isUserProfileActive =
     !!user?.username && activePage.includes(`/${user.username}`);
   const isFeedPage = activePage.includes('/feeds/');
-  const [selectedCategory, setSelectedCategory] = useState(
-    isUserProfileActive
-      ? SidebarSelectedCategory.Profile
-      : isFeedPage
-      ? SidebarSelectedCategory.Main
-      : normalizeSidebarCategory(
-          flags?.sidebarSelectedCategory ?? getSidebarCategoryForPath(activePage),
-        ),
-  );
 
-  useEffect(() => {
-    const activeCategory = getSidebarCategoryForPath(activePage);
-
+  const resolveCategory = useCallback((): SidebarSelectedCategory => {
     if (isFeedPage) {
-      setSelectedCategory(SidebarSelectedCategory.Main);
-      return;
+      return SidebarSelectedCategory.Main;
     }
-
     if (isUserProfileActive) {
-      setSelectedCategory(SidebarSelectedCategory.Profile);
-      return;
+      return SidebarSelectedCategory.Profile;
     }
-
-    setSelectedCategory(
-      activeCategory === SidebarSelectedCategory.Main
-        ? normalizeSidebarCategory(flags?.sidebarSelectedCategory)
-        : activeCategory,
-    );
+    const activeCategory = getSidebarCategoryForPath(activePage);
+    if (activeCategory === SidebarSelectedCategory.Main) {
+      return normalizeSidebarCategory(flags?.sidebarSelectedCategory);
+    }
+    return activeCategory;
   }, [
     activePage,
     flags?.sidebarSelectedCategory,
     isFeedPage,
     isUserProfileActive,
   ]);
+
+  const [selectedCategory, setSelectedCategory] = useState(resolveCategory);
+
+  useEffect(() => {
+    setSelectedCategory(resolveCategory());
+  }, [resolveCategory]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -342,10 +333,7 @@ export const SidebarDesktop = ({
 
     if (selectedCategory === SidebarSelectedCategory.Saved) {
       return (
-        <BookmarkSection
-          {...defaultRenderSectionProps}
-          isItemsButton={false}
-        />
+        <BookmarkSection {...defaultRenderSectionProps} isItemsButton={false} />
       );
     }
 
@@ -442,8 +430,9 @@ export const SidebarDesktop = ({
           <div>
             <Link href={webappUrl} passHref prefetch={false}>
               <a
+                href={webappUrl}
                 aria-label="Home"
-                className="focus-outline flex size-10 items-center justify-center overflow-hidden rounded-12 transition-opacity hover:opacity-80"
+                className="focus-outline hover:opacity-80 flex size-10 items-center justify-center overflow-hidden rounded-12 transition-opacity"
                 onClick={onLogoClick}
               >
                 <img
@@ -461,7 +450,7 @@ export const SidebarDesktop = ({
             type="button"
             aria-label="Search"
             onClick={openSpotlight}
-            className="flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary focus-outline"
+            className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
           >
             <SearchIcon size={IconSize.Small} aria-hidden />
           </button>
@@ -488,7 +477,10 @@ export const SidebarDesktop = ({
           className="flex flex-col items-center gap-1"
         >
           {sidebarCategories.map((category) => {
-            if (category.id === SidebarSelectedCategory.Profile && !isLoggedIn) {
+            if (
+              category.id === SidebarSelectedCategory.Profile &&
+              !isLoggedIn
+            ) {
               return null;
             }
 
@@ -525,12 +517,12 @@ export const SidebarDesktop = ({
             <div>
               <Link href={settingsUrl} passHref>
                 <a
+                  href={settingsUrl}
                   id={`sidebar-category-${SidebarSelectedCategory.Settings}`}
                   aria-label="Settings"
                   className={classNames(
                     railButtonClass,
-                    isSettingsSelected &&
-                      'bg-background-default text-white',
+                    isSettingsSelected && 'bg-background-default text-white',
                   )}
                   onClick={() =>
                     onSelectCategory(SidebarSelectedCategory.Settings)
@@ -556,7 +548,7 @@ export const SidebarDesktop = ({
             type="button"
             onClick={onToggleExpanded}
             aria-label="Open sidebar"
-            className="focus-outline absolute left-16 top-4 z-1 hidden size-6 -translate-x-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-background-default text-text-tertiary shadow-1 transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
+            className="focus-outline shadow-1 absolute left-16 top-4 z-1 hidden size-6 -translate-x-1/2 items-center justify-center rounded-full border border-border-subtlest-tertiary bg-background-default text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary laptop:flex"
           >
             <SidebarArrowRight size={IconSize.XSmall} aria-hidden />
           </button>

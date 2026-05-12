@@ -184,9 +184,7 @@ it('should require login before opening following for anonymous users', async ()
   );
 });
 
-const sidebarItems = [
-  ['Explore', '/posts'],
-];
+const sidebarItems = [['Explore', '/posts']];
 
 const discoverItems = [
   ['Discussions', '/discussed'],
@@ -209,10 +207,12 @@ describe('sidebar items', () => {
   );
 
   it.each(discoverItems.map((item) => [item[0], item[1]]))(
-    'it should expect %s to exist in home',
+    'it should expect %s to exist in the Discover panel',
     async (name, href) => {
       renderComponent();
       waitForNock();
+      const discoverTab = await screen.findByRole('tab', { name: 'Discover' });
+      fireEvent.click(discoverTab);
       const el = await screen.findByText(name);
       expect(el).toBeInTheDocument();
       // eslint-disable-next-line testing-library/no-node-access

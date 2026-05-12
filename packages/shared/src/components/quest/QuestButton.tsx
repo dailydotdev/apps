@@ -1781,7 +1781,9 @@ export const QuestButton = ({
             claimingQuestId={claimingQuestId}
             animatingClaimRotationIds={animatingClaimRotationIdSet}
             claimedStampRotationIds={claimedStampRotationIdSet}
-            animatingClaimedStampRotationIds={animatingClaimedStampRotationIdSet}
+            animatingClaimedStampRotationIds={
+              animatingClaimedStampRotationIdSet
+            }
             deferredClaimedStampRotationIds={deferredClaimedStampRotationIdSet}
             onClaim={handleClaim}
             onDestinationClick={handleDestinationClick}

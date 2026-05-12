@@ -82,12 +82,18 @@ export const AchievementPickerContent = ({
       <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
         Choose an achievement to track
       </Typography>
-      <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
         Pick one to focus on next.
       </Typography>
 
       {lockedAchievements.length === 0 && (
-        <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+        >
           You unlocked every achievement.
         </Typography>
       )}

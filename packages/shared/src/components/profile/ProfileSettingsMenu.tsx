@@ -30,11 +30,7 @@ import {
   JoystickIcon,
 } from '../icons';
 import { NavDrawer } from '../drawers/NavDrawer';
-import {
-  settingsUrl,
-  walletUrl,
-  webappUrl,
-} from '../../lib/constants';
+import { settingsUrl, walletUrl, webappUrl } from '../../lib/constants';
 
 import type {
   ProfileSectionItemProps,

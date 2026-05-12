@@ -207,6 +207,7 @@ const defaultSettings: RemoteSettings = {
     sidebarOtherExpanded: true,
     sidebarResourcesExpanded: true,
     sidebarBookmarksExpanded: true,
+    sidebarRecentExpanded: true,
     sidebarSelectedCategory: SidebarSelectedCategory.Main,
     clickbaitShieldEnabled: true,
     defaultWriteTab: WriteFormTab.NewPost,

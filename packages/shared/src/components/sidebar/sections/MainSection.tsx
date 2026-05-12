@@ -155,7 +155,6 @@ export const MainSection = ({
     isPlus,
     onNavTabClick,
     showYearInReview,
-    user,
   ]);
 
   return (

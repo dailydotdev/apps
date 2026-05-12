@@ -84,6 +84,22 @@ export default function SettingsLayout({
 
   const { formRef } = useAuthForms();
 
+  const renderSettingsMenu = (): ReactElement | null => {
+    if (isMobile) {
+      return (
+        <ProfileSettingsMenuMobile
+          shouldKeepOpen
+          isOpen={isOpen}
+          onClose={() => router.push(profile?.permalink ?? webappUrl)}
+        />
+      );
+    }
+    if (isLaptop) {
+      return null;
+    }
+    return <ProfileSettingsMenuDesktop />;
+  };
+
   if (!isAuthReady) {
     return null;
   }
@@ -151,15 +167,7 @@ export default function SettingsLayout({
       )}
       <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
         <h1 className="sr-only">Settings</h1>
-        {isMobile ? (
-          <ProfileSettingsMenuMobile
-            shouldKeepOpen
-            isOpen={isOpen}
-            onClose={() => router.push(profile.permalink)}
-          />
-        ) : isLaptop ? null : (
-          <ProfileSettingsMenuDesktop />
-        )}
+        {renderSettingsMenu()}
         {children}
       </div>
     </>
