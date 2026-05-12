@@ -11,6 +11,7 @@ import { gqlClient } from '../graphql/common';
 
 const mockUseAuthContext = jest.fn();
 const mockUseLogContext = jest.fn();
+const mockUseLiveRoomQuery = jest.fn();
 const connectionInstances: Array<{
   options: {
     token?: string;
@@ -25,6 +26,10 @@ jest.mock('./AuthContext', () => ({
 
 jest.mock('./LogContext', () => ({
   useLogContext: () => mockUseLogContext(),
+}));
+
+jest.mock('../hooks/liveRooms/useLiveRoom', () => ({
+  useLiveRoom: (...args: unknown[]) => mockUseLiveRoomQuery(...args),
 }));
 
 jest.mock('../graphql/common', () => ({
@@ -120,6 +125,13 @@ describe('LiveRoomContext', () => {
     mockUseLogContext.mockReturnValue({
       logEvent: jest.fn(),
     });
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        status: 'live',
+      },
+      isLoading: false,
+    });
     (gqlClient.request as jest.Mock).mockResolvedValue({
       liveRoomJoinToken: {
         token: 'fresh-token',
@@ -154,5 +166,29 @@ describe('LiveRoomContext', () => {
       }),
     );
     expect(connectionInstances[0].options.resumeToken).toBeUndefined();
+  });
+
+  it('does not fetch a join token or open a websocket for an ended standup', async () => {
+    mockUseLiveRoomQuery.mockReturnValue({
+      data: {
+        id: 'room-1',
+        status: 'ended',
+      },
+      isLoading: false,
+    });
+
+    render(
+      <LiveRoomProvider roomId="room-1">
+        <div>standup</div>
+      </LiveRoomProvider>,
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(mockUseLiveRoomQuery).toHaveBeenCalledWith('room-1');
+    });
+
+    expect(gqlClient.request).not.toHaveBeenCalled();
+    expect(connectionInstances).toHaveLength(0);
   });
 });
