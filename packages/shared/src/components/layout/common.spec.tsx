@@ -84,6 +84,12 @@ jest.mock('../filters/IntroQuestButton', () => ({
   },
 }));
 
+jest.mock('../filters/LuckyButton', () => ({
+  LuckyButton: function MockLuckyButton() {
+    return null;
+  },
+}));
+
 jest.mock('../tooltip/Tooltip', () => ({
   Tooltip: function MockTooltip({
     children,
