@@ -18,6 +18,7 @@ import {
   BookmarkIcon,
   FeedbackIcon,
   HomeIcon,
+  HotIcon,
   JoystickIcon,
   SearchIcon,
   SettingsIcon,
@@ -80,6 +81,13 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
   {
+    id: SidebarSelectedCategory.Discover,
+    label: 'Discover',
+    icon: (active) => (
+      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
+  },
+  {
     id: SidebarSelectedCategory.Saved,
     label: 'Saved',
     icon: (active) => (
@@ -94,6 +102,8 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     ),
   },
 ];
+
+const discoverPathFragments = ['/tags', '/sources', '/users', '/discussed'];
 
 const getSidebarCategoryForPath = (
   activePage: string,
@@ -114,6 +124,10 @@ const getSidebarCategoryForPath = (
     return SidebarSelectedCategory.GameCenter;
   }
 
+  if (discoverPathFragments.some((path) => activePage.includes(path))) {
+    return SidebarSelectedCategory.Discover;
+  }
+
   return SidebarSelectedCategory.Main;
 };
 
@@ -126,7 +140,6 @@ const normalizeSidebarCategory = (
 
   if (
     category === SidebarSelectedCategory.Feeds ||
-    category === SidebarSelectedCategory.Discover ||
     category === SidebarSelectedCategory.Settings ||
     category === SidebarSelectedCategory.GameCenter
   ) {
@@ -294,6 +307,16 @@ export const SidebarDesktop = ({
       );
     }
 
+    if (selectedCategory === SidebarSelectedCategory.Discover) {
+      return (
+        <DiscoverSection
+          {...defaultRenderSectionProps}
+          title="Discover"
+          isItemsButton={isNavButtons ?? false}
+        />
+      );
+    }
+
     if (selectedCategory === SidebarSelectedCategory.Settings) {
       return <InnerProfileSettingsMenu className="px-3" />;
     }
@@ -319,11 +342,6 @@ export const SidebarDesktop = ({
           onNavTabClick={onNavTabClick}
           title="Feeds"
           isItemsButton={false}
-        />
-        <DiscoverSection
-          {...defaultRenderSectionProps}
-          title="Discover"
-          isItemsButton={isNavButtons ?? false}
         />
       </>
     );
