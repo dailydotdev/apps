@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import {
-  getPostReadTarget,
+  getReadArticleHref,
   getReadPostButtonText,
   isInternalReadType,
   isPostOrSharedPostTwitter,
@@ -21,9 +21,8 @@ import { BoostPostButton } from '../../features/boost/BoostButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import { ReaderLegacyLayoutToggleButton } from './reader/ReaderHeaderActionButtons';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureReaderModal } from '../../lib/featureManagement';
 import { useLegacyPostLayoutOptOut } from './reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderModalEligibility } from './reader/hooks/useReaderModalEligibility';
 
 const Container = classed('div', 'flex flex-row items-center');
 
@@ -48,17 +47,15 @@ export function PostHeaderActions({
   const isTwitter = isPostOrSharedPostTwitter(post);
   const isBoostButtonVisible = useShowBoostButton({ post });
   const isPoll = post?.type === PostType.Poll;
-  const { target: readTarget } = getPostReadTarget(post);
-  const readHref = readTarget?.permalink ?? post.permalink;
+  const readHref = getReadArticleHref(post);
   const isArticle = post?.type === PostType.Article;
   const hideShareReadButton =
     post?.type === PostType.Share && !isFixedNavigation;
-  const { value: isReaderModalEnabled } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: isArticle,
-  });
+  const { isEligible: isReaderEligible, isReaderModalEnabled } =
+    useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const showReaderToggle = isArticle && isReaderModalEnabled;
+  const showReaderToggle =
+    isArticle && isReaderEligible && isReaderModalEnabled;
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>

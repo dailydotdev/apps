@@ -1,6 +1,7 @@
 import {
   buildExtensionSiteEmbedFrameSrc,
   getExtensionSiteEmbedErrorMessage,
+  isDailyDevEmbedAncestor,
   isEmbeddableSiteTarget,
 } from './common';
 
@@ -24,6 +25,25 @@ describe('extension embed helpers', () => {
       false,
     );
     expect(isEmbeddableSiteTarget('ftp://example.com')).toBe(false);
+  });
+
+  it('recognizes daily.dev surfaces as embed ancestors', () => {
+    expect(isDailyDevEmbedAncestor('https://daily.dev')).toBe(true);
+    expect(isDailyDevEmbedAncestor('https://app.daily.dev')).toBe(true);
+    expect(isDailyDevEmbedAncestor('https://staging.daily.dev')).toBe(true);
+    expect(isDailyDevEmbedAncestor('https://preview-1.local.fylla.dev')).toBe(
+      true,
+    );
+    expect(
+      isDailyDevEmbedAncestor('https://preview-1.local.fylla.dev:5002'),
+    ).toBe(true);
+    expect(isDailyDevEmbedAncestor('http://localhost:5002')).toBe(true);
+    expect(isDailyDevEmbedAncestor('https://localhost:5002')).toBe(true);
+    expect(isDailyDevEmbedAncestor('chrome-extension://daily.dev')).toBe(false);
+    expect(isDailyDevEmbedAncestor('chrome-extension://localhost')).toBe(false);
+    expect(isDailyDevEmbedAncestor('https://daily.dev.evil.com')).toBe(false);
+    expect(isDailyDevEmbedAncestor('https://www.php.net')).toBe(false);
+    expect(isDailyDevEmbedAncestor('')).toBe(false);
   });
 
   it('prefers explicit error text when formatting failures', () => {

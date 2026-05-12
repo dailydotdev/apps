@@ -32,6 +32,7 @@ const FRAME_LOAD_TIMEOUT_MS = 7000;
 const PERMISSION_FRAME_CONNECT_TIMEOUT_MS = 7000;
 const EXTENSION_INSTALL_POLL_INTERVAL_MS = 1500;
 const EXTENSION_PING_MESSAGE_SOURCE = 'daily-extension-ping';
+const TARGET_FRAME_LOAD_FALLBACK_DELAY_MS = 1500;
 
 type PostArticlePreviewEmbedProps = {
   targetUrl: string;
@@ -41,15 +42,22 @@ type PostArticlePreviewEmbedProps = {
   rightHeaderActions?: ReactElement | null;
   onPreviewUnavailable?: () => void;
   /**
-   * Fires once when the iframe successfully reaches the `ready` state — i.e.
-   * permissions are granted and the target site is actually rendering. Use this
-   * to attribute "user is reading" actions (streak credit, server view event)
-   * rather than firing them on mount, which would also count install/permission
-   * prompts where the iframe is hidden.
+   * Fires once when the content script confirms the target document reached
+   * DOM ready. Use this to attribute "user is reading" actions (streak credit,
+   * server view event) rather than firing them on mount, which would also count
+   * install/permission prompts where the iframe is hidden.
    */
   onEmbedReady?: () => void;
   forceUnavailable?: boolean;
   collapseOnUnavailable?: boolean;
+  /**
+   * Article URL the domain label should link to. When provided, clicking the
+   * domain in the preview header opens the article through the same path as
+   * the "Read post" button — fire `onTargetLinkClick` for tracking parity.
+   */
+  targetHref?: string;
+  onTargetLinkClick?: () => void;
+  targetLinkInNewTab?: boolean;
 };
 
 export function PostArticlePreviewEmbed({
@@ -62,11 +70,15 @@ export function PostArticlePreviewEmbed({
   onEmbedReady,
   forceUnavailable = false,
   collapseOnUnavailable = true,
+  targetHref,
+  onTargetLinkClick,
+  targetLinkInNewTab = true,
 }: PostArticlePreviewEmbedProps): ReactElement | null {
   const [extensionId, setExtensionId] = useState(() =>
     getBrowserExtensionInstallId(),
   );
   const [isFrameLoaded, setIsFrameLoaded] = useState(false);
+  const [isTargetDomReady, setIsTargetDomReady] = useState(false);
   const [embedStatus, setEmbedStatus] =
     useState<UseExtensionSiteEmbedResult['status']>('idle');
   const [isInstalledAfterPrompt, setIsInstalledAfterPrompt] = useState(false);
@@ -74,6 +86,9 @@ export function PostArticlePreviewEmbed({
   // right UX: a pre-connect timeout or a genuine post-ready failure.
   const [timedOutBeforeConnect, setTimedOutBeforeConnect] = useState(false);
   const [previewBroken, setPreviewBroken] = useState(false);
+  const targetFrameLoadFallbackTimeoutRef = useRef<ReturnType<
+    typeof globalThis.setTimeout
+  > | null>(null);
 
   const isInExtension = checkIsExtension();
   const { isInstalled } = useIsBrowserExtensionInstalled();
@@ -98,14 +113,32 @@ export function PostArticlePreviewEmbed({
     )}&size=${iconSize}`;
   }, [previewDomain]);
 
+  const clearTargetFrameLoadFallback = useCallback(() => {
+    if (!targetFrameLoadFallbackTimeoutRef.current) {
+      return;
+    }
+
+    globalThis.clearTimeout(targetFrameLoadFallbackTimeoutRef.current);
+    targetFrameLoadFallbackTimeoutRef.current = null;
+  }, []);
+
   // Reset per target/extension change.
   useEffect(() => {
+    clearTargetFrameLoadFallback();
     setIsFrameLoaded(false);
+    setIsTargetDomReady(false);
     setEmbedStatus('idle');
     setIsInstalledAfterPrompt(false);
     setTimedOutBeforeConnect(false);
     setPreviewBroken(false);
-  }, [extensionId, targetUrl]);
+  }, [clearTargetFrameLoadFallback, extensionId, targetUrl]);
+
+  useEffect(
+    () => () => {
+      clearTargetFrameLoadFallback();
+    },
+    [clearTargetFrameLoadFallback],
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -167,6 +200,23 @@ export function PostArticlePreviewEmbed({
     navigator.clipboard?.writeText(targetUrl).catch(() => {});
   }, [targetUrl]);
 
+  const onTargetDomReady = useCallback(() => {
+    clearTargetFrameLoadFallback();
+    setIsTargetDomReady(true);
+    setIsFrameLoaded(true);
+    setPreviewBroken(false);
+  }, [clearTargetFrameLoadFallback]);
+
+  const onTargetFrameLoad = useCallback(() => {
+    clearTargetFrameLoadFallback();
+    // Native iframe load can fire for browser error pages, so keep it as a
+    // delayed UI fallback while the content-script DOM-ready signal wins.
+    targetFrameLoadFallbackTimeoutRef.current = globalThis.setTimeout(() => {
+      setIsFrameLoaded(true);
+      targetFrameLoadFallbackTimeoutRef.current = null;
+    }, TARGET_FRAME_LOAD_FALLBACK_DELAY_MS);
+  }, [clearTargetFrameLoadFallback]);
+
   // "Extension not installed / origin not in frame.html's WAR matches":
   //  - No extensionId at all → can't even construct the iframe src.
   //  - OR ping hasn't stamped the install marker AND the iframe never
@@ -210,6 +260,7 @@ export function PostArticlePreviewEmbed({
 
           setIsInstalledAfterPrompt(true);
           setIsFrameLoaded(false);
+          setIsTargetDomReady(false);
           setEmbedStatus('idle');
           setTimedOutBeforeConnect(false);
           setPreviewBroken(false);
@@ -264,13 +315,13 @@ export function PostArticlePreviewEmbed({
     return () => globalThis.clearTimeout(timeout);
   }, [isAwaitingFirstConnect]);
 
-  // Post-ready timeout: iframe is in `ready` state but the target site never
-  // actually loaded (publisher blocked embedding even after our DNR rule was
-  // set). This is a genuine "preview unavailable".
+  // Post-ready timeout: iframe is in `ready` state but the target document
+  // never sent the DOM-ready signal. Native iframe `load` is only a UI
+  // fallback because it can also fire for browser error pages.
   const isAwaitingTargetLoad =
     !!extensionId &&
     embedStatus === 'ready' &&
-    !isFrameLoaded &&
+    !isTargetDomReady &&
     !isGenuinelyUnavailable;
   useEffect(() => {
     if (!isAwaitingTargetLoad) {
@@ -289,6 +340,24 @@ export function PostArticlePreviewEmbed({
 
   const onEmbedReadyRef = useRef(onEmbedReady);
   onEmbedReadyRef.current = onEmbedReady;
+  const didCallEmbedReadyRef = useRef(false);
+
+  useEffect(() => {
+    didCallEmbedReadyRef.current = false;
+  }, [targetUrl]);
+
+  useEffect(() => {
+    if (
+      embedStatus !== 'ready' ||
+      !isTargetDomReady ||
+      didCallEmbedReadyRef.current
+    ) {
+      return;
+    }
+
+    didCallEmbedReadyRef.current = true;
+    onEmbedReadyRef.current?.();
+  }, [embedStatus, isTargetDomReady]);
 
   const logEmbedState = useCallback(
     (state: UseExtensionSiteEmbedResult) => {
@@ -310,7 +379,6 @@ export function PostArticlePreviewEmbed({
           event_name: LogEvent.ReaderEmbedReady,
           extra: JSON.stringify(baseExtra),
         });
-        onEmbedReadyRef.current?.();
         return;
       }
 
@@ -348,6 +416,7 @@ export function PostArticlePreviewEmbed({
       setEmbedStatus(state.status);
       if (state.status !== 'ready') {
         setIsFrameLoaded(false);
+        setIsTargetDomReady(false);
       }
       logEmbedState(state);
       // Keep the iframe mounted for states the user can retry from within
@@ -465,15 +534,28 @@ export function PostArticlePreviewEmbed({
               color={TypographyColor.Secondary}
               className="min-w-0 flex-1 truncate"
             >
-              <button
-                type="button"
-                onClick={onCopyPreviewUrl}
-                className="block w-full truncate text-left"
-                title="Copy preview URL"
-                aria-label="Copy preview URL"
-              >
-                {previewDomain}
-              </button>
+              {targetHref ? (
+                <a
+                  href={targetHref}
+                  target={targetLinkInNewTab ? '_blank' : '_self'}
+                  rel="noopener noreferrer"
+                  onClick={onTargetLinkClick}
+                  className="block w-full truncate text-left underline-offset-2 hover:underline"
+                  title={`Open ${previewDomain}`}
+                >
+                  {previewDomain}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onCopyPreviewUrl}
+                  className="block w-full truncate text-left"
+                  title="Copy preview URL"
+                  aria-label="Copy preview URL"
+                >
+                  {previewDomain}
+                </button>
+              )}
             </Typography>
           </div>
           {rightHeaderActions ? (
@@ -491,9 +573,11 @@ export function PostArticlePreviewEmbed({
               targetUrl={targetUrl}
               enabled
               className="h-full min-h-[28rem] w-full flex-1 border-0"
+              isTargetLoaded={isFrameLoaded}
               permissionFrameTitle="Embedded browsing permissions"
               targetFrameTitle="Article preview"
-              onTargetFrameLoad={() => setIsFrameLoaded(true)}
+              onTargetDomReady={onTargetDomReady}
+              onTargetFrameLoad={onTargetFrameLoad}
               onStateChange={onEmbedStateChange}
               renderState={renderEmbedChrome}
             />

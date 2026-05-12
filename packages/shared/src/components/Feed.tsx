@@ -53,7 +53,7 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketing/cta/common';
-import { isExtensionCapableBrowser, isNullOrUndefined } from '../lib/func';
+import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
@@ -68,7 +68,6 @@ import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featureNewD1Experience,
-  featureReaderModal,
 } from '../lib/featureManagement';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
@@ -78,6 +77,7 @@ import { ActionType } from '../graphql/actions';
 import { TopHero } from './marketing/banners/HeroBottomBanner';
 import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
 import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -337,21 +337,15 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
-  // Only enroll users whose browser can install our extension into the
-  // reader-modal experiment — Firefox/Safari/Other can never complete the
-  // embedded-browsing flow, so pulling them into the test pollutes the stats.
-  const isExtensionBrowser = useMemo(() => isExtensionCapableBrowser(), []);
   const {
-    value: readerModalFromGrowthBook,
-    isLoading: isReaderFeatureLoading,
-  } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: isExtensionBrowser,
-  });
+    isEligible: isReaderEligible,
+    isReaderModalEnabled: readerModalFromGrowthBook,
+    isReaderFeatureLoading,
+  } = useReaderModalEligibility();
   const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
   const isTabletViewport = useViewSize(ViewSize.Tablet);
   const isReaderModalOn =
-    isExtensionBrowser &&
+    isReaderEligible &&
     readerModalFromGrowthBook &&
     !isLegacyLayoutOptedOut &&
     isTabletViewport;
