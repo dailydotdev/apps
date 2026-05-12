@@ -21,6 +21,7 @@ import {
   HomeIcon,
   HotIcon,
   JoystickIcon,
+  PlusIcon,
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
@@ -28,6 +29,8 @@ import {
   SquadIcon,
   UserIcon,
 } from '../icons';
+import { useSquadNavigation } from '../../hooks';
+import { Origin } from '../../lib/log';
 import { fromCDN } from '../../lib/links';
 import { IconSize } from '../Icon';
 import {
@@ -236,6 +239,7 @@ export const SidebarDesktop = ({
   const { logEvent } = useLogContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
+  const { openNewSquad } = useSquadNavigation();
   const { isLoggedIn, user } = useAuthContext();
   useRecentPagesTracker();
   const activePage = activePageProp || router.asPath || router.pathname;
@@ -298,7 +302,6 @@ export const SidebarDesktop = ({
       return (
         <NetworkSection
           {...defaultRenderSectionProps}
-          title="Squads"
           isItemsButton={isNavButtons ?? false}
         />
       );
@@ -308,7 +311,6 @@ export const SidebarDesktop = ({
       return (
         <BookmarkSection
           {...defaultRenderSectionProps}
-          title="Saved"
           isItemsButton={false}
         />
       );
@@ -318,7 +320,6 @@ export const SidebarDesktop = ({
       return (
         <DiscoverSection
           {...defaultRenderSectionProps}
-          title="Discover"
           isItemsButton={isNavButtons ?? false}
         />
       );
@@ -364,9 +365,15 @@ export const SidebarDesktop = ({
   )?.label;
   const isSettingsSelected =
     selectedCategory === SidebarSelectedCategory.Settings;
-  const isGameCenterSelected =
-    selectedCategory === SidebarSelectedCategory.GameCenter;
-  const isUtilityPanelSelected = isSettingsSelected || isGameCenterSelected;
+  const isHomePanel = selectedCategory === SidebarSelectedCategory.Main;
+  const isSquadsPanel = selectedCategory === SidebarSelectedCategory.Squads;
+  // Anything that's not the personalised Home panel gets the slim
+  // generic header treatment (title left, optional add + close right) and
+  // skips the profile chrome, create-post, and feedback widget.
+  const isUtilityPanelSelected = !isHomePanel;
+  const utilityPanelTitle = isSettingsSelected
+    ? 'Settings'
+    : selectedLabel ?? '';
 
   return (
     <SidebarAside
@@ -547,13 +554,7 @@ export const SidebarDesktop = ({
             : 'pointer-events-none w-0 opacity-0',
         )}
       >
-        {isSettingsSelected ? (
-          <div className="flex h-10 items-center px-3 pt-3">
-            <Typography bold type={TypographyType.Body}>
-              Settings
-            </Typography>
-          </div>
-        ) : (
+        {isHomePanel ? (
           <div className="flex items-center justify-between gap-1 px-2 pt-3">
             {isLoggedIn ? (
               <ProfileButton compact className="max-w-[calc(100%-5.25rem)]" />
@@ -564,6 +565,36 @@ export const SidebarDesktop = ({
             <div className="ml-auto flex shrink-0 items-center gap-1">
               {isLoggedIn && <SidebarStreakButton />}
 
+              <Tooltip side="bottom" content="Close sidebar">
+                <button
+                  type="button"
+                  onClick={onToggleExpanded}
+                  aria-label="Close sidebar"
+                  className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                >
+                  <SidebarArrowLeft size={IconSize.XSmall} aria-hidden />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+        ) : (
+          <div className="flex h-10 items-center justify-between gap-1 px-3 pt-3">
+            <Typography bold type={TypographyType.Body}>
+              {utilityPanelTitle}
+            </Typography>
+            <div className="flex shrink-0 items-center gap-1">
+              {isSquadsPanel && (
+                <Tooltip side="bottom" content="New Squad">
+                  <button
+                    type="button"
+                    onClick={() => openNewSquad({ origin: Origin.Sidebar })}
+                    aria-label="New Squad"
+                    className="focus-outline flex size-7 shrink-0 items-center justify-center rounded-10 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
+                  >
+                    <PlusIcon size={IconSize.XSmall} aria-hidden />
+                  </button>
+                </Tooltip>
+              )}
               <Tooltip side="bottom" content="Close sidebar">
                 <button
                   type="button"
