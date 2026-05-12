@@ -13,6 +13,7 @@ import { useLiveRoomParticipantStreams } from './useLiveRoomParticipantStreams';
 const MAX_STAGE_TILES_PER_PAGE = 12;
 const MOBILE_MAX_STAGE_TILES_PER_PAGE = 4;
 const EMPTY_PARTICIPANT_IDS: string[] = [];
+const INITIAL_CHAT_MENTION_RECENT_SENDER_COUNT = 7;
 
 const getStageGridColumnCount = (count: number, isMobile: boolean): number => {
   if (count <= 1) {
@@ -28,6 +29,65 @@ const getStageGridColumnCount = (count: number, isMobile: boolean): number => {
     return 3;
   }
   return 4;
+};
+
+export const getLiveRoomMentionSuggestions = ({
+  host,
+  participantIds,
+  participantProfilesById,
+  chatMessages,
+}: {
+  host?: UserShortProfile;
+  participantIds: string[];
+  participantProfilesById: Map<string, UserShortProfile>;
+  chatMessages: LiveRoomContextValue['chatMessages'];
+}): UserShortProfile[] => {
+  if (!host) {
+    return [];
+  }
+
+  const suggestionIds = new Set<string>([host.id]);
+  const suggestions: UserShortProfile[] = [host];
+  const recentSenderIds: string[] = [];
+
+  for (let index = chatMessages.length - 1; index >= 0; index -= 1) {
+    const senderId = chatMessages[index]?.participantId;
+
+    if (
+      !senderId ||
+      senderId === host.id ||
+      suggestionIds.has(senderId) ||
+      recentSenderIds.length >= INITIAL_CHAT_MENTION_RECENT_SENDER_COUNT
+    ) {
+      continue;
+    }
+
+    recentSenderIds.push(senderId);
+    suggestionIds.add(senderId);
+  }
+
+  recentSenderIds.forEach((id) => {
+    const profile = participantProfilesById.get(id);
+    if (profile) {
+      suggestions.push(profile);
+    }
+  });
+
+  participantIds.forEach((id) => {
+    if (suggestionIds.has(id)) {
+      return;
+    }
+
+    const profile = participantProfilesById.get(id);
+    if (!profile) {
+      return;
+    }
+
+    suggestionIds.add(id);
+    suggestions.push(profile);
+  });
+
+  return suggestions;
 };
 
 interface UseLiveRoomStageModelProps {
@@ -134,21 +194,13 @@ export const useLiveRoomStageModel = ({
     return nextProfiles;
   }, [participantProfiles, room?.host]);
   const mentionSuggestions = useMemo(() => {
-    if (!room?.host) {
-      return [] as UserShortProfile[];
-    }
-
-    const suggestions: UserShortProfile[] = [room.host];
-
-    participantIds.forEach((id) => {
-      const profile = participantProfilesById.get(id);
-      if (profile) {
-        suggestions.push(profile);
-      }
+    return getLiveRoomMentionSuggestions({
+      host: room?.host,
+      participantIds,
+      participantProfilesById,
+      chatMessages,
     });
-
-    return suggestions;
-  }, [participantIds, participantProfilesById, room?.host]);
+  }, [chatMessages, participantIds, participantProfilesById, room?.host]);
   const audioPublisherIds = useMemo(
     () =>
       new Set(
