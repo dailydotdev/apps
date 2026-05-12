@@ -18,6 +18,7 @@ import {
 import { useGrowthBookContext } from '../GrowthBookProvider';
 import { MiniCloseIcon, ReadingStreakIcon, StarIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { StreakShareFlowDemo } from './StreakShareFlowDemo';
 
 const STAR_INDICES = [0, 1, 2, 3, 4] as const;
 
@@ -35,6 +36,8 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
   const [flagsForced, setFlagsForced] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewPositive, setReviewPositive] = useState(false);
+  const [demoStreak, setDemoStreak] = useState(7);
+  const [demoOpen, setDemoOpen] = useState(false);
 
   if (isTesting) {
     return null;
@@ -58,11 +61,28 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
 
   const launchStreakInvite = (currentStreak: number, maxStreak: number) => {
     setFlagsForcedOn(true);
+    setDemoStreak(currentStreak);
     openModal({
       type: LazyModal.NewStreak,
       props: { currentStreak, maxStreak },
     });
   };
+
+  const buildDemoMessage = (streak: number) => {
+    const firstName = user?.name?.split(' ')[0] ?? 'I';
+    if (streak >= 100) {
+      return `🔥 ${firstName} read dev content every day for ${streak} days straight on daily.dev. Worth a look:`;
+    }
+    if (streak >= 30) {
+      return `🔥 ${streak} days reading dev news on daily.dev — no skips. Want to give it a try?`;
+    }
+    return `🔥 ${streak}-day reading streak on daily.dev. Read with me:`;
+  };
+
+  const demoUsername = user?.username ?? 'you';
+  const demoLink = user?.username
+    ? `daily.dev/${user.username}`
+    : 'daily.dev/your-profile';
 
   const openFeedbackModal = () => openModal({ type: LazyModal.Feedback });
 
@@ -227,11 +247,8 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              One click forces the feature flag and opens the streak modal so
-              you can see the new <strong>StreakShareCallout</strong> live —
-              chat-bubble preview, pre-written message with your streak count, 5
-              channel buttons (WhatsApp, X, Telegram, Email, Copy), tracked
-              links per channel.
+              Designed Trophy Card with the streak count, 5 share channels, and
+              an honest pre-written message that matches the destination page.
             </Typography>
 
             <div className="flex flex-col gap-2">
@@ -264,6 +281,28 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
                   100 days 🏆
                 </Button>
               </div>
+            </div>
+
+            {/* Demo flow — shows what happens after a friend taps WhatsApp */}
+            <div className="border-accent-bacon-default/30 flex flex-col gap-2 border-t pt-3">
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                onClick={() => setDemoOpen((v) => !v)}
+              >
+                {demoOpen
+                  ? 'Hide WhatsApp flow demo'
+                  : '👁 Preview the WhatsApp flow'}
+              </Button>
+              {demoOpen && (
+                <StreakShareFlowDemo
+                  username={demoUsername}
+                  currentStreak={demoStreak}
+                  message={buildDemoMessage(demoStreak)}
+                  link={demoLink}
+                />
+              )}
             </div>
 
             <Typography

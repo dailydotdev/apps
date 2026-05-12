@@ -18,6 +18,7 @@ import { Origin, LogEvent, TargetType } from '../../lib/log';
 import { ReferralGrowthSurface } from '../../lib/referralGrowth';
 import {
   CopyIcon,
+  EyeIcon,
   MailIcon,
   ReadingStreakIcon,
   TelegramIcon,
@@ -28,27 +29,29 @@ import {
 import { IconSize } from '../Icon';
 
 type StreakShareCalloutProps = {
-  /** Profile or share URL to invite friends to. */
+  /** Profile or share URL the recipient will land on. */
   url: string;
-  /** Streak count to celebrate. */
   currentStreak: number;
   className?: string;
 };
 
-type ChannelKey = 'whatsapp' | 'twitter' | 'telegram' | 'email' | 'copy';
+type ChannelKey = 'whatsapp' | 'twitter' | 'telegram' | 'email';
 
 type Channel = {
   key: ChannelKey;
   provider: ShareProvider;
   label: string;
   icon: ReactElement;
-  className: string;
+  /**
+   * Pill background uses the design system Button color tokens
+   * (`btn-primary-*` classes) so dark/light mode are handled by the theme.
+   */
+  pillClassName: string;
 };
 
 /**
- * Build a share URL that includes both the pre-written message AND the link
- * for providers that support text. This works around `getWhatsappShareLink`
- * encoding only the URL.
+ * Build provider URLs that include both the message AND the link.
+ * Works around `getWhatsappShareLink` only encoding the URL.
  */
 const buildShareHref = (
   channel: ChannelKey,
@@ -60,40 +63,89 @@ const buildShareHref = (
   if (channel === 'whatsapp') {
     return `https://wa.me/?text=${encodeURIComponent(fullText)}`;
   }
-
   if (channel === 'twitter') {
     return `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       `${message} via @dailydotdev`,
     )}&url=${encodeURIComponent(link)}`;
   }
-
   if (channel === 'telegram') {
     return `https://t.me/share/url?url=${encodeURIComponent(
       link,
     )}&text=${encodeURIComponent(message)}`;
   }
-
   if (channel === 'email') {
     return `mailto:?subject=${encodeURIComponent(
-      'Think you can beat my reading streak?',
+      'I read with daily.dev — you should too',
     )}&body=${encodeURIComponent(`${message}\n\n${link}`)}`;
   }
-
   return link;
 };
 
-const buildMessage = (currentStreak: number): string => {
-  const days = currentStreak === 1 ? 'day' : 'days';
+/**
+ * Pre-written, honest message: it tells the friend what they'll see when they
+ * tap the link (the inviter's profile + streak), not a misleading "challenge"
+ * that doesn't exist.
+ */
+const buildMessage = (currentStreak: number, name?: string): string => {
+  const who = name ? `${name}` : 'I';
   if (currentStreak >= 100) {
-    return `🔥 ${currentStreak} ${days} of reading dev content every single day. Think you can hang?`;
+    return `🔥 ${who} read dev content every day for ${currentStreak} days straight on daily.dev. Worth a look:`;
   }
   if (currentStreak >= 30) {
-    return `🔥 I'm on a ${currentStreak}-${
-      days === 'days' ? 'day' : 'day'
-    } reading streak on daily.dev. Bet you'd quit by day 5.`;
+    return `🔥 ${currentStreak} days reading dev news on daily.dev — no skips. Want to give it a try?`;
   }
-  return `🔥 I just hit a ${currentStreak}-day reading streak on daily.dev. Think you can beat me?`;
+  return `🔥 ${currentStreak}-day reading streak on daily.dev. Read with me:`;
 };
+
+const milestoneLabel = (streak: number): string => {
+  if (streak >= 100) {
+    return 'Streak royalty';
+  }
+  if (streak >= 60) {
+    return 'Unstoppable';
+  }
+  if (streak >= 30) {
+    return 'On fire';
+  }
+  if (streak >= 14) {
+    return 'Two weeks strong';
+  }
+  if (streak >= 7) {
+    return 'Week strong';
+  }
+  return 'Building the habit';
+};
+
+const channels: Channel[] = [
+  {
+    key: 'whatsapp',
+    provider: ShareProvider.WhatsApp,
+    label: 'WhatsApp',
+    icon: <WhatsappIcon size={IconSize.Small} />,
+    pillClassName: 'btn-primary-whatsapp',
+  },
+  {
+    key: 'twitter',
+    provider: ShareProvider.Twitter,
+    label: 'X',
+    icon: <TwitterIcon size={IconSize.Small} />,
+    pillClassName: 'btn-primary-twitter',
+  },
+  {
+    key: 'telegram',
+    provider: ShareProvider.Telegram,
+    label: 'Telegram',
+    icon: <TelegramIcon size={IconSize.Small} />,
+    pillClassName: 'btn-primary-telegram',
+  },
+  {
+    key: 'email',
+    provider: ShareProvider.Email,
+    label: 'Email',
+    icon: <MailIcon size={IconSize.Small} />,
+    pillClassName: 'btn-primary-bacon',
+  },
+];
 
 export function StreakShareCallout({
   url,
@@ -103,6 +155,7 @@ export function StreakShareCallout({
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const loggedImpression = useRef(false);
+  const [showPreview, setShowPreview] = useState(false);
   const { getTrackedUrl, shareLink, isLoading } = useGetShortUrl({
     query: {
       url,
@@ -112,9 +165,12 @@ export function StreakShareCallout({
   });
   const trackedUrl = getTrackedUrl(url, ReferralCampaignKey.ShareProfile);
   const link = shareLink || trackedUrl;
-  const message = useMemo(() => buildMessage(currentStreak), [currentStreak]);
-  const [copied, copy] = useCopyLink(() => `${message}\n${link}`);
-  const [nativeShared, setNativeShared] = useState(false);
+  const message = useMemo(
+    () => buildMessage(currentStreak, user?.name?.split(' ')[0]),
+    [currentStreak, user?.name],
+  );
+  const fullText = `${message}\n${link}`;
+  const [copied, copy] = useCopyLink(() => fullText);
 
   const canNativeShare =
     typeof globalThis !== 'undefined' &&
@@ -135,7 +191,6 @@ export function StreakShareCallout({
         streak: currentStreak,
       }),
     });
-
     loggedImpression.current = true;
   }, [currentStreak, logEvent, url, user?.id]);
 
@@ -165,106 +220,82 @@ export function StreakShareCallout({
   const onNativeShare = async () => {
     try {
       await globalThis.navigator.share({
-        title: 'Think you can beat my reading streak?',
+        title: `${user?.name ?? 'I'} read with daily.dev`,
         text: message,
         url: link,
       });
-      setNativeShared(true);
       logShare(ShareProvider.Native);
     } catch {
-      // User cancelled or share failed — no-op
+      // user cancelled
     }
   };
 
-  const channels: Channel[] = [
-    {
-      key: 'whatsapp',
-      provider: ShareProvider.WhatsApp,
-      label: 'WhatsApp',
-      icon: <WhatsappIcon size={IconSize.Small} />,
-      className: 'bg-[#25D366]/15 text-[#25D366] hover:bg-[#25D366]/25',
-    },
-    {
-      key: 'twitter',
-      provider: ShareProvider.Twitter,
-      label: 'X',
-      icon: <TwitterIcon size={IconSize.Small} />,
-      className:
-        'bg-text-primary/10 text-text-primary hover:bg-text-primary/20',
-    },
-    {
-      key: 'telegram',
-      provider: ShareProvider.Telegram,
-      label: 'Telegram',
-      icon: <TelegramIcon size={IconSize.Small} />,
-      className: 'bg-[#229ED9]/15 text-[#229ED9] hover:bg-[#229ED9]/25',
-    },
-    {
-      key: 'email',
-      provider: ShareProvider.Email,
-      label: 'Email',
-      icon: <MailIcon size={IconSize.Small} />,
-      className:
-        'bg-text-tertiary/15 text-text-tertiary hover:bg-text-tertiary/25',
-    },
-  ];
+  const username = user.username || 'you';
+  const milestone = milestoneLabel(currentStreak);
 
   return (
-    <div
-      className={classNames(
-        'border-accent-bacon-default/25 from-accent-bacon-default/10 to-accent-cheese-default/10 relative w-full overflow-hidden rounded-16 border bg-gradient-to-br via-surface-float p-4 text-left',
-        className,
-      )}
-    >
-      {/* Decorative glow */}
-      <div className="bg-accent-bacon-default/20 pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl" />
-      <div className="bg-accent-cheese-default/15 pointer-events-none absolute -bottom-12 -left-10 h-32 w-32 rounded-full blur-3xl" />
+    <div className={classNames('flex w-full flex-col gap-3', className)}>
+      {/* The "Trophy Card" — designed shareable visual */}
+      <div className="relative overflow-hidden rounded-16 bg-gradient-to-br from-accent-bacon-default to-accent-cheese-default p-5 text-white shadow-2">
+        {/* Decorative blobs */}
+        <div
+          aria-hidden
+          className="bg-white/15 pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl"
+        />
+        <div
+          aria-hidden
+          className="bg-white/10 pointer-events-none absolute -bottom-10 -left-10 h-28 w-28 rounded-full blur-2xl"
+        />
 
-      <div className="relative flex flex-col gap-3">
-        {/* Header */}
-        <div className="flex items-center gap-2.5">
-          <span className="bg-accent-bacon-default/20 flex h-8 w-8 shrink-0 items-center justify-center rounded-10 text-accent-bacon-default">
-            <ReadingStreakIcon secondary size={IconSize.XSmall} />
+        <div className="relative flex items-start justify-between">
+          <span className="bg-white/20 flex h-9 w-9 items-center justify-center rounded-10 backdrop-blur-sm">
+            <ReadingStreakIcon
+              secondary
+              size={IconSize.XSmall}
+              className="text-white"
+            />
           </span>
-          <div className="flex flex-col">
-            <Typography bold type={TypographyType.Callout}>
-              Challenge a friend
-            </Typography>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              Drop your streak — bet they can&apos;t keep up
-            </Typography>
-          </div>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption2}
+            className="!text-white/80"
+          >
+            daily.dev
+          </Typography>
         </div>
 
-        {/* Chat-bubble preview of the actual outgoing message */}
-        <div className="relative ml-1 rounded-16 rounded-bl-4 border border-border-subtlest-tertiary bg-surface-primary px-3.5 py-2.5">
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Footnote}
-            className="whitespace-pre-line"
-          >
-            {message}
-          </Typography>
+        <div className="relative mt-4 flex items-baseline gap-2">
+          <span className="font-bold leading-none text-white typo-mega3">
+            {currentStreak}
+          </span>
+          <span className="!text-white/90 font-bold typo-callout">
+            day streak
+          </span>
+        </div>
+
+        <div className="relative mt-4 flex items-center justify-between">
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
-            color={TypographyColor.Link}
-            className="mt-1 block truncate"
+            className="!text-white/85"
           >
-            {isLoading ? 'Preparing your link…' : link}
+            @{username}
           </Typography>
-          {/* Tail of the chat bubble */}
-          <span
-            aria-hidden
-            className="rounded-sm absolute -bottom-px -left-1.5 h-2.5 w-2.5 rotate-45 border-b border-l border-border-subtlest-tertiary bg-surface-primary"
-          />
+          <span className="bg-white/20 rounded-full px-2 py-0.5 text-white typo-caption2">
+            {milestone}
+          </span>
         </div>
+      </div>
 
-        {/* Channel row */}
-        <div className="mt-1 flex items-center justify-between gap-2">
+      {/* Share row */}
+      <div className="flex flex-col gap-2">
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          Send your streak to a friend
+        </Typography>
+        <div className="flex items-center justify-between gap-1.5">
           {channels.map((c) => (
             <a
               key={c.key}
@@ -274,14 +305,14 @@ export function StreakShareCallout({
               aria-label={`Share via ${c.label}`}
               onClick={() => logShare(c.provider)}
               className={classNames(
-                'group flex flex-1 flex-col items-center gap-1.5',
+                'group flex flex-1 flex-col items-center gap-1',
                 (isLoading || !link) && 'pointer-events-none opacity-50',
               )}
             >
               <span
                 className={classNames(
-                  'flex h-10 w-10 items-center justify-center rounded-12 transition-all duration-200 group-hover:-translate-y-0.5',
-                  c.className,
+                  'flex h-10 w-10 items-center justify-center rounded-12 transition-transform duration-200 group-hover:-translate-y-0.5',
+                  c.pillClassName,
                 )}
               >
                 {c.icon}
@@ -295,23 +326,20 @@ export function StreakShareCallout({
             </a>
           ))}
 
-          {/* Copy is the always-available fallback */}
           <button
             type="button"
             onClick={onCopy}
             disabled={isLoading || !link}
             aria-label="Copy invite message"
             className={classNames(
-              'group flex flex-1 flex-col items-center gap-1.5',
+              'group flex flex-1 flex-col items-center gap-1',
               (isLoading || !link) && 'pointer-events-none opacity-50',
             )}
           >
             <span
               className={classNames(
-                'flex h-10 w-10 items-center justify-center rounded-12 transition-all duration-200 group-hover:-translate-y-0.5',
-                copied
-                  ? 'bg-accent-avocado-default/20 text-accent-avocado-default'
-                  : 'bg-accent-cabbage-default/15 hover:bg-accent-cabbage-default/25 text-accent-cabbage-default',
+                'flex h-10 w-10 items-center justify-center rounded-12 transition-transform duration-200 group-hover:-translate-y-0.5',
+                copied ? 'btn-primary-avocado' : 'btn-primary-cabbage',
               )}
             >
               {copied ? (
@@ -332,19 +360,48 @@ export function StreakShareCallout({
             </Typography>
           </button>
         </div>
-
-        {/* Native share — surfaces on mobile only */}
-        {canNativeShare && (
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-            onClick={onNativeShare}
-          >
-            {nativeShared ? '✓ Shared' : 'More sharing options…'}
-          </Button>
-        )}
       </div>
+
+      {/* Preview disclosure — shows the actual outgoing message */}
+      <button
+        type="button"
+        className="flex items-center justify-center gap-1.5 text-text-tertiary transition-colors typo-caption1 hover:text-text-primary"
+        onClick={() => setShowPreview((v) => !v)}
+      >
+        <EyeIcon size={IconSize.XSmall} />
+        {showPreview ? 'Hide message preview' : 'Preview the message'}
+      </button>
+
+      {showPreview && (
+        <div className="rounded-12 rounded-bl-4 border border-border-subtlest-tertiary bg-surface-float p-3">
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Footnote}
+            className="whitespace-pre-line"
+          >
+            {message}
+          </Typography>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Link}
+            className="mt-1 block truncate"
+          >
+            {isLoading ? 'Preparing your link…' : link}
+          </Typography>
+        </div>
+      )}
+
+      {canNativeShare && (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Secondary}
+          onClick={onNativeShare}
+        >
+          More sharing options…
+        </Button>
+      )}
     </div>
   );
 }
