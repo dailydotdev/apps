@@ -25,7 +25,8 @@ export function useBanner(): UseBanner {
     enabled: !!alerts.banner,
   });
 
-  const isHackathonBanner = latestBanner?.title === 'daily.dev Hackathon';
+  const isHackathonBanner =
+    latestBanner?.banner?.title === 'daily.dev Hackathon';
 
   const { data: hackathonParticipation, isPending } = useQuery({
     ...hackathonParticipationQueryOptions(user),
