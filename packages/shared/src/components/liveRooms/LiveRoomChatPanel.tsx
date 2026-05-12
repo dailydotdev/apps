@@ -27,6 +27,7 @@ import {
   MenuIcon,
   PlusIcon,
   SendAirplaneIcon,
+  ShieldIcon,
   TrashIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
@@ -518,17 +519,25 @@ export const LiveRoomChatPanel = ({
                 <ProfilePicture user={sender} size={ProfileImageSize.Small} />
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">{senderName}</span>
-                    {isSenderHost ? (
-                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
-                        Host
-                      </span>
-                    ) : null}
-                    {isSenderCoHost ? (
-                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
-                        Co-host
-                      </span>
-                    ) : null}
+                    <span className="mr-2 inline-flex items-center gap-1">
+                      <span className="font-bold">{senderName}</span>
+                      {isSenderHost ? (
+                        <ShieldIcon
+                          secondary
+                          size={IconSize.XXSmall}
+                          className="text-accent-bun-default"
+                          aria-label="Host"
+                        />
+                      ) : null}
+                      {isSenderCoHost ? (
+                        <ShieldIcon
+                          secondary
+                          size={IconSize.XXSmall}
+                          className="text-accent-water-bolder"
+                          aria-label="Co-host"
+                        />
+                      ) : null}
+                    </span>
                     <Markdown
                       className="inline !text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_code]:rounded-[0.375rem] [&_code]:bg-surface-hover [&_code]:px-1 [&_code]:py-0.5 [&_p]:inline [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.5]"
                       content={chatMarkdownToHtml(message.body, {

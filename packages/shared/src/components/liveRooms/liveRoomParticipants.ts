@@ -20,9 +20,3 @@ export const buildParticipantProfile = (
   permalink: '',
 });
 
-export const buildDisplayProfile = (
-  user: UserShortProfile,
-): UserShortProfile => ({
-  ...user,
-  name: userDisplayName(user),
-});
