@@ -36,8 +36,7 @@ export function useBanner(): UseBanner {
   const isAvailable = useMemo(() => {
     if (
       isHackathonBanner &&
-      !isPending &&
-      !!hackathonParticipation?.whoami?.isHackathonParticipant
+      (isPending || !!hackathonParticipation?.whoami?.isHackathonParticipant)
     ) {
       return false;
     }
