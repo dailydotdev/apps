@@ -16,6 +16,7 @@ import { SidebarSettingsFlags } from '../../graphql/settings';
 import { useLogContext } from '../../contexts/LogContext';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetId } from '../../lib/log';
+import type { IconProps } from '../Icon';
 import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { webappUrl } from '../../lib/constants';
@@ -25,9 +26,11 @@ import { Tooltip } from '../tooltip/Tooltip';
 export const ToggleClickbaitShield = ({
   origin,
   buttonProps = {},
+  iconSize,
 }: {
   origin: Origin;
   buttonProps?: ButtonProps<'button'>;
+  iconSize?: IconProps['size'];
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { queryKey: feedQueryKey } = useActiveFeedContext();
@@ -62,9 +65,12 @@ export const ToggleClickbaitShield = ({
           {...commonIconProps}
           icon={
             hasUsedFreeTrial ? (
-              <ShieldWarningIcon className="text-accent-ketchup-default" />
+              <ShieldWarningIcon
+                className="text-accent-ketchup-default"
+                size={iconSize}
+              />
             ) : (
-              <ShieldPlusIcon />
+              <ShieldPlusIcon size={iconSize} />
             )
           }
           onClick={() => {
@@ -93,9 +99,9 @@ export const ToggleClickbaitShield = ({
         {...commonIconProps}
         icon={
           isClickbaitShieldEnabled ? (
-            <ShieldCheckIcon className="text-status-success" />
+            <ShieldCheckIcon className="text-status-success" size={iconSize} />
           ) : (
-            <ShieldIcon />
+            <ShieldIcon size={iconSize} />
           )
         }
         loading={loading}

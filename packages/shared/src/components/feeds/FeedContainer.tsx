@@ -139,7 +139,7 @@ export const FeedContainer = ({
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
-  const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
+  const { isExplorePopular, isExploreLatest } = useFeedName({
     feedName: activeFeedName,
   });
   const router = useRouter();
@@ -276,7 +276,7 @@ export const FeedContainer = ({
                 'flex items-center',
                 isExtension && 'flex-1 flex-col-reverse',
                 !isExtension &&
-                  'w-full gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5',
+                  'w-full gap-2 border-b border-border-subtlest-quaternary px-6 py-3',
               )}
             >
               {!!actionButtons && (
@@ -294,7 +294,7 @@ export const FeedContainer = ({
                 className={classNames(
                   'flex flex-col',
                   !disableListFrame &&
-                    'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
+                    'overflow-hidden rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   !disableListFrame && isSearch && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
@@ -302,7 +302,7 @@ export const FeedContainer = ({
                 <ConditionalWrapper
                   condition={isLaptop && !!(feedHeading || actionButtons)}
                   wrapper={(component) => (
-                    <header className="flex w-full items-center gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5">
+                    <header className="flex w-full items-center gap-2 border-b border-border-subtlest-quaternary px-6 py-3">
                       <strong className="min-w-0 flex-1 truncate typo-callout">
                         {feedHeading}
                       </strong>
@@ -324,8 +324,11 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
+                // Inset the grid inside the list-frame box so cards stay
+                // off the rounded edges and don't kiss the header border.
+                shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
+                !shouldUseListFeedLayout && 'tablet:p-2 laptop:p-6',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({

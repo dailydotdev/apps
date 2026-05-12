@@ -12,6 +12,7 @@ import { useActions, useFeedLayout, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { FeedSettingsButton } from '../feeds/FeedSettingsButton';
+import type { IconSize } from '../Icon';
 import { useShortcutsUser } from '../../features/shortcuts/hooks/useShortcutsUser';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { settingsUrl, webappUrl } from '../../lib/constants';
@@ -24,6 +25,7 @@ interface MyFeedHeadingProps {
     size?: ButtonSize;
     variant?: ButtonVariant;
     className?: string;
+    iconSize?: IconSize;
   };
 }
 
@@ -72,6 +74,9 @@ function MyFeedHeading({
     feedSettingsButtonProps?.variant ??
     (isLaptop ? ButtonVariant.Float : ButtonVariant.Tertiary);
   const feedSettingsButtonLabel = !isMobile ? 'Feed settings' : null;
+  const feedSettingsButtonIcon = (
+    <FilterIcon size={feedSettingsButtonProps?.iconSize} />
+  );
 
   return (
     <>
@@ -81,7 +86,7 @@ function MyFeedHeading({
           size={feedSettingsButtonSize}
           variant={feedSettingsButtonVariant}
           className={feedSettingsButtonProps?.className}
-          icon={<FilterIcon />}
+          icon={feedSettingsButtonIcon}
           iconPosition={ButtonIconPosition.Right}
         >
           {feedSettingsButtonLabel}
@@ -92,7 +97,7 @@ function MyFeedHeading({
           size={feedSettingsButtonSize}
           variant={feedSettingsButtonVariant}
           className={feedSettingsButtonProps?.className}
-          icon={<FilterIcon />}
+          icon={feedSettingsButtonIcon}
         >
           {feedSettingsButtonLabel}
         </FeedSettingsButton>

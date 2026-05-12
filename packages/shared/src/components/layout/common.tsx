@@ -102,11 +102,16 @@ export const SearchControlHeader = ({
     return null;
   }
 
+  const compactIconButtonClassName =
+    '!size-8 !rounded-10 !border-transparent !bg-transparent !p-0 hover:!bg-surface-hover';
+  const compactTextButtonClassName =
+    '!h-8 !rounded-10 !border-transparent !bg-transparent !px-3 hover:!bg-surface-hover';
+
   const dropdownProps: Partial<DropdownProps> = {
     className: {
       label: 'hidden',
       chevron: 'hidden',
-      button: '!border-transparent !bg-transparent !px-1 hover:!bg-surface-hover',
+      button: compactIconButtonClassName,
       container: 'flex',
     },
     shouldIndicateSelected: true,
@@ -164,8 +169,8 @@ export const SearchControlHeader = ({
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className:
-                  '!border-transparent !bg-transparent hover:!bg-surface-hover',
+                className: compactTextButtonClassName,
+                iconSize: IconSize.XSmall,
               }
             : undefined
         }
@@ -175,7 +180,7 @@ export const SearchControlHeader = ({
       <Dropdown
         {...dropdownProps}
         key="algorithm"
-        icon={<CalendarIcon size={IconSize.Medium} />}
+        icon={<CalendarIcon size={IconSize.XSmall} />}
         selectedIndex={selectedPeriod}
         options={periodTexts}
         onChange={(_, index) => setSelectedPeriod(index)}
@@ -185,7 +190,7 @@ export const SearchControlHeader = ({
       <Dropdown
         {...dropdownProps}
         key="sorting"
-        icon={<SortIcon size={IconSize.Medium} />}
+        icon={<SortIcon size={IconSize.XSmall} />}
         selectedIndex={selectedAlgo}
         options={algorithmsList}
         onChange={(_, index) => setSelectedAlgo(index)}
@@ -202,11 +207,11 @@ export const SearchControlHeader = ({
             ? {
                 size: ButtonSize.Small,
                 variant: ButtonVariant.Tertiary,
-                className:
-                  '!border-transparent !bg-transparent hover:!bg-surface-hover',
+                className: compactIconButtonClassName,
               }
             : undefined
         }
+        iconSize={IconSize.XSmall}
         key="toggle-clickbait-shield"
       />
     ),
@@ -237,10 +242,7 @@ export const SearchControlHeader = ({
       }}
     >
       <div
-        className={classNames(
-          'flex items-center gap-2',
-          !isLaptop && 'w-full',
-        )}
+        className={classNames('flex items-center gap-2', !isLaptop && 'w-full')}
       >
         <div className="flex min-w-0 items-center gap-1">{actions}</div>
         {sideActions.length > 0 && (

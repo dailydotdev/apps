@@ -730,9 +730,6 @@ export default function MainFeedLayout({
             {...feedProps}
             shortcuts={shortcuts}
             disableBriefCard={disableBriefCard}
-            className={classNames(
-              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-            )}
           />
         )
       )}
