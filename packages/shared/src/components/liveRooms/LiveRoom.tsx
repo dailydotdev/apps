@@ -37,7 +37,6 @@ import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
 import { useViewSize, ViewSize } from '../../hooks';
-import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
 import { useLiveRoomSubscription } from '../../hooks/liveRooms/useLiveRoomSubscription';
 import { usePushNotificationContext } from '../../contexts/PushNotificationContext';
 import { usePushNotificationMutation } from '../../hooks/notifications/usePushNotificationMutation';
@@ -73,6 +72,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     roomState,
     role,
     participantId,
+    disconnect,
     sendChatMessage,
     deleteChatMessage,
     sendChatMessageReaction,
@@ -135,10 +135,14 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     videoSettings,
   });
 
-  const handleLeave = (): void => {
+  const navigateHome = useCallback(async (): Promise<void> => {
     onAskConfirmation(false);
-    clearStoredLiveRoomResumeSession(roomId);
-    router.push('/');
+    await disconnect();
+    await router.push('/');
+  }, [disconnect, onAskConfirmation, router]);
+
+  const handleLeave = (): void => {
+    navigateHome().catch(() => undefined);
   };
   const handleNavigateBack = (surface: string): void => {
     logStandupAction(LogEvent.LeaveStandup, roomId, { surface });
