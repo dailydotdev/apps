@@ -15,11 +15,11 @@ export interface RailHoverPanelProps {
 // section list) but rendered as a portaled card so the user can peek at
 // any category's content without changing the pinned selection.
 //
-// Styling: uses `bg-surface-float` (an elevated surface that's lighter
-// than the rail backdrop in dark mode and darker in light mode), a
-// stronger `shadow-3`, and a higher-contrast border so the popover lifts
-// clearly off the sidebar instead of melting into it. The card is
-// capped to the viewport height with an internal scroll area.
+// Styling matches the sidebar Support dropdown: solid
+// `bg-accent-pepper-subtlest` (NOT the translucent `surface-float`),
+// `border-border-subtlest-tertiary`, `rounded-10`, plus a stronger
+// `shadow-3` to lift it off the rail. Wider than the docked panel so
+// it stays comfortably readable when it overlays the feed.
 export const RailHoverPanel = ({
   title,
   children,
@@ -27,7 +27,7 @@ export const RailHoverPanel = ({
 }: RailHoverPanelProps) => (
   <div
     className={classNames(
-      'flex max-h-[calc(100dvh-2rem)] w-64 flex-col overflow-hidden rounded-16 border border-border-subtlest-secondary bg-surface-float shadow-3',
+      'flex max-h-[calc(100dvh-2rem)] w-72 flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest shadow-3',
       className,
     )}
   >
