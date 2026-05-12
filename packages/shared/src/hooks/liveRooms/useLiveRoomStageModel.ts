@@ -2,10 +2,7 @@ import { useMemo } from 'react';
 import type { LiveRoomContextValue } from '../../contexts/LiveRoomContext';
 import type { LiveRoom as LiveRoomModel } from '../../graphql/liveRooms';
 import type { UserShortProfile } from '../../lib/user';
-import {
-  buildDisplayProfile,
-  buildParticipantProfile,
-} from '../../components/liveRooms/liveRoomParticipants';
+import { buildParticipantProfile } from '../../components/liveRooms/liveRoomParticipants';
 import type { LiveRoomStageSpeaker } from '../../components/liveRooms/LiveRoomStage';
 import { useLiveRoomParticipantProfiles } from './useLiveRoomParticipantProfiles';
 import { useLiveRoomParticipantStreams } from './useLiveRoomParticipantStreams';
@@ -229,7 +226,7 @@ export const useLiveRoomStageModel = ({
     ? [
         {
           id: room.host.id,
-          profile: buildDisplayProfile(room.host),
+          profile: room.host,
           stream: participantStreamsById.get(room.host.id) ?? null,
           selfView: room.host.id === participantId,
           isHost: true,
@@ -238,9 +235,8 @@ export const useLiveRoomStageModel = ({
         },
         ...activeSpeakerIds.map((id) => ({
           id,
-          profile: buildDisplayProfile(
+          profile:
             participantProfilesById.get(id) ?? buildParticipantProfile(id),
-          ),
           stream: participantStreamsById.get(id) ?? null,
           selfView: id === participantId,
           isHost: false,
