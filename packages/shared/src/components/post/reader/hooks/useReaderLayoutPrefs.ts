@@ -104,7 +104,7 @@ export function useReaderLayoutPrefs(
     }
 
     const update = () => {
-      const width = node.getBoundingClientRect().width;
+      const { width } = node.getBoundingClientRect();
       if (width > 0) {
         setContainerWidth(width);
       }
