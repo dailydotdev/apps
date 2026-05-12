@@ -149,6 +149,7 @@ const LiveRoomChatComposer = ({
           enabledCommand={{
             [MarkdownCommand.Upload]: true,
             [MarkdownCommand.Mention]: true,
+            [MarkdownCommand.Emoji]: true,
             [MarkdownCommand.Gif]: true,
           }}
           textareaProps={{
