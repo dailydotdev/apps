@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
@@ -15,6 +16,10 @@ import {
   settingsUrl,
 } from '../../lib/constants';
 import { useGrowthBookContext } from '../GrowthBookProvider';
+import { StarIcon, MiniCloseIcon } from '../icons';
+import { IconSize } from '../Icon';
+
+const STAR_INDICES = [0, 1, 2, 3, 4] as const;
 
 /*
  * TEMPORARY QA PANEL
@@ -53,7 +58,10 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
   };
 
   const openStreakModal = (currentStreak: number, maxStreak: number) =>
-    openModal({ type: LazyModal.NewStreak, props: { currentStreak, maxStreak } });
+    openModal({
+      type: LazyModal.NewStreak,
+      props: { currentStreak, maxStreak },
+    });
 
   const openFeedbackModal = () => openModal({ type: LazyModal.Feedback });
 
@@ -65,23 +73,53 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
   /*
    * The review banner renders fixed at the top of the viewport — exactly the
    * width and position it occupies in the real extension new-tab layout.
+   * JSX mirrors ExtensionStoreReviewPrompt so what you see here is what users see.
    */
   const reviewBanner = reviewOpen ? (
-    <div className="fixed inset-x-0 top-0 z-max flex w-full justify-center border-b border-border-subtlest-tertiary bg-surface-float px-4 py-3">
-      <div className="flex w-full max-w-[44rem] flex-col items-center gap-3 text-center tablet:flex-row tablet:text-left">
-        <div className="flex flex-1 flex-col gap-1">
+    <div
+      className={classNames(
+        'fixed inset-x-0 top-0 z-max flex w-full justify-center border-b px-4 py-3 transition-colors duration-300',
+        reviewPositive
+          ? 'border-accent-cheese-default/30 via-accent-cheese-default/8 bg-gradient-to-r from-surface-float to-surface-float'
+          : 'border-border-subtlest-tertiary bg-surface-float',
+      )}
+    >
+      <div className="flex w-full max-w-[44rem] items-center gap-4">
+        {/* Stars */}
+        <div className="hidden shrink-0 items-center gap-0.5 tablet:flex">
+          {STAR_INDICES.map((i) => (
+            <StarIcon
+              key={i}
+              secondary={reviewPositive}
+              size={IconSize.XSmall}
+              className={
+                reviewPositive
+                  ? 'text-accent-cheese-default'
+                  : 'text-accent-cheese-default/50'
+              }
+            />
+          ))}
+        </div>
+
+        {/* Text */}
+        <div className="flex flex-1 flex-col gap-0.5 text-left">
           <Typography bold type={TypographyType.Callout}>
             {reviewPositive
-              ? 'Would you mind leaving a quick review?'
+              ? 'Would you leave a quick review?'
               : 'Are you enjoying daily.dev on your new tab?'}
           </Typography>
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             {reviewPositive
-              ? 'Honest Chrome Web Store reviews help other developers discover daily.dev.'
-              : 'Your feedback helps us understand whether this is the right moment to ask.'}
+              ? 'Honest reviews help other developers discover daily.dev — it takes 30 seconds.'
+              : 'Let us know if this is a good moment to ask.'}
           </Typography>
         </div>
-        <div className="flex flex-wrap justify-center gap-2">
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-2">
           {reviewPositive ? (
             <Button
               tag="a"
@@ -92,7 +130,7 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
               variant={ButtonVariant.Primary}
               onClick={toggleReview}
             >
-              Review on Chrome Web Store
+              Leave a review ↗
             </Button>
           ) : (
             <>
@@ -102,29 +140,29 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
                 variant={ButtonVariant.Primary}
                 onClick={() => setReviewPositive(true)}
               >
-                Yes
+                Yes, loving it!
               </Button>
               <Button
                 type="button"
                 size={ButtonSize.Small}
-                variant={ButtonVariant.Secondary}
+                variant={ButtonVariant.Tertiary}
                 onClick={() => {
                   setReviewOpen(false);
                   openFeedbackModal();
                 }}
               >
-                Not really
+                Not yet
               </Button>
             </>
           )}
-          <Button
+          <button
             type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
+            aria-label="Dismiss"
+            className="ml-1 flex h-7 w-7 items-center justify-center rounded-8 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
             onClick={toggleReview}
           >
-            Not now
-          </Button>
+            <MiniCloseIcon size={IconSize.XSmall} />
+          </button>
         </div>
       </div>
     </div>
@@ -154,7 +192,10 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
             <Typography bold type={TypographyType.Callout}>
               Referral/review QA
             </Typography>
-            <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
               Triggers the real interactions — remove before launch.
             </Typography>
           </div>
@@ -173,15 +214,19 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
           <Typography bold type={TypographyType.Footnote}>
             1. Enable flags first
           </Typography>
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-            Forces{' '}
-            <code className="typo-footnote">referral_growth_loops</code> on so
-            the invite sections appear inside the modals below.
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Forces <code className="typo-footnote">referral_growth_loops</code>{' '}
+            on so the invite sections appear inside the modals below.
           </Typography>
           <Button
             type="button"
             size={ButtonSize.Small}
-            variant={flagsForced ? ButtonVariant.Primary : ButtonVariant.Secondary}
+            variant={
+              flagsForced ? ButtonVariant.Primary : ButtonVariant.Secondary
+            }
             onClick={toggleFlags}
           >
             {flagsForced ? '✓ Flags forced on' : 'Force flags on'}
@@ -193,7 +238,10 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
           <Typography bold type={TypographyType.Footnote}>
             2. Streak milestone modal
           </Typography>
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             Opens the exact modal users see when reaching a streak. Enable flags
             first to see the invite section inside.
           </Typography>
@@ -222,14 +270,19 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
           <Typography bold type={TypographyType.Footnote}>
             3. Chrome review banner
           </Typography>
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             Renders the real two-step banner at the top of the page — same width
             and position as extension users see it on their new tab.
           </Typography>
           <Button
             type="button"
             size={ButtonSize.Small}
-            variant={reviewOpen ? ButtonVariant.Primary : ButtonVariant.Secondary}
+            variant={
+              reviewOpen ? ButtonVariant.Primary : ButtonVariant.Secondary
+            }
             onClick={toggleReview}
           >
             {reviewOpen ? 'Hide banner' : 'Show review banner'}
@@ -241,7 +294,10 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
           <Typography bold type={TypographyType.Footnote}>
             4. DevCard invite
           </Typography>
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             Enable flags first — the tracked invite link appears in DevCard
             settings step&nbsp;2.
           </Typography>
@@ -297,7 +353,10 @@ export function ReferralGrowthTestingPanel(): ReactElement | null {
         </div>
 
         {!user?.id && (
-          <Typography type={TypographyType.Footnote} color={TypographyColor.Secondary}>
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Secondary}
+          >
             ⚠ Log in to test tracked invite links.
           </Typography>
         )}

@@ -16,6 +16,8 @@ import { ShareProvider } from '../../lib/share';
 import type { Origin } from '../../lib/log';
 import { LogEvent, TargetType } from '../../lib/log';
 import type { ReferralGrowthSurface } from '../../lib/referralGrowth';
+import { UserShareIcon, VIcon } from '../icons';
+import { IconSize } from '../Icon';
 
 type ContextualReferralLinkProps = {
   url: string;
@@ -36,7 +38,7 @@ export function ContextualReferralLink({
   description,
   origin,
   className,
-  buttonText = 'Copy invite link',
+  buttonText = 'Copy link',
 }: ContextualReferralLinkProps): ReactElement | null {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -91,31 +93,51 @@ export function ContextualReferralLink({
   return (
     <div
       className={classNames(
-        'flex w-full flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left',
+        'border-accent-cabbage-default/20 from-accent-onion-default/5 to-accent-cabbage-default/10 relative overflow-hidden rounded-16 border bg-gradient-to-br via-surface-float p-4 text-left',
         className,
       )}
     >
-      <div className="flex flex-col gap-1">
-        <Typography bold type={TypographyType.Callout}>
-          {title}
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {description}
-        </Typography>
+      {/* Background glow */}
+      <div className="bg-accent-cabbage-default/15 pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full blur-2xl" />
+
+      <div className="relative flex flex-col gap-3">
+        {/* Icon + copy */}
+        <div className="flex items-start gap-3">
+          <span className="bg-accent-cabbage-default/15 flex h-9 w-9 shrink-0 items-center justify-center rounded-12 text-accent-cabbage-default">
+            <UserShareIcon size={IconSize.Small} />
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <Typography bold type={TypographyType.Callout}>
+              {title}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              {description}
+            </Typography>
+          </div>
+        </div>
+
+        {/* URL display + inline copy button */}
+        <div className="flex items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-surface-primary py-1.5 pl-3 pr-1.5">
+          <span className="min-w-0 flex-1 truncate text-text-tertiary typo-caption1">
+            {isLoading ? 'Preparing your link…' : link ?? url}
+          </span>
+          <Button
+            size={ButtonSize.XSmall}
+            type="button"
+            variant={copied ? ButtonVariant.Primary : ButtonVariant.Secondary}
+            icon={
+              copied ? <VIcon secondary size={IconSize.XSmall} /> : undefined
+            }
+            onClick={onCopy}
+            disabled={isLoading || !link}
+          >
+            {copied ? 'Copied!' : buttonText}
+          </Button>
+        </div>
       </div>
-      <Button
-        className="w-full"
-        disabled={isLoading || !link}
-        size={ButtonSize.Small}
-        type="button"
-        variant={ButtonVariant.Secondary}
-        onClick={onCopy}
-      >
-        {copied ? 'Copied' : buttonText}
-      </Button>
     </div>
   );
 }

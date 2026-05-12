@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import {
   Typography,
@@ -17,6 +18,10 @@ import { LogEvent, TargetType } from '../../lib/log';
 import { chromeWebStoreReviewUrl } from '../../lib/constants';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
+import { StarIcon, MiniCloseIcon } from '../icons';
+import { IconSize } from '../Icon';
+
+const STAR_INDICES = [0, 1, 2, 3, 4] as const;
 
 export function ExtensionStoreReviewPrompt(): ReactElement | null {
   const { user } = useAuthContext();
@@ -95,12 +100,36 @@ export function ExtensionStoreReviewPrompt(): ReactElement | null {
   };
 
   return (
-    <div className="relative z-modal flex w-full justify-center border-b border-border-subtlest-tertiary bg-surface-float px-4 py-3">
-      <div className="flex w-full max-w-[44rem] flex-col items-center gap-3 text-center tablet:flex-row tablet:text-left">
-        <div className="flex flex-1 flex-col gap-1">
+    <div
+      className={classNames(
+        'relative z-modal flex w-full justify-center border-b px-4 py-3 transition-colors duration-300',
+        isPositive
+          ? 'border-accent-cheese-default/30 via-accent-cheese-default/8 bg-gradient-to-r from-surface-float to-surface-float'
+          : 'border-border-subtlest-tertiary bg-surface-float',
+      )}
+    >
+      <div className="flex w-full max-w-[44rem] items-center gap-4">
+        {/* Star row — shows outline stars initially, filled gold stars in positive step */}
+        <div className="hidden shrink-0 items-center gap-0.5 tablet:flex">
+          {STAR_INDICES.map((i) => (
+            <StarIcon
+              key={i}
+              secondary={isPositive}
+              size={IconSize.XSmall}
+              className={
+                isPositive
+                  ? 'text-accent-cheese-default'
+                  : 'text-accent-cheese-default/50'
+              }
+            />
+          ))}
+        </div>
+
+        {/* Text */}
+        <div className="flex flex-1 flex-col gap-0.5 text-left">
           <Typography bold type={TypographyType.Callout}>
             {isPositive
-              ? 'Would you mind leaving a quick review?'
+              ? 'Would you leave a quick review?'
               : 'Are you enjoying daily.dev on your new tab?'}
           </Typography>
           <Typography
@@ -108,11 +137,13 @@ export function ExtensionStoreReviewPrompt(): ReactElement | null {
             color={TypographyColor.Tertiary}
           >
             {isPositive
-              ? 'Honest Chrome Web Store reviews help other developers discover daily.dev.'
-              : 'Your feedback helps us understand whether this is the right moment to ask.'}
+              ? 'Honest reviews help other developers discover daily.dev — it takes 30 seconds.'
+              : 'Let us know if this is a good moment to ask.'}
           </Typography>
         </div>
-        <div className="flex flex-wrap justify-center gap-2">
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-2">
           {isPositive ? (
             <Button
               tag="a"
@@ -123,7 +154,7 @@ export function ExtensionStoreReviewPrompt(): ReactElement | null {
               variant={ButtonVariant.Primary}
               onClick={onReview}
             >
-              Review on Chrome Web Store
+              Leave a review ↗
             </Button>
           ) : (
             <>
@@ -133,26 +164,28 @@ export function ExtensionStoreReviewPrompt(): ReactElement | null {
                 variant={ButtonVariant.Primary}
                 onClick={onPositive}
               >
-                Yes
+                Yes, loving it!
               </Button>
               <Button
                 type="button"
                 size={ButtonSize.Small}
-                variant={ButtonVariant.Secondary}
+                variant={ButtonVariant.Tertiary}
                 onClick={onNegative}
               >
-                Not really
+                Not yet
               </Button>
             </>
           )}
-          <Button
+
+          {/* Dismiss */}
+          <button
             type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
+            aria-label="Dismiss review prompt"
+            className="ml-1 flex h-7 w-7 items-center justify-center rounded-8 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
             onClick={onDismiss}
           >
-            Not now
-          </Button>
+            <MiniCloseIcon size={IconSize.XSmall} />
+          </button>
         </div>
       </div>
     </div>
