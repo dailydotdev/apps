@@ -1,10 +1,12 @@
 import type { ReactElement, Ref } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { PostArticlePreviewEmbed } from '../PostArticlePreviewEmbed';
 import { ReaderFallback } from './ReaderFallback';
 import { ReaderHeaderActionGroup } from './ReaderHeaderActionButtons';
+import { useLegacyPostLayoutOptOut } from './hooks/useLegacyPostLayoutOptOut';
+import { TargetId } from '../../../lib/log';
 
 type ArticleReaderFrameProps = {
   post: Post;
@@ -35,6 +37,15 @@ export function ArticleReaderFrame({
   onTargetLinkClick,
   targetLinkInNewTab,
 }: ArticleReaderFrameProps): ReactElement {
+  const { optOut } = useLegacyPostLayoutOptOut();
+  const onInstallPromptOptOut = useCallback(
+    () => optOut(TargetId.ReaderInstallPrompt),
+    [optOut],
+  );
+  const onPermissionScreenOptOut = useCallback(
+    () => optOut(TargetId.ReaderPermissionPrompt),
+    [optOut],
+  );
   const isFallback = !targetUrl || !isEmbeddable;
 
   if (isFallback) {
@@ -74,6 +85,8 @@ export function ArticleReaderFrame({
         targetHref={targetHref}
         onTargetLinkClick={onTargetLinkClick}
         targetLinkInNewTab={targetLinkInNewTab}
+        onInstallPromptOptOut={onInstallPromptOptOut}
+        onPermissionScreenOptOut={onPermissionScreenOptOut}
       />
     </div>
   );

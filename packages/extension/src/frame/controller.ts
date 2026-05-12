@@ -129,9 +129,16 @@ export const initializeFrame = async ({
       }
     };
 
+    const onOptOut = () => {
+      sendParentMessage(extensionSiteEmbedFrameEvent.OptOutRequested, {
+        target: target.href,
+      });
+    };
+
     renderPermissionPrompt({
       root,
       onRequestPermission,
+      onOptOut,
     });
 
     sendParentMessage(extensionSiteEmbedFrameEvent.Error, {

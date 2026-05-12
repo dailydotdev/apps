@@ -13,6 +13,7 @@ export const extensionSiteEmbedFrameEvent = {
   PermissionsReady: 'daily-extension-site-embed-permissions-ready',
   EmbeddingReady: 'daily-extension-site-embed-embedding-ready',
   ReloadRequested: 'daily-extension-site-embed-reload-requested',
+  OptOutRequested: 'daily-extension-site-embed-opt-out-requested',
   Error: 'daily-extension-site-embed-error',
 } as const;
 

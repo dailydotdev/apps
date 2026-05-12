@@ -140,6 +140,18 @@ const ensureStyles = (): void => {
       transform: translateY(-1px);
     }
     .embedded-browsing-button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .embedded-browsing-button-secondary {
+      background: transparent;
+      color: #cfd6e6;
+      font-weight: 500;
+      min-width: 0;
+      padding: 0 0.75rem;
+    }
+    .embedded-browsing-button-secondary:hover {
+      opacity: 1;
+      color: #ffffff;
+      transform: none;
+    }
   `;
   document.head.appendChild(style);
 };
@@ -187,9 +199,11 @@ type PermissionRequestOutcome = 'granted' | 'dismissed' | 'failed';
 export const renderPermissionPrompt = ({
   root,
   onRequestPermission,
+  onOptOut,
 }: {
   root: HTMLDivElement;
   onRequestPermission: () => Promise<PermissionRequestOutcome>;
+  onOptOut?: () => void;
 }): void => {
   root.replaceChildren();
   const { shell, card } = createPromptShell();
@@ -241,6 +255,19 @@ export const renderPermissionPrompt = ({
   });
 
   actions.append(button);
+
+  if (onOptOut) {
+    const optOutButton = document.createElement('button');
+    optOutButton.type = 'button';
+    optOutButton.className =
+      'embedded-browsing-button embedded-browsing-button-secondary';
+    optOutButton.textContent = "I'd rather not read inside daily.dev";
+    optOutButton.addEventListener('click', () => {
+      onOptOut();
+    });
+    actions.append(optOutButton);
+  }
+
   card.append(heading, description, status, actions);
   root.append(shell);
 };
