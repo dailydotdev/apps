@@ -1774,6 +1774,26 @@ export const LiveRoomProvider = ({
     setIsCameraOn(true);
   }, [isCameraOn, selectedCameraId, startCapture, stopCapture]);
 
+  const removeRaisedHandOnUnmute = useCallback(async () => {
+    if (!participantId) {
+      return;
+    }
+
+    if (!roomState?.stage.raisedHandParticipantIds.includes(participantId)) {
+      return;
+    }
+
+    try {
+      await sendConnectionCommand('remove hand', { type: 'stage.hand.remove' });
+    } catch {
+      // The command path already logs the error; keep the successful unmute.
+    }
+  }, [
+    participantId,
+    roomState?.stage.raisedHandParticipantIds,
+    sendConnectionCommand,
+  ]);
+
   const toggleMic = useCallback(async () => {
     if (isMicOn) {
       const track = localTracksRef.current.audio;
@@ -1813,6 +1833,7 @@ export const LiveRoomProvider = ({
         await publishLocalTrack('audio');
       }
       setIsMicOn(true);
+      await removeRaisedHandOnUnmute();
       return;
     }
 
@@ -1820,10 +1841,12 @@ export const LiveRoomProvider = ({
     mutedAudioTrackRef.current = null;
     await startCapture('audio', selectedMicId);
     setIsMicOn(true);
+    await removeRaisedHandOnUnmute();
   }, [
     canPublish,
     isMicOn,
     micSettings,
+    removeRaisedHandOnUnmute,
     publishLocalTrack,
     refreshLocalStream,
     roomState?.status,

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LiveRoomProvider } from './LiveRoomContext';
+import { LiveRoomProvider, useLiveRoom } from './LiveRoomContext';
 import {
   readStoredLiveRoomResumeSession,
   writeStoredLiveRoomResumeSession,
@@ -12,13 +12,28 @@ import { gqlClient } from '../graphql/common';
 const mockUseAuthContext = jest.fn();
 const mockUseLogContext = jest.fn();
 const mockUseLiveRoomQuery = jest.fn();
-const connectionInstances: Array<{
+type MockConnectionInstance = {
   options: {
     token?: string;
     resumeToken?: string;
     url: string;
   };
-}> = [];
+  open: jest.Mock;
+  close: jest.Mock;
+  send: jest.Mock;
+  onSessionReady: jest.Mock;
+  onSnapshot: jest.Mock;
+  onRoomUpdated: jest.Mock;
+  onReactionSent: jest.Mock;
+  onChatMessage: jest.Mock;
+  onChatMessageDeleted: jest.Mock;
+  onChatMessageReaction: jest.Mock;
+  onChatMessageReactionRemoved: jest.Mock;
+  onClose: jest.Mock;
+  onError: jest.Mock;
+  resumeToken: string | null;
+};
+const connectionInstances: MockConnectionInstance[] = [];
 
 jest.mock('./AuthContext', () => ({
   useAuthContext: () => mockUseAuthContext(),
@@ -39,27 +54,7 @@ jest.mock('../graphql/common', () => ({
 }));
 
 function MockLiveRoomConnection(
-  this: {
-    options: {
-      token?: string;
-      resumeToken?: string;
-      url: string;
-    };
-    open: jest.Mock;
-    close: jest.Mock;
-    send: jest.Mock;
-    onSessionReady: jest.Mock;
-    onSnapshot: jest.Mock;
-    onRoomUpdated: jest.Mock;
-    onReactionSent: jest.Mock;
-    onChatMessage: jest.Mock;
-    onChatMessageDeleted: jest.Mock;
-    onChatMessageReaction: jest.Mock;
-    onChatMessageReactionRemoved: jest.Mock;
-    onClose: jest.Mock;
-    onError: jest.Mock;
-    resumeToken: string | null;
-  },
+  this: MockConnectionInstance,
   options: {
     token?: string;
     resumeToken?: string;
@@ -89,12 +84,39 @@ jest.mock('../lib/liveRoom/connection', () => ({
   LiveRoomConnection: MockLiveRoomConnection,
 }));
 
+const createMockTrack = (kind: 'audio' | 'video'): MediaStreamTrack =>
+  ({
+    kind,
+    readyState: 'live',
+    enabled: true,
+    stop: jest.fn(),
+    addEventListener: jest.fn(),
+  } as unknown as MediaStreamTrack);
+
+class MockMediaStream {
+  constructor(private readonly tracks: MediaStreamTrack[] = []) {}
+
+  getAudioTracks(): MediaStreamTrack[] {
+    return this.tracks.filter((track) => track.kind === 'audio');
+  }
+
+  getVideoTracks(): MediaStreamTrack[] {
+    return this.tracks.filter((track) => track.kind === 'video');
+  }
+}
+
 describe('LiveRoomContext', () => {
   let queryClient = new QueryClient();
+  let latestContext: ReturnType<typeof useLiveRoom> | null = null;
 
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+
+  const ContextProbe = (): null => {
+    latestContext = useLiveRoom();
+    return null;
+  };
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -105,8 +127,15 @@ describe('LiveRoomContext', () => {
       },
     });
     connectionInstances.length = 0;
+    latestContext = null;
     jest.clearAllMocks();
     sessionStorage.clear();
+
+    Object.defineProperty(global, 'MediaStream', {
+      configurable: true,
+      writable: true,
+      value: MockMediaStream,
+    });
 
     Object.defineProperty(global.navigator, 'mediaDevices', {
       configurable: true,
@@ -115,6 +144,10 @@ describe('LiveRoomContext', () => {
         addEventListener: jest.fn(),
         removeEventListener: jest.fn(),
         getSupportedConstraints: jest.fn().mockReturnValue({}),
+        getUserMedia: jest.fn().mockResolvedValue({
+          getAudioTracks: () => [createMockTrack('audio')],
+          getVideoTracks: () => [],
+        }),
       },
     });
 
@@ -190,5 +223,72 @@ describe('LiveRoomContext', () => {
 
     expect(gqlClient.request).not.toHaveBeenCalled();
     expect(connectionInstances).toHaveLength(0);
+  });
+
+  it('lowers a raised hand after successfully unmuting', async () => {
+    render(
+      <LiveRoomProvider roomId="room-1">
+        <ContextProbe />
+      </LiveRoomProvider>,
+      { wrapper },
+    );
+
+    await waitFor(() => expect(connectionInstances).toHaveLength(1));
+
+    const connection = connectionInstances[0];
+    connection.send.mockResolvedValue(undefined);
+
+    const handleSessionReady = connection.onSessionReady.mock.calls[0][0];
+    const handleSnapshot = connection.onSnapshot.mock.calls[0][0];
+
+    act(() => {
+      handleSessionReady({
+        roomId: 'room-1',
+        participantId: 'speaker-1',
+        role: 'speaker',
+        resumeToken: 'resume-token-1',
+        resumeSessionTtlMs: 30_000,
+      });
+      handleSnapshot({
+        room: {
+          roomId: 'room-1',
+          mode: 'moderated',
+          status: 'live',
+          version: 1,
+          participants: {
+            'speaker-1': {
+              participantId: 'speaker-1',
+              role: 'speaker',
+              sessionIds: ['session-speaker-1'],
+              joinedAt: '2026-05-12T10:00:00.000Z',
+              updatedAt: '2026-05-12T10:00:00.000Z',
+            },
+          },
+          coHostParticipantIds: [],
+          chatPermissions: {},
+          sessions: {},
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['speaker-1'],
+            raisedHandParticipantIds: ['speaker-1'],
+          },
+          mediaPublications: {},
+          mediaRuntimeOwner: null,
+          createdAt: '2026-05-12T10:00:00.000Z',
+          updatedAt: '2026-05-12T10:00:00.000Z',
+        },
+      });
+    });
+
+    await waitFor(() => expect(latestContext?.participantId).toBe('speaker-1'));
+
+    await act(async () => {
+      await latestContext?.toggleMic();
+    });
+
+    expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+    expect(connection.send).toHaveBeenCalledWith({
+      type: 'stage.hand.remove',
+    });
   });
 });
