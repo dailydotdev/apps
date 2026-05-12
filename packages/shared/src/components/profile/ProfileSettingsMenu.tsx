@@ -47,6 +47,7 @@ import type { WithClassNameProps } from '../utilities';
 import { HorizontalSeparator } from '../utilities';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { ProfileMenuHeader } from '../ProfileMenu/ProfileMenuHeader';
+import { ThemeSection } from '../ProfileMenu/sections/ThemeSection';
 import { ProfileImageSize } from '../ProfilePicture';
 import { useViewSize, ViewSize } from '../../hooks';
 import { TypographyColor, TypographyType } from '../typography/Typography';
@@ -311,6 +312,8 @@ export const InnerProfileSettingsMenu = ({
 
   return (
     <nav className={classNames('flex flex-col gap-2', className)}>
+      <ThemeSection className="px-1" />
+      <HorizontalSeparator />
       {Object.entries(accountPageItems).map(([key, menuItem], index, arr) => {
         const lastItem = index === arr.length - 1;
 

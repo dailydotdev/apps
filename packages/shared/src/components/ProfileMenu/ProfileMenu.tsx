@@ -12,16 +12,12 @@ import { checkIsExtension } from '../../lib/func';
 import { LogoutReason } from '../../lib/user';
 import { TargetId } from '../../lib/log';
 
-import { ProfileMenuFooter } from './ProfileMenuFooter';
 import { UpgradeToPlus } from '../UpgradeToPlus';
 import { ProfileMenuHeader } from './ProfileMenuHeader';
 import { ProfileMenuStats } from './ProfileMenuStats';
 import { HorizontalSeparator } from '../utilities';
 
 import { ProfileSection } from './ProfileSection';
-import { AccountSection } from './sections/AccountSection';
-import { MainSection } from './sections/MainSection';
-import { ThemeSection } from './sections/ThemeSection';
 import { FeedbackButtonSection } from './sections/FeedbackButtonSection';
 import { useCustomizeNewTabMenuItem } from './sections/ExtensionSection';
 import { ProfileCompletion } from '../../features/profile/components/ProfileWidgets/ProfileCompletion';
@@ -80,19 +76,15 @@ export default function ProfileMenu({
       <HorizontalSeparator />
 
       <nav className="flex flex-col gap-2">
-        <MainSection />
-
-        <HorizontalSeparator />
-
-        <ThemeSection className="px-1" />
-
-        <HorizontalSeparator />
-
-        <AccountSection prepended={customizeMenuItem} />
-
-        {checkIsExtension() && <ExtensionSection />}
-
-        <HorizontalSeparator />
+        {checkIsExtension() && (
+          <>
+            {customizeMenuItem && (
+              <ProfileSection items={[customizeMenuItem]} />
+            )}
+            <ExtensionSection />
+            <HorizontalSeparator />
+          </>
+        )}
 
         <FeedbackButtonSection className="px-1" />
 
@@ -108,8 +100,6 @@ export default function ProfileMenu({
           ]}
         />
       </nav>
-
-      <ProfileMenuFooter />
     </InteractivePopup>
   );
 }

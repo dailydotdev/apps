@@ -10,6 +10,7 @@ import { MainSection } from './sections/MainSection';
 import { CustomFeedSection } from './sections/CustomFeedSection';
 import { DiscoverSection } from './sections/DiscoverSection';
 import { RecentSection } from './sections/RecentSection';
+import { ProfileSection } from './sections/ProfileSection';
 import { CreatePostButton } from '../post/write';
 import { ButtonIconPosition, ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
@@ -31,7 +32,6 @@ import {
 } from '../icons';
 import { useSquadNavigation } from '../../hooks';
 import { Origin } from '../../lib/log';
-import { fromCDN } from '../../lib/links';
 import { IconSize } from '../Icon';
 import {
   SidebarSelectedCategory,
@@ -54,11 +54,14 @@ import InteractivePopup, {
 } from '../tooltips/InteractivePopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { ResourceSection } from '../ProfileMenu/sections/ResourceSection';
+import { ProfileMenuFooter } from '../ProfileMenu/ProfileMenuFooter';
+import { HorizontalSeparator } from '../utilities';
 import { InnerProfileSettingsMenu } from '../profile/ProfileSettingsMenu';
 import { QuestButton } from '../quest/QuestButton';
 import { AchievementTrackerPanel } from '../filters/AchievementTrackerButton';
 import { Typography, TypographyType } from '../typography/Typography';
 import { useRecentPagesTracker } from '../../hooks/feed/useRecentPages';
+import { fromCDN } from '../../lib/links';
 
 type SidebarCategoryConfig = {
   id: SidebarSelectedCategory;
@@ -107,9 +110,22 @@ const sidebarCategories: SidebarCategoryConfig[] = [
       <JoystickIcon secondary={active} size={IconSize.Small} aria-hidden />
     ),
   },
+  {
+    id: SidebarSelectedCategory.Profile,
+    label: 'Profile',
+    icon: (active) => (
+      <UserIcon secondary={active} size={IconSize.Small} aria-hidden />
+    ),
+  },
 ];
 
 const discoverPathFragments = ['/tags', '/sources', '/users', '/discussed'];
+const profilePathFragments = [
+  '/analytics',
+  '/jobs',
+  '/settings/customization/devcard',
+  '/wallet',
+];
 
 const getSidebarCategoryForPath = (
   activePage: string,
@@ -132,6 +148,10 @@ const getSidebarCategoryForPath = (
 
   if (discoverPathFragments.some((path) => activePage.includes(path))) {
     return SidebarSelectedCategory.Discover;
+  }
+
+  if (profilePathFragments.some((path) => activePage.includes(path))) {
+    return SidebarSelectedCategory.Profile;
   }
 
   return SidebarSelectedCategory.Main;
@@ -186,6 +206,8 @@ const SidebarSupportButton = (): ReactElement => {
           className="flex w-64 flex-col gap-2 !rounded-10 border border-border-subtlest-tertiary !bg-accent-pepper-subtlest p-3"
         >
           <ResourceSection />
+          <HorizontalSeparator />
+          <ProfileMenuFooter />
         </InteractivePopup>
       )}
     </>
@@ -243,12 +265,13 @@ export const SidebarDesktop = ({
   const { isLoggedIn, user } = useAuthContext();
   useRecentPagesTracker();
   const activePage = activePageProp || router.asPath || router.pathname;
-  const profileHref = user?.username ? `${webappUrl}${user.username}` : null;
-  const isProfileActive =
+  const isUserProfileActive =
     !!user?.username && activePage.includes(`/${user.username}`);
   const isFeedPage = activePage.includes('/feeds/');
   const [selectedCategory, setSelectedCategory] = useState(
-    isFeedPage
+    isUserProfileActive
+      ? SidebarSelectedCategory.Profile
+      : isFeedPage
       ? SidebarSelectedCategory.Main
       : normalizeSidebarCategory(
           flags?.sidebarSelectedCategory ?? getSidebarCategoryForPath(activePage),
@@ -263,12 +286,22 @@ export const SidebarDesktop = ({
       return;
     }
 
+    if (isUserProfileActive) {
+      setSelectedCategory(SidebarSelectedCategory.Profile);
+      return;
+    }
+
     setSelectedCategory(
       activeCategory === SidebarSelectedCategory.Main
         ? normalizeSidebarCategory(flags?.sidebarSelectedCategory)
         : activeCategory,
     );
-  }, [activePage, flags?.sidebarSelectedCategory, isFeedPage]);
+  }, [
+    activePage,
+    flags?.sidebarSelectedCategory,
+    isFeedPage,
+    isUserProfileActive,
+  ]);
 
   const defaultRenderSectionProps = useMemo(
     () => ({
@@ -335,6 +368,12 @@ export const SidebarDesktop = ({
           <QuestButton panelOnly />
           <AchievementTrackerPanel />
         </div>
+      );
+    }
+
+    if (selectedCategory === SidebarSelectedCategory.Profile) {
+      return (
+        <ProfileSection {...defaultRenderSectionProps} isItemsButton={false} />
       );
     }
 
@@ -449,6 +488,10 @@ export const SidebarDesktop = ({
           className="flex flex-col items-center gap-1"
         >
           {sidebarCategories.map((category) => {
+            if (category.id === SidebarSelectedCategory.Profile && !isLoggedIn) {
+              return null;
+            }
+
             const isSelected = selectedCategory === category.id;
 
             return (
@@ -475,27 +518,6 @@ export const SidebarDesktop = ({
               </React.Fragment>
             );
           })}
-          {profileHref && (
-            <Tooltip side="right" content="Profile">
-              <div>
-                <Link href={profileHref} passHref prefetch={false}>
-                  <a
-                    aria-label="Profile"
-                    className={classNames(
-                      railButtonClass,
-                      isProfileActive && 'bg-background-default text-white',
-                    )}
-                  >
-                    <UserIcon
-                      secondary={isProfileActive}
-                      size={IconSize.Small}
-                      aria-hidden
-                    />
-                  </a>
-                </Link>
-              </div>
-            </Tooltip>
-          )}
         </div>
 
         <div className="mt-auto flex flex-col items-center gap-1">

@@ -13,13 +13,6 @@ import { NewOpportunityPopover } from './NewOpportunityPopover';
 import { useLogOpportunityNudgeClick } from '../../hooks/log/useLogOpportunityNudgeClick';
 import { useActions } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
-import { IconSize } from '../Icon';
 
 const OpportunityTooltip = ({
   children,
@@ -46,13 +39,7 @@ const OpportunityTooltip = ({
   );
 };
 
-type OpportunityEntryButtonProps = {
-  variant?: 'icon' | 'profileMenu';
-};
-
-export const OpportunityEntryButton = ({
-  variant = 'icon',
-}: OpportunityEntryButtonProps) => {
+export const OpportunityEntryButton = () => {
   const { alerts } = useAlertsContext();
   const hasOpportunityAlert = !!alerts.opportunityId;
   const { checkHasCompleted } = useActions();
@@ -67,34 +54,6 @@ export const OpportunityEntryButton = ({
   const href = `${webappUrl}jobs/${
     hasOpportunityAlert ? alerts.opportunityId : ''
   }`;
-
-  if (variant === 'profileMenu') {
-    return (
-      <RenderTooltip content="Jobs" placement="bottom-start">
-        <div>
-          <Link href={href} passHref>
-            <Typography<typeof TypographyTag.Link>
-              tag={TypographyTag.Link}
-              color={TypographyColor.Tertiary}
-              type={TypographyType.Subhead}
-              className="flex h-8 cursor-pointer items-center gap-2 rounded-10 px-1 hover:bg-surface-float"
-              onClick={logOpportunityNudgeClick}
-            >
-              <span className="relative flex size-5 items-center justify-center">
-                <JobIcon size={IconSize.XSmall} />
-                {hasOpportunityAlert && (
-                  <Bubble className="-right-1.5 -top-1.5 cursor-pointer !rounded-full !bg-accent-bacon-default px-1">
-                    1
-                  </Bubble>
-                )}
-              </span>
-              <span>Jobs</span>
-            </Typography>
-          </Link>
-        </div>
-      </RenderTooltip>
-    );
-  }
 
   return (
     <RenderTooltip content="Jobs" placement="bottom-end">
