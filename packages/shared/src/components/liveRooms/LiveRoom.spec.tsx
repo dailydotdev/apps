@@ -199,6 +199,7 @@ const createContextValue = (
   },
   role: 'host',
   participantId: 'host',
+  preflightMediaPermissions: jest.fn(),
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),

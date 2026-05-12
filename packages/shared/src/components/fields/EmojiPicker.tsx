@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonVariant } from '../buttons/Button';
+import { RootPortal } from '../tooltips/Portal';
 import { Typography, TypographyType } from '../typography/Typography';
 import type {
   EmojiCategory,
@@ -63,6 +64,7 @@ export const EmojiPicker = ({
     width: 0,
     height: FALLBACK_DROPDOWN_HEIGHT,
   });
+  const [isDropdownPositioned, setIsDropdownPositioned] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -112,14 +114,18 @@ export const EmojiPicker = ({
         width,
         height,
       });
+      setIsDropdownPositioned(true);
     }
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      updateDropdownPosition();
-      inputRef.current?.focus();
+    if (!isOpen) {
+      setIsDropdownPositioned(false);
+      return;
     }
+
+    updateDropdownPosition();
+    inputRef.current?.focus();
   }, [isOpen, updateDropdownPosition, searchQuery]);
 
   useEffect(() => {
@@ -128,13 +134,18 @@ export const EmojiPicker = ({
     }
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        setSearchQuery('');
+      const target = event.target as Node;
+
+      if (containerRef.current?.contains(target)) {
+        return;
       }
+
+      if (dropdownRef.current?.contains(target)) {
+        return;
+      }
+
+      setIsOpen(false);
+      setSearchQuery('');
     };
 
     const handleScroll = () => {
@@ -306,75 +317,78 @@ export const EmojiPicker = ({
       </div>
 
       {isOpen && (
-        <div
-          ref={dropdownRef}
-          className="fixed z-[100] flex overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-2"
-          style={{
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left}px`,
-            width: `${dropdownPosition.width}px`,
-            height: `${dropdownPosition.height}px`,
-          }}
-        >
-          <div className="flex min-h-0 w-full flex-col">
-            <div className="border-b border-border-subtlest-tertiary p-2">
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search emojis..."
-                className="w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
-              />
+        <RootPortal>
+          <div
+            ref={dropdownRef}
+            className="fixed z-[100] flex overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default shadow-2"
+            style={{
+              top: `${dropdownPosition.top}px`,
+              left: `${dropdownPosition.left}px`,
+              width: `${dropdownPosition.width}px`,
+              height: `${dropdownPosition.height}px`,
+              visibility: isDropdownPositioned ? 'visible' : 'hidden',
+            }}
+          >
+            <div className="flex min-h-0 w-full flex-col">
+              <div className="border-b border-border-subtlest-tertiary p-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search emojis..."
+                  className="w-full rounded-10 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 text-text-primary placeholder:text-text-quaternary focus:border-border-subtlest-secondary focus:outline-none"
+                />
 
-              {showCategories && (
-                <div
-                  className="mt-2 flex items-center justify-between gap-0.5"
-                  aria-label="Emoji categories"
-                >
-                  {categoriesToShow.map((category) => (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => scrollToCategory(category.id)}
-                      className={classNames(
-                        'flex size-7 items-center justify-center rounded-8 text-base leading-none transition-colors hover:bg-surface-hover',
-                        'font-[Apple_Color_Emoji,Segoe_UI_Emoji,Noto_Color_Emoji,sans-serif]',
-                      )}
-                      title={category.label}
-                      aria-label={category.label}
-                    >
-                      {category.icon}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                {showCategories && (
+                  <div
+                    className="mt-2 flex items-center justify-between gap-0.5"
+                    aria-label="Emoji categories"
+                  >
+                    {categoriesToShow.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => scrollToCategory(category.id)}
+                        className={classNames(
+                          'flex size-7 items-center justify-center rounded-8 text-base leading-none transition-colors hover:bg-surface-hover',
+                          'font-[Apple_Color_Emoji,Segoe_UI_Emoji,Noto_Color_Emoji,sans-serif]',
+                        )}
+                        title={category.label}
+                        aria-label={category.label}
+                      >
+                        {category.icon}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
-              {showCategories && (
-                <div className="flex flex-col gap-3">
-                  {categoriesToShow.map(renderCategorySection)}
-                </div>
-              )}
+              <div className="min-h-0 flex-1 overflow-y-auto p-2">
+                {showCategories && (
+                  <div className="flex flex-col gap-3">
+                    {categoriesToShow.map(renderCategorySection)}
+                  </div>
+                )}
 
-              {!showCategories && emojisToShow.length > 0 && (
-                <div className="grid grid-cols-7 gap-1">
-                  {emojisToShow.map(renderEmojiButton)}
-                </div>
-              )}
+                {!showCategories && emojisToShow.length > 0 && (
+                  <div className="grid grid-cols-7 gap-1">
+                    {emojisToShow.map(renderEmojiButton)}
+                  </div>
+                )}
 
-              {!showCategories && emojisToShow.length === 0 && (
-                <Typography
-                  type={TypographyType.Callout}
-                  className="py-4 text-center text-text-tertiary"
-                >
-                  No emojis found
-                </Typography>
-              )}
+                {!showCategories && emojisToShow.length === 0 && (
+                  <Typography
+                    type={TypographyType.Callout}
+                    className="py-4 text-center text-text-tertiary"
+                  >
+                    No emojis found
+                  </Typography>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </RootPortal>
       )}
     </div>
   );
