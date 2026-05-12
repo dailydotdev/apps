@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type {
+  ClientOnlySettingsFlag,
   RemoteSettings,
   RemoteTheme,
   SettingsFlags,
@@ -15,6 +16,7 @@ import type {
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
+  CLIENT_ONLY_SETTINGS_FLAGS,
   SidebarSelectedCategory,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
@@ -120,6 +122,64 @@ export type SettingsContextProviderProps = {
   loadedSettings?: boolean;
 };
 
+const CLIENT_ONLY_FLAGS_STORAGE_KEY = 'settings:clientOnlyFlags';
+
+const clientOnlyFlagsSet: ReadonlySet<string> = new Set(
+  CLIENT_ONLY_SETTINGS_FLAGS,
+);
+
+const isClientOnlyFlag = (key: string): key is ClientOnlySettingsFlag =>
+  clientOnlyFlagsSet.has(key);
+
+const splitFlags = (
+  flags: SettingsFlags | undefined,
+): { remote: SettingsFlags | undefined; local: Partial<SettingsFlags> } => {
+  if (!flags) {
+    return { remote: undefined, local: {} };
+  }
+
+  const remote: Record<string, unknown> = {};
+  const local: Record<string, unknown> = {};
+  Object.entries(flags).forEach(([key, value]) => {
+    if (isClientOnlyFlag(key)) {
+      local[key] = value;
+      return;
+    }
+    remote[key] = value;
+  });
+  return {
+    remote: remote as SettingsFlags,
+    local: local as Partial<SettingsFlags>,
+  };
+};
+
+const readLocalFlags = (): Partial<SettingsFlags> => {
+  const raw = storageWrapper.getItem(CLIENT_ONLY_FLAGS_STORAGE_KEY);
+  if (!raw) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const local: Record<string, unknown> = {};
+    Object.entries(parsed).forEach(([key, value]) => {
+      if (isClientOnlyFlag(key)) {
+        local[key] = value;
+      }
+    });
+    return local as Partial<SettingsFlags>;
+  } catch {
+    return {};
+  }
+};
+
+const writeLocalFlags = (flags: Partial<SettingsFlags>): void => {
+  if (!Object.keys(flags).length) {
+    storageWrapper.removeItem(CLIENT_ONLY_FLAGS_STORAGE_KEY);
+    return;
+  }
+  storageWrapper.setItem(CLIENT_ONLY_FLAGS_STORAGE_KEY, JSON.stringify(flags));
+};
+
 const defaultSettings: RemoteSettings = {
   spaciness: 'eco',
   openNewTab: true,
@@ -177,10 +237,15 @@ export const SettingsContextProvider = ({
     unknown,
     RemoteSettings
   >({
-    mutationFn: (params) =>
-      gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
-        data: params,
-      }),
+    mutationFn: (params) => {
+      const { remote } = splitFlags(params.flags);
+      const remotePayload: RemoteSettings = remote
+        ? { ...params, flags: remote }
+        : params;
+      return gqlClient.request(UPDATE_USER_SETTINGS_MUTATION, {
+        data: remotePayload,
+      });
+    },
 
     onError: (_, params) => {
       const rollback = Object.keys(params).reduce(
@@ -211,6 +276,36 @@ export const SettingsContextProvider = ({
       applyTheme(ThemeMode.Light);
     }
   }, []);
+
+  const didHydrateClientFlagsRef = useRef(false);
+  useEffect(() => {
+    if (didHydrateClientFlagsRef.current) {
+      return;
+    }
+    didHydrateClientFlagsRef.current = true;
+    const stored = readLocalFlags();
+    const missingEntries = Object.entries(stored).filter(
+      ([key]) => settings.flags?.[key as keyof SettingsFlags] === undefined,
+    );
+    if (!missingEntries.length) {
+      return;
+    }
+    updateSettings({
+      ...settings,
+      flags: {
+        ...settings.flags,
+        ...Object.fromEntries(missingEntries),
+      },
+    });
+    // Run only once on mount; we intentionally avoid re-hydrating after
+    // the user mutates client-only flags.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const { local } = splitFlags(settings.flags);
+    writeLocalFlags(local);
+  }, [settings.flags]);
 
   const updateRemoteSettingsFn = async (
     newSettings: RemoteSettings,
