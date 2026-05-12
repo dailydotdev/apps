@@ -625,6 +625,9 @@ export enum TargetId {
   GoToFeed = 'go to feed',
   OptOut = 'opt_out',
   OptIn = 'opt_in',
+  ReaderHeader = 'reader header',
+  ReaderInstallPrompt = 'reader install prompt',
+  ReaderPermissionPrompt = 'reader permission prompt',
   IOS = 'ios',
   Android = 'android',
 }

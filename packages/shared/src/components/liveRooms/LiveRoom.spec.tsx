@@ -199,6 +199,7 @@ const createContextValue = (
   },
   role: 'host',
   participantId: 'host',
+  disconnect: jest.fn().mockResolvedValue(undefined),
   preflightMediaPermissions: jest.fn(),
   startRoom: jest.fn(),
   endRoom: jest.fn(),
@@ -413,6 +414,28 @@ describe('LiveRoom', () => {
     expect(screen.getByText('tile-host')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker1')).toBeInTheDocument();
     expect(screen.getByText('tile-speaker2')).toBeInTheDocument();
+  });
+
+  it('disconnects before navigating home from the ended standup state', async () => {
+    const disconnect = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoomConnection.mockReturnValue(
+      createContextValue({
+        disconnect,
+        roomState: {
+          ...createContextValue().roomState!,
+          status: 'ended',
+        },
+      }),
+    );
+
+    renderLiveRoom();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back home' }));
+
+    await waitFor(() => {
+      expect(disconnect).toHaveBeenCalledTimes(1);
+      expect(mockPush).toHaveBeenCalledWith('/');
+    });
   });
 
   it('passes raised hand queue positions to matching stage tiles', () => {

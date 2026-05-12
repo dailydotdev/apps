@@ -166,6 +166,7 @@ const createContextValue = (
   },
   role: 'audience',
   participantId: 'audience',
+  disconnect: jest.fn().mockResolvedValue(undefined),
   preflightMediaPermissions: jest.fn(),
   startRoom: jest.fn(),
   endRoom: jest.fn(),

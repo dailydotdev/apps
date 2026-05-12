@@ -138,6 +138,7 @@ export interface LiveRoomContextValue {
   role: LiveRoomParticipantRoleValue | null;
   participantId: string | null;
 
+  disconnect: () => Promise<void>;
   preflightMediaPermissions: () => Promise<void>;
   startRoom: () => Promise<void>;
   endRoom: () => Promise<void>;
@@ -450,6 +451,7 @@ export const LiveRoomProvider = ({
     recv: false,
   });
   const mediaRebuildQueuedRef = useRef(false);
+  const intentionalDisconnectRef = useRef(false);
   const currentRole =
     (participantId && roomState?.participants[participantId]?.role) || role;
   const privilegeState = getLiveRoomPrivilegeState(
@@ -690,6 +692,19 @@ export const LiveRoomProvider = ({
     setIsCameraOn(false);
     setIsMicOn(false);
   }, []);
+
+  const disconnect = useCallback(async () => {
+    intentionalDisconnectRef.current = true;
+    clearStoredLiveRoomResumeSession(roomId);
+    setStoredResumeSession(null);
+    setResumeSessionTtlMs(null);
+    setErrorMessage(null);
+    setStatus('idle');
+    closeMediaSession(true);
+    stopLocalCapture();
+    connectionRef.current?.close();
+    connectionRef.current = null;
+  }, [closeMediaSession, roomId, stopLocalCapture]);
 
   const queueMediaRebuild = useCallback(() => {
     if (mediaRebuildQueuedRef.current || status !== 'connected') {
@@ -1064,6 +1079,7 @@ export const LiveRoomProvider = ({
         : { token: joinToken?.token ?? '' }),
     });
     connectionRef.current = connection;
+    intentionalDisconnectRef.current = false;
     setStatus('connecting');
     setErrorMessage(null);
     const openingWithResume = !!storedResumeSession;
@@ -1114,6 +1130,9 @@ export const LiveRoomProvider = ({
       },
     );
     const offClose = connection.onClose(({ code, reason }) => {
+      if (intentionalDisconnectRef.current) {
+        return;
+      }
       if (openingWithResume && !sessionReady) {
         requestFreshJoinToken();
         return;
@@ -1126,6 +1145,9 @@ export const LiveRoomProvider = ({
       setErrorMessage(reason || 'Standup connection closed');
     });
     const offError = connection.onError((error) => {
+      if (intentionalDisconnectRef.current) {
+        return;
+      }
       if (openingWithResume && !sessionReady) {
         return;
       }
@@ -2163,6 +2185,7 @@ export const LiveRoomProvider = ({
       roomState,
       role: currentRole,
       participantId,
+      disconnect,
       preflightMediaPermissions,
       startRoom,
       endRoom,
@@ -2212,6 +2235,7 @@ export const LiveRoomProvider = ({
       roomState,
       currentRole,
       participantId,
+      disconnect,
       preflightMediaPermissions,
       startRoom,
       endRoom,

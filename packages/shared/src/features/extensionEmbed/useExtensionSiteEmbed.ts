@@ -23,6 +23,7 @@ export interface UseExtensionSiteEmbedOptions {
   enabled?: boolean;
   reconnectDelayMs?: number;
   reconnectAttempts?: number;
+  onOptOutRequested?: () => void;
 }
 
 export interface UseExtensionSiteEmbedResult {
@@ -48,7 +49,10 @@ export const useExtensionSiteEmbed = ({
   enabled = true,
   reconnectDelayMs = extensionSiteEmbedReconnectDelayMs,
   reconnectAttempts = extensionSiteEmbedReconnectAttempts,
+  onOptOutRequested,
 }: UseExtensionSiteEmbedOptions): UseExtensionSiteEmbedResult => {
+  const onOptOutRequestedRef = useRef(onOptOutRequested);
+  onOptOutRequestedRef.current = onOptOutRequested;
   const [frameNonce, setFrameNonce] = useState(0);
   const [frameMode, setFrameMode] = useState<FrameMode>('permission-check');
   const [status, setStatus] = useState<ExtensionSiteEmbedStatus>('idle');
@@ -169,6 +173,9 @@ export const useExtensionSiteEmbed = ({
           setError(null);
           setErrorReason(null);
           startReconnectLoop();
+        },
+        onOptOutRequested: () => {
+          onOptOutRequestedRef.current?.();
         },
         onMissingPermission: () => {
           stopReconnectLoop();
