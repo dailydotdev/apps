@@ -15,34 +15,42 @@ export interface RailHoverPanelProps {
 }
 
 // Compact-mode overrides for the docked-sidebar Section/SidebarItem
-// markup so it looks polished inside this small floating dropdown
-// instead of using the heavy mx-3 / w-9 icon / typo-callout sizing.
+// markup so it looks polished inside this small floating dropdown.
+//
+// Goal: match the Support dropdown's row layout, which uses the
+// ProfileSectionItem pattern of `px-1 gap-2 h-8` with a flush 16px
+// icon (no centering wrapper). The docked sidebar instead wraps every
+// icon in a `w-9 h-9` centering box so the icon visually floats in the
+// middle of a 36px column — that wrapper is what made the rail hover
+// panel look like it had a huge left padding, even after we removed
+// the `mx-3` outer gutter.
 //
 // We use broad descendant selectors with `!important` so the override
 // wins over the breakpoint-prefixed defaults (e.g. `laptop:h-9`) baked
-// into NavItem/SidebarItem. Targets the class strings emitted by
-// `./common.tsx` to match the Support dropdown's row size, icon size,
-// and inner padding.
+// into NavItem/SidebarItem.
 const compactOverrides = [
-  // Each SidebarItem renders <NavItem className="mx-3 rounded-10"> on
-  // an <li> — drop the horizontal margin so rows align with the panel
-  // edge instead of inheriting the docked-sidebar gutter.
+  // <li> from SidebarItem renders with `mx-3 rounded-10` — drop the
+  // gutter so rows hug the panel's own padding.
   '[&_li.mx-3]:!mx-0',
-  // The <li> carries `typo-callout`; shrink to subhead for parity with
-  // Support's row text size.
+  // <li> carries `typo-callout`; shrink to subhead for row-text parity.
   '[&_li.typo-callout]:!typo-subhead',
-  // Item button/link defaults to `h-10 laptop:h-9` — tighten everywhere.
+  // Item button/link defaults `h-10 laptop:h-9` — match Support's h-8.
   '[&_a]:!h-8 [&_button]:!h-8',
-  // Add a small inner padding so items have breathing room from the
-  // panel edge after we removed mx-3.
-  '[&_a]:!px-2 [&_button]:!px-2',
-  // Icon container `w-9 h-9` → `w-7 h-7`, icon `h-5 w-5` → `h-4 w-4`.
-  '[&_span.h-9]:!h-7 [&_span.w-9]:!w-7',
+  // Match Support's tight `px-1 gap-2` row layout (icon + text +
+  // optional right icon as evenly-spaced flex children) instead of the
+  // sidebar's `pl-1 pr-3` + centered icon wrapper.
+  '[&_a]:!px-1 [&_button]:!px-1',
+  '[&_a]:!gap-2 [&_button]:!gap-2',
+  // Collapse the icon centering wrapper down to the icon's own size
+  // so the icon sits at the row's start, then `gap-2` provides the
+  // breathing room before the label.
+  '[&_span.h-9]:!h-4 [&_span.w-9]:!w-4',
   '[&_svg.h-5]:!h-4 [&_svg.w-5]:!w-4',
-  // NavSection adds `mt-1` between groups; tighten.
-  '[&_ul.mt-1]:!mt-0.5',
-  // Section header row (NavHeader is `h-9 flex items-center`) → tighter.
-  '[&_li.h-9]:!h-7',
+  // Section list spacing — Support has tighter group rhythm.
+  '[&_ul.mt-1]:!mt-0',
+  // Section header (NavHeader is `h-9 flex items-center`) — match the
+  // Support title's compact `Footnote / p-1` height.
+  '[&_li.h-9]:!h-6',
 ].join(' ');
 
 // Floating preview of a sidebar category, shown on rail hover.
@@ -50,11 +58,12 @@ const compactOverrides = [
 // section list) but rendered as a portaled card so the user can peek at
 // any category's content without changing the pinned selection.
 //
-// Visual design follows the sidebar Support dropdown: solid
+// Visual design copies the sidebar Support dropdown 1:1: solid
 // `bg-accent-pepper-subtlest`, `border-border-subtlest-tertiary`,
-// `rounded-10`, `shadow-3`, plus uniform `p-2` outer padding and a
+// `rounded-10`, `shadow-3`, uniform `p-3` outer padding, and a
+// `Footnote / Quaternary / p-1` section title — paired with the
 // compact-density override scope so the section content matches
-// Support's row size, icon size, and inner padding.
+// Support's row size, icon size, gap, and inner padding.
 export const RailHoverPanel = ({
   title,
   children,
@@ -62,7 +71,7 @@ export const RailHoverPanel = ({
 }: RailHoverPanelProps) => (
   <div
     className={classNames(
-      'flex max-h-[calc(100dvh-2rem)] w-72 flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-2 shadow-3',
+      'flex max-h-[calc(100dvh-2rem)] w-72 flex-col overflow-hidden rounded-10 border border-border-subtlest-tertiary bg-accent-pepper-subtlest p-3 shadow-3',
       className,
     )}
   >
@@ -70,11 +79,11 @@ export const RailHoverPanel = ({
       bold
       type={TypographyType.Footnote}
       color={TypographyColor.Quaternary}
-      className="px-1 pb-1"
+      className="p-1"
     >
       {title}
     </Typography>
-    <SidebarScrollWrapper className="-mx-2 min-h-0 flex-1 overflow-y-auto px-2">
+    <SidebarScrollWrapper className="-mx-3 min-h-0 flex-1 overflow-y-auto px-3">
       <Nav className={classNames('!pb-0 !pt-0', compactOverrides)}>
         {children}
       </Nav>
