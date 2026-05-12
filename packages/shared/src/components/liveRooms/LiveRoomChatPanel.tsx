@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -213,6 +213,14 @@ interface LiveRoomChatPanelProps {
   onRequestLogin: () => void;
 }
 
+const CHAT_AUTO_SCROLL_BOTTOM_THRESHOLD_PX = 32;
+const CHAT_AUTO_SCROLL_IDLE_MS = 150;
+
+const getDistanceFromBottom = (scrollContainer: HTMLDivElement): number =>
+  scrollContainer.scrollHeight -
+  scrollContainer.scrollTop -
+  scrollContainer.clientHeight;
+
 export const LiveRoomChatPanel = ({
   chatMessages,
   participantProfilesById,
@@ -236,6 +244,12 @@ export const LiveRoomChatPanel = ({
 }: LiveRoomChatPanelProps): ReactElement => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
+  const isUserScrollingRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
+  const pendingAutoScrollRef = useRef(false);
+  const autoScrollFrameRef = useRef<number | null>(null);
+  const releaseProgrammaticScrollRef = useRef<number | null>(null);
+  const scrollIdleTimeoutRef = useRef<number | null>(null);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [reactionBusyKeys, setReactionBusyKeys] = useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -276,14 +290,84 @@ export const LiveRoomChatPanel = ({
     }
   }, [pickerMessage, pickerMessageId]);
 
-  useEffect(() => {
+  const clearScheduledAutoScroll = useCallback((): void => {
+    if (autoScrollFrameRef.current !== null) {
+      cancelAnimationFrame(autoScrollFrameRef.current);
+      autoScrollFrameRef.current = null;
+    }
+  }, []);
+
+  const scrollToBottom = useCallback((): void => {
     const scrollContainer = scrollRef.current;
-    if (!scrollContainer || !shouldAutoScrollRef.current) {
+    if (!scrollContainer) {
       return;
     }
 
+    if (releaseProgrammaticScrollRef.current !== null) {
+      cancelAnimationFrame(releaseProgrammaticScrollRef.current);
+    }
+
+    isProgrammaticScrollRef.current = true;
     scrollContainer.scrollTop = scrollContainer.scrollHeight;
-  }, [chatMessages]);
+    shouldAutoScrollRef.current = true;
+    pendingAutoScrollRef.current = false;
+
+    releaseProgrammaticScrollRef.current = requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+      releaseProgrammaticScrollRef.current = null;
+    });
+  }, []);
+
+  const scheduleAutoScroll = useCallback((): void => {
+    if (!shouldAutoScrollRef.current) {
+      pendingAutoScrollRef.current = false;
+      return;
+    }
+
+    if (isUserScrollingRef.current) {
+      pendingAutoScrollRef.current = true;
+      return;
+    }
+
+    clearScheduledAutoScroll();
+    autoScrollFrameRef.current = requestAnimationFrame(() => {
+      autoScrollFrameRef.current = requestAnimationFrame(() => {
+        autoScrollFrameRef.current = null;
+        if (!shouldAutoScrollRef.current || isUserScrollingRef.current) {
+          pendingAutoScrollRef.current = shouldAutoScrollRef.current;
+          return;
+        }
+
+        scrollToBottom();
+      });
+    });
+  }, [clearScheduledAutoScroll, scrollToBottom]);
+
+  const finishUserScroll = useCallback((): void => {
+    isUserScrollingRef.current = false;
+    scrollIdleTimeoutRef.current = null;
+
+    if (pendingAutoScrollRef.current && shouldAutoScrollRef.current) {
+      scheduleAutoScroll();
+    }
+  }, [scheduleAutoScroll]);
+
+  useEffect(() => {
+    scheduleAutoScroll();
+  }, [chatMessages, scheduleAutoScroll]);
+
+  useEffect(
+    () => () => {
+      clearScheduledAutoScroll();
+      if (releaseProgrammaticScrollRef.current !== null) {
+        cancelAnimationFrame(releaseProgrammaticScrollRef.current);
+      }
+      if (scrollIdleTimeoutRef.current !== null) {
+        clearTimeout(scrollIdleTimeoutRef.current);
+      }
+    },
+    [clearScheduledAutoScroll],
+  );
 
   const handleScroll = (): void => {
     const scrollContainer = scrollRef.current;
@@ -291,11 +375,27 @@ export const LiveRoomChatPanel = ({
       return;
     }
 
-    const distanceFromBottom =
-      scrollContainer.scrollHeight -
-      scrollContainer.scrollTop -
-      scrollContainer.clientHeight;
-    shouldAutoScrollRef.current = distanceFromBottom < 32;
+    shouldAutoScrollRef.current =
+      getDistanceFromBottom(scrollContainer) <
+      CHAT_AUTO_SCROLL_BOTTOM_THRESHOLD_PX;
+
+    if (!shouldAutoScrollRef.current) {
+      pendingAutoScrollRef.current = false;
+    }
+
+    if (isProgrammaticScrollRef.current) {
+      return;
+    }
+
+    isUserScrollingRef.current = true;
+    if (scrollIdleTimeoutRef.current !== null) {
+      clearTimeout(scrollIdleTimeoutRef.current);
+    }
+
+    scrollIdleTimeoutRef.current = window.setTimeout(
+      finishUserScroll,
+      CHAT_AUTO_SCROLL_IDLE_MS,
+    );
   };
 
   const runModerationAction = (
@@ -358,6 +458,7 @@ export const LiveRoomChatPanel = ({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
+        data-testid="live-room-chat-scroll"
         className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2"
       >
         {chatMessages.length === 0 ? (
