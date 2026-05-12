@@ -12,18 +12,14 @@ import {
 } from '../../../lib/image';
 import type { StreakModalProps } from './common';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, Origin, TargetType } from '../../../lib/log';
+import { LogEvent, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
-import { ContextualReferralLink } from '../../referral/ContextualReferralLink';
-import { ReferralCampaignKey } from '../../../lib/referral';
-import {
-  featureReferralGrowthLoops,
-  ReferralGrowthSurface,
-} from '../../../lib/referralGrowth';
+import { StreakShareCallout } from '../../referral/StreakShareCallout';
+import { featureReferralGrowthLoops } from '../../../lib/referralGrowth';
 import { webappUrl } from '../../../lib/constants';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 
@@ -134,14 +130,10 @@ export default function NewStreakModal({
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
         {showReferralGrowthLoop && (
-          <ContextualReferralLink
+          <StreakShareCallout
             className="mt-6"
             url={profileUrl}
-            campaignKey={ReferralCampaignKey.ShareProfile}
-            surface={ReferralGrowthSurface.StreakMilestone}
-            origin={Origin.PostContent}
-            title="Challenge a friend to keep up"
-            description={`${currentStreak} ${daysPlural} strong. Share your profile and invite someone to build the habit with you.`}
+            currentStreak={currentStreak}
           />
         )}
         <Checkbox
