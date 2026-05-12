@@ -271,19 +271,21 @@ export const FeedContainer = ({
           {inlineHeader && header}
           {topContent}
           {isSearch && !shouldUseListFeedLayout && (
-            <span
+            <header
               className={classNames(
-                'flex flex-1 items-center',
-                isExtension ? 'flex-col-reverse' : 'flex-row',
+                'flex items-center',
+                isExtension && 'flex-1 flex-col-reverse',
+                !isExtension &&
+                  'w-full gap-2 border-b border-border-subtlest-tertiary px-3 py-1.5',
               )}
             >
               {!!actionButtons && (
-                <span className="mr-auto flex w-full flex-row gap-3 border-border-subtlest-tertiary">
+                <span className="-mr-1 flex flex-1 flex-row items-center gap-1">
                   {actionButtons}
                 </span>
               )}
               {shortcuts}
-            </span>
+            </header>
           )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
