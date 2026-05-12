@@ -109,6 +109,7 @@ export function ReaderPostLayout({
     });
     onClose();
   }, [logEvent, onClose, post.id, surface]);
+  const layoutContainerRef = useRef<HTMLDivElement | null>(null);
   const {
     isRailOpen,
     setRailOpen,
@@ -116,7 +117,7 @@ export function ReaderPostLayout({
     setRailWidthPx,
     minRailWidthPx,
     maxRailWidthPx,
-  } = useReaderLayoutPrefs();
+  } = useReaderLayoutPrefs(layoutContainerRef);
 
   const focusCommentRef = useRef<() => void>(() => {});
   const onRegisterFocusComment = useCallback((fn: () => void) => {
@@ -183,6 +184,7 @@ export function ReaderPostLayout({
           >
             <div className="relative flex min-h-0 flex-1 flex-col">
               <div
+                ref={layoutContainerRef}
                 className={classNames(
                   'grid min-h-0 flex-1',
                   isRailOpen && 'gap-0',
