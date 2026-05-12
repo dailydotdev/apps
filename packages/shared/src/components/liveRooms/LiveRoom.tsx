@@ -796,6 +796,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           stageGridColumnCount={stageGridColumnCount}
           stageGridRowCount={stageGridRowCount}
           speakers={paginatedStageSpeakers}
+          audioSpeakers={visibleStageSpeakers}
           stagePageStart={stagePageStart}
           focusedSpeakerIndex={focusedSpeakerIndex}
           waitingPrompt={waitingPrompt}

@@ -20,9 +20,10 @@ import type { UserShortProfile } from '../../lib/user';
 import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomStagePager } from './LiveRoomStagePager';
 import {
-  LiveRoomVideoTile,
-  type LiveRoomTileAudioPlaybackState,
-} from './LiveRoomVideoTile';
+  LiveRoomAudioPlayer,
+  type LiveRoomAudioPlaybackState,
+} from './LiveRoomAudioPlayer';
+import { LiveRoomVideoTile } from './LiveRoomVideoTile';
 
 export interface LiveRoomStageSpeaker {
   id: string;
@@ -44,6 +45,7 @@ interface LiveRoomStageProps {
   stageGridColumnCount: number;
   stageGridRowCount: number;
   speakers: LiveRoomStageSpeaker[];
+  audioSpeakers: LiveRoomStageSpeaker[];
   stagePageStart: number;
   focusedSpeakerIndex: number | null;
   waitingPrompt: string;
@@ -88,6 +90,7 @@ export const LiveRoomStage = ({
   stageGridColumnCount,
   stageGridRowCount,
   speakers,
+  audioSpeakers,
   stagePageStart,
   focusedSpeakerIndex,
   waitingPrompt,
@@ -108,13 +111,18 @@ export const LiveRoomStage = ({
   onLeave,
 }: LiveRoomStageProps): ReactElement => {
   const [speakerAudioStates, setSpeakerAudioStates] = useState<
-    Record<string, LiveRoomTileAudioPlaybackState>
+    Record<string, LiveRoomAudioPlaybackState>
   >({});
   const audioRetryHandlersRef = useRef(new Map<string, () => void>());
   const hasMultiplePages = stagePageCount > 1;
-  const visibleSpeakerIds = useMemo(
-    () => new Set(speakers.map((speaker) => speaker.id)),
-    [speakers],
+  const audioSpeakerIds = useMemo(
+    () =>
+      new Set(
+        audioSpeakers
+          .filter((speaker) => !speaker.selfView)
+          .map((speaker) => speaker.id),
+      ),
+    [audioSpeakers],
   );
   const goToPage = useCallback(
     (page: number) => {
@@ -150,20 +158,20 @@ export const LiveRoomStage = ({
     setSpeakerAudioStates((current) =>
       Object.fromEntries(
         Object.entries(current).filter(([speakerId]) =>
-          visibleSpeakerIds.has(speakerId),
+          audioSpeakerIds.has(speakerId),
         ),
       ),
     );
 
     audioRetryHandlersRef.current.forEach((_, speakerId) => {
-      if (!visibleSpeakerIds.has(speakerId)) {
+      if (!audioSpeakerIds.has(speakerId)) {
         audioRetryHandlersRef.current.delete(speakerId);
       }
     });
-  }, [visibleSpeakerIds]);
+  }, [audioSpeakerIds]);
 
   const handleSpeakerAudioPlaybackStateChange = useCallback(
-    (speakerId: string, state: LiveRoomTileAudioPlaybackState): void => {
+    (speakerId: string, state: LiveRoomAudioPlaybackState): void => {
       setSpeakerAudioStates((current) => {
         if (state === 'none') {
           if (!(speakerId in current)) {
@@ -197,10 +205,10 @@ export const LiveRoomStage = ({
     [],
   );
 
-  const hasBlockedAudio = speakers.some(
+  const hasBlockedAudio = audioSpeakers.some(
     (speaker) => speakerAudioStates[speaker.id] === 'blocked',
   );
-  const hasPlayingAudio = speakers.some(
+  const hasPlayingAudio = audioSpeakers.some(
     (speaker) => speakerAudioStates[speaker.id] === 'playing',
   );
   const showAudioPrompt = hasBlockedAudio && !hasPlayingAudio;
@@ -211,6 +219,19 @@ export const LiveRoomStage = ({
 
   return (
     <section aria-label="Speakers" className="relative flex min-h-0 flex-col">
+      {audioSpeakers.map((speaker) => (
+        <LiveRoomAudioPlayer
+          key={speaker.id}
+          stream={speaker.stream}
+          selfView={speaker.selfView}
+          onAudioPlaybackStateChange={(state) =>
+            handleSpeakerAudioPlaybackStateChange(speaker.id, state)
+          }
+          onRegisterAudioRetry={(retry) =>
+            registerSpeakerAudioRetry(speaker.id, retry)
+          }
+        />
+      ))}
       {showAudioPrompt ? (
         <Button
           type="button"
@@ -260,12 +281,6 @@ export const LiveRoomStage = ({
                     onUnfocus={onUnfocusSpeaker}
                     onSwipeNext={() => onSpeakerFocusNavigate(1)}
                     onSwipePrev={() => onSpeakerFocusNavigate(-1)}
-                    onAudioPlaybackStateChange={(state) =>
-                      handleSpeakerAudioPlaybackStateChange(speaker.id, state)
-                    }
-                    onRegisterAudioRetry={(retry) =>
-                      registerSpeakerAudioRetry(speaker.id, retry)
-                    }
                     onGrantCoHost={
                       canManageCoHosts && !speaker.isCoHost
                         ? () =>

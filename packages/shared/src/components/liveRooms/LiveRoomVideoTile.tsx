@@ -1,12 +1,5 @@
 import type { ReactElement } from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSwipeable } from 'react-swipeable';
 import {
@@ -24,14 +17,13 @@ import {
   SPEAKING_LEVEL_THRESHOLD,
   useLiveRoomAudioLevel,
 } from './useLiveRoomAudioLevel';
+import { pickLiveTrack } from './liveRoomMedia';
 import { LiveRoomTileActions } from './LiveRoomTileActions';
 import { Drawer } from '../drawers';
 import { RootPortal } from '../tooltips/Portal';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { anchorDefaultRel } from '../../lib/strings';
-
-export type LiveRoomTileAudioPlaybackState = 'none' | 'blocked' | 'playing';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
@@ -58,21 +50,7 @@ interface LiveRoomVideoTileProps {
   onUnfocus?: () => void;
   onSwipeNext?: () => void;
   onSwipePrev?: () => void;
-  onAudioPlaybackStateChange?: (state: LiveRoomTileAudioPlaybackState) => void;
-  onRegisterAudioRetry?: (retry: (() => void) | null) => void;
 }
-
-const pickLiveTrack = (
-  source: MediaStream | null,
-  kind: 'audio' | 'video',
-): MediaStreamTrack | null => {
-  if (!source) {
-    return null;
-  }
-  const tracks =
-    kind === 'audio' ? source.getAudioTracks() : source.getVideoTracks();
-  return tracks.find((t) => t.readyState === 'live') ?? null;
-};
 
 export const LiveRoomVideoTile = ({
   stream,
@@ -98,11 +76,8 @@ export const LiveRoomVideoTile = ({
   onUnfocus,
   onSwipeNext,
   onSwipePrev,
-  onAudioPlaybackStateChange,
-  onRegisterAudioRetry,
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mutedNoticeId = useId();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isMobile = !isTablet;
@@ -179,22 +154,6 @@ export const LiveRoomVideoTile = ({
   const level = useLiveRoomAudioLevel(levelStream);
   const isSpeaking = level >= SPEAKING_LEVEL_THRESHOLD;
 
-  const tryPlayAudio = useCallback((): void => {
-    const node = audioRef.current;
-    if (!node) {
-      onAudioPlaybackStateChange?.('none');
-      return;
-    }
-    const playPromise = node.play();
-    if (!playPromise) {
-      onAudioPlaybackStateChange?.('playing');
-      return;
-    }
-    playPromise
-      .then(() => onAudioPlaybackStateChange?.('playing'))
-      .catch(() => onAudioPlaybackStateChange?.('blocked'));
-  }, [onAudioPlaybackStateChange]);
-
   useEffect(() => {
     const node = videoRef.current;
     if (!node) {
@@ -204,35 +163,6 @@ export const LiveRoomVideoTile = ({
       node.srcObject = videoStream;
     }
   }, [videoStream]);
-
-  useEffect(() => {
-    const node = audioRef.current;
-    if (!node) {
-      onAudioPlaybackStateChange?.('none');
-      return;
-    }
-    if (node.srcObject !== audioStream) {
-      node.srcObject = audioStream;
-    }
-    if (audioStream) {
-      tryPlayAudio();
-    } else {
-      onAudioPlaybackStateChange?.('none');
-    }
-  }, [audioStream, onAudioPlaybackStateChange, tryPlayAudio]);
-
-  useEffect(() => {
-    if (!audioStream) {
-      onRegisterAudioRetry?.(null);
-      return undefined;
-    }
-
-    onRegisterAudioRetry?.(tryPlayAudio);
-
-    return () => {
-      onRegisterAudioRetry?.(null);
-    };
-  }, [audioStream, onRegisterAudioRetry, tryPlayAudio]);
 
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
   const nameLabel = (
@@ -308,14 +238,6 @@ export const LiveRoomVideoTile = ({
           autoPlay
           playsInline
           muted
-          // Re-attempt audio playback once video starts — Chrome's autoplay
-          // policy sometimes blocks the audio element until something visible
-          // is playing.
-          onPlay={() => {
-            if (audioStream) {
-              tryPlayAudio();
-            }
-          }}
           className="h-full w-full object-cover"
         />
       ) : (
@@ -329,10 +251,6 @@ export const LiveRoomVideoTile = ({
           </Typography>
         </div>
       )}
-      {audioStream ? (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
-        <audio ref={audioRef} autoPlay />
-      ) : null}
       {!isFocused && onFocus ? (
         <button
           type="button"
