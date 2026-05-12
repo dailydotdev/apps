@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 import {
   Button,
   ButtonColor,
@@ -17,8 +16,6 @@ import CloseButton from './CloseButton';
 import { useLogContext } from '../contexts/LogContext';
 import { LogEvent, TargetType } from '../lib/log';
 import useLogEventOnce from '../hooks/log/useLogEventOnce';
-import { useAuthContext } from '../contexts/AuthContext';
-import { hackathonParticipationQueryOptions } from '../features/hackathon/queries';
 
 const classNamesByTheme: Record<BannerTheme, string[]> = {
   [BannerCustomTheme.CabbageOnion]: [
@@ -43,7 +40,6 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
 export default function PromotionalBanner(): ReactElement {
   const { latestBanner: banner, dismiss } = useBanner();
   const { logEvent } = useLogContext();
-  const { user, isLoggedIn } = useAuthContext();
 
   useLogEventOnce(
     () => ({
@@ -76,26 +72,11 @@ export default function PromotionalBanner(): ReactElement {
     dismiss();
   }, [banner, dismiss, logEvent]);
 
-  const isHackathonBanner = banner?.title === 'daily.dev Hackathon';
-
-  const { data: hackathonParticipation, isPending } = useQuery({
-    ...hackathonParticipationQueryOptions(user),
-    enabled: isLoggedIn && isHackathonBanner,
-  });
-
   if (isTesting) {
     return <></>;
   }
 
   if (!banner) {
-    return <></>;
-  }
-
-  if (
-    isHackathonBanner &&
-    !isPending &&
-    !!hackathonParticipation?.whoami?.isHackathonParticipant
-  ) {
     return <></>;
   }
 

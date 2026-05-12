@@ -5,16 +5,26 @@ import { LiveRoomStage } from './LiveRoomStage';
 
 const mockRetryHandlers = new Map<string, jest.Mock>();
 
-jest.mock('./LiveRoomVideoTile', () => {
+jest.mock('./LiveRoomVideoTile', () => ({
+  LiveRoomVideoTile: ({ user }: { user: { id: string; name: string } }) => (
+    <div data-testid={`tile-${user.id}`}>
+      <span>{user.name}</span>
+    </div>
+  ),
+}));
+
+jest.mock('./LiveRoomAudioPlayer', () => {
   const mockReact = jest.requireActual('react');
 
   return {
-    LiveRoomVideoTile: ({
-      user,
+    LiveRoomAudioPlayer: ({
+      stream,
+      selfView,
       onAudioPlaybackStateChange,
       onRegisterAudioRetry,
     }: {
-      user: { id: string; name: string };
+      stream: MediaStream | null;
+      selfView?: boolean;
       onAudioPlaybackStateChange?: (
         state: 'none' | 'blocked' | 'playing',
       ) => void;
@@ -22,29 +32,33 @@ jest.mock('./LiveRoomVideoTile', () => {
     }) => {
       mockReact.useEffect(() => {
         const retry = jest.fn();
-        mockRetryHandlers.set(user.id, retry);
+        const speakerId = stream?.id ?? 'unknown';
+        mockRetryHandlers.set(speakerId, retry);
         onRegisterAudioRetry?.(retry);
 
         return () => {
-          mockRetryHandlers.delete(user.id);
+          mockRetryHandlers.delete(speakerId);
           onRegisterAudioRetry?.(null);
         };
-      }, [onRegisterAudioRetry, user.id]);
+      }, [onRegisterAudioRetry, stream]);
+
+      if (selfView) {
+        return null;
+      }
 
       return (
-        <div data-testid={`tile-${user.id}`}>
-          <span>{user.name}</span>
+        <div data-testid={`audio-player-${stream?.id ?? 'unknown'}`}>
           <button
             type="button"
             onClick={() => onAudioPlaybackStateChange?.('blocked')}
           >
-            {`block-${user.id}`}
+            {`block-${stream?.id ?? 'unknown'}`}
           </button>
           <button
             type="button"
             onClick={() => onAudioPlaybackStateChange?.('playing')}
           >
-            {`play-${user.id}`}
+            {`play-${stream?.id ?? 'unknown'}`}
           </button>
         </div>
       );
@@ -71,7 +85,7 @@ const createSpeaker = (id: string): LiveRoomStageSpeaker => ({
     createdAt: '',
     reputation: 0,
   },
-  stream: null,
+  stream: { id } as MediaStream,
   selfView: false,
   isHost: false,
   isCoHost: false,
@@ -88,7 +102,8 @@ const renderStage = () =>
       setStagePage={jest.fn()}
       stageGridColumnCount={2}
       stageGridRowCount={1}
-      speakers={[createSpeaker('speaker-1'), createSpeaker('speaker-2')]}
+      speakers={[createSpeaker('speaker-1')]}
+      audioSpeakers={[createSpeaker('speaker-1'), createSpeaker('speaker-2')]}
       stagePageStart={0}
       focusedSpeakerIndex={null}
       waitingPrompt="Waiting"
@@ -143,5 +158,15 @@ describe('LiveRoomStage', () => {
 
     expect(mockRetryHandlers.get('speaker-1')).toHaveBeenCalledTimes(1);
     expect(mockRetryHandlers.get('speaker-2')).toHaveBeenCalledTimes(1);
+  });
+
+  it('surfaces blocked audio from an off-page speaker', () => {
+    renderStage();
+
+    fireEvent.click(screen.getByRole('button', { name: 'block-speaker-2' }));
+
+    expect(
+      screen.getByRole('button', { name: 'Tap to unmute' }),
+    ).toBeInTheDocument();
   });
 });
